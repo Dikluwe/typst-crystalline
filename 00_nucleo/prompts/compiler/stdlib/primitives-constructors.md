@@ -1,78 +1,22 @@
-# Prompt L0 — hub `stdlib/primitives_constructors`
+# L0 — stdlib/primitives-constructors
 Hash do Código: e5419abe
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml sha256:761d5adeca09f6a60ba2960f8492aa6c0d934798bbc826f341004cf993ba8736
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/stdlib/primitives_constructors.rs`
-**ADRs:** ADR-0107, ADR-0108, ADR-0127, ADR-0129.
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/stdlib/primitives_constructors.rs`
 
-## Medição anterior à decisão
+## Evidence and classification
 
-O Passo 1140.1-A já atomizou os três constructors em `decimal.rs`,
-`duration.rs` e `version.rs`. O consumer deste prompt contém somente as três
-declarações privadas de módulo, os três reexports das funções nativas e suporte
-compartilhado restrito a `#[cfg(test)]`. Logo, pela cardinalidade 1:1 da
-ADR-0129, este L0 não possui as semânticas particulares dos constructors.
+`01_core/src/compiler/stdlib/primitives_constructors.rs:1` (@prompt) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-## Contrato do hub
+## Contract and ownership
 
-- Declarar os módulos privados `decimal`, `duration` e `version`.
-- Reexportar `native_decimal`, `native_duration` e `native_version` sem wrapper,
-  coerção ou alteração de erro.
-- Manter o suporte de testes (`Args`, `EvalContext`, `FileId` e `NullWorld`)
-  fora do build produtivo.
-- Permanecer L1 puro e sem despacho dinâmico.
+Own only private declarations of array, decimal, duration and version, direct native reexports, internal version discovery/dispatch and the array-from-bytes bridge. Preserve native_decimal/native_duration/native_version public reexports and pub(crate) visibility for native_array_bytes, version_type_field and dispatch_version_method.
 
-## Limites
+Test support remains cfg(test), with its existing synthetic Args/EvalContext/FileId/NullWorld fixtures. Individual constructor shape, conversion, index rules and diagnostics belong to child owners under `00_nucleo/prompts/compiler/stdlib/primitives-constructors/`. The primitive-call nucleus remains pinned and unchanged; version.at is a method, not a constructor obligation. This façade adds no cast, wrapper, lookup, registry, external API or I/O.
 
-- Cada função nativa é legitimada pelo L0 homónimo em
-  `primitives-constructors/`.
-- O hub não decide formas de chamada, coerções, mensagens de erro ou semântica
-  dos valores produzidos.
-- Gates públicos registrados nos owners individuais não são implementados por
-  este saneamento documental.
+## Acceptance
 
-## Aceitação
-
-- Os três símbolos são reexportados diretamente de seus módulos donos.
-- Os testes dos três módulos conseguem reutilizar o suporte local.
-- O ficheiro produtivo, desconsideradas apenas as linhas de linhagem, permanece
-  idêntico ao estado anterior ao saneamento P1200.
-
-## P1339 — ligação interna da operação version.at
-
-### Medição anterior à decisão
-
-No HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`,
-`primitives_constructors.rs:11,15` mantém version privado e só reexporta seu
-constructor; `eval/bindings/value_methods.rs:623-662` implementa a validação
-ligada de at antes de delegar a Version::at. As sondas P1339 full-final e
-full-boundaries conservam a ausência da forma estática e as diferenças de
-diagnóstico da ligada. Os novos helpers pertencem ao owner version, não ao hub.
-
-### Decisão
-
-Reexportar explicitamente, em `pub(crate)`, `version_type_field` e
-`dispatch_version_method` do módulo privado version. O primeiro encaminha a
-descoberta; o segundo recebe receiver/Args já avaliados e compartilha a
-semântica da forma estática no owner. Este nó não valida argumentos, produz
-Value, calcula índices nem define mensagens. Reexports públicos dos
-constructors, demais módulos e suporte de testes ficam preservados.
-
-Esta cláusula sucede exclusivamente a exigência de imutabilidade do hub P1200
-para essas ligações. Não expõe o módulo version nem cria contrato Rust externo.
-O núcleo de primitive-calls continua regendo constructors; não transformar
-uma operação at em constructor para satisfazer sua claim typed-result.
-
-## P1339 — pré-requisito autorizado Array a partir de Bytes
-
-Medição anterior: `primitives_constructors.rs:9-16` declara owners privados
-e reexports; a ausência de Array foi medida com HEAD/árvore/UTC. Após a
-autorização registrada pelo dono, declarar módulo privado `array`
-e reexportar somente `array::native_array_bytes` em `pub(crate)`.
-Sem wrapper, cast, validação ou API externa. A semântica limitada e seu
-estado incompleto pertencem a `primitives-constructors/array.md`.
-Esta cláusula sucede a enumeração fechada e imutabilidade do hub apenas
-para essa ligação adicional; demais owners e núcleo permanecem intactos.
+Preserve the specified language semantics, syntax, morphology, diagnostics, spans, defaults and public identities. Do not change signatures, compatibility, feature defaults or phase ownership through this documentary revision. Shared pinned claims remain authoritative; this prompt owns only its exclusive consumer. Architectural decisions follow ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.

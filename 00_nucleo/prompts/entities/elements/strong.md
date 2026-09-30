@@ -1,51 +1,32 @@
-# Prompt L0 — elemento `strong`
+# L0 — StrongElem
 Hash do Código: 2500101d
+
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/strong.rs`
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/entities/element-boundary.toml sha256:cafcd80a58c3e84a9b44a49eb92a93cd2422ddbcf530d295c3645ae54bf1e41b
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/entities/elements/strong.rs`
-**ADRs:** ADR-0026, ADR-0105, ADR-0107, ADR-0109, ADR-0129.
+## Evidence before specification
 
-## Medição anterior à decisão
+The consumer represents `*bold*` as its own semantic element with one body;
+render style is owned by layout. Historical upstream `a51e02804` at
+`model/strong.rs:21` declares Locatable and Tagged. The prior baseline
+`2f42d64253547734564513a1159ee6b584c1c4b4` lacked the payload override; that
+chronology is diagnostic history, not a current gate or fresh parity measurement.
 
-O consumer representa `*bold*` como variante semântica própria com um único
-`body`. É transparente para plain text/vazio, recursa em maps e expõe somente o
-campo `body`. O bold de render pertence ao layout.
+## Owned contract
 
-## Contrato
-
-- `StrongElem::new(body)` preserva o conteúdo.
-- `plain_text` e `is_empty` delegam ao body.
-- `map_content`/`map_text` reconstroem `Content::strong`.
-- `get_field("body")` devolve o Content; demais campos retornam `None`.
-
-## Aceitação
-
-Preservar distinção morfológica de strong, transparência textual e recursão.
-
-## P1339 — payload da ocorrência própria
-
-### Medição anterior à decisão
-
-No antecedente HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`,
-`entities/elements/strong.rs:38-69` implementa Element sem override de
-to_payload; o default de `entities/elements/mod.rs:173` devolve None.
-Vanilla ratificado `a51e02804`, `model/strong.rs:21`, declara Locatable e
-Tagged. A medição histórica
-registra query/body/counter de strong e a proveniência integral.
-
-### Decisão
-
-Implementar o método já existente `Element::to_payload` com
-`Some(ElementPayload::NativeElement)`, conforme autorizado pelo dono. A unidade representa este
-StrongElem, mesmo com body vazio; não o estilo dos descendentes. Não mudar
-body, kind, campos, assinatura/trait, mapas ou métodos de render. A identidade
-da função e o snapshot da ocorrência permanecem nos respectivos owners de
-compiler, não nesta entidade. Preservar todos os métodos anteriores.
-
-Aceitação: payload presente no Strong próprio; transformação de filhos
-preserva a ocorrência sem criar wrappers adicionais; plain_text e leitura
-de body permanecem iguais. Os testes linguísticos de query/counter são
-integração obrigatória e não são substituídos pela construção unit.
+`StrongElem::new(body)` preserves Content. `plain_text` and `is_empty` delegate
+to body. `map_content` and `map_text` recurse and reconstruct `Content::strong`,
+preserving this semantic occurrence rather than creating additional wrappers.
+`get_field("body")` returns Content; other fields return None.
+`to_payload` returns `Some(ElementPayload::NativeElement)` for this occurrence,
+even with empty body, not for a descendant's visual style. Preserve kind, fields,
+constructor and existing trait signatures. Functional identity and occurrence
+snapshots belong to compiler owners, not this entity.
+The trait boundary is owned by
+`00_nucleo/prompts/entities/elements/_comum.md` and shared invariants by the
+pinned nucleus. Verify morphology, text/body transparency, recursive maps and
+the own-occurrence payload. Language query/counter integration distinguishes
+Emph, Strong and mere rendering styles; a unit constructor alone is not proof.

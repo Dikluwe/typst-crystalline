@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/accent.md
-//! @prompt-hash 394bcc29
+//! @prompt-hash 44ac00de
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -43,6 +43,18 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         elem: &MathAccentElem,
         style: &TextStyle,
     ) -> MathBox {
+        let (size, dotless) = self.resolved_accent_options(elem);
+        let accent = Content::MathText(elem.accent.to_string().into());
+        let bottom =
+            matches!(elem.accent, '\u{23df}' | '\u{23b5}' | '\u{23dd}' | '\u{23e1}')
+                || has_below_combining_class(elem.accent);
+        let base =
+            if !bottom && dotless { dotless_base(&elem.base) } else { elem.base.clone() };
+        self.layout_accent_resolved(&base, &accent, size, bottom, style)
+    }
+
+    /// Escolhe as opções do carrier antes de qualquer medição geométrica.
+    fn resolved_accent_options(&self, elem: &MathAccentElem) -> (Rel<Length>, bool) {
         let cascaded_size = self
             .lexical_styles
             .and_then(|styles| styles.custom("math.accent.size"))
@@ -75,13 +87,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         } else {
             cascaded_dotless.unwrap_or(true)
         };
-        let accent = Content::MathText(elem.accent.to_string().into());
-        let bottom =
-            matches!(elem.accent, '\u{23df}' | '\u{23b5}' | '\u{23dd}' | '\u{23e1}')
-                || has_below_combining_class(elem.accent);
-        let base =
-            if !bottom && dotless { dotless_base(&elem.base) } else { elem.base.clone() };
-        self.layout_accent_resolved(&base, &accent, size, bottom, style)
+        (size, dotless)
     }
 
     fn layout_accent_resolved(
@@ -198,6 +204,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             base_box.descent
         };
 
+        let items = accent_identity_items(base, accent, items);
+
         MathBox {
             width,
             ascent: new_ascent.max(base_box.ascent),
@@ -205,6 +213,56 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             items,
         }
     }
+}
+
+/// O texto autoral de um acento é independente das posições e dos glifos
+/// usados para desenhá-lo. Envelopes internos de acentos atômicos aninhados
+/// cedem lugar a uma única ocorrência externa em ordem lógica.
+fn accent_identity_items(
+    base: &Content,
+    accent: &Content,
+    items: Vec<FrameItem>,
+) -> Vec<FrameItem> {
+    fn combining(ch: char) -> bool {
+        ('\u{0300}'..='\u{036f}').contains(&ch)
+    }
+    fn atom_identity(base: &Content) -> Option<String> {
+        match base {
+            Content::MathText(text) | Content::MathIdent(text)
+                if text.chars().count() == 1 =>
+            {
+                Some(text.to_string())
+            }
+            Content::MathAccent(elem) if combining(elem.accent) => {
+                let mut text = atom_identity(&elem.base)?;
+                text.push(elem.accent);
+                Some(text)
+            }
+            _ => None,
+        }
+    }
+    fn unwrap_replacements(items: Vec<FrameItem>) -> Vec<FrameItem> {
+        items
+            .into_iter()
+            .flat_map(|item| match item {
+                FrameItem::TextReplacement { items, .. } => unwrap_replacements(items),
+                other => vec![other],
+            })
+            .collect()
+    }
+    let Content::MathText(mark) = accent else { return items };
+    let Some(mark_char) = mark.chars().next().filter(|_| mark.chars().count() == 1)
+    else {
+        return items;
+    };
+    let Some(mut identity) = atom_identity(base).filter(|_| combining(mark_char)) else {
+        return items;
+    };
+    identity.push(mark_char);
+    vec![FrameItem::TextReplacement {
+        text: identity.into(),
+        items: unwrap_replacements(items),
+    }]
 }
 
 /// Unicode Canonical Combining Class 220 (`Below`). A tabela é mantida em
@@ -322,8 +380,8 @@ fn dotless_base(content: &Content) -> Content {
         Content::Sequence(items) => Content::Sequence(Arc::from(
             items.iter().map(dotless_base).collect::<Vec<_>>(),
         )),
-        Content::Styled(body, styles) => {
-            Content::Styled(Box::new(dotless_base(body)), styles.clone())
+        Content::Styled(styled) => {
+            Content::styled(dotless_base(&styled.body), styled.styles.clone())
         }
         Content::MathAccent(elem) => Content::math_accent_full(
             dotless_base(&elem.base),

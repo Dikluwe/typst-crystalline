@@ -1053,15 +1053,21 @@ impl Gradient {
     /// precisa de Color literal (Solid path).
     pub fn first_stop_color(&self) -> Color {
         match self {
-            Gradient::Linear(l) => {
-                l.stops.first().map(|s| s.color.clone()).unwrap_or(Color::rgb(0, 0, 0))
-            }
-            Gradient::Radial(r) => {
-                r.stops.first().map(|s| s.color.clone()).unwrap_or(Color::rgb(0, 0, 0))
-            }
-            Gradient::Conic(c) => {
-                c.stops.first().map(|s| s.color.clone()).unwrap_or(Color::rgb(0, 0, 0))
-            }
+            Gradient::Linear(l) => l
+                .stops
+                .first()
+                .map(|s| s.color.clone())
+                .unwrap_or(Color::rgb(0, 0, 0)),
+            Gradient::Radial(r) => r
+                .stops
+                .first()
+                .map(|s| s.color.clone())
+                .unwrap_or(Color::rgb(0, 0, 0)),
+            Gradient::Conic(c) => c
+                .stops
+                .first()
+                .map(|s| s.color.clone())
+                .unwrap_or(Color::rgb(0, 0, 0)),
         }
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/fixpoint.md
-//! @prompt-hash 1930dbcf
+//! @prompt-hash 8c95c362
 //! @layer L1
 //! @updated 2026-04-29
 //!
@@ -178,7 +178,7 @@ mod tests {
     /// Activa a numeração de um heading via `Content::Styled` com
     /// `custom("heading.numbering") = true` (P1019).
     fn with_heading_numbering(body: Content) -> Content {
-        Content::Styled(
+        Content::styled(
             Box::new(body),
             Styles::new().push_custom("heading.numbering", Value::Bool(true)),
         )
@@ -189,8 +189,10 @@ mod tests {
     fn labelled_prod(target: Content, label: crate::entities::label::Label) -> Content {
         let name = label.0;
         match target {
-            Content::Styled(inner, styles) => {
-                Content::Styled(Box::new(Content::label_auto(name, *inner)), styles)
+            Content::Styled(styled) => {
+                let inner = &styled.body;
+                let styles = &styled.styles;
+                Content::styled(Content::label_auto(name, inner.clone()), styles.clone())
             }
             other => Content::label_auto(name, other),
         }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content_hash.md
-//! @prompt-hash 92487482
+//! @prompt-hash 89aab809
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -58,12 +58,10 @@ mod tests {
         let inferred = Content::SpaceFromNewline;
         assert_eq!(hash_content(&explicit), hash_content(&inferred));
 
-        let explicit_group = Content::sequence(vec![
-            Content::text("水"), explicit, Content::text("果"),
-        ]);
-        let inferred_group = Content::sequence(vec![
-            Content::text("水"), inferred, Content::text("果"),
-        ]);
+        let explicit_group =
+            Content::sequence(vec![Content::text("水"), explicit, Content::text("果")]);
+        let inferred_group =
+            Content::sequence(vec![Content::text("水"), inferred, Content::text("果")]);
         assert_eq!(hash_content(&explicit_group), hash_content(&inferred_group));
     }
 

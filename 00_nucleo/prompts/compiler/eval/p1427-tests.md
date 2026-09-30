@@ -1,29 +1,31 @@
-# Prompt L0 — testes independentes de avaliação `math.frac` P1427
+# L0 — compiler/eval/p1427-tests
+Hash do Código: 07d5cbee
 
-## Owner produtivo
+**Layer:** L1 test-only
+**Exclusive consumer:** `01_core/src/compiler/eval/p1427_tests.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
-`01_core/src/compiler/eval/p1427_tests.rs` (somente `cfg(test)`).
+## Source evidence
 
-## Obrigação
+The current exclusive consumer defines the following owned boundaries:
 
-Materializar, sem consultar a implementação candidata, os casos P08–P18 e
-N12–N16 do contrato P1427 congelado. Os testes avaliam documentos reais para
-provar precedência de `set`, convergência entre função bare, slash e chamada
-qualificada, associatividade à esquerda, proveniência de desparentização e
-relação observacional completa.
+- `01_core/src/compiler/eval/p1427_tests.rs:17` — `struct TestWorld {`.
+- `01_core/src/compiler/eval/p1427_tests.rs:58` — `fn evaluate`.
+- `01_core/src/compiler/eval/p1427_tests.rs:63` — `fn find_frac`.
+- `01_core/src/compiler/eval/p1427_tests.rs:76` — `fn evaluated_frac`.
+- `01_core/src/compiler/eval/p1427_tests.rs:85` — `fn frac`.
+- `01_core/src/compiler/eval/p1427_tests.rs:97` — `fn p1427_set_style_valida_e_respeita_precedencia`.
+- `01_core/src/compiler/eval/p1427_tests.rs:115` — `fn p1427_frac_bare_e_slash_convergem_no_carrier`.
+- `01_core/src/compiler/eval/p1427_tests.rs:142` — `fn p1427_slash_associa_esquerda_e_preserva_parenteses_causais`.
+- `01_core/src/compiler/eval/p1427_tests.rs:172` — `fn p1427_observation_relation_compara_todos_os_campos`.
 
-## Aceitação
+## Contract
 
-- estilo efetivo: explícito, depois cascata, depois vertical;
-- valores inválidos de `set math.frac.style` falham fechados;
-- bare `frac(a,b)` e slash constroem o mesmo carrier vertical público;
-- slash `a/b/c` é associativo à esquerda;
-- somente slash transporta exatamente um bit causal por par exterior removido;
-- carrier qualificado e bare não inventa bits;
-- `ObservationEq` compara estilo opcional, ambos os bits e `line` em ambas as
-  direções, devolvendo `Different` para qualquer diferença.
-
-## Limites
-
-Este prompt não autoriza código produtivo, inferência por bytes de render nem
-veredito final.
+Own independent fraction evaluation tests from the frozen contract, not productive
+implementation. Evaluate real sources for explicit/cascaded/default vertical
+precedence and invalid set-rule failures, bare/qualified/slash convergence,
+left-associative a/b/c and causal deparenthesization. Only slash supplies exactly
+one origin bit per removed exterior pair; bare and qualified calls invent none.
+Compare complete optional style, both bits and line in both observation directions;
+any isolated difference is Different. Do not infer success from render bytes,
+consult a candidate for expected results or declare overall parity from this suite.

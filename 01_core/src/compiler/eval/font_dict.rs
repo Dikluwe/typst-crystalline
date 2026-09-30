@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/font_dict.md
-//! @prompt-hash 082a0308
+//! @prompt-hash 48139a74
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -182,7 +182,10 @@ pub(crate) fn parse_font_dict_legacy<'a>(
                             other => {
                                 return Err(vec![SourceDiagnostic::error(
                                     span,
-                                    format!("font dict key must be string or regex, recebeu {}", other.type_name()),
+                                    format!(
+                                        "font dict key must be string or regex, recebeu {}",
+                                        other.type_name()
+                                    ),
                                 )]);
                             }
                         }

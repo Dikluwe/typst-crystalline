@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/svg
-Hash do Código: f6e85901
+Hash do Código: e6913466
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/pipeline/svg.rs`
@@ -11,6 +11,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/export/format-option-precedence.toml sha256:68c5c10f124c2c098879318df16c59f6c1477e9172cfa334b603f45ec698ae11
 - 00_nucleo/prompts/_nuclei/export/svg-destination-context.toml sha256:13cad5ab1322bad4c569eec2aaf544452530cb972c3421130d0b9cb127170ef1
 - 00_nucleo/prompts/_nuclei/export/svg-glyph-font-context.toml sha256:4d185c303f0262799e475ff76459118a64fdbd406dfd704d95a836b4b254985c
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
 ```
 
 ## Current evidence
@@ -37,3 +38,21 @@ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/pi
 Verify this unit through its existing family/CLI tests when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
+
+## Identidade textual — materialização aprovada
+
+### Medição anterior à decisão
+
+As sondas bilaterais e o estado exato em
+`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
+A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
+O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
+
+### Responsabilidade exclusiva
+
+Tratar TextReplacement como envelope visual transparente nos percursos deste owner; descender nos filhos preservando text, ordem, coordenadas e o cálculo existente, sem novo algoritmo ou avanço.
+
+O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
+possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
+transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.

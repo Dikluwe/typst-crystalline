@@ -1,73 +1,39 @@
-# Prompt L0 — `infra/export/gradients/conic` — Conic Type 6 Coons Patch Mesh
+# L0 — infra/export/gradients/conic
 Hash do Código: e581e3e0
 
-**Camada**: L3
-**Ficheiro alvo**: `03_infra/src/export/gradients/conic.rs`
-**Criado em**: 2026-05-19 (P307c)
-**ADRs**: ADR-0089 (gradient conic only), ADR-0090 (conic strategy Type 4 vs Type 1), ADR-0092 (conic Coons patches RGB+CMYK)
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/export/gradients/conic.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0126, ADR-0127, ADR-0128, ADR-0129, ADR-0130
 
----
+## Consumer evidence
 
-## Contexto
+`03_infra/src/export/gradients/conic.rs:17` identifies the current exclusive consumer. The clauses below
+are checked against that source and its delegated calls. They specify current
+export observables and ownership, not full upstream byte or algorithm equality.
 
-Emit de Conic gradients como PDF Shading Type 6 (Coons Patch Mesh).
-Estratégia única decidida em P272: Type 6 patches construídos a partir
-de N stops + bezier control points para arcs circulares.
+## PDF conic Coons mesh
 
-Helpers:
-- `multispace_sample_stops_conic` — amostra N stops em sRGB ao longo do ângulo conic.
-- `bezier_control_points_for_arc` — control points para arco circular do conic patch.
-- `compute_coons_patches_n_stops` — N base por número de stops.
-- `compute_coons_patches_n_stops_extended` — N estendido com adaptive subdivision.
-- `emit_conic_coons_stream_rgb` — stream binário PDF Type 6 RGB.
-- `emit_conic_coons_stream_cmyk` — stream binário PDF Type 6 CMYK (via `super::cmyk::rgb_to_cmyk`).
+Own conic RGB sampling, circular-arc control points, patch-count helpers and
+binary Type 6 Coons mesh emitters for RGB, CMYK and spot. Preserve this mesh
+strategy without claiming upstream tessellation identity.
 
-## Restrições estruturais
+The base patch-count helper returns stops.len(); the extended helper returns
+stops.len()*4. Preserve each emitter's existing minimum/degenerate handling,
+angular origin and continuous progression. Arc controls use tangent offset
+radius*(4/3)*tan((end_angle-start_angle)/4), not an extra cos factor.
+Mesh coordinates use the current unit circle centered at (0.5,0.5), radius 0.5;
+the builder resources owner applies physical bbox placement.
 
-- L3 puro. Lê `Conic`, `Color` de `typst_core::entities`.
-- `pub(crate)` — chamado por `super::super::builder::emit_gradient_objects`.
-- Cross-module dependency: usa `super::cmyk::rgb_to_cmyk` para variant CMYK.
-- Stream binário emitido como `Vec<u8>` directamente (não String — bytes opcionais incluem `\xFF`).
+RGB samples through Conic::sample and converts/clamps process RGB; CMYK retains
+native CMYK or the existing conversion helper fallback. Preserve the current
+binary flag/control-point/component encoding in Vec<u8>, never UTF-8 strings.
+Spot retains the same geometry and writes four one-byte corner tints (clamped
+to [0,1], quantized by round(tint*255)) instead of RGB triples.
+The Separation and one-component Decode dictionary belong to
+`00_nucleo/prompts/infra/export/builder/resources.md`.
 
-## Interface
+## Verification
 
-```rust
-pub(crate) fn multispace_sample_stops_conic(g: &Conic, n: usize) -> Vec<(f32, f32, f32)>;
-pub(crate) fn bezier_control_points_for_arc(...) -> (f64, f64, f64, f64);
-pub(crate) fn compute_coons_patches_n_stops(conic: &Conic) -> usize;
-pub(crate) fn compute_coons_patches_n_stops_extended(conic: &Conic) -> usize;
-pub(crate) fn emit_conic_coons_stream_rgb(conic: &Conic) -> Vec<u8>;
-pub(crate) fn emit_conic_coons_stream_cmyk(conic: &Conic) -> Vec<u8>;
-```
-
-## Invariantes
-
-- Type 6 ShadingType produz patches contínuos sem hardcoded angle limits.
-- Bezier control points respeitam `cos(θ/4) * tan(θ/4) * 4/3` formula.
-- CMYK variant produz output diferente de RGB (verificado por testes).
-
-## Excede limite 800 LOC
-
-~300 LOC neste ficheiro. Sub-divisão futura (emit_streams.rs +
-helpers.rs) possível mas baixo ROI dada coesão temática.
-
-## Critérios de verificação
-
-Tests `p272_*` (15 testes) + `p270_*` CMYK em `super::super::tests`.
-
-## P1483 — Coons spot de um canal
-
-### Medição anterior à decisão
-
-A sonda vanilla aceita gradiente cônico de duas tintas do
-mesmo colorant e emite shading de saída de um canal no
-`/Separation`; o cristalino mantém Coons Type 6 para os
-oito espaços processuais, mas `ColorSpace::Spot` cai em
-`/DeviceRGB` via `to_rgba_f32`.
-
-### Decisão interna
-
-O Type 6 spot usa a geometria Coons já vigente e grava
-apenas um byte de tint por corner (4 bytes, não 12 RGB),
-com `/Decode` para um componente. Não alterar os caminhos
-RGB/CMYK, suas discretizações nem as assinaturas públicas.
+Check geometric continuity, angular direction, process/CMYK/spot component widths
+and valid Type 6 decoding. Binary encoding validity is a format contract; patch
+counts and equality to an upstream algorithm are not language parity.

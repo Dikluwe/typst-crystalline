@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/slicing.md
-//! @prompt-hash d00ecb6d
+//! @prompt-hash 06336b70
 //! @layer L1
 //! @updated 2026-05-14
 //!
@@ -60,7 +60,7 @@ pub(super) fn slice_frame_items_at_height(
 /// `pending_align_*` (ver `00_nucleo/prompts/compiler/layout.md` §P908).
 pub(super) fn item_y_start(item: &FrameItem) -> f64 {
     match item {
-        FrameItem::Text { pos, .. } => pos.y.0,
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => pos.y.0,
         FrameItem::TextShaped { pos, .. } => pos.y.0,
         FrameItem::Line { start, .. } => start.y.0,
         FrameItem::Glyph { pos, .. } => pos.y.0,
@@ -68,7 +68,7 @@ pub(super) fn item_y_start(item: &FrameItem) -> f64 {
         FrameItem::Shape { pos, .. } => pos.y.0,
         FrameItem::Group { pos, .. } => pos.y.0,
         FrameItem::Link { .. } => 0.0,
-        FrameItem::Semantic { items, .. } => {
+        FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
             items.iter().map(item_y_start).fold(0.0, f64::max)
         }
     }
@@ -83,6 +83,7 @@ pub(super) fn item_y_start(item: &FrameItem) -> f64 {
 /// `layout_types.rs`: "itens em espaço local").
 pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
     match item {
+        FrameItem::TextSeparator { pos, advance, style, origin } => FrameItem::TextSeparator { pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) }, advance, style, origin },
         FrameItem::Text { pos, text, style } => FrameItem::Text {
             pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
             text,
@@ -176,6 +177,10 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
             pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
             size,
         },
+        FrameItem::TextReplacement { text, items } => FrameItem::TextReplacement {
+            text,
+            items: items.into_iter().map(|child| rebase_item_y(child, delta)).collect(),
+        },
         FrameItem::Semantic { kind, placement, alt, items } => FrameItem::Semantic {
             kind,
             placement,
@@ -235,10 +240,10 @@ mod tests {
         assert!(head.is_empty());
         assert_eq!(tail.len(), 3, "items >= threshold vão para tail");
         // Rebased: pos.y -= 10.0.
-        if let FrameItem::Text { pos, .. } = &tail[0] {
+        if let FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } = &tail[0] {
             assert_eq!(pos.y.0, 0.0, "rebase pos.y -= threshold");
         }
-        if let FrameItem::Text { pos, .. } = &tail[2] {
+        if let FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } = &tail[2] {
             assert_eq!(pos.y.0, 10.0);
         }
     }
@@ -277,7 +282,7 @@ mod tests {
     fn p251_rebase_item_y_text() {
         let item = mk_text(15.0);
         let rebased = rebase_item_y(item, -10.0);
-        if let FrameItem::Text { pos, .. } = rebased {
+        if let FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } = rebased {
             assert_eq!(pos.y.0, 5.0);
         } else {
             panic!("esperado Text");

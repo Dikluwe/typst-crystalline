@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/format_options.md
-//! @prompt-hash ff2b308d
+//! @prompt-hash bb5b3540
 //! @layer L1
 //! @updated 2026-09-21
 
@@ -294,7 +294,9 @@ fn collect_root_options(
                 collect_root_options(child, options, root_occurrences)?;
             }
         }
-        Content::Styled(body, styles) => {
+        Content::Styled(styled) => {
+            let body = &styled.body;
+            let styles = &styled.styles;
             for value in explicit_svg_pretty_values(styles) {
                 options.svg.pretty = validate_svg_pretty(value)?;
                 *root_occurrences += 1;
@@ -338,7 +340,8 @@ pub fn collect_document_format_options(
 ) -> SourceResult<DocumentFormatOptions> {
     let mut all_occurrences = 0usize;
     content.map_content(&mut |node| {
-        if let Content::Styled(_, styles) = node {
+        if let Content::Styled(styled) = node {
+            let styles = &styled.styles;
             for value in explicit_svg_pretty_values(styles) {
                 validate_svg_pretty(value)?;
                 all_occurrences += 1;
@@ -391,16 +394,16 @@ mod tests {
     use crate::entities::style::Styles;
 
     fn svg_pretty(body: Content, value: Value) -> Content {
-        Content::Styled(Box::new(body), Styles::new().push_custom(SVG_PRETTY_KEY, value))
+        Content::styled(Box::new(body), Styles::new().push_custom(SVG_PRETTY_KEY, value))
     }
 
     fn html_pretty(body: Content, value: Value) -> Content {
-        Content::Styled(Box::new(body), Styles::new().push_custom(HTML_PRETTY_KEY, value))
+        Content::styled(Box::new(body), Styles::new().push_custom(HTML_PRETTY_KEY, value))
     }
 
     #[test]
     fn p1462_absence_and_unrelated_styles_keep_default_false() {
-        let content = Content::Styled(
+        let content = Content::styled(
             Box::new(Content::text("body")),
             Styles::new().push_custom("text.example", Value::Bool(true)),
         );
@@ -431,7 +434,7 @@ mod tests {
 
     #[test]
     fn p1462_styled_without_svg_key_is_transparent() {
-        let content = Content::Styled(
+        let content = Content::styled(
             Box::new(svg_pretty(Content::Empty, Value::Bool(true))),
             Styles::new().push_custom("other.key", Value::Bool(false)),
         );
@@ -506,16 +509,16 @@ mod tests {
     const PDF_PRETTY_KEY: &str = "format.pdf.pretty";
 
     fn pdf_tagged(body: Content, value: Value) -> Content {
-        Content::Styled(Box::new(body), Styles::new().push_custom(PDF_TAGGED_KEY, value))
+        Content::styled(Box::new(body), Styles::new().push_custom(PDF_TAGGED_KEY, value))
     }
 
     fn pdf_pretty(body: Content, value: Value) -> Content {
-        Content::Styled(Box::new(body), Styles::new().push_custom(PDF_PRETTY_KEY, value))
+        Content::styled(Box::new(body), Styles::new().push_custom(PDF_PRETTY_KEY, value))
     }
 
     #[test]
     fn p1467_absence_keeps_default_auto_tagged_and_compact_pretty() {
-        let content = Content::Styled(
+        let content = Content::styled(
             Box::new(Content::text("body")),
             Styles::new().push_custom("text.example", Value::Bool(true)),
         );
@@ -571,7 +574,7 @@ mod tests {
 
     #[test]
     fn p1467_styled_without_pdf_keys_is_transparent() {
-        let tagged_content = Content::Styled(
+        let tagged_content = Content::styled(
             Box::new(pdf_tagged(Content::Empty, Value::Bool(false))),
             Styles::new().push_custom("other.key", Value::Bool(true)),
         );
@@ -580,7 +583,7 @@ mod tests {
             PdfTagged::Explicit(false)
         );
 
-        let pretty_content = Content::Styled(
+        let pretty_content = Content::styled(
             Box::new(pdf_pretty(Content::Empty, Value::Bool(true))),
             Styles::new().push_custom("other.key", Value::Bool(false)),
         );
@@ -628,7 +631,7 @@ mod tests {
         let content = Content::sequence(vec![
             svg_pretty(Content::Empty, Value::Bool(true)),
             html_pretty(Content::Empty, Value::Bool(true)),
-            Content::Styled(
+            Content::styled(
                 Box::new(Content::Empty),
                 Styles::new().push_custom(PNG_PPI_KEY, Value::Float(300.0)),
             ),
@@ -695,12 +698,12 @@ mod tests {
     }
 
     fn pdf_pages(body: Content, value: Value) -> Content {
-        Content::Styled(Box::new(body), Styles::new().push_custom(PDF_PAGES_KEY, value))
+        Content::styled(Box::new(body), Styles::new().push_custom(PDF_PAGES_KEY, value))
     }
 
     #[test]
     fn p1468_absence_keeps_default_none_pages() {
-        let content = Content::Styled(
+        let content = Content::styled(
             Box::new(Content::text("body")),
             Styles::new().push_custom("text.example", Value::Bool(true)),
         );
@@ -771,7 +774,7 @@ mod tests {
         // Regra externa define `pages`; regra interna só toca uma chave não
         // relacionada — não deve apagar a decisão de `pages`.
         let content = pdf_pages(
-            Content::Styled(
+            Content::styled(
                 Box::new(Content::text("after")),
                 Styles::new().push_custom("other.key", Value::Bool(true)),
             ),
@@ -835,7 +838,7 @@ mod tests {
         let content = Content::sequence(vec![
             svg_pretty(Content::Empty, Value::Bool(true)),
             html_pretty(Content::Empty, Value::Bool(true)),
-            Content::Styled(
+            Content::styled(
                 Box::new(Content::Empty),
                 Styles::new().push_custom(PNG_PPI_KEY, Value::Float(300.0)),
             ),
@@ -935,7 +938,7 @@ mod tests {
     }
 
     fn pdf_standard(body: Content, value: Value) -> Content {
-        Content::Styled(
+        Content::styled(
             Box::new(body),
             Styles::new().push_custom(PDF_STANDARD_KEY, value),
         )
@@ -943,7 +946,7 @@ mod tests {
 
     #[test]
     fn p1469_absence_keeps_default_none_standard() {
-        let content = Content::Styled(
+        let content = Content::styled(
             Box::new(Content::text("body")),
             Styles::new().push_custom("text.example", Value::Bool(true)),
         );
@@ -995,7 +998,7 @@ mod tests {
     #[test]
     fn p1469_standard_empty_rule_after_previous_decision_preserves_it() {
         let content = pdf_standard(
-            Content::Styled(
+            Content::styled(
                 Box::new(Content::text("after")),
                 Styles::new().push_custom("other.key", Value::Bool(true)),
             ),
@@ -1060,7 +1063,7 @@ mod tests {
         let content = Content::sequence(vec![
             svg_pretty(Content::Empty, Value::Bool(true)),
             html_pretty(Content::Empty, Value::Bool(true)),
-            Content::Styled(
+            Content::styled(
                 Box::new(Content::Empty),
                 Styles::new().push_custom(PNG_PPI_KEY, Value::Float(300.0)),
             ),

@@ -1,103 +1,44 @@
-# Prompt L0 — `infra/fallback_fonts` — catálogo de fallback tipográfico
-Hash do Código: 912062e8
+# L0 — Explicit fallback font catalogs
+Hash do Código: 39371770
 
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/fallback_fonts.rs`
+
+Pinned Tekt dependencies (canonical linter metadata):
+
+```text
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:faf6c20021b467fdb2a864625f4f6dd4386b5ef28c137b946e5cb4e4ce073d52
+```
 
+## Current evidence
 
-**Camada**: L3
-**Ficheiro alvo**: `03_infra/src/fallback_fonts.rs`
-**Criado em**: 2026-08-26 (P1197; individualização de P555/P783 de `shaper.md`)
-**ADRs**: ADR-0107, ADR-0108, ADR-0129
+- `03_infra/src/fallback_fonts.rs` — the three catalog constants, `fallback_font_list_for` and `math_fallback_font_list`.
+- `03_infra/src/shaper/font_selection.rs` and `03_infra/src/font_metrics/resolution.rs` — distinct selection consumers.
 
----
+These are current local source anchors, not a new upstream parity measurement.
 
-## Medição antes da decisão
+## Contract
 
-`fallback_fonts.rs` contém três listas ordenadas de famílias e duas funções de
-consulta. Não abre fontes, não consulta cobertura, não executa scoring e não
-shapeia texto. `shaper.rs` e `font_metrics.rs` consomem o catálogo, mas são
-donos distintos dos algoritmos de seleção e medição.
+Own ordered family catalogs and the prose class lookup only. Do not open font files, query coverage, score candidates, infer mathematical semantics or shape text.
 
-O antigo `infra/shaper.md` legitimava simultaneamente o catálogo e o shaper.
-P1197 individualiza o owner sem mudar constantes, funções ou testes Rust.
+| Catalog | Ordered families |
+| --- | --- |
+| Serif | `Liberation Serif`, `DejaVu Serif`, `Bitstream Vera Serif`, `FreeSerif` |
+| Sans/default | `DejaVu Sans`, `Noto Sans`, `Liberation Sans`, `FreeSans`, `Arial` |
+| Math | `New Computer Modern Math`, `Libertinus Serif`, `Twitter Color Emoji`, `Noto Color Emoji`, `Apple Color Emoji`, `Segoe UI Emoji` |
+| Common text | `Libertinus Serif`, `Twitter Color Emoji`, `Noto Color Emoji`, `Apple Color Emoji`, `Segoe UI Emoji` |
 
-## Responsabilidade
+`fallback_font_list_for(name)` lowercases the name and selects serif when it contains `serif`; every other name, including unknown and empty names, selects sans. `math_fallback_font_list()` returns the math catalog without filtering or reordering. Preserve `FreeSerif` last and the documented New Computer Modern family spelling.
 
-Este módulo é o catálogo L3 das cadeias explícitas de fallback:
+`00_nucleo/prompts/infra/shaper/font_selection.md` owns run segmentation and candidate selection; `00_nucleo/prompts/infra/font_metrics/resolution.md` owns metric resolution. FontBook coverage/scoring remain L1. Shared obligations are supplied by the pinned fallback-selection nucleus, not duplicated here.
 
-- cadeia serif;
-- cadeia sans e padrão;
-- cadeia matemática alinhada a `math::families()` do vanilla ratificado.
+## Verification boundary
 
-O módulo também classifica um nome de família como serif ou não-serif para
-escolher uma das duas cadeias de prosa. Ele não decide se um run está em modo
-matemático e não escolhe o vencedor por cobertura.
+Check serif/sans classification and exact catalog order through the existing inline tests. No font availability or upstream-version assumption is needed to verify these constants.
 
-## Cadeia serif
+## Cadeia comum de fallback — medição 2026-09-29
 
-`DEFAULT_FALLBACK_FONTS_SERIF`, em ordem:
+Medição: `lab/typst-original/crates/typst-library/src/text/mod.rs:1083-1101` acrescenta após as famílias declaradas, quando fallback está ativo, `Libertinus Serif`, `Twitter Color Emoji`, `Noto Color Emoji`, `Apple Color Emoji`, `Segoe UI Emoji`. A sonda `correcao-rtl-restante-2026-09-29/after-leading/hebrew-0-vanilla.pdf` incorpora Libertinus para `שלום עולם`; o PDF cristalino incorpora Noto Sans Hebrew. Ambos os catálogos listam essas faces. Inferência: a cadeia explícita anterior à busca global explica a diferença; refutar se a fonte incorporada persistir após a cadeia alinhada.
 
-1. `Liberation Serif`;
-2. `DejaVu Serif`;
-3. `Bitstream Vera Serif`;
-4. `FreeSerif`.
-
-P558 mantém `FreeSerif` por último porque sua decomposição de acentos não é
-reconstruída corretamente pelo subsetter CFF cristalino; ela continua
-disponível para cobertura residual.
-
-## Cadeia sans e padrão
-
-`DEFAULT_FALLBACK_FONTS_SANS`, em ordem:
-
-1. `DejaVu Sans`;
-2. `Noto Sans`;
-3. `Liberation Sans`;
-4. `FreeSans`;
-5. `Arial`.
-
-`fallback_font_list_for(name)` converte o nome para lowercase. Se contiver
-`serif`, devolve a cadeia serif; qualquer outro caso devolve a cadeia sans.
-Isso inclui nomes com `sans`, nomes desconhecidos e a string vazia.
-
-## Cadeia matemática
-
-`DEFAULT_FALLBACK_FONTS_MATH`, em ordem:
-
-1. `New Computer Modern Math`;
-2. `Libertinus Serif`;
-3. `Twitter Color Emoji`;
-4. `Noto Color Emoji`;
-5. `Apple Color Emoji`;
-6. `Segoe UI Emoji`.
-
-O primeiro nome usa espaços porque a tabela de exceções P840 registra a
-família documentada no `FontBook`, espelhando o nome usado por
-`math::families()` no vanilla. `math_fallback_font_list()` devolve essa lista
-sem reordenar ou filtrar.
-
-## Limites de ownership
-
-- O shaper decide quando anexar as cadeias, segmenta runs e escolhe faces por
-  cobertura/scoring.
-- `FallbackFontMetrics` decide como medir com a mesma seleção.
-- O `FontBook` possui coverage e scoring de similaridade.
-- Este catálogo não infere semântica matemática a partir de nomes.
-
-## Critérios de verificação
-
-- `FreeSerif` e `DejaVu Serif` selecionam a cadeia serif.
-- `DejaVu Sans` e nome desconhecido selecionam a cadeia sans.
-- A cadeia matemática não é vazia, começa por `New Computer Modern Math` e
-  contém `Libertinus Serif` na segunda posição.
-- As listas e funções permanecem idênticas ao código anterior ao P1197.
-- A alteração de linhagem não modifica corpos Rust.
-
-## Histórico de revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-07-03 | P555 — cadeias de prosa por classe serif/sans | `fallback_fonts.rs` |
-| 2026-07-18 | P783/P784/P840 — cadeia matemática e nome canônico da família NewCM | `fallback_fonts.rs` |
-| 2026-08-26 | P1197 — owner 1:1 extraído de `shaper.md`; seleção compartilhada movida para Núcleo Tekt | `fallback_fonts.md`, `fallback_fonts.rs` |
+O catálogo comum tem exatamente a ordem da cadeia `text::families()` do pin vanilla. É distinto dos catálogos de recuperação por classe (usados quando nenhuma declarada resolve) e do catálogo matemático. Não escolhe a fonte por língua ou script.

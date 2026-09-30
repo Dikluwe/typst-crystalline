@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/control_flow.md
-//! @prompt-hash 843812e8
+//! @prompt-hash 1e065581
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -88,7 +88,7 @@ pub(super) fn eval_while(
                         "condição while deve ser bool, encontrado {}",
                         other.type_name()
                     ),
-                )])
+                )]);
             }
         }
     }

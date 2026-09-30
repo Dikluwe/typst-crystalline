@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/tiling.md
-//! @prompt-hash 31b81dd4
+//! @prompt-hash 87e3a656
 //! @layer L1
 
 use crate::entities::geometry::ShapeKind;

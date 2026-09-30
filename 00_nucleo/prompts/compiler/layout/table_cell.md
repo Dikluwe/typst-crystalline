@@ -1,42 +1,25 @@
-# Prompt L0 — `table_cell`
+# L0 — table cell
 Hash do Código: 87a6a377
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
 
-**Camada:** L1 render
-**Ficheiro alvo:** `01_core/src/compiler/layout/table_cell.rs`
-**ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0129
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/table_cell.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Medição e contrato
+## Evidence before specification
 
-Delegar TableCell ao body já posicionado pelo motor de table/grid, sem duplicar placement.
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/table_cell.rs:15`.
 
-O dispatcher mantém braço magro, exaustivo e estático. A função da feature
-acede ao motor por descendência de módulo; entidade de domínio não importa o
-consumer e nenhum despacho dinâmico é introduzido.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-## Aceitação
+## Ownership and contract
 
-Testes focais e a suíte do subsistema preservam comportamento e morfologia;
-alteração observável exige medição e decisão próprias.
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-## P1288 — carrier semântico de célula (PROPOSTO; gate ADR-0127)
+Dispatch the cell body exactly once. Table semantic classification belongs to `00_nucleo/prompts/compiler/layout/table.md`; visual cell placement belongs to `00_nucleo/prompts/compiler/layout/grid.md`. Do not derive Header/Data from appearance here.
 
-### Medição anterior à decisão
+## Acceptance and limits
 
-`01_core/src/compiler/layout/table_cell.rs:14-20` apenas renderiza o body e
-descarta kind/level/scope como identidade de frame. A fonte vanilla pinada
-resolve a classe explícita antes da classe da linha em
-`typst-pdf/src/tags/context/table.rs:98-126`.
-
-### Decisão proposta
-
-Preservar a função descendente e o render único do body, mas devolver/emitir o
-envelope semântico fechado pedido por `layout/table.rs`, contendo classe
-resolvida, level/scope quando Header, rowspan/colspan e filhos visuais. O
-envelope não desenha, não muda bounds nem texto e não produz MCID em L1.
-
-Data explícita dentro de header permanece Data. Header explícito conserva
-scope Row/Column/Both e level positivo. A associação entre headers e data é
-responsabilidade do exporter, não inferência visual do layout.
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.

@@ -1,49 +1,33 @@
-# Prompt L0 — `infra/export/gradients/relative` — RelativeTo resolution
+# L0 — infra/export/gradients/relative
 Hash do Código: 14c42db6
 
-**Camada**: L3
-**Ficheiro alvo**: `03_infra/src/export/gradients/relative.rs`
-**Criado em**: 2026-05-19 (P307c)
-**ADRs**: ADR-0094 (gradient relative cross-variant)
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/export/gradients/relative.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0126, ADR-0127, ADR-0128, ADR-0129, ADR-0130
 
----
+## Consumer evidence
 
-## Contexto
+`03_infra/src/export/gradients/relative.rs:30` identifies the current exclusive consumer. The clauses below
+are checked against that source and its delegated calls. They specify current
+export observables and ownership, not full upstream byte or algorithm equality.
 
-Suporte a `gradient.relative: RelativeTo` (P273):
-- `Self`: bbox da própria shape.
-- `Parent`: bbox do contentor imediato (Block, Group).
+## Relative-coordinate helpers
 
-Helpers:
-- `resolve_relative` — escolhe entre `self_bbox` e `parent_bbox` baseado em `RelativeTo`.
-- `apply_parent_transform` — aplica matriz transform local→parent quando relative=Parent dentro de Transform Group.
+Own only resolve_relative and apply_parent_transform, with their current tuple
+signatures. resolve_relative accepts Option<RelativeTo> and uses unwrap_or_default
+(None resolves to Self_). It does not itself choose a geometry bbox or resolve
+an on-text policy.
 
-## Restrições estruturais
+apply_parent_transform accepts four f32 unit-space coordinates and optional
+(px0,py0,px1,py1). Some maps each point by parent origin and span; None returns the
+tuple unchanged. Preserve arithmetic and coordinate units.
 
-- L3 puro. Lê `RelativeTo` de `typst_core::entities::gradient`.
-- `pub(crate)` — chamado por `super::super::builder::emit_gradient_objects` e `super::super::stream::draw_item_local`.
-- Sem I/O.
+`00_nucleo/prompts/infra/export/gradients/mod.md` owns effective bbox discovery/
+keys; `00_nucleo/prompts/infra/export/builder/resources.md` owns shading placement;
+`00_nucleo/prompts/infra/export/stream/shape.md` owns paint lookup.
+Do not duplicate those rules or redefine their helper signatures.
 
-## Interface
+## Verification
 
-```rust
-pub(crate) fn resolve_relative(
-    relative: RelativeTo,
-    self_bbox: Rect,
-    parent_bbox: Option<Rect>,
-) -> Rect;
-pub(crate) fn apply_parent_transform(
-    local: Rect,
-    effective_parent_bbox: Option<Rect>,
-) -> Rect;
-```
-
-## Invariantes
-
-- `relative=Self` → ignora parent_bbox.
-- `relative=Parent` + `parent_bbox=None` → fallback para `self_bbox` (defensive).
-- `apply_parent_transform` é identity quando `effective_parent_bbox=None`.
-
-## Critérios de verificação
-
-Tests `p273_*` (56 testes) em `super::super::tests`.
+Check default resolution, identity without parent and translation/scale with parent.
+Transform mechanics are local implementation contracts, not language identity.

@@ -1,61 +1,18 @@
-# Prompt L0 — `entities/axes`
+# L0 — Generic axis pair
 Hash do Código: fd124da2
 
-## Módulo
-`01_core/src/entities/axes.rs`
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/axes.rs`
 
-## Camada
-L1
+## Contract
 
-## Propósito
+`Axes<T>` has public `x: T` and `y: T`. `new(x, y)` preserves both values.
+Debug, Clone, Copy and PartialEq are derived when supported by T; Eq requires
+T: Eq. This pure generic pair does not acquire map/with helpers merely because
+the upstream `lab/typst-original/crates/typst-library/src/layout/axes.rs`
+has them. The assigned scope is the base carrier and constructor (ADR-0080).
 
-Tipo genérico `Axes<T>` representando par 2D (x, y).
-Reutilizável para coordenadas / Ratios / Lengths / etc. Tipo
-minimal (~25 LoC) criado em P264 para `Radial.center: Axes<Ratio>`
-(paridade vanilla `Axes<T>`).
-
-## Estrutura
-
-```rust
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Axes<T> {
-    pub x: T,
-    pub y: T,
-}
-
-impl<T> Axes<T> {
-    pub fn new(x: T, y: T) -> Self {
-        Self { x, y }
-    }
-}
-
-impl<T: Eq> Eq for Axes<T> {}
-```
-
-## Critérios de verificação
-
-- `Axes::new(x, y).x == x` e `Axes::new(x, y).y == y`.
-- `Copy` derivado se `T: Copy`.
-- `PartialEq` derivado.
-
-## Sobre paridade vanilla
-
-Vanilla `Axes<T>` em `lab/typst-original/crates/typst-library/
-src/layout/axes.rs` tem campos `x`/`y` + métodos auxiliares
-(map, with, etc.). P264 materializa apenas struct base + `new()`
-constructor — paridade minimal per ADR-0080 §"L0 minimal para
-refactors aditivos".
-
-## Exposição em `entities/mod.rs`
-
-```rust
-pub mod axes;
-pub use axes::Axes;
-```
-
-## Cross-references
-
-- `entities/gradient.md` — `Radial.center: Axes<Ratio>` consumer
-  P264.
-- ADR-0088 — Gradient Radial-only (IMPLEMENTADO P264).
-- ADR-0080 — L0 minimal para refactors aditivos.
+Facade exposure belongs to `00_nucleo/prompts/entities/mod.md`. The former
+`pub use axes::Axes` obligation is retained as an unresolved ownership/public
+surface discrepancy in the sanitation diagnostic; absence in code does not
+revoke it. This cleanup neither adds nor removes a reexport.

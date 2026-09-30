@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/line_commit.md
-//! @prompt-hash c7614beb
+//! @prompt-hash 695e65e1
 //! @layer L1
-//! @updated 2026-09-27
+//! @updated 2026-09-29
 //!
 //! Fechamento de linha: expansão horizontal, justificação, baseline e commit.
 #![allow(deprecated)] // FrameItem::Text fallback path legítimo
@@ -27,6 +27,12 @@ fn justify_frame_item<M: super::FontMetrics>(
         share * opportunities.iter().filter(|anchor| **anchor <= x).count() as f64
     };
     match item {
+        FrameItem::TextSeparator { mut pos, advance, style, origin } => {
+            let start_shift = shift_at(pos.x.0);
+            let end_shift = shift_at(pos.x.0 + advance.0);
+            pos.x = Pt(pos.x.0 + start_shift);
+            FrameItem::TextSeparator { pos, advance: Pt(advance.0 + end_shift - start_shift), style, origin }
+        }
         FrameItem::Line { mut start, mut end, thickness, color, cap } => {
             start.x = Pt(start.x.0 + shift_at(start.x.0));
             end.x = Pt(end.x.0 + shift_at(end.x.0));
@@ -40,6 +46,11 @@ fn justify_frame_item<M: super::FontMetrics>(
             let (pos, size) = super::link::link_bbox(&items, metrics);
             FrameItem::Link { target, items, pos, size }
         }
+        FrameItem::TextReplacement { text, items } => FrameItem::TextReplacement {
+            text,
+            items: items.into_iter()
+                .map(|child| justify_frame_item(child, opportunities, share, metrics)).collect(),
+        },
         FrameItem::Semantic { kind, placement, items, alt } => FrameItem::Semantic {
             kind,
             placement,
@@ -227,10 +238,23 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.regions.current.cursor_x = Pt(right_margin);
     }
 
+    pub(super) fn flush_continued_line(&mut self) {
+        let justified = matches!(
+            self.chain.custom("par.justify"),
+            Some(crate::entities::value::Value::Bool(true))
+        );
+        if justified {
+            self.justify_current_line();
+        }
+        let force_outer_singleton =
+            std::mem::take(&mut self.wrapped_inline_prefix_line_armed);
+        self.flush_line_with_outer_singleton(force_outer_singleton, !justified);
+    }
+
     pub(super) fn flush_line(&mut self) {
         let force_outer_singleton =
             std::mem::take(&mut self.wrapped_inline_prefix_line_armed);
-        self.flush_line_with_outer_singleton(force_outer_singleton);
+        self.flush_line_with_outer_singleton(force_outer_singleton, false);
     }
 
     /// P1391 — o texto overlong pode fechar a linha antes de Sequence voltar
@@ -244,10 +268,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// ascent e o leading passam a seguir o estilo exterior activo.
     pub(super) fn flush_wrapped_inline_prefix_line(&mut self) {
         self.wrapped_inline_prefix_line_armed = false;
-        self.flush_line_with_outer_singleton(true);
+        self.flush_line_with_outer_singleton(true, false);
     }
 
-    fn flush_line_with_outer_singleton(&mut self, force_outer_singleton: bool) {
+    fn flush_line_with_outer_singleton(&mut self, force_outer_singleton: bool, continued: bool) {
+        self.terminal_paragraph_line = false;
         // **P842 (#38)** — expandir h(Nfr) pendentes antes de qualquer
         // medição da linha (collector de decorações, leading, RTL align).
         self.expand_fr_spacings();
@@ -256,7 +281,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // — evita acumular line_height em cascata quando Shape/Image/Heading
         // chamam flush_line por segurança antes do seu próprio push.
         let had_items =
-            super::html_frame::items_have_material(&self.regions.current.current_line);
+            super::html_frame::items_have_causal_line(&self.regions.current.current_line);
+        if had_items && !super::html_frame::items_have_material(&self.regions.current.current_line) {
+            super::text_baseline::admit_literal_line(self);
+        }
 
         // Determinar o tamanho máximo de fonte presente nos items da linha e
         // o estilo do item que o possui (clonado para não manter borrow da
@@ -273,6 +301,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     crate::entities::layout_types::FrameItem::Text { style, .. }
                     | crate::entities::layout_types::FrameItem::TextShaped {
                         style,
+                        ..
+                    }
+                    | crate::entities::layout_types::FrameItem::TextSeparator {
+                        style,
+                        origin: crate::entities::layout_types::TextSeparatorOrigin::Literal,
                         ..
                     } => Some((style.size, style.clone())),
                     _ => None, // neutro: N16[β] — itens não-textuais não contribuem métricas de tamanho para cálculo de linha
@@ -452,7 +485,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         }
 
         // P576 — alinhamento de parágrafo RTL.
-        self.align_current_line_rtl();
+        self.align_current_line_rtl_with_continuation(continued);
 
         // P1414/P1415 — a ocorrência nasce somente depois de estabilizar
         // wrap, paginação e baseline. Flushes vazios e subframes não consomem
@@ -645,6 +678,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
         }
 
+        // Real ink has stabilized. A fitting line does not require another
+        // region solely because its predicted following baseline exceeds it.
+        if had_items {
+            let ink_bottom = self.regions.current.cursor_y.0
+                + (-current_text_bottom.0).max(inline_descent);
+            effective_line_committed |= ink_bottom <= self.page_bottom_limit();
+        }
         for item in self.regions.current.current_line.drain(..) {
             self.regions.current.current_items.push(item);
         }
@@ -687,16 +727,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // se estivermos dentro de um sub-layout de Grid (Passo 81.5).
         self.regions.current.cursor_x = self.regions.current.line_start_x;
 
-        if had_items
-            && self.regions.current.cursor_y.0 > self.page_bottom_limit()
-            && !effective_line_committed
-        {
-            if self.flow_suffix_transaction_active {
-                self.flow_suffix_transaction_rejected = true;
-            } else {
-                self.new_page();
-            }
-        }
+        super::region_progress::post_line(self, had_items, effective_line_committed);
     }
 }
 
@@ -705,6 +736,34 @@ mod tests {
     use super::super::FixedMetrics;
     use super::*;
     use crate::entities::geometry::LineCap;
+
+    #[test]
+    fn rtl_continued_line_reserves_signed_terminal_tracking() {
+        use crate::entities::{dir::Dir, image_sizer::NullImageSizer,
+            introspector::{Introspector, TagIntrospector}, layout_types::{Length, TextStyle}};
+        use comemo::Track;
+        let intr = TagIntrospector::empty();
+        for t in [0.2, -0.2, 0.0] {
+            let mut l = super::super::Layouter::new(FixedMetrics, NullImageSizer, 80.0,
+                (&intr as &dyn Introspector).track());
+            let mut style = TextStyle::regular(Pt(12.0));
+            style.dir = Some(Dir::RTL);
+            style.tracking = Some(Length::pt(t));
+            l.style = style.clone();
+            let width = super::super::text_measure::word(&l.metrics, "abc", &style);
+            l.regions.current.current_line.push(FrameItem::Text {
+                pos: Point {x: Pt(0.0), y: Pt(0.0)},
+                text: "abc".into(), style,
+            });
+            l.regions.current.cursor_x = width;
+            let right = l.regions.current.width - l.page_config.margin.right;
+            l.flush_continued_line();
+            let item = l.regions.current.current_items.iter().find(|item| matches!(item, FrameItem::Text { .. })).unwrap();
+            let FrameItem::Text {pos, ..} = item else {panic!()};
+            assert!((pos.x.0 - (right - width.0 - t)).abs() < 1e-9,
+                "continued RTL line must reserve its terminal tracking interval");
+        }
+    }
 
     #[test]
     fn p1503_justificacao_translada_aresta_sem_mover_baseline() {

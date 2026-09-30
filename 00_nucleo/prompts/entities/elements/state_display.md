@@ -1,42 +1,22 @@
-# Prompt L0 — `entities/elements/state_display` — `StateDisplayElem`
+# L0 — State display carrier
 Hash do Código: ced154b4
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/state_display.rs`
-**Origem**: modelo D (ADR-0105), **Lote 6 P321** (família state/counter). Trait:
-ver `entities/elements/_comum.md`. Comportamento idêntico (P240).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/state_display.rs`
 
-> **Fronteira: LOCATÁVEL**. `element_kind` → `ElementKind::StateDisplay`;
-> `to_payload` → `ElementPayload::StateDisplay`. Valor pré-renderizado em
-> `apply_state_displays` pós-fixpoint.
+## Contract
 
----
 
-## Struct
+`StateDisplayElem` has public `key: String` and `callback: Option<Func>`.
+Debug/Clone/PartialEq retain both fields; callback equality remains Func's
+existing identity equality. Hash is manual via Debug. Plain text is empty;
+emptiness defaults false; child/text maps are terminal. It is locatable:
+kind StateDisplay and payload StateDisplay carry key/callback. Post-fixpoint
+rendering is not implemented here. Structural equality compares key and callback.
 
-```rust
-#[derive(Debug, Clone, PartialEq)]
-pub struct StateDisplayElem {
-    pub key:      String,
-    pub callback: Option<Func>,
-}
-```
 
-`Content::StateDisplay { key, callback }` → `Content::StateDisplay(Arc<…Elem>)`.
-Construtor: `Content::state_display(key, callback)`.
-
-> **`Hash` manual via Debug** (`Func`); `PartialEq` deriva (Func ptr_eq).
-
-## `impl Element`
-
-| método | comportamento |
-|---|---|
-| `plain_text` | `String::new()` (`content.rs:1659`) |
-| `is_empty` | default `false` |
-| `map_*` | **terminais** |
-| `element_kind` | `Some(ElementKind::StateDisplay)` |
-| `to_payload` | `Some(ElementPayload::StateDisplay { key, callback })` (absorve `extract_payload.rs:58`) |
-
-## `eq`
-
-`#[derive(PartialEq)]` compara `key + callback` (paridade `content.rs:2003`) →
-**dispatch** `(StateDisplay(a), StateDisplay(b)) => a == b`.
+The trait API/defaults belong to
+`00_nucleo/prompts/entities/elements/_comum.md`. This owner specifies only
+this element consumer; language constructors and layout algorithms remain
+with their respective owners. Historical inline-arm evidence is retained in
+`00_nucleo/diagnosticos/sanitization-entities-contracts-history.md`.

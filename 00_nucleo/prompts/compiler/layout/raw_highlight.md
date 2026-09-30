@@ -1,40 +1,22 @@
-# Prompt L0 — `compiler/layout/raw_highlight` — Highlighting em Blocos Raw
+# L0 — raw highlight
 Hash do Código: 4b333868
 
-**Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/raw.rs`
-**Origem**: P785a (restauração de syntax highlighting em blocos `raw`).
-**ADRs Aplicadas**: ADR-0107 (paridade de render em PDF com a linguagem), ADR-0109 (atomização no arquivo da feature).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/raw.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
----
+## Evidence before specification
 
-## 1. Contexto e Objetivo
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/raw.rs:103`, `01_core/src/compiler/layout/raw.rs:117`, `01_core/src/compiler/layout/raw.rs:20`, `01_core/src/compiler/layout/raw.rs:41`, `01_core/src/compiler/layout/raw.rs:47`.
 
-O elemento `raw` (`` `...` `` e ` ```lang ... ``` `) em Typst Vanilla renderiza código-fonte com syntax highlighting colorido via gramáticas `syntect` e o tema padrão `RAW_THEME` (`two-face`). No Crystalline, o layout de `raw` emitia o texto de forma monocromática.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-Este módulo L1 implementa a tokenização por linha do texto `raw` e o mapeamento de cores/estilos por token para que os caracteres emitidos contenham as cores RGB correspondentes (`TextElem::fill` / `TextStyle::fill`).
+## Ownership and contract
 
----
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-## 2. Paleta de Cores e Temas
+Own Raw rendering in `raw.rs`, not a separate renderer or language parser. Use embedded two_face syntax definitions and the existing Typst Light scope theme; only immutable lazy syntax/theme data is shared. Start from the current raw base style (clear bold/italic/fill, preserve the existing remaining fields), apply supported token foreground/bold/italic and restore the outer style after rendering. Block raw closes surrounding lines and starts token lines at the margin. Unknown syntax or highlighting failure uses the existing plain-token path. The current implementation uses `split_whitespace` for token emission, so the older whitespace-preservation claim is unresolved, not proven. Preserve the existing text/whitespace requirement as an open contract discrepancy; no fix, normalization expansion or weakening of the language requirement is authorized here.
 
-O tema padrão (`RAW_THEME`) define as seguintes cores base por escopo `syntect`:
+## Acceptance and limits
 
-| Escopo Syntect | Cor Hex | Uso |
-|---|---|---|
-| `keyword`, `storage.type` | `#d73948` | Palavras-chave (`fn`, `let`, `if`, `return`) |
-| `string` | `#198810` | Literais de texto |
-| `entity.name`, `variable.function` | `#4b69c6` | Identificadores de funções/tipos |
-| `comment` | `#74747c` | Comentários de linha/bloco |
-| `constant.character.escape` | `#1d6c76` | Sequências de escape |
-| `entity.other`, `meta.interpolation` | `#8b41b1` | Interpolação / referências |
-
----
-
-## 3. Comportamento de Layout
-
-1. Para cada linha do texto `raw`:
-   - Se uma linguagem `lang` for especificada (ou `txt` por omissão), localizar a gramática correspondente em `RAW_SYNTAXES` (`two-face`).
-   - Processar a linha com `syntect::easy::HighlightLines`.
-   - Para cada fragmento `(Style, &str)`, instanciar `TextStyle` ajustando `fill: Some(Color::Srgb { .. })` e estilos `bold`/`italic` conforme a cor de primeiro plano do `Style`.
-   - Emitir cada palavra/segmento no layouter preservando espaços e quebras de linha em bloco.
-2. Em blocos (`block: true`), aplicar margem/recuo e quebra de linha inicial e final.
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.

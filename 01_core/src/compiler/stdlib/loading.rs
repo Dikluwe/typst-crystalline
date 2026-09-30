@@ -221,8 +221,9 @@ fn textual_content_fields(value: &Value) -> Result<Dict, String> {
                 fields.insert("value".into(), metadata.value.as_ref().clone());
                 return Ok(fields);
             }
-            Content::Styled(child, _) => {
-                fields.insert("child".into(), Value::Content(child.as_ref().clone()));
+            Content::Styled(styled) => {
+                let child = &styled.body;
+                fields.insert("child".into(), Value::Content(child.clone()));
                 fields.insert("styles".into(), Value::Str("styles(..)".into()));
                 return Ok(fields);
             }

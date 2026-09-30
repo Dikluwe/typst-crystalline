@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/p1427-tests.md
-//! @prompt-hash 320de003
+//! @prompt-hash f855f49f
 //! @layer L1
 #![cfg(test)]
 //!
@@ -65,7 +65,7 @@ fn find_frac(content: &Content) -> Option<&MathFracElem> {
         Content::MathFrac(elem) => Some(elem),
         Content::Equation(elem) => find_frac(&elem.body),
         Content::MathDelimited(elem) => find_frac(&elem.body),
-        Content::Styled(inner, _) => find_frac(inner),
+        Content::Styled(styled) => find_frac(&styled.body),
         Content::MathSequence(items) | Content::Sequence(items) => {
             items.iter().find_map(find_frac)
         }
@@ -99,7 +99,9 @@ fn p1427_set_style_valida_e_respeita_precedencia() {
     let stored = find_frac(cascaded.content().unwrap()).unwrap();
     assert_eq!(stored.style, None, "cascade must not rewrite explicitness");
 
-    let explicit = evaluated_frac("#set math.frac(style: \"horizontal\"); #math.frac([a], [b], style: \"vertical\")");
+    let explicit = evaluated_frac(
+        "#set math.frac(style: \"horizontal\"); #math.frac([a], [b], style: \"vertical\")",
+    );
     assert_eq!(explicit.style, Some(MathFracStyle::Vertical));
 
     for source in

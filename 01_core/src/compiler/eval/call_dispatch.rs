@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 5083e619
+//! @prompt-hash 32b2483d
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -365,10 +365,10 @@ impl P1293HtmlCallSpans {
         }
         match self.kind {
             P1293HtmlNative::Void if !args.items.is_empty() => {
-                return self.positional.first().copied().unwrap_or(args.span)
+                return self.positional.first().copied().unwrap_or(args.span);
             }
             P1293HtmlNative::Normal if args.items.len() > 1 => {
-                return self.positional.get(1).copied().unwrap_or(args.span)
+                return self.positional.get(1).copied().unwrap_or(args.span);
             }
             P1293HtmlNative::Normal
                 if args
@@ -376,7 +376,7 @@ impl P1293HtmlCallSpans {
                     .first()
                     .is_some_and(|value| !matches!(value, Value::Content(_))) =>
             {
-                return self.positional.first().copied().unwrap_or(args.span)
+                return self.positional.first().copied().unwrap_or(args.span);
             }
             _ => {}
         }
@@ -906,14 +906,14 @@ fn direction_from_to(args: &Args, to: bool) -> SourceResult<Value> {
                 return Err(vec![SourceDiagnostic::error(
                     args.span,
                     "expected side alignment",
-                )])
+                )]);
             }
         },
         other => {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
                 format!("expected alignment, found {}", vanilla_type_name(other)),
-            )])
+            )]);
         }
     };
     Ok(Value::Dir(direction))
@@ -980,7 +980,7 @@ fn dispatch_p1284_value_method(
                     return Err(vec![SourceDiagnostic::error(
                         args.span,
                         "unknown method",
-                    )])
+                    )]);
                 }
             })
         }
@@ -1000,7 +1000,7 @@ fn dispatch_p1284_value_method(
                     return Err(vec![SourceDiagnostic::error(
                         args.span,
                         "unknown method",
-                    )])
+                    )]);
                 }
             })
         }
@@ -1017,7 +1017,7 @@ fn dispatch_p1284_value_method(
                     return Err(vec![SourceDiagnostic::error(
                         args.span,
                         "unknown method",
-                    )])
+                    )]);
                 }
             }))
         }
@@ -1049,7 +1049,7 @@ fn dispatch_p1284_value_method(
                     return Err(vec![SourceDiagnostic::error(
                         args.span,
                         "unknown method",
-                    )])
+                    )]);
                 }
             }))
         }
@@ -1175,7 +1175,7 @@ pub(in crate::compiler::eval) fn selector_before_after(
             return Err(vec![SourceDiagnostic::error(
                 args.span,
                 format!("expected boolean, found {}", other.type_name()),
-            )])
+            )]);
         }
     };
     if let Some(name) = args.named.keys().next() {
@@ -1421,7 +1421,7 @@ pub(super) fn eval_func_call(
                         scopes,
                         ctx,
                         engine,
-                    )
+                    );
                 }
                 Value::Counter(ref counter) => {
                     return super::bindings::eval_counter_method_value(
@@ -1431,7 +1431,7 @@ pub(super) fn eval_func_call(
                         scopes,
                         ctx,
                         engine,
-                    )
+                    );
                 }
                 Value::Type(crate::entities::value::Type::Counter)
                     if matches!(method, "at" | "display") =>
@@ -1442,7 +1442,7 @@ pub(super) fn eval_func_call(
                         scopes,
                         ctx,
                         engine,
-                    )
+                    );
                 }
                 // **P742** — Métodos de instância de `Value::Color` (9, padrão
                 // P506). Só intercepta os métodos conhecidos; os restantes caem
@@ -1745,13 +1745,13 @@ pub(super) fn eval_func_call(
                                     "layout() requer uma função, recebeu {}",
                                     other.type_name()
                                 ),
-                            )])
+                            )]);
                         }
                         _ => {
                             return Err(vec![SourceDiagnostic::error(
                                 call.callee().span(),
                                 "layout() requer exatamente 1 argumento".to_string(),
-                            )])
+                            )]);
                         }
                     };
                     // Dimensões do container (single-pass graded — P792 scope-out two-pass).

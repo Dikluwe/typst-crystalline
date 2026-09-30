@@ -1,76 +1,19 @@
-# Prompt L0 — `stdlib/foundations/str` — `str`, `str.from-unicode`, `str.to-unicode`
+# L0 — stdlib/foundations/str
 Hash do Código: 890a94d9
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/str.rs`
-**Prompt pai (hub)**: `00_nucleo/prompts/compiler/stdlib/foundations.md`
-**Origem**: Passo 1032 — extraído de `foundations.rs`. P1140.1-A move `regex`
-para a sua unidade dona `foundations/regex.rs` sem mudança de comportamento.
-**ADRs**: ADR-0107 (paridade linguagem), ADR-0109 (atomização forma B).
-**Convenções partilhadas**: `00_nucleo/prompts/compiler/stdlib/_comum.md`.
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/stdlib/foundations/str.rs`
 
----
+## Evidence and classification
 
-## 1. Funções
+`01_core/src/compiler/stdlib/foundations/str.rs:24`, `01_core/src/compiler/stdlib/foundations/str.rs:96`, `01_core/src/compiler/stdlib/foundations/str.rs:119` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-### `native_str` — `str(v)` / `str(int, base:)`
+## Contract and ownership
 
-**Assinatura**: `str(v: any) -> str` / `str(int: Int, base: Int) -> str`
+Own native_str, native_str_from_unicode and native_str_to_unicode. str supports none, bool, int, float, str, auto, length, ratio, angle, UTF-8 Bytes, Label and Symbol, but rejects Color. base applies only to Int and must be 2–36. Preserve 3.0 -> "3.0", integer base 16 lowercase output, compound length formatting, and `bytes are not valid UTF-8` / `str() não suporta color`. Label becomes its internal name without angle brackets; Symbol clones its entire value, including multiple codepoints. Never substitute repr, canonical symbol name, first scalar or normalization.
 
-**Semântica**: Converte o valor para string. Suporta `none`, `bool`, `int`,
-`float`, `str`, `auto`, `length`, `ratio`, `angle`, `bytes` (UTF-8). Rejeita
-`color`. `base` aplica-se só a `Int`, entre 2 e 36.
+str.from-unicode requires an integer Unicode scalar; reject outside the scalar range and surrogates. U+0000 is valid. str.to-unicode requires a string containing exactly one Unicode scalar and returns its codepoint; reject empty/multiple-scalar strings through the char cast. Do not use bytes or grapheme clusters. The bound string method in collections delegates here with character as first positional; preserve the same Func identity. Regex construction belongs only to `00_nucleo/prompts/compiler/stdlib/foundations/regex.md`.
 
-**Testes canônicos**:
-```
-str(42)              -> "42"
-str(3.0)             -> "3.0"
-str(255, base: 16)   -> "ff"
-str(12pt + 1em)      -> "12pt + 1em"
-str(<bytes UTF-8>)   -> "hello"
-str(<bytes inválidos>) -> Err "bytes are not valid UTF-8"
-str(red)             -> Err "str() não suporta color"
-```
+## Acceptance
 
-### `native_str_from_unicode` — `str.from-unicode(codepoint)`
-
-**Assinatura**: `str.from-unicode(codepoint: int) -> str`
-
-**Semântica**: Converte um scalar Unicode num carácter. Rejeita valores fora
-do domínio Unicode scalar ou na faixa surrogate. `U+0000` é válido e produz
-uma string de um scalar; a redação anterior que o rejeitava foi refutada pela
-fonte ratificada `a51e02804:foundations/str.rs:309-321`.
-
-### `native_str_to_unicode` — `str.to-unicode(character)` / `character.to-unicode()`
-
-**Assinatura**: `str.to-unicode(character: str) -> int`
-
-Aceita exatamente uma string com um único Unicode scalar e devolve seu
-codepoint. String vazia ou com mais de um scalar falha no cast de `char`.
-A forma ligada em `stdlib/collections` delega a esta unidade; a forma não
-ligada é o mesmo `Func`, com `character` como primeiro positional. Não usar o
-primeiro byte, primeiro grapheme nem normalização.
-
-Esta adição é paridade de linguagem em fluxo contínuo ADR-0127 e não adiciona
-API Rust pública: o helper é privado ou `pub(crate)` entre owners irmãos.
-
-`native_regex` e seus testes pertencem ao L0 irmão
-`compiler/stdlib/foundations/regex.md` desde P1140.1-A.
-
-## P1140.2 — cast de `label` para string
-
-Medição no vanilla `a51e02804`: `str(label("a b")) == "a b"`. Antes de
-P1140.2, o construtor cristalino homónimo produzia content e não exercia este
-cast. `native_str` passa a aceitar `Value::Label(label)` e devolve o nome
-interno sem `< >`. `base:` continua restrito a inteiros.
-
-## P1162 — cast de `Symbol` multi-codepoint
-
-Medição vanilla `a51e02804`: `str(emoji.heart)` → `❤️`,
-`str(emoji.heart.arrow)` → `💘` e `str(emoji.heart.excl)` → `❣️`. O
-cristalino anterior rejeita com `str() não suporta symbol` em
-`foundations/str.rs:50-79`.
-
-`native_str` aceita `Value::Symbol` e devolve `Value::Str` com clone do
-`Symbol.value` integral. `base:` continua exclusivo de inteiro. Não usa
-`repr`, nome canónico, primeiro scalar nem normalização Unicode.
+Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaults and public identities, with no productive-code change. Preserve pinned shared claims and the exclusive owner boundary under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130. Historical evidence does not establish parity against a newer snapshot.

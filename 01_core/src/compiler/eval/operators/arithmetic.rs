@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/operators/arithmetic.md
-//! @prompt-hash e0b1c3c3
+//! @prompt-hash d37a4875
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -30,7 +30,7 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
             Value::Int(0) => return Err("cannot divide by zero".into()),
             Value::Float(f) if *f == 0.0 => return Err("cannot divide by zero".into()),
             Value::Decimal(d) if d.0.is_zero() => {
-                return Err("cannot divide by zero".into())
+                return Err("cannot divide by zero".into());
             }
             // P713 — paridade com `is_zero()` do vanilla (`foundations/ops.rs:344-359`),
             // que cobre `Length` no mesmo gate genérico usado por todas as divisões.
@@ -40,11 +40,11 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
             Value::Relative(r)
                 if matches!((r.abs.is_zero(), r.rel == 0.0), (true, true)) =>
             {
-                return Err("cannot divide by zero".into())
+                return Err("cannot divide by zero".into());
             }
             Value::Ratio(r) if r.0 == 0.0 => return Err("cannot divide by zero".into()),
             Value::Angle(a) if a.to_rad() == 0.0 => {
-                return Err("cannot divide by zero".into())
+                return Err("cannot divide by zero".into());
             }
             _ => {}
         }

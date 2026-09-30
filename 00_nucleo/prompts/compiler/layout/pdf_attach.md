@@ -1,58 +1,25 @@
-# Prompt L0 — `compiler/layout/pdf_attach`
+# L0 — pdf attach
 Hash do Código: 8bf0dd23
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
 
-**Estado:** consumer materializado; o metadado de implementação é atualizado pelo
-`crystalline-lint --fix-hashes`.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/pdf_attach.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-**Camada:** L1 render
-**Consumer exclusivo:** `01_core/src/compiler/layout/pdf_attach.rs`
-**Origem do contrato:** medição vanilla e decisão P1293 incorporadas abaixo.
-**Gate humano:** confirmado em 2026-08-30 — “Siga a engenharia da refatoração
-e pode implementar”.
-**ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129.
+## Evidence before specification
 
-## Medição anterior à decisão
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/pdf_attach.rs:13`.
 
-O vanilla não gera frame para `AttachElem` e o coleta globalmente. O contrato
-aprovado escolheu side-channel de layout até
-`PagedDocument.attachments: Vec<Arc<PdfAttachElem>>`; criar `FrameItem`
-visível ou nova fase seria divergência. O dispatcher central permanece
-exaustivo, estático e magro.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-## Forma B e contrato da free function
+## Ownership and contract
 
-Toda a lógica desta feature vive neste módulo descendente, nunca no struct de
-domínio. O braço central apenas delega. A operação recebe o `Arc` do elemento,
-clona esse handle O(1) para o side-channel privado do Layouter e retorna sem
-emitir item:
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-```rust
-pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
-    layouter: &mut Layouter<M, S>,
-    elem: &Arc<PdfAttachElem>,
-);
-```
+Register one occurrence in document order in the Layouter attachment side-channel, with no visible item, cursor/extent/baseline advance or locator allocation. The current function receives `&PdfAttachElem` and stores an Arc around a cloned element; do not claim an Arc-argument signature or an O(1) handle clone that the source does not provide. The hub transfers the committed vector into PagedDocument. Duplicate-path validation, Filespec generation and bytes loading belong to their external owners. Speculative replay uses the hub's transaction boundary rather than a local transaction.
 
-Uma invocação registra uma ocorrência em ordem documental. Não altera cursor,
-largura/altura, baseline, regiões, página, plain-text, locator nem items. A
-composição final move o vetor para `PagedDocument.attachments`; não relê bytes
-e não decide Filespec.
+## Acceptance and limits
 
-## Fronteiras e aceitação
-
-- Não usar vtable, `dyn`, wildcard, PropMap, import `entities→layout` ou
-  visibilidade `pub(crate)`; o pin Forma B é normativo.
-- Não deduplicar aqui. A pipeline, após layout e antes de export, compara paths
-  virtuais em ordem e produz o erro global canônico.
-- A mesma ocorrência semântica deve ser registrada uma vez por travessia
-  comprometida. Re-layout especulativo não pode criar attachment fantasma;
-  qualquer mecanismo transacional necessário pertence ao owner do motor.
-- Repetição deliberada do elemento conserva duas ocorrências para que o erro
-  de path duplicado seja observável.
-- Headers repetidos, floats refluídos e outros casos não medidos permanecem
-  `Unknown`; não convertê-los em sucesso implícito.
-- Este prompt não legitima `PdfAttachElem`, o campo de `PagedDocument`, a
-  validação global nem a serialização PDF.
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.

@@ -1,30 +1,30 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/word_segment.md
-//! @prompt-hash 86037726
+//! @prompt-hash 0e57e918
 //! @layer L1
 //! @updated 2026-09-25
 //!
-//! Segmentação ICU e tailoring CJK antes de dispor chunks no Cursor.
+//! ICU segmentation and CJK tailoring before laying out chunks in Cursor.
 
 use super::metrics::FontMetrics;
 use crate::entities::image_sizer::ImageSizer;
 use icu_segmenter::{options::LineBreakOptions, LineSegmenter, LineSegmenterBorrowed};
 use unicode_script::{Script, UnicodeScript};
 
-// ── P756 — segmentação de linha para scripts sem espaços ────────────────────
+// ── P756 — line segmentation for scripts without spaces ────────────────────
 
-/// Devolve um segmentador de linha LSTM configurado com os dados compilados.
+/// Returns an LSTM line segmenter configured with compiled data.
 ///
-/// `icu_segmenter` com `compiled_data` embute as tabelas Unicode e o modelo
-/// LSTM como constantes estáticas em tempo de compilação; não há I/O em
-/// runtime. Por isso pode residir em L1. O segmentador é reconstruído a
-/// cada invocação para evitar estado global mutável (V13).
+/// `icu_segmenter` with `compiled_data` embeds Unicode tables and the LSTM
+/// model as static constants at compile time; there is no runtime I/O.
+/// It can therefore reside in L1. The segmenter is reconstructed on each
+/// invocation to avoid mutable global state (V13).
 fn line_segmenter() -> LineSegmenterBorrowed<'static> {
     LineSegmenter::new_lstm(LineBreakOptions::default())
 }
 
-/// Verifica se uma palavra contém caracteres de scripts sem espaços que
-/// exigem segmentação de linha (CJK, Thai, Lao, Myanmar, Khmer).
+/// Checks whether a word contains characters from scripts without spaces
+/// that require line segmentation (CJK, Thai, Lao, Myanmar, Khmer).
 pub(super) fn word_needs_line_segmentation(word: &str) -> bool {
     word.chars().any(|c| {
         matches!(
@@ -40,9 +40,9 @@ pub(super) fn word_needs_line_segmentation(word: &str) -> bool {
     })
 }
 
-/// Verifica se o texto (ou a linguagem activa) justifica o tailoring de
-/// aspas para chinês/japonês: `U+201C` (`“`) não inicia linha e `U+201D`
-/// (`”`) não termina linha.
+/// Checks whether the text (or active language) calls for Chinese/Japanese
+/// quotation-mark tailoring: `U+201C` (`“`) does not start a line and
+/// `U+201D` (`”`) does not end a line.
 fn needs_cjk_quote_tailoring(
     word: &str,
     lang: Option<&crate::entities::lang::Lang>,
@@ -55,8 +55,8 @@ fn needs_cjk_quote_tailoring(
     is_cjk_lang || has_cjk_script
 }
 
-/// Verifica se um caractere pertence a um contexto CJK: ideogramas,
-/// hiragana, katakana, hangul ou pontuação/formas CJK comuns.
+/// Checks whether a character belongs to a CJK context: ideographs,
+/// hiragana, katakana, hangul, or common CJK punctuation/forms.
 fn is_cjk_context_char(c: char) -> bool {
     matches!(
         c.script(),
@@ -73,8 +73,8 @@ fn is_cjk_context_char(c: char) -> bool {
     )
 }
 
-/// Remove oportunidades de quebra que colocariam `“` no início de linha ou
-/// `”` no fim de linha, replicando o efeito do `CJ_SEGMENTER` do vanilla.
+/// Removes break opportunities that would place `“` at the start of a line
+/// or `”` at the end, reproducing the effect of vanilla's `CJ_SEGMENTER`.
 fn filter_cjk_quote_breakpoints(text: &str, mut breakpoints: Vec<usize>) -> Vec<usize> {
     const OPEN: char = '\u{201C}';
     const CLOSE: char = '\u{201D}';
@@ -90,11 +90,11 @@ fn filter_cjk_quote_breakpoints(text: &str, mut breakpoints: Vec<usize>) -> Vec<
 
     breakpoints.retain(|&bp| {
         let idx = byte_to_char[bp];
-        // Não quebrar antes de aspas de abertura.
+        // Do not break before an opening quotation mark.
         if idx < chars.len() && chars[idx] == OPEN {
             return false;
         }
-        // Não quebrar depois de aspas de fecho.
+        // Do not break after a closing quotation mark.
         if idx > 0 && chars[idx - 1] == CLOSE {
             return false;
         }
@@ -103,9 +103,9 @@ fn filter_cjk_quote_breakpoints(text: &str, mut breakpoints: Vec<usize>) -> Vec<
     breakpoints
 }
 
-/// Fragmenta uma palavra nos breakpoints do segmentador e emite cada
-/// fragmento via `layout_chunk`. Usado quando `layout_word` detecta um run
-/// de script sem espaços.
+/// Splits a word at the segmenter's breakpoints and emits each fragment
+/// through `layout_chunk`. Used when `layout_word` detects a run from a
+/// script without spaces.
 pub(super) fn layout_segmented_word<M: FontMetrics, S: ImageSizer>(
     layouter: &mut super::Layouter<'_, M, S>,
     word: &str,

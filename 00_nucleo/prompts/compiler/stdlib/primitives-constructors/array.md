@@ -1,67 +1,24 @@
-# Prompt L0 — conversão limitada `array(bytes)`
+# L0 — stdlib/primitives-constructors/array
 Hash do Código: 6508a7d5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml sha256:761d5adeca09f6a60ba2960f8492aa6c0d934798bbc826f341004cf993ba8736
 
-**Camada:** L1
-**Ficheiro proprietário:** `01_core/src/compiler/stdlib/primitives_constructors/array.rs`
-**Incompleto deliberado:** somente Bytes; conversões de Array e Version e
-demais formas vanilla ficam fora do P1339, sem passo de completação autorizado.
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/stdlib/primitives_constructors/array.rs`
 
-## Medição anterior à decisão
+## Evidence and classification
 
-HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, working tree não commitada,
-com proveniência na medição histórica:
-`compiler/eval/call_dispatch.rs:1791-1830` não possui Array; chamadas com bytes
-chegam ao diagnóstico de construtor ausente. Vanilla ratificado a51e02804,
-`foundations/array.rs:164-169,1176-1179`, converte cada byte para Int sem sinal,
-conservando ordem e comprimento. A medição confirma vazio, extremos, alias,
-spread e rejeição de sobras. A medição histórica identifica esse pré-requisito
-nos testes congelados de float.to-bytes.
+`01_core/src/compiler/stdlib/primitives_constructors/array.rs:15` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-## Decisão autorizada
+## Contract and ownership
 
-Autorização: registrada pelo dono. Implementar função
-interna `native_array_bytes` no ABI de constructor do núcleo compartilhado.
-Recebe Args já avaliados, sem reavaliar expressões, callbacks ou I/O. A rota
-pública é selecionada somente quando o primeiro positional é Value::Bytes.
+Deliberately incomplete: this unit owns only array(Bytes), not Array/Version conversions or other upstream forms; no completion step is authorized for them. Own the internal native_array_bytes using the pinned constructor ABI, with already evaluated Args and no expression reevaluation, callbacks or I/O. Public dispatch selects this route only when its first positional is Bytes.
 
-Consumir exatamente esse positional. Rejeitar a primeira ocorrência restante
-na ordem causal de Args: `unexpected argument` para positional,
-`unexpected argument: <nome>` para named. Usar span da ocorrência; fallback
-para Args.span somente quando detached. Não descartar sobras nem mudar
-prioridades de avaliação do dispatcher.
+Consume exactly that positional and reject the first causal leftover: `unexpected argument` positional, `unexpected argument: <name>` named, at occurrence span with aggregate fallback only when detached. Return Value::Array with one unsigned Int in 0..255 per byte, in unchanged order/length. Empty bytes produce an empty array; never mutate Bytes, reverse, apply endian, convert text or truncate. Defensive non-Bytes input may fail `type array does not have a constructor` at Args.span without expanding dispatch.
 
-Produzir Value::Array com um Value::Int por byte no domínio 0..255, sem
-inversão, coerção assinada, truncamento, transformação de endian ou texto.
-Bytes vazio produz Array vazio. Bytes permanece imutável. A unidade pode
-validar defensivamente a precondição e devolver
-`type array does not have a constructor` em Args.span sem Bytes; isso não
-amplia a rota pública.
+Do not add Array methods, public Rust API, Type/Value/Args changes, array(version), array(array), missing/named-only routes or Func identity/With expansion. Preserve productive local tests; retired externally included p1339_observation harnesses must not return or acquire substitute instrumentation without a separately specified formal cfg. This prerequisite does not establish general array or float-conversion parity.
 
-Não descobrir métodos de Array, alterar Type/Value/Args ou implementar
-`array(version)`, `array(array)`, missing ou named-only públicos. Essas
-formas permanecem legadas pelo dispatcher. Não expor API Rust pública nem
-tornar Type um Func para habilitar With/callbacks novos.
+## Acceptance
 
-## Aceitação
-
-RED→GREEN: vazio, todos os bytes em ordem, alias, spread, sobras, efeitos
-avaliados uma vez e controles não Bytes. Manter programas/oráculos originais
-de float.to-bytes. Ordem/sinal/comprimento incorretos, descarte de sobras ou
-aceitação de Version refutam o recorte. Exigir sucessão discriminatória antes
-do código, ownership 1:1, V15/V26, build/testes e lint. Não afirmar paridade
-geral do construtor array ou conclusão do P1339 a partir deste pré-requisito.
-
-## P1353 — retirada do harness condicionado
-
-O módulo `include!` e o teste-oráculo externos condicionados por
-`p1339_observation` estão aposentados. P1353 sucede somente essa obrigação
-temporária; os resultados históricos conservam valor documental, mas não
-legitimam o harness após a sanitização.
-
-`native_array_bytes` e seus testes produtivos continuam regidos integralmente
-pelas cláusulas acima, sem mudança de conversão, ordem, sobras, diagnóstico ou
-avaliação. Nenhum callback ou observação substituta será criado. Instrumentação
-futura exige nova medição, L0 e `cfg` formalizado.
+Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaults and public identities, with no productive-code change. Preserve pinned shared claims and the exclusive owner boundary under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130. Historical evidence does not establish parity against a newer snapshot.

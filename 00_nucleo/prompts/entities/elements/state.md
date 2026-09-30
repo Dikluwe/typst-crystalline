@@ -1,42 +1,26 @@
-# Prompt L0 — `entities/elements/state` — `StateElem`
+# L0 — State initialization carrier
 Hash do Código: 16e5aca4
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/state.rs`
-**Origem**: modelo D (ADR-0105), **Lote 6 P321** (família state/counter). Trait:
-ver `entities/elements/_comum.md`. Comportamento idêntico (P171).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/state.rs`
 
-> **Fronteira: LOCATÁVEL**. `element_kind` → `ElementKind::State`; `to_payload`
-> → `ElementPayload::State`. `from_tags` inicia o `StateRegistry` (consumo por
-> payload, inalterado).
+## Contract
 
----
 
-## Struct
+`StateElem` has public `key: String` and `init: Box<Value>` with
+Debug/Clone/PartialEq; hash is manual via Debug. Plain text is empty; emptiness
+defaults false; maps are terminal. Kind State and payload State carry key/init.
+Registry population belongs to introspection, not the entity.
 
-```rust
-#[derive(Debug, Clone, PartialEq)]
-pub struct StateElem {
-    pub key:  String,
-    pub init: Box<Value>,
-}
-```
+The prior L0 explicitly required Content::State to remain unequal in the hub,
+even though StateElem derives structural equality. That cross-owner obligation
+is not revoked by this cleanup; its reconciliation with the content equality
+owner is pending in the diagnostic. Do not silently equate entity equality,
+hub equality and language equality.
 
-`Content::State { key, init }` → `Content::State(Arc<StateElem>)`.
-Construtor: `Content::state(key, init: Value)`.
 
-> **`Hash` manual via Debug** (`Value` tem `f64`); `PartialEq` deriva.
-
-## `impl Element`
-
-| método | comportamento |
-|---|---|
-| `plain_text` | `String::new()` (`content.rs:1657`) |
-| `is_empty` | default `false` |
-| `map_*` | **terminais** |
-| `element_kind` | `Some(ElementKind::State)` |
-| `to_payload` | `Some(ElementPayload::State { key, init })` (absorve `extract_payload.rs:43`) |
-
-## `eq` — quirk pré-existente preservado
-
-**`State` NÃO tem arm de `eq` no hub** (cai em `_ => false`, sempre desigual).
-**Preservar** — não adicionar dispatch (igual a `metadata.md`).
+The trait API/defaults belong to
+`00_nucleo/prompts/entities/elements/_comum.md`. This owner specifies only
+this element consumer; language constructors and layout algorithms remain
+with their respective owners. Historical inline-arm evidence is retained in
+`00_nucleo/diagnosticos/sanitization-entities-contracts-history.md`.

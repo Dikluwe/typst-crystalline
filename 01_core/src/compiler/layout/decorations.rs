@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/decorations.md
-//! @prompt-hash c2c08325
+//! @prompt-hash 5805e2c7
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -25,7 +25,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // Modelo D (Lote 4 P319): destructure de Arc<Elem> + kind_em
     // num só match (os 3 são tipos `Arc` distintos — sem `|`).
     let (body, stroke, offset, extent, kind_em) = match content {
-        Content::Underline(e) => (&e.body, e.stroke.clone(), e.offset, e.extent, 0.10_f64),
+        Content::Underline(e) => {
+            (&e.body, e.stroke.clone(), e.offset, e.extent, 0.10_f64)
+        }
         Content::Strike(e) => (&e.body, e.stroke.clone(), e.offset, e.extent, -0.25),
         Content::Overline(e) => (&e.body, e.stroke.clone(), e.offset, e.extent, -0.80),
         _ => unreachable!("arm gates Underline/Strike/Overline"),

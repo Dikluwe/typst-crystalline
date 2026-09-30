@@ -18,6 +18,7 @@
 //! Paridade observable estricta preservada: `Color::rgb(255, 0, 0)`
 //! produz mesmos bytes PDF antes e depois de P257.
 
+use crate::entities::layout_types::Ratio;
 /// Representa uma cor em um de 8 espaços de cor (paridade
 /// estrutural vanilla — `lab/typst-original/crates/typst-library/src/visualize/color.rs:194`).
 ///
@@ -29,7 +30,6 @@
 /// `PartialEq` derivado é exacto via `f32` bitwise (sem
 /// tolerância em produção; paridade ADR-0028 regra herdada).
 use std::sync::Arc;
-use crate::entities::layout_types::Ratio;
 
 #[derive(Clone)]
 pub enum Color {
@@ -780,7 +780,9 @@ impl Color {
     /// **P744** — converte a cor para um vec4 no espaço indicado. Usado por
     /// `mix` (paridade vanilla `ProcessColor::to_vec4`).
     fn to_vec4_in_space(self, space: ColorSpace) -> [f32; 4] {
-        let c = if self.space() == space { self.clone() } else {
+        let c = if self.space() == space {
+            self.clone()
+        } else {
             self.clone().to_space(space).unwrap_or_else(|_| self.to_process())
         };
         match c {
@@ -868,11 +870,13 @@ impl Color {
         if colors.is_empty() {
             return None;
         }
-        let space = space.unwrap_or_else(|| match &colors[0].0 {
+        let space = space.unwrap_or_else(|| {
+            match &colors[0].0 {
             Color::Spot(first) if colors.iter().all(|(color, _)| {
                 matches!(color, Color::Spot(spot) if spot.colorant == first.colorant)
             }) => ColorSpace::Spot((*first.colorant).clone()),
             _ => ColorSpace::Oklab,
+        }
         });
         let hue_idx = match &space {
             ColorSpace::Oklch => Some(2),
@@ -921,7 +925,8 @@ impl Color {
         }
         let original = self.space();
         let space = space.unwrap_or(ColorSpace::Oklab);
-        let converted = self.clone().to_space(space).unwrap_or_else(|_| self.to_process());
+        let converted =
+            self.clone().to_space(space).unwrap_or_else(|_| self.to_process());
         let negated = match converted {
             Color::Srgb { r, g, b, a } => Color::srgb_f32(1.0 - r, 1.0 - g, 1.0 - b, a),
             Color::Luma { l, a } => Color::Luma { l: 1.0 - l, a },
@@ -975,7 +980,8 @@ impl Color {
             }
             _ => {
                 let original = self.space();
-                let Color::Hsv { h, s, v, a } = self.to_space(ColorSpace::Hsv).ok()? else {
+                let Color::Hsv { h, s, v, a } = self.to_space(ColorSpace::Hsv).ok()?
+                else {
                     return None;
                 };
                 Color::hsv(h, increase_p742(s, factor), v, a).to_space(original).ok()
@@ -1531,7 +1537,11 @@ mod tests {
 
     #[test]
     fn p742_to_space_roundtrip_srgb_hsv_bytes() {
-        let roundtrip = VANILLA_RED.to_space(ColorSpace::Hsv).unwrap().to_space(ColorSpace::Srgb).unwrap();
+        let roundtrip = VANILLA_RED
+            .to_space(ColorSpace::Hsv)
+            .unwrap()
+            .to_space(ColorSpace::Srgb)
+            .unwrap();
         assert_eq!(roundtrip.to_srgb(), VANILLA_RED.to_srgb());
     }
 
@@ -1543,7 +1553,7 @@ mod tests {
     #[test]
     fn p1252_to_space_luma_preserva_alpha_known_upstream_bug() {
         let source = Color::srgb_f32(1.0, 0.254902, 0.211765, 0.4);
-        let Ok(Color::Luma { l, a } ) = source.to_space(ColorSpace::Luma) else {
+        let Ok(Color::Luma { l, a }) = source.to_space(ColorSpace::Luma) else {
             panic!("to_space(Luma) deve produzir Luma");
         };
         assert_eq!(a.to_bits(), 0.4_f32.to_bits());
@@ -1555,7 +1565,7 @@ mod tests {
 
     #[test]
     fn p1239_luma_red_usa_matriz_srgb_palette() {
-        let Ok(Color::Luma { l, a } ) = VANILLA_RED.to_space(ColorSpace::Luma) else {
+        let Ok(Color::Luma { l, a }) = VANILLA_RED.to_space(ColorSpace::Luma) else {
             panic!("red.to_space(Luma) deve produzir Luma");
         };
         assert!((l - 0.5402).abs() < 0.00005, "witness RED P1239: {l}");
@@ -1819,7 +1829,10 @@ mod tests {
     fn p744_rotate_hsl_e_hsv_suportados() {
         // Vermelho puro em Hsl/Hsv com rotação 180° → cyan (#00ffff).
         let red = Color::rgb(255, 0, 0);
-        assert_eq!(red.clone().rotate(180.0, Some(ColorSpace::Hsl)).unwrap().to_hex(), "#00ffff");
+        assert_eq!(
+            red.clone().rotate(180.0, Some(ColorSpace::Hsl)).unwrap().to_hex(),
+            "#00ffff"
+        );
         assert_eq!(red.rotate(180.0, Some(ColorSpace::Hsv)).unwrap().to_hex(), "#00ffff");
     }
 

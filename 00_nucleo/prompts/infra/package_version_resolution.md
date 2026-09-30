@@ -1,113 +1,27 @@
-# Prompt L0 — `infra/package_version_resolution` — Resolução de versão implícita de pacotes
+# L0 — Versionless package resolution boundary
 Hash do Código: caeadbbd
 
-**Camada**: L3
-**Criado em**: 2026-07-15 (Passo 764)
-**Arquivos gerados**: `03_infra/src/package_downloader.rs` (futuro), alterações em `03_infra/src/world.rs`
-**ADRs referência**: ADR-0107 (paridade com a linguagem), ADR-0108 (medir antes de decidir), ADR-0109 (atomização L1/L3)
+**Layer:** L3 reference; ownership unresolved
+**Ownership boundary:** reference document; no exclusive Rust consumer declares this prompt.
 
----
+## Current evidence
 
-## Contexto
+- `03_infra/src/project_init.rs:96` and `:133` — template package and omitted-version resolution; its declared owner is `00_nucleo/prompts/shell/init.md`.
+- `03_infra/src/package_downloader.rs:132` — remote index resolution, owned by `00_nucleo/prompts/infra/package_downloader.md`.
+- `01_core/src/entities/package_spec.rs` — versioned/versionless pure package types.
 
-A premissa inicial do relatório de pendências era que `#import "@preview/nome"` (sem versão) funcionava no vanilla e falhava no cristalino. A sonda de P764 refutou essa premissa: no vanilla CLI 0.15.0, a sintaxe de `import` **exige** versão; a única resolução implícita de versão observada está no comando `typst init` (templates) e em qualquer outro ponto futuro que use `VersionlessPackageSpec`.
+These are current local source anchors, not a new upstream parity measurement.
 
-Este L0 define como resolver uma versão quando o utilizador não a especifica, nos pontos onde isso é semanticamente válido.
+## Contract
 
-## Objetivo
+This reference does not independently authorize another consumer. The existing code is owned by the two canonical prompts above. Preserve the existing ownership gap for investigation in `00_nucleo/diagnosticos/sanitization-infra-wiring-history.md`; resolving it requires work outside this documentary scope, not a fictitious consumer declaration.
 
-Especificar o comportamento de resolução de versão implícita de pacotes, alinhado ao vanilla CLI 0.15.0, de forma a evitar divergências de linguagem.
+For `typst init` with an omitted version, the initialization owner calls the downloader for `preview`, using the remote registry index rather than choosing the latest cached local preview version. A failed index request fails resolution. For another namespace, initialization enumerates only the package data directory, ignores entry names that do not parse as PackageVersion, and chooses the maximum numerical `(major, minor, patch)` tuple. Cache roots are not a local latest-version source.
 
-> **Fonte de paridade (P1031) — `file:line` do vanilla, que faltava.** As decisões abaixo
-> apoiavam-se na "sonda P764" sem reproduzir comando/saída. Confirmam-se por citação literal
-> do vanilla ratificado (`e0e8ca4d`):
->
-> | Afirmação do L0 | Citação do vanilla |
-> |---|---|
-> | `PackageVersion` só tem `major`/`minor`/`patch`, `u32` cada | `crates/typst-syntax/src/package.rs:353-362` — `pub struct PackageVersion { pub major: u32, pub minor: u32, pub patch: u32 }` |
-> | Ordenação = ordem lexical dos três componentes (`Ord` derivado) | `package.rs:354` — `#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]`; com os campos por essa ordem, o `Ord` derivado é exactamente major → minor → patch |
-> | Pré-lançamentos rejeitados com *"version number has unexpected fourth component: `…`"* | `package.rs:450` — `Err(eco_format!("version number has unexpected fourth component: `{rest}`"))?;` (citação à letra) |
-> | Namespaces locais procuram só na data dir | `crates/typst-kit/src/packages.rs:203-206`, comentário literal: *"We only search in the data directory and not the cache directory, because the latter is not intended for storage of local packages."* |
-> | Entradas de directório malformadas são ignoradas em silêncio | `packages.rs:207-214` — `latest_version` faz `filter_map(|path| path.file_name()?.to_string_lossy().parse().ok())`, ou seja, o `parse` falhado é descartado sem diagnóstico |
-> | Índice remoto em `…/preview/index.json` | `packages.rs:426` — `format!("{}/{}/index.json", self.url, Self::NAMESPACE)` |
->
-> **Natureza**: literal para todas as linhas da tabela. Nota complementar: o vanilla tem uma
-> segunda mensagem análoga para *bounds* de versão — *"version bound has unexpected fourth
-> component: `…`"* (`package.rs:513`) — que este L0 não regista; lacuna documentada.
->
-> **A afirmação de que `import` exige versão foi medida directamente** (§Contexto). Ficheiro
-> com uma só linha, `#import "@preview/example"`, 2026-08-13 — a rejeição é sintáctica, logo
-> não há acesso à rede:
->
-> | Binário | Saída |
-> |---|---|
-> | Vanilla `/usr/local/bin/typst` (`typst 0.15.1 (e0e8ca4d)`) | `error: package specification is missing version` (col. 8) |
-> | Cristalino `target/release/typst` (fonte em HEAD `4f64e4e69`, árvore só com edições em `00_nucleo/prompts/**`) | `error: package specification is missing version` (col. 8) |
->
-> **Mesma mensagem, mesma coluna** — a premissa de P764 confirma-se e o cristalino já está
-> em paridade neste ponto. A sonda P764 continua sem registo próprio, mas a afirmação deixou
-> de depender dela.
+PackageVersion contains three unsigned components; prerelease strings are not valid versions. Malformed local entries are skipped without additional diagnostics. Explicit versions retain the initialization owner's local-root search before download.
 
-## Decisões arquiteturais (medidas em P764)
+`#import` package syntax still requires a version. Do not widen the import parser, change PackageSpec or introduce a new resolution trait. Remote index fetching and CA configuration belong to the downloader; template filesystem work belongs to initialization. A per-SystemWorld latest-version/index cache is not part of the current consumer; the unresolved cache proposal is recorded in the diagnostic above.
 
-### 1. Fonte da "versão mais recente"
+## Verification boundary
 
-- **Namespace `@preview`**: consulta remota ao índice `https://packages.typst.org/preview/index.json`.
-  - O vanilla não procura primeiro na cache local para determinar a versão mais recente; vai directamente ao índice remoto.
-  - Se o índice remoto não estiver acessível, a resolução falha.
-- **Outros namespaces (locais)**: procurar apenas na **data dir** (não na cache), conforme comentário do vanilla em `typst-kit/src/packages.rs`: "We only search in the data directory and not the cache directory, because the latter is not intended for storage of local packages."
-
-### 2. Critério de ordenação semver
-
-- O tipo `PackageVersion` do vanilla é composto apenas por `major`, `minor` e `patch` (`u32` cada).
-- A ordenação é a ordem lexical dos três componentes numéricos (major → minor → patch), equivalente a `Ord` derivado da estrutura.
-- Versões com sufixos de pré-lançamento (ex.: `0.2.0-beta`) **não são representáveis** em `PackageVersion`:
-  - O parser rejeita `"0.2.0-beta"` com "version number has unexpected fourth component: `beta`".
-  - Em namespaces locais, entradas de directório com nomes malformados são silenciosamente ignoradas por `latest_version`.
-- Conclusão: não há tratamento especial de pré-lançamentos; eles são simplesmente ignorados.
-
-### 3. Mensagem de erro para versão malformada na cache
-
-- Não há mensagem de erro específica.
-- O vanilla ignora entradas cujo nome de directório não parseie como `PackageVersion`.
-- Replicar este comportamento: ignorar silenciosamente, sem alertar o utilizador.
-
-### 4. Cache de resolução dentro da mesma compilação
-
-- **Decisão de dono**: cache em memória do índice remoto e das resoluções de `latest_version` durante a vida do `SystemWorld`.
-- O vanilla usa `once_cell::sync::OnceCell` para guardar o índice em memória no `UniversePackages`.
-- Replicar: o índice é descarregado no máximo uma vez por instância de `SystemWorld`.
-
-### 5. Ponto de entrada no código
-
-- `03_infra/src/world.rs`, método `SystemWorld::resolve_package`.
-- Quando um `PackageSpec` sem versão chegar ao ponto de resolução (se algum dia existir no parser), a versão é preenchida antes de procurar em disco ou descarregar.
-- Até que o parser de import aceite versões omitidas, este L0 aplica-se principalmente a futuros comandos como `init` ou `template`.
-
-## Restrições estruturais
-
-- A lógica de resolução remota (download do `index.json`) fica em L3, partilhando cliente HTTP com `infra/package_downloader.md`.
-- L1 expõe apenas tipos puros (`PackageSpec`, `PackageVersion`, `VersionlessPackageSpec`) e um trait de resolução.
-- Não se altera o parser de import para aceitar versão omitida sem um passo L0 dedicado à sintaxe.
-
-## Critérios de verificação
-
-```
-Dado typst init @preview/cetz num sistema com cache local contendo 0.2.2 e 0.5.2
-Quando o índice remoto indica que 0.5.2 é a versão mais recente
-Então a versão resolvida é 0.5.2
-
-Dado typst init @local/testpkg numa data dir com 0.1.0, 0.2.0 e 0.2.0-beta
-Quando se pede a versão mais recente
-Então a versão resolvida é 0.2.0 (0.2.0-beta é ignorada)
-
-Dado um namespace preview sem conectividade de rede
-Quando se tenta resolver a versão mais recente
-Então a operação falha com erro de rede ou índice não encontrado
-```
-
-## Materialização P1137-INIT-2
-
-`03_infra/src/project_init.rs` consome este contrato: `preview` consulta o
-índice remoto pelo downloader; outros namespaces enumeram somente a data dir,
-ignoram nomes que não parseiam e escolhem o máximo numérico.
+The current initialization suite controls local maximum-version selection. Network-error/index-absence behavior follows the downloader. This reference is not proof of one-to-one lineage or fresh upstream parity.

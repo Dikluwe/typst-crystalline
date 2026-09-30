@@ -1,34 +1,22 @@
-# Prompt L0 — `compiler/layout/title` — layout de `TitleElem`
+# L0 — title
 Hash do Código: 3da4144c
 
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/title.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-**Camada:** L1  
-**Ficheiro proprietário:** `01_core/src/compiler/layout/title.rs`  
-**ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0129  
-**Medição de paridade:** P765a
+## Evidence before specification
 
-## Medição vigente
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/title.rs:18`, `01_core/src/compiler/layout/title.rs:22`.
 
-O consumer proprietário contém a free function estática `title::layout`, chamada
-pelo match exaustivo do núcleo de layout conforme a forma B da ADR-0109. Ela recebe
-`&mut Layouter` e `&TitleElem`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-## Contrato
+## Ownership and contract
 
-- calcular o tamanho como `1.7 × style.size`;
-- substituir temporariamente o estilo por `TextStyle` bold, não italic e com o
-  tamanho calculado, preservando os demais defaults vigentes usados pelo código;
-- fazer flush anterior somente se o cursor já avançou além da margem esquerda;
-- materializar o body e fazer flush posterior;
-- restaurar integralmente o estilo anterior ao retornar.
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-## Aceitação em nível de linguagem
+Temporarily install the current title TextStyle: bold, non-italic, size `1.7 * outer_size`, with the remaining fields initialized by TextStyle defaults. Close preceding horizontally pending text, dispatch the title body and close its line, then restore the outer style. Do not silently change default-field initialization to full style inheritance.
 
-O título aparece como bloco próprio, maior e em negrito, sem contaminar o estilo do
-conteúdo posterior.
+## Acceptance and limits
 
-## Fora de escopo
-
-Não pertencem a este owner: construção ou campos de `TitleElem`, resolução do
-argumento e do metadado `document.title`, parsing, introspecção, HTML e mudanças
-futuras de estilo. A metodologia histórica de P765 não é contrato deste módulo.
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.

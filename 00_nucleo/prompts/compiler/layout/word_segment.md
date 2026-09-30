@@ -1,38 +1,25 @@
-# Prompt L0 — segmentação de palavra para quebra de linha
-Hash do Código: 2964977f
+# L0 — word segment
+Hash do Código: e0221ae7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/layout/word_segment.rs`
-**Vanilla ratificado:** `9f2b6e8715237cb086899a42873660fe744622e8`
-**ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/word_segment.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## P1504 — medição antes da decisão
+## Evidence before specification
 
-Na working tree P1503 registrada em
-`00_nucleo/materialization/typst-passo-1504.md`,
-`compiler/layout/cursor.rs:1192-1303` contém a seleção de scripts sem
-espaços, a criação de `icu_segmenter`, o tailoring de aspas CJK e a
-fragmentação; `layout_word:242-299` chama esse caminho, e `layout_chunk`
-posiciona os fragmentos. As tabelas ICU estão embutidas em tempo de
-compilação, sem leitura de arquivo em L1.
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/word_segment.rs:22`, `01_core/src/compiler/layout/word_segment.rs:28`, `01_core/src/compiler/layout/word_segment.rs:46`.
 
-## Decisão e contrato
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-Este consumer é dono somente da segmentação de palavra para scripts sem
-espaços e da filtragem de oportunidades que colocariam aspas CJK na borda
-errada. Ele emite fragmentos não vazios ao hook de chunk existente, na
-ordem dos breakpoints, sem inserir espaço nem reinterpretar idioma, estilo,
-shaping ou hifenização. `compiler/layout/cursor.md` conserva medição,
-baseline, wrap, `layout_word` e `layout_chunk` e decide quando chamar a
-segmentação. O segmentador é reconstruído por invocação; não introduzir
-estado global mutável, I/O ou assinatura pública. O dispatcher permanece
-estático e exaustivo.
+## Ownership and contract
 
-Aceitação: CJK com aspas de abertura/fecho, Thai/Lao/Myanmar/Khmer, texto
-latino, RTL e palavra com hifenização preservam fragmentos, páginas,
-posições e texto antes/depois. Breakpoints em UTF-8 devem continuar em
-fronteiras válidas. Refutam a fronteira: o owner novo decidir a paginação,
-duplicar wrap, mudar o tratamento de spaces ou alterar a fase de layout.
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
+
+Select Han, Hiragana, Katakana, Thai, Lao, Myanmar and Khmer text for ICU line segmentation. Use embedded LSTM tables and reconstruct the segmenter per invocation. Apply the existing opening/closing CJK quote breakpoint filter when the active language or script supplies CJK context. Forward non-empty UTF-8-valid fragments in breakpoint order to the Cursor chunk hook; do not insert spaces, change shaping, reinterpret language or decide pagination. Word measurement and wrapping remain in `00_nucleo/prompts/compiler/layout/cursor.md`.
+
+## Acceptance and limits
+
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.

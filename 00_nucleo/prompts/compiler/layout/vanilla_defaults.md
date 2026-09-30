@@ -1,24 +1,22 @@
-# Prompt L0 — `layout/vanilla_defaults` — Constantes Canónicas de Layout
+# L0 — vanilla defaults
 Hash do Código: f9f664e8
 
-**Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/vanilla_defaults.rs`
-**Origem**: Criado no **Passo 1058** para consolidar constantes canónicas do domínio `layout` com proveniência e fundamentação tipográfica formal (precedente `entities/math_constants.md`).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/vanilla_defaults.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
----
+## Evidence before specification
 
-## 1. Grandezas Canónicas do Domínio Layout
+The current consumer implements the operations specified below at `lab/typst-original/crates/typst-library/src/model/par.rs:210`, `lab/typst-original/crates/typst-library/src/model/par.rs:224`, `lab/typst-original/crates/typst-library/src/layout/container.rs:348`, `01_core/src/compiler/layout/vanilla_defaults.rs:14`, `01_core/src/compiler/layout/vanilla_defaults.rs:18`, `01_core/src/compiler/layout/vanilla_defaults.rs:23`.
 
-### `PAR_SPACING = 1.2em`
-* **Proveniência**: `lab/typst-original/crates/typst-library/src/model/par.rs:224`
-* **Definição**: Espaçamento vertical padrão entre parágrafos distintos.
-* **Razão Teórica / Porquê Científico**: Na tipografia computacional do Typst, a quebra de parágrafo (`Content::Parbreak`) estabelece uma nova unidade discursiva. Ao contrário de uma simples quebra de linha interna, parágrafos adjacentes colapsam seus espaçamentos para o maior valor entre eles (1.20em). A aplicação deste valor elimina a divergência de $-6.050\text{ pt}$ em relação ao leading intra-linha (P1056/P1057).
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-### `PAR_LEADING = 0.65em`
-* **Proveniência**: `lab/typst-original/crates/typst-library/src/model/par.rs:210`
-* **Definição**: Distância vertical entre o `bottom-edge` da linha anterior e o `top-edge` da linha subsequente dentro do mesmo parágrafo.
-* **Razão Teórica / Porquê Científico**: O `leading` preserva o ritmo vertical da leitura contínua intra-bloco sem criar segmentação excessiva. O avanço de baseline intra-parágrafo é $\text{top} + |\text{bottom}| + \text{leading}$.
+## Ownership and contract
 
-### `BLOCK_SPACING = 1.2em`
-* **Proveniência**: `lab/typst-original/crates/typst-library/src/layout/container.rs:342`
-* **Definição**: Espaçamento vertical padrão (`above`/`below`) para elementos de bloco genéricos (`BlockElem`, `DividerElem`, `Equation` em bloco).
-* **Razão Teórica / Porquê Científico**: Blocos isolados fora do fluxo de texto contínuo herdam a distância de $1.20\text{em}$ para preservar a consistência visual com os parágrafos vizinhos, mas operam através do modelo de contenção e margens de bloco.
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
+
+Own only the canonical pure numeric defaults: `PAR_SPACING = 1.2`, `PAR_LEADING = 0.65`, `BLOCK_SPACING = 1.2`, expressed as font-size multipliers. These constants are not historical benchmark measurements. Consumers resolve them against their effective font size and own their placement/collapse formulas. Do not infer every blocklike feature's semantics from equality of these values.
+
+## Acceptance and limits
+
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.

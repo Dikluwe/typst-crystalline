@@ -42,3 +42,30 @@ L4 composes the existing L1 domain, L2 presentation and L3 infrastructure. Font/
 Verify this unit through its existing family/CLI tests when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
+
+## `--pdf-standard` no target bundle — proposta pendente de gate ADR-0127 (2026-09-30)
+
+### Medição anterior à decisão
+
+A sonda `00_nucleo/diagnosticos/pdf-standard-bundle-2026-09-30/results.json`
+mede PDF isolado sem título rejeitado sob `--pdf-standard=ua-1` e PDF de
+bundle sem título publicado sob a mesma flag. `04_wiring/src/compile.rs:155`
+limita a construção de `standard_override` ao target PDF direto; em
+`04_wiring/src/compile.rs:325`, o campo homólogo de `BundleCompileOptions`
+recebe consequentemente `None`. `03_infra/src/pipeline/bundle.rs` já resolve
+esse campo por entrada. A hipótese de falta de fio é refutada se o bundle
+receber Some(PdfStandards) para essa flag; o código medido envia None.
+
+### Contrato proposto, ainda não vigente
+
+Se autorizado, L4 valida a lista explícita de standards por
+`PdfStandards::new` nos targets PDF e Bundle, mantendo ausência como `None`.
+Passa esse `Option<PdfStandards>` a `BundleCompileOptions` sem reconstruir
+opções por entrada. A pipeline L3 aplica a precedência caller > documento >
+default e suas validações PDF somente às entradas PDF; erros impedem a
+publicação da coleção. O gate CLI-only de standard acessível versus tags
+permanece no PDF direto; o bundle usa o gate documental por entrada. O
+resto da ordem pré-World e dos targets não PDF permanece igual. Esta
+proposta altera o efeito observável da flag no bundle e **não autoriza L4**
+antes da confirmação ADR-0127. Depois da confirmação, atualizar o contrato
+vigente, ressellar este owner e verificar RED→GREEN.

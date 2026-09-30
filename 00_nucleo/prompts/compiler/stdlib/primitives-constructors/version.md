@@ -1,109 +1,26 @@
-# Prompt L0 — constructor primitivo `version` e adapter de `at`
+# L0 — stdlib/primitives-constructors/version
 Hash do Código: 70a81299
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml sha256:761d5adeca09f6a60ba2960f8492aa6c0d934798bbc826f341004cf993ba8736
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/stdlib/primitives_constructors/version.rs`
-**ADRs:** ADR-0107, ADR-0108, ADR-0127, ADR-0129.
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/stdlib/primitives_constructors/version.rs`
 
-## Medição anterior à decisão
+## Evidence and classification
 
-O consumer vigente aceita string numérica pontuada, qualquer quantidade de
-componentes inteiros posicionais não negativos, ou um array desses componentes.
-Argumentos nomeados e componentes `pre`/`build` são rejeitados. P1200 preserva
-integralmente esse comportamento e individualiza somente ownership e linhagem.
+`01_core/src/compiler/stdlib/primitives_constructors/version.rs:17`, `01_core/src/compiler/stdlib/primitives_constructors/version.rs:34`, `01_core/src/compiler/stdlib/primitives_constructors/version.rs:42` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-## Contrato
+## Contract and ownership
 
-`native_version(ctx, args, world, current_file) -> SourceResult<Value>`:
+native_version rejects named arguments and accepts one dotted numeric string through Version::from_str, one array of nonnegative integer components, or any number of nonnegative integer positionals. Zero components returns Version::default. Reject malformed strings, negative/non-integer components and pre/build components. Return Value::Version(Arc<Version>); preserve pure callable-type delegation.
 
-- uma string isolada usa `Version::from_str`;
-- um array isolado ou os próprios posicionais fornecem zero ou mais componentes
-  inteiros não negativos;
-- zero componentes produz `Version::default()`;
-- rejeitar negativos, componentes não inteiros, strings inválidas e quaisquer
-  argumentos nomeados;
-- retornar `Value::Version(Arc<Version>)` e permanecer L1 puro.
+Own the single internal version.at adapter and its static/bound glue, not the Version::at formula. version_type_field discovers only at; the module remains private and integration helpers pub(crate). The public short function name/repr is at. Consume strict Version self, then strict Int/i64 index, reject leftovers, then delegate value and index error to Version::at. No additional string/Float/Bool conversion. Positive out-of-range indices extend by zero; negative indices are relative to explicit components. Preserve the entity's out-of-bounds message on the whole call.
 
-## Limites e gates
+Required supplied only by name reports `the argument \`self\` is positional` / `the argument \`index\` is positional`, on the full named occurrence with the respective remove-self:/index: hint. Missing reports `missing argument: self` / `missing argument: index` on the whole call. Cast reports `expected version, found <type>` / `expected integer, found <type>` at value_span. Reject the first causal remaining occurrence: `unexpected argument` positional or `unexpected argument: <name>` named. Preserve origins with aggregate fallback only when detached.
 
-- `pre` e `build` não pertencem à linguagem Typst e não são aceitos.
-- Não adicionar bump, conversão para string ou novas operações; a proibição
-  inicial de `.at(index)` é sucedida exclusivamente pelo adendo P1339 abaixo.
-- A entrada por tipo chamável delega a esta mesma free function; mudança da
-  superfície pública permanece sob ADR-0127.
+Bound calls inject the receiver once and delegate to the same adapter; evaluation/spreads happen once beforehand. Static aliases/With preserve resolved-function identity and full-call anchoring, not callee spelling. Extraction of bound .at without calling remains `unknown version component`, owned by field access. Do not create a second formula/parser, registry or entity, or change major/minor/patch, repr/display/comparison/PARITY_VERSION. Existing absent-component tensions remain separate debt.
 
-## Aceitação
+## Acceptance
 
-Cobrir strings válidas e inválidas, cardinalidades arbitrárias, vazio, array,
-negativos, não inteiros e argumentos nomeados rejeitados.
-
-## P1339 — adapter único de `version.at`
-
-### Medição anterior à decisão
-
-Vanilla ratificado `a51e02804`, fonte
-`lab/typst-original/crates/typst-library/src/foundations/version.rs:109–134`,
-documenta índice i64, extensão positiva por zero e índice negativo relativo
-aos componentes explícitos. A medição histórica (UTC e
-proveniência integrais no registro), sobre HEAD
-`2f42d64253547734564513a1159ee6b584c1c4b4` com diff/stat vazio, contém os IDs
-`discovery-version.at`, `version-static-*`, `version-bound-*`,
-`version-invalid-*` e `version-method-value`; o suplemento boundaries cobre
-as sobras ligadas. A rota é `(function, "at")`, retorna Int, e a obtenção de
-`version(...).at` sem chamada falha com `unknown version component`.
-
-`01_core/src/entities/version.rs:103–120` já possui a fórmula completa.
-`01_core/src/compiler/eval/bindings/value_methods.rs:623–661` reimplementa
-argparsing só ligado, usando span agregado e tolerando named se existir
-um positional. Não basta descobrir uma segunda nativa com o parser antigo.
-
-### Decisão e contrato proprietário
-
-Criar neste consumer um adapter nativo interno de `at`, descoberto como
-`version.at`, e fazer a forma ligada chamar o mesmo adapter. Ele recebe dois
-posicionais obrigatórios: `self` estritamente Version e `index` estritamente
-Int/i64; não converter string em Version nem Float/Bool em Int. Remove
-receiver por operação causal de Args; delega valor e erro de índice a
-`Version::at`. Nenhuma segunda fórmula, registry ou nova entidade.
-
-Integração interna nomeada: `pub(crate) fn version_type_field(field: &str)
--> Option<Value>` descobre somente `at`; `dispatch_version_method` é helper
-`pub(crate)` que recebe Version, nome do método e Args já avaliados, insere
-receiver causalmente e chama a mesma nativa de `version_type_field`. O módulo
-`version` permanece privado; reexports internos nos hubs proprietários não
-transformam helpers ou módulo em API pública externa. O dispatcher seleciona
-span integral pela identidade da função retornada no lookup, inclusive alias
-ou With, e não por spelling `at`.
-
-Parser por ordem declarada: consumir/castar `self`, consumir/castar `index`,
-rejeitar sobras, depois executar a operação. Required fornecido apenas por
-named produz `the argument \`self\` is positional` ou
-`the argument \`index\` is positional`, com hint de remover `self:`/`index:`
-e span da ocorrência named completa. Ausência produz
-`missing argument: self`/`missing argument: index` na chamada inteira.
-Cast usa `expected version, found <tipo>`/`expected integer, found <tipo>`
-no value span. Extra positional produz `unexpected argument` e named não
-consumido `unexpected argument: <nome>`, na primeira ocorrência sobrante.
-Mensagem de out-of-bounds da entidade é preservada literalmente e ancora
-a chamada inteira. Argumentos e spreads são avaliados uma vez pelo dispatcher
-antes do parser; não reconstruir ordem/origem por mapa ou AST textual.
-
-`version(v).at(i)` aqui designa chamada ligada sobre um valor Version já
-construído, não conversão adicional: o glue insere o receiver e encaminha
-Args/spans ao adapter. Aliases estáticos têm a mesma semântica. Este owner
-não fornece acesso a `.at` como valor ligado; isso continua no field access.
-
-Valor, tipo, erro, hint e spans são linguagem; formato Vec, Arc e escolha de
-nativa Rust são mecânica. A intenção do índice vem da documentação citada,
-os diagnósticos de parsing da medição. Inferência de suficiência do adapter é
-refutada por erro/ordem que perca ocorrência entre estática e ligada.
-
-Constructor, major/minor/patch, repr, display, comparação e `PARITY_VERSION`
-permanecem intactos. A tensão histórica entre documentação e campos ausentes
-de versão não é corrigida por esta rota. Não fecha paridade geral de Version.
-Gate de implementação: contrato validado e RED independente P1339; depois
-verificar índices positivos/negativos/extremos, lista vazia, erros, aliases e
-preservações, com ownership 1:1 e V5/V15/V26 limpos.
+Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaults and public identities, with no productive-code change. Preserve pinned shared claims and the exclusive owner boundary under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130. Historical evidence does not establish parity against a newer snapshot.

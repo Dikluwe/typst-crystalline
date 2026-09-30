@@ -1,28 +1,22 @@
-# Prompt L0 — registro injetado de elementos
+# L0 — Injected element registry
 Hash do Código: 0b151b49
+
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/element_registry.rs`
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/entities/element-boundary.toml sha256:cafcd80a58c3e84a9b44a49eb92a93cd2422ddbcf530d295c3645ae54bf1e41b
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/entities/element_registry.rs`
-**ADRs:** ADR-0029, ADR-0105, ADR-0106, ADR-0108, ADR-0129.
+## Evidence and contract
 
-## Medição anterior à decisão
+The consumer maps names to `ElementCtor` without global state. Constructors are
+`Arc<dyn Fn(&[Value]) -> SourceResult<Content> + Send + Sync>`.
 
-O consumer mapeia nome para `ElementCtor`, é injetado e não possui estado
-global. Construtores são `Arc<dyn Fn + Send + Sync>`, recebem valores e devolvem
-`SourceResult<Content>`. A suíte varre cada registro e prova construção e
-dispatch da porta dinâmica.
+- Register/replace constructors by name, query names and clone a constructor O(1).
+- Construct known elements; unknown names produce a source diagnostic, not panic.
+  Preserve its observable message and detached span.
+- Stay pure and injected, without global `static`, `OnceLock` or I/O.
+- The guard sweeps all names, testing construction, dynamic dispatch and field
+  round-trips. Verify empty construction, lookup and unknown-name errors too.
 
-## Contrato
-
-- Registrar/substituir construtor por nome, consultar nomes e clonar ctor O(1).
-- Construir elemento conhecido; nome desconhecido produz diagnóstico, não panic.
-- Permanecer puro em L1, sem `static`, `OnceLock` ou I/O.
-- A trava percorre todos os nomes e exercita o contrato dinâmico e `get_field`.
-
-## Aceitação
-
-Registro vazio, lookup, construção, erro desconhecido e varredura passam sem
-alterar a superfície vigente.
+Evaluation integration and chain behavior remain with evaluator/style owners.

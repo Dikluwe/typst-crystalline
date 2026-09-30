@@ -1,675 +1,74 @@
-:warning: **Prompt L0 — `compiler/layout/equation` — Layout de Equações**
-Hash do Código: 926bdd93
+# L0 — equation
+Hash do Código: 1eeb0cb4
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:3cf8b79e22fcda6466dc38b7691a73ada4540956fbed14129c9e1ed5a6a56c43
 
-**Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/equation.rs`
-**ADRs relevantes**: ADR-0037 (atomização), ADR-0068 (locatable), ADR-0114/0117 (sonda A.0)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/equation.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
----
+## Evidence before specification
 
-## Contexto
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/equation.rs:158`, `01_core/src/compiler/layout/equation.rs:479`, `01_core/src/compiler/layout/equation.rs:871`, `01_core/src/compiler/layout/equation.rs:38`, `01_core/src/compiler/layout/equation.rs:658`, `01_core/src/compiler/layout/equation.rs:673`.
 
-Braço `Content::Equation` do `layout_content`. Responsável por renderizar
-expressões matemáticas inline e de bloco, incluindo numeração automática de
-equações de bloco quando activa.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-## Regras de negócio
+## Ownership and contract
 
-- Equações inline (`block: false`) renderizam no fluxo de texto, com a
-  **baseline da equação alinhada à baseline do texto circundante** (P800 —
-  paridade vanilla medida por `mutool trace`: texto e math partilham a mesma
-  baseline; o eixo matemático fica `axis_height` ACIMA da baseline e só
-  governa o centrado interno de fracções/delimitadores via
-  `apply_axis_offset`). Os items do `MathLayouter::layout_equation` vêm com
-  posições relativas à baseline da fórmula (y = 0), pelo que a integração
-  soma simplesmente `cursor_y` (`offset_y = cursor_y`). A regra anterior
-  (Passo 48: "eixo matemático alinhado à baseline do texto", implementada
-  como `offset_y = cursor_y - axis_pt`) foi **refutada por medição** —
-  deslocava toda a fórmula inline `axis_pt` (~0.5em) para cima do texto.
-- Equações de bloco (`block: true`) dão `flush_line()` antes e depois,
-  ocupando a sua própria linha.
-- **P813 — equações de bloco são centradas horizontalmente na região**
-  (paridade vanilla: ShowSet `align(center)` para equações de bloco —
-  `lab/typst-original/crates/typst-library/src/math/equation.rs:190`;
-  centrado dentro do bloco pelo flow —
-  `lab/typst-original/crates/typst-layout/src/flow/distribute.rs:589`).
-  O `offset_x` dos items é `margin + (largura_util - largura_equacao) / 2`
-  (largura_util = `regions.current.width - 2 * margin`), sem clamp — uma
-  equação mais larga que a região sangra centrada, como no vanilla.
-- **P813 — espaçamento vertical de bloco 1.2em acima e abaixo**
-  (paridade vanilla: `BlockElem::above/below` default
-  `Smart::Custom(Em::new(1.2))` —
-  `lab/typst-original/crates/typst-library/src/layout/container.rs:342`;
-  o wrapping da equação em BlockElem —
-  `lab/typst-original/crates/typst-layout/src/rules.rs:807`). Modelo de
-  baselines (medido por `mutool trace` em P813):
-  - baseline da equação = `baseline_anterior + spacing + ascent_ink` —
-    o vanilla empilha `descent_prev + spacing + ascent_frame` e o
-    `descent` da linha de texto é 0 (bottom-edge default `"baseline"`);
-  - baseline seguinte = `baseline_equacao + descent_ink + spacing +
-    top_edge_texto`;
-  - **no topo da página/região** (`initial_baseline_pending`), o spacing
-    acima é suprimido: baseline = `margin + ascent_ink` (medido: `$x^2$`
-    sozinho → baseline = margin + ascent, sem 1.2em);
-  - `ascent_ink`/`descent_ink`/`width` vêm de
-    `MathLayouter::layout_equation_measured` (extent calculado dos items
-    com `FontMetrics::text_ink_bounds` — paridade com o vanilla, cujo
-    frame math usa as bounding boxes dos glyphs, não as métricas globais
-    da fonte).
-  - Para recuperar a baseline da linha anterior quando a equação entra
-    com a linha já fechada (ex.: após `Parbreak`), o Layouter regista
-    `last_flush_advance` em `flush_line()` (ver `compiler/layout.md`).
-  - Scope-out P813: o colapso `max(prev.below, above)` entre blocos
-    adjacentes (P250) não se aplica ainda a equações consecutivas; a
-    centragem de equações numeradas não reserva a calha do número
-    (`NUMBER_GUTTER` vanilla).
-- Numeração automática:
-  - O gate é lido da chain via `custom("equation.numbering")`.
-  - O valor deve ser `Value::Str(pattern)` (ex: `"(1)"`, `"[I]"`, `"(a)"`).
-  - Apenas equações de bloco (`block: true`) com pattern presente são numeradas.
-  - O número é obtido via `Introspector::flat_counter_at("equation", loc)`.
-  - O número é formatado por `format_counter(&[n], pattern)`, com fallback
-    arábico se o pattern for inválido.
-  - O número é renderizado como `FrameItem::Text` à **direita** da página,
-    alinhado verticalmente com a baseline da equação.
-- Equações inline ignoram o gate (não são numeradas).
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-## P1140.4-A — número materializado pelo pós-fixpoint
+Own block/inline Equation dispatch, the current math fallback, math-to-FrameItem composition, Formula carrier, equation number placement and deferred equation fixups. Mathematical node layout and callback occurrence matching belong to their existing math owners, not to this prompt.
 
-`equation.numbering` aceita `Value::Str`, `Value::Func` ou `Value::None`. O
-layout não executa funções. Para equação de bloco ativa, pede ao `Introspector`
-o `Content` do número já materializado para a `Location`: padrões string são
-formatados com o contador e funções já foram aplicadas ao inteiro no estágio
-pós-fixpoint. `None`/ausência ou equação inline não produzem número.
+Install math=true, New Computer Modern Math family, weight 450 and Display/Text math-size according to blockness, inheriting the existing outer style fields. Keep the current lexical chain and supplied stable equation Location, effective region height and attempt-wide callback pass when constructing MathLayouter. A directly constructed Layouter retains its callback-free fallback pass. Do not load fonts, call Func, allocate a second equation Location or reconstruct math callback indexes here.
 
-O conteúdo materializado substitui a suposição de `number_text: String` tanto
-no caminho imediato quanto no fixup de largura `auto`. Sua largura é medida e
-o frame é colocado na mesma calha direita. A mesma fonte semântica alimenta
-referências; layout e referência não formatam independentemente.
+Lay out and measure the math body once. Use that same raw extent and returned items for composition. Block numbering may extend ascent to the active top edge; preserve collapse state across mathematical measurement. Inline equations stay on the text baseline, not displaced by the math axis. Resolve their paragraph contribution once as the current bound/text-edge ascent/descent versus raw extent minus 0.7 times effective paragraph leading, with nonnegative descent, then submit it to Cursor's canonical inline-extents aggregator. Do not rescan glyphs or lay out again to estimate line bounds.
 
-Esta fonte materializada para `Func` só existe depois de P1140.4-A2. Em A1, o
-layout continua consumindo pattern string diretamente da chain e `none`
-desativa. Não assumir que `run_fixpoint` é executado em produção.
+Block equations close pending text, center within the available finite width (including a negative offset for an overwide equation), and preserve the current region-top suppression of above spacing and the ordinary block boundary/collapse protocol elsewhere. Default above/below is resolved from `00_nucleo/prompts/compiler/layout/vanilla_defaults.md`; track equation descent for subsequent blocks. Auto width defers centering/number placement to this owner's pending fixups rather than using infinite coordinates.
 
-## P1140.4-B — alinhamento do número
+Translate supported math FrameItems into the actual equation baseline/origin, then wrap them in an identity Group whose inner width/height are the logical measured extent, inside a Formula Semantic envelope with Inline/Block placement and the supplied String alt or no alt. Keep prescripts/negative child coordinates and trailing logical extent: cursor advance is based on the full extent, not a sum of Rust glyph advances or a first-child bound. The envelope does not create layout twice or change visual order.
 
-**Medição antes da decisão** (2026-08-24, vanilla pinado `a51e02804`, HEAD
-cristalino `ffd527c85dd7d547413d33cbc2d27a80e32a3f8c`, working tree não
-commitada): `number-align` só tem efeito quando a equação de bloco possui
-numeração ativa. Horizontalmente, `left` ancora o número na margem inicial
-física e `right` na margem final física. `start`/`end` resolvem pela direção do
-texto: em RTL, `start` colocou o número à direita e `end` à esquerda. O corpo
-matemático continua centrado.
+For an enabled block number, consume pre-realized equation-numbering Content from the introspector, with the current causal pattern/counter fallback and empty fallback; this is not layout-time function execution. Preserve the current plain-text width projection and marginal Text emission for numbering; rich function-produced numbering is not newly guaranteed by this cleanup. Resolve number-align's physical start/end with direction and top/bottom/horizon against the actual measured multi-line equation baselines/extent. Keep finite alignment and the existing number/gutter reservation interface with `00_nucleo/prompts/compiler/layout/page_geometry.md`. Deferred fixups apply after final page width is known, preserving indexes/reference frame and clearing their buffers once.
 
-Verticalmente, uma equação de uma linha alinha o número pela baseline para
-`top`, `horizon` e `bottom`. Em math multilinha medido, as baselines do número
-foram 17,513pt (`top`), 32,275pt (`horizon`) e 39,370pt (`bottom`): `top`
-alinha à primeira linha, `bottom` à última e `horizon` centra os frames, não
-escolhe simplesmente uma baseline. Sem numbering, `number-align` não desloca
-a equação nem cria frame.
+Bare supported Math variants use this math bridge without inventing a new native dispatcher or interpretation for Lr/Mid/Primes/Stretch/Underover. MathAlignPoint outside that structured context remains the explicit central no-op. Direct private HTML markers do not make a pending material line. Unmeasured layout/callback/rich-numbering combinations remain limitations, not success inferred from a non-empty frame.
 
-O layout lê `equation.number-align` da chain e normaliza componentes ausentes:
-`h = end`, `v = horizon`. `start`/`end` são resolvidos por `text.dir`; não podem
-usar o fallback histórico global que trata sempre start como left. A posição
-horizontal usa as margens físicas depois dessa resolução e deve participar do
-fixup de `width: auto`, preservando a calha e o diferimento já definidos em
-P896/P987.
+## Acceptance and limits
 
-Para a posição vertical, `MathLayouter::layout_equation_measured` fornece, no
-mesmo run que produz os items, a geometria das linhas necessária ao consumidor:
-número de linhas, âncora/baseline da primeira e da última e extensão total. Não
-é permitido re-layoutar a equação nem inferir linhas agrupando coordenadas de
-glyphs no layouter de página. Uma linha usa a sua baseline para qualquer
-componente vertical; em múltiplas linhas, `top` usa a primeira baseline,
-`bottom` a última e `horizon` centra a caixa do número na extensão da equação.
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
-O alinhamento move somente o conteúdo materializado da numeração; o corpo e a
-fonte única usada por referências em P1140.4-A permanecem inalterados.
-
-## Patterns suportados
-
-Mesmo subset de `format_counter` (P451): `"1"`, `"1."`, `"I."`, `"(a)"`,
-`"A."`, `"[1]"`, etc.
-
-## Critérios de verificação
-
-- Equação de bloco com `equation.numbering = "(1)"` → número `(1)` visível.
-- Equação de bloco com `equation.numbering = "[I]"` → número `[I]` visível.
-- Duas equações de bloco numeradas sequenciais → `(1)` e `(2)`.
-- Equação inline com gate activo → sem número.
-- `plain_text` continua a incluir o número formatado.
-
-## P784 — `TextStyle.math` marcado no ponto de entrada
-
-Antes de chamar `MathLayouter::layout_equation`, constrói-se
-`math_style = TextStyle { math: true, ..self.style.clone() }` e passa-se
-`&math_style` (não `&self.style`). Ponto **único** onde `math: true` é
-definido — herdado por toda a árvore de layout math via `..style.clone()`.
-Consumido em L3 (`shaper.rs`, ver `infra/shaper.md` §P784) para engatar
-sempre a cadeia de fallback de fontes matemáticas, independentemente de a
-fonte de corpo por omissão ter ou não tabela MATH OpenType própria (não
-tem — verificação visual real com glifo `⨿`/U+2A3F confirmou que a
-condição anterior, só `primary_has_math`, nunca disparava no caso comum e
-o cristalino embutia glifo errado de fonte de sistema aleatória). Ver
-`entities/layout_types.md` §P784 para o campo em si.
-
-## P893 — `MathLayouter::new` passa a receber `math_style`
-
-`math_layouter = math::layout::MathLayouter::new(&self.metrics, block)` passa a
-`MathLayouter::new(&self.metrics, block, &math_style)` — `math_style` já estava construído na linha
-imediatamente anterior (P784, acima), só não era passado. Motivo: `MathLayouter::new` computa
-`constants = metrics.math_constants(style)` (ver `compiler/layout.md` §P893, `math/layout/_comum.md`
-§P893) — sem `style`, `FallbackFontMetrics::math_constants` não tem como resolver qual face da
-cadeia de fallback fornece as constantes MATH reais, caindo sempre em `MathConstants::fallback()`
-(achado colateral de P891, medido e quantificado em `typst-passo-893-relatorio.md`).
-
-## P895 — centragem/numeração de equação de bloco guardadas contra `width: auto`
-
-**Achado** (`typst-passo-894-relatorio.md`, Prioridade 1): `#set page(width: auto)` deixa
-`page_config.width`/`regions.current.width` em `f64::INFINITY` até `compute_page_width()` resolver
-o valor final (a partir do conteúdo já colocado — só acontece em `finish()`/`new_page()`, ver
-`compiler/layout.md`). A centragem horizontal de equações de bloco (P813, acima) e o posicionamento do
-número da equação (`layout_equation`, secção "Acrescentar número") liam
-`self.regions.current.width` **directamente**, antes dessa resolução — com `width: auto`,
-`offset_x`/`right_x` ficavam `INFINITY`, propagando para `compute_page_width()` (via
-`line_content_right`) e daí para a `MediaBox` exportada como o literal inválido `"inf"` (PDF
-malformado; leitores como MuPDF/poppler substituem silenciosamente um tamanho de página fallback,
-mascarando o bug como "conteúdo desaparecido").
-
-**Correcção**: ambos os pontos passam a verificar `self.regions.current.width.is_finite()` antes de
-usar o valor:
-- **Centragem** (P813): quando infinito, `offset_x` fica no valor já inicializado
-  (`self.regions.current.cursor_x`, a margem) — sem aplicar a fórmula de centragem. Paridade com o
-  comportamento observado no vanilla para uma única equação de bloco com `width: auto` (medido:
-  vanilla também posiciona a equação exactamente na margem nesse caso — a página auto-ajustada faz
-  `usable == largura da equação`, a centragem degenera para offset zero de qualquer forma).
-- **Numeração**: quando infinito, o número da equação **não é posicionado** (scope-out deliberado —
-  não há margem direita bem definida contra a qual alinhar; caso raro, não exercitado pelo ficheiro
-  que expôs o achado original).
-
-**Fora de âmbito, à data de P895** (superado por P896, abaixo): esta correcção não replicava a
-centragem cruzada do vanilla entre múltiplas equações de larguras diferentes na mesma página
-`width: auto`.
-
-## P896 — centragem/numeração corrigidas via correcção adiada (superam o "fora de âmbito" de P895)
-
-**Achado** (`typst-passo-896-relatorio.md`, Fase A): lido o código-fonte real do vanilla
-(`typst-layout/src/flow/distribute.rs`) — o mecanismo real **não** é "duas passagens completas de
-layout" (não recalcula nada); é **posicionamento diferido**: cada filho do flow é acumulado como
-`Item::Frame(frame, align)` (frame já medida, posição ainda por resolver) numa estrutura de
-trabalho, e só **uma** função (`finalize`) resolve todas as posições, chamada depois de toda a
-região estar recolhida, quando a dimensão final (mesmo que `auto`) já é conhecida.
-
-**Correcção** (Opção (c) do relatório, escopo mínimo — só equação, decisão confirmada pelo dono):
-`layout_equation` já não tenta resolver a posição correcta quando `regions.current.width` está
-infinito — regista os dados necessários (`Layouter::pending_equation_centering`/
-`pending_equation_numbering`, `compiler/layout.md` §P896) e `Layouter::apply_pending_equation_fixups`
-(chamado por `finish()`/`new_page()`, já com `page_width` finito) corrige as posições antes da
-`Page` ser fechada. Ver `compiler/layout.md` §P896 para o mecanismo completo (campos, método,
-`helpers::shift_frame_item_x`).
-
-**Ainda fora de âmbito** (decisão explícita do dono, per `typst-passo-896-relatorio.md`): o mesmo
-bug em `Content::Align`/`resolve_alignment` (`#align(center)[...]` fora de modo math, confirmado na
-Fase A a sofrer exactamente a mesma classe de erro — `available_width()` também devolve `infinito`)
-**não foi corrigido**. Candidato a um passo dedicado futuro que estenda o mesmo mecanismo de
-diferimento a `resolve_alignment` em geral.
-
-## P944 — `EquationElem::show_set` de fonte: equações usam `New Computer Modern Math`
-
-**Medição** (proveniência: commit `8c8fb3c97`, working tree com `eprintln!` de diagnóstico
-temporários em `attach.rs`/`stretchy.rs`, revertidos antes do fecho da Fase A; artefactos em
-`temp/p944/`; relatório completo em `00_nucleo/diagnosticos/typst-passo-944-relatorio.md`):
-
-- Com `#set text(font: "New Computer Modern")`, `$ mat(1,2;3,4) $` produz
-  `vertical_glyph_variants('(') = []` e `vertical_glyph_assembly('(') = 0 partes` →
-  `layout_stretchy_delimiter` cai no fallback de glifo base → delimitador curto, colado à
-  última linha da matriz (defeito visual confirmado pelo dono nas secções 5/21 do documento
-  de 30 secções).
-- `$ lim_(x -> ∞) 1/x $` produz `math_constants().lower_limit_gap_min = 0` →
-  `y_sub = base_descent + 0 + sb.ascent` (ascent de tinta, P921): 4.41pt para `x→∞` vs 5.86pt
-  para `x→0` → o subscrito do segundo `lim` fica ~3pt acima da posição vanilla e colide com a
-  base (defeito visual confirmado na secção 4).
-- Causa raiz medida (fontTools): `NewCM10-Regular.otf` (a fonte de **texto** "New Computer
-  Modern", primeira primária) **tem tabela MATH, mas stub** — `LowerLimitGapMin = 0`,
-  `LowerLimitBaselineDropMin = 0`, `MathVariants` ausente. `NewCMMath-*.otf` tem os valores
-  reais (`LowerLimitGapMin = 167`, `LowerLimitBaselineDropMin = 600`, `(` com 8 variantes
-  verticais 997–2991du + assembly de 3 partes). O primeiro passe de `covering` (P912) e
-  `math_constants` (P893) escolhem "a primeira primária com tabela MATH" — e essa é o stub de
-  texto, não a fonte MATH real.
-- Vanilla (`lab/typst-original/crates/typst-library/src/math/equation.rs:197-201`):
-  `EquationElem::show_set` fixa **`TextElem::weight = 450`** e
-  **`TextElem::font = FontList(["New Computer Modern Math"])`** para **toda** a equação
-  (inline e bloco) — o `#set text(font:)` do documento **não** se aplica dentro de equações.
-- Sondagem end-to-end (sem código novo): o mesmo `.typ` com
-  `#set text(font: "New Computer Modern Math")` produz variantes povoadas, assembly de 3
-  partes, `lower_gap = 1.837pt` e render limpo dos dois casos (`temp/p944/min-mathfont.png`).
-
-**Decisão**: em `layout_equation` — ponto único, tal como P784 para `math: true` — o
-`math_style` passa a fixar `font = FontList(["New Computer Modern Math"])` e
-`weight = Some(450)`, replicando o show-set do vanilla citado acima. **Nenhuma** alteração em
-`covering`/`math_constants`/`select_variant` em L3 — o mecanismo está correcto; a fonte
-primária é que estava errada. Nós `MathStyled` (`mono`/`serif`/`sans`/`upright`/`bold`)
-não tocam `style.font` (actuam por transformação de codepoints Unicode e factores de
-tamanho), pelo que o override não os afecta. O **número de equações numeradas** também é
-composto com `math_style` (emenda da revisão cética de P944): no vanilla, o número é
-layoutado com a chain que inclui o show-set
-(`lab/typst-original/crates/typst-layout/src/math/mod.rs:217`,
-`layout_frame(engine, &counter, …, styles)`). A mudança é de
-comportamento amplo por desígnio (toda a matemática passa a usar a fonte MATH real — é a
-semântica da língua, ADR-0107); a revalidação visual do documento de 30 secções (Fase C do
-passo) é o gate.
-
-**Scope-out** (medidos em P944, registados para passo dedicado — não corrigidos aqui):
-
-- `attach.rs` (limites) não implementa o termo `max(lower_limit_baseline_drop_min, …)` da
-  fórmula do vanilla (`lab/typst-original/crates/typst-layout/src/math/scripts.rs:306-310`),
-  e `MathConstants` não tem `lower_limit_baseline_drop_min`/`upper_limit_baseline_rise_min` —
-  residual sub-ponto na posição de limites após esta correcção.
-- `sb.ascent` de tinta (P921) vs ascent de frame por métricas da fonte do vanilla — diferença
-  residual na mesma casa decimal.
-- Fonte custom dentro de equações (`#show math.equation: set text(font: …)`): sem evidência
-  de suporte actual no cristalino; o override é incondicional (comportamento do vanilla na
-  ausência desse show).
-
-**Critérios de aceitação** (nível da língua — geometria medida, ADR-0107/0108):
-
-- `$ mat(1,2;3,4) $` e `$ mat(1,2,3;4,5,6;7,8,9) $` com `#set text(font: "New Computer
-  Modern")`: delimitadores cobrem todas as linhas da matriz (prova visual/`mutool trace`
-  contra o vanilla).
-- `$ lim_(x -> ∞) 1/x $`: subscrito `x→∞` abaixo de `lim`, sem colisão de glifos; gap ≥
-  `LowerLimitGapMin` (167du = 1.837pt a 11pt).
-- Suite completa verde e `crystalline-lint .` com zero violations.
-- Documento de 30 secções revalidado visualmente na íntegra (Fase C), com registo de
-  qualquer achado novo.
-
-## P945 — entrada fixa `math_size: Display | Text`
-
-No mesmo ponto único de P784/P944 (construção do `math_style`), a entrada passa
-a fixar também `math_size: MathSize::Display` (equação de bloco) ou
-`MathSize::Text` (inline) — paridade com o vanilla, que fixa
-`EquationElem::size` = Display/Text conforme `block`
-(`lab/typst-original/crates/typst-library/src/math/equation.rs:189-195`).
-Semântica e consumidores do campo: `entities/layout_types.md` §P945.
-
-## P952 — espaçamento equação→equação inclui `descent_ink` da anterior
-
-**Medição** (`typst-passo-952` Fase A, decomposição exata do modelo em
-`layout_equation` + medição etiqueta-a-etiqueta das 44 equações do documento):
-o vanilla posiciona blocos de flow **aresta-a-aresta** — fundo do frame
-anterior + `max(above, below)` colapsado (1.2em,
-`flow/collect.rs:253-278` + `flow/distribute.rs:185-199`) + topo do frame
-seguinte. O cristalino (P813) computava a baseline da equação seguinte como
-`baseline_anterior + 1.2em + ascent_ink(seguinte)` — **sem o `descent_ink` da
-equação anterior** — encostando equações consecutivas com conteúdo profundo
-(défice = `descent_ink` da anterior; medido: matrizes +12.3 a +12.9pt/gap,
-frações +4.8 a +8.5pt/gap, linhas simples ~0). O caso texto→equação estava
-correcto porque `bottom-edge` do texto é a baseline (descent = 0) — e o caso
-equação→texto já incluía a descent (P813, linha "baseline seguinte =
-baseline_equacao + descent_ink + spacing + top_edge").
-
-**Correcção**: no cálculo de `prev_baseline` (ramo de recuperação,
-`cursor_y - last_flush_advance`), somar a `descent_ink` da equação de bloco
-imediatamente anterior, registada num novo campo do Layouter
-`prev_block_equation_descent: f64` (default 0.0) — escrito no epílogo do
-bloco (`Some(ext.descent)`) e reposto a 0.0 nos mesmos pontos onde
-`last_flush_advance` é actualizado/resetado (`cursor.rs` — flush de linha de
-texto e reset, `sub_frame.rs` — save/restore). Sem efeito quando o conteúdo
-anterior não é equação de bloco (campo 0 → comportamento P813 inalterado,
-guardado pelos testes P813 existentes).
-
-## P1292 amendment-2 — extensão vertical da equação inline (REFUTADA)
+## Separadores textuais — materialização autorizada em 2026-09-28
 
 ### Medição anterior à decisão
 
-Em 2026-09-01, sobre HEAD `0eb39f8ecb48930515f2cadb6a378450855b5a72`
-e working tree P1292 não commitada, a fixture bilateral
-`#set page(width:auto,height:auto,margin:0pt) $underline(x)$` provou que a
-linha inferior já é emitida nos dois SVGs, mas a raiz vanilla mede
-`6.292pt × 7.513pt` e a candidata `6.292pt × 7.238pt`. A linha candidata fica
-fora da altura declarada (`y=8.943pt`), logo o RED não é ausência da regra nem
-constante MATH: é a linha de parágrafo ignorar a extensão da equação inline.
+`01_core/src/compiler/layout/equation.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
+`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+dos handlers desse consumer precedem esta alteração. A aprovação do contrato
+público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
+2026-09-28 e registrada na proveniência da materialização.
 
-O owner produtivo já chama uma única vez
-`MathLayouter::layout_equation_measured` e recebe, dos mesmos items,
-`EquationExtent { width, ascent, descent, ... }`
-(`01_core/src/compiler/layout/equation.rs:128-145`). Depois integra os items
-na baseline corrente, mas não chama o mecanismo canônico
-`note_inline_extent`; caixas/transformações inline já o usam em
-`compiler/layout/boxed.rs` e `compiler/layout/transform.rs`. A fonte vanilla
-ratificada constrói o frame math inline com ascent/descent
-(`typst-layout/src/math/mod.rs:49-101`, SHA-256
-`88b33ef6eb23deae0e6956c7c59bdbc57604ae1d39a0c6171233f426d87b146b`)
-e o finalizador de linha agrega `frame.baseline()` e
-`frame.height()-frame.baseline()` (`typst-layout/src/inline/line.rs:559-633`,
-SHA-256
-`9da32eee7a101a8e60b70f787d480a78ab4652127bcce02b74a85ad80cf6a54e`).
+### Responsabilidade deste owner
 
-### Decisão histórica v3 — REVOGADA por amendment-3
+Transportar posição, avanço já consumido, estilo e origem do TextSeparator sem criar tinta, baseline ou novo avanço; manter ordem dos filhos. Em conteúdo externo de equação, deslocar carrier sem somar advance ao cursor.
 
-A chamada abaixo não é contrato vigente. A implementação literal no SHA-256
-`5683f8469819678652041847f464cf1151d525cb68a0313b1b87722b7cf4e66a`
-provou que `EquationExtent` é a caixa matemática anterior à normalização de
-parágrafo: entregar o seu descent cru infla a linha. Preserva-se esta secção
-somente como história causal da refutação.
+Conservar as responsabilidades existentes; a aceitação segue texto e geometria
+observáveis, incluindo os controles de adjacência e os invariantes pinados.
 
-Depois de obter `extent` e antes de fechar a linha, somente quando
-`block == false`, `layout_equation` chama exatamente uma vez:
-
-```rust
-self.note_inline_extent(extent.ascent, extent.descent);
-```
-
-O par vem do `EquationExtent` já calculado no mesmo run que produziu
-`math_items`. É proibido reinspecionar `FrameItem`, repetir
-`measure_equation_items`, relayoutar a fórmula ou derivar a extensão do SVG.
-`note_inline_extent` continua sendo o único owner da agregação max por linha e
-`flush_line` continua sendo o único owner do deslocamento final da baseline.
-Equação de bloco não registra extensão inline e preserva P813/P952.
-
-Classificação ADR-0107/0108: a altura/baseline visível da linha é semântica;
-reusar `EquationExtent` e `note_inline_extent` é mecânica cristalina. A
-inferência causal seria refutada se a chamada com o par já medido não mudasse
-a raiz auto para a altura vanilla, se movesse a baseline matemática em relação
-ao texto, ou se alterasse uma equação de bloco. Qualquer necessidade de varrer
-items novamente refuta este refinamento e exige novo contrato, não duplicação.
-
-### Aceitação que refutou a regra
-
-- underline inline conserva exatamente uma linha e raiz auto
-  `6.292pt × 7.513pt` no corpus/fonte ratificados;
-- text/script/cramped continuam a usar suas extensões MATH reais, sem recorte;
-- texto antes/depois e math mantêm a mesma baseline P800;
-- equação de bloco e seus espaçamentos/números permanecem invariantes;
-- teste unitário pode controlar `line_inline_ascent/descent`, mas o oráculo
-  black-box pertence exclusivamente a `wiring/tests/p1292_contract.md`.
-
-## P1292 amendment-3 — frame inline normalizado antes do agregador
+## Identidade textual — materialização aprovada
 
 ### Medição anterior à decisão
 
-Medição bilateral em 2026-09-01T00:57:33-03:00, vanilla ratificado
-`a51e02804` (`/usr/local/bin/typst` SHA-256
-`7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`)
-e candidato `target/debug/typst` SHA-256
-`f047eee722fcad1c7c3afe9fe4d7b144a92b6c263eb4442bec5797b4c30b52f8`,
-sobre HEAD `0eb39f8ecb48930515f2cadb6a378450855b5a72` e working tree P1292 não
-commitada:
+As sondas bilaterais e o estado exato em
+`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
+A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
+O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
 
-| Fixture page-auto, margem zero | Vanilla | candidato com extent cru |
-|---|---:|---:|
-| `$x$` | `6.292 × 7.513pt` | `6.292 × 7.359pt` |
-| `$underline(x)$` | `6.292 × 7.513pt` | `6.292 × 9.735pt` |
-| `A $underline(x)$ B` | `25.905 × 7.513pt` | `25.905 × 9.735pt` |
-| `$ underline(x) $` (Display/bloco) | `6.292 × 7.359pt` | `6.292 × 7.359pt` |
-| `$x_(underline(y))$` (Script) | `11.4356 × 8.459pt` | `10.8196 × 13.189pt` |
-| `$1 / underline(y)$` (Cramped) | `6.7276 × 9.537pt` | `5.70075 × 16.4758pt` |
+### Responsabilidade exclusiva
 
-Na linha mista, texto anterior, math e texto posterior conservam a mesma
-baseline em cada renderer: `y=7.513pt` vanilla e `y=7.238pt` candidato. O
-descent cru não move essa baseline, mas numa fixture de duas linhas move a
-segunda baseline candidata de `21.747pt` (controle `$x$`) para `24.123pt`
-(`underline`); no vanilla ambos terminam em `21.901pt`. Em Cramped, o extent
-cru também desloca a baseline da linha para `9.4468pt`, contra `7.513pt` no
-vanilla.
+Tratar TextReplacement como envelope visual transparente nos percursos deste owner; descender nos filhos preservando text, ordem, coordenadas e o cálculo existente, sem novo algoritmo ou avanço.
 
-A fonte upstream mede antes de decidir:
-
-- `typst-layout/src/math/mod.rs:49-101`, SHA-256
-  `88b33ef6eb23deae0e6956c7c59bdbc57604ae1d39a0c6171233f426d87b146b`,
-  não entrega o frame math cru ao parágrafo. Para cada frame inline calcula
-  `slack = par.leading × 0.7`, resolve os text edges e usa
-  `ascent = max(top_edge, frame.ascent - slack)` e
-  `descent = max(bottom_edge, frame.descent - slack)` antes de redimensionar;
-- `typst-library/src/math/ir/resolve.rs:24-35`, SHA-256
-  `115d775641509a755a1b7f4bd6da26cc8502a09e0e23e303d38d4a7cd76e0112`,
-  confirma que `bounds` é estilo local dos fragmentos math, não substitui os
-  edges externos usados na normalização do frame de equação;
-- no cristalino, `cursor.rs` SHA-256
-  `120f04f65f53aa431f49b31288481466f4ac6bcae86815b82fc13db1ba17e932`
-  já é o owner canônico da agregação max e do deslocamento único da linha.
-  A divergência estava no par entregue por `equation.rs`, não no agregador.
-
-Com fonte `NewCMMath-Book.otf` pinada, o cap-height é 683/1000 em a 11pt,
-isto é, `7.513pt`; leading default `0.65em` dá slack `5.005pt`. Aplicar a
-fórmula medida aos extents já existentes explica todos os eixos verticais:
-Text engole `2.497pt` de descent; Script conserva somente `0.946pt`; Cramped
-normaliza a baseline para `7.513pt` e conserva `2.024pt`, total `9.537pt`.
-Esses números demonstram a fórmula, mas não podem ser assados no código.
-
-### Decisão v4 vigente
-
-Somente para `block == false`, o único `EquationExtent` retornado pelo mesmo
-`layout_equation_measured` é convertido numa caixa de parágrafo antes de
-chamar o agregador:
-
-```text
-slack = effective_par_leading_pt(math_style) * 0.7
-edge_ascent = resolve_top_edge_for_frame(math_style, extent.ascent)
-edge_descent = resolve_bottom_edge_for_frame(math_style, extent.descent)
-inline_ascent = max(edge_ascent, extent.ascent - slack)
-inline_descent = max(edge_descent, extent.descent - slack, 0)
-note_inline_extent(inline_ascent, inline_descent)
-```
-
-`effective_par_leading_pt` usa o leading lexical explícito ou o default
-canônico do parágrafo (`0.65em`) no tamanho efetivo; `0.7` é o fator medido do
-upstream, não uma constante de fixture. Edges métricos/comprimentos seguem a
-semântica já tipada de `TextStyle`; quando o edge é `bounds`, o bound do frame
-é o próprio `extent.ascent`/`extent.descent`. O bottom é convertido à
-magnitude positiva que `note_inline_extent` espera.
-
-A normalização ocorre uma vez, antes da integração/flush. Continua proibido
-varrer `FrameItem`, medir glyphs novamente, relayoutar, derivar SVG, mudar
-`note_inline_extent`/`flush_line` ou assar `7.513`, `0.946` ou `2.024`. O ramo
-block não chama este caminho: Display já é bilateralmente correto e P813/P952
-continua usando o extent math cru para sua semântica de bloco.
-
-### Inferência, refutadores e aceitação
-
-Inferência ADR-0107/0108: a normalização do frame é mecânica upstream; altura,
-baseline e avanço entre linhas são seus observáveis de linguagem. Ela é
-refutada se qualquer fixture acima não atingir o valor vanilla; se texto e
-math divergirem de baseline; se Display mudar; se `par.leading` lexical não
-governar o slack; ou se a solução exigir segunda inspeção/layout. Nesse caso,
-parar no owner correspondente — nunca ajustar fator ou valor à fixture.
-
-Aceitação v4 mantém integralmente os resultados verticais públicos B já
-validados: Text `7.513`, Display `7.359`, Script `8.459` e Cramped `9.537pt`;
-linha mista compartilha baseline e não altera o avanço da linha seguinte
-quando o underbar cabe no slack. Os valores de largura whole-wrapper escritos
-na tabela de medição acima são baseline histórica, não atribuição causal ao
-underline; a comparação horizontal discriminatória vigente é refinada pelo
-amendment-4 abaixo. Largura/italic correction pertencem ao owner
-`compiler/math/layout/underline.md` e não podem alimentar a altura do frame
-inline.
-
-## P1292 amendment-4 — comparação horizontal discriminatória de B
-
-### Medição anterior à decisão
-
-Em 2026-09-01T01:16:05-03:00, após a normalização v4 tornar alturas/linhas
-bilaterais, foram compilados pares idênticos com e sem underline:
-
-| Par page-auto | Vanilla base → underline | candidato base → underline |
-|---|---:|---:|
-| Text `$x$` / `$underline(x)$` | `6.292→6.292`; `7.513→7.513` | `6.292→6.292`; `7.513→7.513` |
-| Display `$ x $` / `$ underline(x) $` | `6.292→6.292`; `4.983→7.359` | `6.292→6.292`; `4.983→7.359` |
-| Script `$x_(y)$` / `$x_(underline(y))$` | `11.4356→11.4356`; `7.513→8.459` | `10.8196→10.8196`; `7.513→8.459` |
-| Cramped `$1/y$` / `$1/underline(y)$` | `6.7276→6.7276`; `7.8738→9.537` | `5.70075→5.70075`; `7.8738→9.537` |
-
-Os deltas de largura introduzidos pelo underline são `0` nos quatro estilos.
-Nos wrappers Script/Cramped, a diferença absoluta entre renderers já existe
-no controle sem underline e é numericamente idêntica com underline:
-`0.616pt` em attach e `1.02685pt` em fraction. Portanto whole-root width não
-discrimina MathUnderline.
-
-A geometria interna discrimina: a regra do `y` em Script e Cramped mede
-`4.4583pt` bilateralmente; a fraction bar mede `4.5276pt` bilateralmente. No
-isolado, `$f$` e `$underline(f)$` conservam frame/root `6.38pt`, enquanto a
-regra mede `5.39pt` bilateralmente, testemunhando o termo
-`−italics_correction=0.99pt`. Para `x`, frame e regra medem `6.292pt`.
-
-### Decisão v5 — comparação do underline vigente; scope-out de wrapper revogado por P1293
-
-A comparação horizontal B usa pares dentro do mesmo renderer:
-
-1. `width(underline(body)) - width(body) == 0` para body isolado e para o
-   mesmo body sob Text/Display/Script/Cramped;
-2. a regra começa na origem do body e mede
-   `max(0, body.width - italics_correction(body))`, incluindo o witness `f`;
-3. wrapper externo preserva seu próprio width ao trocar body por
-   `underline(body)`, mas o valor absoluto do whole-wrapper não é exigência B.
-
-Continuam exatos os observáveis verticais Text/Display/Script/Cramped e a
-baseline/avanço de linha do amendment-3. Surface, erros, repr, identidade,
-classe, estilo, regra/espessura/cor e morfologia permanecem inalterados.
-
-O enquadramento histórico que atribuía o resíduo whole-wrapper a
-attach/fraction e excluía equation/cursor/auto-page foi **refutado e revogado
-por P1293** na medição abaixo. A comparação discriminatória do underline
-continua válida para P1292, mas não pode ser usada para descartar a largura
-lógica do wrapper Formula nem para classificar a página `width:auto` apenas
-pela união material dos filhos.
-
-Inferência ADR-0107/0108: igualdade do delta e da regra demonstra preservação
-da linguagem do elemento sem exigir igualdade mecânica/absoluta do wrapper.
-Refutam B: delta não zero, regra diferente da fórmula/vanilla, frame/root do
-body mudar, qualquer altura/baseline regredir, ou o resíduo desaparecer apenas
-quando underline é removido. Não refuta B a mesma diferença absoluta presente
-bilateralmente no par base/underline; ela é scope-out explícito, nunca
-`Preserved` geral nem autorização de adaptar wrapper.
-
-## Extensão lógica em wrappers de fórmula
-
-`FrameItem::Semantic(Formula)` preserva o `EquationExtent` lógico já
-calculado para a equação. A extensão horizontal usa os limites de todos os
-filhos no mesmo referencial, inclusive pre-scripts à esquerda da base, sem
-transladar ou reordenar itens.
-
-O wrapper semântico continua visualmente transparente e mantém filhos,
-posições relativas, baseline, links e metadata. Layout inline entrega ao
-agregador a largura lógica da fórmula, não apenas a largura do primeiro filho
-nem uma soma que conte deslocamento negativo duas vezes.
-
-A regra vale estruturalmente para toda fórmula e não contém caracteres, slots
-ou constantes de fixture. Equações sem pre-scripts e casos vazios preservam o
-comportamento anterior.
-
-## P967 — cursor após equação inline inclui o espaçamento interno de classe (extent, não soma de advances)
-
-**Medição** (`typst-passo-967` Fase A; auditoria externa 2026-08-05 secção
-8.2 — espaço entre math inline e a palavra seguinte: 0.0-0.06pt no
-cristalino vs 3.65-4.85pt no vanilla): caso mínimo `a $3x + y = 9$ dado b`
-— no cristalino, "dado" é colocado a `x = cursor_x` computado como a
-**soma dos `metrics.advance(text)`** dos items da equação, que não inclui
-o espaçamento de classe embutido nos `pos.x` (THICK após relações, etc.
-de `compute_gaps`, P772y) — o cursor ficava ~11pt antes do fim real da
-equação e "dado" renderizava SOBRE o "9". No vanilla, a equação inline
-avança pela largura total do run (fragments com gaps incluídos,
-`math/mod.rs:64-72`).
-
-**Correcção**: no braço inline de `layout_equation`, o cursor passa a
-acompanhar o **extent real** dos items — por item,
-`cursor_x = max(cursor_x, offset_x + pos.x + advance)` (Text/TextShaped) e
-`offset_x + pos.x + x_advance` (Glyph) — a mesma fórmula de largura de
-`EquationExtent` (P813), partilhada, em vez da soma simples de advances.
-Efeito: o cursor final = fim real da equação (incluindo gaps internos); o
-espaço literal do `.typ` entre `$…$` e a palavra seguinte é colocado a
-partir daí, sem sobreposição.
-
-## P987 — número de equação acompanha o conteúdo (calha `NUMBER_GUTTER`) sob `width: auto`
-
-**Medição** (achado §8.7 da auditoria 2026-08-06 — o mais grave da ronda): no
-vanilla, `(1)` fica a ~6pt do fim do conteúdo da SUA equação; no cristalino,
-a ~206pt (x=496.47, quase na margem direita da página auto-width do doc de 30
-secções). Repro mínimo (`temp/p987/min.typ`): vanilla `(1)` em x=96.48 com
-conteúdo a acabar em 90.36 (gap = 0.5em); cristalino `(1)`/`(2)` ambos em
-x=56.75 — SOBREPOSTOS ao conteúdo, porque a página auto-width encolhe ao
-conteúdo (a reserva do número não entra na largura) e o número era alinhado à
-direita dessa largura computada.
-
-**Leitura do vanilla** (`typst-layout/src/math/mod.rs:209-330`,
-`add_equation_number` + `resize_equation`): para largura de região INFINITA,
-a linha da equação numerada tem largura `W = eq_width + 2 × full_number_width`
-com `full_number_width = number_width + NUMBER_GUTTER` (`Em::new(0.5)`,
-`mod.rs:217`); o conteúdo é centrado na linha e o número fica no fim da linha.
-Invariante resultante (válida com ou sem recentragem da linha na região):
-`number_x = content_end_x + gutter`. Para largura FINITA (página fixa), o
-número vai para o fim da região — igual ao comportamento actual do cristalino
-nesse caso (não se mexe).
-
-**Correcção** (mecanismo em `compiler/layout.md` §P987): o número pendente
-passa a registar `eq_width`/`applied_offset`; a largura da página auto inclui
-a linha de cada equação numerada (`eq_width + 2 × (number_width + gutter)`);
-o fixup posiciona o número em `content_end + gutter` (conteúdo centrado pela
-mesma fórmula do fixup de centragem P896). **Revoga o scope-out de P813**
-("a centragem de equações numeradas não reserva a calha do número") registado
-acima.
-
-**Critério**: doc com `width: auto` e 2+ equações numeradas de larguras
-diferentes → cada número a `content_end + 0.5em` da sua equação; página fixa
-→ número na margem direita (inalterado); página auto com uma equação larga
-não numerada + numerada estreita → número da estreita junto a ela, não à
-largura da larga.
-
-## P1140.5-A — emissão semântica de fórmula
-
-### Medição antes da decisão
-
-Vanilla resolve equações como `GroupKind::Formula` e o PDF converte esse grupo
-em tag Formula (`typst-pdf/tags/resolve/mod.rs:303-306`). O cristalino emite
-apenas items visuais diretamente; `alt` não tem fronteira durável.
-
-### Decisão
-
-`layout_equation` lê `equation.alt` da chain (`Str` → `Some`, `None`/ausente →
-`None`) e envolve exatamente os items visuais da equação num
-`FrameItem::Semantic { kind: Formula, placement, alt, items }`, sem relayout.
-Inline/block determina placement; numbering visual permanece descendente do
-mesmo grupo. O wrapper não altera bounds, cursor, baseline ou plain text.
-
-## P1291 — contexto puro da passagem math (MATERIALIZADO)
-
-### Medição anterior à decisão
-
-Este owner é o caller real de `MathLayouter`. A equação já é locatável e este
-ponto possui simultaneamente sua `Location` corrente, a `StyleChain` léxica e
-`Regions::effective()`, mas hoje descarta a altura da região ao construir o
-motor math. Não possui nem deve receber `Engine`.
-
-### Decisão proposta
-
-Ao construir `MathLayouter`, passa:
-
-- a `Location` corrente da equação, base estável da identidade das requests;
-- `Regions::effective().height` como base de percentagem de `vec.gap`;
-- a `StyleChain` léxica da posição, para o snapshot de contexto de requests de
-  `cancel.angle`;
-- o estado puro de transcript criado pelo entrypoint de `compiler/layout.md`.
-
-O `TextStyle` math efetivo continua a governar geometria/fonte e é combinado
-com a chain somente para formar o snapshot da request. O `MathLayouter` cria
-um `Cell<usize>` local iniciado em zero para cada equação. O braço de despacho
-reserva e incrementa o occurrence exatamente uma vez na entrada de todo
-`MathCancelElem`, antes de descer no body, independentemente de seu ângulo ser
-Auto, explícito ou Func; `cross` distingue as linhas por `line=0|1` sem novo
-occurrence.
-
-Este módulo não executa `Func`, não converte erro de callback e não decide
-convergência. Equações sem callbacks usam o mesmo caminho, com transcript
-vazio. Um `Layouter` isolado construído diretamente por testes ou helpers
-legados, fora da entry point produtiva, pode instalar localmente esse
-transcript vazio ao entrar na equação; ele serve apenas à compatibilidade de
-layout sem callbacks e é descartado com a chamada. A pipeline produtiva nunca
-usa esse fallback: injeta o estado da tentativa, resolve todo `Pending` em L3
-e só então permite que o documento alcance numbering/export. A mudança de
-assinatura fica no mesmo gate ADR-0127 de
-`compiler/math/layout/callbacks.md`.
-
-## P1493 — vazio material antes de equação
-
-Os gates de linha e região vazia consultam o predicado material comum durante
-a captura de posições HTML. O carrier direto não altera a escolha inline ou bloco
-nem a baseline da equação; qualquer item real conserva a decisão anterior.
+O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
+possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
+transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.

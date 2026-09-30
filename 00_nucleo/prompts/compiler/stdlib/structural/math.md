@@ -1,8 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/math` — nativas de matemática
-Hash do Código: ed3c9889
-
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
+Hash do Código: e3cc8546
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/math.rs`
@@ -20,26 +17,40 @@ o pin `586e1bd43` acima é proveniência histórica das secções anteriores.
 
 ---
 
-## Captura triestatal dos slots de `attach`
+## Ownership dos slots de `attach`
 
-Para cada `t,b,tl,bl,tr,br`, ausência do named produz
-`MathAttachSlot::Omitted`; `Value::None` produz `ExplicitNone`; conteúdo,
-string ou símbolo convertido produz `Present(content)`, inclusive conteúdo
-vazio.
-
-Spans, ordem de avaliação, casts, mensagens, hints e precedência permanecem
-intactos. É proibido usar `Content::Empty` como sentinel ou inferir presença
-por texto.
+A norma triestatal e o pin do Núcleo Tekt pertencem agora ao owner exclusivo
+`compiler/stdlib/structural/math/attach.md`. Este parent mantém apenas o
+binding estático no catálogo.
 
 ## Contexto
 
 As nativas de matemática que vivem no stdlib estrutural — os construtores de `Content`
-matemático e a montagem do módulo `math`. O **layout** destes elementos é outro eixo
+matemático e a montagem do módulo `math`. A família `math.vec` tem owner exclusivo
+`00_nucleo/prompts/compiler/stdlib/structural/math/vector.md`; este prompt
+retém somente o binding no catálogo. O **layout** destes elementos é outro eixo
 inteiro (`compiler/math/layout/`); este nó só constrói o conteúdo.
 
 **Técnica**: `make_math_module` monta um `Value::Module` com scope fechado de
 funções, operadores, espaçamentos e símbolos math. A tabela é construída uma
 vez; não há lookup dinâmico por registry.
+
+## Atomização da família `math.vec`
+
+**Medição antes da decisão:** no working tree não commitado capturado em
+`00_nucleo/diagnosticos/atomizacao-stdlib-math-vector-2026-09-30-before.json.gz`,
+`math.rs:724-893` contém `MathVecOptions`, casts de `delim`/`align`/`gap`,
+construção e nativa; `:2401-2422` contém o teste de conversão de `gap`.
+O filtro `cargo test -p typst-core math_vec --lib --offline --locked --quiet`
+passa 3 testes. Esta é uma medição estrutural, não um benchmark nem nova
+sonda de paridade com vanilla.
+
+**Decisão:** mover essa unidade e seu teste para `math/vector.rs`, com Prompt
+L0 exclusivo `math/vector.md`. Este owner mantém a montagem estática do módulo
+`math`, incluindo o binding `math.vec`, sem copiar casts ou constructor. O
+movimento preserva assinatura da nativa, ordem de argumentos, spans,
+diagnósticos, bits explícitos e identidade de `Content::MathVec`; não altera
+fase, default ou contrato público. A direção dos imports permanece na L1.
 
 ## P1425 — binding qualificado `math.limits` (APROVADO no gate ADR-0127)
 
@@ -74,6 +85,24 @@ falsa. As outras 21 rotas residuais P1422 ficam fora de escopo.
 Esta secção foi confirmada explicitamente pelo dono no gate P1425 em
 2026-09-16 e autoriza somente o candidato delimitado acima.
 
+## Delegação das famílias restantes — 2026-09-30
+
+**Medição anterior à decisão:** o working tree não commitado em
+`00_nucleo/diagnosticos/atomizacao-stdlib-math-restante-2026-09-30-before.json.gz`
+contém casts, builders, nativas e o catálogo estático em `math.rs:48-1685`;
+a suíte core baseline passa 6.401 testes, com 2 ignorados. Isto mede
+estrutura/regressão, não tempo nem nova paridade bilateral.
+
+**Decisão:** os owners filhos `casts`, `underline`, `lr`, `mid`,
+`annotations`, `primes`, `overline`, `norm`, `round`, `abs`, `stretch`,
+`attach`, `binom`, `underover`, `op` e `limits` assumem os casts, builders
+e nativas respectivos. Este parent conserva o catálogo estático, o espelho
+`sym → math`, os imports de composição e os testes próprios. As secções
+históricas abaixo preservam evidência e contrato de linguagem; o detalhe
+materializável de cada família pertence ao filho indicado. `op_value`
+é construído no filho `op` e apenas chamado pelo catálogo. Preservar
+identidade, dispatch estático, assinaturas, diagnósticos e fases.
+
 ## Instrução
 
 | Nativa | Assinatura | Emite |
@@ -83,6 +112,20 @@ Esta secção foi confirmada explicitamente pelo dono no gate P1425 em
 | `class` | `class(class, body)` | `Content::MathClassOverride` |
 | `underover` | `underover(base, under: ?, over: ?)` | `Content::MathUnderover` |
 | `op` | `op(text, limits: false)` | `Content::MathOp` |
+
+### Delegação do cast de `math.class` — 2026-09-30
+
+**Medição anterior à decisão:** no working tree não commitado capturado em
+`00_nucleo/diagnosticos/atomizacao-stdlib-math-class-2026-09-30-before.json.gz`,
+`math.rs:1069-1152` contém a nativa e o parent mantém o registro estático.
+O hub reexporta a nativa via parent. Os filtros `math_class` e P825 passam
+29 e 15 testes, respetivamente. Isto mede estrutura e regressão local;
+não é benchmark nem nova sonda bilateral.
+
+**Decisão:** casts, diagnósticos e construção de `math.class` passam ao owner
+exclusivo `compiler/stdlib/structural/math/class.md`; este parent retém o
+registro estático e o helper compartilhado `vanilla_type_name_class`.
+Preservar caminho público e comportamento.
 
 ### `math.class` — as 10 classes
 
@@ -184,25 +227,21 @@ espelho de símbolos:
 | `math.underline` | `underline(body)` | `Content::MathUnderline` |
 | `math.vec` | `vec(..children, delim: "(", align: center, gap: 0.2em)` | `Content::MathVec` |
 
-`cancel` valida `content`, `relative length`, `boolean`,
-`angle|function|auto`, `stroke` e `boolean`; `none`/`auto` não são strokes
-explícitos. A nativa apenas valida/cascateia e transporta para o mesmo
-`MathCancelElem`; nunca mede body, executa callback ou cria segundo runtime.
-Cada named presente marca seu bit morfológico, inclusive quando igual ao
-default. `underline` aceita um único body, sem named, e é identidade math
-distinta do underline textual. `vec` aceita filhos variádicos e os named
-`delim`, `align` horizontal e `gap`; zero filhos é válido; named presentes
-marcam os bits do payload.
+**Medição estrutural 2026-09-30 anterior à decisão:** o snapshot em
+`00_nucleo/diagnosticos/atomizacao-stdlib-math-cancel-2026-09-30-before.json.gz`
+mostra o corpo completo de `native_cancel` em `math.rs:395-529`, o binding
+estático neste parent e a reexportação no hub; o filtro `native_cancel` passou
+4 testes. A construção, os casts e a morfologia de `cancel` passam ao owner
+`compiler/stdlib/structural/math/cancel.md`; aqui fica o registro estático.
+A medição não é benchmark nem nova comparação bilateral com vanilla.
 
-Erros medidos e obrigatórios: falta de body em cancel/underline →
-`missing argument: body`; named desconhecido →
-`unexpected argument: <nome>`; `cancel.length` inteiro →
-`expected relative length, found integer`; `cancel.angle` inteiro →
-`expected angle, function, or auto, found integer`; `vec.gap` inteiro →
-`expected relative length, found integer`; `vec.align` inteiro →
-`expected alignment, found integer`; `vec.delim` inteiro →
-`expected array, none, symbol, or string, found integer`. Nenhum argumento
-reconhecido ou desconhecido é ignorado.
+`underline` aceita um único body, sem named, e é identidade math
+distinta do underline textual. A construção e os casts de `vec` pertencem ao
+owner `compiler/stdlib/structural/math/vector.md`.
+
+Os diagnósticos de `cancel` são propriedade do owner filho. Para
+`underline`, falta de body produz `missing argument: body` e named
+desconhecido produz `unexpected argument: <nome>`.
 
 Os owners dos payloads são `entities/elements/math_cancel.md`,
 `entities/elements/math_underline.md` e `entities/elements/math_vec.md`; o enum
@@ -211,10 +250,10 @@ Os owners dos payloads são `entities/elements/math_cancel.md`,
 `compiler/math/layout/vec.md`. Este módulo somente faz cast, cascata de estilos
 e construção.
 
-O runtime de callback de cancel permanece o validado em P1291. `math.vec`
-transporta `Rel<Length>` integral; a base percentual e a política
-`height:auto` pertencem aos owners de layout. Esta unidade não duplica layout
-nem assa região.
+O runtime de callback de cancel permanece o validado em P1291. A nativa
+`math.vec` conserva a sua entrada no catálogo estático; os detalhes de cast,
+construção e transporte pertencem ao seu owner. Esta unidade não duplica
+layout nem assa região.
 
 ### `math.attach`, `math.binom`, `math.mono` e `math.script`
 
@@ -248,6 +287,13 @@ importado de `sym`, logo não chamável; `sym.sqrt` também era um path extra qu
 o vanilla rejeita. O avaliador de modo math já construía corretamente
 `Content::math_root(None, radicand)` por um braço sintático duplicado.
 
+**Medição estrutural 2026-09-30 anterior à delegação:** o snapshot em
+`00_nucleo/diagnosticos/atomizacao-stdlib-math-root-2026-09-30-before.json.gz`
+mostra `sqrt_content` e as duas nativas no parent, o bridge no hub e 12
+testes P1426 verdes antes do movimento. Não é benchmark nem nova sonda
+bilateral do vanilla. Casts, diagnósticos e carriers passam ao owner
+`compiler/stdlib/structural/math/root.md`; aqui ficam os registros estáticos.
+
 O módulo registra `math.sqrt` como `Value::Func` nativa antes da cópia dos
 símbolos. A nativa aceita exatamente um `Content`, rejeita named args e emite
 `Value::Content(Content::math_root(None, radicand))`. O modo math deve delegar
@@ -266,12 +312,27 @@ primeiro aceita `Content` ou `none`; o segundo exige `Content` (com coerção
 vigente de `none` para conteúdo vazio). Named `radicand` é rejeitado como
 posicional, named desconhecido é rejeitado e posicionais extra são erro.
 
-O módulo registra uma nativa que constrói `Content::math_root`. Presença do
+O módulo registra a nativa do owner filho que constrói `Content::math_root`. Presença do
 primeiro argumento é sempre verdadeira na chamada qualificada, inclusive
 quando seu valor é `none`; a nativa não executa layout. `math.sqrt` continua a
 mesma função pública de um argumento e constrói presença falsa.
 
 Esta materialização foi confirmada explicitamente pelo dono em 2026-09-16.
+
+## Delegação de `math.equation` — 2026-09-30
+
+**Medição anterior à decisão:** o working tree não commitado capturado em
+`00_nucleo/diagnosticos/atomizacao-stdlib-math-equation-2026-09-30-before.json.gz`
+mostra `equation_content`, os três casts de named e a nativa em
+`math.rs:46-210`; o hub reexporta quatro helpers via parent e o filtro
+P1140 passa 85 testes. Isto é medição estrutural, não benchmark nem nova
+sonda bilateral.
+
+**Decisão:** manter neste parent somente o registro estático
+`math.equation`. Os contratos de linguagem documentados nas secções P1140
+abaixo permanecem vigentes, com implementação e ownership exclusivos em
+`compiler/stdlib/structural/math/equation.md`. Preservar bridges e
+visibilidade, sem mudar contrato, default, fase ou compatibilidade.
 
 ### P1140.3-B — primeira fase pública de `math.equation`
 
@@ -408,83 +469,96 @@ o valor explícito em `equation.alt` na style chain local. Omitido não cria
 delta. `#set math.equation(alt:)` usa o mesmo cast/canal. Não há conversão de
 content para string nem descrição inferida do body.
 
-## P1427 — binding público `math.frac` (PROPOSTO; gate ADR-0127)
+## P1427 — binding público `math.frac` e delegação
 
 ### Medição anterior à decisão
 
-O registry cristalino omite `math.frac`. O vanilla exige `num` e `denom`
-posicionais, aceita somente `style:` nomeado no domínio `vertical | skewed |
-horizontal`, converte string/`none` para conteúdo e rejeita inteiros.
+A medição P1427 constatou que o registry cristalino omitia `math.frac` e que
+o vanilla exige `num` e `denom` posicionais, aceita somente `style:` no
+domínio `vertical | skewed | horizontal`, converte string/`none` para
+conteúdo e rejeita inteiros. Essa medição histórica não é uma nova sonda do
+snapshot vanilla atual.
 
-### Decisão proposta
+No working tree não commitado capturado em
+`00_nucleo/diagnosticos/atomizacao-stdlib-math-frac-2026-09-30-before.json.gz`,
+`math.rs:291-391` contém casts, validação, constructor e nativa; o registro
+estático está no mesmo parent. O filtro P1427 passou 15 testes antes do
+movimento. Esta medição estrutural não é benchmark.
 
-Registrar `math.frac` com exatamente dois posicionais. Ausência reporta
-primeiro `num`, depois `denom`; terceiro posicional é inesperado; `num:` e
-`denom:` informam que o argumento é posicional; named desconhecido e
-duplicado falham. `style` pode anteceder os posicionais, conserva explicitude
-inclusive para `vertical` e constrói o carrier completo P1427. Não aceitar nem
-ignorar argumentos fora desse contrato.
+### Decisão de ownership
 
-## P1429 — binding público completo `math.accent` (PROPOSTO; gate ADR-0127)
+Manter aqui somente o registro estático de `math.frac`. A validação de
+argumentos, casts, diagnósticos e construção de `Content::MathFrac` pertencem
+ao owner exclusivo `compiler/stdlib/structural/math/frac.md`. O binding
+continua a usar a nativa do filho, com a mesma identidade pública. Não
+mudar contrato, default, fase ou compatibilidade.
 
-### Medição anterior à decisão
-
-A nativa P296 existe mas não integra `make_math_module`, aceita conteúdo
-arbitrário no segundo slot e rejeita todo named. O vanilla ratificado exige
-dois posicionais, normaliza string/símbolo de um codepoint e aceita somente
-`size: Rel<Length>` e `dotless: bool`, defaults `100%` e `true`.
-
-### Decisão proposta
-
-Registrar `math.accent` e fazer a fronteira construir o carrier P1429. `base`
-converte string/none para conteúdo; `accent` aceita string de um codepoint ou
-content de símbolo único, aplica a tabela canônica de combining marks e
-rejeita qualquer outro conteúdo. Preservar presença independente de `size` e
-`dotless`, inclusive quando iguais aos defaults. Aridade, positional-only,
-named desconhecido, duplicado e cast inválido seguem os diagnósticos medidos;
-nenhum argumento pode ser truncado ou ignorado.
-
-## P1430 — binding público completo `math.cases` (PROPOSTO; gate ADR-0127)
+## P1429 — binding público `math.accent` e delegação
 
 ### Medição anterior à decisão
 
-O registry cristalino omite `math.cases`, embora sintaxe, carrier e layout
-existam. O vanilla registra `CasesElem`: children `Content` variádicos, mais
-`delim`, `reverse` e `gap` nomeados, com zero children válido.
+No working tree não commitado capturado em
+`00_nucleo/diagnosticos/atomizacao-stdlib-math-accent-2026-09-30-before.json.gz`,
+`math.rs:393-550` contém a tabela de aliases de combining marks, casts de
+base/accent/size/dotless, constructor e nativa; `:2119` registra
+estaticamente `math.accent`. O filtro
+`cargo test -p typst-core p1429 --lib --offline --locked --quiet` passou 9
+testes. Esta é medição estrutural, não benchmark nem nova sonda bilateral.
 
-### Decisão proposta
+### Decisão de ownership
 
-Registrar `math.cases` antes do espelho de símbolos. A nativa aceita qualquer
-número de posicionais convertíveis a `Content` e somente `delim`, `reverse` e
-`gap`; normaliza delimitadores opcionais, valida boolean/relative length e
-preserva presença causal, ordem e duplicados. Ela constrói o carrier completo
-P1430 sem executar layout ou separar `&`. A sintaxe bare delega à mesma
-validação/construção. Named desconhecido ou `children:` são erros, nunca
-ignorados; set rule fornece somente defaults cascaded e não marca explicitude.
+Manter aqui somente o registro estático de `math.accent` antes do espelho de
+símbolos. O owner exclusivo
+`00_nucleo/prompts/compiler/stdlib/structural/math/accent.md` especifica
+aliases, argumentos, casts, explicitude, diagnóstico e construção de
+`Content::MathAccent`. Os bridges atuais do stdlib continuam com os mesmos
+nomes e visibilidades por reexport direto do filho. Não mudar contrato
+público, default, fase ou compatibilidade.
 
-## P1431 — binding público completo `math.mat` (PROPOSTO; gate ADR-0127)
+## P1430 — binding público `math.cases` e delegação
 
 ### Medição anterior à decisão
 
-O módulo fechado não registra `mat`. O vanilla ratificado aceita rows
-posicionais variádicas e os named `delim`, `align`, `augment`, `gap`,
-`row-gap`, `column-gap`; `rows:` é rejeitado. Escalares formam uma linha; se
-qualquer positional for array, todos devem ser arrays e rows menores recebem
-células vazias até à largura máxima.
+No working tree não commitado capturado em
+`00_nucleo/diagnosticos/atomizacao-stdlib-math-cases-2026-09-30-before.json.gz`,
+`math.rs:724-942` possui `MathCasesOptions`, conversão de delimitadores,
+casts, filhos e nativa; `:2367` registra estaticamente `math.cases`.
+`math/matrix.rs:20,131` já chama a conversão de delimitadores deste bloco.
+O filtro `cargo test -p typst-core p1430 --lib --offline --locked --quiet`
+passou 22 testes nesse estado. Esta é medição estrutural, não benchmark nem
+nova sonda bilateral.
 
-### Decisão proposta
+### Decisão de ownership
 
-Registrar `math.mat` antes do espelho de símbolos e fazer a nativa construir o
-carrier completo P1431. `gap` é shorthand causal para ambos os eixos e os
-named específicos prevalecem. Delimitador, alinhamento horizontal, relative
-length, augment inteiro/dict/none, offsets e stroke são validados sem truncar,
-ignorar named ou reavaliar children. Duplicados e tipos inválidos propagam os
-diagnósticos medidos. A nativa não executa layout nem separa `&`.
+Manter aqui somente o registro estático de `math.cases` antes do espelho de
+símbolos. O novo owner exclusivo
+`00_nucleo/prompts/compiler/stdlib/structural/math/cases.md` especifica
+argumentos, casts, conversão de delimitadores, construção do carrier e
+diagnósticos. `math/matrix.rs` chama diretamente o conversor desse filho;
+não cria cópia da tabela de delimitadores. O hub estrutural mantém os nomes
+do bridge de eval/layout. Não mudar contrato público, defaults, fase ou
+compatibilidade.
 
-O dict de `augment` segue a assimetria pública do vanilla ratificado: consome
-somente `hline`, `vline` e `stroke` e aceita/ignora chaves internas restantes.
-Isso não autoriza tipo inválido nos três campos conhecidos e não se confunde
-com named desconhecido no nível de `math.mat`, que continua erro.
+## P1431 — binding público `math.mat` e delegação
+
+### Medição anterior à decisão
+
+No working tree não commitado capturado em
+`00_nucleo/diagnosticos/atomizacao-stdlib-math-matrix-2026-09-30-before.json.gz`,
+`math.rs:725-1042` possui `MathMatrixOptions`, casts, leitura de linhas,
+constructor e nativa; `:2683` registra estaticamente `math.mat`. O filtro
+`cargo test -p typst-core p1431 --lib --offline --locked --quiet` passou 29
+testes nesse estado. Esta medição confirma um bloco de comportamento já
+materializado; não é benchmark nem nova sonda bilateral com vanilla.
+
+### Decisão de ownership
+
+Manter aqui somente o registro estático de `math.mat` no módulo matemático,
+antes do espelho de símbolos. O novo owner exclusivo
+`00_nucleo/prompts/compiler/stdlib/structural/math/matrix.md` especifica
+argumentos, casts, opções, interpretação de linhas, diagnósticos e construção
+de `Content::MathMatrix`. A nativa é chamada diretamente desse filho. Não
+mudar contrato público, default, fase, ordem, spans ou compatibilidade.
 
 ## P1436 — binding público completo `math.lr` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
 

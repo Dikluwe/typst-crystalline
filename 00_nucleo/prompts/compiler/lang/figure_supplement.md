@@ -1,30 +1,36 @@
-# Prompt L0 — suplemento localizado de figure
+# L0 — lang/figure_supplement
+
 Hash do Código: 6c8ac553
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/lang/defaults.toml sha256:c8f920865f8895a89d9c42659c15e773e9bb2603bd614e390805f620834babd9
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/lang/figure_supplement.rs`
-**ADRs:** ADR-0107, ADR-0108, ADR-0127, ADR-0129.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/lang/figure_supplement.rs`
 
-## Medição anterior à decisão
+## Consumer evidence
 
-O consumer vigente contém 18 combinações de `image`, `table` e `raw` com
-`pt`, `en`, `de`, `fr`, `es` e `it`. P1034 mediu no vanilla ratificado que
-língua ausente/desconhecida usa os supplements ingleses. Kind desconhecido é
-capitalizado pela primeira letra.
+`01_core/src/compiler/lang/figure_supplement.rs:84` locates `pub fn figure_supplement_for_lang(kind: &str, lang: Option<&Lang>) -> String`.
+This audit locates the existing consumer; it does not establish language parity.
+Historical evidence and unresolved discrepancies are archived in
+`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
 
-## Contrato
+## Contract
 
-`figure_supplement_for_lang(kind, Option<&Lang>) -> String`:
+`figure_supplement_for_lang(kind, Option<&Lang>) -> String` first matches
+the exact kind/language pair. Preserve the generated strings:
 
-- tenta primeiro match exato de kind e código de língua;
-- usa `Figure`, `Table` ou `Listing` como fallback inglês dos kinds conhecidos;
-- capitaliza a primeira letra de kind desconhecido de modo UTF-8 aware;
-- permanece puro e independente do ambiente.
+| Language | image | table | raw |
+| --- | --- | --- | --- |
+| pt | Figura | Tabela | Listagem |
+| en | Figure | Table | Listing |
+| de | Abbildung | Tabelle | Listing |
+| fr | Figure | Tableau | Listing |
+| es | Figura | Tabla | Listado |
+| it | Figura | Tabella | Listato |
 
-## Aceitação
-
-Preservar as 18 entradas, fallbacks de língua e capitalização vigentes. Novas
-formas ou mudança de default ficam sob o gate ADR-0127.
+Missing or uncovered language uses `Figure`, `Table` or `Listing` for
+these known kinds. For an unknown kind, uppercase its first Unicode scalar and
+retain the remaining UTF-8 suffix; an empty kind returns an empty string.
+Do not consult the environment or reinterpret a language code as a region.
+The helper owns generated text only, not the caller's explicit supplement policy.

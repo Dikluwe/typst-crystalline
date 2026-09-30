@@ -1,71 +1,21 @@
-# Prompt L0 — `stdlib/foundations` — hub de reexportação
+# L0 — stdlib/foundations
 Hash do Código: c19e6bc9
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/mod.rs`
-**Origem**: Passo 1032 — fatiamento de `foundations.rs` monolítico conforme
-`auditar-fatiamento.md`. P1140.1-A cria unidades próprias para `regex` e
-`selector`.
-P1077: remoção da extensão `len` global para paridade estrita com o Typst oficial.
-**ADRs**: ADR-0037 (coesão por domínio), ADR-0107 (paridade linguagem),
-ADR-0109 (atomização forma B), ADR-0127 (gate de L0).
-**Convenções partilhadas**: ver `00_nucleo/prompts/compiler/stdlib/_comum.md`.
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/stdlib/foundations/mod.rs`
 
----
+## Evidence and classification
 
-## 1. Visão geral
+`01_core/src/compiler/stdlib/foundations/mod.rs:1` (@prompt) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-O módulo `foundations` é um **hub de reexportação** sem lógica de negócio.
-A lógica vive nos nós abaixo; o hub apenas declara os submódulos e reexporta
-as funções para manter compatibilidade com os consumidores existentes
-(`crate::compiler::stdlib::native_*`).
+## Contract and ownership
 
-## 2. Nós
+Own only module declarations and direct reexports in foundations/mod.rs. Preserve the current visibility/signatures and paths through the stdlib façade. Declare cast, color, datetime, float, int, path, query, regex_constructor, repr, selector, str and ty; keep private/internal method-dispatch linkage as currently exposed.
 
-| Nó | Ficheiro | Funções |
-|---|---|---|
-| `ty` | `foundations/ty.rs` | `native_type` |
-| `repr` | `foundations/repr.rs` | `native_repr` |
-| `str` | `foundations/str.rs` | `native_str`, `native_str_from_unicode` |
-| `regex` | `foundations/regex_constructor.rs` | `native_regex` |
-| `cast` | `foundations/cast.rs` | `native_int`, `native_float`, `native_range`, `native_bytes`, `native_datetime`, `native_symbol` |
-| `datetime` | `foundations/datetime.rs` | fields estáticos `today`, `display`, `year`, `month`, `weekday`, `day`, `hour`, `minute`, `second`, `ordinal` |
-| `int` | `foundations/int.rs` | `int_type_field`, signum, bitwise e conversões bytes |
-| `float` | `foundations/float.rs` | `float_type_field`, descoberta e semântica de `is-infinite` |
-| `color` | `foundations/color.rs` | `native_rgb`, `native_luma`, `native_oklab`, `native_oklch`, `native_linear_rgb`, `native_cmyk`, `native_hsl`, `native_hsv` |
-| `query` | `foundations/query.rs` | `native_metadata`, `native_query`, `native_locate`, `native_here`, `native_target` |
-| `selector` | `foundations/selector.rs` | `native_selector`, parser partilhado de selectors |
+Each child owns its casts, native behavior, diagnostics and defaults under `00_nucleo/prompts/compiler/stdlib/foundations/`. The datetime constructor remains in cast; datetime fields belong to datetime. Regex construction belongs to `00_nucleo/prompts/compiler/stdlib/foundations/regex.md`, not str or text. Morphological value serialization remains with `00_nucleo/prompts/compiler/eval/repr.md`.
 
-> **Nota P1077**: O nó `len` (`len.rs` / `native_len`) foi **removido** no Passo 1077 (Achado #12 do P1031). A linguagem Typst oficial não possui a função global `len` (emite erro `unknown variable`), possuindo exclusivamente o método `.len()` sobre strings (contando bytes UTF-8), arrays e dicionários.
+Do not reintroduce a global len function, add constructor logic, calendar/formatting, World reads or new registry entries here. Existing string/array/dictionary len methods remain separate language operations.
 
-## 3. Restrições estruturais
+## Acceptance
 
-- O hub **não contém lógica de negócio** — só `pub mod` e `pub use`.
-- Cada nó tem o seu próprio prompt L0 em
-  `00_nucleo/prompts/compiler/stdlib/foundations/<nó>.md`.
-- A visibilidade e as assinaturas das funções são preservadas.
-
-## P1146 — atomização da superfície de `datetime`
-
-A medição do scope ratificado encontrou dez fields além do constructor. O
-constructor permanece em `cast`; fields e sua semântica formam o nó coeso
-`foundations/datetime`. O hub apenas declara/reexporta o nó e não implementa
-calendário, formatting ou acesso ao World.
-
-## 4. Critérios de verificação
-
-- `cargo build -p typst-core` sem erros.
-- `cargo test -p typst-core` mantém a contagem de `#[test]` do hub original.
-- `crate::compiler::stdlib::native_*` continua a resolver para a função
-  correspondente.
-
-## Fora de escopo
-
-Serialização morfológica de valores pertence a `compiler/eval/repr.md`;
-constructors e algoritmos dos nós pertencem aos seus prompts próprios.
-
-## P1289 — nó `float`
-
-O hub declara `float` e reexporta, somente dentro da crate,
-`float_type_field`, `is_float_instance_method` e `dispatch_float_method`.
-Não contém fórmula numérica nem validação de argumentos.
+Preserve the specified language semantics, syntax, morphology, diagnostics, spans, defaults and public identities. Do not change signatures, compatibility, feature defaults or phase ownership through this documentary revision. Shared pinned claims remain authoritative; this prompt owns only its exclusive consumer. Architectural decisions follow ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.

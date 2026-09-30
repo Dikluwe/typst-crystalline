@@ -1,156 +1,22 @@
-# Prompt L0 — `compiler/layout/bib_csl` — Renderização CSL via hayagriva
-Hash do Código: ee5790bd
+# L0 — bib csl
+Hash do Código: 0ce22280
 
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/bib_csl.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-**Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/bib_csl.rs`
-**Origem**: P418 (XL) — Bibliography/Cite CSL real.
-**ADRs**: ADR-0062 (autorização de `hayagriva` em L1), ADR-0107 (paridade linguagem),
-ADR-0109 (atomização forma B — free function em `compiler/layout/`).
+## Evidence before specification
 
----
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/bib_csl.rs:39`, `01_core/src/compiler/layout/bib_csl.rs:47`, `01_core/src/compiler/layout/bib_csl.rs:58`.
 
-## Propósito
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-Ponte entre o modelo de dados cristalino (`BibEntry`, `CitationForm`) e o motor
-CSL do `hayagriva`/`citationberg`. O módulo é puro (zero I/O): recebe
-`Vec<BibEntry>` + style/locale, devolve `Content` já formatado para citações e
-lista de referências.
+## Ownership and contract
 
-## API pública
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-```rust
-pub struct BibRenderCache {
-    pub citations: HashMap<CitationForm, HashMap<String, Content>>,
-    pub bibliography: Option<Content>,
-}
+Construct pure citation/bibliography caches from supplied BibEntry values, built-in styles or a supplied parsed IndependentStyle, locale and optional citation order. Preserve the Normal/Prose/Author/Year mappings and the existing unsupported-form behavior. Built-in style lookup uses the archive and the cache builder's `ieee` default; the hub decides whether a cache is requested at all. Parse supplied custom CSL XML without filesystem or URL access. Convert rendered CSL nodes into Content while preserving supported links, strong/emphasis, small caps, underline and block breaks. Serialize textual YAML scalars through total JSON-string escaping so controls, Unicode, empty and YAML-looking strings remain text. Normalize a maximal run of at least two ASCII hyphens in the pages field to one hyphen; single hyphens, Unicode dashes, and other fields are unchanged. Preserve diagnostics for malformed styles/entry conversion and the existing locale fallback.
 
-pub fn build_cache(
-    entries: &[BibEntry],
-    style: Option<&str>,
-    locale: Option<&str>,
-) -> Option<BibRenderCache>;
+## Acceptance and limits
 
-pub fn resolve_style_name(name: &str) -> Option<IndependentStyle>;
-
-pub fn parse_csl_style(content: &str) -> Result<IndependentStyle, String>;
-```
-
-- `build_cache` pré-renderiza as 4 forms de citação suportadas pelo cristalino
-  (`Normal`, `Prose`, `Author`, `Year`) e a bibliografia num único passo, permitindo
-  que `Cite` consuma o mesmo cache que `Bibliography` sem dependência de ordem no
-  documento.
-- Style built-in resolvido por `hayagriva::archive::ArchivedStyle`; default
-  `"ieee"`.
-
-> **Fonte de paridade (P1031)** — vanilla ratificado `e0e8ca4d`:
->
-> - **Forms de citação — "4" é o subconjunto do cristalino, não o da linguagem.** O vanilla
->   define **cinco** variantes em `crates/typst-library/src/model/cite.rs:133-147`
->   (`#[derive(Cast)] pub enum CitationForm`), com doc comments que são o texto publicado em
->   `typst.app/docs/reference/model/cite/#parameters-form`: `Normal` — *"Display in the
->   standard way for the active style."* (`#[default]`); `Prose` — *"Produces a citation
->   that is suitable for inclusion in a sentence."*; `Full` — *"Mimics a bibliography entry,
->   with full information about the cited work."*; `Author` — *"Shows only the cited work's
->   author(s)."*; `Year` — *"Shows only the cited work's year."*
->   A ausência de `Full` é **scope-out declarado** em `entities/citation_form.md`
->   §"Divergência do original" (ADR-0054 graded), não uma afirmação de que a linguagem tem
->   quatro forms. Redacção acima corrigida para o dizer.
-> - **Default `"ieee"`** — `crates/typst-library/src/model/bibliography.rs:159-163`:
->   `#[default({ let default = ArchivedStyle::InstituteOfElectricalAndElectronicsEngineers; … })]`
->   sobre o campo `pub style: Derived<CslSource, CslStyle>`. O doc comment da tabela de
->   estilos (`bibliography.rs:79-95`) publica `{"ieee"}` como o estilo típico de
->   *"Engineering, IT"*. Página: `typst.app/docs/reference/model/bibliography/#parameters-style`.
-- Style custom resolvido a partir de ficheiro `.csl` XML via
-  `hayagriva::citationberg::IndependentStyle::from_xml` (P420).
-- Locale override opcional via `hayagriva::archive::locales()`.
-
-## Conversão de dados
-
-- `BibEntry → hayagriva::Entry` via YAML intermédio + `hayagriva::io::from_yaml_str`.
-- `ElemChildren → Content` suporta: `Strong`, `Emph`, `SmallCaps`, `Underline`,
-  `Link`, `Linebreak`, texto plano.
-
-## Integração no layout
-
-- `Layouter` guarda `Option<BibRenderCache>`.
-- `layout_with_introspector` pré-computa o cache no primeiro `BibliographyElem`
-  que especificar `style` explicitamente.
-- `bibliography.rs` e `cite.rs` consomem o cache; fallback local (`format_bib_entry`)
-  preservado quando `style` é `None` ou o cache falha.
-
-## Scope-out
-
-- Múltiplas bibliografias com styles diferentes simultâneos.
-- Content variants para `Superscript`/`Subscript` (formatação vertical CSL).
-- Locales via ficheiro externo (locale built-in apenas).
-- CSL via URL, diretórios de sistema, hot-reload e validação RelaxNG completa.
-
-## P1457 — serialização total dos escalares do YAML intermédio
-
-### Medição anterior à decisão
-
-No baseline `b2eba024821ed5f10a4667d6179da3ea2cebff8d`, a ponte decide
-manualmente quais strings precisam de aspas por `needs_yaml_quotes`. Essa
-tabela cobre somente algumas formas lexicais e deixa `True`, `NULL`, `.nan`
-e outros escalares tipados pelo YAML sem proteção. Uma bibliografia pública
-com `title = {True}` compila no vanilla ratificado, mas o cristalino entrega
-o token sem aspas ao YAML e falha com `invalid type: boolean true`.
-
-### Obrigação
-
-Todo valor textual escrito no YAML intermédio deve ser serializado
-incondicionalmente como string JSON, que também é escalar double-quoted YAML
-válido. A serialização deve preservar conteúdo vazio, Unicode, whitespace,
-maiúsculas/minúsculas, aspas, barras invertidas e controles através dos
-escapes normativos do serializer. Aplicar a mesma função a todos os campos
-textuais da ponte, sem classificador lexical, tabela de palavras YAML,
-reescrita posterior ou exceção por campo. Remover `needs_yaml_quotes`.
-
-Esta é correção interna de representação/paridade em fluxo contínuo
-ADR-0127; não altera entidade, assinatura pública, comportamento por defeito,
-fase do pipeline ou compatibilidade documentada.
-
-## P1456 — normalização estrutural de ranges BibTeX
-
-### Medição anterior à decisão
-
-No baseline `f1cfce3d75113960ccd31c8e17bc328fcf6509d6`, a ponte de
-`BibEntry.pages` para o YAML hayagriva usa `pages.replace("--", "-")`. Para
-`45---67`, o vanilla ratificado formata `45–67`, mas o cristalino formata
-`45––67`: a substituição não reconhece o run como uma unidade e deixa um
-hífen residual.
-
-### Obrigação
-
-A ponte deve reduzir cada run ASCII de dois ou mais hífens a exatamente um
-hífen antes do parsing hayagriva. Um hífen isolado e todos os demais
-caracteres permanecem byte a byte. A transformação aplica-se somente ao valor
-de `pages`; não modifica título, autor, chave, publisher nem o conteúdo já
-formatado. Implementar por varredura do valor, sem `str::replace`, regex,
-tabela de ranges ou pós-processamento CSL. Preservar ranges prefixados,
-múltiplos, whitespace, Unicode, ausência de pages e todos os demais campos.
-
-Esta é correção interna de fórmula/paridade em fluxo contínuo ADR-0127; não
-adiciona field, assinatura, default ou fase de pipeline.
-
-## P420 (M) — CSL customizado via path
-
-**Decisão arquitetural (ADR-0107 / ADR-0108 / ADR-0109):**
-- `build_cache` mantém a assinatura simples `style: Option<&str>` (built-in).
-  Para styles já resolvidos (built-in ou custom), `build_cache_with_style`
-  recebe o `IndependentStyle`.
-- Built-in primeiro, path como fallback (Opção α): `resolve_style_name` tenta
-  `ArchivedStyle::by_name`; em caso de insucesso o eval em
-  `rules/eval/bibliography.rs` trata a string como path, lê via
-  `World::read_bytes` e parseia com `parse_csl_style`.
-- O módulo continua puro de I/O global — a leitura do disco é feita pelo caller
-  através de `World::read_bytes`; `bib_csl.rs` expõe apenas parsing e render.
-
-## Histórico de revisões
-
-| Data | Motivo | Arquivos |
-|------|--------|----------|
-| 2026-06-23 | P418 (XL): criar prompt L0 do módulo CSL. | `bib_csl.md`, `bib_csl.rs` |
-| 2026-06-23 | P420 (M): adicionar resolução de `.csl` customizado via path. | `bib_csl.md`, `bib_csl.rs`, `rules/eval/bibliography.rs`, `compiler/layout/mod.rs`, `rules/stdlib/structural.rs` |
-| 2026-09-18 | P1456: substituir `replace("--", "-")` por normalização estrutural de runs no campo pages. | `bib_csl.md`, `bib_csl.rs` |
-| 2026-09-18 | P1457: eliminar a tabela lexical de aspas e serializar todo escalar textual como string JSON/YAML. | `bib_csl.md`, `bib_csl.rs` |
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.

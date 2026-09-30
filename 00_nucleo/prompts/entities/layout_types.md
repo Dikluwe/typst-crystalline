@@ -1,5 +1,207 @@
 # Prompt L0 — layout_types
-Hash do Código: 4ce9e0f8
+Hash do Código: 0e311c04
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
+
+## Identidade do hífen discricionário — contrato aprovado ADR-0127
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+registra UTC, working tree não commitada sobre
+`17f13b1df79b87ea065ee62e78164b18e477da3d`, lista exata de alterações,
+hashes das fontes e dos binários. SHA-256 do Tekt medido:
+`1ca83fd69c72643e53d54dcbdad9488e0738cb2d37d71057a17e61ffa3b03717`.
+Oráculo: vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`, binário
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+`before/resultados.json` conserva comandos, PDFs, texto UTF-8 e caixas.
+Oito entradas en/pt, simple/optimized e justify false/true conservam palavras
+e caixas após normalização exclusivamente visual SHY→'-' (tolerância 0.015pt),
+mas as trinta ocorrências discricionárias são U+002D no bbox Tekt e U+00AD no
+vanilla. A extração comum de pdftotext remove vários hífens de fim de linha;
+não prova ausência da ocorrência no PDF. Comparar codepoints sem normalização
+textual e conservar ambas as extrações.
+
+`compiler/layout/paragraph_hyphen.rs:208-214` materializa '-' comum;
+`compiler/layout/break_selection.rs:51-58` concatena '-' ao prefixo local.
+`word_layout.rs:137-144` emite Text sem causa distinta e
+`shaper/traversal.rs:72-75` recebe somente essa string.
+`entities/layout_types.rs:398-415` separa texto/glyphs apenas em TextShaped,
+produzido em L3: L1 não possui a face para fabricar esse estado (P484).
+`export/fonts.rs:146-154` coleta texto de clusters; os builders registram
+uma identidade ToUnicode por GID. Um mesmo glifo '-' pode servir texto
+literal e discricionário: alterar seu mapeamento global perde essa distinção.
+Vanilla `inline/line.rs:173-179` pede hyphen soft na quebra selecionada;
+`lab/typst-original/crates/typst-layout/src/inline/shaping.rs:583-635`
+usa o glifo de '-' e conserva SHY no texto. Não requer sua mecânica ou bytes.
+Controles de compostos e SHY autoral em before/ têm divergências adicionais;
+não certificam seleção UAX14 ou SHY não quebrado. Não inferir intenção histórica.
+A hipótese de perda causal seria refutada por transporte já existente antes
+do shaping; os contratos e os dois emissores lidos não o conservam.
+
+### Contrato público proposto
+
+Adicionar à enum fechada FrameItem um envelope de identidade textual:
+
+```rust
+TextReplacement {
+    text: EcoString,
+    items: Vec<FrameItem>,
+}
+```
+
+`text` é o texto extraível da ocorrência inteira; `items` são sua representação
+visual já posicionada. O envelope não tem posição, transformação, fonte,
+largura ou altura própria. Bounds, métricas, tradução, clipping e reconciliação
+operam nos filhos exatamente uma vez. Recursos/shaping consultam os filhos
+visuais; text não cria glifo, avanço ou nova medição.
+
+A primeira materialização usa somente a causa de hifenização já selecionada.
+No caminho global, o filho desenha '-' e text contém U+00AD. No incremental,
+pode envolver o prefixo inteiro já medido/desenhado, com text igual ao prefixo
+lexical seguido de U+00AD, preservando kerning. O seletor fornece essa distinção
+por dados privados explícitos; não inferir causa de sufixo '-', posição ou GID.
+Hífen literal segue como Text normal U+002D. Não introduzir candidatos novos,
+reconhecimento de SHY autoral ou alterações de penalidades por este envelope.
+
+The initial hyphenation materialization uses Text/TextShaped children in
+order. A mathematical Large operator may use already-positioned Glyph parts
+as visual children of one TextReplacement occurrence. Neither use nests a
+TextReplacement, and the envelope itself has no independent geometry.
+Visitors de recursos descem nos filhos, sem novo método público de trait.
+Extractors textuais usam text em vez de duplicar a extração dos filhos;
+plain_text conserva sua junção aproximada e não vira oráculo lexical.
+Shaping e fallback preservam o envelope ao processar os filhos. Não fundir
+seus filhos com texto externo nem apagar o envelope em merge/reflow.
+Group/Link/Semantic e as camadas da página conservam a ocorrência. SVG visual
+percorre os filhos; HTML semântico continua regido por seu pipeline próprio.
+
+PDF substitui texto por ocorrência, independente de tagging e Compact/Verbose.
+ActualText codifica text em UTF-16BE com BOM e equilibra BDC/EMC em top/local.
+Filhos conservam GIDs, avanços e ToUnicode visual; o hífen literal que compartilha
+GID mantém U+002D. Type1/fontes embutidas recebem a mesma identidade. ActualText
+não fabrica MCID, structure tree, Alt de fórmula ou prova de acessibilidade.
+O handler de substituição pertence a unidade L3 própria com owner L0 exclusivo;
+dispatch estático/exaustivo permanece. Não usar Semantic.alt como substituição.
+
+### Gate aprovado e aceitação
+
+O dono confirmou “confirmo” nesta tarefa após revisão da proposta
+SHA-256 b744f80e801eceddefadc76e79cf343ba19174d65ad84f53a2c4b9ccaebc1870.
+Gate ADR-0127 satisfeito; autorização e UTC estão em authorization.json do
+lote. Atualizar owners antes de código e resselo restrito. Os invariantes
+normativos compartilhados pertencem ao Núcleo pinado abaixo (ADR-0129).
+
+RED→GREEN deve provar transporte global/incremental, extração U+00AD nas
+ocorrências selecionadas e U+002D nos hífens literais coexistentes, inclusive
+com mesma fonte/GID. Conferir simple/optimized, justify, overhang, estilos,
+fontes, grupos/links, Type1, Compact/Verbose e tags ligados/desligados.
+Medir geometria separadamente contra baseline; preservar quebras/avanços e
+aparência. Exercitar visitors, tradução e fallback sem perda/duplicação de
+identidade. Revalidar regressões, build e lint. SHY autoral e compostos ficam
+controles abertos até medição/decisão próprias; não declarar paridade completa.
+
+
+## Separadores textuais — contrato aprovado ADR-0127 (2026-09-28)
+
+### Medição anterior à decisão
+
+As sondas de `00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/`
+usaram o working tree sobre `17f13b1df79b87ea065ee62e78164b18e477da3d`,
+binário reconstruído e vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`.
+`A B C` e `#text("A B C")` extraem `ABC` no PDF Tekt e `A B C` no vanilla;
+`A#("B")C` extrai `ABC` nos dois. Os comandos, timestamps, fontes, hashes
+binários e PDFs estão na proveniência dessa medição.
+
+`compiler/eval/mod.rs:1473` conserva Space/SpaceFromNewline. O adapter
+`compiler/layout/space.rs:9` e os separadores internos de
+`compiler/layout/text.rs:229` avançam o cursor sem transportar um item que
+identifique a origem lexical do separador. `export/stream/text.rs` agrupa
+fragmentos shaped e compensa distâncias; a nova unidade proprietária desse
+agrupamento é `00_nucleo/prompts/infra/export/stream/text/runs.md`. Uma distância não identifica
+por si só um espaço. `layout_types.rs:903,930` insere separadores no helper
+plain_text, de modo que esse helper não prova retenção da origem.
+
+A diferença de glyph buffers/operadores é mecânica; separação de palavras,
+texto extraível e geometria do documento são os observáveis investigados.
+A divergência foi reproduzida com pdftotext, não generalizada para todos os
+leitores. Rastreios que revelem outra proveniência causal preservada ou
+controles que invalidem a separação lexical refutam esta classificação.
+
+### Contrato público aprovado
+
+Adicionar a `FrameItem` uma variante de transporte textual explícito:
+
+```rust
+TextSeparator {
+    pos: Point,
+    advance: Pt,
+    style: TextStyle,
+    origin: TextSeparatorOrigin,
+}
+```
+
+Adicionar a enum pública de dados:
+
+```rust
+pub enum TextSeparatorOrigin {
+    Markup,
+    Newline,
+    Literal,
+}
+```
+
+Cada carrier identifica um espaço U+0020 efetivamente retido pelo layout.
+Markup representa Space normalizado; Newline conserva a origem de
+SpaceFromNewline; Literal corresponde a cada espaço literal já percorrido
+pelo adapter Text. `pos` é a posição causal de início do avanço na baseline;
+`advance` é a largura física efetivamente atribuída ao separador, em pontos;
+`style` conserva a identidade de fonte/estilo usada naquele ponto. Esses
+campos são dados, sem método de render nem import de compiler.
+
+O carrier é neutro para tinta e métricas tipográficas: não cria linha,
+baseline, ascent/descent, altura ou fonte de imagem/forma. Sua largura não é
+somada uma segunda vez ao cursor. O layout mantém a supressão de espaços
+iniciais e as decisões de wrapping/justificação existentes. Text e Space
+produzem a mesma classe de dado por suas unidades proprietárias, conservando
+as diferenças de origem e das regras locais de avanço/flush.
+
+Translate/rebase, Group/Link/Semantic, rollback de suffixes, direção e shaping
+transportam a ocorrência em ordem causal. Acrescentar carriers é append-only;
+não mudar payloads do prefixo já certificado por um checkpoint de comprimento.
+A identidade do separador não é recuperada por procura de conteúdo igual nem
+por classificação de qualquer gap positivo entre glifos.
+
+O exportador preserva a ocorrência textual como espaço extraível usando a
+fonte preparada e respeitando pos/advance; resolve/subseta/mapeia o recurso
+necessário pelo owner de recursos. A neutralidade tipográfica pertence ao
+layout; emissão e agrupamento pertencem às unidades L3. Visitores exaustivos
+tratam a variante explicitamente. A implementação segue a topologia estática
+existente; o carrier não escolhe algoritmos nem executa callbacks.
+
+### Gate aprovado e aceitação
+
+O dono confirmou “Autorizar o contrato proposto” em 2026-09-28, nesta tarefa.
+O gate ADR-0127 para a variante pública e a enum de origem está satisfeito.
+A aprovação e o L0 submetido foram registrados na proveniência da materialização.
+
+Após confirmação, cada consumer afetado recebe seu L0 próprio atualizado
+antes de código. Invariantes normativas compartilhadas, quando pinadas por
+mais de um owner, pertencem a um Núcleo Tekt; este prompt não assume ownership
+dos adapters, tradutores, shaper ou exportadores. Nenhum código aponta para
+Núcleo diretamente. A atomização pode acrescentar unidades dentro das camadas
+atuais, cada qual com consumer exclusivo.
+
+O gate funcional da materialização é RED→GREEN na extração PDF de `A B C`,
+`A  B   C` e `#text("A B C")`, mantendo `A#("B")C == ABC`. Exercitar espaços
+em estilos/fontes distintos, newline, limites de linha/região, justificação,
+tracking/kerning, RTL, callbacks/suffix rollback e grupos/links. Comparar a
+geometria do conteúdo visível com a base medida, os diagnósticos e a retenção
+do texto; identidade de bytes, número de itens ou passos internos não fecha
+paridade. Testes de helper com separadores inventados não substituem o
+percurso fonte→PDF. Revalidar build e crystalline-lint após materialização.
 
 ## P1339 — causa existente das conversões de Angle
 
@@ -834,3 +1036,68 @@ pelos glifos é refutado. `ImageElem` e `FrameItem::Image` perdem `alt`;
 São campos públicos de L1 e alteram constructors/patterns existentes:
 Gate ADR-0127 satisfeito pela confirmação humana em 2026-09-23. Sem novo modo,
 trait, fase eval/layout ou dispatch dinâmico.
+
+## Separadores textuais — materialização autorizada em 2026-09-28
+
+### Medição anterior à decisão
+
+`01_core/src/entities/layout_types.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
+`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+dos handlers desse consumer precedem esta alteração. A aprovação do contrato
+público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
+2026-09-28 e registrada na proveniência da materialização.
+
+### Responsabilidade deste owner
+
+Own the approved TextSeparator data variant and TextSeparatorOrigin. Transport separators through the existing visitor text hook without adding a public trait method. Plain-text diagnostics retain the historical approximate join and skip carriers to avoid counting spaces twice; they are not lexical parity oracles.
+
+Conservar as responsabilidades existentes; a aceitação segue texto e geometria
+observáveis, incluindo os controles de adjacência e os invariantes pinados.
+
+## Identidade textual — materialização aprovada
+
+### Medição anterior à decisão
+
+As sondas bilaterais e o estado exato em
+`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
+A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
+O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
+
+### Responsabilidade exclusiva
+
+Tratar TextReplacement como envelope visual transparente nos percursos deste owner; descender nos filhos preservando text, ordem, coordenadas e o cálculo existente, sem novo algoritmo ou avanço.
+
+O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
+possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
+transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.
+
+## SHY autoral não selecionado — correção de identidade
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/shy-autoral-2026-09-28/initial.json` e
+`before/resultados.json` registram estado, binários, comandos e trinta sondas
+bilaterais. Em largura 300pt, repre<U+00AD>sentation extrai dois SHY no Tekt
+e um no vanilla pinado. O controle spaces extrai seis versus um.
+`03_infra/src/shaper/shaping.rs:313-325` transporta o cluster SHY produzido
+pelo rustybuzz; `03_infra/src/export/fonts.rs:318-328` associa sua substring
+ao GID de espaço. `export/builder/fonts.rs:523-535` conserva uma identidade
+por GID; a stream do controle anterior associa CID 0001 a 00AD e o reutiliza
+no espaço posterior. São observáveis textuais, não igualdade de bytes.
+A hipótese seria refutada por ausência dessa associação ou por duplicação
+já existente na string que entra no shaper. Não inferir intenção histórica.
+
+### Decisão e limite
+
+Correção de paridade interna em fluxo contínuo ADR-0127: reutiliza contrato
+TextReplacement aprovado, sem campo, assinatura pública, flag ou mudança
+de fase. Não modifica seleção de quebras ou desenho. A causa explícita é
+o U+00AD existente no texto autoral, não aparência, GID ou posição.
+Casos estreitos já têm divergências de seleção e não fecham a política SHY.
+
+A restrição da primeira materialização às quebras automáticas é ampliada
+somente para identidade de SHY autoral em runs já shaped. O texto original
+é a causa da substituição por ocorrência. Filhos continuam TextShaped,
+sem envelope aninhado, sem novo avanço ou candidato de quebra. A seleção
+explícita de quebra SHY e o fallback sem fonte permanecem fora desta correção.

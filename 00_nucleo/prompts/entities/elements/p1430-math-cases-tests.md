@@ -1,4 +1,5 @@
 # Testes independentes P1430 — carrier `MathCases`
+Hash do Código: 260f900f
 
 ## Dono produtivo
 
@@ -22,4 +23,3 @@ consumer de layout, nunca vira row/célula no carrier público.
 Binding ausente, zero ou múltiplos carriers atribuíveis, identidade divergente,
 extração ambígua ou execução ilegível são `Unknown`; não concedem aceitação nem
 crédito de mutação.
-

@@ -1,100 +1,30 @@
-# Prompt L0 — Parser BibTeX minimal (P450)
-Hash do Código: a1887dad
+# L0 — Pure BibTeX parser
+Hash do Código: c6c40963
 
-**Camada**: L1 (parser puro; exposto para L3 via `SystemWorld::load_bibliography`).
-**Ficheiro alvo**: `01_core/src/compiler/eval/bibtex.rs`
-**Ficheiro consumidor L3**: `03_infra/src/world.rs` (`load_bibliography`)
+**Layer:** L1 (the owner remains here; filesystem loading belongs to L3)
+**Exclusive consumer:** `01_core/src/compiler/eval/bibtex.rs`
 
----
+## Current evidence
 
-## Propósito
+- `01_core/src/compiler/eval/bibtex.rs:62` — `parse_bibtex`.
+- `01_core/src/compiler/eval/bibtex.rs:85` — entry parsing.
+- `01_core/src/compiler/eval/bibtex.rs:205` — nested braced values.
+- `03_infra/src/world/paths.rs` — the bibliography loading adapter.
 
-Parser recursivo descendente para um subset BibTeX usado pelo Typst, evitando
-uma dependência externa pesada para o caso mais comum (ficheiros `.bib`).
-Integra-se com a pipeline de bibliografia já existente: `native_bibliography`
-usa-o para `.bib`; `.yaml`/`.yml` continuam a usar `hayagriva::io`.
+These are current local source anchors, not a new upstream parity measurement.
 
----
+## Contract
 
-## API pública
+This prompt owns only the pure parser in its exclusive consumer. It accepts a UTF-8 string and returns `Result<Vec<BibEntry>, BibTeXError>`; `BibTeXError.message` remains a public string and its existing Portuguese diagnostic text is unchanged. `BibEntry` belongs to `01_core/src/entities/bib_entry.rs`. No filesystem, network, clock or environment access belongs to this parser.
 
-```rust
-pub struct BibTeXError { pub message: String }
+Supported entry types are `article`, `book`, `inproceedings`, `misc`, `phdthesis` and `techreport`, normalized without case sensitivity. Keys end at whitespace, comma or closing brace. Field names are normalized to lowercase; repeated names retain the last value. `title`, `author` and `year` are required. `year` must parse as `u32`. Recognized optional fields are `doi`, `url`, `journal`, `booktitle`, `volume` and `pages`; `booktitle` supplies `journal` only when `journal` is absent.
 
-pub fn parse_bibtex(src: &str) -> Result<Vec<BibEntry>, BibTeXError>
-```
+Values use balanced braces, quoted strings or decimal digits. Braced values preserve inner braces and literal LaTeX macros. The implemented quoted-string scan ends at the next quote. Escaped-quote and negative-number support has unresolved implementation gaps recorded in `00_nucleo/diagnosticos/sanitization-infra-wiring-history.md`; this sanitation does not change the parser or silently certify those claims.
 
-`BibEntry` é a entidade cristalino em `01_core/src/entities/bib_entry.rs`.
+Authors split on lowercase ` and `. A comma separates surname from given name; canonical output trims each part and joins authors with ` and `. Percent comments and whitespace are skipped; other text outside an entry is a syntax error. Unsupported types, macros such as `@string`/`@preamble`/`@comment`, concatenation and arbitrary LaTeX expansion are not added.
 
----
+File decoding and `.bib`/YAML selection belong to `00_nucleo/prompts/infra/system-world/paths.md` and the bibliography evaluation owner. They are dependencies, not additional consumers of this prompt.
 
-## Gramática suportada
+## Verification boundary
 
-```text
-file       ::= entry*
-entry      ::= '@' type '{' key ',' field_list? '}'
-type       ::= 'article' | 'book' | 'inproceedings' | 'misc'
-             | 'phdthesis' | 'techreport'
-key        ::= texto sem espaço/virgula/chaveta
-field_list ::= field (',' field)* ','?
-field      ::= name '=' value
-name       ::= identificador
-value      ::= '{' braced '}' | '"' quoted '"' | number
-braced     ::= qualquer coisa com chavetas balanceadas
-quoted     ::= qualquer coisa até à próxima aspa não escapada
-number     ::= sequência de dígitos (opcionalmente precedida de '-')
-```
-
-- Tipos de entrada são **case-insensitive** na prática (normalizados para
-  minúsculas).
-- Campos obrigatórios por entrada: `title`, `author`, `year`.
-- Campos opcionais reconhecidos: `doi`, `url`, `journal`, `booktitle`,
-  `volume`, `pages`.
-- `booktitle` é mapeado para `BibEntry.journal` quando `journal` está ausente.
-- O campo `author` usa o formato BibTeX canónico:
-  `Last, First and Last2, First2`.
-  - Cada autor é separado por ` and ` (minúsculas).
-  - Se houver vírgula, a parte antes é o apelido e a parte depois é o nome.
-  - O resultado canónico é `"Last, First and Last2, First2"`.
-
----
-
-## Escaping
-
-- Strings entre `{}` suportam aninhamento: o conteúdo é tudo entre as chavetas
-  exteriores; chavetas interiores são preservadas (protecção de
-  capitalização BibTeX).
-- Strings entre `""` terminam na próxima aspa não escapada.
-- Não há processamento de macros LaTeX (`\"{o}`, `\emph`, etc.) — são
-  guardados literalmente.
-
----
-
-## Comentários
-
-- Linhas que comecem por `%` são ignoradas (comentário estilo TeX).
-- Qualquer texto fora de uma entrada `@type{...}` é considerado erro de sintaxe.
-
----
-
-## Limitações / scope-outs
-
-- Apenas os 6 tipos de entrada listados; outros (ex.: `@online`, `@proceedings`)
-  produzem erro.
-- Não suporta `@string`, `@preamble`, `@comment` com semântica.
-- Não suporta concatenação de strings BibTeX (`#`).
-- Encoding apenas UTF-8; ficheiros ISO-8859-1 devem ser rejeitados a montante.
-- LaTeX macros arbitrários não são expandidos.
-
----
-
-## Testes canónicos
-
-```
-parse_bibtex("@article{a, author={A}, title={T}, year={2020}}") -> Ok([BibEntry { key:"a", author:"A", title:"T", year:2020 }])
-parse_bibtex("@book{b, author={Doe, Jane and Smith, John}, title={B}, year={2021}}") -> author: "Doe, Jane and Smith, John"
-parse_bibtex("@article{x, author={A}, title={The {Crystal} Math}, year={2022}}") -> title: "The {Crystal} Math"
-parse_bibtex("@misc{y, author={A}, title={T}, year={2020}}") -> Ok; campos opcionais None
-parse_bibtex("@online{z, author={A}, title={T}, year={2020}}") -> Err "tipo de entrada não suportado"
-parse_bibtex("isto não é bibtex") -> Err "conteúdo inesperado"
-```
+The existing inline cases cover entries, required/optional fields, canonical authors, nested braces, unsupported types and unexpected text. Test parser semantics and diagnostic fragments without moving I/O into L1.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/modules.md
-//! @prompt-hash 494cc225
+//! @prompt-hash 5306384e
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -279,7 +279,7 @@ pub(super) fn eval_module_include(
                     "include: caminho deve ser path ou string, recebeu {}",
                     other.type_name()
                 ),
-            )])
+            )]);
         }
     };
 

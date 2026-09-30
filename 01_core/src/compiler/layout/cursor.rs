@@ -1,37 +1,23 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cursor.md
-//! @prompt-hash b481813d
+//! @prompt-hash 6f672c46
 //! @layer L1
-//! @updated 2026-09-25
+//! @updated 2026-09-29
 //!
 //! Gestão do cursor do Layouter: palavras/wrap, paginação, colunas e floats.
 //! O fechamento de linha pertence ao módulo irmão `line_commit` (P1503).
 //! Extraído de `layout/mod.rs` no Passo 96.7 conforme ADR-0037.
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use crate::entities::{
-    corners::Corners,
     dir::Dir,
-    geometry::ShapeKind,
     image_sizer::ImageSizer,
     layout_types::{FrameItem, Point, Pt},
 };
 
 use super::metrics::FontMetrics;
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
-    /// Largura de uma palavra em Pt, incluindo tracking entre glyphs
-    /// (Passo 137, fase B.1 DEBT-52).
-    ///
-    /// Se `TextStyle.tracking` é `Some(length)`, acrescenta
-    /// `(n - 1) × tracking_pt` onde n é o número de codepoints —
-    /// paridade vanilla (entre pares de glyphs, não depois do último).
-    fn word_width(&self, word: &str) -> Pt {
-        // **P593** — delegado para `FontMetrics::text_width`, a fonte única de
-        // verdade do nível palavra (shaping + tracking).
-        self.metrics.text_width(word, self.style.size, &self.style)
-    }
-
     pub(super) fn space_width(&self) -> Pt {
-        self.metrics.advance(" ", self.style.size, &self.style)
+        super::text_measure::space(&self.metrics, &self.style)
     }
 
     /// **P1120** — regista a extensão vertical de um item inline com caixa
@@ -54,7 +40,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     pub(super) fn shift_current_line_y(&mut self, dy: f64) {
         for item in &mut self.regions.current.current_line {
             match item {
-                FrameItem::Text { pos, .. }
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
                 | FrameItem::TextShaped { pos, .. }
                 | FrameItem::Glyph { pos, .. }
                 | FrameItem::Shape { pos, .. }
@@ -69,7 +55,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 FrameItem::Link { .. } => {
                     crate::compiler::layout::helpers::shift_frame_item_y(item, dy);
                 }
-                FrameItem::Semantic { items, .. } => {
+                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
                     for child in items {
                         crate::compiler::layout::helpers::shift_frame_item_y(child, dy);
                     }
@@ -81,7 +67,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// **P448** — baseline ajustada pelo offset vertical do estilo (subscrito/
     /// sobrescrito). O `cursor_y` mantém-se como baseline principal da linha;
     /// o offset é aplicado só ao posicionamento do glyph.
-    fn baseline_y(&self) -> Pt {
+    pub(super) fn baseline_y(&self) -> Pt {
         let offset_pt = self.style.baseline_offset.resolve_pt(self.style.size.val());
         self.regions.current.cursor_y + Pt(offset_pt)
     }
@@ -145,134 +131,27 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.block_chain_active = false;
             self.prev_block_equation_descent = 0.0;
             self.last_equation_descent = 0.0;
+        } else {
+            super::region_progress::admit_next_text_line(self);
         }
-    }
-
-    /// **P449/P471** — emite um `FrameItem::Text` precedido, se necessário, por
-    /// um rectângulo de highlight. P471 adiciona `radius` (RoundedRect) e
-    /// `extent` (extensão horizontal). O shape cobre `ascender → line_height`.
-    fn push_text(&mut self, text: ecow::EcoString, width: Pt) {
-        if let Some(fill) = self.style.highlight.clone() {
-            let (ascender, line_height) =
-                self.metrics.vertical_metrics(self.style.size, &self.style);
-            let size_pt = self.style.size.val();
-            let extent_pt = self
-                .style
-                .highlight_extent
-                .map(|e| e.resolve_pt(size_pt))
-                .unwrap_or(0.0);
-            let shape_kind = match self.style.highlight_radius {
-                Some(r) if r.resolve_pt(size_pt) > 0.0 => super::resolve_shape_kind(
-                    &ShapeKind::RoundedRect { radii: Corners::uniform(r) },
-                    self.style.size,
-                ),
-                _ => ShapeKind::Rect,
-            };
-            self.regions.current.current_line.push(FrameItem::Shape {
-                pos: Point {
-                    x: Pt(self.regions.current.cursor_x.0 - extent_pt),
-                    y: self.baseline_y() - ascender,
-                },
-                kind: shape_kind,
-                width: width.0 + 2.0 * extent_pt,
-                height: line_height.0,
-                fill: Some(crate::entities::paint::Paint::Solid(fill)),
-                stroke: None,
-                fill_rule: Default::default(),
-                parent_bbox_at_emit: None,
-            });
-        }
-        self.regions.current.current_line.push(FrameItem::Text {
-            pos: Point {
-                x: self.regions.current.cursor_x,
-                y: self.baseline_y(),
-            },
-            text,
-            style: self.style.clone(),
-        });
     }
 
     pub(super) fn layout_word(&mut self, word: &str) {
-        // **P751** — fixar a baseline inicial com o estilo activo antes de
-        // posicionar o primeiro texto real.
-        self.ensure_initial_baseline();
-
-        // **P756** — texto em scripts sem espaços (CJK, Thai, Lao, Myanmar,
-        // Khmer) precisa de segmentação de linha antes do layout_word normal.
-        // Se a palavra contiver tais scripts, fragmentamos com icu_segmenter
-        // e emitimos cada fragmento via layout_chunk.
-        if super::word_segment::word_needs_line_segmentation(word) {
-            return super::word_segment::layout_segmented_word(self, word);
-        }
-
-        // **P593** — usar `FontMetrics::text_width` (shaping + tracking) como
-        // única fonte de largura de palavra.
-        let w = self.metrics.text_width(word, self.style.size, &self.style);
-        let right_margin = self.regions.current.width - self.page_config.margin.right;
-        if self.regions.current.cursor_x.0 + w.0 > right_margin
-            && self.regions.current.cursor_x.0 > self.page_config.margin.left
-        {
-            // Passo 144 (ADR-0057): tentar hyphenation antes do
-            // flush. Se `style.lang` define um idioma e `hypher`
-            // produz pontos de quebra, escolher o maior prefixo
-            // (com hífen literal) que cabe no espaço disponível;
-            // emitir prefixo, fazer flush, e recursar com o resto.
-            // Sem `lang` ou sem ponto de quebra que caiba: cai no
-            // fallback `flush_line` original (palavra inteira para
-            // linha seguinte — comportamento pré-144).
-            if let Some(lang) = self.style.lang {
-                let break_points = super::hyphenation::hyphenate(word, &lang);
-                if !break_points.is_empty() {
-                    let available = right_margin - self.regions.current.cursor_x.0;
-                    for &point in break_points.iter().rev() {
-                        let prefix: String = word.chars().take(point).collect();
-                        let prefix_with_hyphen = format!("{}-", prefix);
-                        let pw = self.word_width(&prefix_with_hyphen);
-                        if pw.0 <= available {
-                            self.push_text(prefix_with_hyphen.into(), pw);
-                            self.regions.current.cursor_x += pw;
-                            self.flush_line();
-                            let rest: String = word.chars().skip(point).collect();
-                            self.layout_word(&rest);
-                            return;
-                        }
-                    }
-                }
-            }
-            self.flush_line();
-        }
-        self.push_text(word.into(), w);
-        // **P545** — o avanço de `space_width()` foi removido de
-        // `layout_word`. O espaço entre palavras é responsabilidade do
-        // caller: o layout de `Content::Text` (múltiplas palavras num
-        // token) ou `Content::Space` (tokens adjacentes no markup).
-        // Isto evita inserir espaço automático entre fragmentos de texto
-        // produzidos por interpolações `#{expr}` adjacentes.
-        self.regions.current.cursor_x += w;
+        super::word_layout::word(self, word);
     }
 
-    /// P446 — emite um fragmento de texto sem adicionar o espaço de separação
-    /// de palavras. Usado por smallcaps para compor uma palavra a partir de
-    /// runs de tamanhos diferentes (minúsculas → maiúsculas a 0.8×).
     pub(super) fn layout_chunk(&mut self, chunk: &str) {
-        // **P751** — fixar a baseline inicial com o estilo activo antes de
-        // posicionar o primeiro texto real.
-        self.ensure_initial_baseline();
-        let w = self.word_width(chunk);
-        let right_margin = self.regions.current.width - self.page_config.margin.right;
-        if self.regions.current.cursor_x.0 + w.0 > right_margin
-            && self.regions.current.cursor_x.0 > self.page_config.margin.left
-        {
-            self.flush_line();
-        }
-        self.push_text(chunk.into(), w);
-        self.regions.current.cursor_x += w;
+        super::word_layout::chunk(self, chunk);
     }
 
     /// P576 — desloca a linha actual para a margem direita se o seu
     /// estilo indicar `dir: rtl`. Usado por `flush_line` e por `finish`
     /// (a última linha do documento não passa por `flush_line`).
     pub(super) fn align_current_line_rtl(&mut self) {
+        self.align_current_line_rtl_with_continuation(false);
+    }
+
+    pub(super) fn align_current_line_rtl_with_continuation(&mut self, continued: bool) {
         let is_rtl =
             self.regions.current.current_line.iter().find_map(|item| match item {
                 FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
@@ -297,121 +176,61 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let line_refs: Vec<&FrameItem> =
             self.regions.current.current_line.iter().collect();
         let content_right = self.metrics.line_content_right(&line_refs);
-        let offset = right_margin - content_right;
+        // O prefixo literal de um run RTL ocupa a borda visual direita.
+        // O seu span já contém os avanços e os intervalos de tracking.
+        let mut prefix_end = 0usize;
+        let mut prefix_left = None;
+        let mut prefix_right = None;
+        for (index, item) in self.regions.current.current_line.iter().enumerate() {
+            match item {
+                FrameItem::TextSeparator {
+                    pos, advance,
+                    origin: crate::entities::layout_types::TextSeparatorOrigin::Literal,
+                    ..
+                } => {
+                    prefix_left.get_or_insert(pos.x.0);
+                    prefix_right = Some(pos.x.0 + advance.0);
+                    prefix_end = index + 1;
+                }
+                item if super::html_frame::is_context_marker(item) => {
+                    prefix_end = index + 1;
+                }
+                _ => break,
+            }
+        }
+        let prefix_span = prefix_left.zip(prefix_right)
+            .map(|(left, right)| (right - left).max(0.0))
+            .unwrap_or(0.0);
+        let prefix_relocation = prefix_left.map(|left| content_right - left).unwrap_or(0.0);
+        let interval = if continued {
+            super::text_tracking::continued_rtl_end(&self.regions.current.current_line).0
+        } else {
+            0.0
+        };
+        let offset = right_margin - content_right - interval - prefix_span;
         let translated: Vec<FrameItem> = self
             .regions
             .current
             .current_line
             .drain(..)
-            .map(|item| {
+            .enumerate()
+            .map(|(index, item)| {
+                let leading_literal = index < prefix_end && matches!(item,
+                    FrameItem::TextSeparator {
+                        origin: crate::entities::layout_types::TextSeparatorOrigin::Literal,
+                        ..
+                    }
+                );
                 let (ix, iy) = super::helpers::item_pos(&item);
-                super::helpers::translate_frame_item(item, Pt(ix + offset), Pt(iy))
+                let visual_x = ix + offset + if leading_literal { prefix_relocation } else { 0.0 };
+                super::helpers::translate_frame_item(item, Pt(visual_x), Pt(iy))
             })
             .collect();
         self.regions.current.current_line = translated;
     }
 
     pub(super) fn new_page(&mut self) {
-        if !self.accept_flow_suffix_before_region_transition() {
-            return;
-        }
-        // Uma transição normal materializa novamente a página corrente. O
-        // page-run marca explicitamente sua página pós-boundary depois desta
-        // chamada, distinguindo-a de `pagebreak()` público.
-        self.page_run_boundary_empty = false;
-        // **P538c** — se estiver em fluxo contínuo de colunas, fechar a
-        // coluna actual e avançar para a seguinte da mesma página, se
-        // possível. Só cria página física quando todas as colunas da
-        // página actual estiverem cheias.
-        if self.page_columns.is_some() {
-            self.close_current_column();
-            let count = self.page_columns.unwrap_or(1);
-            if self.current_column + 1 < count {
-                self.start_next_column();
-                return;
-            }
-            // Última coluna da página: juntar items de todas as colunas
-            // no current_items e restaurar dimensões da página física antes
-            // de a criar.
-            self.merge_column_items();
-            self.regions.current.width = self.page_config.width;
-            self.regions.current.height = self.page_config.height;
-        }
-
-        // **P867** — dimensões finais quando `width: auto` / `height: auto`.
-        // Calculadas antes de flush de floats/footnotes porque esses
-        // mecanismos usam a altura da página como referencial.
-        let page_width = if self.page_config.width.is_infinite() {
-            self.compute_page_width()
-        } else {
-            self.page_config.width
-        };
-        let page_height = if self.page_config.height.is_infinite() {
-            self.compute_page_height()
-        } else {
-            self.page_config.height
-        };
-        let footnote_bottom_y = if self.page_config.height.is_infinite() {
-            Some(page_height - self.page_config.margin.bottom)
-        } else {
-            None
-        };
-
-        // P245 (M9d / M7+4) — flush floats pendentes na página actual
-        // antes da transição. Top floats emit no topo, bottom no fundo.
-        self.flush_fitting_pending_floats();
-
-        // P304 (P295.1) — flush footnote bodies pendentes no rodapé
-        // antes de saving a Page. Items posicionados em Y absoluto
-        // bottom-up; tornam-se parte dos `current_items` da página.
-        self.flush_pending_footnote_bodies(footnote_bottom_y);
-
-        self.commit_page(page_width, page_height);
-        let next_page = std::num::NonZeroUsize::new(self.pages.len() + 1).unwrap();
-        self.page_config.margin =
-            crate::entities::layout_types::PageMargins::resolve_for_page(
-                self.page_config.margin_spec,
-                self.page_config.auto_margin(),
-                self.page_config.binding.resolve(self.page_config.page_dir),
-                next_page,
-            );
-        self.regions.current.cursor_x = Pt(self.page_config.margin.left);
-        self.regions.current.line_start_x = Pt(self.page_config.margin.left);
-        self.regions.current.height = self.page_config.height;
-        // **P761/P762** — quando a baseline inicial ainda está pendente,
-        // `ensure_initial_baseline()` adicionará o offset do `top-edge`. Só
-        // pre-posicionamos a baseline quando o offset já foi fixado.
-        self.regions.current.cursor_y = if self.initial_baseline_pending {
-            Pt(self.page_config.margin.top)
-        } else {
-            let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
-            Pt(self.page_config.margin.top) + top
-        };
-        // P245/P1292-D — a nova região ainda não incorporou inserções;
-        // o owner Place reconstruirá as reservas ao admitir a fila.
-        self.cursor_y_top_reserve = 0.0;
-        self.cursor_y_bottom_reserve = 0.0;
-        // P813 — o avanço do último flush pertence à página fechada.
-        self.last_flush_advance = 0.0;
-        self.prev_block_equation_descent = 0.0;
-        self.prev_block_below_pending = 0.0;
-        self.block_chain_active = false;
-
-        // P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial) — flush
-        // pending cell tails (row break TableCell cell-level) NO TOPO
-        // da nova página. Items rebased pelo `cursor_y` actual (já
-        // posicionado pós-margin + ascender). Subpadrão "DeferredX
-        // buffer + flush em new_page" N=1 → 2 cumulativo (P245
-        // floats + P251 cell tails).
-        self.flush_pending_cell_tails();
-
-        // **P538c** — após criar página física, se estiver em modo colunas,
-        // preparar a primeira coluna da nova página.
-        if self.page_columns.is_some() {
-            self.current_column = 0;
-            self.column_page_items.clear();
-            self.start_column(0);
-        }
+        super::region_progress::next_region(self);
     }
 
     /// Realiza o prefixo que cabe na região activa e conserva o restante para
@@ -558,5 +377,51 @@ mod smoke {
             !cursor.contains(signature),
             "layout_flow_suffix_transaction deve pertencer a flow_suffix.rs"
         );
+    }
+}
+
+#[cfg(test)]
+mod rtl_literal_prefix_tests {
+    use super::super::{FixedMetrics, FontMetrics, Layouter};
+    use crate::entities::{dir::Dir, image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{FrameItem, Length, PageMargins, Point, Pt, TextSeparatorOrigin}};
+    use comemo::Track;
+
+    #[test]
+    fn literal_prefix_reserves_the_visual_right_edge_in_rtl() {
+        let intr = TagIntrospector::empty();
+        for t in [0.0, 0.2, -0.2] {
+            let mut l = Layouter::new(FixedMetrics, NullImageSizer, 100.0,
+                (&intr as &dyn Introspector).track());
+            l.page_config.margin = PageMargins::uniform(8.0);
+            l.regions.current.width = 100.0;
+            let mut style = l.style.clone();
+            style.dir = Some(Dir::RTL);
+            style.tracking = Some(Length::pt(t));
+            let space = l.metrics.advance(" ", style.size, &style).0;
+            let left = 8.0;
+            let prefix = 2.0 * space + t;
+            for x in [left, left + space + t] {
+                l.regions.current.current_line.push(FrameItem::TextSeparator {
+                    pos: Point { x: Pt(x), y: Pt(10.0) },
+                    advance: Pt(space), style: style.clone(),
+                    origin: TextSeparatorOrigin::Literal,
+                });
+            }
+            let word_x = left + prefix + t;
+            l.regions.current.current_line.push(FrameItem::Text {
+                pos: Point { x: Pt(word_x), y: Pt(10.0) },
+                text: "abc".into(), style,
+            });
+            let content_right = l.metrics.line_content_right(&l.regions.current.current_line.iter().collect::<Vec<_>>());
+            l.align_current_line_rtl();
+            let FrameItem::Text { pos: word, .. } = &l.regions.current.current_line[2] else { panic!() };
+            let FrameItem::TextSeparator { pos: first, .. } = &l.regions.current.current_line[0] else { panic!() };
+            let FrameItem::TextSeparator { pos: second, advance, .. } = &l.regions.current.current_line[1] else { panic!() };
+            assert!((word.x.0 - (word_x + 92.0 - content_right - prefix)).abs() < 1e-9);
+            assert!((first.x.0 - (92.0 - prefix)).abs() < 1e-9);
+            assert!((second.x.0 + advance.0 - 92.0).abs() < 1e-9);
+        }
     }
 }

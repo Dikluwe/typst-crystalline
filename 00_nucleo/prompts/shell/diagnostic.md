@@ -1,42 +1,24 @@
-# Shell Diagnostic — typst-shell::diagnostic
+# L0 — Human source diagnostics
 Hash do Código: 0096c215
 
-## Módulo
+**Layer:** L2
+**Exclusive consumer:** `02_shell/src/diagnostic.rs`
 
-`02_shell/src/diagnostic.rs`
+## Evidence and boundary
 
-## Propósito
+`02_shell/src/diagnostic.rs:92` defines memory-only sources and `:112` formats diagnostics. This is presentation in L2 under ADR-0045's human-format amendment and ADR-0050. Source collection/channel publication belong to `00_nucleo/prompts/wiring/diagnostics.md`; color resolution belongs to `00_nucleo/prompts/shell/cli.md`.
 
-Formatter humano de `SourceDiagnostic` para terminal, espelhado no vanilla
-ratificado `a51e02804`. Pertence a L2 porque decide apresentação user-facing;
-não realiza I/O.
+Diagnostic text and displayed locations are observables. No inference from Rust equality or renderer implementation establishes language parity; source-backed exact text tests are appropriate for these observables.
 
-Materializado originalmente no Passo 119 (ADR-0050). P1139 substitui o default
-gcc/clang curto da ADR-0045 pelo formato humano, preservando a motivação
-histórica de usar uma convenção externa estabelecida.
-
-## Tipos públicos
+## Public API
 
 ```rust
-pub struct DiagnosticSource {
-    source: Source,
-    name: String,
-}
-
+pub struct DiagnosticSource { /* private Source and String fields */ }
 impl DiagnosticSource {
     pub fn new(source: Source, name: impl Into<String>) -> Self;
     pub fn source(&self) -> &Source;
     pub fn name(&self) -> &str;
 }
-```
-
-`source.id()` é a identidade usada para resolver labels e tracepoints. `name`
-é somente a representação user-facing já decidida pelo caller. O tipo possui
-dados em memória; não contém path operacional, `World` ou callback.
-
-## Contrato público
-
-```rust
 pub fn format_diagnostic(
     diag: &SourceDiagnostic,
     sources: &[DiagnosticSource],
@@ -44,20 +26,15 @@ pub fn format_diagnostic(
 ) -> String;
 ```
 
-### Resolução
+A source ID is its identity; the caller-supplied name is presentation only. There is no operational path, World or loading callback.
 
-- O span principal e cada tracepoint são resolvidos por `span.id()` contra
-  `DiagnosticSource::source().id()`.
-- Fonte ausente ou span não resolvível não provoca panic nem posição
-  inventada; o label ou tracepoint correspondente é omitido.
-- Sources repetidos são aceites, mas o primeiro `FileId` vence. L4 deve
-  deduplicá-los antes da chamada.
-- L2 nunca carrega fontes.
+## Resolution and principal block
 
-### Formato humano
+Match each principal/trace span ID against the supplied sources. The first matching FileId wins; callers should deduplicate. Missing sources and unresolvable spans omit their corresponding label/trace rather than inventing a location. The formatter never loads sources.
 
-O bloco principal usa `codespan-reporting 0.11.1` e
-`term::Config { tab_width: 2, ..Default::default() }`, equivalentes ao vanilla:
+Use `codespan-reporting 0.11.1` with `tab_width: 2` and otherwise default configuration. Map error/warning severities directly. Preserve `diag.message` verbatim, a resolvable principal span as the primary label, and every hint as a `hint: {text}` note. Do not fabricate hint spans. Detached diagnostics remain readable without a false location.
+
+The uncolored principal example is:
 
 ```text
 error: unclosed delimiter
@@ -67,61 +44,37 @@ error: unclosed delimiter
   │          ^
 ```
 
-- `Severity::Error` e `Severity::Warning` mapeiam para a severidade homónima.
-- `diag.message` é emitida sem reescrita textual.
-- O span principal resolvível é label primário.
-- Como `SourceDiagnostic::hints` é `Vec<String>`, cada hint é uma nota
-  `hint: <texto>`; P1139 não fabrica spans.
-- O texto termina com newline.
-- Um diagnóstico detached continua legível, mas não mostra localização falsa.
+Preserve codespan's newline/blank-line structure. In particular a detached error is `error: boom\n\n`; hint notes retain the ` = hint: ` prefix.
 
-### Trace
+## Trace and snippets
 
-Somente no formato humano, depois do bloco principal, cada tracepoint
-resolvível é emitido na ordem armazenada:
+Append resolvable traces in stored order using:
 
 ```text
-  while including `chapter.typ` at main.typ:4:10
-    include "chapter.typ"
+  {kind} at {display_name}:{line}:{column}
+    {snippet}
 ```
 
-As palavras vêm de `Tracepoint` sem reescrita por regex. O snippet é o texto do
-próprio span. Em span multilinha, usa primeira linha e, se aplicável, `…` mais o
-último caractere não whitespace, conforme
-`lab/typst-original/crates/typst-kit/src/diagnostics.rs`.
+Preserve these kind literals; backticks around names are part of output:
 
-### Cores
+```text
+while calling `{name}`
+while calling function
+while showing {name} element
+while importing `{name}`
+while including `{name}`
+```
 
-- `colored = false`: writer sem ANSI.
-- `colored = true`: writer ANSI do `codespan-reporting`.
-- Remover ANSI do modo colorido preserva palavras e estrutura do modo sem cor.
-- Este módulo não lê env nem detecta TTY; a decisão continua em `cli` conforme
-  ADR-0048.
+Resolve positions through Source's span-to-line/column API, not fabricated offsets or regex rewriting.
 
-## Dependências
+Snippets come from the trace span itself. The existing multiline requirement describes the first line followed, when applicable, by `…` and the last non-whitespace character. The consumer currently checks only the actual final character of the last line and suppresses the suffix if that character is whitespace. That discrepancy requires a decision; this owner must not silently authorize trimming or drop the existing obligation. See `00_nucleo/diagnosticos/sanitization-shell-history.md`.
 
-- `typst_core::{Source, SourceDiagnostic, Severity, Tracepoint, FileId}`;
-- `codespan-reporting = 0.11.1` em L2;
-- `termcolor` pela API reexportada por `codespan-reporting` ou dependência
-  direta somente se exigida pelo compilador.
+Trace lines end with newline; when a snippet was appended, retain the additional trailing blank line.
 
-Sem `clap`, `SystemWorld`, filesystem ou escrita em stderr.
+## Color, purity and scope
 
-## Testes RED obrigatórios
+`colored = false` uses a non-ANSI writer; true uses codespan's ANSI writer. Stripping ANSI preserves the uncolored words and structure. No environment or TTY detection occurs here. No clap, SystemWorld, filesystem, stderr publication or L3/L4 import is allowed. The termcolor API may be obtained through codespan's reexport.
 
-- bloco principal com source e caret;
-- warning e error;
-- hint sem span como nota;
-- tab com largura 2 e Unicode antes do span;
-- span multilinha e detached;
-- trace `Call`, `Show`, `Import` e `Include`;
-- trace cuja fonte difere da fonte principal;
-- source ausente omitido sem panic;
-- modo colorido equivalente após stripping ANSI.
+## Acceptance
 
-## Scope-out
-
-- `DiagnosticFormat::Short` e flag pública de formato;
-- JSON/SARIF;
-- hints spanned no domínio;
-- qualquer alteração às mensagens produzidas por L1.
+Cover caret/source, warning/error, unspanned hints, tab width, Unicode, multiline/detached spans, all trace kinds, another source's trace, missing-source omission and ANSI equivalence. Preserve the unresolved multiline obligation explicitly. Short/JSON/SARIF formats, a public diagnostic-format flag, spanned hints in the domain and changes to L1 message literals are outside this contract.

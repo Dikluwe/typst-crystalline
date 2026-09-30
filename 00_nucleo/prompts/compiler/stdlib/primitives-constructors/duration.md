@@ -1,49 +1,22 @@
-# Prompt L0 — constructor primitivo `duration`
+# L0 — stdlib/primitives-constructors/duration
 Hash do Código: 19629e85
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml sha256:761d5adeca09f6a60ba2960f8492aa6c0d934798bbc826f341004cf993ba8736
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/stdlib/primitives_constructors/duration.rs`
-**ADRs:** ADR-0107, ADR-0108, ADR-0127, ADR-0129.
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/stdlib/primitives_constructors/duration.rs`
 
-## Medição anterior à decisão
+## Evidence and classification
 
-O consumer vigente possui duas formas exclusivas: uma string canónica
-posicional e componentes inteiros nomeados. Misturar as formas é erro. A forma
-nomeada aceita `weeks`, `days`, `hours`, `minutes`, `seconds`, `milliseconds`,
-`microseconds` e `nanoseconds`, inclusive valores negativos. P1200 não muda
-essa superfície; apenas individualiza seu owner.
+`01_core/src/compiler/stdlib/primitives_constructors/duration.rs:17`, `01_core/src/compiler/stdlib/primitives_constructors/duration.rs:114` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-## Contrato
+## Contract and ownership
 
-`native_duration(ctx, args, world, current_file) -> SourceResult<Value>`:
+native_duration has two exclusive forms. A single positional string has canonical d/h/m/s components, optional leading sign and fractional seconds. Reject empty/malformed strings, unknown/out-of-order suffixes, wrong types or mixing positional and named forms. The named form sums integer weeks, days, hours, minutes, seconds, milliseconds, microseconds and nanoseconds, including negatives, in i128 nanoseconds. No arguments produces zero. Return Value::Duration through Duration::from_nanos, preserving units/sign/diagnostics.
 
-- na forma posicional, aceitar exatamente uma string com componentes `d`, `h`,
-  `m`, `s` em ordem canónica, sinal inicial opcional e segundos fracionários;
-- na forma nomeada, somar os oito componentes inteiros em nanos usando `i128`;
-- ausência total de argumentos produz duração zero;
-- rejeitar mistura de formas, tipos errados, strings vazias/malformadas,
-  sufixos desconhecidos ou fora de ordem;
-- retornar `Value::Duration` e permanecer L1 puro.
+Do not narrow arithmetic or compare a represented i128 total against impossible outside-i128 bounds. Retain the existing string compatibility route; do not add casts, .in(unit), .display() or component extractors. Callable-type dispatch delegates to this same pure free function.
 
-## Limites e gates
+## Acceptance
 
-- Não adicionar cast, `.in(unit)`, `.display()` ou extractores de componente.
-- A forma string é compatibilidade existente; removê-la ou mudar forma/erro é
-  mudança pública sujeita à ADR-0127.
-- A entrada por tipo chamável delega a esta mesma free function.
-
-## Aceitação
-
-Cobrir zero, componentes de string, fração, sinal, componentes nomeados,
-negativos, tipos inválidos, mistura de formas e ordem/sufixo inválidos.
-
-## P1466 — aritmética `i128` sem comparação impossível
-
-Depois de somar os oito componentes em `i128`, não comparar `total` com
-`i128::MIN/MAX`: todo valor já representado satisfaz esse intervalo. Remover
-somente as comparações impossíveis apontadas pelo Clippy. Não estreitar a
-aritmética, não alterar parsing, unidade, sinal, diagnóstico ou
-`Duration::from_nanos`.
+Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaults and public identities, with no productive-code change. Preserve pinned shared claims and the exclusive owner boundary under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130. Historical evidence does not establish parity against a newer snapshot.

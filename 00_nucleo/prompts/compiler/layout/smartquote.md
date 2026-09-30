@@ -1,44 +1,25 @@
-# Prompt L0 — `smartquote`
+# L0 — smartquote
 Hash do Código: 58673851
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
 
-**Camada:** L1 render
-**Ficheiro alvo:** `01_core/src/compiler/layout/smartquote.rs`
-**ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0129
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/smartquote.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Medição e contrato
+## Evidence before specification
 
-Escolher aspas inteligentes de abertura/fecho por idioma e estado local, avançando o texto sem perder alternância.
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/smartquote.rs:18`.
 
-O dispatcher mantém braço magro, exaustivo e estático. A função da feature
-acede ao motor por descendência de módulo; entidade de domínio não importa o
-consumer e nenhum despacho dinâmico é introduzido.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-## Aceitação
+## Ownership and contract
 
-Testes focais e a suíte do subsistema preservam comportamento e morfologia;
-alteração observável exige medição e decisão próprias.
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-## P1286 — consumo da configuração local
+Resolve alternative and custom quotes with element values ahead of the active chain, then use the language owner's existing pair resolver with active language and single/double selection. Preserve existing handling of parsed inherited auto/custom quote values; do not invent a local localization catalog. Toggle the corresponding per-Layouter opening/closing flag and emit the selected glyph through Cursor.layout_word. The flags remain private causal state and participate in the hub checkpoint. Explicit/automatic quote policy is not a new show-context evaluator.
 
-### Medição anterior à decisão
+## Acceptance and limits
 
-`SmartQuoteElem` chega hoje com apenas `double`; a `StyleChain` vigente já
-acompanha o leaf durante `Content::Styled`. O vanilla resolve
-quotes/língua/alternative conjuntamente em `text/smartquote.rs:201-317`. A
-auditoria P1286 mostrou que embrulhar uma chamada direta em `Content::Styled`
-não é morfologicamente transparente para `content.func()`.
-
-### Decisão
-
-A free function continua dona da alternância. Para cada leaf, resolve
-`alternative` e `quotes` pela precedência campo explícito do
-`SmartQuoteElem` > StyleChain > default, pede ao owner
-`compiler/lang/quotes` os pares single/double e escolhe open/close segundo
-`e.double`. `quotes: auto` explícito apaga quotes herdadas; configuração
-explícita sobrepõe `alternative` somente no membro configurado. Nenhum estado
-global ou despacho dinâmico é criado; a forma B e o pin do Núcleo permanecem
-inalterados. Os campos públicos novos ficam bloqueados pelo gate ADR-0127 do
-owner `entities/elements/smartquote.md`.
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.

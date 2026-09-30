@@ -1,45 +1,19 @@
-# Prompt L0 — `compiler/stdlib/structural/markup` — nativas de markup inline
+# L0 — stdlib/structural/markup
 Hash do Código: bdfe2355
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/markup.rs`
-**Prompt pai (hub)**: `00_nucleo/prompts/compiler/stdlib/structural.md` — dono de
-`structural/mod.rs` e da história acumulada destas nativas (marcos P69…P962). Este L0
-especifica **a superfície do nó**; o detalhe por marco vive no pai.
-**Convenções partilhadas**: `00_nucleo/prompts/compiler/stdlib/_comum.md`
-**Vanilla**: `typst-library/src/model/{strong,emph,link}.rs` — um ficheiro por elemento; aqui agregados por co-mudança (P101, P109, P96.5, P97-99 movem-nos sempre juntos).
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/stdlib/structural/markup.rs`
 
----
+## Evidence and classification
 
-## Contexto
+`01_core/src/compiler/stdlib/structural/markup.rs:28`, `01_core/src/compiler/stdlib/structural/markup.rs:54`, `01_core/src/compiler/stdlib/structural/markup.rs:78` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-Markup inline: as nativas que envolvem conteúdo sem quebrar o fluxo. Todas são
-também **selectores** em show rules — `#show strong: …` chama a mesma função sem
-argumentos.
+## Contract and ownership
 
-## Instrução
+Own strong/emph/raw/link construction and validation, not show matching or layout. strong/emph wrap Content|Str with Bold(true)/Italic(true). raw accepts only Str, optional lang and block, and emits Content::Raw; never coerce Content to raw text. link requires a nonempty Str URL and optional Content body, defaulting the body to the URL text, with no named arguments. Preserve the existing exact diagnostics, lang/block casts/defaults and pure execution without Engine/I/O.
 
-| Nativa | Assinatura | Emite |
-|---|---|---|
-| `strong` | `strong(body)` | `Content::Styled([Bold(true)], body)` |
-| `emph` | `emph(body)` | `Content::Styled([Italic(true)], body)` |
-| `raw` | `raw(text, lang: ?, block: ?)` | `Content::Raw` — aceita **só** string, sem coerção de content |
-| `link` | `link(url, body?)` | hiperligação (P422); 1.º posicional `Str`, 2.º opcional `Content` |
+The original requirement that all these natives support no-argument show-selector sentinels remains a contract obligation. Code discrepancy: strong/emph/raw produce empty content on no arguments, but native_link rejects the missing URL at `01_core/src/compiler/stdlib/structural/markup.rs:164`. Do not silently weaken that requirement or change the code during sanitation; function-valued show selection is not proof that no-argument native calls satisfy it.
 
-## Restrições Estruturais
+## Acceptance
 
-- L1 puro. Sem `Engine`, sem I/O.
-- `raw` não coage `Content` para string — a recusa é deliberada (paridade vanilla).
-- Todas devem continuar utilizáveis como selector: chamada sem argumentos devolve o
-  valor-sentinela que o matching de show rules reconhece.
-
-## Critérios de Verificação
-
-```
-*a*                      → Styled([Bold(true)], "a")
-_a_                      → Styled([Italic(true)], "a")
-#raw("x", lang: "rs")    → Raw com lang
-#raw([x])                → Err (content não aceite)
-#link("u")[t]            → link com body
-#show strong: it => it   → selector resolve
-```
+Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaults and public identities, with no productive-code change. Preserve pinned shared claims and the exclusive owner boundary under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130. Historical evidence does not establish parity against a newer snapshot.

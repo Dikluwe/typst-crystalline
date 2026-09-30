@@ -1,45 +1,25 @@
-# Prompt L0 — testes bilaterais públicos de `math.frac` P1427
+# L0 — Public math fraction integration controls
 Hash do Código: ced3e3aa
 
-## Owner produtivo
+**Layer:** L3 (integration tests)
+**Exclusive consumer:** `03_infra/tests/p1427_math_frac.rs`
 
-`03_infra/tests/p1427_math_frac.rs`.
+## Current evidence
 
-## Obrigação
+- `03_infra/tests/p1427_math_frac.rs:84`, `:101`, `:129`, `:164` — retained route, diagnostic, MATH and binomial controls.
+- `03_infra/fixtures/fonts/NewCMMath-Book.otf` — the MATH fixture.
+- `00_nucleo/prompts/infra/tests/p1428-tests.md` — the distinct repr/causal-state observer owner.
 
-Materializar, sem consultar a implementação candidata, a superfície pública dos
-casos P01–P15, P19–P23 e N01–N16 do contrato P1427 congelado por compilação de
-documentos. As observações devem ser semânticas/morfológicas: binding, `repr`,
-diagnósticos, precedência de estilo, convergência das três rotas, proteção causal
-horizontal e isolamento de `binom`.
+These are current local source anchors, not a new upstream parity measurement.
 
-## Aceitação
+## Contract
 
-- chamadas válidas produzem `MathFrac` e `repr` canónico;
-- os três estilos e a cascata são distinguíveis publicamente;
-- bare, slash e qualificado convergem, salvo proveniência exclusiva do slash;
-- todos os dezasseis negativos são rejeitados com fragmento atribuível;
-- horizontal restaura parênteses exatamente quando o slash removeu um par;
-- `binom` não herda estilo nem ganha barra/slash;
-- a extração produtiva via `FontBookMetrics` devolve 96/350 da fixture e
-  preserva zero presente em cada entrada independentemente; leitura direta por
-  `ttf-parser` é apenas controle da fixture, não substitui este gate;
-- falha, timeout ou saída ilegível é `Unknown` e bloqueia aceitação.
+Own the retained controls: public bare/slash/qualified route convergence, all sixteen attributable signature negatives, productive MATH extraction and binom isolation. Do not infer expected language behavior by inspecting the candidate implementation.
 
-## Limites
+Valid fraction routes retain their shared semantics and route-specific slash provenance. binom does not inherit frac style or acquire a fraction bar/slash. FontBookMetrics must extract fixture skewed gaps 96/350, preserving present zero independently in each entry. Direct ttf-parser reads are fixture controls, not substitutes for productive extraction.
 
-Este prompt não autoriza código produtivo, equivalência geral do motor
-matemático nem igualdade de bytes de render.
+Decoded public repr/style-cascade observation and num/den causal parenthesis bits are owned by `00_nucleo/prompts/infra/tests/p1428-tests.md`, not duplicated in this suite. Both suites are necessary to cover their distinct observables. No SVG byte/source-spelling equivalence or general mathematical-engine equivalence is authorized.
 
-## P1466 — sucessão pelos observadores P1428
+## Verification boundary
 
-Remover deste consumer somente:
-
-- `p1427_reprs_preservam_estilo_explicito_e_omissao`, substituído pela leitura
-  de texto HTML decodificado de P1428;
-- `p1427_parenteses_causais_so_aparecem_no_horizontal`, substituído pela
-  inspeção dos bits causais do carrier avaliado em P1428.
-
-Preservar os quatro testes P1427 de convergência das rotas, dezasseis
-diagnósticos, constantes MATH e isolamento de `binom`. A suíte P1428 é gate
-obrigatório; a sucessão não autoriza comparar bytes SVG nem source spelling.
+Failures, timeouts and unreadable observations are Unknown and block acceptance. Existing test names and fixture cases remain unchanged.

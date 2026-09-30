@@ -1,22 +1,33 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/heading.md
-//! @prompt-hash 59f9cd91
+//! @prompt-hash 39ebca57
 //! @layer L1
 //! @updated 2026-06-19
 //!
 //! Atomização (ADR-0109, P383): a lógica de introspeção por-elemento de
-//! `Heading` (`compute_heading_auto_toc` + `compute_heading_for_toc`) movida do
-//! tronco `introspect.rs` para o arquivo do elemento, na convenção do submódulo
-//! `rules/introspect/`. Content-preserving — chamadas pelo walk arm `Heading`.
+//! `Heading` (snapshot, projeções TOC e braço completo do walk) vive neste
+//! arquivo da unidade, na camada de introspecção. O match no tronco delega
+//! estaticamente, preservando Location, recursão e ordem das tags.
 
 use crate::compiler::lang::heading_supplement_for_lang;
 use crate::entities::content::Content;
 use crate::entities::counter::CounterKey;
+use crate::entities::element_info::ElementInfo;
 use crate::entities::element_kind::ElementKind;
+use crate::entities::element_payload::ElementPayload;
+use crate::entities::elements::heading::HeadingElem;
 use crate::entities::introspector::Introspector;
+use crate::entities::introspector::TagIntrospector;
 use crate::entities::label::Label;
+use crate::entities::lang::Lang;
 use crate::entities::location::Location;
+use crate::entities::locator::Locator;
 use crate::entities::selector::Selector;
+use crate::entities::style_chain::StyleChain;
+use crate::entities::tag::Tag;
+use crate::entities::value::Value;
+
+use super::{materialize_time, populate_intr_from_tag_start, walk};
 
 /// Capture the complete modeled language fields while the causal chain exists.
 pub(super) fn snapshot_fields(
@@ -130,4 +141,152 @@ pub(super) fn compute_heading_for_toc<I: Introspector>(
     let auto_label = Label(format!("auto-toc-{}", auto_label_n));
     let number = format_heading_number(intr, location, numbering_active);
     Some((auto_label, number, frozen_body, level))
+}
+
+/// Percorre um Heading após o Start real ter sido emitido pelo walk pai.
+pub(super) fn walk_heading(
+    h: &HeadingElem,
+    emitted_loc: Option<Location>,
+    locator: &mut Locator,
+    tags: &mut Vec<Tag>,
+    intr: &mut TagIntrospector,
+    auto_label_counter: &mut usize,
+    lang: Option<&Lang>,
+    chain: &StyleChain,
+) {
+    // Modelo D (P316): Heading delegado; re-bind dos campos.
+    let level = &h.level;
+    let body = &h.body;
+    let _ = level;
+    // P363 (introspect-chain, PROBE de verificação): o gate de numbering
+    // lido **da chain** neste heading. **Aditivo** — não muda o read do
+    // gate (continua `h.numbering_active` até o de-bake P364). Só captura,
+    // sob `#[cfg(test)]`, o que a chain entrega aqui, para o teste provar que
+    // a infra threadou o custom até o heading (um heading sob o `Content::
+    // Styled` de `#set heading(numbering:)` vê `Some(Bool(true))`).
+    #[cfg(test)]
+    super::introspect_chain_probe::record(matches!(
+        chain.custom("heading.numbering"),
+        Some(Value::Bool(true))
+    ));
+    // P200B (M5 universal completo) — walk arm Heading
+    // E2-residuo fechada estruturalmente. Trabalho híbrido
+    // combinando 3 padrões testados:
+    // - sub-store novo `intr.headings_for_toc` (P193B-style),
+    // - Tag pós-recursão `ElementPayload::HeadingForToc`
+    //   (variante P196B locatable + emitted_loc directo),
+    // - consumer outline.rs:24 substitution-with-fallback
+    //   (P184D / P194B style).
+    //
+    // P196B (referência histórica): 3 das 4 mutações E2
+    // migraram estruturalmente via Tag::Labelled auto-toc;
+    // a 4ª (`state.headings_for_toc.push`) era residual.
+    // P200B fecha esse residuo via Tag::HeadingForToc
+    // (3ª Tag pós-recursão, mesma `emitted_loc`).
+    //
+    // Mutação 4 legacy preservada como write paralelo M5
+    // porque Layouter assignments (`mod.rs:1490, 1521`)
+    // dependem de `state.headings_for_toc`. Cleanup
+    // orgânico em M6.
+    // P190I (M6 fechado): mutação `state.step_hierarchical`
+    // ELIMINADA — caminho Introspector activo via populate_intr
+    // arm Heading (P191B `apply_hierarchical_at`). intr.counters
+    // populated antes desta arm via walk top emission. State
+    // legacy struct eliminada.
+
+    // P190G (M6 categoria Labels & TOC): `state.auto_label_counter`
+    // eliminado — substituído por local var threaded via
+    // `auto_label_counter: &mut usize` parameter (Opção α).
+    *auto_label_counter += 1;
+    let current_auto_label = *auto_label_counter;
+    // P191B (ADR-0071): compute_heading_auto_toc lê via
+    // Introspector path location-aware. `emitted_loc` é
+    // `Some(loc)` para Heading (locatable; populate_intr no
+    // walk top já registou Heading kind + counter no intr).
+    let auto_loc = emitted_loc.expect("Heading é locatable — emitted_loc deve ser Some");
+    // F-5a de-bake (P364, §3a.9): o gate vive **só na chain** (lido aqui
+    // sobre o introspect-chain do P363). O campo assado `numbering_active`
+    // foi removido. O **valor** do contador (`apply_hierarchical_at`,
+    // incondicional P335) e `formatted_counter_at` ficam intactos.
+    let numbering_active =
+        matches!(chain.custom("heading.numbering"), Some(Value::Bool(true)));
+    let (auto_label, resolved_text) =
+        compute_heading_auto_toc(&*intr, auto_loc, current_auto_label, numbering_active);
+    // P190G: mutação `state.resolved_labels.insert` ELIMINADA
+    // — caminho Introspector activo via Tag::Labelled
+    // pós-recursão (populate_intr_from_tag_start arm Labelled
+    // popula intr.resolved_labels). Layouter consumer
+    // `references.rs:64` migrado para Introspector path puro
+    // (sem fallback legacy).
+
+    // P190G: mutação `state.headings_for_toc.push` ELIMINADA
+    // — caminho Introspector activo via Tag::HeadingForToc
+    // pós-recursão (populate_intr_from_tag_start arm
+    // HeadingForToc popula intr.headings_for_toc). Layouter
+    // consumer `outline.rs:38` migrado para Introspector path
+    // puro (sem fallback legacy).
+    //
+    // `frozen_body` ainda computed aqui — reusado na Tag
+    // HeadingForToc pós-recursão (P200B).
+    let frozen_body = materialize_time(body, &*intr, auto_loc);
+
+    walk(body, locator, tags, intr, auto_label_counter, lang, chain, None);
+
+    // P196B: emit Tag auto-toc pós-recursão (ADR-0069).
+    // Reusa Location alocada para Heading (locatable; walk
+    // top emitiu Tag::Start). `emitted_loc` é `Some(loc)` —
+    // mais simples que P195D (Labelled não-locatable
+    // exigiu snapshot+find_map).
+    //
+    // P191B (ADR-0071): popula intr directamente via
+    // populate_intr_from_tag_start no momento da emissão.
+    if let Some(loc) = emitted_loc {
+        let info = ElementInfo::new(ElementPayload::Labelled {
+            label: auto_label.clone(),
+            resolved_text: Some(resolved_text),
+            figure_number: None,
+        });
+        populate_intr_from_tag_start(intr, &info, loc);
+        tags.push(Tag::Start(loc, info));
+        tags.push(Tag::End(loc, 0));
+    }
+
+    // P200B/P606: emit Tag::HeadingForToc e/ou Tag::HeadingForBookmarks
+    // pós-recursão. `outlined` controla o índice do documento;
+    // `bookmarked` (explicitamente ou via `outlined`) controla a árvore
+    // `/Outlines` do PDF. Ambas partilham o mesmo cálculo de entrada.
+    if let Some(loc) = emitted_loc {
+        if let Some((label, number, body_for_toc, lvl)) = compute_heading_for_toc(
+            &*intr,
+            loc,
+            current_auto_label,
+            frozen_body,
+            *level as usize,
+            numbering_active,
+        ) {
+            if h.outlined {
+                intr.outlined_heading_locations.push(loc);
+                let info = ElementInfo::new(ElementPayload::HeadingForToc {
+                    label: label.clone(),
+                    number: number.clone(),
+                    body: body_for_toc.clone(),
+                    level: lvl,
+                });
+                populate_intr_from_tag_start(intr, &info, loc);
+                tags.push(Tag::Start(loc, info));
+                tags.push(Tag::End(loc, 0));
+            }
+            if h.is_bookmarked() {
+                let info = ElementInfo::new(ElementPayload::HeadingForBookmarks {
+                    label,
+                    number,
+                    body: body_for_toc,
+                    level: lvl,
+                });
+                populate_intr_from_tag_start(intr, &info, loc);
+                tags.push(Tag::Start(loc, info));
+                tags.push(Tag::End(loc, 0));
+            }
+        }
+    }
 }

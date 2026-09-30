@@ -1,129 +1,26 @@
-# Prompt L0 — `infra/fontdb` — Descoberta automática de fontes do sistema
-Hash do Código: e08b934b
+# L0 — System font discovery
+Hash do Código: 667faea7
 
-**Camada**: L3  
-**Criado em**: 2026-06-30  
-**Atualizado em**: 2026-09-15 (P1410 — coverage exacta das fontes do sistema no catálogo)
-**Arquivos gerados**: `03_infra/src/fontdb.rs`, alterações em `03_infra/src/world.rs`, `03_infra/Cargo.toml`  
-**ADR referência**: ADR-0020 (ativação), ADR-0019, ADR-0022, ADR-0108, ADR-0123  
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/fontdb.rs`
 
----
+## Current evidence
 
-## Contexto
+- `03_infra/src/fontdb.rs` — `font_info_with_coverage`, `load_system_fonts`, `load_fonts_from_dir`.
+- `03_infra/src/world/fonts.rs` — composition builders.
 
-O `SystemWorld` actual carrega fontes apenas via paths explícitos (`with_fonts(paths)`), usando `discover_fonts` + `FontSlot` + `OnceLock`. Isto funciona para testes e para projectos que distribuem fontes, mas não descobre automaticamente as fontes instaladas no sistema operativo.
+These are current local source anchors, not a new upstream parity measurement.
 
-A ADR-0020 adiou a integração de `fontdb` até o CLI precisar de descoberta automática sem `--font-path`. O Passo 515 (Trilha 5) activa essa condição.
+## Contract
 
-A partir de P937, a extração de metadados de fontes do sistema passa a ser **eager** e a cobertura Unicode passa a ser **exacta** (runs de codepoints, ver `entities/font_book.md`). O `fontdb` é usado apenas como mecanismo de descoberta de paths e de acesso temporário aos bytes durante o arranque; cada `FontSlot` passa a possuir o seu próprio `mmap` lazy, pelo que o `fontdb::Database` pode ser descartado após a construção do catálogo.
+Own operating-system font discovery and directory-limited discovery through `fontdb`. Both loaders return `(Vec<FontSlot>, FontBook)` with identical slot/book indices. Accept File and SharedFile sources with their collection index; skip nonpersistent Binary sources. Invalid metadata or an invalid face is omitted from both collections.
 
-P1410 torna essa obrigação efetiva: dentro de `with_face_data`, depois de
-`font_info_from_bytes`, a face é parseada no índice recebido e
-`extract_coverage` preenche `FontInfo.coverage`. O loader não pode devolver
-uma fonte de sistema válida com coverage vazia quando sua `cmap` Unicode é
-legível. Assim uma consulta posterior de fallback não precisa mapear todo o
-catálogo de ficheiros apenas para descobrir candidatos.
+Use `Database::with_face_data` to extract metadata and exact Unicode coverage from the temporary bytes at the supplied face index. A readable Unicode cmap is reflected in `FontInfo.coverage` before the Database is dropped. Reuse `font_info_from_bytes` and `extract_coverage` from `00_nucleo/prompts/infra/fonts.md`; do not duplicate their algorithms. The resulting slots own lazy file mappings independently of the Database.
 
-## Restrições Estruturais
+Keep discovery order and existing duplicate path/index entries. A system without fonts and an empty or irrelevant directory return empty collections without panic. `load_fonts_from_dir` supports deterministic test discovery without assuming installed host families.
 
-- `fontdb` é uma dependência de L3 — faz I/O de sistema e leitura de variáveis de ambiente.
-- L1 continua a receber apenas `FontBook`/`FontInfo` (metadados primitivos + `Coverage`) e `Font` opaco.
-- A integração deve ser **aditiva**: `SystemWorld::with_fonts(paths)` continua a funcionar exactamente como hoje.
-- Não alterar a trait `World` nem a assinatura dos métodos `book()`/`font()`.
-- O `Database` não precisa de ser mantido vivo no `SystemWorld`: cada `FontSlot` gere o seu próprio `mmap` (ou bytes embutidos) e a `Coverage` exacta já está materializada no `FontBook`.
+This prompt owns neither `SystemWorld` builders nor CLI defaults. Their owners are `00_nucleo/prompts/infra/system-world/fonts.md` and the wiring command prompts. L1 receives its existing neutral metadata/opaque font types, never a fontdb Database or parser face.
 
-## Instrução
+## Verification boundary
 
-1. Adicionar `fontdb` às dependências de `03_infra/Cargo.toml` (versão `0.23` ou compatível com `ttf-parser 0.25` / `rustybuzz 0.20`).
-
-2. Criar `03_infra/src/fontdb.rs` com função pública:
-   ```rust
-   pub fn load_system_fonts() -> (Vec<FontSlot>, FontBook)
-   ```
-   - Inicializa `fontdb::Database::new()`.
-   - Chama `db.load_system_fonts()`.
-   - Itera `db.faces()`; para cada face:
-     - Obtém o caminho do ficheiro via `face.source.path()`.
-     - Usa `face.index` (índice da face na colecção).
-     - Cria um `FontSlot::new(path, index)` — **não** lê o ficheiro neste momento; o mmap do slot é lazy.
-     - Extrai `FontInfo` + coverage exacta via `font_info_from_bytes` reutilizando os bytes já carregados pelo `fontdb`:
-       ```rust
-       let info = db.with_face_data(face.id, |data, index| {
-           let mut info = font_info_from_bytes(data, index)?;
-           let face = ttf_parser::Face::parse(data, index).ok()?;
-           info.coverage = extract_coverage(&face);
-           Some(info)
-       });
-       ```
-     - Se `info` for `Some`, insere o slot e a info (slot no `Vec<FontSlot>`, info no `FontBook`).
-     - Se `info` for `None`, **descarta** o slot — os índices de `FontBook` e `font_slots` permanecem alinhados, como no vanilla (`typst-kit/src/fonts.rs:176-189`, `filter_map`).
-   - Retorna os slots e o `FontBook` populados.
-   - O `Database` pode sair de escopo ao final da função; os slots não o referenciam.
-
-3. Expor em `03_infra/src/world.rs` um novo builder em `SystemWorld`:
-   ```rust
-   impl SystemWorld {
-       /// Constrói um SystemWorld com descoberta automática de fontes do sistema.
-       /// Preserva a possibilidade de adicionar fontes de projecto via `with_fonts`.
-       pub fn with_system_fonts(root: impl Into<PathBuf>, main: impl AsRef<Path>)
-           -> Result<Self, SystemWorldError>;
-   }
-   ```
-   - Inicializa `SystemWorld::new(root, main)` (sem fontes).
-   - Chama `crate::fontdb::load_system_fonts()`.
-   - Associa os slots resultantes ao mundo da mesma forma que `with_fonts`.
-
-4. Opcionalmente, adicionar composição:
-   ```rust
-   pub fn with_system_and_project_fonts(mut self, project_paths: &[PathBuf]) -> Self
-   ```
-   - Carrega fontes do sistema e depois adiciona as fontes de projecto via `discover_fonts`, evitando duplicados por caminho+index.
-
-5. No CLI (`04_wiring` / `02_shell`), activar `with_system_fonts` por defeito quando nenhum `--font-path` for fornecido. Este prompt **não** cobre a alteração da CLI — apenas a infraestrutura L3.
-
-## Critérios de Verificação
-
-```
-Dado um SystemWorld construído com with_system_fonts
-Quando book().len() é consultado
-Então retorna > 0 em sistema com fontes instaladas
-
-Dado um SystemWorld construído com with_system_fonts
-Quando font(idx) é chamado para um índice válido do FontBook
-Então retorna Some(Font) com bytes não vazios
-
-Dado um SystemWorld construído com new(root, main).with_fonts(paths)
-Quando book().len() é consultado
-Então comportamento é idêntico ao pré-P515 (apenas paths fornecidos)
-
-Dado load_system_fonts() num sistema sem fontes
-Quando o par (slots, book) é inspeccionado
-Então slots e book estão vazios (não panic)
-
-Dado um SystemWorld construído com with_system_fonts
-Quando candidates_for_char('你') é chamado
-Então devolve apenas índices cuja coverage exacta contém U+4F60
-
-Dado um catálogo de fontes do sistema com `cmap` Unicode legível
-Quando `load_system_fonts` termina e o `fontdb::Database` é descartado
-Então cada `FontInfo` válido conserva sua coverage exacta e a primeira consulta
-de candidatos não abre um mmap por fonte do sistema
-```
-
-## Resultado Esperado
-
-- `03_infra/src/fontdb.rs` criado.
-- `03_infra/Cargo.toml` com `fontdb`.
-- `SystemWorld::with_system_fonts` disponível.
-- Testes unitários em `world.rs` ou `fontdb.rs` verificando pelo menos um slot não vazio quando há fontes no sistema.
-- `crystalline-lint .` com zero violations.
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-06-30 | Criação — ativação de ADR-0020 para P515 | `fontdb.md` |
-| 2026-07-10 | P674 — elimina leitura duplicada de fontes do sistema usando `db.with_face_data` | `fontdb.md`, `03_infra/src/fontdb.rs` |
-| 2026-07-22 | P839 — revoga o "faces sem info mantidas como slots": slot e entrada no book inseridos juntos (índices alinhados), replicando o `filter_map` do vanilla; latente registado por P838, achado #28/I4 de P831 | `fontdb.md`, `03_infra/src/fontdb.rs` |
-| 2026-07-31 | P937 — coverage exacta eager (runs de codepoints) e `FontSlot` mmap-backed; `Database` descartável após arranque | `fontdb.md`, `03_infra/src/fontdb.rs`, `03_infra/src/world.rs` |
-| 2026-09-15 | P1410 — materializa coverage das fontes do sistema com os bytes temporários do `fontdb`, evitando mapear todo o catálogo na primeira consulta | `fontdb.md`, `03_infra/src/fontdb.rs` |
+Existing tests check empty/nonfont directories, paired indices and exact coverage using `03_infra/fixtures/fonts/NotoSans-Regular.ttf`. Availability of host fonts is environmental, not a fixed expected catalog size.

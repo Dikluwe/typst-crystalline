@@ -408,8 +408,8 @@ mod tests {
             Style::Tracking(Length::pt(0.5)),
             Style::Leading(Length::em(0.65)),
             Style::Font(font.clone()),
-            Style::subscript(true),         // P448
-            Style::superscript(false),      // P448
+            Style::subscript(true),                 // P448
+            Style::superscript(false),              // P448
             Style::highlight(Some(yellow.clone())), // P449
         ]);
 

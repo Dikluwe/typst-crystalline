@@ -130,7 +130,9 @@ pub(crate) fn make_format_module(pdf: &Value, html: &Value, asset: &Value) -> Mo
     scope.define(
         "bundle",
         Value::Func(Func::native_with_namespace(
-            "bundle", native_format, Arc::new(bundle_namespace),
+            "bundle",
+            native_format,
+            Arc::new(bundle_namespace),
         )),
     );
     Module::new("format", scope)
@@ -147,7 +149,10 @@ mod tests {
     fn make_default_format_module() -> (Module, Value) {
         let pdf = make_pdf_module(Features::empty());
         let html = make_html_module();
-        let asset = Value::Func(Func::native("asset", crate::compiler::stdlib::structural::native_asset));
+        let asset = Value::Func(Func::native(
+            "asset",
+            crate::compiler::stdlib::structural::native_asset,
+        ));
         (make_format_module(&pdf, &html, &asset), asset)
     }
 
@@ -203,7 +208,8 @@ mod tests {
                 "format.html.{name}"
             );
         }
-        let Value::Func(bundle) = module.scope().get("bundle").expect("format.bundle") else {
+        let Value::Func(bundle) = module.scope().get("bundle").expect("format.bundle")
+        else {
             panic!("format.bundle must be a function");
         };
         assert_eq!(bundle.name(), Some("bundle"));

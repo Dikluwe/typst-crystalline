@@ -1,990 +1,187 @@
-# Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: 01111125
+# L0 — compiler/eval/call_dispatch
+Hash do Código: 30f9c85c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
 
-## P1339 — Angle, With e ligação das operações numéricas
-
-### Medição anterior à decisão
-
-HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
-`call_dispatch.rs:549-654` descobre wrappers internos; `:1263-1328`
-encaminha Float/Version ligados; `:1369-1383` cria With ligado;
-`:510-515,1057-1068` já aplica With concatenando Args causais.
-Angle::to_rad/to_deg existem em `entities/layout_types.rs:1286-1290`.
-Fonte ratificada `layout/angle.rs:142-151` e `foundations/func.rs:372-374,
-395-409` documenta conversão e pré-aplicação. Sondas P1339 full-final e
-boundaries conservam valores, prioridades, spans e proveniência. Leitura
-e classificação dos owners na medição histórica.
-
-### Conversões de Angle
-
-Estender o lookup fechado com wrappers internos de angle.deg/angle.rad,
-de nomes públicos deg/rad. Wrappers estáticos e a intercepção ligada chamam
-um parser interno único que consome positional self estritamente Angle,
-rejeita sobras e delega somente a Angle::to_deg/to_rad. Resultado é Float;
-nenhuma segunda fórmula existe em eval ou field_access.
-
-Missing self ancora `missing argument: self` na chamada inteira. Self
-apenas named produz ``the argument `self` is positional`` na ocorrência
-completa, com hint de remover `self:`; outro named não preenche positional.
-Inteiro/float sem unidade são rejeitados com `expected angle, found <tipo>`
-no value span. A primeira ocorrência sobrante produz unexpected argument
-ou unexpected argument: nome, no span da ocorrência. Preservar Args e
-origens através de aliases, spreads e With, sem procurar texto da fonte.
-
-### Pré-aplicação de função
-
-function.with(f, ..preargs) e f.with(..preargs) compartilham helper de
-construção que chama Func::with com Args restante integral. A estática
-consome self estritamente Func; missing, self named e cast seguem os
-diagnósticos posicionais acima, com expected function no cast. Demais
-named são pré-argumentos, não keywords desconhecidas de with. Não validar
-assinatura de f, converter Type em Func nem chamar corpo/constructor.
-
-Conservar merge_with_args: concatenação de ocorrências pre/new, com ligações
-antigas antes das novas e da chamada. Última ocorrência named determina a
-view; as anteriores não desaparecem, e a nativa final conserva autoridade
-de validá-las. Duplicado literal inválido continua erro sintático; spreads
-permitidos conservam sua ordem. With de With, closure, nativa e elemento
-continuam aceitos, sem alteração da representação pública de Func/Args.
-
-Na estática, avaliar argumentos antes do cast de self: with(1, panic(...))
-observa o panic. Na ligada, resolver receiver/método antes dos argumentos:
-(1).with(panic(...)) falha como método ausente de integer. Resolver o target
-uma única vez e reutilizar o Value no fallback, inclusive se Type::Function
-ou campo homônimo não tomar a rota ligada. Não voltar a eval_expr para
-descobrir a mesma função. Essa disciplina estende o adendo where somente
-ao transporte necessário às rotas deste lote, não refatora outros métodos.
-
-### Float, Version e origens de chamada
-
-Encaminhar Float signum/to-bytes e a rejeição medida de from-bytes ao owner
-float, uma vez por chamada. Receiver Float de from-bytes é o argumento
-Bytes inválido: preservar seu span lexical, não detached. Não capturar
-Int.signum pela coerção Float estática. Version ligada avalia Args uma vez
-e passa ao adapter da stdlib por value_methods, sem parser de índice aqui.
-
-Transportar call.span às identidades resolvidas destas nativas para missing
-e erros de domínio; aliases e With delas usam o mesmo helper de transporte
-agregado já existente. Identificar ponteiros tipados, nunca nome curto,
-spelling ou mensagem. Os ponteiros privados Float podem ser obtidos por
-float_type_field, sem reexportá-los publicamente. Ocorrências e origens dos
-argumentos ficam intactas. Ligadas preservam também a origem real do receiver;
-sintéticos sem AST conservam origem legitimamente ausente.
-
-Traces continuam causais, incluindo retornos antecipados de intercepções.
-Não alterar is-nan/is-infinite validados, Int, constructors, outros
-namespaces, PARITY_VERSION, defaults ou fases. Esta seção completa a ligação
-das outras rotas do mesmo contrato.
-
-## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
-
-### Medição anterior à decisão
-
-Baseline histórico R5:
-HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
-commitado com diff/stat integral. A medição independente R5,
-preserva fontes, horários e executáveis; referência upstream `a51e02804`.
-
-`compiler/eval/call_dispatch.rs:1510–1518` envia apenas Content ao helper
-quando o receiver é LocatedContent. Isso apagaria o snapshot antes do método.
-
-### Decisão proprietária
-
-No braço LocatedContent dos métodos func/has/at/fields/location, encaminhar
-carrier completo e Location ao helper interno de field_access. Content cru
-continua no helper vigente. Não converter receiver para render, não ler
-fields nesta fachada e não mudar ordem de avaliação/intercepções. Args,
-span de chamada e helpers dos encoders R3/R4 conservam seu contrato. Esta
-adaptação interna depende da aprovação do novo tipo de Value e não muda
-apply_func nem a superfície pública Typst dos métodos.
-
----
-
-
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/eval/call_dispatch.rs`
-**Prompt pai (hub)**: `00_nucleo/prompts/compiler/eval.md` (dono de `compiler/eval/mod.rs`)
-**ADRs relevantes**: ADR-0107 (paridade língua), ADR-0108 (medir antes de decidir), ADR-0109 (atomização)
-**Técnica**: dispatch de chamadas com intercepção de métodos especiais
-
----
-
-## Contexto
-
-Este nó contém o **dispatch de chamadas de função** do eval: dada uma expressão de chamada (`Expr::FuncCall`), avalia o callee, os argumentos, e aplica a função resultante. Inclui intercepções sintácticas para métodos especiais (`where`, `and`/`or`, `within`, mutating methods, métodos de coleção, `with`, `to-absolute`, `measure`, `layout`, métodos de `state`/`counter`/`color`/`version`/`args`/`content`, etc.) antes de cair no caminho genérico.
-
-Extraído de `compiler/eval/closures.rs` no Passo 1012 conforme ADR-0109 (atomização — forma B, free function no arquivo da unidade).
-
-> **Fonte de paridade dos métodos especiais (P1031)** — cada método interceptado existe
-> na linguagem Typst e está documentado. As referências abaixo são o doc comment `#[func]`
-> do vanilla ratificado (`e0e8ca4d`), que é o texto publicado em `typst.app/docs`
-> (`lab/typst-original/docs/README.md`: o conteúdo do site é *"supplemented by Typst markup
-> in Rust doc comments throughout the codebase [...] those affected by the `#[elem]`, `#[ty]`,
-> and `#[func]` macros"*).
->
-> | Método | Doc comment do vanilla | Página publicada |
-> |---|---|---|
-> | `.where(..)` | `crates/typst-library/src/foundations/func.rs:412-422` | `reference/foundations/function/#definitions-where` |
-> | `.or(..)` | `crates/typst-library/src/foundations/selector.rs:177-178` | `reference/foundations/selector/#definitions-or` |
-> | `.and(..)` | `crates/typst-library/src/foundations/selector.rs:188-189` | `reference/foundations/selector/#definitions-and` |
-> | `.within(..)` | `crates/typst-library/src/foundations/selector.rs:275-285` | `reference/foundations/selector/#definitions-within` |
-> | `.with(..)` | `crates/typst-library/src/foundations/func.rs:390-397` | `reference/foundations/function/#definitions-with` |
-> | `.to-absolute()` | `crates/typst-library/src/layout/length.rs:140-158` | `reference/layout/length/#definitions-to-absolute` |
-> | `measure(..)` | `crates/typst-library/src/layout/measure.rs:47` | `reference/layout/measure` |
-> | `layout(..)` | `crates/typst-library/src/layout/layout.rs:65` | `reference/layout/layout` |
-> | `counter(..).at/step/update/display` | `crates/typst-library/src/introspection/counter.rs:383,456,490,506` | `reference/introspection/counter` |
-> | `state(..).at/update` | `crates/typst-library/src/introspection/state.rs:274` e seguintes | `reference/introspection/state` |
->
-> Guardas de não-regressão no cristalino: `01_core/src/compiler/eval/tests.rs:7192`
-> (`p417_heading_where_retorna_selector`), `:7340` (`.and` em show rule), `:11543`
-> (`p504_within_selector_value`), `:1497` (`p713_cetz_canvas_length_to_absolute_div_1cm`).
->
-> **Natureza da citação**: literal para a *existência e assinatura* de cada método (o doc
-> comment nomeia o método e os seus parâmetros); a **ordem** de intercepção sintáctica no
-> cristalino (§2, item 1) **não** vem da documentação — é decisão de implementação, provada
-> só pelas guardas acima.
-
----
-
-## Instrução
-
-### 1. Contrato público
-
-```rust
-pub fn apply_func(
-    func: Func,
-    args: Args,
-    scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext,
-    engine: &mut Engine<'_>,
-) -> SourceResult<Value>;
-
-pub(super) fn eval_args(
-    args_node: crate::entities::ast::expr::Args<'_>,
-    scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext,
-    engine: &mut Engine<'_>,
-) -> SourceResult<Args>;
-
-pub(super) fn eval_func_call(
-    call: FuncCallNode<'_>,
-    scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext,
-    engine: &mut Engine<'_>,
-) -> SourceResult<Value>;
-```
-
-Funções privadas do nó:
-
-- `trace_call` — envolve erros de uma chamada com `Tracepoint::Call` quando o span da chamada não contém o erro.
-- `merge_with_args(pre: &Args, new: Args) -> Args` — funde args pré-ligados por `.with(...)` com os da chamada final.
-- `call_plugin(p: &PluginFunc, args: &Args) -> SourceResult<Value>` — aplica um export de plugin WASM.
-- `eval_location_method(loc, method, ctx) -> SourceResult<Value>` — resolve métodos de instância de `Value::Location`.
-
-### 2. Comportamento
-
-Manter exatamente o comportamento actual:
-
-- `eval_func_call` avalia chamadas sintácticas, aplicando intercepções na ordem correcta (method calls especiais antes do caminho genérico).
-- `apply_func` despacha sobre `FuncRepr`: `Closure` via `closures::apply_closure`, `Element` via ctor, `Plugin` via `call_plugin`, `With` via merge recursivo, `Native`/`NativeWithEngine` via fn-ptr.
-- `eval_args` avalia argumentos posicionais/nomeados/spread, espelhando `ast::Args::eval` do vanilla.
-- `trace_call` só adiciona trace quando o erro está fora do span da chamada.
-- `call_plugin` rejeita named args e exige `Value::Bytes` posicionais.
-- `eval_location_method` lê do `ctx.introspector`, com defaults seguros quando a posição ainda não está disponível.
-
-### 3. Gatilhos de reabertura
-
-- Novo `FuncRepr` ou novo tipo de função chamável.
-- Nova intercepção de method call especial.
-- Mudança de fase (eval ↔ layout) no processamento de chamadas.
-
-## P1215 — metadados internos de span para collections
-
-Na intercepção sintáctica de métodos de coleção, `eval_func_call` preserva,
-antes de consumir os argumentos, o span da chamada inteira, de cada positional
-e de cada named completo. Esses metadados são passados ao owner
-`stdlib/collections` somente para escolher a âncora diagnóstica medida; não
-entram em `entities::Args`, não mudam a ordem de avaliação e não constituem
-API pública. Caminhos sintéticos/field access continuam com fallback seguro.
-
----
-
-## Critérios de verificação
-
-```
-Dado #let f(x) = x + 1; f(2) → 3
-Dado #let g = f.with(1); g() → 2
-Dado #calc.max(1, 2) → 2
-Dado plugin("foo")(bytes) → bytes de retorno
-Dado #loc.page() → int (via introspector)
-```
-
-Aplicação final: `cargo build && crystalline-lint .` — zero violations.
-
-
-## P1140.1-B — medição anterior à decisão (2026-08-23)
-
-No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
-cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
-os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
-medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
-`tiling` e `version`. Os construtores atuais foram novamente executados após
-a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
-baseline estrutural. Esta é divergência de semântica pública da linguagem,
-não de mecânica Rust (ADR-0107).
-
-## P1140.1-B — despacho fechado de `Value::Type`
-
-No braço `Value::Type(t)`, o `match` deve delegar diretamente:
-
-- `Decimal` → `native_decimal`; `Duration` → `native_duration`;
-- `Regex` → `native_regex`; `Selector` → `native_selector`;
-- `Stroke` → `native_stroke`; `Tiling` → `native_tiling`;
-- `Version` → `native_version`.
-
-Os `Args`, `EvalContext`, `World` e `FileId` recebidos são passados sem
-normalização adicional, para preservar integralmente aridade, defaults,
-mensagens e valores dos construtores já testados. Tipos não chamáveis mantêm
-`type {name} does not have a constructor`. O `match` continua exaustivo e sem
-despacho dinâmico.
-
-## P1140.2 — medição e despacho de `Label`
-
-Medido no vanilla: `label` é tipo chamável, `label("x") == <x>` e um segundo
-posicional é erro. No cristalino anterior, o callee era `Value::Func` e
-produzia `Content`. O braço fechado `Value::Type(t)` acrescenta
-`Type::Label => native_label(ctx, &args, world, current_file)`. Nenhuma
-intercepção sintáctica especial, registry ou normalização de args é criada.
-
-## P1144 — métodos de instância de `Value::Gradient`
-
-Medição no vanilla ratificado `a51e02804`
-(`visualize/gradient.rs:719-874`) confirmou onze métodos públicos, disponíveis
-em forma estática e de instância. No bloco já existente de dispatch por valor,
-o braço fechado `Value::Gradient` só intercepta esses onze nomes e delega ao
-owner `stdlib/gradients`, após avaliar os argumentos uma vez. O owner sintetiza
-o gradiente como primeiro positional e usa as mesmas funções nativas da forma
-estática. Nome desconhecido continua no caminho genérico de field access.
-
-Esta intercepção é eval puro e não muda fase do pipeline. É glue interno de
-paridade sobre domínio já nuclearizado; não altera o contrato público Rust nem
-defaults (ADR-0127, fluxo contínuo).
-
-## P1145 — `gradient.sharp` e `gradient.repeat`
-
-A fonte ratificada `a51e02804:visualize/gradient.rs:545-716` acrescenta duas
-transformações públicas anteriores aos onze membros inventariados em P1144.
-Após aprovação do gate P1145, o braço fechado `Value::Gradient` também
-interceptar `sharp` e `repeat`, avaliar os argumentos uma vez e delegar às
-nativas homónimas em `stdlib/gradients`. A forma estática recebe `self` como
-primeiro positional e usa a mesma implementação. Nomes desconhecidos continuam
-no caminho genérico.
-
-O dispatch em si é glue interno; a paragem ADR-0127 é causada pelo campo
-público `anti_alias` necessário na entidade, não por mudança de fase neste nó.
-O dono aprovou o gate antes da materialização.
-
-## P1147 — métodos de instância de `Value::Int`
-
-Sondas coincidentes nos dois binários ratificados confirmam forma estática e
-de instância para `signum`, `bit-not`, `bit-and`, `bit-or`, `bit-xor`,
-`bit-lshift`, `bit-rshift` e `to-bytes`. O braço fechado `Value::Int`
-intercepta somente esses nomes, avalia args uma vez e delega ao owner com o
-receiver como primeiro positional. `from-bytes` não é método de instância.
-Isto é glue interno puro, sem mudança de fase ou contrato Rust público.
-
-## P1149 — preservação sintática de labels estáticos de `counter`
-
-O call dispatch intercepta somente chamadas estáticas `counter.at(counter,
-<label>)` e `counter.display(counter, ..., at: <label>, ...)` quando o literal
-label seria perdido pela avaliação genérica. Ele converte o nó em
-`Value::Label` e continua a delegar ao owner `stdlib/counter`; não resolve o
-counter nem a location neste módulo. As formas por string, `Location` e demais
-valores continuam no caminho genérico. Match fechado, sem registry.
-
-Sondas coincidentes no vanilla ratificado confirmam equivalência com as formas
-de instância. É glue interno de paridade e não muda contrato ou fase.
-
-## P1157 — `location.page-numbering()` preserva Numbering
-
-### Medição antes da decisão
-
-Vanilla devolveu o próprio callback, com repr `(..) => ..`, e não a vista
-formatada da página.
-
-### Decisão
-
-O método consulta `Introspector::page_numbering(location)` e converte
-`Pattern` em `Value::Str`, `Func` em `Value::Func`, ausência em `Value::None`.
-Não consulta as vistas realizadas e não aplica callback. A alteração depende do
-contrato tipado aprovado em P1157.
-
-## P1159 — consulta efetiva de `page-numbering`
-
-O braço `page-numbering` consulta o Numbering cru através do introspector e
-devolve `Str`, `Func` ou `None`. Nunca consulta a vista realizada nem aplica o
-callback.
-
-## P1284 — equivalência ligada/não ligada sem duplicação
-
-### Medição antes da decisão
-
-O contrato `C-P1284-v2` mede que os métodos P1284 devem funcionar em duas
-formas: `value.method(args)` e `type.method(value,args)`. A primeira passa por
-intercepção sintáctica quando mutação, contexto ou preservação de AST a exige;
-a segunda resolve um `Func` pelo `field_access` e entra em `apply_func`.
-
-### Decisão
-
-- Avaliar receiver e argumentos exatamente uma vez. A intercepção só escolhe
-  rota e delega ao owner: coleções/arguments → `stdlib/collections`; cor →
-  `stdlib/color` via `value_methods`; state → `stdlib/state`; selectors
-  `and/or/within` → `value_methods`; location → `eval_location_method`;
-  comprimento/duração/direção/alinhamento → helpers internos fechados.
-- Wrappers de `field_access` sintetizam o mesmo receiver como primeiro
-  positional. Não copiam parser, callback, defaults, erro ou metadata.
-- `push/pop/insert/remove` ligados preservam o caminho sintáctico de l-value.
-  A função não ligada não adquire autoridade para mutar um binding remoto.
-- `length.to-absolute` e métodos de `state`/`location` preservam o gate de
-  contexto; a forma estática não contorna introspecção nem inventa defaults.
-- `arguments.len` conta posicionais e named no nível da linguagem sem mudar a
-  assinatura ou a semântica Rust pública de `Args`.
-
-O match continua fechado. Nomes desconhecidos caem no field access normal; a
-intercepção não transforma presença desconhecida em sucesso.
-
-## P1289 — chamada ligada de `float.is-infinite`
-
-### Medição anterior à decisão
-
-No vanilla pinado, `(0.0).is-infinite()`, `(42.5).is-infinite()`,
-`(float.inf).is-infinite()`, `(-float.inf).is-infinite()` e
-`(float.nan).is-infinite()` produzem, respectivamente,
-`false`, `false`, `true`, `true`, `false`. A chamada ligada rejeita positional
-extra e named desconhecido com os mesmos diagnósticos da forma estática.
-
-### Decisão
-
-O match fechado de chamadas reconhece `Value::Float` somente para
-`is-infinite`, avalia os argumentos uma vez e delega ao owner
-`stdlib/foundations/float`, que sintetiza o receiver e chama a mesma nativa da
-forma estática. Nome desconhecido cai no erro genérico vigente. Não expor o
-método ligado como valor e não duplicar `f64::is_infinite` neste nó.
-
-
-### Gates
-
-`selector.before/after` não entram no match: faltam variantes públicas e
-consumers exaustivos precisam de revisão. Estado:
-`BLOCKED_ADR0127_PUBLIC_CONTRACT`. Também não se interceptam aproximações por
-`Within`/`And`/`Or`. `color.spot/tint` e `outline.entry/*` conservam os gates
-do seu L0. Nenhum campo/variante/método de trait/assinatura pública ou mudança
-de fase é autorizado por esta secção.
-
-### Critérios
-
-Comparar resultado e erro das duas formas para cada método, inclusive ausência,
-positional excedente, named desconhecido, tipo errado e default. Callbacks
-preservam ordem e curto-circuito. Métodos contextuais falham fora de contexto.
-Repetir e reordenar probes independentes produz o mesmo resultado.
-
-## P1284-v5 — `Type::Arguments` é construtor chamável
-
-### Medição antes da decisão
-
-O oráculo validado usa `arguments(1, x: 2)` como pré-condição de
-`arguments.len`. Na fonte vanilla ratificada
-`foundations/args.rs:320-340`, `Args::construct` é `#[func(constructor)]`,
-recebe os argumentos externos como variádicos e devolve o `Args` integral.
-O L0 v4 deste owner enumerava vários braços chamáveis de `Value::Type`, mas
-não legitimava `Type::Arguments`; portanto a afirmação anterior de que wrappers
-privados e representação existente bastavam era incompleta.
-
-### Decisão
-
-No match fechado de `Value::Type`, `Type::Arguments` é chamável e constrói
-`Value::Args` a partir do `Args` já avaliado da chamada:
-
-- aceita zero ou mais posicionais e zero ou mais named;
-- preserva ordem, valores, nomes e span disponíveis; named não é tratado como
-  argumento desconhecido do constructor;
-- `arguments()` produz arguments vazio;
-- `arguments(1, x: 2)` contém um positional e um named, e sua superfície de
-  linguagem tem `len() == 2`, `pos() == (1,)`, `named() == (x: 2)`;
-- `type(arguments) == type` e `type(arguments(...)) == arguments`.
-
-O constructor não reimplementa os seis métodos, que continuam pertencendo a
-`stdlib/collections`; apenas materializa o receiver necessário. Não alterar o
-método Rust público `Args::len`, que continua contando somente posicionais na
-entidade cristalina: o total da linguagem é responsabilidade do wrapper.
-
-Esta correção reutiliza `Type::Arguments`, `Value::Args` e `Args` existentes,
-sem campo/variante/trait/assinatura Rust pública ou mudança de fase. É paridade
-em fluxo contínuo ADR-0127. Mutação que omita o braço, descarte named, reordene
-ou recrie `Args` sem os metadados disponíveis viola o contrato.
-
-## Âncoras privadas de diagnósticos especializados
-
-Antes de `eval_args`, o dispatch preserva transitoriamente span da chamada,
-spans dos positionals, spans completos e de valor dos named e presença de
-spread. Depois da avaliação única e ordenada dos argumentos, ele ajusta somente
-`Args.span` para as identidades fechadas abaixo.
-
-### `float.is-nan`
-
-Para a nativa estática e a chamada ligada em Float:
-
-- self ausente usa a chamada inteira;
-- positional extra usa o positional ofensivo;
-- named desconhecido usa o named completo;
-- cast inválido usa o primeiro positional;
-- acesso ligado sem chamada pertence a `field_access`.
-
-### `math.attach`, `binom`, `mono` e `script`
-
-Missing usa a chamada inteira; casts e excesso usam o valor ofensivo; named
-desconhecido usa o named completo. `script.cramped` inválido usa o valor do
-named. O dispatch reconhece a identidade nativa resolvida, não o texto do
-callee.
-
-### Constructors HTML residuais
-
-Para `html.button`, `col`, `iframe`, `select`, `template`, `video`
-e `wbr`: named desconhecido, cross-tag, `data-*` e body named usam o named
-completo; cast/domínio inválido usa o valor; body em void e segundo body usam o
-positional ofensivo.
-
-Spread ou ausência de correspondência estrutural segura conserva o span
-agregado. Este owner não decide mensagens, casts, aridade ou precedência, não
-persiste metadata em `Args` e não altera a quantidade ou ordem de avaliações.
-
-## P1307-R3 — transporte causal antes da perda de argumentos
-
-### Medição anterior à decisão
-
-No baseline HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais P1306,
-`01_core/src/compiler/eval/call_dispatch.rs:389-430` dispõe dos spans AST
-antes de produzir Args; `:410-419` apaga a origem no spread; `:1016-1023`
-colapsa named e escolhe new.span em With. A medição histórica
-mede `with-spread-arguments-f/g` com erro em `46..53`/`78..85` e
-`with-json-invalid-first-occurrence` com cast no valor antigo `25..30`.
-A fonte vanilla `lab/typst-original/crates/typst-eval/src/call.rs:412-460`
-conserva ambos spans e spread Args; `typst-library/src/foundations/func.rs:372-374`
-conserva todas as ocorrências With. Captura apenas da última AST não basta.
-
-### Decisão e transporte
-
-`eval_args` avalia cada expressão exatamente uma vez, na ordem AST, e usa
-`Args::from_occurrences` de `entities/args.md`. Positional registra span
-do argumento e da expressão; named registra nome, argumento completo e
-expressão-valor, inclusive ocorrências anteriores. As restrições sintáticas
-vigentes a duplicados literais não são removidas: preservar ocorrências
-legalmente obtidas por spreads/With não torna sintaxe inválida válida.
-
-Spread None continua vazio. Spread Array/Dict cria ocorrências no span
-do spread para argumento e valor, em ordem do container já avaliado.
-Spread Args usa `occurrence_sequence` e transporta as ocorrências originais,
-sem substituir por span do spread. Fragmentos sintetizados None permanecem
-detached individualmente, sem contaminar a origem conhecida dos vizinhos.
-O span agregado da chamada permanece o da lista AST vigente; os precedentes
-privados de chamada inteira podem continuar ajustando só esse agregado.
-
-`arguments(...)` retorna o Args recebido integralmente. `.with(...)`
-retorna Func com esse Args, sem validar assinatura nem executar a função.
-`merge_with_args` concatena sequência pre e sequência new e reconstrói
-com `Args::from_occurrences(new.span, sequence)`; não usa o algoritmo de
-Args+Args do owner `compiler/eval/operators/join.md`. A ordem recursiva
-das cadeias With permanece: ligações antigas antecedem as novas e a chamada.
-
-Ao sintetizar/remover receiver ou reencaminhar Args neste nó, conservar a
-correspondência causal por `from_occurrences`/`remove_positional`/
-`remove_named`. Um receiver sintético recebe spans detached; copiar um
-receiver realmente originado em argumento preserva sua ocorrência.
-Nenhum writer pode manter Some depois de alterar views diretamente.
-Adaptadores que realmente sintetizam uma lista sem origem usam from_parts;
-não classificar transporte de usuário como síntese para reduzir a migração.
-
-`apply_func` entrega o Args ao owner final. Não adiciona selector diagnóstico
-para json/toml/yaml; não escolhe erro por texto da mensagem, spelling de alias
-ou tabela duplicada de assinatura. O transporte agregado R4 abaixo é a única
-exceção à manutenção do span da lista. Loading faz casts, precedência e âncora
-arg-span/value-span downstream. P1308 acrescenta separadamente panic e
-P1321-R2 acrescenta CSV ao transporte de chamada inteira. Fontes originais são as dos Spans retidos,
-inclusive cross-source; não recuperar origem por busca de Value igual,
-reexecução de factory ou world.source da última chamada.
-
-### P1307-R4 — agregado da chamada para encoders
-
-Antes da decisão, a medição histórica
-congela este L0 e o estado sem candidato. A medição P1307 de
-`json/toml/yaml.encode()` ancora missing em `0..13`; `.encode.with()()`
-ancora em `0..20`. Vanilla ratificado `typst-eval/src/call.rs:28,56,64,78`
-atribui a chamada inteira ao agregado; `foundations/args.rs:160-173` usa-o
-no missing. Aqui `call_dispatch.rs:399` conserva somente a lista, embora
-`:1576` ainda disponha da chamada inteira. A proibição anterior, sem um
-transporte desse agregado, contradizia o diagnóstico aprovado de loading.
-
-Um helper interno a eval transporta `call.span()` para `Args.span` somente
-quando a função resolvida termina em uma das três identidades nativas
-`native_json_encode`, `native_toml_encode`, `native_yaml_encode` (conjunto
-estendido somente por P1308/panic e P1321-R2/CSV abaixo). Percorre
-With recursivamente só para identificar a nativa; compara function pointers,
-nunca nomes públicos, bindings ou spelling. Não examina argumentos, aridade,
-named, erro ou mensagem: o transporte ocorre antes da chamada, seja ela
-válida ou inválida. Ocorrências e preargs não mudam; merge With conserva
-o agregado da chamada final. Loading continua dono de toda validação.
-
-As duas rotas genéricas de chamada math reutilizam esse mesmo helper interno,
-conforme `compiler/eval/math.md`. Não alterar `Func::native_fn_addr`, API
-pública, entidades ou os seletores das demais nativas. Este refinamento é
-interno ao diagnóstico de encoder já aprovado, em fluxo contínuo ADR-0127;
-não autoriza estender o agregado inteiro a outras funções. Requer testes
-de missing direto, alias, With e fronteiras legadas antes de aceitação.
-
-### Limites e aceitação após confirmação
-
-Manter match fechado, namespaces, sete decoders, CBOR e todas as outras
-nativas/seletores privados nos contratos respectivos; este carrier não lhes
-impõe validação nova de named anteriores. Traces continuam pela regra de
-contenção existente, sem criar hints/traces por heurística. Não mudar fase.
-
-Exigir direto/alias/With encadeado, parent With independente do membro,
-duas origens iguais por factory/sink, spread Array/Dict/Args, import/reexport
-cross-source, primeiro e último named inválido e validação adiada.
-Comparar mensagens integrais, hints/traces e ranges UTF-8 half-open; quando
-o vanilla não publica range, detached é fato, não Unknown nem âncora fictícia.
-Novos campos/assinaturas fora de Args ou writer sem owner autorizado exigem
-reabertura antes de código. Os seletores privados antigos não são removidos
-ou ampliados oportunisticamente por esta revisão.
-
-## P1308 — chamada inteira de panic sem reconhecimento nominal
-
-### Medição anterior à decisão
-
-Baseline P1308;
-R6 final mede panic de map/filter na lista de argumentos em vez da chamada
-inteira. `call_dispatch.rs:1622` transporta call.span só para encoders;
-`stdlib/panic.rs:46` usa args.span. Vanilla ratificado
-`foundations/mod.rs:140–156` devolve erro de string, e
-`typst-eval/src/call.rs:56–78` passa o span de chamada ao agregado.
-
-### Decisão autorizada
-
-O helper privado de transporte agregado pode ser renomeado para
-`transport_native_call_span`; aceita as três identidades encode anteriores
-e a identidade nativa `native_panic`. Percorrer With e comparar function
-pointers, nunca nome de binding, nome público, spelling ou texto do erro.
-Passar call.span para args.span antes da chamada; não alterar occurrences,
-preargs, ordem, aridade ou conteúdo da mensagem. O mesmo helper é usado nos
-dois caminhos genéricos de math. Synthetic apply_func sem AST conserva
-o span que recebeu; não procurar Source para inventar chamada.
-
-`trace_call` mantém integralmente a regra: só adiciona chamada resolvível
-cujo range não contém o erro, preservando nome e ordem da pilha. A correção
-de disponibilidade da Source pertence ao entrypoint eval. Identidades
-alheias a esse conjunto não ganham seletores novos. Medir panic direto,
-alias, With, callback e função do usuário chamada panic como controle.
-
-### P1308 — refinamento focal do caminho rápido de arguments
-
-Medição anterior à decisão: execução histórica,
-registra o estado exato e 13 testes verdes/5 falhas; todas as falhas são
-traces ausentes em filter com origem externa ao call ou detached.
-`call_dispatch.rs:1344-1354` retorna o resultado do dispatcher de coleções
-antes de `trace_call`; a Source já está disponível. Fonte ratificada
-`typst-eval/src/call.rs:155-158,167-174` passa métodos por `call_func` e
-pela mesma regra de trace. Os testes independentes já exigiam esses traces.
-
-Após dispatch reconhecido de `Args.filter` ou `Args.map`, passar o resultado
-pela mesma regra de contenção de `trace_call`, com o nome do método e span
-da chamada. O helper privado pode receber `Option<&str>` em vez de Func;
-callers genéricos passam `func.name()`. Não construir Func fictícia, não
-alterar o algoritmo, reavaliar target/argumentos ou criar traces no acesso
-de campo sem chamada. Demais tipos e métodos conservam seus caminhos.
-É correção interna de roteamento para obrigação já congelada; nenhum
-expected muda. Invalidar o pin anterior apenas deste L0 e registrar revisão
-sucessora antes da nova implementação, sem apagar o primeiro resultado.
-
-## P1321-R2 — agregado de CSV, sem validação no dispatch
-
-### Medição anterior à decisão
-
-O registro A/B histórico,
-conserva a falha R1: missing source tem a mensagem esperada, mas a âncora
-abrange só a lista de argumentos, inclusive alias/With/Args/sink/map.
-O baseline R2 (
-registra HEAD, árvore não commitada, diff/stat e UTC com os dois owners.
-No código anterior, call_dispatch.rs:398 usa args_node.span(); :455–487
-transporta a chamada apenas para os três encoders e panic; :1630 dispõe
-de call.span(). Vanilla ratificado a51e02804, typst-eval/src/call.rs:56–78
-atribui a chamada ao agregado; typst-library/src/foundations/args.rs:160–173
-usa-o no missing. O padrão já vigente P1307-R4 resolve a mesma perda de
-origem: não se infere um range por offsets nem pela mensagem de erro.
-
-### Obrigação e limites
-
-Adicionar somente `native_csv` ao conjunto de identidades aceitas por
-`transport_native_call_span`, preservando encoders e panic. Comparar ponteiro
-de função e percorrer With recursivamente, nunca nome público, alias,
-spelling ou nome de função do usuário. Antes da aplicação AST, transportar
-call.span() a args.span incondicionalmente para essa identidade: não examinar
-argumentos, aridade, valores, erro ou texto diagnóstico. Os caminhos math
-genéricos já usuários do helper recebem a mesma política, sem nova rota.
-
-Ocorrências, suas âncoras individuais e preargs ficam intactos; merge With
-mantém o agregado da chamada final. Loading continua dono da validação CSV.
-Synthetic apply_func sem AST conserva o span recebido, inclusive detached.
-Read, json decoder, CBOR, demais loaders e funções do usuário não recebem
-o agregado ampliado; traces seguem a regra existente. Esta cláusula estende
-apenas CSV nas exclusividades P1307-R4/P1308, não as demais identidades.
-Sem nova API, entidade, trait, dependência, flag, fase ou política de I/O.
-
-Aceitação: RED→GREEN local no owner por identidade, With encadeado, âncoras
-distintas, ocorrências/preargs intactos e função alheia chamada csv; controles
-read/json, encoders e panic. Reusar sem alteração os resultados esperados R1,
-refazer freeze normativo dos dois owners antes do patch; focal missing e
-fronteiras antes do A/B integral/repetido/reordenado. Unknown bloqueia.
-Diagnóstico é observável de linguagem; trata-se de correção interna/entrada
-em mapeamento em fluxo contínuo ADR-0127, não mudança de contrato público.
-
-## P1334 — agregado de abs por identidade nativa
-
-### Medição anterior à decisão
-
-A medição histórica
-registra HEAD/árvore/UTC/binários e missing em calc.abs, With vazio e
-`$std.calc.abs()$`. `01_core/src/compiler/eval/call_dispatch.rs:398,455-487,1634`
-tem a AST/helper seletivo, mas não inclui abs. Vanilla ratificado a51e02804,
-`lab/typst-original/crates/typst-eval/src/call.rs:56-78,458-460`, transporta
-chamada inteira; `typst-library/src/foundations/args.rs:160-173` usa-a no missing.
-
-### Obrigação e limites
-
-Adicionar somente calc_abs à whitelist de transport_native_call_span,
-via fachada `compiler/stdlib/_comum.md`. Comparar ponteiros, percorrer With
-recursivamente e atribuir call.span() a args.span antes da aplicação,
-incondicionalmente para a identidade resolvida. Não inspecionar argumentos,
-aridade, mensagem, nome público, binding ou spelling. Toda validação permanece
-no owner `compiler/stdlib/calc.md`. Manter encoders, panic e CSV intactos.
-
-Não alterar ocorrências/preargs/views/merge, trace_call ou avaliação.
-O agregado é da chamada final; math que já usa o helper recebe a mesma
-política, sem nova rota/resolução. apply_func sintético preserva o agregado
-recebido, inclusive detached. Homônimos do usuário e nativas alheias não
-recebem transporte. Esta seção estende exclusividades P1307-R4/P1308/P1321-R2
-somente por abs; não amplia os seletores anteriores oportunisticamente.
-
-Correção diagnóstica/mapeamento ADR-0127 contínuo, sem API pública, entidade,
-dependência ou fase nova. Inferência de suficiência refutada por carrier/math
-novo, origem perdida ou transporte de homônimo. Aceitação independente
-RED→GREEN por identidade, With aninhado, agregado distinto de individuais,
-preargs intactos, falsa identidade com nome abs e controles encoders/panic/
-CSV/nativas alheias; gates integrais do conjunto manifestado.
-
-## P1339 — dispatch de `where` sem reavaliar receiver
-
-### Medição anterior à decisão
-
-No HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto,
-`call_dispatch.rs:1117-1129` chama eval_element_where, que pode devolver
-None depois de avaliar o target (`value_methods.rs:676-684`); o caminho
-genérico pode então avaliá-lo novamente. O helper antigo ainda examina AST
-named diretamente e ignora spreads. As sondas `p1339-full-final-*` e
-`p1339-full-boundaries-*` registram a prioridade de panic, casts, argumentos
-e spans nas duas formas, com proveniência integral. No vanilla ratificado,
-`foundations/func.rs:430-450` recebe Args avaliados; a forma estática avalia
-argumentos antes do cast de self, sem tornar idêntica a prioridade do
-receiver inválido na chamada ligada.
-
-### Decisão de integração
-
-Na intercepção sintática cujo field é where, avaliar o target uma única vez
-e conservar o Value resolvido até decidir entre método ligado, lookup
-estático de Type::Function e chamada ordinária de field. A rota não pode
-voltar a eval_expr(target) quando não reconhece método; reutilizar o target
-já avaliado no fallback. Isso não autoriza alterar a ordem global dos demais
-métodos nem promover homônimos em Dict/Module a método de função.
-
-Para receiver Func ligado, avaliar Args no momento medido e delegar ao helper
-semântico único de value_methods. Para Type::Function, resolver a nativa
-estática e aplicar o caminho de chamada normal, também reutilizando o target.
-Alias da nativa funciona pela identidade resolvida, não pelo spelling.
-A intercepção escolhe rota e transporta dados; não copia a tabela de elementos,
-casts de campo ou construção de Selector. Rejeição ligada de não-função e
-prioridade de falhas conservam as sondas; não avaliar args antecipadamente
-para uniformizar chamadas distintas.
-
-Args conserva occurrences, spreads, valores e origens. O agregado da chamada
-inteira pode ser transportado somente para a identidade nativa estática de
-where e sua chamada ligada, para o missing self e erros agregados medidos.
-Estender o helper tipado de transporte já existente, sem seleção por nome,
-mensagem, aridade ou conteúdo; sintéticos sem AST preservam o span recebido.
-Não alterar as regras de traces; o resultado passa pela disciplina causal
-existente, inclusive quando a intercepção toma retorno antecipado.
-
-Esta seção sucede apenas a preservação do antigo caminho de where e estende
-a whitelist de agregado somente por sua nova identidade. With, outros métodos,
-math e nativas anteriores conservam seus contratos; nenhum novo campo público
-de Args, assinatura externa, default ou fase é autorizado.
-
-Aceitação: estática/ligada, aliases, receiver com efeito contado uma vez,
-homônimos ordinários, named/spreads/duplicados, panic, missing/casts/extra,
-spans e traces. Qualquer necessidade de reavaliar receiver ou deslocar fase
-refuta o desenho e exige reabertura. Este recorte não é o L0 integral das
-demais rotas P1339.
-
-### P1339 — observação dos métodos de Location
-
-Medição no HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer
-intacto: `call_dispatch.rs:1007,1541` converge a forma estática e ligada em
-eval_location_method; `:1725-1755` lê position_of/page_numbering. O método
-page projeta apenas a página; position inclui página e coordenadas;
-page-numbering devolve Numbering cru, inclusive Func sem executar callback.
-Proveniência no registro de integração de observações P1339.
-
-Registrar a operação efetiva com receiver Location, span disponível e
-resultado da projeção, incluindo seus defaults atuais. O helper privado
-pode receber o span já disponível nos callers; não criar API pública nem
-recuperar origem por AST reavaliada. Revalidar pela mesma projeção sobre
-candidate: mudar apenas x/y não invalida uma leitura page, mas invalida
-position. Page-numbering não pode ser substituído pela vista formatada nem
-chamar seu Func para comparar resultados. O comparador de eval precisa
-certificar o valor cru observado, sem inferir estabilidade de repr.
-
-O registro cobre ambas as formas pelo owner comum e não duplica observações
-no wrapper. Não seleciona bloco sem demanda Element. Defaults e validação
-de argumentos/contexto das rotas anteriores permanecem, inclusive suas
-diferenças conhecidas; novas tentativas ficam restritas ao escopo aprovado.
-
-## P1339 — pré-requisito autorizado `array(bytes)`
-
-### Medição anterior à decisão
-
-HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, working tree não commitada,
-registrada na medição histórica:
-`call_dispatch.rs:1791-1830` não contém Type::Array e devolve diagnóstico
-no span do callee. Vanilla ratificado a51e02804,
-`foundations/array.rs:164-169,1176-1179`, aceita Bytes e preserva cada byte.
-A ausência impede os casos públicos identificados pela medição histórica.
-
-### Decisão estreita
-
-O dono autorizou a mudança. Após avaliar
-callee e todos os argumentos exatamente uma vez pelo caminho vigente,
-o match fechado de Value::Type pode delegar Type::Array para
-`stdlib::native_array_bytes` somente se o primeiro positional é Value::Bytes.
-Passar Args e origens intactos; o owner dedicado consome, valida e converte.
-Aliases de Type seguem o valor resolvido, sem reconhecimento nominal.
-Erros de avaliação dos argumentos antecedem a seleção dessa rota.
-
-Sem primeiro positional Bytes, manter o erro legado no span do callee,
-inclusive missing, named-only, Array e Version. Não adicionar coerções,
-formas de With, ponteiro de Func, transformação de tipos ou validação de
-sobras aqui. Não alterar a fórmula de float.to-bytes ou seus testes públicos.
-As demais rotas e traces permanecem intactas. Esta cláusula sucede somente
-a proibição de constructors das seções anteriores para Array a partir de
-Bytes; nenhum construtor geral ou nova assinatura Rust externa é autorizado.
-
-Exigir sucessão do contrato, discriminação e RED prévios, positivos diretos/
-alias/spread, efeitos uma vez, sobras e controles não Bytes. A implementação
-pertence a `primitives-constructors/array.md`; este nó conserva somente a
-ligação tipada. Sem mudança de fase ou correção incidental de outros tipos.
-
-## P1341 — testemunho test-only do dispatch de callback
-
-### Medição anterior à decisão
-
-O registro P1340 conservava apenas `(fase, espécie)` e não podia provar que o
-`Func` invocado e o body observado provinham do carrier real. Ataques por alias
-de produtor sobreviveram antes do contrato P1341 R3/R4.
-
-### Decisão
-
-Sob `cfg(p1339_observation)`, no braço real `Value::Func`, registrar antes de
-`apply_func` a função efetiva, o carrier da chamada e o papel/origem do produtor;
-registrar o início do body sem reavaliar callee ou argumentos. Aliases e `With`
-seguem o valor resolvido e não reconhecimento por nome. A ordem é dispatch,
-invocação e body; o retorno/tracing conserva o caminho vigente.
-
-Identidades são locais ao ledger e tipadas por domínio. Não expor API nova,
-alterar spans, executar callbacks adicionais ou afetar o build normal.
-
-## P1342 — dispatch tipado de With e alvo real
-
-### Medição anterior à decisão
-
-A medição histórica registra o braço real
-`FuncRepr::With(Arc<(Func, Args)>)` e sua recursão para o `inner`; não existe
-um segundo Func chamado `func.body`.
-
-### Decisão vigente
-
-Sob `cfg(p1339_observation)`, quando o `EvalContext` possui ocorrência P1342
-ativa, `apply_func` registra a função efetivamente recebida antes do match. No
-braço With registra o wrapper real, o alvo `inner` real e a aresta conhecida no
-desempacote, então recorre normalmente. No braço Closure registra o dispatch do
-mesmo alvo antes de delegar a `closures::apply_closure`. IDs são atribuídos pelo
-ledger a objetos reais e só comparados localmente; o oráculo não fixa endereços.
-
-Não reconhecer nome, repr ou output; não reavaliar callee/Args nem criar um Func
-para o body. Merge, recursão, trace, estilos e resultados permanecem vigentes.
-Sem o cfg, nenhum evento ou branch existe. Esta seção substitui P1341 apenas na
-cadeia focal P1342 e não cobre callbacks alheios.
-
-## P1401 — chamadas `selector.before/after` (PROPOSTO; gate ADR-0127)
-
-### Medição anterior à decisão
-
-No baseline P1401, o dispatcher não possui chamadas vinculadas ou não
-vinculadas para esses nomes. A fonte vanila pinada exige um selector-limite e
-aceita o named `inclusive`, booleano com default true.
-
-### Decisão proposta
-
-As formas vinculadas `base.before(end, inclusive: true)` e
-`base.after(start, inclusive: true)` constroem os variants P1401. As formas de
-função descobertas pelo tipo recebem o base explicitamente e delegam ao mesmo
-helper semântico. Base e limite passam pela conversão pública para Selector;
-argumento ausente, excedente, named desconhecido ou inclusive não booleano usa
-os diagnósticos normais de argumentos. Não executam query nesta fase. A nova
-chamada pública aguarda confirmação ADR-0127.
-
-# P1402 — método `entry.body()`
-
-Antes do erro genérico de callee, chamadas `body()` cujo receiver seja
-`Content::OutlineEntry` ou conteúdo localizado equivalente devolvem o body do
-heading e rejeitam argumentos. Elementos não outlinable produzem diagnóstico
-explícito; os demais Contents não são interceptados.
-
-# P1403 — métodos `entry.prefix()` e `entry.page()`
-
-No mesmo ponto anterior ao fallback genérico, receivers
-`Content::OutlineEntry`, localizados ou não, ligam `prefix()` e `page()` às
-nativas qualificadas correspondentes. O receiver é avaliado uma vez e
-anteposto aos argumentos; a nativa conserva a validação única. Outros Contents
-não são interceptados. `page()` recebe o contexto e a Engine atuais.
-
-# P1404 — método `entry.inner()`
-
-O mesmo dispatch restrito a `Content::OutlineEntry` liga `inner()` à nativa
-qualificada com contexto, Scopes e Engine atuais. Receiver é avaliado uma vez;
-argumentos são validados exclusivamente no owner de outline.
-
-# P1405 — método `entry.indented()`
-
-O mesmo dispatch restrito a `Content::OutlineEntry` liga `indented(prefix,
-inner, gap:)` à nativa qualificada com contexto, Scopes e Engine atuais. O
-receiver é avaliado uma vez e anteposto aos argumentos; toda validação e toda
-composição permanecem no owner de outline. Outros Contents não são
-interceptados e o fallback geral permanece inalterado.
-
-# P1471 — `P1293HtmlNative::from_func` deixa de assumir `html` como `Module` (MATERIALIZADO; achado de integração)
-
-`compiler/stdlib/html.md` P1471 retifica `html` para `Value::Func` (medido
-contra o vanilla ratificado `586e1bd43fae`, confirmado pelo dono
-2026-09-21). Este ficheiro não fazia parte dos 5 L0s auditados nessa
-retificação, mas `P1293HtmlNative::from_func` (despacho das natives HTML
-`button`/`iframe`/`col`/`wbr`/etc. via `call_dispatch`) chamava
-`make_html_module().scope().get(name)` em código de produção — achado
-pelo Agente A durante a implementação isolada de P1471 (worktree, sem ver
-os L0s de teste), corrigido no mesmo commit (`e118c2053`) para
-`.namespace()` sobre o `Value::Func`, mesma lógica de lookup, mesmo
-resultado. O teste correspondente
-(`p1293_c_identidades_html_e_ancoras_sao_estritas`, neste ficheiro)
-também assumia `.scope()` e foi corrigido na integração (papel C) pela
-mesma razão. Nenhum comportamento observável de `P1293HtmlNative`
-mudou — só a forma de obter o namespace de onde ler.
-## P1482 — dispatch de `SpotColorant.tint` (CONFIRMADO em 2026-09-23; ADR-0127)
-
-### Medição anterior à decisão
-
-`compiler/eval/call_dispatch.rs:1447-1461,2094-2096` intercepta
-métodos de `Value::Color` e o constructor de
-`Type::SpotColorant`, mas não `Value::SpotColorant.tint`.
-No vanilla, `s.tint(50%)` e `color.spot.tint(s, 50%)` convergem;
-`s.tint` isolado falha, e `color.spot.tint(red, 50%)` erra
-`expected spot colorant, found color` (sondas P1482).
-
-### Decisão proprietária
-
-Interceptar somente a chamada ligada `Value::SpotColorant` com nome
-`tint`, encaminhando receiver e Args com seus spans ao mesmo parser
-do owner `compiler/stdlib/color.md`. A função estática resolvida no
-campo de `Type::SpotColorant` usa o mesmo parser. Field access isolado
-do valor spot continua inválido; nenhuma reavaliação de argumentos,
-coerção para Color, mudança de ordem ou fase do pipeline. As demais
-rotas de `Value::Color` e constructors ficam inalteradas.
-
-
-## P1491 — projeção da baseline de `measure`
-
-### Medição anterior à decisão
-
-No HEAD `b169a78c6c6bc17764b294f501ac09b63d678b03`, working tree limpo,
-a sonda `P1489-L-001` permanece `VIOLATED`: o layout mede o retângulo, mas o
-dict construído em `eval_func_call` contém somente `width` e `height`. O
-vanilla pinado `9f2b6e8715237cb086899a42873660fe744622e8` devolve também `baseline`.
-Texto, box com shift 3pt, vazio, composto e HTML refutam um literal igual a
-height. Proveniência e hashes ficam no diagnóstico P1491.
-
-### Decisão proprietária
-
-A intercepção identificada pelo ponteiro de `native_measure` chama a medição
-geométrica interna que produz `(width, height, baseline)` e constrói o dict com
-essas três chaves nessa ordem. Não calcula baseline, não examina `Content` e
-não altera validação, sombra, ordem de avaliação, gate contextual ou fallback
-indireto. A assinatura pública de `measure_content_real` permanece intacta;
-a projeção tripla usa somente helper interno ao módulo `compiler`.
-
-## P1492 — localização no target HTML externo
-
-### Medição anterior à decisão
-
-No HEAD `7f814615b786fddfceca30fb9fa11825c3b42eba`, working tree limpo,
-`eval_location_method` converte ausência de `position_of` em página 1 e
-coordenadas 0pt. O vanilla pinado
-`9f2b6e8715237cb086899a42873660fe744622e8` devolve `none` para
-`location.page()` e `location.position()` no target HTML fora de
-`html.frame`. As sondas nos perfis html, html+a11y e html+bundle ficam
-`VIOLATED` com ordem bilateral idêntica. O caso dentro de `html.frame`
-permanece recorte independente de P1493.
-
-### Decisão proprietária
-
-Quando `ctx.target == EvalTarget::Html`, os métodos `page` e `position`
-devolvem `Value::None` antes de consultar ou fabricar uma posição paginada.
-O método `page-numbering` conserva a consulta vigente. Nos targets `Paged` e
-`Bundle`, preservar integralmente a projeção atual, inclusive defaults seguros
-quando o introspector ainda não contém a localização.
-
-A decisão usa somente o carrier interno `EvalContext::target` já existente;
-não muda `Position`, `Introspector`, assinatura pública, fase, ordem de
-avaliação ou registro de `ContextReadRequest`. A leitura observada continua
-registrada com o resultado efetivo `None`. Não inferir HTML pela feature:
-feature e target são eixos distintos conforme ADR-0128. Não alterar neste
-passo a avaliação paginada intrínseca de `html.frame`.
-
-## P1493 — projeção de posição local em HTML (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
-
-### Medição anterior à decisão
-
-P1492 faz `page` e `position` devolverem `none` para todo target HTML.
-Isso fecha o contexto externo, mas impede a exceção linguística de
-`html.frame`. O vanilla e as sondas P1493 devolvem dict `(x, y)` dentro da
-ilha, sem chave `page`.
-
-### Contrato ratificado
-
-No target `Html`, `page` permanece sempre `Value::None`.
-`position` consulta exclusivamente `Introspector::html_position_of`: ausência
-projeta `None`; presença projeta dict ordenado `x`, `y`, sem `page`.
-Targets `Paged` e `Bundle` continuam usando `position_of` e o dict
-paginado vigente. `page-numbering` não muda.
-
-A operação e o resultado efetivo continuam registrados uma vez em
-`ContextReadRequest`; replay usa a mesma projeção. Não inferir ilha por
-feature, conteúdo, página intrínseca ou valor das coordenadas. A mudança
-depende do contrato público P1493, confirmado pelo dono em 2026-09-24.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/eval/call_dispatch.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
+
+## Source evidence
+
+The current exclusive consumer defines the following owned boundaries:
+
+- `01_core/src/compiler/eval/call_dispatch.rs:69` — `struct FloatIsNanCallSpans {`.
+- `01_core/src/compiler/eval/call_dispatch.rs:124` — `enum P1293MathNative {`.
+- `01_core/src/compiler/eval/call_dispatch.rs:147` — `struct P1293NamedSpan {`.
+- `01_core/src/compiler/eval/call_dispatch.rs:154` — `struct P1293MathCallSpans {`.
+- `01_core/src/compiler/eval/call_dispatch.rs:300` — `enum P1293HtmlNative {`.
+- `01_core/src/compiler/eval/call_dispatch.rs:332` — `struct P1293HtmlCallSpans {`.
+- `01_core/src/compiler/eval/call_dispatch.rs:399` — `fn eval_args`.
+- `01_core/src/compiler/eval/call_dispatch.rs:465` — `fn transport_native_call_span`.
+- `01_core/src/compiler/eval/call_dispatch.rs:503` — `fn p1339_native_call_span`.
+- `01_core/src/compiler/eval/call_dispatch.rs:535` — `pub fn apply_func`.
+- `01_core/src/compiler/eval/call_dispatch.rs:604` — `fn p1284_type_field`.
+- `01_core/src/compiler/eval/call_dispatch.rs:722` — `fn take_p1339_self`.
+
+Prior source readings supporting these clauses (snapshot provenance is
+retained in the assigned history diagnostic, not asserted as a fresh measurement):
+
+- `crates/typst-library/src/foundations/func.rs:390-397`.
+- `crates/typst-library/src/foundations/func.rs:412-422`.
+- `crates/typst-library/src/foundations/selector.rs:177-178`.
+- `crates/typst-library/src/foundations/selector.rs:188-189`.
+- `crates/typst-library/src/foundations/selector.rs:275-285`.
+- `crates/typst-library/src/introspection/counter.rs:383,456,490,506`.
+- `crates/typst-library/src/introspection/state.rs:274`.
+- `crates/typst-library/src/layout/layout.rs:65`.
+- `crates/typst-library/src/layout/length.rs:140-158`.
+- `crates/typst-library/src/layout/measure.rs:47`.
+- `foundations/args.rs:160-173`.
+- `foundations/args.rs:320-340`.
+- `foundations/array.rs:164-169,1176-1179`.
+- `foundations/func.rs:372-374`.
+- `foundations/func.rs:430-450`.
+- `foundations/mod.rs:140–156`.
+- `lab/typst-original/crates/typst-eval/src/call.rs:412-460`.
+- `lab/typst-original/crates/typst-eval/src/call.rs:56-78,458-460`.
+- `layout/angle.rs:142-151`.
+- `typst-eval/src/call.rs:155-158,167-174`.
+- `typst-eval/src/call.rs:28,56,64,78`.
+- `typst-eval/src/call.rs:56–78`.
+- `typst-library/src/foundations/args.rs:160-173`.
+- `typst-library/src/foundations/args.rs:160–173`.
+- `typst-library/src/foundations/func.rs:372-374`.
+- `visualize/gradient.rs:545-716`.
+- `visualize/gradient.rs:719-874`.
+
+## Contract
+
+Own apply_func, eval_args, eval_func_call and private call adapters. Preserve
+their existing public/internal signatures, explicit Scopes/EvalContext/Engine,
+closed FuncRepr and Value::Type dispatch, syntax interception priorities and
+causal traces. Resolve target/receiver and argument expressions exactly once.
+Generic Closure delegates to closures; Element calls its constructor; Plugin
+delegates through the existing host with Bytes positional arguments and no named;
+Native/NativeWithEngine use their real typed pointers; With recursively applies
+the inner function with prearguments. Do not invent a new callable representation.
+
+eval_args evaluates occurrences in AST order. Positional/named retain both full
+argument and expression-value spans. Spread None is empty; Array/Dict use the
+spread origin and their container order; Args spreads retain original occurrences,
+including duplicate named values and cross-source origins. Other spread values
+emit `cannot spread <long type>` (not literal-spread 'into' wording). Build via
+Args::from_occurrences; do not rewrite carrier views directly or legalize invalid
+literal duplicate syntax. Synthetic receivers retain detached origins; receivers
+copied from actual arguments keep their original occurrence.
+
+With preserves all pre/new occurrences in order, oldest bindings first and final
+call last, with the final aggregate span. Last named determines the view but earlier
+occurrences remain available to downstream validation. This is not Args+Args join,
+whose collision-removal algorithm belongs to operators/join. function.with and
+bound f.with share the same constructor: consume strict Func self, keep all remaining
+prearguments, do not validate f's signature, convert Type to Func or execute f.
+Static arguments evaluate before self cast; bound invalid receiver fails before
+arguments. Resolve and cache the target for fallback rather than evaluating it again.
+
+## Delegated methods and constructors
+
+Typed interceptors route collection/Args methods to stdlib collections, mutable
+methods through the existing lvalue path, color/state/counter/version and selector
+adapters through bindings/value_methods, and content/snapshot methods through
+bindings/field_access. A LocatedContent receiver carries its entire snapshot and
+Location; this facade does not strip it to raw Content or inspect its fields.
+Unrecognized names retain ordinary field/callee fallback and diagnostic precedence.
+
+Keep integer signum/bit-not/bit-and/bit-or/bit-xor/bit-lshift/bit-rshift/to-bytes
+instance routing (not from-bytes), float is-nan/is-infinite/signum/to-bytes and the
+measured rejection of a Float receiver for from-bytes, and the existing gradient
+instance catalog including sharp/repeat. Delegate once to the same native as the
+static route, with the causal receiver first; no duplicate numeric formula.
+Version.at delegates to its stdlib adapter without a second index parser.
+
+Angle deg/rad share a strict Angle self parser and delegate only to Angle::to_deg/
+to_rad, returning Float. Missing self uses the whole call; named-only self emits
+``the argument `self` is positional`` at that occurrence with the removal hint;
+wrong self uses its value span (`expected angle, found <type>`); leftovers use
+the first offending full occurrence. Static function.with uses corresponding
+function self diagnostics. Length.to-absolute/state/location preserve their
+context gate; wrappers do not bypass context or mutate an external binding.
+
+Bound/static where uses the single semantic value_methods helper. Cache the
+target through native function, Type::Function or ordinary-field fallback; do not
+promote dict/module homonyms. Static arguments evaluate before self cast; bound
+receiver resolution comes first. before/after converts base and boundary through
+the existing Selector conversion, accepts inclusive Bool default true, preserves
+missing/extra/unknown/type diagnostics and constructs the tree without query.
+
+OutlineEntry body/prefix/page/inner/indented bound calls intercept only actual raw
+or located entry content, not arbitrary Content. Prepend the once-evaluated receiver
+and delegate validation/composition to the qualified native owner. body returns
+the outlinable element body and rejects arguments; non-outlinable errors remain
+explicit. Contextual helpers receive current Engine/scopes. HTML native lookup
+uses the actual callable html namespace, not Module-only access. SpotColorant tint
+intercepts bound calls only and delegates receiver/spans to the same color parser
+as the static form; isolated field access remains invalid.
+
+Type constructors retain the closed delegated Decimal/Duration/Regex/Selector/
+Stroke/Tiling/Version/Label routes and other already-supported cases without
+normalization or validation duplication. Type::Arguments returns the full evaluated
+Args, accepting named as payload, not unknown constructor keywords; language len
+counts positional and named, without altering the Rust Args::len contract.
+Type::Array routes only a first-positional Bytes receiver to native_array_bytes;
+other/missing/named-only inputs retain the legacy no-constructor error at the
+callee span. Evaluate all arguments before selecting this restricted route.
+Other nonconstructible types retain `type {name} does not have a constructor`.
+
+## Diagnostic transport
+
+trace_call adds the causal Call trace only when a resolvable call range does not
+contain the primary error. Keep message, hints, original span, name and stack order.
+Recognized early Args.filter/map returns use this same containment rule; do not
+create a fictitious Func, re-evaluate a callback or add traces for isolated fields.
+
+Transport whole-call aggregate span before native application only for the closed
+resolved identities: json/toml/yaml encode, panic, CSV, calc_abs, static where,
+Angle conversions, function.with and the existing Float signum/from-bytes/to-bytes
+and Version.at wrappers. Traverse With by real pointers, never name/spelling,
+message, arity or argument values. Preserve individual occurrences/preargs.
+Generic math routes reuse this helper; synthetic apply_func without AST retains
+its received span. Encoder/loading/calc/native owners keep casts and validation.
+
+Keep the existing private AST anchor selectors for collections, float.is-nan,
+math.attach/binom/mono/script and residual HTML button/col/iframe/select/template/
+video/wbr. Capture full call, positional and full/value named spans before consumption;
+after ordered evaluation adjust only the selected diagnostic anchor. Missing
+uses whole call, offending values use value/positional span and unknown named uses
+full occurrence; script.cramped uses its value span. HTML void/second-body uses
+the offending positional, cross-tag/data-*/body named uses full named occurrence.
+Spread or unsafe structural correspondence retains the aggregate fallback. This
+metadata does not redefine Args or the native schema. Existing legacy selectors
+are not generalized by the typed identity transport.
+
+## Introspective projections
+
+Location page/position/page-numbering use the current target and introspector.
+Paged and Bundle retain their existing safe defaults and ordered paginated dict.
+Html page is always None; Html position uses only html_position_of, returning
+None or ordered x/y dict with no page. Do not infer a frame island by feature,
+content, coordinates or intrinsic page. page-numbering returns raw Pattern->Str,
+Func->Func or absence->None, without executing a callback or reading a formatted
+view. Register the effective operation/result once, including defaults/errors,
+and replay the same projection: x/y-only changes invalidate position, not page.
+
+Measure interception recognizes native_measure by pointer, calls the internal
+geometry helper and returns width/height/baseline in that order. Do not calculate
+baseline or inspect Content here. Preserve contextual gate, shadowing, evaluation,
+validation and indirect fallback; the public measure_content_real signature stays.
+
+## Test-only observation
+
+Under cfg(p1339_observation), preserve real Func/Args producer and dispatch records.
+An active typed occurrence records the actual With wrapper, inner target and known
+edge, then normal recursion; Closure records the same target before delegation.
+Body observation uses its actual SyntaxNode, never an invented function. IDs are
+local typed ledger identities, not stable pointer or repr oracles. Do not execute
+anything additionally, alter origins/flow, or add a normal-build API/branch.

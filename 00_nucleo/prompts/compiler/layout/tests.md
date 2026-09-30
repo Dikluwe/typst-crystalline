@@ -1,186 +1,108 @@
-# Prompt L0 — regressões do motor de layout
-Hash do Código: 252fcdb8
+# L0 — tests
+Hash do Código: 4a185f8f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
 
-**Camada:** L1 test-only
-**Ficheiro alvo:** `01_core/src/compiler/layout/tests.rs`
+**Layer:** L1, test-only
+**Exclusive consumer:** `01_core/src/compiler/layout/tests.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Contrato e aceitação
+## Evidence before specification
 
-Concentrar Worlds/métricas test-only e regressões de geometria e morfologia do
-layout. Testes cobrem referencial absoluto, rebase, regiões, paginação, texto,
-containers e aninhamento; números decisórios registram estado e vanilla.
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/tests.rs:31`, `01_core/src/compiler/layout/tests.rs:38`, `01_core/src/compiler/layout/tests.rs:48`.
 
-### P1373 — adaptação test-only de `BlockElem::height`
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-Com a mudança pública confirmada de `Option<Length>` para
-`Option<Rel<Length>>`, fixtures que constroem `BlockElem` diretamente elevam
-alturas absolutas para `Rel { rel: 0, abs }` por helper test-only. A adaptação
-não muda valores, tolerâncias, paginação esperada nem produção. Os novos
-testes percentuais vivem no owner `compiler/layout/block.md`; este arquivo
-preserva as regressões absolutas existentes.
+## Ownership and contract
 
-### P1373 — linha posterior à altura relativa cheia
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-A primeira matriz pós-implementação preservou `Probe`, mas perdeu `After` e
-classificou os dois perfis como `Unknown/TEXT_MISMATCH`; o PDF cristalino tinha
-uma primeira página com `Probe` e uma segunda vazia. A causa observada é a
-linha posterior ter sido anexada fora do limite antes do avanço de página.
+Own only the existing test-only worlds/metrics, affine observation helpers and layout regression suite. Preserve assertions for rendered text/morphology, page/position/style, diagnostic behavior and architectural delegation. Geometric observers compose ancestor affine transforms, Group position/matrix and nested wrappers once into global coordinates; Semantic is transparent and Link follows its own convention. Variant-only tests need not project geometry.
 
-O teste focal constrói um Block de altura relativa 100%, seguido de parbreak e
-texto. Exige duas páginas, `Probe` somente na primeira e `After` somente na
-segunda. Também mantém sentinela de Block terminal para proibir página vazia
-e execução ilimitada.
+Keep the absolute Block fixtures lifted into the current relative carrier without changing their values/tolerances. Preserve full-region Block followed by text, terminal-no-empty-page and relative/fractional sizing controls. Preserve the independent float clearance-anchor versus reserve/fitting controls, the atomic post-marker suffix including Place and later floats, and controls without marker/float or with explicit block spacing; do not weaken them to page totals or inspect private checkpoint flags as a substitute for observable position.
 
-### P1374 — regressões propostas de sizing de Block
+Retain mixed-size/no-wrap and certified one-wrap fractional-prefix controls, both orders across the outer size, equal/unequal size cases, and opaque compound-style/multiword negative controls. Keep cases alignment points reaching layout, without suppressing panic or deleting align markers to make a test green. Preserve the structural regression for thin static descendant dispatch arms and the exhaustive match; it checks architecture, not claimed performance.
 
-Após o gate, testar separadamente: carrier auto/relative/fractional; width 60%
-contra 180pt úteis; duas alturas 1fr/2fr com razão de parcelas 1:2 após itens
-fixos; zero fr sem divisão; compatibilidade de width/height absolutos; rejeição
-de width fracionária e pesos inválidos. A matriz black-box compara texto,
-página e bbox congelados, nunca bytes PDF. Contextos P1375 ficam Unknown.
+This document neither authorizes production changes nor requires tests that are absent to be declared implemented. Existing historical probe coordinates and executions are archived in the diagnostic; future quantitative parity/performance claims need exact source/binary provenance, not aggregate test status.
 
-## Observação recursiva em coordenadas globais
+## Acceptance and limits
 
-Helpers test-only que comparam geometria carregam a transformação afim
-acumulada. Ao entrar em `Group`, compõem transform ancestral, translação de
-`Group.pos` e `Group.matrix` na ordem do exporter. Grupos aninhados
-compõem transitivamente.
+Preserve the existing tests and their observable assertions. This documentation operation does not modify fixtures, tolerances or Rust code.
 
-Pontos de Text, TextShaped, Glyph, Image e Shape, extremos de Line e qualquer
-coordenada comparada são projetados uma única vez para o referencial global.
-`Semantic` é envelope transparente; `Link` conserva sua convenção.
-
-A correção fica no observador. Não adaptar expectativas locais, remover Group
-ou alterar produção. Testes que apenas contam variantes podem continuar a
-observá-las sem projeção geométrica.
-
-## P1292 amendment-10 — Place, clearance e checkpoint atômico
+## Separadores textuais — materialização autorizada em 2026-09-28
 
 ### Medição anterior à decisão
 
-O legado P245 `p245_place_float_com_clearance_adiciona_espaco_y` trata
-clearance bottom como deslocamento físico do frame para cima. A medição
-ratificada refuta essa expectativa: numa página 100pt × 100pt contendo somente
-o bottom float `ANCHOR`, `clearance: 0pt` e `clearance: 20pt` produzem uma
-página e o mesmo bbox do token, `yMin=90.166`, no vanilla e no candidato v10.
-Clearance reserva espaço adjacente para flow; não muda o anchor no fundo.
+`01_core/src/compiler/layout/tests.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
+`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+dos handlers desse consumer precedem esta alteração. A aprovação do contrato
+público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
+2026-09-28 e registrada na proveniência da materialização.
 
-Controle separado de fitting colocou um Block de 80pt antes do bottom float.
-Com `0pt`, `ADJACENT` e `FLOAT` permanecem na página 1, com `yMin=-2.596` e
-`90.166`. Com `20pt`, `ADJACENT` permanece p1 e `FLOAT` migra para p2,
-conservando `yMin=90.166`. Vanilla e candidato v10 foram bilaterais nos dois
-controles. Isto prova reserva/fitting sem confundir com coordenada do frame.
+### Responsabilidade deste owner
 
-Um terceiro controle reproduziu a falha de checkpoint: após prefix float e
-Flush, um Block posterior contém texto `AFTER_FLOW` e Place não-float
-`AFTER_MARKER`. No candidato refutado, o Place escapou para p2 enquanto o
-texto migrou a p3; no vanilla ambos ficaram em p3. A ocorrência posterior
-`FLOAT_AFTER` também ficou p3.
+A projeção geométrica dos testes trata TextSeparator como folha posicionada; o carrier não cria tinta nem altera a semântica dos outros refutadores.
 
-### Obrigação test-only
+Conservar as responsabilidades existentes; a aceitação segue texto e geometria
+observáveis, incluindo os controles de adjacência e os invariantes pinados.
 
-Substituir a expectativa refutada de P245 por dois testes independentes:
+## Empty-page and Place witness correction — 2026-09-28
 
-1. **anchor físico:** para o mesmo bottom float isolado, variar clearance entre
-   `0pt` e `20pt` não muda página, posição ou bbox do frame/token;
-2. **reserva/fitting:** com flow anterior de 80pt, `0pt` mantém o float em p1 e
-   `20pt` o move para p2, sem alterar seu anchor físico dentro da página.
+### Measurement before decision
 
-Adicionar a regressão do checkpoint atômico: PREFLOW p1, FLOAT_BEFORE p2, e
-AFTER_MARKER + AFTER_FLOW + FLOAT_AFTER p3; todos os tokens aparecem uma vez.
-Ela deve falhar se somente `current_line` migrar, se `current_items` pós-marker
-ficar para trás ou se o float posterior for antecipado.
+The full domain run in `00_nucleo/diagnosticos/correcao-falhas-2026-09-28/core-full.log` rejects the old zero-page assumption at `tests.rs:1013` and the former ascender-cancelled baseline formula at `tests.rs:20919`. The pinned vanilla probe `probes/empty-vanilla.pdf` has one configured 160×180pt page. The five Place integration witnesses establish that a text baseline includes its measured top edge after geometric placement. The p898 witness concerns dy preservation and must retain that observable rather than an artificial baseline-origin convention. This is a language/geometry correction, not permission to weaken failing assertions.
 
-Os testes comparam observáveis de linguagem — página, bbox, presença e ordem —
-e não nomes de buffers, formato do checkpoint ou número de replays. O teste
-owner não autoriza ajuste produtivo, Block especial, coordenada afrouxada ou
-alteração do default `1.5em`.
+### Responsibility
 
-## P1292 amendment-11 — controles causais sem marker e sem float
+An empty document must retain one page with no material items. The bottom/dy witness must still check the full baseline position: bottom-aligned frame top plus dy plus its text top edge. Preserve its 0.01pt tolerance and fixed metrics. Keep the pending-line Place witness unchanged; production must retain its flow anchor.
 
-### Medição anterior à decisão
+## Separation — 2026-09-28
 
-Dois sources independentes, em página 100pt × 100pt e fonte efetiva 11pt,
-produziram os mesmos valores dentro de cada renderer:
+### Evidence before decision
 
-- candidato: `AFTER_FLOW=27.404pt`, `AFTER_MARKER=-9.834pt`;
-- vanilla: `AFTER_FLOW=40.604pt`, `AFTER_MARKER=47.842pt`.
+The current cursor measures and chooses word/chunk breaks at `cursor.rs:195–271`, emits highlighted text at `cursor.rs:149–193`, and transitions regions at `cursor.rs:314–417`. Metrics defines default width at `metrics.rs:249–262`; LineCommit requests post-line progress at `line_commit.rs:696–703`. The 63 controlled source-to-PDF observations and isolated pre-export measurements are archived in `00_nucleo/diagnosticos/auditoria-quebra-paginacao-2026-09-28/`. They expose behavior limitations but this operation separates ownership while preserving those exact decisions. Initial code, L0 and provenance for this operation are archived in `00_nucleo/diagnosticos/separacao-texto-linhas-regioes-2026-09-28/`.
 
-Um source conserva o float e remove Flush; o outro remove float e Flush. Logo
-nem a sentinela nem a transação explicam o delta. A diferença de
-`AFTER_FLOW`, `13.2pt`, coincide com o default Block `1.2em`; o Place vanilla
-fica após o frame in-flow já composto.
+### Internal ownership decision
 
-### Obrigação test-only
+Add a structural refutator requiring thin cursor adapters, absence of inline hyphenation/word measurement/page commit in cursor, and separate private module registrations. Keep all behavioral tests and tolerances unchanged. Existing behavior and the 63 archived cases are the independent regression oracle, including currently known limitations.
 
-Adicionar controles independentes que congelem, por página e bbox:
+## Regional demand correction — 2026-09-28
 
-1. Block 30pt seguido de Block 10pt, sem float nem Flush:
-   `AFTER_FLOW=40.604±0.002pt` e `AFTER_MARKER=47.842±0.002pt`, uma vez;
-2. o mesmo com bottom float anterior, mas sem Flush: os dois tokens mantêm os
-   mesmos valores e página do controle sem float;
-3. variação explícita de `block.spacing`/`below` que prove resolução relativa
-   e impeça hardcode de `13.2pt`;
-4. preservação do vetor transacional já validado em p3
-   (`AFTER_FLOW=-2.596±0.002pt`, `AFTER_MARKER=4.642±0.002pt`).
+### Evidence before decision
 
-Os testes devem matar separadamente: gap omitido; Place ancorado no topo;
-correção apenas em replay; constante em pt; e translação global de itens em
-Cursor. Não podem ler campos internos como substituto do observável.
+The 30 bilateral controls in `00_nucleo/diagnosticos/estudo-correcao-falhas-texto-2026-09-28/` measure terminal pages 2/1, explicit terminal pagebreak 3/2, and continuation 3/2 (Tekt/vanilla). The isolated pre-export control emits Four/additional on page 2 with baseline 101.84pt and page height 100pt. The causal sources are line_commit.rs:657-696 (hypothetical next baseline), region_progress.rs:113-128 (post-line transition), cursor.rs:80-135 and parbreak.rs:41-80 (paragraph baseline/spacing). Current source and L0 hashes precede edits in `00_nucleo/diagnosticos/correcao-demanda-regional-2026-09-28/initial.json` and `before/`. This is internal parity correction under ADR-0127, not a public contract/default/pipeline change.
 
-## P1390 — regressão do wrap desigual anterior a `fr`
+### Decision and acceptance
+
+Add regressions for terminal fitting text, deferred ordinary admission, wrap/chunk admission, paragraph continuation within viewport, explicit repeated breaks/parity, finite/infinite and empty roots, and a fitting speculative suffix. Preserve existing tests, assertions, fixtures and tolerances. Cross-module tests may inspect private demand state but must also assert page count, text and positions; private flags alone do not replace observable guarantees. Verify real-font source-to-PDF controls, columns, inserted floats/notes and complete suites before closing the batch.
+
+### Integration controls preceding the refinement
+
+The first implementation's 36 real-font controls are preserved in first-after-pdf/ and first-pdf-green.log (before any later rebuild). terminal-columns still loses Three; terminal-footnote changes from 2 to 1 pages and its raster shows note/main overlap. Column start returns before clearing previous block spacing; terminal note fitting uses cursor_y and must retain the conservative following-line clearance rather than the terminal geometry cursor. These measurements require the refinements below, without changing the footnote body format, reservation model or public contract.
+
+Add regressions for two consecutive words following a paragraph across a column transition and for terminal notes whose baseline-only budget would overlap the main line. Assert causal page/text/positions, not only internal reset flags.
+
+## Identidade textual — controles do contrato aprovado
+
+Medição anterior: initial.json, before/resultados.json e red.log em
+`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/` registram
+texto/caixas e a perda de SHY. O dono confirmou o contrato
+`00_nucleo/prompts/entities/layout_types.md`. A compilação de fixtures exaustivas
+exige tratar a variante nova. Projeções visuais descem nos filhos; extractors
+textuais usam text uma vez. Expectativas de identidade discricionária passam a
+SHY, mantendo U+002D literal. Não relaxar caixas/seleção. A suíte de shaper
+exercita fixture Noto obrigatória e ausência de fontes, conserva envelope e
+prova que text substituto não altera glyphs/avanços nem contamina o cache.
+
+## Tracking interfragmentos — correção do controle histórico
 
 ### Medição anterior à decisão
 
-Nos pares 21→24 e 24→21, o vanila conserva uma página e alinha `After` com
-`Tail`; o cristalino P1389 pagina `After`. Ambos já concordam que existe um
-único wrap antes de `More`, portanto o teste não deve confundir morfologia com
-a reserva vertical fracionária.
+`00_nucleo/diagnosticos/correcao-tracking-2026-09-29/green-core.log` refuta o teste histórico `layout_tracking_um_char_nao_acumula_passo_137`, que exigia ausência de tracking entre palavras e ainda misturava tamanhos 11/12pt. `00_nucleo/diagnosticos/tracking-residual-2026-09-29/results.json` mede dois intervalos por um espaço e um por adjacência contra o pin vanilla, independente de quantização. O teste antigo codifica justamente o defeito agora corrigido.
 
-### Obrigação test-only
+### Decisão e aceitação
 
-Adicionar regressão bilateral das duas ordens que exige uma página,
-`After=Tail` dentro de 0,001pt e duas baselines distintas. Preservar como
-controles o par igual P1389, a boundary P1388 e o multiword opaco. O teste não
-pode inspecionar o carrier privado nem impor estrutura de dados produtiva.
-
-## P1391 — regressão do wrap exterior/maior
-
-### Medição anterior à decisão
-
-Nos quatro pares 11↔39 e 11↔40, o vanila conserva uma página e alinha
-`After` com `Tail`; o cristalino pagina `After`. A ordem exterior→maior já
-acerta `More`, mas não a reserva; a ordem maior→exterior diverge nos dois.
-
-### Obrigação test-only
-
-Exigir uma página, duas baselines e `After=Tail` nos quatro pares. Um par com
-segundo tamanho 8pt deve continuar opaco, provando que igualdade ao exterior
-não virou comparação permissiva. Preservar P1390, P1389 e P1388.
-
-## P1392 — regressão do wrap abaixo/acima do exterior
-
-### Medição anterior à decisão
-
-Nos pares 8↔40, 40↔8, 7↔40 e 40↔7, o vanila conserva uma página e
-`After=Tail`; o cristalino P1391 pagina `After`. As duas ordens preservam um
-único wrap, mas exercitam fechamentos distintos: explícito quando o menor vem
-primeiro e automático overlong quando 40pt vem primeiro.
-
-### Obrigação test-only
-
-Exigir uma página, duas baselines e `After=Tail` nos quatro pares. Um caso
-40↔8 cujo segundo wrapper também altera `fill` deve continuar opaco, provando
-que a validação não ignora deltas compostos. Preservar P1391, P1390, P1389
-e P1388; não inspecionar carrier ou arm privados.
-
-## P1466 — `cases` conserva align points até o layout
-
-O vanilla ratificado aceitou em 2026-09-20 a fixture
-`$ cases(x &, 0 &) $`. O teste vigente deve permanecer e alcançar layout com
-os dois `MathAlignPoint`; não substituir por `cases(x, 0)` nem capturar o panic
-como sucesso. A correção causal pertence ao eval matemático, enquanto este
-consumer continua verificando documento não vazio e ausência de panic.
+Superseder somente essa expectativa por controle de mesmo tamanho 12pt: `A B` deve deslocar B em exatamente 2*tracking, com tracking positivo/negativo. Não relaxar tolerância nem mudar demais regressões. Alterar o nome/comentário para declarar a semântica atual. Sem código produtivo neste owner; resselo restrito.

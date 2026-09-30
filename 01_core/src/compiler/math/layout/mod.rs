@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash 5c69c366
+//! @prompt-hash b2cdcb9e
 //! @layer L1
-//! @updated 2026-08-31
+//! @updated 2026-09-30
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use std::cell::Cell;
@@ -29,6 +29,7 @@ mod cancel;
 mod cases;
 mod delimited;
 mod frac;
+mod large_operator;
 mod matrix;
 mod op;
 mod root;
@@ -355,7 +356,7 @@ impl MathBox {
             .into_iter()
             .map(|mut item| {
                 match item {
-                    FrameItem::Text { ref mut pos, .. } => {
+                    FrameItem::TextSeparator { ref mut pos, .. } | FrameItem::Text { ref mut pos, .. } => {
                         pos.x = Pt(pos.x.val() + x_origin);
                         pos.y = Pt(baseline_y - self.ascent + pos.y.val());
                     }
@@ -377,7 +378,7 @@ impl MathBox {
                     FrameItem::Shape { .. } => {} // formas não ocorrem em contexto math
                     FrameItem::Group { .. } => {} // grupos não ocorrem em contexto math
                     FrameItem::Link { .. } => {}  // links não ocorrem em contexto math
-                    FrameItem::Semantic { ref mut items, .. } => {
+                    FrameItem::TextReplacement { ref mut items, .. } | FrameItem::Semantic { ref mut items, .. } => {
                         for child in items {
                             *child = offset_item(
                                 child.clone(),
@@ -418,6 +419,7 @@ pub struct EquationExtent {
 /// Desloca um `FrameItem` por `(dx, dy)`.
 pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
     match item {
+        FrameItem::TextSeparator { pos, advance, style, origin } => FrameItem::TextSeparator { pos: Point { x: pos.x + dx, y: pos.y + dy }, advance, style, origin },
         FrameItem::Text { pos, text, style } => FrameItem::Text {
             pos: Point {
                 x: Pt(pos.x.val() + dx.val()),
@@ -538,6 +540,10 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
             },
             size,
         },
+        FrameItem::TextReplacement { text, items } => FrameItem::TextReplacement {
+            text,
+            items: items.into_iter().map(|child| offset_item(child, dx, dy)).collect(),
+        },
         FrameItem::Semantic { kind, placement, alt, items } => FrameItem::Semantic {
             kind,
             placement,
@@ -577,8 +583,8 @@ fn needs_external_layout(content: &Content) -> bool {
         // `layout_external`, onde a cadeia reconstruída aplica os overrides.
         // Markup puro e `Styled` semanticamente vazio mantêm o caminho
         // baseline-alinhado protegido pela adenda 2 de P994.
-        Content::Styled(body, styles) => {
-            let d = styles.delta();
+        Content::Styled(styled) => {
+            let d = styled.styles.delta();
             d.size.is_some()
                 || d.fill.is_some()
                 || d.weight.is_some()
@@ -588,7 +594,7 @@ fn needs_external_layout(content: &Content) -> bool {
                 || d.lang.is_some()
                 || d.bold.is_some()
                 || d.italic.is_some()
-                || needs_external_layout(body)
+                || needs_external_layout(&styled.body)
         }
         _ => false, // neutro: N16[γ] — fallback aberto: nós não listados assumem rota de texto math; novas variantes de container/layout exigirão braço explícito sob evolução de AST
     }
@@ -1211,9 +1217,13 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             Content::Overline(e) => {
                 self.layout_overline(&e.body, e.stroke.clone(), e.offset, e.extent, style)
             }
-            Content::Underline(e) => {
-                self.layout_underline(&e.body, e.stroke.clone(), e.offset, e.extent, style)
-            }
+            Content::Underline(e) => self.layout_underline(
+                &e.body,
+                e.stroke.clone(),
+                e.offset,
+                e.extent,
+                style,
+            ),
 
             // **P994** — o catch-all divide-se em dois (medição da Fase B,
             // registada no relatório do passo; ver `needs_external_layout`):
@@ -1484,6 +1494,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         }
         for item in items {
             match item {
+                FrameItem::TextSeparator { .. } => {},
                 FrameItem::Text { pos, text, style }
                 | FrameItem::TextShaped { pos, text, style, .. } => {
                     let y = offset_y + pos.y.val();
@@ -1532,7 +1543,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                         ink_bottom,
                     );
                 }
-                FrameItem::Semantic { items, .. } => {
+                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
                     self.scan_external_verticals(
                         items,
                         offset_y,
@@ -1665,67 +1676,6 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             }
         }
         self.layout_node(c, style)
-    }
-
-    /// **P952** — operador grande (`MathClass::Large`, ver
-    /// `symbols::is_large_operator`) em Display: selecciona a primeira
-    /// variante vertical com `advance >= display_operator_min_height`
-    /// (design units) — **sem** `DELIM_SHORT_FALL` (o `StretchInfo::
-    /// default()` do vanilla tem `short_fall = Em::zero()`), ao contrário
-    /// de `layout_stretchy_delimiter` (P912). Integrais NÃO são excluídas
-    /// (no vanilla são `Large` para o stretch; `is_integral_char` só impede
-    /// empilhar limites).
-    ///
-    /// Emissão: `FrameItem::Glyph` com `x_advance`/`width` vindos de
-    /// `hor_advance` (mesma disciplina P917 de `stretchy.rs` — `advance` é
-    /// a medida do eixo de esticamento, nunca posiciona). `ascent`/`descent`
-    /// vêm da **bbox de tinta real da variante** via
-    /// `FontMetrics::glyph_ink_bounds` (paridade vanilla `update_glyph`,
-    /// `fragment/glyph.rs:215-231`: `baseline = ascent`, `size = ascent +
-    /// descent` da bbox) — **P959**: o split simétrico de P952
-    /// (`advance/2` cada) dava extents errados da base aos shifts de
-    /// limites de P959 (o sub ficava ~2.75pt abaixo do vanilla, medido no
-    /// smoke end-to-end). O glifo é emitido na baseline do run
-    /// (`pos.y = 0`), como o vanilla (que empurra o glifo na sua baseline
-    /// de fonte). Sem variante >= alvo: glifo base (comportamento anterior,
-    /// inalterado — SEM assembly nem máximo disponível). Ver
-    /// `_comum.md` §P952 e §P959.
-    pub(super) fn layout_large_operator_display(
-        &self,
-        c: char,
-        style: &TextStyle,
-    ) -> MathBox {
-        let variants = self.metrics.vertical_glyph_variants(c, style);
-        let target_du = self.constants.display_operator_min_height;
-
-        if self.block {
-            if let Some(picked) = variants.select_variant(target_du) {
-                let x_advance = style.size * (picked.hor_advance / self.constants.upem);
-                let (ink_up, ink_down) =
-                    self.metrics.glyph_ink_bounds(picked.glyph_id, style.size, style);
-                let b = MathBox {
-                    width: x_advance.val(),
-                    ascent: ink_up.val(),
-                    descent: ink_down.val(),
-                    items: vec![FrameItem::Glyph {
-                        pos: Point { x: Pt(0.0), y: Pt(0.0) },
-                        glyph_id: picked.glyph_id,
-                        x_advance,
-                        size: style.size,
-                        style: style.clone(),
-                        base_char: c,
-                    }],
-                };
-                // **P1136** — operadores Large são sempre centrados no
-                // eixo; a compensação interna preserva a tinta.
-                return self.apply_axis_offset(b, style.size);
-            }
-        }
-
-        // Inline/script, ou Display sem variante suficiente: glifo base.
-        let text: EcoString = c.to_string().into();
-        let b = self.layout_text_node(&text, style);
-        self.apply_axis_offset(b, style.size)
     }
 
     /// Nó folha: texto com métricas tipográficas.
@@ -2212,7 +2162,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             descent = descent.max(b.descent);
             for mut item in b.items {
                 match item {
-                    FrameItem::Text { ref mut pos, .. } => {
+                    FrameItem::TextSeparator { ref mut pos, .. } | FrameItem::Text { ref mut pos, .. } => {
                         pos.x = Pt(pos.x.val() + x);
                     }
                     FrameItem::TextShaped { ref mut pos, .. } => {
@@ -2239,7 +2189,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                         pos.x = Pt(pos.x.val() + x);
                     }
                     FrameItem::Link { .. } => {} // links não ocorrem em contexto math
-                    FrameItem::Semantic { ref mut items, .. } => {
+                    FrameItem::TextReplacement { ref mut items, .. } | FrameItem::Semantic { ref mut items, .. } => {
                         for child in items {
                             *child = offset_item(child.clone(), Pt(x), Pt(0.0));
                         }
@@ -2464,10 +2414,7 @@ fn apply_math_default(body: &Content) -> Content {
         // campos (a anotação de 1 letra também recebe itálico; a peça ⏟ não
         // é letra, inalterada na prática). Ver `_comum.md` §P961.
         Content::MathAccent(e) => Content::math_accent_full(
-            match &e.base {
-                Content::MathText(_) => e.base.clone(),
-                other => apply_math_default(other),
-            },
+            apply_math_default(&e.base),
             e.accent,
             e.size,
             e.dotless,
@@ -2517,15 +2464,24 @@ fn apply_math_default(body: &Content) -> Content {
             e.gap,
             e.explicit,
         ),
-        Content::Strike(e) => {
-            Content::strike(apply_math_default(&e.body), e.stroke.clone(), e.offset, e.extent)
-        }
-        Content::Overline(e) => {
-            Content::overline(apply_math_default(&e.body), e.stroke.clone(), e.offset, e.extent)
-        }
-        Content::Underline(e) => {
-            Content::underline(apply_math_default(&e.body), e.stroke.clone(), e.offset, e.extent)
-        }
+        Content::Strike(e) => Content::strike(
+            apply_math_default(&e.body),
+            e.stroke.clone(),
+            e.offset,
+            e.extent,
+        ),
+        Content::Overline(e) => Content::overline(
+            apply_math_default(&e.body),
+            e.stroke.clone(),
+            e.offset,
+            e.extent,
+        ),
+        Content::Underline(e) => Content::underline(
+            apply_math_default(&e.body),
+            e.stroke.clone(),
+            e.offset,
+            e.extent,
+        ),
         // **P966** — conteúdo de função de utilizador dentro de math chega
         // como containers de markup (`Sequence`/`Styled`) com folhas mistas
         // `Text`/`MathText`. Recursão nos filhos/corpo para as folhas
@@ -2536,8 +2492,8 @@ fn apply_math_default(body: &Content) -> Content {
             let new_items: Vec<Content> = items.iter().map(apply_math_default).collect();
             Content::Sequence(Arc::from(new_items))
         }
-        Content::Styled(inner, styles) => {
-            Content::Styled(Box::new(apply_math_default(inner)), styles.clone())
+        Content::Styled(styled) => {
+            Content::styled(apply_math_default(&styled.body), styled.styles.clone())
         }
         other => other.clone(),
     }

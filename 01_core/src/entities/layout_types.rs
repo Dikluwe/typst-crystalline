@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 394bcae0
+//! @prompt-hash 3517bb2f
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -357,12 +357,30 @@ pub enum SemanticPlacement {
     Block,
 }
 
+/// Origem causal de um espaço textual retido pelo layout.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum TextSeparatorOrigin {
+    Markup,
+    Newline,
+    Literal,
+}
+
 /// Item posicionado num frame.
 ///
 /// Divergência: original usa `(Point, FrameItem)` como tupla separada.
 /// Cristalino embute `pos` em `FrameItem::Text` por simplicidade.
 #[derive(Debug, Clone)]
 pub enum FrameItem {
+    /// Texto extraível por ocorrência, independente da representação visual.
+    /// Filhos posicionados conservam métricas, fonte e desenho próprios.
+    TextReplacement { text: EcoString, items: Vec<FrameItem> },
+    /// Separador textual com largura já atribuída; neutro para tinta e altura.
+    TextSeparator {
+        pos: Point,
+        advance: Pt,
+        style: TextStyle,
+        origin: TextSeparatorOrigin,
+    },
     /// Envelope semântico transparente. Os filhos mantêm as coordenadas
     /// absolutas e constituem a representação visual do item.
     Semantic {
@@ -876,8 +894,9 @@ pub struct Page {
 fn plain_text_items<'a>(items: &'a [FrameItem], out: &mut Vec<&'a str>) {
     for item in items {
         match item {
-            FrameItem::Text { text, .. } => out.push(text.as_str()),
+            FrameItem::TextReplacement { text, .. } | FrameItem::Text { text, .. } => out.push(text.as_str()),
             FrameItem::TextShaped { text, .. } => out.push(text.as_str()),
+            FrameItem::TextSeparator { .. } => {}, // plain_text é diagnóstico aproximado legado; não é oráculo lexical.
             FrameItem::Link { items, .. } => plain_text_items(items, out),
             FrameItem::Group { items, .. } => plain_text_items(items, out),
             FrameItem::Semantic { items, .. } => plain_text_items(items, out),
@@ -1899,7 +1918,7 @@ pub trait FrameVisitor {
     /// Ponto de entrada padrão para visitar um `FrameItem`.
     fn visit_item(&mut self, item: &FrameItem) {
         match item {
-            FrameItem::Text { .. } => self.visit_text(item),
+            FrameItem::Text { .. } | FrameItem::TextSeparator { .. } => self.visit_text(item),
             FrameItem::TextShaped { .. } => self.visit_text_shaped(item),
             FrameItem::Line { .. } => self.visit_line(item),
             FrameItem::Glyph { .. } => self.visit_glyph(item),
@@ -1916,6 +1935,9 @@ pub trait FrameVisitor {
                 for child in items {
                     self.visit_item(child);
                 }
+            }
+            FrameItem::TextReplacement { items, .. } => {
+                for child in items { self.visit_item(child); }
             }
             FrameItem::Semantic { items, .. } => {
                 self.visit_semantic(item);

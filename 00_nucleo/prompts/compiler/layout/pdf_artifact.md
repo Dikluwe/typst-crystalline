@@ -1,67 +1,25 @@
-# Prompt L0 — `compiler/layout/pdf_artifact`
+# L0 — pdf artifact
 Hash do Código: 0117f9d4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
 
-**Estado:** consumer materializado; o metadado de implementação é atualizado pelo
-`crystalline-lint --fix-hashes`.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/pdf_artifact.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-**Camada:** L1 render
-**Consumer exclusivo:** `01_core/src/compiler/layout/pdf_artifact.rs`
-**Origem do contrato:** medição vanilla e decisão P1293 incorporadas abaixo.
-**Gate humano:** confirmado em 2026-08-30 — “Siga a engenharia da refatoração
-e pode implementar”.
-**ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129.
+## Evidence before specification
 
-## Medição anterior à decisão
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/pdf_artifact.rs:14`, `01_core/src/compiler/layout/pdf_artifact.rs:23`, `01_core/src/compiler/layout/pdf_artifact.rs:35`.
 
-O vanilla mostra o body sem mudar visual/texto, mas preserva `ArtifactElem`
-até o tagging. No PDF medido, `Other` usa `/Artifact BMC`; Header e Background
-usam BDC com propriedades e nenhum MCID/StructElem. O cristalino já envolve
-Formula em `FrameItem::Semantic`; reutilizar `SemanticKind::Formula` seria
-semanticamente falso.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-## Forma B e contrato da free function
+## Ownership and contract
 
-Toda a lógica de layout desta feature vive neste módulo descendente. O braço
-central permanece uma delegação estática de uma linha. A função recebe
-`&PdfArtifactElem`, realiza o body exatamente uma vez pelo Layouter e envolve
-os items visuais produzidos em `FrameItem::Semantic` com
-`SemanticKind::Artifact(elem.kind)`, `alt: None`:
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-```rust
-pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
-    layouter: &mut Layouter<M, S>,
-    elem: &PdfArtifactElem,
-);
-```
+Dispatch the body once and preserve each committed visual fragment inside a transparent Artifact semantic envelope with the element's kind and `alt: None`. Use the existing private start/end markers to delimit fragments across completed pages, emitted items and the pending line, removing those markers during wrapping. Preserve paint order, geometry, pagination and plain text; do not reuse Formula or force a single isolated frame. Direct private HTML context markers do not themselves trigger a material-line boundary. MCID, structure nodes, property lists and tag-disabled serialization belong to exporter owners, not layout; this contract does not claim AT, reflow or PDF/UA conformance.
 
-O envelope é transparente para bounds, cursor, baseline, posição, quebra,
-ordem de pintura e plain-text. Não cria MCID, location ou nó estrutural; essas
-exclusões são consumidas por builder/stream. Se o layout normal fragmentar o
-body entre frames, cada fragmento comprometido conserva o mesmo kind sem
-perder ou duplicar item; não forçar subframe único nem impedir paginação.
+## Acceptance and limits
 
-## Fronteiras e aceitação
-
-- Não usar vtable, `dyn`, wildcard, PropMap, import `entities→layout` ou
-  visibilidade `pub(crate)`; o pin Forma B é normativo.
-- Não colapsar para body antes do stream e não reutilizar Formula.
-- Com tags disabled, o envelope ainda pode existir internamente, mas o
-  consumer PDF deve desenhar os filhos sem BMC/BDC/EMC. Verbose/Compact não
-  muda a semântica.
-- O layout nunca decide property list PDF, MCID, StructElem ou comportamento
-  de AT; estes pertencem aos owners de export e permanecem limitados ao
-  fragmento medido.
-- Nested artifacts, multi-page real e interação com running matter não foram
-  medidos end-to-end e permanecem `Unknown`, embora nenhum possa autorizar
-  perda/duplicação visual.
-- Este prompt não legitima `PdfArtifactElem`, `SemanticKind`, builder ou
-  stream.
-
-## P1493 — boundary material
-
-O carrier privado HTML não é conteúdo material para as decisões de linha que
-antecedem ou sucedem `PdfArtifact`. O carrier direto não
-fabrica flush; artefato real e filhos visuais mantêm a semântica vigente.
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.

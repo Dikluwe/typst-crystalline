@@ -1,113 +1,21 @@
-# Prompt L0 — `stdlib/foundations/selector` — construtor e parsing
+# L0 — stdlib/foundations/selector
 Hash do Código: 57456261
 
-**Camada**: L1  
-**Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/selector.rs`  
-**Origem**: P1140.1-A — atomização behavior-preserving de `query.rs`  
-**ADRs**: ADR-0107, ADR-0109
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/stdlib/foundations/selector.rs`
 
-## Responsabilidade
+## Evidence and classification
 
-Esta unidade possui:
+`01_core/src/compiler/stdlib/foundations/selector.rs:23`, `01_core/src/compiler/stdlib/foundations/selector.rs:269`, `01_core/src/compiler/stdlib/foundations/selector.rs:286` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-- `native_selector` — converte kind string, label string ou função nativa de
-  elemento em `Value::Selector`;
-- `element_kind_of_native_func` — mapeamento estático de funções de elemento;
-- `parse_selector_arg` — parser partilhado por `query` e `locate`.
+## Contract and ownership
 
-`query.rs` continua dono de query/locate/here/target/metadata e chama
-`parse_selector_arg` por free function. Não há callback, registro dinâmico,
-vtable ou nova visibilidade além da mínima entre módulos irmãos.
+Own native_selector, element_kind_of_native_func and parse_selector_arg used by query/locate. Use static identity mapping, not callbacks, dynamic registry, vtables or function-name matching.
 
-## Semântica preservada
+Preserve Location, Selector and Label semantic identity. Preserve the entire Element selector including function identity, empty filter group, group order and Values: clone it rather than reconstructing Kind or retaining only the first filter. Construction does not require locatability; text.where remains a valid show selector even when query/counter reject it. Known kind strings, label strings "<sec>", and the established bare heading/figure/table/metadata element functions retain their conversions. Non-element functions fail `only element functions can be used as selectors`. Recognize native_outline_entry by address as OutlineEntry, not outline.entry.body.
 
-- `"<sec>"` → `Selector::Label`;
-- kind conhecido → `Selector::Kind`;
-- `Location`, `Selector` e `Label` preservam identidade semântica;
-- funções `heading`, `figure`, `table`, `metadata` mapeiam para seus kinds;
-- função não-elemento erra `only element functions can be used as selectors`;
-- aridade, tipos e mensagens permanecem byte-idênticos.
+Accept an existing Selector unchanged and a Regex after empty checks: empty string `text selector is empty`; empty regex `regex selector is empty`; non-empty regex matching empty text `regex matches empty text`. Valid regex returns Selector::Regex. Preserve arity, types and exact diagnostics. The registry owns the established Type::Selector binding; construction/parsing must not change it or promote additional bare functions implicitly.
 
-Os testes de constructor e do parser mudam junto com esta unidade. A
-atomização não converte ainda o binding `selector` de `function` em `type`;
-isso pertence a P1140.1-B e ao gate ADR-0127.
+## Acceptance
 
-
-## P1140.1-B — medição anterior à decisão (2026-08-23)
-
-No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
-cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
-os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
-medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
-`tiling` e `version`. Os construtores atuais foram novamente executados após
-a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
-baseline estrutural. Esta é divergência de semântica pública da linguagem,
-não de mecânica Rust (ADR-0107).
-
-## P1140.1-B — binding de tipo
-
-O binding global `selector` passa a `Value::Type(Type::Selector)` e sua chamada
-delega a `native_selector`. O parser compartilhado de query/locate não muda.
-Somente o kind público do binding é corrigido.
-
-## P1285 — inputs públicos já materializados
-
-### Medição antes da decisão
-
-No vanilla ratificado, `selector(heading.where(level: 1))` preserva o selector
-recebido; `selector("")` falha com `text selector is empty`;
-`selector(regex(""))` falha com `regex selector is empty`; e uma regex não
-vazia que casa texto vazio, como `a*`, falha com
-`regex matches empty text`. A primeira candidata P1285 ainda devolvia
-`argumento inválido (selector|regex)`, impedindo inclusive o fallback público
-de serialização de `Value::Selector`.
-
-### Decisão
-
-`native_selector` aceita `Value::Selector` por identidade e `Value::Regex`
-como `Selector::Regex` depois das duas validações de vazio. String vazia usa o
-diagnóstico textual medido. Kind/label/função existentes preservam sua
-semântica. Não se adiciona variant, assinatura ou tipo público; é correção de
-paridade do constructor já exposto.
-
-Aceitação: selector composto preserva `repr`; os três vazios falham com as
-mensagens medidas; regex válida não vazia produz `Value::Selector`.
-
-## P1339 — transporte do seletor de elemento aprovado
-
-### Medição anterior à decisão
-
-HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
-`selector.rs:31` e `:285` já clonam Value::Selector integralmente no
-constructor/parser. O registro histórico
-UTC `2026-09-10T00:18:55.842594+00:00`–`00:18:59.537177+00:00`, mede
-selector(heading.where()) preservando o filtro vazio e sua diferença do
-elemento nu; strong/text e filtros não vazios também atravessam o constructor.
-O registro fixa working tree e binário vanilla ratificado `a51e02804`.
-Fonte: `foundations/selector.rs:167-174`, constructor retorna o seletor recebido.
-
-### Decisão de integração
-
-Preservar Element inteiro em native_selector e parse_selector_arg: função,
-grupo vazio, ordem e Values. Não reconstruir Kind pelo nome da função nem
-extrair só o primeiro filtro. O caminho já baseado em clone deve continuar
-assim; não requer algoritmo novo apenas para suportar a nova variante.
-
-Construção de um selector não exige que seu elemento seja localizável:
-text.where é um valor válido para show, embora query/counter o rejeitem.
-A validação de locatability pertence ao consumidor contextual, não a este
-transporte comum. Os constructors legados de strings, funções nuas e regex
-mantêm sua disponibilidade e diagnósticos; P1339 não promove todas as
-funções nuas a selectors por efeito colateral.
-
-Aceitação: clone/transporte de grupo vazio e não vazio, alias, ordem e
-identidade; text permanece construível. Filtros descartados ou rejeição
-antecipada de text refutam o contrato. Não confundir preservação dos dados
-com implementação de query/counter, que pertence aos seus próprios owners.
-
-## P1402 — `outline.entry` como selector
-
-Medição: `query(outline.entry)` é aceito pelo vanila e seleciona as entradas
-realizadas. Decisão: a conversão por endereço reconhece
-`native_outline_entry` como `ElementKind::OutlineEntry`; não reconhece
-`outline.entry.body`, nem usa comparação textual do nome.
+Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaults and public identities, with no productive-code change. Preserve pinned shared claims and the exclusive owner boundary under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130. Historical evidence does not establish parity against a newer snapshot.

@@ -1,5 +1,5 @@
 # L0 — infra/shaper/font_selection
-Hash do Código: bae74965
+Hash do Código: 4938047f
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/shaper/font_selection.rs`
@@ -38,3 +38,9 @@ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/sh
 Verify this unit through its existing family/CLI tests when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
+
+## Fallback comum após famílias declaradas — 2026-09-29
+
+Medição: `lab/typst-original/crates/typst-library/src/text/mod.rs:1083-1101` inclui a cadeia comum depois da família declarada; `lab/typst-original/crates/typst-layout/src/inline/shaping.rs:904-948` tenta as famílias antes do fallback global. Em `correcao-rtl-restante-2026-09-29/after-leading`, os seis probes hebraicos mantêm 7,68 pt de divergência; `pdffonts` identifica Libertinus Serif no vanilla e Noto Sans Hebrew no cristalino. O primeiro cobre o texto hebraico e o segundo aparece pelo fallback global. A hipótese de causa é a omissão da cadeia comum no ramo em que a primária resolve; refutação: fonte ou posição ainda diferente com a cadeia presente. Isto é paridade tipográfica observável, não exigência de bytes iguais.
+
+Após as famílias declaradas legíveis, oferecer a cadeia comum na ordem do catálogo, sem duplicar slots. A primária declarada mantém prioridade. A cadeia matemática continua a preceder a comum em contexto matemático; a recuperação por classe quando nenhuma declarada resolve conserva sua política. A busca global por cobertura e similaridade vem depois das cadeias explícitas. Medição e emissão compartilham essa ordem.

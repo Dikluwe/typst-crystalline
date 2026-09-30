@@ -1,23 +1,17 @@
-# Prompt L0 — harness focal de `outline.entry.indented`
+# L0 — stdlib/structural/p1405_outline_indented_tests
 Hash do Código: 8d3e05da
 
-**Camada:** L1 — teste de integração, sem consumer produtivo
-**Ficheiro alvo exclusivo:** `01_core/tests/p1405_outline_indented.rs`
-**ADRs:** ADR-0107, ADR-0108, ADR-0129
+Layer: L1 (test-only)
+Exclusive consumer: `01_core/tests/p1405_outline_indented.rs`
 
-## Medição antes da decisão
+## Evidence and classification
 
-O teste monolítico de `typst-core` excedeu a memória disponível em passos
-anteriores. O contrato P1405 pode ser discriminado por um harness externo que
-instancia somente a nativa e seus colaboradores públicos, sob teto explícito.
+The consumer's `@prompt` at `01_core/tests/p1405_outline_indented.rs:2` establishes this exclusive ownership. Implementation inspection is not a new bilateral parity measurement; original historical qualifications remain in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-## Contrato do harness
+## Test obligations
 
-O consumer deve verificar indentação fixa multiplicada pelo nível 0-based,
-função chamada com esse nível, máximo automático por nível, fallback `1.2em`,
-prefixo ausente, `gap`, booleano falso, lado lógico RTL, preservação de Content,
-retorno inválido da função e rejeição de parent ausente. Nenhum caso pode
-fabricar parent na entry ou alegar o caminho positivo de show rule reservado a
-P1406.
+Own only the integration harness at 01_core/tests/p1405_outline_indented.rs, not production API. Verify fixed indentation multiplied by the zero-based level; a function receives that level; automatic maximum per level; fallback 1.2em; absent prefix; gap; false boolean; logical RTL side; Content preservation; invalid callback return and missing-parent rejection. Never fabricate a parent in the entry or claim the positive show-rule path reserved to the separate parent-context integration. The historical memory/runner rationale belongs in the diagnostic, not as a runtime product requirement.
 
-Este L0 legitima somente o teste indicado e não altera a API produtiva.
+## Limits
+
+Preserve existing public observations and metadata. This documentary revision does not authorize productive-code, test-code, signature, default, pipeline-phase or compatibility changes. Respect exclusive ownership and pinned shared claims under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.

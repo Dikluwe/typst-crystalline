@@ -1,115 +1,88 @@
-# Prompt L0 — formatter público de duração
+# L0 — Public duration and watch-line presentation
 Hash do Código: b8867f4e
 
-**Camada:** L2
-**Ficheiro alvo exclusivo:** `02_shell/src/duration.rs`
-**ADRs:** ADR-0107, ADR-0108, ADR-0127, ADR-0129
+**Layer:** L2
+**Exclusive consumer:** `02_shell/src/duration.rs`
 
-## Propriedade e propósito
+## Evidence and boundary
 
-Este Prompt possui exclusivamente o formatter humano de duração. Ele converte
-um `std::time::Duration` já fornecido em representação textual pública; não lê
-relógio, não mede execução, não dorme e não conhece `watch`, pipeline ou I/O.
+`02_shell/src/duration.rs:14`, `:27` and `:45` implement `format_duration`, `WatchStatus::message` and `format_watch_line`; the public literal vector is exercised in `02_shell/tests/p1361_duration.rs:19`. The latter has its own owner, `00_nucleo/prompts/shell/tests/p1361-duration.md`. Status selection, time capture, channels, color, terminal clearing and diagnostic ordering belong to the caller, not this formatter.
 
-## Medição anterior à decisão
+The text is observable presentation. Display wrappers and arithmetic mechanics are implementation choices, provided the literal outputs and boundaries are preserved. Historical oracle/harness evidence is in `00_nucleo/diagnosticos/sanitization-shell-history.md`; it is not a global parity claim.
 
-O registro histórico congela o formatter e o
-teste do vanila ratificado antes desta decisão. A fonte vanila seleciona peças
-de dia, hora e minuto, interrompe antes de segundos quando há dia ou hora,
-arredonda frações a duas casas e escolhe a unidade pelas fronteiras de um
-segundo, um milissegundo e um microssegundo. O cristalino não possui símbolo
-comparável; P1357 classificou S11 como limitação do harness, não como prova de
-gap semântico.
-
-Classificação ADR-0107: a string apresentada ao utilizador é morfologia pública;
-a macro, o wrapper Display e a mecânica de arredondamento são livres desde que
-o vetor observável seja preservado. Inferência: uma função pura em L2 basta para
-criar o adaptador binding-free. Refutariam isso divergência no vetor medido,
-necessidade de relógio ou dependência numa camada de execução.
-
-## Contrato público
+## Public API
 
 ```rust
 pub fn format_duration(duration: std::time::Duration) -> impl std::fmt::Display;
-```
-
-P1362 acrescenta a representação pública fechada dos corpos de status:
-
-```rust
 pub enum WatchStatus {
     Compiling,
     Success(std::time::Duration),
     PartialSuccess(std::time::Duration),
     Error,
 }
-
 impl WatchStatus {
     pub fn message(&self) -> String;
 }
-
-pub fn format_watch_line(
-    hour: u8,
-    minute: u8,
-    second: u8,
-    status: &WatchStatus,
-) -> String;
+pub fn format_watch_line(hour: u8, minute: u8, second: u8, status: &WatchStatus) -> String;
 ```
 
-`Compiling` produz `compiling ...`; `Success(d)` produz `compiled successfully
-in {format_duration(d)}`; `PartialSuccess(d)` produz `compiled with warnings in
-{format_duration(d)}`; `Error` produz `compiled with errors`. A função não lê
-relógio e não emite I/O. Success versus PartialSuccess é decisão do consumidor
-a partir de warnings tipados, nunca inferência por texto.
+All inputs are supplied values. Do not read a clock, environment or timezone; sleep, measure execution, perform I/O, create global state, import L3/L4 or private L1 repr logic, or add external dependencies.
 
-P1363 envolve cada corpo em `[{hour:02}:{minute:02}:{second:02}] {body}`.
-Hora, minuto e segundo são componentes válidos fornecidos pelo consumidor;
-L2 não lê relógio, timezone ou ambiente. Para `03:04:05`, as quatro variantes
-produzem as quatro linhas literais congeladas no Passo 1363. A função devolve
-o texto sem newline; o consumidor decide o canal e a terminação.
+## Duration contract
 
-O valor retornado escreve:
+Emit nonzero day, hour and minute pieces, in that order. If a day or hour exists, stop before seconds/fractions. Otherwise, after any minute piece:
 
-- dias, horas e minutos não nulos nesta ordem;
-- somente dias/horas/minutos quando dia ou hora for não zero;
-- segundos inteiros quando a duração for pelo menos cinco minutos;
-- segundos com arredondamento decimal para durações de pelo menos um segundo e
-  menos de cinco minutos;
-- milissegundos, microssegundos ou nanossegundos nas fronteiras inclusivas
-  correspondentes;
-- `0 s` para zero, pois o ramo de zero é deliberadamente o de segundos.
+- At or above five minutes, emit integer residual seconds, including zero.
+- At or above one second and below five minutes, emit residual seconds with fractions rounded to two decimal places.
+- Below one second, select milliseconds at or above one millisecond, microseconds at or above one microsecond, otherwise integer nanoseconds.
+- Zero is `0 s`.
 
-Cada peça usa um espaço entre número e unidade e as peças usam um espaço entre
-si. O arredondamento decimal é a duas casas, e a apresentação normal de `f64`
-não força zeros finais.
+Use one space between each number and unit and between pieces. Units are exactly `d`, `h`, `min`, `s`, `ms`, `µs` and `ns`. Normal numeric display does not force trailing decimal zeros. Rounded seconds do not carry into a minute.
 
-## Vetor obrigatório
+Preserve this exact input/output vector; input notation is seconds plus nanoseconds:
 
-Os 18 pares exatos do Passo 1361 são obrigatórios. Além deles, controles de
-fronteira devem distinguir 999 ns/1 µs, 999 µs/1 ms, 999 ms/1 s,
-`299.999 s -> 4 min 60 s`, `300 s -> 5 min 0 s`,
-`300.006 s -> 5 min 0 s`, e a passagem de 23 h 59 min para 1 d. Alterar apenas
-`>= 5 min` para `> 5 min` é equivalente no ponto inteiro de 300 s e não conta
-como mutante válido; um deslocamento para 300.010 s é discriminado por
-300.006 s. O adaptador usa durações literais;
-tempo de parede, monotônico, scheduler ou duração do próprio teste são entradas
-proibidas.
+| Seconds | Nanoseconds | Output |
+| --- | --- | --- |
+| 1000000 | 0 | `11 d 13 h 46 min` |
+| 86400 | 0 | `1 d` |
+| 3600 | 0 | `1 h` |
+| 3840 | 0 | `1 h 4 min` |
+| 364 | 770000000 | `6 min 4 s` |
+| 264 | 776000000 | `4 min 24.78 s` |
+| 3 | 0 | `3 s` |
+| 2 | 849200000 | `2.85 s` |
+| 1 | 0 | `1 s` |
+| 0 | 999000000 | `999 ms` |
+| 0 | 1000000 | `1 ms` |
+| 0 | 294816000 | `294.82 ms` |
+| 0 | 999000 | `999 µs` |
+| 0 | 734000 | `734 µs` |
+| 0 | 1000 | `1 µs` |
+| 0 | 999 | `999 ns` |
+| 0 | 1 | `1 ns` |
+| 0 | 0 | `0 s` |
+| 299 | 999000000 | `4 min 60 s` |
+| 300 | 0 | `5 min 0 s` |
+| 86340 | 0 | `23 h 59 min` |
+| 300 | 6000000 | `5 min 0 s` |
 
-## Restrições
+These are contract inputs, not execution-duration metrics. Do not derive them from wall time, scheduling or the test's own runtime.
 
-- zero I/O e zero estado global;
-- zero dependência externa nova;
-- não importar L3/L4 nem lógica privada de repr de L1;
-- não iniciar ou controlar `watch`;
-- não afirmar equivalência fora das strings e fronteiras congeladas.
+## Status and envelope literals
 
-Cor, fullscreen, limpeza de terminal, canal e ordenação perante diagnósticos
-pertencem ao consumidor/envelope. O formatter P1363 cobre somente o timestamp
-`HH:MM:SS` sem data/offset/fração; a fonte do instante continua fora de L2.
+`Compiling` is `compiling ...`. `Success(d)` is `compiled successfully in {format_duration(d)}`. `PartialSuccess(d)` is `compiled with warnings in {format_duration(d)}`. `Error` is `compiled with errors`, with no elapsed time. Typed warnings determine success versus partial success; never infer it from diagnostic text.
 
-## Aceitação
+`format_watch_line` returns `[{hour:02}:{minute:02}:{second:02}] {body}`, with no newline. The caller supplies valid time components. With 03:04:05 and 2.8492 seconds, preserve:
 
-- vetor obrigatório e controles de fronteira passam em teste unitário exato;
-- determinismo por repetição e ordem inversa;
-- mutantes de unidade, limite inclusivo, omissão, arredondamento e relógio são
-  rejeitados pelo contrato validado;
-- `cargo fmt --check`, `git diff --check` e `crystalline-lint .` passam.
+```text
+[03:04:05] compiling ...
+[03:04:05] compiled successfully in 2.85 s
+[03:04:05] compiled with warnings in 2.85 s
+[03:04:05] compiled with errors
+```
+
+The envelope is HH:MM:SS only, without date, offset or fraction.
+
+## Acceptance
+
+Check the literal vector, unit transitions, inclusive boundaries, omissions, rounding, repeatability and reversed input order. Boundary controls must distinguish 299.999 seconds from 300 seconds and preserve 300.006 seconds. Reject changes to units, meaningful thresholds and clock-derived inputs; do not credit an observationally equivalent mutation. Claim equivalence only for the specified strings and boundaries.

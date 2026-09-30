@@ -91,7 +91,11 @@ mod tests {
         assert_eq!(fc.plain_text(), "legenda");
         assert!(!fc.is_empty());
 
-        let vazia = FigureCaptionElem { position: None, separator: None, body: Content::Empty };
+        let vazia = FigureCaptionElem {
+            position: None,
+            separator: None,
+            body: Content::Empty,
+        };
         assert!(vazia.is_empty());
     }
 

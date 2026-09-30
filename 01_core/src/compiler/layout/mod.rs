@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash d0e531cd
+//! @prompt-hash ffd5c056
 //! @layer L1
-//! @updated 2026-09-25
+//! @updated 2026-09-30
 
 pub mod counters;
 pub mod figure;
@@ -24,14 +24,12 @@ use crate::entities::{
     image_sizer::{ImageSizer, NullImageSizer},
     label::Label,
     layout_types::{
-        Align2D, FrameItem, HAlign, Length, Page, PageConfig, PagedDocument, Point, Pt,
-        SemanticKind, SemanticPlacement, TextStyle, VAlign,
+        FrameItem, HAlign, Length, Page, PageConfig, PagedDocument, Point, Pt, TextStyle,
     },
     location::Location,
     locator::{Locator, LocatorSeed},
     source_result::{SourceDiagnostic, SourceResult},
     style_chain::StyleChain,
-    value::Value,
 };
 use ecow::EcoString;
 use hayagriva::citationberg::IndependentStyle;
@@ -62,11 +60,20 @@ mod metrics;
 pub use crate::compiler::layout::metrics::{
     needs_shaped_width, FixedMetrics, FontMetrics,
 };
+mod measurement;
+pub use measurement::measure_content_real;
+pub(in crate::compiler) use measurement::measure_content_real_with_baseline;
+mod par_line_callbacks;
+pub use par_line_callbacks::{
+    LayoutCallbackRequests, LayoutPassOutcome, ParLineCallbackPassState,
+    ParLineCallbackRequest, ParLineCallbackResolution, SealedParLineCallbacks,
+};
 
 // Braços pesados do `layout_content` extraídos por cluster (Passo 96.7).
 mod equation;
 mod grid;
 mod placement;
+mod style_scope;
 
 // Sub-layout isolado de conteúdo numa região (Passo 629).
 mod sub_frame;
@@ -121,16 +128,28 @@ mod v_space;
 mod text;
 
 // Atomização Fatia 2 (ADR-0109, P381): refs/citações + avulsos.
+mod align;
 pub mod bib_csl;
 mod bibliography;
 mod cite;
+mod context_block;
+mod counter_display;
+mod counter_display_callback;
 mod divider;
 mod dynamic;
 mod footnote;
 mod hide;
 mod linebreak;
 mod link;
+mod outline_entry;
 mod parbreak;
+mod paragraph;
+mod paragraph_hyphen;
+mod paragraph_plan;
+mod paragraph_prepare;
+mod paragraph_select;
+mod paragraph_emit;
+mod paragraph_pagination;
 mod pdf_artifact;
 mod pdf_attach;
 mod quote;
@@ -138,6 +157,8 @@ mod raw;
 mod sequence;
 mod set_page;
 mod smartquote;
+mod space;
+mod state_display;
 
 // Helpers livres usados pelo Layouter e pelos braços extraídos.
 pub(crate) mod helpers;
@@ -151,6 +172,12 @@ use crate::compiler::layout::helpers::{item_pos, resolve_pt, translate_frame_ite
 // Cursor: palavras/wrap, progressão de regiões e floats.
 mod cell_tail_commit;
 mod cursor;
+mod text_measure;
+mod text_tracking;
+mod text_baseline;
+mod break_selection;
+mod word_layout;
+mod region_progress;
 mod flow_suffix;
 // Fechamento de linha: expansão, justificação e commit (P1503).
 mod line_commit;
@@ -178,112 +205,6 @@ const DEFAULT_FONT_SIZE: f64 = 12.0;
 /// constante named (vs Opção γ helper privado). Magic number
 /// 0.04 explícito para auditoria.
 const COLUMNS_DEFAULT_GUTTER_RATIO: f64 = 0.04;
-
-/// Pedido puro de realização de uma ocorrência funcional de `par.line`.
-#[derive(Debug, Clone)]
-pub struct ParLineCallbackRequest {
-    pub func: crate::entities::func::Func,
-    pub number: usize,
-    pub span: crate::entities::span::Span,
-    pub styles: StyleChain,
-}
-
-/// Conteúdo já realizado em L3 para uma ocorrência de numeração de linha.
-#[derive(Debug, Clone)]
-pub struct ParLineCallbackResolution {
-    pub request: ParLineCallbackRequest,
-    pub content: Content,
-}
-
-/// Store imutável e local à compilação.
-#[derive(Debug, Clone, Default)]
-pub struct SealedParLineCallbacks {
-    resolutions: Vec<ParLineCallbackResolution>,
-}
-
-impl SealedParLineCallbacks {
-    pub fn new(resolutions: Vec<ParLineCallbackResolution>) -> Self {
-        Self { resolutions }
-    }
-
-    pub fn resolutions(&self) -> &[ParLineCallbackResolution] {
-        &self.resolutions
-    }
-}
-
-/// Requests de todas as famílias que ainda impedem um documento completo.
-pub struct LayoutCallbackRequests {
-    pub math: Vec<crate::compiler::math::layout::callbacks::MathCancelRequest>,
-    pub par_line: Vec<ParLineCallbackRequest>,
-}
-
-pub enum LayoutPassOutcome {
-    Pending(LayoutCallbackRequests),
-    Complete(PagedDocument),
-}
-
-/// Transcript de `par.line` pertencente a uma única tentativa de Layouter.
-pub struct ParLineCallbackPassState {
-    store: Option<SealedParLineCallbacks>,
-    transcript: std::cell::RefCell<Vec<ParLineCallbackRequest>>,
-    consumed: std::cell::RefCell<Vec<bool>>,
-    unresolved: std::cell::Cell<bool>,
-}
-
-impl ParLineCallbackPassState {
-    fn new(store: Option<&SealedParLineCallbacks>) -> Self {
-        let store = store.cloned();
-        let count = store.as_ref().map_or(0, |store| store.resolutions.len());
-        Self {
-            store,
-            transcript: std::cell::RefCell::new(Vec::new()),
-            consumed: std::cell::RefCell::new(vec![false; count]),
-            unresolved: std::cell::Cell::new(false),
-        }
-    }
-
-    pub(super) fn resolve_or_record(
-        &self,
-        request: ParLineCallbackRequest,
-    ) -> Option<Content> {
-        self.transcript.borrow_mut().push(request.clone());
-        let Some(store) = &self.store else {
-            self.unresolved.set(true);
-            return None;
-        };
-        let mut consumed = self.consumed.borrow_mut();
-        let found = store.resolutions.iter().enumerate().find(|(index, resolution)| {
-            !consumed[*index] && par_line_requests_match(&resolution.request, &request)
-        });
-        if let Some((index, resolution)) = found {
-            consumed[index] = true;
-            Some(resolution.content.clone())
-        } else {
-            self.unresolved.set(true);
-            None
-        }
-    }
-
-    fn finish(self) -> Result<(), Vec<ParLineCallbackRequest>> {
-        let transcript = self.transcript.into_inner();
-        let integral = !self.unresolved.get()
-            && self.consumed.into_inner().iter().all(|consumed| *consumed);
-        if integral {
-            Ok(())
-        } else {
-            Err(transcript)
-        }
-    }
-}
-
-fn par_line_requests_match(
-    left: &ParLineCallbackRequest,
-    right: &ParLineCallbackRequest,
-) -> bool {
-    left.func == right.func
-        && left.number == right.number
-        && left.styles.collapse() == right.styles.collapse()
-}
 
 /// P1416 — coordenação escalar de uma linha transversal entre regiões irmãs
 /// de `#columns()` segmentado. As compensações são aplicadas antes da
@@ -345,6 +266,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// Emph/Heading/Text também passa por esta cadeia. `self.style` é a
     /// vista achatada (cache) que o layout consulta directamente.
     pub(super) chain: StyleChain,
+    text_tracking_state: text_tracking::State,
     /// Configuração da página activa. Mutável via Content::SetPage (Passo 81).
     pub page_config: PageConfig,
     pub(super) pages: Vec<Page>,
@@ -534,6 +456,8 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// **P1088** — baseline da última linha / cabeçalho / equação layoutada.
     /// Usada no protocolo genérico de colapso de margens de bloco.
     pub(super) prev_line_baseline: f64,
+    pub(super) terminal_paragraph_line: bool,
+    pub(super) empty_paragraph_weak_spacing: f64,
     pub(super) last_flush_advance: f64,
     /// **P952** — `descent_ink` da última equação de bloco layoutada
     /// (0.0 quando o conteúdo anterior não é equação de bloco). Somada à
@@ -619,6 +543,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) bib_render_cache: Option<crate::compiler::layout::bib_csl::BibRenderCache>,
     /// **P446** — smallcaps activo no corpo de um `#smallcaps[...]`.
     pub(super) smallcaps: bool,
+    pub(super) paragraph_planning_suppressed: bool,
     /// **P472** — chave da última citação renderizada. Usada para ibid:
     /// quando a mesma key é citada consecutivamente, emite "ibid." em vez
     /// do número. `None` antes da primeira citação.
@@ -803,6 +728,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
 pub(super) struct FlowSuffixCheckpoint {
     style: TextStyle,
     chain: StyleChain,
+    text_tracking_state: text_tracking::State,
     page_config: PageConfig,
     pages_len: usize,
     current_region: RegionTailCheckpoint,
@@ -832,6 +758,8 @@ pub(super) struct FlowSuffixCheckpoint {
     block_chain_active: bool,
     prev_margin_is_parbreak: bool,
     prev_line_baseline: f64,
+    terminal_paragraph_line: bool,
+    empty_paragraph_weak_spacing: f64,
     last_flush_advance: f64,
     prev_block_equation_descent: f64,
     last_equation_descent: f64,
@@ -851,6 +779,7 @@ pub(super) struct FlowSuffixCheckpoint {
     artifact_marker_id: u64,
     bib_render_cache: Option<crate::compiler::layout::bib_csl::BibRenderCache>,
     smallcaps: bool,
+    paragraph_planning_suppressed: bool,
     last_cited_key: Option<String>,
     previously_cited_keys: std::collections::HashSet<String>,
     last_was_loose_item: bool,
@@ -1080,6 +1009,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             style: TextStyle::from(&StyleChain::default_chain()),
             document_language: None,
             chain: StyleChain::default_chain(),
+            text_tracking_state: text_tracking::State::default(),
             page_config: cfg.clone(),
             pages: Vec::new(),
             // P216A: 5 fields escalares + 2 dimensões agregados em
@@ -1139,6 +1069,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P813 — sem flush prévio; a primeira equação de bloco usa o
             // caminho `initial_baseline_pending` (topo da página).
             prev_line_baseline: 0.0,
+            terminal_paragraph_line: false,
+            empty_paragraph_weak_spacing: 0.0,
             last_flush_advance: 0.0,
             prev_block_equation_descent: 0.0,
             last_equation_descent: 0.0,
@@ -1180,6 +1112,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             artifact_marker_id: 0,
             // P446 — smallcaps activo no corpo de um `#smallcaps[...]`.
             smallcaps: false,
+            paragraph_planning_suppressed: false,
             // P418 — cache pré-renderizado de citações/bibliografia CSL.
             bib_render_cache: None,
             // P472 — última key citada para ibid.
@@ -1222,6 +1155,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         FlowSuffixCheckpoint {
             style: self.style.clone(),
             chain: self.chain.clone(),
+            text_tracking_state: self.text_tracking_state.clone(),
             page_config: self.page_config.clone(),
             pages_len: self.pages.len(),
             current_region: RegionTailCheckpoint::capture(&self.regions.current),
@@ -1251,6 +1185,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             block_chain_active: self.block_chain_active,
             prev_margin_is_parbreak: self.prev_margin_is_parbreak,
             prev_line_baseline: self.prev_line_baseline,
+            terminal_paragraph_line: self.terminal_paragraph_line,
+            empty_paragraph_weak_spacing: self.empty_paragraph_weak_spacing,
             last_flush_advance: self.last_flush_advance,
             prev_block_equation_descent: self.prev_block_equation_descent,
             last_equation_descent: self.last_equation_descent,
@@ -1270,6 +1206,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             artifact_marker_id: self.artifact_marker_id,
             bib_render_cache: self.bib_render_cache.clone(),
             smallcaps: self.smallcaps,
+            paragraph_planning_suppressed: self.paragraph_planning_suppressed,
             last_cited_key: self.last_cited_key.clone(),
             previously_cited_keys: self.previously_cited_keys.clone(),
             last_was_loose_item: self.last_was_loose_item,
@@ -1314,6 +1251,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     ) {
         self.style = checkpoint.style;
         self.chain = checkpoint.chain;
+        self.text_tracking_state = checkpoint.text_tracking_state;
         self.page_config = checkpoint.page_config;
         self.pages.truncate(checkpoint.pages_len);
         checkpoint.current_region.restore(&mut self.regions.current);
@@ -1350,6 +1288,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.block_chain_active = checkpoint.block_chain_active;
         self.prev_margin_is_parbreak = checkpoint.prev_margin_is_parbreak;
         self.prev_line_baseline = checkpoint.prev_line_baseline;
+        self.terminal_paragraph_line = checkpoint.terminal_paragraph_line;
+        self.empty_paragraph_weak_spacing = checkpoint.empty_paragraph_weak_spacing;
         self.last_flush_advance = checkpoint.last_flush_advance;
         self.prev_block_equation_descent = checkpoint.prev_block_equation_descent;
         self.last_equation_descent = checkpoint.last_equation_descent;
@@ -1378,6 +1318,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.artifact_marker_id = checkpoint.artifact_marker_id;
         self.bib_render_cache = checkpoint.bib_render_cache;
         self.smallcaps = checkpoint.smallcaps;
+        self.paragraph_planning_suppressed = checkpoint.paragraph_planning_suppressed;
         self.last_cited_key = checkpoint.last_cited_key;
         self.previously_cited_keys = checkpoint.previously_cited_keys;
         self.last_was_loose_item = checkpoint.last_was_loose_item;
@@ -1471,253 +1412,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         }
     }
 
-    /// **P867** — calcula a largura real da página actual quando `width: auto`,
-    /// baseando-se na extensão horizontal dos items já emitidos.
-    fn compute_page_width(&self) -> f64 {
-        let mut content_right = helpers::line_content_right(
-            self.regions
-                .current
-                .current_items
-                .iter()
-                .chain(self.regions.current.current_line.iter()),
-            &self.metrics,
-        );
-        // **P1096** — equações de bloco pendentes de centragem carregam a
-        // sua largura integral (incluindo trailing space_after_script).
-        for (_, _, eq_width, applied_offset) in &self.pending_equation_centering {
-            content_right = content_right.max(applied_offset + eq_width);
-        }
-        // **P987** — a linha de cada equação numerada pendente reserva
-        // `eq_width + 2 × (number_width + gutter)`, `gutter = 0.5em`
-        // (vanilla `add_equation_number`/`resize_equation`,
-        // `typst-layout/src/math/mod.rs:209-330`). Sem esta reserva a página
-        // encolhe ao conteúdo e o número fica sobreposto/fora da margem.
-        let numbering_right = self
-            .pending_equation_numbering
-            .iter()
-            .map(|(_, _, style, number_width, eq_width, applied_offset, _)| {
-                let gutter = 0.5 * style.size.val();
-                applied_offset + eq_width + 2.0 * (number_width + gutter)
-            })
-            .fold(f64::NEG_INFINITY, f64::max);
-        (content_right.max(numbering_right) + self.page_config.margin.right)
-            .max(self.page_config.margin.horizontal())
-    }
-
-    /// **P867** — calcula a altura real da página actual quando `height: auto`.
-    /// O cursor_y já reflecte a posição vertical após o último flush; adiciona
-    /// a margem inferior como aproximação do fundo do conteúdo.
-    fn compute_page_height(&self) -> f64 {
-        let base_y = self.last_block_descent_y.unwrap_or(self.regions.current.cursor_y.0);
-        (base_y + self.page_config.margin.bottom).max(self.page_config.margin.vertical())
-    }
-
-    /// **P896** — resolve a centragem/numeração de equação de bloco que
-    /// ficou adiada (`width: auto`, valor ainda infinito no momento em que
-    /// a equação foi posicionada — ver `equation.rs`). Chamado por
-    /// `finish()`/`new_page()`, depois de `page_width`/`page_height` já
-    /// estarem resolvidos para valores finitos, sobre o `items` local que
-    /// vai ser movido para a `Page` final.
-    ///
-    /// Centragem: desloca os items da equação (pelo índice/gama gravados)
-    /// pela diferença entre o offset correcto (agora que `page_width` é
-    /// finito) e o offset já aplicado (a margem, valor de fallback usado em
-    /// `equation.rs`). Numeração: constrói o `FrameItem::Text` do número
-    /// (posição à direita só era resolúvel agora) e acrescenta-o a `items`.
-    ///
-    /// Esvazia os dois `Vec` pendentes — são sempre resolvidos por completo
-    /// de uma vez (uma página não fecha parcialmente).
-    fn apply_pending_equation_fixups(
-        &mut self,
-        items: &mut Vec<FrameItem>,
-        page_width: f64,
-    ) {
-        let usable = page_width - self.page_config.margin.horizontal();
-        for (start_idx, count, eq_width, applied_offset) in
-            std::mem::take(&mut self.pending_equation_centering)
-        {
-            // rationale: P1064 Classe 1A — centragem horizontal de equação ((usable - eq_width) / 2.0)
-            let correct_offset = self.page_config.margin.left + (usable - eq_width) / 2.0;
-            let delta = correct_offset - applied_offset;
-            if delta == 0.0 {
-                continue;
-            }
-            for item in items.iter_mut().skip(start_idx).take(count) {
-                helpers::shift_frame_item_x(item, delta);
-            }
-        }
-
-        for (baseline_y, text, style, number_width, eq_width, _applied_offset, align) in
-            std::mem::take(&mut self.pending_equation_numbering)
-        {
-            // **P987** — o número fica junto ao fim do conteúdo centrado da
-            // SUA equação (mesma fórmula do fixup de centragem acima) mais a
-            // calha `NUMBER_GUTTER = 0.5em` (invariante vanilla
-            // `number_x = content_end_x + gutter`), em vez da margem direita
-            // da largura computada da página inteira.
-            let gutter = 0.5 * style.size.val();
-            let number_x = match align {
-                HAlign::Left => self.page_config.margin.left,
-                HAlign::Right => {
-                    // rationale: P1064 Classe 1A — centragem de equação com número ((usable - eq_width) / 2.0)
-                    self.page_config.margin.left
-                        + (usable - eq_width) / 2.0
-                        + eq_width
-                        + gutter
-                }
-                HAlign::Center | HAlign::Start | HAlign::End => {
-                    page_width - self.page_config.margin.right - number_width
-                }
-            };
-            items.push(FrameItem::Text {
-                pos: Point { x: Pt(number_x), y: Pt(baseline_y) },
-                text,
-                style,
-            });
-        }
-    }
-
-    /// P1414 — alinha todos os números da região pela maior largura nela
-    /// observada. O item já nasce numa posição correta para a própria largura;
-    /// aqui só aplicamos a diferença necessária para a largura máxima.
-    fn apply_pending_par_line_fixups(&mut self, items: &mut [FrameItem]) {
-        let pending = std::mem::take(&mut self.pending_par_line_numbering);
-        let max_width =
-            pending.iter().map(|(_, _, width, _, _)| *width).fold(0.0, f64::max);
-        for (index, count, width, margin, align) in pending {
-            let delta = match (margin, align) {
-                (HAlign::Left, HAlign::Left | HAlign::Start) => -(max_width - width),
-                (HAlign::Right, HAlign::Right | HAlign::End) => max_width - width,
-                _ => 0.0,
-            };
-            if delta != 0.0 {
-                for item in items.iter_mut().skip(index).take(count) {
-                    helpers::shift_frame_item_x(item, delta);
-                }
-            }
-        }
-    }
-
-    /// **P897** — mesmo mecanismo de `apply_pending_equation_fixups`,
-    /// generalizado a `Content::Align`/`Content::Place` (`placement.rs`)
-    /// quando `resolve_alignment` foi chamado com `available_w` infinito
-    /// (`width: auto`, ainda por resolver no momento do posicionamento).
-    /// Em vez de reimplementar a fórmula de centragem/alinhamento à direita,
-    /// reaproveita `resolve_alignment` directamente com a largura disponível
-    /// final (`page_width - 2*margin`) já finita — só o componente `x` do
-    /// resultado é usado; `content_h`/`available_h`/`origin_y` são
-    /// dummies (`0.0`) porque este método só corrige o eixo horizontal — o
-    /// vertical usa `apply_pending_align_v_fixups` (**P898**), abaixo.
-    fn apply_pending_align_fixups(
-        &mut self,
-        items: &mut Vec<FrameItem>,
-        page_width: f64,
-    ) {
-        let final_avail_w = page_width - self.page_config.margin.horizontal();
-        for (path, count, align, content_w, origin_x, applied_x) in
-            std::mem::take(&mut self.pending_align_centering)
-        {
-            let (correct_x, _) = self.resolve_alignment(
-                align,
-                content_w,
-                0.0,
-                final_avail_w,
-                0.0,
-                origin_x,
-                0.0,
-            );
-            let delta = correct_x - applied_x;
-            if delta == 0.0 {
-                continue;
-            }
-            if let Some(slice) = helpers::resolve_path_slice(items, &path, count) {
-                for item in slice {
-                    helpers::shift_frame_item_x(item, delta);
-                }
-            }
-        }
-    }
-
-    /// **P898** — simétrico de `apply_pending_align_fixups`, eixo vertical.
-    /// Corrige `Content::Align`/`Content::Place` (`placement.rs`) adiados
-    /// quando `remaining_h`/`avail_h` (derivados de `available_height()`/
-    /// `page_bottom_limit()`) estavam infinitos no momento do
-    /// posicionamento (`height: auto`, ainda por resolver). Reaproveita
-    /// `resolve_alignment` com a altura restante final calculada a partir
-    /// de `page_height` (já finito neste ponto) e do `origin_y` gravado em
-    /// cada entrada — ao contrário do eixo X (onde `available_width()` é
-    /// invariante em toda a página), a altura restante depende da posição
-    /// vertical onde o item foi originalmente posicionado
-    /// (`page_height - margin - origin_y`), por isso o cálculo é repetido
-    /// por entrada em vez de uma única constante `final_avail_h` partilhada.
-    /// Só o componente `y` do resultado é usado; `content_w`/`available_w`/
-    /// `origin_x` são dummies (`0.0`).
-    fn apply_pending_align_v_fixups(
-        &mut self,
-        items: &mut Vec<FrameItem>,
-        page_height: f64,
-    ) {
-        for (path, count, align, content_h, origin_y, dy, applied_y) in
-            std::mem::take(&mut self.pending_align_v_centering)
-        {
-            let final_avail_h =
-                f64::max(0.0, page_height - self.page_config.margin.bottom - origin_y);
-            let (_, correct_base_y) = self.resolve_alignment(
-                align,
-                0.0,
-                content_h,
-                0.0,
-                final_avail_h,
-                0.0,
-                origin_y,
-            );
-            let correct_y = correct_base_y + dy;
-            let delta = correct_y - applied_y;
-            if delta == 0.0 {
-                continue;
-            }
-            if let Some(slice) = helpers::resolve_path_slice(items, &path, count) {
-                for item in slice {
-                    helpers::shift_frame_item_y(item, delta);
-                }
-            }
-        }
-    }
-
-    /// Calcula a coordenada `(x, y)` do canto superior esquerdo de um item
-    /// dado o alinhamento, as dimensões do conteúdo, e a área disponível.
-    /// Passo 82.
-    ///
-    /// `origin_x` e `origin_y` definem o canto superior esquerdo da área
-    /// de referência (`line_start_x` para Align; `line_start_x`/`margin` para Place).
-    #[allow(clippy::too_many_arguments)]
-    pub(super) fn resolve_alignment(
-        &self,
-        align: Align2D,
-        content_w: f64,
-        content_h: f64,
-        available_w: f64,
-        available_h: f64,
-        origin_x: f64,
-        origin_y: f64,
-    ) -> (f64, f64) {
-        let x = match align.h.unwrap_or(HAlign::Left) {
-            HAlign::Left | HAlign::Start => origin_x,
-            // rationale: P1064 Classe 1A — alinhamento central horizontal ((available_w - content_w) / 2.0)
-            HAlign::Center => origin_x + (available_w - content_w) / 2.0,
-            HAlign::Right | HAlign::End => origin_x + (available_w - content_w),
-        };
-
-        let y = match align.v.unwrap_or(VAlign::Top) {
-            VAlign::Top => origin_y,
-            // rationale: P1064 Classe 1A — alinhamento central vertical ((available_h - content_h) / 2.0)
-            VAlign::Horizon => origin_y + (available_h - content_h) / 2.0,
-            VAlign::Bottom => origin_y + (available_h - content_h),
-        };
-
-        (x, y)
-    }
-
     /// Fonte de verdade estrutural: a página actual não tem nenhum item visual.
     ///
     /// Verifica tanto `current_items` (linhas já fechadas) como `current_line`
@@ -1800,8 +1494,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         match content {
             Content::Empty => {}
 
-            // P863: parágrafo é transparente para layout.
-            Content::Par { body } => self.layout_content(body),
+            // A unidade do parágrafo fecha suas fronteiras sob o estilo ativo.
+            Content::Par { body } => paragraph::layout(self, body),
 
             Content::HtmlFrame(e) => html_frame::layout(self, e),
 
@@ -1838,19 +1532,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // `Introspector::state_display_value(key, loc)`. Layouter
             // permanece puro (sem Engine+ctx em signature) — paridade
             // arquitectural estrita preservada (Opção γ P239 audit).
-            Content::StateDisplay(e) => {
-                use crate::entities::introspector::Introspector;
-                if let Some(loc) = self.current_location {
-                    let pre_rendered_opt =
-                        self.introspector.state_display_value(e.key.clone(), loc);
-                    if let Some(pre_rendered) = pre_rendered_opt {
-                        self.layout_content(&pre_rendered);
-                    }
-                    // Sem pre_rendered: defensive ignore (fixpoint pre-walk
-                    // ainda não convergiu OR Func errored OR key inexistente).
-                }
-                // Sem current_location: defensive ignore (walk pre-Locator).
-            }
+            Content::StateDisplay(e) => state_display::layout(self, e),
 
             // P241 (M9d/M7+2): CounterDisplayCallback consome Content
             // pre-rendered pelo `apply_counter_displays` pós-fixpoint via
@@ -1858,33 +1540,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // permanece puro (paridade absoluta P240). Distinto de
             // `Content::CounterDisplay { kind }` legacy single-pass.
             Content::CounterDisplayCallback(e) => {
-                use crate::entities::introspector::Introspector;
-                if let Some(loc) = self.current_location {
-                    let pre_rendered_opt =
-                        self.introspector.counter_display_value(e.key.clone(), loc);
-                    if let Some(pre_rendered) = pre_rendered_opt {
-                        self.layout_content(&pre_rendered);
-                    }
-                }
+                counter_display_callback::layout(self, e)
             }
 
             // Atomizado (ADR-0109, P381) → layout/text.rs (folha de render).
             Content::Text(text) => text::layout(self, text),
 
-            Content::Space | Content::SpaceFromNewline => {
-                // P588 — não renderizar espaço visual no início de uma linha
-                // ou parágrafo. Espaços iniciais são gerados por newlines após
-                // `#set`, headings, etc., e não devem avançar o cursor.
-                if html_frame::items_have_material(&self.regions.current.current_line) {
-                    self.regions.current.cursor_x += self.space_width();
-                    self.justify_opportunities.push(self.regions.current.cursor_x.0);
-                    if self.regions.current.cursor_x.0
-                        > self.regions.current.width - self.page_config.margin.right
-                    {
-                        self.flush_line();
-                    }
-                }
-            }
+            Content::Space => space::layout(self, crate::entities::layout_types::TextSeparatorOrigin::Markup),
+            Content::SpaceFromNewline => space::layout(self, crate::entities::layout_types::TextSeparatorOrigin::Newline),
 
             // **P1057/P1061** — paridade vanilla `par.spacing` e margin collapsing parágrafo↔bloco:
             // O flush_line drena a linha e avança (top + bottom + leading); adicionamos
@@ -1892,46 +1555,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P1061: Se houver um bloco anterior pendente (prev_block_below_pending), colapsa
             // contra ele; e regista spacing_pt como prev_block_below_pending para que um
             // bloco subsequente possa colapsar contra este parágrafo.
-            Content::Parbreak => {
-                let had_items =
-                    html_frame::items_have_material(&self.regions.current.current_line);
-                if had_items {
-                    parbreak::mark_boundary(self);
-                    self.flush_line();
-                    let font_size = self.style.size.val();
-                    use super::layout::vanilla_defaults::{PAR_LEADING, PAR_SPACING};
-                    use crate::entities::value::Value;
-                    let spacing_pt = match self.chain.custom("par.spacing") {
-                        Some(Value::Length(l)) => l.resolve_pt(font_size),
-                        // PAR_SPACING, ver vanilla_defaults.rs
-                        _ => font_size * PAR_SPACING,
-                    };
-                    let leading_pt = match self.chain.custom("par.leading") {
-                        Some(Value::Length(l)) => l.resolve_pt(font_size),
-                        // PAR_LEADING, ver vanilla_defaults.rs
-                        _ => self
-                            .style
-                            .leading
-                            .map(|l| l.resolve_pt(font_size))
-                            .unwrap_or(font_size * PAR_LEADING),
-                    };
-                    let extra_spacing = (spacing_pt - leading_pt).max(0.0);
-                    let gap = if self.block_chain_active {
-                        self.prev_block_below_pending.max(extra_spacing)
-                    } else {
-                        extra_spacing
-                    };
-                    let advance = (gap - self.prev_block_below_pending).max(0.0);
-                    self.regions.current.cursor_y += Pt(advance);
-                    self.prev_block_below_pending = if self.block_chain_active {
-                        self.prev_block_below_pending.max(spacing_pt)
-                    } else {
-                        spacing_pt
-                    };
-                    self.block_chain_active = true;
-                    self.prev_margin_is_parbreak = true;
-                }
-            }
+            Content::Parbreak => parbreak::layout(self),
 
             // Atomizado (ADR-0109, P425) → layout/sequence.rs.
             Content::Sequence(parts) => sequence::layout(self, parts),
@@ -1955,25 +1579,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 // da verdade. Layouter no-op.
             }
 
-            Content::CounterDisplay(e) => {
-                // P190I (M6 fechado): Layouter consome via Introspector
-                // path location-aware. `current_location` set por
-                // walk-content para locatable contents (P185C). Para
-                // CounterDisplay (não-locatable), usa última location
-                // emitida (snapshot até este ponto).
-                use crate::entities::introspector::Introspector;
-                let kind = &e.kind;
-                let text = self
-                    .current_location
-                    .and_then(|loc| self.introspector.formatted_counter_at(kind, loc))
-                    .unwrap_or_else(|| {
-                        self.introspector
-                            .formatted_counter(kind)
-                            .unwrap_or_else(|| "0".to_string())
-                    });
-                let display = Content::text(text);
-                self.layout_content(&display);
-            }
+            Content::CounterDisplay(e) => counter_display::layout(self, e),
 
             // Atomizado (ADR-0109, P381) → layout/raw.rs.
             Content::Raw(e) => raw::layout(self, e),
@@ -2055,11 +1661,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Passo 61/P457 — TOC: delegado a outline.rs.
             Content::Outline(e) => outline::layout_outline(self, e),
 
-            Content::OutlineEntry(e) => {
-                if let Ok(body) = e.body() {
-                    self.layout_content(&body);
-                }
-            }
+            Content::OutlineEntry(e) => outline_entry::layout(self, e),
 
             // Atomizado (ADR-0109, P377) → layout/shape.rs.
             Content::Shape(e) => shape::layout(self, e),
@@ -2118,57 +1720,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::Cite(e) => cite::layout(self, e),
 
             // Atomizado (ADR-0109, P425) → layout/set_page.rs.
-            Content::SetPage {
-                paper,
-                flipped,
-                binding,
-                width,
-                height,
-                margin,
-                numbering,
-                number_align,
-                header,
-                header_ascent,
-                footer,
-                footer_descent,
-                supplement,
-                columns,
-                bleed,
-                fill,
-                background,
-                foreground,
-            } => {
-                set_page::layout(
-                    self,
-                    paper,
-                    flipped,
-                    binding,
-                    width,
-                    height,
-                    margin,
-                    numbering,
-                    number_align,
-                    header,
-                    header_ascent,
-                    footer,
-                    footer_descent,
-                    supplement,
-                    columns,
-                    bleed,
-                    fill,
-                    background,
-                    foreground,
-                );
-            }
+            Content::SetPage(delta) => set_page::layout(self, delta),
 
             Content::PageRun(e) => page_run::layout(self, e),
 
             // Atomizado (ADR-0109, P378) → layout/image.rs.
             Content::Image(e) => image::layout(self, e),
 
-            Content::Align(e) => {
-                self.layout_align(e.alignment, &e.body);
-            }
+            Content::Align(e) => align::layout(self, e),
 
             // P223 — Place refino: float + clearance armazenados.
             // P245 (M9d / M7+4) — semantic real activa para `float: true`:
@@ -2186,100 +1745,23 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Save/restore via variável local — o `self.chain` do chamador
             // permanece íntegro se `layout_content` retornar via early
             // return (padrão Passo 98).
-            Content::Styled(body, styles) => {
-                let prev_chain = self.chain.clone(); // O(1) Arc::clone
-                let prev_style = self.style.clone();
-                self.chain = self.chain.push_styles(styles);
-                self.style = TextStyle::from(&self.chain);
-                if self.document_language.is_none() {
-                    self.document_language = self.style.lang;
-                }
-                let pdf_label = styles.delta().custom.iter().rev().any(|(key, value)| {
-                    key.as_str() == "pdf.marker.tag"
-                        && matches!(value, Value::Str(tag) if tag.as_str() == "label")
-                });
-                let outline_destination =
-                    styles.delta().custom.iter().rev().find_map(|(key, value)| {
-                        match (key.as_str(), value) {
-                            ("outline.link.destination", Value::Str(label)) => {
-                                Some(crate::entities::label::Label(label.to_string()))
-                            }
-                            _ => None,
-                        }
-                    });
-                if let Some(label) = outline_destination {
-                    outline::layout_destination_link(self, body, label);
-                } else if pdf_label {
-                    let (_, items) = self.layout_sub_frame_inline(
-                        body,
-                        sub_frame::SubLayoutRegion {
-                            origin_x: 0.0,
-                            width: 0.0,
-                            height: None,
-                            align_rtl: false,
-                            unconstrained_height: true,
-                        },
-                    );
-                    self.regions.current.current_line.push(FrameItem::Semantic {
-                        kind: SemanticKind::Label,
-                        placement: SemanticPlacement::Inline,
-                        alt: None,
-                        items,
-                    });
-                } else {
-                    self.layout_content(body);
-                }
-                let owns_par_line_style = styles
-                    .delta()
-                    .custom
-                    .iter()
-                    .any(|(key, _)| key.as_str().starts_with("par.line."));
-                if owns_par_line_style
-                    && html_frame::items_have_material(&self.regions.current.current_line)
-                {
-                    self.flush_line();
-                }
-                self.chain = prev_chain;
-                self.style = prev_style;
+            Content::Styled(styled) => {
+                style_scope::layout_styled(self, &styled.body, &styled.styles)
             }
 
             // F-5b fatia 1 (P371): strong/emph são variantes próprias (morfologia,
             // 0107). O render (bold/italic) **replica** o arm `Styled` acima — push
             // de `Bold(true)`/`Italic(true)` na chain, layout do body, restore →
             // output byte-idêntico ao `Styled[Bold/Italic]` de antes (paridade visual).
-            Content::Strong(e) => {
-                use crate::entities::style::{Style, Styles};
-                let prev_chain = self.chain.clone();
-                let prev_style = self.style.clone();
-                self.chain =
-                    self.chain.push_styles(&Styles::from_iter([Style::strong()]));
-                self.style = TextStyle::from(&self.chain);
-                self.layout_content(&e.body);
-                self.chain = prev_chain;
-                self.style = prev_style;
-            }
-            Content::Emph(e) => {
-                use crate::entities::style::{Style, Styles};
-                let prev_chain = self.chain.clone();
-                let prev_style = self.style.clone();
-                self.chain = self.chain.push_styles(&Styles::from_iter([Style::emph()]));
-                self.style = TextStyle::from(&self.chain);
-                self.layout_content(&e.body);
-                self.chain = prev_chain;
-                self.style = prev_style;
-            }
+            Content::Strong(e) => style_scope::layout_strong(self, &e.body),
+            Content::Emph(e) => style_scope::layout_emph(self, &e.body),
 
             // P446: smallcaps — fallback por scaling (0.8×) de maiúsculas.
             // Letras minúsculas são convertidas para maiúsculas e renderizadas
             // a 80% do tamanho actual; maiúsculas e não-letras mantêm o
             // tamanho. O flag `self.smallcaps` sinaliza ao layout de `Text`
             // para fazer a segmentação por runs.
-            Content::SmallCaps { body } => {
-                let prev = self.smallcaps;
-                self.smallcaps = true;
-                self.layout_content(body);
-                self.smallcaps = prev;
-            }
+            Content::SmallCaps { body } => style_scope::layout_smallcaps(self, body),
 
             // ── Passo 154B (ADR-0060 Fase 1) — terms + divider ──────────────
             // Atomizado (ADR-0109, P381) → layout/divider.rs.
@@ -2468,20 +1950,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
             // P1493: ContextBlock continua no-op salvo na passagem intrínseca
             // detalhada, onde um carrier privado acompanha a geometria final.
-            Content::ContextBlock(elem) => {
-                if self.capture_html_context_markers {
-                    let (ascender, _) =
-                        self.metrics.vertical_metrics(self.style.size, &self.style);
-                    let point = Point {
-                        x: self.regions.current.cursor_x,
-                        y: self.regions.current.cursor_y - ascender,
-                    };
-                    self.regions
-                        .current
-                        .current_line
-                        .push(html_frame::context_marker(elem.id, point));
-                }
-            }
+            Content::ContextBlock(elem) => context_block::layout(self, elem),
             Content::HtmlElem(_) => {}
         }
     }
@@ -2492,13 +1961,28 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // **P1119** — o flush da última linha passa pelo caminho normal
         // (drena, alinha e aplica a descida de baseline de P1120).
         let had_last_line =
-            html_frame::items_have_material(&self.regions.current.current_line);
+            html_frame::items_have_causal_line(&self.regions.current.current_line);
+        let had_terminal_paragraph = self.terminal_paragraph_line;
         self.flush_line();
-        if had_last_line {
+        let had_causal_last_line = had_last_line || had_terminal_paragraph;
+        // Terminal geometry uses the last causal baseline; note fitting keeps
+        // the conservative clearance that the following baseline represented.
+        let terminal_note_clearance = had_causal_last_line.then_some((
+            (self.pages.len(), self.current_column),
+            self.regions.current.cursor_y,
+        ));
+        if had_causal_last_line {
             self.regions.current.cursor_y = Pt(self.prev_line_baseline);
             if self.last_block_descent_y.is_none() {
                 self.last_block_descent_y = Some(self.prev_line_baseline);
             }
+        }
+
+        if self.initial_baseline_pending
+            && self.last_block_descent_y.is_none()
+            && !html_frame::items_have_material(&self.regions.current.current_items)
+        {
+            self.regions.current.cursor_y += Pt(-self.empty_paragraph_weak_spacing);
         }
 
         // **P867** — dimensões finais quando `width: auto` / `height: auto`.
@@ -2523,6 +2007,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // P245 (M9d / M7+4) — flush floats pendentes da última página
         // antes de comitar a Page final.
         self.flush_pending_floats();
+        let note_region = (self.pages.len(), self.current_column);
+        let note_causal_cursor = self.regions.current.cursor_y;
+        if !self.pending_footnote_bodies.is_empty() {
+            if let Some((region, clearance)) = terminal_note_clearance {
+                if region == note_region {
+                    self.regions.current.cursor_y =
+                        Pt(self.regions.current.cursor_y.0.max(clearance.0));
+                }
+            }
+        }
         // P304 (P295.1) — flush footnote bodies pendentes da última
         // página antes de comitar a Page final. Subpadrão DeferredX
         // N=3 paralelo a P245/P251.
@@ -2536,10 +2030,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         let mut iter_limit = self.pending_footnote_bodies.len() + 1;
         while !self.pending_footnote_bodies.is_empty() && iter_limit > 0 {
             self.new_page();
+            self.flush_pending_footnote_bodies(footnote_bottom_y);
             iter_limit -= 1;
         }
-        if html_frame::items_have_material(&self.regions.current.current_items)
-            || (!self.pages.is_empty() && !self.page_run_boundary_empty)
+        if (self.pages.len(), self.current_column) == note_region {
+            self.regions.current.cursor_y = note_causal_cursor;
+        }
+        if self.pages.is_empty()
+            || html_frame::items_have_material(&self.regions.current.current_items)
+            || !self.page_run_boundary_empty
         {
             let page_numbering = self.page_config.numbering.clone();
             let page_number = self.pages.len() + 1;
@@ -2753,314 +2252,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         doc.layout_errors = self.layout_errors;
         doc
     }
-
-    // ── Auxiliares de Grid (Passo 80) ─────────────────────────────────────
-
-    /// P273.11 — Mede um Stack (children + dir + spacing) com `max_w`.
-    /// Helper extraído da replicação inline P273.9 §2.2 (cleanup §9 P273.9).
-    /// Decisão 1β Fase A: método em Layouter (reutiliza
-    /// `measure_content_constrained` via `&self`).
-    pub(super) fn measure_stack(
-        &mut self,
-        children: &[Content],
-        dir: crate::entities::dir::Dir,
-        spacing: Option<crate::entities::layout_types::Length>,
-        max_w: f64,
-    ) -> (f64, f64) {
-        let n = children.len();
-        if n == 0 {
-            return (0.0, 0.0);
-        }
-        let space_pt = spacing.map_or(0.0, |l| l.resolve_pt(self.style.size.val()));
-        if dir.is_vertical() {
-            let mut max_child_w = 0.0_f64;
-            let mut sum_h = 0.0_f64;
-            for child in children.iter() {
-                let (w, h) = self.measure_content_constrained(child, max_w);
-                max_child_w = max_child_w.max(w);
-                sum_h += h;
-            }
-            (max_child_w, sum_h + ((n - 1) as f64) * space_pt)
-        } else {
-            let mut sum_w = 0.0_f64;
-            let mut max_child_h = 0.0_f64;
-            for child in children.iter() {
-                let (w, h) = self.measure_content_constrained(child, max_w);
-                sum_w += w;
-                max_child_h = max_child_h.max(h);
-            }
-            (sum_w + ((n - 1) as f64) * space_pt, max_child_h)
-        }
-    }
-
-    /// Mede conteúdo com restrição de largura máxima.
-    ///
-    /// Usado pelo algoritmo de grid para determinar a largura das colunas Auto.
-    /// Retorna `(width, height)` em pontos.
-    pub(super) fn measure_content_constrained(
-        &mut self,
-        content: &Content,
-        max_width: f64,
-    ) -> (f64, f64) {
-        match content {
-            Content::Text(text) => {
-                let mut max_line_w = 0.0_f64;
-                let mut current_w = 0.0_f64;
-                let mut line_count = 1usize;
-                // **P624** — usa `text_width` (P593) para herdar shaping em
-                // scripts contextuais, em vez de `advance` directo.
-                let space_w =
-                    self.metrics.text_width(" ", self.style.size, &self.style).0;
-
-                for word in text.split_whitespace() {
-                    let word_w =
-                        self.metrics.text_width(word, self.style.size, &self.style).0;
-                    if current_w + word_w > max_width && current_w > 0.0 {
-                        max_line_w = max_line_w.max(current_w);
-                        line_count += 1;
-                        current_w = word_w + space_w;
-                    } else {
-                        current_w += word_w + space_w;
-                    }
-                }
-                max_line_w = max_line_w.max(current_w);
-                let (_, line_height) =
-                    self.metrics.vertical_metrics(self.style.size, &self.style);
-                (max_line_w.min(max_width), line_height.0 * line_count as f64)
-            }
-
-            Content::Sequence(children) => {
-                let mut total_h = 0.0_f64;
-                let mut max_w = 0.0_f64;
-                for child in children.iter() {
-                    let (w, h) = self.measure_content_constrained(child, max_width);
-                    total_h += h;
-                    max_w = max_w.max(w);
-                }
-                (max_w, total_h)
-            }
-
-            Content::Shape(e) => {
-                let (kind, width, height) = (&e.kind, &e.width, &e.height);
-                match kind {
-                    // P242 — RoundedRect partilha dimensões com Rect.
-                    ShapeKind::Rect
-                    | ShapeKind::RoundedRect { .. }
-                    | ShapeKind::Ellipse
-                    | ShapeKind::Path(_) => {
-                        let w = resolve_pt(width.as_deref(), max_width).min(max_width);
-                        let h = resolve_pt(height.as_deref(), 0.0);
-                        (w, h)
-                    }
-                    ShapeKind::Line { dx, dy } => (dx.abs().min(max_width), dy.abs()),
-                }
-            }
-
-            // Passo 513 — medição de `Content::Curve` via bbox do path.
-            Content::Curve(e) => {
-                let items =
-                    curve::path_items_from_curve(&e.segments, self.style.size.val());
-                let (min_x, min_y, max_x, max_y) =
-                    crate::entities::geometry::path_bbox(&items);
-                let w = (max_x - min_x).max(0.0).min(max_width);
-                let h = (max_y - min_y).max(0.0);
-                (w, h)
-            }
-
-            // Passo 156C / 156L: Pad / Hide para grid measurement.
-            // P156L: cada side é Option<Length>; None ↔ zero.
-            Content::Pad(e) => {
-                let sides = &e.sides;
-                let font = self.style.size.val();
-                let left = sides.left.map_or(0.0, |l| l.resolve_pt(font));
-                let right = sides.right.map_or(0.0, |l| l.resolve_pt(font));
-                let top = sides.top.map_or(0.0, |l| l.resolve_pt(font));
-                let bottom = sides.bottom.map_or(0.0, |l| l.resolve_pt(font));
-                let constrained = (max_width - left - right).max(0.0);
-                let (w, h) = self.measure_content_constrained(&e.body, constrained);
-                (w + left + right, h + top + bottom)
-            }
-            Content::Hide(e) => self.measure_content_constrained(&e.body, max_width),
-
-            // P408: smallcaps — stub transparente em medição (paridade layout).
-            Content::SmallCaps { body } => {
-                self.measure_content_constrained(body, max_width)
-            }
-
-            // Passo 156D: HSpace/VSpace dimensões para grid measurement.
-            // **P842 (#38)** — `Fractional` mede 0 em contexto de medição
-            // (o fr só expande contra o espaço restante de uma linha real;
-            // numa medição isolada não há restante definido).
-            Content::HSpace(e) => (
-                match e.amount {
-                    crate::entities::elements::h_space::Spacing::Absolute(l) => {
-                        l.resolve_pt(self.style.size.val())
-                    }
-                    crate::entities::elements::h_space::Spacing::Fractional(_) => 0.0,
-                },
-                0.0,
-            ),
-            Content::VSpace(e) => (0.0, e.amount.resolve_pt(self.style.size.val())),
-
-            // Passo 156E/220: Pagebreak/Colbreak — events sem dimensões em cell.
-            Content::Pagebreak(_) => (0.0, 0.0),
-            Content::Colbreak(_) => (0.0, 0.0),
-
-            // Passo 156I: Stack dimensões para grid measurement.
-            // TTB/BTT: max widths; sum heights + (n-1) * spacing.
-            // LTR/RTL: sum widths + (n-1) * spacing; max heights.
-            // P273.11 — delega ao helper Layouter::measure_stack (substitui
-            // replicação inline ~25 LOC; bit-exact preserved).
-            Content::Stack(e) => {
-                self.measure_stack(&e.children, e.dir, e.spacing, max_width)
-            }
-
-            // Passo 156H: Boxed (Box inline) dimensões para grid
-            // measurement. Análogo a Block (mesma lógica width/height/
-            // inset; baseline ignorado em medição).
-            Content::Boxed(e) => {
-                let (body, width, height, inset) =
-                    (&e.body, &e.width, &e.height, &e.inset);
-                let font = self.style.size.val();
-                let inset_l = inset.left.resolve_pt(font);
-                let inset_r = inset.right.resolve_pt(font);
-                let inset_t = inset.top.resolve_pt(font);
-                let inset_b = inset.bottom.resolve_pt(font);
-                let body_max = match width {
-                    Some(w) => w.resolve_pt(font).min(max_width - inset_l - inset_r),
-                    None => (max_width - inset_l - inset_r).max(0.0),
-                };
-                let (bw, bh) = self.measure_content_constrained(body, body_max);
-                let total_w = bw + inset_l + inset_r;
-                let body_h_with_inset = bh + inset_t + inset_b;
-                let total_h = match height {
-                    Some(h) => h.resolve_pt(font).max(body_h_with_inset),
-                    None => body_h_with_inset,
-                };
-                (total_w, total_h)
-            }
-
-            // Passo 156J: Repeat dimensões para grid measurement.
-            // Single-render do body (consistente with layout_content
-            // arm). Algoritmo dinâmico de quantidade defere per
-            // ADR-0054 graded.
-            Content::Repeat(e) => self.measure_content_constrained(&e.body, max_width),
-
-            // P219 (DEBT-56 sub-fase b 3/4): Columns dimensões para grid
-            // measurement. Consumer real graded — calcula column_width
-            // (paralelo a layout_content arm); medir body com width
-            // reduzida; retorna full_width (columns ocupa width inteira)
-            // + body_h (single-render graded).
-            Content::Columns(e) => {
-                let count_f = if e.count == 0 { 1.0 } else { e.count as f64 };
-                let gutter_pt = match e.gutter {
-                    Some(g) => g.resolve_pt(self.style.size.0),
-                    None => max_width * COLUMNS_DEFAULT_GUTTER_RATIO,
-                };
-                let column_width = if count_f >= 1.0 {
-                    (max_width - (count_f - 1.0) * gutter_pt) / count_f
-                } else {
-                    max_width
-                };
-                let (_body_w, body_h) =
-                    self.measure_content_constrained(&e.body, column_width);
-                (max_width, body_h)
-            }
-
-            // Passo 156G: Block dimensões para grid measurement.
-            // Inset adiciona aos lados; height: Some(h) força mínimo;
-            // width: Some(w) prefere essa largura mas constrained por max.
-            Content::Block(e) => {
-                let (body, width, height, inset) =
-                    (&e.body, &e.width, &e.height, &e.inset);
-                let font = self.style.size.val();
-                let inset_l = inset.left.resolve_pt(font);
-                let inset_r = inset.right.resolve_pt(font);
-                let inset_t = inset.top.resolve_pt(font);
-                let inset_b = inset.bottom.resolve_pt(font);
-                let body_max = match width {
-                    Some(w) => block::resolve_width_pt(*w, font, max_width)
-                        .unwrap_or(max_width)
-                        .min(max_width - inset_l - inset_r),
-                    None => (max_width - inset_l - inset_r).max(0.0),
-                };
-                let (bw, bh) = self.measure_content_constrained(body, body_max);
-                // P772f — largura explícita do bloco é a largura reportada
-                // (o corpo mede-se dentro dela, mas não a substitui). Antes
-                // usava sempre `bw`, colapsando a 0 quando o corpo era um
-                // `Content::Align`/`Content::Place` sem braço próprio (ex:
-                // `block(width: 3cm, align(top, place(..)))` numa coluna
-                // auto de grid) — a coluna auto-dimensionava para 0pt.
-                let total_w = match width {
-                    Some(w) => block::resolve_width_pt(*w, font, max_width)
-                        .unwrap_or(bw + inset_l + inset_r)
-                        .min(max_width),
-                    None => bw + inset_l + inset_r,
-                };
-                let body_h_with_inset = bh + inset_t + inset_b;
-                let total_h = match height {
-                    Some(crate::entities::elements::block::BlockHeight::Relative(h)) => {
-                        block::resolve_height_pt(*h, font, self.available_height())
-                            .unwrap_or(body_h_with_inset)
-                            .max(body_h_with_inset)
-                    }
-                    Some(crate::entities::elements::block::BlockHeight::Fractional(
-                        _,
-                    )) => self
-                        .fractional_block_height
-                        .unwrap_or(body_h_with_inset)
-                        .max(body_h_with_inset),
-                    None => body_h_with_inset,
-                };
-                (total_w, total_h)
-            }
-
-            // P772f — `align` não tem tamanho intrínseco próprio: reporta o
-            // tamanho do corpo (o wrapper só reposiciona dentro do espaço
-            // disponível, não o redimensiona). Braço em falta colapsava a
-            // 0 e fazia colunas auto de grid com células `align(...)`
-            // colidirem na mesma posição x (ambas medidas a largura 0).
-            Content::Align(e) => self.measure_content_constrained(&e.body, max_width),
-
-            Content::Styled(body, styles) => {
-                let prev_chain = self.chain.clone();
-                let prev_style = self.style.clone();
-                self.chain = self.chain.push_styles(styles);
-                self.style = TextStyle::from(&self.chain);
-                let res = self.measure_content_constrained(body, max_width);
-                self.chain = prev_chain;
-                self.style = prev_style;
-                res
-            }
-
-            Content::Strong(e) => {
-                use crate::entities::style::{Style, Styles};
-                let prev_chain = self.chain.clone();
-                let prev_style = self.style.clone();
-                self.chain =
-                    self.chain.push_styles(&Styles::from_iter([Style::strong()]));
-                self.style = TextStyle::from(&self.chain);
-                let res = self.measure_content_constrained(&e.body, max_width);
-                self.chain = prev_chain;
-                self.style = prev_style;
-                res
-            }
-
-            Content::Emph(e) => {
-                use crate::entities::style::{Style, Styles};
-                let prev_chain = self.chain.clone();
-                let prev_style = self.style.clone();
-                self.chain = self.chain.push_styles(&Styles::from_iter([Style::emph()]));
-                self.style = TextStyle::from(&self.chain);
-                let res = self.measure_content_constrained(&e.body, max_width);
-                self.chain = prev_chain;
-                self.style = prev_style;
-                res
-            }
-
-            _ => (0.0, 0.0), // neutro: N16[γ] — Content sem dimensão fixa explícita retorna (0.0, 0.0) (fallback de dimensão estática)
-        }
-    }
 }
 
 // ── Auxiliares ────────────────────────────────────────────────────────────
@@ -3201,112 +2392,6 @@ pub fn layout_with_introspector(
         DEFAULT_FONT_SIZE,
     )
     .expect("legacy layout entrypoint cannot resolve math callbacks")
-}
-
-/// **P712/P858** — layout real e isolado de conteúdo para `measure()` (stdlib).
-///
-/// Constrói um `Layouter` isolado com `chain` = `chain` do chamador (o
-/// tamanho medido depende do `#set text(size:)` activo, paridade com o
-/// vanilla `measure()`, que usa `context.styles()`) e corre
-/// `layout_sub_frame` (Passo 629 — o mesmo mecanismo já reutilizado por
-/// `Content::Place`/`Content::Transform` e por `grid.rs` para medir
-/// células) numa região efectivamente sem limites (`width:
-/// f64::INFINITY`, `height: None`) — paridade com o vanilla
-/// `Region::new(.., Abs::inf())` para a `measure()` sem `width`/`height`
-/// explícitos. Devolve `(width, height)` em pontos, a partir dos itens
-/// realmente emitidos pelo layout — não uma aproximação manual por tipo
-/// de `Content` (ao contrário do antigo `measure_content` em
-/// `layout/helpers.rs`, que continua a servir os seus próprios
-/// consumers internos — `Content::Transform`/`Content::Place` —,
-/// inalterado por este passo).
-///
-/// **P858** — recebe `metrics` do chamador (via `Engine::font_metrics`).
-/// Durante a expansão de `#context`, a métrica real (`FallbackFontMetrics`,
-/// L3) é injetada; noutros contextos, usa-se `FixedMetrics` como fallback
-/// heurístico. A paridade com o vanilla é agora ao nível da língua
-/// (medidas reais de fonte), não apenas proporcional.
-pub fn measure_content_real(
-    content: &Content,
-    chain: &StyleChain,
-    metrics: &dyn FontMetrics,
-) -> (f64, f64) {
-    let (width, height, _) = measure_content_real_with_baseline(content, chain, metrics);
-    (width, height)
-}
-
-/// **P1491** — variante interna de `measure_content_real` que preserva a
-/// baseline causal do frame medido. O helper público histórico mantém a
-/// assinatura `(width, height)`; só o dispatch de `measure()` consome a
-/// terceira coordenada.
-pub(in crate::compiler) fn measure_content_real_with_baseline(
-    content: &Content,
-    chain: &StyleChain,
-    metrics: &dyn FontMetrics,
-) -> (f64, f64, f64) {
-    use comemo::Track;
-
-    let font_size = chain.size();
-    let intr = crate::entities::introspector::TagIntrospector::empty();
-    let intr_dyn: &dyn crate::entities::introspector::Introspector = &intr;
-    let mut layouter =
-        Layouter::new(metrics, NullImageSizer, font_size, intr_dyn.track());
-    layouter.chain = chain.clone();
-    layouter.style = TextStyle::from(chain);
-
-    // P772x — `layouter` é uma instância isolada e efémera (só para medir);
-    // não há collector ambiente possível aqui, `_deco` é sempre vazio.
-    // **P908** — instância efémera, descartada inteira após a medição; não
-    // há "pai" para propagar entradas órfãs de `pending_align_*` (`_x`/`_y`
-    // abaixo) — mesmo descarte já correcto de antes.
-    let (height, items, _deco, _orphaned_x, _orphaned_y) = layouter.layout_sub_frame(
-        content,
-        sub_frame::SubLayoutRegion {
-            origin_x: 0.0,
-            width: f64::INFINITY,
-            height: None,
-            align_rtl: false,
-            unconstrained_height: true,
-        },
-    );
-
-    let width = if items.is_empty() {
-        0.0
-    } else {
-        let refs: Vec<&FrameItem> = items.iter().collect();
-        metrics.line_content_right(&refs)
-    };
-
-    // **P860** — a altura deve ser a do frame de layout do texto, não o
-    // avanço de linha de `layout_sub_frame`. Os edges padrão do vanilla
-    // (`top-edge: cap-height`, `bottom-edge: baseline`) definem a altura de
-    // um frame de texto; `text_edges` devolve `(top, bottom)` relativos à
-    // baseline, pelo que a altura total é `top - bottom`.
-    // Para conteúdo sem texto plano, mantém-se o fallback do avanço de linha.
-    let text = content.plain_text();
-    let (text_ascent, text_descent) = if text.is_empty() {
-        (0.0, 0.0)
-    } else {
-        let (top, bottom) = metrics.text_edges(Pt(font_size), &layouter.style);
-        (top.val(), -bottom.val())
-    };
-
-    let inline_ascent = layouter.line_inline_ascent.max(0.0);
-    let inline_descent = layouter.line_inline_descent.max(0.0);
-    let has_inline_frame = inline_ascent > 0.0 || inline_descent > 0.0;
-
-    let (height, baseline) = if has_inline_frame {
-        let ascent = text_ascent.max(inline_ascent);
-        let descent = text_descent.max(inline_descent);
-        (ascent + descent, ascent)
-    } else if !text.is_empty() {
-        (text_ascent + text_descent, text_ascent)
-    } else if height > 0.0 {
-        (height, height)
-    } else {
-        (0.0, 0.0)
-    };
-
-    (width, height, baseline)
 }
 
 /// Layouta uma ocorrência de `html.frame` como fragmento paginado intrínseco.
@@ -3631,7 +2716,7 @@ fn find_first_bibliography_style(
                 locale: e.locale.clone(),
             }),
             Content::Sequence(seq) => seq.iter().find_map(|c| walk(c, introspector)),
-            Content::Styled(body, _) => walk(body, introspector),
+            Content::Styled(styled) => walk(&styled.body, introspector),
             Content::Block(e) => walk(&e.body, introspector),
             Content::Boxed(e) => walk(&e.body, introspector),
             Content::Pad(e) => walk(&e.body, introspector),

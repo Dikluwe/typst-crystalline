@@ -1,29 +1,23 @@
-# Prompt L0 — ponte object-safe `DynElement`
+# L0 — Object-safe DynElement bridge
 Hash do Código: c54d909a
+
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/dynamic.rs`
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/entities/element-boundary.toml sha256:cafcd80a58c3e84a9b44a49eb92a93cd2422ddbcf530d295c3645ae54bf1e41b
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/entities/elements/dynamic.rs`
-**ADRs:** ADR-0026, ADR-0029, ADR-0105, ADR-0106, ADR-0108, ADR-0129.
+## Evidence and contract
 
-## Medição anterior à decisão
+The consumer defines `DynElement` and its blanket for `Element + Send + Sync
++ 'static`. Users implement the native trait, not a second manual bridge.
 
-`Element` não é object-safe por seus supertraits e métodos genéricos. O
-consumer vigente define `DynElement` e um blanket impl para todo
-`Element + Send + Sync + 'static`; o utilizador não implementa a ponte à mão.
+- Provide object-safe text, emptiness, map, field, kind, payload and settable bridges.
+- `dyn_kind` delegates to the stable Element name. `dyn_eq` downcasts and compares
+  structurally; distinct concrete types are unequal.
+- `Arc<dyn DynElement>` retains O(1) cloning. Hashing stays content-Debug based,
+  with no `dyn_hash` method.
+- Native dispatch remains static; only `Content::Dynamic` uses the bridge.
 
-## Contrato específico
-
-- Expor bridges object-safe para texto, vazio, map, campos, kind, payload e
-  resolução de settables.
-- `dyn_kind` delega ao nome estável do `Element`; `dyn_eq` faz downcast ao tipo
-  concreto e igualdade estrutural; tipos distintos são diferentes.
-- `Arc<dyn DynElement>` preserva clone O(1); hashing continua pelo Debug do
-  conteúdo, sem `dyn_hash`.
-- O caminho nativo permanece estático; somente `Content::Dynamic` usa a ponte.
-
-## Aceitação
-
-Provar object-safety, blanket para nativo, igualdade, maps e dispatch do hub.
+Verify object safety, native blanket bridging, equality, maps and hub dispatch.
+The native trait belongs to `00_nucleo/prompts/entities/elements/_comum.md`.

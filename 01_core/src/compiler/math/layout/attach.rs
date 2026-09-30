@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/attach.md
-//! @prompt-hash 21756944
+//! @prompt-hash e11ab673
 //! @layer L1
 //! @updated 2026-08-20
 //!
@@ -177,7 +177,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                     Content::MathLimitsOverride(e) => b = &e.body,
                     Content::MathClassOverride(e) => b = &e.body,
                     Content::MathStyled(e) => b = &e.body,
-                    Content::Styled(body, _) => b = body,
+                    Content::Styled(styled) => b = &styled.body,
                     _ => break,
                 }
             }
@@ -294,7 +294,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 Content::MathClassOverride(e) => content_is_text_like(&e.body),
                 Content::MathLimitsOverride(e) => content_is_text_like(&e.body),
                 Content::MathStyled(e) => content_is_text_like(&e.body),
-                Content::Styled(body, _) => content_is_text_like(body),
+                Content::Styled(styled) => content_is_text_like(&styled.body),
                 // **P1133b** — espaçamento fraco de borda (`dif`) colapsa
                 // antes do layout e não produz fragmento com `math_size`;
                 // é neutro na agregação `all(fragment.is_text_like())`.
@@ -450,6 +450,17 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                             .italics_correction(*glyph_id, style.size, style)
                             .val(),
                     ),
+                    FrameItem::TextReplacement { items, .. } => items.iter().find_map(|visual| {
+                        if let FrameItem::Glyph { glyph_id, .. } = visual {
+                            Some(
+                                self.metrics
+                                    .italics_correction(*glyph_id, style.size, style)
+                                    .val(),
+                            )
+                        } else {
+                            None
+                        }
+                    }),
                     FrameItem::TextShaped { glyphs, .. } => glyphs.last().map(|g| {
                         self.metrics
                             .italics_correction(g.glyph_id, style.size, style)

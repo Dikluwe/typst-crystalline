@@ -1,42 +1,25 @@
-# Prompt L0 — integração HTML `html.frame` P1424
+# L0 — Public HTML frame integration tests
 Hash do Código: 41874e7b
 
-**Camada:** L3 (testes)  
-**Ficheiro alvo exclusivo:** `03_infra/tests/p1424_html_frame.rs`  
-**Owners produtivos observados:** `infra/pipeline.md`, `infra/export/html.md`,
-`infra/export/svg.md`
+**Layer:** L3 (integration tests)
+**Exclusive consumer:** `03_infra/tests/p1424_html_frame.rs`
 
-## Obrigação
+## Current evidence
 
-Este consumer exclusivamente de teste exerce a fachada pública HTML. Deve
-provar no nível da linguagem:
+- `03_infra/tests/p1424_html_frame.rs` — public facade cases.
+- `00_nucleo/prompts/infra/pipeline/html.md` — HTML orchestration.
+- `00_nucleo/prompts/infra/export/html.md` and `00_nucleo/prompts/infra/export/svg.md` — excluded exporter owners observed by the test.
 
-- feature desligada falha; feature HTML ligada expõe `repr(html.frame) ==
-  "frame"` e preserva os três diagnósticos de assinatura;
-- texto produz exatamente uma raiz SVG inline não escapada, block-level,
-  intrínseca, positiva e sem tag literal `frame` ou canvas A4;
-- rect com `fill: red` 10pt×5pt produz dimensões físicas e
-  `viewBox 0 0 10 5` com tolerância de 0,001pt e preserva a cor pública
-  ratificada `#ff4136`; não aceita a tradução para vermelho CSS `#ff0000`;
-- nesting produz uma única ilha com a mesma projeção geométrica/visual da ilha
-  simples;
-- `html.elem("frame")` permanece tag literal e a rota sem frames preserva o
-  DOM existente;
-- a própria fachada/pipeline rejeita explicitamente um `html.frame` cujo body
-  é exclusivamente HTML e portanto não é suportado pela ilha paginada; não
-  pode convertê-lo em página/SVG vazio bem-sucedido;
-- um carrier não resolvido entregue diretamente ao exporter também falha
-  fechado, sem omissão, fallback textual ou tag literal.
+These are current local source anchors, not a new upstream parity measurement.
 
-IDs, ordem de atributos, paths e igualdade de bytes SVG não são aceitação. O
-teste não lê nem adapta expectativas à implementação candidata.
+## Contract
 
-## Limite
+Exercise the public HTML facade. Disabled HTML feature fails; enabled feature exposes `repr(html.frame) == "frame"` and preserves the existing three signature diagnostics. Text produces one unescaped, block-level inline SVG root with positive intrinsic dimensions, no literal frame tag and no A4 canvas.
 
-A cobertura limita-se ao comportamento público de `html.frame`; não valida
-autoria, isolamento, manifests, hashes ou relatórios externos.
+A 10pt by 5pt rect using public `red` preserves physical dimensions, viewBox `0 0 10 5` within 0.001pt and color `#ff4136`; CSS `#ff0000` is not a replacement. Nested frames produce one island with the simple island's geometry/paint. `html.elem("frame")` remains a literal tag; the route without frames preserves the existing DOM.
 
-P1454 corrige a expectativa de paint do rect após medir bilateralmente a
-paleta pública: `red.to-hex()` é `#ff4136` nos dois produtos. A expectativa
-anterior `#ff0000` legitimava uma pós-reescrita indevida exclusiva do SVG
-embutido e não era paridade de linguagem.
+The facade rejects an HTML-only frame body unsupported by the paged island instead of succeeding with empty SVG. Direct export of an unresolved carrier fails closed, without omission, textual fallback or literal frame tag. IDs, attribute order, paths and SVG byte equality are not acceptance. Do not adapt expectations to the candidate implementation.
+
+## Verification boundary
+
+Coverage is limited to public html.frame behavior, not authorship, manifests, hashes or external reports.

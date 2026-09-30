@@ -29,7 +29,6 @@ pub struct Locator {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct LocatorSeed(u64);
 
-
 impl Locator {
     /// Cria um novo `Locator` no estado inicial (counter = 0).
     pub fn new() -> Self {

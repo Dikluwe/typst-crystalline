@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/metrics.md
-//! @prompt-hash a6d2c8a9
+//! @prompt-hash 95bbcfa5
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -247,19 +247,7 @@ pub trait FontMetrics: Send + Sync {
     /// quando disponível (scripts contextuais) e cai em `advance` para os
     /// restantes, aplicando tracking de forma consistente.
     fn text_width(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
-        let base = self
-            .advance_shaped(text, size, style)
-            .map(|p| p.val())
-            .unwrap_or_else(|| self.advance(text, size, style).val());
-        let tracking_extra = style
-            .tracking
-            .map(|t| {
-                let tracking_pt = t.resolve_pt(size.val());
-                let n = text.chars().count();
-                tracking_pt * n.saturating_sub(1) as f64
-            })
-            .unwrap_or(0.0);
-        Pt(base + tracking_extra)
+        super::text_measure::default_text_width(self, text, size, style)
     }
 
     /// **P593** — limite direito real de uma linha, calculado a partir das
@@ -270,10 +258,10 @@ pub trait FontMetrics: Send + Sync {
         items
             .iter()
             .copied()
-            .filter(|item| !super::html_frame::is_context_marker(item))
+            .filter(|item| !super::html_frame::is_context_marker(item) && !matches!(item, FrameItem::TextSeparator { .. }))
             .map(|item| {
                 let x = match item {
-                    FrameItem::Text { pos, .. }
+                    FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
                     | FrameItem::TextShaped { pos, .. }
                     | FrameItem::Glyph { pos, .. }
                     | FrameItem::Image { pos, .. }
@@ -281,12 +269,13 @@ pub trait FontMetrics: Send + Sync {
                     | FrameItem::Group { pos, .. }
                     | FrameItem::Link { pos, .. } => pos.x.0,
                     FrameItem::Line { start, .. } => start.x.0,
-                    FrameItem::Semantic { items, .. } => items
+                    FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items
                         .first()
                         .map(|child| crate::compiler::layout::helpers::item_pos(child).0)
                         .unwrap_or(0.0),
                 };
                 let w = match item {
+                    FrameItem::TextSeparator { .. } => 0.0,
                     FrameItem::Text { text, style, .. } => {
                         self.text_width(text.as_str(), style.size, style).0
                     }
@@ -301,7 +290,7 @@ pub trait FontMetrics: Send + Sync {
                     FrameItem::Shape { width, .. } => *width,
                     FrameItem::Group { inner_width, .. } => *inner_width,
                     FrameItem::Link { size, .. } => size.width.0,
-                    FrameItem::Semantic { items, .. } => {
+                    FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
                         let refs: Vec<&FrameItem> = items.iter().collect();
                         let right = self.line_content_right(&refs);
                         let left = items

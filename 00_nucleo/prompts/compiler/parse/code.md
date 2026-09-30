@@ -1,27 +1,24 @@
-# Prompt L0 — gramática de código
+# L0 — parse/code
 Hash do Código: bd270db1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/parse/core.toml sha256:ffba4f0f6d7276a3beac03c1bd2bef40135d74681be616112a1e1f172d2f24b0
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/parse/code.rs`
-**ADRs:** ADR-0037, ADR-0107, ADR-0108, ADR-0129.
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/parse/code.rs`
 
-## Medição anterior à decisão
+## Evidence and classification
 
-O consumer possui sequências e expressões de código, precedência de operadores,
-blocos code/content, código embutido e reparse de bloco. Delega statements a
-`rules`, grupos a `patterns` e transições para markup/math aos owners próprios.
+`01_core/src/compiler/parse/code.rs:31` (pubsuper) fn codep: &mut Parser, stop_set: SyntaxSet) {); `01_core/src/compiler/parse/code.rs:38` (pubsuper) fn code_exprsp: &mut Parser, stop_set: SyntaxSet) {); `01_core/src/compiler/parse/code.rs:61` (pubsuper) fn embedded_code_exprp: &mut Parser) {) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-## Contrato
+## Contract and ownership
 
-- Consumir expressões até o stop-set e recuperar tokens inesperados sem perder
-  progresso.
-- Preservar associatividade/precedência dos operadores e a morfologia dos nós.
-- Entrar em modo Code para `{...}` e Markup para `[...]`, restaurando o estado.
-- Reparse só aceita resultado balanceado que termine exatamente no range.
+Own code sequences, expression precedence/postfix chaining, embedded code, code/content blocks and balanced block reparsing. Consume expressions until the supplied stop set and recover unexpected tokens without losing progress. Preserve CST morphology and trivia.
 
-## Aceitação
+Unary and binary precedence/associativity use the existing operator entities; do not define a competing numeric table here. Calls and directly adjacent content blocks bind through the current postfix path; field/method access and the atomic-expression restrictions remain distinct. Preserve the special `not in` expectation and existing closure/destructuring interpretation.
 
-Suíte parse completa GREEN, sem alterar gramática, diagnostics ou CST.
+A code block enters Code mode; a content block enters Markup mode. Scoped mode/newline transitions restore state through `00_nucleo/prompts/compiler/parse/parser/state.md`. Reparse succeeds only for a balanced block ending exactly at the requested range. Delegate statements to `00_nucleo/prompts/compiler/parse/rules.md`, parenthesized/groups/arguments/patterns to `00_nucleo/prompts/compiler/parse/patterns.md`, markup and math transitions to their own grammar owners. Do not evaluate expressions or resolve bindings.
+
+## Acceptance
+
+Preserve the specified language semantics, syntax, morphology, diagnostics, spans, defaults and public identities. Do not change signatures, compatibility, feature defaults or phase ownership through this documentary revision. Shared pinned claims remain authoritative; this prompt owns only its exclusive consumer. Architectural decisions follow ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.

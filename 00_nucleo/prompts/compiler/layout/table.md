@@ -1,109 +1,26 @@
-# Prompt L0 — `compiler/layout/table` — Layout de `Table`
+# L0 — table
 Hash do Código: a851d61c
 
-**Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/table.rs`
-**Prompt pai**: `00_nucleo/prompts/compiler/layout.md`
-**Atomização ADR-0109 P380**: braço `Content::Table` delega para este módulo.
-**P459**: numeração automática de tables com caption posicionado acima.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/table.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
----
+## Evidence before specification
 
-## Layout de `Content::Table`
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/table.rs:27`, `01_core/src/compiler/layout/table.rs:127`, `01_core/src/compiler/layout/table.rs:155`, `01_core/src/compiler/layout/table.rs:174`, `01_core/src/compiler/layout/table.rs:229`, `01_core/src/compiler/layout/table.rs:243`.
 
-1. Ler `table.numbering` da `StyleChain` (`layouter.chain.custom("table.numbering")`).
-   - Só `Value::Str(pattern)` activa numeração.
-2. Se `TableElem.caption` é `Some` e há pattern:
-   - Incrementar `layouter.table_counter`.
-   - Formatar com `format_counter(&[table_counter], pattern)`.
-   - Construir prefixo `Table {formatted}: `.
-3. Renderizar caption:
-   - Se prefixo existir: `Content::Sequence([text(prefix), caption])`.
-   - Se não: caption como está.
-   - Posicionar **acima** da table, seguido de `Content::linebreak()`.
-4. Delegar o corpo da table a `layout_grid` (P157A/P224), preservando
-   `columns`, `rows`, `children`, `stroke`, `fill`, e (**P772v**)
-   `header`/`footer` — `layout_grid` extrai as células do body de
-   `Content::TableHeader`/`Content::TableFooter` e cola-as antes/depois
-   das células normais como row-group real, mesmo mecanismo de
-   `grid.header`/`grid.footer` (P772i, ver `00_nucleo/prompts/compiler/layout.md`
-   secção "`grid.header(...)`/`grid.footer(...)` como row-groups"). Antes de
-   P772v, `header`/`footer` eram sempre passados como `None, None` — o
-   `TableElem` não tinha esses campos e `table.header[...]`/`table.footer[...]`
-   caíam no braço genérico de célula normal em `native_table`.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-## §P488 — Registo de página para LoT
+## Ownership and contract
 
-Quando `caption_prefix.is_some()` (tabela contada), após calcular `table_number`,
-regista a página actual em `layouter.runtime.table_page_numbers`:
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-```rust
-let page = layouter.current_page_number();
-layouter.runtime.table_page_numbers.push(page);
-```
+Render an optional caption above the table, adding a prefix only when table.numbering is a String. Read the causal Table counter from the injected introspector with current fallback one, register its page for LoT, format or use decimal fallback, and retain the existing English `Table number: ` extension prefix. Caption remains outside the table carrier. This direct table-numbering extension is not a Figure and does not acquire figure selectors/show behavior by documentation.
 
-Inserção em ordem de documento — positional match com `tables_for_lot`
-no `layout_lot` (§P488 em `layout_outline.md`). Tabelas sem caption ou sem
-numbering não são registadas.
+Project visual children/header/footer and delegate all tracks, lines, align/inset, stroke/fill and visual row-group/pagination behavior to `00_nucleo/prompts/compiler/layout/grid.md`. Build the current parallel, visually empty Table semantic carriers after that layout, preserving summary and explicit cell kind/level/scope/spans in their current representation. Header Auto cells receive the current level-one Column classification; explicit Data remains Data. Uniform automatic headers produce grouped head/body carriers, mixed explicit Data retains direct rows. Place header logical rows only on the first affected page; retain the source's current sequential logical-row projection and even partition by affected pages.
 
-## §P661 — Limitação: fora do mecanismo `figure`
+The source does not construct logical footer rows, derive arbitrary header levels from TableHeader or align logical partition to measured visual breaks. Full Headers applicability relations and PDF/UA/AT/reflow proof remain unresolved, not promises of this sanitation. The older enclosing-frame proposal must not hide the actual parallel-empty-carrier behavior. Exporters own MCIDs and relation serialization; this owner creates no new layout pass.
 
-A numeração automática de P459 é implementada directamente no layout de
-`Content::Table`. A tabela resultante **não é uma `figure`** e, por isso,
-**não responde** a selectors/show rules que visam `figure` ou
-`figure.where(kind: table)`. Exemplos que não afectam a tabela numerada:
+## Acceptance and limits
 
-```typst
-#show figure.where(kind: table): set figure.caption(position: top)
-#show figure: [prefixo]
-```
-
-Estas regras aplicam-se apenas a tabelas envolvidas explicitamente em
-`#figure(table(...), caption: [...])`. Para estilizar tabelas numeradas via
-P459, o utilizador deve recorrer a `#show table: ...` (quando suportado) ou a
-outros mecanismos específicos da extensão.
-
-Esta é uma limitação conhecida e aceite da extensão P459; não é um bug de
-paridade com o vanilla, onde a numeração de tabelas passa sempre por `figure`.
-
-## Scope-out
-
-- Caption abaixo da table (vanilla default é acima).
-- Cross-reference / label / ref (Trilha 2).
-- Integração de `table.numbering` no mecanismo `figure` (P661 — limitação documentada).
-- ~~List of tables~~ — **LoT com page numbers resolvido em P488**.
-
-## P1288 — envelope semântico da árvore de tabela (PROPOSTO; gate ADR-0127)
-
-### Medição anterior à decisão
-
-`01_core/src/compiler/layout/table.rs:70-87` delega diretamente a
-`layout_grid` e não preserva identidade Table no frame. A fonte vanilla pinada
-constrói `/Table` com summary em `typst-pdf/src/tags/context/table.rs:129-135`
-e linhas/células em `:289-353`.
-
-### Decisão proposta
-
-Manter a Forma B: `layout/table.rs` continua free function descendente e o
-dispatcher permanece estático/exaustivo. A função envolve o resultado visual
-da tabela numa árvore semântica fechada que preserva summary, ordem de linhas,
-ordem de células, header/footer e spans, sem executar novo layout nem alterar
-frames filhos. Caption/numeração permanecem fora do envelope Table.
-
-`table.header` deriva Header/Column no seu level somente para células Auto;
-classificação explícita Header/Data vence: Data explícita dentro de header
-permanece `TD`. `table.footer` deriva Footer para Auto.
-
-A estrutura lógica medida tem três formas: tabela simples produz `Table >
-TR*`; header automático uniforme produz um único `THead` com seu `TR`/`TH` e
-um único `TBody` com `TR`/`TD`; linha explícita mista permanece `TR` direta
-sob `Table`, sem grupo artificial. `level` não é atributo numérico de saída:
-ele determina relações `Headers` entre níveis e faz cada dado apontar ao
-header aplicável mais próximo. `scope` e spans determinam aplicabilidade.
-
-Em multipágina, cópias visuais do header não duplicam o `TH`, `THead` nem suas
-relações: uma única árvore lógica atravessa páginas, enquanto MCIDs são locais
-e reiniciam por página.
-
-Não criar `dyn`, vtable, dispatcher por strings, import entities→compiler ou
-derivação por aparência. AT real, reflow e conformidade PDF/UA permanecem
-Unknown; a estrutura positiva não os prova.
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.

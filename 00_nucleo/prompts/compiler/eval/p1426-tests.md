@@ -1,20 +1,29 @@
-# Testes P1426 — sintaxe bare e relação observacional de raiz
+# L0 — compiler/eval/p1426-tests
+Hash do Código: d2ca3a65
 
-## Autoridade
+**Layer:** L1 test-only
+**Exclusive consumer:** `01_core/src/compiler/eval/p1426_tests.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
-Prompt test-only derivado do contrato congelado P1426. Legitima exclusivamente
-`01_core/src/compiler/eval/p1426_tests.rs` e o seu wiring `#[cfg(test)]`.
+## Source evidence
 
-## Obrigações
+The current exclusive consumer defines the following owned boundaries:
 
-1. avaliar sintaxe bare real e distinguir `sqrt(x)` (`None/false`),
-   `root(, x)` (`Some(Empty)/true`), índice presente (`Some(_)/true`) e índice
-   avaliado como `none` (`None/true`);
-2. manter `root(x)` como erro de radicando ausente, nunca como alias de `sqrt`;
-3. exercer `ObservationEq` em ambos os sentidos: carriers completos idênticos
-   são `Same`, e carriers que diferem apenas por `index_explicit` são
-   `Different`, nunca `Unproven`.
+- `01_core/src/compiler/eval/p1426_tests.rs:16` — `struct TestWorld {`.
+- `01_core/src/compiler/eval/p1426_tests.rs:57` — `fn evaluate`.
+- `01_core/src/compiler/eval/p1426_tests.rs:62` — `fn find_root`.
+- `01_core/src/compiler/eval/p1426_tests.rs:75` — `fn evaluated_root`.
+- `01_core/src/compiler/eval/p1426_tests.rs:87` — `fn p1426_sintaxe_bare_preserva_vazio_none_e_conteudo`.
+- `01_core/src/compiler/eval/p1426_tests.rs:106` — `fn p1426_root_bare_exige_slots_e_preserva_presenca`.
+- `01_core/src/compiler/eval/p1426_tests.rs:119` — `fn p1426_observation_relation_observa_presenca_do_indice`.
 
-Asserções são de semântica/sintaxe/morfologia pública. Estrutura auxiliar de
-teste é mecânica. Qualquer observação ambígua é `Unknown` fail-closed.
+## Contract
 
+Own only tests of bare-root syntax and its observation relation. Evaluate real
+sqrt(x) as None/not-explicit; root(,x) as Some(Empty)/explicit; present index as
+Some(_)/explicit; evaluated none as None/explicit. root(x) remains a missing
+radicand error, not a sqrt alias. Complete identical carriers compare Same;
+carriers differing only in index_explicit compare Different in both directions,
+never Unproven. Syntax belongs to 00_nucleo/prompts/compiler/eval/math.md and
+comparison to 00_nucleo/prompts/compiler/eval/observation/math.md. Ambiguous
+observations are Unknown and fail closed; auxiliary test structure is mechanics.

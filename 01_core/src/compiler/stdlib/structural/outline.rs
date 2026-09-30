@@ -317,14 +317,14 @@ fn compute_auto_indents(
 }
 
 fn marked_prefix(prefix: Content) -> Content {
-    Content::Styled(
+    Content::styled(
         Box::new(prefix),
         Styles::new().push_custom("pdf.marker.tag", Value::Str("label".into())),
     )
 }
 
 fn prefix_info(parent_key: i64, level: usize, inset: f64) -> Content {
-    Content::Styled(
+    Content::styled(
         Box::new(Content::Empty),
         Styles::new().push_custom(
             "outline.prefix-info",
@@ -756,7 +756,7 @@ mod tests {
         let Content::Sequence(parts) = &block.body else { panic!("esperada sequência") };
         assert_eq!(parts.len(), 4);
         assert!(
-            matches!(&parts[1], Content::Styled(body, _) if matches!(body.as_ref(), Content::Strong(_)))
+            matches!(&parts[1], Content::Styled(styled) if matches!(&styled.body, Content::Strong(_)))
         );
         assert_eq!(parts[3], Content::emph(Content::text("I")));
     }

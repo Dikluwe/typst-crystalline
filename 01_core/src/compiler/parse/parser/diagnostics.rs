@@ -1,0 +1,222 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/compiler/parse/parser/diagnostics.md
+//! @prompt-hash 3a8017ed
+//! @layer L1
+//! @updated 2026-09-26
+
+use super::*;
+use crate::entities::syntax_node::SyntaxError;
+use crate::entities::syntax_set::SyntaxSet;
+use crate::syntax_set;
+use crate::utils::defer;
+use std::ops::DerefMut;
+
+const MAX_DEPTH: u32 = 256;
+
+/// Functions for eating expected or unexpected tokens and generating errors if
+/// we don't get what we expect.
+impl Parser<'_> {
+    /// Wrap the nodes from a marker up to (but excluding) the current token in
+    /// a new [error node](`SyntaxNode::error`) with the given message. This is
+    /// an easy interface for creating a syntax error _after_ having parsed its
+    /// children.
+    fn wrap_error(&mut self, from: Marker, message: impl Into<String>) {
+        let to = self.before_trivia().0;
+        let from = from.0.min(to);
+        let mut s = String::new();
+        for node in self.nodes.drain(from..to) {
+            s.push_str(node.into_text().as_str());
+        }
+        self.nodes.insert(
+            from,
+            SyntaxNode::error(SyntaxError::new(message.into()), s.as_str()),
+        );
+    }
+
+    /// Consume the given `kind` or produce an error.
+    pub(in crate::compiler::parse) fn expect(&mut self, kind: SyntaxKind) -> bool {
+        let at = self.at(kind);
+        if at {
+            self.eat();
+        } else if kind == SyntaxKind::Ident && self.token.kind.is_keyword() {
+            self.trim_errors();
+            self.eat_and_get().expected(kind.name());
+        } else {
+            self.balanced &= !kind.is_grouping();
+            self.expected(kind.name());
+        }
+        at
+    }
+
+    /// Consume the given closing delimiter or produce an error for the matching
+    /// opening delimiter at `open`.
+    #[track_caller]
+    pub(in crate::compiler::parse) fn expect_closing_delimiter(
+        &mut self,
+        open: Marker,
+        kind: SyntaxKind,
+    ) {
+        if !self.eat_if(kind) {
+            self.nodes[open.0].convert_to_error("unclosed delimiter");
+        }
+    }
+
+    /// Produce an error that the given `thing` was expected.
+    pub(in crate::compiler::parse) fn expected(&mut self, thing: &str) {
+        if !self.after_error() {
+            self.expected_at(self.before_trivia(), thing);
+        }
+    }
+
+    /// Whether the last non-trivia node is an error.
+    fn after_error(&mut self) -> bool {
+        let m = self.before_trivia();
+        m.0 > 0 && self.nodes[m.0 - 1].kind().is_error()
+    }
+
+    /// Produce an error that the given `thing` was expected at the position
+    /// of the marker `m`.
+    pub(in crate::compiler::parse) fn expected_at(&mut self, m: Marker, thing: &str) {
+        let error = SyntaxNode::error(SyntaxError::new(format!("expected {thing}")), "");
+        self.nodes.insert(m.0, error);
+    }
+
+    /// **P786a** — comprimento textual total dos nós desde o marcador `m`
+    /// (usado pela regra vanilla `len() == 2` dos warnings de `**`/`__`).
+    pub(in crate::compiler::parse) fn text_len_since(&self, m: Marker) -> usize {
+        self.nodes[m.0..].iter().map(SyntaxNode::len).sum()
+    }
+
+    /// **P786a** — insere um error node de severidade warning (comprimento
+    /// zero, span atribuído pela numeração pós-parse) na posição do
+    /// marcador `m`, com um hint. Usado por `strong`/`emph` em markup.rs.
+    pub(in crate::compiler::parse) fn warn_at(
+        &mut self,
+        m: Marker,
+        error: SyntaxError,
+        hint: &str,
+    ) {
+        let mut node = SyntaxNode::error(error, "");
+        node.hint(hint);
+        self.nodes.insert(m.0, node);
+    }
+
+    /// Add a hint to a trailing error.
+    pub(in crate::compiler::parse) fn hint(&mut self, hint: &str) {
+        let m = self.before_trivia();
+        if let Some(error) = self.nodes.get_mut(m.0 - 1) {
+            error.hint(hint);
+        }
+    }
+
+    /// Consume the next token (if any) and produce an error stating that it was
+    /// unexpected.
+    pub(in crate::compiler::parse) fn unexpected(&mut self) {
+        self.trim_errors();
+        self.balanced &= !self.token.kind.is_grouping();
+        self.eat_and_get().unexpected();
+    }
+
+    /// Remove trailing errors with zero length.
+    fn trim_errors(&mut self) {
+        let Marker(end) = self.before_trivia();
+        let mut start = end;
+        while start > 0
+            && self.nodes[start - 1].kind().is_error()
+            && self.nodes[start - 1].is_empty()
+        {
+            start -= 1;
+        }
+        self.nodes.drain(start..end);
+    }
+
+    /// Check if the maximum depth has been exceeded. If so, generate an error
+    /// and try to make a best effort recovery using the `stop_set` as a guide.
+    ///
+    /// This function isn't strictly necessary, but it is an optimization to
+    /// generate one combined error instead of an error message for every
+    /// balanced set of tokens. In the pathological case an error would be
+    /// generated by [`Self::increase_depth`] for every single token until
+    /// the `stop_set` of the parent function is reached.
+    pub(in crate::compiler::parse) fn check_depth_until(
+        &mut self,
+        stop_set: SyntaxSet,
+    ) -> Option<&mut Self> {
+        if self.depth < MAX_DEPTH {
+            Some(self)
+        } else {
+            self.depth_check_error(Some(stop_set));
+            None
+        }
+    }
+
+    /// Check if the maximum depth has been exceeded. If so, generate an error
+    /// and try to make a best effort recovery. Otherwise increase the depth and
+    /// return a handle that automatically decreases it again when dropped.
+    pub(in crate::compiler::parse) fn increase_depth(
+        &mut self,
+    ) -> Option<impl DerefMut<Target = Self> + '_> {
+        if self.depth < MAX_DEPTH {
+            self.depth += 1;
+            Some(defer(self, |p| p.depth -= 1))
+        } else {
+            self.depth_check_error(None);
+            None
+        }
+    }
+
+    /// Generate an error for an exceeded maximum depth check.
+    fn depth_check_error(&mut self, stop_set: Option<SyntaxSet>) {
+        let m = self.marker();
+
+        let mut balance: usize = 0;
+        // This function has to guarantee some sort of forward progress,
+        // otherwise the parser might loop indefinitely. One token is eaten in
+        // all cases, if that token is an opening delimiter, try to balance the
+        // opening and closing grouping delimiters before continuing.
+        self.with_nl_mode(AtNewline::Continue, |p| loop {
+            if p.at_set(syntax_set!(LeftBracket, LeftBrace, LeftParen)) {
+                balance = balance.saturating_add(1);
+            } else if p.at_set(syntax_set!(RightBracket, RightBrace, RightParen)) {
+                balance = balance.saturating_sub(1);
+            }
+            p.eat();
+
+            let at_stop = stop_set.is_none_or(|s| p.at_set(s));
+            if (balance == 0 && at_stop) || p.end() {
+                break;
+            }
+        });
+
+        self.wrap_error(m, "maximum parsing depth exceeded");
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::entities::syntax_mode::SyntaxMode;
+
+    #[test]
+    fn unexpected_trims_missing_errors_and_advances() {
+        let mut p = Parser::new("a", 0, SyntaxMode::Code);
+        p.expected("expression");
+        p.expected("other expression");
+        assert_eq!(p.nodes.len(), 1);
+        p.unexpected();
+        assert!(p.end());
+        assert_eq!(p.nodes.len(), 1);
+        assert!(p.nodes[0].kind().is_error());
+        assert_eq!(p.nodes[0].clone().into_text().as_str(), "a");
+    }
+
+    #[test]
+    fn depth_recovery_consumes_balanced_group() {
+        let mut p = Parser::new("(a) + b", 0, SyntaxMode::Code);
+        p.depth = MAX_DEPTH;
+        assert!(p.increase_depth().is_none());
+        assert_eq!(p.current_text(), "+");
+        assert!(p.nodes[0].kind().is_error());
+        assert_eq!(p.nodes[0].clone().into_text().as_str(), "(a)");
+    }
+}

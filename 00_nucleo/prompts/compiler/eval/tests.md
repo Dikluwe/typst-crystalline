@@ -1,442 +1,216 @@
-# Prompt L0 — `compiler/eval/tests`
-Hash do Código: e8dacd22
+# L0 — compiler/eval/tests
+Hash do Código: a983a88c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
+- 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:70b72ac9efb2bf81aa4ef496c4e1c867264f696d454a9916e7e2e5f385b92020
 
-**Camada:** L1 test-only
-**Ficheiro alvo exclusivo:** `01_core/src/compiler/eval/tests.rs`
+**Layer:** L1 test-only
+**Exclusive consumer:** `01_core/src/compiler/eval/tests.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
-## P1494 — regressões de espaço realizado e show textual (gate confirmado)
+## Source evidence
 
-### Medição anterior à decisão
+The current exclusive consumer defines the following owned boundaries:
 
-No HEAD 6da06e849d75972651a342ad6aad337313451c79, working tree
-limpa na medição inicial, o diagnóstico
-00_nucleo/diagnosticos/typst-p1494-gate-cjk-newline.md registra:
-vanilla CJK_JOINED versus cristalino 水 果, explícito CJK_EXPLICIT_SPACE
-em ambos; show regex entre nós casa no vanilla e falha no cristalino.
-Há também controles de latim, coreano, pontuação, comentário, strong,
-dinâmico, Linebreak e fronteira de estilo. A nova variante pública e a
-ordem eval→realização foram confirmadas pelo dono em 2026-09-24,
-conforme gate ADR-0127 do passo 1494.
+- `01_core/src/compiler/eval/tests.rs:26` — `fn eval_for_test`.
+- `01_core/src/compiler/eval/tests.rs:36` — `fn eval_for_test_keep_sink`.
+- `01_core/src/compiler/eval/tests.rs:60` — `fn eval_for_test_with_registry`.
+- `01_core/src/compiler/eval/tests.rs:85` — `fn eval_for_test_full_error`.
+- `01_core/src/compiler/eval/tests.rs:112` — `fn eval_for_test_with_limits`.
 
-### Decisão de teste
+## Contract
 
-Separar RED (A) origem/normalização sem show e (B) show literal/regex
-sobre grupo textual de nós distintos. Asserir morfologia efetiva e
-identidade causal do espaço antes/depois da realização; não usar somente
-ausência de erro, artefato ou igualdade Rust. Controles negativos
-preservam espaço explícito, latim/coreano e aspas ambíguas; Linebreak
-consome adjacências, não vira Space; style chains e conteúdo não textual
-não se tornam matches regex cross-boundary. A sonda de override
-foo/EARLY/LATE é dívida preexistente separada e não deve ser usada como
-GREEN desta fatia. Cada novo teste deve falhar no baseline antes da
-implementação, passar depois dela e não depender da mecânica vanilla.
+Own only the eval unit-test consumer, pure test Worlds, fixtures and test helpers,
+not productive evaluation code. Test public semantics, syntax, morphology and
+complete observable diagnostics/spans rather than Debug, pointer addresses,
+render-byte identity or an expectation copied from the candidate.
 
+Cover literals/units, expression/block/array/dictionary/spread order, scopes,
+bindings/destructuring/assignment, closures/With, operators/short-circuit, loops,
+imports/includes/modules, static/bound calls, field/content/snapshot methods and
+Content construction. Positive tests retain values/effects; negatives retain
+severity, exact message, hint/trace order and publicly available UTF-8 half-open
+ranges. Preserve legitimately absent sources without inventing anchors.
 
-### Refinamento P1494/P1140 — medição antes da decisão
+Repeat applicable feature cases under default/html/a11y/html+a11y and the independent
+bundle combinations. Disabled profiles do not count as exercised parity; local
+homonyms remain resolvable. Test asset/std.asset/format.bundle against the real
+active constructor identity, path normalization, UTF-8/arbitrary Bytes and schema
+errors (including prohibited kind), not an old active-feature placeholder.
+Actual target export obligations remain with L3/L4 tests.
 
-No vanilla pinado, as sondas de 2026-09-24 22:36:52 UTC
-devolveram repr([a\ b]) = sequence([a], linebreak(), [ ], [b])
-e repr([水\n果]) = sequence([水], [ ], [果]), onde \n
-denota a quebra de linha real no ContentBlock. O teste preexistente
-eval/tests.rs:11081-11095 cobre o primeiro; o executável WIP P1494
-identificado no L0 compiler/eval.md falhou também no controle menor
-repr([\ ]), perdendo o Space após Linebreak. Em contraste, a
-realização do fluxo/root deve continuar a colapsar o espaço CJK
-após a inserção. O vanilla local de show 水果 → X sobre
-水-newline-果 emite X, dívida combinada separada.
+Imports distinguish bare no-effect identifier warning from alias/field/items/
+wildcard/file/dynamic/failure cases; warnings survive later errors. Module field
+diagnostics use stored names and field-only spans; std aliases retain actual
+identity and imported sources retain Source. Test global color membership and
+PDF accessibility gates without giving this test prompt registry ownership.
+PDF type/repr are function/pdf; emoji remains module.
 
-### Decisão de teste estreita
+Array repr tests cover boundary cardinalities (0/1/39/40/41/42/81/256), nested
+escaping/Unicode and full payload conservation. Elision cannot leak into Args or
+Content sequences. Named-module, alias, reexport and collision tests retain stored
+names. JSON/TOML/YAML default/pretty/compact, CBOR, decoders/read and nonfinite/-0.0
+cases preserve their own contracts, not generic warning/trace normalization.
 
-Conservar o teste P1140 de repr([a\ b]) e acrescentar
-repr([水\n果]) antes da interpolação, exigindo os nós de espaço
-brutos indicados acima. Testar também a inserção posterior em
-fluxo/root, que decide whitespace pela vizinhança textual.
-Um show textual local pré-normalizado pode substituir somente a
-fatia casada; prefixo, sufixo e separadores não casados permanecem
-para a inserção. A sonda combinada de show local CJK não é GREEN
-de P1494 nem se declara paridade dela. Estes controles preservam
-P1140 sem ampliar o gate público ADR-0127 aprovado.
+Args tests preserve complete occurrence order, repeats, individual and aggregate
+origins through direct/alias/With/spread/sink/linked calls and distinct equal-output
+factories. Callback filter/map/join order and short-circuit remain discriminatory;
+arguments.filter bool failures anchor at function origin while callback failures
+retain their own causal origin. Queried-content tests retain authoritative ordered
+snapshot fields through arrays/closures; language equality ignores label/location
+as specified but detects relevant field/numbering changes. Do not replace it with
+the internal observation relation.
 
-## P1447 — oráculo bare de `math.abs`
+Textual tests separate raw ContentBlock repr from realized flow: preserve Space
+after Linebreak and between newline-separated CJK before interpolation, normalize
+only later insertion. Test origin/collapse/discard independently from literal/regex
+cross-node matching. Keep explicit-space, Latin/Korean, ideographic punctuation,
+ambiguous quotes, comments, strong/dynamic, destructive Linebreak, style-chain and
+nontext boundaries as controls. Local pre-normalized show replaces only its match;
+combined local CJK show and sequential identical-rule override remain separate
+unresolved parity cases, not GREEN credited by these tests.
 
-O teste P1447 avalia `$ abs(x) $` pelo pipeline real e exige
-`Content::MathLr` com body de três nós `|`, `x`, `|` e `size_explicit=false`.
-Ele rejeita a aproximação histórica `MathDelimited` e não concede crédito por
-texto visual semelhante. A assinatura, os casts e a presença causal de
-`size` são cobertos pela suíte estrutural independente P1447.
+Math tests preserve real syntax/qualified construction, arity/casts, presence and
+identities. Keep primes slot/nesting distinctions, cases MathAlignPoint and lr body
+order. norm/round/abs require their public MathLr bodies with ‖/‖, ⌊/⌉ and |/|;
+do not require historical MathDelimited lowering. lr cases likewise retain public
+MathLr while unrelated MathDelimited cases keep their own contract. Annotation
+families require each actual public variant/body/annotation/explicit-none state,
+not glyph equivalence or MathUnderover. Mathematical overline is not text overline.
+Test func/has/at/fields alongside repr where contracted. before/after tests cover
+construction/default inclusive and explicit false; contextual query tests belong
+to introspection's exclusive test owner.
 
-## Propriedade
+Keep regression families for bytes, gradients, datetime, int, counter and scope,
+with pure Worlds and independently frozen expectations. Neutral rounding values
+are fixture mechanics, not public contracts.
+No parser/build/fixture/import failure may masquerade as the expected result.
+Unknown/timeout/opaque observation fails closed. Repeat/reverse orders must be
+stable and comparisons may not strip diagnostics to manufacture equality.
 
-Este prompt possui a suíte unitária do eval. O consumer fornece Worlds puros,
-helpers test-only e regressões de linguagem; não possui implementação
-produtiva. Fixtures não fazem I/O real de L1.
-
-Asserções observam semântica, sintaxe, morfologia, diagnósticos e spans. Ordem
-de mapas Rust, endereços, formato Debug e estrutura privada não são paridade.
-
-## Avaliação básica
-
-A suíte cobre literais, expressões, arrays, dictionaries, blocks, escopos,
-bindings, closures, operadores, controle de fluxo, imports, módulos, field
-access, chamadas estáticas/ligadas e construção de Content. Casos positivos
-preservam valores e efeitos; negativos preservam mensagem, severidade, hints,
-trace e range quando publicamente observáveis.
-
-## P1484 — medição pré-teste do gate `bundle`
-
-Em HEAD `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`,
-`00_nucleo/diagnosticos/typst-p1484-matriz-bundle.md` mede os oito
-perfis. O vanilla sem bundle rejeita `asset` e `std.asset` com mensagem,
-span e hints gated; com bundle, `type(asset)` é função. O cristalino
-pré-P1484 expõe o placeholder em ambos. `{ let asset = 1; asset }`
-prova que o homônimo local continua resolvível sem feature.
-
-Os testes P1484 exigem `Bundle` independente em `Features` e CLI,
-diagnóstico exato para global/`std` desligados, local homônimo
-preservado, e ausência do placeholder também no perfil ativo até
-P1485. O perfil ativo permanece RED/Unknown para o constructor real;
-não contar um perfil desligado como paridade exercitada.
-
-## Perfis
-
-Contratos afetados por feature são repetidos nos perfis `default`, `html`,
-`a11y`, `html+a11y`, `bundle`, `bundle+html`, `bundle+a11y` e
-`bundle+html+a11y`. Uma feature não habilita outra; perfis desligados não recebem
-crédito de MATCH.
-
-## Imports e módulos
-
-- bare imports sem efeito emitem uma vez `this import has no effect` no
-  identificador fonte, inclusive antes de erro posterior;
-- alias, field, items, wildcard, literal, dinâmico e resolução de fonte mantêm
-  seus comportamentos próprios e não herdam o warning por generalização;
-- módulo nomeado sem field usa o nome guardado do módulo, zero hints e span
-  apenas sobre o field;
-- aliases de `std` conservam identidade do módulo, sem hard-code pelo spelling
-  local;
-- lookups existentes preservam valor, kind e ausência de diagnóstico lateral;
-- fontes importadas ancoram o diagnóstico na Source real.
-
-## Superfície global e namespaces
-
-`hsl`, `hsv` e `linear_rgb` bare e sob `std` permanecem ausentes, com os
-diagnósticos do vanilla. `color.hsl`, `color.hsv` e `color.linear-rgb`
-permanecem chamáveis. `rgb`, `luma`, `cmyk`, `oklab` e `oklch` continuam
-funções bare e sob `std` nos quatro perfis.
-
-Os membros `pdf.*` respeitam `a11y-extras`: membros ungated permanecem
-acessíveis; membros gated falham sem a feature e funcionam com ela. Dict e
-float conservam seus contratos distintos de field access e span.
-
-## Arrays, Content e representação
-
-Arrays preservam todos os elementos. A forma curta/multiline respeita os
-limites contratados, inclusive 0, 1, 39, 40, 41, 42, 81 e 256 itens, strings
-escapadas, nesting e Unicode. Elision não pode apagar payload ou vazar para
-`Content::Sequence` e `Args`.
-
-Módulos nomeados, aliases, colisões, imports e reexports preservam seus nomes e
-payloads. `repr` de arrays, módulos, funções `with` e conteúdo não pode ser
-calculado por Debug ou pelo expected produzido pelo próprio candidato.
-
-## Encoders e `Args`
-
-JSON, TOML e YAML preservam forma default/pretty/compact, escaping, ordem
-linguística, classes públicas, tratamento de `none`, não finitos e `-0.0`.
-CBOR e decoders/read mantêm seus diagnósticos próprios.
-
-Chamadas diretas, aliases, `with`, sinks e métodos ligados preservam:
-
-- agregado da chamada e spans individuais;
-- origem distinta de factories iguais;
-- sequência conjunta de posicionais e named, inclusive repetições;
-- ordem de callbacks em `filter`, `map`, `join` e sink;
-- arg-span original e value-span destacado quando o resultado é novo;
-- trace causal sem apagar mensagem, hints ou span primário.
-
-`arguments.filter` exige bool ancorado na origem da função; erros internos do
-callback mantêm sua própria origem. Args sintético conserva ausência legítima
-de Source. Nenhum teste normaliza traces ou warnings genericamente.
-
-## Snapshots de conteúdo
-
-Query preserva campos completos e ordenados do elemento realizado. Igualdade
-de linguagem considera função e campos, ignora label e location quando o
-contrato assim define, e atravessa arrays/closures sem perder o snapshot.
-Mudança de numbering ou campo linguístico relevante altera igualdade; mudança
-apenas de label não.
-
-## Constructors e domínios complementares
-
-A suíte mantém regressões de bytes, math attach, gradients, datetime, int,
-counter e content scope. Cada família preserva defaults, named, casts,
-mensagens e pureza dos Worlds. Esses testes não transferem ownership dos
-respectivos módulos para este prompt test-only.
-
-## Controles
-
-Cada correção focal conserva controles positivos e negativos adjacentes:
-
-- sucesso não pode surgir de erro de parser, fixture, import ou build;
-- erro posterior não substitui o diagnóstico que o caso pretendia observar;
-- `Unknown` ou timeout não contam como sucesso;
-- ordem direta, repetida e inversa devem produzir o mesmo mapa observável;
-- comparadores não removem warning, hint ou trace para obter igualdade;
-- expectativas vêm do contrato e do vanilla ratificado, nunca da saída do
-  candidato em teste.
-
-## Aceitação
-
-Todos os testes passam nos perfis aplicáveis e continuam a distinguir as
-mudanças negativas descritas por suas testemunhas.
-
-## P1401 — provas de construção contextual
+## Política de hifenização e validação — 2026-09-28
 
 ### Medição anterior à decisão
 
-Antes de P1401 não há teste que construa `selector.before/after` pela linguagem.
+`correcao-politica-hifenizacao-2026-09-28/before-pdf/resultados.json` conserva 52 entradas bilaterais, fontes, comandos e caixas, medidas no estado `initial.json`. As combinações absent/auto/false/true eram equivalentes no Tekt. O vanilla pinado `9f2b6e8715237cb086899a42873660fe744622e8` rejeita hyphenate integer/string, justify integer/auto e linebreaks fora de simple/optimized/auto; os diagnósticos literais e spans estão nos stderr do lote. Fonte: eval/rules.rs:2972-3010/3407-3420 descarta opções; stdlib/structural/par.rs:119-126 aceita/ignora; layout/break_selection.rs:39 não consulta política; vanilla text/mod.rs:545-565 declara Smart<bool> e model/par.rs:227-242/627-636 declara justify e Linebreaks. Isso mede comportamento e tipos, não demonstra a intenção histórica dos prompts.
 
-### Aceitação
+### Decisão e escopo vigente
 
-Testes focais avaliam as duas formas vinculadas, o default inclusive e
-`inclusive: false`, distinguindo método ausente, named ignorado e árvore
-incorreta. O teste contextual com introspector é propriedade de
-`compiler/introspect.md`; este owner cobre somente a construção por eval.
+Correção interna de paridade ADR-0127: assinaturas públicas, entidades e fases permanecem; os owners abaixo legitimam apenas sua unidade. A restrição da atomização de não honrar propriedades descartadas é supersedida somente por este lote. O núcleo paragraph-break-policy fixa o invariante compartilhado; não é owner de código.
 
-## P1438 — regressão bare de `norm` acompanha o carrier público
+Adicionar regressões dos tipos e diagnósticos nas formas set/native, valores válidos e transporte lexical, incluindo custom Auto e Bool. Migrar o canary de warning de hyphenate para stroke, ainda não capturado, sem eliminar sua asserção. Nenhuma tolerância, fixture de geometria ou asserção preexistente de linguagem é enfraquecida.
 
-### Medição anterior à decisão
+### Integração antes do ajuste de canary
 
-O teste histórico P899 agrupava `norm` com wrappers cristalinos ainda
-materializados como `MathDelimited`. P1438 mediu no vanilla ratificado que
-`norm` retorna `LrElem` e o gate aprovado substitui essa aproximação. Manter a
-expectativa antiga transformaria a divergência conhecida em falso contrato.
+first-core-integration.log registra 6316 passados e uma falha: o canary P134 exige warning de justify descartado. Preservar seu teste de propriedade versus target desconhecido usando first-line-indent ainda não consumido; incluir leading válido e confirmar que não avisa. Não remover a asserção de warning.
 
-### Aceitação
-
-Separar `norm` do loop legado sem alterar as expectativas de
-`abs`/`floor`/`ceil`/`round`/`bar`. A regressão P1438 exige `Content::MathLr`
-com body de três nós `‖`, conteúdo, `‖`, tamanho default não explícito e
-nenhum `MathDelimited` exterior. O teste não duplica layout nem concede
-paridade às demais rotas residuais.
-
-## P1439 — regressão bare de `overbrace` preserva identidade
+## Composição de parágrafos — 2026-09-28
 
 ### Medição anterior à decisão
 
-O teste histórico não detecta que o braço agregado baixa `overbrace` para
-`MathUnderover`, ignora argumentos e perde presença. O vanilla conserva o
-elemento público na sintaxe matemática.
+O lote before-pdf em correcao-composicao-paragrafos-2026-09-28 mede 34 entradas contra o pin 9f2b6e8715237cb086899a42873660fe744622e8, no estado initial.json e before/. Com 180pt e margem 8pt, a primeira linha justificada termina em 145.52pt no Tekt e 172.000002pt no vanilla; a última fica em 110.048pt em ambos. BEFORE/par[MIDDLE]/AFTER produz 2 linhas físicas contra 3. Empty-start põe AFTER em yMin 3.74 contra 18.14; empty-auto mede altura 24.568 contra 38.968. native-leading-two-lines demonstra que o escopo de leading precisa fechar antes de restaurar estilo. Fonte: line_commit.rs:195-236 já possui justificação; word_layout.rs usa flush ordinário em quebras; layout/mod.rs:1469 trata Par como transparente; style_scope.rs:18-77 restaura estilo depois do body; eval/rules.rs:663-705 agrupa fluxo para show. Agrupamentos XML do extrator não são linhas físicas: coordenadas coincidentes são medidas separadamente.
 
-### Aceitação
+### Decisão vigente
 
-Avaliar `$ overbrace(x, n) $` e exigir `Content::MathOverbrace` com body `x`,
-annotation `n` e presença verdadeira. Nenhum `MathUnderover` exterior pode
-substituir a identidade; validação detalhada da assinatura pertence ao owner
-test-only P1439.
+Correção de paridade ADR-0127, em fluxo contínuo: sem nova assinatura pública, entidade, trait, flag ou fase. O núcleo pinado define invariantes compartilhados, não é owner de código. Preparação global e optimized ficam incompletos e pertencem à futura rodada-paragrafo-seletores, depois de medir escolhas/custos.
 
-## P1440 — regressão bare de `overbracket` preserva identidade
+Adicionar testes de repr/par nativo, preservação do body e realização show-par com estilos inline, verificando fronteiras reais sem Par extra por wrapper. Manter diagnósticos/política do lote anterior e asserções restantes.
 
-### Medição anterior à decisão
+### Refinamento de precedência medido antes da implementação
 
-O teste histórico D2 exige diretamente o carrier mecânico `MathUnderover` e o
-braço agregado baixa `overbracket` para esse carrier, ignora argumentos e
-perde presença. O vanilla conserva o elemento público na sintaxe matemática.
+No estado precedence-state.json, regression-acceptance.json registra 191 verificações passando e duas falhas no controle show-par-sets-false. O Tekt emite extraordi-/interna- onde vanilla conserva palavras sem hifenização. show-par-full-tree.log mostra SetPage e o escopo global dentro de um Par sintetizado; a recipe fica exterior ao text.hyphenate true. eval/mod.rs:1532-1560 possui a proveniência exata dos escopos #set; rules.rs:660-727 apagou essa distinção ao tratar Styled sempre como inline. Não inferir origem pelo conteúdo do Styles.
 
-### Aceitação
+Decisão interna: o fold dos escopos #set em eval_markup transporta marcador privado eval.flow.scope=true no Styles existente. Antes de formar o primeiro parágrafo material, realize_flow reconhece esse marcador e mantém o escopo exterior à realização dos seus parágrafos, preservando os carriers prévios SetPage/Empty/Space/SpaceFromNewline em ordem, sem os embrulhar em Par. Após conteúdo inline material o escopo permanece inline dentro do parágrafo corrente; wrappers de constructors/estilos sem marcador permanecem inline. Nenhuma entidade, assinatura, comportamento válido por defeito ou fase pública muda. Pin no núcleo compartilhado paragraph-composition documenta a distinção; não recorrer a heurística por chave de estilo. O consumer do hub só produz o marcador no fold; preparação e reconhecimento são do owner rules.
 
-Avaliar `$ overbracket(x, n) $` e exigir `Content::MathOverbracket` com body
-`x`, annotation `n` e presença verdadeira. Sincronizar D2 e o controle dos
-quatro codepoints para inspecionarem U+23B4 através da identidade pública; não
-exigir que a redução mecânica exista antes do layout. Validação detalhada da
-assinatura pertence ao owner test-only P1440.
+## Transporte de seleção — 2026-09-28
 
-## P1441 — regressão bare de `overline` preserva identidade matemática
+Medição antes da decisão: eval/rules.rs:3070 e native par.rs:131 validam sem transportar; before-pdf/resultados.json da rodada correcao-seletores-paragrafo-2026-09-28 refuta estratégias distinguíveis. Ampliar o teste existente de canais lexicais para par.linebreaks nas formas set/native simple/optimized/auto. Sem mudança de linguagem ou mecanismo público; casos inválidos existentes mantêm casts e spans.
+
+## Remoção de hardcode funcional — 2026-09-28
 
 ### Medição anterior à decisão
 
-A sintaxe `$ overline(x) $` cai hoje no binding global de decoração textual e
-produz `Content::Overline`; no vanilla ratificado ela produz o mesmo elemento
-matemático body-only exposto por `math.overline`.
+`correcao-hardcode-paragrafo-2026-09-28/before-pdf/` mede 20 entradas contra
+9f2b6e8715237cb086899a42873660fe744622e8 no estado `initial.json` e `before/`.
+`eval/rules.rs:3483-3525` e `stdlib/text/constructor.rs:153-190` não capturam
+`overhang`; auto/int/string são aceitos indevidamente. A fonte vanilla
+`text/mod.rs:391-393` declara bool default true; `inline/line.rs:518-525`
+condiciona a compensação ao estilo final. `paragraph_hyphen.rs:221-224`
+sempre multiplica a largura por0.55. A suspeita inicial sobre `paragraph_select.rs:78-82` foi refutada antes de
+implementar: vanilla `inline/linebreak.rs:551-559` usa attempt.justify, que
+`inline/line.rs:138-139` desativa para mandatory. Conservar a fórmula atual
+e testar a última linha natural. Isto mede comportamento, não intenção histórica.
 
-### Aceitação
+### Decisão vigente
 
-Avaliar `$ overline(x) $` e exigir `Content::MathOverline` com body `x`, sem
-aceitar `Content::Overline`, `MathUnderline` ou normalização para conteúdo
-textual. Validação detalhada de assinatura, `repr` e geometria pertence ao
-owner test-only P1441.
+Correção interna/de paridade em fluxo contínuo ADR-0127, sem campo ou assinatura
+pública. Não confundir constantes normativas de um algoritmo com configuração
+ignorada. O fator0.55, custo-base135, distância5 e incremento0.15 vêm da fonte
+pinada; identificar essas constantes pelo significado e referência, sem alegar
+que renomear números implementa configuração. Custos customizados continuam
+escopo pendente. Conservar identidade textual literal do hífen nesta rodada:
+ela requer carrier/contrato separado, não heurística sobre glyph ou posição.
 
-## P1442 — regressão bare de `overparen` preserva identidade e annotation
+Adicionar controles set overhang bool true/false sem warning descartado e erro de auto/int/string com mensagem esperada; não mudar snapshots existentes.
 
-### Medição anterior à decisão
-
-A sintaxe `$ overparen(x, n) $` projeta hoje uma forma opaca e concatena a
-annotation sem carrier público; o vanilla conserva `OverparenElem`.
-
-### Aceitação
-
-Avaliar `$ overparen(x, n) $` e exigir `Content::MathOverparen` com body `x`,
-annotation `n` e presença verdadeira. A forma opaca histórica e qualquer
-redução permanente para `MathUnderover` falham o teste.
-
-## P1443 — regressão bare de `overshell` preserva identidade e annotation
-
-### Medição anterior à decisão
-
-A sintaxe `$ overshell(x, n) $` projeta hoje uma forma opaca e concatena a
-annotation sem carrier público; o vanilla conserva `OvershellElem`.
-
-### Aceitação proposta
-
-Avaliar `$ overshell(x, n) $` e exigir `Content::MathOvershell` com body `x`,
-annotation `n` e presença verdadeira. A forma opaca histórica e qualquer
-redução permanente para `MathUnderover` falham o teste.
-## P1444 — oráculos sintáticos de primes (APROVADO; GATE ADR-0127 CONFIRMADO)
+## Custos textuais personalizados — 2026-09-28
 
 ### Medição anterior à decisão
 
-O cristalino funde primes em texto com o sobrescrito e usa `tr`/`br` para
-hat/underscore. O vanilla conserva `MathPrimes(count)` separado em `tr`, usa
-`t`/`b` para hat/underscore e deixa a precedência da AST determinar nesting.
+`correcao-custos-paragrafo-2026-09-28/before-pdf/` registra 66 entradas no
+estado `initial.json` e `before/`, contra pin 9f2b6e8715237cb086899a42873660fe744622e8.
+`text/mod.rs:1507-1564` valida Dictionary, Ratio por campo e composição parcial;
+`inline/mod.rs:240` lê costs do escopo compartilhado, não de cada fragmento;
+`inline/linebreak.rs:29-30,961-962` aplica defaults 135/100 vezes o ratio.
+O Tekt descarta costs em eval/rules e aceita sem transportar no constructor;
+paragraph_hyphen e paragraph_select usam defaults fixos. Os erros e spans
+estão no stderr vanilla, inclusive negativos aceitos. Não inferir intenção.
 
-### Decisão
+### Decisão vigente
 
-Adicionar oráculos que extraem a árvore avaliada e distinguem `t` de `tr`:
-`x'''^2` deve preservar `t: [2]` e `tr: primes(count: 3)`; `x^'''` deve
-preservar o carrier em `t`; `x^2'''` deve preservá-lo aninhado no conteúdo de
-`t`. Não aceitar equivalência por `plain_text`, glyph ou concatenação.
+Correção interna/de paridade ADR-0127 em fluxo contínuo, sem novo contrato
+público, flag ou fase. Módulo privado compiler/text_costs possui owner único
+para cast, transporte por componente e resolução dos custos compartilhados.
+Hifenização/runt globais passam a consultar a configuração. Widow/orphan são validados e transportados; sua influência é limitada ao subconjunto regional certificado descrito abaixo.
+Custos de fragmentos parciais não substituem o custo compartilhado; os quatro
+canais validados são neutros para glyphs na whitelist Styled. Um wrapper integral
+é fatorado pela realização existente antes de formar Par. Largura variável
+permanece limitada. Não deduzir custo pelo glyph. Preservar todos os defaults.
 
-## P1445 — regressão bare de `round` acompanha o carrier público
+Testar dicionário/tipos inválidos, prioridade normativa da primeira falha e custos válidos sem warning descartado. Inputs/mensagens derivados das sondas/fonte.
 
-### Medição anterior à decisão
+### Refinamento de custo compartilhado medido antes de implementar
 
-O teste histórico P899 ainda agrupa `round` com wrappers cristalinos
-materializados como `MathDelimited`. P1445 mediu no vanilla ratificado que
-`round` retorna `LrElem` e o gate aprovado substitui essa aproximação. Manter
-a expectativa antiga transformaria a divergência conhecida em falso contrato.
+after-first-resultados.json/proveniencia.json registra 66 entradas com o primeiro
+binário de custos. Só restore e inline divergem entre os inputs válidos. A fonte
+`inline/mod.rs:240` consulta shared.get(TextElem::costs); `eval/rules.rs` conserva
+fatoração dos Styled que cobrem todo o material do fluxo antes de formar Par.
+`paragraph_prepare.rs:45-78` recusa os novos canais mesmo quando eles não alteram
+nenhum atributo de glyph: o fallback incremental produz escolhas divergentes.
+A exclusão absoluta desses canais foi refutada; isto supersede o scope-out
+anterior, sem promover fragmentos ao escopo exterior nem mudar fase de pipeline.
 
-### Aceitação
+Permitir exclusivamente text.costs.hyphenation/runt/widow/orphan na whitelist
+Styled da preparação. O custo lido pelo planejamento é o escopo compartilhado
+exterior: push temporário da preparação é restaurado e não altera tal leitura.
+Inline parcial não escolhe custos do parágrafo; Styles integral continua a ser
+fatorado pelo mecanismo existente de realização e entra na chain antes de Par.
+Não criar espaço ou fronteira de palavra por diferenças de costs. Manter
+limitações físicas widow/orphan e contextos fora do subconjunto certificado.
 
-Separar `round` do loop legado sem alterar as expectativas de
-`abs`/`floor`/`ceil`/`bar`. A regressão P1445 exige `Content::MathLr` com body
-de três nós `⌊`, conteúdo, `⌉`, tamanho default não explícito e nenhum
-`MathDelimited` exterior. O teste não duplica layout nem concede paridade às
-demais rotas residuais.
-
-## P1448 — regressão bare de `underbrace` preserva identidade pública
-
-### Medição anterior à decisão
-
-O braço P906 atual produz `MathUnderover` diretamente e aceita silenciosamente
-named/excedentes. O vanilla bare produz o mesmo `UnderbraceElem` da função
-qualificada, com body, annotation e presença causal observáveis.
-
-### Aceitação
-
-Avaliar `$ underbrace(x, n) $` deve produzir `Content::MathUnderbrace` com body
-`x`, annotation `n` e `annotation_explicit = true`. O teste procura a variante
-na árvore avaliada; não aceita equivalência por `plain_text`, glifo U+23DF ou
-estrutura `MathUnderover` semelhante.
-
-Os oráculos legados P906 deixam de exigir `MathUnderover` diretamente para
-`underbrace`: passam a exigir o carrier público e sua projeção U+23DF. As
-expectativas de `underbracket` e dos spreaders superiores permanecem próprias;
-nenhum teste recebe crédito por igualdade apenas visual.
-
-## P1449 — regressão bare e reflexão de `underbracket`
+## Proteção regional de viúvas/órfãs — 2026-09-28
 
 ### Medição anterior à decisão
 
-O braço P906 produz `MathUnderover` diretamente e aceita silenciosamente
-named/excedentes. O vanilla bare produz o mesmo `UnderbracketElem` da função
-qualificada; fields distinguem annotation omitida de `none` explícito.
+`00_nucleo/diagnosticos/correcao-viuvas-orfas-2026-09-28/before-pdf/` registra 78 entradas e `before-extra/` registra 24 controles, com estado completo em initial.json e before/, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. page-65-100%-0%-False deixa três linhas e uma no Tekt, mas duas e duas no vanilla; custos zero coincidem. Tiny/large-positive têm a mesma proteção vanilla. `lab/typst-original/crates/typst-layout/src/flow/collect.rs:196-229` mede habilitação estritamente positiva, primeiros dois/últimos dois e proteção integral de três linhas; `flow/distribute.rs:343-364` só avança por necessidade agrupada quando cabe na próxima região. paragraph_emit.rs emite linha por linha sem essa necessidade. A semântica observável é a distribuição de linhas/palavras em regiões, não os frames/Child do vanilla. Não inferir intenção do scope-out antigo.
 
-### Aceitação
+### Decisão vigente
 
-Avaliar `$ underbracket(x, n) $` deve produzir `Content::MathUnderbracket` com
-body `x`, annotation `n` e presença verdadeira. `fields`, `has`, `at` e
-`func()` preservam identidade e presença causal. Os testes procuram a variante
-na árvore; não aceitam equivalência por `plain_text`, U+23B5 ou estrutura
-`MathUnderover` semelhante.
+Correção interna/de paridade em fluxo contínuo ADR-0127: nenhum campo/trait/assinatura pública, flag ou fase nova. Supersede a exclusão anterior de widow/orphan exclusivamente para parágrafos preparados com métricas verticais uniformes, sem baseline offset, geometria paginada constante, sem colunas/células/subframes/notas/floats ou transação regional ativa. Os demais contextos conservam fallback e limites explícitos. Não promete algoritmo completo nem desempenho.
 
-## P1450 — oráculos `math.underparen`
+O módulo privado paragraph_pagination possui exclusivamente certificação vertical, agrupamento e admissão regional. Recebe ranges já escolhidos, não refaz seleção, não emite glyphs nem duplica a lógica de new_page. A certificação inteira precede emissão; todos os fragmentos devem ter size/arestas/leading iguais ao estilo exterior (negrito/itálico admissíveis se as métricas coincidirem), e finite nonnegative top/descent/leading. Bounds auto não precisam de proteção. Respeitar a baseline inicial e o colapso existente de block-chain antes de comparar necessidade real com page_bottom_limit. Novo espaço disponível é calculado com margens resolvidas para a página seguinte. Avançar só se há material na região atual e o grupo cabe na próxima. Grupos muito altos conservam progresso ordinário e conteúdo íntegro; nunca repetir new_page em laço.
 
-Após aprovação ADR-0127, testar que a forma bare preserva
-`Content::MathUnderparen`, body, annotation e presença causal; testar também
-`fields`, `has`, `at` e `func` nas formas qualificada e com `none` explícito.
-Esses oráculos são congelados antes do candidato produtivo.
+Helpers privados de text_costs resolvem widow/orphan independentemente dos pesos hyphenation/runt, reutilizando FIELDS, com default Ratio 1 e teste estrito > 0. O default de estratégia do planejamento passa a Simple para parágrafo comum sem linebreaks, permitindo a preparação necessária à proteção padrão; a escolha automática por justify e todos os contextos recusados permanecem. Emitir sem alterar justificação, carriers, última linha aberta, fronteiras e restauração lexical. Preservar notas e colunas por não aplicar proteção incompleta nesses caminhos.
 
-## P1466 — oráculos posteriores ao carrier `MathLr`
-
-Os testes P981/P1132r que exercitam `lr(...)` devem localizar o
-`Content::MathLr` público e inspecionar seu body em ordem. Parênteses, chevrons
-e brackets continuam observáveis, mas nenhum teste pode exigir o carrier
-histórico `MathDelimited` depois de P1436. Os casos de `MathDelimited` que não
-passam por `lr` permanecem inalterados.
-
-A retificação conserva asserções discriminatórias: ausência do nome literal
-`lr`, cercas inicial/final corretas, fração presente e ordem do body. Não basta
-trocar a expectativa por qualquer variante ou comparar somente `plain_text`.
-
-O teste P702 de aplicação parcial usa um decimal neutro que continue provando
-arredondamento para duas casas sem coincidir com aproximações de constantes
-matemáticas rejeitadas pela análise estática. O valor escolhido não constitui
-contrato público; chamada, binding parcial e resultado arredondado constituem.
-
-## P1451 — oráculos `math.undershell`
-
-Após aprovação ADR-0127, testar que a forma bare preserva
-`Content::MathUndershell`, body, annotation e presença causal; testar também
-`fields`, `has`, `at` e `func` nas formas qualificada e com `none` explícito.
-Esses oráculos são congelados antes do candidato produtivo.
-
-## P1471 — dois oráculos `type(pdf)`/`repr(pdf)` retificados (MATERIALIZADO; achado de integração)
-
-`compiler/stdlib/pdf.md` P1471 mede (2026-09-21) que o vanilla ratificado
-expõe `pdf` como `function`, não `module` — retificação confirmada pelo
-dono e materializada nos 5 L0s consumidores auditados
-(`compiler/stdlib/pdf.md`/`html.md`/`format.md`, `compiler/eval.md`,
-`compiler/eval/bindings/field_access.md`). Este ficheiro
-(`01_core/src/compiler/eval/tests.rs`) não fazia parte dessa auditoria,
-mas continha dois oráculos históricos que assumiam a forma anterior e
-regrediram assim que o código foi corrigido:
-
-- `p735_type_emoji_e_pdf_sao_module` — media `type(pdf) == module` junto
-  de `type(emoji) == module` (P731/P735). Corrigido para `type(pdf) ==
-  function`; `type(emoji)` continua `module`, inalterado — `pdf` é o
-  único dos dois retificado por P1471.
-- `p1305_oracles::p1305_named_modules` — media `repr(pdf) == "<module
-  pdf>"` junto de outros quatro globais (`std`/`color.map`/`calc`/`sym`,
-  todos module, inalterados). Corrigido para `repr(pdf) == "pdf"`.
-
-Achado durante a integração (papel C) do commit causal `2ae054ab5`, não
-antecipado pelo passo original — os dois testes vivem neste ficheiro, com
-owner próprio, distinto de `compiler/eval.md` apesar do nome parecido.
-Nenhum outro oráculo deste ficheiro foi tocado; `p1303_*` (gate a11y de
-`format.pdf.*`) pertence a `field_access.md`, não aqui.
-
-## P1485 — provas causais de bundle (PROPOSTO)
-
-### Medição anterior à decisão
-
-O teste P1484 vigente verifica o gate e deixa `asset` Unknown com
-feature ativa. No vanilla ratificado, sonda P1485 mede a identidade
-`asset == format.bundle.asset == std.asset`, path normalizado e
-payload byte-exato, diagnósticos de argumentos e gate de
-`format.bundle`; fonte e comandos no diagnóstico
-`00_nucleo/diagnosticos/typst-p1485-bundle-sondas.md`.
-
-### Obrigação dos testes
-
-Escrever RED antes do código para: oito perfis de feature;
-`type/repr/fields` e identidade dos aliases; path absoluto e
-relativo normalizado, escapes e backslash; `Str` UTF-8 e `Bytes`
-arbitrários; faltas, tipos, named posicionais e `kind:` proibido;
-document path/body e metadata set; contexto paged/html por
-documento; globals locais homônimos; fora do target sem I/O.
-Constructor que apenas resolve o nome mas não exporta continua RED
-nos testes L3/L4. Não comparar endereços Rust nem bytes de
-documentos paginados como critério de linguagem.
+Aceitação: RED→GREEN com mesmas palavras distribuídas 2+2 versus 3+1, proteção integral de três, orphan desligado independentemente, grupo excessivo, restauração e default sem flag. Sondas bilaterais com caixas/palavras/páginas, tipos/spans anteriores preservados e controles de fallback. Não usar grupos XML como número físico de linhas. Resselo restrito aos owners, build e crystalline-lint sem erros.

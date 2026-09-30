@@ -1,40 +1,22 @@
-# Prompt L0 — `entities/elements/divider` — `DividerElem`
+# L0 — DividerElem
 Hash do Código: 556ebc9b
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/divider.rs`
-**Origem**: modelo D (ADR-0105), lote piloto P316. Trait, regras partilhadas e glossário (§A.0):
-ver `entities/elements/_comum.md`. É o **piso** do piloto (singleton sem campos
-— prova o mecanismo).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/divider.rs`
 
----
+## Evidence
 
-## Struct
+Retained extraction-era anchors are `content.rs:1726` for empty text and
+`content.rs:1512` for the nonempty structural singleton.
 
-```rust
-#[derive(Debug, Clone, PartialEq, Hash)]
-pub struct DividerElem;   // singleton estrutural (P154B); sem campos
-```
+## Contract
 
-O `Content` passa de `Divider` (unit variant) para `Divider(Arc<DividerElem>)`.
-
-## `impl Element for DividerElem`
-
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `String::new()` — structural sem texto (`content.rs:1726`) |
-| `is_empty` | `false` — singleton estrutural, **nunca vazio** (`content.rs:1512`) |
-| `map_content` | terminal: devolve `Content::Divider(Arc::new(DividerElem))` (sem filhos) |
-| `map_text` | terminal: devolve `Content::Divider(Arc::new(DividerElem))` |
-| `get_field` | default `None` (sem campos nomeados) |
-| `element_kind`/`to_payload` | default `None` (não-locatável) |
-
-## Layout (inalterado, em `rules/`)
-
-`compiler/layout/mod.rs` arm `Content::Divider(_)` emite
-`FrameItem::Shape::Line` 0.5pt (P154B) — **mesma lógica**, só muda o
-destructuring do braço.
-
-## Critério
-
-`Content::Divider(_).plain_text() == ""`; `!is_empty()`;
-`Content::Divider(a) == Content::Divider(b)` sempre (singleton).
+`DividerElem` is a fieldless structural singleton with Debug/Clone/PartialEq/Hash.
+Its text is empty but `is_empty` is always false. Both maps are terminal and
+return the corresponding Content singleton without visiting children.
+get_field, element_kind and to_payload retain default None; it is non-locatable.
+All DividerElem instances are structurally equal. The trait is owned by
+`00_nucleo/prompts/entities/elements/_comum.md` and Content construction by its
+own canonical child. Rendering does not belong to this entity; the old 0.5pt
+line behavior remains a layout-owner handoff recorded in the diagnostic.
+Verify empty text, nonempty structural identity, singleton equality and terminal maps.

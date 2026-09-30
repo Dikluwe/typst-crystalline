@@ -1,30 +1,28 @@
-# Prompt L0 — integração black-box de linguagem e exportação
+# L0 — wiring/tests/p1293_contract
 Hash do Código: c13d309a
 
-**Camada:** L4 — teste de integração
-**Ficheiro alvo exclusivo:** `04_wiring/tests/p1293_contract.rs`
+**Layer:** L4
+**Exclusive consumer:** `04_wiring/tests/p1293_contract.rs`
 
-## Contrato
+## Current evidence
 
-Comparar observáveis públicos do cristalino com o vanilla ratificado, sem
-congelar hash do executável e sem repetir casos para fiscalizar ordem de
-execução.
+- `04_wiring/tests/p1293_contract.rs:24` — `Transcript`.
+- `04_wiring/tests/p1293_contract.rs:31` — `from_output`.
+- `04_wiring/tests/p1293_contract.rs:39` — `success`.
+- `04_wiring/tests/p1293_contract.rs:44` — `trim_transport`.
+- `04_wiring/tests/p1293_contract.rs:50` — `run`.
 
-- `float.is-nan`: identidade, chamadas ligadas, casts e diagnósticos.
-- Matemática: `attach`, `binom`, `mono` e `script`, incluindo geometria
-  semântica e ausência da barra em `binom`.
-- HTML: identidade, fields, diagnósticos, DOM, atributos, escaping, elementos
-  void, nesting e independência entre feature e target.
-- `grid`/`table`: nomes curtos, aliases públicos, `with`, aridade e ausência
-  dos aliases não expostos.
+These are local source anchors, not a new upstream parity measurement.
+Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 04_wiring/tests/p1293_contract.rs`.
 
-Temporários são exclusivos e processos têm timeout finito. A aceitação usa
-semântica, morfologia, diagnósticos, geometria e DOM; não usa catálogos de
-mutantes, autoria, ordem de agentes, confirmações, registros ou hashes de implementação.
+## Owned contract
 
-## P1466 — export PNG não pode mascarar OOM
+- Own only black-box language/export integration: float.is-nan identity/bound calls/casts/diagnostics; math attach/binom/mono/script morphology and geometry (no binom bar); HTML fields/DOM/attributes/escaping/void/nesting/feature-target separation; grid/table short names/public aliases/with/arity and absent nonpublic aliases.
+- Compare public language observations, not implementation hashes, administrative catalogs, authorship or execution ordering. Any upstream comparison requires the independently verified current pin; archived earlier runs are not proof against it.
+- Use isolated temporary fixtures and finite process limits. Default PNG requires safe-memory success and correct IHDR at 144 PPI (2 pixels/pt); missing output, signal or timeout is failure, not a tolerated result.
 
-O caso black-box de PNG default exige sucesso, IHDR semanticamente correto e
-processo dentro do limite de memória. O default documental 144 PPI corresponde
-a 2 pixels por ponto; não comparar bytes comprimidos nem aceitar ausência de
-arquivo, signal ou timeout como resultado esperado.
+## Verification and boundary
+
+Run `cargo test -p typst --test p1293_contract -- --test-threads=1` with the harness prerequisites above.
+Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.

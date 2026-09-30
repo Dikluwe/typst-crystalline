@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/from_tags.md
-//! @prompt-hash 70b8a9f6
+//! @prompt-hash 69e8fc63
 //! @layer L1
 //! @updated 2026-05-05
 //!
@@ -194,11 +194,8 @@ pub(crate) fn apply_bundle_counter_funcs(
     intr.counters.clear_page_snapshots();
     let mut scopes = Scopes::new(None);
     for (boundary, range) in bodies {
-        intr.counters.apply_at(
-            CounterKey::Page,
-            CounterUpdate::Set(vec![1]),
-            *boundary,
-        );
+        intr.counters
+            .apply_at(CounterKey::Page, CounterUpdate::Set(vec![1]), *boundary);
         for tag in &tags[range.clone()] {
             let Tag::Start(loc, info) = tag else { continue };
             let ElementPayload::CounterUpdate { key, action } = &info.payload else {
@@ -217,7 +214,15 @@ pub(crate) fn apply_bundle_counter_funcs(
                         *loc,
                     ),
                     CounterUpdate::Func(func) => {
-                        apply_counter_func_at(key, func, *loc, intr, &mut scopes, engine, ctx)?;
+                        apply_counter_func_at(
+                            key,
+                            func,
+                            *loc,
+                            intr,
+                            &mut scopes,
+                            engine,
+                            ctx,
+                        )?;
                     }
                 }
             } else if let CounterUpdate::Func(func) = action {
@@ -253,27 +258,25 @@ fn apply_counter_func_at(
             .into_iter()
             .map(|value| match value {
                 Value::Int(value) if value >= 0 => Ok(value as usize),
-                other => Err(vec![
-                    crate::entities::source_result::SourceDiagnostic::error(
+                other => {
+                    Err(vec![crate::entities::source_result::SourceDiagnostic::error(
                         crate::entities::span::Span::detached(),
                         format!(
                             "counter update function returned {} instead of integer",
                             other.type_name()
                         ),
-                    ),
-                ]),
+                    )])
+                }
             })
             .collect::<SourceResult<Vec<_>>>()?,
         other => {
-            return Err(vec![
-                crate::entities::source_result::SourceDiagnostic::error(
-                    crate::entities::span::Span::detached(),
-                    format!(
-                        "counter update function returned {} instead of integer or array",
-                        other.type_name()
-                    ),
+            return Err(vec![crate::entities::source_result::SourceDiagnostic::error(
+                crate::entities::span::Span::detached(),
+                format!(
+                    "counter update function returned {} instead of integer or array",
+                    other.type_name()
                 ),
-            ])
+            )])
         }
     };
     intr.counters.apply_at(key.clone(), CounterUpdate::Set(state), loc);
@@ -609,7 +612,7 @@ pub fn realize_equation_elements(tags: &[Tag], intr: &mut TagIntrospector) {
         intr.elements.insert(
             *loc,
             crate::entities::value::IntrospectedContent::new(
-                Content::Styled(Box::new(base.into_content()), styles),
+                Content::styled(Box::new(base.into_content()), styles),
                 None,
             ),
         );

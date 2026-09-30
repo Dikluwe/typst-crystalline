@@ -1,4 +1,5 @@
 # Testes independentes P1431 — transporte de `FrameItem::Line.cap`
+Hash do Código: 46c0d5cf
 
 ## Dono test-only
 

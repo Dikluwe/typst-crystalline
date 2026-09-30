@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bibliography.md
-//! @prompt-hash ffc57a00
+//! @prompt-hash a6943ab4
 //! @layer L1
 //! @updated 2026-06-23
 //!
@@ -81,7 +81,7 @@ pub fn parse_bibliography(content: &str, path: &str) -> SourceResult<Vec<BibEntr
                     "unsupported bibliography format '{}': expected .bib, .yaml or .yml",
                     other
                 ),
-            )])
+            )]);
         }
     };
 

@@ -1,58 +1,73 @@
-# Prompt L0 — comando `typst info`
-Hash do Código: d2942c4d
+# L0 — Read-only runtime information presentation
+Hash do Código: b2e57126
 
-**Camada:** L2
-**Ficheiro proprietário:** `02_shell/src/info.rs`
-**Estado:** INFO-1 implementado; INFO-2 permanece fora do escopo
+**Layer:** L2
+**Exclusive consumer:** `02_shell/src/info.rs`
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/shell/info-projection.toml sha256:f7f63d22ab1b490c71f5e93f5fdf22da8e068dc15dfe1f9aa9cdb5fd7f95ab4d
 
-## Medição anterior à decisão
+## Evidence and ownership
 
-O vanilla oferece saída humana ou serializada por `-f/--format`, com `--pretty`
-para JSON (`args.rs:275-289`). O DTO inclui versão/build/plataforma/features,
-configuração de fontes/packages e env relevante (`info.rs:18-42`). O cristalino
-tem versão/hash compile-time e caminhos de package/fontes distribuídos entre
-L2/L3, mas nenhum snapshot público consolidado.
+`02_shell/src/info.rs:12` defines the DTO; `:56` and `:64` implement JSON and human presentation. Parsing belongs to `00_nucleo/prompts/shell/cli.md`, runtime snapshot collection to `00_nucleo/prompts/infra/runtime_info.md`, and composition to `00_nucleo/prompts/wiring/info.md`. Shared projection/security requirements come from the pinned nucleus.
 
-**Classificação:** observável público; valores dependentes da máquina variam,
-mas nomes de campos, tipos e origem não são mecânica descartável.
+Schema, categories and output labels are public contracts. Machine-dependent values may vary. The observation of current output does not establish full parity or authorize reducing the nucleus's category requirements.
 
-## Contrato inicial
+## Public API and schema
+
+`format_json(info: &InfoData, pretty: bool) -> Result<Vec<u8>, String>` emits UTF-8 JSON with a final newline. Compact versus pretty changes presentation only; build commit remains complete or null.
+
+`format_human(info: &InfoData) -> Vec<u8>` emits the human projection without I/O.
+
+Preserve the public DTOs and these serialized fields/types:
+
+- `version`: string.
+- `build.commit`: optional string; `build.platform.os` and `.arch`: strings.
+- `features.html`, `features.a11y_extras`, `features.bundle`: booleans. The underscore in `a11y_extras` is the actual JSON spelling.
+- `fonts.system`: boolean; `fonts.font-paths`: string array.
+- `packages.data-path` and `.cache-path`: optional strings; `.custom-ca-configured`: boolean.
+- `env`: ordered map from allowlisted variable names to optional strings.
+
+The structs are `InfoData`, `BuildInfo`, `PlatformInfo`, `FeatureInfo`, `FontInfo` and `PackageInfo`; fields retain their current Rust names and types. Serde uses kebab-case for font/package fields, not feature fields.
+
+## Human literals
+
+Preserve labels, indentation, order and blank sections:
 
 ```text
-typst info
-typst info --format json [--pretty]
+Version: {version}
+Commit: {short_commit}
+Platform: {os} {arch}
+
+Features:
+  HTML: {html}
+  A11y extras: {a11y_extras}
+  Bundle: {bundle}
+
+Fonts:
+  System: {system}
+  Path: {path}
+
+Packages:
+  Data path: {data_path}
+  Cache path: {cache_path}
+  Custom CA: {custom_ca_configured}
 ```
 
-DTO estável inicial:
+Repeat `  Path: {path}` for supplied font paths; omit it for an empty list. Booleans use `true`/`false`. Commit is its first eight bytes, or the whole shorter value; an absent commit displays `unknown`. Absent package paths display `unavailable`. Output ends with newline.
 
-```text
-version, build.commit, build.platform.{os,arch},
-features.{html,bundle}, fonts.{system,font-paths},
-packages.{data-path,cache-path}, env
-```
+The current human formatter does not print `env`. The prior same-categories acceptance and pinned nucleus must not be silently weakened to approve that omission; the required reconciliation is recorded in `00_nucleo/diagnosticos/sanitization-shell-history.md`.
 
-1. Saída humana é legível e pode truncar o commit; JSON nunca trunca.
-2. `--pretty` sem JSON é erro de argumentos.
-3. Secrets e valores de proxy com credenciais não são impressos. `env` contém
-   apenas allowlist Typst/XDG e indica presença quando o valor for sensível.
-4. L3 resolve paths/defaults; L2 possui DTO/serialização; L4 compõe.
-5. O comando é read-only e não força download nem varredura completa de fontes.
+## Command and collection boundary
 
-## Escopo incompleto explícito
+`typst info` selects human output. `typst info -f json` or `--format json` selects JSON; `--pretty` requires that format. Other formats are not advertised or accepted.
 
-`P1137-C001-INFO-1` cobre human+JSON e campos acima. Outros formatos do vanilla
-ficam para `P1137-C001-INFO-2`, depois de medição específica; até lá o help não
-os anuncia.
+Collection is read-only: do not download packages or trigger a complete font scan. L3 resolves Typst package paths from XDG locations, falling back to HOME-based locations, and supplies configured font paths. The environment allowlist is `TYPST_FEATURES`, `TYPST_FONT_PATHS`, `TYPST_ROOT`, `XDG_CACHE_HOME`, `XDG_DATA_HOME`; absent or non-UTF-8 values are null. Do not expose proxy credentials, certificate paths/bytes or arbitrary environment values. Custom CA is represented only by a boolean.
 
-## Testes e aceitação
+The current command has no feature-selection option, so effective feature booleans are false and system-font configuration is true. `TYPST_FEATURES` is informational here, not an activation source.
 
-Schema JSON, pretty/compact, commit completo, paths sob XDG injetado, ausência
-de segredos, estabilidade da allowlist e saída humana contendo as mesmas
-categorias sem exigir paths iguais entre máquinas.
+Success exits 0. JSON serialization failure and stdout write failure exit 2, with respectively `error: failed to serialize info: {error}` and `error: failed to write info: {error}`.
 
-## Gate
+## Acceptance
 
-Novo comando e novo contrato serializado: confirmação obrigatória ADR-0127.
+Verify schema/spelling/types, compact/pretty value equivalence, complete JSON commit, human fallback literals, supplied XDG paths, allowlist stability and secret exclusion. Preserve projection-category obligations pending the recorded decision; do not claim all vanilla info formats are covered.

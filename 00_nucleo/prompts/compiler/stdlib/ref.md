@@ -1,61 +1,19 @@
-# Prompt L0 — `rules/stdlib/ref` — `ref(name, supplement: ?)`
+# L0 — stdlib/ref
 Hash do Código: ffffffff
 
-**Camada**: L1..L3 · **Alvo**: `01_core/src/compiler/stdlib/ref.rs`
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/stdlib/ref.rs`
 
----
+## Evidence and classification
 
-## `native_ref`
+`01_core/src/compiler/stdlib/ref.rs:23` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-```rust
-pub fn native_ref(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn World,
-    _current_file: FileId,
-) -> SourceResult<Value>
-```
+## Contract and ownership
 
-Emite `Content::Ref(RefElem { name, supplement })`.
+Own only native_ref's construction and validation. Require a nonempty first positional Str label name and emit Content::Ref with the name and optional explicit Content supplement. Omitted supplement remains None, allowing the referenced element's default; reject non-string names and non-content supplements with the existing contextual diagnostics. Preserve form: "normal" | "page", default Normal, rejecting other strings. Explicit supplement may suppress or override the page supplement. Numeric resolution, introspection, numbering, render defaults and legacy fallbacks belong to the layout/reference owners, not this constructor; preserve their received carrier without doing those operations here.
 
-- 1º arg posicional: nome do label (`Str`). Não pode ser vazio.
-- Named arg `supplement`: conteúdo prefixado ao número (`Content`). Se omitido,
-  `None` → layout usa supplement default do tipo referenciado.
-- Erros semânticos contextualizados (nome vazio, arg não-string,
-  supplement não-content).
+Contract/code discrepancy: the current native also accepts Value::Label names and Str/None supplements, and does not enforce a closed leftover-argument policy. These observed extensions are not authorization to broaden the original constructor contract. Preserve code during this sanitation and resolve the discrepancy separately before any implementation change.
 
-## Tests L1
+## Acceptance
 
-- `native_ref("sec1")` emite `Content::Ref` com `name == "sec1"` e
-  `supplement == None`.
-- `native_ref("sec1", supplement: Some("Section "))` preserva o supplement.
-- Nome vazio e arg não-string retornam `Err`.
-
-## Resolução numérica P462 (L2/L3)
-
-No layout, `layout_ref` resolve `@name` usando `Introspector`:
-
-1. Consulta `introspector.counter_key_for_label(label)`.
-2. Se houver `counter_key`, busca `query_by_label(label)` e formata o número com
-   o numbering aplicado ao counter (heading: alphabetical; equation: `(n)`;
-   table/figure: plain number do counter).
-3. Concatena `supplement` explícito, se houver; senão usa default do tipo
-   (`"Fig. "` para figure, `"Table "` para table, nenhum para heading/equation).
-4. Se label não existe ou não tem `counter_key`, fallback legacy para figuras
-   resolvidas; último fallback renderiza `"?"`.
-
-## Tests L2/L3
-
-- `@intro` num documento com `heading("Intro", label: "intro")` produz
-  `"1"` (heading numbering default alfabético).
-- `@f1` num documento com figura etiquetada e caption numerado produz
-  `"Fig. 1"`.
-- `@eq1` com equação numerada produz `"(1)"`.
-- `@tbl1` com tabela numerada produz `"Table 1"`.
-- Supplement explícito `ref("f1", supplement: "Figura ")` produz `"Figura 1"`.
-- Label desconhecido produz `"?"`.
-## P1140.25 — argumento `form`
-
-`ref` aceita `form: "normal" | "page"`, default Normal, e rejeita outras
-strings. O supplement explícito pode suprimir ou sobrescrever o da página. Ver
-`entities/page_supplement.md`.
+Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaults and public identities, with no productive-code change. Preserve pinned shared claims and the exclusive owner boundary under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130. Historical evidence does not establish parity against a newer snapshot.

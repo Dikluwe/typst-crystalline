@@ -1,56 +1,32 @@
----
+# L0 — Shaped glyph carrier
 Hash do Código: b9e0e19f
-prompt: entities/shaped_glyph
-layer: L1
-created: 2026-06-27
-passo: P482
-adr: ADR-0120
----
 
-# Prompt L0 — `ShapedGlyph` (P482)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/shaped_glyph.rs`
 
-## Propósito
+## Evidence and contract
 
-Struct que representa um glifo com shaping real produzido por rustybuzz.
-Definido em `01_core/src/entities/layout_types.rs`.
-
-## Estrutura
+The exclusive consumer is the standalone shaped-glyph entity, not layout_types.
+Preserve its public Debug/Clone/PartialEq data carrier:
 
 ```rust
-#[derive(Debug, Clone, PartialEq)]
 pub struct ShapedGlyph {
-    pub glyph_id:  u16,   // ID do glifo na fonte (índice na tabela de glifos)
-    pub x_advance: i32,   // Advance horizontal em unidades de fonte
-    pub x_offset:  i32,   // Offset horizontal (kerning, marks)
-    pub y_offset:  i32,   // Offset vertical (diacríticos)
-    pub cluster:   u32,   // Índice byte no string original (ToUnicode CMap)
-    pub char_code: char,  // Codepoint Unicode derivado de cluster
+    pub glyph_id: u16,
+    pub x_advance: i32,
+    pub x_offset: i32,
+    pub y_offset: i32,
+    pub cluster: u32,
+    pub char_code: char,
 }
 ```
 
-## Divergências vs ADR-0120
+Advance/offset values are font units, not points: points = units/upm × font size.
+Cluster is the UTF-8 byte index in the original text and determines char_code.
+Glyph IDs support the existing FrameItem::Glyph and PDF CID path. The L0's
+u16 representation differs from the u32 form in ADR-0120; this documentary
+cleanup does not approve truncation safety or resolve that discrepancy.
 
-- ADR-0120 propõe `glyph_id: u32` (rustybuzz nativo).
-- Implementação usa `u16` (truncado com `as u16`) para compatibilidade
-  com `FrameItem::Glyph.glyph_id` e o path CIDFont do export.
-- `x_advance`, `x_offset`, `y_offset` são `i32` (unidades de fonte,
-  não pontos tipográficos). Conversão: `pt = units / upm * font_size`.
-- `cluster` é o índice byte UTF-8 no string original — derivado de
-  `GlyphInfo.cluster` do rustybuzz.
-- `char_code` é derivado de `cluster` via `byte_idx_to_char`.
-
-## Uso
-
-Armazenado em `FrameItem::TextShaped.glyphs: Vec<ShapedGlyph>`.
-Consumido por:
-- `export/stream.rs::emit_shaped_pdf` — para emitir hex string de glyph IDs.
-- `export/fonts.rs::collect_codepoints` — para extrair chars usados.
-- `export/fonts.rs::collect_glyph_ids` — para extrair IDs usados.
-
-## §P485 — `units_per_em` em `TextShaped` (não em `ShapedGlyph`)
-
-`units_per_em` é propriedade do **run** (toda a `TextShaped`), não do glifo
-individual. Portanto está em `FrameItem::TextShaped.units_per_em: u16` e não
-em `ShapedGlyph`. O campo `ShapedGlyph.x_advance` (int32, font units) é
-convertido para unidades TJ em `emit_shaped_pdf`:
-`advance_tu = -(x_advance / units_per_em * 1000)`.
+`units_per_em` belongs to the whole TextShaped run, not individual glyphs.
+The existing TJ projection is `-(x_advance / units_per_em * 1000)`; emission,
+font tracking and shaping remain under their own owners. Do not add a run
+field here or move shaping to L1.

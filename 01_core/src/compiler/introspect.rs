@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash 4cf0501f
+//! @prompt-hash 587f6b42
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -83,7 +83,7 @@ fn collect_bib_keys(content: &Content) -> std::collections::HashSet<String> {
                 }
             }
             Content::Sequence(seq) => seq.iter().for_each(|c| walk(c, keys)),
-            Content::Styled(body, _) => walk(body, keys),
+            Content::Styled(styled) => walk(&styled.body, keys),
             Content::Block(e) => walk(&e.body, keys),
             Content::Boxed(e) => walk(&e.body, keys),
             Content::Pad(e) => walk(&e.body, keys),
@@ -148,8 +148,9 @@ fn convert_refs(content: Content, keys: &std::collections::HashSet<String>) -> C
                 .collect::<Vec<_>>()
                 .into(),
         ),
-        Content::Styled(body, styles) => {
-            Content::Styled(Box::new(convert_refs(*body, keys)), styles)
+        Content::Styled(styled) => {
+            let styled = Arc::unwrap_or_clone(styled);
+            Content::styled(convert_refs(styled.body, keys), styled.styles)
         }
         Content::Block(e) => {
             let mut e = Arc::unwrap_or_clone(e);
@@ -1125,7 +1126,7 @@ fn materialize_time(
         | Content::Parbreak
         | Content::Raw(_)
         | Content::Ref(_)
-        | Content::SetPage { .. }
+        | Content::SetPage(_)
         | Content::CounterUpdate(_)
         | Content::Outline(_)
         | Content::Linebreak(_)
@@ -1324,9 +1325,9 @@ fn materialize_time(
 
         // Passo 99 (ADR-0038): `Styled` é transparente para materialização de
         // contadores — o body é processado e os estilos preservados.
-        Content::Styled(body, styles) => Content::Styled(
-            Box::new(materialize_time(body, intr, location)),
-            styles.clone(),
+        Content::Styled(styled) => Content::styled(
+            materialize_time(&styled.body, intr, location),
+            styled.styles.clone(),
         ),
 
         // P506: ContextBlock é terminal em materialize_time (o conteúdo real
@@ -1747,7 +1748,7 @@ fn classify_unreferencable_body(content: &Content) -> UnreferencableKind {
     match content {
         Content::Raw(_) => UnreferencableKind::Raw,
         Content::Equation(_) => UnreferencableKind::EquationWithoutNumbering,
-        Content::Styled(child, _) => classify_unreferencable_body(child),
+        Content::Styled(styled) => classify_unreferencable_body(&styled.body),
         Content::PageRun(e) => classify_unreferencable_body(&e.body),
         Content::HtmlFrame(e) => classify_unreferencable_body(&e.body),
         Content::Sequence(seq) => {
@@ -1764,7 +1765,8 @@ fn classify_unreferencable_body(content: &Content) -> UnreferencableKind {
         // intencional: todo outro elemento não-Raw e não-Equation sem numeração é classificado como Text para mensagens de erro
         Content::Empty
         | Content::Text(_)
-        | Content::Space | Content::SpaceFromNewline
+        | Content::Space
+        | Content::SpaceFromNewline
         | Content::Parbreak
         | Content::Par { .. }
         | Content::Heading(_)
@@ -1823,7 +1825,7 @@ fn classify_unreferencable_body(content: &Content) -> UnreferencableKind {
         | Content::GridHeader(_)
         | Content::GridFooter(_)
         | Content::GridCell(_)
-        | Content::SetPage { .. }
+        | Content::SetPage(_)
         | Content::Align(_)
         | Content::Place(_)
         | Content::Divider(_)
@@ -2078,148 +2080,9 @@ pub(crate) fn walk(
             &e.body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent,
         ),
 
-        Content::Heading(h) => {
-            // Modelo D (P316): Heading delegado; re-bind dos campos.
-            let level = &h.level;
-            let body = &h.body;
-            let _ = level;
-            // P363 (introspect-chain, PROBE de verificação): o gate de numbering
-            // lido **da chain** neste heading. **Aditivo** — não muda o read do
-            // gate (continua `h.numbering_active` até o de-bake P364). Só captura,
-            // sob `#[cfg(test)]`, o que a chain entrega aqui, para o teste provar que
-            // a infra threadou o custom até o heading (um heading sob o `Content::
-            // Styled` de `#set heading(numbering:)` vê `Some(Bool(true))`).
-            #[cfg(test)]
-            self::introspect_chain_probe::record(
-                matches!(chain.custom("heading.numbering"), Some(Value::Bool(true))),
-            );
-            // P200B (M5 universal completo) — walk arm Heading
-            // E2-residuo fechada estruturalmente. Trabalho híbrido
-            // combinando 3 padrões testados:
-            // - sub-store novo `intr.headings_for_toc` (P193B-style),
-            // - Tag pós-recursão `ElementPayload::HeadingForToc`
-            //   (variante P196B locatable + emitted_loc directo),
-            // - consumer outline.rs:24 substitution-with-fallback
-            //   (P184D / P194B style).
-            //
-            // P196B (referência histórica): 3 das 4 mutações E2
-            // migraram estruturalmente via Tag::Labelled auto-toc;
-            // a 4ª (`state.headings_for_toc.push`) era residual.
-            // P200B fecha esse residuo via Tag::HeadingForToc
-            // (3ª Tag pós-recursão, mesma `emitted_loc`).
-            //
-            // Mutação 4 legacy preservada como write paralelo M5
-            // porque Layouter assignments (`mod.rs:1490, 1521`)
-            // dependem de `state.headings_for_toc`. Cleanup
-            // orgânico em M6.
-            // P190I (M6 fechado): mutação `state.step_hierarchical`
-            // ELIMINADA — caminho Introspector activo via populate_intr
-            // arm Heading (P191B `apply_hierarchical_at`). intr.counters
-            // populated antes desta arm via walk top emission. State
-            // legacy struct eliminada.
-
-            // P190G (M6 categoria Labels & TOC): `state.auto_label_counter`
-            // eliminado — substituído por local var threaded via
-            // `auto_label_counter: &mut usize` parameter (Opção α).
-            *auto_label_counter += 1;
-            let current_auto_label = *auto_label_counter;
-            // P191B (ADR-0071): compute_heading_auto_toc lê via
-            // Introspector path location-aware. `emitted_loc` é
-            // `Some(loc)` para Heading (locatable; populate_intr no
-            // walk top já registou Heading kind + counter no intr).
-            let auto_loc = emitted_loc.expect(
-                "Heading é locatable — emitted_loc deve ser Some",
-            );
-            // F-5a de-bake (P364, §3a.9): o gate vive **só na chain** (lido aqui
-            // sobre o introspect-chain do P363). O campo assado `numbering_active`
-            // foi removido. O **valor** do contador (`apply_hierarchical_at`,
-            // incondicional P335) e `formatted_counter_at` ficam intactos.
-            let numbering_active =
-                matches!(chain.custom("heading.numbering"), Some(Value::Bool(true)));
-            let (auto_label, resolved_text) = heading::compute_heading_auto_toc(
-                &*intr,
-                auto_loc,
-                current_auto_label,
-                numbering_active,
-            );
-            // P190G: mutação `state.resolved_labels.insert` ELIMINADA
-            // — caminho Introspector activo via Tag::Labelled
-            // pós-recursão (populate_intr_from_tag_start arm Labelled
-            // popula intr.resolved_labels). Layouter consumer
-            // `references.rs:64` migrado para Introspector path puro
-            // (sem fallback legacy).
-
-            // P190G: mutação `state.headings_for_toc.push` ELIMINADA
-            // — caminho Introspector activo via Tag::HeadingForToc
-            // pós-recursão (populate_intr_from_tag_start arm
-            // HeadingForToc popula intr.headings_for_toc). Layouter
-            // consumer `outline.rs:38` migrado para Introspector path
-            // puro (sem fallback legacy).
-            //
-            // `frozen_body` ainda computed aqui — reusado na Tag
-            // HeadingForToc pós-recursão (P200B).
-            let frozen_body = materialize_time(body, &*intr, auto_loc);
-
-            walk(body, locator, tags, intr, auto_label_counter, lang, chain, None);
-
-            // P196B: emit Tag auto-toc pós-recursão (ADR-0069).
-            // Reusa Location alocada para Heading (locatable; walk
-            // top emitiu Tag::Start). `emitted_loc` é `Some(loc)` —
-            // mais simples que P195D (Labelled não-locatable
-            // exigiu snapshot+find_map).
-            //
-            // P191B (ADR-0071): popula intr directamente via
-            // populate_intr_from_tag_start no momento da emissão.
-            if let Some(loc) = emitted_loc {
-                let info = ElementInfo::new(ElementPayload::Labelled {
-                    label: auto_label.clone(),
-                    resolved_text: Some(resolved_text),
-                    figure_number: None,
-                });
-                populate_intr_from_tag_start(intr, &info, loc);
-                tags.push(Tag::Start(loc, info));
-                tags.push(Tag::End(loc, 0));
-            }
-
-            // P200B/P606: emit Tag::HeadingForToc e/ou Tag::HeadingForBookmarks
-            // pós-recursão. `outlined` controla o índice do documento;
-            // `bookmarked` (explicitamente ou via `outlined`) controla a árvore
-            // `/Outlines` do PDF. Ambas partilham o mesmo cálculo de entrada.
-            if let Some(loc) = emitted_loc {
-                if let Some((label, number, body_for_toc, lvl)) = heading::compute_heading_for_toc(
-                    &*intr,
-                    loc,
-                    current_auto_label,
-                    frozen_body,
-                    *level as usize,
-                    numbering_active,
-                ) {
-                    if h.outlined {
-                        intr.outlined_heading_locations.push(loc);
-                        let info = ElementInfo::new(ElementPayload::HeadingForToc {
-                            label: label.clone(),
-                            number: number.clone(),
-                            body: body_for_toc.clone(),
-                            level: lvl,
-                        });
-                        populate_intr_from_tag_start(intr, &info, loc);
-                        tags.push(Tag::Start(loc, info));
-                        tags.push(Tag::End(loc, 0));
-                    }
-                    if h.is_bookmarked() {
-                        let info = ElementInfo::new(ElementPayload::HeadingForBookmarks {
-                            label,
-                            number,
-                            body: body_for_toc,
-                            level: lvl,
-                        });
-                        populate_intr_from_tag_start(intr, &info, loc);
-                        tags.push(Tag::Start(loc, info));
-                        tags.push(Tag::End(loc, 0));
-                    }
-                }
-            }
-        }
+        Content::Heading(h) => heading::walk_heading(
+            h, emitted_loc, locator, tags, intr, auto_label_counter, lang, chain,
+        ),
 
         Content::Title(e) => {
             walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None);
@@ -2275,79 +2138,9 @@ pub(crate) fn walk(
             }
         }
 
-        Content::Label(e) => {
-            let label = Label(e.name.to_string());
-            if e.auto {
-                // P464: Label auto-gerado (ex-sintaxe `<label>`). Mantém
-                // comportamento legado de `Content::Labelled`: emite Tag
-                // pós-recursão com texto resolvido / número de figura.
-                let target = &e.body;
-                let target_lang = chain.lang();
-                let tags_len_before = tags.len();
-                walk(target, locator, tags, intr, auto_label_counter, lang, chain, Some(&label));
-                // P788: o `label_to_counter_key.remove(&label)` que aqui
-                // existia forçava o caminho legacy — removido (precedência
-                // numérica; legacy fica como fallback).
-
-                let target_loc = tags[tags_len_before..]
-                    .iter()
-                    .find_map(|t| if let Tag::Start(l, _) = t { Some(*l) } else { None });
-
-                let (resolved_text, figure_number) = match target_loc {
-                    Some(loc) => labelled::compute_labelled(
-                        &*intr,
-                        loc,
-                        target,
-                        target_lang.as_ref().or(lang),
-                    ),
-                    None => (None, None),
-                };
-
-                let _ = figure_number;
-
-                if resolved_text.is_some() || figure_number.is_some() {
-                    if let Some(loc) = target_loc {
-                        let info = ElementInfo::new(ElementPayload::Labelled {
-                            label,
-                            resolved_text,
-                            figure_number,
-                        });
-                        populate_intr_from_tag_start(intr, &info, loc);
-                        tags.push(Tag::Start(loc, info));
-                        tags.push(Tag::End(loc, 0));
-                    }
-                } else if target_loc.is_none() {
-                    // P856 — label auto anexado a conteúdo não locatable
-                    // (texto, raw, etc.). O target não emitiu Tag, logo o
-                    // populate não teve oportunidade de registar a label.
-                    let kind = classify_unreferencable_body(target);
-                    intr.unreferencable_labels.insert(label, kind);
-                }
-            } else {
-                // P460/P464: Label criado pelo utilizador. Propaga a label
-                // para o body, permitindo que Ref resolva labels em
-                // headings/figures/equations. Não emite Tag próprio quando
-                // o body não é locatable — o destino PDF ainda é gerado pelo
-                // layout independentemente.
-                let known_before = intr.label_to_counter_key.contains_key(&label)
-                    || intr.figure_label_numbers.contains_key(&label)
-                    || intr.resolved_labels.get(&label).is_some()
-                    || intr.labels.lookup(&label).is_some()
-                    || intr.unreferencable_labels.contains_key(&label);
-                walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, Some(&label));
-                let known_after = intr.label_to_counter_key.contains_key(&label)
-                    || intr.figure_label_numbers.contains_key(&label)
-                    || intr.resolved_labels.get(&label).is_some()
-                    || intr.labels.lookup(&label).is_some()
-                    || intr.unreferencable_labels.contains_key(&label);
-                // P856 — se o body não registou a label em nenhum caminho
-                // referenciável, regista-a como não referenciável.
-                if !known_before && !known_after {
-                    let kind = classify_unreferencable_body(&e.body);
-                    intr.unreferencable_labels.insert(label, kind);
-                }
-            }
-        }
+        Content::Label(e) => labelled::walk_label(
+            e, locator, tags, intr, auto_label_counter, lang, chain,
+        ),
 
         // Lote F-2 S5 (P335): arms populate Set*Numbering removidos com as variantes.
 
@@ -2427,7 +2220,7 @@ pub(crate) fn walk(
         // P287 — SmartQuote leaf (não-locatable; sem counters).
         | Content::SmartQuote(_)
         | Content::Image(_)
-        | Content::SetPage { .. }
+        | Content::SetPage(_)
         | Content::Divider(_)
         // Passo 156D — h/v spacing leaves; sem effect em counters.
         | Content::HSpace(_)
@@ -2594,7 +2387,9 @@ pub(crate) fn walk(
         // dentro do `Content::Styled` que o `#set …(numbering:)` embrulha tenha o
         // gate `X.numbering` na chain. Escopado à subárvore (o `pushed` só vale na
         // recursão do `body`).
-        Content::Styled(body, styles) => {
+        Content::Styled(styled) => {
+            let body = &styled.body;
+            let styles = &styled.styles;
             for (key, value) in &styles.delta().custom {
                 if key.as_str() != "outline.prefix-info" {
                     continue;
@@ -2716,8 +2511,10 @@ mod tests {
     fn labelled_prod(target: Content, label: Label) -> Content {
         let name = label.0;
         match target {
-            Content::Styled(inner, styles) => {
-                Content::Styled(Box::new(Content::label_auto(name, *inner)), styles)
+            Content::Styled(styled) => {
+                let inner = &styled.body;
+                let styles = &styled.styles;
+                Content::styled(Content::label_auto(name, inner.clone()), styles.clone())
             }
             other => Content::label_auto(name, other),
         }
@@ -2728,7 +2525,7 @@ mod tests {
     /// gate (P364/P1019). Usado pelos testes que precisam que o counter de
     /// heading avance.
     fn with_heading_numbering(body: Content) -> Content {
-        Content::Styled(
+        Content::styled(
             Box::new(body),
             Styles::new().push_custom("heading.numbering", Value::Bool(true)),
         )
@@ -3115,7 +2912,9 @@ mod tests {
             Some("image".to_string()),
             Some("1".to_string()),
         );
-        if let Content::Styled(body, styles) = fig {
+        if let Content::Styled(styled) = fig {
+            let body = &styled.body;
+            let styles = &styled.styles;
             let pat = styles
                 .delta()
                 .custom
@@ -4057,7 +3856,7 @@ mod tests {
         // gate continua no campo assado até o de-bake P364).
         use crate::entities::style::Styles;
         super::introspect_chain_probe::reset();
-        let sob_set = Content::Styled(
+        let sob_set = Content::styled(
             Box::new(Content::heading(1, Content::text("Sob set"))),
             Styles::new().push_custom("heading.numbering", Value::Bool(true)),
         );
@@ -4865,7 +4664,7 @@ mod tests {
         // os casos têm numbering Some, o placeholder coincide com o valor antigo.
         fn fig_inner(c: &Content) -> &Content {
             match c {
-                Content::Styled(b, _) => b,
+                Content::Styled(styled) => &styled.body,
                 other => other,
             }
         }
@@ -5135,11 +4934,11 @@ mod tests {
         };
         let content = Content::Sequence(
             vec![
-                Content::Styled(
+                Content::styled(
                     Box::new(mk(1)),
                     Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
                 ),
-                Content::Styled(
+                Content::styled(
                     Box::new(mk(2)),
                     Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
                 ),
@@ -5289,7 +5088,7 @@ mod tests {
         // Fixture roteado a essa forma (S5b declarado; era campo assado
         // `equation_numbered` direto, P335).
         let content = Content::Sequence(
-            vec![Content::Styled(
+            vec![Content::styled(
                 Box::new(Content::label_auto(
                     "eq1".to_string(),
                     Content::equation(Content::Empty, true),
@@ -5573,7 +5372,7 @@ mod tests {
     #[test]
     fn p1459_labelled_transporta_lingua_causal_de_cada_alvo() {
         fn localized_heading(label: &str, lang: &str) -> Content {
-            Content::Styled(
+            Content::styled(
                 Box::new(Content::label_auto(
                     label.to_string(),
                     Content::heading(1, Content::text(label)),
@@ -5849,7 +5648,7 @@ mod tests {
     #[test]
     fn p1485_bundle_starts_cobrem_styled_outline_label_ref_e_counter() {
         let bodies = vec![
-            Content::Styled(
+            Content::styled(
                 Box::new(Content::label_auto(
                     "alpha".to_owned(),
                     Content::heading_numbered(1, Content::text("Alpha")),

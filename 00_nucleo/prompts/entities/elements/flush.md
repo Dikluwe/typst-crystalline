@@ -1,43 +1,28 @@
-# Prompt L0 — `entities/elements/flush` — `FlushElem`
+# L0 — FlushElem
 Hash do Código: a3db4cd0
 
-**Estado:** P1292 MATERIALIZADO.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/flush.rs`
 
-**Camada:** L1
-**Alvo planejado:** `01_core/src/entities/elements/flush.rs`
-**Regras comuns:** `entities/elements/_comum.md`
-**Vanilla ratificado:** `a51e02804`
+## Evidence before specification
 
-## Medição anterior à decisão
+Historical upstream `a51e02804` returned `flush()` for `repr(place.flush())`;
+the earlier float-order probe established that preceding floats are forced
+before subsequent content, without anticipating floats created after the marker.
+That probe is historical evidence, not a current-pin remeasurement.
 
-No baseline cristalino, `place` é uma função sem namespace público e não há
-sentinela de flush. O vanilla medido devolve `repr(place.flush()) == "flush()"`;
-zero campos, posicionais ou named são rejeitados. O controle P1292 mostrou que
-o marcador força os floats anteriores antes de o conteúdo seguinte prosseguir
-e não antecipa o float criado depois dele.
+## Owned contract
 
-## Contrato público
+`FlushElem` is a fieldless public singleton with
+Debug/Clone/PartialEq/Eq/Hash/Default. It is distinct from Empty and non-locatable.
+Text is empty, `is_empty` remains false so normalization preserves the effect,
+and both maps are terminal. Equality and hashing reflect singleton identity.
+It produces no visual item or introspection identity; it is not a text-empty
+substitute because its flow effect is observable.
 
-```rust
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Default)]
-pub struct FlushElem;
-```
-
-`Content::Flush(Arc<FlushElem>)` é uma identidade pública distinta de
-`Content::Empty`; `Content::flush()` constrói a sentinela. O elemento é
-não-locatável, `plain_text()` é vazio, `is_empty()` permanece `false` para
-que normalização de sequência não apague o efeito, e `map_content`/`map_text`
-são terminais. Igualdade/hash refletem a identidade unitária.
-
-`place.flush` aceita zero argumentos. Um posicional produz
-`unexpected argument`; um named produz `unexpected argument: <nome>`. A nativa
-construtora pertence a `compiler/stdlib/layout.md`; o namespace da função
-`place` pertence a `compiler/eval.md`; a morfologia pertence a
-`compiler/eval/repr.md`; o efeito pertence somente a
-`compiler/layout/flush.md`.
-
-## Aceitação linguística
-
-`repr(place.flush())` é exatamente `flush()`. O marcador não produz texto,
-item visual ou identidade de introspecção, mas não pode ser colapsado ou
-confundido com vazio porque altera o ponto de realização de floats no fluxo.
+Content construction belongs to `00_nucleo/prompts/entities/content/construction.md`,
+zero-argument validation to `00_nucleo/prompts/compiler/stdlib/layout.md`,
+namespace exposure to `00_nucleo/prompts/compiler/eval.md`, repr to
+`00_nucleo/prompts/compiler/eval/repr.md`, and the effect to
+`00_nucleo/prompts/compiler/layout/flush.md`. Their existing errors and repr are
+not re-owned here. Verify nonempty terminal identity without text or own payload.

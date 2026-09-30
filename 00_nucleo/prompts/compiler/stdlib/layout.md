@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/layout` — módulo `layout`
-Hash do Código: 6fc7656d
+Hash do Código: c573dde7
 
 ## P1408 — largura fracionária pública de `box`
 
@@ -917,3 +917,9 @@ preserva `none` separadamente. O delta é
 `Option<Option<Numbering>>`: exterior omitido, interior `None` desativa.
 `PageRunElem` recebe o delta sem executar função ou assar default. O constructor
 continua owner de validação dos 18 named e body; nenhum dispatch por nome.
+
+## Atomização comportamental P1498
+
+**Medição:** a working tree não commitada em `00_nucleo/diagnosticos/atomizacao-stdlib-layout-2026-09-30-before.json.gz` contém 2966 linhas neste consumer; a suíte L1 passou com 6401 testes e 2 ignorados. Não é benchmark nem nova comparação com o vanilla.
+
+**Decisão:** este owner conserva `native_align`, a extração de alinhamento e os bindings estáticos. Os outros algoritmos são delegados a owners exclusivos `layout/{place,grid,page,casting,pad,hide,spacing,block,stack,box_elem,repeat,columns,measure,stroke,pagebreak}.md`. As cláusulas anteriores deste documento mantêm o histórico e o mapa da superfície; cada filho é owner da sua família. A separação não altera comportamento por defeito, assinaturas nem fase.

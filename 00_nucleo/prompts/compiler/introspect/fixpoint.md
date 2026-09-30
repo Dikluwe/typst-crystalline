@@ -1,185 +1,68 @@
-# Prompt L0 — `rules/introspect/fixpoint`
-Hash do Código: e602268f
+# L0 — introspect/fixpoint
+Hash do Código: 9d8c3e8c
 
-> **P1140.4-A2:** a sequência pós-walk inclui
-> `apply_equation_numberings`. O harness fica coerente com o entrypoint runtime
-> de produção, mas L3 não é descrito como reavaliação completa: usa
-> `introspect_with_runtime` sobre conteúdo pós-contexto estabilizado.
+```text
+```
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/introspect/fixpoint.rs`
-**Criado em**: 2026-04-29 (P174 sub-passo .D — mecanismo LOOP_EXTERNAL para fixpoint)
-**ADRs relevantes**: ADR-0066 (Introspection runtime)
+## Ownership and evidence
 
----
+Layer: L1. Sole consumer: `01_core/src/compiler/introspect/fixpoint.rs`.
+`run_fixpoint` at `:75` returns `Result<TagIntrospector, FixpointError>`;
+`introspect_to_fixpoint` at `:149` is its direct wrapper.
+The current L3 consumers use single-walk runtime entrypoints from
+`00_nucleo/prompts/compiler/introspect.md`, not this full reevaluation loop.
+Source call-site evidence and its reproduction are recorded in
+`00_nucleo/diagnosticos/sanitization-introspection-columns-history.md`.
 
-## Contexto
+## API and bounded loop
 
-`run_fixpoint` é o helper que orquestra um loop de fixpoint até convergência:
-
-1. Coloca `TagIntrospector` da iter anterior em `EvalContext.introspector`.
-2. Chama closure `eval_step` para produzir `Content`.
-3. Walk + `from_tags` produzem `(state, introspector)` da iter actual.
-4. Compara hash de tags vs iter anterior — se igual, converge; senão, repete.
-5. Hard cap em `MAX_FIXPOINT_ITERATIONS = 5`.
-
-**P174 entrega mecanismo sem clientes.** Caller actual (`introspect()` legacy + Layouter pipeline) não usa fixpoint. Adopção é P175+ quando primeira feature stdlib que depende de introspector ser materializada (`query`, `here`, `counter.at`).
-
-Vanilla equivalente: `comemo::analyze::analyze` + memoization. Cristalino simplifica: loop explícito sem memoization (M7+ refino com comemo).
-
----
-
-## Restrições Estruturais
-
-- Camada **L1**: closure-based, sem I/O directa.
-- `eval_step` é `FnMut` que recebe `&mut Engine + &mut EvalContext` e retorna `SourceResult<Content>`. Caller decide como evaluar (parse + eval, ou Content pré-construído para tests).
-- Walk em `introspect.rs::walk` **NÃO modificado**.
-- `introspect_with_introspector` signature **inalterada**.
-- Determinístico: dado mesmo input, fixpoint converge no mesmo número de iters com mesmo resultado.
-
----
-
-## Interface pública
+Preserve MAX_FIXPOINT_ITERATIONS = 5 and these signatures:
 
 ```rust
-use crate::entities::content::Content;
-use crate::entities::counter_state_legacy::CounterStateLegacy;
-use crate::entities::engine::Engine;
-use crate::entities::introspector::TagIntrospector;
-use crate::entities::source_result::{SourceDiagnostic, SourceResult};
-use crate::compiler::eval::EvalContext;
-
-/// Hard cap de iterações. Vanilla usa 5; cristalino segue paridade.
-pub const MAX_FIXPOINT_ITERATIONS: usize = 5;
-
-/// Erro do loop de fixpoint.
-#[derive(Debug)]
-pub enum FixpointError {
-    /// Loop excedeu `MAX_FIXPOINT_ITERATIONS` sem convergir.
-    NotConverged,
-    /// Closure `eval_step` retornou erro.
-    Eval(Vec<SourceDiagnostic>),
-}
-
 pub fn run_fixpoint<F>(
     engine: &mut Engine<'_>,
-    ctx:    &mut EvalContext,
+    ctx: &mut EvalContext,
     eval_step: F,
-) -> Result<(CounterStateLegacy, TagIntrospector), FixpointError>
+) -> Result<TagIntrospector, FixpointError>
 where
     F: FnMut(&mut Engine<'_>, &mut EvalContext) -> SourceResult<Content>;
 
-/// **P175** — entry point semanticamente claro para introspecção com
-/// fixpoint. Wrapper directo sobre `run_fixpoint`. Adopção opt-in
-/// quando feature stdlib (e.g. `query`) requer introspector populado
-/// de iter anterior.
 pub fn introspect_to_fixpoint<F>(
-    engine:    &mut Engine<'_>,
-    ctx:       &mut EvalContext,
+    engine: &mut Engine<'_>,
+    ctx: &mut EvalContext,
     eval_step: F,
-) -> Result<(CounterStateLegacy, TagIntrospector), FixpointError>
+) -> Result<TagIntrospector, FixpointError>
 where
     F: FnMut(&mut Engine<'_>, &mut EvalContext) -> SourceResult<Content>;
 ```
 
----
+Begin with an empty previous introspector and no previous tag hash. On each
+bounded iteration, clone that introspector into ctx.introspector, evaluate the
+closure, then walk its content with a fresh Locator, tag vector, introspector,
+auto-label counter and default StyleChain; the language argument is None.
+No separate CounterStateLegacy value is created or returned.
 
-## Semântica
+Compute the tag hash and coordinate the child-owned passes in current order:
+state functions, counter functions, state displays, counter displays,
+equation numbering, equation supplements, equation realization.
+After those passes, equality with the preceding iteration's tag hash returns
+the current introspector. Otherwise retain its hash/introspector and repeat.
+The first hash alone cannot establish convergence. Exhaustion returns
+FixpointError::NotConverged; evaluation and fallible postprocessing errors
+return FixpointError::Eval immediately, not a partial success.
 
-- **Iteração 0**: `ctx.introspector = TagIntrospector::empty()` (default). `eval_step` é chamado; produz `content_0`. Walk + `from_tags` produzem `(state_0, introspector_0)`. `prev_tags_hash = Some(hash(tags_0))`.
-- **Iteração N (N ≥ 1)**: `ctx.introspector = introspector_{N-1}.clone()`. `eval_step` produz `content_N`. Walk + `from_tags` produzem `(state_N, introspector_N)`. Se `hash(tags_N) == prev_tags_hash`, converge e retorna `(state_N, introspector_N)`. Senão, `prev_tags_hash = Some(hash(tags_N))` e repete.
-- **Não-convergência**: ao atingir `MAX_FIXPOINT_ITERATIONS` sem hash igual ao anterior, retorna `Err(NotConverged)`.
-- **Erro de eval**: closure retornar `Err(diagnostics)` propaga como `Err(Eval(diagnostics))` no primeiro tick que erra.
-- **Doc sem queries**: closure retorna sempre mesmo Content → converge em 2 iter (1 produção + 1 confirmação).
+## Boundaries and acceptance
 
----
+Hashing is owned by `00_nucleo/prompts/compiler/introspect/convergence.md`;
+callback semantics by `00_nucleo/prompts/compiler/introspect/from_tags.md`;
+the causal walk by `00_nucleo/prompts/compiler/introspect.md`.
+This helper does not independently add the parent's bibliography conversion,
+outline-entry synthesis or parent-index preparation. Do not infer equivalence
+of every prepared store with the production entrypoint.
 
-## Algoritmo
-
-```rust
-pub fn run_fixpoint<F>(
-    engine: &mut Engine<'_>,
-    ctx:    &mut EvalContext,
-    mut eval_step: F,
-) -> Result<(CounterStateLegacy, TagIntrospector), FixpointError>
-where
-    F: FnMut(&mut Engine<'_>, &mut EvalContext) -> SourceResult<Content>,
-{
-    let mut prev_introspector = TagIntrospector::empty();
-    let mut prev_tags_hash: Option<u64> = None;
-
-    for _iteration in 0..MAX_FIXPOINT_ITERATIONS {
-        ctx.introspector = prev_introspector.clone();
-
-        let content = eval_step(engine, ctx).map_err(FixpointError::Eval)?;
-
-        let mut state = CounterStateLegacy::new();
-        let mut locator = Locator::new();
-        let mut tags: Vec<Tag> = Vec::new();
-        walk(&content, &mut state, &mut locator, &mut tags, None);
-
-        let curr_hash = compute_tags_hash(&tags);
-        let introspector = from_tags(&tags, Some(engine), Some(ctx));
-
-        if let Some(prev_hash) = prev_tags_hash {
-            if prev_hash == curr_hash {
-                return Ok((state, introspector));
-            }
-        }
-
-        prev_tags_hash = Some(curr_hash);
-        prev_introspector = introspector;
-    }
-
-    Err(FixpointError::NotConverged)
-}
-```
-
-**Nota convergência**: requer **dois** ciclos consecutivos com mesmo hash. Primeira iter nunca converge (sem `prev`). Doc trivial converge em 2 iter (iter 0 produz tags; iter 1 confirma).
-
----
-
-## Tests obrigatórios
-
-- `fixpoint_converge_em_doc_estavel`: closure retorna Content fixo → convergência em 2 iter.
-- `fixpoint_excede_cap_oscilatorio`: closure depende de contador interno e oscila → `NotConverged`.
-- `fixpoint_propaga_erro_eval`: closure retorna `Err` → `Eval(_)`.
-- `fixpoint_introspector_actualiza_entre_iters`: closure observa `ctx.introspector` e regista — iter 1 vê iter 0 populado.
-
----
-
-## Consumers
-
-Nenhum em P174 (mecanismo sem clientes). Adopção planeada em P175+:
-- `query()` / `here()` / `counter.at` — features stdlib que dependem de introspector populado.
-- Layouter / pipeline migra para usar `run_fixpoint` quando features acima existirem.
-
----
-
-## Sobre paridade
-
-Vanilla orquestra fixpoint via `comemo::analyze::analyze`. Cristalino simplifica: closure + loop linear sem memoization. Custo: 2× eval no caso típico; até 5× para docs com queries instáveis. M7+ pode introduzir comemo se justificado.
-
-**Determinismo**: walk + from_tags determinísticos (P163 + P173). Eval determinístico (Funcs sem side effects, vanilla proibition). Fixpoint herda determinismo.
-
----
-
-## Resultado Esperado
-
-- `01_core/src/compiler/introspect/fixpoint.rs` — `MAX_FIXPOINT_ITERATIONS` const + `FixpointError` enum + `run_fixpoint` fn + 4 tests.
-- Re-export em `01_core/src/compiler/introspect.rs` (`pub mod fixpoint`).
-
----
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-04-29 | P174 sub-passo .D: helper LOOP_EXTERNAL para fixpoint runtime | `fixpoint.rs`, `fixpoint.md` |
-| 2026-04-29 | P175 sub-passo .E: entry point opt-in `introspect_to_fixpoint` | `fixpoint.rs`, `fixpoint.md` |
-
----
-
-## P844 (achado #47 de P831) — contrato de `query()` actualizado
-
-- O teste E2E de fixpoint (`p179_stdlib_query_via_fixpoint_retorna_content_p844`, ex-`p179_stdlib_query_retorna_locations_via_fixpoint`) foi actualizado: com o sub-store `elements` populado pelo walk, `query()` devolve `Value::Content` (paridade vanilla); `Value::Location` só como fallback de introspectors sintéticos sem walk.
+Keep the linear bounded mechanism without new memoization or I/O.
+Test stable successive evaluations, dependence on the preceding introspector,
+bounded non-convergence, evaluation/runtime errors and wrapper equivalence.
+Hash equality is this helper's mechanical stopping rule, not proof of all
+language observables or authorization to substitute it for pipeline
+stabilization. No promised future migration or production adoption is implied.

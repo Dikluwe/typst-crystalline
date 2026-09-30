@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/selector_matching.md
-//! @prompt-hash 387a811a
+//! @prompt-hash c0cfa497
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -311,10 +311,10 @@ fn native_element_field(content: &Content, field: &str) -> Option<Value> {
             Some(raw.lang.clone().map(Value::Str).unwrap_or(Value::None))
         }
         (Content::Raw(raw), "block") => Some(Value::Bool(raw.block)),
-        (Content::Styled(body, _), "body")
+        (Content::Styled(styled), "body")
             if is_styled_origin(content, true, true, true, true, true) =>
         {
-            Some(Value::Content(body.as_ref().clone()))
+            Some(Value::Content(styled.body.clone()))
         }
         _ => content.get_field(field),
     }
@@ -365,7 +365,6 @@ pub(crate) fn is_node_rule(selector: &Selector) -> bool {
     }
 }
 
-
 /// O caminho textual dedicado aceita somente estes dois selectors; os de
 /// elemento e de parágrafo conservam os seus pontos de intercepção.
 pub(crate) fn is_text_rule(selector: &Selector) -> bool {
@@ -384,7 +383,6 @@ pub(crate) fn textual_selector_matches(selector: &Selector, text: &str) -> bool 
         _ => false,
     }
 }
-
 
 /// Offsets UTF-8 das ocorrências não vazias e não sobrepostas no grupo já
 /// normalizado; a projeção para nós originais pertence ao owner rules.
@@ -490,7 +488,8 @@ fn is_styled_origin(
     highlight: bool,
 ) -> bool {
     match work {
-        Content::Styled(_, styles) => {
+        Content::Styled(styled) => {
+            let styles = &styled.styles;
             let d = styles.delta();
             let mut ok = false;
             if bold_from_strong {

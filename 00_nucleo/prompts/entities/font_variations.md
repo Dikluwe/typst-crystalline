@@ -1,96 +1,59 @@
-# Prompt L0 — entities/font_variations
+# L0 — Explicit OpenType variation axes
 Hash do Código: 8669fc16
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/font_variations.rs`
-**Passo**: P836 (achado #21 de P831)
-**ADRs relevantes**: ADR-0033 (paridade vanilla — mensagens de erro são
-observáveis), ADR-0107 (paridade com a linguagem), ADR-0108 (medição
-antes de decisão — valores abaixo medidos em `temp/p836/` com
-`lab/typst-original/target/release/typst`, o binário de referência **como estava em
-2026-07-22**; o lab foi resincronizado a 2026-08-07 e o baseline ratificado passou a
-upstream/main `a51e02804`, logo o rótulo "0.15.0" desta medição não identifica o binário
-actual — ver `CLAUDE.md` §"Referência de paridade").
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/font_variations.rs`
 
-## Contexto
+## Evidence
 
-`FontVariations` é o contraponto cristalino de
-`lab/typst-original/crates/typst-library/src/text/font/variations.rs::FontVariations`:
-a lista de coordenadas de eixo OpenType explícitas vindas de
-`#text(variations: (wght: 250))` (constructor) e de
-`#set text(variations: ...)` (set rule — no vanilla o campo é
-`#[fold] #[ghost]`, `text/mod.rs:846-850`, logo settable e dobrável).
+Historical upstream evidence in `text/font/variations.rs:196-214,234`,
+`text/mod.rs:846-850` and `tag.rs:22-27,91-112` supports normalization, folding,
+settable axes and tag validation. The former probe provenance is preserved in
+the sanitation diagnostic, not represented as current-pin parity proof.
 
-L1 não pode depender de `ttf_parser` — a tag é armazenada como
-`[u8; 4]` (padding com espaço `0x20`, paridade
-`Tag::from_bytes_lossy`, `tag.rs:22-27`).
+## Public contract
 
-## Interface pública
+`FontVariations(pub Vec<([u8; 4], f32)>)` derives Debug/Clone/PartialEq/Default.
+`is_empty` checks axes. `from_value(&Value, Span)` returns
+`Result<Self, Vec<SourceDiagnostic>>`; `from_validated_dict(&IndexMap<EcoString,
+Value, FxBuildHasher>) -> Self` ignores unexpected entries without failing.
+`fold(&self, outer: &FontVariations) -> FontVariations` gives inner tags
+precedence and retains outer tags missing inside. Both construction paths
+normalize by tag, sort and deduplicate with later occurrence winning.
 
-```rust
-#[derive(Debug, Clone, PartialEq, Default)]
-pub struct FontVariations(pub Vec<([u8; 4], f32)>);
+## Validation and observable diagnostics
 
-impl FontVariations {
-    /// `true` se não houver eixos.
-    pub fn is_empty(&self) -> bool;
+Input must be a dictionary; otherwise use `expected dictionary, found {type}`
+without a tag hint. For each entry in dictionary order, preserve this precedence:
 
-    /// Valida um `Value` vindo do eval (espera `Value::Dict`) e constrói
-    /// a lista normalizada. Erros replicam o vanilla verbatim
-    /// (mensagem + hints), com o hint final
-    /// `occurred in tag at index {i} (`"{key}"`)` por entrada
-    /// (`variations.rs:234 tag_hint_helper`).
-    pub fn from_value(value: &Value, span: Span) -> Result<Self, Vec<SourceDiagnostic>>;
+1. Reject characters outside printable ASCII 0x20..=0x7E with
+   `tag may contain only printable ASCII characters` and the hint
+   `found invalid cluster` followed by the quoted offending cluster.
+2. Require tag byte length 1..=4 with
+   `tag must be one to four characters in length` and `found {n} characters`.
+3. Permit spaces only as trailing padding, never leading/interior, with
+   `spaces may only appear as padding following a tag` and no specific hint.
+4. Convert Int/Float to f32; reject other values with
+   `expected float, found {type}`. Map short type names int/str/bool to
+   integer/string/boolean in these diagnostics.
 
-    /// Constrói a partir de um dict já validado (caminho do resolver da
-    /// style chain — nunca falha; entradas inesperadas são ignoradas).
-    pub fn from_validated_dict(dict: &IndexMap<EcoString, Value, FxBuildHasher>) -> Self;
+Append the following hint after each entry-specific hint:
 
-    /// Fold da style chain (paridade `Fold for FontVariations`,
-    /// `variations.rs:210-214`): `self` (interno) vence por tag;
-    /// tags de `outer` ausentes em `self` sobrevivem.
-    pub fn fold(&self, outer: &FontVariations) -> FontVariations;
-}
+```text
+occurred in tag at index {i} (`"{key}"`)
 ```
 
-## Semântica de validação (paridade vanilla, medida em P836)
+The invalid-cluster hint is exactly:
 
-Ordem das verificações por entrada `(key, value)` (índice `i` = posição
-de iteração do dict):
+```text
+found invalid cluster `"{cluster}"`
+```
+No range validation is introduced; clamping belongs to shaping/instancing.
+Tags are [u8;4] padded with ASCII space, without a ttf_parser dependency.
+The existing chars-versus-grapheme diagnostic limitation remains explicit;
+it does not establish full combining-sequence parity.
 
-1. **Tag com caracteres não ASCII-imprimíveis** (fora de `0x20..=0x7E`):
-   `tag may contain only printable ASCII characters`
-   + hint `found invalid cluster `"{cluster}"``
-   (`tag.rs:91-97`). O cristalino itera `chars()` em vez de grapheme
-   clusters (unicode-segmentation não está na whitelist L1) — diverge
-   apenas em sequências combinantes, registado como limitação.
-2. **Comprimento da tag** (bytes; ASCII garantido por 1): fora de
-   `1..=4` → `tag must be one to four characters in length`
-   + hint `found {n} characters` (`tag.rs:99-104`).
-3. **Espaços**: espaço no índice 0 ou após o início do padding →
-   `spaces may only appear as padding following a tag`, sem hint
-   específico (`tag.rs:106-112`).
-4. **Valor**: `Value::Int` → `f32`; `Value::Float` → `f32`; outro →
-   `expected float, found {type}` com nomes de tipo vanilla
-   (`int`→`integer`, `str`→`string`, `bool`→`boolean`).
-5. **Valor não-dict** em `from_value`: `expected dictionary, found {type}`
-   (sem hint de tag — medido: `#text(variations: 5)`).
-
-Todos os erros de entrada (1-4) levam o hint final
-`occurred in tag at index {i} (`"{key}"`)` **depois** do hint
-específico. **Não há validação de faixa** (`wght: 99999` compila no
-vanilla — medido em `temp/p836/e5_range.typ`, exit 0); o clamp é
-feito pelo shaper/instancer, como no vanilla.
-
-## Normalização
-
-`from_value`/`from_validated_dict` devolvem a lista **ordenada por tag**
-com dedup "later wins" (paridade `normalized()`, `variations.rs:196-208`).
-Dicts da linguagem não têm chaves duplicadas (o eval rejeita), logo o
-dedup só é exercido pelo `fold`.
-
-## Invariantes
-
-- Pureza L1: sem I/O, sem `ttf_parser`, sem unicode-segmentation.
-- `PartialEq` estrutural — usado na chave de dedup de fontes do export
-  (`(FontList, FontVariant, FontVariations)`).
+The owner is pure L1, with no I/O or parser/runtime types in its public boundary.
+Structural PartialEq supports resource keys; style resolution and physical font
+instancing remain separate owners. Verify normalization, fold precedence,
+lenient validated input, diagnostic text/hint order and supplied spans.

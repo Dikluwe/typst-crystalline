@@ -1,92 +1,30 @@
-# Prompt L0 — `infra/font_variant` — Helpers para Variation Fonts
+# L0 — Font variation helpers and static instancing
 Hash do Código: f4ea81ad
 
-**Camada**: L3  
-**Criado em**: 2026-07-01  
-**Arquivos gerados**: `03_infra/src/font_variant.rs` (novo), `03_infra/src/font_variant_instancer.py` (novo), alterações em `03_infra/src/shaper.rs`, `03_infra/src/pipeline.rs`, `03_infra/src/export/builder.rs`, `03_infra/src/export/stream.rs`, `03_infra/src/export/mod.rs`  
-**ADR referência**: ADR-0107, ADR-0108, ADR-0109, ADR-0120
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/font_variant.rs`
 
----
+## Current evidence
 
-## Contexto
+- `03_infra/src/font_variant.rs:27` — `text_style_to_font_variant`.
+- `03_infra/src/font_variant.rs:45` — derived axes.
+- `03_infra/src/font_variant.rs:76` and `:87` — explicit variation merging.
+- `03_infra/src/font_variant.rs:130`, `:174`, `:199` — inline Python script, availability probe and instancing.
 
-O shaper (P525) passou a aplicar coordenadas de eixo OpenType (`wght`, `ital`) via `rustybuzz::Face::set_variations`, calculando avanços correctos para cada peso/estilo. No entanto, o export PDF embutia sempre a instância default da fonte, pelo que `text(weight: 700)` numa fonte VF não era visualmente bold (regressão confirmada em P527/P528).
+These are current local source anchors, not a new upstream parity measurement.
 
-A P529 validou que a instanciação estática é viável **se feita depois do subsetting**: `oxifont-subset` reduz a fonte para poucos glifos, e `fontTools.varLib.instancer` opera sobre essa fonte pequena em ~0.3s por combinação.
+## Contract
 
-Este módulo centraliza os helpers necessários para:
+Own conversion between the existing L1 `TextStyle`/`FontVariant` and L3 OpenType axes, variable-font detection, the subprocess availability probe and static instancing. The script is embedded as `INSTANCER_SCRIPT` in this Rust consumer; there is no separate Python-file consumer.
 
-1. Converter `TextStyle` → `FontVariant`.
-2. Mapear `FontVariant` → coordenadas de eixo OpenType (`wght`, `ital`).
-3. Detectar se uma fonte é variável (tabela `fvar`).
-4. Instanciar estaticamente uma fonte VF subsetada para uma combinação de eixos.
+An explicit weight wins over `bold`; otherwise use bold or regular weight. `italic` selects Italic, otherwise Normal; stretch remains Normal. Derived axes include `wght` only for weight other than 400 and `ital=1` for Italic. No `wdth`, oblique-angle or `slnt` mapping is introduced. `axis_variations_for_text_style` and `merge_explicit_variations` replace a derived value by the explicit value with the same tag and append new explicit tags.
 
-## Restrições Estruturais
+`is_variable_font` parses face zero and detects `fvar`; invalid bytes return false. `instantiate_variable_font` returns unchanged copied bytes for empty variations, a nonvariable font or no matching font axes. Otherwise filter requests to available axes and invoke the embedded script with binary stdin/stdout. Remove `GPOS`/`GSUB`/`GDEF`, fix every unrequested axis at its default and use `fontTools.varLib.instancer.instantiateVariableFont` to produce static bytes. Failed process setup, input writing or completion returns `None`; failed exit preserves the existing stderr message. The caller owns whether failure is fatal or a fallback.
 
-- Toda a lógica de instanciação fica em L3 (`03_infra/src/font_variant.rs`).
-- L1 continua a expor `FontVariant`, `FontWeight`, `FontStyle`, `FontStretch` como entidades puras.
-- O shaper (L3) e a pipeline/export (L3) partilham o mesmo mapeamento `TextStyle` → `FontVariant` → eixos.
-- A instanciação só ocorre quando:
-  - a fonte for VF (`fvar` presente);
-  - a `FontVariant` pedir um peso/estilo diferente do default;
-  - a fonte tiver os eixos correspondentes (filtrar eixos inexistentes).
-- Eixos não explicitamente pedidos mas presentes na fonte devem ser fixados ao seu valor default, de modo a produzir uma fonte totalmente estática (remover `fvar`/`gvar`).
-- O instancer remove `GPOS`/`GSUB`/`GDEF` antes da instanciação, porque o shaper já aplicou kerning/ligatures e o fontTools pode falhar ao processar tabelas OTL subsetadas.
-- A dependência de Python + fontTools em runtime deve ser documentada; se não estiver disponível, o export faz fallback para a instância default com aviso.
+Use `TYPST_CRYSTALLINE_PYTHON` when configured, otherwise `python3` from PATH. `variable_font_instancer_available` probes `import fontTools` without forwarding subprocess output. Python/fontTools are runtime dependencies of the active instancing path.
 
-## Instrução
+`00_nucleo/prompts/infra/pipeline/resources.md` owns early resource validation; the PDF builder's font owner owns subsetting and the point at which it invokes instancing. Font-key identity and exporter dispatch are not owned here. Parser and rustybuzz types remain in L3.
 
-1. Criar `03_infra/src/font_variant.rs` com as funções públicas:
-   ```rust
-   pub fn text_style_to_font_variant(style: &TextStyle) -> FontVariant;
-   pub fn axis_variations_for_font_variant(variant: &FontVariant) -> Vec<rustybuzz::Variation>;
-   pub fn is_variable_font(data: &[u8]) -> bool;
-   pub fn instantiate_variable_font(
-       data: &[u8],
-       variations: &[(ttf_parser::Tag, f32)],
-   ) -> Option<Vec<u8>>;
-   ```
+## Verification boundary
 
-2. Criar `03_infra/src/font_variant_instancer.py` embebido via `include_str!`.
-   - Lê a fonte subsetada de stdin (binário).
-   - Remove `GPOS`/`GSUB`/`GDEF`.
-   - Preenche eixos não pedidos com valores default.
-   - Aplica `fontTools.varLib.instancer.instantiateVariableFont`.
-   - Escreve a fonte estática em stdout (binário).
-
-3. Mover as funções `text_style_to_font_variant` e `axis_variations_for_font_variant` de `shaper.rs` para `font_variant.rs`; `shaper.rs` importa-as.
-
-4. Na pipeline (`pipeline.rs`):
-   - `collect_fonts_from_doc` devolve `Vec<(FontList, FontVariant)>`.
-   - `resolve_font` recebe `&FontVariant` e usa `font_book.select_pattern(name, variant)`.
-   - `resolve_fonts` devolve `Vec<((FontList, FontVariant), Vec<u8>)>`.
-
-5. No export (`export/mod.rs`, `export/builder.rs`, `export/stream.rs`):
-   - `export_pdf_multifont` e `build_multifont` recebem `&[((FontList, FontVariant), Vec<u8>)]`.
-   - Após subsetar cada fonte, se houver eixos a aplicar, chamar `instantiate_variable_font`.
-   - `FontScenario::Multifont` e `emit_text_pdf`/`emit_shaped_pdf` seleccionam a fonte por `(FontList, FontVariant)`.
-
-## Testes
-
-- `p525_axis_variations_weight_italic` (em `shaper.rs`): mapeamento `FontVariant` → eixos.
-- Teste de pipeline: documento com `weight: 700` e `weight: 100` numa VF gera múltiplas fontes embutidas com `/W` distintos.
-- Teste E2E: compilação do corpus CFF (P523) continua a passar.
-
-## Notas
-
-- `stretch` e `Oblique(angle)` não são suportados pelo `TextStyle` actual; os ramos correspondentes ficam preparados para futuro.
-- A dependência de Python em runtime é uma limitação conhecida; alternativas Rust-native (Fontations/skrifa) devem ser pesquisadas para versões futuras.
-
-## P836 — `axis_variations_for_text_style`
-
-Nova função `axis_variations_for_text_style(style: &TextStyle) ->
-Vec<rustybuzz::Variation>`: funde os eixos derivados de
-`axis_variations_for_font_variant(text_style_to_font_variant(style))`
-com os eixos explícitos de `style.variations`
-(`#text(variations:)`), com os explícitos a vencer por tag — paridade
-`automatic.chain(custom).normalized()` do vanilla
-(`text/font/mod.rs:113-120`).
-
-Passa a ser a função usada por todos os call sites que têm `TextStyle`
-(shaper, font_metrics, pipeline, export builder); a função por
-`FontVariant` fica para os sítios sem style (testes).
+Existing inline tests distinguish derived axes, explicit overrides, additional axes and explicit-only requests. Resource/export tests verify instancing integration under their own owners; this prompt does not impose an unconditional default-font fallback on them.

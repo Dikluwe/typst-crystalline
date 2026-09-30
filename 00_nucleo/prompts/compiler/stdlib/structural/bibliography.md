@@ -1,97 +1,19 @@
-# Prompt L0 — `compiler/stdlib/structural/bibliography` — bibliografia e citação
+# L0 — stdlib/structural/bibliography
 Hash do Código: 724bb68b
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/bibliography.rs`
-**Prompt pai (hub)**: `00_nucleo/prompts/compiler/stdlib/structural.md` — dono de
-`structural/mod.rs` e da história acumulada destas nativas (marcos P69…P962). Este L0
-especifica **a superfície do nó**; o detalhe por marco vive no pai.
-**Convenções partilhadas**: `00_nucleo/prompts/compiler/stdlib/_comum.md`
-**Vanilla**: `typst-library/src/model/{bibliography,cite}.rs`. Co-mudança: P159a/c/d/e/g movem `extract_bib_entries`, `native_bibliography` e `native_cite` sempre juntos.
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/stdlib/structural/bibliography.rs`
 
----
+## Evidence and classification
 
-## Contexto
+`01_core/src/compiler/stdlib/structural/bibliography.rs:48`, `01_core/src/compiler/stdlib/structural/bibliography.rs:266`, `01_core/src/compiler/stdlib/structural/bibliography.rs:381` identifies the ownership boundary. Inspection is not new bilateral parity evidence or upstream intent. Historical evidence retains its original provenance in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-`bibliography` e `cite` são um par com acoplamento semântico no próprio vanilla: a
-citação só resolve contra as entradas registadas pela bibliografia.
+## Contract and ownership
 
-**Fronteira de camada**: este nó **não lê ficheiros**. As entradas chegam já parseadas
-como `Value::Array<Value::Dict>` — o parsing de BibTeX vive em `compiler/eval/bibtex.rs`
-e o carregamento em L3. É o que mantém o nó em L1.
+Own bibliography/cite construction, entry extraction and strict citation-form/style parsing. bibliography accepts pre-parsed Array<Dict> entries or Path|Str loaded through the owning eval bibliography helper; Path identity goes directly to World::read_path, while Str resolves relative to the caller before reading through the same helper. No direct file I/O or local BibTeX parser; injected World access through the loader is not a filesystem dependency of this unit. Preserve cross-file rooted identity.
 
-## Instrução
+bibliography preserves title/style/locale and registers the same entries. Omitted style defaults to "ieee"; explicit Str selects it, explicit none disables it. Do not promote the textual style parameter to Path without a separately specified contract. cite accepts key and optional supplement/form/style, resolving only registered entries. Form/style matching is strict and case-sensitive; Auto/None becomes None, "prose" is valid but "Prose" is not. Preserve existing casts, diagnostics and entry semantics; loading/parsing and CSL/rendering remain with their owners.
 
-| Nativa | Assinatura |
-|---|---|
-| `bibliography` | `bibliography(entries: array, title: ?, style: ?, locale: ?)` → `Content::Bibliography` |
-| `cite` | `cite(key, supplement: ?, form: ?, style: ?)` → `Content::Cite` |
+## Acceptance
 
-### Extractores (privados ao nó)
-
-- `extract_bib_entries` — coage `Array<Dict>` para `Vec<BibEntry>` conforme P159A §5 +
-  P159D/E/G §5.1.
-- `extract_citation_form` (P159C) e `extract_citation_style` (P468) — parsing de
-  `Value::Str` com **matching estrito e sensível a maiúsculas**; `auto`/`none` → `None`.
-
-## Restrições Estruturais
-
-- L1 puro: zero I/O, zero acesso a `World` para ficheiros `.bib`.
-- O matching de forma/estilo é estrito por decisão registada — não aceitar variantes
-  case-insensitive nem abreviaturas.
-
-## Critérios de Verificação
-
-```
-#bibliography(entries)                  → Content::Bibliography
-#cite("key")                            → Content::Cite
-#cite("k", form: "prose")               → form reconhecida
-#cite("k", form: "Prose")               → Err (matching sensível a maiúsculas)
-#cite("k", form: auto)                  → None
-#bibliography(entries, style: "ieee")   → estilo reconhecido
-```
-
----
-
-## P1034 — `bibliography.style` tem default `"ieee"`
-
-**Achado 2 do P1031**, medido: `A @netwok B @netwok C @other D @netwok` +
-`#bibliography("works.bib")` sem `style` dava, no vanilla, `A [1] B [1] C [2] D [1]` com
-entradas IEEE; no cristalino, `B` saía como `ibid.` e `D` como `op. cit.`, com formato CSL
-diferente. Com `style: "ieee"` explícito os dois já coincidiam — logo o caminho CSL estava
-correcto e faltava só o default.
-
-`native_bibliography` passa a distinguir três casos, como o `figure.numbering` (§P1034 de
-`layout_figure.md`):
-
-| `args.named["style"]` | resultado |
-|---|---|
-| `Some(Value::Str(s))` | `s` |
-| `Some(Value::None)` — `style: none` | `None` (desactiva explicitamente) |
-| ausente | **`"ieee"`** |
-
-Verificação (2026-08-13, binários do dono do passo): o texto extraído do PDF passa a ser
-idêntico ao do vanilla no caso acima, incluindo as duas entradas formatadas.
-
-## P1141 — entrada bibliográfica `path | str` (gate ADR-0127)
-
-### Medição antes da decisão
-
-O cristalino aceita `Value::Str` como primeiro posicional e delega a
-`compiler/eval/bibliography::load_bib_entries_from_path`, que chama
-`World::read_bytes(current_file, path)`. A infraestrutura vanilla de paths
-mede `PathOrStr` como união pública para funções que leem ficheiros; a sonda
-cross-file P1141 demonstra que um path pré-resolvido não pode ganhar a base do
-consumer.
-
-### Decisão
-
-O primeiro posicional de `bibliography` aceita `Value::Path | Value::Str`, além
-das entradas in-memory já suportadas. A leitura usa o helper único P1141:
-`RootedPath` segue direto a `World::read_path`; string resolve no caller e então
-lê pelo mesmo método. Parsing, registro de entries, `title`, `style`, `locale`
-e semântica de `cite` não mudam. O parâmetro textual `style` não é promovido a
-path neste lote: sua resolução builtin/ficheiro é contrato separado e não foi
-medida como `PathOrStr`.
-
-O cast público muda; implementar somente após confirmação do gate.
+Preserve syntax, semantics, morphology, diagnostics/hints/spans, bindings, defaults and identities. No productive code or compatibility change is authorized by this sanitation. Preserve pinned shared claims and exclusive ownership under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.

@@ -1,112 +1,95 @@
-# Prompt L0 — `heading`
-Hash do Código: f26fb75c
+# L0 — introspect/heading
+Hash do Código: f934ac2c
 
+```text
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
+```
 
-## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
+## Ownership and evidence
 
-### Medição anterior à decisão
+Layer: L1. Sole consumer: `01_core/src/compiler/introspect/heading.rs`.
+The current snapshot_fields body at `:22` and TOC projections at `:93`,
+`:122` implement the helpers below. The parent calls snapshot_fields while
+the causal chain/label is available (`01_core/src/compiler/introspect.rs:2016`);
+the Heading branch applies inclusion gates after walking the body.
+`01_core/src/compiler/stdlib/structural/heading.rs:127` and
+`01_core/src/compiler/eval/rules.rs:1620` delimit the existing producers.
+Implemented snapshots must not be described as an awaiting-materialization
+proposal, nor as evidence of support for every parser-accepted heading option.
 
-Baseline histórico R5:
-HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
-commitado com diff/stat integral. A medição independente R5, SHA-256
-`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
-preserva fontes, horários e executáveis; referência upstream `a51e02804`.
+## Walk-branch refinement measurement
 
-`entities/elements/heading.rs:24–52` distingue nível e máscara de presença;
-`compiler/introspect.rs:1327–1350` ainda dispõe da chain. Fonte ratificada
-`model/heading.rs:249–285` sintetiza level/supplement;
-`text/lang.rs:619–654` localiza pela língua/região e fallback inglês.
-As translations então ratificadas `crates/typst-library/translations/*.txt`
-definiam heading; por exemplo en:5 Section e pt:5 Seção. P1459 substitui a
-transcrição local por um owner de fase neutra e atualiza francês para o pin
-vigente, onde `fr:5` é `Section`, não o antigo `Chapitre`.
+At the uncommitted state captured in
+`00_nucleo/diagnosticos/atomizacao-introspect-heading-label-2026-09-30-before.json.gz`,
+`01_core/src/compiler/introspect.rs:2083-2220` owns the Heading walk branch,
+while this consumer already owns snapshot and TOC computations. The `introspect`
+test filter passed 263 tests before movement. This is evidence of separable
+behavior, not a new timing or bilateral vanilla measurement.
 
-Medição adicional de fonte: Content::heading_numbered em
-`entities/content.rs:1500–1501` cria gate true sem pattern para fixtures;
-`compiler/layout/heading.rs:85–104` usa nesse caso um prefixo legado, não um
-pattern recuperável.
+## Complete modeled snapshot
 
-### Decisão proprietária
+Keep the pure descendant helper receiving HeadingElem, StyleChain and optional
+causal Label and returning the ordered public field map:
 
-Acrescentar helper puro `pub(super)` da feature, chamado pelo walk magro,
-que recebe `&HeadingElem`, `&StyleChain` e `Option<&Label>` e devolve
-`IndexMap<EcoString, Value, FxBuildHasher>`. Não há API pública de callback,
-Engine, acesso a filesystem/lab em runtime ou import reverso.
+| Field | Captured value |
+| --- | --- |
+| level | The modeled heading level as an integer. |
+| depth | The modeled level when HEADING_SET_DEPTH is present; otherwise 1. |
+| offset | 0, without inventing an unmodeled custom offset. |
+| numbering | Exact string only when heading.numbering is Bool(true) and heading.numbering.pattern is Str; otherwise None. |
+| supplement | Text Content from the canonical heading language supplement owner at the causal language. |
+| outlined | The stored boolean. |
+| bookmarked | Explicit boolean, or Auto when absent; not is_bookmarked(). |
+| hanging-indent | Auto for the currently modeled producer. |
+| body | The frozen semantic body Content, not plain text. |
+| label | Causal Label, appended last only when present. |
 
-A ordem e os valores para o domínio produtor atualmente modelado são:
+A stale ancestral pattern does not override a disabled gate.
+For a synthetic active gate without a recoverable language string pattern,
+capture numbering None; do not derive a pattern from a rendered prefix or
+claim parity of that synthetic input. Function/internal non-string patterns
+are not fabricated into strings.
 
-| Campo | Origem/valor |
-|---|---|
-| level | Inteiro h.level já representado pelo produtor. |
-| depth | h.level se HEADING_SET_DEPTH; 1 no constructor sem depth modelado. |
-| offset | Inteiro 0: offset custom não está modelado neste recorte. |
-| numbering | String exata somente quando gate heading.numbering é true e heading.numbering.pattern é Str; nos demais estados, None. Não usar só o pattern: set none pode deixar um pattern ancestral. |
-| supplement | Content::Text com nome localizado de Heading para a língua causal; auto é resolvido aqui, não no encoder. |
-| outlined | Bool h.outlined. |
-| bookmarked | Bool explícito h.bookmarked ou Auto se None, não is_bookmarked(). |
-| hanging-indent | Auto: custom não modelado neste recorte. |
-| body | Value::Content do mesmo h.body congelado. |
-| label | Value::Label da label causal, somente quando presente. |
+Use only `compiler::lang::heading_supplement_for_lang`, owned by
+`00_nucleo/prompts/compiler/lang/heading_supplement.md`. Missing language
+uses English without mutating StyleChain or activating hyphenation.
+Do not load translations at runtime, infer an environmental region or maintain
+a competing table. French is Section through the canonical owner.
+The pinned snapshot nucleus owns authoritative presence and causal immutability.
 
-Decisão explícita para o estado interno medido de gate sem pattern: expor
-numbering None no snapshot, mantendo o gate e o render legado inalterados.
-Não afirmar paridade desse input sintético nem que None descreve seu render;
-é ausência de pattern de linguagem modelado, não inferência de string pelo
-prefixo. Teste de domínio fixa essa projeção e a independência do gate.
-Os testes obrigatórios de linguagem numerada usam gate+pattern realmente
-transportados. Um Func ou tipo interno não modelado também não vira pattern.
+## TOC projections
 
-Para língua ausente, usar en sem alterar StyleChain::lang nem ativar
-hifenização. P1459 move a decisão para
-`compiler/lang/heading_supplement.rs`: este consumer deve chamar
-`heading_supplement_for_lang(Some(&lang))`, sem tabela, fallback ou literal
-próprio. Não carregar translations em runtime, não importar lab, não tratar
-todo idioma diferente de pt como inglês. Região não transportada pelo
-produtor atual continua dívida explícita; não inventar região do ambiente.
+Compute sequential auto-toc labels and location-aware heading numbers without
+mutating the introspector. When numbering is active, the auto-label text and
+outline prefix are the hierarchical number with a trailing dot; when inactive,
+auto-label text is empty and the optional outline number is absent.
+Do not add a heading supplement to the outline number.
+Return the supplied frozen body and level with the auto label and optional
+number. The parent walk allocates the real Heading Location and emits its real Start/End.
+The Heading descendant owns its complete walk branch: increments the threaded
+auto-label counter, captures numbering from the causal StyleChain, freezes the
+body at the Heading Location, walks descendants once through the parent walk,
+then emits derived auto-label, TOC and bookmark tags in that order at the same
+Location. The descendant independently gates outlined and bookmarked records.
+It calls the parent tag-store population helper before each derived Start and
+keeps each paired zero-hash End. The parent match remains exhaustive and
+delegates this branch by a static free-function call.
+Body references' supplemented text belongs to
+`00_nucleo/prompts/compiler/introspect/labelled.md`.
 
-Limite deliberado: snapshot completo significa todos os campos do estado
-**efetivamente modelado**, não paridade de todo named que o parser tolera.
-Este adendo não amplia native_heading/eval rules: supplement custom/none/Func,
-numbering Func, set level/depth/offset/outlined/bookmarked/hanging-indent e
-precedência de numbering:none no constructor sob set ancestral permanecem
-dívidas anteriores. Esses inputs não podem ser usados para alegar paridade;
-também não justificam apagar casos R4 obrigatórios de Heading padrão.
-Este L0 de transporte é completo no seu recorte; não há constructor novo
-parcialmente materializado nem promessa de completar todas essas dívidas em
-um passo ainda inexistente.
+## Acceptance and modeled boundary
 
-Aceitação inclui default, markup em mais de um nível, constructor level
-explícito, numbering "1"/"I"/set none, língua en/pt e controle de outra
-tradução da fonte, label presente/ausente, snapshot anterior preservado após
-novo estilo. TOC/counters e suas funções existentes conservam comportamento.
+Cover default/markup/explicit levels, transported string numbering and set none,
+causal language/label, snapshot reuse after style changes, auto-label sequencing
+and numbered/un-numbered TOC projection. Preserve counter/TOC behavior.
 
----
-
-
-
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/introspect/heading.rs`
-**ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0129
-
-## Medição e contrato
-
-Computar metadados de heading para TOC automático e explícito, preservando nível, corpo, localização e política de inclusão.
-
-O dispatcher mantém braço magro, exaustivo e estático. A função da feature
-acede ao motor por descendência de módulo; entidade de domínio não importa o
-consumer e nenhum despacho dinâmico é introduzido.
-
-## Aceitação
-
-Testes focais e a suíte do subsistema preservam comportamento e morfologia;
-alteração observável exige medição e decisão próprias.
-
-## P1459 — owner canónico do supplement
-
-`snapshot_fields` continua a capturar o supplement enquanto a cadeia causal
-existe, mas a forma linguística vem exclusivamente do owner
-`compiler/lang/heading_supplement.rs`. A snapshot francesa deve expor
-`Section`; remover a tabela privada deste ficheiro é parte da aceitação.
+A complete snapshot means complete fields of the modeled producer, not universal
+heading parity. Custom supplement/Func/none, numbering Func, custom offset or
+hanging indent, untransported region and all set-rule heading fields are not
+made supported by this helper. Constructor outlined/bookmarked and explicit
+level already exist; do not incorrectly classify those as future features.
+Precedence of constructor numbering:none under an ancestral set and show-set
+language effects across phases require separate evidence/owner decisions.
+No new constructor, callback API, public field or phase is authorized here.

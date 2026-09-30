@@ -1,240 +1,31 @@
-# L0 — Layout: Referências e Labels
+# L0 — references
 Hash do Código: 790cd40e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/references/unreferencable-label.toml sha256:5dde6e7f84150a121e671dab0d174798e8b56f24355147c1bcc471d6babd69ed
 
-## Módulo
-`01_core/src/compiler/layout/references.rs`
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/references.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Propósito
-Encapsula os braços `Ref` e `Labelled`. Resolve `@nome` (`Content::Ref`) usando
-o `Introspector` fornecido ao Layouter. O caminho numérico P462 consulta
-`Introspector::counter_key_for_label` + `query_by_label` e formata o número do
-counter correspondente. O caminho legacy (`Content::Labelled`) continua a usar
-`resolved_labels` / `figure_label_numbers` injectados pela introspecção
-(Passagem 1). Supplements de figure, tanto no caminho numérico como no
-fallback legacy, são obtidos do owner linguístico
-`compiler/lang/figure_supplement.rs`; este módulo não mantém uma segunda
-tabela ou bifurcação por língua. P463 envolve todo `Ref` num
-`FrameItem::Link` com destino interno (`LinkTarget::Destination`), tornando a
-referência clicável no PDF.
+## Evidence before specification
 
-## Regras de negócio
-- `Labelled { target, label }` → layout transparente do target, depois registo
-  da página em `counter.label_pages`. O registo ocorre **depois** do layout
-  porque o target pode forçar uma quebra de página.
-- `Ref { target }`:
-  1. Caminho P462 (`Content::Label`): se `counter_key_for_label` retornar uma
-     chave, formata o número na `Location` da label usando o counter
-     correspondente e prefixa `supplement` (explícito ou default do tipo).
-  2. Fallback legacy: `figure_number_for_label(&label)` → `"Fig. {n}"`, ou
-     `resolved_label_for(&label)` → texto resolvido (ex: `"Secção 1"`).
-  3. Label não encontrada → renderizar `"?"`.
-- `current_page_number()` no Layouter: `self.pages.len() + 1` (Abordagem A).
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/references.rs:77`, `01_core/src/compiler/layout/references.rs:283`, `01_core/src/compiler/layout/references.rs:30`, `01_core/src/compiler/layout/references.rs:54`, `01_core/src/compiler/layout/references.rs:249`.
 
-## Critérios de verificação
-- `Ref` a heading numerado via `Content::Label` → número (ex: `"1"`) no
-  plain_text.
-- `Ref` a figure numerada via `Content::Label` usa o mesmo supplement
-  localizado da legenda (`Figure`, `Figura`, `Abbildung`, `Tableau`, etc.) e
-  junta-o ao número com NBSP.
-- `Ref` a equation numerada → `"Equation 1"` (`en`) / `"Equação 1"` (`pt`) (P1073).
-- `Ref` a table numerada → `"Table 1"`.
-- Supplement explícito sobrepõe default.
-- Label inexistente → `"?"`, sem panic.
-- `Ref` produz `FrameItem::Link { target: LinkTarget::Destination(label), .. }`.
-- `Content::Link` continua a produzir `LinkTarget::Url` (sem regressão).
-- Label registada → `counter.label_pages` contém a chave após layout.
-- Layout de label num elemento que força quebra de página → página registada
-  é a do elemento, não a anterior.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
----
+## Ownership and contract
 
-## §P788 — Validação de refs (erros do vanilla) + precedência numérica + suplemento por língua
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-**Decisão (mensagens medidas no vanilla 0.15.0 por execução, 2026-07-20):**
+Own Label and Ref layout, not introspection stores or language tables. Label renders its body transparently, then records the current physical page and its captured point in runtime maps. Ref to an existing bibliography key delegates to `00_nucleo/prompts/compiler/layout/cite.md` with the supplement.
 
-1. **Label inexistente** → erro fatal de layout (via `layout_errors`):
-   `` label `<{name}>` does not exist in the document `` — antes renderizava
-   "?" em silêncio (P786 A10). Existência = qualquer caminho conhece o label
-   (counter key / figure number / resolved legacy / query_by_label / unreferencable label registry).
-2. **Ref a heading sem `numbering`** → erro:
-   `cannot reference heading without numbering` + hint
-   `` you can enable heading numbering with `#set heading(numbering: "1.")` ``
-   — antes renderizava vazio em silêncio (P786 A8). A flag por Location vem
-   do introspector (`heading_numbering`, ver introspector.md/introspect.md §P788).
-3. **Ref a equation sem `numbering`** → erro:
-   `cannot reference equation without numbering` + hint
-   `` you can enable equation numbering with `#set math.equation(numbering: "1.")` ``
-   (paridade vanilla 0.15.0). A flag por Location vem do introspector
-   (`equation_numbering`, análoga a `heading_numbering`).
-4. **Ref a label existente mas não referenciável** (texto simples, lista, raw,
-   ou outro elemento sem counter/figure/resolução) → erro específico do tipo:
-   - Texto / lista / enum / termo / conteúdo genérico → `cannot reference text`.
-   - Bloco raw → `cannot reference raw directly, try putting it into a figure`.
-   - Outros elementos não numeráveis → mensagem genérica equivalente ao vanilla.
-   
-   Estes labels são registados no `Introspector` como *unreferencable labels*
-   durante o walk (ver §P856 abaixo).
-5. **Precedência numérica sobre o legacy `Labelled`:** os dois
-   `label_to_counter_key.remove()` (walk `Content::Label` + populate arm
-   `Labelled`) são **removidos** — refs a heading/equation/table/figure
-   numerados usam o caminho do counter (formatado), ficando o
-   `resolved_labels` legacy como fallback de última linha.
-6. **Suplemento default de heading por língua** (decisão original P788,
-   supersedida por P1459): `en` → `Section `, `pt` → `Seção ` e outras
-   línguas caíam em inglês, lendo `layouter.style.lang`. P1459 remove essa
-   limitação e a segunda decisão linguística; ver secção própria abaixo.
-7. **Spans:** `RefElem` não carrega span — os erros seguem com
-   `Span::detached()` (limitação registada; vanilla aponta o `@ref`).
+For ordinary references, preserve current validation precedence: unreferencable kind diagnostics before generic existence checks, then heading/equation numbering checks and numeric/legacy resolution. Emit the exact current errors and hints, with detached spans because the element lacks a span. Numeric counter-key/location formatting takes precedence; legacy figure/resolved-label data remains fallback. Missing labels are diagnosed, not silently changed back to a question mark. Preserve internal destination links and the current pending/emitted-item collection behavior.
 
----
+An explicit supplement, including empty Content, overrides the implicit one. Equation defaults consume its causal realized supplement; figure defaults and legacy figure fallback delegate to the language owner. Heading defaults first extract the causal prefix from resolved label text only when it ends in ASCII space plus the same formatted number; otherwise use the language owner's deterministic current-style fallback. Do not add bilingual tables, kind-label catalogs or infer a target language that was not carried. A non-empty prefix joins number with U+00A0 once.
 
-## §P856 — Registo de labels não referenciáveis (unreferencable labels)
+For Page form, preserve existing known-label/page lookup, missing-numbering diagnostic/hint, explicit-versus-PageStore supplement precedence and internal link. Function numbering consumes PageStore.reference_numbering without Func execution. The current Pattern branch still formats the physical page index locally; its conflict with the older shared unary logical-store promise is unresolved. A not-yet-known page retains the existing linked question-mark path rather than fabricated numbering. This cleanup does not authorize changes to numbering views or labels.
 
-**Motivação:** P856 valida que `#ref(<lbl>)` sobre uma label existente mas
-associada a conteúdo não numerável (texto, raw, etc.) produz a mensagem de
-erro do vanilla (`cannot reference text`, `cannot reference raw directly, ...`)
-em vez de `label <lbl> does not exist in the document`.
+## Acceptance and limits
 
-**Decisão arquitetural:**
-
-1. Durante o walk de introspecção (`compiler/introspect.rs`), quando o braço
-   `Content::Label` não-auto encontra um `body` que **não** produz um Tag
-   locatable (heading, figure, equation, table), registar o par
-   `(Label, UnreferencableKind)` num novo sub-store do `TagIntrospector`:
-   `unreferencable_labels: HashMap<Label, UnreferencableKind>`.
-2. O enum `UnreferencableKind` (em `entities/label_kind.rs` ou dentro de
-   `element_payload.rs`) tem pelo menos:
-   - `Text` — texto simples, parágrafos, listas, enums, terms, etc.
-   - `Raw` — blocos de código/raw.
-   - `Other` — fallback para tipos não mapeados.
-3. O trait `Introspector` expõe:
-   ```rust
-   fn unreferencable_label_kind(&self, label: &Label) -> Option<UnreferencableKind>;
-   fn equation_has_numbering(&self, location: Location) -> Option<bool>;
-   ```
-4. `layout_ref` consulta `unreferencable_label_kind` **depois** de confirmar
-   que a label não é referenciável pelos caminhos numéricos/legacy. Se
-   `Some(kind)`, emite o erro correspondente em vez de
-   `label <name> does not exist in the document`.
-5. Labels em elementos numeráveis mas com numbering desactivado **não** entram
-   em `unreferencable_labels`; são tratados pelas verificações específicas de
-   `heading_has_numbering` e `equation_has_numbering`.
-
-**Critérios de verificação:**
-- `#ref(<lbl>)` sobre parágrafo `<lbl>` → `cannot reference text`.
-- `#ref(<lbl>)` sobre lista `<lbl>` → `cannot reference text`.
-- `#ref(<lbl>)` sobre raw `<lbl>` → `cannot reference raw directly, try putting it into a figure`.
-- `#ref(<eq>)` sobre equation sem numbering → `cannot reference equation without numbering` + hint.
-- `#ref(<h>)` sobre heading sem numbering continua a funcionar (sem regressão).
-- `#ref(<h>)` sobre heading com numbering continua a funcionar (sem regressão).
-- Label genuinamente inexistente continua a dar `label <x> does not exist in the document`.
-
-## P1140.4-C — suplemento próprio da equação
-
-### Medição antes da decisão
-
-No vanilla, `reference.rs:341-355` dá precedência ao suplemento explícito da
-ref; `none`/vazio omite prefixo; não vazio junta com NBSP. Probes produziram
-`Equation 1`, `2`, `3`, `Eq. 4` e `FUN 5`; `@eq[Ref]` sobre elemento `Elem`
-produziu `Ref 1`. O cristalino hoje ignora suplemento do alvo e deriva default
-da língua corrente (`references.rs:235-249`).
-
-### Decisão
-
-Para Equation, `resolve_ref_text` consulta primeiro o suplemento explícito do
-`RefElem`; se ausente, consulta `equation_supplement_content(loc)`. Conteúdo
-vazio gera apenas número; conteúdo não vazio usa `plain_text`, U+00A0 e o
-número formatado. O fallback genérico por língua deixa de ser fonte quando o
-sub-store tem entrada. Referência sem numbering falha antes. O layout não
-chama callbacks nem relê locale.
-## P1140.25 — `ref(form: "page")`
-
-A forma Page consulta numbering/supplement validados da página do alvo, aplica a
-precedência explícita, compõe NBSP somente com supplement não vazio e mantém o
-link interno. Ver `entities/page_supplement.md`.
-
-## P1157 — referência de página usa vista unária
-
-### Medição antes da decisão
-
-Com footer explícito, callback variádico produziu `R1` na referência; callback
-binário falhou por falta de `total`. Assim referência chama exatamente com o
-número lógico corrente.
-
-### Decisão
-
-`ref(form: "page")` consome `reference_numbering` já realizado no PageStore e
-nunca chama Func durante layout. Pattern usa o mesmo slot, realizado pelo owner
-compartilhado com `[current]`. Supplement explícito mantém precedência e NBSP;
-conteúdo vazio omite só o número, não o link.
-
-## P1458 — remover o hardcode bilingue de referências de figure
-
-### Medição anterior à decisão
-
-No commit `f6463768d8bb093a59577ff6f3262a9c5f8eb448`, a fixture pública com
-`#set text(lang: "de")`, uma figure `image` numerada e `@abbildung` produziu
-`Abbildung 1: Bild` na legenda nos dois produtos. A referência produziu
-`Abbildung 1` no vanilla ratificado `586e1bd43`, mas `Figure 1` no cristalino.
-O consumer medido em `references.rs:391-411` continha uma segunda decisão
-`is_pt`: português recebia tradução e qualquer outra língua recebia inglês,
-apesar de `figure_supplement_for_lang` já ser o owner das 18 combinações
-legitimadas por `compiler/lang/figure_supplement.md`.
-
-### Decisão
-
-Para toda `CounterKey::Str("figure:{kind}")`, o supplement default é
-`figure_supplement_for_lang(kind, lang)`. O fallback legacy de figure usa o
-mesmo owner com kind `image`. Supplement explícito conserva precedência e o
-join conserva U+00A0. É proibido manter ou recriar neste módulo catálogo,
-`is_pt`, match de kind, texto Figure/Figura/Table/Listing ou fallback próprio
-para figures.
-
-### Aceitação
-
-- em `de`, legenda e referência de image dizem `Abbildung 1`;
-- `figure:table` e `figure:raw` observam as traduções do owner para as línguas
-  já cobertas;
-- `en`, `pt`, supplement explícito, número, NBSP, link e erros permanecem;
-- língua/kind não cobertos preservam o fallback definido exclusivamente pelo
-  owner linguístico.
-
-## P1459 — remover o hardcode bilingue de referências de heading
-
-### Medição anterior à decisão
-
-No commit `c7577a031847ff38e4780044bc4132c1d92a14b9`, um heading alemão
-referenciado sob texto francês produziu `Abschnitt 1` no vanilla ratificado
-`586e1bd43` e `Section 1` no cristalino. Trocar apenas o branch por uma chamada
-com `layouter.style.lang` continuaria errado: o vanilla conserva a língua do
-alvo. A introspecção já guarda em `resolved_labels` a forma construída quando
-a língua causal do alvo existe.
-
-### Decisão
-
-Para `CounterKey::Heading` com supplement implícito, recuperar de
-`resolved_label_for(label)` o prefixo causal somente quando a representação
-termina exatamente em espaço ASCII + o mesmo counter formatado. O número
-continua vindo do caminho numérico; a composição pública continua no join
-único com U+00A0. Supplement explícito, inclusive conteúdo vazio, tem
-precedência absoluta e não consulta o store.
-
-Se um introspector sintético ou caminho legacy não possuir transporte causal,
-usar defensivamente `heading_supplement_for_lang(layouter.style.lang)`; essa
-queda não autoriza alegar língua causal para um alvo cuja cadeia não foi
-armazenada. É proibido manter ou recriar neste módulo tabela, `is_pt`, branch
-por língua ou literais `Section`/`Seção`/`Abschnitt`.
-
-### Aceitação
-
-- alvo `de` sob referência `fr` → `Abschnitt 1`;
-- alvo `fr` sob referência `de` → `Section`, nunca `Chapitre`;
-- alvos `es` e `it` preservam `Sección` e `Sezione` sob outras línguas;
-- forward e backward refs coincidem;
-- supplement explícito e vazio conservam precedência;
-- o separador público continua U+00A0;
-- ausência do store mantém fallback determinístico sem panic;
-- snapshot/query, transporte labelled e layout consomem um único owner.
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.

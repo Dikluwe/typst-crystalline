@@ -1,0 +1,212 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/compiler/layout/text/style.md
+//! @prompt-hash 8f6c6c6b
+//! @layer L1
+//! @updated 2026-09-28
+
+use super::{FontMetrics, ImageSizer, Layouter};
+use crate::entities::{layout_types::{Pt, TextStyle, TextEdge, Length}, value::Value};
+
+pub(super) fn effective_style<M: FontMetrics, S: ImageSizer>(layouter: &Layouter<M, S>) -> TextStyle {
+    // **F-5b fatia 2 (P373, §3a.13/§3a.14)**: o render do `#set text`/
+    // `#set par` não vem mais assado no node — vive na chain pelo canal
+    // `custom` (`"text.<campo>"` / `"par.leading"`), levado até aqui pelo
+    // transporte aninhado. Decodifica-o num node-render `ns` (Value→tipo)
+    // e aplica a MESMA regra de merge top-wins de antes: a chain tipada
+    // (`layouter.style` — heading, e Bold/Italic de `Content::Styled`) vence;
+    // o `ns` cobre o resto.
+    let cs = |k: &str| layouter.chain.custom(k);
+    let ns_bold = matches!(cs("text.bold"), Some(Value::Bool(true)));
+    let ns_italic = matches!(cs("text.italic"), Some(Value::Bool(true)));
+    let ns_size = match cs("text.size") {
+        Some(Value::Length(l)) => Some(Pt(l.abs.to_pt())),
+        _ => None,
+    };
+    let ns_fill = match cs("text.fill") {
+        Some(Value::Color(c)) => Some(c.clone()),
+        _ => None,
+    };
+    let ns_weight = match cs("text.weight") {
+        Some(Value::Int(n)) => u16::try_from(*n).ok(),
+        _ => None,
+    };
+    let ns_style_italic = matches!(cs("text.style"), Some(Value::Str(s)) if s.as_str() == "italic" || s.as_str() == "oblique");
+    let ns_tracking = match cs("text.tracking") {
+        Some(Value::Length(l)) => Some(l.clone()),
+        _ => None,
+    };
+    let ns_leading = match cs("par.leading") {
+        Some(Value::Length(l)) => Some(l.clone()),
+        _ => None,
+    };
+    // P836 — `variations` não usa `custom()` (top-wins de 1 nível): o campo
+    // é `#[fold]` no vanilla, logo resolve com fold por tag sobre TODOS os
+    // níveis da chain (`StyleChain::variations()`).
+    let ns_variations = layouter.chain.variations();
+    // P837 — `top-edge`/`bottom-edge` aceitam métrica nomeada (`Value::Str`)
+    // ou comprimento explícito (`Value::Length`), paridade dos casts
+    // `TopEdge`/`BottomEdge` do vanilla (`text/mod.rs:1169-1225`).
+    let ns_top_edge = match cs("text.top-edge") {
+        Some(Value::Str(s)) => Some(TextEdge::Metric(s.clone())),
+        Some(Value::Length(l)) => Some(TextEdge::Length(*l)),
+        _ => None,
+    };
+    let ns_bottom_edge = match cs("text.bottom-edge") {
+        Some(Value::Str(s)) => Some(TextEdge::Metric(s.clone())),
+        Some(Value::Length(l)) => Some(TextEdge::Length(*l)),
+        _ => None,
+    };
+    let ns_lang = match cs("text.lang") {
+        Some(Value::Str(s)) => {
+            use std::str::FromStr;
+            crate::entities::lang::Lang::from_str(s).ok()
+        }
+        _ => None,
+    };
+    let ns_dir = match cs("text.dir") {
+        Some(Value::Dir(dir)) => Some(*dir),
+        _ => None,
+    };
+    let ns_font = match cs("text.font") {
+        Some(Value::Array(arr)) => {
+            use crate::entities::font_list::{FontFamily, FontNamePattern};
+            use ecow::EcoString;
+
+            let fams: Vec<_> = arr
+                .iter()
+                .filter_map(|v| {
+                    match v {
+                        // Forma P292/P373: string literal, variants vazio.
+                        Value::Str(s) => Some(FontFamily::new(s.clone())),
+                        // Forma P407/P414: dict com name (Str|Regex) + variants
+                        // (Array[Str]) e campos named optionais variant/weight/style.
+                        Value::Dict(dict) => {
+                            let name = dict.get("name")?;
+                            let pattern = match name {
+                                Value::Str(s) => FontNamePattern::Literal(s.clone()),
+                                Value::Regex(re) => FontNamePattern::Regex(re.clone()),
+                                _ => return None, // neutro: N16[β] — Content não-textual retorna None na projecção de texto
+                            };
+                            let variants: Vec<EcoString> = match dict.get("variants") {
+                                Some(Value::Array(arr)) => arr
+                                    .iter()
+                                    .filter_map(|v| match v {
+                                        Value::Str(s) => Some(s.clone()),
+                                        _ => None,
+                                    })
+                                    .collect(),
+                                _ => return None,
+                            };
+                            let variant = dict.get("variant").and_then(|v| {
+                                if let Value::Str(s) = v {
+                                    Some(s.clone())
+                                } else {
+                                    None
+                                }
+                            });
+                            let weight = dict.get("weight").and_then(|v| {
+                                if let Value::Str(s) = v {
+                                    Some(s.clone())
+                                } else {
+                                    None
+                                }
+                            });
+                            let style = dict.get("style").and_then(|v| {
+                                if let Value::Str(s) = v {
+                                    Some(s.clone())
+                                } else {
+                                    None
+                                }
+                            });
+                            Some(FontFamily {
+                                name: pattern,
+                                variants,
+                                variant,
+                                weight,
+                                style,
+                                covers: None,
+                            })
+                        }
+                        _ => None, // neutro: N16[β] — Content não-textual retorna None na extracção de estilos de texto
+                    }
+                })
+                .collect();
+            crate::entities::font_list::FontList::new(fams)
+        }
+        _ => None,
+    };
+    // **P978** — `size`: a regra documentada do merge ("a chain tipada
+    // vence") estava invertida — `ns_size.unwrap_or(...)` deixava o
+    // `#set text(size:)` sobrepor-se a tamanhos deliberados do layout
+    // (escala de heading, super/subscrito). `layouter.style.size` já
+    // inclui o `#set` via sync da chain (verificado por instrumentação),
+    // logo vence sempre — `heading.md` §P978.
+    let _ = ns_size;
+    let mut effective = TextStyle {
+        bold: ns_bold || layouter.style.bold,
+        italic: ns_italic || ns_style_italic || layouter.style.italic,
+        semantic_strong: layouter.style.semantic_strong,
+        semantic_emph: layouter.style.semantic_emph,
+        size: layouter.style.size,
+        fill: layouter.style.fill.clone().or(ns_fill),
+        heading_level: layouter.style.heading_level,
+        // Top-wins: chain tipada (heading) vence; senão o ns (#set).
+        weight: layouter.style.weight.or(ns_weight),
+        tracking: layouter.style.tracking.clone().or(ns_tracking),
+        leading: layouter.style.leading.clone().or(ns_leading),
+        top_edge: layouter.style.top_edge.clone().or(ns_top_edge),
+        bottom_edge: layouter.style.bottom_edge.clone().or(ns_bottom_edge),
+        lang: layouter.style.lang.clone().or(ns_lang),
+        // P660 fix: `#set text(font: ...)` deve substituir a fonte default da
+        // chain (Libertinus Serif). A chain tipada (heading) ainda vence porque
+        // o eval show-rule já assa a fonte no `StyleDelta::font` da chain, e
+        // `ns_font` (do canal custom `text.font`) é None nesse caminho.
+        font: ns_font.or(layouter.style.font.clone()),
+        dir: layouter.style.dir.or(ns_dir),
+        subscript: layouter.style.subscript,
+        superscript: layouter.style.superscript,
+        highlight: layouter.style.highlight.clone(),
+        highlight_radius: layouter.style.highlight_radius,
+        highlight_extent: layouter.style.highlight_extent,
+        subscript_size: layouter.style.subscript_size,
+        superscript_size: layouter.style.superscript_size,
+        baseline_offset: layouter.style.baseline_offset,
+        // P784 — herda do style corrente (regular ou math); este merge não
+        // é math-específico, só reflecte o valor já activo no layouter.
+        math: layouter.style.math,
+        // P1293 — preserva a proveniência já escolhida pelo layouter math;
+        // este merge textual não sintetiza nem apaga `TextItem`.
+        math_text_item: layouter.style.math_text_item,
+        // P891 — mesmo motivo: herda o valor já activo, este merge não é
+        // script-específico.
+        math_script: layouter.style.math_script,
+        // P915 — mesmo motivo de math_script: herda o valor já activo,
+        // este merge não é cramped-específico.
+        cramped: layouter.style.cramped,
+        // P945 — mesmo motivo de math_script/cramped: herda o nível já
+        // activo, este merge não é math-size-específico.
+        math_size: layouter.style.math_size,
+        // P836 — eixos explícitos: o herdado (`layouter.style`, ex. vindo de
+        // `Content::Styled` do constructor) vence; senão o fold da chain.
+        variations: layouter.style.variations.clone().or(ns_variations),
+    };
+
+    // **P448/P471**: subscrito/sobrescrito reduzem o corpo e deslocam a baseline.
+    // P471: `size` explícito substitui a escala padrão de 65%.
+    const SCRIPT_SCALE: f64 = 0.65;
+    if effective.subscript {
+        effective.size = effective
+            .subscript_size
+            .map(|l| Pt(l.resolve_pt(effective.size.val())))
+            .unwrap_or_else(|| Pt(effective.size.0 * SCRIPT_SCALE));
+        effective.baseline_offset = Length::em(-0.2);
+    } else if effective.superscript {
+        effective.size = effective
+            .superscript_size
+            .map(|l| Pt(l.resolve_pt(effective.size.val())))
+            .unwrap_or_else(|| Pt(effective.size.0 * SCRIPT_SCALE));
+        effective.baseline_offset = Length::em(0.3);
+    }
+
+    effective
+}

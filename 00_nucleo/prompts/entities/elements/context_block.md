@@ -1,16 +1,23 @@
-# Prompt L0 — `entities/elements/context_block`
+# L0 — Context block carrier
 Hash do Código: 173b59ad
 
-
-**Camada:** L1
-**Ficheiro proprietário:** `01_core/src/entities/elements/context_block.rs`
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/context_block.rs`
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/context/block-semantics.toml sha256:0ede5ade7908670f0440672becaba2aa356acc51346fd590dc426e4788dc6dd0
 
-## Contrato
+## Contract
 
-`ContextBlockElem` conserva `id` e `closure`. Clone preserva ambos; igualdade e
-hash usam o id. O elemento produz `ElementKind::ContextBlock` e payload com o
-id, preserva-se em map_content/map_text e não possui plain text próprio.
-Construção nativa e expansão pertencem a outros owners.
+
+`ContextBlockElem` preserves public `id: u64` and `closure: Func`. Clone
+preserves both; equality and hash use the id. It returns ContextBlock kind
+and a payload carrying the id, preserves itself through child/text maps and
+has no own plain text. Native construction and expansion are separate owners.
+
+
+The trait API/defaults belong to
+`00_nucleo/prompts/entities/elements/_comum.md`. This owner specifies only
+this element consumer; language constructors and layout algorithms remain
+with their respective owners. Historical inline-arm evidence is retained in
+`00_nucleo/diagnosticos/sanitization-entities-contracts-history.md`.

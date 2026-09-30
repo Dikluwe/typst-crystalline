@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural.md
-//! @prompt-hash 7cb3412f
+//! @prompt-hash 59507c7a
 //! @layer L1
-//! @updated 2026-08-12
+//! @updated 2026-09-28
 //!
 //! Funções nativas estruturais do stdlib. Extraído de `stdlib.rs` no
 //! Passo 96.5 conforme ADR-0037.
@@ -102,20 +102,35 @@ pub use lists::{
     native_terms_item,
 };
 pub use markup::{native_emph, native_link, native_raw, native_strong};
-pub(crate) use math::{
-    apply_math_cases_option, apply_math_matrix_option, equation_alt, equation_content,
-    equation_number_align, equation_supplement, math_abs_from_args, math_accent_content,
-    math_cases_delim, math_lr_from_args, math_matrix_augment, math_mid_from_args,
-    math_norm_from_args, math_overbrace_from_args, math_overbracket_from_args,
-    math_overline_from_args, math_overparen_from_args, math_overshell_from_args,
-    math_round_from_args, math_stretch_from_args, math_underbrace_from_args,
-    math_underbracket_from_args, math_underparen_from_args, math_undershell_from_args,
-    sqrt_content, MathCasesOptions, MathMatrixOptions,
+pub(crate) use math::abs::math_abs_from_args;
+pub(crate) use math::accent::math_accent_content;
+pub use math::accent::native_accent;
+pub(crate) use math::annotations::{
+    math_overbrace_from_args, math_overbracket_from_args, math_overparen_from_args,
+    math_overshell_from_args, math_underbrace_from_args, math_underbracket_from_args,
+    math_underparen_from_args, math_undershell_from_args,
 };
-pub use math::{
-    make_math_module, native_accent, native_cancel, native_math_class, native_op,
-    native_underover,
+pub use math::cancel::native_cancel;
+pub(crate) use math::cases::{
+    apply_math_cases_option, math_cases_delim, MathCasesOptions,
 };
+pub use math::class::native_math_class;
+pub(crate) use math::equation::{
+    equation_alt, equation_content, equation_number_align, equation_supplement,
+};
+pub(crate) use math::lr::math_lr_from_args;
+pub use math::make_math_module;
+pub(crate) use math::matrix::{
+    apply_math_matrix_option, math_matrix_augment, MathMatrixOptions,
+};
+pub(crate) use math::mid::math_mid_from_args;
+pub(crate) use math::norm::math_norm_from_args;
+pub use math::op::native_op;
+pub(crate) use math::overline::math_overline_from_args;
+pub(crate) use math::root::sqrt_content;
+pub(crate) use math::round::math_round_from_args;
+pub(crate) use math::stretch::math_stretch_from_args;
+pub use math::underover::native_underover;
 pub(crate) use outline::realize_outline_entry_page;
 pub use outline::{
     native_lof, native_lot, native_outline, native_outline_entry,
@@ -143,13 +158,13 @@ mod tests {
 
     use crate::compiler::eval::{EvalContext, EvalTarget};
     use crate::entities::args::Args;
+    use crate::entities::bytes::Bytes as ValueBytes;
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
     use crate::entities::source::Source;
     use crate::entities::source_result::SourceResult;
     use crate::entities::span::Span;
     use crate::entities::value::Value;
-    use crate::entities::bytes::Bytes as ValueBytes;
     use crate::entities::world_types::{
         Bytes, Datetime, FileError, FileResult, Font, Library,
     };
@@ -194,12 +209,7 @@ mod tests {
     fn call_document(args: Args) -> SourceResult<Value> {
         let mut context = EvalContext::new();
         context.target = EvalTarget::Bundle;
-        native_document(
-            &mut context,
-            &args,
-            &NullWorld::default(),
-            test_file_id(),
-        )
+        native_document(&mut context, &args, &NullWorld::default(), test_file_id())
     }
 
     fn call_asset(args: Args) -> SourceResult<Value> {
@@ -282,8 +292,15 @@ mod tests {
         )]))
         .unwrap();
         let Value::Content(Content::Document {
-            path, body, title, author, date, keywords, ..
-        }) = v else {
+            path,
+            body,
+            title,
+            author,
+            date,
+            keywords,
+            ..
+        }) = v
+        else {
             panic!("esperado Content::Document, recebeu {:?}", v);
         };
         assert_eq!(path.as_str(), "/a.pdf");
@@ -296,7 +313,8 @@ mod tests {
 
     #[test]
     fn native_document_author_str() {
-        let v = call_document(document_args(&[("author", Value::Str("Ana".into()))])).unwrap();
+        let v = call_document(document_args(&[("author", Value::Str("Ana".into()))]))
+            .unwrap();
         let Value::Content(Content::Document { author, .. }) = v else {
             panic!("esperado Document")
         };
@@ -318,7 +336,8 @@ mod tests {
 
     #[test]
     fn native_document_keywords_str() {
-        let v = call_document(document_args(&[("keywords", Value::Str("typst".into()))])).unwrap();
+        let v = call_document(document_args(&[("keywords", Value::Str("typst".into()))]))
+            .unwrap();
         let Value::Content(Content::Document { keywords, .. }) = v else {
             panic!("esperado Document")
         };
@@ -353,11 +372,13 @@ mod tests {
         let missing_path = call_document(Args::positional(vec![])).unwrap_err();
         assert_eq!(missing_path[0].message, "missing argument: path");
         let missing_body =
-            call_document(Args::positional(vec![Value::Str("a.pdf".into())])).unwrap_err();
+            call_document(Args::positional(vec![Value::Str("a.pdf".into())]))
+                .unwrap_err();
         assert_eq!(missing_body[0].message, "missing argument: body");
 
         let v = call_document(document_args(&[])).unwrap();
-        let Value::Content(Content::Document { title, author, date, keywords, .. }) = v else {
+        let Value::Content(Content::Document { title, author, date, keywords, .. }) = v
+        else {
             panic!("esperado Document")
         };
         assert!(title.is_none());
@@ -368,13 +389,15 @@ mod tests {
 
     #[test]
     fn native_document_rejects_unknown_named() {
-        let errors = call_document(document_args(&[("foo", Value::Str("x".into()))])).unwrap_err();
+        let errors =
+            call_document(document_args(&[("foo", Value::Str("x".into()))])).unwrap_err();
         assert!(errors[0].message.contains("foo"), "{errors:?}");
     }
 
     #[test]
     fn native_document_rejects_bad_author_type() {
-        let errors = call_document(document_args(&[("author", Value::Int(1))])).unwrap_err();
+        let errors =
+            call_document(document_args(&[("author", Value::Int(1))])).unwrap_err();
         assert!(errors[0].message.contains("author"), "{errors:?}");
     }
 
@@ -403,10 +426,8 @@ mod tests {
 
     #[test]
     fn native_asset_kind_explicit_is_rejected() {
-        let mut args = Args::positional(vec![
-            Value::Str("x".into()),
-            Value::Str("payload".into()),
-        ]);
+        let mut args =
+            Args::positional(vec![Value::Str("x".into()), Value::Str("payload".into())]);
         args.named.insert("kind".into(), Value::Str("custom".into()));
         let errors = call_asset(args).unwrap_err();
         assert_eq!(errors[0].message, "unexpected argument: kind");
@@ -457,15 +478,14 @@ mod tests {
     }
 
     #[test]
-    fn p806_par_body_content_devolvido_directamente() {
-        // P806 — `#par[...]` como função (achado #12 de P798): o body é
-        // devolvido directamente (parágrafos implícitos; standalone idêntico
-        // ao vanilla).
+    fn p806_par_body_content_preserva_elemento() {
+        // O constructor conserva a identidade de par e o conteúdo.
         let args = Args::positional(vec![Value::Content(Content::text("abc"))]);
         let v = call_par(args).unwrap();
         let Value::Content(c) = v else {
             panic!("esperado Content, recebeu {:?}", v);
         };
+        assert!(matches!(c, Content::Par { .. }));
         assert_eq!(c.plain_text(), "abc");
     }
 
@@ -476,6 +496,7 @@ mod tests {
         let Value::Content(c) = v else {
             panic!("esperado Content, recebeu {:?}", v);
         };
+        assert!(matches!(c, Content::Par { .. }));
         assert_eq!(c.plain_text(), "abc");
     }
 
@@ -486,22 +507,30 @@ mod tests {
         let mut args = Args::positional(vec![Value::Content(Content::text("abc"))]);
         args.named.insert("leading".into(), Value::Length(Length::pt(20.0)));
         let v = call_par(args).unwrap();
-        let Value::Content(Content::Styled(inner, _styles)) = v else {
+        let Value::Content(Content::Styled(styled)) = v else {
             panic!("esperado Content::Styled, recebeu {:?}", v);
         };
-        assert_eq!(inner.plain_text(), "abc");
+        assert!(matches!(styled.body, Content::Par { .. }));
+        assert_eq!(styled.body.plain_text(), "abc");
     }
 
     #[test]
-    fn p806_par_justify_aceite_e_ignorado() {
-        // Propriedade vanilla conhecida mas não honrada: aceite sem erro.
+    fn p806_par_justify_transportado() {
+        // A opção lexical é transportada sem perder o texto do body.
         let mut args = Args::positional(vec![Value::Content(Content::text("abc"))]);
         args.named.insert("justify".into(), Value::Bool(true));
         let v = call_par(args).unwrap();
-        let Value::Content(c) = v else {
+        let Value::Content(Content::Styled(c)) = v else {
             panic!("esperado Content, recebeu {:?}", v);
         };
-        assert_eq!(c.plain_text(), "abc");
+        assert!(matches!(c.body, Content::Par { .. }));
+        assert_eq!(c.body.plain_text(), "abc");
+        assert!(c
+            .styles
+            .delta()
+            .custom
+            .iter()
+            .any(|(k, v)| k == "par.justify" && v == &Value::Bool(true)));
     }
 
     #[test]
@@ -557,11 +586,11 @@ mod tests {
         let mut args = Args::positional(vec![Value::Int(2), Value::Str("Sub".into())]);
         args.named.insert("numbering".into(), Value::Str("1.1".into()));
         let v = call_heading(args).unwrap();
-        let Value::Content(Content::Styled(inner, styles)) = v else {
+        let Value::Content(Content::Styled(styled)) = v else {
             panic!("esperado Content::Styled, recebeu {:?}", v);
         };
-        assert!(matches!(inner.as_ref(), Content::Heading(h) if h.level == 2));
-        let custom = &styles.delta().custom;
+        assert!(matches!(&styled.body, Content::Heading(h) if h.level == 2));
+        let custom = &styled.styles.delta().custom;
         assert!(
             custom
                 .iter()
@@ -1135,6 +1164,49 @@ mod tests {
             err[0].message.contains(", found integer"),
             "sufixo de tipo vanilla; obteve: {}",
             err[0].message
+        );
+    }
+    #[test]
+    fn break_policy_native_par_validates_and_transports_justify() {
+        let mut args = Args::positional(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("justify".into(), Value::Bool(true));
+        let Value::Content(Content::Styled(s)) = call_par(args.clone()).unwrap() else {
+            panic!("policy not captured")
+        };
+        assert!(s
+            .styles
+            .delta()
+            .custom
+            .iter()
+            .any(|(k, v)| k == "par.justify" && v == &Value::Bool(true)));
+        assert_eq!(s.body.plain_text(), "x");
+        args.named.insert("justify".into(), Value::Int(1));
+        assert_eq!(
+            call_par(args).unwrap_err()[0].message,
+            "expected boolean, found integer"
+        );
+    }
+
+    #[test]
+    fn break_policy_native_par_checks_strategy_without_claiming_optimization() {
+        for value in
+            [Value::Auto, Value::Str("simple".into()), Value::Str("optimized".into())]
+        {
+            let mut args = Args::positional(vec![Value::Content(Content::text("x"))]);
+            args.named.insert("linebreaks".into(), value);
+            assert_eq!(
+                match call_par(args).unwrap() {
+                    Value::Content(c) => c.plain_text(),
+                    _ => panic!("content expected"),
+                },
+                "x"
+            );
+        }
+        let mut args = Args::positional(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("linebreaks".into(), Value::Str("nonsense".into()));
+        assert_eq!(
+            call_par(args).unwrap_err()[0].message,
+            "expected \"simple\", \"optimized\", or auto"
         );
     }
 }

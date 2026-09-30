@@ -1,46 +1,38 @@
-# Prompt L0 — comando `typst fonts`
+# L0 — Font inventory presentation
 Hash do Código: 7c6204a0
 
-**Camadas:** L2/L3/L4  
-**Ficheiros alvo:** `02_shell/src/cli.rs`, `02_shell/src/fonts.rs`,
-`03_infra/src/fonts.rs`, `04_wiring/src/main.rs`  
-**Estado:** especificado; aguarda confirmação ADR-0127
+**Layer:** L2
+**Exclusive consumer:** `02_shell/src/fonts.rs`
 
-## Medição anterior à decisão
+## Evidence and ownership
 
-O vanilla lista famílias descobertas e `--variants` detalha cada face
-(`lab/.../fonts.rs:12-33`); combina fontes de sistema e `--font-path`
-(`fonts.rs:36-54`). O cristalino já possui descoberta recursiva de TTF/OTF/
-TTC/OTC em `03_infra/src/fonts.rs:202-217`, mas não expõe inventário formatado
-nem comando.
+`02_shell/src/fonts.rs:11` defines the presentation DTO and `:21` formats an inventory supplied in memory. Discovery and deterministic inventory ordering belong to `00_nucleo/prompts/infra/fonts.md`; parsing belongs to `00_nucleo/prompts/shell/cli.md`; publication belongs to `00_nucleo/prompts/wiring/fonts.md`. This prompt owns none of those consumers.
 
-**Classificação:** superfície CLI; a descoberta é mecânica L3, enquanto nomes,
-ordem e variantes impressos são observáveis públicos.
+Family names, face details and display order are public presentation. Discovery mechanics and machine-specific absolute paths are not byte-parity requirements.
 
-## Contrato
+## Public contract
+
+`FontDisplayEntry` has `family: String`, `path: PathBuf`, `index: u32`, `style: String`, `weight: u16`, `stretch: u16` and `embedded: bool`. No `fontdb` or `ttf-parser` type crosses this L2 contract.
+
+`pub fn format_fonts(entries: &[FontDisplayEntry], variants: bool) -> String` preserves supplied order. It prints a family name followed by newline whenever the family differs from the preceding entry. Thus a grouped inventory yields one line per family; the formatter does not sort or globally deduplicate arbitrary input. Empty input yields an empty string.
+
+Without variants, print only family lines. With variants, insert a blank line between family groups and append for each face:
 
 ```text
-typst fonts [--font-path DIR ...] [--ignore-system-fonts] [--variants]
+  └ {origin}
+     Style: {style}, Weight: {weight}, Stretch: {percentage}%
 ```
 
-1. Sem `--variants`, uma família única por linha, em ordem determinística.
-2. `--variants` lista path/origem, style, weight e stretch de cada face.
-3. `--font-path` reutiliza descoberta L3 existente.
-4. Por default inclui fontes do sistema; `--ignore-system-fonts` limita aos
-   paths explícitos e fontes embutidas realmente disponíveis.
-5. Fonte inválida é ignorada como na descoberta de compilação; path ilegível
-   gera warning, não panic.
+Both lines end with newline. Origin is `(Embedded)` for an embedded face, otherwise the displayed path, with `#{index}` only when index is nonzero. Percentage is the normal numeric display of `stretch as f64 / 10.0`; do not impose fixed decimal padding.
 
-L3 devolve DTOs de inventário; L2 formata stdout; L4 somente compõe. Tipos de
-`fontdb`/`ttf-parser` não vazam no contrato público de L2.
+## Command integration and preserved obligation
 
-## Testes e aceitação
+`typst fonts [--font-path DIR ...] [--ignore-system-fonts] [--variants]` includes system fonts by default. Ignoring system fonts retains explicit paths and any genuinely available embedded fonts. Font paths follow the CLI's flag/environment precedence and empty-token filtering. L3 supplies a stable inventory and ignores invalid font data; L2 formats and L4 publishes.
 
-Fixture com duas famílias e coleção multiface; deduplicação; ordem estável;
-`--variants`; ignore-system; path vazio/inválido. Comparar famílias e campos,
-não paths absolutos específicos da máquina.
+The existing requirement that unreadable font paths produce a warning rather than a panic remains an unresolved conformance obligation. Current discovery silently skips these paths. Choosing silence or introducing a warning requires a behavioral decision; this documentation change authorizes neither.
 
-## Gate
+Successful publication is exit 0. A stdout write failure is exit 2 with `error: failed to write font list: {error}`.
 
-Novo comando público: confirmação obrigatória ADR-0127.
+## Acceptance
 
+Use grouped families and a multi-face collection to check stable order, deduplication supplied by discovery, variants, system-font exclusion and empty/invalid paths. Compare names and face fields, not machine-specific absolute paths. Assert literal indentation, origin/index notation and stretch presentation. The unreadable-path discrepancy is tracked in `00_nucleo/diagnosticos/sanitization-shell-history.md`.

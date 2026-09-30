@@ -1,24 +1,18 @@
-# Prompt L0 — integração pública `math.limits` P1425
+# L0 — Public math limits integration tests
 Hash do Código: 98eb2458
 
-**Camada:** L3 (testes)  
-**Ficheiro alvo exclusivo:** `03_infra/tests/p1425_math_limits.rs`  
-**Owners produtivos observados:** `compiler/stdlib/structural/math.md`,
-`compiler/eval/math.md`, `compiler/eval/repr.md`
+**Layer:** L3 (integration tests)
+**Exclusive consumer:** `03_infra/tests/p1425_math_limits.rs`
 
-## Obrigação
+## Current evidence
 
-Este consumer exclusivamente de teste exerce a fachada pública e deve provar:
+- `03_infra/tests/p1425_math_limits.rs` — public limits/scripts cases.
+- `00_nucleo/prompts/compiler/stdlib/structural/math.md`, `00_nucleo/prompts/compiler/eval/math.md` and `00_nucleo/prompts/compiler/eval/repr.md` — productive owners observed by the test.
 
-- sintaxe bare e chamada qualificada convergem na mesma `repr` para omitido,
-  `inline:true` e `inline:false`, preservando presença explícita do default;
-- a chamada qualificada preserva os cinco diagnósticos públicos congelados;
-- `scripts` bare e qualificado continuam convergentes e sem named `inline`.
+These are current local source anchors, not a new upstream parity measurement.
 
-O harness usa HTML apenas para tornar a string pública observável; DOM, bytes,
-fontes e render HTML não pertencem à aceitação. Falha, saída ambígua ou
-ilegível não recebe crédito.
+## Contract
 
-## Limite
+Bare syntax and qualified math.limits calls converge in public repr for omitted inline, inline:true and inline:false, preserving explicit presence of the default. Qualified calls retain all five existing signature diagnostics. Bare and qualified scripts remain convergent and do not acquire a named inline parameter.
 
-A cobertura limita-se ao fragmento P1425 e não depende de artifacts externos.
+Use HTML only to expose the public string. DOM structure, bytes, fonts and HTML rendering are not acceptance. Failure, ambiguous or unreadable output receives no credit. No productive or external-artifact contract is owned by this test.

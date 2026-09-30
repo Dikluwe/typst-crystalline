@@ -1,27 +1,22 @@
-# Prompt L0 — gramática matemática
+# L0 — parse/math
 Hash do Código: 4a4fd8ce
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/parse/core.toml sha256:ffba4f0f6d7276a3beac03c1bd2bef40135d74681be616112a1e1f172d2f24b0
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/parse/math.rs`
-**ADRs:** ADR-0037, ADR-0107, ADR-0108, ADR-0129.
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/parse/math.rs`
 
-## Medição anterior à decisão
+## Evidence and classification
 
-O consumer implementa expressões math, attachments, frações, roots,
-delimitadores e argumentos posicionais/nomeados/arrays. Precedência e classe
-math são específicas deste owner.
+`01_core/src/compiler/parse/math.rs:24` (pubsuper) fn mathp: &mut Parser, stop_set: SyntaxSet) {); `01_core/src/compiler/parse/math.rs:32` (pubsuper) fn math_exprsp: &mut Parser, stop_set: SyntaxSet) -> usize {); `01_core/src/compiler/parse/math.rs:50` (fn math_exprp: &mut Parser) {) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-## Contrato
+## Contract and ownership
 
-- Produzir `Math`, `MathAttach`, `MathFrac`, `MathRoot` e `MathDelimited`
-  conforme tokens, trivia e precedência vigentes.
-- Preservar chains de hat/underscore/primes e chamadas implícitas.
-- Detectar argumentos nomeados duplicados e preservar arrays por semicolon.
-- Código embutido delega ao owner Code; cursor e mode seguem o núcleo.
+Own math expressions, attachments, fractions, roots, delimiter groups, implicit calls and math arguments. Preserve Math, MathAttach, MathFrac, MathRoot and MathDelimited morphology according to the existing token/trivia and precedence rules.
 
-## Aceitação
+Preserve hat/underscore/primes chains, alphabetic-function recognition and implicit call behavior. Math function/root precedence remains 2 in this consumer. Retain unparenthesizing, delimiter classification and positional/named/semicolon-array distinctions. Duplicate named arguments retain their diagnostic and location. Embedded code delegates to `00_nucleo/prompts/compiler/parse/code.md`; mode/lookahead restoration belongs to `00_nucleo/prompts/compiler/parse/parser/state.md`. No evaluation or mathematical layout is owned here.
 
-Suíte math/parse GREEN sem alterar CST, precedências ou diagnostics.
+## Acceptance
+
+Preserve the specified language semantics, syntax, morphology, diagnostics, spans, defaults and public identities. Do not change signatures, compatibility, feature defaults or phase ownership through this documentary revision. Shared pinned claims remain authoritative; this prompt owns only its exclusive consumer. Architectural decisions follow ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.

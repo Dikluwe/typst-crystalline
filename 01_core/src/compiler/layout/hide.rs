@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/hide.md
-//! @prompt-hash 1dfd8974
+//! @prompt-hash 4adc304a
 //! @layer L1
-//! @updated 2026-06-19
+//! @updated 2026-09-29
 //!
 //! Atomização (ADR-0109, P381): o layout de `Hide` movido do monólito
 //! `layout_content` para o arquivo da feature (forma B). Content-preserving.
@@ -22,4 +22,5 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter.layout_content(&e.body);
     layouter.regions.current.current_items = saved_items;
     layouter.regions.current.current_line = saved_line;
+    layouter.text_tracking_state.interrupt();
 }

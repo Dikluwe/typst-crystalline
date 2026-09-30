@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/p1429-tests.md
-//! @prompt-hash d5724bfb
+//! @prompt-hash aeef3d5e
 //! @layer L1
 #![cfg(test)]
 
@@ -82,17 +82,22 @@ fn accent(base: &str, mark: char, size: Option<f64>, dotless: Option<bool>) -> C
 }
 
 fn text_items(items: &[FrameItem]) -> Vec<(String, f64)> {
-    items
-        .iter()
-        .filter_map(|item| match item {
-            #[allow(deprecated)]
-            FrameItem::Text { pos, text, .. }
-            | FrameItem::TextShaped { pos, text, .. } => {
-                Some((text.to_string(), pos.y.val()))
+    fn visit(items: &[FrameItem], out: &mut Vec<(String, f64)>) {
+        for item in items {
+            match item {
+                #[allow(deprecated)]
+                FrameItem::Text { pos, text, .. }
+                | FrameItem::TextShaped { pos, text, .. } => {
+                    out.push((text.to_string(), pos.y.val()));
+                }
+                FrameItem::TextReplacement { items, .. } => visit(items, out),
+                _ => {}
             }
-            _ => None,
-        })
-        .collect()
+        }
+    }
+    let mut found = Vec::new();
+    visit(items, &mut found);
+    found
 }
 
 fn project<M: FontMetrics>(
@@ -117,7 +122,7 @@ fn project<M: FontMetrics>(
 #[test]
 fn p1429_orientacao_superior_inferior_e_dotless() {
     let chain = StyleChain::default_chain();
-    for (base, dotless_base) in [("i", "ı"), ("j", "ȷ")] {
+    for (base, dotless_base, dotted_base) in [("i", "ı", "𝑖"), ("j", "ȷ", "𝑗")] {
         let upper = text_items(&project(
             &FixedMetrics,
             &accent(base, '^', None, Some(true)),
@@ -137,7 +142,7 @@ fn p1429_orientacao_superior_inferior_e_dotless() {
             &chain,
         ));
         assert!(
-            dotted.iter().any(|(t, _)| t == base),
+            dotted.iter().any(|(t, _)| t == dotted_base),
             "dotless=false removed {base} dot: {dotted:?}"
         );
     }
@@ -148,7 +153,7 @@ fn p1429_orientacao_superior_inferior_e_dotless() {
             &accent("i", mark, None, Some(true)),
             &chain,
         ));
-        let base_y = lower.iter().find(|(t, _)| t == "i").unwrap().1;
+        let base_y = lower.iter().find(|(t, _)| t == "𝑖").unwrap().1;
         let accent_y =
             lower.iter().find(|(t, _)| t.chars().next() == Some(mark)).unwrap().1;
         assert!(accent_y > base_y, "lower accent {mark:?} not below base: {lower:?}");
@@ -242,7 +247,7 @@ fn p1429_size_resolve_na_largura_e_precedencia_independente() {
     let cascaded_i =
         text_items(&project(&VariantMetrics, &accent("i", '^', None, None), &cascade));
     assert!(
-        cascaded_i.iter().any(|(t, _)| t == "i"),
+        cascaded_i.iter().any(|(t, _)| t == "𝑖"),
         "cascaded dotless=false was ignored: {cascaded_i:?}"
     );
 }

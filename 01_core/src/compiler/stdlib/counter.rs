@@ -852,8 +852,11 @@ pub fn counter_at(
     resolve_counter_location(&Value::Label(label.clone()), ctx, span)?;
     let location = ctx.introspector.query_by_label(&label);
     let page_value = location.and_then(|loc| page_counter_value(counter, loc, ctx));
-    let values = page_value.as_deref()
-        .or_else(|| location.and_then(|loc| ctx.introspector.counter_values_at(&counter.key, loc)))
+    let values = page_value
+        .as_deref()
+        .or_else(|| {
+            location.and_then(|loc| ctx.introspector.counter_values_at(&counter.key, loc))
+        })
         .unwrap_or(&[]);
 
     ctx.observe_context_read(
@@ -887,7 +890,8 @@ fn counter_at_location_recorded(
     span: Span,
 ) -> SourceResult<Value> {
     let page_value = page_counter_value(counter, location, ctx);
-    let values = page_value.as_deref()
+    let values = page_value
+        .as_deref()
         .or_else(|| ctx.introspector.counter_values_at(&counter.key, location))
         .unwrap_or(&[0]);
     ctx.observe_context_read(

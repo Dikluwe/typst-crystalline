@@ -196,7 +196,10 @@ gradient_accessor!(native_gradient_stops, "gradient.stops", |g: &Gradient| {
             .iter()
             .zip(offsets)
             .map(|(stop, offset)| {
-                Value::Array(vec![Value::Color(stop.color.clone()), Value::Ratio(Ratio(offset))])
+                Value::Array(vec![
+                    Value::Color(stop.color.clone()),
+                    Value::Ratio(Ratio(offset)),
+                ])
             })
             .collect(),
     )
@@ -674,7 +677,11 @@ fn parse_space_named(args: &Args, fn_name: &str) -> SourceResult<ColorSpace> {
 
 /// Escolhe o colorante como espaço automático somente quando todos os stops
 /// carregam a mesma identidade spot.
-fn select_space(args: &Args, fn_name: &str, stops: &[GradientStop]) -> SourceResult<ColorSpace> {
+fn select_space(
+    args: &Args,
+    fn_name: &str,
+    stops: &[GradientStop],
+) -> SourceResult<ColorSpace> {
     if matches!(args.named.get("space"), None | Some(Value::Auto)) {
         if let Some(Color::Spot(first)) = stops.first().map(|stop| &stop.color) {
             if stops.iter().all(|stop| {

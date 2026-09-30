@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/tests.md
-//! @prompt-hash ef24032d
+//! @prompt-hash 8c96c3f9
 //! @layer L1
-//! @updated 2026-09-01
+//! @updated 2026-09-29
 //!
 //! Testes de layout — extraídos de `layout/mod.rs` no Passo 96.7
 //! conforme ADR-0037.
@@ -116,7 +116,7 @@ fn frame_items_recursive(items: &[FrameItem]) -> Vec<&FrameItem> {
 
         let mut projected = item.clone();
         match &mut projected {
-            FrameItem::Text { pos, .. }
+            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
             | FrameItem::TextShaped { pos, .. }
             | FrameItem::Glyph { pos, .. }
             | FrameItem::Image { pos, .. }
@@ -127,7 +127,7 @@ fn frame_items_recursive(items: &[FrameItem]) -> Vec<&FrameItem> {
                 *start = project_point(transform, *start);
                 *end = project_point(transform, *end);
             }
-            FrameItem::Semantic { .. } => {}
+            FrameItem::TextReplacement { .. } | FrameItem::Semantic { .. } => {}
         }
 
         // A vista histórica devolve referências. Cópias projetadas existem
@@ -143,7 +143,7 @@ fn frame_items_recursive(items: &[FrameItem]) -> Vec<&FrameItem> {
         for item in items {
             out.push(project_item(item, transform));
             match item {
-                FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
+                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
                     walk(items, transform, out)
                 }
                 FrameItem::Group { pos, matrix, items, .. } => {
@@ -209,7 +209,7 @@ mod p1140_23_page_canvas_tests {
     use std::sync::Arc;
 
     fn set_canvas() -> Content {
-        Content::SetPage {
+        Content::SetPage(std::sync::Arc::new(crate::entities::content::SetPageDelta {
             paper: None,
             flipped: None,
             binding: None,
@@ -228,7 +228,7 @@ mod p1140_23_page_canvas_tests {
             fill: Some(PageFill::None),
             background: Some(Some(Arc::new(Content::text("decor-bg")))),
             foreground: Some(Some(Arc::new(Content::text("decor-fg")))),
-        }
+        }))
     }
 
     #[test]
@@ -256,29 +256,33 @@ mod p1140_24_page_running_tests {
 
     #[test]
     fn p1140_24_header_visual_fica_fora_do_plain_text_do_body() {
-        let set = Content::SetPage {
-            paper: None,
-            flipped: None,
-            binding: None,
-            width: Some(crate::entities::layout_types::PageDimension::Length(200.0)),
-            height: Some(crate::entities::layout_types::PageDimension::Length(100.0)),
-            margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(20.0)),
-            numbering: Some(Some("1".into())),
-            number_align: Some(PageNumberAlign {
-                horizontal: crate::entities::layout_types::HAlign::Right,
-                vertical: PageNumberVAlign::Top,
-            }),
-            header: Some(PageMarginal::Content(Arc::new(Content::text("cabecalho")))),
-            header_ascent: Some(crate::entities::rel::Rel::from_percent(30.0)),
-            footer: Some(PageMarginal::Auto),
-            footer_descent: None,
-            supplement: None,
-            columns: None,
-            bleed: None,
-            fill: None,
-            background: None,
-            foreground: None,
-        };
+        let set = Content::SetPage(std::sync::Arc::new(
+            crate::entities::content::SetPageDelta {
+                paper: None,
+                flipped: None,
+                binding: None,
+                width: Some(crate::entities::layout_types::PageDimension::Length(200.0)),
+                height: Some(crate::entities::layout_types::PageDimension::Length(100.0)),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    20.0,
+                )),
+                numbering: Some(Some("1".into())),
+                number_align: Some(PageNumberAlign {
+                    horizontal: crate::entities::layout_types::HAlign::Right,
+                    vertical: PageNumberVAlign::Top,
+                }),
+                header: Some(PageMarginal::Content(Arc::new(Content::text("cabecalho")))),
+                header_ascent: Some(crate::entities::rel::Rel::from_percent(30.0)),
+                footer: Some(PageMarginal::Auto),
+                footer_descent: None,
+                supplement: None,
+                columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
+            },
+        ));
         let doc = layout(&Content::sequence(vec![set, Content::text("body")]));
         assert_eq!(doc.pages[0].plain_text(), "body");
         let visual = frame_items_recursive(&doc.pages[0].foreground)
@@ -418,8 +422,10 @@ pub(crate) fn documento_algoritmo(conteudo: &str) -> String {
 fn labelled_prod(target: Content, label: crate::entities::label::Label) -> Content {
     let name = label.0;
     match target {
-        Content::Styled(inner, styles) => {
-            Content::Styled(Box::new(Content::label_auto(name, *inner)), styles)
+        Content::Styled(styled) => {
+            let inner = &styled.body;
+            let styles = &styled.styles;
+            Content::styled(Content::label_auto(name, inner.clone()), styles.clone())
         }
         other => Content::label_auto(name, other),
     }
@@ -428,7 +434,7 @@ fn labelled_prod(target: Content, label: crate::entities::label::Label) -> Conte
 /// Activa a numeração de um heading via `Content::Styled` com
 /// `custom("heading.numbering") = true` (P1019).
 fn with_heading_numbering(body: Content) -> Content {
-    Content::Styled(
+    Content::styled(
         Box::new(body),
         Styles::new().push_custom("heading.numbering", Value::Bool(true)),
     )
@@ -453,28 +459,30 @@ fn p1140_11_documento(justify: bool) -> PagedDocument {
 
     layout(&Content::Sequence(
         vec![
-            Content::SetPage {
-                paper: None,
-                flipped: None,
-                binding: None,
-                width: Some(PageDimension::Length(160.0)),
-                height: Some(PageDimension::Length(100.0)),
-                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
-                    10.0,
-                )),
-                numbering: None,
-                number_align: None,
-                header: None,
-                header_ascent: None,
-                footer: None,
-                footer_descent: None,
-                supplement: None,
-                columns: None,
-                bleed: None,
-                fill: None,
-                background: None,
-                foreground: None,
-            },
+            Content::SetPage(std::sync::Arc::new(
+                crate::entities::content::SetPageDelta {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
+                    width: Some(PageDimension::Length(160.0)),
+                    height: Some(PageDimension::Length(100.0)),
+                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                        10.0,
+                    )),
+                    numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
+                    columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
+                },
+            )),
             Content::text("Alpha Beta Gamma"),
             Content::linebreak_with_justify_presence(justify, true),
             Content::text("Z"),
@@ -526,28 +534,30 @@ fn p1140_11_sem_oportunidade_nao_expande_e_nao_vaza() {
     use crate::entities::layout_types::PageDimension;
     let doc = layout(&Content::Sequence(
         vec![
-            Content::SetPage {
-                paper: None,
-                flipped: None,
-                binding: None,
-                width: Some(PageDimension::Length(160.0)),
-                height: Some(PageDimension::Length(100.0)),
-                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
-                    10.0,
-                )),
-                numbering: None,
-                number_align: None,
-                header: None,
-                header_ascent: None,
-                footer: None,
-                footer_descent: None,
-                supplement: None,
-                columns: None,
-                bleed: None,
-                fill: None,
-                background: None,
-                foreground: None,
-            },
+            Content::SetPage(std::sync::Arc::new(
+                crate::entities::content::SetPageDelta {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
+                    width: Some(PageDimension::Length(160.0)),
+                    height: Some(PageDimension::Length(100.0)),
+                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                        10.0,
+                    )),
+                    numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
+                    columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
+                },
+            )),
             Content::text("Alpha"),
             Content::linebreak_with_justify_presence(true, true),
             Content::text("Beta Gamma"),
@@ -570,28 +580,30 @@ fn p1140_11_width_auto_degrada_sem_infinito() {
     use crate::entities::layout_types::PageDimension;
     let doc = layout(&Content::Sequence(
         vec![
-            Content::SetPage {
-                paper: None,
-                flipped: None,
-                binding: None,
-                width: Some(PageDimension::Auto),
-                height: Some(PageDimension::Auto),
-                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
-                    10.0,
-                )),
-                numbering: None,
-                number_align: None,
-                header: None,
-                header_ascent: None,
-                footer: None,
-                footer_descent: None,
-                supplement: None,
-                columns: None,
-                bleed: None,
-                fill: None,
-                background: None,
-                foreground: None,
-            },
+            Content::SetPage(std::sync::Arc::new(
+                crate::entities::content::SetPageDelta {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
+                    width: Some(PageDimension::Auto),
+                    height: Some(PageDimension::Auto),
+                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                        10.0,
+                    )),
+                    numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
+                    columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
+                },
+            )),
             Content::text("Alpha Beta"),
             Content::linebreak_with_justify_presence(true, true),
         ]
@@ -607,28 +619,30 @@ fn p1140_11_link_expande_filhos_e_area_interativa() {
     use crate::entities::layout_types::PageDimension;
     let doc = layout(&Content::Sequence(
         vec![
-            Content::SetPage {
-                paper: None,
-                flipped: None,
-                binding: None,
-                width: Some(PageDimension::Length(160.0)),
-                height: Some(PageDimension::Length(100.0)),
-                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
-                    10.0,
-                )),
-                numbering: None,
-                number_align: None,
-                header: None,
-                header_ascent: None,
-                footer: None,
-                footer_descent: None,
-                supplement: None,
-                columns: None,
-                bleed: None,
-                fill: None,
-                background: None,
-                foreground: None,
-            },
+            Content::SetPage(std::sync::Arc::new(
+                crate::entities::content::SetPageDelta {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
+                    width: Some(PageDimension::Length(160.0)),
+                    height: Some(PageDimension::Length(100.0)),
+                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                        10.0,
+                    )),
+                    numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
+                    columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
+                },
+            )),
             Content::link("https://example.com", Content::text("Alpha Beta Gamma")),
             Content::linebreak_with_justify_presence(true, true),
         ]
@@ -775,7 +789,7 @@ fn f_item3_set_badge_note_resolve_da_chain() {
     use crate::entities::elements::test_callout::BadgeElem;
     // `#set badge(note: "X")` viaja como `Content::Styled{custom badge.note=X}`;
     // o badge (construído SEM note) resolve-o da chain → output "L (X)".
-    let content = Content::Styled(
+    let content = Content::styled(
         Box::new(Content::dynamic(BadgeElem::new("L"))),
         badge_note_chain("nota-da-chain"),
     );
@@ -792,7 +806,7 @@ fn f_item3_construido_explicito_vence_a_chain() {
     use crate::entities::elements::test_callout::BadgeElem;
     // Precedência (vanilla: explícito > #set): um badge com `note` construído
     // ignora o `#set badge(note:)` da chain.
-    let content = Content::Styled(
+    let content = Content::styled(
         Box::new(Content::dynamic(BadgeElem {
             label: "L".into(),
             note: Some("own".into()),
@@ -971,7 +985,7 @@ fn layout_texto_simples_tem_items() {
 fn p11405_equation_emite_envelope_semantico_transparente() {
     use crate::entities::layout_types::{SemanticKind, SemanticPlacement};
 
-    let content = Content::Styled(
+    let content = Content::styled(
         Box::new(Content::equation(Content::MathText("x".into()), false)),
         Styles::new().push_custom("equation.alt", Value::Str("x value".into())),
     );
@@ -994,9 +1008,10 @@ fn p11405_equation_emite_envelope_semantico_transparente() {
 }
 
 #[test]
-fn layout_documento_vazio_zero_paginas() {
+fn layout_documento_vazio_conserva_uma_pagina() {
     let doc = layout(&Content::Empty);
-    assert_eq!(doc.pages.len(), 0, "documento vazio → sem páginas");
+    assert_eq!(doc.pages.len(), 1, "documento vazio conserva a página configurada");
+    assert!(doc.pages[0].items.is_empty());
 }
 
 #[test]
@@ -1129,7 +1144,7 @@ fn layout_items_dentro_limites_da_pagina() {
 
     for page in &doc.pages {
         for item in &page.items {
-            if let FrameItem::Text { pos, .. } = item {
+            if let FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } = item {
                 assert!(
                     pos.x.val() >= 0.0 && pos.x.val() < 595.0,
                     "x={} fora dos limites da página",
@@ -1155,7 +1170,7 @@ fn layout_texto_longo_word_wrap() {
         .iter()
         .flat_map(|p| p.items.iter())
         .filter_map(|i| {
-            if let FrameItem::Text { pos, .. } = i {
+            if let FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } = i {
                 Some(pos.y.val().to_bits())
             } else {
                 None
@@ -1602,7 +1617,7 @@ fn p1072_list_item_default_body_indent_05em() {
         .collect();
     assert_eq!(body_texts.len(), 1);
     let body_x = match body_texts[0] {
-        FrameItem::Text { pos, .. } => pos.x.val(),
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => pos.x.val(),
         _ => unreachable!(),
     };
     assert!(
@@ -1629,7 +1644,7 @@ fn p1072_enum_item_default_body_indent_05em() {
         .collect();
     assert_eq!(body_texts.len(), 1);
     let body_x = match body_texts[0] {
-        FrameItem::Text { pos, .. } => pos.x.val(),
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => pos.x.val(),
         _ => unreachable!(),
     };
     assert!(
@@ -1665,7 +1680,7 @@ fn layout_list_item_respeita_indentacao() {
         .find(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "→"));
     let marker = marker.expect("deve haver marcador '→'");
     let marker_x = match marker {
-        FrameItem::Text { pos, .. } => pos.x.val(),
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => pos.x.val(),
         _ => unreachable!(),
     };
     let marker_width = FixedMetrics.advance("→", Pt(11.0), &TextStyle::default()).val();
@@ -1686,7 +1701,7 @@ fn layout_list_item_respeita_indentacao() {
     assert!(!body_texts.is_empty(), "deve haver texto do body");
     let first_body = body_texts.first().unwrap();
     let body_x = match first_body {
-        FrameItem::Text { pos, .. } => pos.x.val(),
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => pos.x.val(),
         _ => unreachable!(),
     };
     assert!(
@@ -1823,7 +1838,7 @@ fn layout_enum_item_respeita_indentacao() {
         .find(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "1."));
     let label = label.expect("deve haver rótulo '1.'");
     let label_x = match label {
-        FrameItem::Text { pos, .. } => pos.x.val(),
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => pos.x.val(),
         _ => unreachable!(),
     };
     let label_width = FixedMetrics.advance("1.", Pt(11.0), &TextStyle::default()).val();
@@ -1843,7 +1858,7 @@ fn layout_enum_item_respeita_indentacao() {
     assert!(!body_texts.is_empty(), "deve haver texto do body");
     let first_body = body_texts.first().unwrap();
     let body_x = match first_body {
-        FrameItem::Text { pos, .. } => pos.x.val(),
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => pos.x.val(),
         _ => unreachable!(),
     };
     assert!(
@@ -2447,7 +2462,7 @@ mod tests_limits {
             .iter()
             .flat_map(|p| frame_items_recursive(&p.items))
             .filter_map(|i| match i {
-                FrameItem::Text { pos, .. } => Some(pos.y.val()),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.val()),
                 FrameItem::Glyph { pos, .. } => Some(pos.y.val()),
                 _ => None,
             })
@@ -2492,7 +2507,7 @@ mod tests_limits_context {
             .iter()
             .flat_map(|p| frame_items_recursive(&p.items))
             .filter_map(|i| match i {
-                FrameItem::Text { pos, .. } => Some(pos.y.val()),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.val()),
                 FrameItem::Glyph { pos, .. } => Some(pos.y.val()),
                 _ => None,
             })
@@ -2584,7 +2599,7 @@ mod tests_align {
         let mut ys: Vec<i64> = frame_items_recursive(&doc.pages[0].items)
             .into_iter()
             .filter_map(|item| match item {
-                crate::entities::layout_types::FrameItem::Text { pos, .. } => {
+                crate::entities::layout_types::FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
                     Some((pos.y.val() * 100.0).round() as i64)
                 }
                 crate::entities::layout_types::FrameItem::Glyph { pos, .. } => {
@@ -2969,7 +2984,7 @@ fn layout_ref_para_tras_resolve_secao() {
         vec![
             Content::label_auto(
                 "intro".to_string(),
-                Content::Styled(
+                Content::styled(
                     Box::new(Content::heading(1, Content::text("Introdução"))),
                     Styles::new()
                         .push_custom("heading.numbering", Value::Bool(true))
@@ -3006,7 +3021,7 @@ fn layout_ref_para_frente_resolve_com_duas_passagens() {
             Content::reference("conclusao".to_string()),
             Content::label_auto(
                 "conclusao".to_string(),
-                Content::Styled(
+                Content::styled(
                     Box::new(Content::heading(1, Content::text("Conclusão"))),
                     Styles::new()
                         .push_custom("heading.numbering", Value::Bool(true))
@@ -3078,7 +3093,7 @@ fn pipeline_duas_passagens_resolve_forward_ref() {
             Content::label_auto(
                 "conclusao".to_string(),
                 // P788: heading com numbering (sem numbering o vanilla erra).
-                Content::Styled(
+                Content::styled(
                     Box::new(Content::heading(1, Content::text("Conclusão"))),
                     Styles::new()
                         .push_custom("heading.numbering", Value::Bool(true))
@@ -3144,7 +3159,7 @@ fn layout_equation_pattern_romano() {
     use crate::entities::value::Value;
 
     let content = Content::Sequence(
-        vec![Content::Styled(
+        vec![Content::styled(
             Box::new(Content::equation(Content::MathIdent("E".into()), true)),
             Styles::new().push_custom("equation.numbering", Value::Str("[I]".into())),
         )]
@@ -3160,10 +3175,13 @@ fn layout_equation_pattern_romano() {
     );
 }
 
-fn p11404b_numbered_equation(align: Align2D, body: Content) -> Content {
+fn p11404b_numbered_equation(
+    align: crate::entities::layout_types::Align2D,
+    body: Content,
+) -> Content {
     use crate::entities::style::Styles;
     use crate::entities::value::Value;
-    Content::Styled(
+    Content::styled(
         Box::new(Content::equation(body, true)),
         Styles::new()
             .push_custom("equation.numbering", Value::Str("(1)".into()))
@@ -3200,7 +3218,7 @@ fn p11404b_number_align_start_end_resolvem_rtl() {
     use crate::entities::style::Styles;
     use crate::entities::value::Value;
     let number_x = |h| {
-        let content = Content::Styled(
+        let content = Content::styled(
             Box::new(Content::equation(Content::MathIdent("x".into()), true)),
             Styles::new()
                 .push_custom("equation.numbering", Value::Str("(1)".into()))
@@ -3286,28 +3304,30 @@ fn layout_equation_bloco_com_width_auto_nao_produz_infinito() {
 
     let content = Content::Sequence(
         vec![
-            Content::SetPage {
-                paper: None,
-                flipped: None,
-                binding: None,
-                width: Some(PageDimension::Auto),
-                height: Some(PageDimension::Auto),
-                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
-                    28.35,
-                )),
-                numbering: None,
-                number_align: None,
-                header: None,
-                header_ascent: None,
-                footer: None,
-                footer_descent: None,
-                supplement: None,
-                columns: None,
-                bleed: None,
-                fill: None,
-                background: None,
-                foreground: None,
-            },
+            Content::SetPage(std::sync::Arc::new(
+                crate::entities::content::SetPageDelta {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
+                    width: Some(PageDimension::Auto),
+                    height: Some(PageDimension::Auto),
+                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                        28.35,
+                    )),
+                    numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
+                    columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
+                },
+            )),
             Content::equation(Content::MathIdent("x".into()), true),
         ]
         .into(),
@@ -3325,7 +3345,7 @@ fn layout_equation_bloco_com_width_auto_nao_produz_infinito() {
     #[allow(deprecated)]
     let has_finite_text_pos =
         frame_items_recursive(&page.items).into_iter().any(|item| match item {
-            FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
+            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
                 pos.x.val().is_finite() && pos.y.val().is_finite()
             }
             _ => false,
@@ -3349,28 +3369,30 @@ fn p896_equacoes_de_bloco_centram_contra_a_largura_final_da_pagina() {
     let margin = 10.0;
     let content = Content::Sequence(
         vec![
-            Content::SetPage {
-                paper: None,
-                flipped: None,
-                binding: None,
-                width: Some(PageDimension::Auto),
-                height: Some(PageDimension::Auto),
-                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
-                    margin,
-                )),
-                numbering: None,
-                number_align: None,
-                header: None,
-                header_ascent: None,
-                footer: None,
-                footer_descent: None,
-                supplement: None,
-                columns: None,
-                bleed: None,
-                fill: None,
-                background: None,
-                foreground: None,
-            },
+            Content::SetPage(std::sync::Arc::new(
+                crate::entities::content::SetPageDelta {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
+                    width: Some(PageDimension::Auto),
+                    height: Some(PageDimension::Auto),
+                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                        margin,
+                    )),
+                    numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
+                    columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
+                },
+            )),
             // Estreita: 1 "carácter" (FixedMetrics: size * 0.6).
             Content::equation(Content::MathIdent("a".into()), true),
             // Larga: 5 idents Alphabetic-Alphabetic adjacentes (gap
@@ -3463,28 +3485,30 @@ fn p897_align_center_sob_width_auto_nao_produz_infinito() {
 
     let content = Content::Sequence(
         vec![
-            Content::SetPage {
-                paper: None,
-                flipped: None,
-                binding: None,
-                width: Some(PageDimension::Auto),
-                height: Some(PageDimension::Auto),
-                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
-                    28.35,
-                )),
-                numbering: None,
-                number_align: None,
-                header: None,
-                header_ascent: None,
-                footer: None,
-                footer_descent: None,
-                supplement: None,
-                columns: None,
-                bleed: None,
-                fill: None,
-                background: None,
-                foreground: None,
-            },
+            Content::SetPage(std::sync::Arc::new(
+                crate::entities::content::SetPageDelta {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
+                    width: Some(PageDimension::Auto),
+                    height: Some(PageDimension::Auto),
+                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                        28.35,
+                    )),
+                    numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
+                    columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
+                },
+            )),
             Content::Align(std::sync::Arc::new(AlignElem {
                 alignment: Align2D::from_string("center"),
                 body: Content::text("x"),
@@ -3504,7 +3528,7 @@ fn p897_align_center_sob_width_auto_nao_produz_infinito() {
 
     #[allow(deprecated)]
     let has_finite_text_pos = page.items.iter().any(|item| match item {
-        FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
             pos.x.val().is_finite() && pos.y.val().is_finite()
         }
         _ => false,
@@ -3525,28 +3549,30 @@ fn p897_align_center_centram_contra_a_largura_final_da_pagina() {
     let margin = 10.0;
     let content = Content::Sequence(
         vec![
-            Content::SetPage {
-                paper: None,
-                flipped: None,
-                binding: None,
-                width: Some(PageDimension::Auto),
-                height: Some(PageDimension::Auto),
-                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
-                    margin,
-                )),
-                numbering: None,
-                number_align: None,
-                header: None,
-                header_ascent: None,
-                footer: None,
-                footer_descent: None,
-                supplement: None,
-                columns: None,
-                bleed: None,
-                fill: None,
-                background: None,
-                foreground: None,
-            },
+            Content::SetPage(std::sync::Arc::new(
+                crate::entities::content::SetPageDelta {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
+                    width: Some(PageDimension::Auto),
+                    height: Some(PageDimension::Auto),
+                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                        margin,
+                    )),
+                    numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
+                    columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
+                },
+            )),
             Content::Align(std::sync::Arc::new(AlignElem {
                 alignment: Align2D::from_string("center"),
                 body: Content::text("a"),
@@ -3613,7 +3639,7 @@ fn layout_equation_inline_nao_numerada() {
     use crate::entities::value::Value;
 
     let content = Content::Sequence(
-        vec![Content::Styled(
+        vec![Content::styled(
             Box::new(Content::equation(Content::MathIdent("x".into()), false)),
             Styles::new().push_custom("equation.numbering", Value::Str("(1)".into())),
         )]
@@ -3709,7 +3735,7 @@ fn p944_fonte_do_documento_nao_se_aplica_a_equacao() {
     use crate::entities::style::Style;
 
     let content = Content::Sequence(
-        vec![Content::Styled(
+        vec![Content::styled(
             Box::new(Content::equation(Content::MathIdent("E".into()), true)),
             Styles::from_iter([Style::Font(FontList::single(ecow::EcoString::from(
                 "New Computer Modern",
@@ -4293,7 +4319,7 @@ fn p1074_heading_inherits_italic_and_other_styles() {
 
     // 2. Heading sob set text(style: "italic", fill: red): herda italic=true, fill=Some(red), e mantém bold=true
     let red = Color::Srgb { r: 1.0, g: 0.0, b: 0.0, a: 1.0 };
-    let h_styled = Content::Styled(
+    let h_styled = Content::styled(
         Box::new(Content::heading(1, Content::text("Italic"))),
         Styles::from_iter([
             Style::Italic { value: true, from_emph: false },
@@ -4752,7 +4778,7 @@ fn p772j_grid_align_center_nao_diverge_uma_coluna_inteira_do_vanilla() {
         .items
         .iter()
         .filter_map(|i| match i {
-            FrameItem::Text { pos, .. } => Some(pos.x.val()),
+            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.val()),
             _ => None,
         })
         .collect();
@@ -4790,7 +4816,7 @@ fn p772j_grid_align_fold_por_eixo_preserva_eixo_do_grid() {
             .items
             .iter()
             .find_map(|i| match i {
-                FrameItem::Text { pos, .. } => Some((pos.x.val(), pos.y.val())),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some((pos.x.val(), pos.y.val())),
                 _ => None,
             })
             .expect("esperado FrameItem::Text")
@@ -4850,7 +4876,7 @@ fn p772i_grid_header_nao_desalinha_colunas_seguintes() {
         .items
         .iter()
         .filter_map(|i| match i {
-            FrameItem::Text { pos, .. } => Some(pos.x.val()),
+            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.val()),
             _ => None,
         })
         .collect();
@@ -4940,7 +4966,7 @@ fn p772v_table_header_nao_desalinha_colunas_seguintes() {
         .items
         .iter()
         .filter_map(|i| match i {
-            FrameItem::Text { pos, .. } => Some(pos.x.val()),
+            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.val()),
             _ => None,
         })
         .collect();
@@ -5185,7 +5211,7 @@ fn p772f_grid_auto_colunas_com_align_nao_colidem() {
         .items
         .iter()
         .filter_map(|i| match i {
-            FrameItem::Text { pos, .. } => Some(pos.x.val()),
+            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.val()),
             _ => None,
         })
         .collect();
@@ -5327,7 +5353,7 @@ mod tests_styled_integration {
     #[test]
     fn styled_basico_aplica_bold_e_size() {
         let hello = Content::text("hello");
-        let styled = Content::Styled(
+        let styled = Content::styled(
             Box::new(hello),
             Styles::from_iter([Style::bold(true), Style::Size(Pt(18.0))]),
         );
@@ -5348,11 +5374,11 @@ mod tests_styled_integration {
     /// (top-wins, paridade vanilla, ADR-0033).
     #[test]
     fn styled_aninhado_inner_ganha_sobre_outer() {
-        let inner = Content::Styled(
+        let inner = Content::styled(
             Box::new(Content::text("hi")),
             Styles::from_iter([Style::italic(true)]),
         );
-        let outer = Content::Styled(
+        let outer = Content::styled(
             Box::new(inner),
             Styles::from_iter([Style::bold(true), Style::italic(false)]),
         );
@@ -5377,7 +5403,7 @@ mod tests_styled_integration {
     #[test]
     fn styled_nao_vaza_para_texto_subsequente() {
         use std::sync::Arc;
-        let styled = Content::Styled(
+        let styled = Content::styled(
             Box::new(Content::text("STYLED")),
             Styles::from_iter([Style::bold(true)]),
         );
@@ -5709,41 +5735,18 @@ mod tests_set_rule_integration {
         );
     }
 
-    /// Consumer funciona para palavras com N chars: tracking_extra =
-    /// (N - 1) × tracking_pt. Um char → sem tracking (N-1 = 0).
+    /// A space contributes two cluster boundaries even between single-letter words.
     #[test]
-    fn layout_tracking_um_char_nao_acumula_passo_137() {
-        // "A B" → dois words de 1 char cada. Sem tracking, gap = space_width.
-        // Com tracking 1em, gap = space_width (tracking aplica-se entre
-        // chars DENTRO de um word, não entre words).
-        let doc_sem = layout_typst("A B");
-        let doc_com = layout_typst("#set text(tracking: 10pt, size: 12pt)\nA B");
-
-        let items_sem = text_items_with_pos(&doc_sem);
-        let items_com = text_items_with_pos(&doc_com);
-
-        let b_sem = items_sem.iter().find(|(t, _, _)| t == "B").map(|(_, _, x)| *x);
-        let b_com = items_com.iter().find(|(t, _, _)| t == "B").map(|(_, _, x)| *x);
-
-        assert!(
-            b_sem.is_some() && b_com.is_some(),
-            "esperava 'B' em ambos; sem={:?}, com={:?}",
-            items_sem,
-            items_com
-        );
-
-        // Diferença entre as duas posições B é só devida a mudança de
-        // size (11 → 12pt). Tracking não afecta porque cada word tem
-        // 1 char só.
-        // Não assertamos valor exacto porque size base muda; assertamos
-        // apenas que tracking de 10pt NÃO se propaga inter-word (diferença
-        // marginal, não 10pt+).
-        let dif = (b_com.unwrap() - b_sem.unwrap()).abs();
-        assert!(
-            dif < 10.0,
-            "tracking não deve afectar gap entre palavras de 1 char; diff={}",
-            dif
-        );
+    fn layout_tracking_single_letters_include_space_boundaries() {
+        let base = layout_typst("#set text(size: 12pt, tracking: 0pt)\nA B");
+        let before = text_items_with_pos(&base);
+        let x0 = before.iter().find(|(t, _, _)| t == "B").unwrap().2;
+        for tracking in [10.0, 0.2, -0.2] {
+            let doc = layout_typst(&format!("#set text(size: 12pt, tracking: {tracking}pt)\nA B"));
+            let items = text_items_with_pos(&doc);
+            let x = items.iter().find(|(t, _, _)| t == "B").unwrap().2;
+            assert!((x - x0 - 2.0 * tracking).abs() < 1e-8, "{items:?}");
+        }
     }
 
     // ── Passo 138 (Fase B.2 DEBT-52): consumer leading ───────────────────
@@ -6625,7 +6628,7 @@ Goodbye #footnote[Nota B] moon."#,
             .items
             .iter()
             .find_map(|item| match item {
-                FrameItem::Text { pos, .. } => Some(pos.x.0),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.0),
                 _ => None,
             })
             .expect("columns deve emitir texto");
@@ -6785,7 +6788,7 @@ Página três."#,
             .items
             .iter()
             .find_map(|item| match item {
-                FrameItem::Text { pos, .. } => Some(pos.x.0),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.0),
                 _ => None,
             })
             .expect("deve haver pelo menos um Text item");
@@ -6808,7 +6811,7 @@ Página três."#,
             .items
             .iter()
             .find_map(|item| match item {
-                FrameItem::Text { pos, .. } => Some(pos.x.0),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.0),
                 _ => None,
             })
             .expect("deve haver pelo menos um Text item");
@@ -7138,7 +7141,7 @@ mod tests_show_rule_integration {
             .iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
-                FrameItem::Text { pos, .. } => Some(pos.y.val()),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.val()),
                 _ => None,
             })
             .fold(0.0_f64, |acc, y| acc.max(y));
@@ -7155,7 +7158,7 @@ mod tests_show_rule_integration {
             .iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
-                FrameItem::Text { pos, .. } => Some(pos.y.val()),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.val()),
                 _ => None,
             })
             .fold(0.0_f64, |acc, y| acc.max(y));
@@ -12771,7 +12774,7 @@ mod tests_show_rule_integration {
                         y_offset + pos.y.val(),
                         out,
                     ),
-                    FrameItem::Semantic { items, .. } => {
+                    FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
                         text_fragments(items, x_offset, y_offset, out)
                     }
                     FrameItem::Link { pos, items, .. } => text_fragments(
@@ -15023,7 +15026,7 @@ mod p622_parbreak {
             .items
             .iter()
             .filter_map(|item| match item {
-                FrameItem::Text { pos, .. } => Some(pos.y.0.round() as i64),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.0.round() as i64),
                 _ => None,
             })
             .collect();
@@ -15128,7 +15131,7 @@ mod p622_parbreak {
             .items
             .iter()
             .filter_map(|item| match item {
-                FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
                     Some(pos.y.0)
                 }
                 _ => None,
@@ -15148,7 +15151,7 @@ mod p622_parbreak {
             .items
             .iter()
             .filter_map(|item| match item {
-                FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
                     Some(pos.y.0)
                 }
                 _ => None,
@@ -16873,7 +16876,7 @@ mod p194b_c4_resolved_label {
         Content::Sequence(Arc::from(vec![
             Content::label_auto(
                 label_name.to_string(),
-                Content::Styled(
+                Content::styled(
                     Box::new(Content::heading(1, Content::text("Intro"))),
                     Styles::new()
                         .push_custom("heading.numbering", Value::Bool(true))
@@ -17020,7 +17023,7 @@ mod p195d_walk_labelled {
             Content::label_auto(
                 "intro".to_string(),
                 // P788: heading com numbering (sem numbering o vanilla erra).
-                Content::Styled(
+                Content::styled(
                     Box::new(Content::heading(1, Content::text("Intro"))),
                     Styles::new()
                         .push_custom("heading.numbering", Value::Bool(true))
@@ -17696,7 +17699,12 @@ mod p284_decoration_tests {
     fn p285_underline_stroke_explicito_passa_para_line_color() {
         use crate::entities::layout_types::Color;
         let red = Color::rgb(255, 0, 0);
-        let doc = layout(&Content::underline(Content::text("x"), Some(red.clone()), None, None));
+        let doc = layout(&Content::underline(
+            Content::text("x"),
+            Some(red.clone()),
+            None,
+            None,
+        ));
         assert_eq!(
             first_line_color(&doc),
             Some(red),
@@ -17726,8 +17734,10 @@ mod p284_decoration_tests {
         // lê self.style.fill (já actualizado pelo Styled outer) → emite
         // color: Some(blue). Paridade vanilla "decoração herda cor do
         // texto" (P285 §A.3 opção β).
-        let styled =
-            Content::Styled(Box::new(inner), Styles::from_iter([Style::Fill(blue.clone())]));
+        let styled = Content::styled(
+            Box::new(inner),
+            Styles::from_iter([Style::Fill(blue.clone())]),
+        );
         let doc = layout(&styled);
         assert_eq!(
             first_line_color(&doc),
@@ -17744,8 +17754,9 @@ mod p284_decoration_tests {
         use crate::entities::style::{Style, Styles};
         let red = Color::rgb(255, 0, 0);
         let green = Color::rgb(0, 255, 0);
-        let inner = Content::underline(Content::text("y"), Some(green.clone()), None, None);
-        let styled = Content::Styled(
+        let inner =
+            Content::underline(Content::text("y"), Some(green.clone()), None, None);
+        let styled = Content::styled(
             Box::new(inner),
             Styles::from_iter([Style::Fill(red)]), // ← fill red herdado
         );
@@ -17834,8 +17845,12 @@ mod p284_decoration_tests {
         let red = Color::rgb(255, 0, 0);
         let texto: String =
             (0..40).map(|i| format!("w{i}")).collect::<Vec<_>>().join(" ");
-        let doc =
-            layout(&Content::underline(Content::text(&texto), Some(red.clone()), None, None));
+        let doc = layout(&Content::underline(
+            Content::text(&texto),
+            Some(red.clone()),
+            None,
+            None,
+        ));
         let lines = collect_lines(&doc);
         assert!(lines.len() >= 2);
         for (_, _, _, c) in &lines {
@@ -17986,7 +18001,7 @@ mod p287_smartquote_tests {
         use crate::entities::style::{Style, Styles};
         use std::str::FromStr;
         let lang_en = Lang::from_str("en").unwrap();
-        let styled = Content::Styled(
+        let styled = Content::styled(
             Box::new(Content::sequence(vec![
                 Content::smartquote(true),
                 Content::smartquote(true),
@@ -18005,7 +18020,7 @@ mod p287_smartquote_tests {
         use crate::entities::style::{Style, Styles};
         use std::str::FromStr;
         let lang_pt = Lang::from_str("pt").unwrap();
-        let styled = Content::Styled(
+        let styled = Content::styled(
             Box::new(Content::sequence(vec![
                 Content::smartquote(true),
                 Content::smartquote(true),
@@ -18024,7 +18039,7 @@ mod p287_smartquote_tests {
         use crate::entities::style::{Style, Styles};
         use std::str::FromStr;
         let lang_fr = Lang::from_str("fr").unwrap();
-        let styled = Content::Styled(
+        let styled = Content::styled(
             Box::new(Content::sequence(vec![
                 Content::smartquote(true),
                 Content::smartquote(true),
@@ -18076,7 +18091,7 @@ mod p288_style_lang_tests {
         // SmartQuote consumer P287 como sentinela do read-path).
         use std::str::FromStr;
         let lang_de = Lang::from_str("de").unwrap();
-        let styled = Content::Styled(
+        let styled = Content::styled(
             Box::new(Content::smartquote(true)),
             Styles::from_iter([Style::Lang(lang_de)]),
         );
@@ -19097,7 +19112,7 @@ Goodbye #footnote[Nota B] moon."#,
             .items
             .iter()
             .find_map(|item| match item {
-                FrameItem::Text { pos, .. } => Some(pos.x.0),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.0),
                 _ => None,
             })
             .expect("deve haver texto");
@@ -19237,7 +19252,7 @@ mod f_caracterizacao_estilo {
             vec![Content::text("cell")],
             Some(Content::text("legenda")),
         );
-        let c = Content::Styled(
+        let c = Content::styled(
             Box::new(table),
             Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
         );
@@ -19260,7 +19275,7 @@ mod f_caracterizacao_estilo {
             vec![Content::text("cell")],
             None,
         );
-        let c = Content::Styled(
+        let c = Content::styled(
             Box::new(table),
             Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
         );
@@ -19285,11 +19300,11 @@ mod f_caracterizacao_estilo {
         };
         let seq = Content::Sequence(
             vec![
-                Content::Styled(
+                Content::styled(
                     Box::new(mk(1)),
                     Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
                 ),
-                Content::Styled(
+                Content::styled(
                     Box::new(mk(2)),
                     Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
                 ),
@@ -19330,30 +19345,32 @@ mod f_caracterizacao_estilo {
         let (bw, bh) = (baseline.pages[0].width, baseline.pages[0].height);
         let c = Content::Sequence(
             vec![
-                Content::SetPage {
-                    paper: None,
-                    flipped: None,
-                    binding: None,
-                    width: Some(crate::entities::layout_types::PageDimension::Length(
-                        123.0,
-                    )),
-                    height: Some(crate::entities::layout_types::PageDimension::Length(
-                        456.0,
-                    )),
-                    margin: None,
-                    numbering: None,
-                    number_align: None,
-                    header: None,
-                    header_ascent: None,
-                    footer: None,
-                    footer_descent: None,
-                    supplement: None,
-                    columns: None,
-                    bleed: None,
-                    fill: None,
-                    background: None,
-                    foreground: None,
-                },
+                Content::SetPage(std::sync::Arc::new(
+                    crate::entities::content::SetPageDelta {
+                        paper: None,
+                        flipped: None,
+                        binding: None,
+                        width: Some(
+                            crate::entities::layout_types::PageDimension::Length(123.0),
+                        ),
+                        height: Some(
+                            crate::entities::layout_types::PageDimension::Length(456.0),
+                        ),
+                        margin: None,
+                        numbering: None,
+                        number_align: None,
+                        header: None,
+                        header_ascent: None,
+                        footer: None,
+                        footer_descent: None,
+                        supplement: None,
+                        columns: None,
+                        bleed: None,
+                        fill: None,
+                        background: None,
+                        foreground: None,
+                    },
+                )),
                 Content::text("x"),
             ]
             .into(),
@@ -19712,7 +19729,7 @@ mod p462_ref_numeric {
         // PT
         let lang_pt = Lang::from_str("pt").unwrap();
         let styled_pt =
-            Content::Styled(Box::new(content), Styles::from_iter([Style::Lang(lang_pt)]));
+            Content::styled(Box::new(content), Styles::from_iter([Style::Lang(lang_pt)]));
         let text_pt = doc_text_with_intr(&styled_pt, intr).replace('\u{a0}', " ");
         assert!(
             text_pt.contains("Tabela 1"),
@@ -19733,7 +19750,7 @@ mod p462_ref_numeric {
         );
         let intr = introspect_with_introspector(&content);
         let styled =
-            Content::Styled(Box::new(content), Styles::from_iter([Style::Lang(lang_pt)]));
+            Content::styled(Box::new(content), Styles::from_iter([Style::Lang(lang_pt)]));
         let text = doc_text_with_intr(&styled, intr).replace('\u{a0}', " ");
         // P1078: em pt (default / pt-BR) o supplement de heading é "Seção" (sem c), idêntico a pt.txt do vanilla
         assert!(
@@ -19767,7 +19784,7 @@ mod p462_ref_numeric {
         );
         let intr = introspect_with_introspector(&content);
         let styled =
-            Content::Styled(Box::new(content), Styles::from_iter([Style::Lang(lang_pt)]));
+            Content::styled(Box::new(content), Styles::from_iter([Style::Lang(lang_pt)]));
         let text = doc_text_with_intr(&styled, intr).replace('\u{a0}', " ");
         assert!(
             text.contains("Figura 1"),
@@ -19818,7 +19835,7 @@ mod p462_ref_numeric {
             vec![Content::text("cell")],
             Some(Content::text("legenda")),
         );
-        let numbered = Content::Styled(
+        let numbered = Content::styled(
             Box::new(table),
             Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
         );
@@ -20038,7 +20055,7 @@ fn p756_cjk_segmenta_sem_espacos() {
         .iter()
         .flat_map(|p| p.items.iter())
         .filter_map(|i| match i {
-            FrameItem::Text { pos, .. } => Some(pos.y.val().to_bits()),
+            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.val().to_bits()),
             _ => None,
         })
         .collect();
@@ -20087,7 +20104,7 @@ fn p756_thai_segmenta_sem_espacos() {
         .iter()
         .flat_map(|p| p.items.iter())
         .filter_map(|i| match i {
-            FrameItem::Text { pos, .. } => Some(pos.y.val().to_bits()),
+            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.val().to_bits()),
             _ => None,
         })
         .collect();
@@ -20523,28 +20540,30 @@ fn p898_align_bottom_sob_height_auto_nao_produz_infinito() {
     let margin = 28.35;
     let content = Content::Sequence(
         vec![
-            Content::SetPage {
-                paper: None,
-                flipped: None,
-                binding: None,
-                width: Some(PageDimension::Length(400.0)),
-                height: Some(PageDimension::Auto),
-                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
-                    margin,
-                )),
-                numbering: None,
-                number_align: None,
-                header: None,
-                header_ascent: None,
-                footer: None,
-                footer_descent: None,
-                supplement: None,
-                columns: None,
-                bleed: None,
-                fill: None,
-                background: None,
-                foreground: None,
-            },
+            Content::SetPage(std::sync::Arc::new(
+                crate::entities::content::SetPageDelta {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
+                    width: Some(PageDimension::Length(400.0)),
+                    height: Some(PageDimension::Auto),
+                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                        margin,
+                    )),
+                    numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
+                    columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
+                },
+            )),
             Content::Align(std::sync::Arc::new(AlignElem {
                 alignment: Align2D::from_string("bottom"),
                 body: Content::text("x"),
@@ -20654,28 +20673,30 @@ fn p898_align_horizon_apos_bloco_alto_alinha_contra_altura_final_da_pagina() {
 
     let content = Content::Sequence(
         vec![
-            Content::SetPage {
-                paper: None,
-                flipped: None,
-                binding: None,
-                width: Some(PageDimension::Length(400.0)),
-                height: Some(PageDimension::Auto),
-                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
-                    margin,
-                )),
-                numbering: None,
-                number_align: None,
-                header: None,
-                header_ascent: None,
-                footer: None,
-                footer_descent: None,
-                supplement: None,
-                columns: None,
-                bleed: None,
-                fill: None,
-                background: None,
-                foreground: None,
-            },
+            Content::SetPage(std::sync::Arc::new(
+                crate::entities::content::SetPageDelta {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
+                    width: Some(PageDimension::Length(400.0)),
+                    height: Some(PageDimension::Auto),
+                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                        margin,
+                    )),
+                    numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
+                    columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
+                },
+            )),
             tall_block,
             Content::Align(std::sync::Arc::new(AlignElem {
                 alignment: Align2D::from_string("horizon"),
@@ -20773,28 +20794,30 @@ fn p898_place_bottom_com_dy_sob_height_auto_aplica_dy_correctamente() {
     let dy = 30.0;
     let content = Content::Sequence(
         vec![
-            Content::SetPage {
-                paper: None,
-                flipped: None,
-                binding: None,
-                width: Some(PageDimension::Length(400.0)),
-                height: Some(PageDimension::Auto),
-                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
-                    margin,
-                )),
-                numbering: None,
-                number_align: None,
-                header: None,
-                header_ascent: None,
-                footer: None,
-                footer_descent: None,
-                supplement: None,
-                columns: None,
-                bleed: None,
-                fill: None,
-                background: None,
-                foreground: None,
-            },
+            Content::SetPage(std::sync::Arc::new(
+                crate::entities::content::SetPageDelta {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
+                    width: Some(PageDimension::Length(400.0)),
+                    height: Some(PageDimension::Auto),
+                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                        margin,
+                    )),
+                    numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
+                    columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
+                },
+            )),
             // Bloco alto para dar corpo à altura final da página.
             Content::Block(std::sync::Arc::new(
                 crate::entities::elements::block::BlockElem {
@@ -20872,7 +20895,7 @@ fn p898_place_bottom_com_dy_sob_height_auto_aplica_dy_correctamente() {
         .unwrap_or_else(|| placed_style.size.val() * 0.65);
     let content_h = top.val() - bottom.val();
     let expected_base_y = page.height - margin - content_h;
-    let expected_y = expected_base_y + dy;
+    let expected_y = expected_base_y + dy + top.val();
     assert!(
         (placed_y - expected_y).abs() < 0.01,
         "dy não aplicado correctamente: placed_y={:.4} esperado={:.4} (dy={})",
@@ -20927,28 +20950,30 @@ fn p904_grid_fr_row_sob_height_auto_nao_produz_infinito_degenera_a_zero() {
         }));
     let content = Content::Sequence(
         vec![
-            Content::SetPage {
-                paper: None,
-                flipped: None,
-                binding: None,
-                width: Some(PageDimension::Length(283.46)),
-                height: Some(PageDimension::Auto),
-                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
-                    margin,
-                )),
-                numbering: None,
-                number_align: None,
-                header: None,
-                header_ascent: None,
-                footer: None,
-                footer_descent: None,
-                supplement: None,
-                columns: None,
-                bleed: None,
-                fill: None,
-                background: None,
-                foreground: None,
-            },
+            Content::SetPage(std::sync::Arc::new(
+                crate::entities::content::SetPageDelta {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
+                    width: Some(PageDimension::Length(283.46)),
+                    height: Some(PageDimension::Auto),
+                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                        margin,
+                    )),
+                    numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
+                    columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
+                },
+            )),
             g,
         ]
         .into(),
@@ -21087,28 +21112,30 @@ fn p904_place_right_mede_largura_real_do_texto_nao_zero() {
     let page_width = 200.0;
     let content = Content::Sequence(
         vec![
-            Content::SetPage {
-                paper: None,
-                flipped: None,
-                binding: None,
-                width: Some(PageDimension::Length(page_width)),
-                height: Some(PageDimension::Length(150.0)),
-                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
-                    margin,
-                )),
-                numbering: None,
-                number_align: None,
-                header: None,
-                header_ascent: None,
-                footer: None,
-                footer_descent: None,
-                supplement: None,
-                columns: None,
-                bleed: None,
-                fill: None,
-                background: None,
-                foreground: None,
-            },
+            Content::SetPage(std::sync::Arc::new(
+                crate::entities::content::SetPageDelta {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
+                    width: Some(PageDimension::Length(page_width)),
+                    height: Some(PageDimension::Length(150.0)),
+                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                        margin,
+                    )),
+                    numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
+                    columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
+                },
+            )),
             Content::place(
                 Align2D { h: Some(HAlign::Right), v: None },
                 0.0,
@@ -21200,28 +21227,30 @@ fn p908_place_aninhado_em_align_sob_height_auto_posicao_bate_com_formula() {
     let dy = 30.0;
     let content = Content::Sequence(
         vec![
-            Content::SetPage {
-                paper: None,
-                flipped: None,
-                binding: None,
-                width: Some(PageDimension::Length(400.0)),
-                height: Some(PageDimension::Auto),
-                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
-                    margin,
-                )),
-                numbering: None,
-                number_align: None,
-                header: None,
-                header_ascent: None,
-                footer: None,
-                footer_descent: None,
-                supplement: None,
-                columns: None,
-                bleed: None,
-                fill: None,
-                background: None,
-                foreground: None,
-            },
+            Content::SetPage(std::sync::Arc::new(
+                crate::entities::content::SetPageDelta {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
+                    width: Some(PageDimension::Length(400.0)),
+                    height: Some(PageDimension::Auto),
+                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                        margin,
+                    )),
+                    numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
+                    columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
+                },
+            )),
             Content::Block(std::sync::Arc::new(
                 crate::entities::elements::block::BlockElem {
                     body: Content::text("TALL"),
@@ -21317,28 +21346,30 @@ fn p908_place_aninhado_em_align_duplo_sob_height_auto_posicao_bate_com_formula()
     let dy = 30.0;
     let content = Content::Sequence(
         vec![
-            Content::SetPage {
-                paper: None,
-                flipped: None,
-                binding: None,
-                width: Some(PageDimension::Length(400.0)),
-                height: Some(PageDimension::Auto),
-                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
-                    margin,
-                )),
-                numbering: None,
-                number_align: None,
-                header: None,
-                header_ascent: None,
-                footer: None,
-                footer_descent: None,
-                supplement: None,
-                columns: None,
-                bleed: None,
-                fill: None,
-                background: None,
-                foreground: None,
-            },
+            Content::SetPage(std::sync::Arc::new(
+                crate::entities::content::SetPageDelta {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
+                    width: Some(PageDimension::Length(400.0)),
+                    height: Some(PageDimension::Auto),
+                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                        margin,
+                    )),
+                    numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
+                    columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
+                },
+            )),
             Content::Block(std::sync::Arc::new(
                 crate::entities::elements::block::BlockElem {
                     body: Content::text("TALL"),
@@ -21441,28 +21472,30 @@ fn p908_place_aninhado_em_transform_sob_height_auto_posicao_bate_com_formula() {
     let dy = 30.0;
     let content = Content::Sequence(
         vec![
-            Content::SetPage {
-                paper: None,
-                flipped: None,
-                binding: None,
-                width: Some(PageDimension::Length(400.0)),
-                height: Some(PageDimension::Auto),
-                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
-                    margin,
-                )),
-                numbering: None,
-                number_align: None,
-                header: None,
-                header_ascent: None,
-                footer: None,
-                footer_descent: None,
-                supplement: None,
-                columns: None,
-                bleed: None,
-                fill: None,
-                background: None,
-                foreground: None,
-            },
+            Content::SetPage(std::sync::Arc::new(
+                crate::entities::content::SetPageDelta {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
+                    width: Some(PageDimension::Length(400.0)),
+                    height: Some(PageDimension::Auto),
+                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                        margin,
+                    )),
+                    numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
+                    columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
+                },
+            )),
             Content::Block(std::sync::Arc::new(
                 crate::entities::elements::block::BlockElem {
                     body: Content::text("TALL"),
@@ -22168,26 +22201,30 @@ mod p987_tests {
     fn doc_pagina_auto(
         corpo: Vec<Content>,
     ) -> crate::entities::layout_types::PagedDocument {
-        let mut seq = vec![Content::SetPage {
-            paper: None,
-            flipped: None,
-            binding: None,
-            width: Some(PageDimension::Auto),
-            height: Some(PageDimension::Auto),
-            margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(MARGIN)),
-            numbering: None,
-            number_align: None,
-            header: None,
-            header_ascent: None,
-            footer: None,
-            footer_descent: None,
-            supplement: None,
-            columns: None,
-            bleed: None,
-            fill: None,
-            background: None,
-            foreground: None,
-        }];
+        let mut seq = vec![Content::SetPage(std::sync::Arc::new(
+            crate::entities::content::SetPageDelta {
+                paper: None,
+                flipped: None,
+                binding: None,
+                width: Some(PageDimension::Auto),
+                height: Some(PageDimension::Auto),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    MARGIN,
+                )),
+                numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
+                columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
+            },
+        ))];
         seq.extend(corpo);
         layout(&Content::Sequence(seq.into()))
     }
@@ -22326,28 +22363,32 @@ mod p987_tests {
         let page_width = 400.0;
         let content = Content::Sequence(
             vec![
-                Content::SetPage {
-                    paper: None,
-                    flipped: None,
-                    binding: None,
-                    width: Some(PageDimension::Length(page_width)),
-                    height: Some(PageDimension::Auto),
-                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
-                        MARGIN,
-                    )),
-                    numbering: None,
-                    number_align: None,
-                    header: None,
-                    header_ascent: None,
-                    footer: None,
-                    footer_descent: None,
-                    supplement: None,
-                    columns: None,
-                    bleed: None,
-                    fill: None,
-                    background: None,
-                    foreground: None,
-                },
+                Content::SetPage(std::sync::Arc::new(
+                    crate::entities::content::SetPageDelta {
+                        paper: None,
+                        flipped: None,
+                        binding: None,
+                        width: Some(PageDimension::Length(page_width)),
+                        height: Some(PageDimension::Auto),
+                        margin: Some(
+                            crate::entities::layout_types::PageMarginSpec::uniform(
+                                MARGIN,
+                            ),
+                        ),
+                        numbering: None,
+                        number_align: None,
+                        header: None,
+                        header_ascent: None,
+                        footer: None,
+                        footer_descent: None,
+                        supplement: None,
+                        columns: None,
+                        bleed: None,
+                        fill: None,
+                        background: None,
+                        foreground: None,
+                    },
+                )),
                 Content::equation_numbered(Content::MathIdent("E".into()), true),
             ]
             .into(),
@@ -22411,7 +22452,7 @@ mod p994_tests {
                 | FrameItem::TextShaped { pos, text, style, .. } => {
                     out.push((pos.x.val(), pos.y.val(), text.clone(), style.clone()));
                 }
-                FrameItem::Semantic { items, .. }
+                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. }
                 | FrameItem::Group { items, .. }
                 | FrameItem::Link { items, .. } => {
                     collect_texts(items, out);
@@ -22435,7 +22476,7 @@ mod p994_tests {
         for item in items {
             f(item);
             match item {
-                FrameItem::Semantic { items, .. }
+                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. }
                 | FrameItem::Group { items, .. }
                 | FrameItem::Link { items, .. } => {
                     walk(items, f);
@@ -23074,4 +23115,255 @@ mod p1254_tiling_layout {
         assert_eq!(d1, r1);
         assert_eq!(r1, r2);
     }
+}
+
+#[test]
+fn atomized_remaining_behavior_arms_delegate_statically() {
+    let source = include_str!("mod.rs");
+    let compact: String = source.chars().filter(|c| !c.is_whitespace()).collect();
+    for arm in [
+        "Content::StateDisplay(e)=>state_display::layout(self,e),",
+        "Content::CounterDisplayCallback(e)=>{counter_display_callback::layout(self,e)}",
+        "Content::Space=>space::layout(self,crate::entities::layout_types::TextSeparatorOrigin::Markup),",
+        "Content::SpaceFromNewline=>space::layout(self,crate::entities::layout_types::TextSeparatorOrigin::Newline),",
+        "Content::Parbreak=>parbreak::layout(self),",
+        "Content::CounterDisplay(e)=>counter_display::layout(self,e),",
+        "Content::OutlineEntry(e)=>outline_entry::layout(self,e),",
+        "Content::Align(e)=>align::layout(self,e),",
+        "Content::ContextBlock(elem)=>context_block::layout(self,elem),",
+    ] {
+        let expected: String = arm.chars().filter(|c| !c.is_whitespace()).collect();
+        assert!(compact.contains(&expected), "missing static delegation: {arm}");
+    }
+}
+
+#[test]
+fn atomized_text_line_region_owners_keep_cursor_as_adapter() {
+    let cursor = include_str!("cursor.rs");
+    let hub = include_str!("mod.rs");
+    assert!(!cursor.contains("super::hyphenation::hyphenate"), "selection still lives in cursor");
+    assert!(!cursor.contains("self.metrics.text_width(word"), "word measurement still lives in cursor");
+    assert!(!cursor.contains("self.commit_page("), "regional transition still lives in cursor");
+    for module in ["text_measure", "break_selection", "word_layout", "region_progress"] {
+        assert!(hub.contains(&format!("mod {module};")), "missing private owner {module}");
+    }
+}
+
+mod regional_demand_regressions {
+    use super::*;
+    use comemo::Track;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use crate::entities::image_sizer::NullImageSizer;
+    use crate::entities::layout_types::PageMargins;
+
+    fn make(intr: &dyn Introspector) -> Layouter<'_, FixedMetrics, NullImageSizer> {
+        let mut l = Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr.track());
+        l.page_config.width = 140.0;
+        l.page_config.height = 100.0;
+        l.page_config.margin = crate::entities::layout_types::PageMargins::uniform(8.0);
+    l.page_config.margin_spec = crate::entities::layout_types::PageMarginSpec::uniform(8.0);
+        l.regions.current.width = 140.0;
+        l.regions.current.height = 100.0;
+        l.regions.current.cursor_x = Pt(8.0);
+        l.regions.current.line_start_x = Pt(8.0);
+        l.regions.current.cursor_y = Pt(8.0);
+        l
+    }
+
+    fn last_line(l: &mut Layouter<'_, FixedMetrics, NullImageSizer>) {
+        l.layout_word("TAIL");
+        let delta = 88.0 - l.regions.current.cursor_y.0;
+        l.shift_current_line_y(delta);
+        l.regions.current.cursor_y = Pt(88.0);
+    }
+
+    fn pagebreak(to: Option<crate::entities::parity::Parity>) -> Content {
+        Content::Pagebreak(std::sync::Arc::new(crate::entities::elements::pagebreak::PagebreakElem {
+            weak: false, weak_explicit: false, to,
+        }))
+    }
+
+    fn text_baseline(items: &[FrameItem], wanted: &str) -> f64 {
+        items.iter().find_map(|item| match item {
+            FrameItem::Text { pos, text, .. } if text.as_str() == wanted => Some(pos.y.0),
+            _ => None,
+        }).expect("text must remain on its causal page")
+    }
+
+    #[test]
+    fn terminal_fitting_line_stays_on_its_page() {
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr);
+        last_line(&mut l);
+        let doc = l.finish();
+        assert_eq!(doc.pages.len(), 1);
+        assert_eq!(doc.pages[0].plain_text(), "TAIL");
+        assert_eq!(text_baseline(&doc.pages[0].items, "TAIL"), 88.0);
+    }
+
+    #[test]
+    fn fitting_flush_waits_for_ordinary_next_text() {
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr);
+        last_line(&mut l);
+        l.flush_line();
+        assert!(l.pages.is_empty(), "predicted next baseline is not a page request");
+        l.layout_word("NEXT");
+        let doc = l.finish();
+        assert_eq!(doc.pages.len(), 2);
+        assert_eq!(doc.pages[0].plain_text(), "TAIL");
+        assert_eq!(doc.pages[1].plain_text(), "NEXT");
+        assert!(text_baseline(&doc.pages[1].items, "NEXT") < 30.0);
+    }
+
+    #[test]
+    fn paragraph_continuation_uses_the_new_region_top() {
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr);
+        last_line(&mut l);
+        l.layout_content(&Content::Parbreak);
+        l.layout_word("NEXT");
+        let doc = l.finish();
+        assert_eq!(doc.pages.len(), 2);
+        assert!(text_baseline(&doc.pages[1].items, "NEXT") < 30.0);
+        assert_eq!(doc.pages[0].plain_text().trim(), "TAIL");
+        assert_eq!(doc.pages[1].plain_text(), "NEXT");
+    }
+
+    #[test]
+    fn horizontal_wrap_and_chunk_admit_before_emission() {
+        for chunk in [false, true] {
+            let intr = TagIntrospector::empty();
+            let mut l = make(&intr);
+            last_line(&mut l);
+            l.regions.current.cursor_x = Pt(131.0);
+            if chunk { l.layout_chunk("NEXT"); } else { l.layout_word("NEXT"); }
+            let doc = l.finish();
+            assert_eq!(doc.pages.len(), 2);
+            assert_eq!(doc.pages[1].plain_text(), "NEXT");
+            assert!(text_baseline(&doc.pages[1].items, "NEXT") < 30.0);
+        }
+    }
+
+    #[test]
+    fn explicit_pagebreaks_and_parity_preserve_intentional_empty_pages() {
+        use crate::entities::parity::Parity;
+        for (to, expected) in [(None, 2), (Some(Parity::Even), 2), (Some(Parity::Odd), 3)] {
+            let intr = TagIntrospector::empty();
+            let mut l = make(&intr);
+            last_line(&mut l);
+            l.layout_content(&pagebreak(to));
+            let doc = l.finish();
+            assert_eq!(doc.pages.len(), expected);
+            assert_eq!(doc.pages[0].plain_text(), "TAIL");
+            assert!(doc.pages[1..].iter().all(|p| p.plain_text().is_empty()));
+        }
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr);
+        last_line(&mut l);
+        l.layout_content(&pagebreak(None));
+        l.layout_content(&pagebreak(None));
+        assert_eq!(l.finish().pages.len(), 3);
+    }
+
+    #[test]
+    fn fitting_suffix_is_not_rejected_for_a_hypothetical_next_baseline() {
+        let intr = TagIntrospector::empty();
+        let mut l = make(&intr);
+        last_line(&mut l);
+        l.flow_suffix_transaction_active = true;
+        l.flush_line();
+        assert!(!l.flow_suffix_transaction_rejected);
+        assert!(l.pages.is_empty());
+        l.flow_suffix_transaction_active = false;
+        let doc = l.finish();
+        assert_eq!(doc.pages.len(), 1);
+        assert_eq!(doc.pages[0].plain_text(), "TAIL");
+    }
+
+    #[test]
+    fn empty_and_infinite_regions_preserve_progress() {
+        let intr = TagIntrospector::empty();
+        assert_eq!(make(&intr).finish().pages.len(), 1);
+        let mut l = make(&intr);
+        l.page_config.height = f64::INFINITY;
+        l.regions.current.height = f64::INFINITY;
+        last_line(&mut l);
+        l.flush_line();
+        l.layout_word("NEXT");
+        let doc = l.finish();
+        assert_eq!(doc.pages.len(), 1);
+        assert!(doc.pages[0].plain_text().contains("NEXT"));
+    }
+}
+
+#[test]
+fn regional_demand_column_transition_discards_old_paragraph_baseline() {
+    use comemo::Track;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use crate::entities::image_sizer::NullImageSizer;
+    let intr = TagIntrospector::empty();
+    let intr_dyn: &dyn Introspector = &intr;
+    let mut l = Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_dyn.track());
+    l.page_config.width = 140.0;
+    l.page_config.height = 100.0;
+    l.page_config.margin = crate::entities::layout_types::PageMargins::uniform(8.0);
+    l.page_config.margin_spec = crate::entities::layout_types::PageMarginSpec::uniform(8.0);
+    l.regions.current.height = 100.0;
+    l.page_columns = Some(2);
+    l.column_width = 74.0;
+    l.column_x_offsets = vec![8.0, 74.0];
+    l.start_column(0);
+    // The constructor's 12pt argument governs geometry; its default chain is
+    // 11pt. Set the tested run explicitly to the intended 12pt.
+    l.style = TextStyle::regular(Pt(12.0));
+    l.layout_word("TAIL");
+    l.shift_current_line_y(88.0 - l.regions.current.cursor_y.0);
+    l.regions.current.cursor_y = Pt(88.0);
+    l.layout_content(&Content::Parbreak);
+    l.layout_word("NEXT");
+    l.layout_word("A");
+    assert!(l.pages.is_empty(), "a new word must not replay the previous column gap");
+    assert_eq!(l.current_column, 1);
+    l.flush_line();
+    l.finish_columns();
+    let doc = l.finish();
+    assert_eq!(doc.pages.len(), 1);
+    assert_eq!(doc.pages[0].plain_text().split_whitespace().collect::<Vec<_>>(),
+        vec!["TAIL", "NEXT", "A"]);
+    let positions: Vec<_> = frame_items_recursive(&doc.pages[0].items).iter().filter_map(|item|
+        match item { FrameItem::Text { pos, text, .. } if matches!(text.as_str(), "NEXT" | "A") => Some(*pos), _ => None }
+    ).collect();
+    assert_eq!(positions.len(), 2);
+    assert_eq!(positions[0].y, positions[1].y);
+    assert!((positions[1].x.0 - positions[0].x.0 - 28.8).abs() < 1e-9);
+    assert!(frame_items_recursive(&doc.pages[0].items).iter().any(|item| matches!(item,
+        FrameItem::Text { pos, text, .. } if text.as_str() == "NEXT" && pos.y.0 < 30.0)));
+}
+
+#[test]
+fn regional_demand_terminal_note_keeps_conservative_clearance() {
+    use comemo::Track;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use crate::entities::image_sizer::NullImageSizer;
+    let intr = TagIntrospector::empty();
+    let intr_dyn: &dyn Introspector = &intr;
+    let mut l = Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_dyn.track());
+    l.page_config.width = 140.0;
+    l.page_config.height = 100.0;
+    l.page_config.margin = crate::entities::layout_types::PageMargins::uniform(8.0);
+    l.page_config.margin_spec = crate::entities::layout_types::PageMarginSpec::uniform(8.0);
+    l.regions.current.width = 140.0;
+    l.regions.current.height = 100.0;
+    l.regions.current.cursor_x = Pt(8.0);
+    l.regions.current.line_start_x = Pt(8.0);
+    l.regions.current.cursor_y = Pt(8.0);
+    l.layout_word("TAIL");
+    l.shift_current_line_y(78.0 - l.regions.current.cursor_y.0);
+    l.regions.current.cursor_y = Pt(78.0);
+    l.pending_footnote_bodies.push((1, Box::new(Content::text("NOTE"))));
+    let doc = l.finish();
+    assert_eq!(doc.pages.len(), 2, "the note must not occupy the last line clearance");
+    assert_eq!(doc.pages[0].plain_text(), "TAIL");
+    assert!(doc.pages[1].plain_text().contains("NOTE"));
 }

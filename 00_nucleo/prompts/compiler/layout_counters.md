@@ -1,57 +1,22 @@
-# L0 — Layout: Contadores e Numeração
+# L0 — counters
 Hash do Código: bf43f367
 
-## Módulo
-`01_core/src/compiler/layout/counters.rs`
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/counters.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Propósito
-Encapsula os braços do Layouter que alteram ou exibem o estado de
-contadores: `SetHeadingNumbering`, `CounterUpdate`, `CounterDisplay`.
-Funções chamadas por `layout.rs` (orquestrador).
+## Evidence before specification
 
-## Regras de negócio
-- `SetHeadingNumbering { active }` → muta `self.counter.numbering_active`.
-- `CounterUpdate { key, action }` → delega em `step_flat`/`update_flat`/
-  `step_hierarchical`.
-- `CounterDisplay { kind }` → lê o estado actual e gera `Content::text`.
-- Nenhuma destas funções gera geometria de página directamente.
+The consumer contains only its lineage/compatibility comments; no productive counter function is present. See `01_core/src/compiler/layout/counters.rs:7`.
 
-> **Fonte de paridade (P1031)** — doc comments `#[func]` do vanilla ratificado (`e0e8ca4d`),
-> `crates/typst-library/src/introspection/counter.rs`, publicados em
-> `typst.app/docs/reference/introspection/counter/`:
->
-> - **Contadores têm níveis** (sustenta `step_hierarchical` vs `step_flat`) —
->   `counter.rs:38-41`: *"This function returns an array: Counters can have multiple levels
->   (in the case of headings for sections, subsections, and so on), and each item in the
->   array corresponds to one level."*
-> - **`step`** — `counter.rs:481-497`: *"Increases the value of the counter by one. The
->   update will be in effect at the position where the returned content is inserted into
->   the document. If you don't put the output into the document, nothing happens!"*, com o
->   parâmetro `level` documentado como *"The depth at which to step the counter. Defaults to
->   `{1}`."* — sustenta o par `CounterUpdate{action}` → `step_*`, e o facto de a actualização
->   ser um `Content` posicional em vez de efeito imediato.
-> - **`update`** — `counter.rs:501-512`: *"Updates the value of the counter. Just like with
->   `step`, the update only occurs if you put the resulting content into the document."*
-> - **`display`** — `counter.rs:374-381`: *"Displays the value of the counter. You can
->   provide both a custom numbering and a custom location. Both default to `{auto}`,
->   selecting sensible defaults (the numbering of the counted element and the current
->   location, respectively). Returns the formatted output."* — sustenta `CounterDisplay`
->   produzir texto formatado a partir do estado corrente.
->
-> **Natureza**: literal para a existência e semântica de `step`/`update`/`display` e para a
-> natureza multi-nível dos contadores. A repartição interna em
-> `step_flat`/`update_flat`/`step_hierarchical` e o campo `numbering_active` são **mecânica
-> do cristalino** — não têm correspondente citável e divergem de propósito (ADR-0107).
->
-> **Achado relacionado, escalado no relatório do P1031**: a numeração hierárquica de
-> headings no corpo do documento não usa todos os níveis. Medido em 2026-08-13 com
-> `#set heading(numbering: "1.")` + `= Um` + `== Dois` + `=== Tres`: o vanilla
-> (`typst 0.15.1 (e0e8ca4d)`) rende `1.` / `1.1.` / `1.1.1.`; o cristalino
-> (`target/release/typst`, fonte em HEAD `4f64e4e69`) rende `1.` / `1.` / `1.`. Note-se que
-> o **outline** do mesmo documento mostra `1.` / `1.1.` correctamente nos dois binários —
-> logo os valores de contador existem e o defeito está no caminho de render do heading, não
-> na contagem. Gate ADR-0127, passo próprio. **Não implementado aqui.**
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-## Critérios de verificação
-- `CounterUpdate(Update(5))` → `counter.get_flat("equation") == 5`.
-- `CounterDisplay("heading")` → texto contém o número formatado.
+## Ownership and contract
+
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
+
+The current consumer is an empty compatibility module with a lineage header. It exposes no counter-update, heading-numbering, equation-numbering or display implementation. Do not specify removed CounterStateLegacy helpers as behavior of this owner and do not repopulate the module. CounterUpdate remains a central no-op after introspection; display behavior belongs to `00_nucleo/prompts/compiler/layout/counter_display.md` and `00_nucleo/prompts/compiler/layout/counter_display_callback.md`.
+
+## Acceptance and limits
+
+The module remains behaviorally empty. No legacy counter mutation or display logic is reintroduced.

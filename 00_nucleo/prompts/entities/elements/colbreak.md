@@ -1,48 +1,25 @@
-# Prompt L0 — `entities/elements/colbreak` — `ColbreakElem`
+# L0 — ColbreakElem
 Hash do Código: cefb38a2
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/colbreak.rs`
-**Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver
-`entities/elements/_comum.md`. **Não-locatável** (confirmado P320). **Comando
-unit** (com flag `weak`) — precedente `Divider`/`Pagebreak`. Comportamento
-idêntico ao braço atual.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/colbreak.rs`
 
----
+## Evidence
 
-## Struct
+Retained historical anchors `content.rs:1790,1617` distinguish empty text from
+a nonempty flow command. They are not current upstream parity measurements.
 
-```rust
-#[derive(Debug, Clone, PartialEq, Hash)]
-pub struct ColbreakElem {
-    pub weak:          bool,
-    pub weak_explicit: bool,
-}
-```
+## Contract
 
-`Content::Colbreak { weak }` → `Content::Colbreak(Arc<ColbreakElem>)`.
-Construtor ergonómico preservado: `Content::colbreak(weak: bool)`.
-
-**P1140.9 — contrato público e presença.** `weak_explicit` conserva se o named
-foi fornecido. O construtor existente mantém a assinatura e trata `true` como
-explícito e `false` como omitido; eval usa
-`colbreak_with_weak_presence(weak, weak_explicit)`. Layout lê somente `weak`.
-
-## `impl Element for ColbreakElem`
-
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `String::new()` (`content.rs:1790`) |
-| `is_empty` | default `false` — **nunca vazio** (event observable; `content.rs:1617`) |
-| `map_content` | **terminal** |
-| `map_text` | **terminal** |
-| `get_field`/`element_kind`/`to_payload` | default `None` |
-
-## `eq`
-
-`#[derive(PartialEq)]` compara `weak + weak_explicit`; o `Hash` derivado inclui
-ambos.
-
-## Critério
-
-`plain_text` vazio; `is_empty` sempre `false`; map_* terminais; igualdade por
-`weak+weak_explicit`.
+`ColbreakElem` has public bool fields weak and weak_explicit with
+Debug/Clone/PartialEq/Hash. Both fields participate in equality/hash and remain
+preserved by terminal map_content/map_text. plain_text is empty; is_empty is
+always false. get_field, element_kind and to_payload retain default None and
+the element remains non-locatable.
+Presence transports whether the named argument was supplied. Existing
+`Content::colbreak(weak)` keeps its signature: true is explicit, false omitted.
+Evaluation uses the existing presence-aware path, while layout reads only weak.
+Those operations belong to their constructor/eval/layout owners; this entity
+preserves the carrier and its distinctions, not argument validation or layout.
+The trait owner is `00_nucleo/prompts/entities/elements/_comum.md`.
+Verify empty text, nonempty command identity, terminal maps and both equality components.

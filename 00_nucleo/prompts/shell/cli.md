@@ -1,5 +1,8 @@
-# Shell CLI — typst-shell::cli
-Hash do Código: 4f12a5f1
+# L0 — Shell CLI parsing and semantic serialization
+Hash do Código: 879dc380
+
+**Layer:** L2
+**Exclusive consumer:** `02_shell/src/cli.rs`
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -8,1536 +11,234 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3
 - 00_nucleo/prompts/_nuclei/shell/build-identity.toml sha256:a97f32705be8700feaa6a5c89440ffa49d15c11145ea83744307aefc65a50297
 
-## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
+## Evidence, ownership and classification
 
-### Medição anterior à decisão
+The current consumer defines color/output enums at `02_shell/src/cli.rs:199`, command arguments at `:415`, command variants at `:550`, public intents at `:698`, translation at `:830`, semantic serialization at `:1021` and resolution helpers at `:1550`. These observations precede the contracts below; they do not establish new product decisions or global vanilla parity.
 
-Baseline histórico R5:
-HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
-commitado com diff/stat integral. A medição independente R5, SHA-256
-`82b2de8863ae5cd4b706eb9d5a6b285e1ed31dce3c126c8e5383a5af59ab46c8`,
-preserva fontes, horários e executáveis; referência upstream `a51e02804`.
+L2 owns syntax, argument translation, presentation choices and memory-only serialization. It reads argument/environment/TTY configuration but does not inspect filesystem paths, discover fonts, compile, lay out or export. L4 consumes typed `RunIntent` values rather than clap's private `Args`. Raw tri-state/optional overrides must remain distinguishable so their productive owner can combine CLI and document options.
 
-`02_shell/src/cli.rs:664–685,758,1000` recebe &[Content] e aplica defaults
-hardcoded de Heading tanto a query quanto ao caminho Value. R5 mostra que
-numbering e idioma são campos da ocorrência, não da CLI que os imprime.
+CLI acceptance, diagnostics and serialized public value morphology are observables. Internal enums, arithmetic, generators and pipeline mechanics need not match vanilla. An observed parser quirk is not, by itself, evidence of intentional language design. Unresolved normative/consumer disagreements are retained in `00_nucleo/diagnosticos/sanitization-shell-history.md`; this translation authorizes no change of behavior.
 
-### Decisão pública proprietária
+## Commands, compatibility, help and identity
 
-As assinaturas passam a receber Values, com os demais parâmetros intactos:
+The command tree is named `typst`, with about literal `Typst compiler (crystalline)`. It exposes `compile` (accepted alias `c`), `watch` (visible alias `w`), `eval`, `fonts`, `completions`, `info` and `init`. `query` remains accepted but hidden from principal help; it is deprecated, not an alias of eval.
 
-```rust
-pub fn serialize_query(elements: &[Value], field: Option<&str>,
-    one: bool, pretty: bool) -> Result<Vec<u8>, String>;
-pub fn serialize_query_with_format(elements: &[Value], field: Option<&str>,
-    one: bool, pretty: bool, format: QueryFormat) -> Result<Vec<u8>, String>;
-```
+Preserve `typst INPUT [OUTPUT] ...` as implicit compile. The normalizer scans argument tokens for recognized command/alias names and `-h`, `--help`, `-V`, `--version`; if any is present, it does not insert compile. Otherwise it inserts `compile` after the executable name. Empty argument vectors are left unchanged. Do not describe this implementation as inspecting only the first positional token; collisions with command-looking argument values are not permission to change it.
 
-O conversor semântico de Value trata LocatedContent Some como func seguido
-dos fields congelados recursivamente; não chama content_to_semantic primeiro
-nem adiciona defaults ou label inferida. A mesma seleção vale para eval e
-query. LocatedContent None e raw Content conservam o caminho legado desta
-CLI, incluindo Content::Label de outras famílias; não prometer corrigir seus
-defaults sintéticos nesta migração. O encoder textual L1 tem owner distinto
-e mantém sua classificação total contratada, não importa serializer L2.
+`parse() -> RunIntent` uses clap's parser and translates the selected command. Help/version terminate successfully with exit 0; malformed/unknown arguments and closed-enum values exit 2 with clap diagnostics before productive execution. Missing compile input has the diagnostic body `the following required argument was not provided: <INPUT>`.
 
---field/--one aplicam-se ao mapa assim projetado, na ordem e com erros já
-contratados por P1285. Formatos, pretty, newline, deprecação, warnings, exit e
-raw permanecem iguais. Não criar novo flag, modo ou fase, nem limitar Content
-a Heading. Os unit tests sintéticos da API passam a embrulhar o mesmo dado em
-Value ou snapshot explícito conforme o caso, sem rebatizar dívida como prova.
+`command() -> clap::Command` returns the same derived tree used by parsing, including hidden commands, for completion generation.
 
-Aceitação: fields de Heading padrão/numbering/idioma/label chegam à CLI;
-query sem field e com field/one; controles Figure/Equation/Metadata e raw.
-A mudança pública de tipo do parâmetro aguarda aprovação ADR-0127.
+Public version derives from `PARITY_VERSION`, not the workspace crate version, and appends ` ({short_commit})`. Compile-time `TYPST_COMMIT_SHA` supplies the first eight bytes (or shorter full value); absent identity displays `unknown commit`. `build_commit() -> Option<&'static str>` preserves the complete compile-time identity. Build capture belongs to `00_nucleo/prompts/shell/build.md`; parity version belongs to `00_nucleo/prompts/entities/version.md`. No runtime Git lookup or assumption that a version string proves oracle provenance is permitted.
 
-## P1460 — eliminar o literal sucessor de heading no fallback raw
+## Global options and configuration
 
-### Medição anterior à decisão
+`--color auto|always|never` is global, default auto. `ColorWhen` is the closed public enum Auto/Always/Never. `resolve_colored_with(choice, no_color, is_tty) -> bool` applies explicit always/never first; in auto, presence of `NO_COLOR`, even empty, disables color; otherwise stderr TTY status decides. The formatter itself never discovers this state.
 
-No commit `7f7a7ab1f9afc3e92ed29800408d9508525a6094`, SHA-256 do
-consumer `012710821b5521c9da2f32d8c14e78a94bd0dd03cddc681830dfa8ad944bf7ae`,
-`content_to_semantic` sintetiza o supplement de `Content::Heading` com
-`Content::text("Section")`. É a única decisão produtiva desse supplement
-fora do owner P1459. `LocatedContent(Some(fields))` projeta o snapshot
-autoritativo e não passa pelo literal.
+`--cert PATH` is global. Resolution is explicit flag, then `TYPST_CERT` presence, then no custom CA. Preserve optional path presence rather than treating an empty value as automatically absent. Pass the selected path to commands that resolve packages/world configuration; do not make it an unused decorative flag or disclose certificate path/bytes in info. TLS interpretation belongs to the pinned custom-CA nucleus and productive I/O owners.
 
-O probe `typst eval 'heading[First]' --format json` do cristalino contém o
-objeto text `Section`; o vanilla ratificado emite uma forma raw menor. Essa
-diferença de forma já é dívida delimitada por P1307-R5 e não legitima remover
-campos nesta unidade. P1460 preserva byte a byte o fallback legacy; corrige
-somente a autoria da decisão linguística.
+Features are explicit repeatable/comma-delimited `--features html,a11y-extras,bundle` on compile/watch and eval only. Unknown names exit 2. Default is an empty set; repetitions/order are idempotent. Each name enables only its corresponding typed feature. Selecting HTML/bundle output does not implicitly enable that feature. `TYPST_FEATURES` is not a CLI activation source.
 
-### Decisão
+## Compile and watch common arguments
 
-Importar `typst_core::compiler::lang::heading_supplement_for_lang` e construir
-o mesmo `Content::text` com `heading_supplement_for_lang(None)`. `None` é
-obrigatório porque raw Content não transporta uma `StyleChain`; inventar
-idioma do processo, documento ou referência seria falsa causalidade.
+`typst compile INPUT [OUTPUT] [OPTIONS]` and `typst watch INPUT [OUTPUT] [OPTIONS]` share:
 
-É proibido conservar/recriar `"Section"`, tabela, branch de língua, constante
-ou wrapper local de suplemento automático de heading. Não alterar ordem ou
-presença de fields, JSON/YAML, pretty, newline, `--field`, `--one`,
-LocatedContent, Figure ou Equation.
+| Argument | Current parsing/resolution contract |
+| --- | --- |
+| `-o FILE`, `--output FILE` | Flag wins over positional OUTPUT; otherwise derive input.with_extension("pdf"), except output-less explicit bundle uses input.with_extension(""). |
+| `--root DIR` | Explicit flag wins over `TYPST_ROOT`, then nonempty input parent, then `.`. No path-existence validation in L2. |
+| `--font-path DIR` | Repeatable; split each value and `TYPST_FONT_PATHS` on `:` on Unix or `;` on Windows. Explicit flag occurrences replace the whole environment list, not append to it. Filter empty slots; preserve order and nonempty duplicates. |
+| `-f FORMAT`, `--format FORMAT` | Closed pdf/png/svg/html/bundle enum. Explicit format wins over the selected explicit output's case-insensitive pdf/png/svg/html extension, then PDF. A .bundle extension alone does not select bundle. |
+| `--full-error` | Boolean, default false; pass it through for the extended show-rule recursion hint. |
+| `--timings-json FILE` | Optional path, absent None; productive owner writes pipeline timings. |
+| `--document-id UUID` | Explicit flag wins over `CRYSTALLINE_DOCUMENT_ID`, then None. Convert accepted UUID to 16 bytes in L2. |
+| `--input chave=valor` | Repeatable raw key/value strings; split on the first equals sign. Nonempty key required; empty value and additional equals signs are allowed. Default empty vector. |
+| `--compact` | Boolean, default false: verbose PDF remains production default; true selects compact PDF. Direct PNG/SVG/HTML outputs are unaffected; bundle PDF forwarding is recorded below. |
+| `--pretty[=true|false]` | Tri-state Option<bool>: absent None, bare true, explicit equals value parsed as bool. Never erase absence in L2. |
+| `--ppi PPI` | Option<f64>, default None, not a pre-applied 144. Ordinary f64 syntax; productive owner decides meaningful resolution/validation. |
+| `--pdf-tagged[=true|false]` | Tri-state Option<bool>, absent None, bare true; explicit value uses equals. |
+| `--no-pdf-tags` | Legacy boolean, absent false; explicit modern pdf-tagged choice wins when both occur. |
+| `--pdf-standard LIST` | Closed comma-delimited PDF-standard names, translated to raw Vec<PdfStandard>; absent empty. Do not validate cross-name conflicts in L2. |
+| `--oracle-pdf` | Boolean, absent false; diagnostic-only PDF path, not a production output format. |
+| `--pages RANGES` | Optional comma-delimited physical one-based page ranges, converted to typed PageRanges; absence stays None. |
 
-O novo acesso depende do contrato público L1 aprovado pelo dono no pedido
-P1460 de 2026-09-18, após aviso explícito do gate ADR-0127 no fecho P1459.
-Output/default/fase permanecem iguais; a única ampliação é a API aditiva do
-owner.
+An explicitly selected non-bundle format does not change the default output filename's .pdf extension. Format selection and filename derivation are distinct contracts. Standard output/path interpretation belongs to the publication owner, not these pure path helpers.
 
-### Aceitação
+Font-path empty values are legitimate slots, unlike a flag missing its required argument. An explicitly empty flag still replaces an environment list before filtering. L2 does not convert empty slots to cwd. Unreadable-path warning conformance is a recorded pending decision, not repaired here.
 
-- o JSON raw de heading permanece byte-idêntico ao baseline cristalino;
-- caminho snapshot causal permanece inalterado;
-- `content_to_semantic` chama o owner com `None` e não contém literal sucessor;
-- francês/português/alemão não são inferidos para raw Content sem chain;
-- nenhum consumer ou tabela duplicada é introduzido.
-
----
-
-
-
-## Módulo
-`02_shell/src/cli.rs`
-
-## Propósito
-
-Ponto único de entrada da CLI: argparsing via clap, modo de
-coloração (`ColorWhen`), resolução de `RunIntent` para L4 consumir.
-
-Materializado no Passo 117 (ADR-0049) depois de os Passos 113–116
-terem colocado CLI incorrectamente em L3 e L4.
-Passo 120 (ADR-0051) adicionou flag `-o/--output` com default
-derivado — primeira flag funcional.
-Passo 121 (ADR-0051) adicionou flag `--root DIR` com fallback
-`input.parent() → "."` — segunda flag funcional aplicando o mesmo
-pattern.
-Passo 122 (ADR-0051) adicionou flag `--font-path DIR` (repetível
-via `ArgAction::Append`) com passagem directa `Vec<PathBuf>` para
-L4 — terceira flag; fecha o preview original da ADR-0051.
-Passo 123 (ADR-0051) adiciona env vars `TYPST_ROOT` e
-`TYPST_FONT_PATHS` + `value_delimiter = ENV_PATH_SEP` em
-`--font-path` (feature `env` do clap). Precedência: flag > env >
-default.
-
-**P617** — adiciona `--document-id <UUID>` (e env var
-`CRYSTALLINE_DOCUMENT_ID`) para fornecer um `DocumentID` externo e
-estável entre compilações. `InstanceID` continua aleatório. A flag é
-validada em L2; se o valor não for um UUID bem formado, o processo
-termina com erro claro (exit 2). O campo `RunIntent.document_id`
-transporta os 16 bytes para L4/L3.
-
-**P796** — corrige `--version`: ver secção dedicada "Decisão — número de
-versão do CLI" abaixo. Formato passa de `typst 0.1.0` (versão do crate
-Cargo, sem hash) para `typst 0.15.1 (⟨commit curto⟩)`, consistente com
-`sys.version` (`entities/version.md` §9) e com o mecanismo do vanilla
-(mesmo formato; o número concreto acompanha `PARITY_VERSION`).
-
-## Decisão — número de versão do CLI (P796)
-
-**Achado (P786/P796)**: `typst --version` mostrava `typst 0.1.0` — a versão
-do crate Cargo (`[workspace.package] version = "0.1.0"`, identidade própria
-do projecto cristalino), sem hash de commit, e inconsistente com
-`sys.version` (que reporta `0.15.1`, a versão de paridade com a linguagem
-Typst — ver `compiler/stdlib/sys.md`).
-
-**Decisão explícita** (instrução directa do dono do projecto em P796,
-2026-07-21): copiar o **mecanismo** do vanilla directamente por agora —
-`typst_utils::version()` + `build.rs` que captura `git rev-parse HEAD` em
-tempo de build (`lab/typst-original/crates/typst-utils/{src/version.rs,
-build.rs}`). A identidade de versão própria do cristalino (divergindo do
-vanilla por design) fica para decisão futura — **não** decidida agora, e
-**não** deve ser assumida como "copiar o vanilla é definitivo".
-
-Isto **não** significa adoptar `0.15.1` como versão do *crate* Cargo — as
-duas coisas são conceptualmente distintas e já divergiam antes de P796:
-
-- Versão do **crate** (`Cargo.toml`, `[workspace.package] version`): `0.1.0`,
-  identidade própria do projecto. **Inalterada por P796.**
-- Versão de **paridade** (`PARITY_VERSION`, `entities/version.md` §9):
-  `0.15.1`, "que versão da linguagem Typst este compilador implementa".
-  É esta que `--version` passa a mostrar, pela mesma razão que
-  `sys.version` já a mostra (ADR-0107 — paridade é com a linguagem).
-
-`--version` mostra a versão de **paridade** (não a do crate) porque é o
-número que responde à pergunta que um utilizador faz ao correr
-`typst --version`: "que Typst é este". O hash de commit é o do **próprio
-repositório cristalino** (não o do vanilla — `969087ec` é do vanilla e nunca
-aparecerá no nosso binário), capturado da mesma forma que o vanilla captura
-o seu.
-
-**Correção P1137:** `0.15.0` era esquecimento, não modo de compatibilidade.
-O valor passa a `0.15.1`, exatamente o `sys.version` do vanilla ratificado
-`a51e02804`. O CLI não escolhe a versão independentemente: continua a consumir
-a fonte única `PARITY_VERSION`. Um re-sync futuro só muda o número por passo
-explícito que substitua o hash pinado, conforme `entities/version.md` §9a.
-
-### Mecanismo (mirror directo do vanilla)
-
-`02_shell/build.rs` (novo, mesma lógica de
-`typst-utils/build.rs`, sem a parte de `TYPST_VERSION` — a versão vem da
-constante Rust `PARITY_VERSION`, não precisa de env var):
-
-```rust
-fn main() {
-    println!("cargo:rerun-if-env-changed=TYPST_COMMIT_SHA");
-    if option_env!("TYPST_COMMIT_SHA").is_none() {
-        if let Some(sha) = std::process::Command::new("git")
-            .args(["rev-parse", "HEAD"])
-            .output().ok()
-            .filter(|o| o.status.success())
-            .and_then(|o| String::from_utf8(o.stdout).ok())
-        {
-            println!("cargo:rustc-env=TYPST_COMMIT_SHA={}", sha.trim());
-        }
-    }
-}
-```
-
-`cli.rs` — `Args` troca o atributo `version` implícito do clap (que lia
-`CARGO_PKG_VERSION` do crate `typst-shell`) por um valor explícito:
-
-```rust
-#[command(
-    name = "typst",
-    version = format!(
-        "{}.{}.{} ({})",
-        typst_core::entities::version::PARITY_VERSION.0,
-        typst_core::entities::version::PARITY_VERSION.1,
-        typst_core::entities::version::PARITY_VERSION.2,
-        display_commit(option_env!("TYPST_COMMIT_SHA")),
-    ),
-    about = "Typst compiler (crystalline)"
-)]
-struct Args { /* ... */ }
-
-/// Trunca o hash a 8 chars — mirror de `typst_utils::display_commit`.
-fn display_commit(commit: Option<&'static str>) -> &'static str {
-    const LENGTH: usize = 8;
-    match commit {
-        Some(s) => &s[..s.len().min(LENGTH)],
-        None => "unknown commit",
-    }
-}
-```
-
-- `option_env!("TYPST_COMMIT_SHA")` só resolve o valor que o **build.rs deste
-  crate** (`02_shell`) definiu via `cargo:rustc-env` — mecanismo compile-time,
-  zero I/O em runtime; não viola nenhuma restrição de camada (build scripts
-  não são código L1/L2 em execução, são tooling de compilação, mesmo
-  tratamento que o vanilla dá ao seu).
-- Sem repositório git (ex.: tarball sem `.git`), `git rev-parse HEAD` falha
-  silenciosamente (`.ok()`), `TYPST_COMMIT_SHA` fica por definir,
-  `display_commit` devolve `"unknown commit"` — mesmo fallback do vanilla.
-- `02_shell/Cargo.toml` activa `clap = { workspace = true, features =
-  ["string"] }`: `version = format!(...)` produz `String`, não `&'static
-  str`, e `clap::builder::Str: From<String>` só existe com a feature
-  `"string"` do clap (`clap_builder-*/src/builder/str.rs`, `#[cfg(feature =
-  "string")]`). Mesma feature que o vanilla activa em
-  `typst-cli/Cargo.toml:33` para o mesmo padrão — achado durante a
-  implementação de P796 (erro de compilação `E0277` sem a feature).
-
-## Contrato
-
-### `ColorWhen` — enum público
-
-```rust
-#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
-pub enum ColorWhen { Auto, Always, Never }
-```
-
-- Variantes com docstrings — viram descrições no `--help` de clap.
-- `Copy` + `PartialEq` + `Eq` — valor pequeno, barato de passar.
-
-### `OutputFormat` — enum público (P866)
-
-```rust
-#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
-pub enum OutputFormat { Pdf, Png, Svg }
-```
-
-Formato de saída do compilador. Alinhado com o vanilla
-(`typst-cli/src/args.rs::OutputFormat`) mas restrito aos formatos
-paginados (`Pdf`, `Png`, `Svg`). `Html` e `Bundle` ficam fora do
-escopo do cristalino até decisão futura.
-
-- `Copy` + `PartialEq` + `Eq` — valor pequeno, barato de passar.
-- `clap::ValueEnum` para suporte a `--format pdf|png|svg`.
-
-### `RunIntent` — struct pública
-
-```rust
-#[derive(Debug)]
-pub struct RunIntent {
-    pub input: PathBuf,
-    pub output: PathBuf,
-    pub output_format: OutputFormat, // P866 — formato resolvido pela extensão ou --format
-    pub root: PathBuf,
-    pub font_paths: Vec<PathBuf>,
-    pub colored: bool,
-    pub full_error: bool, // P350c — origem da flag de erro completo
-    pub document_id: Option<[u8; 16]>, // P617 — DocumentID externo (UUID)
-    pub inputs: Vec<(String, String)>, // P694 — pares `--input chave=valor` (raw; L3 converte para SysInputs)
-}
-```
-
-Output puro de `parse()`. L4 consome sem conhecer clap ou env
-vars. À medida que flags forem adicionadas em passos futuros,
-`RunIntent` ganha campos (sempre como dados crus, nunca
-estruturas de clap).
-
-**`full_error` (P350c)** — origem (casa) da flag de "erro completo"
-(capacidade interna em L1, `EvalContext::full_error`: classifica o erro de
-recursão de `#show` em cíclico/não-convergente num 3º hint). **Débito P350c**:
-(1) o `Arg --full-error` em `Args` (hoje `parse()` fixa `false`); (2) o fio
-`RunIntent.full_error` → L1 pelo caminho **interno** de L3 (`eval_with_full_error`)
-— a assinatura **pública** de `compile_to_pdf_bytes` **não** muda.
-
-### `parse() -> RunIntent` — API pública
-
-```rust
-pub fn parse() -> RunIntent;
-```
-
-- Usa `Args::parse()` de clap — em erro de argumentos, clap
-  imprime mensagem em stderr e termina o processo (exit 2).
-- Em sucesso, traduz `Args` → `RunIntent` e resolve `colored`
-  via `resolve_colored`.
-
-### `resolve_colored_with(choice, no_color, is_tty) -> bool` — API pública
-
-Função **pura** (sem I/O, sem env). Testável directamente.
-
-Ordem de precedência (ADR-0048):
-1. Flag explícita (`Always` / `Never`) vence tudo.
-2. Em `Auto`, `NO_COLOR` desactiva.
-3. Em `Auto` sem `NO_COLOR`, decide `is_tty`.
-
-### `resolve_output_with(input, output, output_flag) -> PathBuf` — API pública
-
-Função **pura** (sem I/O). Testável directamente.
-
-Ordem de precedência (ADR-0051):
-1. `output_flag` (via `-o/--output`) vence.
-2. `output` positional (se presente).
-3. Default derivado: `input.with_extension("pdf")`.
-
-### `resolve_output_format_with(format_flag, output, default) -> OutputFormat` — API pública (P866)
-
-Função **pura** (sem I/O). Testável directamente.
-
-Ordem de precedência (alinhada com vanilla `CompileConfig::new_impl`):
-1. `format_flag` (via `--format`) vence se presente.
-2. Extensão do path de `output` (flag `-o` ou positional) se for
-   `pdf`, `png` ou `svg` (case-insensitive).
-3. `default` (tipicamente `OutputFormat::Pdf`).
-
-Esta função **não** valida se o formato é suportado pelo backend
-(L3/L4) — isso é decisão de L4, que pode recusar formatos não
-implementados com mensagem clara.
-
-### `resolve_root_with(root, input) -> PathBuf` — API pública
-
-Função **pura** (sem I/O; não verifica existência). Testável
-directamente.
-
-Ordem de precedência (Passo 121, ADR-0051, alinhada com vanilla
-typst-cli):
-1. Flag `--root` explícita vence.
-2. `input.parent()` se não vazio.
-3. Default `"."` (cwd).
-
-### `Args` — struct privada (clap)
-
-```rust
-#[derive(Parser, Debug)]
-#[command(name = "typst", version = format!("{}.{}.{} ({})", ...), about = "...")]
-// P796 — version deixa de ser o atributo implícito (CARGO_PKG_VERSION de
-// typst-shell, "0.1.0"); ver secção "Decisão — número de versão do CLI".
-struct Args {
-    input: PathBuf,
-    output: Option<PathBuf>,           // positional opcional
-    #[arg(short = 'o', long = "output", value_name = "FILE")]
-    output_flag: Option<PathBuf>,      // sinónimo via flag
-    #[arg(long = "root", env = "TYPST_ROOT", value_name = "DIR")]
-    root: Option<PathBuf>,             // project root (121); env em 123
-    #[arg(long = "font-path", env = "TYPST_FONT_PATHS", value_name = "DIR",
-          value_delimiter = ENV_PATH_SEP,
-          value_parser = font_path_value_parser(),
-          action = clap::ArgAction::Append)]
-    font_paths: Vec<Option<PathBuf>>,  // slots vazios filtrados em L2 (P1500)
-    #[arg(long = "document-id", env = "CRYSTALLINE_DOCUMENT_ID", value_name = "UUID")]
-    document_id: Option<String>,       // P617 — UUID externo para DocumentID
-    #[arg(long = "input", value_name = "chave=valor",
-          action = clap::ArgAction::Append)]
-    inputs: Vec<String>,               // P694 — popula sys.inputs (repetível)
-    #[arg(long = "format", short = 'f', value_enum, value_name = "FORMAT")]
-    format: Option<OutputFormat>,      // P866 — formato explícito (vence extensão)
-    #[arg(long = "color", value_enum, default_value_t = ColorWhen::Auto)]
-    color: ColorWhen,
-}
-```
-
-Não exposta — L4 só conhece `parse()` e `RunIntent`.
-
-**Nota sobre `output_flag`**: nome interno divergente do clap
-`--output` para evitar colisão com campo positional `output`.
-Help mostra `-o, --output`.
-
-### Validação de `--input` (P694)
-
-Cada `--input` tem de ter a forma `chave=valor` (split no **primeiro** `=`,
-para permitir `=` no valor). Entradas sem `=` ou com chave vazia são erro
-claro em L2 (`eprintln!` + exit 2), à semelhança de `--document-id`. Os pares
-validados entram em `RunIntent.inputs` como `Vec<(String, String)>` crus; a
-conversão para `SysInputs` (IndexMap<EcoString, EcoString, _>) acontece em L3
-(`SystemWorld::with_inputs`), mantendo L2 livre de `ecow`/`indexmap`. Os
-valores ficam strings (paridade vanilla: `--input n=42` → `"42"`).
-
-### Validação de `--document-id` (P617)
-
-- Formato aceite: UUID textual (`8-4-4-4-12` hex) ou 32 hex sem
-  hífenes.
-- Conversão para `[u8; 16]` em L2; valor inválido → mensagem de erro
-  em stderr e exit 2 (sem passar para L4).
-- Precedência: flag `--document-id` > `CRYSTALLINE_DOCUMENT_ID` >
-  `None` (comportamento por defeito de P615).
-
-## Testes
-
-20 testes unitários em `#[cfg(test)] mod tests`:
-
-**`resolve_colored_with`** (6 testes):
-- `resolve_colored_never_e_false`
-- `resolve_colored_always_e_true`
-- `resolve_colored_auto_sem_tty_e_false`
-- `resolve_colored_auto_com_tty_e_sem_no_color_e_true`
-- `resolve_colored_auto_com_no_color_e_false`
-- `resolve_colored_always_vence_no_color`
-
-**`resolve_output_with`** (6 testes):
-- `resolve_output_flag_vence_positional`
-- `resolve_output_positional_usa_quando_sem_flag`
-- `resolve_output_flag_usa_sem_positional`
-- `resolve_output_ambos_omitidos_usa_default_derivado`
-- `resolve_output_default_com_path_completo`
-- `resolve_output_default_sem_extensao_adiciona_pdf`
-
-**`resolve_output_format_with`** (5 testes — P866):
-- `resolve_output_format_flag_vence_extensao`
-- `resolve_output_format_detecta_png`
-- `resolve_output_format_detecta_svg`
-- `resolve_output_format_pdf_default`
-- `resolve_output_format_case_insensitive`
-
-**`resolve_root_with`** (3 testes):
-- `resolve_root_flag_vence_parent`
-- `resolve_root_sem_flag_usa_parent_do_input`
-- `resolve_root_sem_flag_e_sem_parent_usa_dot`
-
-## Evolução
-
-O preview original de ADR-0051 fica fechado no Passo 122 (-o,
---root, --font-path). Futuros flags (`--format`, `--ignore-system-fonts`,
-env vars, subcomandos) entram **aqui** — não em L3 nem L4.
-`RunIntent` ganha campos conforme necessário. Padrão estabelecido
-pelos Passos 117, 120, 121 e 122 (ADR-0051).
-
-## P1137-B-001 — subcomando `eval` (gate ADR-0127)
-
-### Medição anterior à decisão
-
-Medição em 2026-08-23 contra o vanilla ratificado `upstream/main a51e02804`:
-
-- `lab/typst-original/crates/typst-cli/src/args.rs:81-99` declara `Command::Eval`;
-- `lab/typst-original/crates/typst-cli/src/args.rs:195-224` recebe uma expressão,
-  `--in`, `--target`, `--format` e `--pretty`;
-- `lab/typst-original/crates/typst-cli/src/eval.rs:102-159` avalia a expressão em
-  `SyntaxMode::Code` com scope fresco e serializa `json|yaml|raw`;
-- `typst eval 'calc.gcd(12, 18)' --format json` produz `6\n`, exit 0;
-- `typst eval '(a: 1, b: (2, 3))' --format json` produz
-  `{"a":1,"b":[2,3]}\n`, exit 0;
-- `typst eval '"abc"' --format raw` produz exatamente `abc`, sem newline;
-- raw sobre inteiro falha com exit 1 e informa que raw só aceita strings e bytes;
-- a CLI cristalina vigente interpreta `eval` como o input legado e rejeita `json`
-  como formato de exportação. Logo `P1137-B-001` é `ABSENT`, não defeito do
-  comparador.
-
-Classificação: comando, argumentos, stdout e exit code são `PUBLIC_CLI`; o valor
-avaliado é `LANGUAGE_SEMANTICS` (ADR-0107). Inferência: o motor L1 já contém
-`calc.gcd` e a ausência está na exposição CLI. Refutação: o RED de integração
-continuar ausente depois do fio L2→L4→L1, ou o valor direto L1 divergir de `6`.
-
-### Decisão e escopo desta primeira entrega
-
-`RunIntent` deixa de ser struct única e torna-se enum público fechado:
-
-```rust
-pub enum RunIntent {
-    Compile(CompileIntent),
-    Eval(EvalIntent),
-}
-
-pub struct EvalIntent {
-    pub expression: String,
-    pub format: EvalFormat,
-    pub pretty: bool,
-    pub colored: bool,
-}
-
-pub enum EvalFormat { Json, Raw }
-```
-
-`CompileIntent` contém, sem mudança semântica, todos os campos do antigo
-`RunIntent`. A invocação legada `typst INPUT [OUTPUT] ...` permanece aceite;
-`typst eval EXPRESSION [--format json|raw] [--pretty]` é reconhecido antes do
-positional legado. `--color` continua global e alimenta ambos os intents.
-
-Esta entrega é deliberadamente incompleta face ao comando vanilla completo:
-
-- `--in`, `--target` e os argumentos comuns de world/process ficam para o passo
-  que ligar avaliação contextual;
-- YAML fica para o passo de serialização YAML;
-- `query` não é alias nem efeito colateral desta mudança: completa
-  `P1137-I-001` num passo próprio;
-- JSON cobre os valores representáveis pelo modelo JSON (`none`, bool, int,
-  float finito, string, array e dict recursivos). Tipo não representável produz
-  diagnóstico e exit 1; não cai silenciosamente em `repr`;
-- raw aceita apenas `Value::Str` e `Value::Bytes`, preserva bytes e não acrescenta
-  newline. Nos demais tipos, exit 1.
-
-Critérios RED→GREEN:
-
-- o parser L2 distingue `EvalIntent` de `CompileIntent` e preserva o comando
-  legado de compilação;
-- `eval calc.gcd(12, 18) --format json` produz `6\n`, exit 0;
-- dict/array serializa como JSON estrutural, não como `repr`;
-- raw string não acrescenta newline; raw inteiro falha com exit 1;
-- expressão inválida produz diagnóstico em stderr e exit 1;
-- `P1137-B-001` passa de `ABSENT` para `MATCH` sem normalização no runner;
-- `query` permanece explicitamente `ABSENT` nesta entrega.
-
-### P1224 — proposta de serialização JSON de `Stroke` (GATE ADR-0127)
-
-> **Estado:** contrato confirmado pelo dono em 2026-08-26. A confirmação
-> aprova somente a branch nominal de `Value::Stroke`; fallback genérico para
-> `repr` permanece proibido. Resselar antes da materialização em
-> `02_shell/src/cli.rs`.
-
-Medição em 2026-08-26 contra o vanilla ratificado `a51e02804`:
+UUID's documented supported forms remain canonical 8-4-4-4-12 hexadecimal and unhyphenated hexadecimal. The consumer also strips all hyphens before checking length/digits, accepting noncanonical hyphen placement. Do not tighten or endorse that broader grammar without the recorded behavioral decision. Rejected values exit 2 with the exact literal:
 
 ```text
-typst eval 'stroke(paint: red, cap: "round")'
-vanilla    -> "(paint: rgb(\"#ff4136\"), cap: \"round\")" + newline, exit 0
-cristalino -> cannot serialize stroke to JSON, exit 1
+error: invalid document ID: expected a UUID (e.g., f81d4fae-7dec-11d0-a765-00a0c91e6bf6)
 ```
 
-A regra genérica acima (“tipo não representável produz diagnóstico”) passa a
-ter uma exceção explícita: `Value::Stroke` é serializado como string JSON com
-sua representação pública Typst. Isso não converte dict/array em `repr` e não
-amplia `--format raw`. O formatter L2 deve consumir uma representação L1
-pública estável ou reproduzir apenas o contrato de `Stroke`; não pode acessar
-módulo `pub(crate)` nem depender da mecânica Rust do valor.
+Malformed input pairs exit 2 with `error: invalid input '{raw}': expected the form key=value`. Do not parse values as numbers/booleans or silently deduplicate the raw vector; SystemWorld owns construction of sys.inputs.
 
-Critérios RED futuros:
+For pretty/pdf-tagged, a following space-separated token is not the optional boolean value: it is parsed under ordinary positional rules. This differs from the prior unconditional claim that spaced pdf-tagged values are rejected; resolving that claim is pending, not a reason to alter the parser.
 
-- stroke simples deixa de produzir `cannot serialize stroke to JSON`;
-- `cap`, `join`, `dash` e `miter-limit` aparecem separadamente quando definidos;
-- defaults omitidos permanecem morfologicamente equivalentes ao vanilla;
-- array de dash conserva ordem e phase negativa;
-- `--pretty` continua sendo apenas formatação JSON;
-- tipos não listados continuam a falhar em vez de cair genericamente em repr.
+## Page ranges and PDF standards
 
-### P1163 — serialização de `Symbol` dentro do escopo vigente
+Range tokens accept N, A-B, A- and -B, with endpoint whitespace trimmed and positive integer physical indices. A single page is an inclusive equal-bound range; no counter/label remapping occurs. Preserve these parser messages:
 
-Medição em 2026-08-25 contra o vanilla ratificado `a51e02804` e sua fonte
-`typst-cli/src/eval.rs:102-159`, `foundations/symbol.rs:339-400`:
+| Condition | Message |
+| --- | --- |
+| Empty token | `page range must not be empty` |
+| Literal zero | `page numbers start at one` |
+| Invalid endpoint | `not a valid page number` |
+| Both endpoints absent | `page range must have start or end` |
+| Descending interval | `page range must end at a page after the start` |
+| Multiple hyphens | `page range must have a single hyphen` |
+
+Accept standard names exactly: `1.4`, `1.5`, `1.6`, `1.7`, `2.0`, `a-1b`, `a-1a`, `a-2b`, `a-2u`, `a-2a`, `a-3b`, `a-3u`, `a-3a`, `a-4`, `a-4f`, `a-4e`, `ua-1`. Unknown names exit 2. Preserve typed versions, archival/accessibility labels and raw order.
+
+PDF composition combines CLI overrides with document options: explicit CLI values precede document settings, which precede defaults. Preserve None/empty overrides so document settings remain observable. Modern tagged overrides legacy no-pdf-tags; absent both delegates to document/default. A nonempty standard override replaces the document's whole set rather than forming a union. With no document override, pretty is false, PNG PPI is 144, PDF version is 1.7 and automatic PDF tagging resolves true unless page selection or standard constraints require otherwise. Document-option precedence belongs to `00_nucleo/prompts/entities/document_format_options.md` and the format-specific pipeline owners, not L2.
+
+For PDF, pages plus explicit tagged=true exits 1 before compilation with `error: cannot enable PDF tags when exporting a page range`. Page selection without an explicit tagging decision implies false. Accessible standards a-1a/a-2a/a-3a/ua-1 cannot resolve to untagged output; retain `error: cannot disable PDF tags when exporting a {name} document` and, when applicable, ` = hint: using --pages implies --pdf-tagged=false`. Conflict validation belongs to the domain standard resolver and productive composition, not clap.
+
+This is a language/selection contract, not certification that every selected archival/accessibility profile satisfies full PDF/A or PDF/UA conformance. Pages/standards/tagging/oracle are neutral for direct PNG/SVG/HTML outputs; PNG/SVG multi-file page selection is not promised. The bundle branch forwards pages, tagged, compact, PPI and pretty to relevant generated assets, while its CLI standard override remains absent because the resolver runs only in the direct PDF branch. This exceeds older PDF-only descriptions and requires the recorded scope decision; it is not silently ratified here.
+
+## Command-specific options
+
+Compile alone accepts `--html-serialization crystalline|vanilla`, default crystalline. It selects the HTML escaping profile, not target or feature. The prior requirement limits effect to direct HTML output; current composition also forwards the choice to bundle HTML assets. That scope disagreement remains pending in the diagnostic, without granting a new default or changing either path. Vanilla selection is explicit; it is not a silent new default. Watch does not accept this option and carries Crystalline.
+
+Watch adds `--no-serve` and `--no-reload` (false by default), plus `--port PORT` (Option<u16>, absent None). Serving/reload/port search are owned by `00_nucleo/prompts/shell/watch.md` and cycle composition by `00_nucleo/prompts/wiring/watch.md`; L2 starts no server.
+
+`typst eval EXPRESSION [--in INPUT] [--format json|yaml|raw] [--pretty] [--features ...]`: expression is code text, format defaults json, pretty defaults false, input defaults None. Contextual input uses `--in`, not another positional; `--in -` lets L4 read stdin. Preserve ordinary JSON/Raw behavior with or without document context. No eval --target/root/font-path/sys-input options are accepted by this consumer.
+
+`typst query INPUT SELECTOR [--field FIELD] [--one] [--format json|yaml] [--pretty]`: JSON default, absent field None, one/pretty false. INPUT `-` selects stdin in L4. It has no features or --in argument. Its stderr warning, emitted even before evaluation, is exactly:
 
 ```text
-typst eval 'emoji.heart' --format json       -> "❤️" + newline, exit 0
-typst eval 'symbol("👩‍💻")' --format json     -> "👩‍💻" + newline, exit 0
-typst eval 'emoji.heart' --format raw        -> erro "cannot print symbol ...",
-                                                hint de string/bytes, exit 1
+warning: the `typst query` subcommand is deprecated
+ = hint: use `typst eval 'query(...)' --in ...` instead
+
 ```
 
-Decisão de paridade: JSON serializa `Value::Symbol` como o grapheme efetivo,
-preservando todos os scalar values; `--pretty` não muda a forma de uma string.
-Raw continua restrito a string/bytes e o diagnóstico usa o nome público
-`symbol`, não o fallback `value`. O `Serialize` genérico do vanilla é mecânica:
-o cristalino pode mapear diretamente no serializer L2.
+`typst fonts [--font-path DIR ...] [--ignore-system-fonts] [--variants]`: font-path handling is shared; include_system is the inverse of ignore-system-fonts, default true; variants false. Presentation belongs to `00_nucleo/prompts/shell/fonts-command.md`.
 
-YAML foi re-medido e continua ausente por decisão explícita desta primeira
-entrega. Adicionar `EvalFormat::Yaml` ampliaria enum/contrato público e requer
-passo com gate ADR-0127; P1163 não o introduz.
+`typst completions SHELL` requires one of bash/elvish/fish/nushell/powershell/zsh. The typed public selector is `CompletionShell`; generation belongs to `00_nucleo/prompts/shell/completions.md`.
 
-## P1137-I-001 — subcomando deprecated `query` (gate ADR-0127)
+`typst info [-f json|--format json] [--pretty]` has no format by default (human); pretty false and requires format, otherwise exit 2. No unsupported info format or feature selection is advertised. Presentation belongs to `00_nucleo/prompts/shell/info.md`.
 
-### Medição anterior à decisão
+`typst init TEMPLATE [DIR]` carries template text, optional directory and selected cert path. Materialization belongs to `00_nucleo/prompts/shell/init.md`.
 
-No vanilla ratificado `a51e02804`, `query INPUT heading --format json` sobre
-`= First` produz um array com o objeto heading completo e warning de deprecação;
-`--field level` produz `[1]`; `--one` produz o objeto único. A definição está em
-`typst-cli/src/args.rs:156-193`. A CLI cristalina ainda rejeita o comando.
+## Public carriers and pure helpers
 
-### Decisão
+Preserve the closed `RunIntent` variants Compile/Watch/Eval/Query/Fonts/Completions/Info/Init and their corresponding public structs. They remain data, not process handles, trait objects or executable callbacks.
 
-Adicionar `Command::Query(QueryArgs)` e `RunIntent::Query(QueryIntent)`:
+`CompileIntent` fields are features, input, output, output_format, html_serialization, root, font_paths, colored, full_error, timings_json, document_id, inputs, compact, pretty, ppi, pdf_tagged, no_pdf_tags, oracle_pdf, cert_path, pages and pdf_standard. Preserve their current path/domain/boolean types, Option distinctions and vectors. `WatchIntent` wraps compile and no_serve/no_reload/port.
 
-```rust
-pub struct QueryIntent {
-    pub input: PathBuf,
-    pub selector: String,
-    pub field: Option<String>,
-    pub one: bool,
-    pub pretty: bool,
-    pub colored: bool,
-}
-```
+`EvalIntent` contains expression/input/format/pretty/colored/cert_path/features; `QueryIntent` input/selector/field/one/pretty/format/colored/cert_path; `FontsIntent` font_paths/include_system/variants; `CompletionsIntent` shell; `InfoIntent` format/pretty/cert_path; `InitIntent` template/directory/cert_path. Do not introduce a field or change its public type during documentation sanitation.
 
-O único formato desta entrega é JSON (`--format json`, default). O formatter L2
-serializa `Content::Heading` na forma pública vanilla medida, incluindo
-`func`, `level`, `depth`, `offset`, `numbering`, `supplement`, `outlined`,
-`bookmarked`, `hanging-indent` e `body`. `--field` aceita inicialmente campos
-desse objeto; campo ausente falha. `--one` exige exatamente um resultado.
-Outras variantes de `Content` falham explicitamente, sem `Debug` ou `repr` como
-substituto. O warning deprecated é emitido em stderr.
+`OutputFormat` is Pdf/Png/Svg/Html/Bundle; `EvalFormat` Json/Yaml/Raw; `QueryFormat` Json/Yaml; `InfoFormat` Json; `HtmlSerialization` Crystalline/Vanilla. Preserve public Copy/Eq/Debug/ValueEnum traits where currently implemented.
 
-Critérios: sentinela P1137-I-001 passa a `MATCH`; `--field level` e `--one`
-igualam o stdout vanilla; zero/múltiplos com `--one` falham; compile legado e
-`eval` permanecem verdes.
+Keep pure resolution APIs and their argument types: `resolve_colored_with`, `resolve_output_with`, `resolve_output_format_with` and `resolve_root_with`. The output-format helper takes an explicit default supplied by its caller; compile supplies PDF. Parsing/world validation stays separate.
 
-## P1285 — formatos estruturados, valores públicos e query genérica
+## Eval/query serialization
 
-### P1293 — projeção semântica dos slots de `MathAttach`
+Public serialization entrypoints remain `serialize_eval`, `serialize_query` and `serialize_query_with_format`, returning Result<Vec<u8>, String> without I/O. The legacy query wrapper delegates to JSON. Share semantic projection rather than formatting Rust Debug.
 
-#### Medição anterior à decisão
-
-O inventário de call sites encontrou um oitavo consumer produtivo além dos
-sete owners centrais: `02_shell/src/cli.rs:792-805` lê `t,b,tl,bl,tr,br` ao
-converter `MathAttach` para o objeto semântico de query. Com `Option`, esse
-caminho não distingue `none` explícito de conteúdo vazio presente. A medição
-causal P1293 SHA-256
-`80a9543c9450f2350a42fa48df2e42cac63109bd074ebb37c2ec424cba473d5c`
-fecha os três estados antes desta decisão; as chamadas de constructor depois
-de `#[cfg(test)]` são testes mecânicos e não owners produtivos adicionais.
-
-#### Decisão
-
-Na serialização pública de `MathAttach`, `Omitted` não cria field;
-`ExplicitNone` preserva a projeção histórica que o serializer aplicava a
-`Some(Content::Empty)`; `Present(content)` cria field pelo serializer recursivo
-vigente, inclusive o conteúdo vazio estrutural. A normalização pública de
-`t`/`b` versus `tr`/`br` e sua precedência ficam exatamente como estão; apenas
-a seleção tipada substitui a leitura mecânica de `Option`. O serializer não
-infere estado pelo conteúdo e não usa `repr`, sentinel ou heurística.
-
-Esta adaptação é consequência do contrato público MathAttachSlot confirmado
-em `2026-09-02T08:06:37-03:00`; não altera argumentos CLI, formatos, defaults,
-target, fase nem outros tipos de Content.
-
-> **Estado do gate ADR-0127:** CONFIRMADO PELO DONO EM 2026-08-30. Esta secção
-> substitui, somente para P1285, as restrições históricas acima que adiavam
-> YAML, proibiam o fallback público por `repr` e limitavam query a headings.
-> A confirmação autoriza a materialização dos contratos públicos abaixo.
-
-### Medição anterior à decisão
-
-Medição em 2026-08-30 contra binários imutavelmente identificados:
-
-- vanilla ratificado `a51e02804`, `/usr/local/bin/typst`, SHA-256
-  `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`;
-- cristalino produzido após P1284, `target/release/typst`, SHA-256
-  `8b85f933b7cd1fa74e46e2c18902b8343d9064f11b2a76844a476a252835a57e`.
-
-Os cinco consumers L0 auditados para este passo estavam byte-a-byte em HEAD
-`53d21c5a602f4045a769a0ab0c935baa5ecd3b88` antes desta alteração de L0:
-`02_shell/src/cli.rs`, `01_core/src/compiler/eval/mod.rs`,
-`01_core/src/compiler/eval/repr.rs` e
-`01_core/src/compiler/eval/selector_matching.rs`, além de
-`03_infra/src/query_helpers.rs`. A restante working tree
-continha materializações P1281–P1284, mas não alterava esses consumers.
-
-Resultados públicos medidos:
+Raw accepts only Value::Str and Value::Bytes, returning their exact bytes without newline. Other values yield this exact body, with a newline between its lines:
 
 ```text
-eval --help
-vanilla    -> json, yaml, raw
-cristalino -> json, raw
-
-eval 'sys.version' --format json
-vanilla    -> "version(0, 15, 1)"\n, exit 0
-cristalino -> cannot serialize value to JSON, exit 1
-
-eval '(a: 1, b: (2, 3), v: sys.version)' --format yaml
-vanilla    -> mapping/sequence YAML e v: version(0, 15, 1), exit 0
-cristalino -> yaml rejeitado pelo clap, exit 2
-
-eval 'calc.inf' --format json
-vanilla    -> null\n, exit 0
-cristalino -> cannot serialize non-finite float to JSON, exit 1
-
-query --help
-vanilla    -> json, yaml
-cristalino -> json
-
-query de metadata rotulada, sem --field
-vanilla    -> objeto {func: metadata, value: {...}, label: <meta>}, exit 0
-cristalino -> query serialization currently supports headings only, exit 1
-
-query de figure --field body
-vanilla    -> content text estruturado, exit 0
-cristalino -> query serialization currently supports headings only, exit 1
+cannot print {public_type} in raw format
+hint: `--format=raw` only supports strings and bytes
 ```
 
-Fonte do vanilla que produz a medição:
+Structured projection preserves none as null, booleans, integers, finite floats, strings, effective symbol graphemes, recursive arrays and insertion-ordered dictionaries. Nonfinite floats become null in JSON and .nan/.inf/-.inf in YAML. Bytes become the string `bytes(N)`, not a byte array. Other nominal public values use the core's morphological repr serialization, never Rust Debug, nominal erasure or a shell-owned duplicate repr table. Stroke serialization is covered by this same public repr contract.
 
-- `lab/typst-original/crates/typst-cli/src/eval.rs:129-153` separa
-  `json|yaml|raw`, mantendo raw restrito a string/bytes;
-- `lab/typst-original/crates/typst-cli/src/main.rs:113-131` usa JSON com
-  `pretty` opcional e YAML sem efeito de `pretty`;
-- `lab/typst-original/crates/typst-library/src/foundations/value.rs:343-362`
-  serializa `none`, bool, int, float, str, bytes, symbol, content, array e dict
-  pela forma nativa; os outros valores viram string da sua `repr` pública;
-- `lab/typst-original/crates/typst-library/src/foundations/content/mod.rs:709-718`
-  serializa content como mapa `func` + campos públicos, sem caso especial de
-  heading.
+JSON is compact or pretty according to the selected flag and ends with newline. YAML recursively emits valid structured values with two-space indentation and a final newline; pretty does not change YAML values/output. String quoting must preserve values and distinguish scalar-like strings from booleans/null/numbers.
 
-Classificação ADR-0107/0108: escolha de crate, enum Rust e árvore intermediária
-são mecânica livre; formatos anunciados, estrutura semântica dos valores,
-stdout, erro e exit code são observáveis públicos. A intenção é confirmada
-pela implementação genérica e pelos tipos `Serialize`, não inferida apenas dos
-bytes medidos. A conclusão seria refutada se um tipo público nominal do
-vanilla falhasse na serialização genérica ou se YAML não constasse do help e
-do dispatcher pinados.
+LocatedContent with fields present uses its authoritative ordered snapshot recursively, adding func with the element's public name. It must not synthesize extra render fields, fall back field-by-field, leak selector metadata as an explicit label, or serialize locations. Absent snapshots and raw Content use the existing legacy public projection; an incomplete legacy fallback is not a promise to expose every element's complete language fields.
 
-### Decisão pública sujeita ao gate
+Legacy Content projection preserves func and its public recursive fields. Label wrappers add the public label notation only to the projected object. Important cases:
 
-`EvalFormat` passa a anunciar e aceitar as três variantes do vanilla:
+- Text: text; Sequence/MathSeq: children; Paragraph/SmallCaps: body; Styled: body.
+- Heading: level and depth equal level, offset 0, numbering null, supplement obtained from the core heading-language owner with None, outlined, bookmarked as bool or auto, hanging-indent auto, and body. Do not duplicate the English supplement table or infer another locale without a style chain.
+- Figure: body, alt null, placement null, scope column, kind (default image), caption, supplement, numbering 1, gap 0.65em, outlined true and its kind-specific counter repr. Caption includes separator content `: `, body, kind, supplement, numbering and counter. Preserve the existing Figure/Table/Listing supplement selection.
+- Equation: block, numbering null, number-align end + horizon, supplement Equation, alt null and body.
+- MathAttach: func attach, base plus public t/b/tl/bl slots. Primary t/b use the corresponding right slot only when Omitted; ExplicitNone blocks fallback and serializes null; Present serializes even empty content. Omitted fields are absent, not null. Do not infer omission from empty content or collapse it with explicit none.
+- Shape: its rect/ellipse/line/polygon func, width/height as auto or serialized lengths, fill and optional stroke. MathText has func text; MathIdent has func symbol.
+- Metadata: value; Quote: block/quotes/body/nullable attribution. Other legacy elements expose the current body fallback only when available.
 
-```rust
-pub enum EvalFormat { Json, Yaml, Raw }
-```
+Heading supplement policy belongs to its L1 owner, not an English successor literal in L2. The pinned content-snapshot and math-slot nuclei remain authoritative; this prompt must not weaken them to bless legacy fallback gaps.
 
-Query passa a transportar explicitamente o formato estruturado:
+Query projects the same public values. With --one, require exactly one element before looking up --field; otherwise `expected exactly one element, found {N}`. A missing field for that single result is `no such field found for element`. Without --one, a field request filters out elements lacking the field and emits the remaining values as an array; without field, emit an array of projected elements. Apply JSON/YAML serialization after cardinality/field selection.
 
-```rust
-pub enum QueryFormat { Json, Yaml }
+## Exit and output integration
 
-pub struct QueryIntent {
-    // campos existentes
-    pub format: QueryFormat,
-}
-```
+Productive composition is referenced at `00_nucleo/prompts/wiring/compile.md`, `00_nucleo/prompts/wiring/eval.md`, `00_nucleo/prompts/wiring/query.md` and the command-specific shell/wiring owners; those are not additional consumers of this L0.
 
-`serialize_eval` e `serialize_query` usam um único modelo semântico recursivo:
+Successful finite commands exit 0. Language evaluation/compilation errors, invalid query cardinality/fields and structured/raw serialization errors exit 1. Argument errors and operational source/stdin/stdout/timings failures exit 2. Watch is continuous: failed compilation reports status/diagnostics and waits for another change rather than being described as a successful finite exit.
 
-- `none`, bool, int, float finito, string, symbol, array e dict mantêm forma
-  estruturada; dict preserva a ordem pública de inserção;
-- float não-finito segue o formato: JSON produz `null`; YAML preserva
-  infinito conforme o escalar YAML;
-- bytes usam a forma serializada pública medida do tipo (`"bytes(N)"`), sem
-  despejar os bytes nem usar `Debug`;
-- `Content` é objeto `func` + campos públicos recursivamente serializados;
-- os demais `Value` públicos são strings com `repr` morfológica de L1. Isso é
-  o contrato genérico medido do vanilla, revogando a proibição histórica de
-  fallback genérico; `Debug`, `PartialEq` e layout Rust continuam proibidos;
-- JSON acrescenta um newline; YAML preserva um documento YAML válido e o
-  comportamento observável de terminação do vanilla; `--pretty` só altera
-  JSON e é neutro em YAML;
-- raw continua byte-exato e restrito a string/bytes. O erro nomeia o tipo
-  público real (`version`, `length`, etc.), nunca o fallback `value`.
+Preserve `error: {error}` for eval/query serialization failures; `error: failed to write eval output: {error}` and `error: failed to write query output: {error}` for stdout failures. Preserve existing source-load/stdin diagnostics under their productive owner.
 
-Para query, o serializer deixa de ter uma branch exclusiva de heading. Todo
-`Content` recuperado é convertido pelo mesmo caminho `func` + campos públicos;
-um tipo ainda não representável falha nominalmente, sem `Debug`, mas a
-existência de qualquer tipo diferente de heading não é por si só erro.
-Quando L3 transporta um resultado rotulado como `Content::Label`, L2 serializa
-o elemento interno (`func` + fields) e acrescenta `label: "<nome>"`; o wrapper
-não aparece como `func: label` e não muda a cardinalidade da query.
+HTML/bundle export warnings, feature-required errors, page/tag/standard conflicts and full-error hints retain their source-produced literals. No translation of specification prose authorizes translation, suppression or rewording of these messages.
 
-Sem `--one`, `--field F` descarta elementos onde `F` não existe e serializa os
-valores existentes. Com `--one`, primeiro exige exatamente um elemento e então
-campo ausente falha com `no such field found for element`. O formato JSON/YAML
-aplica-se depois dessa seleção. A warning de deprecação permanece em stderr.
-
-### Aceitação RED→GREEN após confirmação
-
-- helps de eval/query anunciam exatamente os formatos implementados;
-- Version, valores nominais selecionados, conteúdo e compostos aninhados
-  preservam a semântica JSON/YAML medida;
-- JSON não-finito é `null`; YAML `--pretty` não muda o valor;
-- query de metadata e figure deixa de encontrar o sentinela
-  `supports headings only` e expõe `value`/`body` estruturados;
-- `--field` e `--one` obedecem à ordem e aos erros acima;
-- raw e os casos heading existentes não regridem.
-
-**P866** — detecção de formato de saída pela extensão (`-o simple.png`
-→ `OutputFormat::Png`) e flag explícita `--format`. O formato é
-resolvido em L2 e transportado em `RunIntent.output_format`; L4
-valida se o backend consegue satisfazê-lo (PDF implementado;
-PNG/SVG dependem de rasterização que ainda não existe no
-repositório cristalino e são recusados com erro claro).
-
-## Nota sobre `font_paths` (Passos 122, 123 e 1500)
-
-### P1500 — medição anterior à decisão
-
-Em 2026-09-25T11:43:20Z, no HEAD cristalino
-`5d2798dc473346ea7169d1bf171425db734056ad`, com working tree limpa
-antes/depois das sondas, o vanilla pinado
-`9f2b6e8715237cb086899a42873660fe744622e8` (binário SHA-256
-`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`)
-aceitou `fonts --font-path '' --ignore-system-fonts`,
-`fonts --font-path= --ignore-system-fonts` e `TYPST_FONT_PATHS='' fonts
---ignore-system-fonts` (exit 0); o cristalino release (binário SHA-256
-`2620ffb09b9f1ed2f51bdb412cd883cc1bf944c5f0a6a7433926eee7146412e3`)
-rejeitou os três no parser (exit 2). Ambos rejeitaram `--font-path`
-sem valor e aceitaram a flag omitida e um diretório real. No vanilla,
-a flag explicitamente vazia substituiu `TYPST_FONT_PATHS` não vazio,
-sem pesquisar o diretório corrente; ocorrências repetidas e segmentos
-vazios separados por `ENV_PATH_SEP` não apagaram paths não vazios.
-A fonte upstream `typst-cli/src/args.rs:538-550,880-884` converte o
-token vazio em `None`; `typst-cli/src/fonts.rs:50` filtra os `None`
-antes de descobrir fontes. O observável é sintaxe e escolha dos
-diretórios, não bytes da listagem (perfis embedded distintos).
-
-### P1500 — decisão proposta; gate ADR-0127 pendente
-
-Nos parsers privados de `compile`/`watch` (inclusive aliases) e `fonts`,
-um token explicitamente vazio após `--font-path` ou em `--font-path=`
-é valor válido, distinto da flag sem argumento, que continua erro.
-`TYPST_FONT_PATHS=''` também é válido. Cada token/segmento vazio
-representa ausência de diretório; nunca é encaminhado como
-`PathBuf("")`, interpretado como `.` ou usado para iniciar I/O.
-Segmentos não vazios conservam ordem e repetição. Uma ou mais flags
-explícitas vencem o env por inteiro, mesmo se todos os valores forem
-vazios; omissão de ambos produz lista vazia. A filtragem pura ocorre
-em L2, antes de formar `CompileIntent.font_paths` e
-`FontsIntent.font_paths`, que permanecem `Vec<PathBuf>`; L3/L4 e
-descoberta de fontes não mudam. O campo privado de clap pode preservar
-cada ocorrência como `Option<PathBuf>` sem ampliar a API pública.
-
-Aceitação: flag vazia nas duas sintaxes, env vazio, segmentos vazios
-misturados com diretório real, precedência flag vazia > env real,
-omissão e flag sem argumento; medir `fonts` e a rota partilhada de
-`compile`/`watch`. Testes RED e código só após confirmação humana
-deste L0 e do seu hash, conforme ADR-0127.
-
-- **`ArgAction::Append` + `value_delimiter = ENV_PATH_SEP`**
-  combinados: `--font-path /a --font-path /b` e
-  `TYPST_FONT_PATHS=/a:/b` ambos produzem `[/a, /b]`.
-- **Filtragem pura em L2** antes da passagem para L4: o parser
-  preserva slots vazios, removidos sem consultar filesystem.
-  `RunIntent` e `FontsIntent` recebem somente paths não vazios.
-- **I/O em L3**: L2 não descobre fontes. `discover_fonts(&paths)`
-  vive em `typst_infra::fonts`; L4 compõe.
-
-## Env vars (Passo 123)
-
-| Flag | Env var | Precedência |
-|------|---------|-------------|
-| `--root` | `TYPST_ROOT` | flag > env > default (`input.parent()`) |
-| `--font-path` | `TYPST_FONT_PATHS` | flag > env > default (`Vec::new()`) |
-
-- Feature `env` do clap activa em `Cargo.toml`.
-- `--help` mostra `[env: TYPST_ROOT=]` e `[env: TYPST_FONT_PATHS=]`
-  automaticamente.
-- `ENV_PATH_SEP: char = if cfg!(windows) { ';' } else { ':' }`
-  (const privado em `cli.rs`, vanilla-style).
-- Flag explícita substitui env **inteiramente** (não concatena);
-  comportamento clap standard.
-- `resolve_root_with` não muda. Clap preenche `args.root` e os slots
-  privados de `font_paths`; a filtragem P1500 antecede o transporte
-  para L4 tanto para valores da flag como do env.
-
-
-## P956 — flag `--compact`
-
-ADR-0126 (emendada P956): o modo verbose (vanilla-espelhado) é o **padrão de
-produção**; o formato Passo 20 fica atrás de uma flag.
-
-- `Args` ganha `#[arg(long)] compact: bool` — docstring: "Emitir content
-  streams no formato compacto (operadores mínimos, PDF menor). Por omissão
-  emite-se o modo verbose, com a semântica de operadores do vanilla."
-- `RunIntent` ganha `pub compact: bool` (dado cru, como os outros campos —
-  L2 não importa o `StreamMode` de L3; a tradução é em L4, `wiring.md` §P956).
-- **Ausente → verbose** (o padrão); **presente → compacto**.
-- Sem efeito em `--format png|svg` (não há content stream PDF); o help diz
-  isso explicitamente.
-- **Mudança de comportamento por defeito**: compilar sem flag passa a emitir
-  o modo verbose. É interface pública — documentada também no relatório de
-  P956 e na secção de consequências da ADR-0126 emendada.
-
-## P1137-X-002 — formato HTML (ADR-0128; gate ADR-0127)
-
-**Medição:** `OutputFormat` possui somente Pdf/Png/Svg e `.html` não resolve.
-Acrescentar `OutputFormat::Html`; extensão `.html` e `--format html` resolvem o
-valor. O help identifica HTML como experimental. `Bundle` continua fora do
-escopo. O intent permanece Compile; L2 não conhece o backend.
-
-## P1165 — `--features html` e default off (RASCUNHO; ADR-0127)
-
-**Medição:** o help vanilla ratificado expõe `--features <FEATURES>` nos
-argumentos comuns de compile/eval, valores `html`, `bundle`, `a11y-extras`.
-`compile --format html` sem a flag erra exigindo `--features html`; com a flag
-compila e avisa que HTML é experimental. O cristalino aceita HTML sem feature
-e rejeita a flag como argumento inesperado.
-
-Após aprovação, Compile e Eval aceitam `--features html` repetível segundo a
-sintaxe medida e transportam uma coleção tipada no intent; default vazio.
-Selecionar `.html`, `--format html` ou target HTML não ativa a feature. Compile
-HTML sem feature reproduz diagnóstico/hints e exit 1. `info` não aceita a flag
-como argumento próprio e reporta o estado/default efetivo (`false`). Bundle e
-a11y-extras são nomes medidos, mas não são implementados por este corte.
-
-## P1137-C-001 — superfície principal do CLI (AGUARDA CONFIRMAÇÃO ADR-0127)
-
-### Medição anterior à decisão
-
-No vanilla ratificado `a51e02804`, `typst --help` apresenta uso
-`typst [OPTIONS] <COMMAND>`, os comandos `compile` (`c`), `watch` (`w`),
-`init`, `eval`, `fonts`, `completions` e `info`, e somente `--color`, `--cert`,
-`--help` e `--version` no nível global. No cristalino medido em 2026-08-23, o
-uso ainda é `typst [OPTIONS] [INPUT] [OUTPUT] [COMMAND]`; `eval` e o legado
-deprecated `query` são os únicos subcomandos visíveis e todas as opções de
-compilação aparecem globalmente.
-
-A primeira linha também diverge por identidade: o vanilla imprime a versão e
-o hash do build vanilla; o cristalino imprime a sua descrição/hash. Essa
-diferença de proveniência é mecânica deliberada e não deve ser apagada nem
-normalizada como igualdade literal (ADR-0107).
-
-### Contrato proposto — mudança pública
-
-1. `compile` torna-se o subcomando público canónico, com alias `c`, e recebe
-   todos os argumentos/opções hoje pertencentes a `CompileIntent`.
-2. A invocação histórica `typst INPUT [OUTPUT] ...` permanece aceite por uma
-   tradução de compatibilidade anterior ao parsing; fica omitida do help.
-3. `query` permanece aceite por compatibilidade, mas oculto do help principal.
-4. `eval` permanece funcional e visível.
-5. `watch` (`w`), `init`, `fonts`, `completions` e `info` **não serão anunciados
-   antes de existir implementação real**. Cada um exige entrega própria; não
-   criar stubs que façam o produto declarar capacidade ausente.
-6. `--color` permanece global. `--cert` só entra quando o certificado for
-   realmente fiado ao downloader; não será opção decorativa.
-7. A comparação de `P1137-C-001` muda de stdout literal para inventário
-   estrutural de comandos/opções/defaults. Identidade, wrapping e texto
-   editorial são reportados separadamente.
-
-Esta entrega corrige `compile`/alias e a localização das opções, mas classifica
-o conjunto global como `PARTIAL` enquanto os cinco comandos funcionais e
-`--cert` permanecerem ausentes. Torná-los visíveis sem implementação é
-proibido pelo contrato.
-
-### Gate
-
-Esta secção altera contrato público e comportamento de parsing. A implementação
-só pode começar após confirmação explícita do dono, conforme ADR-0127.
-## P1137-CERT — CA customizada global
-
-`Args` aceita `--cert PATH` global. L2 resolve `flag.or(TYPST_CERT)`, portanto
-a flag vence o ambiente, e transporta `Option<PathBuf>` nas intenções que
-podem construir um `SystemWorld` (`compile`, `eval`, `query`) e em `info` para
-indicar somente presença. L2 não lê nem valida o ficheiro; essa responsabilidade
-é exclusivamente L3. As invariantes compartilhadas estão no Núcleo Tekt
-`network/custom-ca-cert.toml` pinado acima.
-
-## P1137-INIT — intenção de projeto
-
-O subcomando `init TEMPLATE [DIR]` produz `InitIntent` com o template cru,
-destino opcional e a CA global já resolvida. Parsing do package, versão e I/O
-não pertencem a L2.
-## P1137-WATCH — comando contínuo
-
-Medição anterior à decisão: o parser concentrava as opções de compilação em
-`CompileArgs`, mas não possuía `watch`; a grafia `w` era tratada como input
-legado. O contrato medido no vanilla ratificado está em `shell/watch.md`.
-
-Decisão: `Command::Watch(CompileArgs)` reutiliza integralmente as opções de
-compilação e expõe `w` como alias visível. `RunIntent::Watch(WatchIntent)`
-transporta um `CompileIntent` resolvido pelo mesmo caminho de `compile`.
-`normalize_legacy_args` reconhece `watch` e `w` como comandos explícitos. L2
-apenas traduz a interface pública; não observa ficheiros nem executa o ciclo.
-
-## P1140.6 — flag `--no-pdf-tags`
-
-### Medição antes da decisão
-
-O vanilla ratificado expõe `--no-pdf-tags` nas opções de compilação; ausência
-da flag produz PDF tagueado. O cristalino não possui esta polaridade pública.
-
-### Decisão
-
-`CompileArgs` ganha `#[arg(long)] no_pdf_tags: bool` e `CompileIntent` ganha
-`pub no_pdf_tags: bool`. A flag pertence igualmente a `compile` e `watch`, que
-reutiliza `CompileArgs`. Ausente significa tags habilitadas; presente significa
-tags desabilitadas. L2 transporta apenas o booleano com a polaridade da CLI e
-não importa `PdfTags`; L4 traduz para o enum L3. A flag não altera `compact`,
-não tem efeito em PNG/SVG/HTML e não promete conformidade PDF/UA.
-
-## P1359 — flag `--pdf-tagged` tri-state
-
-### Medição antes da decisão
-
-No vanilla ratificado `586e1bd43`, `--pdf-tagged`,
-`--pdf-tagged=true` e `--pdf-tagged=false` são formas válidas das opções de
-compilação. A fonte em `typst-cli/src/args.rs:360-380` modela a opção como
-`Option<bool>` com valor ausente igual a `true`, no máximo um argumento e
-valor explícito exigindo `=`. A resolução em `compile.rs:153-184` dá
-precedência ao valor explícito sobre o legado `--no-pdf-tags`; sem ambos, o
-default continua tagueado.
-
-O cristalino já possui o legado e transporta sua polaridade até L4, mas rejeita
-as três formas modernas com exit 2. A infraestrutura `PdfTags` e o default
-tagueado já existem; não há obrigação nova para L3.
-
-### Decisão pública
-
-`CompileArgs` ganha:
-
-```rust
-#[arg(
-    long = "pdf-tagged",
-    default_missing_value = "true",
-    num_args = 0..=1,
-    require_equals = true,
-)]
-pdf_tagged: Option<bool>,
-```
-
-`CompileIntent` ganha `pub pdf_tagged: Option<bool>` e conserva
-`pub no_pdf_tags: bool` para compatibilidade. `compile`, `watch` e o alias `w`
-reutilizam o mesmo `CompileArgs` e o mesmo resolvedor. Bare produz
-`Some(true)`; `=true` e `=false` preservam o booleano; ausência produz `None`.
-Um valor separado sem `=` é inválido.
-
-L2 não importa `PdfTags` nem resolve morfologia PDF. A ordem explícita é
-materializada em L4: `Some(true)` habilita, `Some(false)` desabilita e vence o
-legado; `None` consulta `no_pdf_tags`; ausência de ambos habilita. A flag
-permanece ortogonal a `compact` e neutra para PNG, SVG e HTML.
-
-Ficam fora deste contrato `--pretty`, `--pages`, standards acessíveis e o
-warning de depreciação de `--no-pdf-tags`. O gate de contrato público da
-ADR-0127 foi confirmado pelo dono em 2026-09-12 pela instrução para escrever
-o passo e implementar.
-
-## P1360 — flag `compile --pretty` tri-state
-
-### Medição antes da decisão
-
-A medição de preflight mede no vanila ratificado
-`586e1bd43` que compile aceita `--pretty`, `--pretty=true` e
-`--pretty=false` pelo mesmo protocolo `Option<bool>` de P1359: bare é true,
-valor explícito exige `=` e ausência é `None`. A opção pertence aos argumentos
-reutilizados por compile/watch, embora processos watch sejam proibidos no gate.
-
-### Decisão pública
-
-`CompileArgs` ganha `pretty: Option<bool>` com `default_missing_value =
-"true"`, `num_args = 0..=1` e `require_equals = true`. `CompileIntent` ganha
-`pub pretty: Option<bool>` e L2 apenas transporta o tri-state. Compile, watch e
-alias `w` parseiam a mesma forma. `--pretty=maybe` e `--pretty=` falham como
-valores booleanos. Já em `--pretty false`, `require_equals` impede que `false`
-seja consumido como valor da opção: `--pretty` resolve `Some(true)` e o token
-separado continua sujeito às regras posicionais do subcomando (por exemplo,
-como `output` de `compile`). Esse comportamento observado é o do vanila
-ratificado; não se exige uma rejeição artificial no parser.
-
-L2 não decide formatação de target nem converte pretty em `compact`.
-Ausência/false e true são resolvidos pelo fio L4/L3. Eval, query e info mantêm
-as suas flags `pretty: bool` preexistentes e independentes. O gate público
-ADR-0127 foi confirmado pelo dono em 2026-09-12 ao pedir a implementação do
-próximo passo.
-
-**Nota P1467 (não reabre este contrato):** `pdf_tagged: Option<bool>`,
-`no_pdf_tags: bool` e `pretty: Option<bool>` continuam com exatamente o
-parsing, tipos e defaults fixados por P1359/P1360/P1140.6 acima; L2 não muda.
-O que muda é exclusivamente a resolução L4/L3 desses três valores quando o
-documento contém `#set format.pdf(tagged: ...)`/`#set format.pdf(pretty: ...)`
-e nenhum deles decide: antes, a ausência colapsava para tagueado/compacto; a
-partir de P1467, a ausência é preservada até a pipeline poder consultar o
-documento (Núcleo `format-option-precedence`, já pinado em `wiring.md` e
-`infra/pipeline.md`). Ver as seções P1467 desses dois prompts para a
-propriedade completa; este prompt não ganha novo contrato público.
-
-## P1286 — aceitação compatível de `--pdf-standard`
-
-### Medição anterior à decisão
-
-O caso congelado de artifact background invoca `compile --pdf-standard 2.0`.
-O cristalino ainda não possui política nem enum pública de standards PDF; a
-emissão já reproduz o fragmento medido e rejeitar a opção impede observar a
-semântica. Expor a opção no help também ativaria indevidamente o caso PDF/A-3,
-cujo `/AFRelationship` continua fora do recorte normal.
-
-### Decisão
-
-`CompileArgs` aceita `--pdf-standard <STANDARD>` como argumento oculto de
-compatibilidade e não o transporta para `CompileIntent`. O valor não altera a
-versão, conformidade, defaults ou pipeline e não anuncia capacidade PDF/A.
-Isto cobre somente a invocação medida de PDF 2.0; suporte real e exposição no
-help exigem contrato próprio. O gate público de P1286 foi confirmado pelo
-humano em 2026-08-30.
-
-**Retificado por P1469** (ver seção própria abaixo): a flag deixa de ser
-oculta/descartada e passa a ser pública, parseada, validada e transportada
-até `CompileIntent`. P1469 não anuncia capacidade de conformidade PDF/A/UA
-real (escopo reduzido, ver `entities/document_format_options.md` P1469) —
-só o "contrato de linguagem": os 17 nomes, conflitos e a versão efetiva do
-header. O texto acima permanece correto como registo do estado até P1469.
-
-## P1288 — perfil CLI `a11y-extras` (PROPOSTO; gate ADR-0127)
-
-### Medição anterior à decisão
-
-- `02_shell/src/cli.rs:77-91` mede `FeatureArg` restrito a `Html` e resolução
-  tipada pelo path antigo `entities::html`.
-- `02_shell/src/cli.rs:137-141` e `:310-322` medem `--features` em compile e
-  eval, mas sem `value_delimiter = ','` e sem `A11yExtras`.
-- A fonte vanilla pinada mede `ProcessArgs.features` com delimitador vírgula em
-  `typst-cli/src/args.rs:432-443` e as três grafias em `:646-654`; P1288 só
-  materializa `html` e `a11y-extras`, mantendo `bundle` fora.
-
-### Decisão proposta
-
-Compile e Eval aceitam `--features a11y-extras`, repetição da opção, lista
-separada por vírgula e combinação com `html`. A ordem e repetição são
-idempotentes e resultam no mesmo `Features` canônico. Ausência produz conjunto
-vazio. `bundle` continua rejeitado/scope-out neste recorte, nunca convertido
-em HTML nem em `a11y-extras`.
-
-`CompileIntent.features` e `EvalIntent.features` usam
-`entities::compiler_features::Features`; L2 somente parseia e transporta.
-Selecionar `--format html`, PDF ou outro target não acrescenta feature.
-Feature desconhecida termina como erro de argumentos e jamais é reclassificada
-como perfil desligado. `info` continua sem receber `--features` próprio; a
-extensão da sua estrutura para reportar `a11y-extras: false` pertence ao
-consumer L4.
-
-### Aceitação pós-confirmação
-
-- helps de compile/eval anunciam `html` e `a11y-extras`, não `bundle`;
-- `--features html,a11y-extras` e as duas ordens repetidas produzem o mesmo set;
-- sem flag, ambos permanecem false;
-- nome desconhecido falha no parser e não alcança L1/L3/L4 como valor parcial.
-
-## P1484 — transporte de `bundle` sem publicar `asset` (CONFIRMADO; ADR-0127)
-
-### Medição anterior à decisão
-
-Sobre HEAD `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`, sem diff
-rastreado, `02_shell/src/cli.rs:166-185` já aceita a grafia `bundle` em
-`FeatureArg`, mas `resolve_features` a descarta. `CompileIntent.features` e
-`EvalIntent.features` já transportam o set tipado. No vanilla pinado
-`586e1bd43`, `type(asset)` sem feature erra com o gate `bundle` e
-`--features bundle` resolve uma função; no cristalino pré-P1484 ambos
-resolvem o placeholder. A hipótese de que aceitar a flag já ativa a feature
-é refutada pelo braço vazio em `cli.rs:182`.
-
-### Decisão pública proposta
-
-Compile e Eval convertem `--features bundle` em `Feature::Bundle` no mesmo
-`Features` canônico, sem nova flag, field no intent ou assinatura pública.
-Ausência continua vazia; combinação com `html` e `a11y-extras`, repetição
-e ordem são idempotentes e independentes. `--format`, extensão, target e
-exporter não ativam `Bundle`. A grafia já anunciada no help passa a ser
-efetiva; nome desconhecido continua erro de argumentos. `info` não recebe
-`--features` próprio. O target `--format bundle` e a assinatura real de
-`asset(path, data)` permanecem RED até P1485; a mera aceitação da flag
-não dá crédito de paridade a `asset`. Esta cláusula sucede a exclusão
-histórica de `bundle` no recorte P1288 acima e exige confirmação do dono
-antes de código.
-
-
-## Seleção explícita de serialização HTML
-
-### Medição anterior à decisão
-
-Em `2026-09-02T12:14:19-03:00`, a medição residual independente P1293/C
-SHA-256 `4545df3baa07d09c5c004a77002d18eeaedb47a22aa4883dc2bc3ba12323676a`
-mediu que o caminho HTML vigente produz uma serialização conservadora válida,
-enquanto a forma vanilla ratificada também é HTML válido e diverge apenas na
-seleção contextual de escapes. Busca read-only no estado recebido não encontrou
-`HtmlSerialization`, `html_serialization` nem `--html-serialization` em
-`02_shell/src/cli.rs`; `CompileArgs` está em `cli.rs:144` e `CompileIntent` em
-`:344`. A decisão do dono é preservar a forma cristalina como default e expor a
-forma vanilla como alternativa explícita; portanto é incorreto chamar qualquer
-uma das duas de “não padrão”.
-
-### Contrato público vigente
-
-Somente o subcomando `compile` aceita
-`--html-serialization crystalline|vanilla`. L2 representa o dado cru com enum
-público fechado, separado do enum L3:
-
-```rust
-pub enum HtmlSerialization { Crystalline, Vanilla }
-
-pub struct CompileIntent {
-    // campos existentes
-    pub html_serialization: HtmlSerialization,
-}
-```
-
-A ausência da flag resolve para `HtmlSerialization::Crystalline`. A flag é
-aceita em `compile` mesmo quando o formato final não é HTML, mas só produz
-efeito quando `output_format == OutputFormat::Html`; para PDF/PNG/SVG é neutra.
-`watch`, `eval`, `query`, `info` e os demais comandos não aceitam esta flag.
-Em particular, a reutilização interna de argumentos de compile por `watch` não
-autoriza expor a opção nesse subcomando.
-
-L2 apenas valida `crystalline|vanilla` via clap e transporta o enum. Não
-conhece `HtmlSerializationMode` de L3, não serializa HTML e não ativa feature ou
-target. Valor diferente termina como erro de argumentos; formato HTML continua
-dependente de `Feature::Html`, e selecionar qualquer modo não habilita feature.
-
-### Aceitação
-
-Os testes provam default `crystalline`, igualdade
-entre default e flag explícita, seleção distinta de `vanilla`, rejeição de valor
-alheio e ausência da flag nos outros comandos. Refutam este owner qualquer
-necessidade de lógica de escaping em L2, efeito fora de HTML ou alteração do
-eixo feature/target.
-
-## P1401 — entrada contextual de `eval` (PROPOSTO; gate ADR-0127)
-
-### Medição anterior à decisão
-
-No HEAD `4c1d7bb5ca13a0a40e2f423a7de9c00089da4c20`,
-`02_shell/src/cli.rs` declara `EvalArgs` e `EvalIntent` sem caminho de entrada;
-P1400 registra que o vanila ratificado `586e1bd43` aceita `eval --in`, enquanto
-o cristalino termina no parser com argumento inesperado.
-
-### Contrato público proposto
-
-`EvalArgs` aceita `--in INPUT` uma vez e `EvalIntent` transporta
-`pub input: Option<PathBuf>`. Ausência preserva a avaliação isolada vigente.
-`--in -` significa um documento lido uma única vez de stdin; outro valor é um
-caminho de documento. A opção pertence somente a `eval`, não altera formato,
-pretty, features ou CA, e não introduz `--target`: P1401 usa target paginado.
-L2 apenas parseia e transporta. Help, rejeição de repetição e transporte são a
-aceitação deste owner. Flag e campo públicos aguardam confirmação explícita.
-
-## P1463 — flag `compile/watch --ppi` (PROPOSTA; gate ADR-0127)
-
-### Medição anterior à decisão
-
-No baseline `23cd47e4ade4d6deb7095cb7400478feffb1e9f9`, `CompileArgs` e
-`CompileIntent` não contêm `ppi`; `compile --ppi 72` termina no parser com
-exit 2. No vanilla ratificado, `CompileArgs.ppi` é `Option<f64>`, o help
-anuncia `--ppi <PPI>` e descreve 144 como default do formato. Ausência é
-preservada; a conversão PPI→pixels por ponto ocorre fora de L2.
-
-### Contrato público
-
-Acrescentar a `CompileArgs`:
-
-```rust
-#[arg(long = "ppi")]
-ppi: Option<f64>,
-```
-
-e transportar sem transformação:
-
-```rust
-pub struct CompileIntent {
-    // campos existentes
-    pub ppi: Option<f64>,
-}
-```
-
-Como `Watch` reutiliza `CompileArgs`, a flag existe em `compile`, `watch`, seus
-aliases e a grafia legada normalizada. Não pertence a `eval`, `query`, `info`,
-`fonts`, `init` ou `completions`. Ausência produz `None`; valor numérico
-produz `Some(f64)`. L2 não aplica 144, não divide por 72, não conhece
-`RenderOptions` e não condiciona parsing ao formato final.
-
-O parser aceita o domínio `f64` normal do vanilla, inclusive zero e negativos
-finitos; texto inválido termina com exit 2. P1463 não usa não finitos como
-oráculo positivo porque `+inf` aborta no raster vanilla pinado. A flag é
-aceita para targets não-PNG e permanece neutra depois de L2.
-
-### Aceitação e gate
-
-Testes de L2 cobrem help, ausência, inteiro, fração, negativo com `=`, texto
-inválido, compile/watch/legado e ausência nos comandos alheios. Não provar
-dimensões ou precedência em L2. A nova flag e o campo público exigem
-confirmação humana posterior ao commit causal P1463 antes de código, teste RED
-ou header.
-
-## P1468 — flag `compile --pages` (MATERIALIZADO; gate ADR-0127 satisfeito)
-
-### Medição anterior à decisão
-
-No vanilla ratificado, `--pages` usa `value_delimiter = ','` e cada token é
-parseado individualmente via `FromStr` (não um `value_parser` do clap, "para
-gerar melhores erros" — `typst-cli/src/args.rs:771-813`):
+Preserve these experimental warning bodies and their final blank line; each is emitted for its corresponding target, not as a combined warning:
 
 ```text
-split('-').map(trim) ->
-  [] | [""]        => "page range must not be empty"
-  [n]               => parse_page_number(n)
-  ["", ""]          => "page range must have start or end"
-  [start, ""]       => aberto no fim
-  ["", end]         => aberto no início
-  [start, end]      => start<=end, senão "page range must end at a page after the start"
-  [_,_,_,..]        => "page range must have a single hyphen"
+warning: html export is under active development and incomplete
+ = hint: its behaviour may change at any time
+ = hint: do not rely on this feature for production use cases
+ = hint: see https://github.com/typst/typst/issues/5512 for more information
 
-parse_page_number:
-  "0"     => "page numbers start at one"
-  outro inválido (negativo, float, texto) => "not a valid page number"
+warning: bundle export is experimental
+ = hint: its behaviour may change at any time
+ = hint: do not rely on this feature for production use cases
+
 ```
 
-Medido via `typst compile --pages ...` em 2026-09-20: `""` →
-`page range must not be empty`; `"1--3"` → `page range must have a single
-hyphen`; `"-"` → `page range must have start or end`; `"abc"` →
-`not a valid page number`; `"0"` → `page numbers start at one`; `"1, 2"` (com
-espaço) é aceite (cada token é `trim`ado); `"3-1"` →
-`page range must end at a page after the start` — **mensagem diferente** da
-versão documental `"start of page range cannot be larger than end"`
-(`compiler/eval/rules.md` P1468); são dois pontos de validação distintos, não
-o mesmo texto reaproveitado. Erro de parsing sai por exit 2 (`clap`), igual
-aos outros valores inválidos de L2.
-
-### Contrato
-
-`CompileArgs` ganha:
-
-```rust
-#[arg(long = "pages", value_delimiter = ',')]
-pages: Option<Vec<PageRangeArg>>,
-```
-
-`PageRangeArg` é um newtype local de L2 (`PageRangeArg(PageRange)`, reexportando
-`entities::document_format_options::PageRange` de L1) só para hospedar
-`impl FromStr` com as mensagens acima — reproduz exatamente o algoritmo
-`split('-').map(trim)` do vanilla, incluindo `parse_page_number`. `CompileIntent`
-ganha `pub pages: Option<PageRanges>` (join dos `PageRangeArg` convertidos,
-vazio quando `Some(vec![])` é literal—`--pages` sem nenhum token nunca ocorre
-porque `value_delimiter` exige pelo menos um). `compile`, `watch` e o alias
-`w` reutilizam o mesmo `CompileArgs`.
-
-L2 não decide interação com `tagged`, não sabe que `--pages` implica
-`--pdf-tagged=false` por omissão, e não formata PDF. Isso pertence a `wiring.md`
-(fold puro entre `pages`/`pdf_tagged`/`no_pdf_tags`, todos já em L4) e
-`infra/pipeline.md` (resolução final com o documento). `--pages` é aceite
-sintaticamente para qualquer `output_format`, mas L2 não lê o formato — a
-neutralidade fora de PDF é decisão de L3/L4.
-
-### Scope-out medido (não decidido por este L0)
-
-No vanilla, `config.pages` (a MESMA seleção de `--pages`) também filtra quais
-páginas escrever no export multi-ficheiro de PNG/SVG
-(`typst-cli/src/compile.rs:547-560`, `export_image_pages`). O cristalino hoje
-só exporta a primeira página para PNG/SVG (sem suporte a template `{p}`/`{0p}`/
-`{t}` nem multi-ficheiro — ver `compiler/layout/format_options.md`: "o
-caminho continua exportando somente a primeira página"). P1468 **não**
-estende `--pages` a PNG/SVG porque a capacidade estrutural de multi-ficheiro
-não existe ainda; isso é pré-requisito de um passo próprio, não uma escolha
-arbitrária deste recorte. `--pages` neste passo afeta exclusivamente o
-export PDF.
-
-### Aceitação e gate
-
-Cobrir: ausência, token único, range fechado/aberto nos dois lados, múltiplos
-tokens com espaço, os seis negativos de schema medidos acima (vazio, hífen
-duplo, só-hífen, texto, zero, e range invertido pelo texto CLI específico —
-a contagem corrige de "sete" para "seis", confirmada por recontagem direta
-das mensagens distintas listadas nesta secção durante a execução), e
-compile/watch/alias. Este é um dos L0s do gate ADR-0127 de P1468 (flag
-pública nova).
-
-A confirmação humana explícita posterior aos commits causais somente-L0
-`9bb20b8e8`/`70d09eae2` foi recebida em 2026-09-20/21. Agente A implementou
-`PageRangeArg`/`--pages` sem ver os testes; Agente B escreveu 8 testes a
-partir do mesmo baseline sem ver a implementação. O teste independente
-passou de RED (erro de compilação — campo/tipo inexistentes) a GREEN (8/8)
-após a integração, sem regredir a suíte de `typst-shell` (77/77 no total).
-
-## P1469 — flag `compile --pdf-standard` pública (ESCOPO REDUZIDO — contrato de linguagem) (MATERIALIZADO; gate ADR-0127 satisfeito)
-
-Ver `entities/document_format_options.md` P1469 para a nota de escopo
-reduzido (decisão do dono, 2026-09-21) e a retificação da seção P1286 acima.
-
-### Medição anterior à decisão
-
-No vanilla ratificado, `--pdf-standard` usa `value_delimiter = ','` e um
-`ValueEnum` clap com os 17 nomes (mensagem de erro do próprio clap: `invalid
-value '3.0' for '--pdf-standard <PDF_STANDARD>' [possible values: 1.4, 1.5,
-1.6, 1.7, 2.0, a-1b, a-1a, a-2b, a-2u, a-2a, a-3b, a-3u, a-3a, a-4, a-4f,
-a-4e, ua-1]`, com `tip: a similar value exists: '2.0'` quando aplicável —
-exit 2). Precedência confirmada por compilação real: `--pdf-standard`
-presente substitui o conjunto documental como unidade (não concatena);
-ausente delega ao documento; ambos ausentes usa o default `("1.7",)`.
-
-Medido `typst-cli/src/compile.rs:180-201`: existe um **gate CLI-only**,
-antes de compilar, análogo ao de P1468 — verifica só os valores crus da CLI
-(`args.pdf_standard`, `args.pdf_tagged`, `args.no_pdf_tags`, `args.pages`),
-nunca o documento:
+Missing feature selection exits 1. Preserve the diagnostic bodies below, including literal backticks. HTML retains hints `html export is under active development and incomplete` and `see https://github.com/typst/typst/issues/5512 for more information`; bundle retains `bundle export is experimental`:
 
 ```text
-tagged_resolvido_so_CLI == Some(false)  (mesma resolução de P1467/P1468: explícito,
-                                          ou colapsado via no_pdf_tags/pages)
-  E args.pdf_standard contém a-1a|a-2a|a-3a|ua-1
-    -> se args.no_pdf_tags: "cannot disable PDF tags when exporting a {name} document"  (sem hint)
-    -> senão: mesma mensagem + hint "using --pages implies --pdf-tagged=false"
-              SÓ SE args.pages presente; senão sem hint
+html export is only available when `--features html` is passed
+bundle export is only available when `--features bundle` is passed
 ```
 
-Medido via `typst compile` em 2026-09-21:
+Bundle stdout refusal remains `error: cannot write bundle to standard output`; watch stdout refusal remains `error: watch requires a file output; stdout is not supported`. Do not substitute implicit feature activation for these errors.
 
-```text
---pdf-standard=a-1a --pdf-tagged=false
-  -> "cannot disable PDF tags when exporting a PDF/A-1a document"  (exit 1, sem hint)
---pdf-standard=ua-1 --pages 1  (sem --pdf-tagged explícito)
-  -> "cannot disable PDF tags when exporting a PDF/UA-1 document"
-     hint: "using --pages implies --pdf-tagged=false"             (exit 1)
-```
+## Acceptance and exclusions
 
-Nota: a mensagem CLI-only usa "cannot **disable**" (não "cannot **set**
-\`pdf(tagged: false)\`"), diferente da mensagem documental equivalente —
-dois textos distintos para o mesmo conflito semântico, mesmo padrão já
-registado para `pages`+`tagged` em P1467/P1468.
+Check command/alias inventory, hidden query, legacy invocation, help/version status, each closed selector, global color/cert precedence, font empty-token behavior, output/root/format precedence and all optional/tri-state carriers. Cover accepted and rejected input/page/UUID forms without silently resolving the recorded grammar discrepancies.
 
-### Contrato
+Check structured nested values, nominal repr, symbol/bytes/nonfinite handling, authoritative snapshots, labels, typed math-slot presence, generic query fields/cardinality and raw byte preservation. Check successful outputs and failure channels/status through the independently owned command envelope tests.
 
-`CompileArgs` deixa de ter `_pdf_standard: Option<String> (hide=true)` e
-ganha:
+Do not assert global shell, HTML/bundle, query fallback or PDF-standard conformance. Unsupported argument families remain unadvertised. Public contract/default/pipeline/compatibility changes require ADR-0127; ownership and canonical links follow ADR-0129/0130.
 
-```rust
-#[arg(long = "pdf-standard", value_delimiter = ',')]
-pdf_standard: Vec<PdfStandardArg>,
-```
-
-`PdfStandardArg` é um `ValueEnum` clap com os 17 nomes (reexportando
-`entities::document_format_options::PdfStandard` de L1 ou um newtype fino —
-decisão mecânica livre), reproduzindo a mensagem de erro nativa do clap
-(incluindo `tip:` de sugestão por proximidade, que é comportamento do
-próprio clap, não texto a replicar manualmente). `CompileIntent` ganha `pub
-pdf_standard: Vec<PdfStandard>` — a lista **crua** da CLI, **não** validada
-como `PdfStandards` em L2 (a validação de conflitos entre nomes pertence a
-`entities/document_format_options.md`, consumida por `infra/pipeline.md`;
-L2 só faz parsing sintático). `compile`, `watch` e `w` reutilizam o mesmo
-`CompileArgs`.
-
-L2 **não** implementa o gate CLI-only acima (que cruza `pdf_standard` com
-`tagged`/`pages`, informação de dois nomes de campo diferentes numa decisão
-única) — isso pertence a `wiring.md` P1469, mesmo padrão já usado para o
-gate CLI-only `pages`+`tagged` de P1468. L2 também não decide a interação
-documental (isso é `infra/pipeline.md`) e não valida conformidade
-estrutural (scope-out).
-
-### Aceitação e gate
-
-Cobrir: ausência (`Vec::new()`), um nome, múltiplos nomes separados por
-vírgula, nome inválido (mensagem nativa do clap com `tip:` quando
-aplicável), compile/watch/alias `w`. A validação de conflitos entre nomes e
-o gate CLI-only ficam para os testes de `infra/pipeline.md`/`wiring.md`
-respetivamente (este owner só prova parsing sintático). Este é um dos L0s
-do gate ADR-0127 de P1469 (flag pública nova, comportamento por defeito
-muda de "aceita e descarta" para "aceita e aplica").
-
-A confirmação humana explícita posterior aos commits causais somente-L0
-`65e68ad45`/`e14002d55` foi recebida em 2026-09-21. Agente A implementou
-`PdfStandardArg`/`--pdf-standard` sem ver os testes; Agente B escreveu 6
-testes a partir do mesmo baseline sem ver a implementação. O teste
-independente passou de RED (erro de compilação — campo/tipo inexistentes)
-a GREEN (6/6) após a integração, sem regredir a suíte de `typst-shell`
-(83/83 no total, incluindo os 6 novos).
-
-## P1485 — seleção pública do target bundle (PROPOSTO; gate ADR-0127)
+## `--pdf-standard` em PDF de bundle — proposta pendente de gate ADR-0127 (2026-09-30)
 
 ### Medição anterior à decisão
 
-No HEAD `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`, working
-tree P1484 não commitada, `02_shell/src/cli.rs:155-164` oferece
-Pdf/Png/Svg/Html e `:1499-1523` nunca infere Bundle. O vanilla
-pinado, `typst-cli/src/args.rs:624-630` e
-`typst-cli/src/compile.rs:114-144`, aceita
-`--format bundle`, mas não infere bundle de uma extensão de output.
-Sem output explícito, retira a extensão do input para nomear o
-diretório de saída. Sonda de `out-noformat.bundle` sem flag
-rejeita inferência; `--format bundle` sem feature devolve gate.
-Este formato público e caminho default são comportamento observável;
-nome do enum Rust é mecânica apenas dentro do código.
+Com o binário cristalino debug construído da working tree de HEAD
+`17f13b1df79b87ea065ee62e78164b18e477da3d`, a mesma ausência de título
+compila sem a flag em PDF isolado e em `document("one.pdf")` dentro do bundle.
+Com `--pdf-standard=ua-1`, o PDF isolado falha com
+`PDF/UA-1 error: missing document title`, mas o bundle publica `one.pdf`.
+A sonda com timestamp, SHA-256 do binário/entradas e comandos está em
+`00_nucleo/diagnosticos/pdf-standard-bundle-2026-09-30/results.json`.
+`04_wiring/src/compile.rs:155-219` só constrói o override em `OutputFormat::Pdf`,
+enquanto `04_wiring/src/compile.rs:305-325` já o transporta para
+`BundleCompileOptions` e `03_infra/src/pipeline/bundle.rs` já o resolve por
+entrada PDF. A inferência é uma lacuna no fio CLI; seria refutada se a
+flag alterasse o standard efetivo do PDF interno, mas a sonda UA-1 não o mostra.
+A diferença é semântica de seleção do output, não igualdade de bytes PDF.
 
-### Decisão proprietária
+### Contrato proposto, ainda não vigente
 
-Adicionar `OutputFormat::Bundle` ao enum público e ao help de
-compile/watch. Só `--format bundle` seleciona o target; `--features
-bundle`, extensão `.bundle`, `--format html` e defaults não o
-ativam. Compile com output explícito o interpreta como diretório;
-sem output explícito, usa o path do input sem extensão. O helper
-público legado `resolve_output_with` conserva sua assinatura e
-contrato para formatos existentes; `compile_intent` resolve o
-default de bundle após conhecer `output_format`. `RunIntent`
-transporta a nova variante sem flag adicional e sem habilitar
-`Feature::Bundle` implicitamente. O erro de stdout e a escrita
-segura pertencem a `00_nucleo/prompts/wiring.md`.
+Se o dono autorizar, `--pdf-standard LIST` não vazio seleciona o mesmo conjunto
+explícito para todos os PDFs gerados dentro de bundle, precedendo o
+`format.pdf(standard: ...)` de cada documento; lista ausente preserva a
+seleção documental e os defaults por entrada. O override nunca atinge
+HTML/SVG/PNG/assets. Conflitos entre nomes da própria lista são rejeitados
+antes de criar `SystemWorld` nos targets PDF direto e bundle, mesmo quando
+um bundle não contém PDF. O gate CLI-only de standard acessível versus tags
+continua restrito ao target PDF direto; no bundle, cada entrada PDF resolve
+as opções e valida o conflito na pipeline L3, para não rejeitar antecipadamente
+entradas não PDF. O bundle publica tudo ou nada se uma entrada falhar.
 
-Watch transporta opções de servidor próprias: `pub no_serve: bool`,
-`pub no_reload: bool`, `pub port: Option<u16>` no `WatchIntent`.
-Só watch aceita `--no-serve`, `--no-reload` e `--port`; compile
-não ganha essas flags. Por omissão, watch de HTML ou Bundle abre
-servidor local e injeta live reload no HTML servido. `--no-serve`
-desliga o servidor; `--no-reload` conserva HTTP mas não injeta
-script; `--port` seleciona a porta u16, sem porta há busca
-3000–3005. As flags são parseadas em L2, mas bind/HTTP pertencem
-ao owner L3 `00_nucleo/prompts/shell/watch.md` e composição a `00_nucleo/prompts/wiring.md`. A sonda
-runtime e fonte constam do diagnóstico P1485. Esta mudança de
-enum, API pública e defaults exige confirmação ADR-0127.
-
-## P1501 — selector público de completions Nushell (PROPOSTO; gate ADR-0127)
-
-### Medição anterior à decisão
-
-Em 2026-09-25T12:28:14Z–12:29:26Z, sobre o HEAD
-`2accc929159f3a744d4965400bdbb47d34d33e17` e working tree
-limpa antes/depois, duas execuções `LC_ALL=C` por caso foram
-determinísticas. O vanilla pinado
-`9f2b6e8715237cb086899a42873660fe744622e8` (binário
-`lab/typst-original/target/release/typst` SHA-256
-`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`)
-aceitou `completions nushell` com exit 0, stdout não vazio e stderr
-vazio. O cristalino `target/debug/typst` (SHA-256
-`509a3de9ab945b3f52c15ad720752e2795090087bb5abee16385aa2074a095c5`)
-rejeitou `nushell` no parsing com exit 2 e stdout vazio.
-`completions bash` saiu 0 com script não vazio nos dois; o
-controle `invalid-shell` saiu 2 em ambos. A fonte vanilla
-`lab/typst-original/crates/typst-cli/src/args.rs:282-315`
-enumera bash, elvish, fish, nushell, powershell e zsh. O
-cristalino `02_shell/src/cli.rs:567-570,757-758` usa
-`clap_complete::Shell`, que enumera apenas os outros cinco.
-
-**Classificação:** a diferença é aceitação de sintaxe pública do
-subcomando e mudança de tipo num carrier público, não igualdade
-dos bytes gerados por versões distintas de `clap_complete`
-(ADR-0107). Esta decisão decorre da enumeração da fonte e das
-sondas; seria refutada se o pin vanilla não aceitasse `nushell`.
-
-### Decisão proprietária do parser
-
-`CompletionsArgs.shell` passa a usar um `CompletionShell` tipado,
-proprietário de `02_shell/src/cli.rs`, com exatamente seis valores
-CLI minúsculos: `bash`, `elvish`, `fish`, `nushell`, `powershell`,
-`zsh`. Os cinco valores existentes preservam grafia e aceitação;
-`nushell` passa a constar do help e a ser aceito. Shell inválido
-continua a falhar no parser clap com exit 2. O carrier público
-`CompletionsIntent.shell` usa esse mesmo enum em vez de
-`clap_complete::Shell`; `RunIntent::Completions` conserva a forma
-e L4 mantém o dispatch existente, sem novo branch ou I/O no L1.
-
-A geração do script a partir de `crate::cli::command()` pertence
-exclusivamente a `00_nucleo/prompts/shell/completions.md`
-(`02_shell/src/completions.rs`); este prompt não possui o gerador
-nem `04_wiring/src/main.rs` (ADR-0129). Não acrescentar parser
-paralelo, template de script ou tolerância genérica a string.
-
-### Aceitação e gate
-
-Após confirmação humana dos hashes deste L0 e de
-`00_nucleo/prompts/shell/completions.md`, testes RED de
-`nushell`/Bash/shell inválido devem preceder código. Aceitar
-`nushell` em `completions` não modifica flags ou defaults de
-`compile`, `watch` e demais comandos. A nova alternativa pública
-e o novo tipo do intent exigem a paragem ADR-0127.
+Aceitação proposta: sem flag, conservar o resultado atual; com UA-1, PDF de
+bundle sem título falha e nenhum arquivo é publicado; com título, o PDF
+interno declara UA-1. Uma entrada não PDF não recebe esse standard. Esta é
+mudança de comportamento explícito do produto e **não autoriza código** até
+confirmação do dono pelo gate ADR-0127. Após confirmação, substituir a frase
+anterior sobre override ausente e ressellar L0/consumer antes de RED→GREEN.

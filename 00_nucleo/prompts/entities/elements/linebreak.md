@@ -1,62 +1,31 @@
-# Prompt L0 — `entities/elements/linebreak` — `LinebreakElem`
+# L0 — LinebreakElem
 Hash do Código: 2a86c30d
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/linebreak.rs`
-**Origem**: modelo D (ADR-0105), **Lote 5 P320** (quebras/espaços + grid/table
-header/footer). Trait e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável**
-(confirmado P320). **Comando unit** — precedente `Divider`. Comportamento
-idêntico ao braço atual do hub.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/linebreak.rs`
 
----
+## Evidence before specification
 
-## Struct — P1140.10
+At historical upstream `a51e02804`, `repr(linebreak())` is `linebreak()`;
+explicit false is `linebreak(justify: false)`. Fields/has also distinguish
+omission from explicit false. Presence is therefore necessary for language
+observables, not merely a Rust representation choice. Historical text evidence
+is `content.rs:1683`; no new current-pin probe is claimed.
 
-```rust
-#[derive(Debug, Clone, PartialEq, Hash)]
-pub struct LinebreakElem {
-    pub justify: bool,
-    pub justify_explicit: bool,
-}
-```
+## Contract
 
-`Content::Linebreak` → `Content::Linebreak(Arc<LinebreakElem>)`.
-`Content::linebreak()` mantém a assinatura e produz `justify = false,
-justify_explicit = false`; é a forma usada pela sintaxe markup e pelos
-consumidores internos. O caminho da função global usa
-`Content::linebreak_with_justify_presence(justify, justify_explicit)`.
+`LinebreakElem` has public bool fields justify and justify_explicit, deriving
+Debug/Clone/PartialEq/Hash. Both fields participate in equality and hashing.
+Text projection is one newline. `is_empty` is the default false; both maps are
+terminal and preserve both fields. `get_field("justify")` returns Value::Bool
+only when justify_explicit; reflection distinguishes unset from undeclared.
+Other fields and element_kind/to_payload retain default None.
 
-**Medição (vanilla pinado `a51e02804`, 2026-08-24):**
-`repr(linebreak())` → `"linebreak()"`; `repr(linebreak(justify: false))` →
-`"linebreak(justify: false)"`; `.fields()` e `.has("justify")` também
-distinguem omissão de false explícito. Logo `justify_explicit` é mecânica
-interna necessária a observáveis de linguagem (ADR-0107).
-
-**Divisão materializada para LTR:** P1140.10 materializa e transporta os dois campos,
-binding, repr e reflexão. P1140.11 consome `justify` em
-`compiler/layout/linebreak.rs`: true expande oportunidades da linha anterior
-com fórmula derivada da largura corrente; false e omissão preservam a quebra
-normal. Valores empíricos pertencem exclusivamente aos oracles posicionais.
-
-## `impl Element for LinebreakElem`
-
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `"\n".to_string()` (`content.rs:1683`) |
-| `is_empty` | default `false` (não está no match de `is_empty`) |
-| `map_content` | **terminal**, preserva os dois campos |
-| `map_text` | **terminal** (`content.rs` bloco terminal) |
-| `get_field("justify")` | `Value::Bool` somente quando `justify_explicit`; o dispatcher de reflexão distingue unset de undeclared |
-| `element_kind`/`to_payload` | default `None` |
-
-## `eq`
-
-`#[derive(PartialEq, Hash)]` inclui `justify + justify_explicit`, pois os campos
-alteram `repr` e reflexão.
-
-## Critério
-
-`plain_text` `"\n"`; map_* terminais e preservam campos; igualdade/hash por
-`justify+justify_explicit`; omissão distinta de false explícito; layout true
-expande a linha anterior e false/markup não expandem. P1140.12 preserva a
-fronteira explícita até o reflow bidi; RTL true/false coincide sem constante
-empírica.
+The unchanged no-argument Content constructor produces false/false. The existing
+presence-aware construction path transports explicit values; constructors belong
+to `00_nucleo/prompts/entities/content/construction.md` and evaluation/reflection
+to their eval owners. Layout's true/false behavior and bidi boundary belong to
+`00_nucleo/prompts/compiler/layout/linebreak.md`, not this entity. The previous
+staged layout obligations remain recorded in the diagnostic, not waived.
+Verify terminal maps, newline, nonempty command identity, both equality/hash
+components and preservation of omitted versus explicit false.

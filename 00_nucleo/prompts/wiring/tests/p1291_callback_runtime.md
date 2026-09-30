@@ -1,40 +1,35 @@
-# Prompt L0 — `wiring/tests/p1291_callback_runtime` — contrato black-box de callbacks math
+# L0 — wiring/tests/p1291_callback_runtime
 Hash do Código: 6eb40e0c
 
+**Layer:** L4
+**Exclusive consumer:** `04_wiring/tests/p1291_callback_runtime.rs`
+
+Pinned Tekt dependencies (canonical linter metadata):
+
+```text
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:3cf8b79e22fcda6466dc38b7691a73ada4540956fbed14129c9e1ed5a6a56c43
+```
 
-**Camada:** L4 — teste de integração
-**Ficheiro alvo:** `04_wiring/tests/p1291_callback_runtime.rs`
-**Origem:** `P1291.cancel-angle-runtime`
-**ADRs:** ADR-0107, ADR-0108, ADR-0127, ADR-0129
+## Current evidence
 
-## Medição anterior à decisão
+- `04_wiring/tests/p1291_callback_runtime.rs:18` — `Scratch`.
+- `04_wiring/tests/p1291_callback_runtime.rs:21` — `new`.
+- `04_wiring/tests/p1291_callback_runtime.rs:34` — `drop`.
+- `04_wiring/tests/p1291_callback_runtime.rs:39` — `diagnostic`.
+- `04_wiring/tests/p1291_callback_runtime.rs:48` — `compile`.
 
-O teste independente P1291 executa o binário cristalino como caixa-preta para
-observar a linguagem final, mas um consumer Rust sem `@prompt` viola V1. Ele
-não pode partilhar o owner produtivo de callbacks: ADR-0129 exige Prompt L0
-próprio 1:1 para este consumer de teste.
+These are local source anchors, not a new upstream parity measurement.
+Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 04_wiring/tests/p1291_callback_runtime.rs`.
 
-## Contrato
+## Owned contract
 
-O consumer compila fixtures temporárias e compara somente o resultado final ou
-o diagnóstico:
+- Own only math callback black-box integration. Compile isolated fixtures and observe final geometry/diagnostics, not implementation internals or provisional documents.
+- Angle callback agrees with explicit-angle control; lexical text and derived script math sizes remain observable. cross overrides inverted in two-line morphology. Invalid returns preserve call path/line, fail without panic and produce no output.
+- Use local cleaned fixtures. Unknown is not success; vec/underline generalization is outside this suite. Keep the pinned callback-realization obligation without authorizing productive changes.
 
-- callback `angle` altera a geometria e coincide com o ângulo explícito de
-  controlo;
-- snapshot contextual observa o tamanho lexical e o tamanho math derivado em
-  script;
-- `cross` prevalece sobre `inverted` na morfologia das duas linhas;
-- retorno inválido preserva path/linha da chamada, falha sem panic e não cria
-  output.
+## Verification and boundary
 
-Arquivos temporários são locais ao teste e removidos ao final. O teste não lê
-implementação, não aceita documento provisório, não converte `Unknown` em
-sucesso e não cobre `vec`/`underline`.
-
-## Verificação
-
-`cargo test -p typst-wiring --test p1291_callback_runtime`, V1/V5/V15/V26,
-`cargo fmt --all -- --check` e `git diff --check`. Este prompt possui
-exatamente o consumer acima e não legitima código produtivo.
+Run `cargo test -p typst --test p1291_callback_runtime -- --test-threads=1` with the harness prerequisites above.
+Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.

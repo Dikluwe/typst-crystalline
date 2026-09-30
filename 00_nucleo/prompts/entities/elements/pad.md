@@ -1,40 +1,22 @@
-# Prompt L0 — `entities/elements/pad` — `PadElem`
+# L0 — Padding carrier
 Hash do Código: 27636f2f
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/pad.rs`
-**Origem**: modelo D (ADR-0105), **Lote 10 P325** (por largura). Trait e glossário (§A.0): ver
-`entities/elements/_comum.md`. **Não-locatável**. Contentor — `map_*` recursam
-no `body`.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/pad.rs`
 
----
+## Contract
 
-## Struct
 
-```rust
-#[derive(Debug, Clone, PartialEq)]
-pub struct PadElem {
-    pub body:  Content,                  // era Box<Content>
-    pub sides: Sides<Option<Length>>,
-}
-```
+`PadElem` stores public body: Content and sides: Sides<Option<Length>>,
+with Debug/Clone/PartialEq and manual Debug-based hash. Preserve the known
+signed-zero caveat in that hash strategy; cleanup does not approve a new algorithm.
+Text and emptiness delegate to body. Maps recurse into body, preserving sides
+and Pad identity. Fields/kind/payload default to None: non-locatable.
+Structural equality compares body and sides, not just the text projection.
 
-`Content::Pad { body, sides }` → `Content::Pad(Arc<PadElem>)`. Construtor
-ergonómico preservado: `Content::pad(body, sides)`.
 
-> **`Hash` manual via Debug**: `Sides<Option<Length>>` carrega `f64` (`Length`)
-> → `impl Hash { format!("{self:?}").hash(state) }` (paridade `content_hash`;
-> ressalva `-0.0`≠`0.0`). `PartialEq` deriva.
-
-## `impl Element for PadElem`
-
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `self.body.plain_text()` (`content.rs:1843`) |
-| `is_empty` | **override**: `self.body.is_empty()` (`content.rs:1677`) |
-| `map_content` | **recursivo** no `body`, preserva `sides` (`content.rs:2148`) |
-| `map_text` | **recursivo** no `body`, preserva `sides` (`content.rs:2395`) |
-| `get_field`/`element_kind`/`to_payload` | default |
-
-## `eq`
-
-`#[derive(PartialEq)]` compara `body`/`sides` (paridade `content.rs:1995`).
+The trait API/defaults belong to
+`00_nucleo/prompts/entities/elements/_comum.md`. This owner specifies only
+this element consumer; language constructors and layout algorithms remain
+with their respective owners. Historical inline-arm evidence is retained in
+`00_nucleo/diagnosticos/sanitization-entities-contracts-history.md`.

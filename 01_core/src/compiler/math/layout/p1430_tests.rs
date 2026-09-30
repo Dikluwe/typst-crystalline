@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/p1430-tests.md
-//! @prompt-hash 2fc1a1f5
+//! @prompt-hash ebd9d4d5
 //! @layer L1
 #![cfg(test)]
 
@@ -73,7 +73,7 @@ fn find_cases(content: &Content) -> Option<&Content> {
     match content {
         Content::MathCases(_) => Some(content),
         Content::Equation(elem) => find_cases(&elem.body),
-        Content::Styled(inner, _) => find_cases(inner),
+        Content::Styled(styled) => find_cases(&styled.body),
         Content::MathDelimited(elem) => find_cases(&elem.body),
         Content::Sequence(items) | Content::MathSequence(items) => {
             items.iter().find_map(find_cases)
@@ -111,17 +111,22 @@ fn project(content: &Content, chain: &StyleChain) -> MathBox {
 }
 
 fn texts(box_: &MathBox) -> Vec<(String, f64, f64, f64)> {
-    box_.items
-        .iter()
-        .filter_map(|item| match item {
-            #[allow(deprecated)]
-            FrameItem::Text { pos, text, style, .. }
-            | FrameItem::TextShaped { pos, text, style, .. } => {
-                Some((text.to_string(), pos.x.val(), pos.y.val(), style.size.val()))
+    fn visit(items: &[FrameItem], out: &mut Vec<(String, f64, f64, f64)>) {
+        for item in items {
+            match item {
+                #[allow(deprecated)]
+                FrameItem::Text { pos, text, style, .. }
+                | FrameItem::TextShaped { pos, text, style, .. } => {
+                    out.push((text.to_string(), pos.x.val(), pos.y.val(), style.size.val()));
+                }
+                FrameItem::TextReplacement { items, .. } => visit(items, out),
+                _ => {}
             }
-            _ => None,
-        })
-        .collect()
+        }
+    }
+    let mut found = Vec::new();
+    visit(&box_.items, &mut found);
+    found
 }
 
 fn item<'a>(

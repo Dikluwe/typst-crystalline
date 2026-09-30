@@ -95,13 +95,14 @@ fn base_math_class(content: &Content) -> MathClass {
                 MathClass::Alphabetic
             }
         }
-        Content::Styled(inner, _) => base_math_class(inner),
+        Content::Styled(styled) => base_math_class(&styled.body),
         Content::Equation(e) => base_math_class(&e.body),
         Content::Sequence(items) if !items.is_empty() => base_math_class(&items[0]),
         Content::MathSequence(items) if !items.is_empty() => base_math_class(&items[0]),
         // intencional: composite nodes (frac, root, matrix, cases, accent, cancel, underover) e elementos fora de math usam MathClass::Normal per vanilla
         Content::Empty
-        | Content::Space | Content::SpaceFromNewline
+        | Content::Space
+        | Content::SpaceFromNewline
         | Content::Parbreak
         | Content::Sequence(_)
         | Content::Par { .. }
@@ -143,11 +144,11 @@ fn base_math_class(content: &Content) -> MathClass {
         | Content::GridHeader(_)
         | Content::GridFooter(_)
         | Content::GridCell(_)
-        | Content::SetPage { .. }
+        | Content::SetPage(_)
         | Content::Align(_)
         | Content::Place(_)
         | Content::Flush(_)
-        | Content::Styled(_, _)
+        | Content::Styled(_)
         | Content::Divider(_)
         | Content::Terms(_)
         | Content::TermItem(_)
@@ -228,7 +229,7 @@ pub(super) fn node_math_class(content: &Content) -> (MathClass, MathClass) {
             };
             (l, r)
         }
-        Content::Styled(inner, _) => node_math_class(inner),
+        Content::Styled(styled) => node_math_class(&styled.body),
         Content::Equation(e) => node_math_class(&e.body),
         Content::Sequence(items) if !items.is_empty() => {
             let (l, _) = node_math_class(items.first().unwrap());
@@ -536,7 +537,7 @@ fn is_bare_pipe(content: &Content) -> bool {
     match content {
         Content::MathText(text) | Content::MathIdent(text) => text.as_str() == "|",
         Content::MathStyled(e) => is_bare_pipe(&e.body),
-        Content::Styled(inner, _) => is_bare_pipe(inner),
+        Content::Styled(styled) => is_bare_pipe(&styled.body),
         _ => false,
     }
 }
@@ -1104,9 +1105,6 @@ mod tests {
     #[test]
     fn p1494_newline_space_tem_classe_matematica_neutra() {
         assert_eq!(base_math_class(&Content::Space), MathClass::Normal);
-        assert_eq!(
-            base_math_class(&Content::SpaceFromNewline),
-            MathClass::Normal
-        );
+        assert_eq!(base_math_class(&Content::SpaceFromNewline), MathClass::Normal);
     }
 }

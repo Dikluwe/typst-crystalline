@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/transform.md
-//! @prompt-hash 24d4e806
+//! @prompt-hash fecf5811
 //! @layer L1
 //! @updated 2026-08-20
 //!
@@ -159,7 +159,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let base_x = sub_items
             .iter()
             .find_map(|item| match item {
-                FrameItem::Text { pos, .. }
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
                 | FrameItem::TextShaped { pos, .. }
                 | FrameItem::Glyph { pos, .. }
                 | FrameItem::Group { pos, .. }
@@ -172,7 +172,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let base_y = sub_items
             .iter()
             .find_map(|item| match item {
-                FrameItem::Text { pos, .. }
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
                 | FrameItem::TextShaped { pos, .. }
                 | FrameItem::Glyph { pos, .. }
                 | FrameItem::Group { pos, .. }
@@ -185,7 +185,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
         for item in &mut sub_items {
             match item {
-                FrameItem::Text { pos, .. }
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
                 | FrameItem::TextShaped { pos, .. }
                 | FrameItem::Glyph { pos, .. }
                 | FrameItem::Shape { pos, .. }
@@ -205,7 +205,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                         item, -base_x, -base_y,
                     );
                 }
-                FrameItem::Semantic { items, .. } => {
+                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
                     for child in items {
                         crate::compiler::layout::helpers::offset_frame_item(
                             child, -base_x, -base_y,
@@ -220,7 +220,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let mut max_y = 0.0_f64;
 
         for item in &sub_items {
-            if super::html_frame::is_context_marker(item) {
+            if super::html_frame::is_context_marker(item) || matches!(item, FrameItem::TextSeparator { .. }) {
                 continue;
             }
             let (ix, iy) = super::helpers::item_pos(item);

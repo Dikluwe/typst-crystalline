@@ -1,10 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/par.md
-//! @prompt-hash bef4c5ee
+//! @prompt-hash f9d6d7e4
 //! @layer L1
-//! @updated 2026-08-13
+//! @updated 2026-09-30
 //!
-//! `par` e `parbreak` — parágrafo implícito no fluxo.
+//! `par` e `parbreak` — elemento e fronteira de parágrafo no fluxo.
 //!
 //! Separado de `structural/flow.rs` em 2026-08-13: a fronteira anterior
 //! estava sustentada por um cluster de co-mudança que não existia (artefacto
@@ -59,23 +59,8 @@ pub fn native_parbreak(
     Ok(Value::Content(Content::Parbreak))
 }
 
-// ── P806 — `par(body, leading:?)` ────────────────────────────────────────
-
-/// `par(body, leading:?)` → body como `Content` (parágrafo implícito).
-///
-/// **P806** (achado #12 de P798) — o vanilla tem `ParElem` invocável
-/// (`#par[...]`); o cristalino não tem `Content::Par` (parágrafos são texto
-/// plano em `Sequence` — `element_kind.rs`), logo o body é devolvido
-/// **directamente**: o caso standalone é idêntico ao vanilla. A quebra de
-/// fluxo block-level do vanilla (mid-paragraph) é limitação registada no L0
-/// (`stdlib/structural.md` §`native_par`).
-///
-/// `leading:` (Length) é aplicado via `Content::Styled` com o custom
-/// `"par.leading"` (mesmo canal do `#set par(leading:)`, F-5b/P373).
-/// Propriedades vanilla conhecidas mas não honradas (`justify`, `spacing`,
-/// `linebreaks`, `first-line-indent`, `hanging-indent`,
-/// `justification-limits`) são aceites e ignoradas em silêncio (funções
-/// nativas não têm acesso ao `Sink` — limitação registada).
+/// Build a paragraph element with validated lexical paragraph options.
+/// Global optimized breaking remains incomplete.
 pub fn native_par(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -102,6 +87,7 @@ pub fn native_par(
     };
 
     let mut leading: Option<Length> = None;
+    let mut styles = crate::entities::style::Styles::new();
     for (key, value) in args.named.iter() {
         match key.as_str() {
             "leading" => match value {
@@ -116,10 +102,55 @@ pub fn native_par(
                     )])
                 }
             },
-            // Aceites e ignoradas (ver docstring — limitação registada).
-            "justify"
-            | "spacing"
-            | "linebreaks"
+            "justify" => {
+                let span = args
+                    .occurrences
+                    .as_ref()
+                    .and_then(|items| {
+                        items
+                            .iter()
+                            .rev()
+                            .find(|item| item.name.as_deref() == Some("justify"))
+                    })
+                    .map_or(args.span, |item| item.value_span);
+                match value {
+                    Value::Bool(_) => {
+                        styles = styles.push_custom("par.justify", value.clone())
+                    }
+                    other => {
+                        return Err(vec![break_policy_error(
+                            "expected boolean",
+                            other,
+                            span,
+                        )])
+                    }
+                }
+            }
+            "linebreaks" => {
+                let span = args
+                    .occurrences
+                    .as_ref()
+                    .and_then(|items| {
+                        items
+                            .iter()
+                            .rev()
+                            .find(|item| item.name.as_deref() == Some("linebreaks"))
+                    })
+                    .map_or(args.span, |item| item.value_span);
+                let expected = "expected \"simple\", \"optimized\", or auto";
+                match value {
+                    Value::Auto => {}
+                    Value::Str(name)
+                        if matches!(name.as_str(), "simple" | "optimized") => {}
+                    Value::Str(_) => {
+                        return Err(vec![SourceDiagnostic::error(span, expected)])
+                    }
+                    other => return Err(vec![break_policy_error(expected, other, span)]),
+                }
+                styles = styles.push_custom("par.linebreaks", value.clone());
+            }
+            // Known properties awaiting their own consumers.
+            "spacing"
             | "first-line-indent"
             | "hanging-indent"
             | "justification-limits" => {}
@@ -132,12 +163,24 @@ pub fn native_par(
         }
     }
 
-    match leading {
-        Some(l) => Ok(Value::Content(Content::Styled(
-            Box::new(body),
-            crate::entities::style::Styles::new()
-                .push_custom("par.leading", Value::Length(l)),
-        ))),
-        None => Ok(Value::Content(body)),
+    if let Some(l) = leading {
+        styles = styles.push_custom("par.leading", Value::Length(l));
     }
+    let body = Content::par(body);
+    Ok(Value::Content(if styles.is_empty() {
+        body
+    } else {
+        Content::styled(Box::new(body), styles)
+    }))
+}
+
+/// Diagnostic vocabulary differs from the public short names of types.
+fn break_policy_error(expected: &str, found: &Value, span: Span) -> SourceDiagnostic {
+    let name = match found.type_name() {
+        "int" => "integer",
+        "str" => "string",
+        "bool" => "boolean",
+        other => other,
+    };
+    SourceDiagnostic::error(span, format!("{expected}, found {name}"))
 }

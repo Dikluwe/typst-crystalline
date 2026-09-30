@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/columns.md
-//! @prompt-hash c9bbe24f
+//! @prompt-hash 1eb43ead
 //! @layer L1
-//! @updated 2026-07-03
+//! @updated 2026-09-29
 //!
 //! Atomização (ADR-0109, P377): o layout de `Columns` movido do monólito
 //! `layout_content` para o arquivo da feature (forma B — free function na
@@ -195,7 +195,7 @@ fn split_by_colbreak(content: &Content, count: usize) -> (Vec<Content>, bool) {
     // único Styled exterior. Inspecionar o body para encontrar colbreaks e
     // reaplicar o mesmo wrapper uma vez por região irmã.
     let (content, outer_styles) = match content {
-        Content::Styled(body, styles) => (body.as_ref(), Some(styles)),
+        Content::Styled(styled) => (&styled.body, Some(&styled.styles)),
         other => (other, None),
     };
     let children = match content {
@@ -227,7 +227,7 @@ fn split_by_colbreak(content: &Content, count: usize) -> (Vec<Content>, bool) {
         .map(|parts| {
             let segment = Content::sequence(parts);
             match outer_styles {
-                Some(styles) => Content::Styled(Box::new(segment), styles.clone()),
+                Some(styles) => Content::styled(Box::new(segment), styles.clone()),
                 None => segment,
             }
         })
@@ -243,7 +243,9 @@ fn split_by_colbreak(content: &Content, count: usize) -> (Vec<Content>, bool) {
 /// `Sequence` e `Styled` — elementos estruturais transparentes são ignorados.
 fn body_dir(content: &Content) -> Option<Dir> {
     match content {
-        Content::Styled(body, styles) => {
+        Content::Styled(styled) => {
+            let body = &styled.body;
+            let styles = &styled.styles;
             // Preferir a direcção mais interna (top-wins semântico); só usar a
             // direcção deste `Styled` se o body tiver conteúdo visível, para
             // não ficar preso a estilos vazios (ex.: `parbreak` embrulhado).
@@ -287,7 +289,7 @@ fn has_visible_content(content: &Content) -> bool {
     match content {
         Content::Text(_) => true,
         Content::Sequence(seq) => seq.iter().any(has_visible_content),
-        Content::Styled(body, _) => has_visible_content(body),
+        Content::Styled(styled) => has_visible_content(&styled.body),
         Content::Empty
         | Content::Space
         | Content::SpaceFromNewline
@@ -444,6 +446,7 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         // intocados enquanto a coluna é renderizada num buffer isolado).
         let saved_items = std::mem::take(&mut layouter.regions.current.current_items);
         let saved_line = std::mem::take(&mut layouter.regions.current.current_line);
+        let saved_tracking = layouter.text_tracking_state.clone();
         let saved_cursor_x = layouter.regions.current.cursor_x;
         let saved_width = layouter.regions.current.width;
 
@@ -554,6 +557,7 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         layouter.apply_pending_par_line_fixups(&mut column_items);
         layouter.regions.current.current_items = saved_items;
         layouter.regions.current.current_line = saved_line;
+        layouter.text_tracking_state = saved_tracking;
         layouter.regions.current.cursor_x = saved_cursor_x;
         layouter.regions.current.cursor_y = column_start_y;
         layouter.regions.current.line_start_x = Pt(margin);

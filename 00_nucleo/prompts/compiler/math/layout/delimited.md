@@ -1,107 +1,51 @@
-# Prompt L0 — `math/layout/delimited` — `MathDelimited`
-Hash do Código: 91769d6c
+# L0 — math/layout/delimited
 
-**Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/delimited.rs`
-**Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
-partilhado: ver `math/layout/_comum.md`.
+Hash do Código: 37b841ba
 
----
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/math/layout/delimited.rs`
 
-`MathDelimited` — par de delimitadores fixos. **P919**: deixou de chamar
-`MathLayouter::apply_axis_offset` (ver `_comum.md` §P919 e secção abaixo). Test regressão
-`delimitado_com_axis_height_nao_regride` (`tests.rs:520+`).
+## Consumer evidence
 
-## P912 — Cálculo de Altura de Delimitadores Balanceados
+`01_core/src/compiler/math/layout/delimited.rs:21` locates `fn positional_lr_delimiters(body: &Content) -> Option<(char, Content, char)>`.
+This audit locates the existing consumer; it does not establish language parity.
+Historical evidence and unresolved discrepancies are archived in
+`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
 
-Em `layout_delimited`, a altura-alvo do delimitador balanceado (quando `balanced = true`)
-é calculada simetricamente em relação ao eixo matemático como `2.0 * (ascent - axis).max(descent + axis)`,
-onde `axis` é a altura do eixo (`axis_height`) em pontos tipográficos, em vez de soma simples.
-Isto dimensiona o glifo do delimitador (via `layout_stretchy_delimiter`, que já o centra no eixo
-internamente — `stretchy.md` §P917) — não desloca o corpo nem o conjunto final.
+## Fenced groups and lr/mid
 
-**P1132g — binômio não balanceia a altura-alvo.** O `MathFracElem` com
-`line=false`, forma semântica interna produzida por `binom`, seleciona o braço
-`balanced=false` da mesma fórmula vanilla: a altura-alvo é `body.height()`.
-As demais expressões delimitadas continuam a usar o cálculo balanceado acima.
-Essa distinção deriva do conteúdo e das suas métricas reais; não usa deslocamento
-ou constante medidos da fixture.
+Own mechanical MathDelimited composition plus public MathLr/MathMid layout.
+For a balanced group, target height is
+`2*max(body.ascent-axis,body.descent+axis)`.
+The binomial's line=false fraction stack is unbalanced and targets body.height.
+Stretch delimiters using their own axis-centered geometry and horizontally
+concatenate opening/body/closing without moving the body's baseline or
+axis-centering the complete group again.
 
-> **Fonte de paridade**: vanilla `lab/typst-original/crates/typst-layout/src/math/fenced.rs:93-99`
-> (`if balanced { 2.0 * (f.ascent() - axis).max(f.descent() + axis) } else { f.height() }`).
-> Guarda de regressão em `01_core/src/compiler/math/layout/tests.rs:4071`
-> (`axis_ok_delimitado_corpo_nao_ganha_deslocamento_de_axis_height`).
+MathLr retains public identity and body. Resolve size by explicit >
+math.lr.size > 100%, with vertical shortfall 0.1em. For a group with fences,
+measure the natural body and derive its relative target from the same
+extent as an implicit fenced group: normally the axis-balanced
+`2*max(body.ascent-axis, body.descent+axis)`, or the raw height for the
+barless binomial exception above. Apply the effective percentage
+or absolute length to that extent before stretch selection; an explicit
+`lr` wrapper at 100% must not select a smaller delimiter variant than the
+equivalent implicit group. Absolute length resolves against causal font size.
+A body without fences remains visible; an item-only group preserves its
+existing semantics. Nondefault nested sizes must not be flattened or baked
+into a MathDelimited carrier. Only an implicit inner lr whose effective size
+is 100% may be absorbed according to the approved rule.
 
-## P919 — remoção da chamada a `apply_axis_offset` (nunca devia estar aqui)
+Select first/last eligible fences by positional role, including inverted
+pairs such as U+005D ... U+005B. Role changes do not replace original chars,
+base_char, glyph variant, advance or order. Reuse the normal group's target.
 
-**Achado** (`typst-passo-919-relatorio.md` Fase A, vanilla `fenced.rs::layout_fenced`): a função
-não faz nenhuma centragem do grupo delimitado como um todo — `open`/`body`/`close` são apenas
-empilhados na linha (`ctx.push`/`ctx.extend`), sem `set_baseline` nenhum sobre o conjunto. Os
-delimitadores (`open`/`close`) já chegam pré-centrados no eixo (dimensionados via P912 acima,
-posicionados internamente por `layout_stretchy_delimiter`, que já desloca os seus próprios
-`items` — `stretchy.md` §P917); o corpo (`body_box`) mantém a sua baseline própria, sem
-alteração. Chamar `apply_axis_offset` sobre o `result` já concatenado (`hconcat`) nunca teve
-fundamento no vanilla — voltaria a centrar algo que já está correcto, uma vez corrigido o bug de
-omissão de `apply_axis_offset` (`_comum.md` §P919). Confirmado também empiricamente: `mutool
-trace` de `x + (a) + y` mostra `x`/`a`/`y` já exactamente ao mesmo Y sem qualquer correcção. A
-chamada final `self.apply_axis_offset(result, style.size)` é removida — `layout_delimited`
-devolve `result` directamente.
+MathMid classifies actual body items as Relation. Outside lr it keeps natural
+geometry; inside, use the nearest lr's vertical target, including size and
+shortfall, without crossing an inner lr boundary or independently selecting
+a target. Preserve public body/identity.
 
-**Critério de regressão**: `x + (a) + y` — todos os três elementos partilham exactamente a mesma
-baseline (mesmo Y), antes e depois desta mudança (remoção de um no-op, não correcção de
-comportamento visível).
-
-## P1436 — layout de `MathLrElem` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
-
-### Medição anterior à decisão
-
-No pin, `resolve_lr` resolve o body sem o mutar, usa `size` explícito/cascata
-ou `100%`, constrói stretch vertical com short-fall `0.1em`, escala cercas nas
-extremidades e preserva item único. Um `LrElem` interior implícito só é
-absorvido quando seu tamanho efetivo é `100%`.
-
-### Decisão proposta
-
-Este owner recebe uma free function para `MathLrElem`, mantendo a forma B da
-ADR-0109. Resolver tamanho por explícito > `math.lr.size` cascaded > `100%` e
-aplicar short-fall `0.1em`, nunca uma constante derivada de fixture. O body sem
-cercas continua visível; cercas exteriores e itens únicos seguem as regras do
-pin; nesting com tamanho não-default não é achatado. Reutilizar helpers de
-stretch e as fórmulas P912/P919 sem deslocar novamente o grupo ou assar o
-tamanho no carrier. `layout_delimited` mecânico existente permanece estável.
-
-Aceitação geométrica discrimina `100%`, `150%`, `2em` e cascata com witnesses
-independentes de altura/posição; igualdade de boxes internas ou bytes de
-render não é requisito.
-
-## P1437 — layout de `MathMidElem` no `lr` mais próximo (PROPOSTA; AGUARDA GATE ADR-0127)
-
-### Medição anterior à decisão
-
-No pin, `MidElem` marca cada item real, força classe `Relation` e permite que
-`resolve_lr` aplique a meta de stretch do grupo. Fora de `lr`, o body mantém
-tamanho natural. Um `lr` aninhado estabelece a fronteira mais próxima.
-
-### Decisão proposta
-
-Adicionar free function para `MathMidElem` neste owner (forma B, ADR-0109).
-Resolver o body e classificar cada item como `Relation`. Sem contexto `lr`,
-conservar geometria natural. No `lr` mais próximo, reutilizar a meta vertical
-do exterior, incluindo `size` explícito/cascata e short-fall `0.1em`; não
-calcular alvo independente nem atravessar `lr` interior. Aceitação usa
-witnesses para fora/dentro, `100%`, `150%`, `2em` e nesting.
-
-## P1466 — cercas invertidas de `MathLr`
-
-No corpus `sec_22.typ`, o último grupo é `lr(\]a/b\[)`: a primeira cerca é
-U+005D e a última é U+005B. O carrier público P1436 preserva essas cercas como
-itens posicionais no body; exigir `MathDelimited` apaga esse caso.
-
-Ao resolver `MathLr`, classificar o primeiro e o último item cercável pela
-posição no grupo, não apenas pela classe Unicode natural Opening/Closing. A
-primeira cerca recebe o papel de abertura e a última o de fechamento, mas
-`base_char`, variante extensível, avanço e ordem continuam pertencendo ao
-caractere original. Reutilizar a mesma meta vertical do par normal; não baixar
-para `MathDelimited`, trocar os caracteres, criar texto ou alterar `math.mid`.
-
-Aceitação coleta os quatro brackets dos pares normal e invertido e prova que
-cada caractere seleciona a mesma variante vertical/avanço quando muda de papel.
+Acceptance discriminates natural/balanced/binomial targets, same neighboring
+baseline, 100%/150%/absolute/mixed/cascaded sizes, nested lr, mid scope and
+normal/inverted fence variants. Current implementation breadth alone does
+not demonstrate full language parity or retroactively prove a historical gate.

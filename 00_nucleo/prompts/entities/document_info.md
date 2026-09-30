@@ -1,61 +1,29 @@
-# Prompt L0 — `entities/document_info`
+# L0 — Document metadata carrier
 Hash do Código: 77aa0cfc
 
-## Camada
-L1
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/document_info.rs`
 
-## Ficheiro alvo
-`01_core/src/entities/document_info.rs`
+## Evidence
 
-## Propósito
-Transporte puro de metadados do documento definidos por `#set document(...)`
-desde a avaliação (`EvalContext`) até ao módulo (`Module`) e, via pipeline, até
-ao documento paginado (`PagedDocument`) e ao exportador PDF (`/Info`).
+Retained upstream evidence at historical `e0e8ca4d` is
+`lab/typst-original/crates/typst-library/src/model/document.rs:14-34,157-179`.
+Document metadata is embedded by default rather than visibly rendered; this
+entity is a partial carrier, not a claim to the entire upstream field surface.
 
-> **Fonte de paridade (P1031)** — doc comment `#[elem]` do vanilla ratificado (`e0e8ca4d`),
-> `crates/typst-library/src/model/document.rs:14-34`, publicado em
-> `typst.app/docs/reference/model/document/`:
->
-> *"The document element is the single source of truth for document metadata. With it, you
-> can specify the document's title, authors, date, etc. in one place. Typically, the element
-> is used with a set rule like this: `#set document(title: [My doc])`. […] By default, the
-> metadata is embedded into the output, but not visibly rendered in the document."*
->
-> **Citação literal** para as duas afirmações do propósito: a forma de superfície é
-> `#set document(...)` e o destino é a metadata do output (o `/Info` do PDF), sem render
-> visível.
->
-> **Campos — cobertura parcial declarada.** O vanilla define cinco
-> (`document.rs:157-179`): `title: Option<Content>`, `author: OneOrMultiple<EcoString>`,
-> `description: Option<Content>`, `keywords: OneOrMultiple<EcoString>`,
-> `date: Smart<Option<Datetime>>`. O `DocumentInfo` do cristalino cobre três (`title`,
-> `author`, `keywords`) e usa `Option<EcoString>` onde o vanilla usa `OneOrMultiple` /
-> `Content`. Ausentes: `description` e `date` — **lacuna documentada**, não afirmação
-> incorrecta. Notas do vanilla com consequência prática, ainda não registadas aqui:
-> `date` por defeito é `{auto}` = data e hora actuais, e *"If you want to create
-> byte-by-byte reproducible PDFs, set this to something other than `{auto}`"*
-> (`document.rs:168-178`); `title` é requisito de PDF/UA (`document.rs:151-153`).
+## Contract
 
-## Tipo
+`DocumentInfo` has public optional EcoString fields title, author, keywords,
+with Debug/Clone/PartialEq/Default. Default and empty produce all None;
+`is_empty` is true exactly when all fields are None. Preserve evaluated values,
+including explicitly supplied empty strings. Author inputs may be strings or
+string arrays, with the latter converted to one comma-separated string by the
+evaluation owner; this carrier neither parses nor chooses that conversion.
 
-```rust
-#[derive(Debug, Clone, PartialEq, Default)]
-pub struct DocumentInfo {
-    pub title: Option<EcoString>,
-    pub author: Option<EcoString>,
-    pub keywords: Option<EcoString>,
-}
-```
-
-- Campos opcionais — só os argumentos efectivamente fornecidos em
-  `#set document(...)` são preenchidos.
-- `author` aceita tanto `str` como `array` de strings (convertido para uma
-  única string separada por vírgula, paridade vanilla simplificada).
-- `Default` e `empty()` produzem metadados vazios.
-- `is_empty()` é true quando todos os campos são `None`.
-
-## Semântica
-
-Não contém I/O nem lógica de render. É um contentor de valores já avaliados.
-A decisão de formato (ex.: data de criação, creator) fica no exportador PDF
-(L3), não aqui.
+This is pure metadata transport from evaluation through Module/PagedDocument
+to exporters, with no I/O or rendering. Date, description and richer Content/
+multiple-author representation remain outside this carrier's declared scope.
+Creation date/creator and output-format decisions belong to export owners.
+The upstream automatic-date and PDF/UA title evidence
+`document.rs:168-178,151-153` must not be turned into an implicit clock or full
+PDF/UA claim in this entity. Verify empty/nonempty fields, clone and equality.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/p1431-tests.md
-//! @prompt-hash 066b74f8
+//! @prompt-hash 7359b4d4
 //! @layer L1
 #![cfg(test)]
 
@@ -61,7 +61,7 @@ fn find_mat(content: &Content) -> Option<&Content> {
     match content {
         Content::MathMatrix(_) => Some(content),
         Content::Equation(elem) => find_mat(&elem.body),
-        Content::Styled(inner, _) => find_mat(inner),
+        Content::Styled(styled) => find_mat(&styled.body),
         Content::MathDelimited(elem) => find_mat(&elem.body),
         Content::Sequence(items) | Content::MathSequence(items) => {
             items.iter().find_map(find_mat)

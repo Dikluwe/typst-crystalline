@@ -8,11 +8,7 @@
 //! Extraído de `layout/mod.rs` no P425 (ADR-0109 forma B).
 //! **P867** — suporte a `width: auto` / `height: auto` (PageDimension).
 
-use crate::entities::{
-    image_sizer::ImageSizer,
-    layout_types::{PageDimension, PageMarginSpec, Pt},
-    page_geometry::{PageBinding, Paper},
-};
+use crate::entities::{content::SetPageDelta, image_sizer::ImageSizer, layout_types::Pt};
 
 use super::metrics::FontMetrics;
 use super::Layouter;
@@ -21,33 +17,16 @@ use super::Layouter;
 /// e força nova página se a configuração mudou.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
-    paper: &Option<Paper>,
-    flipped: &Option<bool>,
-    binding: &Option<PageBinding>,
-    width: &Option<PageDimension>,
-    height: &Option<PageDimension>,
-    margin: &Option<PageMarginSpec>,
-    numbering: &Option<Option<crate::entities::numbering::Numbering>>,
-    number_align: &Option<crate::entities::page_running::PageNumberAlign>,
-    header: &Option<crate::entities::page_running::PageMarginal>,
-    header_ascent: &Option<crate::entities::page_running::PageMarginalOffset>,
-    footer: &Option<crate::entities::page_running::PageMarginal>,
-    footer_descent: &Option<crate::entities::page_running::PageMarginalOffset>,
-    supplement: &Option<crate::entities::page_supplement::PageSupplement>,
-    columns: &Option<usize>,
-    bleed: &Option<crate::entities::page_canvas::PageBleedSpec>,
-    fill: &Option<crate::entities::page_canvas::PageFill>,
-    background: &Option<Option<std::sync::Arc<crate::entities::content::Content>>>,
-    foreground: &Option<Option<std::sync::Arc<crate::entities::content::Content>>>,
+    delta: &SetPageDelta,
 ) {
     let mut new_config = layouter.page_config.clone();
     let mut changed = false;
-    if paper.is_some()
-        || flipped.is_some()
-        || binding.is_some()
-        || width.is_some()
-        || height.is_some()
-        || margin.is_some()
+    if delta.paper.is_some()
+        || delta.flipped.is_some()
+        || delta.binding.is_some()
+        || delta.width.is_some()
+        || delta.height.is_some()
+        || delta.margin.is_some()
     {
         let dir = layouter
             .chain
@@ -63,12 +42,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         super::page_geometry::apply(
             &mut new_config,
             dir,
-            *paper,
-            *flipped,
-            *binding,
-            *width,
-            *height,
-            *margin,
+            delta.paper,
+            delta.flipped,
+            delta.binding,
+            delta.width,
+            delta.height,
+            delta.margin,
         );
         changed = true;
     }
@@ -77,51 +56,51 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // explícito (incluindo `auto`, se o eval o distinguir no futuro) a
     // mudaria. Nesta fase, o eval representa tanto ausente como `auto` por
     // `None`, pelo que mantemos o estado anterior.
-    if let Some(value) = numbering {
+    if let Some(value) = &delta.numbering {
         new_config.numbering = value.clone();
         changed = true;
     }
-    if let Some(value) = number_align {
+    if let Some(value) = &delta.number_align {
         new_config.number_align = *value;
         changed = true;
     }
-    if let Some(value) = header {
+    if let Some(value) = &delta.header {
         new_config.header = value.clone();
         changed = true;
     }
-    if let Some(value) = header_ascent {
+    if let Some(value) = &delta.header_ascent {
         new_config.header_ascent = *value;
         changed = true;
     }
-    if let Some(value) = footer {
+    if let Some(value) = &delta.footer {
         new_config.footer = value.clone();
         changed = true;
     }
-    if let Some(value) = footer_descent {
+    if let Some(value) = &delta.footer_descent {
         new_config.footer_descent = *value;
         changed = true;
     }
-    if let Some(value) = supplement {
+    if let Some(value) = &delta.supplement {
         new_config.supplement = value.clone();
         changed = true;
     }
-    if columns != &new_config.columns {
-        new_config.columns = *columns;
+    if delta.columns != new_config.columns {
+        new_config.columns = delta.columns;
         changed = true;
     }
-    if let Some(spec) = bleed {
+    if let Some(spec) = &delta.bleed {
         new_config.bleed_spec = (*spec).fold(new_config.bleed_spec);
         changed = true;
     }
-    if let Some(value) = fill {
+    if let Some(value) = &delta.fill {
         new_config.fill = value.clone();
         changed = true;
     }
-    if let Some(layer) = background {
+    if let Some(layer) = &delta.background {
         new_config.background = layer.as_ref().map(|content| (**content).clone());
         changed = true;
     }
-    if let Some(layer) = foreground {
+    if let Some(layer) = &delta.foreground {
         new_config.foreground = layer.as_ref().map(|content| (**content).clone());
         changed = true;
     }

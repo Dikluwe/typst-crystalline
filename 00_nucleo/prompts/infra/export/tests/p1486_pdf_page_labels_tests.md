@@ -1,31 +1,30 @@
-# Prompt L0 — P1486 testes de rótulos de páginas PDF
+# L0 — infra/export/tests/p1486_pdf_page_labels_tests
 Hash do Código: c8423432
 
-**Camada:** L3 (testes)
-**Ficheiro alvo:** `03_infra/src/export/tests/p1486_pdf_page_labels_tests.rs`
-**Criado em:** 2026-09-24
-**ADRs:** ADR-0107, ADR-0108, ADR-0127, ADR-0129
+**Layer:** L3 (test-only)
+**Exclusive consumer:** `03_infra/src/export/tests/p1486_pdf_page_labels_tests.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0126, ADR-0127, ADR-0128, ADR-0129, ADR-0130
 
-## Medição anterior à decisão
+## Consumer evidence
 
-O diagnóstico `00_nucleo/diagnosticos/typst-p1486-page-labels.md` registra
-as fixtures, hashes e comandos de extração. No vanilla ratificado,
-seleção física 1+3 rotula arábico `1, 3`, romano `i, iii`, fallback sem
-padrão `1, 3` e padrão após `counter(page).update(10)` `10, 12`.
-O cristalino anterior a P1486 apresenta `1, 2` e não emite
-`/PageLabels` (`infra/export/builder.rs:1134-1140`). O rótulo do leitor
-é observável; object IDs e bytes totais não são (ADR-0107).
+`03_infra/src/export/tests/p1486_pdf_page_labels_tests.rs:13` identifies the current exclusive consumer. The clauses below
+are checked against that source and its delegated calls. They specify current
+export observables and ownership, not full upstream byte or algorithm equality.
 
-## Contrato de testes
+## Selected-page label regression coverage
 
-Testes RED→GREEN constroem `PagedDocument` com quatro páginas, exercitam
-as três variantes de exportação e extraem os rótulos efetivos a partir
-da number tree e dos seus estilos, não apenas a presença da chave.
-Cobrir sem seleção, seleção 1–4, 2–4, 1+3, só 4, e seleção vazia;
-numeração arábica, romana, literal com prefixo/sufixo, sem padrão,
-e `Page.logical_number` deslocado. Verificar que seleção retendo todas
-as páginas não cria fallback desnecessário. Conferir que catálogo e
-number tree são internamente coerentes, sem amarrar IDs, offsets ou
-serialização. Regressões de tagged/PDF/A/PDF/UA e de conteúdo
-desenhado pertencem ao mesmo módulo ou ao gate externo com `qpdf` e
-`pypdf`; nunca a uma comparação de bytes de PDF completo.
+Own in-memory public-API tests that decode the PageLabels number tree and style
+into effective reader labels, not merely detect a catalog key.
+Cover no selection, full/subrange/discontinuous/single/empty selection, Arabic/
+Roman/literal prefix/suffix/no-pattern cases and shifted logical_number.
+Retaining every physical page does not require a fallback corrective label tree.
+
+Productive label/filter mapping is owned by
+`00_nucleo/prompts/infra/export/builder/navigation.md`.
+Check tag/archival/UA coexistence and catalog/tree coherence without fixed object
+IDs or whole-PDF byte comparison.
+
+## Verification
+
+Preserve the fixture matrix and per-retained-page labels. Independent qpdf/pypdf
+and original bilateral fixture evidence remain separate from local regression tests.

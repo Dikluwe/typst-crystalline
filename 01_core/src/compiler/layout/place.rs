@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/place.md
-//! @prompt-hash b18f753c
+//! @prompt-hash 50278bbb
 //! @layer L1
 //! @updated 2026-09-25
 //!
@@ -267,6 +267,7 @@ fn realize_float_prefix<M: FontMetrics, S: ImageSizer>(
 fn deferred_frame_origin_y<M: FontMetrics>(items: &[FrameItem], metrics: &M) -> f64 {
     fn item_origin<M: FontMetrics>(item: &FrameItem, metrics: &M) -> Option<f64> {
         match item {
+            FrameItem::TextSeparator { .. } => None,
             FrameItem::Text { pos, style, .. }
             | FrameItem::TextShaped { pos, style, .. } => {
                 let (top, _) = metrics.text_edges(style.size, style);
@@ -282,7 +283,7 @@ fn deferred_frame_origin_y<M: FontMetrics>(items: &[FrameItem], metrics: &M) -> 
             FrameItem::Shape { pos, .. }
             | FrameItem::Group { pos, .. }
             | FrameItem::Image { pos, .. } => Some(pos.y.0),
-            FrameItem::Link { items, .. } | FrameItem::Semantic { items, .. } => items
+            FrameItem::Link { items, .. } | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items
                 .iter()
                 .filter_map(|child| item_origin(child, metrics))
                 .reduce(f64::min),
@@ -368,6 +369,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // Translate items: cada item ganha offset (target_x, target_y).
         for item in &f.body_items {
             let translated = match item.clone() {
+                FrameItem::TextSeparator { pos, advance, style, origin } => FrameItem::TextSeparator { pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) }, advance, style, origin },
                 FrameItem::Text { pos, text, style } => FrameItem::Text {
                     pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                     text,
@@ -476,6 +478,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                     size,
                 },
+                FrameItem::TextReplacement { text, mut items } => {
+                    for child in &mut items {
+                        crate::compiler::layout::helpers::offset_frame_item(child, target_x, target_y);
+                    }
+                    FrameItem::TextReplacement { text, items }
+                }
                 FrameItem::Semantic { kind, placement, alt, mut items } => {
                     for child in &mut items {
                         crate::compiler::layout::helpers::offset_frame_item(

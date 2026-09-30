@@ -1,143 +1,48 @@
-# Prompt L0 — `rules/introspect/extract_payload`
+# L0 — introspect/extract_payload
 Hash do Código: d819ab1a
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/introspect/extract_payload.rs`
-**Criado em**: 2026-04-30 (P162 sub-passo .D)
-**ADRs relevantes**: ADR-0033 (paridade vanilla), ADR-0066 (Introspection runtime)
-
----
-
-## Contexto
-
-`extract_payload` é a função pura que mapeia um `&Content` para `Option<ElementPayload>`. `Some(...)` para os 3 kinds locatable em M1 (`Heading`, `Figure`, `Cite`); `None` para todas as outras variantes de Content.
-
-Vanilla resolve via vtable: cada `*Elem` implementa `Locatable` marker trait + lógica de extracção via proc-macro. Cristalino prefere função pura com match exaustivo — o compilador força cobertura, e adicionar um variant novo a `Content` produz erro de compilação aqui até decisão sobre locatability.
-
-P162 sub-passo .D introduz a função; consumida em P162 .E pelo walk modificado.
-
----
-
-## Restrições Estruturais
-
-- Camada **L1**: função pura, sem efeitos secundários, sem I/O.
-- Sem alocação significativa: clones de `Option<String>` e `String` são aceitáveis (são pequenos e raros).
-- Match exaustivo (sem `_ => panic!`); fallback é `_ => None` para variantes não-locatable. Adicionar variant locatable nova exige edição explícita aqui.
-- Sem dependência em estado (não recebe `CounterStateLegacy` nem walk-context).
-
-## Mapeamento Content → ElementPayload (campos confirmados em P162 .A)
-
-| Content variant | Campos lidos | ElementPayload |
-|-----------------|--------------|----------------|
-| `Heading { level: u8, body: Box<Content> }` | `level`, `body` (para hash) | `Heading { depth: level, body_hash: hash_content(body), counter_update: CounterUpdate::Step }` |
-| `Figure { kind: Option<String>, numbering, caption, .. }` | `kind`, `numbering`, `caption` (P168: predicate `is_counted`) | `Figure { kind: kind.clone(), counter_update: CounterUpdate::Step, is_counted: numbering.is_some() && caption.is_some() }` |
-| `Cite { key: String, .. }` | `key` apenas (supplement/form irrelevantes para payload) | `Citation { key: key.clone() }` |
-| `Metadata { value }` | `value` (boxed) | `Metadata { value: value.clone() }` (P169 M9) |
-| `State { key, init }` | `key`, `init` (boxed) | `State { key: key.clone(), init: init.clone() }` (P171 M9) |
-| `StateUpdate { key, update }` | `key`, `update` (enum) | `StateUpdate { key: key.clone(), update: update.clone() }` (P171 M9) |
-| `SetHeadingNumbering { active }` | `active` (bool) | `StateUpdate { key: "numbering_active:heading", update: StateUpdate::Set(Box::new(Value::Bool(active))) }` (P182C; suporta lacuna #4 — convenção de chave `numbering_active:<feature>` estabelecida em P182B) |
-| `Outline` (unit) | — | `Outline` (P178) |
-| `Bibliography { entries, title }` | `entries` apenas (`title` ignorado — irrelevante para introspecção; Layouter consome via path separado) | `Bibliography { entries: entries.clone() }` (P181D; suporta plano P181 fechar lacuna #6) |
-| `Equation { body, block }` | `block` apenas (`body` ignorado — irrelevante para counter) | `Equation { block: *block, counter_update: CounterUpdate::Step }` (P186C; payload latente em estado intermédio — `is_locatable` activa em P186D, walk passa a invocar arm a partir desse momento) |
-| Outras (Text, Sequence, Math*, etc.) | — | `None` |
-
----
-
-## Interface pública
-
-```rust
-use crate::entities::content::Content;
-use crate::entities::element_payload::ElementPayload;
-
-pub fn extract_payload(content: &Content) -> Option<ElementPayload>;
+```text
 ```
 
----
+## Ownership and evidence
 
-## Semântica
+Layer: L1. Sole consumer: `01_core/src/compiler/introspect/extract_payload.rs`.
+The function at `:18` delegates to element-owned to_payload implementations;
+it ends in `_ => None`. The parent walk at
+`01_core/src/compiler/introspect.rs:1915` consumes its result before recursion.
+The current function is not compiler-exhaustive merely because its dispatch is
+static. The exhaustive classification owner is
+`00_nucleo/prompts/compiler/introspect/locatable.md`.
 
-- `extract_payload(c)` é determinístico — mesma entrada produz mesmo output.
-- `Some(...)` apenas para os 3 kinds em M1; expandir requer edição explícita.
-- Ordem dos arms no match não é semanticamente significativa (cada variante de Content é distinta).
+## Contract
 
----
+Preserve `pub fn extract_payload(content: &Content) -> Option<ElementPayload>`.
+It is pure, deterministic for the same modeled input, independent of counters,
+walk context, Locator and Engine. Cloning domain data is permitted; do not
+perform I/O, walk descendants or execute callbacks.
 
-## Invariantes
+Delegate directly to the native element for Strong, Emph, Heading, Figure,
+Cite, Metadata, State, StateUpdate, StateDisplay, CounterDisplayCallback,
+Outline, Bibliography, Equation, Table, Footnote, CounterUpdate and ContextBlock.
+Dynamic uses its existing dyn_to_payload boundary, not a new dispatch mechanism.
+All remaining variants return None in this dispatcher.
 
-- Função pura sem side-effects.
-- Não chama `walk` nem manipula `CounterStateLegacy`.
-- Hashing de body via `hash_content` é determinístico (ver `entities/content_hash.md`).
-- `_ => None` é literal — nenhum variant fora dos 3 documentados produz `Some`.
+Payload formulas and domain fields belong to their entity L0s, not to a
+duplicated table in this module. Effective lexical numbering/supplement/alt
+capture belongs to `00_nucleo/prompts/compiler/introspect.md`, after extraction.
+Do not invent payloads from bold/italic flags or descend through Styled:
+the child's normal walk discovers its own occurrence.
 
----
+## Acceptance and alignment boundary
 
-## Tests obrigatórios (sub-passo .D P162)
+Check native delegate equivalence, own Strong/Emph nodes including empty and
+nested bodies, and None for Text, Empty, both Space variants, Sequence and
+Styled. A new locatable producer requires an explicit coordinated review of
+classification, extraction and causal traversal.
 
-- Heading básico → `Some(ElementPayload::Heading { depth, body_hash, counter_update })`.
-- Figure básico → `Some(ElementPayload::Figure { kind, counter_update })`.
-- Cite básico → `Some(ElementPayload::Citation { key })`.
-- Text → `None`.
-- Empty / Space → `None`.
-
----
-
-## Consumers actuais
-
-Nenhum no momento da criação. Imediatamente consumido em P162 sub-passo .E.
-
-## Consumers planeados
-
-- `rules/introspect.rs` walk (P162 .E) — chama `extract_payload(content)` antes da mutação de estado, emite `Tag::Start` se `Some`.
-- `Introspector` em M3 — pode reusar para indexar elementos por kind.
-
----
-
-## Sobre paridade
-
-Vanilla usa marker trait `Locatable` + proc-macro `#[elem(Locatable)]` em `HeadingElem`, `FigureElem`, `CiteElem`. A "extracção" do payload é feita pelo Introspector via `Content::elem()` + `vtable::field()` calls. Cristalino: match exaustivo top-level — sem vtable, sem trait markers per element.
-
-Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-30) §3 para classificação de marker traits vanilla como vtable-driven (scope-out cristalino).
-
----
-
-## Resultado Esperado
-
-- `01_core/src/compiler/introspect/extract_payload.rs` — função + 5 tests unitários.
-- `01_core/src/compiler/introspect/mod.rs` (criado neste passo) — re-export `extract_payload`.
-
----
-
-## P1339 — roteamento estático de Strong/Emph
-
-### Medição anterior à decisão
-
-HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`:
-`compiler/introspect/extract_payload.rs:20-94` delega payloads ao Element
-proprietário; Strong/Emph caem em None. `compiler/introspect.rs:1278`
-condiciona a ocorrência ao resultado desta função. A medição histórica fixa a aceitação
-vanilla de query/counter dessas famílias, antes desta decisão.
-
-### Decisão
-
-Adicionar somente braços `Content::Strong(e) => e.to_payload()` e
-`Content::Emph(e) => e.to_payload()`. O payload unit vem dos owners
-`entities/elements/strong.md` e `entities/elements/emph.md`, não de uma
-segunda fórmula neste dispatcher. Styled, Text, Sequence e demais braços
-preservam a classificação anterior. Não descer em Styled para extrair o
-payload do filho: isso duplicaria sua Location na descida normal do walk.
-Não fabricar payload a partir de bold/italic ou flags históricas de show.
-
-Aceitação: presença de payload coincide com is_locatable para os dois nós,
-inclusive body vazio/aninhado; Styled envolvendo Strong continua sem
-payload próprio e a recursão descobre somente o nó real. Nenhuma assinatura
-pública, Kind ou fase é alterada. As tabelas M1 acima são históricas e não
-limitam os braços posteriores já materializados.
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-04-30 | P162 sub-passo .D: função pura Content→ElementPayload para introspecção M1 | `extract_payload.rs`, `extract_payload.md`, `rules/introspect/mod.rs` |
-| 2026-05-01 | P181D: arm `Content::Bibliography { entries, .. } => Some(ElementPayload::Bibliography { entries: entries.clone() })` adicionado | `extract_payload.rs`, `extract_payload.md` |
-| 2026-05-02 | P182C: arm `Content::SetHeadingNumbering { active } => Some(ElementPayload::StateUpdate { key: "numbering_active:heading".to_string(), update: StateUpdate::Set(Box::new(Value::Bool(*active))) })` adicionado. Reusa infra P171/P173 — sem novo `ElementPayload` variant. | `extract_payload.rs`, `extract_payload.md` |
-| 2026-05-03 | P186C: arm `Content::Equation { block, .. } => Some(ElementPayload::Equation { block: *block, counter_update: CounterUpdate::Step })` adicionado. **Ordem invertida** face à spec original (era P186D após `is_locatable` activar) para preservar invariante de sincronização-por-construção da ADR-0068: arm latente enquanto `is_locatable=false`; walk não invoca o arm; sem dessincronização Locator. P186D activa `is_locatable` e walk passa a chamar o arm imediatamente. | `extract_payload.rs`, `extract_payload.md` |
+The intended classification/extraction alignment is not proven universal:
+OutlineEntry is classified true but falls through this dispatcher, while its
+queriable entries are synthesized after the walk. This observed discrepancy is
+recorded in `00_nucleo/diagnosticos/sanitization-introspection-columns-history.md`.
+Do not silently add an arm, fabricate payloads or remove its classification
+under this documentation-only contract.

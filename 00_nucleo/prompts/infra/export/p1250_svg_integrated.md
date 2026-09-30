@@ -1,18 +1,31 @@
-# Prompt L0 — integração funcional SVG P1250
-Hash do Código: 561153f6
+# L0 — infra/export/p1250_svg_integrated
+Hash do Código: d64d3985
 
-**Camada:** L3 — teste de integração
-**Ficheiro alvo:** `03_infra/tests/p1250_svg_integrated.rs`
+**Layer:** L3 (test-only)
+**Exclusive consumer:** `03_infra/tests/p1250_svg_integrated.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0126, ADR-0127, ADR-0128, ADR-0129, ADR-0130
 
-## Contrato
+## Consumer evidence
 
-O teste constrói um corpus pequeno que combina tiling, clips, destinos,
-imagens, glifos, gradientes e strokes. Deve verificar:
+`03_infra/tests/p1250_svg_integrated.rs:29` identifies the current exclusive consumer. The clauses below
+are checked against that source and its delegated calls. They specify current
+export observables and ownership, not full upstream byte or algorithm equality.
 
-- referências locais sem IDs duplicados nem alvos ausentes;
-- geometria, transformações e clips observáveis;
-- alpha, payloads visíveis e fallback de destino desconhecido;
-- coexistência de glyph, paint, pattern, clip e destino sem captura de IDs.
+## SVG integration harness
 
-O teste não valida catálogos de mutantes, percentuais, confirmações, registros ou bytes
-congelados de um benchmark.
+Own the existing small integration corpus combining tiling, clips, destinations,
+images, glyphs, gradients and strokes. Preserve logical_number:1 in synthetic
+pages under `00_nucleo/prompts/entities/layout_types.md`; SVG visual oracles do
+not derive their geometry from that PDF logical number.
+
+Check unique local IDs and resolved references, supplied geometry/transforms/
+clips, visible alpha/payload and unknown-destination fallback. Exercise coexistence
+of glyph/paint/pattern/clip/destination graphs without identity capture.
+Productive behavior is specified by the individual
+`00_nucleo/prompts/infra/export/svg/` owners, not a second contract here.
+
+## Verification
+
+Use the existing independent small visual/graph corpus. Do not validate mutant
+catalogs, historical percentages, approval records or frozen benchmark bytes as
+language parity.

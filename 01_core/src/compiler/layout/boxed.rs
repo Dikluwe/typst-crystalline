@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/boxed.md
-//! @prompt-hash 71023ebf
+//! @prompt-hash dc195a82
 //! @layer L1
-//! @updated 2026-06-18
+//! @updated 2026-09-29
 //!
 //! Atomização (ADR-0109, P376): o layout de `Boxed` (Box inline) movido do
 //! monólito `layout_content` para o arquivo da feature. Content-preserving —
@@ -203,6 +203,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
     let body_has_text_baseline = frame_items_have_text_baseline(&body_items);
     layouter.regions.current.current_line.extend(body_items);
+    layouter.text_tracking_state.interrupt();
     let fraction_insert_at =
         width_fraction.map(|_| layouter.regions.current.current_line.len());
 
@@ -387,7 +388,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 fn offset_items(items: &mut [FrameItem], dx: f64, dy: f64) {
     for item in items {
         match item {
-            FrameItem::Text { pos, .. }
+            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
             | FrameItem::TextShaped { pos, .. }
             | FrameItem::Glyph { pos, .. }
             | FrameItem::Shape { pos, .. }
@@ -407,7 +408,7 @@ fn offset_items(items: &mut [FrameItem], dx: f64, dy: f64) {
                 pos.y = Pt(pos.y.0 + dy);
                 offset_items(items, dx, dy);
             }
-            FrameItem::Semantic { items, .. } => offset_items(items, dx, dy),
+            FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => offset_items(items, dx, dy),
         }
     }
 }
@@ -417,7 +418,7 @@ fn frame_items_have_text_baseline(items: &[FrameItem]) -> bool {
         FrameItem::Text { .. }
         | FrameItem::TextShaped { .. }
         | FrameItem::Glyph { .. } => true,
-        FrameItem::Group { items, .. } | FrameItem::Semantic { items, .. } => {
+        FrameItem::Group { items, .. } | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
             frame_items_have_text_baseline(items)
         }
         _ => false,

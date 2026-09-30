@@ -1,48 +1,17 @@
-# Prompt L0 — `stdlib/foundations/regex` — construtor `regex`
+# L0 — stdlib/foundations/regex
 Hash do Código: f6e6f18f
 
-**Camada**: L1  
-**Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/regex_constructor.rs`  
-**Origem**: P1140.1-A — atomização behavior-preserving de `str.rs`  
-**ADRs**: ADR-0107, ADR-0109
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/stdlib/foundations/regex_constructor.rs`
 
-## Contrato
+## Evidence and classification
 
-`native_regex(pattern: str) -> regex` compila o padrão e devolve
-`Value::Regex`. Rejeita named args, aridade diferente de um, valor não-string e
-padrão inválido com as mesmas mensagens vigentes antes da atomização.
+`01_core/src/compiler/stdlib/foundations/regex_constructor.rs:16` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-O módulo contém o construtor e seus testes; não contém métodos de instância de
-string nem lógica de eval. `foundations/mod.rs` reexporta a função pelo mesmo
-path público Rust anterior.
+## Contract and ownership
 
-## Critérios
+Own native_regex and its local tests, not string instance methods or evaluation dispatch. Require exactly one positional Str and no named arguments. Compile eagerly through the L1 Regex entity, returning Value::Regex; reject invalid patterns, wrong types/arity and named arguments with the existing exact diagnostics, including the regex engine's error text. Preserve pure execution without a global mutable cache, new engine options or public signature changes. The global binding's established Type::Regex identity and dispatch linkage are supplied by their registry/call owners; do not revert it to a function binding.
 
-```text
-regex("a+")         -> Value::Regex
-regex("[")          -> Err
-regex(1)            -> Err
-regex("a", foo: 1) -> Err
-```
+## Acceptance
 
-Mover para este ficheiro não altera nenhum observável nem transforma ainda o
-binding global de `function` em `type`; essa mudança pertence à fase semântica
-P1140.1-B e ao gate ADR-0127.
-
-
-## P1140.1-B — medição anterior à decisão (2026-08-23)
-
-No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
-cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
-os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
-medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
-`tiling` e `version`. Os construtores atuais foram novamente executados após
-a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
-baseline estrutural. Esta é divergência de semântica pública da linguagem,
-não de mecânica Rust (ADR-0107).
-
-## P1140.1-B — binding de tipo
-
-O binding global `regex` passa a `Value::Type(Type::Regex)` e sua chamada
-delega a `native_regex` desta unidade. Compilação, erros e resultado permanecem
-os mesmos; somente `repr(type(regex))` muda de `"function"` para `"type"`.
+Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaults and public identities, with no productive-code change. Preserve pinned shared claims and the exclusive owner boundary under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130. Historical evidence does not establish parity against a newer snapshot.

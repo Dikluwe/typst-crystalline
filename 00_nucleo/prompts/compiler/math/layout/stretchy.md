@@ -1,236 +1,45 @@
-# Prompt L0 — `math/layout/stretchy` — operadores extensíveis
+# L0 — math/layout/stretchy
+
 Hash do Código: c2394720
 
-**Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/stretchy.rs`
-**Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
-partilhado: ver `math/layout/_comum.md`.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/math/layout/stretchy.rs`
 
----
+## Consumer evidence
 
-Operadores extensíveis. Consome `GlyphVariants` via
-`self.metrics.vertical_glyph_variants(c)` com `.select(min_advance)`
-(P255 §2 item 2; `stretchy.rs:22`).
+`01_core/src/compiler/math/layout/stretchy.rs:21` locates `fn apply_delim_short_fall(target_du: f64, upem: f64) -> f64`.
+This audit locates the existing consumer; it does not establish language parity.
+Historical evidence and unresolved discrepancies are archived in
+`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
 
-**Critério**: `stretchy.rs` selecciona variant via `select(min_advance)`.
+## Font-derived variant selection
 
-## P906 — `layout_stretchy_glyph_horizontal` (esticamento no eixo X)
+Own vertical and horizontal stretch selection/emission, not part assembly.
+Consume the active style's GlyphVariants, GlyphAssembly and FontMetrics.
+Keep axis-specific implementations: vertical geometry centers ink on the
+math axis; horizontal geometry remains baseline-anchored.
 
-Ver `compiler/layout.md` §P906 (contexto, dados da fonte, decisão de design).
+Ordinary vertical delimiters use target minus 0.1em, floored at zero.
+Radicals and explicit stretch use zero shortfall. Horizontal callers supply
+their own shortfall: accents 0.5em, spreaders and explicit stretch zero.
+Do not replace these distinct policies with one shared constant.
 
-Segundo método em `stretchy.rs`, espelhando `layout_stretchy_delimiter` — mesmo algoritmo
-(variante única via `select_with_advance`; se insuficiente, `horizontal_glyph_assembly` via
-`layout_assembly_horizontal`, ver `assembly.md` §P906; sem variantes nem assembly, fallback ao
-glifo base via `layout_text_node`), só troca `vertical_glyph_variants`/`vertical_glyph_assembly`
-por `horizontal_glyph_variants`/`horizontal_glyph_assembly` e `min_height_du` por `min_width_du`.
-Adicionado ao mesmo ficheiro (não um ficheiro novo) — é a mesma unidade conceptual
-("esticar um glifo extensível"), só o eixo muda; ADR-0109 não exige separação por eixo.
+Horizontal selection keeps the base if the short target fits its shaped/hmtx
+advance, not its MATH variant AdvanceMeasurement. Otherwise choose a sufficient
+variant; if none, assemble when possible; without assembly retain the largest
+available variant, then fall back to the base if none exists.
+Preserve the vertical selection/fallback route separately rather than
+assuming horizontal symmetry.
 
-```rust
-pub(super) fn layout_stretchy_glyph_horizontal(
-    &self,
-    c: char,
-    min_width_du: f64,
-    style: &TextStyle,
-) -> MathBox
-```
+Glyph horizontal width/x_advance uses hor_advance, never the stretch-axis
+advance. An unmapped vertical variant uses actual ink bounds for centering:
+`shift_y=(ink_up-ink_down)/2-axis`, with extents around that axis.
+Retain the base glyph's applicable italics correction in its logical advance.
+Horizontal glyph extents use signed ink bounds, not global font ascent or
+clamped positive-only values; lower spreader ink may have negative ascent.
+A mapped-character path remains distinct from explicit glyph emission.
 
-**Chamador**: `layout_underover`/`layout_accent` (`math/layout/mod.rs`) — ver `_comum.md` §P906.
-`min_width_du` = largura da base convertida para design units (`base_box.width * upem /
-style.size.val()`), mesma conversão já usada em `layout_root` para `min_height_du`.
-
-**Critério**: para um char com dados horizontais na fonte (`⏟`/`⏞`/`⎵`/`⎴`/`hat`/`tilde`
-combinantes), `layout_stretchy_glyph_horizontal(c, min_width_du, style).width >= min_width_du`
-convertido para pt (dentro da tolerância normal de granularidade discreta de variantes/assembly);
-para um char sem dados horizontais, comportamento idêntico ao `layout_node` anterior (fallback
-`layout_text_node`, sem regressão).
-
-## P912 — Subtração de DELIM_SHORT_FALL (0.1em)
-
-Tanto em `layout_stretchy_delimiter` como em `layout_stretchy_glyph_horizontal`, subtrai-se
-`DELIM_SHORT_FALL = 0.1em` (`0.1 * upem` em design units) da dimensão alvo antes de consultar
-`variants.select_with_advance(target_du)`. Esto permite que uma variante ligeiramente menor
-que a dimensão estrita seja selecionada se estiver dentro do raio de 0.1em.
-
-## P918 — só a subtração de `DELIM_SHORT_FALL` é duplicação real; o resto NÃO se unifica
-
-**Achado** (P918 Fase A, leitura directa dos dois corpos — revisão de uma primeira leitura mais
-grosseira que os tinha marcado como "quase idênticos"): as duas linhas do bloco P912 acima
-(`short_fall_du = 0.1 * upem`; `target_du = (min_*_du - short_fall_du).max(0.0)`) são idênticas
-byte-a-byte nos dois métodos e foram extraídas para uma função privada local
-`apply_delim_short_fall(target_du: f64, upem: f64) -> f64`. **O resto dos dois métodos NÃO foi
-unificado** — divergem de propósito, não por descuido: `layout_stretchy_delimiter` centra a
-caixa em `axis_height` (`shift_y`, ver P914 abaixo), `layout_stretchy_glyph_horizontal` assenta
-na baseline normal via `vertical_metrics` (sem `shift_y`). Forçar uma função partilhada para o
-resto teria exigido esconder essa diferença atrás de parâmetros/closures — exactamente o risco
-que a ADR-0123 nomeia (confundir duas convenções geométricas por semelhança superficial de
-estrutura de controlo). Mantidos como dois métodos completos, só as 2 linhas comprovadamente
-idênticas são partilhadas.
-
----
-
-## P914 — Centralização no Eixo Matemático (`axis_height`)
-
-Em `layout_stretchy_delimiter`:
-- O `MathBox` do delimitador tem seu `ascent` e `descent` ajustados em torno de `axis_height`: `ascent = axis_pt + height / 2`, `descent = height / 2 - axis_pt`.
-- O glifo do delimitador vertical (variante ou montagem) é deslocado por `shift_y = axis_pt - height / 2`, alinhando perfeitamente o centro do delimitador com o eixo matemático.
-
-## P917 — `x_advance`/largura da caixa usa `hor_advance`, nunca `advance_du`
-
-**Achado (medido, não hipótese)**: instrumentação directa (`eprintln!`, revertida) com a fonte
-real do pipeline (`NewCMMath-Regular.otf`, embutida via `typst_assets`) nos 4 casos fixos de
-P911/P916 confirmou que `vertical_glyph_variants` não é vazia e `select_with_advance` escolhe a
-variante correcta e crescente com o conteúdo (`(1/2)` → advance 1793; `(1/2/3/4)` → 2991,
-tecto das 8 variantes) — as três hipóteses do L0 antigo de P917 (lista vazia, fórmula do alvo,
-ordem variante-vs-assembly) **não se confirmaram**. A causa real: no ramo "sem mapeamento —
-emitir como Glyph" de `layout_stretchy_delimiter`, `x_advance` era computado como
-`style.size * (advance_du / upem)` — `advance_du` é `GlyphVariant.advance`, a medida ao longo
-do eixo de esticamento (**altura**, para construções verticais), reaproveitada como avanço
-**horizontal**. Confirmado quantitativamente contra `fontTools`/`hmtx` na fonte real: para
-`parenleft.v4` (variante seleccionada em `(1/2)`), `advance` = 1793 du (→ 19.72pt a 11pt, usado
-antes) vs. `hor_advance` real = 597 du (→ 6.57pt) — o valor correcto, confirmado também pelo
-`/Widths` da fonte embutida no PDF exportado (`mutool trace` → `adv=".597"`). O bug não afecta
-QUAL glifo é desenhado (a selecção sempre esteve correcta) — afecta só o espaço horizontal
-reservado para ele, criando um gap grande a seguir a cada delimitador esticado.
-
-**Correcção**: `x_advance` (e `MathBox.width`) no ramo "emitir como Glyph" usa
-`GlyphVariant.hor_advance` (avanço nativo do glifo, `entities/glyph_variants.md` §P917), nunca
-`advance`/`advance_du`. `advance_du` continua a ser usado **só** para `height_pt`/`ascent`/
-`descent`/`shift_y` (eixo vertical, correcto) e para o argumento de `select_with_advance`
-(decisão de qual variante é grande o suficiente) — nada nesses usos muda.
-
-```rust
-if let Some(variant) = variants.select_variant(target_du) {
-    // variant: &GlyphVariant — select_variant substitui select_with_advance quando o
-    // caller precisa de hor_advance além de (glyph_id, advance); ver entities/glyph_variants.md.
-    let height_pt = style.size.val() * (variant.advance / self.constants.upem);
-    // ...ascent/descent/shift_y inalterados, a partir de height_pt...
-    let x_advance = style.size * (variant.hor_advance / self.constants.upem);
-    // MathBox.width = x_advance.val() — não advance_du
-}
-```
-
-**Critério**: para `(1/2)` com a fonte de produção, `layout_stretchy_delimiter('(', ...).width`
-aproxima-se do `hor_advance` nativo da variante seleccionada (dentro de arredondamento de
-ponto flutuante), nunca da sua `advance` (medida de altura) — teste com métricas reais
-(`fontTools` como oráculo), não `FixedMetrics`/stub sem dados de `hor_advance`.
-
-`layout_stretchy_glyph_horizontal` (P906, eixo X) recebe a mesma correcção por uniformidade
-(ver `infra/font_metrics.md` §P917) — ainda que o desvio numérico seja tipicamente pequeno
-nesse eixo, a fonte de verdade passa a ser sempre `hor_advance`, nunca a medida do eixo de
-esticamento, em ambos os métodos deste ficheiro.
-
-## P984 — eixo X com paridade vanilla: short_fall por chamador, keep-base, keep-largest
-
-**Medição** (achado §7.1 da auditoria 2026-08-06; série `temp/p984/series-v.pdf` vs
-`series-c.pdf`, fonte NewCMMath-Book, 11pt): `hat(x)` vanilla = **5.50pt** (glifo
-BASE, advance hmtx 500du) vs cristalino = 7.08pt (variante `.h1`, 647du —
-sobre-esticado); `hat(a+b)` vanilla = **20.86pt** (maior variante `.h7`, 1897du) vs
-cristalino = 5.50pt (fallback ao base — sub-esticado). Dados da fonte (ttx):
-variantes horizontais de `circumflexcmb` = 307/647/771/922/1103/1323/1584/1897du
-(`AdvanceMeasurement`; o índice 0 é o próprio base), **sem assembly**; hmtx do
-base = 500du (≠ `AdvanceMeasurement` 307du!).
-
-**Leitura do vanilla** (`fragment/glyph.rs:265-300` `stretch()`;
-`math/accent.rs:18`; `ir/resolve.rs:389` e `:1430`):
-
-1. `short_target = target − short_fall`, e o short_fall **depende do chamador**:
-   acentos (`hat`/`tilde`/…) = `ACCENT_SHORT_FALL = 0.5em`
-   (`math/accent.rs:18`, aplicado em `resolve.rs:389`); spreaders
-   (`underbrace`/`overbrace`/…) = `Em::zero()` (`resolve.rs:1430`). O eixo
-   vertical fica inalterado: delimitadores 0.1em (P912), radical 0 (P974).
-2. Se `short_target ≤ advance hmtx do glifo base` → **mantém o base** (não
-   estica — `glyph.rs:267-271`). O advance de comparação é o shaped/hmtx
-   (500du para o hat), NÃO o `AdvanceMeasurement` da tabela MATH (307du) — era
-   esta confusão que fazia o cristalino sobre-esticar bases estreitas.
-3. Se nenhuma variante chega a `short_target` e **não há assembly** → fica com
-   a **maior variante** (o loop do vanilla fica sempre com a última —
-   `glyph.rs:278-298`), não com o base. Só sem variantes nenhumas há fallback
-   ao glifo base.
-
-**Correcção** em `layout_stretchy_glyph_horizontal`: novo parâmetro
-`short_fall_em: f64` (acentos passam 0.5 via `accent.rs` §P984; spreaders 0.0
-via `underover.rs`/`mod.rs` `layout_stretchy_or_node`); keep-base compara
-`short_target` com `metrics.advance()` do char convertido a design units;
-keep-largest usa `variants.variants.last()` quando `select_variant` falha e o
-assembly está vazio. Assinatura `pub(super)` interna — não é contrato público
-(fluxo contínuo, ADR-0127).
-
-**Critério**: com dados NewCMMath do hat (variantes 307/647/771du, base
-500du hmtx, upem 1000): base estreita (`short_target ≤ 500du`) → glifo base;
-`short_target` entre variantes → primeira suficiente; alvo acima de todas sem
-assembly → maior variante (nunca o base).
-
-## P952b — variante de delimitador centrada pela tinta real, não por metade simétrica
-
-**Medição** (`typst-passo-952`, teste de guarda P945 2×2 a falhar após a
-correcção de ancoragem da grelha): o caminho de variante de
-`layout_stretchy_delimiter` assumia tinta simétrica na variante
-(`half_h = advance/2` acima e abaixo da baseline do glifo), mas a tinta real
-das variantes de NewCMMath é assimétrica (`parenleft.v4`: 1146du acima vs
-646du abaixo). A grelha (agora ancorada como o vanilla, `_comum.md` §P952b)
-ficava a descoberto em baixo. O vanilla usa as métricas reais da variante
-(`update_glyph` → bbox real) e centra a tinta no eixo (`center_on_axis`:
-`baseline = h/2 + axis`, `table.rs:186-188`).
-
-**Correcção**: novo método `FontMetrics::glyph_ink_bounds(glyph_id, size,
-style) -> (Pt, Pt)` (acima/abaixo da baseline, em pt — `infra/font_metrics.md`
-§P952b; default `cap_height`/0 para compatibilidade). O braço `Glyph` do
-caminho de variante passa a usar a tinta real:
-`shift_y = (up − down)/2 − axis_pt`, `ascent = (up+down)/2 + axis_pt`,
-`descent = (up+down)/2 − axis_pt` — o centro da tinta aterra no eixo, como o
-vanilla. O braço com mapeamento Unicode (`layout_text_node`) mantém a
-convenção anterior (o shaper renderiza o glifo base; limitação registada).
-Assemblies não são afectadas (peças NewCMMath têm `yMin = 0` — validado em
-P949).
-
-## P985 — `emit_horizontal_variant` com ascent/descent da tinta real
-
-**Medição**: ver `underover.md` §P985 — a caixa da variante horizontal usava
-`vertical_metrics` da fonte (ascent 0.8em, descent 0); a tinta real de ⏟ está
-toda abaixo da baseline (y −353..−109du) e a de ⏞ toda acima (+539..+783du),
-NewCMMath-Book via fontTools.
-
-**Correcção**: `emit_horizontal_variant` obtém `(ink_up, ink_down)` de
-`FontMetrics::glyph_ink_bounds(glyph_id, size, style)` (método introduzido em
-P952b para o eixo vertical) e usa `ascent = ink_up`, `descent = ink_down`.
-**Os valores vêm COM SINAL da L3** (`up = y_max·scale`, negativo para ⏟;
-`down = −y_min·scale`, negativo para ⏞) — paridade com o fragmento do
-vanilla, e necessário para que `layout_accent` obtenha
-`height() = y_max − y_min` (altura de tinta real) de acentos esticados que
-flutuam acima da baseline. Consumidores que precisam de distância
-não-negativa fazem `max(0, …)` no próprio site (é o caso da peça de baixo em
-`underover.rs`, ver `underover.md` §P985). Afecta acentos esticados e
-spreaders — ambos mais próximos do vanilla, que mede sempre o fragmento pelo
-bbox real do glifo (`update_glyph`).
-
-## P1132l — italics correction do delimitador-base não extensível
-
-**Medição antes da decisão** (secção 12, working tree não commitado,
-2026-08-22): na segunda equação, o cristalino mede `E[X]` `0.066pt`
-mais estreito; relativamente ao início da equação, o primeiro `X` fica
-`0.066pt` antes do vanilla. A tabela MATH de NewCMMath-Book declara
-`ItalicsCorrection=6du` para `bracketleft`, isto é `6×11/1000=0.066pt`.
-No vanilla, `GlyphFragment::update_glyph` soma IC ao `x_advance` quando
-`!extended_shape`. O cristalino emite o gid-base do colchete pelo braço
-`FrameItem::Glyph`, mas usava apenas `hor_advance`.
-
-**Decisão**: ao emitir uma variante vertical sem cmap, compara o gid escolhido
-com o primeiro gid da construção. Se forem iguais (glifo-base, não uma
-variante estendida), soma dinamicamente
-`FontMetrics::char_italics_correction(base_char, size, style)` ao advance e
-à largura. Variantes posteriores/assemblies não recebem IC, espelhando
-`!extended_shape`. Nenhuma constante do corpus entra no layout.
-## P1446 — aplicação pública de stretch (PROPOSTA; gate ADR-0127)
-
-Fornecer a primitiva usada pela feature `MathStretch`: resolver o body
-natural, identificar o único eixo extensível do glifo e aplicar
-`target = size.rel × dimensão-de-referência + size.abs(font-size)`, com
-short-fall zero. A dimensão de referência inclui a dimensão máxima do glifo e
-attachments conforme o observável vanilla. Preservar keep-base, seleção de
-variante, keep-largest/assembly e métricas de tinta já especificados neste
-owner; nunca simular stretch por escala contínua.
-
-Se o body não resultar num glifo extensível, conservar o fallback natural e
-o diagnóstico observável aplicável. Casos com ambos os eixos declarados ou
-attachments divergentes do pin exigem witness e não podem ser decididos por
-conveniência mecânica.
+Delegate repeated parts to `00_nucleo/prompts/compiler/math/layout/assembly.md`.
+Acceptance discriminates keep-base, sufficient/largest variant, assembly,
+axis advance versus horizontal advance, signed ink and shortfall policies.
+Do not treat fallback approximations as proof of universal font parity.

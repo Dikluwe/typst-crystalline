@@ -1,229 +1,66 @@
-# Prompt L0 — `infra/export/mod` — fachada pública dos exporters
-Hash do Código: 3ff8a8e7
+# L0 — infra/export/mod
+Hash do Código: cf09a98c
 
-**Camada**: L3
-**Ficheiro alvo**: `03_infra/src/export/mod.rs`
-**Criado em**: 2026-05-19 (P307c)
-**ADRs**: ADR-0027 (CIDFont), ADR-0033 (paridade observable), ADR-0055 (multifont), ADR-0098 (SSoT), ADR-0100 (coesão L3), ADR-0128 (target HTML), ADR-0129 (ownership 1:1)
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/export/mod.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0126, ADR-0127, ADR-0128, ADR-0129, ADR-0130
 
----
+## Consumer evidence
 
-## Contexto
+`03_infra/src/export/mod.rs:196` identifies the current exclusive consumer. The clauses below
+are checked against that source and its delegated calls. They specify current
+export observables and ownership, not full upstream byte or algorithm equality.
 
-Sucessor de `00_nucleo/prompts/infra/export.md` (umbrella pré-P307).
-P307b decompôs `export.rs` em `export/` subdirectório com 6 submódulos.
-Este L0 cobre apenas o `mod.rs` — fachada pública dos exporters +
-dispatch PDF para `PdfBuilder`. A semântica de cada exporter permanece no
-owner do respetivo submódulo.
+## Public exporter façade
 
-## Restrições estruturais
+Own the public PDF option enums, compatibility reexports, and the existing PDF,
+PNG, SVG and HTML API surface. Preserve every current signature and parameter
+order, including document IDs, timing variants and explicit tags/serialization/
+pages/standard variants. Do not restore obsolete signatures without StreamMode.
 
-- Camada L3. Não L1: pode usar I/O em sub-helpers (via flate2, ttf-parser).
-- API pública mantém 3 entry points: `export_pdf`, `export_pdf_with_font`, `export_pdf_multifont`.
-- Dispatch para `PdfBuilder` em `builder.rs`. mod.rs **não** contém lógica de emit.
-- Reexporta `PdfImagePayload` e `process_png_for_pdf` (consumidos por outras crates do workspace via `crate::export::*`).
+StreamMode defaults to Verbose; Compact remains the explicit optional graphics
+mode under ADR-0126. PdfTags defaults to Enabled. PdfSerializationMode defaults
+to Compact; Pretty is an independent physical-serialization option. Conveniences
+supply Enabled, Compact, no page selection and PdfStandards::default() (PDF 1.7,
+no archival/accessibility profile) when their corresponding axes are omitted.
+Pass resolved PageRanges and PdfStandards through without interpreting CLI flags,
+feature gates, profile compatibility or upstream tagging-selection policy.
 
-## Interface
+The font-bearing families use FontList/FontVariant/FontVariations identity.
+Single-font entrypoints pass bytes to PdfBuilder; multifont entrypoints parse every
+face and use the existing Helvetica fallback for an empty collection or any failed
+face parse. Timing variants return the existing subset timing; non-timing variants
+discard it. Preserve the external 16-byte document-ID option. Standard-specific
+emission belongs to the builder descendants, including identification, output intent and tagged structure as well as the header.
 
-```rust
-pub fn export_pdf(doc: &PagedDocument) -> Vec<u8>;
-pub fn export_pdf_with_font(doc: &PagedDocument, font_data: &[u8]) -> Vec<u8>;
-pub fn export_pdf_multifont(doc: &PagedDocument, fonts: &[(FontList, Vec<u8>)]) -> Vec<u8>;
+The oracle entrypoints explicitly enable the diagnostic path. Keep their existing
+single versus multifont routing, including the variable-font/merged-axis condition,
+and ordinary defaults for axes not present in their signatures. Ordinary entrypoints
+do not enable oracle transformations.
 
-// P870 — exportação PNG/SVG
-pub fn export_png(page: &Page, opts: &RenderOptions) -> Vec<u8>;
-pub fn export_png_with_fonts(
-    page: &Page,
-    opts: &RenderOptions,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
-) -> Vec<u8>;
-pub fn export_svg(page: &Page, opts: &SvgOptions) -> String;
-pub fn export_svg_with_fonts(
-    page: &Page,
-    opts: &SvgOptions,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
-) -> String;
-pub use self::images::{PdfImagePayload, process_png_for_pdf};
-pub use self::render::{RenderOptions, render_page_to_png, render_document_to_png};
-pub use self::svg::{SvgOptions, export_svg};
-pub use self::html::{export_html, export_html_with_serialization, HtmlSerializationMode};
-```
+PNG wrappers delegate to raster. SVG and HTML use direct reexports rather than
+parallel encoders; HTML remains the separate semantic target defined by ADR-0128.
+Keep test-only helper reexports restricted to tests. No document layout, filesystem
+routing, output validation or encoding algorithm belongs in this façade.
 
-## Submódulos declarados
+## Delegation
 
-```text
-mod builder;     // PdfBuilder + build_helvetica/cidfont/multifont
-mod fonts;       // CIDFont helpers + escape_pdf_string + collect_text_codepoints (P568)
-mod gradients;   // gradient cluster (sub-decomposto P307b.2)
-mod images;      // JPEG/PNG/XObject
-mod html;        // exporter HTML semântico; permanece privado atrás desta fachada
-mod stream;      // PageContext + emit
-mod render;      // P870 — rasterização PNG
-mod svg;         // P870 — exportação SVG
-```
+- `00_nucleo/prompts/infra/export/builder.md`: PDF orchestration.
+- `00_nucleo/prompts/infra/export/stream.md`: borrowed PDF emission context.
+- `00_nucleo/prompts/infra/export/fonts.md`: font/Unicode helpers.
+- `00_nucleo/prompts/infra/export/font_subset.md`: subset adapter.
+- `00_nucleo/prompts/infra/export/images.md`: PDF image façade.
+- `00_nucleo/prompts/infra/export/gradients/mod.md`: gradient discovery.
+- `00_nucleo/prompts/infra/export/render.md`: raster.
+- `00_nucleo/prompts/infra/export/svg.md`: SVG.
+- `00_nucleo/prompts/infra/export/html.md`: HTML.
+- `00_nucleo/prompts/infra/export/oracle.md`: diagnostic transformation.
+- `00_nucleo/prompts/infra/export/pdf_defaults.md`: shared constants.
+- `00_nucleo/prompts/infra/export/tests/mod.md`: PDF regression aggregation.
 
-## Não-objectivos
+## Verification
 
-- Não conhece formatadores user-facing (vive em L2).
-- Não conhece world/filesystem (vive em pipeline.rs).
-- Não decide dispatch baseado em conteúdo do doc — caller decide via fonts.
-
-## Critérios de verificação
-
-`compile_to_pdf_bytes(world, source)` em `pipeline.rs` despacha para:
-- `export_pdf(doc)` se `fonts.len() == 0`
-- `export_pdf_with_font(doc, bytes)` se `fonts.len() == 1`
-- `export_pdf_multifont(doc, &fonts)` se `fonts.len() >= 2`
-
-## P836 — assinaturas multifont com variações
-
-As funções `export_pdf_multifont*` passam a receber
-`&[((FontList, FontVariant, FontVariations), Vec<u8>)]` — a chave
-inclui as variações explícitas (P836), propagadas da pipeline para que
-runs com `variations:` distintas partilhem apenas o que for idêntico.
-
-
-## P956 — `StreamMode` público + assinaturas com modo explícito
-
-ADR-0126 (emendada P956): o exporter ganha o tipo público
-
-```rust
-pub enum StreamMode { Verbose, Compact }
-impl Default for StreamMode { /* Verbose */ }
-```
-
-- **`Verbose`** = modo vanilla-espelhado, novo padrão de produção
-  (`stream.md` §P956). **`Compact`** = formato Passo 20 (actual), preservado
-  para a flag `--compact`.
-- As três entry points PDF ganham `stream_mode: StreamMode` como **último
-  parâmetro**: `export_pdf(doc, stream_mode)`, `export_pdf_with_font(doc,
-  font_data, stream_mode)`, `export_pdf_multifont(doc, fonts, stream_mode)`.
-  **Quebra de assinatura deliberada** (precedente P113): o compilador força
-  cada caller — produção e testes — a declarar o modo; nenhum consumidor fica
-  ambíguo sobre o formato que espera (regra da Fase B.3 de P956).
-- O modo é propagado ao `PdfBuilder` e aos `PageContext` (`builder.md` §P956).
-  PNG/SVG (`export_png*`, `export_svg*`) **inalterados** — não emitem content
-  streams PDF.
-
-## P1140.5-A — fronteira semântica, sem tagging prematuro
-
-### Medição antes da decisão
-
-Vanilla default é tagueado; `--no-pdf-tags` desliga tags. O cristalino não
-expõe opção de tagging nem estrutura semântica no builder.
-
-### Decisão
-
-As APIs existentes aceitam `FrameItem::Semantic` e preservam-no até o
-exportador. P1140.5 não muda assinaturas nem mistura isso com `StreamMode`.
-PDF visual permanece válido mas ainda `Tagged: no`; P1140.6 será o dono de
-opção/padrão, structure tree e conformidade PDF/UA.
-
-## P1140.6 — configuração pública de tagging PDF
-
-### Medição antes da decisão
-
-O vanilla ratificado gera PDF tagueado por defeito e `--no-pdf-tags` remove a
-estrutura. A API cristalina só recebe `StreamMode`; logo não consegue exprimir
-tagging sem o acoplar indevidamente à verbosidade.
-
-### Decisão
-
-Adicionar o enum público tipado `PdfTags { Enabled, Disabled }`, cujo
-`Default` é `Enabled`. As entry points de conveniência existentes preservam a
-assinatura e selecionam `Enabled`; variantes públicas explícitas
-`*_with_tags`/`*_and_tags` recebem `tags: PdfTags` como último parâmetro,
-depois de `stream_mode`. `StreamMode` e `PdfTags` são eixos ortogonais: as
-quatro combinações são suportadas. PNG/SVG não recebem esta opção. `Enabled`
-solicita a estrutura completa descrita em `builder.md` e `stream.md`;
-`Disabled` omite BDC/EMC, MCID, StructTreeRoot, ParentTree e MarkInfo marcado.
-Esta opção não promete nem valida PDF/UA.
-
-## Fachada do modo de serialização HTML
-
-`html` permanece submódulo privado. A fachada pública expõe, sem wrapper ou
-lógica adicional:
-
-```rust
-pub use self::html::{
-    export_html,
-    export_html_with_serialization,
-    HtmlSerializationMode,
-};
-```
-
-O owner `export/html.md` define enum, comportamento, default, escaping e
-morfologia. Callers usam `crate::export::{HtmlSerializationMode,
-export_html_with_serialization}`, nunca o submódulo privado.
-
-APIs e dispatches PDF, PNG e SVG permanecem inalterados. Não duplicar o enum,
-criar forwarding ou mover lógica de serialização para `mod.rs`.
-
-## P1360 — fachada da serialização legível
-
-Adicionar `PdfSerializationMode { Compact, Pretty }`, com default `Compact`,
-ortogonal a `StreamMode` e `PdfTags`. Variantes PDF explícitas com sufixo
-`_and_serialization` encaminham o modo ao `PdfBuilder`; as APIs anteriores
-delegam com `Compact`. O `mod.rs` não comprime nem formata conteúdo.
-
-A fachada HTML também reexporta
-`export_html_with_serialization_and_pretty`. SVG conserva `SvgOptions.pretty`
-já público. PNG permanece sem opção. Nenhuma combinação de nomes autoriza
-tratar `StreamMode::Compact` como serialização compacta de ficheiro.
-
-## P1468 — fachada de seleção de páginas (MATERIALIZADO; gate ADR-0127 satisfeito)
-
-Seguindo o mesmo padrão de P956/P1140.6/P1360 (cada eixo acrescentado como
-novo último parâmetro às três entry points PDF), adicionar `pages:
-Option<PageRanges>` (reexportado de
-`typst_core::entities::document_format_options::PageRanges`) como novo
-último parâmetro nas variantes explícitas de `export_pdf`/
-`export_pdf_with_font`/`export_pdf_multifont` (sufixo `_and_pages`); as
-variantes anteriores (incluindo as já existentes `_and_tags`/
-`_and_serialization`) delegam com `None` (nenhuma seleção, todas as
-páginas), preservando comportamento exato. `pages` é ortogonal a
-`StreamMode`, `PdfTags` e `PdfSerializationMode`: `None` nunca implica
-`PdfTags::Disabled` aqui — essa implicação é decidida em
-`infra/pipeline.md` antes de chegar a este owner, que só recebe o `PdfTags`
-já resolvido e o `PageRanges` já resolvido, como dois parâmetros
-independentes. O `mod.rs` não interpreta a interação entre eles; isso é
-`infra/export/builder.md`.
-
-A confirmação humana explícita posterior aos commits causais somente-L0
-`9bb20b8e8`/`70d09eae2` foi recebida em 2026-09-20/21. Agente A acrescentou
-as variantes `_and_pages` às três famílias `export_pdf`/`export_pdf_with_font`/
-`export_pdf_multifont` (incluindo variantes non-timing, por paridade de
-família com os eixos já existentes) sem ver os testes. Validado por
-compilação e pelos testes de `03_infra/src/pipeline.rs`/
-`04_wiring/tests/p1468_format_pdf_pages.rs` (este owner não tem testes
-próprios, é reexportado por eles).
-
-## P1469 — fachada de standards PDF (ESCOPO REDUZIDO — contrato de linguagem) (MATERIALIZADO; gate ADR-0127 satisfeito)
-
-Ver `entities/document_format_options.md` P1469 para a nota de escopo
-reduzido (decisão do dono, 2026-09-21).
-
-Seguindo o mesmo padrão de P956/P1140.6/P1360/P1468 (cada eixo acrescentado
-como novo último parâmetro às três entry points PDF), adicionar `standard:
-PdfStandards` (reexportado de
-`typst_core::entities::document_format_options::PdfStandards`) como novo
-último parâmetro nas variantes explícitas de `export_pdf`/
-`export_pdf_with_font`/`export_pdf_multifont` (sufixo `_and_standard`); as
-variantes anteriores delegam com `PdfStandards::default()` (versão `1.7`,
-sem validators), preservando comportamento exato. Diferente de `pages`
-(`Option<PageRanges>`, "nenhuma seleção" é um estado real), `standard` não é
-`Option`: há sempre um valor efetivo (o default já é o "nenhum perfil"),
-resolvido antes de chegar a este owner (`infra/pipeline.md` P1469).
-`standard` é ortogonal a `StreamMode`, `PdfTags`, `PdfSerializationMode` e
-`PageRanges` como parâmetros independentes — a interação `standard`+`tagged`
-já foi decidida em `infra/pipeline.md` antes de chegar aqui. O `mod.rs` não
-valida conformidade estrutural nem invoca nenhuma verificação; só encaminha
-o valor a `infra/export/builder.md` para o único observável desta fatia (a
-versão do header).
-
-A confirmação humana explícita posterior aos commits causais somente-L0
-`65e68ad45`/`e14002d55` foi recebida em 2026-09-21. Agente A acrescentou as
-variantes `_and_standard` às três famílias de export sem ver os testes.
-Validado por compilação e pelos testes de `03_infra/src/pipeline.rs`/
-`04_wiring/tests/p1469_format_pdf_standard.rs` (este owner não tem testes
-próprios).
+Check option forwarding and all convenience defaults through the existing public
+families. Preserve text, geometry, profile fields, tagging relationships and exact
+diagnostic messages through their owners. Complete PDF bytes, object IDs and
+allocation algorithms are not language-parity requirements.

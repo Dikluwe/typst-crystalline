@@ -1,77 +1,106 @@
-# Prompt L0 — `infra/export/fonts` — Helpers de fontes e escape
-Hash do Código: 5b920043
+# L0 — infra/export/fonts
+Hash do Código: 53634b63
 
-**Camada**: L3
-**Ficheiro alvo**: `03_infra/src/export/fonts.rs`
-**Criado em**: 2026-05-19 (P307c)
-**ADRs**: ADR-0027 (CIDFont + Identity-H)
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
 
----
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/export/fonts.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0126, ADR-0127, ADR-0128, ADR-0129, ADR-0130
 
-## Contexto
+## Consumer evidence
 
-Agregado de helpers para emit de texto PDF:
-- `escape_pdf_string` — escape de caracteres reservados em string literals `()`.
-- Cluster CIDFont: collect codepoints/glyph IDs do doc + map chars→glyphs + widths array + ToUnicode CMap + text→hex serialization.
+`03_infra/src/export/fonts.rs:26` identifies the current exclusive consumer. The clauses below
+are checked against that source and its delegated calls. They specify current
+export observables and ownership, not full upstream byte or algorithm equality.
 
-## Restrições estruturais
+## PDF font and Unicode helpers
 
-- L3 puro. Lê doc (`PagedDocument`), `ttf-parser::Face`. Não toca FS nem rede.
-- Tudo `pub(super)` — consumido por `super::builder` (CIDFont path) e `super::stream::emit_text_pdf` (escape).
-- `escape_pdf_string` mapeia chars não-ASCII para `?` — Latin-1 only path (Helvetica). CIDFont path usa `text_to_hex_string` em vez.
+Own escape_pdf_string, document collectors, char/GID mapping, widths, ToUnicode
+CMap, UTF-16BE hexadecimal encoding and shaped cluster reconstruction.
+Keep existing sibling visibility and no filesystem or network lookup.
 
-## Interface
+The Helvetica literal helper escapes parentheses and backslash, retains printable
+ASCII (including DEL under the current predicate), and replaces non-ASCII or
+characters below ASCII space with "?". This is the actual restricted helper,
+not a claim of full Latin-1 support. The Identity-H helper emits four-hex-digit
+GIDs and maps an absent character to 0000.
 
-```rust
-pub(super) fn escape_pdf_string(text: &str) -> String;
-pub(super) fn collect_codepoints(doc: &PagedDocument) -> Vec<char>;
-pub(super) fn collect_text_codepoints(doc: &PagedDocument) -> Vec<char>;
-pub(super) fn collect_glyph_ids(doc: &PagedDocument) -> BTreeSet<u16>;
-pub(super) fn map_chars_to_glyphs(face: &Face<'_>, chars: &[char]) -> Vec<(char, u16)>;
-pub(super) fn widths_array(face: &Face<'_>, mappings: &[(char, u16)]) -> String;
-pub(super) fn to_unicode_cmap(mappings: &[(char, u16)]) -> Vec<u8>;
-pub(super) fn text_to_hex_string(text: &str, char_to_gid: &HashMap<char, u16>) -> String;
-```
+Collect codepoints from plain Text and shaped char_code; collect_text_codepoints
+reads only plain Text; collect_glyph_ids includes direct Glyph and shaped GIDs.
+Traverse background/body/foreground and Group/Link/Semantic descendants through
+FrameVisitor. Nonvisual alt never contributes glyphs or text. Ordered sets keep
+unique output deterministic. Shaped mapping uses the first char_code per GID and
+ignores zero-x_advance marks; shaped cluster-text collection preserves run order.
 
-## §P568 — Codepoints do caminho fallback (`FrameItem::Text`)
+cluster_text derives boundaries from sorted unique UTF-8 byte offsets plus text
+length, independently of visual LTR/RTL glyph order. Invalid/non-boundary ranges
+yield an empty substring. Only the first occurrence of a cluster receives its
+complete UTF-16BE text; later glyphs in the cluster receive empty hex. Preserve
+ligatures and non-BMP surrogate pairs, not truncated u16 codepoints.
 
-**Data:** 2026-07-05
+widths_array accepts current (gid, hex) pairs and converts the effective face's
+advance to rounded 1/1000 text units, retaining missing-advance fallback 500.
+to_unicode_cmap accepts GID-to-UTF-16BE strings, Identity-UCS codespace 0000–FFFF,
+and batches bfchar entries at no more than 100. Empty input produces a valid
+empty map without an empty bfchar batch.
+These helpers do not select effective font axes, embed streams or decide remapping;
+those belong to `00_nucleo/prompts/infra/export/builder/fonts.md`.
 
-`collect_text_codepoints(doc: &PagedDocument) -> Vec<char>` coleciona todos os
-codepoints distintos usados em `FrameItem::Text` (não shaped) do documento.
+## Verification
 
-- Percorre `FrameItem::Group` e `FrameItem::Link` recursivamente, tal como
-  `collect_codepoints`.
-- Não examina `FrameItem::TextShaped` nem `FrameItem::Glyph` — esses já são
-  cobertos por `collect_codepoints` / `collect_glyph_ids`.
-- Saída determinística via `BTreeSet<char>`.
+Check escaping, ordered recursive collection, marks, ligatures, RTL clusters,
+surrogate pairs, notdef and CMap validity. Extracted Unicode and positioned glyph
+morphology are observables; subset sizes and exact GID assignment are not parity.
 
-Usado por `PdfBuilder` para garantir que caracteres do caminho fallback
-(ex.: espaços entre palavras quando o shaper os preserva como `FrameItem::Text`)
-entram no subset da fonte e no ToUnicode CMap.
+## Separadores textuais — materialização autorizada em 2026-09-28
 
-## Invariantes
+### Medição anterior à decisão
 
-- `collect_codepoints`, `collect_text_codepoints` e `collect_glyph_ids` atravessam `FrameItem::Group` recursivamente (P280 bug fix).
-- `widths_array` usa `units_per_em` da face para converter glyph_advance → 1/1000 text space.
-- `to_unicode_cmap` emite blocos de ≤100 entradas (PDF spec limit).
-- `text_to_hex_string` mapeia chars sem glyph para `<0000>` (notdef).
+`03_infra/src/export/fonts.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
+`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+dos handlers desse consumer precedem esta alteração. A aprovação do contrato
+público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
+2026-09-28 e registrada na proveniência da materialização.
 
-## Critérios de verificação
+### Responsabilidade deste owner
 
-- `escape_pdf_string("a(b)c")` → `"a\\(b\\)c"`.
-- `to_unicode_cmap(&[])` produz CMap mínimo válido com `0 beginbfchar`.
-- `collect_text_codepoints` inclui texto fallback dentro de `Group`/`Link` e exclui `TextShaped`.
-- Tests P150+ + ToUnicode tests em `tests.rs` validam estrutura.
+Recolher U+0020 de cada TextSeparator tanto no conjunto global como no fallback textual usado no subset e no ToUnicode.
 
-## P1140.5-A — coleta através de semântica
+Conservar as responsabilidades existentes; a aceitação segue texto e geometria
+observáveis, incluindo os controles de adjacência e os invariantes pinados.
 
-Todos os coletores de fontes/codepoints/subsets descem por
-`FrameItem::Semantic.items` como por Group/Link. Metadado `alt` não entra em
-font subset nem ToUnicode: é string de structure tree futura, não texto visual.
-# P1160 — walkers de fonte cobrem todas as camadas
+## SHY autoral não selecionado — correção de identidade
 
-Os walkers que recolhem codepoints, texto fallback, glyph IDs, clusters e
-mapeamentos shaped percorrem `Page.background`, `Page.items` e
-`Page.foreground`. A ordem visual continua background → body → foreground.
-O conjunto de subset/ToUnicode inclui running matter e layers decorativos.
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/shy-autoral-2026-09-28/initial.json` e
+`before/resultados.json` registram estado, binários, comandos e trinta sondas
+bilaterais. Em largura 300pt, repre<U+00AD>sentation extrai dois SHY no Tekt
+e um no vanilla pinado. O controle spaces extrai seis versus um.
+`03_infra/src/shaper/shaping.rs:313-325` transporta o cluster SHY produzido
+pelo rustybuzz; `03_infra/src/export/fonts.rs:318-328` associa sua substring
+ao GID de espaço. `export/builder/fonts.rs:523-535` conserva uma identidade
+por GID; a stream do controle anterior associa CID 0001 a 00AD e o reutiliza
+no espaço posterior. São observáveis textuais, não igualdade de bytes.
+A hipótese seria refutada por ausência dessa associação ou por duplicação
+já existente na string que entra no shaper. Não inferir intenção histórica.
+
+### Decisão e limite
+
+Correção de paridade interna em fluxo contínuo ADR-0127: reutiliza contrato
+TextReplacement aprovado, sem campo, assinatura pública, flag ou mudança
+de fase. Não modifica seleção de quebras ou desenho. A causa explícita é
+o U+00AD existente no texto autoral, não aparência, GID ou posição.
+Casos estreitos já têm divergências de seleção e não fecham a política SHY.
+
+cluster_text não põe U+00AD autoral no mapeamento global por GID:
+remover somente esse codepoint das substrings de cluster usadas para ToUnicode.
+Omitir a entrada se sua substring não vazia consistia apenas em SHY; não
+reservar o GID compartilhado com espaço com hex vazio. Manter fronteiras
+UTF-8, marcas repetidas, ligaduras, RTL e pares substitutos existentes.
+O texto lógico completo permanece no envelope por ocorrência do shaper.
+A identidade não é inferida de avanço zero nem de um número específico de GID.
+SHY em cluster compartilhado com letra também deve ser retirado do mapa
+global, conservando a letra. Não apagar outros controles Unicode.

@@ -94,7 +94,13 @@ mod tests {
     use super::*;
 
     fn minimal(note: Content) -> FootnoteEntryElem {
-        FootnoteEntryElem { note, separator: None, clearance: None, gap: None, indent: None }
+        FootnoteEntryElem {
+            note,
+            separator: None,
+            clearance: None,
+            gap: None,
+            indent: None,
+        }
     }
 
     #[test]

@@ -1,776 +1,338 @@
-# Prompt L0 — `compiler/eval/rules`
-Hash do Código: 10aaf64a
+# L0 — compiler/eval/rules
+Hash do Código: dc76d148
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
+- 00_nucleo/prompts/_nuclei/paragraph-break-policy.toml sha256:7e41c96527dd5936bebe6916f2a9ea93477c057495845c7e8b52ce3c5917855a
+- 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:6eec17984449d21b626379651b9b0a511a2dfe8e1a1f0a0af230cce52a47b827
+- 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:70b72ac9efb2bf81aa4ef496c4e1c867264f696d454a9916e7e2e5f385b92020
+- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:e9038b453bbb1971c9a75a76eced99c35db742f57bebbb09b03c4922b3862800
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/eval/rules.rs`
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/eval/rules.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
-## Medição e contrato
+## Source evidence
 
-Avalia set/show rules, valida argumentos e aplica selectors com ordem e
-terminação determinísticas. Show-set transporta Styles; transformações
-preservam morfologia. Recursão termina por ponto-fixo morfológico ou teto
-diagnosticado. Named desconhecido nunca é ignorado.
+The current exclusive consumer defines the following owned boundaries:
 
-## Aceitação
+- `01_core/src/compiler/eval/rules.rs:43` — `fn type_mismatch`.
+- `01_core/src/compiler/eval/rules.rs:59` — `fn expected_length_error`.
+- `01_core/src/compiler/eval/rules.rs:87` — `fn edge_cast_error`.
+- `01_core/src/compiler/eval/rules.rs:119` — `fn pdf_pages_found_name`.
+- `01_core/src/compiler/eval/rules.rs:135` — `fn validate_pdf_page_range_element`.
+- `01_core/src/compiler/eval/rules.rs:213` — `fn pdf_standard_expected_list`.
+- `01_core/src/compiler/eval/rules.rs:231` — `fn pdf_standard_and_list`.
+- `01_core/src/compiler/eval/rules.rs:242` — `fn pdf_version_display`.
+- `01_core/src/compiler/eval/rules.rs:248` — `fn pdf_standard_version_hint`.
+- `01_core/src/compiler/eval/rules.rs:262` — `fn pdf_validator_label`.
+- `01_core/src/compiler/eval/rules.rs:270` — `fn pdf_validator_range`.
+- `01_core/src/compiler/eval/rules.rs:290` — `fn pdf_standards_conflict_diagnostic`.
 
-Selectors, regras, warnings, casts, composição, recursão e spans seguem
-`a51e02804`.
+Prior source readings supporting these clauses (snapshot provenance is
+retained in the assigned history diagnostic, not asserted as a fresh measurement):
 
-## P1494 — espaço e show sobre grupo textual (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+- `src/space_discarding.rs:53-73,194-256`.
+- `text/smartquote.rs:38-89,335-419`.
+- `typst-library/src/layout/page.rs:764-772`.
+- `typst-library/src/layout/page.rs:813-821`.
+- `typst-realize/src/spaces.rs:114-127`.
+
+## Contract
+
+Own set/show evaluation, argument validation, style deltas, rule application,
+realization and typed interception. Preserve lexical precedence, innermost-first
+application, RuleId revocation/active guards, current casts, warnings, spans and
+first-error behavior. Unknown named arguments are never silently ignored.
+Show-set transports Styles; transformations preserve semantic morphology.
+Delegate selector semantics to
+00_nucleo/prompts/compiler/eval/selector_matching.md and one-node termination to
+00_nucleo/prompts/compiler/eval/show_rule_termination.md; do not duplicate either
+algorithm. Native Element/Where follow the node path, not literal/regex slicing.
+The special paragraph routes use the typed native-paragraph predicate without
+expanding to all elements/compositions or applying text/element rules twice.
+
+## Textual realization delegation
+
+The descendant owner `00_nucleo/prompts/compiler/eval/rules/textual.md` specifies
+causal snapshots, text-node interception, literal/regex grouping and slicing,
+space normalization and Unicode nonspacing classification. This parent keeps
+set/show routing and one-node application; it neither duplicates the child's
+algorithm nor absorbs its consumer. The eval coordinator calls the child under
+the same phase and signatures as before the extraction.
+
+## Lexical and synthesized content
+
+Capture immutable lexical rules/styles for an OutlineElem during the renderable
+interception pass before applying outline transformations, not from a final global
+stack or by inventing snapshots in the pre-show pass. realize_outlines receives
+the generated entry, causal snapshot and private parent styles. Apply the normal
+matcher/precedence/guards once; absent transformation, use the entry default composed
+from its helpers and causal link. Each fixpoint candidate is rebuilt from its own
+source, not cumulatively transformed. Do not execute callbacks in pure layout or
+insert realized entries as new query occurrences.
+
+Set outline(indent:) accepts length/function/auto and the retained crystalline bool
+compatibility. Set outline.entry(fill:) accepts content/none. Store validated
+values lexically; explicit constructor values win. Materialize inherited indent
+on outlines and fill on direct entries only when omitted. Synthesized entries
+receive effective fill. A visually neutral carrier with outline.parent.indent
+and outline.parent.key preserves the exact parent for contextual content returned
+by a transformation, without changing matching/query order or phase.
+
+For RawElem, synthesize raw.line only when a currently applicable typed rule targets
+those instances. Split newline preserving empty segments and ordered one-based
+number/count/text/body, run the normal show engine once per line and recompose
+with line boundaries. Without such a rule, preserve RawElem/highlighting/default
+intact. Manual raw.line uses the same dynamic carrier and show machinery; filters
+read its real fields. No alternate guard or precedence algorithm is introduced.
+
+## Set-rule schemas and transport
+
+Keep the existing heading/page/figure/text/par/table schemas and their defaults,
+casts and warning policy. Font dictionaries delegate to
+00_nucleo/prompts/compiler/eval/font_dict.md. Table numbering retains lexical
+table.numbering string/none capture, not the cell-cast owner. Smartquote accepts
+enabled:boolean, alternative:boolean and canonical quotes string/array/dictionary/
+auto forms. Existing crystalline none compatibility normalizes to auto and is not
+claimed as vanilla surface. Validate the whole delta before applying it.
+
+Recognize par.line structurally with exactly numbering (string/function/none),
+number-align (horizontal alignment/auto), number-margin (left/right/start/end),
+number-clearance (length/auto), numbering-scope (document/page). Store validated
+par.line.* values; omission is neutral and unknown names fail. Keep numbering
+Func identity/span intact: do not call it, convert its return or fabricate a
+physical-line marker during set evaluation. Late execution/request handling stays
+with its pipeline/layout owners.
+
+Math set schemas delegate domain casts to the same canonical constructor domain:
+
+- frac.style: vertical/skewed/horizontal stored as canonical Str, with explicit
+  element value above cascade above vertical default; binom does not consume it.
+- accent.size/dotless: relative length/bool, defaults 100%/true.
+- cases.delim/reverse/gap: delimiter pair/bool/relative, defaults {}/false/0.2em.
+- mat.delim/align/augment/gap/row-gap/column-gap: canonical casts. gap feeds both
+  axes; specific gaps win at the same level. Defaults are ()/center/none and
+  row 0.2em/column 0.5em. Explicit augment retains its offsets while folding
+  cascaded stroke; explicit none clears inherited augment. Inside augment only
+  hline/vline/stroke are consumed; other inner keys are tolerated, but invalid
+  consumed values and unknown outer named arguments still fail.
+- stretch.size: relative length with default 100%.
+
+For all of these, explicit element arguments win over cascade, and cascade never
+sets morphological presence bits or appears as fabricated explicit fields/repr.
+Unknown/duplicate names and invalid values fail before effective style mutation.
+
+Recognize dotted format targets structurally, not through an empty text_str.
+Empty rules are neutral; omitted fields never insert defaults or erase an earlier
+lexical decision. Preserve independent fields, schema diagnostics and ordering:
+
+- format.svg: optional pretty Bool -> format.svg.pretty (default false only when
+  the document makes no decision).
+- format.png: optional ppi Int/Float -> Float at format.png.ppi. Omission does
+  not insert 144.0. Finite zero/negative values retain their measured acceptance;
+  nonfinite cases with an aborting oracle do not acquire a parity claim.
+- format.html: gate Html at field html before evaluating any argument. The exact
+  disabled diagnostic is ``cannot access field `html` because the `html` feature
+  is not enabled``, with ``try enabling the `html` feature`` and
+  `see https://typst.app/help/compiler-features for more details`.
+  Active calls evaluate argument expressions before ordinary schema validation;
+  optional pretty Bool is stored at format.html.pretty.
+- format.pdf is ungated and accepts tagged Auto/Bool, pretty Bool, pages and
+  standard independently under format.pdf.*. Invalid tagged uses
+  `expected boolean or auto, found <type>`, not the bool-only message. Unknown,
+  duplicate or positional arguments fail normally, not as unsupported-target
+  warnings; preserve absence of partial effective deltas.
+
+PDF pages validation is complete during set evaluation. Accept positive Int,
+from/to dictionary, array of Int/dictionary, or explicit None. Store the original
+validated Value; None is a present reset distinct from omission and empty array
+is a present empty selection. Preserve `page numbers start at one`,
+`page range must not be empty`,
+`unexpected key "{key}", valid keys are "from" and "to"`, and
+`start of page range cannot be larger than end`. Top-level mismatch expects
+integer/dictionary/array/none; array-element mismatch expects only integer/dictionary.
+Nested array/None elements are not accepted. The typed reconstruction belongs to
+00_nucleo/prompts/compiler/layout/format_options.md and fails closed on impossible
+already-validated state.
+
+PDF standard accepts a canonical PdfStandard string or array of strings, including
+empty array, but not None. Use the exact closed name list from
+00_nucleo/prompts/entities/document_format_options.md. Unrecognized strings omit
+the found-type suffix; wrong-typed values include it. Array-item diagnostics omit
+the array alternative and retain the final 'or' list form. Validate PdfStandards::new
+and map its structured conflicts to the existing precise messages/hints; normalize
+a single string to a one-item Value::Array, retain an original array, then store.
+This provides language parsing/conflict validation, not proof of PDF structural
+conformance. Preserve distinct conflicts for version/PDF-A/PDF-UA multiplicity,
+empty intersection and explicit version outside the allowed range.
+
+This owner does not choose top-level/container boundaries, CLI precedence,
+pages/tagged/standard interactions, rasterize, format SVG or export HTML/PDF.
+Those retain their format-options and pipeline owners. Feature enablement remains
+independent from target selection under the pinned nucleus.
+
+## Política de hifenização e validação — 2026-09-28
 
 ### Medição anterior à decisão
 
-No HEAD 6da06e849d75972651a342ad6aad337313451c79, com working tree
-limpo durante as sondas, rules.rs:982-1055 fatia cada Content::Text isolado.
-Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8 (binário SHA-256
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea)
-casa regex em "new line" repartido por newline e em "换行newline" depois
-de descartar o espaço CJK; o cristalino não casa o primeiro e mantém espaço
-no segundo. spaces.rs:180-205 combina espaços adjacentes por OR de
-had_newline; lib.rs:1261-1325 pesquisa regex na representação textual
-virtualmente colapsada do grupo, respeitando fronteira de style chain.
-Controles: espaço explícito CJK permanece, latino e coreano conservam
-espaço, pontuação ideográfica pode descartá-lo, aspas curvas ambíguas não
-forçam descarte; [newline] dinâmico entre CJK descarta, [espaço] não.
-O predicado vanilla em codex git rev 2e43ab9,
-src/space_discarding.rs:53-73,194-256, olha os caracteres internos
-adjacentes, incluindo Han/Bopomofo/Hiragana/Katakana/Yi e pontuação
-ideográfica, mas não classifica coreano como sem espaçamento. O
-codex = 0.3.0 do cristalino (Cargo.toml:74) NÃO exporta esse módulo;
-a chamada direta seria inexequível. icu_properties 2.2.0 já está no
-Cargo.lock:987-997 como transitiva; icu_segmenter puro tem precedente
-na whitelist L1 (crystalline.toml:121-122). O controle
-bilateral de Linebreak explícito entre ideogramas produziu
-"<p>水<br>果</p>" no vanilla e "<p>水 <br> 果</p>" no cristalino;
-typst-realize/src/spaces.rs:114-127 classifica a fronteira como destrutiva.
+`correcao-politica-hifenizacao-2026-09-28/before-pdf/resultados.json` conserva 52 entradas bilaterais, fontes, comandos e caixas, medidas no estado `initial.json`. As combinações absent/auto/false/true eram equivalentes no Tekt. O vanilla pinado `9f2b6e8715237cb086899a42873660fe744622e8` rejeita hyphenate integer/string, justify integer/auto e linebreaks fora de simple/optimized/auto; os diagnósticos literais e spans estão nos stderr do lote. Fonte: eval/rules.rs:2972-3010/3407-3420 descarta opções; stdlib/structural/par.rs:119-126 aceita/ignora; layout/break_selection.rs:39 não consulta política; vanilla text/mod.rs:545-565 declara Smart<bool> e model/par.rs:227-242/627-636 declara justify e Linebreaks. Isso mede comportamento e tipos, não demonstra a intenção histórica dos prompts.
 
-### Decisão ratificada
+### Decisão e escopo vigente
 
-Antes de show literal/regex, normalizar espaços no fluxo textual realizado:
-espaços consecutivos tornam-se uma ocorrência; a origem é newline quando
-qualquer componente a tiver. Descartar somente essa ocorrência inferida
-quando o caractere textual interno anterior ou seguinte for sem espaçamento
-segundo uma classificação Unicode pura equivalente à superfície medida.
-Para materializá-la, declarar icu_properties 2.2.0 como dependência direta
-L1 e autorizar somente os tipos de consulta imutável necessários na
-whitelist crystalline.toml; usar dados estáticos, sem I/O nem estado global
-mutável. Confrontar a classificação dos caracteres internos com o
-predicado vanilla pinado em testes, incluindo ideogramas, coreano,
-pontuação ideográfica, aspas ambíguas e emoji. Não importar o módulo
-inexistente de codex 0.3.0. Entre textos de suporte, sem componente
-com newline, preservar o espaço explícito. Linebreak explícito é fronteira
-destrutiva e consome espaços imediatamente adjacentes, inclusive explícitos;
-ele próprio não vira Space. Não usar split_whitespace, trim global, língua
-do documento ou tratamento específico de target. Um wrapper de estilo sem
-texto não impede observar os caracteres vizinhos para normalização, mas
-style chains diferentes separam os grupos de matching regex. Conteúdo
-não textual real permanece fronteira causal; Parbreak não vira espaço.
+Correção interna de paridade ADR-0127: assinaturas públicas, entidades e fases permanecem; os owners abaixo legitimam apenas sua unidade. A restrição da atomização de não honrar propriedades descartadas é supersedida somente por este lote. O núcleo paragraph-break-policy fixa o invariante compartilhado; não é owner de código.
 
-Após normalizar, buscar literal/regex no maior grupo elegível de mesmo
-snapshot lexical e style chain, incluindo nós Text/espaço separados e
-conteúdo dinâmico textual. A recipe recebe somente a fatia casada; manter
-prefixo/sufixo, ordem leftmost, precedência vigente, revogação por RuleId,
-guardas e teto. Substituição não regressa à mesma regra; regras de elemento
-e parágrafo não executam duas vezes. Esta cláusula revoga apenas o scope-out
-entre nós de P1285/P790; as demais garantias desses passos continuam.
-A sonda suplementar /tmp/p1494-snapshot.typ (SHA-256
-161c06c311c616ebe730be2f9ff5332eb50c736737d47cb1f121de678a700575)
-mostrou foo/EARLY/LATE no vanilla e foo/EARLY/EARLY no cristalino para
-duas regras literais idênticas sequenciais; essa dívida preexistente de
-override não é critério de fechamento P1494 nem se declara sanada aqui.
-RED→GREEN separa (A) origem/normalização sem show e (B) literal/regex
-cruzando nós, mais controles negativos de espaço explícito, coreano,
-aspas, fronteiras de estilo e Linebreak destrutivo. O gate ADR-0127
-foi confirmado pelo dono em 2026-09-24 antes de L1.
+No set text, validar hyphenate como Bool|Auto com erro "expected boolean or auto, found <type>" no span da expressão e transportar text.hyphenate via custom. No set par, validar justify Bool, transportar par.justify via custom; true avisa que a escolha global otimizada das quebras ainda não é suportada; a justificação simples por espaços está implementada, false não avisa. Validar linebreaks Auto|Str(simple|optimized); erro para outra string é `expected "simple", "optimized", or auto`, outro tipo acrescenta `, found <type>`. Valores válidos conservam o warning de scope-out da estratégia: não transportar como se existisse consumidor optimized. Preservar show-set, restauração de estilos e demais campos. A rodada-config-composicao abaixo completa a justificação simples por espaços. Estratégias globais permanecem incompletas e serão tratadas pela rodada-paragrafo-seletores depois da medição.
 
+### Refinamento de diagnóstico medido antes da implementação
 
-### Refinamento P1494/P1140 — medição antes da decisão
+Os testes em first-policy-green.log passam transporte e política (5), mas falham quatro mensagens: type_mismatch retorna int em vez do integer medido no vanilla. O helper existente expected_length_error em eval/rules.rs:65 já usa esse vocabulário. Para estes novos casts, usar helper privado local com boolean/integer/string, sem alterar type_mismatch global nem type_name público. No constructor text, essa exceção explícita supersede somente a exigência de reutilizar type_mismatch para hyphenate. Nenhum contrato público muda.
 
-No pin vanilla e no estado WIP medidos no owner compiler/eval.md,
-repr de ContentBlock conserva Space após Linebreak e entre 水 e 果
-separados por newline; o teste P1140 falha quando o valor passa
-prematuramente por normalize_markup_spaces
-(eval/mod.rs:7060-7070; rules.rs:3745,4036-4078). Em sonda HTML
-vanilla via stdin, um ContentBlock com show local literal 水果 → X
-e corpo 水-newline-果, inserido depois por variável, emitiu <p>X</p>.
-Logo, a preservação do valor bruto e o show local após colapso CJK
-são observáveis distintos; o segundo não foi demonstrado no
-caminho local cristalino.
-
-### Decisão estreita de realização e dívida combinada
-
-A cláusula anterior de normalizar antes de show vale para o fluxo/root
-realizado. Enquanto ContentBlock é apenas valor, não colapsar nem
-descartar Space ou SpaceFromNewline. Seu show textual local opera
-provisoriamente no texto pré-normalizado; quando casa, substituir só
-a fatia casada e preservar prefixo, sufixo e separadores não casados
-para a inserção posterior. O fluxo/root, ao receber esse valor,
-normaliza as adjacências e aplica as regras elegíveis no seu snapshot.
-
-A sonda vanilla de show local 水果 → X sobre 水-newline-果 é dívida
-combinada explícita: o matching local pré-normalizado não promete X.
-Não alegar paridade nem usá-la como GREEN de P1494. Fechamento futuro
-exige medição e L0 específicos do entrelaçamento de show local e
-normalização do fragmento. Este refinamento não cria contrato público
-ou fase nova além do gate ADR-0127 já confirmado.
-
-## P1339 — transporte da base nativa aprovada
+## Composição de parágrafos — 2026-09-28
 
 ### Medição anterior à decisão
 
-HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, consumer intacto:
-`rules.rs:2403-2408` delega Value::Selector ao conversor; `:476-480` e
-`:829-838` reconhecem somente NodeKind::Par nas rotas de parágrafo.
-As fixtures e registros `p1339-full-show-final-*` medem aplicação real de
-strong/emph/text no vanilla ratificado `a51e02804`; os registros fixam binários,
-working tree e UTC. A limitação CLI dos perfis cristalinos foi registrada
-separadamente e não constitui evidência positiva de matching.
+O lote before-pdf em correcao-composicao-paragrafos-2026-09-28 mede 34 entradas contra o pin 9f2b6e8715237cb086899a42873660fe744622e8, no estado initial.json e before/. Com 180pt e margem 8pt, a primeira linha justificada termina em 145.52pt no Tekt e 172.000002pt no vanilla; a última fica em 110.048pt em ambos. BEFORE/par[MIDDLE]/AFTER produz 2 linhas físicas contra 3. Empty-start põe AFTER em yMin 3.74 contra 18.14; empty-auto mede altura 24.568 contra 38.968. native-leading-two-lines demonstra que o escopo de leading precisa fechar antes de restaurar estilo. Fonte: line_commit.rs:195-236 já possui justificação; word_layout.rs usa flush ordinário em quebras; layout/mod.rs:1469 trata Par como transparente; style_scope.rs:18-77 restaura estilo depois do body; eval/rules.rs:663-705 agrupa fluxo para show. Agrupamentos XML do extrator não são linhas físicas: coordenadas coincidentes são medidas separadamente.
 
-### Decisão de integração
+### Decisão vigente
 
-Manter a delegação única de Value::Selector para selector_matching, incluindo
-Element. NativeElement e Where com essa base seguem a travessia de nós; os
-caminhos literais/Regex/Label continuam distintos. Não recriar filtros ou
-reconhecer função pelo nome neste owner. A receita recebe o nó morfológico
-correto; não texto concatenado dos descendentes nem fatia de regex.
+Correção de paridade ADR-0127, em fluxo contínuo: sem nova assinatura pública, entidade, trait, flag ou fase. O núcleo pinado define invariantes compartilhados, não é owner de código. Preparação global e optimized ficam incompletos e pertencem à futura rodada-paragrafo-seletores, depois de medir escolhas/custos.
 
-As duas seleções especiais de regras de parágrafo devem reconhecer também
-NativeElement da função par, inclusive seus filtros Where, por predicado
-interno tipado do owner selector_matching. Não ampliar genericamente o
-caminho de parágrafos a outros elementos ou a todas as composições antigas.
-Preservar os momentos de síntese/aplicação já existentes, sem mudar fase ou
-aplicar regras de texto/elementos novamente por causa do caminho especial.
+realize_flow trata Par e Styled(Par) como fronteiras, fechando o trecho corrente antes de inseri-los, sem embrulhar tudo num Par extra. A realização do body de Par e dos wrappers Styled inline dentro de um flow mantém Sequence inline: não fabricar Par só por entrar em bold/itálico. Implementar recursão contextual privada no owner atual, mantendo os demais bodies/containers/math em seus caminhos existentes. Corrigir o warning de justify true: justificação por espaços passa a existir, optimized permanece ausente; descrever a seleção ainda simples. Não ativar seletor por string sem consumer.
 
-Show-set, precedência, RuleId, guardas, ponto-fixo e teto mantêm seu contrato.
-Testes devem distinguir transformação efetiva de simples repr não realizado,
-cobrir match/miss/vazio e coexistência de bases antiga/nova. Um caso que exija
-mudar fase ou informação pública adicional reabre o gate; não se resolve
-por aplicação extra. A extensão de dados foi aprovada no P1339; aprovação e RED
-ainda são condições anteriores ao código.
+### Refinamento de precedência medido antes da implementação
 
-## P1286 — `#set smartquote`
+No estado precedence-state.json, regression-acceptance.json registra 191 verificações passando e duas falhas no controle show-par-sets-false. O Tekt emite extraordi-/interna- onde vanilla conserva palavras sem hifenização. show-par-full-tree.log mostra SetPage e o escopo global dentro de um Par sintetizado; a recipe fica exterior ao text.hyphenate true. eval/mod.rs:1532-1560 possui a proveniência exata dos escopos #set; rules.rs:660-727 apagou essa distinção ao tratar Styled sempre como inline. Não inferir origem pelo conteúdo do Styles.
+
+Decisão interna: o fold dos escopos #set em eval_markup transporta marcador privado eval.flow.scope=true no Styles existente. Antes de formar o primeiro parágrafo material, realize_flow reconhece esse marcador e mantém o escopo exterior à realização dos seus parágrafos, preservando os carriers prévios SetPage/Empty/Space/SpaceFromNewline em ordem, sem os embrulhar em Par. Após conteúdo inline material o escopo permanece inline dentro do parágrafo corrente; wrappers de constructors/estilos sem marcador permanecem inline. Nenhuma entidade, assinatura, comportamento válido por defeito ou fase pública muda. Pin no núcleo compartilhado paragraph-composition documenta a distinção; não recorrer a heurística por chave de estilo. O consumer do hub só produz o marcador no fold; preparação e reconhecimento são do owner rules.
+
+### Refinamento de escopo estilizado integral
+
+precedence-pdf/resultados.json e proveniencia.json medem oito controles no binário anterior a este refinamento. native-text-inline-override e mid-par-set-override hifenizam em ambos (diferença -/U+AD já aberta). native-text-only-override diverge: o Tekt hifeniza e o vanilla não. Portanto a hipótese "todo constructor Styled permanece inline" é insuficiente. Um Styled que contém todo o material de um fluxo ainda sem material fornece o escopo inicial de realização do parágrafo; o show-set precisa ser aplicado dentro dele. Quando há material anterior ou posterior fora desse wrapper, ele permanece inline e não altera fronteiras.
+
+Decisão interna: além do marcador #set, reconhecer em realize_flow um wrapper Styled com prefixo e sufixo contendo apenas Empty/Space/SpaceFromNewline/SetPage. É fatoração de escopo que cobre todo o material, não inferência por campos de Styles. Conservar os carriers em ordem e realizar o body no escopo exterior existente. Não promover fragmentos com texto fora do wrapper. A regra específica integral supersede apenas a exclusão absoluta dos constructors na cláusula anterior; nenhum contrato público muda.
+
+### Singleton de texto no escopo integral
+
+whole-style-first-failure.log reproduz duas hifenizações no singleton integral, contra zero esperado. rules.rs:realize_node conserva Text diretamente; ao fatorar o Styled integral, esse caminho deixou de formar Par, portanto nenhuma recipe encontrou um parágrafo. O refinamento introduz realize_scoped_flow privado: atravessar Styled, envolver Text singleton em Par usando realização inline, e delegar os demais fluxos/containers a realize_node. Essa regra específica completa o texto singleton sem embrulhar blocos como headings em Par. Nenhuma fase ou assinatura pública muda.
+
+## Preparação e seletores — 2026-09-28
 
 ### Medição anterior à decisão
 
-O caminho vigente aceita `enabled` e apenas `quotes` string/auto/none em
-`rules.rs:1881-1939`; o vanilla expõe ainda `alternative` e as formas
-array/dict em `text/smartquote.rs:38-89,335-419`.
+O lote bilateral `00_nucleo/diagnosticos/correcao-seletores-paragrafo-2026-09-28/before-pdf/resultados.json` mede 32 entradas, com estado exato em initial.json e before/, contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Em 140pt/margem 8pt, simple escolhe delta epsilon zeta eta, optimized escolhe delta epsilon zeta e junta eta à linha seguinte; Tekt ignora a estratégia. Em 240pt justificado, optimized admite eta na primeira linha reduzindo os espaços. Fonte: eval/rules.rs:3070-3100 e stdlib/structural/par.rs:131-150 validam e descartam linebreaks; text.rs:41 e word_layout.rs:29 escolhem incrementalmente; vanilla inline/mod.rs:194-196 resolve auto pela justificação, linebreak.rs:raw_ratio/raw_cost aplica redução até 1/3 e custos cúbicos/quadráticos; model/par.rs:Limits::SPACING_DEFAULT fixa 2/3..1.5. Estilos adjacentes, literal leading/trailing e conteúdo opaco estão medidos separadamente. Observação não prova intenção histórica; inferência refutável: os scope-outs L0 explícitos de preparação/optimized legitimaram o adiamento, pois ainda vedam a implementação global apesar do transporte aceito.
+
+### Decisão e escopo
+
+Correção interna de paridade ADR-0127: sem novos contratos públicos, flags ou fase. Primeira preparação global certificada: parágrafo latino composto por Text, Space, SpaceFromNewline, Empty, Sequence, Styled tipográfico e Strong/Emph, com hifenização desligada, direção LTR, sem tracking/math/smallcaps, largura finita e constante, fora de colunas/células/floats. O conjunto completo deve ser certificado antes de emitir; uma unidade recusada preserva o caminho anterior. Hifenização, Unicode UAX14 completo, links/objetos/linebreaks, largura variável, limites customizados e seleção incremental restante continuam explicitamente incompletos; este lote não declara estado da arte nem otimização completa da língua.
+
+Depois do cast válido de set par(linebreaks), transportar par.linebreaks em engine.styles, inclusive Auto. Substituir aviso genérico de propriedade ignorada por aviso factual de suporte parcial da seleção; justify true mantém aviso factual sobre conjunto ainda limitado, sem afirmar que global nunca existe. Nenhum contrato de linguagem ampliado.
+
+## Hifenização global — 2026-09-28
+
+### Medição anterior à decisão
+
+O lote before-pdf de `00_nucleo/diagnosticos/correcao-hifenizacao-global-2026-09-28/` mede 67 entradas contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8; estado inicial, binários, fontes e comandos estão em initial.json, before/ e proveniencia.json. paragraph_prepare.rs:80-94 recusa a política true, paragraph_select.rs:66 considera só finais de palavras, paragraph_plan.rs:18 escolhe estratégias já transportadas, break_selection.rs:41-66 hifeniza apenas por overflow local. Vanilla inline/linebreak.rs:170-209 usa os mesmos candidatos no greedy, :626-684 aplica 135*(1+0.15*(max(5-left,0)+max(5-right,0))) por hífen, mais 135 em duas linhas consecutivas; inline/shaping.rs:583-635 desenha o glyph de '-' mas conserva SHY no texto copiado. Isto mede comportamento e contratos, não intenção histórica.
 
 ### Decisão
 
-O set-rule aceita `enabled: bool`, `alternative: bool` e `quotes` no domínio
-canônico P1286. Valida antes de inserir o delta; named desconhecido continua
-nunca ignorado. `none` conserva apenas a compatibilidade cristalina vigente e
-é normalizado como `auto`; não é alegado como superfície vanilla. O carrier é
-o `Styles` existente, sem novo campo público ou fase.
+Correção interna ADR-0127 em fluxo contínuo: sem campo/trait/assinatura pública, modo novo, fase ou quebra de compatibilidade. A restrição histórica de hifenização desligada é supersedida nesta rodada para palavras latinas de estilo/política uniformes, inclusive pontuação terminal simples. Mistura dentro da palavra, apostrofes internas, outras quebras UAX14, largura variável e objetos mantêm fallback. Texto copiado '-' versus SHY continua limitação de export independente; a geometria usa o glyph de '-' separado, como fonte medida. Aceitação mede palavras/posições/estilos e política lexical, normaliza somente o hífen de quebra para a comparação geométrica e declara a divergência textual separadamente.
 
-## P1285 — show rules textuais por ocorrência
+O aviso já existente sobre suporte parcial deixa de listar hifenização como recusa geral; menciona palavras latinas uniformes/largura constante e casos ainda incrementais. Preservar casts e canais.
 
-### Medição antes da decisão
-
-O caminho literal já fatia cada `Content::Text` e chama a recipe para cada
-ocorrência. O caminho regex anterior apenas testava `is_match` e entregava o
-nó inteiro uma vez. No vanilla ratificado, `#show regex("f.o")` sobre
-`foo fxo` chama a recipe para `foo` e `fxo`, e `regex(".")` sobre `a.b`
-produz três matches; literal `"."` produz somente o ponto. Matches vazios são
-rejeitados no constructor e nunca entram em loop.
-
-### Decisão
-
-O loop dedicado de regex usa `selector_matching::splice_regex_rule_matches`
-para todas as transformações `Func`/`Content`/`Str`, entregando à recipe
-somente a fatia morfológica casada. Preserva texto não casado, ordem,
-revogação por `RuleId`, precedência existente e fronteira de nós. O loop
-literal permanece dedicado e `is_node_rule(Text|Regex)` continua falso;
-nenhum dos dois selectors passa a viajar pelo matcher de elementos.
-
-Aceitação: literal repetido/parcial, regex repetida, distinção literal `.` vs
-regex `.`, no-match e fronteira entre nós coincidem semanticamente com
-`a51e02804`.
-
-## P1406 — realização lexical de entries (PROPOSTO; gate ADR-0127)
+## Remoção de hardcode funcional — 2026-09-28
 
 ### Medição anterior à decisão
 
-No baseline `fe3209458`, a aplicação normal de show rules termina antes de
-`compiler::introspect` sintetizar `OutlineEntry`; por isso não existe nó
-renderizável a transformar. No vanila `586e1bd43`, regra direta, filtro por nível
-e parent contextual são observáveis, e uma regra declarada entre dois outlines
-afeta somente o segundo.
+`correcao-hardcode-paragrafo-2026-09-28/before-pdf/` mede 20 entradas contra
+9f2b6e8715237cb086899a42873660fe744622e8 no estado `initial.json` e `before/`.
+`eval/rules.rs:3483-3525` e `stdlib/text/constructor.rs:153-190` não capturam
+`overhang`; auto/int/string são aceitos indevidamente. A fonte vanilla
+`text/mod.rs:391-393` declara bool default true; `inline/line.rs:518-525`
+condiciona a compensação ao estilo final. `paragraph_hyphen.rs:221-224`
+sempre multiplica a largura por0.55. A suspeita inicial sobre `paragraph_select.rs:78-82` foi refutada antes de
+implementar: vanilla `inline/linebreak.rs:551-559` usa attempt.justify, que
+`inline/line.rs:138-139` desativa para mandatory. Conservar a fórmula atual
+e testar a última linha natural. Isto mede comportamento, não intenção histórica.
 
-### Contrato proposto
+### Decisão vigente
 
-O owner fornece uma operação L1 de realização pós-introspecção que recebe a
-entry gerada, o snapshot lexical causal e estilos privados do parent. Ela aplica
-matching, precedência, revogação, guardas e teto uma única vez segundo o contrato
-vigente. Sem substituição transformacional, aplica o show default composto por
-helpers da entry e link causal. Reiterações do fixpoint podem refazer um
-candidato, mas não acumulam transformações sobre o candidato anterior.
+Correção interna/de paridade em fluxo contínuo ADR-0127, sem campo ou assinatura
+pública. Não confundir constantes normativas de um algoritmo com configuração
+ignorada. O fator0.55, custo-base135, distância5 e incremento0.15 vêm da fonte
+pinada; identificar essas constantes pelo significado e referência, sem alegar
+que renomear números implementa configuração. Custos customizados continuam
+escopo pendente. Conservar identidade textual literal do hífen nesta rodada:
+ela requer carrier/contrato separado, não heurística sobre glyph ou posição.
 
-Não executar callback no layout, não usar uma pilha global final e não inserir a
-entry realizada como nova ocorrência consultável. Confirmação humana explícita
-recebida em 2026-09-15; a nova fronteira está autorizada pelo gate ADR-0127.
+Capturar overhang bool em text.overhang; rejeitar outros tipos com expected boolean e span causal do valor, usando helper de diagnóstico vigente. Não emitir warning de propriedade descartada para overhang válido. O suporte geométrico continua limitado ao subconjunto certificado; não prometer pontuação comum ou fallback completo.
 
-## P1412 — regras de estilo do outline
-
-### Medição anterior à decisão
-
-No baseline `2ff1a23d4`, `eval_set_rule` não reconhece o alvo simples
-`outline` nem o alvo pontuado `outline.entry`; a realização fabrica sempre o
-fill pontilhado. Além disso, uma transformação de entry que devolve conteúdo
-contextual perde os estilos privados do parent antes da expansão pós-realização,
-embora esses estilos estejam presentes durante a chamada da transformação.
-
-### Decisão
-
-`#set outline(indent:)` captura `length | function | auto` e o `bool` mantido
-por compatibilidade cristalina em `outline.indent`. `#set outline.entry(fill:)`
-captura `content | none` em `outline.entry.fill`. Campos desconhecidos são erro
-`unexpected argument`; valores incompatíveis são erro de tipo. A chain é
-léxica e argumento explícito no constructor vence o valor herdado.
-
-Antes de capturar um outline para realização e introspecção, materializar nele
-o `indent` herdado somente quando o argumento foi omitido. Antes de aplicar show
-rules a uma entry construída diretamente, materializar do mesmo modo o `fill`
-herdado somente quando `fill` foi omitido. Entries sintetizadas pela realização
-recebem o fill efetivo já resolvido.
-
-O resultado realizado de cada entry é embrulhado por um carrier visualmente
-neutro com `outline.parent.indent` e `outline.parent.key`. Assim, qualquer
-`ContextBlock` criado pela transformação e expandido posteriormente conserva o
-parent causal exato. O carrier não muda matching, ordem, fase nem conteúdo
-consultável.
-
-## P1413 — síntese interceptável de `raw.line` (PROPOSTO; gate ADR-0127)
+## Custos textuais personalizados — 2026-09-28
 
 ### Medição anterior à decisão
 
-No baseline `e7b2ddd44`, show rules recebem `RawElem` como folha; não há
-instâncias de linha. No vanila ratificado, raw inline e bloco sintetizam uma
-linha por segmento, preservam vazio, índice baseado em 1, total e body, e
-aplicam `#show raw.line` em ordem.
+`correcao-custos-paragrafo-2026-09-28/before-pdf/` registra 66 entradas no
+estado `initial.json` e `before/`, contra pin 9f2b6e8715237cb086899a42873660fe744622e8.
+`text/mod.rs:1507-1564` valida Dictionary, Ratio por campo e composição parcial;
+`inline/mod.rs:240` lê costs do escopo compartilhado, não de cada fragmento;
+`inline/linebreak.rs:29-30,961-962` aplica defaults 135/100 vezes o ratio.
+O Tekt descarta costs em eval/rules e aceita sem transportar no constructor;
+paragraph_hyphen e paragraph_select usam defaults fixos. Os erros e spans
+estão no stderr vanilla, inclusive negativos aceitos. Não inferir intenção.
 
-### Decisão proposta
+### Decisão vigente
 
-Ao interceptar `RawElem`, detectar por matching tipado se alguma regra vigente
-é aplicável a instâncias `raw.line`. Somente nesse caso, dividir o texto por
-newline preservando vazios, construir os carriers dinâmicos com
-`number/count/text/body`, aplicar o motor normal de show a cada instância e
-recompor em ordem com fronteiras de linha. Se nenhuma regra casa, devolver o
-`RawElem` intacto; não substituir highlighting/default por aproximação.
+Correção interna/de paridade ADR-0127 em fluxo contínuo, sem novo contrato
+público, flag ou fase. Módulo privado compiler/text_costs possui owner único
+para cast, transporte por componente e resolução dos custos compartilhados.
+Hifenização/runt globais passam a consultar a configuração. Widow/orphan são validados e transportados; sua influência é limitada ao subconjunto regional certificado descrito abaixo.
+Custos de fragmentos parciais não substituem o custo compartilhado; os quatro
+canais validados são neutros para glyphs na whitelist Styled. Um wrapper integral
+é fatorado pela realização existente antes de formar Par. Largura variável
+permanece limitada. Não deduzir custo pelo glyph. Preservar todos os defaults.
 
-O constructor manual viaja pelo mesmo `Content::Dynamic` e motor normal.
-Filtros `where` leem os campos do carrier. Guardas, precedência, teto e
-revogação não ganham um segundo algoritmo.
+Set text costs chama parser compartilhado antes de mutar chain; empurra somente campos fornecidos, em canais canônicos. Erro usa span do dictionary. Widow/orphan fornecidos podem gerar aviso factual de influência na paginação pendente; hyphenation/runt não são descartados.
 
-Esta ampliação de contrato público aguarda confirmação humana explícita antes
-de L1.
+### Refinamento de custo compartilhado medido antes de implementar
 
-## P1414 — captura lexical de `#set par.line` (PROPOSTO; gate ADR-0127)
+after-first-resultados.json/proveniencia.json registra 66 entradas com o primeiro
+binário de custos. Só restore e inline divergem entre os inputs válidos. A fonte
+`inline/mod.rs:240` consulta shared.get(TextElem::costs); `eval/rules.rs` conserva
+fatoração dos Styled que cobrem todo o material do fluxo antes de formar Par.
+`paragraph_prepare.rs:45-78` recusa os novos canais mesmo quando eles não alteram
+nenhum atributo de glyph: o fallback incremental produz escolhas divergentes.
+A exclusão absoluta desses canais foi refutada; isto supersede o scope-out
+anterior, sem promover fragmentos ao escopo exterior nem mudar fase de pipeline.
 
-### Medição anterior à decisão
+Permitir exclusivamente text.costs.hyphenation/runt/widow/orphan na whitelist
+Styled da preparação. O custo lido pelo planejamento é o escopo compartilhado
+exterior: push temporário da preparação é restaurado e não altera tal leitura.
+Inline parcial não escolhe custos do parágrafo; Styles integral continua a ser
+fatorado pelo mecanismo existente de realização e entra na chain antes de Par.
+Não criar espaço ou fronteira de palavra por diferenças de costs. Manter
+limitações físicas widow/orphan e contextos fora do subconjunto certificado.
 
-O target pontuado chega como `Expr::FieldAccess`; `text_str()` produz vazio e o
-fallback vigente apenas avisa. O vanila aceita cinco campos e a numeração
-alcança linebreaks explícitos e wraps automáticos.
-
-### Decisão proposta
-
-Reconhecer exclusivamente `par.line` no branch tipado de FieldAccess. Named
-aceites: `numbering: string | none`, `number-align: horizontal alignment |
-auto`, `number-margin: left | right | start | end`, `number-clearance: length |
-auto` e `numbering-scope: "document" | "page"`. Cada valor validado entra na
-StyleChain por chave `par.line.*`; omitido não altera a chain, desconhecido é
-erro e nenhuma avaliação é descartada.
-
-`numbering: function` fica explicitamente para P1415 porque callback não pode
-ser executado no layout puro. P1414 não o aceita nem o converte em string. A
-ampliação pública aguarda confirmação humana explícita.
-
-## P1415 — captura de callback de `par.line` (PROPOSTO; gate ADR-0127)
-
-### Medição anterior à decisão
-
-No baseline `0a7de3dd9`, o branch de `par.line` rejeita `Value::Func` em
-`rules.rs:1330-1335`. O vanila ratificado aceita função unária e só revela erro
-de aridade quando a linha física é realizada. Executá-la durante o set perderia
-o número pós-wrap e a página causal.
-
-### Decisão proposta
-
-Ampliar exclusivamente a validação de `numbering` para
-`string | function | none`. Guardar o `Value::Func` intacto na StyleChain,
-preservando identidade e span. Eval não chama `apply_func`, não antecipa
-contador, não converte retorno e não fabrica marker. Campos e validações
-restantes conservam P1414.
-
-A execução tardia pertence ao contrato `infra/pipeline.md`; o layout puro só
-produz request. A ampliação pública aguarda confirmação humana explícita.
-
-## P1427 — propriedade settable `math.frac.style` (PROPOSTO; gate ADR-0127)
+## Proteção regional de viúvas/órfãs — 2026-09-28
 
 ### Medição anterior à decisão
 
-O vanilla declara `style` com default vertical no elemento `FracElem`; o
-cristalino reconhece propriedades de frac de forma incompleta, sem transportar
-um valor tipado até o layout.
+`00_nucleo/diagnosticos/correcao-viuvas-orfas-2026-09-28/before-pdf/` registra 78 entradas e `before-extra/` registra 24 controles, com estado completo em initial.json e before/, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. page-65-100%-0%-False deixa três linhas e uma no Tekt, mas duas e duas no vanilla; custos zero coincidem. Tiny/large-positive têm a mesma proteção vanilla. `lab/typst-original/crates/typst-layout/src/flow/collect.rs:196-229` mede habilitação estritamente positiva, primeiros dois/últimos dois e proteção integral de três linhas; `flow/distribute.rs:343-364` só avança por necessidade agrupada quando cabe na próxima região. paragraph_emit.rs emite linha por linha sem essa necessidade. A semântica observável é a distribuição de linhas/palavras em regiões, não os frames/Child do vanilla. Não inferir intenção do scope-out antigo.
 
-### Decisão proposta
+### Decisão vigente
 
-Aceitar `#set math.frac(style: ...)` somente no domínio string fechado
-`vertical | skewed | horizontal`. Após validação, guardar a `Value::Str`
-canônica no `StyleChain`, que não possui variante específica para este enum;
-o consumer de layout faz a conversão total para `MathFracStyle`. Estilo
-explícito no elemento vence o cascaded; ausência em ambos usa vertical. Named
-inválido falha no set, não é ignorado. `binom` não consome esta propriedade
-porque não é uma `math.frac` pública no vanilla.
+Correção interna/de paridade em fluxo contínuo ADR-0127: nenhum campo/trait/assinatura pública, flag ou fase nova. Supersede a exclusão anterior de widow/orphan exclusivamente para parágrafos preparados com métricas verticais uniformes, sem baseline offset, geometria paginada constante, sem colunas/células/subframes/notas/floats ou transação regional ativa. Os demais contextos conservam fallback e limites explícitos. Não promete algoritmo completo nem desempenho.
 
-## P1429 — propriedades settable de `math.accent` (PROPOSTO; gate ADR-0127)
+O módulo privado paragraph_pagination possui exclusivamente certificação vertical, agrupamento e admissão regional. Recebe ranges já escolhidos, não refaz seleção, não emite glyphs nem duplica a lógica de new_page. A certificação inteira precede emissão; todos os fragmentos devem ter size/arestas/leading iguais ao estilo exterior (negrito/itálico admissíveis se as métricas coincidirem), e finite nonnegative top/descent/leading. Bounds auto não precisam de proteção. Respeitar a baseline inicial e o colapso existente de block-chain antes de comparar necessidade real com page_bottom_limit. Novo espaço disponível é calculado com margens resolvidas para a página seguinte. Avançar só se há material na região atual e o grupo cabe na próxima. Grupos muito altos conservam progresso ordinário e conteúdo íntegro; nunca repetir new_page em laço.
 
-### Medição anterior à decisão
+Helpers privados de text_costs resolvem widow/orphan independentemente dos pesos hyphenation/runt, reutilizando FIELDS, com default Ratio 1 e teste estrito > 0. O default de estratégia do planejamento passa a Simple para parágrafo comum sem linebreaks, permitindo a preparação necessária à proteção padrão; a escolha automática por justify e todos os contextos recusados permanecem. Emitir sem alterar justificação, carriers, última linha aberta, fronteiras e restauração lexical. Preservar notas e colunas por não aplicar proteção incompleta nesses caminhos.
 
-O validador já reconhece `size` e `dotless`, mas os classifica como desligados
-e só avisa; nenhum valor chega à construção ou ao layout.
+Aceitação: RED→GREEN com mesmas palavras distribuídas 2+2 versus 3+1, proteção integral de três, orphan desligado independentemente, grupo excessivo, restauração e default sem flag. Sondas bilaterais com caixas/palavras/páginas, tipos/spans anteriores preservados e controles de fallback. Não usar grupos XML como número físico de linhas. Resselo restrito aos owners, build e crystalline-lint sem erros.
 
-### Decisão proposta
+Quando set text(costs:) inclui widow/orphan, atualizar o aviso factual para suporte limitado a parágrafos preparados com métricas verticais uniformes; hint declara colunas/notas/conteúdo misto ainda fora do subconjunto. Não emitir aviso de influência inteiramente ausente agora que o subconjunto foi materializado. Nenhuma nova API de Sink no constructor.
 
-Ligar ambos os pares em `MATH_SET_LIGADOS`. `size` aceita relative length e
-`dotless` aceita boolean, guardados em chaves canônicas da `StyleChain`.
-Argumento explícito no elemento vence cascata; cascata vence defaults
-`100%`/`true`. Regras não alteram os bits morfológicos de presença do elemento.
+## Atomização comportamental P1499
 
-## P1430 — cascata tipada de `math.cases` (PROPOSTO; gate ADR-0127)
+**Medição:** a working tree não commitada em `00_nucleo/diagnosticos/atomizacao-eval-rules-2026-09-30-before.json.gz` contém 4754 linhas neste consumer; a suíte L1 passou com 6401 testes e 2 ignorados. Não é benchmark nem nova comparação bilateral.
 
-`#set math.cases` aceita somente `delim`, `reverse` e `gap`, com os mesmos
-domínios do constructor público: par de delimitadores opcionais, booleano e
-relative length. Validar antes de inserir no `StyleChain`; valor inválido ou
-named desconhecido é erro atribuível, nunca warning nem fallback. A chamada
-explícita prevalece sobre a cascata, que prevalece sobre os defaults
-`("{", "}")`, `false`, `0.2em`. Valores cascaded não ativam bits de presença
-morfológica no elemento.
-
-## P1431 — cascata tipada de `math.mat` (PROPOSTO; gate ADR-0127)
-
-`#set math.mat` aceita somente `delim`, `align`, `augment`, `gap`, `row-gap` e
-`column-gap`, com os mesmos casts do constructor. `gap` alimenta os dois eixos;
-o gap específico no mesmo nível prevalece. Argumento explícito no elemento
-vence cascata, que vence defaults `()`, `center`, `none`, `0.2em`, `0.5em`.
-Augment explícito dobra o stroke cascaded segundo a regra vanilla, mas preserva
-os próprios offsets; `none` explícito apaga augment externo. Valores de set
-rule nunca ativam bits morfológicos de presença no elemento.
-
-No valor dict de `augment`, somente `hline`, `vline` e `stroke` são consumidos;
-chaves internas desconhecidas são aceites e ignoradas, conforme o pin. Os tipos
-inválidos desses três campos continuam erro. Esta tolerância interna não altera
-a lista fechada de named da própria set rule.
-## P1446 — propriedade settable `math.stretch.size` (PROPOSTA; gate ADR-0127)
-
-Ligar o par já reconhecido `("stretch", "size")` ao transporte efetivo.
-Validar `Rel<Length>` antes de inserir a chave `math.stretch.size` na
-StyleChain; named desconhecido, duplicado e tipo inválido falham. No layout,
-argumento explícito vence cascata, cascata vence `100%`. O valor cascaded não
-altera `size_explicit`, fields ou repr do carrier.
-
-## P1462 — set rule `format.svg` (MATERIALIZADA)
-
-### Medição anterior à decisão
-
-No baseline `7442d33b6bf48f136826d28cf71bd62f8710a432`,
-`eval_set_rule` obtém `set.target().text_str()`. Um `FieldAccess` como
-`format.svg` chega ao fallback com nome vazio e o cristalino apenas avisa que o
-target não é suportado. O vanilla ratificado aceita `pretty: bool`, rejeita
-named desconhecido com `unexpected argument: other` e tipo inteiro com
-`expected boolean, found integer`.
-
-Na calibração pré-candidata R1, o vanilla ratificado recebeu uma regra
-`pretty: true` seguida de `#set format.svg()`. A saída permaneceu pretty em
-`forward`, `reverse` e `forward-repeat`; portanto ausência do named não
-materializa o default e não apaga a cascata. A medição e a proveniência estão
-na medição histórica.
-
-### Decisão proposta
-
-Reconhecer estruturalmente o target pontuado exato `format.svg`, sem inferir o
-nome a partir da string vazia e sem ampliar o fallback genérico. Aceitar
-exatamente um named opcional `pretty`. Quando presente, validar o valor como
-boolean antes de produzir mudança de estilo. Quando ausente, a set rule é
-neutra: não insere `format.svg.pretty` e preserva qualquer decisão cascaded
-anterior. O default público `false` só vale quando não existe decisão
-documental. Argumento posicional, named duplicado/desconhecido ou tipo inválido
-falha pelo canal normal de `SourceResult`, nunca warning nem descarte
-silencioso.
-
-O valor validado segue pelo carrier `StyleDelta.custom` vigente sob a chave
-canônica `format.svg.pretty`. Este owner não extrai opção documental, não
-decide se a regra está em top-level/container e não formata SVG. A fronteira
-top-level e a mensagem de container pertencem ao owner puro
-`compiler/layout/format_options`; L3 apenas orquestra sua aplicação.
-
-Preservar todas as demais set/show rules, a ordem da cascata e a política de
-named desconhecido. `format.pdf`, `format.html` e qualquer outro campo não
-contratado continuam ausentes. A confirmação P1462 foi recebida em 2026-09-19
-e a materialização foi validada; P1463 não reabre essa semântica.
-
-## P1463 — set rule `format.png` (MATERIALIZADA)
-
-### Medição anterior à decisão
-
-No baseline `23cd47e4ade4d6deb7095cb7400478feffb1e9f9`, somente o target
-pontuado `format.svg` possui braço estrutural. `format.png` cai no fallback de
-target textual vazio, emite warning e não altera opções. No vanilla ratificado,
-`#set format.png(ppi: 72)` e `ppi: 1.5` são aceitos; string e boolean falham com
-`expected float, found <tipo>`; named desconhecido, positional e duplicado
-falham com os diagnósticos normais. `#set format.png()` é neutro.
-
-### Contrato
-
-Reconhecer estruturalmente somente `format.png`. Aceitar zero ou um named
-`ppi`; `Value::Int` é convertido para `f64` e `Value::Float` é preservado.
-Quando presente, inserir `Value::Float` sob a chave canônica
-`format.png.ppi`. Quando ausente, não inserir chave nem materializar 144.0,
-preservando qualquer decisão cascaded anterior.
-
-Argumento positional, named desconhecido/duplicado e variante não numérica
-falham antes de alterar `StyleChain`. A mensagem de tipo usa `float` como
-esperado e o nome público da variante encontrada. Valores finitos zero e
-negativos não são rejeitados neste owner: o vanilla os aceita. Não há alegação
-P1463 para não finitos cujo oráculo aborta.
-
-Este owner não decide top-level, não lê CLI, não divide por 72 e não
-rasteriza. A fronteira de container pertence ao collector puro; a conversão
-da flag externa pertence à pipeline. Preservar integralmente `format.svg` e
-as demais regras.
-
-### Aceitação e gate
-
-Cobrir integer/float, ausência, repetição/inversão, erros de named/tipo/
-positional/duplicado e ausência do warning antigo. A confirmação humana
-posterior ao commit causal P1463 foi recebida em 2026-09-19; a set rule foi
-materializada e validada sem reabrir `format.svg`.
-
-## P1465 — set rule feature-gated `format.html` (MATERIALIZADA)
-
-### Medição anterior à decisão
-
-No baseline `8e74134a721310cc4fb2a596a195398e16f1d5db`, os únicos targets
-`format.*` reconhecidos estruturalmente são `svg` e `png`; `format.html` cai no
-fallback textual e não transporta decisão. No vanilla ratificado, com a feature
-ativa, a regra aceita exatamente o named opcional `pretty: bool`; regra vazia é
-neutra, unknown/positional/duplicado/tipo inválido produzem os diagnósticos
-públicos normais.
-
-Uma expressão `nope: panic("arg")` é avaliada antes do erro de schema quando a
-feature está ativa. Sem a feature, o gate de `format.html` acontece antes de
-avaliar qualquer argumento e produz o diagnóstico de field feature-gated com
-dois hints. Essa ordem é observável e impede validar o nome desconhecido antes
-do gate ou descartar sua expressão depois do gate ativo.
-
-### Contrato
-
-Reconhecer estruturalmente somente `format.html`. Antes de percorrer os
-argumentos, exigir `Feature::Html`; se ausente, devolver no field `html`:
-
-```text
-cannot access field `html` because the `html` feature is not enabled
-hint: try enabling the `html` feature
-hint: see https://typst.app/help/compiler-features for more details
-```
-
-Com a feature ativa, avaliar as expressões de argumento em ordem antes da
-validação ordinária do respectivo schema. Aceitar zero ou um named `pretty` e
-exigir `Value::Bool`. Quando presente, inserir o valor sob a chave canônica
-`format.html.pretty`; quando ausente, não inserir chave e preservar decisão
-cascaded anterior. Positional, named desconhecido/duplicado e tipo inválido
-falham com as mensagens medidas, sem warning nem alteração parcial de styles.
-
-Este owner não decide top-level, não extrai opções, não lê CLI e não exporta
-HTML. A fronteira de containers pertence ao collector puro. Preservar
-`format.svg`, `format.png`, o gate bare de `html`, todas as demais regras e a
-ordem da cascata.
-
-Aceitação cobre os quatro perfis, gate antes de panic, avaliação ordinária dos
-argumentos com feature ativa, regra vazia, true/false, repetição/inversão e os
-quatro negativos de schema. A confirmação humana posterior ao commit causal
-`e300314e2f87e90e543c4923a8cae97f9ad978a8` foi recebida em 2026-09-20; a
-regra e seus testes comportamentais foram materializados.
-
-## P1467 — set rule `format.pdf(tagged, pretty)` (MATERIALIZADO; gate ADR-0127 satisfeito)
-
-### Medição anterior à decisão
-
-No baseline `306ca50022104619447fae2625090b8d9c7b0a35`,
-`01_core/src/compiler/eval/rules.rs:1413-1570` reconhece estruturalmente os
-targets pontuados `format.html`, `format.svg` e `format.png`; não existe braço
-para `format.pdf`. Medido via `./target/release/typst eval`:
-
-```text
-{ set format.pdf(tagged: true) }
-=> warning: set: target '' ainda não suportado
-   hint: targets suportados: heading, page, figure, text, par, table, smartquote
-```
-
-Este aviso genérico é ele próprio uma divergência do vanilla, que nunca o
-produz para `format.pdf`. No vanilla ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
-medido via `typst eval` em 2026-09-20:
-
-```text
-{ set format.pdf(tagged: true, pretty: true) }        -> aceito, sem diagnóstico
-{ set format.pdf(nope: 1) }                            -> unexpected argument: nope
-{ set format.pdf(true) }                                -> unexpected argument
-{ set format.pdf(tagged: true, tagged: false) }         -> duplicate argument: tagged
-{ set format.pdf(tagged: 1) }                           -> expected boolean or auto, found integer
-{ set format.pdf(pretty: 1) }                           -> expected boolean, found integer
-```
-
-O diagnóstico de tipo de `tagged` difere do padrão `svg`/`png`/`html`: aceita
-`auto` além de `bool`, logo a mensagem de tipo é
-`expected boolean or auto, found <tipo>`, nunca a forma de dois tipos usada
-pelos irmãos somente-booleanos. `format.pdf` não é feature-gated (P1464); os
-dois campos existem e são aceitos nos quatro perfis, sem o gate `html`/
-`a11y-extras` que `format.html` exige.
-
-### Contrato
-
-Reconhecer estruturalmente somente `format.pdf`. Aceitar zero, um ou dois
-named dentre `tagged` e `pretty`, em qualquer ordem; positional, named
-desconhecido e named duplicado falham como nos irmãos já materializados. Para
-cada named presente:
-
-- `tagged`: aceitar `Value::Auto` ou `Value::Bool`; qualquer outra variante
-  falha com `expected boolean or auto, found <tipo>`. Valor validado insere
-  `Value::Auto` ou `Value::Bool` sob a chave canônica `format.pdf.tagged`.
-- `pretty`: aceitar somente `Value::Bool`; outra variante falha com
-  `expected boolean, found <tipo>` (mesma forma de `format.svg.pretty`/
-  `format.html.pretty`). Valor validado insere `Value::Bool` sob
-  `format.pdf.pretty`.
-
-Os dois campos são independentes: uma regra que só nomeia um deles não insere
-chave para o outro e não apaga decisão cascaded anterior desse outro campo.
-Regra vazia (`#set format.pdf()`) não insere nenhuma chave. Named
-desconhecido, positional ou duplicado falham antes de qualquer inserção em
-`StyleChain`, pelo canal normal de `SourceResult`, nunca warning nem descarte
-silencioso — isto também substitui o aviso genérico `target '' ainda não
-suportado` hoje emitido para `format.pdf`, que deixa de ser alcançado por
-este target.
-
-Este owner não extrai opção documental, não decide top-level/container e não
-exporta PDF. A fronteira top-level e a mensagem de container continuam em
-`compiler/layout/format_options.md`; a resolução de precedência CLI/documento
-continua em `infra/pipeline.md`. Este owner não reabre a descoberta/namespace
-de `format.pdf` já materializada em P1464 (`compiler/stdlib/format.md`), nem
-`pdf.pages`/`pdf.standard` (P1468/P1469).
-
-Preservar integralmente `format.svg`, `format.png`, `format.html` (incluindo
-seu gate de feature) e a ordem/política de named desconhecido das demais set
-rules.
-
-### Aceitação e gate
-
-Cobrir os quatro perfis: `tagged` com `auto`/`true`/`false`, `pretty` com
-`true`/`false`, os dois juntos e cada um isolado, regra vazia neutra,
-repetição/inversão lexical, os cinco negativos de schema (`nope`, positional,
-`tagged` duplicado, `tagged: 1`, `pretty: 1`) e ausência do aviso genérico de
-target não suportado. Este é um dos quatro L0s do gate ADR-0127 de P1467
-(campo público novo e mudança de comportamento por defeito).
-
-A confirmação humana explícita posterior ao commit causal somente-L0
-`e675e8b7acc29e272bd59939e44681a7b521acd3` foi recebida em 2026-09-20.
-Agente A implementou o braço `format.pdf` sem ver os testes; Agente B
-escreveu 15 testes comportamentais a partir do mesmo baseline sem ver a
-implementação (4/15 já passavam por coincidência mecânica — deteção
-genérica de duplicado e regra vazia; os 11 restantes exigiam o braço). O
-teste independente passou de RED (11/15 falhas) a GREEN (15/15) após a
-integração, sem regredir `format.svg`/`format.png`/`format.html`.
-
-## P1468 — named `pages` em `format.pdf(...)` (MATERIALIZADO; gate ADR-0127 satisfeito)
-
-### Medição anterior à decisão
-
-No baseline `0b322a926dd2f86b49aabfeb0d2f287ce06aaace`, o braço `format.pdf`
-(P1467) só aceita `tagged`/`pretty`. No vanilla ratificado, `pages` aceita
-`i64` (via `cast! { PageRange, nr: i64 => Self::at(parse_page_number(nr)?) }`,
-`typst-library/src/layout/page.rs:813-821`), `Dict` com `from`/`to`
-(`:822-836`), ou `Array` de qualquer mistura desses dois
-(`typst-library/src/layout/page.rs:764-772`, `cast! { PageRanges, array: Array
-=> ... }`), ou `none` (default). Medido via `typst eval` em 2026-09-20:
-
-```text
-{ set format.pdf(pages: 1) }                          -> aceito
-{ set format.pdf(pages: (from: 1, to: 3)) }            -> aceito
-{ set format.pdf(pages: (from: 2)) }                   -> aceito (aberto no fim)
-{ set format.pdf(pages: (to: 2)) }                     -> aceito (aberto no início)
-{ set format.pdf(pages: (1, (from: 3, to: 5))) }       -> aceito (array misto)
-{ set format.pdf(pages: ()) }                          -> aceito (array vazio = nenhuma seleção extra)
-{ set format.pdf(pages: (:)) }                          -> page range must not be empty
-{ set format.pdf(pages: (from: 1, extra: 2)) }          -> unexpected key "extra", valid keys are "from" and "to"
-{ set format.pdf(pages: (from: 5, to: 2)) }             -> start of page range cannot be larger than end
-{ set format.pdf(pages: 0) }                            -> page numbers start at one
-{ set format.pdf(pages: -1) }                           -> page numbers start at one
-{ set format.pdf(pages: 1.5) }                          -> expected integer, dictionary, array, or none, found float
-{ set format.pdf(pages: "1") }                          -> expected integer, dictionary, array, or none, found string
-{ set format.pdf(pages: auto) }                          -> expected integer, dictionary, array, or none, found auto
-{ set format.pdf(pages: (1, "x")) }                      -> expected integer or dictionary, found string
-```
-
-Note a mensagem de tipo de topo (`"expected integer, dictionary, array, or
-none, found <tipo>"`) difere da mensagem de elemento de array
-(`"expected integer or dictionary, found <tipo>"`, sem `array`/`none` porque
-um elemento de array não pode ser ele próprio array/none). `pages` não é
-feature-gated e coexiste nos quatro perfis.
-
-### Contrato
-
-Estender o braço `format.pdf` (P1467) para aceitar também o named `pages`,
-independente de `tagged`/`pretty` (três campos, cada um com seu próprio
-`seen_*`). Validar o valor recebido contra o domínio `PageRanges` de
-`entities/document_format_options.md`, com o MESMO cast em três níveis:
-
-- inteiro (`Value::Int`) → `PageRange` de página única, `0` ou negativo falha
-  com `"page numbers start at one"`; outro tipo (float/string/bool) falha com
-  a mensagem de topo;
-- `Value::Dict` com `from`/`to` → `PageRange` de intervalo; dict vazia falha
-  com `"page range must not be empty"`; chave extra falha com
-  `"unexpected key \"{key}\", valid keys are \"from\" and \"to\""`; `from >
-  to` falha com `"start of page range cannot be larger than end"`;
-- `Value::Array` → cada elemento é um inteiro OU dict (mesmo cast acima,
-  recursivo um nível); elemento de outro tipo falha com a mensagem de
-  elemento (sem `array`/`none`); array vazio é `PageRanges` vazia (equivalente
-  a nenhuma seleção adicional, mas **presente** — distinto de `none`, que
-  continua a chave ausente);
-- `Value::None` → regra explicitamente "todas as páginas"; insere
-  `Value::None` na chave (distinto de omitir o named, que não insere nada).
-
-Este owner faz a validação COMPLETA no momento do `set` (todos os diagnósticos
-acima, incluindo `from > to`, chave extra e `0`/negativo) — os erros medidos
-ocorrem ao avaliar a expressão, não só na exportação. Depois de validado,
-insere `Value::Int`/`Value::Dict`/`Value::Array`/`Value::None` tal como
-recebido (o `Value` nativo já suporta essas variantes; não é necessário um
-tipo customizado no `Styles`) sob a chave canônica `format.pdf.pages`. A
-construção do `PageRanges` tipado a partir desse `Value` já validado é feita
-por `compiler/layout/format_options.md`; uma falha nessa segunda passagem
-seria estado interno impossível (o valor já passou pela validação aqui) e
-falha fechada, nunca um novo diagnóstico de schema.
-
-Preservar integralmente `tagged`, `pretty`, `format.svg`, `format.png`,
-`format.html` e a política de named desconhecido/duplicado. Este owner não
-decide interação `pages`+`tagged` (isso é `infra/pipeline.md`), não sabe que
-existe CLI e não exporta PDF.
-
-### Aceitação e gate
-
-Cobrir: inteiro único, dict aberto/fechado nos dois lados, array vazio/misto,
-`none` explícito, os oito negativos de schema medidos acima, independência
-face a `tagged`/`pretty`, e não regressão dos irmãos. Este é um dos L0s do
-gate ADR-0127 de P1468.
-
-A confirmação humana explícita posterior aos commits causais somente-L0
-`9bb20b8e8`/`70d09eae2` foi recebida em 2026-09-20/21. Agente A implementou
-o named `pages` sem ver os testes; Agente B escreveu 20 testes a partir do
-mesmo baseline sem ver a implementação. O teste independente passou de RED
-(compilava mas falhava em runtime, já que `rules.rs` não depende de tipos
-ainda inexistentes noutros ficheiros) a GREEN (35/35 no módulo, incluindo os
-15 pré-existentes de P1467) após a integração, sem regredir
-`format.svg`/`format.png`/`format.html`.
-
-## P1469 — named `standard` em `format.pdf(...)` (ESCOPO REDUZIDO — contrato de linguagem) (MATERIALIZADO; gate ADR-0127 satisfeito)
-
-Ver `entities/document_format_options.md` P1469 para a nota de escopo
-reduzido (decisão do dono, 2026-09-21): este owner materializa parsing e
-validação de nomes/conflitos, não conformidade estrutural real.
-
-### Medição anterior à decisão
-
-No baseline `85b7fc5f1eda67e89494a478c2458de36d4ee20d`, o braço `format.pdf`
-(P1467/P1468) aceita `tagged`/`pretty`/`pages`. Medido via `typst eval`/
-`typst compile` em 2026-09-21 (mensagens completas e tabela de compatibilidade
-de versão em `entities/document_format_options.md` P1469):
-
-```text
-"1.7" (string válida)                 -> aceito
-("a-1b", "1.7") (array misto)          -> aceito (elementos são sempre string)
-() (array vazio)                       -> aceito; efetivo 1.7 sem validators (== default)
-none                                    -> expected "1.4", ..., "ua-1", or array, found none
-17 (integer)                            -> expected "1.4", ..., "ua-1", or array, found integer
-true (boolean)                          -> expected "1.4", ..., "ua-1", or array, found boolean
-"3.0" (string não reconhecida)          -> expected "1.4", ..., "ua-1", or array   (SEM ", found string")
-("1.7", "xyz") (elemento inválido)      -> expected "1.4", ..., or "ua-1"          (SEM "array"/"found",
-                                            forma de lista com "or" antes do último item)
-```
-
-Diferença crucial: quando o `Value` **não é string nem array** (int/bool/
-dict/etc.), a mensagem ganha o sufixo `, found {tipo}`; quando **é uma
-string mas não corresponde a nenhum dos 17 nomes**, a mensagem não tem esse
-sufixo (mesmo padrão de qualquer `cast!` Typst para enum de string literais
-— não é peculiaridade deste named). Dentro de um elemento de array, a lista
-de opções perde `"...", or array` e vira `"...", or "ua-1"` (sem a opção
-`array`, já que um elemento não pode ser array aninhado).
-
-`standard` **não aceita `Value::None`** — diferente de `pages` (P1468), que
-tem `none` como forma explícita de "resetar". A única forma de "documento
-não decide" é a ausência do named; a única forma de "conjunto vazio
-explícito" (que resolve para o mesmo default 1.7 mas é tecnicamente uma
-decisão presente, não ausência) é o array vazio `()`.
-
-### Contrato
-
-Estender o braço `format.pdf` para aceitar também o named `standard`,
-independente de `tagged`/`pretty`/`pages` (quatro campos, cada um com seu
-próprio `seen_*`). Para o valor recebido:
-
-- `Value::Str`: mapear para um dos 17 `PdfStandard`; se não corresponder,
-  erro sem sufixo de tipo (lista de 17 opções + `"or array"`);
-- `Value::Array`: cada elemento deve ser `Value::Str` mapeável para um dos
-  17 nomes; elemento inválido falha com a mesma lista de 17 opções, mas sem
-  `"or array"` (forma "or" antes do último item, não vírgula-espaço);
-  array vazio é uma seleção válida (conjunto sem nomes);
-- qualquer outra variante (incluindo `Value::None`) falha com a lista de 17
-  opções + `"or array"` + `, found {tipo}`.
-
-Depois de coletar a lista de `PdfStandard` nomeados (um elemento para
-`Value::Str`, N elementos para `Value::Array`), chamar
-`PdfStandards::new(&lista)` (`entities/document_format_options.md` P1469)
-**só para validar** (mesma disciplina dos três campos irmãos: a validação
-completa acontece aqui, no momento do `set`, mas o valor armazenado em
-`Styles.custom` permanece um `Value` nativo — nunca um tipo L1 opaco). Se
-`Err(conflict)`, mapear o `PdfStandardsConflict` estruturado para a
-mensagem exata medida (tabela acima e em `entities/document_format_options.md`
-P1469) — este owner é responsável pelo texto final do diagnóstico, o tipo
-L1 só carrega os dados. Se `Ok(_)` (validação passou), inserir sob a chave
-canônica `format.pdf.standard` o **`Value::Array` original recebido**
-(normalizado: se o named veio como `Value::Str` único, envolver num array
-de um elemento — o vanilla já representa o valor resolvido como array de
-strings, `repr(format.pdf.standard) == ("1.7",)`, então este owner só
-precisa preservar essa forma, não inventar transporte novo). A reconstrução
-de `PdfStandards` a partir desse array (chamando `PdfStandards::new` de novo
-sobre um array já validado) é responsabilidade do extractor puro
-(`compiler/layout/format_options.md`), exatamente como os três campos
-irmãos: uma segunda falha nessa reconstrução seria estado interno
-impossível, nunca um novo diagnóstico de schema.
-
-Preservar integralmente `tagged`, `pretty`, `pages`, `format.svg`,
-`format.png`, `format.html` e a política de named desconhecido/duplicado.
-Este owner não decide interação `standard`+`tagged` nem `standard`+`pages`
-(isso é `infra/pipeline.md`), não sabe que existe CLI e não exporta PDF.
-
-### Aceitação e gate
-
-Cobrir: os 17 nomes individuais, array com múltiplos nomes válidos, array
-vazio, os cinco conflitos estruturados (duas versões, dois PDF/A, dois
-PDF/UA, interseção vazia, versão explícita fora do range — reusar os casos
-de `entities/document_format_options.md` P1469), os quatro negativos de
-schema medidos acima (`none`, inteiro, boolean, string não reconhecida,
-elemento de array inválido — cinco ao todo), independência face a
-`tagged`/`pretty`/`pages`, e não regressão dos irmãos. Este é um dos L0s do
-gate ADR-0127 de P1469 (flag antes inerte torna-se funcional).
-
-A confirmação humana explícita posterior aos commits causais somente-L0
-`65e68ad45`/`e14002d55` foi recebida em 2026-09-21. Agente A implementou o
-named `standard` sem ver os testes; Agente B escreveu 17 testes a partir do
-mesmo baseline sem ver a implementação. O teste independente passou de RED
-(compilava mas falhava em runtime) a GREEN (40/40 no módulo, incluindo os
-23 pré-existentes) após a integração, sem regredir
-`format.svg`/`format.png`/`format.html`.
+**Decisão:** este owner conserva diagnósticos genéricos, bindings e testes. Os comportamentos de PDF, math set, realização, aplicação show, outline, intercepção, set e show são delegados aos owners exclusivos `rules/{pdf,math_set,realize,apply,outline,intercept,set,show}.md`. O owner `rules/textual.md` permanece independente. As cláusulas históricas acima mapeiam a superfície; cada filho especifica sua família. A separação não altera contrato público, defaults ou fase.

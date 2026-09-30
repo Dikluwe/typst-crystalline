@@ -319,7 +319,7 @@ fn find_cases(content: &Content) -> Option<&Content> {
     match content {
         Content::MathCases(_) => Some(content),
         Content::Equation(elem) => find_cases(&elem.body),
-        Content::Styled(inner, _) => find_cases(inner),
+        Content::Styled(styled) => find_cases(&styled.body),
         Content::MathDelimited(elem) => find_cases(&elem.body),
         Content::Sequence(items) | Content::MathSequence(items) => {
             items.iter().find_map(find_cases)

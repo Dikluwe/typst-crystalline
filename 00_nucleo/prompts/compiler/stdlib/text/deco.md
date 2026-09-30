@@ -1,131 +1,21 @@
-# Prompt L0 — `compiler/stdlib/text/deco` — `underline`, `strike`, `overline`, `highlight`
+# L0 — stdlib/text/deco
 Hash do Código: d88e131b
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/stdlib/text/deco.rs`
-**Prompt pai (hub)**: `00_nucleo/prompts/compiler/stdlib/text.md` — dono de `text/mod.rs`
-e da história por marco (`147605058`, `fa5bda1d4`, `87bc1c64d`). Este L0 especifica **a
-superfície do nó**.
-**Convenções partilhadas**: `00_nucleo/prompts/compiler/stdlib/_comum.md`
-**Vanilla**: `typst-library/src/text/deco.rs` — `UnderlineElem`, `OverlineElem`,
-`StrikeElem`, `HighlightElem` no mesmo ficheiro.
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/stdlib/text/deco.rs`
 
----
+## Evidence and classification
 
-## Contexto
+`01_core/src/compiler/stdlib/text/deco.rs:32`, `01_core/src/compiler/stdlib/text/deco.rs:38`, `01_core/src/compiler/stdlib/text/deco.rs:161` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-Marcas gráficas aplicadas *por detrás ou por cima* de um run de texto, sem alterar o
-texto. As três linhas (`underline`/`strike`/`overline`) partilham a mesma superfície de
-argumentos e um único parser interno, `build_decoration`, discriminado pelo enum privado
-`DecoKind`; emitem variants próprios de `Content` que o layout resolve como
-`FrameItem::Line`.
+## Contract and ownership
 
-`highlight` acompanha-as por correspondência vanilla (mesmo ficheiro `deco.rs`), mas é
-mecanicamente distinto: **não** usa `build_decoration` e emite `Content::Styled` com
-`Style::Highlight`, resolvido no layout como `FrameItem::Shape` rectangular por detrás
-do texto. A co-mudança cristalina é vácuo para o par `highlight`↔linhas: depois de
-descontar os lotes transversais (`87bc1c64d`, `04eda8179`), o `cargo fmt` global
-(`0661aef91`) e os renames de módulo (`6636c5ea6`, `0f5575cd0`), nenhum commit os liga —
-logo a fronteira vanilla fica. O único cluster que restava, `default_highlight_color`+
-`highlight`↔`super` em `fa5bda1d4` (2026-06-24), é artefacto de atribuição de fronteira:
-o corpo de `super` ficou intacto nesse commit.
+Own native_underline/strike/overline, their private DecoKind/build_decoration parser, highlight and its local default color helper. Require one Content|Str body. Lines accept stroke: typed Color|none, offset/extent: Length|Int|Float|none (bare numbers are points), emitting their corresponding Content carriers. Default render offsets remain +0.10em underline, -0.25em strike, -0.80em overline; rendering belongs to layout, not this constructor. Rich Stroke remains outside this specified line parser. evade/background retain educational scope-out diagnostics, including their literal historical P284/ADR references as message text, not as current architectural ownership. Other named errors preserve `{fn}(): argumento nomeado inesperado '{name}'`.
 
-## Instrução
+highlight accepts fill: typed Color|none (default RGBA 255,242,54,255; none disables), radius/extent: Length|none, and emits Content::highlight_full with its style carriers. Gradient fill and math-mode scope limitations remain; radius/extent are supported, not historical scope-outs.
 
-### `underline` / `strike` / `overline`
+Only Value::Color is a color value here: a string such as "red" is not a color alias; named color constants work after evaluation. Preserve typed rejection diagnostics, none/defaults, geometry and carriers. Reuse the existing shapes color coercion helper; do not add a replacement CSS table or fallback. Do not render, read World/context or introduce global state. Keep private helpers private.
 
-`fn(body, stroke: ?, offset: ?, extent: ?)` — 1 posicional `Content | Str` obrigatório.
+## Acceptance
 
-| Nomeado | Tipo aceite | Semântica |
-|---|---|---|
-| `stroke` | `Color \| none` | paint da linha; `none` desactiva o default. Objecto `Stroke` rico do vanilla é scope-out |
-| `offset` | `Length \| Int \| Float \| none` | override do deslocamento Y (Int/Float em pt) |
-| `extent` | `Length \| Int \| Float \| none` | extensão horizontal para lá do texto |
-
-Offsets Y por defeito (em-units, aplicados pelo layout): `underline` `+0.10` (abaixo do
-baseline) · `strike` `−0.25` (atravessa o x-height) · `overline` `−0.80` (acima do
-cap-height).
-
-**Scope-out com erro educacional** (ADR-0054 graded): `evade` e `background` respondem
-com mensagem que cita o scope-out, não com "argumento inesperado" genérico. Qualquer
-outro nomeado → `{fn}(): argumento nomeado inesperado '{nome}'`.
-
-Emitem `Content::underline` / `Content::strike` / `Content::overline`
-`(body, stroke, offset, extent)`.
-
-### `highlight`
-
-`highlight(body, fill: ?, radius: ?, extent: ?)` — 1 posicional `Content | Str`.
-
-| Nomeado | Tipo aceite | Semântica |
-|---|---|---|
-| `fill` | `Color \| none` | cor do fundo; default amarelo vanilla `rgba(255, 242, 54, 255)`; `none` desactiva |
-| `radius` | `Length \| none` | cantos arredondados |
-| `extent` | `Length \| none` | extensão horizontal |
-
-Emite `Content::highlight_full(body, fill, radius, extent)`.
-
-> **Correcção de deriva**: `radius` e `extent` foram materializados em `87bc1c64d`
-> (2026-06-27); o L0 pai continuava a declará-los scope-out. Estão implementados — a
-> cláusula de scope-out vale agora só para gradient fill e math mode.
-
-## Restrições Estruturais
-
-- L1 puro. `_ctx`/`_world`/`_current_file` são pass-through — nunca usados.
-- `DecoKind` e `build_decoration` são privados ao nó: são um eixo de variação interno,
-  não superfície de linguagem. Só as cinco nativas são reexportadas pelo hub.
-- `parse_color` vem de `compiler/stdlib/shapes.rs` (ponto único de coerção de cor);
-  não reimplementar aqui.
-- `default_highlight_color` é função, não `static` — L1 proíbe estado global (V13).
-
-## Critérios de Verificação
-
-```
-#underline[a]                     → Content::Underline { stroke:None, offset:None, extent:None }
-#underline("a")                   → body coagido de Str
-#underline(stroke: red)[a]        → stroke Some(red)
-#underline(stroke: none)[a]       → stroke None
-#underline(offset: 2pt)[a]        → offset Some(2pt)
-#underline(offset: 2)[a]          → offset Some(2pt) (Int em pt)
-#underline()                      → Err "underline() exige body como argumento posicional"
-#underline[a][b]                  → Err (2 posicionais)
-#underline(evade: true)[a]        → Err com a mensagem literal do código:
-                                    "…não suportado neste passo (P284 §A.1 scope-out /
-                                    ADR-0054 graded)" — citação da mensagem visível ao
-                                    autor do documento, não referência de legitimação
-                                    (ver nota do hub sobre estas duas mensagens)
-#underline(xpto: 1)[a]            → Err "argumento nomeado inesperado 'xpto'"
-#strike[a] / #overline[a]         → idem, variants próprios
-#highlight[a]                     → Styled([Highlight(Some(#fff236))])
-#highlight(fill: red)[a]          → Highlight(Some(red))
-#highlight(fill: none)[a]         → Highlight(None)
-#highlight(radius: 2pt)[a]        → + Style::highlight_radius
-#highlight(extent: 2pt)[a]        → + Style::highlight_extent
-#highlight()                      → Err
-```
-
-## P1455 — coerção de cor tipada (CONFIRMADO)
-
-### Medição anterior à decisão
-
-No baseline `3360722a3eb3b63371d2ad9e2d1758d85cd9f98d`, este owner
-reutiliza `shapes::parse_color` e, por isso, aceita o catálogo string CSS
-hardcoded que não existe no vanilla:
-
-- `underline(stroke: "red", [x])` produz conteúdo no cristalino, enquanto o
-  vanilla erra `expected length, color, gradient, tiling, dictionary, stroke,
-  or auto, found string`;
-- `highlight(fill: "red", [x])` produz conteúdo no cristalino, enquanto o
-  vanilla erra `expected color, gradient, tiling, or none, found string`.
-
-### Decisão confirmada
-
-Decorações aceitam cor somente como valor tipado `Value::Color`; constantes
-nomeadas continuam funcionando porque o evaluator as resolve antes da chamada.
-String não é alias de cor e deve seguir o erro de tipo da superfície. `none`,
-defaults, geometria e carriers permanecem. Não criar tabela ou fallback local
-quando o catálogo de `shapes` for removido.
-
-Esta remoção quebra compatibilidade cristalina pública. O dono confirmou
-explicitamente a materialização em 2026-09-18, após o commit de proposta
-`e5505f17c`.
+Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaults and public identities, with no productive-code change. Preserve pinned shared claims and the exclusive owner boundary under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130. Historical evidence does not establish parity against a newer snapshot.

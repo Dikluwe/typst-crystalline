@@ -1,24 +1,17 @@
-# Testes P1426 — `math.root` qualificado, carrier, `repr` e walkers
+# L0 — stdlib/structural/math/p1426-tests
+Hash do Código: dd72bee2
 
-## Autoridade
+Layer: L1 (test-only)
+Exclusive consumer: `01_core/src/compiler/stdlib/structural/math/p1426_tests.rs`
 
-Prompt test-only derivado do contrato congelado P1426. Legitima exclusivamente
-`01_core/src/compiler/stdlib/structural/math/p1426_tests.rs`; não legitima código
-produtivo nem escolhe a implementação.
+## Evidence and classification
 
-## Obrigações
+The consumer's `@prompt` at `01_core/src/compiler/stdlib/structural/math/p1426_tests.rs:2` establishes this exclusive ownership. Implementation inspection is not a new bilateral parity measurement; original historical qualifications remain in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-1. provar que `math.root` existe como função nativa pública com nome `root`;
-2. provar a assinatura posicional medida: índice e radicando obrigatórios para
-   sucesso, casts de `Content | none` e os diagnósticos N01–N07;
-3. observar diretamente os carriers `None/false`, `None/true` e
-   `Some(content)/true`, incluindo a coerção de radicando `none` para vazio;
-4. exigir as três morfologias canônicas de `repr`, sem inferir presença a
-   partir de `Option`;
-5. provar que clone, igualdade, hash, `map_content`, `map_text`, `plain_text`
-   e `is_empty` preservam a semântica existente e o bit causal.
+## Test obligations
 
-Falha de identidade, compilação não atribuível ao contrato, observação opaca,
-timeout ou saída ilegível é `Unknown` fail-closed. O teste não pode editar a
-solução para obter GREEN.
+Own only tests of qualified math.root, not implementation selection. Verify public function name root, the required positional index/radicand signature, Content|none casts and diagnostics N01–N07. Directly observe None/false, None/true and Some(content)/true carriers, including none radicand becoming empty. Require all three canonical repr morphologies without inferring presence from Option. Verify clone/equality/hash/map_content/map_text/plain_text/is_empty preserve existing semantics and the causal bit. Missing identity, contract-unattributable build failure, timeout, opaque/unreadable observations are fail-closed Unknown; tests must not edit a candidate to obtain GREEN.
 
+## Limits
+
+Preserve existing public observations and metadata. This documentary revision does not authorize productive-code, test-code, signature, default, pipeline-phase or compatibility changes. Respect exclusive ownership and pinned shared claims under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.

@@ -1,24 +1,21 @@
-# Prompt L0 — testes públicos de `math.frac` P1428
+# L0 — Public fraction representation and provenance tests
 Hash do Código: 5c5f7ae8
 
-## Owner
+**Layer:** L3 (integration tests)
+**Exclusive consumer:** `03_infra/tests/p1428_math_frac.rs`
 
-`03_infra/tests/p1428_math_frac.rs` (teste L3; nenhum código produtivo).
+## Current evidence
 
-## Contrato
+- `03_infra/tests/p1428_math_frac.rs:141` — one-pass HTML text extraction.
+- `03_infra/tests/p1428_math_frac.rs:240`, `:271` — evaluated carriers and unique fraction bits.
+- `03_infra/tests/p1428_math_frac.rs:303`, `:358` — public repr and route/diagnostic/MATH/binom controls.
 
-- Extrair texto de HTML por um único passe, considerando apenas text nodes.
-- Decodificar uma vez entidades HTML nomeadas e numéricas válidas; entidade
-  desconhecida, markup ausente ou desequilibrado produz erro observável.
-- Avaliar frações por `eval_to_module_with_sink` e percorrer o `Content`
-  resultante, sem inferir estado a partir da grafia da fixture.
-- Exigir exatamente um `MathFracElem` para observar os bits
-  `num_deparenthesized` e `denom_deparenthesized`.
-- Cobrir as três formas públicas de `math.frac`, diagnósticos de assinatura,
-  constantes OpenType e a independência de `math.binom`.
+These are current local source anchors, not a new upstream parity measurement.
 
-## Aceitação
+## Contract
 
-Os testes verificam somente comportamento público, carriers de domínio e
-invariantes de layout. Não executam mutantes, runners externos, hashes de
-implementação, ordens artificiais ou artefatos administrativos.
+Extract HTML text in one pass from text nodes only. Decode known named and valid numeric entities once; unknown/malformed entities, absent or unbalanced markup fail observably. Do not recursively decode or compare escaped markup as the language repr.
+
+Evaluate through eval_to_module_with_sink and traverse the resulting Content. Require exactly one MathFracElem to observe num_deparenthesized and denom_deparenthesized, without inferring state from fixture spelling. Preserve coverage of the three public frac forms, explicit/omitted style and cascade, signature diagnostics, OpenType constants and binom independence.
+
+Acceptance concerns public behavior, domain carriers and layout invariants. Do not execute mutants/external runners, implementation hashes, artificial orders or administrative artifacts. The complementary public controls belong to `00_nucleo/prompts/infra/tests/p1427-tests.md`.

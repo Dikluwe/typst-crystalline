@@ -1,34 +1,19 @@
-# Prompt L0 — testes independentes dos constructors HTML P1423
+# L0 — stdlib/html/p1423-tests
 Hash do Código: 73bb9243
 
-**Camada:** L1 (testes)  
-**Ficheiro alvo:** `01_core/src/compiler/stdlib/html/p1423_tests.rs`  
-**Owner produtivo observado:** `00_nucleo/prompts/compiler/stdlib/html.md`
+Layer: L1 (test-only)
+Exclusive consumer: `01_core/src/compiler/stdlib/html/p1423_tests.rs`
 
-## Obrigação
+## Evidence and classification
 
-Este consumer é exclusivamente de teste e materializa o contrato A/B validado
-do P1423 sem possuir código produtivo. Deve provar:
+The consumer's `@prompt` at `01_core/src/compiler/stdlib/html/p1423_tests.rs:2` establishes this exclusive ownership. Implementation inspection is not a new bilateral parity measurement; original historical qualifications remain in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-- conjunto exato dos 43 bindings P1423, disjunto dos 69 anteriores;
-- módulo corrente com `elem`, os 112 constructors tipados e `frame` de P1424;
-- partição disjunta de body em 10 void, 2 raw e 31 content;
-- omissão/body fornecido e rejeições de tipo para as três classes;
-- casts representativos de globais, específicos, Presence, limites, enums,
-  listas e uniões, inclusive rejeição de atributo cruzado;
-- construção L1 independente do target, mantendo o gate de feature no acesso
-  público ao módulo.
+## Test obligations
 
-O teste importa o módulo pai apenas sob `cfg(test)`. Não redefine contrato de
-produto, não legitima implementação produtiva e não amplia o escopo para
-`html.frame`, CSS, MathML ou comportamento de browser.
+Own only the test consumer, not production behavior. From the public html module, verify the exact 43 constructor bindings of this fixture family, disjoint from the earlier 69; the current module includes elem, all 112 typed constructors and frame. Verify the 43 body classes as 10 void, 2 raw and 31 Content, omission/supplied body/type errors, representative global/specific/Presence/range/enum/list/union casts and rejection of crossed attributes. Verify L1 construction independent of target and feature gating on public module access. frame is outside this fixture set but present in the current module; do not require its global absence.
 
-`frame` não pertence ao conjunto P1423, mas pertence ao módulo atual por
-P1424. O teste deve provar simultaneamente essas duas afirmações e nunca voltar
-a exigir ausência global de `html.frame`.
+Import the parent only under cfg(test), without inspecting a private candidate constructor, redefining product contracts or claiming CSS/MathML/browser/frame behavior. Expectations derive from `00_nucleo/prompts/compiler/stdlib/html.md`; authorship, mutation catalogs, agent order and frozen implementation hashes are not acceptance.
 
-## Proveniência
+## Limits
 
-As expectativas derivam do L0 proprietário e do comportamento público acima.
-Alterações nas fixtures devem continuar a provar essas invariantes, sem catálogos
-de mutantes, autoria, ordem de agentes ou hashes congelados da implementação.
+Preserve existing public observations and metadata. This documentary revision does not authorize productive-code, test-code, signature, default, pipeline-phase or compatibility changes. Respect exclusive ownership and pinned shared claims under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.

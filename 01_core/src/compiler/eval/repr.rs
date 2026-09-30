@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash 88f3ca1f
+//! @prompt-hash 237ed173
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -503,7 +503,13 @@ fn repr_gradient(gradient: &Gradient) -> String {
                 .map(|(stop, offset)| {
                     format!(
                         "({}, {})",
-                        repr_color(&stop.color.clone().to_space(linear.space.clone()).unwrap_or_else(|_| stop.color.to_process())),
+                        repr_color(
+                            &stop
+                                .color
+                                .clone()
+                                .to_space(linear.space.clone())
+                                .unwrap_or_else(|_| stop.color.to_process())
+                        ),
                         repr_ratio(Ratio(offset as f64))
                     )
                 })
@@ -1182,8 +1188,10 @@ pub fn repr_content(c: &Content) -> String {
         Content::Align(a) => format!("align({:?})[...]", a.alignment),
         Content::Place(p) => format!("place({:?})[...]", p.scope),
         Content::Flush(_) => "flush()".to_string(),
-        Content::Styled(child, styles) => {
-            if let Content::Equation(e) = child.as_ref() {
+        Content::Styled(styled) => {
+            let child = &styled.body;
+            let styles = &styled.styles;
+            if let Content::Equation(e) = child {
                 let numbering = styles
                     .delta()
                     .custom
@@ -1341,9 +1349,13 @@ pub fn repr_content(c: &Content) -> String {
         Content::CounterDisplayCallback(_) => "counter.display.callback".to_string(),
         Content::ContextBlock(_) => "context()".to_string(),
         Content::Dynamic(_) => "dynamic".to_string(),
-        Content::SetPage { .. } => "setpage".to_string(),
-        Content::Document { path, body, .. } => format!("document(path: \"{}\", body: {})", path, repr_content(body)),
-        Content::Asset { path, data } => format!("asset(path: \"{}\", data: bytes({}))", path, data.len()),
+        Content::SetPage(_) => "setpage".to_string(),
+        Content::Document { path, body, .. } => {
+            format!("document(path: \"{}\", body: {})", path, repr_content(body))
+        }
+        Content::Asset { path, data } => {
+            format!("asset(path: \"{}\", data: bytes({}))", path, data.len())
+        }
         Content::PdfAttach(e) => format!("pdf.attach(\"{}\")", e.path),
         Content::PdfArtifact(e) => {
             if e.kind == crate::entities::elements::pdf_artifact::ArtifactKind::Other {

@@ -1,51 +1,76 @@
-# Prompt L0 — `labelled`
-Hash do Código: 5fb0db7f
+# L0 — introspect/labelled
+Hash do Código: c80dfa03
 
+```text
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
+```
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/introspect/labelled.rs`
-**ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0129
+## Ownership and evidence
 
-## Medição e contrato
+Layer: L1. Sole consumer: `01_core/src/compiler/introspect/labelled.rs`.
+The pure compute_labelled body at `:24` reads typed, location-aware counters.
+The auto Label branch at `01_core/src/compiler/introspect.rs:2300` passes
+the causal wrapper chain's language, with the explicit language argument only
+as fallback. Real occurrence Start/End and generic snapshot handling remain parent-owned.
+The Label descendant owns its complete walk branch and derived label handling.
+Heading language text belongs to the canonical helper at
+`00_nucleo/prompts/compiler/lang/heading_supplement.md`.
 
-Computar a associação de Labelled ao alvo e seu texto resolvível sem alterar a ordem do walk ou fabricar identidade.
+## Walk-branch refinement measurement
 
-O dispatcher mantém braço magro, exaustivo e estático. A função da feature
-acede ao motor por descendência de módulo; entidade de domínio não importa o
-consumer e nenhum despacho dinâmico é introduzido.
+At the uncommitted state captured in
+`00_nucleo/diagnosticos/atomizacao-introspect-heading-label-2026-09-30-before.json.gz`,
+`01_core/src/compiler/introspect.rs:2280-2350` owns the Label walk branch,
+while this consumer already owns location-aware resolution. The `introspect`
+test filter passed 263 tests before movement. This is evidence of separable
+behavior, not a new timing or bilateral vanilla measurement.
 
-## Aceitação
+## Contract
 
-Testes focais e a suíte do subsistema preservam comportamento e morfologia;
-alteração observável exige medição e decisão próprias.
+Preserve the pure descendant free function over introspector, target Location,
+Content and optional language, returning (optional resolved text, optional
+figure number). Do not mutate stores or allocate identities.
 
-## P1459 — heading resolvido com língua causal
+For Heading, read its element-function hierarchical counter at Location and
+join canonical localized supplement, a space and the number when available.
+For a block Equation, read its element-function flat counter; a positive number
+produces the existing compatibility text `Equação (N)`, otherwise no text.
+For Figure, read its per-kind counter (default image); a positive number
+produces localized figure supplement plus number and returns that figure number.
+Otherwise return present empty text and no figure number. Other targets return
+neither. Do not silently unwrap arbitrary Styled targets or infer a missing
+numbering gate from the body's render.
 
-### Medição anterior à decisão
+This helper preserves compatibility resolved text; it is not the authoritative
+numeric-reference path and must not override its precedence. It does not replace
+the equation runtime supplement owner with its compatibility literal.
+The Label walk branch reuses target Location, captures causal language and
+publishes the derived association only when applicable.
 
-O braço Heading continha `lang == pt ? Seção : Section`. Em alvo alemão, o
-texto resolvido ficava inglês, embora o vanilla ratificado use `Abschnitt`.
-O parâmetro `lang` é capturado da `StyleChain` causal no braço `Label` durante
-o walk do alvo. O parâmetro legacy do walk só atua quando essa chain não
-declara idioma.
+## Derived-label walk
 
-### Decisão
+The Label descendant walks its target first with the causal label. For an auto
+label it finds the first newly emitted real Start, resolves Heading/Equation/
+Figure text with the wrapper chain language before the explicit fallback, and
+publishes a derived Labelled Start/zero-hash End at that same Location only when
+resolution is available. If the target has no real Start, classify it as
+unreferencable. For an explicit user label, walk the body once with the label,
+compare known associations before/after and classify unsupported targets when
+no association appears. Preserve numeric mapping precedence; do not remove a
+counter key to force legacy text. The parent match remains exhaustive and
+calls this descendant statically, without a second traversal or new Location.
 
-O braço Heading chama exclusivamente
-`compiler::lang::heading_supplement_for_lang(lang)`. Conserva o counter
-hierárquico e a representação interna legacy `{supplement} {número}` usada
-por `resolved_labels`; essa string é transporte causal, não autorização para
-um consumer reconstruir localização. Não conter tabela, branch por língua ou
-literais de supplement. Equation e Figure ficam fora deste recorte.
+## Acceptance and phase boundary
 
-O carrier de `#show heading: set text(lang:)` só existe na árvore renderizada,
-não na árvore pré-show introspectada por P498. Alterar essa fronteira é mudança
-de fase e fica explicitamente fora deste passo, sujeita a L0 próprio e
-confirmação ADR-0127.
+Check hierarchical/flat counters at the supplied target Location, missing
+values, captioned/numbered Figure paths and unsupported targets without invented
+associations. Check mixed-language and forward/backward heading references
+against the causal store, including an explicit synthetic language fallback.
+A language present in the wrapper chain always wins over that fallback;
+reference/layout/environment language is not a substitute.
 
-### Aceitação
-
-Alvos `de`, `es`, `fr` e `it` produzem o prefixo do owner; `fr` produz
-`Section`. A referência explícita continua a sobrepor esse transporte.
+A show-set that changes language only in the rendered tree is not a pre-show
+introspection correction. Its parity is unresolved at this boundary and any
+phase change requires its own L0 and ADR-0127 approval. Preserve current
+fallbacks without promising a completed language-parity result for them.

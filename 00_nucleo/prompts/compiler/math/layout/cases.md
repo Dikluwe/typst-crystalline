@@ -1,140 +1,48 @@
-# Prompt L0 — `math/layout/cases` — `MathCases`
-Hash do Código: dcb6636b
+# L0 — math/layout/cases
 
-**Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/cases.rs`
-**Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
-partilhado: ver `math/layout/_comum.md`.
+Hash do Código: d31c40b9
 
----
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/math/layout/cases.rs`
 
-`MathCases` — chaves grandes (`cases`). Usa o despacho e composição do
-`MathLayouter` (ver `_comum.md`).
+## Consumer evidence
 
-## P923 — Ramos renderizados em estilo de denominador
+`01_core/src/compiler/math/layout/cases.rs:23` locates `pub(super) fn layout_cases(`.
+This audit locates the existing consumer; it does not establish language parity.
+Historical evidence and unresolved discrepancies are archived in
+`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
 
-**Achado** (`typst-layout/src/math/ir/resolve.rs:1088-1098` — `resolve_cases`
-→ `resolve_cells`): os ramos de `cases` são resolvidos pelo vanilla com
-`style_for_denominator(styles)` (mesmo mecanismo das células de `mat` em
-`resolve_mat`). O cristalino aplicava o `style` do ambiente directamente aos
-ramos. A correcção segue o mesmo padrão de `matrix.md` §P923: construir
-`cell_style = TextStyle { size: style.size * script_percent_scale_down,
-cramped: true, ..style.clone() }` e passá-lo a `layout_grid_rows` (e a
-qualquer medição futura de cada ramo). O `row_gap` é `style.size * 0.2`
-(paridade `DEFAULT_ROW_GAP` do `CasesElem`, resolvido contra o estilo
-exterior — ver `matrix.md` §P923b).
+## Cases carrier and rows
 
-## P912 — Folga de 10% na Altura da Chave de Cases
+Consume complete MathCasesElem, forming one row for each child in order before
+late splitting at MathAlignPoint. Preserve children and public identity.
+Resolve delimiter pair, reverse and gap independently by explicit >
+math.cases StyleChain > defaults, without setting presence bits during layout.
+Resolve relative gap against the outer style's font size.
 
-Em `layout_cases`, a altura da grelha usada para calcular `min_height_du` da chave esquerda
-aplica uma folga de 10%: `grid_height_pt = (grid_box.ascent + grid_box.descent) * 1.1`.
+Children use shared denominator style (Display→Text without size reduction,
+then discrete script descent, always cramped).
+Reverse=false uses only the optional left delimiter; true uses only the
+optional right delimiter. None omits the glyph, not a NUL stand-in in the
+public carrier. The common grid helper owns row/column placement and the
+matrix module provides the existing alignment-boundary helpers; neither
+takes ownership of cases behavior.
 
-> **Fundamentação, ao fim de três redacções** (2026-08-13, P1026 Fase C): a folga **é** do
-> vanilla. `resolve.rs:1173` (`fn resolve_delimiters`, "vector, matrix, or cases" — o mesmo
-> caminho serve `cases`) pede `Rel::new(Ratio::new(1.1), Abs::zero())` com o mesmo
-> `DELIM_SHORT_FALL`, que `stretchy.rs:57-61` também aplica. É **paridade**. As duas
-> redacções anteriores — P1024 ("multiplica em vez de subtrair") e P1026 Fase A ("inflação
-> extra de 10%", citando `resolve.rs:843`, que é a barra da fracção inclinada) — estão
-> **refutadas**. Medição completa em `_comum.md` §P912-folga. **Item fechado.**
->
-> Guarda de não-regressão:
-> `01_core/src/compiler/math/layout/tests.rs:4766`
-> (`p945_grid_delim_target_du_e_altura_vezes_1_1`) trava a fórmula `(a+d)×1.1`
-> em du, com proveniência do commit/medida indicada no cabeçalho do teste.
+Use natural class spacing at ampersand boundaries, not extra column gaps.
+The grid's 1.1 height target and shortfall determine delimiter selection.
+Center the grid on the axis before merging the already-centered delimiter.
+Do not insert redundant 0.1em horizontal padding or top-align components.
+Final extents include both grid and delimiter maxima.
 
-## P918 — cálculo de `min_height_du` migrado para `grid_delim_target_du` partilhado
+Acceptance covers row order, late alignment splitting, denominator style,
+both orientations, optional sides, relative gap and explicit/cascade/default
+precedence, with no public carrier mutation.
 
-**Achado** (P918 Fase A, `cases.rs:28-33` vs `matrix.rs:94-99`): o bloco de 5 linhas acima
-(margem de 10% + conversão condicional pt→du) é idêntico byte-a-byte ao usado em `layout_matrix`.
-Extraído para `grid_delim_target_du(&self, grid_box, style)` em `mod.rs` (ver `_comum.md` §P918)
-— `let min_height_du = self.grid_delim_target_du(&grid_box, style);`. Comportamento inalterado.
+## Identidade do delimitador de cases
 
-## P919 — `apply_axis_offset` move-se para `grid_box` isolado, ANTES de juntar o delimitador
-
-**Achado** (`typst-passo-919-relatorio.md` Fase A/B, vanilla `table.rs:188`:
-`frame.set_baseline(height/2.0 + axis)` — centra o meio da altura total no eixo, mesma fórmula já
-usada por `apply_axis_offset`, `shift = axis_pt - (ascent-descent)/2`): ao contrário de
-`root.rs`/`delimited.rs`, o conteúdo da grelha **deve** ficar centrado no eixo — a fórmula bate
-exactamente com o vanilla. Até P919, a chamada (no fim de `layout_cases`, sobre `result` já
-concatenado com `left_box`) era um no-op visual (bug de omissão em `apply_axis_offset`,
-`_comum.md` §P919, nunca deslocava `items`).
-
-**Achado do Agente A (revisão do design inicial deste L0)**: `result.items` mistura os items do
-delimitador `{` (`left_box`, já auto-centrado no eixo internamente por
-`layout_stretchy_delimiter` — `stretchy.md` §P917) com os items da grelha (`grid_box`, ainda em
-baseline própria) **antes** de `apply_axis_offset` correr. Uma vez corrigido o bug de omissão,
-chamar `apply_axis_offset(result, ...)` no fim (como o código fazia até aqui) desloca **também**
-o `{`, que já estava correcto — desloca-o pela segunda vez. **Correcção de código necessária**
-(não só o fix de `apply_axis_offset`): `layout_cases` passa a chamar
-`self.apply_axis_offset(grid_box, style.size)` isoladamente, **antes** de o mesclar com
-`left_box.items` — usa o `grid_box` já centrado (items + `ascent`/`descent` actualizados) para
-compor `result`. `result` deixa de chamar `apply_axis_offset` no fim.
-
-**Critério de regressão**: `x + cases(a, b)` — o centro vertical da grelha (`{a; b}`) fica a
-`axis_pt` da baseline partilhada com `x`, não a ~0 como antes de P919; a chaveta `{` mantém-se em
-`y=0` local (a sua própria auto-centragem, inalterada, não duplicada). Testes do Agente A:
-`axis_bug_cases_conteudo_centra_no_axis_height_nao_a_zero` (guarda explícita de que `{` fica em
-`y=0`).
-
-## P945 — células de `cases` com descida de nível MathSize do vanilla
-
-Mesma correcção e mesma medição de `matrix.md` §P945 (a causa raiz é partilhada
-— os dois consumidores de `layout_grid_boxes` tinham o mesmo
-`size × script_percent_scale_down` incondicional de P923): `layout_cases` passa
-a construir o `cell_style` via `denominator_style` de `_comum.md` §P945
-(descida **por nível**: `Display→Text` ×1.0, `Text→Script` ×script_percent,
-`Script→ScriptScript` ×sscript/script, `ScriptScript→ScriptScript` ×1.0,
-sempre com `cramped: true`), em vez de multiplicar incondicionalmente por
-`script_percent_scale_down`. Caso medido do documento de 30 secções:
-`cases()` de 3 ramos (secção 9) — chaveta assembly curta/desencontrada por a
-grelha estar ~30% mais curta que o vanilla.
-
-## P1042 — Delimitador `{` sem Padding Redundante e Suporte a `&` como Ponto de Alinhamento
-
-**Achado e Proveniência (Passo 1042)**:
-1. **Delimitador sem padding redundante**: no vanilla (`lab/typst-original/crates/typst-library/src/math/ir/resolve.rs:1081-1200`),
-   o delimitador `{` esticado (`layout_stretchy_delimiter`) já inclui a margem horizontal no seu avanço de glifo OpenType MATH.
-   A injeção manual anterior de `padding = style.size * 0.1` (+1.10pt) foi eliminada em paridade exata com o vanilla.
-2. **Ponto de alinhamento `&` nativo**: `cases.rs` integra o mecanismo `split_cell_on_align_point` e `align_boundaries`
-   (partilhado com `matrix.rs`), resolvendo `&` intra-linha como ponto de alinhamento com espaçamento de símbolo natural
-   em vez de criar colunas espúrias de grelha com `col_gap = 5.5pt`.
-
-## P1132 — limites externos incluem o delimitador
-
-**Medição antes da decisão** (working tree não commitado, 2026-08-21): no
-documento de paridade, as baselines internas dos `cases` de três e de duas
-linhas têm intervalos idênticos ao vanilla; porém os blocos seguintes ficam
-respectivamente 1,8666pt e mais 3,0106pt adiantados. Leitura de
-`cases.rs:108-114` mostra a causa: o `MathBox` composto devolve exclusivamente
-`grid_box.ascent/descent`, descartando os limites do delimitador esticado.
-
-Ao concatenar grelha e delimitador, o resultado deve usar o máximo de
-`ascent` e `descent` dos componentes. Os items **não** recebem deslocamento
-vertical: cada `MathBox` já usa coordenadas relativas à mesma baseline
-matemática (`y = 0`). Assim a extensão externa inclui integralmente a chaveta
-sem mudar a posição da grelha em relação ao seu centro.
-
-### P1132e — composição preserva a baseline, não alinha os topos
-
-**Medição antes da decisão** (secção 9, `HEAD 781b207b4a5d`, working tree não
-commitado, 2026-08-22): a montagem da primeira chave coincide com o vanilla
-(peças nas baselines PDF 86,71664; 80,56440; 74,43415; 60,03191;
-53,90167pt), mas as linhas da grelha estão todas `+1,866592pt` abaixo
-(cristalino 57,61284/70,83264/83,98864; vanilla
-55,74625/68,96605/82,12205pt). A parcela é exatamente o `dy =
-result_ascent − grid.ascent` introduzido por P1132.
-
-**Decisão**: a composição horizontal acumula apenas `x`. Delimitador e grelha
-mantêm os seus items em coordenadas baseline-relativas, sem `dy`. O
-`MathBox` resultante continua a publicar `max(ascent)` e `max(descent)`, que
-foi a parte correta de P1132 e preserva a altura total da página.
-
-## P1430 — consumo do carrier público (PROPOSTO; gate ADR-0127)
-
-`layout_cases` recebe children em ordem, forma uma row inicial por child e só
-então separa `MathAlignPoint` em células. Sem mutar o carrier, deriva
-delimitadores, reverse e gap efetivos com precedência explícito > `StyleChain`
-> default; resolve `gap: Rel<Length>` contra o estilo exterior.
-Com `reverse=false`, usa apenas `delim.0` à esquerda; com `true`, apenas
-`delim.1` à direita; `None` omite o glifo. Estilo de denominador, alinhamento,
-stretch, centro no eixo, limites externos e ausência de padding redundante
-permanecem exatamente os contratos P919/P923/P945/P1042/P1132.
+Na sonda `.typ/sec_09.typ` do diagnóstico `typs-teste-2026-09-30`, a
+chave montada é extraída como glifos de construção (`⎧`, `⎨`, `⎩` e barra),
+embora seu sinal na linguagem seja a chave de abertura. Ao compor a caixa de
+`cases`, preservar os itens visuais da peça delimitadora num único
+`TextReplacement` com o caractere pedido pelo carrier. Não alterar a
+política comum de seleção/estiramento nem a geometria da grade.

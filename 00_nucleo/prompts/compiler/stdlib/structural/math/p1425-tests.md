@@ -1,32 +1,17 @@
-# Prompt L0 — testes A/B estruturais de `math.limits` P1425
+# L0 — stdlib/structural/math/p1425-tests
 Hash do Código: e2a1f203
 
-**Camada:** L1 (testes)  
-**Ficheiro alvo exclusivo:** `01_core/src/compiler/stdlib/structural/math/p1425_tests.rs`  
-**Owners produtivos observados:** `compiler/stdlib/structural/math.md`,
-`entities/elements/math_limits_override.md`, `compiler/eval/repr.md`
+Layer: L1 (test-only)
+Exclusive consumer: `01_core/src/compiler/stdlib/structural/math/p1425_tests.rs`
 
-## Obrigação
+## Evidence and classification
 
-Este consumer exclusivamente de teste congela a superfície estrutural P1425
-sem legitimar código produtivo. Deve provar:
+The consumer's `@prompt` at `01_core/src/compiler/stdlib/structural/math/p1425_tests.rs:2` establishes this exclusive ownership. Implementation inspection is not a new bilateral parity measurement; original historical qualifications remain in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-- `math.limits` é função nativa de nome público `limits` no módulo fechado;
-- omitido, `inline:true` e `inline:false` produzem o mesmo carrier com
-  `limits:true` e distinguem causalmente `inline_explicit` falso/verdadeiro;
-- `repr` é, respectivamente, `limits(body: [x])`,
-  `limits(body: [x], inline: true)` e
-  `limits(body: [x], inline: false)`, sempre com body primeiro;
-- missing body, tipo inválido, named desconhecido, segundo positional e body
-  named preservam os cinco fragmentos públicos congelados;
-- igualdade distingue omissão de default explícito; `plain_text`, `is_empty`,
-  `map_content` e `map_text` preservam variante e os três campos de controle;
-- `math.scripts` permanece `limits:false`, `inline:true`, presença falsa e
-  morfologia `scripts(body: [x])`.
+## Test obligations
 
-O teste não observa implementação candidata nem aceita igualdade estrutural
-Rust como substituto dos observáveis da linguagem.
+Own only structural tests derived from `00_nucleo/prompts/compiler/stdlib/structural/math.md`, `00_nucleo/prompts/entities/elements/math_limits_override.md` and `00_nucleo/prompts/compiler/eval/repr.md`. Verify closed-module native limits with public name limits; omitted/inline:true/inline:false all have limits:true while inline_explicit distinguishes omission. Verify body-first repr: limits(body: [x]), limits(body: [x], inline: true), limits(body: [x], inline: false). Preserve the five diagnostic fragments for missing/wrong body, unknown named, extra positional and named body. Equality distinguishes omission from explicit default; plain_text/is_empty/map_content/map_text preserve variant and all three controls. scripts remains limits:false, inline:true, presence false, repr scripts(body: [x]). No candidate inspection, Rust structural equality substituted for language observations or external artifacts.
 
-## Limite
+## Limits
 
-A cobertura limita-se ao fragmento P1425 e não depende de artifacts externos.
+Preserve existing public observations and metadata. This documentary revision does not authorize productive-code, test-code, signature, default, pipeline-phase or compatibility changes. Respect exclusive ownership and pinned shared claims under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.

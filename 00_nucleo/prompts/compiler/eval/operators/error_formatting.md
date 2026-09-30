@@ -1,113 +1,43 @@
-# Prompt L0 — `compiler/eval/operators/error_formatting` — mensagens de fronteira
-Hash do Código: 23a21f8f
+# L0 — compiler/eval/operators/error_formatting
+Hash do Código: d5acbd63
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/eval/operators/error_formatting.rs`
-**Prompt pai (hub)**: `00_nucleo/prompts/compiler/eval/operators.md`
-**ADRs**: ADR-0107 (a mensagem de erro é o observável — aqui a mecânica **é** a língua)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/eval/operators/error_formatting.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
----
+## Source evidence
 
-## Contexto
+The current exclusive consumer defines the following owned boundaries:
 
-Quando nenhuma combinação de operandos tem braço, o erro emitido é um
-observável da linguagem: o vanilla tem formatos verbatim por operador e usa
-os **nomes longos** de tipo. Neste domínio a paridade mede-se ao texto
-(ADR-0107: a mecânica é o observável quando o observável é a mensagem).
+- `01_core/src/compiler/eval/operators/error_formatting.rs:17` — `fn binary_mismatch`.
+- `01_core/src/compiler/eval/operators/error_formatting.rs:28` — `fn unary_mismatch`.
+- `01_core/src/compiler/eval/operators/error_formatting.rs:53` — `fn vanilla_type_name`.
 
-## Instrução
+Prior source readings supporting these clauses (snapshot provenance is
+retained in the assigned history diagnostic, not asserted as a fresh measurement):
 
-### Braço de fronteira (último do `match` de `eval_binary_op`)
+- `foundations/ops.rs:170,214,284,340,500`.
+- `foundations/ops.rs:54-68,85-86,376`.
 
-`(op, lhs, rhs) => Err(binary_mismatch(op, &lhs, &rhs))` — sempre em último
-lugar (a ordem dos braços é semântica, invariante 2 do hub).
+## Contract
 
-### `binary_mismatch` — formatos verbatim do vanilla
+Own binary_mismatch, unary_mismatch and the exhaustive vanilla_type_name map.
+Use public long type names, never Rust variant/Debug names. In particular Bool
+is boolean, Int integer, Str string, Dict dictionary, Relative relative length,
+Args arguments, and raw/located Content both content. Preserve every other
+current variant mapping, including Type -> type and SpotColorant -> spot colorant.
+Other long-type-name helpers delegate to this canonical map rather than defining
+a competing catalog.
 
-Fonte: `foundations/ops.rs:170,214,284,340,500`, medido nos dois binários.
+Binary formats are `cannot add {lhs} and {rhs}`,
+`cannot subtract {rhs} from {lhs}`, `cannot multiply {lhs} with {rhs}`,
+`cannot divide {lhs} by {rhs}`; other operators use
+`cannot apply '{operator}' to {lhs} and {rhs}` (including 'in' and 'not in').
+For unary Pos on Symbol/Str/Bytes/Content/LocatedContent/Array/Dict/Datetime use
+`cannot apply unary '+' to {type}`; Neg on Datetime uses
+`cannot apply unary '-' to {type}`. Other failures use
+`cannot apply '{operator}' to {type}`. Preserve quoting and operand order.
 
-| Op | Formato | Exemplo medido |
-|---|---|---|
-| `Add` | `cannot add {a} and {b}` | `cannot add length and direction` |
-| `Sub` | `cannot subtract {b} from {a}` (**ordem invertida**) | `cannot subtract direction from length` |
-| `Mul` | `cannot multiply {a} with {b}` | `cannot multiply integer with direction` |
-| `Div` | `cannot divide {a} by {b}` | `cannot divide integer by direction` |
-| `Lt`/`Leq`/`Gt`/`Geq` (par incomparável) | `cannot compare {a} and {b}` (emitido pelo braço combinado de ordenação, não por `binary_mismatch`) | `cannot compare direction and integer` |
-| `In` | `cannot apply 'in' to {a} and {b}` | `cannot apply 'in' to integer and string` |
-| `NotIn` | `cannot apply 'not in' to {a} and {b}` | `cannot apply 'not in' to integer and string` |
-| restantes ops | `cannot apply '{spelling Typst}' to {a} and {b}` | — |
-
-O spelling público vem de `BinOp::as_str()` e nunca de `Debug`. As aspas
-simples fazem parte do observável vanilla.
-
-Quando a ordenação encontra dois valores de uma família reconhecida cuja
-ordem parcial é indefinida, o formato é
-`cannot compare {repr(lhs)} with {repr(rhs)}`. Quando a combinação de tipos
-não possui braço comparável, permanece `cannot compare {a} and {b}` com nomes
-longos. Arrays propagam integralmente o primeiro erro dos seus elementos.
-
-### `vanilla_type_name` — nomes longos de tipo (ponto único de verdade)
-
-Nome longo de cada variant de `Value`, igual ao `long_name` de cada
-`#[ty]` do vanilla — **distinto** de `Value::type_name()` (nomes curtos do
-`type()`/`repr`). Mapeamento completo (variant → string):
-
-`none`, `auto`, `boolean`, `integer`, `float`, `string`, `array`,
-`dictionary`, `module`, `datetime`, `function`, `content`, `length`,
-`relative length`, `ratio`, `angle`, `color`, `stroke`, `fraction`,
-`alignment`, `location`, `gradient`, `regex`, `tiling`, `bytes`, `decimal`,
-`duration`, `version`, `selector`, `symbol`, `arguments`, `state`,
-`counter`, `label`, `direction`, `type`.
-
-**P1015/P1017** — esta função é o **ponto único de verdade** para nomes de
-tipo longos em todo o L1. A equivalência com as implementações anteriores
-(`long_type_name` em `eval/bindings/access.rs`, `eval/operators/join.rs`,
-`stdlib/foundations.rs`, e `vanilla_type_name` em `stdlib/loading.rs` e
-`stdlib/pdf.rs`) foi provada no P1015 pela bijectividade de
-`Value::type_name()` (36 variantes → 36 strings distintas). A tabela
-exaustiva aqui foi escolhida como canónica porque falha de compilação se
-`Value` ganhar uma variante sem entrada — preferível a herança silenciosa de
-nome via `type_name()`.
-
-Usado por `binary_mismatch`, pelo braço combinado de ordenação, e por todos
-os outros módulos que precisam de nomes longos de tipo em mensagens de erro.
-
-### Fronteira unária
-
-`eval_unary_op` nunca expõe `Debug`. Usa nomes longos e estes formatos:
-
-- `Pos` sobre `Symbol`, `Str`, `Bytes`, `Content`, `Array`, `Dict` ou
-  `Datetime`: `cannot apply unary '+' to {kind}`;
-- demais `Pos` inválidos: `cannot apply '+' to {kind}`;
-- `Neg` sobre `Datetime`: `cannot apply unary '-' to datetime`;
-- demais `Neg` inválidos: `cannot apply '-' to {kind}`;
-- `Not` inválido: `cannot apply 'not' to {kind}`.
-
-Fonte medida: `foundations/ops.rs:54-68,85-86,376`.
-
-## Restrições Estruturais
-
-- L1 puro (ver hub); estas funções só formatam strings — nunca avaliam.
-- `vanilla_type_name` tem de cobrir **todas** as variants de `Value`
-  (match exaustivo — uma variant nova sem entrada é erro de compilação,
-  por design).
-
-## Critérios de Verificação
-
-```
-eval_binary_op(Mul, Int(2), Dir(LTR))     == Err("cannot multiply integer with direction")
-eval_binary_op(Mul, Dir(LTR), Int(2))     == Err("cannot multiply direction with integer")
-eval_binary_op(Add, Length(1em), Dir(_))  == Err("cannot add length and direction")
-eval_binary_op(Sub, Length(1pt), Dir(_))  == Err("cannot subtract direction from length")
-eval_binary_op(Div, Int(1), Dir(_))       == Err("cannot divide integer by direction")
-eval_binary_op(Lt, Dir(LTR), Int(2))      == Err("cannot compare direction and integer")
-eval_binary_op(Add, Bool(true), Int(1))   == Err("cannot add boolean and integer")
-eval_binary_op(Add, Relative(..), Dir(_)) == Err("cannot add relative length and direction")
-eval_binary_op(In, Int(1), Str("hello"))  == Err("cannot apply 'in' to integer and string")
-eval_binary_op(NotIn, Int(1), Str("hello")) == Err("cannot apply 'not in' to integer and string")
-```
-
-## Resultado Esperado
-
-- `binary_mismatch` e `vanilla_type_name` conforme as tabelas; o teste
-  unitário de fronteira (mensagens verbatim) no próprio ficheiro.
+Ordering's distinction between unsupported types and recognized-but-undefined
+comparisons belongs to ordering, not this formatter. This owner does not dispatch
+operators, choose spans, inspect scopes or alter values.

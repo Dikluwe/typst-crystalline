@@ -1,64 +1,30 @@
-# Prompt L0 — `wiring/tests/p1292_contract` — oráculos black-box
-Hash do Código: e208b1f7
+# L0 — wiring/tests/p1292_contract
+Hash do Código: 51235a5d
 
-**Camada:** L4 — teste de integração
-**Ficheiro alvo:** `04_wiring/tests/p1292_contract.rs`
-**ADRs:** ADR-0107, ADR-0108, ADR-0127, ADR-0129
-**Vanilla ratificado:** `a51e02804`
+**Layer:** L4
+**Exclusive consumer:** `04_wiring/tests/p1292_contract.rs`
 
-## Responsabilidade
+## Current evidence
 
-O consumer executa o binário como caixa-preta. Usa diretórios temporários
-isolados, propaga stdout/stderr em falha, não lê a implementação e nunca converte
-`Unknown` em sucesso.
+- `04_wiring/tests/p1292_contract.rs:16` — `Scratch`.
+- `04_wiring/tests/p1292_contract.rs:19` — `new`.
+- `04_wiring/tests/p1292_contract.rs:32` — `drop`.
+- `04_wiring/tests/p1292_contract.rs:37` — `eval`.
+- `04_wiring/tests/p1292_contract.rs:44` — `diagnostic`.
 
-JSON, SVG, PDF e bbox são transportes mecânicos. Os observáveis são identidade
-pública, morfologia, dimensões, posições, presença e ordem.
+These are local source anchors, not a new upstream parity measurement.
+Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 04_wiring/tests/p1292_contract.rs`.
 
-## Lote A — superfície preservada
+## Owned contract
 
-Verifica callbacks, `cross`, background, spans, ausência de documento
-provisório e suas formas públicas. Mudanças no harness não autorizam alterações
-nessas expectativas.
+- Own the black-box language/geometry suite only. Use isolated fixtures, propagate subprocess channels on failure and never turn Unknown into success.
+- Preserve callbacks/cross/background/spans/no-provisional-output controls. Observe identity, morphology, dimensions, positions, presence and order; JSON/SVG/PDF are transports, not total-byte oracles.
+- math.underline equality with underline must be JSON boolean false. SVG automatic-page geometry applies every ancestor translate/matrix in affine order once; no glyph/family/fixture-specific constants or defs/id-order comparisons.
+- measure tests execute contextual measurement by rendering a uniquely colored shape, separating finite and height-auto regions; query/metadata/root are not execution substitutes. Preserve delimiter/alignment/repr/default/error controls.
+- place.flush observes page, bbox and unique ordered tokens with explicit failure if pdftotext is absent. Cover prefix/suffix, no-flush, top/bottom floats, active-layouter nesting and no-float no-op. Keep tokens out of flow and remove fixtures.
 
-## Lote B — identidade e geometria SVG
+## Verification and boundary
 
-`math.underline == underline` é avaliado diretamente em JSON e deve resultar
-no boolean `false`, nunca na string `"false"`.
-
-Fixtures geométricas usam página automática. O parser extrai dimensões da raiz
-SVG e regras visíveis, sem comparar bytes completos, IDs de glyph ou ordem de
-`defs`. A baseline de um glyph é global: o observador percorre grupos
-ancestrais e acumula `translate(...)` e `matrix(...)` na ordem afim do
-documento antes de comparar a coordenada.
-
-A composição é genérica; não seleciona por caractere, fonte, número de fixture
-ou constante sentinela.
-
-## Lote C — `measure` contextual
-
-Cada caso materializa o resultado de `measure` como shape de cor única dentro
-de `context`, compila para SVG e extrai as dimensões do shape. Não usa
-`query`, metadata ou root como substituto da execução contextual.
-
-Região finita e `height:auto` são casos separados. Delimitadores, alinhamento,
-repr, presença/default e erros permanecem cobertos. O controle contextual deve
-emitir o shape antes de se avaliar a feature.
-
-## Lote D — `place.flush` multipágina
-
-O teste compila PDF e observa página, bbox e ordem de tokens textuais únicos.
-Ausência de `pdftotext` é erro explícito. Tokens de observação não participam
-do fluxo e devem aparecer uma única vez.
-
-O contrato cobre prefixo/sufixo, controle sem flush, floats top/bottom, nesting
-no `Layouter` ativo e no-op sem floats. Não compara bytes PDF, timestamps,
-compressão ou ordem interna de operadores.
-
-## Aceitação
-
-- transformações SVG ancestrais são aplicadas uma única vez;
-- controles provam os transportes JSON, SVG e PDF antes das features;
-- expectativas semânticas não são adaptadas ao candidato;
-- temporários são removidos;
-- o prompt legitima somente `04_wiring/tests/p1292_contract.rs`.
+Run `cargo test -p typst --test p1292_contract -- --test-threads=1` with the harness prerequisites above.
+Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.

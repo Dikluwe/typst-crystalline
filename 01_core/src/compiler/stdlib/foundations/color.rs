@@ -169,7 +169,11 @@ pub fn native_luma(
             "missing argument: lightness component",
         )
         .with_hint("try writing `white` or `luma(100%)`")]),
-        [Value::Color(color)] => Ok(Value::Color(color.clone().to_space(ColorSpace::Luma).map_err(|_| vec![SourceDiagnostic::error(args.span, "cannot convert color to luma")])?)),
+        [Value::Color(color)] => {
+            Ok(Value::Color(color.clone().to_space(ColorSpace::Luma).map_err(|_| {
+                vec![SourceDiagnostic::error(args.span, "cannot convert color to luma")]
+            })?))
+        }
         [lightness] => Ok(Value::Color(Color::Luma {
             l: luma_component(lightness, positional_span(args, 0))?,
             a: 1.0,

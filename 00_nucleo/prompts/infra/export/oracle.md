@@ -1,141 +1,38 @@
-# export/oracle — oráculo de paridade de operador (P980)
-Hash do Código: 7ce9fe09
+# L0 — infra/export/oracle
+Hash do Código: a99160ac
 
-**Data:** 2026-08-05 · **Camada:** L3 · **Passo:** 980 (gate confirmado
-pelo dono em 2026-08-05)
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/export/oracle.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0126, ADR-0127, ADR-0128, ADR-0129, ADR-0130
 
-## Propósito
+## Consumer evidence
 
-Caminho de diagnóstico **separado** do exportador de produção: recebe o
-content stream já construído pelo modo verbose normal e aplica
-transformações de paridade de operador que **não** pertencem à saída
-principal (não mudam posições nem têm benefício visível fora de
-comparação). Activo só com a flag CLI `--oracle-pdf`.
+`03_infra/src/export/oracle.rs:22` identifies the current exclusive consumer. The clauses below
+are checked against that source and its delegated calls. They specify current
+export observables and ownership, not full upstream byte or algorithm equality.
 
-## Regras do módulo
+## Diagnostic operator transformation
 
-1. `03_infra/src/export/oracle.rs`; funções puras sobre a string do
-   content stream; zero impacto no caminho normal (a saída sem a flag é
-   bit-a-bit a mesma — guardado por teste).
-2. Activação: `RunIntent.oracle_pdf` (L2) → `compile_to_pdf_bytes_oracle`
-   (L3, aditiva) → `export_pdf_oracle` (mesma dispatch de fontes da
-   emissão normal) → `PdfBuilder::with_oracle(true)` → aplica
-   `collapse_trivial_tj` ao content stream de cada página (antes da
-   compressão).
+Own collapse_trivial_tj and collapse_trivial_tj_bytes, conservative ASCII
+content-stream transformations, not production painting or font selection.
+The caller explicitly enables oracle mode; the ordinary builder path does not
+apply this transformation. Its activation/stream envelope belongs to
+`00_nucleo/prompts/infra/export/builder/streams.md`.
 
-## Transformação 1 — `collapse_trivial_tj`
+For a well-formed "[ ... ] TJ" in the emitted ASCII format, concatenate nonempty
+hex strings and emit "<...> Tj" only when all parsed integer adjustments are zero;
+-0 is zero. Preserve hex order and any bytes outside a recognized array.
+A nonzero adjustment, unexpected token, missing delimiter, empty/no-hex array or
+unrecognized syntax leaves the candidate untouched. Never remove real spacing.
+Invalid UTF-8 in the byte wrapper returns the original bytes unchanged.
+The string scanner's supported input is generated ASCII, not arbitrary Unicode.
 
-Um array `[ … ] TJ` cujos ajustes são **todos inteiros zero** (entries
-`<XXXX> 0` e ajustes de fronteira `0`) é semanticamente um `Tj` puro:
-reescreve-se como `<XXXXYYYY…> Tj` (hex concatenado). Arrays com qualquer
-ajuste ≠ 0 ficam intocados. Números são **parseados** como inteiros (um
-`-0` conta como zero). Paridade: o vanilla usa `Tj` quando não há
-ajustes (medido: 92.5% dos blocos de texto do documento canónico).
+Mathematical fragment noncoalescing is production geometry owned exclusively by
+`00_nucleo/prompts/infra/export/stream/text.md`. This diagnostic compares operator structure without upgrading structural
+similarity to language parity or authorizing additional positional splitting.
 
-## P982 — residual TJ explicado (não colapsar) e o delta q/Q vs cm
+## Verification
 
-**Data:** 2026-08-05
-
-### Parte A — o residual TJ é estrutural, não arredondamento
-
-Medição sobre a saída do oráculo (`typst-passo-982` Fase A.1): os 263
-arrays `TJ` restantes têm ajustes **reais**, não ruído — só 2 de 663
-ajustes têm |a|≤3 milésimos de em. Os valores dominantes são os
-**espaços de classe math**: −278 (THICK, 5/18em), −222 (MEDIUM, 2/9em),
-−167 (THIN, 1/6em) — a codificação cristalina escreve o espaçamento de
-classe como ajustes TJ dentro de um run; o vanilla escreve-o como
-**posições de blocos separados** (cada fragmento math é um TextItem com
-posição absoluta própria — daí os seus 1919 blocos contra os nossos
-1293). **Conclusão**: colapsar estes arrays seria perder espaçamento
-(posições mudariam) — proibido. A convergência adicional só viria de
-uma transformação de **split** (partir o run nos ajustes reais e
-re-posicionar absolutamente cada pedaço), que precisa dos avanços
-nominais da fonte (não disponíveis na string do stream) — fica como
-decisão de desenho para um passo futuro, não para esta investigação.
-
-### Parte B — o delta q/Q (68) vs cm explicado
-
-Os 68 pares `q…Q` sem `cm` correspondem exactamente aos 68 traços
-vectoriais (`l S` — barras de fracção e afins), medido. O braço
-`FrameItem::Line` emite `q {w} w {x1} {y1} m {x2} {y2} l S Q` — o `q/Q`
-guarda o estado gráfico contra a mudança de line width; o `cm` não é
-necessário porque as coordenadas já são absolutas. O vanilla tem delta 4
-(1992 q vs 1988 cm) porque o krilla embrulha quase tudo em `q/cm/Q`
-uniformemente. **Veredicto: comportamento correcto e intencional — sem
-código.**
-
-## P983 — split posicional: no oráculo, itens math não fundem runs (paridade de granularidade com o vanilla)
-
-**Data:** 2026-08-05 · **Gate:** confirmado pelo dono em 2026-08-05
-("continuar" após `typst-passo-983-faseA.md`).
-
-**Medição decisiva** (Fase A.2, caso `$ 3x + y = 9 $`): o vanilla emite
-**6 blocos `BT…ET` — um `Tj` por glifo/átomo math**, cada um com posição
-absoluta própria (incluindo `3` e `x` em blocos separados apesar de não
-haver espaço de classe entre eles). Ou seja: o vanilla nunca funde glifos
-math — a granularidade vanilla ≈ os nossos itens L1 (a saída pré-P979).
-Em prosa, o contrário: uma linha inteira é um TextItem (P979 mediu
-36 = 36). Resumo da regra do vanilla: **math → um bloco por fragmento;
-prosa → um bloco por linha de estilo uniforme.**
-
-**Desenho** (muito mais simples que o temido na Fase A.1 — **não são
-precisos avanços nominais**): o split não é feito por valor de ajuste nem
-por cirurgia de string, mas **ao nível da emissão, por item**: no caminho
-do oráculo, itens com `style.math == true` **não participam no
-agrupamento de P979** (cada um é o seu bloco, como em pré-P979); itens de
-prosa continuam a fundir-se (36 = 36, paridade já medida). As posições
-vêm dos próprios itens (`pos.x`) — zero risco de deriva. A transformação
-de P980 (`collapse_trivial_tj`) corre depois e converte os blocos
-mono-glifo triviais em `Tj`, completando a semelhança com o vanilla.
-
-**Flag**: o `oracle: bool` do `PdfBuilder` (P980) chega ao emissor via
-`PageContext.with_oracle` (interno a L3; o builder aplica-o nos 3 pontos
-de construção de contexto). `build_page_stream` em modo oráculo só forma
-runs de P979 para itens não-math. Caminho normal: intocado (a flag está
-sempre `false` fora de `--oracle-pdf`).
-
-**Interacção com P979 (Fase A.4)**: nenhuma — P979 continua correcto na
-saída principal (menos operadores, posições iguais); o oráculo diverge de
-propósito para espelhar a estrutura do vanilla.
-
-## P1133 — o split de itens math é geometria de produção, não só oracle
-
-**Medição antes da decisão.** A afirmação de P983 de que a fusão produz
-“posições iguais” foi testada contra a seção 02 no estado não commitado sobre
-`HEAD 781b207b4a5de9c2bfbe5819918a193d1d9293e5`, em 2026-08-23. Os PDFs
-normal e vanilla têm a mesma página (`184,033 × 245,631pt`) e as mesmas caixas
-de texto no nível linguístico, mas a rasterização a 288dpi diverge em 59
-pixels, concentrados numa vírgula (`bbox px 370,390–377,404`). O PDF oracle,
-gerado do mesmo documento e do mesmo binário, é pixel a pixel idêntico ao
-vanilla (`bbox=None`, zero pixels alterados).
-
-**Causa medida no código.** O caminho normal permite que itens
-`TextShaped` matemáticos consecutivos participem de `verbose_run_end`
-(`03_infra/src/export/stream.rs:957-981`) e converte suas posições absolutas
-em ajustes `TJ` inteiros, arredondados em milésimos de em
-(`stream.rs:1088-1117`). O oracle impede essa fusão quando
-`style.math == true`; assim conserva diretamente a posição absoluta de cada
-fragmento, igual à granularidade medida no vanilla. Portanto a diferença não
-é apenas mecânica de bytes: a quantização do run fundido alcança o render e é
-observável como morfologia visual.
-
-**Inferência e refutação.** A inferência é que a fusão P979 é segura para
-prosa, mas não para fragmentos math já posicionados por L1. Seria refutada se
-o split normal continuasse produzindo a divergência raster ou causasse
-mudança geométrica em prosa; a sonda atual refuta a primeira alternativa e
-P983 já guarda que prosa continua fundida.
-
-**Decisão de comportamento padrão (gate ADR-0127).** No modo verbose de
-produção, itens com `style.math == true` não formam runs entre si. Cada item
-preserva seu `pos.x` absoluto e é emitido em bloco próprio. Itens de prosa
-continuam seguindo P979. A flag oracle mantém somente as transformações que
-forem de diagnóstico/estrutura e deixa de ser a única ativação deste split.
-
-**Aceitação no nível da linguagem/render.**
-
-- seção 02: saída normal pixel a pixel igual ao vanilla a 288dpi;
-- posições e dimensões matemáticas permanecem as produzidas por L1, sem
-  conversão intermediária para fronteiras `TJ` quantizadas;
-- prosa de estilo uniforme continua agrupada;
-- modos compacto/verbose continuam semanticamente equivalentes, ressalvada a
-  diferença de precisão visual já decidida para o verbose de produção.
+Check zero/-0 collapse, ordered concatenation, nonzero/malformed preservation
+and invalid-UTF-8 identity. Oracle-off identity is an explicit local regression
+contract, not a universal PDF-byte equivalence requirement.

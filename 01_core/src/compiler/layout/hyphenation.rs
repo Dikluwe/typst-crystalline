@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/hyphenation.md
-//! @prompt-hash 95fe4495
+//! @prompt-hash 30c6e2bc
 //! @layer L1
 //! @updated 2026-04-24
 //!

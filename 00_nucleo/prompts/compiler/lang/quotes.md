@@ -1,53 +1,46 @@
-# Prompt L0 — aspas localizadas
+# L0 — lang/quotes
+
 Hash do Código: a2383787
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/lang/defaults.toml sha256:c8f920865f8895a89d9c42659c15e773e9bb2603bd614e390805f620834babd9
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/lang/quotes.rs`
-**ADRs:** ADR-0052, ADR-0060, ADR-0107, ADR-0108, ADR-0127, ADR-0129.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/lang/quotes.rs`
 
-## Medição anterior à decisão
+## Consumer evidence
 
-O consumer usa match exato do código `Lang`: aspas primárias específicas para
-`pt`, `en`, `de`, `fr`, `es` e `it`; aspas simples específicas para `en`.
-Códigos fora das tabelas usam pares curly ingleses determinísticos.
+`01_core/src/compiler/lang/quotes.rs:57` locates `fn pair(open: &str, close: &str) -> SmartQuotePair`.
+This audit locates the existing consumer; it does not establish language parity.
+Historical evidence and unresolved discrepancies are archived in
+`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
 
-## Contrato
+## Localization and validation
 
-- `localize_quotes(&Lang)` devolve o par primário; francês preserva NBSP.
-- `localize_single_quotes(&Lang)` devolve o par simples.
-- `DEFAULT_QUOTES` é `“`/`”`; `DEFAULT_SINGLE_QUOTES` é `‘`/`’`.
-- O lookup é linear, exato e puro; não interpreta região BCP47.
+Own pure quote-pair lookup, validation and resolution, using the public types
+owned by `00_nucleo/prompts/entities/elements/smartquote.md`.
+`DEFAULT_QUOTES` is `“`/`”`; `DEFAULT_SINGLE_QUOTES` is `‘`/`’`.
 
-## Limites e aceitação
+Primary double pairs: pt/es/it `«`/`»`, en `“`/`”`, de `„`/`“`,
+fr `«\u{00A0}`/`\u{00A0}»`. Single pairs: en `‘`/`’`, de `‚`/`‘`.
+Uncovered or missing language uses the corresponding English curly pair.
+German alternative pairs are single `›`/`‹` and double `»`/`«`.
+Exact language lookup does not infer BCP47 regions.
 
-Sem smart-apostrophes, alternância aninhada ou inferência por ambiente. Os
-pares existentes, NBSP e fallback devem permanecer iguais; mudanças públicas
-ficam sob ADR-0127.
+`parse_smartquote_quotes(value, span)` accepts auto/none, string, array or
+dictionary. Auto/none selects automatic localization. A string must have
+exactly two grapheme clusters; an array must have exactly two strings.
+A bare string/array overrides the double pair only. A dictionary accepts only
+`single` and `double`; each member is auto/none or a valid pair.
+Explicit overrides affect only their member; auto preserves its localized
+alternative. Resolution does not implement nesting, opening/closing context,
+apostrophes or primes.
 
-## P1286 — pares alternativos e overrides explícitos
-
-### Medição anterior à decisão
-
-O baseline `text/smartquote.rs:233-310` escolhe quatro glifos (single/double,
-open/close) por língua, região e `alternative`; depois aplica separadamente os
-overrides `single` e `double`. `:335-419` converte string por grapheme, array e
-dicionário. A medição P1286 confirma a precedência no caso alemão e os erros
-de cardinalidade/chave.
-
-### Decisão
-
-Este owner fornece operações puras de validação e resolução sobre os tipos
-canônicos públicos pertencentes ao owner
-`entities/elements/smartquote.md`. Para a superfície sem região representável
-no cristalino, a tabela replica os ramos sem região do baseline pinado; em
-particular alemão primário usa
-`(‚,‘,„,“)` e alternativo usa `(›,‹,»,«)`. Quotes explícitas anulam a
-escolha alternativa apenas no membro substituído; `auto` conserva o fallback.
-Não ampliar `Lang` nem inventar região neste lote.
-
-Aceitação é a morfologia dos glifos e as mensagens medidas, não a forma do
-helper. Casos regionais, stack de nesting, prime/apóstrofo e profundidade 32
-permanecem `Unknown` e não podem ser promovidos a paridade.
+Preserve span-anchored diagnostics, including singular/plural forms:
+`expected 2 characters, found {n} character{s}`,
+`expected 2 quotes, found {n} quote{s}`,
+`expected string, found {type}`,
+`unexpected key "{key}", valid keys are "double" and "single"`,
+`expected auto, string, or array, found {type}` and
+`expected auto, string, array, or dictionary, found {type}`.
+Regional and nesting parity is not established by this owner.

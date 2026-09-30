@@ -1,218 +1,66 @@
-# Prompt L0 — `compiler/eval/operators/equality` — igualdade e pertença
+# L0 — compiler/eval/operators/equality
 Hash do Código: 8ecabe9e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
 
-## P1307-R5 — snapshot de conteúdo consultado (proposta; gate ADR-0127 pendente)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/eval/operators/equality.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
-### Medição anterior à decisão
+## Source evidence
 
-Baseline histórico R5:
-HEAD `b303f1f15b610e09872b567027e0d806387fde8c`, working tree não
-commitado com diff/stat integral. A medição independente R5,
-preserva fontes, horários e executáveis; referência upstream `a51e02804`.
+The current exclusive consumer defines the following owned boundaries:
 
-`compiler/eval/operators/equality.rs:119–124` aplica morph_canon aos dois
-payloads. Na referência, `foundations/content/raw.rs:354–361` compara
-campos do elemento; R5 equality.different-numbering é false no vanilla e
-true no baseline. Pares com labels distintas são true. Logo preservar só
-morph_canon é insuficiente neste recorte (refuta essa frase da auditoria de
-transporte, não a recomendação de separar o IR).
+- `01_core/src/compiler/eval/operators/equality.rs:21` — `fn apply_binary`.
+- `01_core/src/compiler/eval/operators/equality.rs:91` — `fn value_eq`.
+- `01_core/src/compiler/eval/operators/equality.rs:103` — `fn values_eq`.
+- `01_core/src/compiler/eval/operators/equality.rs:138` — `fn selector_contains_element`.
+- `01_core/src/compiler/eval/operators/equality.rs:163` — `fn selectors_eq`.
+- `01_core/src/compiler/eval/operators/equality.rs:203` — `fn counter_keys_eq`.
+- `01_core/src/compiler/eval/operators/equality.rs:210` — `type ContentFields =`.
+- `01_core/src/compiler/eval/operators/equality.rs:213` — `fn raw_content_fields`.
+- `01_core/src/compiler/eval/operators/equality.rs:226` — `fn content_values_eq`.
 
-### Decisão proprietária
+Prior source readings supporting these clauses (snapshot provenance is
+retained in the assigned history diagnostic, not asserted as a fresh measurement):
 
-Preservar igualdade raw Content↔Content e o fallback LocatedContent None.
-Quando pelo menos um operando tem snapshot Some, comparar função do elemento
-e os conjuntos de campos linguísticos, excluindo label; para o operando
-Some usar o mapa, para raw/None usar os campos explicitamente presentes da
-projeção existente. Comparar valores recursivamente por values_eq (body
-continua morfológico); não comparar Location, ordem de inserção, discriminante
-do carrier ou Debug. Conjuntos diferentes de campos são diferentes: raw não
-é automaticamente igual à versão realizada nem automaticamente desigual
-apenas por usar outra variante de Value. Não preencher defaults no comparador.
+- `foundations/content/raw.rs:354–361`.
+- `foundations/selector.rs:75-81`.
+- `foundations/value.rs:295-299`.
+- `introspection/counter.rs:243,256`.
 
-Os braços Eq/Neq e pertença devem chegar à mesma regra, inclusive aninhados
-em arrays/dicts. Não alterar o derive PartialEq de Value, Content::morph_canon
-ou estilos do IR para obter o resultado. Helper de projeção de campos pode
-ser interno ao eval e compartilhado estaticamente com field_access, sem
-import reverso de entities para compiler; não nova API pública de Value.
+## Contract
 
-Aceitação: numbering1 vs I false; labels distintas com mesmos campos true;
-clone true; inline-default vs query false; Location distinta não basta para
-desigualdade. Coerção Int/Float e igualdade das demais famílias não regridem.
+Own Eq/Neq/In/NotIn, values_eq and value_eq. This is language equality, not
+derived Rust PartialEq or ObservationEq. Coerce Int/Float recursively, including
+array/dictionary values. Containers preserve their existing key/cardinality
+comparison; raw Content uses morph_canon and ignores baked render style while
+retaining semantic morphology. Version compares all components with zero padding.
+Length equals Relative only with zero relative component; Ratio equals Relative
+only with zero absolute component and |rel-ratio| < 1e-9. Other existing families
+retain their derived fallback. Neq is the negation of the same relation.
 
----
+For any comparison involving LocatedContent Some, use the pinned snapshot
+contract: compare canonical element function and linguistic field sets excluding
+label; recursively compare values. For raw/None counterparts use only their
+explicitly projected fields, without filling defaults. Field insertion order,
+Location and carrier discriminant do not determine this equality. Different
+field sets differ; raw is neither automatically equal nor automatically unequal
+to its realized counterpart. Keep raw/raw and None fallback unchanged.
 
+Selector::Element compares canonical Func using current function equality and
+the ordered filter sequence by name position and recursive values_eq. Empty
+group differs from bare Kind; aliases retain identity; NaN filters remain
+nonreflexive. Propagate through nested containers and selector compositions,
+preserving antecedent comparison for pairs without Element. Counter keys with
+Element use the same recursive selector relation, including field order. Do not
+exclude Int/Float-equal pairs by structural hash bucket or shortcut with Arc
+identity. Before compares base/end/inclusive recursively; After compares
+base/start/inclusive; distinct variants differ, with no document query.
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/eval/operators/equality.rs`
-**Prompt pai (hub)**: `00_nucleo/prompts/compiler/eval/operators.md`
-**ADRs**: ADR-0025 (dois sistemas de igualdade), ADR-0107 (paridade língua — igualdade morfológica de content)
-
----
-
-## Contexto
-
-O `==` da **linguagem** Typst não é o `PartialEq` do Rust (ADR-0025): coage
-`Int ↔ Float` (medido: `1 == 1.0` → `true`), compara `Content`
-**morfologicamente** (texto/markup/estilo semântico, ignorando estilo de
-render — via `Content::morph_canon`), e propaga a coerção a elementos
-aninhados de arrays/dicts. O `derive(PartialEq)` de `Value` fica para o Rust
-(IndexMap, testes, estruturas de dados).
-
-## Instrução
-
-### Braços dedicados de `Eq`/`Neq` (antes do braço genérico)
-
-- `Int ↔ Float` cruzado: coerção para `f64` e comparação.
-- `Content == Content`: `a.morph_canon() == b.morph_canon()` — a forma
-  canónica é comparada com o `==` estrutural; o estilo de render assado é
-  ignorado.
-- `Version == Version`: comparação directa sobre todos os componentes
-  (zero-pad; não existem `pre`/`build` em Typst).
-- `Ratio ↔ Relative`: igualdade quando a parte absoluta do `Relative` é zero
-  e `|rel − ratio| < 1e-9`.
-- Braço genérico: `(Eq, a, b) → values_eq(&a, &b)`; `Neq` é a negação.
-
-### `values_eq` — igualdade da linguagem, recursiva
-
-Paridade com `Value::eq` do vanilla (que **é** `ops::equal`,
-`foundations/value.rs:295-299`):
-
-- `Int ↔ Float`: coerção, em qualquer profundidade (medido:
-  `(1,2) == (1.0,2.0)` → `true`; `(a: 1) == (a: 1.0)` → `true`).
-- `Array`/`Dict`: elemento a elemento com `values_eq` (mesmo comprimento).
-- `Length ↔ Relative`: igual quando o `Relative` tem parte relativa zero
-  (`ops.rs:458-460`; medido: `10pt == (10pt + 0%)` → `true`).
-- `Ratio ↔ Relative`: parte absoluta zero + tolerância `1e-9`.
-- `Content`: morfológico (`morph_canon`), também em posição aninhada.
-- Resto: delega no `PartialEq` derivado.
-
-### `value_eq` e a pertença `in` / `not in`
-
-`value_eq` delega em `values_eq` e serve os braços de pertença (medido:
-`1 in (1.0, 2.0)` → `true`; `(1,) in ((1.0,), (2,))` → `true`).
-
-| `lhs in rhs` | Resultado | Medição vanilla |
-|---|---|---|
-| `Str in Dict` | `Bool` — a chave existe (`contains_key`) | `"a" in (a:1,b:2)` → `true` |
-| `Str in Str` | `Bool` — substring | `"ell" in "hello"` → `true` |
-| `any in Array` | `Bool` — `values_eq` elemento a elemento | `(1,2) in ((1,2),(3,4))` → `true` |
-| `not in` | negação lógica das combinações acima | `1 not in (1,2,3)` → `false` |
-| combinação sem braço (ex.: `Int in Str`) | **erro** de fronteira | vanilla: `"cannot apply 'in' to integer and string"` |
-
-O texto incompatível usa o spelling público entre aspas simples:
-`cannot apply 'in' ...` ou `cannot apply 'not in' ...`, conforme o nó
-`error_formatting.md`. Nomes Rust de variantes nunca escapam ao diagnóstico.
-
-## Restrições Estruturais
-
-- L1 puro (ver hub); nenhum braço toca `EvalContext`/`Scope`.
-- Não tocar o `derive(PartialEq)` de `Value` — os dois sistemas coexistem
-  por decisão (ADR-0025).
-
-## Critérios de Verificação
-
-```
-eval_binary_op(Eq, Int(1), Float(1.0))          == Bool(true)
-eval_binary_op(Neq, Int(1), Float(1.0))         == Bool(false)
-eval_binary_op(Eq, Content(it.body), Content([a]))  // casa morfologicamente
-eval_binary_op(Eq, Ratio(50%), Relative(0pt + 50%)) == Bool(true)
-eval_binary_op(Eq, Length(10pt), Relative(10pt + 0%)) == Bool(true)
-
-// coerção recursiva
-eval_binary_op(Eq, Array[1,2], Array[1.0,2.0])  == Bool(true)
-eval_binary_op(Eq, Dict{a:1}, Dict{a:1.0})      == Bool(true)
-
-// pertença
-eval_binary_op(In, Str("a"), Dict{a:1,b:2})     == Bool(true)
-eval_binary_op(In, Str("z"), Dict{a:1,b:2})     == Bool(false)
-eval_binary_op(In, Str("ell"), Str("hello"))    == Bool(true)
-eval_binary_op(In, Array[1,2], Array[Array[1,2],Array[3,4]]) == Bool(true)
-eval_binary_op(In, Int(1), Array[Float(1.0)])   == Bool(true)
-eval_binary_op(NotIn, Int(5), Array[1,2,3])     == Bool(true)
-eval_binary_op(In, Int(1), Str("hello"))        == Err("cannot apply 'in' to integer and string")
-eval_binary_op(NotIn, Int(1), Str("hello"))     == Err("cannot apply 'not in' to integer and string")
-```
-
-## Resultado Esperado
-
-- Braços `Eq`/`Neq`/`In`/`NotIn` e os helpers `values_eq`/`value_eq`
-  conforme especificado; testes unitários no ficheiro e E2E no eval.
-
-## P1339 — igualdade pública do seletor de elemento
-
-### Medição anterior à decisão
-
-No HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`, sem diff produtivo,
-`equality.rs:101-130` deixa Value::Selector no fallback estrutural. A medição
-histórica, em UTC,
-`2026-09-10T00:04:21.279738+00:00`–`00:04:21.402736+00:00`, mede
-`heading.where(level:1) == heading.where(level:1.0)` verdadeiro no vanilla;
-o antecedente cristalino mede falso. Reordenar campos é diferente; alias
-é igual; campo NaN torna `s == s` falso; filtro vazio é distinto do elemento
-nu. A fonte `foundations/selector.rs:75-81` usa sequência de campos, cujos
-valores têm igualdade de linguagem; não se exige copiar o derive Rust.
-
-### Decisão proposta
-
-Adicionar tratamento de linguagem para Selector::Element no caminho de
-`values_eq`. Comparar a função canônica com a igualdade Func vigente, e
-comparar a sequência de campos por nomes na mesma posição e valores por
-`values_eq` recursiva. Reconhecimento de um receiver como elemento é tarefa
-do produtor, nunca consequência dessa comparação por Func. Preservar ordem:
-não converter o grupo em comparação de conjuntos de Dict.
-
-A regra deve propagar através de arrays, dicts e composição de seletores
-que contenha a variante nova. Pares de variantes anteriores sem Element
-preservam comportamento antecedente; não usar esta mudança para corrigir
-outros seletores. Element vazio não é Kind; ausência de campos filtrados não
-equivale a ausência do grupo. Eq, Neq e pertença seguem a mesma regra.
-
-Não modificar PartialEq/Hash de Selector, Value, Func ou Content; os hashes
-estruturais não são usados como oráculo de igualdade da linguagem. A regra
-de comparação de valores necessária ao matcher pode ser reutilizada por
-helper interno tipado, sem nova API pública nem import reverso de entities.
-Snapshots de conteúdo continuam seguindo o Núcleo já pinado neste owner.
-
-Aceitação: casos focais de coerção, ordem, alias, grupo vazio e NaN; mesmos
-casos aninhados; preservação das famílias antigas. Inferência de suficiência
-é refutada por valor de campo cuja igualdade não atravesse o helper comum,
-ou por uma regressão em pares antigos sem a variante nova.
-
-### P1339 — identidade linguística da chave de counter filtrado
-
-Medição anterior à decisão: no HEAD acima, `values_eq` também deixa
-Value::Counter no fallback derivado. O registro histórico conserva UTC e
-árvore integrais: filtros level inteiro/float comparam iguais
-e compartilham update; inverter ordem dos fields distingue chaves e updates;
-filtro com NaN não compara igual a si próprio e não reencontra seu update.
-`introspection/counter.rs:243,256` seleciona updates pela chave, separadamente
-das ocorrências casadas pelo filtro. Trata-se de identidade observável da
-linguagem, não de igualdade de HashMap nem de intenção inferida sobre NaN.
-
-Para Value::Counter cuja chave contenha Selector::Element, comparar a chave
-inteira usando a regra recursiva do seletor acima; delegar pares sem Element
-ao comportamento anterior. Eq/Neq/pertença, inclusive aninhados, usam essa
-mesma regra. O runtime pode reutilizar helper interno de comparação de
-CounterKey para associar eventos manuais. Não usar Arc identity como atalho
-reflexivo nem bucket de hash estrutural para excluir pares int/float iguais.
-Não mudar Eq/Hash públicos de Counter, CounterKey, Value ou Selector e não
-normalizar a ordem dos fields. A mudança é interna de paridade, subordinada
-aos gates P1339, sem nova entidade ou assinatura pública.
-
-## P1401 — igualdade de seletores contextuais (PROPOSTO; gate ADR-0127)
-
-### Medição anterior à decisão
-
-No baseline P1401, a igualdade exaustiva só conhece os variants anteriores a
-`Before`/`After`; o novo contrato da entidade exige identidade estrutural.
-
-### Decisão proposta
-
-Dois `Before` são iguais somente quando base, end e inclusive são iguais; dois
-`After`, quando base, start e inclusive são iguais. Variants diferentes são
-desiguais. A comparação é recursiva, não consulta o documento e não reduz o
-selector ao resultado corrente. O observável acompanha a entidade proposta e
-aguarda confirmação ADR-0127.
+Membership uses this same relation for array elements; string-in-dictionary
+tests key existence and string-in-string tests substring presence. NotIn negates
+these supported combinations. Unsupported combinations use the canonical
+quoted-operator diagnostic. Do not modify public PartialEq/Hash, morph_canon or
+the content IR to achieve language equality.

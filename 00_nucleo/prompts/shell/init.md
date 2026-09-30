@@ -1,63 +1,81 @@
-# Prompt L0 — comando `typst init`
+# L0 — Project template materialization
 Hash do Código: e636235b
 
-**Camadas:** L2/L3/L4  
-**Ficheiros alvo:** `02_shell/src/cli.rs`, `03_infra/src/project_init.rs`,
-`04_wiring/src/main.rs`  
-**Estado:** INIT-1 e INIT-2 implementados
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/project_init.rs`
 
-## Medição anterior à decisão
+## Evidence and ownership
 
-O vanilla recebe `TEMPLATE [DIR]`, aceita spec com ou sem versão e usa o nome
-do package como diretório default (`args.rs:135-150`; `init.rs:17-47`). Exige
-`[template]` no `typst.toml`, recusa destino existente e copia somente o
-conteúdo da pasta do template (`init.rs:38-47,69-92`). O cristalino já resolve
-packages locais/remotos em `SystemWorld`, mas não possui parser/materializador
-de template nem comando `init`.
+`03_infra/src/project_init.rs:22` implements initialization, manifest validation and staged copying; `:96` implements package resolution. Parsing belongs to `00_nucleo/prompts/shell/cli.md`; command publication belongs to `00_nucleo/prompts/wiring/init.md`. The directory containing this L0 does not change the consumer's L3 layer.
 
-**Classificação:** semântica pública e I/O de produto. Inferência: reutilizar
-apenas o entrypoint de compilação não basta; um manifesto sem `[template]`
-refuta essa abordagem.
+Package/version resolution is referenced canonically at `00_nucleo/prompts/infra/package_version_resolution.md`. This prompt does not share ownership of that consumer. Observable selection, destination safety and errors are contracts; downloader internals are not a requirement to reproduce vanilla mechanics.
 
-## Contrato público inicial
+## Public contract
 
-```text
-typst init TEMPLATE [DIR]
+```rust
+pub struct InitResult {
+    pub destination: PathBuf,
+    pub entrypoint: PathBuf,
+    pub spec: PackageSpec,
+}
+pub fn initialize(
+    template: &str,
+    destination: Option<PathBuf>,
+    custom_ca: Option<PathBuf>,
+) -> Result<InitResult, String>;
 ```
 
-1. Aceita `@namespace/name:version` e `@namespace/name`; sem versão aplica a
-   resolução definida em `infra/package_version_resolution.md`.
-2. Resolve primeiro cache local e só usa downloader já configurado quando
-   necessário.
-3. Valida identidade/versionamento do manifesto e presença de `[template]`
-   com `path` e `entrypoint` relativos.
-4. Destino omitido usa o nome do package.
-5. Destino existente falha sem escrever nada.
-6. Path do template não pode escapar da raiz do package.
-7. Materialização usa staging no mesmo filesystem e rename; falha não deixa
-   projeto parcial.
-8. Sucesso imprime diretório e entrypoint criado.
+The CLI form is `typst init TEMPLATE [DIR]`. Accept explicit `@namespace/name:version` and versionless `@namespace/name`. Explicit versions search configured local package roots before downloading a missing preview package. Versionless preview resolution queries the remote index through the configured downloader; it does not infer the latest preview version from the local cache. Versionless non-preview resolution selects the greatest parseable package version under the data root, ignoring malformed names. Missing data/cache/package state yields the established error. Apply the custom CA selected by the CLI; do not expose its path or bytes through info.
 
-## Entregas concluídas
+Read and parse `typst.toml`, require a valid `[package]` identity matching requested name/version, and require `[template]` with string `path` and `entrypoint`. Both paths must be nonempty relative paths without parent/root/prefix components. Canonical template root must be inside the canonical package root; canonical entrypoint must be a file inside the template root.
 
-`P1137-C001-INIT-1` implementa versão explícita e
-`P1137-C001-INIT-2` implementa versão omitida consumindo
-`infra/package_version_resolution.md`. Ambas estão materializadas.
+An omitted destination is the package name. Reject an existing destination; the no-overwrite guarantee applies to that destination, not a promise that package resolution cannot populate a download cache first. Require an existing parent directory and a valid destination leaf name.
 
-## Topologia e segurança
+Copy only the template tree into an exclusively created sibling staging directory. Reject symbolic links during copying, including internal links; do not weaken this to permitting some symlinks. Complete copying before rename to the destination. Cleanup staging on failure is best-effort; do not leave a deliberately published partial project or overwrite an existing destination. Return the materialized destination, entrypoint and resolved spec.
 
-- L2 define `InitIntent`; L3 lê TOML/copia; L4 compõe.
-- Não sobrescrever destino, não seguir paths `..` para fora do package e não
-  copiar symlink cujo alvo escape a raiz.
-- Nenhuma lógica de filesystem entra em L1.
+## Observable errors and command envelope
 
-## Testes e aceitação
+Preserve source-selected error literals and substitutions, including:
 
-Fixture local template: sucesso; destino default; destino existente; package
-sem template; path escapando; falha no meio sem árvore parcial; e, em INIT-2,
-seleção da versão local mais recente. Mensagens públicas são comparadas com o
-vanilla quando equivalentes.
+```text
+template package has no readable typst.toml
+template package has an invalid typst.toml
+typst.toml has no [package] section
+template manifest identity does not match the requested package
+package does not contain a [template] section
+[template].{key} is missing
+[template].{key} must be a relative path inside the package
+template package directory is not accessible
+template path does not exist
+template path escapes the package root
+template entrypoint does not exist
+template entrypoint escapes the template directory
+destination already exists: {path}
+destination parent does not exist: {path}
+destination must have a directory name
+failed to create staging directory: {error}
+failed to finalize project: {error}
+failed to read template: {error}
+failed to inspect template: {error}
+failed to create template directory: {error}
+failed to copy template file: {error}
+template contains a symbolic link; refusing unsafe materialization
+package cache directory is unavailable
+package data directory is unavailable
+package not found (searched for {spec})
+```
 
-## Gate
+Package-parser/downloader errors are propagated rather than translated by this owner. L4 success exits 0 and prints these newline-terminated lines:
 
-Novo comando e escrita material no filesystem: confirmação obrigatória.
+```text
+Successfully created project in {destination}
+Entrypoint: {entrypoint}
+```
+
+Initialization failure prints `error: {error}` to stderr and exits 1; argument parsing failures exit 2.
+
+## Acceptance and exclusions
+
+Use local template fixtures for explicit/versionless selection, default destination, matching identity, template-only copying, existing destination refusal, missing template, unsafe paths/symlinks and cleanup after a mid-copy failure. Test preview latest-version selection independently of cache contents. Preserve established messages; machine-dependent paths are substituted, not frozen globally.
+
+No filesystem logic enters L1 or L2. CLI changes, downloader implementation and changes to public acceptance/defaults require their respective owners and ADR-0127 approval. This specification does not add a command or reopen an implementation gate.

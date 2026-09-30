@@ -1,85 +1,57 @@
-# Prompt L0 — `rules/mod` — Agregador do Motor de Regras
-Hash do Código: 100a86e0
+# L0 — mod
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/mod.rs`
-**ADRs relevantes**: ADR-0017 (adiamento de eval completo)
+Hash do Código: 0e94cabc
 
----
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/mod.rs`
 
-## Contexto e Objetivo
+## Consumer evidence
 
-Ponto de entrada único (*facade*) do domínio lógico de processamento — a camada
-que transforma texto fonte em valores avaliados. Declara e organiza os seis
-submódulos que compõem o pipeline de compilação L1.
+`01_core/src/compiler/mod.rs:7` locates `pub mod eval;`.
+This audit locates the existing consumer; it does not establish language parity.
+Historical evidence and unresolved discrepancies are archived in
+`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
 
-Este ficheiro **não contém lógica** — é um mapa de dependências que comunica
-a arquitectura do compilador de forma instantânea.
+## Ownership and boundary
 
----
+This owner governs only the static compiler facade in `01_core/src/compiler/mod.rs`.
+Declare the public modules `eval`, `introspect`, `lang`, `layout`,
+`lexer`, `math`, `parse`, `scopes` and `stdlib`. Do not add execution
+logic or behavioral reexports. Each module's own prompt owns its API and behavior.
 
-## Estrutura dos Submódulos
+The compiler remains pure L1: no infrastructure imports, I/O or mutable global
+state. Evaluation, paginated layout and semantic HTML are distinct responsibilities;
+this facade does not execute, reorder or merge their phases.
 
-| Módulo | Ficheiro | Responsabilidade | Camada pré-prompt |
-|--------|----------|-----------------|------------------|
-| `eval` | `eval.rs` | Motor de avaliação da AST → `Module` | `prompts/compiler/eval.md` |
-| `layout` | `layout.rs` | Conversor `Content` → `Frame` (layout de páginas) | `prompts/compiler/layout.md` |
-| `lexer` | `lexer/mod.rs` + `scanner.rs` | Tokenizador — texto → `SyntaxKind` stream | `prompts/compiler/lexer/mod.md` |
-| `math` | `math/mod.rs` | Subsistema matemático (MathLayouter + symbols) | `prompts/compiler/math/mod.md` |
-| `parse` | `parse.rs` | Parser — tokens → AST (`SyntaxNode`) | `prompts/compiler/parse.md` |
-| `scopes` | `scopes.rs` | Gestão de escopos aninhados de bindings | `prompts/compiler/scopes.md` |
-| `stdlib` | `stdlib.rs` | Funções nativas intrínsecas da linguagem | `prompts/compiler/stdlib.md` |
+Canonical owners include `00_nucleo/prompts/compiler/eval.md`,
+`00_nucleo/prompts/compiler/introspect.md`, `00_nucleo/prompts/compiler/lang.md`,
+`00_nucleo/prompts/compiler/layout.md`, `00_nucleo/prompts/compiler/lexer/mod.md`,
+`00_nucleo/prompts/compiler/math/mod.md`, `00_nucleo/prompts/compiler/parse.md`,
+`00_nucleo/prompts/compiler/scopes.md` and `00_nucleo/prompts/compiler/stdlib/_comum.md`.
 
----
+## Custos textuais personalizados — 2026-09-28
 
-## Regras de Arquitetura
+### Medição anterior à decisão
 
-- **Visibilidade controlada**: todos os módulos são `pub mod` — a API pública
-  de cada um é gerida internamente com `pub`/`pub(crate)`/privado.
-- **Sem re-exports**: o consumidor (L4 wiring ou outros módulos L1) importa
-  directamente de `crate::compiler::eval::eval`, `crate::compiler::layout::Layouter`,
-  etc. Não há `pub use` aqui.
-- **Isolamento garantido**: nenhum módulo em `rules/` pode importar de
-  `03_infra` — violação detectada pelo linter (regra V5).
-- **Dependências entre submódulos**:
-  - `eval.rs` usa `scopes.rs` (gestão de escopos)
-  - `layout.rs` usa `math/layout.rs` (via `MathLayouter`)
-  - `math/layout.rs` usa `math/symbols.rs`
-  - `parse.rs` usa `lexer/mod.rs` (tokenização)
+`correcao-custos-paragrafo-2026-09-28/before-pdf/` registra 66 entradas no
+estado `initial.json` e `before/`, contra pin 9f2b6e8715237cb086899a42873660fe744622e8.
+`text/mod.rs:1507-1564` valida Dictionary, Ratio por campo e composição parcial;
+`inline/mod.rs:240` lê costs do escopo compartilhado, não de cada fragmento;
+`inline/linebreak.rs:29-30,961-962` aplica defaults 135/100 vezes o ratio.
+O Tekt descarta costs em eval/rules e aceita sem transportar no constructor;
+paragraph_hyphen e paragraph_select usam defaults fixos. Os erros e spans
+estão no stderr vanilla, inclusive negativos aceitos. Não inferir intenção.
 
----
+### Decisão vigente
 
-## Interface (via submódulos)
+Correção interna/de paridade ADR-0127 em fluxo contínuo, sem novo contrato
+público, flag ou fase. Módulo privado compiler/text_costs possui owner único
+para cast, transporte por componente e resolução dos custos compartilhados.
+Hifenização/runt globais passam a consultar a configuração. Widow/orphan são
+validados e transportados, mas influência na paginação continua incompleta.
+Custos de fragmentos parciais não substituem o custo compartilhado; os quatro
+canais validados são neutros para glyphs na whitelist Styled. Um wrapper integral
+é fatorado pela realização existente antes de formar Par. Largura variável
+permanece limitada. Não deduzir custo pelo glyph. Preservar todos os defaults.
 
-```rust
-// Pipeline principal
-pub fn eval(world, source) -> SourceResult<Module>   // rules::eval
-pub fn parse(text: &str) -> SyntaxNode               // rules::parse
-pub struct Layouter<'a, M>                            // rules::layout
-pub struct MathLayouter<'a, M: FontMetrics>           // rules::math::layout
-pub struct Scopes<'a>                                 // rules::scopes
-
-// Stdlib
-pub fn native_type(args: &[Value]) -> SourceResult<Value>
-pub fn make_calc_module() -> Value
-// ... demais funções nativas
-```
-
----
-
-## Critérios de Verificação
-
-```
-// Estrutura do módulo
-rules/mod.rs contém APENAS declarações pub mod
-Sem: use, fn, struct, impl, const, static
-
-// Importações válidas do exterior
-use crate::compiler::eval::eval;             // ok
-use crate::compiler::layout::Layouter;       // ok
-use crate::compiler::math::layout::MathLayouter; // ok
-use crate::compiler::stdlib::make_calc_module;   // ok
-
-// Isolamento
-grep "03_infra" 01_core/src/compiler/ = vazio   // L1 nunca toca L3
-```
+Declarar somente mod text_costs privado; manter fachada estática, sem lógica/reexports novos.

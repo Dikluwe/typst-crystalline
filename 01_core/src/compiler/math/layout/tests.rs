@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/tests.md
-//! @prompt-hash fa838a11
+//! @prompt-hash 859b2d3d
 //! @layer L1
-//! @updated 2026-08-10
+//! @updated 2026-09-30
 //!
 //! Testes de `math/layout` — extraídos de `math/layout.rs` no Passo 96.8
 //! conforme ADR-0037.
@@ -2539,16 +2539,7 @@ mod p906_tests {
         let under = Content::MathText("⏟".into());
         let result = ml.layout_underover(&base, Some(&under), None, &style);
 
-        let glyph_y = result
-            .items
-            .iter()
-            .find_map(|i| match i {
-                FrameItem::Glyph { glyph_id, pos, .. } if *glyph_id == 50 => {
-                    Some(pos.y.val())
-                }
-                _ => None,
-            })
-            .expect("deve haver FrameItem::Glyph da chave (gid 50)");
+        let glyph_y = find_glyph_y(&result.items, 50);
         assert!(
             (glyph_y - base_descent).abs() < 0.01,
             "baseline da chave deve assentar no fundo da tinta da base ({base_descent:.4}), obteve {glyph_y:.4} \
@@ -2591,16 +2582,7 @@ mod p906_tests {
         let abh_pt =
             ml.constants.to_pt(ml.constants.accent_base_height, style.size).val();
         let expected_y = -base_box.ascent + base_box.ascent.min(abh_pt);
-        let glyph_y = result
-            .items
-            .iter()
-            .find_map(|i| match i {
-                FrameItem::Glyph { glyph_id, pos, .. } if *glyph_id == 60 => {
-                    Some(pos.y.val())
-                }
-                _ => None,
-            })
-            .expect("deve haver FrameItem::Glyph da chave (gid 60)");
+        let glyph_y = find_glyph_y(&result.items, 60);
         assert!(
             (glyph_y - expected_y).abs() < 0.01,
             "baseline da peça de cima deve seguir a fórmula P922 ({expected_y:.4}), obteve {glyph_y:.4}"
@@ -2644,16 +2626,7 @@ mod p906_tests {
         let soma = Content::MathText("soma".into());
         let outer = ml.layout_underover(&inner, Some(&soma), None, &style);
 
-        let chave_y = outer
-            .items
-            .iter()
-            .find_map(|i| match i {
-                FrameItem::Glyph { glyph_id, pos, .. } if *glyph_id == 50 => {
-                    Some(pos.y.val())
-                }
-                _ => None,
-            })
-            .expect("deve haver FrameItem::Glyph da chave");
+        let chave_y = find_glyph_y(&outer.items, 50);
         let soma_y = outer
             .items
             .iter()
@@ -2856,16 +2829,7 @@ mod p906_tests {
         let under = Content::MathText("⎵".into());
         let result = ml.layout_underover(&base, Some(&under), None, &style);
 
-        let glyph_y = result
-            .items
-            .iter()
-            .find_map(|i| match i {
-                FrameItem::Glyph { glyph_id, pos, .. } if *glyph_id == 80 => {
-                    Some(pos.y.val())
-                }
-                _ => None,
-            })
-            .expect("deve haver FrameItem::Glyph da peça esquerda (gid 80)");
+        let glyph_y = find_glyph_y(&result.items, 80);
         assert!(
             (glyph_y - base_descent).abs() < 0.01,
             "baseline das peças deve assentar no fundo da tinta da base ({base_descent:.4}), obteve {glyph_y:.4}"
@@ -3658,6 +3622,68 @@ mod p906_tests {
         assert!(box_out.width > 0.0, "delimitado deve ter largura > 0");
     }
 
+    #[test]
+    fn lr_fracao_usa_alvo_equilibrado_como_grupo_implicito() {
+        // Fonte sintética: a primeira variante satisfaz a altura bruta da
+        // fração, mas só a segunda satisfaz o alvo equilibrado em torno do
+        // eixo. `fenced.rs::relative_to_from_fragments` no vanilla pinado
+        // usa esse alvo para grupos cercados, inclusive `lr`.
+        let style = TextStyle::regular(Pt(11.0));
+        let fraction = Content::math_frac(
+            Content::MathIdent("a".into()),
+            Content::MathIdent("b".into()),
+        );
+        let measure = MathLayouter::new(&FixedMetrics, false, &style);
+        let body = measure.layout_node(&fraction, &style);
+        let axis = measure.constants.to_pt(measure.constants.axis_height, style.size).val();
+        let balanced = 2.0 * (body.ascent - axis).max(body.descent + axis);
+        assert!(balanced > body.height(), "a fração precisa discriminar os dois alvos");
+        let scale = measure.constants.upem / style.size.val();
+        let boundary = ((body.height() + balanced) / 2.0 - style.size.val() * 0.1) * scale;
+        let lower = GlyphVariant {
+            glyph_id: 501,
+            advance: boundary,
+            hor_advance: 450.0,
+            top_accent_attach: None,
+        };
+        let upper = GlyphVariant {
+            glyph_id: 502,
+            advance: balanced * scale,
+            hor_advance: 650.0,
+            top_accent_attach: None,
+        };
+        let variants = GlyphVariants { variants: vec![lower, upper] };
+        for (open, close) in [('(', ')'), ('|', '|')] {
+            let stub = StubHorizontalMetrics::new()
+                .with_vertical_variants(open, variants.clone())
+                .with_vertical_variants(close, variants.clone());
+            let ml = MathLayouter::new(&stub, false, &style);
+            let implicit = ml.layout_node(
+                &Content::math_delimited(open, fraction.clone(), close),
+                &style,
+            );
+            let explicit = ml.layout_node(
+                &Content::math_lr(
+                    Content::math_delimited(open, fraction.clone(), close),
+                    crate::entities::rel::Rel::from_percent(100.0),
+                    true,
+                ),
+                &style,
+            );
+            let picked = |items: &[FrameItem]| {
+                items.iter().filter_map(|item| match item {
+                    FrameItem::Glyph { glyph_id, .. } => Some(*glyph_id),
+                    _ => None,
+                }).collect::<Vec<_>>()
+            };
+            assert_eq!(picked(&implicit.items), vec![502, 502]);
+            assert_eq!(picked(&explicit.items), picked(&implicit.items),
+                "lr({open}a/b{close}) deve escolher as mesmas variantes do grupo implícito");
+            assert!((explicit.height() - implicit.height()).abs() < 1e-9);
+            assert!((explicit.width - implicit.width).abs() < 1e-9);
+        }
+    }
+
     // ── P917 — x_advance/largura de layout_stretchy_delimiter usa hor_advance,
     //    nunca a medida do eixo de esticamento (advance) ─────────────────────
     //
@@ -4188,13 +4214,25 @@ mod p920_tests {
 //     o corpo mantém a sua própria baseline, inalterada.
 
 fn find_text_y(items: &[FrameItem], s: &str) -> f64 {
-    items
-        .iter()
-        .find_map(|i| match i {
+    fn visit(items: &[FrameItem], s: &str) -> Option<f64> {
+        items.iter().find_map(|item| match item {
             FrameItem::Text { pos, text, .. } if text.as_str() == s => Some(pos.y.val()),
+            FrameItem::TextReplacement { items, .. } => visit(items, s),
             _ => None,
         })
-        .unwrap_or_else(|| panic!("texto {:?} não encontrado em {:?}", s, items))
+    }
+    visit(items, s).unwrap_or_else(|| panic!("texto {:?} não encontrado em {:?}", s, items))
+}
+
+fn find_glyph_y(items: &[FrameItem], wanted: u16) -> f64 {
+    fn visit(items: &[FrameItem], wanted: u16) -> Option<f64> {
+        items.iter().find_map(|item| match item {
+            FrameItem::Glyph { pos, glyph_id, .. } if *glyph_id == wanted => Some(pos.y.val()),
+            FrameItem::TextReplacement { items, .. } => visit(items, wanted),
+            _ => None,
+        })
+    }
+    visit(items, wanted).unwrap_or_else(|| panic!("glyph {wanted} não encontrado em {items:?}"))
 }
 
 fn find_line_start_y(items: &[FrameItem]) -> f64 {
@@ -4902,18 +4940,17 @@ mod p922_tests {
         // Posições dos dois pontos: interno em accent_y = -4.86 +
         // min(4.86, 6.48) = 0.0; externo em -(new_ascent interno) +
         // min(new_ascent interno, 6.48) = -7.44 + 6.48 = -0.96.
-        let mut dot_ys: Vec<f64> = box_
-            .items
-            .iter()
-            .filter_map(|i| match i {
-                FrameItem::Text { pos, text, .. }
-                    if text.as_str().chars().next() == Some(dot) =>
-                {
-                    Some(pos.y.val())
+        fn collect_dot_ys(items: &[FrameItem], dot: char, out: &mut Vec<f64>) {
+            for item in items {
+                match item {
+                    FrameItem::Text { pos, text, .. } if text.as_str().chars().next() == Some(dot) => out.push(pos.y.val()),
+                    FrameItem::TextReplacement { items, .. } => collect_dot_ys(items, dot, out),
+                    _ => {}
                 }
-                _ => None,
-            })
-            .collect();
+            }
+        }
+        let mut dot_ys = Vec::new();
+        collect_dot_ys(&box_.items, dot, &mut dot_ys);
         dot_ys.sort_by(|a, b| a.partial_cmp(b).unwrap());
         assert_eq!(
             dot_ys.len(),
@@ -5715,7 +5752,7 @@ mod p952_tests {
 // `DisplayOperatorMinHeight` = 1300du.
 mod p952op_tests {
     use super::*;
-    use crate::entities::glyph_variants::{GlyphVariant, GlyphVariants};
+    use crate::entities::glyph_variants::{GlyphAssembly, GlyphPart, GlyphVariant, GlyphVariants};
     use crate::entities::math_constants::MathConstants;
 
     // Glyph IDs sintéticos do stub (distintos do caminho de glifo base,
@@ -5744,6 +5781,8 @@ mod p952op_tests {
         /// **P971** — italics correction da variante de `∫` (INT_V1_GID),
         /// em pt. `None` → default do trait (0).
         int_ic: Option<f64>,
+        vertical_assembly: Option<GlyphAssembly>,
+        assembly_piece_ic: Option<f64>,
     }
 
     impl P952OpMetrics {
@@ -5762,12 +5801,24 @@ mod p952op_tests {
                 variant_ink: None,
                 int_ink: None,
                 int_ic: None,
+                vertical_assembly: None,
+                assembly_piece_ic: None,
             }
         }
 
         /// Constantes com o alvo real de NewCMMath (1300du).
         fn ncm() -> Self {
             Self::new(1300.0)
+        }
+
+        fn with_vertical_assembly(mut self, assembly: GlyphAssembly) -> Self {
+            self.vertical_assembly = Some(assembly);
+            self
+        }
+
+        fn with_assembly_piece_ic(mut self, ic_pt: f64) -> Self {
+            self.assembly_piece_ic = Some(ic_pt);
+            self
         }
 
         /// **P959** — injecta a bbox de tinta da variante v1 (acima, abaixo
@@ -5849,6 +5900,13 @@ mod p952op_tests {
                 _ => GlyphVariants::default(),
             }
         }
+        fn vertical_glyph_assembly(&self, c: char, _style: &TextStyle) -> GlyphAssembly {
+            if c == '∑' || c == '∫' {
+                self.vertical_assembly.clone().unwrap_or_default()
+            } else {
+                GlyphAssembly::default()
+            }
+        }
         fn glyph_to_char(&self, _glyph_id: u16) -> Option<char> {
             // Sem mapeamento reverso → a implementação tem de emitir
             // `FrameItem::Glyph` (não `Text`), como em produção com a fonte
@@ -5882,6 +5940,11 @@ mod p952op_tests {
         fn italics_correction(&self, glyph_id: u16, size: Pt, style: &TextStyle) -> Pt {
             if let Some(ic) = self.int_ic {
                 if glyph_id == INT_V1_GID {
+                    return Pt(ic);
+                }
+            }
+            if glyph_id == 102 {
+                if let Some(ic) = self.assembly_piece_ic {
                     return Pt(ic);
                 }
             }
@@ -6258,31 +6321,67 @@ mod p952op_tests {
         );
     }
 
-    /// **P952 — GREEN esperado (guarda do fallback) — sem variante >= alvo,
-    /// cai no glifo base**: com `display_operator_min_height = 9999du`,
-    /// nenhuma variante de `∑` (1001/1401du) chega — o L0 manda cair no
-    /// glifo base ("sem variante suficiente: glifo base, comportamento
-    /// anterior inalterado"), SEM tentar assembly nem esticar ao máximo.
-    /// Passa já hoje (o fallback É o comportamento actual) e deve continuar
-    /// a passar após a implementação.
+    /// Se a tinta do glifo base já alcança o mínimo, o vanilla conserva-o
+    /// antes de consultar as variantes MATH.
     #[test]
-    fn p952op_sem_variante_suficiente_cai_no_glifo_base() {
-        let metrics = P952OpMetrics::new(9999.0); // alvo inatingível
+    fn large_base_suficiente_nao_escolhe_variante() {
+        let metrics = P952OpMetrics::new(100.0);
+        let style = default_style();
+        let ml = MathLayouter::new(&metrics, true, &style);
+        let b = ml.layout_node(&Content::MathIdent("∑".into()), &style);
+        assert!(glyphs(&b).is_empty());
+        assert!(text_pos(&b, "∑").is_some());
+    }
+
+    /// TeX Gyre Pagella Math: DisplayOperatorMinHeight=1500du, mas
+    /// summation.v1 chega só a 1443du e não há assembly. O vanilla pinado
+    /// (`glyph.rs::stretch`) conserva a maior variante neste caso.
+    /// O stub usa os dados NewCMMath já existentes e alvo maior para isolar
+    /// a mesma escolha sem depender do caminho de seleção de fonte no CLI.
+    #[test]
+    fn large_sem_variante_suficiente_conserva_a_maior() {
+        let metrics = P952OpMetrics::new(9999.0).with_variant_ink(12.0, 3.6);
         let style = default_style();
         let ml = MathLayouter::new(&metrics, true, &style);
 
         let b = ml.layout_node(&Content::MathIdent("∑".into()), &style);
 
-        assert!(
-            glyphs(&b).is_empty(),
-            "sem variante >= 9999du deve cair no glifo base (sem FrameItem::Glyph), obteve {:?}",
-            glyphs(&b)
-        );
-        assert!(
-            text_pos(&b, "∑").is_some(),
-            "fallback = glifo base via caminho de texto actual; items: {:?}",
-            b.items
-        );
+        assert_eq!(glyphs(&b), vec![(SUM_V1_GID, 12.0 * 1444.0 / 1000.0)]);
+        assert!((b.ascent + b.descent - 15.6).abs() < 1e-9);
+        assert!(text_pos(&b, "∑").is_none());
+    }
+
+    /// Quando o font fornece montagem vertical, ela vence uma variante
+    /// insuficiente, como em `glyph.rs::stretch` do vanilla pinado.
+    #[test]
+    fn large_sem_variante_suficiente_usa_assembly_da_fonte() {
+        let assembly = GlyphAssembly {
+            parts: vec![GlyphPart {
+                glyph_id: 102,
+                start_connector: 0,
+                end_connector: 0,
+                full_advance: 1600,
+                is_extender: false,
+                hor_advance: 1500.0,
+            }],
+            min_overlap: 0,
+        };
+        let metrics = P952OpMetrics::new(1500.0).with_vertical_assembly(assembly);
+        let style = default_style();
+        let ml = MathLayouter::new(&metrics, true, &style);
+
+        let b = ml.layout_node(&Content::MathIdent("∑".into()), &style);
+        assert_eq!(b.items.len(), 1);
+        let FrameItem::TextReplacement { text, items } = &b.items[0] else {
+            panic!("Large montado perdeu a identidade textual por ocorrência: {:?}", b.items);
+        };
+        assert_eq!(text.as_str(), "∑");
+        assert_eq!(items.len(), 1);
+        let FrameItem::Glyph { glyph_id, x_advance, .. } = &items[0] else {
+            panic!("a montagem deve conservar seu glifo visual: {items:?}");
+        };
+        assert_eq!((*glyph_id, x_advance.val()), (102, 18.0));
+        assert_eq!(b.width, 18.0);
     }
 
     /// **P952 — item 4 (correcção da revisão cética retroativa) — células
@@ -6387,6 +6486,11 @@ mod p952op_tests {
                 {
                     Some(pos.x.val())
                 }
+                FrameItem::TextReplacement { text, items } if text.as_str() == needle =>
+                    items.iter().find_map(|visual| match visual {
+                        FrameItem::Glyph { pos, .. } => Some(pos.x.val()),
+                        _ => None,
+                    }),
                 _ => None,
             })
             .unwrap_or_else(|| panic!("{needle:?} não encontrado em {items:?}"))
@@ -6428,6 +6532,42 @@ mod p952op_tests {
             (x_sup - esperado_sup).abs() < 1e-9,
             "sup de ∫ sem termo de IC: esperado {esperado_sup:.4}pt, obteve {x_sup:.4}"
         );
+    }
+
+    /// O envelope semântico do integral montado não apaga a correção itálica
+    /// visual usada pelo subscrito lateral.
+    #[test]
+    fn large_assembly_com_scripts_conserva_italics_correction_visual() {
+        let assembly = GlyphAssembly {
+            parts: vec![GlyphPart {
+                glyph_id: 102,
+                start_connector: 0,
+                end_connector: 0,
+                full_advance: 3200,
+                is_extender: false,
+                hor_advance: 1500.0,
+            }],
+            min_overlap: 0,
+        };
+        let metrics = P952OpMetrics::new(3000.0)
+            .with_vertical_assembly(assembly)
+            .with_assembly_piece_ic(5.4);
+        let style = default_style();
+        let ml = MathLayouter::new(&metrics, true, &style);
+        let content = Content::math_attach_scripts(
+            Content::MathText("∫".into()),
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Omitted,
+            MathAttachSlot::Present(Content::MathText("0".into())),
+            MathAttachSlot::Present(Content::MathText("1".into())),
+        );
+        let items = ml.layout_equation(&content, &style);
+        let x_base = p971_x(&items, "∫");
+        let x_sub = p971_x(&items, "0");
+        let expected = x_base + 18.0
+            + crate::testing::math_oracle::post_subscript_kern(0.0, 5.4);
+        assert!((x_sub - expected).abs() < 1e-9,
+            "sub de integral montado deve usar IC visual: {x_sub} vs {expected}");
     }
 
     /// **Guarda** — base sem IC na tabela (ou sem `FrameItem::Glyph`):
@@ -6473,15 +6613,19 @@ mod p961_tests {
 
     /// (size, math_script, cramped) dos items de texto cujo texto é `needle`.
     fn estilos_de(b: &MathBox, needle: &str) -> Vec<(f64, bool, bool)> {
-        b.items
-            .iter()
-            .filter_map(|i| match i {
-                FrameItem::Text { text, style, .. } if text.as_str() == needle => {
-                    Some((style.size.val(), style.math_script, style.cramped))
+        fn visit(items: &[FrameItem], needle: &str, out: &mut Vec<(f64, bool, bool)>) {
+            for item in items {
+                match item {
+                    FrameItem::Text { text, style, .. } if text.as_str() == needle =>
+                        out.push((style.size.val(), style.math_script, style.cramped)),
+                    FrameItem::TextReplacement { items, .. } => visit(items, needle, out),
+                    _ => {}
                 }
-                _ => None,
-            })
-            .collect()
+            }
+        }
+        let mut found = Vec::new();
+        visit(&b.items, needle, &mut found);
+        found
     }
 
     /// **Parte A (under)** — a legenda de `underbrace` é subscrito no
@@ -7262,7 +7406,7 @@ mod p966_tests {
     #[test]
     fn p966_styled_wrapper_recursa_no_corpo() {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
-        let content = Content::MathSequence(Arc::from(vec![Content::Styled(
+        let content = Content::MathSequence(Arc::from(vec![Content::styled(
             Box::new(Content::Sequence(Arc::from(vec![Content::MathText("ω".into())]))),
             Styles::default(),
         )]));
@@ -9484,4 +9628,72 @@ fn p1292_c_vec_auto_preserva_gap_absoluto_e_zero_children_zero_box() {
         (empty.width, empty.ascent, empty.descent, empty.items.len()),
         (0.0, 0.0, 0.0, 0)
     );
+}
+
+// Sonda dos `.typ` locais: a identidade autoral deve sobreviver às peças
+// gráficas de acentos, suportes horizontais e delimitadores de cases.
+#[test]
+fn ptyps_identity_accent_single_base_is_one_occurrence() {
+    let style = default_style();
+    let ml = MathLayouter::new(&FixedMetrics, true, &style);
+    let box_ = ml.layout_node(
+        &Content::math_accent(Content::MathText("𝑥".into()), '\u{0302}'),
+        &style,
+    );
+    let [FrameItem::TextReplacement { text, items }] = box_.items.as_slice() else {
+        panic!("base e acento devem formar uma ocorrência textual");
+    };
+    assert_eq!(text.as_str(), "𝑥\u{0302}");
+    assert_eq!(items.len(), 2, "as duas partes visuais devem permanecer");
+}
+
+#[test]
+fn ptyps_identity_cases_delimiter_is_one_source_character() {
+    let style = default_style();
+    let ml = MathLayouter::new(&FixedMetrics, true, &style);
+    let box_ = ml.layout_node(
+        &Content::math_cases(vec![vec![Content::MathText("1".into())]], ('{', '}'), false, None),
+        &style,
+    );
+    assert!(box_.items.iter().any(|item| matches!(item,
+        FrameItem::TextReplacement { text, items } if text.as_str() == "{" && !items.is_empty()
+    )), "delimitador deve conservar a identidade da chave de abertura");
+}
+
+#[test]
+fn ptyps_identity_underbracket_support_is_one_source_character() {
+    let style = default_style();
+    let ml = MathLayouter::new(&FixedMetrics, true, &style);
+    let box_ = ml.layout_node(
+        &Content::math_underbracket(Content::MathText("abc".into()), None, false),
+        &style,
+    );
+    assert!(box_.items.iter().any(|item| matches!(item,
+        FrameItem::TextReplacement { text, items } if text.as_str() == "⎵" && !items.is_empty()
+    )), "suporte visual deve extrair uma única vez o símbolo autoral");
+}
+
+#[test]
+fn ptyps_identity_nested_accents_keep_logical_order_once() {
+    let style = default_style();
+    let ml = MathLayouter::new(&FixedMetrics, true, &style);
+    let inner = Content::math_accent(Content::MathText("𝑥".into()), '\u{0307}');
+    let box_ = ml.layout_node(&Content::math_accent(inner, '\u{0307}'), &style);
+    let [FrameItem::TextReplacement { text, items }] = box_.items.as_slice() else {
+        panic!("dois acentos devem formar uma ocorrência textual");
+    };
+    assert_eq!(text.as_str(), "𝑥\u{0307}\u{0307}");
+    assert_eq!(items.len(), 3);
+    assert!(!items.iter().any(|i| matches!(i, FrameItem::TextReplacement { .. })));
+}
+
+#[test]
+fn ptyps_identity_hat_mu_uses_math_italic_default_inside_accent() {
+    let style = default_style();
+    let ml = MathLayouter::new(&FixedMetrics, true, &style);
+    let item = Content::math_accent(Content::MathText("μ".into()), '\u{0302}');
+    let frame = ml.layout_equation(&item, &style);
+    assert!(frame.iter().any(|item| matches!(item,
+        FrameItem::TextReplacement { text, .. } if text.as_str() == "𝜇\u{0302}"
+    )), "hat(mu) deve conservar 𝜇 e o acento como uma ocorrência");
 }

@@ -1,97 +1,61 @@
-# Prompt L0 — `compiler/layout/link` — Layout de `Content::Link`
-Hash do Código: dd8206d9
+# L0 — link
+Hash do Código: 45d9a182
 
-**Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/link.rs`
-**Origem**: P422 (S) — atomização do layout de hiperligações; **P424** — bbox.
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
 
----
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/link.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Decisão arquitetural (ADR-0109 forma B)
+## Evidence before specification
 
-- `entities/elements/link.rs` — `LinkElem` struct puro (`url`, `body`).
-- `compiler/layout/link.rs` — free function `layout_link(layouter, &LinkElem)` que
-  renderiza o body, calcula a bounding-box acumulada e envolve os itens
-  resultantes em `FrameItem::Link`.
-- `entities/layout_types.rs` — `FrameItem::Link { target, items, pos, size }`
-  com `LinkTarget::Url(EcoString) | LinkTarget::Destination(Label)`.
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/link.rs:18`, `01_core/src/compiler/layout/link.rs:51`, `01_core/src/compiler/layout/link.rs:141`.
 
-## Algoritmo
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-1. Renderizar `body` normalmente através do `Layouter`.
-2. Coletar os `FrameItem`s produzidos (tanto em `current_line` quanto em
-   `current_items`, caso tenha havido flush).
-3. Calcular `pos`/`size` da bbox acumulada dos items:
-   - `Text`: medir avanço via `FontMetrics::advance` e altura via
-     `FontMetrics::vertical_metrics`.
-   - `Glyph`: `x_advance` × `size`.
-   - `Shape`/`Image`: `width` × `height`.
-   - `Line`: bounding box entre `start` e `end`.
-   - `Group`: aproximar por `pos` + `inner_width`/`inner_height`.
-   - `Link` aninhado: reutilizar `pos`/`size` já calculados.
-4. Emitir um único `FrameItem::Link { target, items, pos, size }` no frame atual.
-   Para `Content::Link`, `target = LinkTarget::Url(url)`.
+## Ownership and contract
 
-## Scope-out
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-- `QuadPoints` para áreas clicáveis multi-linha.
+Render the rich body, collect the newly produced pending-line and emitted-item ranges, and wrap them in the existing URL Link without changing style to mandatory blue/underline. Preserve nested content and current cursor behavior. Own link_bbox: measure text via injected advance/vertical metrics, glyphs via their current advance/size projection, shape/image/line extents and Group/Link bounds; recurse through Semantic. An empty measured set has zero bounds. Ignore direct private HTML context markers for bounds but retain them among children. Internal destination links are assembled by `00_nucleo/prompts/compiler/layout_outline.md`/`00_nucleo/prompts/compiler/layout_references.md` using this helper, not by adding a new LinkElem target here. The current unguarded pending-tail drain has a possible body-flush boundary limitation; multipage/rich-link safety and QuadPoints are not proven by this cleanup.
 
----
+## Acceptance and limits
 
-## P1031 — fonte de paridade e achado escalado
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
-Doc comments `#[elem]`/campos do vanilla ratificado (`e0e8ca4d`),
-`crates/typst-library/src/model/link.rs`, publicados em
-`typst.app/docs/reference/model/link/`:
-
-- **Propósito** — `link.rs:24`: *"Links to a URL or a location in the document."*
-- **Sintaxe automática** — `link.rs:41-49`: *"= Syntax — This function also has dedicated
-  syntax: Text that starts with `http://` or `https://` is automatically turned into a
-  link. To avoid automatic creation of a link, you can put the text in a string. […]"*
-- **Destinos aceites** — `link.rs:175-195`, campo `#[required] pub dest: LinkTarget`:
-  *"To link to another part of the document, `dest` can take one of three forms: - A label
-  attached to an element. […] - A location (typically retrieved from `here`, `locate` or
-  `query`). - A dictionary with a `page` key of type integer and `x` and `y` coordinates of
-  type length. Pages are counted from one, and the coordinates are relative to the page's
-  top left corner."* O tipo é `pub enum LinkTarget { Dest(Destination), Label(Label) }`
-  (`link.rs:259-262`).
-
-> **Aparência por defeito — o "scope-out" anterior era, afinal, paridade.**
->
-> A lista de scope-outs deste L0 incluía *"Cor azul / sublinhado — aguarda
-> `FrameItem::Decoration`"*, o que sugeria uma lacuna. A documentação diz o contrário
-> (`link.rs:26-27`): *"By default, links do not look any different from normal text.
-> However, you can easily apply a style of your choice with a show rule."* Não pintar o
-> link é o comportamento correcto da linguagem; a entrada foi removida da lista.
-
-> **ACHADO ESCALADO — o passo 4 ("`Content::Link` mapeia sempre para URL") descreve uma
-> restrição do cristalino, não a linguagem.**
->
-> Medição directa (2026-08-13; vanilla `/usr/local/bin/typst` = `typst 0.15.1 (e0e8ca4d)`;
-> cristalino `target/release/typst` da fonte em HEAD `4f64e4e69`, árvore só com edições em
-> `00_nucleo/prompts/**`). Documento: `= Intro <intro>` + `#link(<intro>)[Ir para intro]` +
-> `#link("https://example.com")[Site]`.
->
-> | Binário | Resultado |
-> |---|---|
-> | Vanilla | compila; texto `Intro` / `Ir para intro Site` |
-> | Cristalino | **erro**: `link() espera URL como string, recebeu label` |
->
-> Das três formas de destino documentadas (label, location, dicionário `page`/`x`/`y`),
-> **nenhuma** é aceite; só a string de URL. `LinkTarget::Destination(Label)` já existe no
-> lado do `FrameItem` (§"Decisão arquitetural"), pelo que a lacuna está na aceitação em
-> eval, não na representação. É superfície de linguagem (morfologia do argumento,
-> ADR-0107) → paridade, não divergência permitida. Mudança de contrato público + de
-> comportamento por defeito → gate ADR-0127 e passo próprio. **Não implementado aqui.**
-## P1493 — bbox de link neutra ao carrier HTML
+## Separadores textuais — materialização autorizada em 2026-09-28
 
 ### Medição anterior à decisão
 
-`link_bbox` em `link.rs:51-103` desce por todo `Semantic` e inclui seu shape,
-portanto um ContextBlock sem render alterava a bbox do link na passagem
-detalhada, embora a passagem legada produzisse o mesmo link sem esse item.
+`01_core/src/compiler/layout/link.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
+`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+dos handlers desse consumer precedem esta alteração. A aprovação do contrato
+público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
+2026-09-28 e registrada na proveniência da materialização.
 
-### Contrato ratificado
+### Responsabilidade deste owner
 
-A bbox omite somente o carrier privado P1493. O wrapper `Link`, inclusive vazio,
-é preservado com a mesma posição e dimensão da fachada legada; o carrier ainda
-recebe as translações do wrapper antes da extração.
+Excluir TextSeparator do bounding box do link; preservar carrier nos filhos.
+
+Conservar as responsabilidades existentes; a aceitação segue texto e geometria
+observáveis, incluindo os controles de adjacência e os invariantes pinados.
+
+## Identidade textual — materialização aprovada
+
+### Medição anterior à decisão
+
+As sondas bilaterais e o estado exato em
+`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
+A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
+O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
+
+### Responsabilidade exclusiva
+
+Tratar TextReplacement como envelope visual transparente nos percursos deste owner; descender nos filhos preservando text, ordem, coordenadas e o cálculo existente, sem novo algoritmo ou avanço.
+
+O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
+possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
+transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.

@@ -1,23 +1,17 @@
-# Prompt L0 — testes independentes de `math.lr` P1436
+# L0 — stdlib/structural/p1436-tests
 Hash do Código: 232f64da
 
-**Camada**: L1 test-only  
-**Alvo**: `01_core/src/compiler/stdlib/structural/p1436_tests.rs`
+Layer: L1 (test-only)
+Exclusive consumer: `01_core/src/compiler/stdlib/structural/p1436_tests.rs`
 
-## Obrigações
+## Evidence and classification
 
-- o módulo `math` contém função `lr`;
-- zero, um e muitos posicionais constroem `Content::MathLr` e body canônico;
-- múltiplos posicionais recebem vírgula matemática sem perder ordem;
-- `size` relativo conserva valor e presença, inclusive `100%` explícito;
-- `repr` usa `lr(size?, body: ...)` e cascata não fabrica campo;
-- `lr` aninhado preserva identidade e `ObservationEq` distingue `size`;
-- classe de borda herda o corpo, explícito vence cascata e omitido a herda;
-- o short-fall geométrico é exactamente `0.1em` para percentagem e `em`;
-- inteiro como body, tipo inválido de size, named desconhecido, `body:` e
-  duplicado falham fechado;
-- igualdade e walker distinguem/preservam body, size e presença;
-- `MathDelimited` mecânico continua variante distinta.
+The consumer's `@prompt` at `01_core/src/compiler/stdlib/structural/p1436_tests.rs:2` establishes this exclusive ownership. Implementation inspection is not a new bilateral parity measurement; original historical qualifications remain in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-Os controles positivos devem permanecer verdes; ausência de identidade,
-falha de build, timeout ou observação opaca é `Unknown`, nunca sucesso.
+## Test obligations
+
+Verify public math.lr; zero/one/many positionals create Content::MathLr and canonical body, with mathematical commas for multiple inputs preserving order. Relative size preserves value/presence including explicit 100%; repr lr(size?, body: ...) and cascade do not fabricate fields. Nested lr preserves identity and ObservationEq distinguishes size. Boundary class inherits body; explicit size wins cascade, omitted inherits it; geometric short-fall is exactly 0.1em for percentage/em routes. Integer body, invalid size, unknown named, body: and duplicates fail closed. Equality/walkers preserve and distinguish body/size/presence; mechanical MathDelimited remains a distinct variant. Missing identity, build failure, timeout or opaque observation is Unknown, not success. Own tests only.
+
+## Limits
+
+Preserve existing public observations and metadata. This documentary revision does not authorize productive-code, test-code, signature, default, pipeline-phase or compatibility changes. Respect exclusive ownership and pinned shared claims under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.

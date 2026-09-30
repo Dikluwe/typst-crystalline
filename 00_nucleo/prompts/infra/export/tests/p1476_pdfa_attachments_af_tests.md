@@ -1,47 +1,30 @@
-# Prompt L0 — `infra/export/tests/p1476_pdfa_attachments_af_tests`
-Hash do Código: 943cae9e
+# L0 — infra/export/tests/p1476_pdfa_attachments_af_tests
+Hash do Código: fb976975
 
-**Camada**: L3 (apoio — testes)
-**Ficheiro alvo**: `03_infra/src/export/tests/p1476_pdfa_attachments_af_tests.rs`
-**Criado em**: 2026-09-21 (P1476, então dentro de `tests.rs`)
-**Extraído em**: 2026-09-22 (P1479)
-**ADRs**: ADR-0037 Regra 5 (extraído "por cluster", ADR-0100 §Positivas), ADR-0129 (1:1)
+**Layer:** L3 (test-only)
+**Exclusive consumer:** `03_infra/src/export/tests/p1476_pdfa_attachments_af_tests.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0126, ADR-0127, ADR-0128, ADR-0129, ADR-0130
 
----
+## Consumer evidence
 
-## Contexto
+`03_infra/src/export/tests/p1476_pdfa_attachments_af_tests.rs:30` identifies the current exclusive consumer. The clauses below
+are checked against that source and its delegated calls. They specify current
+export observables and ownership, not full upstream byte or algorithm equality.
 
-9 testes do contrato P1476 (`/AFRelationship`+`/AF` gated a
-A3a/A3b/A3u/A4f/A4e; extensão de `/Info`/`/OutputIntent`/`pdfaid` a
-A4f/A4e). Ver `00_nucleo/materialization/typst-passo-1476.md` e
-`infra/export/builder.md` §P1476. Constrói `Content::pdf_attach(
-PdfAttachElem {...})` diretamente (API pública desde P1286) —
-equivalente a compilar `#pdf.attach(...)` para efeitos destes testes.
+## Associated-file regression coverage
 
-## P1479 — extração de `tests.rs` (mecânica, sem mudança de comportamento)
+Own the existing fixtures/assertions for AFRelationship and catalog AF in
+A3a/b/u and A4f/e, their non-associated controls and extended archival metadata.
+Construct AttachedFile/PdfAttach carriers through the existing public representation.
+Exercise the existing fully explicit PDF entrypoint without a new builder API.
 
-Movido verbatim de dentro do antigo `03_infra/src/export/tests.rs`
-para ficheiro próprio, per `typst-passo-1479.md` (ver
-`infra/export/tests/mod.md` §P1479 para a medição do achado
-`[PARSE]`). Conteúdo dos 9 testes bit-exact (ADR-0037 Regra 7).
-Declarado em `tests/mod.rs` via `#[cfg(test)] mod p1476_pdfa_
-attachments_af_tests;`.
+Productive relationships and attachment serialization belong to
+`00_nucleo/prompts/infra/export/builder/navigation.md`; identification, Info and
+output intent belong to `00_nucleo/prompts/infra/export/builder/metadata.md`.
+This suite does not redeclare those algorithms.
 
-## Restrições estruturais
+## Verification
 
-- `use super::*` traz a API de `tests/mod.rs`.
-- Testa via `export_pdf_with_document_id_and_tags_and_serialization_
-  and_pages_and_standard` — nunca constrói `PdfBuilder` diretamente.
-
-## Interface
-
-Nenhuma — `#[cfg(test)]` com `#[test]` functions.
-
-## Critérios de verificação
-
-`cargo test -p typst-infra --lib p1476_pdfa_attachments_af_tests` →
-9/9.
-
-## Não-objectivos
-
-Ver `infra/export/tests/mod.md`.
+Check permitted/omitted AF fields, relationship values, referenced payloads and
+archival coexistence; preserve present assertions and names. Do not replace them
+by a fixed historical test total or universal PDF-byte parity.

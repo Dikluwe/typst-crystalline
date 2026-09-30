@@ -1,25 +1,38 @@
-# Testes independentes P1430 — layout de `math.cases`
+# L0 — math/layout/p1430-tests
 
-## Dono produtivo
+Hash do Código: f5c6fd93
 
-Este L0 de teste possui exatamente um consumer:
-`01_core/src/compiler/math/layout/p1430_tests.rs`.
+**Layer:** L1 (tests)
+**Exclusive consumer:** `01_core/src/compiler/math/layout/p1430_tests.rs`
 
-## Obrigação
+## Consumer evidence
 
-A suíte observa `FrameItem` atribuível com métricas determinísticas. Verifica
-um ramo por child, split tardio de `MathAlignPoint`, estilo de denominador,
-delimitador esquerdo/direito conforme `reverse`, omissão de lado `None`, gap
-relativo resolvido contra o estilo exterior e precedência explícito > cascata
-> default sem alteração do carrier.
+`01_core/src/compiler/math/layout/p1430_tests.rs:23` locates `struct TestWorld`.
+This audit locates the existing consumer; it does not establish language parity.
+Historical evidence and unresolved discrepancies are archived in
+`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
 
-Os controles P919/P923/P945/P1042/P1132 preservam alinhamento natural, centro
-único no eixo, ausência de padding redundante, baseline relativa e extents do
-delimitador. A aceitação usa relações geométricas e morfologia de frame, nunca
-bytes serializados.
+## Independent cases tests
 
-## Política de opacidade
+Own only `01_core/src/compiler/math/layout/p1430_tests.rs`.
+Observe attributable FrameItems with deterministic metrics.
+Verify one initial row per child, late MathAlignPoint splitting, denominator
+style, left/right delimiter chosen by reverse, omitted None sides,
+relative gap resolved against outer style and explicit > cascade > default
+without carrier changes.
 
-Fonte, carrier, StyleChain, glyph, frame, métrica ou geometria não atribuível é
-`Unknown`; falha fechado e não mata mutante.
+Retain regression controls for natural alignment, one axis-centering operation,
+no redundant padding, baseline-relative composition and full delimiter extents
+(the established P919/P923/P945/P1042/P1132 behaviors).
+Acceptance observes geometric relationships and frame morphology, not bytes.
 
+Unattributable font, carrier, StyleChain, glyph, frame, metric or geometry is
+Unknown; fail closed and do not count it as killing a mutant.
+
+## Leitura de delimitador por ocorrência
+
+Após `cases` envolver o delimitador visual em `TextReplacement`, os testes
+de direção e extents seguem medindo o `Text`/`TextShaped` filho e suas
+coordenadas; o helper de observação atravessa o envelope sem usar a string
+extraível como substituto geométrico. RED integrado: quatro leituras de
+`{`/`}` não encontravam os itens filhos no nível superior.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/underover.md
-//! @prompt-hash dc6689a1
+//! @prompt-hash 831e4132
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -15,6 +15,66 @@ use crate::entities::{
 };
 
 use super::{offset_item, MathBox};
+
+/// A forma visual de um suporte pode conter vários glifos, mas sua
+/// identidade textual é o único caractere presente no conteúdo autoral.
+fn support_visual_items(
+    content: Option<&Content>,
+    visual: Vec<FrameItem>,
+) -> Vec<FrameItem> {
+    match content.and_then(piece_char) {
+        Some(character) => vec![FrameItem::TextReplacement {
+            text: character.to_string().into(),
+            items: visual,
+        }],
+        None => visual,
+    }
+}
+
+fn piece_char(content: &Content) -> Option<char> {
+    match content {
+        Content::MathText(text) if text.chars().count() == 1 => text.chars().next(),
+        _ => None,
+    }
+}
+
+fn is_single_char_piece(content: &Content) -> bool {
+    piece_char(content).is_some()
+}
+
+fn nested_spreader(content: &Content) -> Option<char> {
+    match content {
+        Content::MathUnderover(elem) => elem
+            .under
+            .as_ref()
+            .or(elem.over.as_ref())
+            .and_then(|piece| piece_char(piece).or_else(|| nested_spreader(&elem.base)))
+            .or_else(|| nested_spreader(&elem.base)),
+        _ => None,
+    }
+}
+
+fn base_char_for_attachment(content: &Content) -> Option<char> {
+    match content {
+        Content::MathText(text) if text.chars().count() == 1 => text.chars().next(),
+        Content::MathAccent(elem) => base_char_for_attachment(&elem.base),
+        _ => None,
+    }
+}
+
+fn annotation_style(style: &TextStyle, scale: f64, cramped: bool) -> TextStyle {
+    let math_size = match style.math_size {
+        MathSize::Display | MathSize::Text => MathSize::Script,
+        MathSize::Script | MathSize::ScriptScript => MathSize::ScriptScript,
+    };
+    TextStyle {
+        size: style.size * scale,
+        math_script: true,
+        math_size,
+        cramped,
+        ..style.clone()
+    }
+}
 
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     pub(super) fn layout_overbrace(
@@ -89,6 +149,48 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         self.layout_node(&lowered, style)
     }
 
+    /// Usa o attachment da variante selecionada quando há um único glifo;
+    /// montagens e conteúdos compostos usam o centro da caixa.
+    fn spreader_attachment(
+        &self,
+        content: Option<&Content>,
+        box_: Option<&MathBox>,
+        width: f64,
+        style: &TextStyle,
+    ) -> f64 {
+        let glyphs: Vec<u16> = box_
+            .into_iter()
+            .flat_map(|b| &b.items)
+            .filter_map(|item| match item {
+                FrameItem::Glyph { glyph_id, .. } => Some(*glyph_id),
+                _ => None,
+            })
+            .collect();
+        if glyphs.len() > 1 {
+            return width / 2.0;
+        }
+        let glyph_id = glyphs.first().copied();
+        glyph_id
+            .and_then(|id| {
+                let ch = content.and_then(piece_char)?;
+                self.metrics
+                    .horizontal_glyph_variants(ch, style)
+                    .variants
+                    .into_iter()
+                    .find(|v| v.glyph_id == id)
+                    .and_then(|v| v.top_accent_attach)
+                    .map(|du| du * style.size.val() / self.constants.upem)
+            })
+            .or_else(|| {
+                content
+                    .and_then(piece_char)
+                    .and_then(|ch| self.metrics.top_accent_attach(ch, style.size, style))
+                    .map(|a| a.val())
+            })
+            // rationale: fallback geométrico do attachment é o centro do frame, conforme P1132n/p.
+            .unwrap_or(width / 2.0)
+    }
+
     /// **P297** — Layout underover: empilha `over` (topo), `base`
     /// (meio), `under` (fundo). Cada Option é skipped se `None`.
     /// Width final = max das 3 partes; cada parte centrada
@@ -129,22 +231,6 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // multi-carácter (`underbrace`/`overbrace`) fica inalterada.
         let base_width_du =
             base_box.width * self.constants.upem / style.size.val().max(0.001);
-        fn nested_spreader(c: &Content) -> Option<char> {
-            match c {
-                Content::MathUnderover(e) => e
-                    .under
-                    .as_ref()
-                    .or(e.over.as_ref())
-                    .and_then(|piece| match piece {
-                        Content::MathText(s) if s.chars().count() == 1 => {
-                            s.chars().next()
-                        }
-                        _ => nested_spreader(&e.base),
-                    })
-                    .or_else(|| nested_spreader(&e.base)),
-                _ => None,
-            }
-        }
         let inherited_overflow_du = nested_spreader(base)
             .and_then(|ch| {
                 self.metrics
@@ -170,34 +256,32 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // carácter (a chave que estica — acento largo no vanilla, não
         // script) é layoutada com o estilo AMBIENTE (sem redução). Ver
         // `underover.md` §P961.
-        let script_math_size = match style.math_size {
-            MathSize::Display | MathSize::Text => MathSize::Script,
-            MathSize::Script | MathSize::ScriptScript => MathSize::ScriptScript,
-        };
-        let annotation_style = |cramped: bool| TextStyle {
-            size: style.size * self.constants.script_percent_scale_down,
-            math_script: true,
-            math_size: script_math_size,
-            cramped,
-            ..style.clone()
-        };
-        // **P961** — discriminador (mesmo de P906): `MathText` de 1
-        // carácter = peça esticável (estilo ambiente); o resto = anotação
-        // (estilo de script).
-        let is_single_char_piece =
-            |c: &Content| matches!(c, Content::MathText(s) if s.chars().count() == 1);
         let over_box = over.map(|c| {
             if is_single_char_piece(c) {
                 self.layout_stretchy_or_node(c, min_width_du, style, 0.0)
             } else {
-                self.layout_node(c, &annotation_style(false))
+                self.layout_node(
+                    c,
+                    &annotation_style(
+                        style,
+                        self.constants.script_percent_scale_down,
+                        false,
+                    ),
+                )
             }
         });
         let under_box = under.map(|c| {
             if is_single_char_piece(c) {
                 self.layout_stretchy_or_node(c, min_width_du, style, 0.0)
             } else {
-                self.layout_node(c, &annotation_style(true))
+                self.layout_node(
+                    c,
+                    &annotation_style(
+                        style,
+                        self.constants.script_percent_scale_down,
+                        true,
+                    ),
+                )
             }
         });
 
@@ -210,64 +294,19 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // Isto também faz uma composição aninhada expor a sua largura real:
         // a chave exterior escolhe naturalmente a variante seguinte quando
         // o attachment da chave interior ultrapassa a caixa da base.
-        fn extract_base_char(c: &Content) -> Option<char> {
-            match c {
-                Content::MathText(s) if s.chars().count() == 1 => s.chars().next(),
-                Content::MathAccent(a) => extract_base_char(&a.base),
-                _ => None,
-            }
-        }
-        let piece_char = |c: &Content| match c {
-            Content::MathText(s) if s.chars().count() == 1 => s.chars().next(),
-            _ => None,
-        };
         let base_attach = inherited_attach.unwrap_or_else(|| {
-            extract_base_char(base)
+            base_char_for_attachment(base)
                 .and_then(|ch| self.metrics.top_accent_attach(ch, style.size, style))
                 .map(|a| a.val())
                 .unwrap_or(base_box.width / 2.0)
         });
 
-        let piece_attach =
-            |content: Option<&Content>, box_: Option<&MathBox>, width: f64| {
-                let glyphs: Vec<u16> = box_
-                    .into_iter()
-                    .flat_map(|b| &b.items)
-                    .filter_map(|item| match item {
-                        FrameItem::Glyph { glyph_id, .. } => Some(*glyph_id),
-                        _ => None,
-                    })
-                    .collect();
-                if glyphs.len() > 1 {
-                    return width / 2.0;
-                }
-                let glyph_id = glyphs.first().copied();
-                glyph_id
-                    .and_then(|id| {
-                        let ch = content.and_then(piece_char)?;
-                        self.metrics
-                            .horizontal_glyph_variants(ch, style)
-                            .variants
-                            .into_iter()
-                            .find(|v| v.glyph_id == id)
-                            .and_then(|v| v.top_accent_attach)
-                            .map(|du| du * style.size.val() / self.constants.upem)
-                    })
-                    .or_else(|| {
-                        content
-                            .and_then(piece_char)
-                            .and_then(|ch| {
-                                self.metrics.top_accent_attach(ch, style.size, style)
-                            })
-                            .map(|a| a.val())
-                    })
-                    // rationale: fallback geométrico do attachment é o centro do frame, conforme P1132n/p.
-                    .unwrap_or(width / 2.0)
-            };
         let over_is_piece = over.map(is_single_char_piece).unwrap_or(false);
         let under_is_piece = under.map(is_single_char_piece).unwrap_or(false);
-        let over_attach = piece_attach(over, over_box.as_ref(), over_w);
-        let under_attach = piece_attach(under, under_box.as_ref(), under_w);
+        let over_attach =
+            self.spreader_attachment(over, over_box.as_ref(), over_w, style);
+        let under_attach =
+            self.spreader_attachment(under, under_box.as_ref(), under_w, style);
 
         let mut left_extension = 0.0_f64;
         let mut right_extension = 0.0_f64;
@@ -359,9 +398,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 -(base_box.ascent + rise_min.max(gap_min + ob.descent))
             };
             over_y_opt = Some((over_y, ob.ascent));
-            for item in ob.items {
-                items.push(offset_item(item, Pt(dx), Pt(over_y)));
-            }
+            let visual = ob
+                .items
+                .into_iter()
+                .map(|item| offset_item(item, Pt(dx), Pt(over_y)))
+                .collect::<Vec<_>>();
+            items.extend(support_visual_items(over.filter(|_| over_is_piece), visual));
         }
         // Under (fundo). Peça de 1 carácter (⏟): a sua baseline desce para
         // que o seu ascent pare no fundo da tinta da base — **P985**: com a
@@ -394,9 +436,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 base_box.descent + drop_min.max(gap_min + ub.ascent)
             };
             under_y_opt = Some((under_y, ub.descent));
-            for item in ub.items {
-                items.push(offset_item(item, Pt(dx), Pt(under_y)));
-            }
+            let visual = ub
+                .items
+                .into_iter()
+                .map(|item| offset_item(item, Pt(dx), Pt(under_y)))
+                .collect::<Vec<_>>();
+            items.extend(support_visual_items(under.filter(|_| under_is_piece), visual));
         }
 
         // **P985** — ascent/descent por `max`: a baseline da peça de cima

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/locatable.md
-//! @prompt-hash c6da96f2
+//! @prompt-hash 3958d0b5
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -164,11 +164,11 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Curve(_)
         | Content::Transform(_)
         | Content::Grid(_)
-        | Content::SetPage { .. }
+        | Content::SetPage(_)
         | Content::Align(_)
         | Content::Place(_)
         | Content::Flush(_)
-        | Content::Styled(_, _)
+        | Content::Styled(_)
         | Content::Divider(_)
         | Content::Terms(_)
         | Content::TermItem(_)

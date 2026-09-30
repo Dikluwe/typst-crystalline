@@ -1,43 +1,31 @@
-# Prompt L0 — `infra/export/gradients/linear` — Linear gradient coords + stops
+# L0 — infra/export/gradients/linear
 Hash do Código: 1e59d7bf
 
-**Camada**: L3
-**Ficheiro alvo**: `03_infra/src/export/gradients/linear.rs`
-**Criado em**: 2026-05-19 (P307c)
-**ADRs**: ADR-0087 (gradient linear PDF Shading Pattern)
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/export/gradients/linear.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0126, ADR-0127, ADR-0128, ADR-0129, ADR-0130
 
----
+## Consumer evidence
 
-## Contexto
+`03_infra/src/export/gradients/linear.rs:14` identifies the current exclusive consumer. The clauses below
+are checked against that source and its delegated calls. They specify current
+export observables and ownership, not full upstream byte or algorithm equality.
 
-Helpers para emit de Linear gradients como PDF Shading Type 2:
-- `compute_axial_coords` — endpoints axiais a partir de angle + bbox.
-- `multispace_sample_stops` — amostra N stops intermédios em sRGB.
+## Axial coordinates and RGB samples
 
-## Restrições estruturais
+Own compute_axial_coords and multispace_sample_stops for PDF axial shading.
+Endpoints are symmetric around (x0+w/2,y0+h/2), using dx=cos(angle), dy=sin(angle)
+and half offsets (w*dx/2,h*dy/2). Preserve horizontal/vertical cases and bbox units.
 
-- L3 puro. Lê `Linear` de `typst_core::entities::gradient`.
-- `pub(crate)` — chamado por `super::cmyk` (que reusa pipeline RGB antes da conversão) e `super::super::builder`.
-- Sem I/O. Sem stateful caches (cálculo puro).
+Sample max(n_samples,2) points uniformly from 0 to 1 in f32. Use Linear::sample
+in its declared color space, then to_rgba_f32; discard alpha in this PDF RGB
+sampler and clamp each RGB channel to [0,1]. Do not force Oklab or special-case
+two original stops as two samples. PDF shading/function objects belong to
+`00_nucleo/prompts/infra/export/builder/resources.md`; native interpolation
+belongs to the gradient entity, not this adapter.
 
-## Interface
+## Verification
 
-```rust
-pub(crate) fn compute_axial_coords(angle_rad: f64, x0: f64, y0: f64, w: f64, h: f64)
-    -> (f64, f64, f64, f64);
-pub(crate) fn multispace_sample_stops(gradient: &Linear, n: usize) -> Vec<(f32, f32, f32)>;
-```
-
-## Invariantes
-
-- `compute_axial_coords` produz endpoints simétricos em torno do centro do bbox.
-- `multispace_sample_stops` amostra em espaço perceptual (Oklab) per `gradient.space`, depois converte para sRGB no output.
-- Stops normalizados em [0.0, 1.0] no PDF (operadores RGB).
-
-## Critérios de verificação
-
-- `compute_axial_coords(0.0, 0, 0, 100, 50)` → linha horizontal através do centro.
-- `compute_axial_coords(PI/2, 0, 0, 100, 50)` → linha vertical.
-- Stops para 2-cor → 2 entradas; para N-cor + n=16 → 16 entradas amostradas.
-
-Tests `p263_*`, `p268_multispace_sample_stops_*` em `super::super::tests`.
+Check centered endpoints, sample endpoints/cardinality, each declared interpolation
+space and bounded RGB channels. The sampler's alpha omission is a limitation;
+SVG's adaptive alpha-preserving path has a different owner.

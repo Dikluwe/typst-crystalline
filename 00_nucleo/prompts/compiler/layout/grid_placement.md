@@ -1,11 +1,24 @@
-# Prompt L0 — placement algorítmico de grid
-Hash do Código: bb0a3bd0
+# L0 — grid placement
+Hash do Código: adeebf45
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/layout/grid_placement.rs`
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/grid_placement.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Contrato e aceitação
+## Evidence before specification
 
-Posicionar células explícitas e automáticas respeitando row/column, colspan,
-rowspan e ocupação, com ordem determinística e erros para ranges inválidos.
-Este owner decide índices lógicos; emissão geométrica pertence a `grid.rs`.
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/grid_placement.rs:42`, `01_core/src/compiler/layout/grid_placement.rs:64`, `01_core/src/compiler/layout/grid_placement.rs:262`.
+
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+
+## Ownership and contract
+
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
+
+Own PlacedCell construction and deterministic occupied-slot placement. Require a positive column count with the current diagnostic. Normalize spans to at least one. Place explicit GridCell x/y requests first, checking invalid columns, boundary-crossing colspan, duplicate origins and occupied-span overlap with their existing diagnostics/hints; a missing y searches the first free row at the specified/default x. Then place remaining cells in row-major free rectangles, skipping occupied slots and wrapping when the span would cross the column boundary. Preserve each original Content wrapper for later style handling and document order within each pass.
+
+The current field extractor recognizes GridCell metadata; non-GridCell content is automatic unit-span content. Do not claim full TableCell-coordinate parity here or infer placements by appearance. No rendering, font measurement, page commit or public-contract expansion is introduced.
+
+## Acceptance and limits
+
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.

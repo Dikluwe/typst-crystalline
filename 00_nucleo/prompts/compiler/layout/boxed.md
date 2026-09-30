@@ -1,127 +1,78 @@
-# Prompt L0 — `boxed`
-Hash do Código: ed5effdb
+# L0 — boxed
+Hash do Código: ec74135c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
 
-**Camada:** L1 render
-**Ficheiro alvo:** `01_core/src/compiler/layout/boxed.rs`
-**ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0129
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/boxed.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## P1408 — largura fracionária transportada
+## Evidence before specification
 
-Quando `BoxedElem.width_fraction` existe, o layout registra no mecanismo
-`pending_fr` uma fronteira imediatamente depois dos itens do body, para que os
-itens seguintes consumam o restante proporcional da linha. O caminho de
-largura absoluta e todos os cosméticos permanecem intactos. A origem interna
-de P1404 e a origem pública proposta em P1408 têm a mesma semântica de layout.
-Junto à fronteira, registra no Layouter a largura exterior natural já ocupada
-pelo body e pelos lados da caixa, para que Cursor substitua essa largura pela
-parcela em vez de somá-la à parcela. Não analisar nem repetir conteúdo
-ilimitadamente.
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/boxed.rs:17`, `01_core/src/compiler/layout/boxed.rs:387`, `01_core/src/compiler/layout/boxed.rs:415`.
 
-## Medição e contrato
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-Compor Boxed inline, isolando extensão do body, largura/altura explícitas, overflow, clip, radius e coordenadas locais do Group.
+## Ownership and contract
 
-### Proveniência das calibrações P1119/P1120
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-Os fatores `28.81670pt` e `7.633997pt` na base de 11pt não são defaults
-normativos do vanilla nem métricas copiadas de sua implementação: são
-calibrações empíricas do documento canônico registradas em
-`diagnosticos/typst-passo-1119-relatorio.md` e reavaliadas em
-`diagnosticos/typst-passo-1120-relatorio.md`. A divisão por `11.0` apenas
-normaliza a medição para `em`, preservando escala com o tamanho da fonte.
-Substituí-las exige nova medição da morfologia da linha; não inferir métrica
-tipográfica inexistente apenas para remover um literal.
+Own inline Box geometry: explicit dimensions, insets/outsets, baseline shift, clipping, radius, fill/stroke and parent bbox. Measure through the existing constrained helper but obtain natural text baseline/inline extents from composition. A body with a text baseline uses inset plus actual ascent; a non-text body retains its box-bottom fallback. The baseline may lie outside the box; aggregate nonnegative ascent/descent without clipping its meaning.
 
-O dispatcher mantém braço magro, exaustivo e estático. A função da feature
-acede ao motor por descendência de módulo; entidade de domínio não importa o
-consumer e nenhum despacho dinâmico é introduzido.
+Isolate the parent's pending line, horizontal fractions, natural widths and repeats while composing the body, then restore and append body-local boundaries rebased by the parent prefix once. A fractional box registers its boundary only after body emission and records its provisional natural width; `00_nucleo/prompts/compiler/layout/line_commit.md` replaces that occupancy by the allocation rather than adding both. Child repeats remain associated with their real boundaries.
 
-## Aceitação
+Preserve the existing paragraph-to-box calibration branch and its size-scaled values at the source evidence anchor. It is an empirical compatibility behavior, not a vanilla-derived general typography formula; replacement requires separate evidence. Ignore only direct private HTML markers when deciding an empty line. Restore outer bbox/width and retain current shape/group/inline emission behavior.
 
-Testes focais e a suíte do subsistema preservam comportamento e morfologia;
-alteração observável exige medição e decisão próprias.
+## Acceptance and limits
 
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
-## P1491 — baseline explícita participa da extensão inline
+## Separadores textuais — materialização autorizada em 2026-09-28
 
 ### Medição anterior à decisão
 
-O consumer anterior lia `baseline` e o descartava (`let _ = baseline`). No
-vanilla pinado `9f2b6e8715237cb086899a42873660fe744622e8`, uma caixa de 20pt
-com `baseline: 3pt` tem baseline a 17pt do topo; combinada com texto, a linha
-mantém altura 20pt e baseline 17pt. O valor é shift relativo à baseline natural
-do frame, não altura literal nem posição absoluta.
+`01_core/src/compiler/layout/boxed.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
+`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+dos handlers desse consumer precedem esta alteração. A aprovação do contrato
+público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
+2026-09-28 e registrada na proveniência da materialização.
 
-### Decisão proprietária
+### Responsabilidade deste owner
 
-Resolver o shift contra o font-size e aplicá-lo à baseline natural do frame da
-caixa. Para body com baseline textual, usar a extensão já medida do body; para
-frame sem baseline natural, a baseline natural é sua borda inferior, como no
-vanilla. Registrar no Layouter o par causal `(ascent, descent)` após inset e
-altura final; valores fora da caixa continuam permitidos e as extensões da
-linha usam máximos não negativos.
+Transportar posição, avanço já consumido, estilo e origem do TextSeparator sem criar tinta, baseline ou novo avanço; manter ordem dos filhos.
 
-O layout do body é fisicamente isolado da `current_line` do pai: retirar a
-linha antes da descida e restaurá-la antes de anexar a cauda produzida. Assim um
-body de bloco que execute `flush_line` não descarrega nem invalida o prefixo
-inline anterior à caixa. Quando o body materializa apenas itens de frame, esses
-itens são rebaseados para a origem inline do body e a largura natural já medida
-recompõe o avanço da caixa.
+Conservar as responsabilidades existentes; a aceitação segue texto e geometria
+observáveis, incluindo os controles de adjacência e os invariantes pinados.
 
-O campo, constructor, assinatura pública, render e fase não mudam. Não criar
-variant, carrier público ou caso especial de `Content::Boxed` em
-`measure_content_real`.
-
-## P1493 — entrada de caixa neutra ao carrier HTML
-
-Um carrier direto anterior não torna a linha material ao entrar em `Boxed`; a
-decisão de baseline inicial usa o predicado material comum. Carrier dentro da
-caixa continua na composição geométrica e não altera largura, altura, baseline
-ou emissão da fachada legada.
-
-## P1502 — estado pendente acompanha a linha isolada do body
+## Identidade textual — materialização aprovada
 
 ### Medição anterior à decisão
 
-No HEAD `f6d4f890141203bbdbbb91dd0ac8d5009c757abc`, worktree limpa,
-os cinco testes P1407 de `03_infra/src/pipeline.rs:4012-4180` falham.
-`boxed.rs:145-181` retira apenas `current_line` antes do body e anexa a
-cauda depois de restaurar o prefixo. `repeat.rs:32-51` guarda índices
-locais; `cursor.rs:489-519` usa-os após a anexação. O controle sem
-prefixo da sonda P1498 teve 23/23 pontos (vanilla/cristalino), mas
-com A antes da box houve 23/1 e o cristalino emitiu `AA.`.
+As sondas bilaterais e o estado exato em
+`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
+A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
+O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
 
-A sonda adicional de 2026-09-25T14:36:52Z–14:37:43Z, mesmos HEAD e
-binários pinados, mediu sem prefixo: box de 80pt com repeat seguida de
-B = 18/18 pontos; inserindo uma segunda box com body `rect` antes de B
-= 18/1. O body de bloco chama flush e consome o pendente do pai embora
-a linha física dele tenha sido retirada. Uma box aninhada com repeat
-produziu 18/1 pontos; isso combina índices locais e fronteiras fr.
+### Responsabilidade exclusiva
 
-**Inferência causal:** o desfasamento dos índices faz o Cursor escolher o
-prefixo como peça; o flush interno consome estado pendente de outra linha.
-Refutação: índices corretamente transladados ainda clonarem A, ou estado
-pendente do pai isolado ainda ser consumido pelo flush do body. A forma
-textual é morfologia da língua; índices e buffers são mecânica privada.
+Tratar TextReplacement como envelope visual transparente nos percursos deste owner; descender nos filhos preservando text, ordem, coordenadas e o cálculo existente, sem novo algoritmo ou avanço.
 
-### Decisão interna
+O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
+possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
+transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.
 
-Retirar com a `current_line` do pai os três estados pareados:
-`pending_fr`, suas larguras naturais e `pending_repeats`. O body dispõe
-somente sobre buffers locais. Ao regressar, rebasear os índices fr e
-`start/end` de repeats locais pelo comprimento do prefixo; restaurar
-primeiro os buffers do pai e anexar os locais na mesma ordem dos itens
-de body. A fronteira fr da própria box continua a ser registrada depois
-da anexação, já no referencial do pai. Flush interno pode consumir apenas
-os pendentes locais, nunca os do pai. Preservar isolamento físico P1491,
-baseline, geometria, API pública e fase; não mover lógica a outro owner.
+## Continuidade lexical do tracking — 2026-09-29
 
-### Aceitação
+### Medição anterior à decisão
 
-A/B únicos e repeat expandido com e sem prefixo; duas boxes fracionárias
-irmãs, box aninhada e body de bloco seguinte preservam cada pendente.
-Gap/justify, teto, fill dentro do link de outline, baseline P1491 e
-carrier HTML P1493 não regridem.
+`00_nucleo/diagnosticos/correcao-tracking-escopos-2026-09-29/before-pdf/results.json` e `summary.json` registram 30 fontes/90 PDFs, comandos, fontes e estado exato em initial.json e before-pdf/provenance.json, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. Escopos iguais repetidos acumulam cerca de 0.4pt e aninhados 0.8pt; wrap positivo muda a linha. `text_tracking.rs:50` compara apenas TextStyle resolvido. Vanilla `inline/collect.rs:287-295` conserva segmentos de cadeias distintas; `inline/shaping.rs:1269-1295` soma tracking apenas dentro de cada run. Isto mede fronteiras textuais observáveis, não exige copiar PartialEq ou representação da chain. Hide/Box também são fronteiras: hide.rs:21-24 e boxed.rs:157-208 substituem/restauram buffers sem preservar essa distinção.
+
+### Contrato interno da correção
+
+Depois de reunir body e prefixo da caixa inline, interromper a continuidade via State::interrupt. A caixa é barreira de objeto mesmo quando seus itens são materializados como folhas textuais transparentes. Não somar intervalo adicional ao exterior nem alterar avanço nominal, dimensões, clipping, fr/repeats ou SHY.
+
+Correção interna de paridade ADR-0127 em fluxo contínuo. Aceitação RED→GREEN, controles bilaterais de texto/posições/linhas e preservação dos controles de tracking uniforme; build e lint sem erros, resselo somente destes owners. Demais limites abertos mantidos.

@@ -1,37 +1,24 @@
-# Prompt L0 — `entities/elements/title` — entidade `TitleElem`
+# L0 — Semantic title carrier
 Hash do Código: 62f1a7d9
 
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/title.rs`
 
-**Camada:** L1  
-**Ficheiro proprietário:** `01_core/src/entities/elements/title.rs`  
-**ADRs:** ADR-0107, ADR-0108, ADR-0129
+## Contract
 
-## Medição vigente
 
-O consumer proprietário define a entidade pública `TitleElem { body: Content }`, o
-constructor `TitleElem::new(body)` e a implementação de `Element`. A entidade não faz
-I/O, não consulta contexto e não escolhe defaults.
+`TitleElem` retains public body: Content. `TitleElem::new(body)` preserves it;
+plain text delegates to body. Maps transform body and preserve Content::Title.
+`get_field("body")` returns Value::Content(body); unknown fields return None.
+The entity performs no I/O, context queries or default selection. Language
+construction, document.title fallback, presentation, introspection and HTML
+are outside scope. Construction belongs to
+`00_nucleo/prompts/compiler/stdlib/structural/title.md` and rendering to
+`00_nucleo/prompts/compiler/layout/title.md`.
 
-## Contrato
 
-- `TitleElem` conserva o `Content` recebido no campo público `body`.
-- `TitleElem::new(body)` constrói a entidade com esse mesmo body.
-- `plain_text()` delega ao body.
-- `map_content` e `map_text` transformam o body e preservam a identidade
-  `Content::Title`.
-- `get_field("body")` devolve `Value::Content` com o body; qualquer outro campo
-  devolve `None`.
-
-## Aceitação em nível de linguagem
-
-Um título conserva a sua identidade semântica e o seu body através das
-transformações de conteúdo. Os testes focais verificam a projeção textual e o acesso
-ao campo `body`, incluindo a ausência de campos desconhecidos.
-
-## Fora de escopo
-
-Não pertencem a este owner: parsing e constructor de linguagem `title(...)`, fallback
-de `document.title`, layout em 1.7em/negrito, introspecção, HTML ou decisões futuras
-de apresentação. O constructor de linguagem pertence a
-`compiler/stdlib/structural/title.md`; o layout pertence a
-`compiler/layout/title.md`.
+The trait API/defaults belong to
+`00_nucleo/prompts/entities/elements/_comum.md`. This owner specifies only
+this element consumer; language constructors and layout algorithms remain
+with their respective owners. Historical inline-arm evidence is retained in
+`00_nucleo/diagnosticos/sanitization-entities-contracts-history.md`.

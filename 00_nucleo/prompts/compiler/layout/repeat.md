@@ -1,42 +1,27 @@
-# Prompt L0 — `repeat`
+# L0 — repeat
 Hash do Código: f9aa0b9d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
 
-**Camada:** L1 render
-**Ficheiro alvo:** `01_core/src/compiler/layout/repeat.rs`
-**ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0129
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/repeat.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Medição e contrato
+## Evidence before specification
 
-Repetir body para preencher espaço horizontal disponível com gap resolvido, terminando defensivamente sob região infinita ou body vazio.
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/repeat.rs:17`, `01_core/src/compiler/layout/repeat.rs:27`, `01_core/src/compiler/layout/repeat.rs:58`.
 
-O dispatcher mantém braço magro, exaustivo e estático. A função da feature
-acede ao motor por descendência de módulo; entidade de domínio não importa o
-consumer e nenhum despacho dinâmico é introduzido.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-## Aceitação
+## Ownership and contract
 
-Testes focais e a suíte do subsistema preservam comportamento e morfologia;
-alteração observável exige medição e decisão próprias.
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-## P1407 — expansão adiada sob largura fracionária finita
+Render one body occurrence and record a pending repeat only when it remains inline, produces a non-empty range, has finite positive width and finite nonnegative resolved gap. Preserve the range, width, gap and justify flag in hub-owned storage.
 
-### Medição antes da decisão
+Given a valid finite positive fill and range, expand by `floor((fill + gap)/(width + gap))`, clamped to the existing range from one through 1000 copies. With multiple copies and justify enabled distribute only nonnegative residual across the inter-copy gaps. Clone and translate the measured piece, insert copies after the original range and report the inserted item count. Do not lay out the body again per copy. Invalid fill/stride/range and infinite dimensions terminate without expansion. `00_nucleo/prompts/compiler/layout/line_commit.md` supplies fill, associates fractional boundaries, clears buffers and repairs suffix indices; it does not own copy/gap arithmetic. RTL, internally broken pieces and unmeasured contexts remain limited rather than assumed parity.
 
-No baseline `ed7340ada`, `repeat.rs` dispõe somente uma cópia. Em uma caixa
-`1fr` de 100 pt, a sonda limitada produziu 1 ponto no cristalino e 23 no vanila
-ratificado. `boxed.rs` registra a fronteira fracionária depois de dispor o body;
-portanto a parcela só é conhecida em `expand_fr_spacings`.
+## Acceptance and limits
 
-### Contrato
-
-O owner dispõe uma peça e registra em estado privado sua faixa, origem, largura,
-gap e justify. Quando a parcela `fr` imediatamente posterior for resolvida,
-expande a peça por `floor((fill + gap) / (width + gap))`, limita a 1000 cópias
-e distribui o resíduo entre gaps somente quando justify está ativo e há pelo
-menos duas cópias. Largura/peça inválida, região infinita ou fronteira ausente
-terminam de forma limitada e limpam o pendente; não inventam sucesso. O recorte
-P1407 cobre região fracionária inline finita; RTL, quebra interna e região sem
-fronteira permanecem Unknown.
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.

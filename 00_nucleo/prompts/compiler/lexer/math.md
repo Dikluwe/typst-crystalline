@@ -1,58 +1,40 @@
-# Prompt L0 — `compiler/lexer/math` — modo Math
+# L0 — lexer/math
+
 Hash do Código: 186e943e
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/lexer/mode-boundaries.toml sha256:aae80d538980eeec87b884712269e3b777fe44c0dae6b3503b5fa9ee4f9ad76f
 
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/lexer/math.rs`
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/lexer/math.rs`
-**Criado em**: 2026-08-26 (P1199; individualização de `lexer/mod.md`)
-**ADRs**: ADR-0003, ADR-0037, ADR-0129
+## Consumer evidence
 
----
+`01_core/src/compiler/lexer/math.rs:20` locates `fn starts_multigrapheme_math_identifier(c: char, scanner: &Scanner<'_>) -> bool`.
+This audit locates the existing consumer; it does not establish language parity.
+Historical evidence and unresolved discrepancies are archived in
+`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
 
-## Medição antes da decisão
+## Math grammar
 
-`math.rs` possui shorthands, átomos, delimitadores, graphemes e inferência de
-argumentos matemáticos. Não possui dispatch universal nem troca de modo.
-P1199 individualiza essas regras sem alterar morfologia.
+Own mathematical shorthands, atoms, delimiters, graphemes and inferred arguments.
+Long arrow/relation/dot/operator shorthands precede their prefixes and yield
+MathShorthand. Preserve dedicated kinds for punctuation, hash, underscore,
+dollar, slash, hat, alignment points, roots and bang. Consecutive apostrophes
+form one MathPrimes; double quotes reuse Code string parsing, never SmartQuote.
 
-## Responsabilidade
+Parentheses have their dedicated kinds. Mathematical Opening/Closing
+delimiters yield LeftBrace/RightBrace, including `[|` and `|]`.
+Multigrapheme mathematical identifiers yield MathIdent, dotted accesses form
+FieldAccess, and a single grapheme remains MathText. Consume complete numeric
+and grapheme clusters; a numeric decimal point requires following digits.
 
-Tokenizar expressões em `SyntaxMode::Math`.
+`maybe_math_named_arg` recognizes an identifier directly followed by colon,
+excluding `:=` and `::=`; underscore produces an error node.
+`maybe_math_spread_arg` recognizes `..` only with a following argument and
+without colliding with `...`, separators or math end. Failed inference
+restores the original cursor. Universal dispatch and mode changes are not
+owned here.
 
-## Tokens matemáticos
-
-Sequências de setas, relações, pontos e operadores reconhecidas pela tabela do
-match produzem `MathShorthand`, com as formas mais longas testadas antes dos
-prefixos. Pontuação, hash, underscore, dollar, slash, hat, alignment point,
-raízes e bang possuem kinds próprios. Aspas simples consecutivas formam um
-único `MathPrimes`; aspas duplas reutilizam string Code.
-
-Parênteses têm kinds próprios. Delimitadores cuja classe matemática padrão é
-Opening ou Closing são convertidos em `LeftBrace` ou `RightBrace`, incluindo
-as formas `[|` e `|]`.
-
-## Identificadores e texto
-
-Identificadores matemáticos multigrapheme produzem `MathIdent`; acessos por dot
-constroem `FieldAccess`. Um único grapheme permanece `MathText`. Números e
-clusters grapheme são consumidos integralmente; decimal numérico só incorpora
-o ponto quando há dígitos posteriores.
-
-## Argumentos inferidos
-
-`maybe_math_named_arg` reconhece identificador seguido diretamente de `:`,
-sem confundir `:=`/`::=`; `_` gera nó de erro. `maybe_math_spread_arg`
-reconhece `..` somente quando há argumento seguinte e não colide com `...`,
-separador ou fim de math. Falha restaura o cursor original.
-
-## Critérios de verificação
-
-- Shorthands longos vencem prefixos.
-- Identificador multigrapheme e field access preservam o nó estruturado.
-- Primes consecutivos permanecem um token e smart quotes não vazam para Math.
-- Inferência malsucedida de named/spread restaura o cursor.
-- O smoke test e a suíte completa do lexer passam.
-- P1199 não modifica corpos Rust.
+Acceptance preserves shorthand precedence, structured field accesses,
+prime grouping, grapheme boundaries, error nodes and cursor rollback.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/stack.md
-//! @prompt-hash 67785fa7
+//! @prompt-hash 70d1db11
 //! @layer L1
 //! @updated 2026-08-21
 //!
@@ -71,7 +71,7 @@ fn extract_frame_ascent_and_descent<M: FontMetrics>(
                     );
                 }
             }
-            FrameItem::Semantic { items, .. } => {
+            FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
                 for child in items {
                     walk(
                         child,
@@ -240,7 +240,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                     FrameItem::Text { pos, .. }
                     | FrameItem::TextShaped { pos, .. }
                     | FrameItem::Glyph { pos, .. } => Some(pos.y.0),
-                    FrameItem::Semantic { items, .. } => first_baseline(items),
+                    FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => first_baseline(items),
                     _ => None,
                 })
             }
@@ -257,7 +257,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
             let mut child_w = 0.0_f64;
             for mut item in items {
-                if !super::html_frame::is_context_marker(&item) {
+                if !super::html_frame::is_context_marker(&item) && !matches!(&item, crate::entities::layout_types::FrameItem::TextSeparator { .. }) {
                     let (ix, _) = super::helpers::item_pos(&item);
                     let w = super::helpers::item_width(&item, &layouter.metrics);
                     child_w = child_w.max(ix - base_x + w);

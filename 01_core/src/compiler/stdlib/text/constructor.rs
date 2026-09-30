@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/text/constructor.md
-//! @prompt-hash c06ea006
+//! @prompt-hash a835d8d8
 //! @layer L1
-//! @updated 2026-08-13
+//! @updated 2026-09-28
 //!
 //! `text(...)` — constructor de elemento de texto e os seus validadores.
 //!
@@ -150,6 +150,47 @@ pub fn native_text(
                 let v = parse_text_edge(value, args.span, false)?;
                 styles = styles.push_custom("text.bottom-edge", v);
             }
+            "costs" => {
+                let span=args.occurrences.as_ref().and_then(|items| {
+                    items.iter().rev().find(|item|item.name.as_deref()==Some("costs"))
+                }).map_or(args.span,|item|item.value_span);
+                for (key,value) in crate::compiler::text_costs::parse(value,span)? {
+                    styles=styles.push_custom(key,value);
+                }
+            }
+            "overhang" => {
+                let span = args.occurrences.as_ref().and_then(|items| {
+                    items.iter().rev().find(|item| item.name.as_deref() == Some("overhang"))
+                }).map_or(args.span, |item| item.value_span);
+                match value {
+                    Value::Bool(_) => styles = styles.push_custom("text.overhang", value.clone()),
+                    other => return Err(vec![break_policy_error("expected boolean", other, span)]),
+                }
+            }
+            "hyphenate" => {
+                let span = args
+                    .occurrences
+                    .as_ref()
+                    .and_then(|items| {
+                        items
+                            .iter()
+                            .rev()
+                            .find(|item| item.name.as_deref() == Some("hyphenate"))
+                    })
+                    .map_or(args.span, |item| item.value_span);
+                match value {
+                    Value::Bool(_) | Value::Auto => {
+                        styles = styles.push_custom("text.hyphenate", value.clone())
+                    }
+                    other => {
+                        return Err(vec![break_policy_error(
+                            "expected boolean or auto",
+                            other,
+                            span,
+                        )])
+                    }
+                }
+            }
             "dir" => {
                 if let Value::Dir(dir) = value {
                     if dir.is_vertical() {
@@ -182,7 +223,7 @@ pub fn native_text(
     }
 
     let styled =
-        if styles.is_empty() { body } else { Content::Styled(Box::new(body), styles) };
+        if styles.is_empty() { body } else { Content::styled(Box::new(body), styles) };
     Ok(Value::Content(styled))
 }
 
@@ -402,4 +443,16 @@ fn parse_text_edge(value: &Value, span: Span, is_top: bool) -> SourceResult<Valu
         Value::Length(l) => Ok(Value::Length(*l)),
         _ => Err(vec![edge_cast_error(is_top, value, span)]),
     }
+}
+
+
+/// Diagnostic vocabulary differs from the public short names of types.
+fn break_policy_error(expected: &str, found: &Value, span: Span) -> SourceDiagnostic {
+    let name = match found.type_name() {
+        "int" => "integer",
+        "str" => "string",
+        "bool" => "boolean",
+        other => other,
+    };
+    SourceDiagnostic::error(span, format!("{expected}, found {name}"))
 }

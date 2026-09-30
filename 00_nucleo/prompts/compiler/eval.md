@@ -1,1195 +1,190 @@
-# Prompt L0 — `compiler/eval` — dispatcher e contexto
-Hash do Código: 49e25394
+# L0 — compiler/eval
+Hash do Código: ce5c6327
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
-
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/eval/mod.rs`
-**Vanilla ratificado:** `a51e02804`
-**ADRs:** ADR-0024, ADR-0107, ADR-0108, ADR-0127, ADR-0129
-
-## Medição anterior à decisão
-
-O consumer possui `EvalContext`, os entrypoints públicos, a criação do scope
-base, a passagem dupla, `eval_markup` e o dispatcher exaustivo de `Expr`; os
-corpos especializados já delegam aos seus módulos donos.
-
-## Contrato
-
-### P1494 — captura da origem e ordem de show textual (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
-
-#### Medição anterior à decisão
-
-No HEAD 6da06e849d75972651a342ad6aad337313451c79, com working tree
-limpo durante as sondas, lexer/mod.rs:163-177 conserva o texto do token de
-espaço, mas eval/mod.rs:6912-6918,6970 intercepta show em cada Text e emite
-Space sem origem. rules.rs:982-1055 procura regex em cada folha. No vanilla
-pinado 9f2b6e8715237cb086899a42873660fe744622e8 (binário SHA-256
-7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea),
-a sonda de show regex casa "new line" em dois Text separados por newline e
-"换行newline" após descarte de espaço CJK; no cristalino não. A fonte
-typst-realize/src/lib.rs:1261-1325 monta representação textual normalizada
-para testar regex antes da transformação. HTML e sentinelas PDF reproduzem
-o delta; a distribuição entre funções vanilla é mecânica (ADR-0107).
-Sonda suplementar /tmp/p1494-snapshot.typ (SHA-256
-161c06c311c616ebe730be2f9ff5332eb50c736737d47cb1f121de678a700575)
-no mesmo HEAD/binários, mas com working tree documental em edição, mostrou
-foo/EARLY/LATE no vanilla e foo/EARLY/EARLY no cristalino quando duas
-regras literais idênticas são declaradas sequencialmente. É indicação de
-dívida de precedência anterior, não prova de fechamento P1494.
-
-#### Decisão ratificada
-
-eval_markup emite SpaceFromNewline quando o token SyntaxKind::Space contém
-quebra de linha e Space quando não contém. Trivia e comentários não apagam
-essa origem dos espaços adjacentes. Parbreak e Linebreak conservam identidade
-própria; Linebreak consome espaços vizinhos na realização, sem virar Space.
-A intercepção de show textual deixa de ocorrer eager por folha:
-o fluxo e os snapshots lexicais necessários seguem ao owner rules.rs para
-normalização e matching sobre grupo textual realizado antes da recipe.
-Regras de elemento, label e parágrafo mantêm identidade e momento causal;
-não reexecutar efeito ou regra sobre substituição. Fronteiras de #set e
-#show mantêm o instante lexical de ativação, sem retroatividade; estilos
-de render não viram morfologia. A operação é comum a PDF/HTML e não pertence
-ao lexer isolado ou ao exporter.
-A igualdade observacional interna de Content distingue Space e
-SpaceFromNewline antes da normalização para não esconder mudança causal
-em iterações; isso não altera PartialEq nem == da linguagem.
-
-Nova variante pública e alteração de ordem eval→realização ativam os itens
-1 e 3 do ADR-0127. O dono confirmou especificamente ambas em 2026-09-24;
-a implementação L1 está autorizada após este gate.
-
-
-#### Refinamento P1494/P1140 — medição antes da decisão
-
-Em 2026-09-24 22:36:52 UTC, o vanilla pinado acima (mesmo SHA-256)
-devolveu para repr de [barra-invertida espaço] a forma
-sequence(linebreak(), [ ]), para repr de [a barra-invertida espaço b]
-sequence([a], linebreak(), [ ], [b]), e para repr de [水 newline 果]
-sequence([水], [ ], [果]). O teste já vigente em
-eval/tests.rs:11081-11095 exige as duas primeiras formas. No HEAD
-6da06e849d75972651a342ad6aad337313451c79 com working tree P1494
-não commitada, o executável de teste SHA-256
-c67f6626a5656c90e42f25f378a6844db889c41edc62d1e7f6813abd972b3439
-falhou em tests.rs:11092: obteve sequence(linebreak(), []) em vez de
-sequence(linebreak(), [ ]). Em eval/mod.rs:7382-7411, ContentBlock como
-valor chama eval_markup; eval/mod.rs:7060-7070 chama a realização, que
-normaliza em rules.rs:3745,4036-4078. Inferência: essa antecipação
-apaga morfologia observável antes da interpolação; refutação seria
-outra origem demonstrada para a perda do Space nesse caminho.
-
-#### Decisão estreita de valor e fluxo
-
-ContentBlock avaliado como valor conserva whitespace bruto até ser
-interpolado: repr observa o espaço após Linebreak e o espaço oriundo
-de newline CJK. Quando esse valor entra no fluxo/root, a realização
-normaliza as adjacências como antes e continua comum a PDF/HTML.
-Show textual local do ContentBlock opera provisoriamente sobre a
-forma pré-normalizada, sem consumir prefixo, sufixo ou espaços não
-casados necessários à inserção. O vanilla também transforma em X
-o fragmento local com show literal de 水果 sobre 水-newline-果;
-esse caso combinado não fica fechado pelo matching local provisório.
-Preservar o contrato P1140 aqui apenas delimita a fase já aprovada:
-nenhuma nova variante, assinatura, default ou fase pública é criada
-além do gate ADR-0127 confirmado em 2026-09-24.
-
-### P1374 — relação observacional do carrier de altura de Block
-
-Medição: a introdução de `BlockHeight` torna `Option<BlockHeight>` parte da
-comparação estrutural já executada por `BlockElem::observation_relation`; sem
-uma implementação própria, o consumer deixa de compilar por ausência de
-`ObservationEq`.
-
-Decisão: comparar payloads relativos somente com relativos e pesos
-fracionários somente com fracionários; variantes distintas são
-observacionalmente diferentes. O match é nominalmente exaustivo e não altera
-callbacks, I/O, API pública nem a semântica de outros elementos.
-
-### P1225/P1285 — formatter público de representação para serialização
-
-L1 expõe `repr_stroke_value(&Stroke) -> String` exclusivamente para consumidores
-que precisam da representação morfológica pública de `Stroke`. A função delega
-ao owner `compiler/eval/repr.rs`; não expõe `repr_value` genérico, não faz I/O e
-não autoriza fallback de tipos desconhecidos. Consumer imediato: serializer
-JSON nominal da CLI em `02_shell/src/cli.rs`.
-
-P1285 mede no vanilla ratificado
-`lab/typst-original/crates/typst-library/src/foundations/value.rs:343-362` que
-todo `Value` fora do conjunto estruturado é serializado como string de sua
-`repr` pública. Para que L2 cumpra esse contrato sem duplicar formatação nem
-aceder ao módulo privado, o gate ADR-0127 propõe acrescentar:
-
-```rust
-pub fn repr_value_for_serialization(value: &Value) -> String;
-```
-
-A função é uma fachada pura e total sobre `repr::repr_value`; não serializa
-JSON/YAML, não faz I/O, não usa `Debug` e não decide quais variantes são
-estruturadas. Essa classificação permanece no owner L2
-`00_nucleo/prompts/shell/cli.md` para a CLI; os encoders L1 propostos em
-P1307-R3 têm classificação própria no owner loading, nunca nesta fachada.
-`repr_stroke_value` permanece compatível.
-Esta ampliação de assinatura pública foi **CONFIRMADA PELO DONO EM 2026-08-30**
-no gate P1285 e está autorizada para materialização.
-
-Os entrypoints constroem scope fresco e avaliam `Source` sem I/O direto.
-`eval_expression` avalia código isolado. O dispatcher preserva spans, scopes,
-short-circuit, joins e eventos de fluxo. `EvalContext` transporta limites,
-metadados, target, features e `FlowEvent`, sem estado global mutável. Conteúdo
-de introspecção pré-show e conteúdo final pós-show permanecem distintos;
-evento residual no entrypoint é erro. Mudança pública, de default ou fase para
-no gate ADR-0127.
-
-### P1300 — conjunto global fechado de constructors de cor
-
-#### Medição anterior à decisão
-
-Em `2026-09-03T19:01:51.133010-03:00`–`19:01:55.717850-03:00`, no baseline
-`1f082370e59939de7b57992e137a9f74bfb6758f`, a medição histórica
-classificou, nos quatro perfis `default`, `html`, `a11y` e `html+a11y`, os
-nomes bare `hsl`, `hsv`, `linear_rgb` e seus pares sob `std` como
-`CRYSTALLINE_ONLY`. No mesmo corpus, `color.hsl`, `color.hsv`,
-`color.linear-rgb` e os cinco globals ratificados, bare e sob `std`, foram
-`MATCH_VALUE`, sem `EXECUTION_UNKNOWN`.
-
-A fonte vanilla pinada `a51e02804`, em
-`lab/typst-original/crates/typst-library/src/lib.rs:397-401`, registra somente
-`luma`, `oklab`, `oklch`, `rgb` e `cmyk` no scope global. É inferência que a
-causa da assimetria é o conjunto extra registrado no scope base cristalino.
-Aceitação vanilla de algum alias, ou regressão de uma rota qualificada,
-refutaria a inferência; nenhuma foi observada.
-
-#### Decisão
-
-`make_stdlib_with_features` registra exatamente cinco constructors globais de
-cor: `rgb`, `luma`, `cmyk`, `oklab` e `oklch`. Não registra `hsl`, `hsv` ou
-`linear_rgb`, nem inventa o spelling global `linear-rgb`.
-
-Como `std` projeta a mesma stdlib não sombreada, `std.hsl`, `std.hsv`,
-`std.linear_rgb` e qualquer spelling alternativo `std.linear-rgb` também não
-constituem bindings. Esta regra independe das features `html` e
-`a11y-extras`.
-
-O conjunto global não altera os oito fields qualificados de `color`, suas
-nativas, cores predefinidas, operadores ou `color.space()`. A remoção dos três
-aliases públicos é quebra de compatibilidade e permanece bloqueada pelo gate
-humano ADR-0127 antes de qualquer código.
-
-## Aceitação
-
-Entrypoints, scope base, duas passagens, dispatcher, spans e fluxo residual são
-cobertos pela suíte de eval; L1 permanece puro.
-
-## P1215 — source numerizada em `eval_expression`
-
-Medição mostrou que `eval_expression` avaliava via `native_eval` com
-`Args::positional`, portanto com span detached. O entrypoint deve criar uma
-`Source` em modo code com `world.main()` e o texto integral, avaliar os filhos
-da raiz numerizada no mesmo scope fresco e devolver diagnósticos cujos spans
-resolvem contra uma `Source` idêntica. Isto preserva assinatura, valores,
-features e fase; apenas deixa de descartar localização pública no CLI `eval`.
-
-## P1286 — markup smartquote consome o mesmo contrato de quotes
-
-### Medição anterior à decisão
-
-`eval_markup` já consulta `smartquote.enabled`/`smartquote.quotes`, mas resolve
-o token antes do layout e não conhece `alternative`. A chamada programática
-percorre layout. O baseline usa uma configuração única para ambas as faces.
-
-### Decisão
-
-Markup consulta `enabled`, `alternative` e o valor canônico de `quotes` da
-StyleChain e usa o mesmo resolver puro de `compiler/lang/quotes`. Continua a
-emitir `Content::Text` e não muda de fase; chamada programática continua a
-emitir o leaf vigente. O fragmento P1286 exige igualdade morfológica dos pares
-medidos entre `#set`/markup e chamada direta, sem alegar unificação do stack
-contextual do vanilla.
-
-## P1292 — namespace de `place.flush` preservado por `.with`
-
-### Medição anterior à decisão
-
-No baseline, o scope base registra `place` com `Func::native` e field access
-falha. No vanilla ratificado, `place.flush` é função nomeada `flush`, e
-`place.with(dx: 1pt).flush` resolve o mesmo membro e continua chamável.
-`Func::With` cristalino já delega `scope()` à função interior.
-
-### Decisão
-
-O scope base constrói um namespace fechado de `place` com exatamente o membro
-`flush`, ligado a `compiler/stdlib/layout.md::native_flush`, e registra `place`
-por `Func::native_with_namespace`. A função principal continua a mesma
-`native_place`; não vira Module, não perde chamabilidade e não copia argumentos
-pré-ligados para `flush`. A delegação vigente de `Func::With::scope()` é
-preservada, não duplicada neste owner.
-
-Aceitação: `repr(place.flush) == "flush"`,
-`repr(place.with(dx: 1pt).flush) == "flush"` e ambas as chamadas constroem a
-mesma `Content::Flush`. Named alheio ao namespace não é inventado.
-
-## P1288 — filtragem uniforme de bindings por feature (PROPOSTO; gate ADR-0127)
-
-### Medição anterior à decisão
-
-`01_core/src/compiler/eval/mod.rs:117-120` transporta `Features` pelo path
-HTML, e `:911-921` aplica um caso especial somente ao identificador `html`.
-O módulo `pdf` é instalado integralmente em `:2113`; não há filtragem das três
-funções `a11y-extras` no contexto efetivo.
-
-### Decisão proposta
-
-`EvalContext.features` usa o owner canônico `entities::compiler_features`.
-A construção/resolução do scope expõe cada binding gated somente quando a
-feature correspondente está presente. Sem `A11yExtras`,
-`pdf.table-summary`, `pdf.header-cell` e `pdf.data-cell` não existem; com a
-feature, os três existem em conjunto. `Html` continua independente e o target
-não modifica o set.
-
-O diagnóstico de binding gated ausente conserva a semântica pública medida de
-feature não habilitada. O mecanismo concreto pode ser scope filtrado ou lookup
-condicional; igualdade estrutural do scope não é contrato. Não criar binding
-stub nem registrar só uma das três funções.
-
-
-## P1484 — gate global de `asset` (CONFIRMADO; ADR-0127)
-
-### Medição anterior à decisão
-
-Sobre HEAD `bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`, sem diff
-rastreado, `01_core/src/compiler/eval/mod.rs:8343-8345` registra
-`native_asset` incondicionalmente e `:7130-7145` só diagnostica o gate
-de `html`. O vanilla pinado `586e1bd43` rejeita `type(asset)` sem
-`bundle` com ``cannot access variable `asset` because the `bundle` feature
-is not enabled``, seguido dos dois hints medidos; com `bundle`, devolve
-`function`. O cristalino pré-P1484 devolve `function` nos dois perfis.
-`{ let asset = 1; asset }` devolve 1 também no vanilla sem feature:
-o gate não pode bloquear um binding local homônimo.
-
-### Decisão e incompletude explícita
-
-P1484 transporta `Feature::Bundle` ao mesmo `EvalContext.features` usado
-pelos entrypoints de expressão e documento. Sem `Bundle`, o binding
-global de `asset` não existe; a tentativa de resolver esse global recebe
-o diagnóstico gated acima, com span no identificador e hint
-``try enabling the `bundle` feature`` e URL de compiler-features. Binding local homônimo
-conserva precedência e não é bloqueado. `std.asset` é responsabilidade do
-owner `00_nucleo/prompts/compiler/eval/bindings/field_access.md`.
-
-Mesmo com `Bundle`, P1484 não registra o placeholder
-`native_asset(path, kind:?)` como função pública: essa rota permanece
-RED (ausente/Unknown) até P1485, que substituirá a assinatura por
-`asset(path, data)` e concluirá o target bundle. Não fabricar um stub que
-resolva `type(asset)` e falhe só na chamada; isso daria crédito falso à
-existência do binding. Os perfis `html`, `a11y-extras`, suas combinações e
-os formatos paginados mantêm o comportamento já contratado. A adição
-pública de `Feature::Bundle` e a remoção do default visível requerem
-confirmação do dono antes de L1.
-
-## P1293 — identidades públicas curtas nos namespaces `grid` e `table`
-
-### Medição anterior à decisão
-
-Em `2026-09-01T13:24:01-03:00`, no baseline
-`7dd25ff0e222b6c7c640d6bc7957b98f94227507` com working tree não commitada,
-`01_core/src/compiler/eval/mod.rs:1804-1827,2059-2078` instalava os dez fields
-corretos, mas passava nomes `grid_*`/`table_*` a `Func::native`. Os aliases flat
-separados permanecem em `:2083-2110`. A fonte vanilla pinada
-`layout/grid/mod.rs:422-438,574-677,767-768` e
-`model/table.rs:289-305,494-613,732-733` declara nomes curtos. O registro P1293
-mediu chamadas diretas e via `.with` para os dez siblings e confirmou que a
-causa da diferença pública é somente o primeiro argumento textual da instância
-namespaced.
-
-### Decisão
-
-Cada instância anexada ao namespace usa exatamente este nome público:
-
-| Namespace | members e `repr` |
-|---|---|
-| `grid` | `cell`, `header`, `footer`, `hline`, `vline` |
-| `table` | `cell`, `header`, `footer`, `hline`, `vline` |
-
-Chaves de scope, function pointers, argumentos, payloads e chamada direta ou
-via `.with(...)` permanecem os vigentes. Os seis aliases flat cristalinos
-`grid_cell`, `grid_header`, `grid_footer`, `table_cell`, `table_header` e
-`table_footer` conservam seus nomes históricos; P1293 não cria aliases flat
-`*_hline`/`*_vline` nem renomeia símbolos Rust.
-
-O baseline também mediu uma divergência preexistente fora das 15 diferenças
-de superfície: `grid/table.header` e `footer` cristalinos exigem pelo menos uma
-célula, enquanto o vanilla aceita zero ou vários children, e algumas aridades
-extras alcançam serializer/diagnóstico diferente. P1293 **não** corrige nem
-reivindica paridade dessa aridade/diagnóstico; os calls atuais devem ser
-preservados byte a byte quanto a function pointer e comportamento. Uma mudança
-nessa divergência exige medição e L0 próprios.
-
-Aceitação exige os dez nomes curtos, os mesmos tipos de conteúdo, `.with`
-preservado e aliases flat intactos. Algum sibling com underscore, pointer/call
-alterado ou divergência fora de escopo relaxada bloqueia o lote. `Unknown`
-nunca é sucesso. A mudança de identidade pública fica bloqueada pelo gate
-humano P1293 antes do código.
-
-## P1305-r2 — nome público do módulo global
-
-### Medição anterior à decisão
-
-`01_core/src/compiler/eval/mod.rs:324` e `:562` constroem o global com
-`Module::new("std", stdlib.clone())`, enquanto o vanilla ratificado
-`a51e02804` constrói `Module::new("global", global)` em
-`lab/typst-original/crates/typst-library/src/lib.rs:374`. O nome do binding
-e o nome público do objeto são distintos no vanilla.
-
-A medição independente,
-registra HEAD `8eb41b769eb840c7ab1063f981f98fdd4047952b` mais diff P1303
-não commitado, status/diff/stat, fixtures e saídas completas entre
-`2026-09-07T13:48:28.580684+00:00` e
-`2026-09-07T13:51:19.266604+00:00`. O baseline fresco tem;
-o vanilla, `7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8`.
-`named-modules`, `named-aliases` e `document-route` medem `module(std)`
-contra `<module global>`, preservando lookup. A contraprova de import
-`std.typ` com reexport integral impede corrigir isso somente no formatter.
-O dono respondeu `Autorizado` à ampliação de construção neste owner e em
-`compiler/eval/modules`; medição histórica registra essa exceção.
-
-### Decisão
-
-Nos entrypoints de expressão e documento, o objeto Module que transporta a
-stdlib não sombreada guarda exatamente o nome público `global`, usando o
-constructor e carrier existentes. O binding no scope base continua `std`;
-nenhum binding global chamado `global` é criado como efeito dessa mudança.
-Scope, valores, ordem, features, inputs e mecanismo de clonagem permanecem
-os vigentes. Aliases transportam o mesmo nome público do objeto.
-
-O owner de imports preserva separadamente o nome lexical do binding,
-conforme seu contrato P1305-r2. Este owner não muda import, Module, APIs,
-diagnósticos, serialização, defaults, fases ou render. Não acrescentar flags
-de origem nem reconhecer o conteúdo da stdlib para recuperar identidade.
-O formatter projeta o nome já guardado sob seu próprio L0.
-
-Aceitação cobre expressão, documento e sua equivalência com a construção
-do global dentro de imports, nos perfis default/html/a11y/html+a11y, com
-aliases, `std.rgb`, `std.calc` e gates existentes preservados. Refutam-na
-uma rota ainda nomeada `std`, binding `global` introduzido, mudança de
-lookup/feature ou necessidade de novo carrier. É correção de morfologia da
-linguagem em fluxo contínuo ADR-0127, na ampliação explicitamente autorizada;
-não corresponde a nova política de produto. `Unknown` obrigatório bloqueia.
-
-## P1307-R3 — namespaces dos encoders (gate público pendente)
-
-### Medição anterior à decisão
-
-`01_core/src/compiler/eval/mod.rs:1723-1743`, no snapshot R3,
-HEAD `b303f1f15b610e09872b567027e0d806387fde8c` mais working tree P1306
-integral ali capturado, registra json/yaml/toml sem namespace e CBOR com
-encode. Os registros P1307
-e R2
-medem os membros originais com kind function/repr encode, mantendo os pais
-chamáveis. O vanilla é upstream ratificado `a51e02804`; cada registro conserva
-argv, binários, features, fontes e saídas. Partial With tem repr anônima,
-não a repr do membro original: são observáveis distintos.
-
-### Decisão e aceitação
-
-O único consumer `01_core/src/compiler/eval/mod.rs` registra json/toml/yaml
-como as mesmas nativas decodificadoras, cada qual com namespace fechado
-contendo apenas `encode`, ligado à nativa correspondente de loading. O membro
-original tem nome público curto/repr `encode`. Não criar aliases globais
-`json_encode` ou encoders de csv/xml/read. Não mudar CBOR ou gates PDF/HTML.
-As três construções reais da stdlib convergem para este registro, independente
-dos quatro perfis de feature, sem novo default de target ou fase.
-
-Alias, shadowing legítimo, global, import e reexport conservam identidade do
-valor resolvido. Namespace do pai parcialmente aplicado é acessível, mas seus
-argumentos não são transferidos ao membro: `json.with(nope: 9).encode(1)`
-continua uma chamada de encode de 1. A implementação desta semântica está nos
-owners Func/call_dispatch, não em condições textuais neste registro.
-
-Não criar sidecar de origens em EvalContext, nem alterar assinatura da fachada
-de repr. É inferência que o namespace já existente basta; precisar de novo
-campo de Func, lookup nominal ou nova rota por feature a refuta. A adição de
-superfície e defaults de encode aguarda aprovação ADR-0127 deste contrato
-concreto. Testes de presença, ausência, kind, repr, chamada do pai/membro,
-With e perfis são obrigatórios; ausência baseline não é GREEN.
-
-## P1308 — Source causal do entrypoint e origem privada de função
-
-### Medição anterior à decisão
-
-Baseline histórico
-registra HEAD b303f1f15 mais working tree. `eval/mod.rs:347–363` cria Source
-parse_code local, mas entrega World original ao Engine. A matriz R6 final
-pinada no diagnóstico P1307 registra dez casos cujo stderr é prefixo do
-esperado sem `while calling`; `call_dispatch.rs:1017–1023` não consegue
-resolver o span via World.source. Número de Span sem sua Source não basta.
-
-Na fonte ratificada `typst-eval/src/code.rs:148`, valores retornados de
-expressões recebem span; `foundations/value.rs:210–214` delega Func para
-spanned, que conserva origem preexistente (`func.rs:385–389`). Closures já
-têm a origem dos parâmetros (`typst-eval/src/call.rs:638`). É inferência
-que o transporte privado destes dados basta; precisar inferir origem por
-Value igual ou alterar contrato público a refuta.
-
-### Decisão autorizada
-
-`eval_expression_with_features` usa um overlay privado de World por invocação,
-contendo referência ao World externo e à mesma Source parse_code avaliada.
-Somente `source(id)` para o id dessa Source devolve seu clone; qualquer outro
-id e todos os outros métodos de World, inclusive os com defaults, delegam
-ao World original. Não recriar biblioteca, fontes, inputs, plugins, resolução
-de paths/packages, relógio ou caches. Sem I/O direto, variável global, mudança
-de trait ou mutação do World externo. Engine e suas descidas usam o overlay;
-o entrypoint de documento continua vigente. Diagnósticos retornados mantêm
-spans resolvíveis contra Source idêntica, conforme P1215.
-
-Em `eval_expr`, Func retornada com origem privada detached pode receber o
-span da expressão produtora, usando helper crate-private do owner Func.
-Não substituir origem já conhecida (closure/alias/With/factory). Outros
-Values não mudam. Preservar avaliação única, retorno antecipado, flow e
-erros; o enriquecimento não executa a função nem participa da igualdade.
-Contextual mantém sua origem de body quando já conhecida. Esta captura
-serve à âncora de filter, não cria rastreador global de valores.
-
-Aceitação exige World mínimo sem Source da expressão, contenção de trace,
-origens externas, aliases/With, inputs e delegação de serviços preservados.
-Nenhuma alteração da regra de trace nem fabricação de mensagens por texto.
-
-## Observações contextuais seletivas
-
-Cada `EvalContext` mantém um registro privado, local à avaliação, das
-operações introspectivas efetivamente executadas. O registro é independente do
-introspector e inicia vazio. Não existe estado global, registry reflexivo,
-metadata escondida em warnings ou strings.
-
-A seleção ocorre quando uma leitura de counter usa Selector cuja árvore contém
-Element. A demanda é marcada antes de resolver Location, label ou callback,
-inclusive se a leitura falhar. Uma vez selecionado o bloco, todas as suas
-entradas introspectivas já observadas participam da validação.
-
-O registro conserva operação, argumentos efetivos, Location, span, StyleChain
-pertinente e resultado ou erro. Não reconstrói por AST, nome, `Value::eq` ou
-texto de diagnóstico.
-
-### Interface
-
-```rust
-impl EvalContext {
-    pub fn has_filtered_counter_reads(&self) -> bool;
-
-    pub fn context_reads_valid_for(
-        &self,
-        candidate: &TagIntrospector,
-        engine: &mut Engine<'_>,
-    ) -> SourceResult<bool>;
-
-    pub fn context_nonconvergence_diagnostics(
-        &self,
-        history: &[TagIntrospector],
-        engine: &mut Engine<'_>,
-    ) -> SourceResult<Vec<SourceDiagnostic>>;
-}
-```
-
-O getter é puro. A validação reexecuta somente as requisições observadas contra
-o snapshot candidato, delegando aos owners de query, state, counter e Location.
-Não reexecuta o corpo do bloco nem callbacks nunca demandadas. Engine, estilos,
-capturas e recursos são os da avaliação original.
-
-Todas as observações completas e preservadas produzem `true`; mudança,
-sucesso que vira erro ou erro que vira sucesso produz `false`; falha do
-mecanismo propaga `SourceDiagnostic`. Erro estável não transforma o corpo em
-sucesso.
-
-### Comparação fechada
-
-O comparador privado retorna `Same`, `Different` ou `Unproven` e não muda
-`PartialEq` ou `Hash` públicos.
-
-- folhas comparam variante e dados observáveis; float usa bits IEEE para
-  preservar sinal de zero e comparar uma observação NaN consigo própria;
-- containers percorrem ordem, presença, conteúdo e metadata causal;
-- `LocatedContent` inclui Location, carrier, fields e Content;
-- funções e módulos só são `Same` quando sua identidade causal imutável foi
-  preservada; closures recriadas não são comparadas por body ou execução;
-- resultado e diagnóstico integral distinguem sucesso e erro.
-
-`Unproven` nunca certifica estabilidade. Serviço opaco exige identidade
-causal preservada; falta de prova invalida a reutilização.
-
-### P1425 — presença de `inline` na relação observacional
-
-Medição fail-closed no baseline causal
-`0305568a7509653198f16a01441051fea47e304a`, tree
-`e6785a80f345abae324c365df96126076b322c07`: em
-`01_core/src/compiler/eval/mod.rs:2053-2063`, a implementação de
-`ObservationEq` para `MathLimitsOverrideElem` desestrutura exaustivamente
-`body`, `limits` e `inline` e compara os três. A adição P1425 de
-`inline_explicit` tornaria esse consumer inválido por campo omitido (`E0027`)
-e, se o destructuring fosse apenas afrouxado, permitiria declarar `Same` para
-omissão e presença explícita do default.
-
-O comparador deve incluir `inline_explicit` nominalmente na desestruturação e
-na cadeia de `observation_relation`. O bit é morfologia causal da língua e
-portanto duas observações que diferem somente nele são `Different`; não é
-permitido ignorá-lo, inferi-lo de `inline` nem devolver `Unproven` para evitar
-a comparação. Nenhuma outra variante, regra de estabilização, API ou fase
-muda.
-
-A varredura integral de Rust nesse baseline encontrou este como único
-destructuring externo de `MathLimitsOverrideElem`. Os demais struct literals
-pertencem ao owner da entidade; os callsites do constructor pertencem aos
-owners já declarados de eval math, stdlib math, layout comum e aos testes
-existentes cuja aridade requer reparo mecânico. Esta expansão do consumer foi
-aprovada como revisão fail-closed R1 do contrato P1425.
-
-### P1426 — presença do índice na relação observacional (APROVADO)
-
-`ObservationEq` para `MathRootElem` deve desestruturar e comparar
-`index_explicit` além de `index` e `radicand`. Ausência e presença explícita de
-`none` são morfologias causalmente distintas e portanto `Different`; não se
-pode inferir o bit do valor nem devolvê-lo como `Unproven`. A mudança do novo
-campo público foi confirmada explicitamente pelo dono em 2026-09-16.
-
-### Não convergência
-
-A história é a sequência real de snapshots do orquestrador. O diagnóstico usa
-as requisições da tentativa final projetadas sobre essa sequência, sem afirmar
-que o corpo as executou em todas as rodadas. Não fabrica detalhe para consulta
-opaca ou para leitura alheia.
-
-Não há neste owner obrigação de ledger, DTO, JSON, hook ou harness de
-instrumentação. Observação adicional exige owner próprio.
-
-## P1401 — expressão com introspector injetado (PROPOSTO; gate ADR-0127)
-
-### Medição anterior à decisão
-
-No baseline P1401, `eval_expression_with_features` cria `EvalContext::new()`;
-este inicializa `introspector` vazio. Assim `query`, `counter` e state não veem
-o documento de `--in`, embora o contexto já possua o campo apropriado.
-
-### Decisão proposta
-
-L1 oferece um sibling público de avaliação de expressão que recebe
-`&TagIntrospector`, instala um clone no `EvalContext` antes de avaliar e mantém
-scope, parser, route, sink, diagnósticos, features e limites vigentes. O
-entrypoint atual delega ao mesmo núcleo com `TagIntrospector::empty()`, de modo
-que ausência de `--in` não muda. As varreduras recursivas de `Selector` deste
-owner atravessam também `Before.base/end` e `After.base/start`; não colapsam a
-árvore. Assinatura pública nova aguarda confirmação ADR-0127.
-
-# P1402 — scope público de `outline`
-
-O binding global `outline` usa namespace nativo contendo `entry`; `entry` usa
-namespace contendo `body`. As identidades são funções nativas estáticas e
-continuam selecionáveis por endereço, não por nome textual.
-
-# P1403 — identidades de helpers da entry
-
-O namespace nativo de `outline.entry` contém também `prefix` e `page`.
-`prefix` é nativa comum; `page` é nativa com acesso a Engine/Scopes para
-realizar numberings funcionais. `page` registra uma leitura causal fechada por
-Location, reexecutável contra candidatos do fixpoint; não depende só da leitura
-de `query`. Ambas preservam nome e identidade estáticos.
-
-# P1404 — identidade de `outline.entry.inner`
-
-O namespace da entry contém `inner` como nativa com Engine/Scopes. A nativa
-reusa a leitura causal de `page`; não cria vocabulário paralelo. A comparação
-observacional de `BoxedElem` inclui o carrier fracionário P1404.
-
-# P1405 — identidade e leitura causal de `outline.entry.indented`
-
-O namespace da entry contém `indented` como nativa com Engine/Scopes. Quando o
-parent privado está presente na StyleChain, a nativa registra leitura causal
-fechada contendo entry, prefix, inner e gap; o replay usa os mesmos estilos e o
-novo candidato do introspector, permitindo que máximos `prefix-info` atinjam
-fixpoint. Sem parent, o erro ocorre antes do registro. O diagnóstico de
-não-convergência não reclassifica esta leitura como counter ou state.
-# P1406 — snapshot causal de outline (PROPOSTO; gate autorizado)
-
-Medição anterior à decisão: no baseline `fe3209458`, o intercept eager conhece
-a pilha lexical no instante em que `outline()` devolve Content, enquanto a
-síntese de `OutlineEntry` só ocorre depois na introspecção. O vanila ratificado
-prova por dois outlines que a pilha final não pode substituir esse instante.
-
-No passe renderizável, `intercept_content` anexa ao `OutlineElem` snapshots
-privados e imutáveis das show rules e estilos correntes antes de aplicar regras
-ao próprio outline. O passe original de introspecção não inventa snapshots.
-Identidade/observação do outline preserva a presença explícita do título e a
-causalidade das regras; o carrier não é campo da linguagem. Confirmação humana
-explícita recebida em 2026-09-15.
-
-# P1413 — namespace público `raw.line` (PROPOSTO; gate ADR-0127)
-
-### Medição anterior à decisão
-
-No baseline `e7b2ddd44`, `raw` é uma função nativa sem namespace. O vanila
-expõe `raw.line`, cujo `repr` é `line`, como constructor e seletor de elemento.
-
-### Decisão proposta
-
-O binding global `raw` usa namespace nativo contendo `line`. `line` é uma
-`Func::element` de identidade `raw.line`; seu constructor recebe
-`number, count, text, body` posicionais, valida tipos/cardinalidade e produz o
-carrier dinâmico proprietário de `entities/elements/raw.md`. A maquinaria
-existente converte a função em `Selector::DynKind`, sem matching por nome
-textual improvisado e sem nova variante `NodeKind`.
-
-Esta ampliação de contrato público aguarda confirmação humana explícita antes
-de L1.
-
-# P1414 — namespace público `par.line` (PROPOSTO; gate ADR-0127)
-
-### Medição anterior à decisão
-
-No baseline `df196b35b`, `par` usa `Func::native` sem namespace e field access
-falha. No vanila ratificado, o parent permanece chamável, `repr(par.line)` é
-`"line"` e o membro rejeita construção manual.
-
-### Decisão proposta
-
-Registrar `par` por `Func::native_with_namespace`, preservando `native_par` e
-anexando somente `line`, ligado a `structural/par.md::native_par_line` com nome
-público curto. Não transferir argumentos de `par.with(...)`, não criar alias
-flat e não mudar a identidade do parent. A ampliação aguarda confirmação
-humana explícita.
-
-# P1427 — igualdade observacional de `MathFrac` (PROPOSTO; gate ADR-0127)
-
-### Medição anterior à decisão
-
-`ObservationEq` compara hoje somente numerador, denominador e `line`; dois
-conteúdos que diferem em estilo explícito ou proveniência de parênteses seriam
-tratados como iguais apesar de poderem produzir morfologia/layout distintos.
-
-### Decisão proposta
-
-Comparar também estilo opcional e ambos os bits de deparenthesization. Não
-normalizar `None` para `Vertical`: ausência e vertical explícito divergem em
-`repr`. `line=false` permanece parte da observação para proteger `binom`.
-
-## P1436 — igualdade observável de `MathLr` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
-
-### Medição anterior à decisão
-
-`ObservationEq` é exaustivo sobre `Content` e não possui a nova identidade.
-Delegar somente ao body faria `size` explícito/cascata e presença divergentes
-parecerem iguais apesar de alterarem `repr` ou geometria.
-
-### Decisão proposta
-
-Adicionar braço `MathLr` e implementação de `ObservationEq` que compare body,
-`Rel<Length>` e `size_explicit`. A comparação é estrutural dos observáveis do
-carrier; não resolve cascata, não executa layout e não equipara `100%`
-explícito a ausência.
-
-## P1437 — igualdade observável de `MathMid` (PROPOSTA; AGUARDA GATE ADR-0127)
-
-### Medição anterior à decisão
-
-`ObservationEq` é exaustivo e precisa preservar a nova identidade. O único
-estado próprio de `MidElem` é o body; o vínculo ao `lr` é contexto de layout.
-
-### Decisão proposta
-
-Adicionar braço `MathMid` e comparar somente o body. Não resolver contexto,
-classe ou stretch; `MathMid(body)` nunca é igual ao body nu nem a um
-`MathDelimited` semelhante.
-
-## P1439 — igualdade observável de `MathOverbrace` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
-
-### Medição anterior à decisão
-
-Body, valor da annotation e presença explícita alteram morfologia ou `repr`;
-o match exaustivo ainda não possui essa identidade.
-
-### Decisão proposta
-
-Adicionar braço `MathOverbrace` e comparar body, annotation e
-`annotation_explicit`. Não comparar glifos ou caixas derivadas, não equiparar
-omissão a `none` explícito e não igualar ao `MathUnderover` mecânico.
-
-## P1440 — igualdade observável de `MathOverbracket` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-Body, valor da annotation e presença explícita alteram morfologia ou `repr`;
-o match exaustivo ainda não possui essa identidade.
-
-### Decisão proposta
-
-Adicionar braço `MathOverbracket` e comparar body, annotation e
-`annotation_explicit`. Não comparar glifos ou caixas derivadas, não equiparar
-omissão a `none` explícito e não igualar a `MathOverbrace` nem ao
-`MathUnderover` mecânico.
-
-## P1441 — igualdade observacional de `MathOverline` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-A identidade nova é estrutural e body-only; não existe campo cosmético
-textual nem caixa de layout em seu contrato.
-
-### Decisão proposta
-
-Adicionar braço `MathOverline` e comparar exclusivamente o body. Não comparar
-regra, constantes ou estilo cramped derivados e não igualar a
-`MathUnderline` nem ao `Overline` textual.
-
-## P1442 — igualdade observável de `MathOverparen` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-Body, valor da annotation e presença explícita alteram morfologia ou `repr`;
-o match exaustivo ainda não possui essa identidade.
-
-### Decisão proposta
-
-Adicionar braço `MathOverparen` e comparar body, annotation e
-`annotation_explicit`. Não comparar glifo ou caixas derivadas, não equiparar
-omissão a `none` explícito e não igualar a outro spreader nem ao
-`MathUnderover` mecânico.
-
-## P1443 — igualdade observável de `MathOvershell` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-Body, valor da annotation e presença explícita alteram morfologia ou `repr`;
-o match exaustivo ainda não possui essa identidade.
-
-### Decisão proposta
-
-Adicionar braço `MathOvershell` e comparar body, annotation e
-`annotation_explicit`. Não comparar glifo ou caixas derivadas, não equiparar
-omissão a `none` explícito e não igualar a outro spreader nem ao
-`MathUnderover` mecânico.
-
-## P1444 — igualdade observável de `MathPrimes` (MATERIALIZADO)
-
-### Medição anterior à decisão
-
-O count é o único estado público do elemento e distingue
-`math.primes(3) == math.primes(4)`. Texto visualmente semelhante não possui a
-mesma identidade.
-
-### Decisão proposta
-
-Adicionar braço `MathPrimes` e comparar exclusivamente `count`. Não comparar
-glyph, largura ou frame derivados e não equiparar o carrier a `MathText` ou
-`MathSequence`.
-## P1446 — igualdade observacional de `MathStretch` (PROPOSTA; gate ADR-0127)
-
-`Value::Content(MathStretch)` participa da igualdade observacional por body,
-tamanho e presença causal. Omitido e `100%` explícito não são colapsados para
-fins de representação/fields, ainda que o alvo geométrico efetivo coincida.
-Adicionar braços exaustivos sem wildcard e preservar o carrier nas passagens
-de avaliação.
-
-## P1448 — igualdade observável de `MathUnderbrace` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-Body, valor da annotation e presença explícita alteram morfologia, fields ou
-repr; o match exaustivo ainda não possui essa identidade.
-
-### Decisão proposta
-
-Adicionar braço `MathUnderbrace` e comparar body, annotation e
-`annotation_explicit`. Não comparar glifos ou caixas derivadas, não equiparar
-omissão a `none` explícito e não igualar ao `MathUnderover` mecânico.
-
-## P1449 — igualdade observável de `MathUnderbracket` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-Body, annotation e presença explícita alteram morfologia, fields ou repr; o
-match exaustivo não possui a identidade `underbracket`.
-
-### Decisão proposta
-
-Adicionar braço `MathUnderbracket` e comparar body, annotation e
-`annotation_explicit`. Não comparar U+23B5 ou caixas derivadas, não colapsar
-omissão com `none` explícito e não equiparar ao `MathUnderover` mecânico.
-
-## P1450 — igualdade observável de `MathUnderparen` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-Body, annotation e presença explícita alteram morfologia, fields ou repr; o
-match exaustivo não possui a identidade `underparen`.
-
-### Decisão proposta
-
-Adicionar braço `MathUnderparen` e comparar body, annotation e
-`annotation_explicit`. Não comparar U+23DD ou caixas derivadas, não colapsar
-omissão com `none` explícito nem equiparar ao `MathUnderover` mecânico.
-
-## P1451 — igualdade observável de `MathUndershell` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-Body, annotation e presença explícita alteram morfologia, fields ou repr; o
-match exaustivo não possui a identidade `undershell`.
-
-### Decisão proposta
-
-Adicionar braço `MathUndershell` e comparar body, annotation e
-`annotation_explicit`. Não comparar U+23E1 ou caixas derivadas, não colapsar
-omissão com `none` explícito nem equiparar ao `MathUnderover` mecânico.
-
-## P1461 — registro da raiz pública `format` (PROPOSTA; AGUARDA GATE ADR-0127)
-
-### Medição anterior à decisão
-
-No baseline P1461, HEAD
-`7392f490397c56876fcf6134e86c44b528b396bb`,
-`make_stdlib_with_features` em
-`01_core/src/compiler/eval/mod.rs:7594-7773` importa as factories de módulos e
-registra `html` diretamente, mas não importa nem registra `format`. Probes
-bilaterais nos perfis `default`, `a11y-extras`, `html` e `html+a11y` mediram a
-raiz vanilla como módulo nomeado `format`; o cristalino falha antes do field
-access com `unknown variable format`.
-
-É inferência que uma única inserção no scope global basta também para
-`std.format`, porque `std` já projeta a stdlib não sombreada e o clone de
-`Module` preserva o carrier por `Arc`. A necessidade de binding `std` especial,
-mudança em `Module`, lookup condicional ou novo carrier refuta a inferência.
-
-### Decisão proposta
-
-`make_stdlib_with_features` importa a factory crate-private
-`make_format_module` pela fachada e registra incondicionalmente:
-
-```rust
-scope.define("format", Value::Module(make_format_module()));
-```
-
-O mesmo registro ocorre em toda construção real da stdlib, independentemente
-de target, `html` e `a11y-extras`. Não criar binding global `global`, `svg`,
-`png`, `pdf` ou novo `html`; não registrar filhos, aliases, placeholders ou
-valores marcadores. A ordem interna de inserção não é contrato, desde que os
-bindings existentes permaneçam semanticamente preservados.
-
-O nome e o scope vazio pertencem ao owner
-`compiler/stdlib/format.md`; esta emenda legitima somente a ligação ao scope
-global. Aceitação exige `format` e `std.format` como o mesmo módulo nominal,
-alias estável, diagnóstico genérico de field ausente e ausência de todos os
-filhos. Código, testes e header de linhagem aguardam confirmação humana
-posterior ao commit causal P1461.
-
-## P1464 — composição única de `pdf` e projeção em `format.pdf` (MATERIALIZADO)
-
-### Medição anterior à decisão
-
-No baseline `a1286f958f15a539dca17a3696ef83ef9e5b1b78`,
-`make_stdlib_with_features` registra `format` antes de construir e registrar o
-módulo global `pdf`. Por isso a factory de `format` não recebe a instância PDF
-efetiva e `format.pdf` permanece ausente. `make_pdf_module(features)` já aplica
-o gate `A11yExtras` e devolve todos e somente os bindings produtivos que P1464
-deve reutilizar.
-
-No vanilla ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d`,
-`format.pdf.attach == pdf.attach` e `format.pdf.artifact == pdf.artifact`; com
-`a11y-extras`, as três igualdades adicionais também são verdadeiras. É
-inferência que construir uma única instância efetiva e clonar seus valores de
-binding preserva essa identidade linguística. Necessidade de duplicar factory,
-inferir feature por nome ou alterar `Value`, `Module`, `Func` ou `Scope`
-refutaria a inferência e bloquearia o recorte.
-
-### Decisão de composição
-
-`make_stdlib_with_features` chama `make_pdf_module(features)` exatamente uma
-vez. Mantém o `Value` resultante localmente, entrega por referência essa mesma
-projeção efetiva a `make_format_module` e registra:
-
-```text
-format = módulo format que contém a função format.pdf projetada
-pdf    = o mesmo valor de módulo PDF efetivo já construído
-```
-
-Clonar o carrier imutável para inserção no scope é permitido; reconstruir o
-módulo, suas funções ou catálogo é proibido. A ordem interna das definições é
-mecânica desde que ambos os bindings recebam a mesma projeção e todos os
-bindings anteriores permaneçam semanticamente estáveis. O owner
-`compiler/stdlib/format.md` decide os defaults e o namespace da função; este
-owner decide somente a construção única e a ligação no scope global.
-
-O conjunto efetivo de features continua vindo exclusivamente do argumento
-`features`. `html`, target e exporter não ativam `a11y-extras`; sem a feature,
-o trio não aparece nem no módulo global nem na projeção. Não criar aliases
-globais novos, wrappers, stubs, segunda chamada a `make_pdf_module` ou lógica
-de exportação.
-
-Aceitação exige identidade pública dos cinco pares, os quatro perfis
-`default`/`a11y-extras`/`html`/`html+a11y`, módulo global `pdf` inalterado e
-`format.html` ausente. A confirmação humana posterior ao commit causal P1464
-foi recebida em 2026-09-20; a composição única foi materializada e o teste
-independente passou de RED para GREEN.
-
-## P1465 — composição única de `html` e projeção em `format.html` (MATERIALIZADO)
-
-### Medição anterior à decisão
-
-No baseline `8e74134a721310cc4fb2a596a195398e16f1d5db`,
-`make_stdlib_with_features` constrói o módulo PDF antes de `format`, mas chama
-`make_html_module()` separadamente depois de registrar `format`. Logo a factory
-de formatos não pode reutilizar a instância HTML efetiva. O módulo HTML vigente
-já contém exatamente `elem`, `frame` e 112 funções tipadas.
-
-No vanilla ratificado, os 114 pares `format.html.<membro> == html.<membro>`
-são verdadeiros com a feature ativa. É inferência que construir uma única
-instância e clonar seus valores para o namespace da função preserva essa
-identidade linguística. Necessidade de segunda factory, catálogo paralelo ou
-alteração em `Module`/`Scope`/`Func` refuta a inferência e bloqueia o recorte.
-
-### Decisão de composição
-
-`make_stdlib_with_features` chama `make_html_module()` exatamente uma vez,
-mantém o `Value::Module` efetivo localmente, entrega-o por referência a
-`make_format_module` junto do PDF vigente e registra:
-
-```text
-format = módulo format com format.html projetado
-html   = o mesmo módulo HTML efetivo já construído
-```
-
-Clonar o carrier imutável ao inserir no scope é permitido; reconstruir módulo,
-funções ou catálogo é proibido. O owner `compiler/stdlib/format.md` decide o
-namespace e o default; este owner decide somente construção única e ligação no
-scope global.
-
-A composição ocorre nos quatro perfis. A presença interna não contorna o gate:
-lookup público continua condicionado exclusivamente a `Feature::Html` pelos
-owners do identificador/field access. Target HTML e `A11yExtras` não ativam a
-feature. PDF, demais bindings globais, módulos importados e `std` permanecem
-semanticamente estáveis.
-
-Aceitação exige igualdade dos 114 pares, uma única chamada produtiva à factory
-HTML, quatro perfis e ausência de regressão no módulo global. A confirmação
-humana posterior ao commit causal `e300314e2f87e90e543c4923a8cae97f9ad978a8`
-foi recebida em 2026-09-20; implementação e teste RED→GREEN foram concluídos.
-
-## P1471 — retificação: `pdf`/`html` deixam de ser "módulo global" (MATERIALIZADO)
-
-### Medição anterior à decisão
-
-`compiler/stdlib/pdf.md`/`compiler/stdlib/html.md` P1471 medem
-(2026-09-21, repetição sem deriva da sonda de 2026-09-20) que o vanilla
-ratificado `586e1bd43fae6c9a973218163d3165c53ab8d16d` expõe `pdf`/`html`
-como `function`, não `module`. As linhas 7785/8371 deste owner
-(`01_core/src/compiler/eval/mod.rs`) hoje fazem
-`let html = Value::Module(make_html_module());` e
-`let pdf = make_pdf_module(features);` (já `Value`, mas internamente
-`Value::Module`); `scope.define("html", html)` e
-`scope.define("pdf", pdf)` registam essa forma diretamente.
-
-A linguagem "módulo global `pdf`"/"módulo global `html`"/"módulo HTML
-efetivo"/"módulo PDF efetivo" usada nas seções P1464/P1465 acima (§796-798,
-842-844, e ao longo de ambas) descreve a forma **anterior** da raiz — a
-composição única (uma só chamada a `make_pdf_module`/`make_html_module`,
-entregue por referência a `make_format_module` e ao próprio scope) **não
-muda** e continua exatamente como decidido em P1464/P1465. Só a forma do
-valor devolvido por `make_pdf_module`/`make_html_module` muda, de
-`Value::Module` para `Value::Func` — decidida nos dois owners 1:1
-(`compiler/stdlib/pdf.md`/`compiler/stdlib/html.md`), não neste.
-
-### Decisão
-
-Este owner não muda comportamento próprio: continua a chamar
-`make_pdf_module`/`make_html_module()` exatamente uma vez cada, continua a
-entregar o mesmo valor por referência a `make_format_module` e a
-`scope.define`. A única mudança observável aqui é o tipo do valor
-registrado (`type(pdf)`/`type(html)` de `module` para `function`),
-consequência automática da retificação dos dois owners upstream — este L0
-só regista a mudança de vocabulário ("módulo" → "função com namespace")
-nas frases futuras que citarem `pdf`/`html`; as seções P1464/P1465 acima
-não são reescritas (histórico preservado), só deixam de ser a
-caracterização vigente da forma da raiz.
-
-### Gate ADR-0127
-
-Mesmo gate de `compiler/stdlib/pdf.md`/`compiler/stdlib/html.md` P1471 —
-consequência, não decisão independente. Requer confirmação humana explícita
-posterior ao commit documental dos três owners juntos.
-
-Confirmação recebida em 2026-09-21, posterior ao commit causal
-`2ae054ab5`. Agente A (`e118c2053`) ajustou a linha de registo de `html`
-para `let html = make_html_module();`. Agente B (`b546f709b`) escreveu 1
-teste RED (`p1471_scope_registers_pdf_and_html_as_func_across_profiles`).
-Suíte: 8/8 neste ficheiro (1 novo + 7 irmãos). Zero regressão em
-typst-core (6059/6059).
-
-Nota de ownership: dois oráculos históricos que assumiam `type(pdf) ==
-module`/`repr(pdf) == "<module pdf>"` também precisaram de correção
-durante a integração, mas vivem em `01_core/src/compiler/eval/tests.rs`
-— ficheiro com owner **próprio** `compiler/eval/tests.md` (não este L0,
-apesar do nome parecido; achado só na integração, fora da auditoria
-original dos 5 L0s de P1471). Ver a nota lá.
-
-## P1473 — seis registos ganham namespace (`list`/`enum`/`terms`/`polygon`/`figure`/`footnote`) (MATERIALIZADO)
-
-### Medição anterior à decisão
-
-`compiler/stdlib/structural/lists.md`, `compiler/stdlib/shapes.md`,
-`compiler/stdlib/figure_image.md` e `compiler/stdlib/structural/
-footnote.md`, todos §P1473, decidem `list.item`/`enum.item`/
-`terms.item`/`polygon.regular`/`figure.caption`/`footnote.entry`. Ao
-contrário de `pdf`/`html` em P1471 (que eram `Value::Module`), estes seis
-já são `Value::Func` bare hoje neste owner:
-
-```text
-scope.define("list", Value::Func(Func::native("list", native_list)));
-scope.define("enum", Value::Func(Func::native("enum", native_enum)));
-scope.define("terms", Value::Func(Func::native("terms", native_terms)));
-scope.define("polygon", Value::Func(Func::native("polygon", native_polygon)));
-scope.define("figure", Value::Func(Func::native("figure", native_figure)));
-scope.define("footnote", Value::Func(Func::native("footnote", native_footnote)));
-```
-
-Não há mudança de **kind** (`type(list)` continua `function`) — só a
-adição de um namespace anexado, mecanismo P493 já produtivo (`entities/
-func.rs::Func::native_with_namespace`).
-
-### Decisão
-
-As seis linhas passam a `Func::native_with_namespace(<nome>,
-native_<nome>, Arc::new(<scope>))`, cada `<scope>` construído pelo owner
-de cada consumer (`structural/lists.md`/`shapes.md`/`figure_image.md`/
-`structural/footnote.md` — não este L0, que só regista a mudança de forma
-da chamada). Nenhum outro binding deste registo muda.
-
-### Gate ADR-0127
-
-Consequência mecânica das decisões em `structural/lists.md`/`shapes.md`/
-`figure_image.md`/`structural/footnote.md`
-P1473 — mesmo gate, mesma confirmação humana explícita posterior.
-
-Confirmação recebida em 2026-09-21, posterior ao commit causal `3ac60a578`.
-Agente A (`01a82593d`) aplicou os seis retrofits `Func::native_with_
-namespace` em `eval/mod.rs` sem ver os testes. Suíte: GREEN, zero
-regressão. Nota de ownership: os matches exaustivos sobre `Content`/
-`Value`/`Type` que o Agente A teve de resolver por causa dos dois novos
-`Content` variants e do novo `Type` variant vivem em vários outros
-ficheiros deste crate (`eval/repr.rs`, `eval/operators/
-error_formatting.rs`, `introspect.rs`, `introspect/from_tags.rs`,
-`introspect/locatable.rs`, `compiler/layout/mod.rs`, `compiler/math/
-layout/spacing.rs`, `compiler/stdlib/{mod,state,transforms}.rs`,
-`03_infra/src/query_helpers.rs`) — nenhum tem owner 1:1 próprio conhecido
-neste passo; tratados como consequência mecânica da exaustividade do
-compilador, não decisão de contrato nova (mesmo princípio já usado em
-P1471/P1472 para achados fora do escopo original auditado).
-
-## P1481 — imagem: alt participa da igualdade observacional
-
-Medição: `eval/mod.rs:3790-3801` desestrutura `ImageElem`
-exaustivamente e compara path, data, width, height e fit. Antes de P1481
-não havia `alt`; após sua introdução em `entities/elements/image.md`,
-duas imagens com descrições diferentes não são a mesma observação da
-linguagem, mesmo que os bytes e a geometria coincidam.
-
-Contrato: a implementação `ObservationEq for ImageElem` inclui `alt`
-na comparação, distinguindo `None`, `Some("")` e texto não vazio.
-A ampliação do pattern é consequência mecânica do campo confirmado
-em 2026-09-23 (ADR-0127), sem nova variante de `Content` ou fase.
-
-## P1485 — ativação efetiva de bundle no eval (PROPOSTO; gate ADR-0127)
-
-### Medição anterior à decisão
-
-Após P1484 não commitado, `01_core/src/compiler/eval/mod.rs:7130-7155`
-diagnostica `asset` sem feature e `make_stdlib_with_features` não o
-registra nem mesmo com bundle. `EvalTarget` em
-`01_core/src/compiler/eval/mod.rs:6397-6401` só possui Paged/Html.
-No vanilla pinado, `typst-library/src/lib.rs:430` projeta
-`format.bundle.asset` ao prelude quando feature ativa; a sonda
-`asset == format.bundle.asset` e `std.asset == asset` devolve
-`true`. `typst-bundle/src/lib.rs:67-76` é target separado de
-Paged e Html. A hipótese de que registrar a função já completa o
-target é refutada pela exportação de múltiplos arquivos medida no
-diagnóstico P1485.
-
-### Decisão proprietária
-
-`make_stdlib_with_features` registra um único `Func asset` quando
-`Feature::Bundle` está ativa e projeta exatamente a mesma identidade
-em `std.asset` e `format.bundle.asset`, através do owner
-`compiler/stdlib/format.md`. Sem feature, o gate P1484 de
-identificador permanece, inclusive hints, e locals homônimos seguem
-resolúveis. A seleção de `EvalTarget::Bundle` é explícita pelo
-pipeline; nem `--format bundle` nem outro target habilita a feature
-sozinho. Eval puro constrói Content e conserva diagnósticos, sem
-escrever arquivos. `target()` e contextos dentro de cada documento
-devem refletir o target real daquele documento; não converter HTML
-em layout paginado. Com feature ativa, `type(asset)` passa a
-`function` **somente** junto à assinatura real e ao target.
-O gate ADR-0127 cobre nova variante pública de target/fase.
-
-A divisão P1484 → P1485 fica concluída somente se o pipeline L3 e
-a composição L4 produzirem a árvore de arquivos; não confundir
-registro de nome com implementação funcional.
-
-## P1488 — globais matemáticos históricos: compatibilidade sem crédito vanilla
-
-### Medição anterior à decisão
-
-No vanilla ratificado `586e1bd43` (SHA-256 do produto
-`eb60986b522d9843172cdf318dd46c81f5922109f503ab1733cfe8baaeb1468f`),
-os globais `accent`, `bb`, `bold`, `cal`, `cancel`, `display`, `frak`,
-`inline`, `italic`, `mono`, `op`, `sans`, `scr`, `script`, `serif`,
-`sscript`, `upright` e `underover` não existem. No cristalino medido
-(SHA-256 `81cbcb240620cfccac5677cbab236b9609cb7209252109f8ca63ba2b64275fa2`),
-`eval/mod.rs:8387-8408` os registra como funções globais. Para os
-primeiros 17, `math.<nome>` existe bilateralmente e uma chamada concreta
-de cada par produz o mesmo conteúdo no cristalino. A igualdade pública
-das funções é verdadeira em 16 pares, mas `cancel == math.cancel` é
-`false`, apesar de `repr(cancel([x])) == repr(math.cancel([x]))`: o
-registro qualificado em `structural/math.rs:2859-2860` usa nome interno
-distinto. `math.underover` não existe em nenhum dos binários; a chamada
-global cristalina com `under:`/`over:` funciona. P1472 apenas acrescentou
-projeções e reservou a compatibilidade dos globais a uma decisão posterior
-(`structural/math.md` §P1472; `math_style.md` §P1472). O diagnóstico
-`00_nucleo/diagnosticos/typst-p1488-extras.md` guarda comandos, hora e
-snapshot exato da árvore não commitada. Chamada igual numa amostra não
-prova equivalência universal; cliente externo, igualdade de função e
-morfologia de `math.op` podem refutar uma substituição automática.
-
-### Decisão
-
-Preservar os 18 bindings globais acima como superfície histórica de
-compatibilidade cristalina, visível e contabilizada como extensão fora
-do numerador de paridade vanilla. Não os ocultar no inventário, não
-remover nenhum neste passo e não adicionar `math.underover` em nome de
-uma ausência que também existe no vanilla. A forma global e a forma
-qualificada de `cancel` continuam distintas quanto à igualdade de
-funções; a morfologia observada de conteúdo não autoriza fundi-las.
-Qualquer futura remoção pública exige nova medição por rota, plano de
-compatibilidade, L0 causal, teste RED de ausência/controle GREEN do
-caminho substituto e confirmação específica ADR-0127 antes do código.
-Este registro preserva comportamento vigente; não muda assinatura,
-default, fase nem função produtiva.
-
-## P1493 — seleção causal de leituras de posição HTML (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
-
-### Medição anterior à decisão
-
-O log já registra `ContextReadRequest::LocationPosition`, inclusive resultado
-ou erro, mas o único getter de seleção identifica counters filtrados. Assim a
-pipeline não consegue distinguir uma asserção provisoriamente falhada dentro
-de `html.frame` de um erro final sem analisar AST ou mensagem.
-
-### Contrato ratificado
-
-Expor como `#[doc(hidden)] pub` um getter técnico puro entre L1 e L3 que
-informe se a execução observou ao menos uma requisição `LocationPosition`. A marca nasce da
-requisição efetivamente registrada, mesmo quando seu resultado foi `None` ou
-erro posterior; não seleciona `LocationPage`, `page-numbering`, query,
-counter ou state.
-
-Replay continua usando target, styles, Location e recursos capturados. O novo
-getter não reexecuta corpo, não altera resultados e não amplia a seleção
-paginada existente. Sua única finalidade é permitir ao owner L3 escolher o
-fixpoint localizado P1493. A ampliação de fase foi confirmada pelo dono em 2026-09-24.
+- 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:6eec17984449d21b626379651b9b0a511a2dfe8e1a1f0a0af230cce52a47b827
+
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/eval/mod.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
+
+## Source evidence
+
+The current exclusive consumer defines the following owned boundaries:
+
+- `01_core/src/compiler/eval/mod.rs:81` — `pub fn realize_outlines`.
+- `01_core/src/compiler/eval/mod.rs:92` — `pub fn repr_stroke_value`.
+- `01_core/src/compiler/eval/mod.rs:100` — `pub fn repr_value_for_serialization`.
+- `01_core/src/compiler/eval/mod.rs:110` — `pub fn pdf_standards_conflict_diagnostic`.
+- `01_core/src/compiler/eval/mod.rs:252` — `enum ContextReadRequest`.
+- `01_core/src/compiler/eval/mod.rs:331` — `struct ContextRead {`.
+- `01_core/src/compiler/eval/mod.rs:345` — `struct ContextReads {`.
+- `01_core/src/compiler/eval/mod.rs:738` — `pub struct EvalContext {`.
+- `01_core/src/compiler/eval/mod.rs:905` — `pub enum EvalTarget {`.
+- `01_core/src/compiler/eval/mod.rs:915` — `pub fn eval`.
+- `01_core/src/compiler/eval/mod.rs:928` — `pub fn eval_expression`.
+- `01_core/src/compiler/eval/mod.rs:940` — `struct ExpressionWorld<'a> {`.
+
+Prior source readings supporting these clauses (snapshot provenance is
+retained in the assigned history diagnostic, not asserted as a fresh measurement):
+
+- `foundations/value.rs:210–214`.
+- `lab/typst-original/crates/typst-library/src/foundations/value.rs:343-362`.
+- `lab/typst-original/crates/typst-library/src/lib.rs:374`.
+- `lab/typst-original/crates/typst-library/src/lib.rs:397-401`.
+- `layout/grid/mod.rs:422-438,574-677,767-768`.
+- `model/table.rs:289-305,494-613,732-733`.
+- `typst-bundle/src/lib.rs:67-76`.
+- `typst-eval/src/call.rs:638`.
+- `typst-eval/src/code.rs:148`.
+- `typst-library/src/lib.rs:430`.
+- `typst-realize/src/lib.rs:1261-1325`.
+
+## Contract
+
+Own EvalContext, public evaluation entrypoints, base-scope construction, the
+two document passes, markup-stream coordination and the exhaustive Expr
+dispatcher. Retain explicit Engine/Scopes/context state and the pinned core and
+feature-gate invariants. No child behavior becomes hub-owned merely because
+the hub calls or reexports it.
+
+## Entrypoints and scope
+
+Keep eval, eval_expression, eval_expression_with_features,
+eval_expression_with_features_and_introspector, eval_with_full_error,
+eval_with_full_error_and_target and eval_with_full_error_target_and_features with
+their existing signatures, return values, sink behavior and defaults. Existing
+default target is Paged; full_error defaults false and Features default empty.
+Target Paged/Html/Bundle is explicit and does not enable a feature. Eval receives
+resolved configuration, never reads environment or imports infra.
+
+Acquire World inputs once for document evaluation and use the same values in both
+passes. Build a fresh read-only Library base containing the composed stdlib,
+predefined colors, text and supplied element-registry constructors. Local scopes
+remain mutable/shadowable. The lexical binding std holds an independent clone of
+the unshadowed stdlib in a Module publicly named global; do not create a global
+binding called global. Ordinary local std bindings can shadow it normally.
+Private make_stdlib wrappers delegate composition to
+00_nucleo/prompts/compiler/stdlib/registry/mod.md and its family owners. Global
+registration, namespace membership, color aliases, native PDF/HTML/asset identity
+and compatibility math globals remain normative there, not copied into this hub.
+
+Expression evaluation builds a numbered parse_code Source from world.main() and
+the complete expression. The private per-invocation World overlay returns that
+identical Source for its id and delegates every other World service/id unchanged,
+including defaults, inputs, plugin/path/package/font/date services. Do not mutate
+the caller's World or recreate its resources. The injected-introspector sibling
+clones the supplied snapshot before evaluation; the ordinary feature-aware
+entrypoint delegates with an empty snapshot and preserves its default behavior.
+Keep parser diagnostics, scopes, route, sink, limits and feature transport.
+
+A produced Func with detached private origin may acquire the producer-expression
+span. Never overwrite a known closure/alias/With/factory/contextual origin, change
+other Values, execute a function or make origin part of public equality. A Span
+without its Source is insufficient for a resolvable call trace.
+
+## Document coordination and dispatch
+
+Propagate syntax errors with hints; markup empty-stars/underscores warnings remain
+nonfatal sink diagnostics. Preserve the existing empty-source warning literal.
+Run independent fresh-scope/context document passes with identical base inputs:
+first disable show application and retain original introspection content; then
+enable show application and return the official rendered content/module scope,
+bibliography styles and document metadata. Keep existing warning deduplication
+and page-column wrapping. Original and rendered content are distinct carriers,
+not interchangeable fixpoint inputs. A residual document FlowEvent is forbidden
+at its causal span. Do not shift introspection to a different phase here.
+
+Expr dispatch remains static and exhaustive. Preserve literal/unit construction
+(Percent -> Ratio), lexical lookup, arrays/dictionaries/spreads, blocks, contextual
+content and first-error order. Code blocks accumulate through operators::join.
+Boolean And/Or evaluate the left operand first, type-check as currently required,
+and do not evaluate a short-circuited right operand. Assignment, calls, closures,
+control flow, imports, markup and math delegate to their owners below. Retain the
+first flow event until the responsible loop/function consumer handles it.
+
+Markup captures SpaceFromNewline only when the whitespace token contains newline,
+otherwise Space. Comments/trivia do not erase adjacent origin; Parbreak/Linebreak
+remain distinct. Defer eager per-leaf textual show to the rules owner with the
+causal lexical style/rule snapshot, so later declarations do not retroactively
+affect earlier groups. A ContentBlock held as a value retains raw whitespace
+until insertion; local textual-show matching preserves unmatched separators.
+Normalization and realized-group matching are specified only by
+00_nucleo/prompts/compiler/eval/rules/textual.md. Smartquote markup reads enabled,
+alternative and canonical quotes from styles and delegates to the shared pure
+quote resolver; it still emits Text and does not migrate to layout.
+
+## Contextual observation coordination
+
+Keep a private empty-per-evaluation log of the operations actually observed,
+independent of introspector state. Store the effective request/arguments, span,
+current file, location, in-context state, target/features, immutable styles/rules/
+guards and complete result or error. Do not reconstruct requests from AST,
+diagnostic strings, equal Values or a final global stack. Preserve query/locate/
+here, state/counter (including label resolution and legacy requests), Location
+and outline helper requests as their typed existing operations.
+
+A counter read whose selector tree contains Element selects the block before
+location/label/callback resolution, including failing reads. Traverse Where,
+And/Or, Within and both Before/After branches without flattening them. Once
+selected, every already-observed introspective entry participates in validation.
+has_filtered_counter_reads remains a pure getter. The doc-hidden public
+has_location_position_reads getter reports actual LocationPosition requests even
+if their result is None/error; page, page-numbering/query/state/counter do not
+select that demand. L3 owns the retry/fixpoint choice, not this getter.
+
+context_reads_valid_for replays only recorded requests against the candidate
+TagIntrospector with captured causal context and current supplied Engine resources,
+delegating operation semantics to their owners. Do not reexecute the block body,
+callbacks never demanded or append new observations while replaying. The private
+relation comes exclusively from
+00_nucleo/prompts/compiler/eval/observation.md: Same certifies preservation;
+Different/Unproven, success/error transitions or changed full diagnostics invalidate
+reuse. Mechanism failures propagate SourceDiagnostic; a stable observed error
+does not turn the body into success.
+
+context_nonconvergence_diagnostics uses the orchestrator's real ordered candidate
+history and final-attempt requests projected onto it; it does not claim that the
+body ran those requests in every round or invent details for opaque/alien reads.
+OutlineEntryPage and OutlineEntryIndented remain distinct causal reads, not
+counter/state substitutes; indented carries the actual entry/prefix/inner/gap and
+private parent styles, while absent parent fails before registration.
+
+## Delegation boundary
+
+- 00_nucleo/prompts/compiler/eval/bindings.md owns the reexport hub and its children.
+- 00_nucleo/prompts/compiler/eval/call_dispatch.md owns argument/call routing/traces;
+  00_nucleo/prompts/compiler/eval/closures.md owns closure capture/application.
+- 00_nucleo/prompts/compiler/eval/control_flow.md owns loops/conditionals;
+  00_nucleo/prompts/compiler/eval/flow.md owns event representation/forbidden text.
+- 00_nucleo/prompts/compiler/eval/operators.md delegates pure operator semantics.
+- 00_nucleo/prompts/compiler/eval/modules.md owns imports/includes;
+  00_nucleo/prompts/compiler/eval/markup.md owns specialized markup adapters;
+  00_nucleo/prompts/compiler/eval/math.md owns mathematical syntax adapters.
+- 00_nucleo/prompts/compiler/eval/rules.md owns set/show/realization, with
+  00_nucleo/prompts/compiler/eval/selector_matching.md and
+  00_nucleo/prompts/compiler/eval/show_rule_termination.md as independent owners.
+- 00_nucleo/prompts/compiler/eval/font_dict.md, bibliography.md, table.md and cast.md
+  own their exclusive helpers (their full canonical paths are in the owner map).
+- 00_nucleo/prompts/compiler/eval/repr.md owns morphology formatting;
+  00_nucleo/prompts/compiler/eval/observation.md and its children own internal
+  observation comparison, distinct from both public equality and public repr.
+- 00_nucleo/prompts/compiler/eval/tests.md and the independent test prompts own
+  their exclusive test consumers, not this productive module.
+
+The pure public repr_stroke_value and repr_value_for_serialization facades delegate
+to repr without Debug, I/O or deciding structured serialization classes. Keep their
+signatures and caller-owned classification. Public realize_outlines and
+pdf_standards_conflict_diagnostic facades delegate to rules; they do not transfer
+rule or PDF-schema ownership to this hub.
+
+Preserve public contracts, defaults, compatibility and phases. Any ambiguous
+change affecting these requires ADR-0127 direction before implementation.
+
+### Refinamento de precedência medido antes da implementação
+
+No estado precedence-state.json, regression-acceptance.json registra 191 verificações passando e duas falhas no controle show-par-sets-false. O Tekt emite extraordi-/interna- onde vanilla conserva palavras sem hifenização. show-par-full-tree.log mostra SetPage e o escopo global dentro de um Par sintetizado; a recipe fica exterior ao text.hyphenate true. eval/mod.rs:1532-1560 possui a proveniência exata dos escopos #set; rules.rs:660-727 apagou essa distinção ao tratar Styled sempre como inline. Não inferir origem pelo conteúdo do Styles.
+
+Decisão interna: o fold dos escopos #set em eval_markup transporta marcador privado eval.flow.scope=true no Styles existente. Antes de formar o primeiro parágrafo material, realize_flow reconhece esse marcador e mantém o escopo exterior à realização dos seus parágrafos, preservando os carriers prévios SetPage/Empty/Space/SpaceFromNewline em ordem, sem os embrulhar em Par. Após conteúdo inline material o escopo permanece inline dentro do parágrafo corrente; wrappers de constructors/estilos sem marcador permanecem inline. Nenhuma entidade, assinatura, comportamento válido por defeito ou fase pública muda. Pin no núcleo compartilhado paragraph-composition documenta a distinção; não recorrer a heurística por chave de estilo. O consumer do hub só produz o marcador no fold; preparação e reconhecimento são do owner rules.

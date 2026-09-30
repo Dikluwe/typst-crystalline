@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/cases.md
-//! @prompt-hash 5396f07a
+//! @prompt-hash 6fee5e28
 //! @layer L1
 //! @updated 2026-08-14
 //!
@@ -144,7 +144,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // **P1047** — delimitador elástico de acordo com `reverse` (se `reverse`, usa `delim.1` à direita; caso contrário `delim.0` à esquerda).
         let delim_char = if reverse { delim.1 } else { delim.0 };
         let delim_box = delim_char.map(|character| {
-            self.layout_stretchy_delimiter(character, min_height_du, style)
+            let mut box_ = self.layout_stretchy_delimiter(character, min_height_du, style);
+            box_.items = vec![FrameItem::TextReplacement {
+                text: character.to_string().into(),
+                items: box_.items,
+            }];
+            box_
         });
 
         // **P919** — centra APENAS a grelha no eixo matemático (vanilla

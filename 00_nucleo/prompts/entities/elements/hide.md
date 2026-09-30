@@ -1,36 +1,21 @@
-# Prompt L0 — `entities/elements/hide` — `HideElem`
+# L0 — Hidden content carrier
 Hash do Código: 86c62663
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/hide.rs`
-**Origem**: modelo D (ADR-0105), **Lote 7 P322** (por largura). Trait e glossário (§A.0): ver
-`entities/elements/_comum.md`. **Não-locatável** (confirmado P322). Contentor —
-`map_*` recursam no body.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/hide.rs`
 
----
+## Contract
 
-## Struct
 
-```rust
-#[derive(Debug, Clone, PartialEq, Hash)]
-pub struct HideElem {
-    pub body: Content,   // era Box<Content>
-}
-```
+`HideElem` stores public body: Content with Debug/Clone/PartialEq and its
+specified hash obligation. Plain text is empty even for a nonempty body.
+Emptiness delegates to body; both maps recurse into body and preserve Hide
+identity. Field/kind/payload access defaults to None; the element is
+non-locatable. Structural equality compares the body.
 
-`Content::Hide { body }` → `Content::Hide(Arc<HideElem>)`.
-Construtor ergonómico preservado: `Content::hide(body)`. **Deriva `Hash`**
-(`Content: Hash`).
 
-## `impl Element`
-
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `String::new()` — hide é invisível (`content.rs:1812`) |
-| `is_empty` | **override**: `self.body.is_empty()` (`content.rs:1640`) |
-| `map_content` | **recursivo** no body (`content.rs:2155`) |
-| `map_text` | **recursivo** no body (`content.rs:2445`) |
-| `get_field`/`element_kind`/`to_payload` | default |
-
-## `eq`
-
-`#[derive(PartialEq)]` compara `body` (paridade `content.rs:1985`).
+The trait API/defaults belong to
+`00_nucleo/prompts/entities/elements/_comum.md`. This owner specifies only
+this element consumer; language constructors and layout algorithms remain
+with their respective owners. Historical inline-arm evidence is retained in
+`00_nucleo/diagnosticos/sanitization-entities-contracts-history.md`.

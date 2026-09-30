@@ -1,52 +1,27 @@
-# Prompt L0 — montagem da página física
+# L0 — page commit
 Hash do Código: 7ba0eddd
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/layout/page_commit.rs`
-**Vanilla ratificado:** `9f2b6e8715237cb086899a42873660fe744622e8`
-**ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/page_commit.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## P1504 — medição antes da decisão
+## Evidence before specification
 
-Na working tree P1503 não commitada em 2026-09-25T21:27:48Z, HEAD
-`0de5edabed197d23b647cfc68ebefda2f5c2a8d5`,
-`compiler/layout/cursor.rs:361-618` contém `new_page`.
-`new_page:396-572` calcula dimensões finais, aplica fixups, compõe marginais e
-canvas, e constrói `Page`; `:573-618` prepara a região seguinte. Os
-consumers `compiler/layout/page_running.md` e
-`compiler/layout/page_canvas.md` já possuem, respectivamente, a composição
-de conteúdo marginal e dos layers decorativos. A proveniência da medição
-estrutural está em `00_nucleo/materialization/typst-passo-1504.md`.
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/page_commit.rs:18`, `01_core/src/compiler/layout/page_commit.rs:174`.
 
-## Decisão e contrato
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-Este consumer é dono da **montagem da página física que acaba de fechar**:
-fixups de items, snapshot de numeração e número lógico provisório, layers
-marginais e decorativos, bleed, background/foreground e construção/push de
-`Page`. Recebe `Layouter` e dimensões finais da região; não escolhe quando
-avançar, não drena floats ou footnotes e não prepara o cursor da região
-seguinte. `compiler/layout/cursor.md` conserva `new_page` como coordenador da
-transição e o cálculo de dimensões auto. `compiler/layout.md` conserva o
-estado, checkpoint e o dispatcher. A realização de conteúdo marginal e de
-canvas continua nos seus consumers próprios; esta unidade apenas os compõe
-na página. Nenhum estado, assinatura pública, default ou fase novos.
+## Ownership and contract
 
-A montagem terminal em `Layouter::finish` permanece no consumer
-`compiler/layout.md`; sua eventual unificação exige medição e passo próprios.
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-O número textual da margem usa o número lógico conhecido da
-`known_page_store` quando disponível, com fallback físico, conforme P1486.1
-de `compiler/layout.md`; `Page.logical_number` inicia com o número físico
-provisório. A ordem causal de fixups, marginais, canvas e push permanece a
-do baseline. A aceitação é linguagem: páginas, texto, posição, estilo,
-numeração e diagnósticos iguais antes/depois em controles de página auto,
-header/footer, bleed, footnotes e colunas. Bytes PDF e estrutura interna de
-`Page` não são gates de paridade.
+Own intermediate Page assembly only, receiving dimensions already chosen by its caller. Drain emitted items; apply par.line, equation, horizontal-align and vertical-align fixups in their current order. Obtain explicit marginal layers from `00_nucleo/prompts/compiler/layout/page_running.md`, and background/foreground canvas layers from `00_nucleo/prompts/compiler/layout/page_canvas.md`; append marginal items to foreground. Preserve fill, resolved supplement and binding/parity-dependent bleed. Initialize logical_number to the physical page index; the later pipeline logical overlay is not this owner's work.
 
-Refutam a fronteira: precisar decidir paginação aqui; duplicar
-`page_running`/`page_canvas`; exigir cópia do estado de região; alargar
-visibilidade além do módulo de layout; ou mudar o momento em que inserções
-e notas entram nos items. A extração é content-preserving, não uma otimização.
+When the selected marginal is Auto, format a unary pattern using the known logical current number if available, otherwise the physical index. Defer compound patterns with the current marginal geometry to the hub's terminal total-number coordinator. Function numbering uses the already-realized visible PageStore Content, never Func execution. Append the completed Page without draining floats/footnotes, advancing a region or resetting the next cursor. Final-page composition remains in `00_nucleo/prompts/compiler/layout.md`; its terminal lifetime is not a second consumer of this prompt.
+
+## Acceptance and limits
+
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.

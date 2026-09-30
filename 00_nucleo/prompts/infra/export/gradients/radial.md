@@ -1,42 +1,32 @@
-# Prompt L0 — `infra/export/gradients/radial` — Radial gradient coords + stops
+# L0 — infra/export/gradients/radial
 Hash do Código: 578a3803
 
-**Camada**: L3
-**Ficheiro alvo**: `03_infra/src/export/gradients/radial.rs`
-**Criado em**: 2026-05-19 (P307c)
-**ADRs**: ADR-0088 (gradient radial PDF Shading Type 3)
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/export/gradients/radial.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0126, ADR-0127, ADR-0128, ADR-0129, ADR-0130
 
----
+## Consumer evidence
 
-## Contexto
+`03_infra/src/export/gradients/radial.rs:16` identifies the current exclusive consumer. The clauses below
+are checked against that source and its delegated calls. They specify current
+export observables and ownership, not full upstream byte or algorithm equality.
 
-Helpers para emit de Radial gradients como PDF Shading Type 3:
-- `compute_radial_coords` — 6 valores `Coords [c0x c0y r0 c1x c1y r1]`.
-- `multispace_sample_stops_radial` — amostra N stops intermédios em sRGB.
+## Radial coordinates and RGB samples
 
-Suporta focal points (P269) via `Radial.focal_center` + `Radial.focal_radius`.
+Own compute_radial_coords and multispace_sample_stops_radial for PDF radial
+shading. Preserve the current coordinate-helper signature: center, radius,
+focal_center, focal_radius, width and height.
+Resolve center/focal ratios against width/height; both radii scale by min(width,height).
+Return (fx,fy,fr,cx,cy,r). Default focal=center and focal_radius=0 are supplied
+by the domain/caller, not a second option policy here.
 
-## Restrições estruturais
+Sample max(n_samples,2) uniform f32 points through Radial::sample, convert to
+RGBA, discard alpha and clamp RGB to [0,1]. Function/shading dictionaries and
+bbox placement are owned by
+`00_nucleo/prompts/infra/export/builder/resources.md`.
 
-- L3 puro. Lê `Radial`, `Axes`, `Ratio` de `typst_core::entities`.
-- `pub(crate)` — chamado por `super::cmyk` (reuso pipeline RGB).
-- Sem I/O.
+## Verification
 
-## Interface
-
-```rust
-pub(crate) fn compute_radial_coords(radial: &Radial, x0: f64, y0: f64, w: f64, h: f64)
-    -> (f64, f64, f64, f64, f64, f64);
-pub(crate) fn multispace_sample_stops_radial(gradient: &Radial, n: usize) -> Vec<(f32, f32, f32)>;
-```
-
-## Invariantes
-
-- `compute_radial_coords` resolve `Axes<Ratio>` relativo a `(w, h)`.
-- Focal point opcional via `Radial.focal_center`; default = center (paridade simples).
-- Stops em [0.0, 1.0] no PDF.
-
-## Critérios de verificação
-
-- `compute_radial_coords` para focal=center → c0=c1, r0=0, r1=raio.
-- Tests `p265_*`, `p269_*` em `super::super::tests`.
+Check independent focal circles, unequal bbox dimensions, centered defaults and
+bounded multispace RGB samples. Do not claim alpha-preserving SVG support from
+this PDF sampler or exact upstream algorithm parity.

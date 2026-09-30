@@ -335,7 +335,7 @@ fn find_accent(content: &Content) -> Option<&Content> {
     match content {
         Content::MathAccent(_) => Some(content),
         Content::Equation(e) => find_accent(&e.body),
-        Content::Styled(inner, _) => find_accent(inner),
+        Content::Styled(styled) => find_accent(&styled.body),
         Content::MathDelimited(elem) => find_accent(&elem.body),
         Content::Sequence(items) | Content::MathSequence(items) => {
             items.iter().find_map(find_accent)

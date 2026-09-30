@@ -1,21 +1,17 @@
-# Prompt L0 — testes independentes de `math.overshell` P1443
+# L0 — stdlib/structural/p1443-tests
 Hash do Código: cfe276fb
 
-**Camada**: L1 test-only
-**Alvo**: `01_core/src/compiler/stdlib/structural/p1443_tests.rs`
+Layer: L1 (test-only)
+Exclusive consumer: `01_core/src/compiler/stdlib/structural/p1443_tests.rs`
 
-## Obrigações observáveis
+## Evidence and classification
 
-- o módulo `math` contém a função `overshell` e a forma bare converge no
-  mesmo `Content::MathOvershell`;
-- body é um positional obrigatório convertível em conteúdo; annotation é o
-  único segundo positional opcional; named, ausência, excesso e casts
-  inválidos falham com os diagnostics medidos;
-- omissão de annotation diverge de `annotation: none`, embora ambas realizem
-  a mesma geometria; valor e presença sobrevivem a igualdade e reconstruções;
-- `repr` é `overshell(body: ..., annotation?: ...)`, preserva nesting e nunca
-  expõe o carrier genérico como identidade;
-- o carrier desce estruturalmente em body/annotation, é não-locatable e herda
-  classes esquerda/direita do body;
-- a redução interna usa U+23E0 acima do body e uma annotation superior
-  externa, reutilizando o owner de `MathUnderover`.
+The consumer's `@prompt` at `01_core/src/compiler/stdlib/structural/p1443_tests.rs:2` establishes this exclusive ownership. Implementation inspection is not a new bilateral parity measurement; original historical qualifications remain in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
+
+## Test obligations
+
+Verify math.overshell and the bare route converge to Content::MathOvershell. Require a positional content-convertible body and only one optional second positional annotation; named/missing/extra/invalid casts fail with frozen diagnostics. Annotation omission differs from explicit none even with equal geometry, preserving value/presence through equality, fields and reconstruction. repr overshell(body: ..., annotation?: ...) preserves nesting and never exposes the generic MathUnderover/xover carrier as public identity. Structural walkers descend into body/annotation; carrier is non-locatable and inherits left/right body classes. Internal reduction uses U+23E0 above the body and an external upper annotation, reusing the MathUnderover render owner without changing mature geometry. Own tests only, not productive implementation or rendering.
+
+## Limits
+
+Preserve existing public observations and metadata. This documentary revision does not authorize productive-code, test-code, signature, default, pipeline-phase or compatibility changes. Respect exclusive ownership and pinned shared claims under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.

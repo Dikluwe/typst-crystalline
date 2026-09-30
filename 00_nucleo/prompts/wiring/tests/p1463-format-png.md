@@ -1,33 +1,28 @@
-# Prompt L0 — integração de `format.png`
+# L0 — wiring/tests/p1463-format-png
 Hash do Código: 079b8f39
 
-**Camada:** L4
-**Consumer exclusivo:** `04_wiring/tests/p1463_format_png.rs`
+**Layer:** L4
+**Exclusive consumer:** `04_wiring/tests/p1463_format_png.rs`
 
-## Contrato
+## Current evidence
 
-Executar o binário cristalino e ler dimensões diretamente do IHDR PNG.
+- `04_wiring/tests/p1463_format_png.rs:20` — `TempDir`.
+- `04_wiring/tests/p1463_format_png.rs:25` — `new`.
+- `04_wiring/tests/p1463_format_png.rs:42` — `drop`.
+- `04_wiring/tests/p1463_format_png.rs:48` — `ProcessResult`.
+- `04_wiring/tests/p1463_format_png.rs:55` — `Compilation`.
 
-- default documental: 144 pixels por polegada e A4 `1191 × 1684`;
-- documento e CLI convertem o PPI efetivo por `ppi / 72`;
-- CLI vence a opção documental quando explícita;
-- documento e CLI com o mesmo PPI produzem o mesmo IHDR;
-- zero e negativos finitos produzem dimensão mínima segura;
-- integer/float, cascata, regra vazia, diagnósticos e rejeição em container;
-- aliases de compile/watch aceitam a flag somente onde ela é pública;
-- SVG, PDF, HTML, `pretty`, `compact`, tags e features permanecem neutros;
-- os ramos PNG com e sem fontes usam a mesma resolução efetiva.
-- sucessão P1465: sem feature, `format.html` produz o gate público de `html`;
-  com feature, sua superfície pertence exclusivamente ao teste P1465.
-  `format.pdf` não é tratado como sibling futuro.
+These are local source anchors, not a new upstream parity measurement.
+Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 04_wiring/tests/p1463_format_png.rs`.
 
-Não comparar bytes comprimidos, metadados, tamanho do arquivo, hashes, scores
-ou artefatos administrativos. Não exercitar NaN ou infinito com risco de OOM.
+## Owned contract
 
-## Retificação P1466
+- Own format.png integration, reading IHDR directly: documentary default 144 PPI gives A4 1191 by 1684; both document and CLI resolve through effective_ppi/72, with explicit CLI precedence and equal-PPI equal dimensions.
+- Cover integer/float/cascade/empty rule/errors/container rejection, finite zero/negative safe minimum dimensions, public compile/watch flag aliases and identical font/no-font resolution.
+- Keep other formats/pretty/compact/tags/features neutral and html sibling feature/existence boundaries separate. Do not compare compressed bytes, metadata, file size or hashes, or risk OOM with nonfinite input. Signal/timeout/missing artifact is failure, not success.
 
-A assimetria histórica P1463 fica explicitamente superada: ela confundia a
-unidade pública do documento com pixels por ponto e fazia o default A4 tentar
-alocar `41568028160` bytes de RGBA. Os testes devem ler somente IHDR e impor
-dimensões semanticamente derivadas, com timeout e limite de memória; morte do
-processo, ausência de arquivo ou OOM nunca contam como sucesso.
+## Verification and boundary
+
+Run `cargo test -p typst --test p1463_format_png -- --test-threads=1` with the harness prerequisites above.
+Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.

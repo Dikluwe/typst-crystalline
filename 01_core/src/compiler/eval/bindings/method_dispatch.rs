@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/method_dispatch.md
-//! @prompt-hash df685162
+//! @prompt-hash 25515a58
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -113,7 +113,7 @@ pub(super) fn call_method_access<'a>(
                     return Err(vec![SourceDiagnostic::error(
                         span,
                         "array is empty".to_string(),
-                    )])
+                    )]);
                 }
             },
             "last" => match arr.last_mut() {
@@ -122,7 +122,7 @@ pub(super) fn call_method_access<'a>(
                     return Err(vec![SourceDiagnostic::error(
                         span,
                         "array is empty".to_string(),
-                    )])
+                    )]);
                 }
             },
             "at" => {
@@ -135,7 +135,7 @@ pub(super) fn call_method_access<'a>(
                                 "expected integer, found {}",
                                 vanilla_type_name(&other)
                             ),
-                        )])
+                        )]);
                     }
                 };
                 let len = arr.len() as i64;
@@ -152,7 +152,7 @@ pub(super) fn call_method_access<'a>(
                             format!(
                                 "array index out of bounds (index: {index}, len: {len})"
                             ),
-                        )])
+                        )]);
                     }
                 }
             }
@@ -169,7 +169,7 @@ pub(super) fn call_method_access<'a>(
                                 "expected string, found {}",
                                 vanilla_type_name(&other)
                             ),
-                        )])
+                        )]);
                     }
                 };
                 match dict.get_mut(key.as_str()) {
@@ -182,7 +182,7 @@ pub(super) fn call_method_access<'a>(
                 return Err(vec![SourceDiagnostic::error(
                     span,
                     format!("type dictionary has no method `{method}`"),
-                )])
+                )]);
             }
         },
         _ => unreachable!("filtrado pelo guard acima"),
@@ -287,7 +287,7 @@ fn call_method_mut(
                         return Err(vec![SourceDiagnostic::error(
                             span,
                             "array is empty".to_string(),
-                        )])
+                        )]);
                     }
                 };
             }
@@ -301,7 +301,7 @@ fn call_method_mut(
                                 "expected integer, found {}",
                                 vanilla_type_name(&other)
                             ),
-                        )])
+                        )]);
                     }
                 };
                 let v = expect_positional(&mut args, span, "value")?;
@@ -316,7 +316,7 @@ fn call_method_mut(
                             format!(
                                 "array index out of bounds (index: {index}, len: {len})"
                             ),
-                        )])
+                        )]);
                     }
                 }
             }
@@ -330,7 +330,7 @@ fn call_method_mut(
                                 "expected integer, found {}",
                                 vanilla_type_name(&other)
                             ),
-                        )])
+                        )]);
                     }
                 };
                 let default = args.remove_named("default");
@@ -345,10 +345,10 @@ fn call_method_mut(
                             return Err(vec![SourceDiagnostic::error(
                                 span,
                                 format!(
-                                "array index out of bounds (index: {index}, len: {len}) \
+                                    "array index out of bounds (index: {index}, len: {len}) \
                                      and no default value was specified"
-                            ),
-                            )])
+                                ),
+                            )]);
                         }
                     },
                 };
@@ -366,7 +366,7 @@ fn call_method_mut(
                                 "expected string, found {}",
                                 vanilla_type_name(&other)
                             ),
-                        )])
+                        )]);
                     }
                 };
                 let v = expect_positional(&mut args, span, "value")?;
@@ -382,7 +382,7 @@ fn call_method_mut(
                                 "expected string, found {}",
                                 vanilla_type_name(&other)
                             ),
-                        )])
+                        )]);
                     }
                 };
                 let default = args.remove_named("default");
@@ -397,7 +397,7 @@ fn call_method_mut(
                                     "dictionary does not contain key {:?}",
                                     key.as_str()
                                 ),
-                            )])
+                            )]);
                         }
                     },
                 };

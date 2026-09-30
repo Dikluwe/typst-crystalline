@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash a882f084
+//! @prompt-hash af059bee
 //! @layer L1
 //! @updated 2026-09-20
 //!
@@ -107,7 +107,14 @@ mod p1324_tests {
                                     subject(engine, internal, Some(scope.clone())),
                                     depth,
                                 );
-                                expect_error(f, field, span, &format!("function `{public}` does not contain field `{field}`"));
+                                expect_error(
+                                    f,
+                                    field,
+                                    span,
+                                    &format!(
+                                        "function `{public}` does not contain field `{field}`"
+                                    ),
+                                );
                             }
                         }
                     }
@@ -561,7 +568,9 @@ pub(in crate::compiler::eval) fn eval_field_access(
     // P1484 — gate apenas no std efetivo; módulos e dicts homônimos não são gated.
     if field == "asset"
         && matches!(&target, Value::Module(module) if is_effective_std_module(module))
-        && !ctx.features.contains(crate::entities::compiler_features::Feature::Bundle)
+        && !ctx
+            .features
+            .contains(crate::entities::compiler_features::Feature::Bundle)
     {
         return Err(vec![SourceDiagnostic::error(
             access.field().span(),
@@ -590,7 +599,9 @@ pub(in crate::compiler::eval) fn eval_field_access(
 
     if field == "bundle"
         && matches!(&target, Value::Module(module) if is_effective_format_module(module))
-        && !ctx.features.contains(crate::entities::compiler_features::Feature::Bundle)
+        && !ctx
+            .features
+            .contains(crate::entities::compiler_features::Feature::Bundle)
     {
         return Err(vec![SourceDiagnostic::error(
             access.field().span(),
@@ -1184,7 +1195,9 @@ fn content_field(c: &crate::entities::content::Content, field: &str) -> ContentF
         HEADING_SET_DEPTH, HEADING_SET_LEVEL, HEADING_SET_OUTLINED,
     };
     match c {
-        Content::Styled(child, styles) if equation_descendant(child).is_some() => {
+        Content::Styled(styled) if equation_descendant(&styled.body).is_some() => {
+            let styles = &styled.styles;
+            let child = &styled.body;
             let key = match field {
                 "numbering" => Some("equation.numbering"),
                 "number-align" => Some("equation.number-align"),
@@ -1294,7 +1307,7 @@ fn content_set_fields(
         Content::MathUndershell(_) => &["body"],
         Content::MathStretch(e) if e.size_explicit => &["body", "size"],
         Content::MathStretch(_) => &["body"],
-        Content::Styled(child, _) if equation_descendant(child).is_some() => {
+        Content::Styled(styled) if equation_descendant(&styled.body).is_some() => {
             &["block", "numbering", "number-align", "supplement", "alt", "body"]
         }
         Content::Text(_) => &["text"],
@@ -1316,7 +1329,7 @@ fn equation_descendant(
     use crate::entities::content::Content;
     match content {
         Content::Equation(e) => Some(e),
-        Content::Styled(child, _) => equation_descendant(child),
+        Content::Styled(styled) => equation_descendant(&styled.body),
         _ => None,
     }
 }
@@ -1463,7 +1476,7 @@ fn content_method_with_fields(
                     return Err(vec![SourceDiagnostic::error(
                         span,
                         format!("expected string, found {}", vanilla_type_name(&other)),
-                    )])
+                    )]);
                 }
             };
             let default =
@@ -1479,10 +1492,7 @@ fn content_method_with_fields(
                 None => content_field(c, field),
             };
             match method {
-                "has" => Ok(Value::Bool(matches!(
-                    resolved,
-                    ContentField::Set(_)
-                ))),
+                "has" => Ok(Value::Bool(matches!(resolved, ContentField::Set(_)))),
                 _ => match resolved {
                     ContentField::Set(v) => Ok(v),
                     ContentField::Unset => match default {
@@ -1525,7 +1535,7 @@ fn static_content_receiver(args: &Args, name: &str) -> SourceResult<(Value, Args
             return Err(vec![SourceDiagnostic::error(
                 args.span,
                 format!("{name} requires content as its first argument"),
-            )])
+            )]);
         }
     };
     let mut rest = args.clone();

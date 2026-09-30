@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/placement.md
-//! @prompt-hash 10e054f9
+//! @prompt-hash ef9ce841
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -310,21 +310,29 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.available_height()
         };
 
-        let (sub_h, sub_items, sub_deco, orphaned_align_x, orphaned_align_y) = self
-            .layout_sub_frame(
-                body,
-                super::sub_frame::SubLayoutRegion {
-                    origin_x: 0.0,
-                    width: avail_w_page,
-                    height: None,
-                    align_rtl: false,
-                    unconstrained_height: true,
-                },
-            );
-
-        let (ascender_local, _) =
-            self.metrics.vertical_metrics(self.style.size, &self.style);
-        let sub_origin_y = ascender_local.0;
+        let geometric_origin = !self.is_sub_frame
+            && !super::html_frame::items_have_material(&self.regions.current.current_line)
+            && !(self.cell_origin_x.is_some()
+                && self.cell_origin_y.is_some()
+                && self.regions.cell.is_some());
+        let region = super::sub_frame::SubLayoutRegion {
+            origin_x: 0.0,
+            width: avail_w_page,
+            height: None,
+            align_rtl: false,
+            unconstrained_height: true,
+        };
+        let (sub_h, sub_items, sub_deco, orphaned_align_x, orphaned_align_y) =
+            if geometric_origin {
+                self.layout_sub_frame_at_geometric_origin(body, region)
+            } else {
+                self.layout_sub_frame(body, region)
+            };
+        let sub_origin_y = if geometric_origin {
+            0.0
+        } else {
+            self.metrics.vertical_metrics(self.style.size, &self.style).0.0
+        };
 
         // **P904 (Item 3)** — `measure_content` (`helpers.rs`) só tem
         // braços para `Content::Shape`/`Content::Sequence`; para
@@ -539,5 +547,131 @@ mod smoke {
     fn module_compila_e_carrega() {
         // V2 smoke test — submódulo extraído no Passo 96.7 (ADR-0037).
         // A cobertura funcional vive em `layout/tests.rs`.
+    }
+}
+
+use crate::entities::layout_types::{FrameItem, HAlign};
+
+use super::helpers;
+
+impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
+    /// **P897** — mesmo mecanismo de `apply_pending_equation_fixups`,
+    /// generalizado a `Content::Align`/`Content::Place` (`placement.rs`)
+    /// quando `resolve_alignment` foi chamado com `available_w` infinito
+    /// (`width: auto`, ainda por resolver no momento do posicionamento).
+    /// Em vez de reimplementar a fórmula de centragem/alinhamento à direita,
+    /// reaproveita `resolve_alignment` directamente com a largura disponível
+    /// final (`page_width - 2*margin`) já finita — só o componente `x` do
+    /// resultado é usado; `content_h`/`available_h`/`origin_y` são
+    /// dummies (`0.0`) porque este método só corrige o eixo horizontal — o
+    /// vertical usa `apply_pending_align_v_fixups` (**P898**), abaixo.
+    pub(super) fn apply_pending_align_fixups(
+        &mut self,
+        items: &mut Vec<FrameItem>,
+        page_width: f64,
+    ) {
+        let final_avail_w = page_width - self.page_config.margin.horizontal();
+        for (path, count, align, content_w, origin_x, applied_x) in
+            std::mem::take(&mut self.pending_align_centering)
+        {
+            let (correct_x, _) = self.resolve_alignment(
+                align,
+                content_w,
+                0.0,
+                final_avail_w,
+                0.0,
+                origin_x,
+                0.0,
+            );
+            let delta = correct_x - applied_x;
+            if delta == 0.0 {
+                continue;
+            }
+            if let Some(slice) = helpers::resolve_path_slice(items, &path, count) {
+                for item in slice {
+                    helpers::shift_frame_item_x(item, delta);
+                }
+            }
+        }
+    }
+
+    /// **P898** — simétrico de `apply_pending_align_fixups`, eixo vertical.
+    /// Corrige `Content::Align`/`Content::Place` (`placement.rs`) adiados
+    /// quando `remaining_h`/`avail_h` (derivados de `available_height()`/
+    /// `page_bottom_limit()`) estavam infinitos no momento do
+    /// posicionamento (`height: auto`, ainda por resolver). Reaproveita
+    /// `resolve_alignment` com a altura restante final calculada a partir
+    /// de `page_height` (já finito neste ponto) e do `origin_y` gravado em
+    /// cada entrada — ao contrário do eixo X (onde `available_width()` é
+    /// invariante em toda a página), a altura restante depende da posição
+    /// vertical onde o item foi originalmente posicionado
+    /// (`page_height - margin - origin_y`), por isso o cálculo é repetido
+    /// por entrada em vez de uma única constante `final_avail_h` partilhada.
+    /// Só o componente `y` do resultado é usado; `content_w`/`available_w`/
+    /// `origin_x` são dummies (`0.0`).
+    pub(super) fn apply_pending_align_v_fixups(
+        &mut self,
+        items: &mut Vec<FrameItem>,
+        page_height: f64,
+    ) {
+        for (path, count, align, content_h, origin_y, dy, applied_y) in
+            std::mem::take(&mut self.pending_align_v_centering)
+        {
+            let final_avail_h =
+                f64::max(0.0, page_height - self.page_config.margin.bottom - origin_y);
+            let (_, correct_base_y) = self.resolve_alignment(
+                align,
+                0.0,
+                content_h,
+                0.0,
+                final_avail_h,
+                0.0,
+                origin_y,
+            );
+            let correct_y = correct_base_y + dy;
+            let delta = correct_y - applied_y;
+            if delta == 0.0 {
+                continue;
+            }
+            if let Some(slice) = helpers::resolve_path_slice(items, &path, count) {
+                for item in slice {
+                    helpers::shift_frame_item_y(item, delta);
+                }
+            }
+        }
+    }
+
+    /// Calcula a coordenada `(x, y)` do canto superior esquerdo de um item
+    /// dado o alinhamento, as dimensões do conteúdo, e a área disponível.
+    /// Passo 82.
+    ///
+    /// `origin_x` e `origin_y` definem o canto superior esquerdo da área
+    /// de referência (`line_start_x` para Align; `line_start_x`/`margin` para Place).
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn resolve_alignment(
+        &self,
+        align: Align2D,
+        content_w: f64,
+        content_h: f64,
+        available_w: f64,
+        available_h: f64,
+        origin_x: f64,
+        origin_y: f64,
+    ) -> (f64, f64) {
+        let x = match align.h.unwrap_or(HAlign::Left) {
+            HAlign::Left | HAlign::Start => origin_x,
+            // rationale: P1064 Classe 1A — alinhamento central horizontal ((available_w - content_w) / 2.0)
+            HAlign::Center => origin_x + (available_w - content_w) / 2.0,
+            HAlign::Right | HAlign::End => origin_x + (available_w - content_w),
+        };
+
+        let y = match align.v.unwrap_or(VAlign::Top) {
+            VAlign::Top => origin_y,
+            // rationale: P1064 Classe 1A — alinhamento central vertical ((available_h - content_h) / 2.0)
+            VAlign::Horizon => origin_y + (available_h - content_h) / 2.0,
+            VAlign::Bottom => origin_y + (available_h - content_h),
+        };
+
+        (x, y)
     }
 }

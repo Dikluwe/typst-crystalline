@@ -1,63 +1,17 @@
-# Prompt L0 — `compiler/stdlib/label` — `native_label`
+# L0 — stdlib/label
 Hash do Código: 00000000
 
-**Camada**: L1 · **Alvo**: `01_core/src/compiler/stdlib/label.rs`
-**Origem**: P460; contrato corrigido por P1140.2.
-**ADRs**: ADR-0107, ADR-0108, ADR-0127.
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/stdlib/label.rs`
 
-## Medição anterior à decisão
+## Evidence and classification
 
-Vanilla ratificado `a51e02804`, `foundations/label.rs:74-89`, declara
-`label(name: Str) -> Label`. Probes de 2026-08-23:
+`01_core/src/compiler/stdlib/label.rs:19` identifies the current ownership boundary. This inspection is not a new bilateral parity measurement or proof of upstream intent. Historical decision evidence retains its original snapshot qualifications in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-```text
-repr(type(label))       -> "type"
-repr(label("x"))        -> "<x>"
-type(label("x"))        -> label
-label("x") == <x>       -> true
-label("x", [body])      -> erro unexpected argument
-```
+## Contract and ownership
 
-O cristalino anterior aceita `label(name, body)` e devolve
-`Value::Content(Content::Label)`. Não foi encontrado consumidor `.typ` dessa
-extensão; os usos Rust de `Content::label` são mecanismos internos.
+native_label requires exactly one nonempty positional Str, rejects named arguments, and returns Value::Label equal to the code literal <name>, not Content. Reject missing/extra values, non-strings and empty names. Preserve the established Type::Label constructor binding. label(name, body) is not public language surface. Internal Content::label/label_auto association and markup attachment remain owned outside this native.
 
-## Função nativa
+## Acceptance
 
-```rust
-pub fn native_label(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn World,
-    _current_file: FileId,
-) -> SourceResult<Value>;
-```
-
-Registada no stdlib como o construtor de `Value::Type(Type::Label)`.
-
-## Assinatura e emissão
-
-```typst
-label(name)
-```
-
-- exatamente um posicional `name: Str`, não vazio;
-- named args rejeitados;
-- devolve `Value::Label(Label(name))`, igual ao valor `<name>` em código;
-- zero, dois ou mais posicionais, tipo diferente e nome vazio são erros.
-
-A forma pública `label(name, body)` é removida por incompatibilidade com a
-linguagem. `Content::label` e `Content::label_auto` permanecem API Rust interna
-para associação/introspecção. Em markup, `<name>` continua anexando a label
-ao elemento precedente por `Content::label_auto`.
-
-## Critérios
-
-```text
-label("x")             -> Value::Label(Label("x"))
-label("")              -> Err
-label()                -> Err
-label(1)               -> Err
-label("x", content)    -> Err
-label(name: "x")       -> Err
-```
+Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaults and public identities, with no productive-code change. Preserve pinned shared claims and the exclusive owner boundary under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130. Historical evidence does not establish parity against a newer snapshot.

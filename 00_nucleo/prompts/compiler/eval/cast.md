@@ -1,66 +1,30 @@
-# Prompt L0 — `rules/eval/cast` — Casts implícitos de Value
-Hash do Código: 00000000
+# L0 — compiler/eval/cast
+Hash do Código: b892829e
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/eval/cast.rs`
-**Criado em**: 2026-06-25 (P469 — Value::Relative)
-**ADRs**: ADR-0107 (paridade linguagem)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/eval/cast.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
----
+## Source evidence
 
-## Propósito
+The current exclusive consumer defines the following owned boundaries:
 
-Casts implícitos de `Value` para tipos concretos de domínio.
-No eval puro, `Value::Relative` não pode ser resolvido para `Length`
-porque falta o contexto de layout (largura/altura do container).
-Consumers em Trilha 7 recebem `Rel<Length>` e resolvem com contexto.
+- `01_core/src/compiler/eval/cast.rs:18` — `pub enum CastError {`.
+- `01_core/src/compiler/eval/cast.rs:26` — `pub fn cast_length`.
 
-> **Fonte de paridade (P1031)** — a documentação oficial define `relative` como
-> *"A length in relation to some known length"* e explicita que a componente `ratio`
-> só ganha valor quando existe esse comprimento de referência (ex.: *"the rectangle's
-> width is set to `{25%}`, so it takes up one fourth of the page's inner width"*).
-> Doc comment `#[ty]` do vanilla ratificado (`e0e8ca4d`) em
-> `lab/typst-original/crates/typst-library/src/layout/rel.rs:11-25` — texto publicado em
-> `typst.app/docs/reference/layout/relative/`.
->
-> Isto sustenta a afirmação do propósito: sem o comprimento de referência (que só o
-> layout conhece), a resolução `Relative → Length` não é definível. Guardas:
-> `01_core/src/compiler/eval/cast.rs:47` (`cast_length_relative_needs_context`) e `:42`/`:53`.
->
-> **Natureza da citação**: contextual. A documentação não diz a frase "falta o contexto de
-> layout"; diz que a relação é com *um comprimento conhecido*. A conclusão de que o eval
-> puro não o conhece é do cristalino (separação eval/layout), não da linguagem.
+Prior source readings supporting these clauses (snapshot provenance is
+retained in the assigned history diagnostic, not asserted as a fresh measurement):
 
----
+- `lab/typst-original/crates/typst-library/src/layout/rel.rs:11-25`.
 
-## API
+## Contract
 
-```rust
-#[derive(Debug, Clone, PartialEq)]
-pub enum CastError {
-    TypeMismatch,
-    NeedsContext(&'static str),
-}
+Own CastError and cast_length(Value) -> Result<Length, CastError>.
+Value::Length succeeds unchanged. Value::Relative returns NeedsContext rather
+than resolving a reference length implicitly. Other variants return TypeMismatch
+with the existing public type information. Preserve both distinct failure kinds.
 
-pub fn cast_length(value: Value) -> Result<Length, CastError>;
-```
-
-- `cast_length(Value::Length(l))` → `Ok(l)`.
-- `cast_length(Value::Relative(_))` → `Err(NeedsContext(...))`.
-- `cast_length(outro)` → `Err(TypeMismatch)`.
-
----
-
-## Critérios de verificação
-
-- `cast_length(Value::Length(Length::cm(2.0)))` → `Ok(Length::cm(2.0))`.
-- `cast_length(Value::Relative(...))` → `Err(CastError::NeedsContext(_))`.
-- `cast_length(Value::Int(42))` → `Err(CastError::TypeMismatch)`.
-
----
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-06-25 | P469: cast_length + CastError para Value::Relative | `cast.rs`, `cast.md` |
+Relative resolution requires an explicit reference/context under its own owner;
+this pure cast does not obtain it from layout, World or globals. It does not
+change evaluation phase or claim that every relative value is intrinsically
+uncastable when the proper context is supplied elsewhere.

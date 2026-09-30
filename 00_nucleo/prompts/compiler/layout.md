@@ -1,919 +1,226 @@
-# Prompt L0 — motor geral de layout
-Hash do Código: 11160d3c
+# L0 — Layout engine coordination
+Hash do Código: 500f386a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:3cf8b79e22fcda6466dc38b7691a73ada4540956fbed14129c9e1ed5a6a56c43
+- 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:6eec17984449d21b626379651b9b0a511a2dfe8e1a1f0a0af230cce52a47b827
+- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:e9038b453bbb1971c9a75a76eced99c35db742f57bebbb09b03c4922b3862800
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/layout/mod.rs`
-**Vanila ratificado:** `9f2b6e8715237cb086899a42873660fe744622e8`
-**ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/mod.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## P1504 — registro da transação do sufixo
+## Evidence before specification
 
-Medição: `cursor.rs:361-372,753-808` no baseline P1503 contém a decisão
-de aceite/replay, enquanto este consumer possui o checkpoint P1292.
-Decisão interna: registrar `flow_suffix` como consumer da decisão; campos,
-captura/restauração e dispatcher permanecem aqui, sem nova fase.
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/mod.rs:240`, `01_core/src/compiler/layout/mod.rs:711`, `01_core/src/compiler/layout/mod.rs:1129`, `01_core/src/compiler/layout/mod.rs:1219`, `01_core/src/compiler/layout/mod.rs:1418`, `01_core/src/compiler/layout/mod.rs:1435`, `01_core/src/compiler/layout/mod.rs:1455`, `01_core/src/compiler/layout/mod.rs:1923`, `01_core/src/compiler/layout/mod.rs:2218`, `01_core/src/compiler/layout/mod.rs:2446`.
 
-## P1504 — registro da segmentação de palavra
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-Medição: `cursor.rs:1192-1303` no baseline P1503 contém helpers ICU/CJK.
-Decisão interna: registrar `word_segment` como consumer irmão, sem mover
-estado de região, dispatcher ou fase deste módulo.
+## Ownership and contract
 
-## P1504 — registro do owner de cell tails
+Native dispatch and the state/checkpoint contract are specified here.
 
-Medição: `cursor.rs:1087-1189` no baseline P1503 emite a fila de caudas.
-Decisão interna: registrar `cell_tail_commit` como consumer irmão; o buffer
-`pending_cell_tails` e o checkpoint permanecem neste módulo.
+This is the exclusive owner of `01_core/src/compiler/layout/mod.rs`: Layouter construction and state, checkpoint representation/capture/restore, causal dispatch, public façade entrypoints, attempt coordination, compatibility helpers actually defined here, and terminal document composition. Child owners define their own layout behavior; importing or calling them does not transfer ownership to this prompt.
 
-## P1504 — registro do owner de montagem da página
+### State and injected dependencies
 
-Medição: `compiler/layout/cursor.rs:396-572` contém a composição física
-da página no estado P1503. Decisão interna: registrar `page_commit` como
-consumer irmão de `cursor`, dono somente da montagem; este módulo conserva
-estado, checkpoint, dispatcher e cálculos de geometria já existentes.
+Keep the existing Layouter API, generic FontMetrics/ImageSizer injection, tracked introspector and runtime. No filesystem, network, clock, environment access or Func execution is introduced. The active region holds cursors, line start, emitted items, pending line, dimensions and horizontal fractions. PageConfig and region dimensions stay synchronized when a configuration is installed on an empty page.
 
-## P1503 — registro do owner de fechamento de linha
+Preserve the chain/cached TextStyle, locator seed/current Location, document language, page/column and cell contexts, parent bbox, read-only runtime, figure progress, enum/list grouping, smartquote and smallcaps state. Preserve existing deferred buffers for floats, cell tails, footnote bodies, attachments, page/line/equation numbering, alignment paths, repeat and fractional natural widths, decoration collectors, warnings and errors. The hub owns this storage and its lifetime; it does not re-specify child formulas.
 
-Medição anterior à decisão: no HEAD
-`0de5edabed197d23b647cfc68ebefda2f5c2a8d5`,
-`compiler/layout/mod.rs:151` registra `cursor`, `:326-790` possui o
-estado do `Layouter` e `:797-1417` possui seu checkpoint. Os métodos de
-fechamento estão em `cursor.rs:406-1038`; o mapa de dependências está em
-`00_nucleo/diagnosticos/typst-p1503-responsabilidades-cursor.md`.
+Fractional Block allocation remains private optional state: absent allocation is not a zero allocation. Preserve the preflight re-entry guard, terminal fractional-tail flag, one-shot validated-prefix line arm, assumed ascent and inline ascent/descent accumulators. Child policies may set/consume these through the existing descendant interface; no public entity or alternative state machine is created.
 
-Decisão interna: registrar `line_commit` como módulo irmão de `cursor`,
-com owner `compiler/layout/line_commit.md`. O estado e o dispatcher ficam
-neste consumer; a lógica de página/float permanece em `cursor`. Não criar
-vtable, novo campo, fase ou assinatura pública.
+### Causal dispatcher and transaction boundary
 
-## P1494 — despacho da folha de espaço com origem newline (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+`layout_content_once` performs the single canonical `is_locatable` gate before its exhaustive Content match. An eligible occurrence advances Locator exactly once, makes current_location available to descendants and records its current physical page and point. Structural recursion and visual children do not allocate extra Locations by heuristic. Measurement does not add emission events.
 
-### Medição anterior à decisão
+Native dispatch remains static and exhaustive with thin descendant delegation in the render layer, as required by ADR-0109 form B. Keep the closed Content enum and the current explicit transparent/no-op branches for already-consumed metadata/state/counter updates, structural entry carriers, alignment points and HTML-only elements. Retain the existing Dynamic extension adapter without turning native dispatch into dyn/vtable/string/PropMap dispatch or moving render into entities.
 
-No baseline `6da06e849d75972651a342ad6aad337313451c79`, o despacho
-exaustivo de `Layouter::layout_content` trata `Content::Space` em
-`01_core/src/compiler/layout/mod.rs:1865-1881`: só avança o cursor se a
-linha já tiver material e usa a largura de espaço vigente. O diagnóstico
-P1494 mede que a origem de newline altera a junção CJK antes de layout;
-layout não dispõe do contexto textual de show/regex.
+When a stabilized float marker leaves a checkpoint pending, `layout_content` opens the transaction before the next occurrence and routes top-level dispatch to `00_nucleo/prompts/compiler/layout/flow_suffix.md`; nested dispatch remains part of the same atomic unit. The hub provides capture/restore, while `00_nucleo/prompts/compiler/layout/flow_suffix.md` owns acceptance/rejection/replay decisions and `00_nucleo/prompts/compiler/layout/cursor.md` owns regional progress.
 
-### Decisão ratificada
+### Checkpoint integrity
 
-Despachar `Content::SpaceFromNewline` pelo mesmo comportamento de espaço
-comum caso essa folha alcance layout: mesma supressão inicial, avanço,
-oportunidade de justificação e flush condicional. Não executar regra de
-junção CJK, colapso de origem ou show/regex no layouter; a normalização
-textual cabe ao owner de eval antes do alvo. Não alterar assinatura,
-geometria de outros elementos nem fase deste consumer. O braço exaustivo
-será materializado após o gate ADR-0127 P1494, confirmado em 2026-09-24.
+A FlowSuffixCheckpoint records the causal state and append-only tail boundaries of both active/cell regions, completed pages, collectors, floats, attachments, numbering/alignment/repeat buffers, warnings/errors, columns, and all associated geometry/style/runtime/locator state actually captured by this consumer. RegionTailCheckpoint restores cursor/line-start/dimensions and truncates emitted items, pending line and fraction boundaries together.
 
-## Medição e contrato
+Rollback restores the complete speculative suffix, including already-emitted Place items and causal counters/positions, not merely current_line. It reconstructs Locator from the captured seed, restores callback-related numbering state and one-shot arms, truncates buffered candidates/fixups, and clears transaction/replay flags. Committed prefix floats and pre-boundary items remain outside rollback. Missing structural storage where a captured region/collector should still exist is a debug invariant violation, not invented replacement state. Do not copy the checkpoint into children, inspect future Content variants or apply generic translation outside rejected replay.
 
-O consumer define Layouter/PageConfig, entrypoints de layout, dispatcher
-exaustivo e composição final de páginas. Domínios atomizados delegam por
-funções estáticas descendentes. Métricas, introspecção e imagens são injetadas;
-L1 não importa L3. Cursor, regiões, páginas, fixups e conteúdo diferido
-preservam referencial e causalidade.
+### Attempt coordination and public entrypoints
 
-## Aceitação
+Preserve the existing public layout, introspector/metrics, callback-aware, locator-seeded, intrinsic HTML-frame and real-measurement façade paths and signatures. The metrics entrypoint returns SourceResult and diagnoses unresolved math callbacks rather than returning a placeholder document; the legacy FixedMetrics convenience entrypoint retains its current expect behavior.
 
-Empty, texto, parágrafos, paginação, páginas auto, dispatch e composição final
-são cobertos pela suíte de layout. Mudança pública/default/fase para no gate
-ADR-0127.
+The callback-aware coordinator installs fresh math and par.line pass state for each candidate Layouter. Each attempt restores the same supplied LocatorSeed and uses the tracked introspector, injected metrics/sizer and current known label/figure/table/page stores. Carry forward extracted page maps until they stabilize within the existing retry limit of five attempts. The source currently runs this convergence comparison regardless of the computed has_outline flag: do not restore an obsolete “no outline means exactly one attempt” promise.
 
-## P1470 — exemplo executável do entry point com introspector
+Return Complete only with a stable candidate and successfully consumed math/par.line transcripts; otherwise return Pending requests without exposing the tentative document. A rejected candidate's transcript is discarded, not merged into its successor. Exhausting the retry bound returns the existing empty Pending request sets, not a completed candidate. The mathematical callback protocol remains owned by its math prompt; the par.line protocol belongs to `00_nucleo/prompts/compiler/layout/par_line_callbacks.md`. No eval ↔ layout phase change or layout-time Func execution is introduced.
 
-A documentação de `layout_with_introspector` contém um doctest Rust completo:
-constrói `Content` textual, produz o `TagIntrospector` pela API pública, executa
-o entry point e verifica o texto público do documento. O exemplo não pode ser
-marcado `ignore`, `no_run` nem depender de fixture, I/O ou item privado.
+Discover the first bibliography's supplied style/locale and construct a pure CSL cache only for an explicitly named or already-resolved style. Retain cache-conversion diagnostics in each candidate and the local fallback when no style is requested. `00_nucleo/prompts/compiler/layout/bib_csl.md` owns cache interpretation; `00_nucleo/prompts/compiler/layout/bibliography.md`/`00_nucleo/prompts/compiler/layout/cite.md` own rendering. The current BibEntry compatibility body formatter remains here, preserving conditional field order and organization-as-publisher fallback.
 
-## P1424 — layout intrínseco de frame HTML (APROVADO NO GATE ADR-0127 EM 2026-09-16)
+### Terminal composition
+
+`finish` closes the final line through `00_nucleo/prompts/compiler/layout/line_commit.md`, preserving its causal last baseline/bottom. Request finite auto dimensions from `00_nucleo/prompts/compiler/layout/page_geometry.md` before terminal float/footnote emission. Drain pending floats and footnote bodies through Cursor hooks, retaining the bounded extra-region loop for remaining note bodies.
+
+Create the final Page under the existing material/empty-page-run conditions. Apply descendant line-number, equation and horizontal/vertical alignment fixups in their current order, delegate explicit running layers and canvas construction, preserve fill/bleed/supplement, and initialize Page.logical_number to the physical index. Numbering in an automatic margin uses the injected known logical number when available, otherwise the physical index. Function numbering consumes already-realized visible Content; it is never executed here.
+
+Preserve the terminal-only coordination for compound page-number patterns: record the page index, chosen current number and marginal geometry, then format with the final known logical total or physical page total fallback after all pages exist. Intermediate assembly belongs to `00_nucleo/prompts/compiler/layout/page_commit.md`; the hub does not absorb its consumer or duplicate a general page-transition policy.
+
+Transfer pages, document language, attachments, label pages/positions, sealed occurrence positions, figure/table page vectors, warnings and errors into PagedDocument. Do not mutate the injected introspector or fabricate logical overlays belonging to the pipeline.
+
+### Delegation boundaries
+
+Line closure/allocation/physical line numbering: `00_nucleo/prompts/compiler/layout/line_commit.md`. Baseline/wrap/regional transition and marker hooks: `00_nucleo/prompts/compiler/layout/cursor.md`. Sequence preflight/grouping/spacing: `00_nucleo/prompts/compiler/layout/sequence.md`. Isolated sublayout: `00_nucleo/prompts/compiler/layout/sub_frame.md`; constrained/intrinsic measurement: `00_nucleo/prompts/compiler/layout/measurement.md`. Geometry/fixups: `00_nucleo/prompts/compiler/layout/placement.md`, `00_nucleo/prompts/compiler/layout/equation.md`, `00_nucleo/prompts/compiler/layout/page_geometry.md`; page layers: `00_nucleo/prompts/compiler/layout/page_running.md`, `00_nucleo/prompts/compiler/layout/page_canvas.md`. Child element behavior is specified by its own exclusive prompt, including `00_nucleo/prompts/compiler/layout/style_scope.md`, `00_nucleo/prompts/compiler/layout/space.md`, `00_nucleo/prompts/compiler/layout/parbreak.md`, `00_nucleo/prompts/compiler/layout/align.md`, `00_nucleo/prompts/compiler/layout/context_block.md`, `00_nucleo/prompts/compiler/layout/state_display.md`, `00_nucleo/prompts/compiler/layout/counter_display.md`, `00_nucleo/prompts/compiler/layout/counter_display_callback.md`, `00_nucleo/prompts/compiler/layout/outline_entry.md`. Column behavior remains in `00_nucleo/prompts/compiler/columns.md`, which is outside this sanitation scope.
+
+The coordinate and math-callback nuclei pinned above remain the shared invariant authority; child calls are boundary references, not additional consumers or duplicated normative ownership.
+
+## Acceptance and limits
+
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
+
+## Separadores textuais — materialização autorizada em 2026-09-28
 
 ### Medição anterior à decisão
 
-No vanilla, `html.frame` é transparente em layout paginado
-(`typst-html/src/rules.rs:88-91`). Durante conversão HTML, seu body é relaid out
-sob target `Paged` numa região ilimitada e o frame resultante usa dimensões
-intrínsecas (`typst-html/src/convert.rs:140-154`). A entry point pública vigente
-produz `PagedDocument` com canvas/página e não representa este fragmento.
+`01_core/src/compiler/layout/mod.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
+`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+dos handlers desse consumer precedem esta alteração. A aprovação do contrato
+público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
+2026-09-28 e registrada na proveniência da materialização.
 
-### Contrato proposto
+### Responsabilidade deste owner
 
-O dispatcher exaustivo delega `Content::HtmlFrame(e)` a uma unidade
-descendente que, no caminho paginado ordinário, chama layout do `e.body` sem
-emitir wrapper nem alterar geometria. Para o caller L3 HTML, expor uma entry
-point pura de layout intrínseco que recebe body, estilos/metrics/sizer e devolve
-um frame/page transparente recortado ao conteúdo, sem margens, fundo, header,
-footer, numeração ou canvas A4.
+Manter match exaustivo magro; Space e SpaceFromNewline delegam à mesma unidade Space com origem Markup e Newline respectivamente, sem mudança de fase.
 
-O layout interno observa target paged e conserva nesting: frame dentro de
-frame não cria uma segunda ilha. Erros e callbacks pendentes seguem os canais
-vigentes; não executar Func dentro do layouter nem importar L3. A assinatura
-pública nova e o novo braço foram confirmados pelo dono em 2026-09-16 e ficam
-limitados pelo escopo de P1424.
+Conservar as responsabilidades existentes; a aceitação segue texto e geometria
+observáveis, incluindo os controles de adjacência e os invariantes pinados.
 
-## P1374 — parcela fracionária interna proposta
+## Correction — 2026-09-28
+
+### Measurement before decision
+
+The five `place_regression_*` refutators in `03_infra/src/integration_tests.rs:5690` reproduce loss of configured empty-page dimensions, image clipping, text top edge, and unwanted catalog acquisition. `01_core/src/compiler/layout/helpers.rs:185` discards clip_rect; `sub_frame.rs:143` and `placement.rs:327` acquire unconditional ascenders. `mod.rs:1978` skips the initial empty page. The raster test at `03_infra/src/export/p1431_line_cap_tests.rs:204` uses an A4 viewport at 16 pixels per point for a single isolated line. Provenance and RED logs are recorded in `00_nucleo/diagnosticos/correcao-falhas-2026-09-28/`. These observations justify internal parity and fixture corrections, not a new public contract or a general speedup claim.
+
+### Owner responsibility
+
+The empty initial document commits one page using the resolved PageConfig, including its dimensions, margins and layers. Do not delegate an empty page to an exporter default. Preserve the existing suppression of a trailing empty page-run boundary after committed pages.
+
+## Separation — 2026-09-28
+
+### Evidence before decision
+
+The current cursor measures and chooses word/chunk breaks at `cursor.rs:195–271`, emits highlighted text at `cursor.rs:149–193`, and transitions regions at `cursor.rs:314–417`. Metrics defines default width at `metrics.rs:249–262`; LineCommit requests post-line progress at `line_commit.rs:696–703`. The 63 controlled source-to-PDF observations and isolated pre-export measurements are archived in `00_nucleo/diagnosticos/auditoria-quebra-paginacao-2026-09-28/`. They expose behavior limitations but this operation separates ownership while preserving those exact decisions. Initial code, L0 and provenance for this operation are archived in `00_nucleo/diagnosticos/separacao-texto-linhas-regioes-2026-09-28/`.
+
+### Internal ownership decision
+
+Register text_measure, text_tracking, text_baseline, break_selection, word_layout and region_progress as private sibling descendants. Keep the native exhaustive dispatcher, shared state, public facade, checkpoints and terminal assembly unchanged. Each new module has its own exclusive prompt; no new public contract, default, pipeline phase or dynamic dispatch is introduced.
+
+## Regional demand correction — 2026-09-28
+
+### Evidence before decision
+
+The 30 bilateral controls in `00_nucleo/diagnosticos/estudo-correcao-falhas-texto-2026-09-28/` measure terminal pages 2/1, explicit terminal pagebreak 3/2, and continuation 3/2 (Tekt/vanilla). The isolated pre-export control emits Four/additional on page 2 with baseline 101.84pt and page height 100pt. The causal sources are line_commit.rs:657-696 (hypothetical next baseline), region_progress.rs:113-128 (post-line transition), cursor.rs:80-135 and parbreak.rs:41-80 (paragraph baseline/spacing). Current source and L0 hashes precede edits in `00_nucleo/diagnosticos/correcao-demanda-regional-2026-09-28/initial.json` and `before/`. This is internal parity correction under ADR-0127, not a public contract/default/pipeline change.
+
+### Decision and acceptance
+
+The existing cursor prediction represents next-line demand without new state. finish drains the last fitting line on its causal page and does not manufacture a trailing empty page from that prediction. Keep existing final Page conditions, intentional empty pages and explicit pagebreak handling. Preserve checkpoint fields, region/column and pending insertion protocols.
+
+### Integration controls preceding the refinement
+
+The first implementation's 36 real-font controls are preserved in first-after-pdf/ and first-pdf-green.log (before any later rebuild). terminal-columns still loses Three; terminal-footnote changes from 2 to 1 pages and its raster shows note/main overlap. Column start returns before clearing previous block spacing; terminal note fitting uses cursor_y and must retain the conservative following-line clearance rather than the terminal geometry cursor. These measurements require the refinements below, without changing the footnote body format, reservation model or public contract.
+
+Preserve a local copy of the predicted terminal baseline for footnote clearance when a material final line closed. Compute auto geometry and flush floats with the causal terminal cursor as before; then, only while pending footnote bodies require fitting, use max(causal cursor, predicted clearance). Retain that clearance across a deferred body and its next_region attempt. Restore the causal cursor if no physical-page/column transition occurred; after a transition preserve the new region cursor. This keeps the existing conservative note fitting budget without manufacturing a page when no note demands it. No new stored field, note reservation model or formatting change.
+
+### Bounded note-drain refinement
+
+The refined regression retains two pages for a deferred note, but the pre-existing terminal loop calls next_region twice: the first opens a region and the second drains the note then opens an empty successor. After each required next_region in finish, immediately drain notes in that newly opened region using the existing bottom override and bounded iteration count. A note that fits there must not need another transition to become visible. Preserve the loop's defensive body count bound, existing forced-too-large body behavior, and the causal-cursor restoration rule above.
+
+## Composição de parágrafos — 2026-09-28
 
 ### Medição anterior à decisão
 
-O Block fracionário precisa receber do flow uma parcela já calculada; o
-Layouter vigente não possui esse estado. Resolver dentro do Block confundiria
-o peso local com o conjunto de siblings e impediria a razão 1fr/2fr observada
-no vanila.
+O lote before-pdf em correcao-composicao-paragrafos-2026-09-28 mede 34 entradas contra o pin 9f2b6e8715237cb086899a42873660fe744622e8, no estado initial.json e before/. Com 180pt e margem 8pt, a primeira linha justificada termina em 145.52pt no Tekt e 172.000002pt no vanilla; a última fica em 110.048pt em ambos. BEFORE/par[MIDDLE]/AFTER produz 2 linhas físicas contra 3. Empty-start põe AFTER em yMin 3.74 contra 18.14; empty-auto mede altura 24.568 contra 38.968. native-leading-two-lines demonstra que o escopo de leading precisa fechar antes de restaurar estilo. Fonte: line_commit.rs:195-236 já possui justificação; word_layout.rs usa flush ordinário em quebras; layout/mod.rs:1469 trata Par como transparente; style_scope.rs:18-77 restaura estilo depois do body; eval/rules.rs:663-705 agrupa fluxo para show. Agrupamentos XML do extrator não são linhas físicas: coordenadas coincidentes são medidas separadamente.
 
-### Decisão proposta
+### Decisão vigente
 
-Adicionar somente estado interno e não-público para a parcela vertical da
-ocorrência fracionária corrente, guarda de preflight e sentinela consumível da
-linha terminal da distribuição. Sequence instala e restaura a parcela ao
-redor do dispatch do Block; Block apenas a consome. A sentinela permite ao
-Cursor distinguir a tinta terminal confirmada do avanço para uma baseline
-hipotética seguinte e é consumida no primeiro fechamento. Esses estados
-entram em snapshots/checkpoints capazes de atravessar replay e nunca vazam
-entre siblings, subframes ou páginas. Ausência de parcela não equivale a zero.
-Não criar nova fase pública ou dispatcher dinâmico. O carrier público de Block
-permanece sujeito ao gate ADR-0127 P1374.
+Correção de paridade ADR-0127, em fluxo contínuo: sem nova assinatura pública, entidade, trait, flag ou fase. O núcleo pinado define invariantes compartilhados, não é owner de código. Preparação global e optimized ficam incompletos e pertencem à futura rodada-paragrafo-seletores, depois de medir escolhas/custos.
 
-## P1339 — sincronização das ocorrências Strong/Emph
+Registrar o descendant privado paragraph e delegar Content::Par ao seu layout, sem lógica de negócio no match. Adicionar apenas o boolean privado terminal_paragraph_line, inicial false, capturado/restaurado por FlowSuffixCheckpoint. finish captura essa evidência antes do flush vazio; trata a baseline já fechada como geometria terminal e conserva o clearance previsto para notas, junto com had_last_line existente. Os outros estados, fachada pública, drenagens e paginação permanecem.
+
+### Medição adicional: parágrafos vazios e altura automática
+
+`00_nucleo/diagnosticos/correcao-composicao-paragrafos-2026-09-28/empty-details/results.json` registra pin, binários, HEAD, working tree e hora. O vanilla distingue corpo vazio de Text(""): sozinho mede altura 16pt contra 24.568pt, com margens 8pt; antes de AFTER, Text vazio acrescenta o top-edge 8.568pt à posição de par[]; após BEFORE a altura automática é 38.968pt para vazio e 47.536pt para Text vazio. O teste composition_empty_styled_terminal_auto_height_keeps_explicit_spacing falhou no estado após a primeira implementação (styled-empty-red.log): fechar antes do estilo perdeu a evidência causal anterior.
+
+Decisão interna: o fechamento anterior a Styled/Par preserva terminal_paragraph_line quando houve material. Body vazio mantém spacing entre fluxos; Text vazio, atravessando Styled/Sequence, também reserva seu top-edge, sem tinta. Acumular em campo privado empty_paragraph_weak_spacing os espaçamentos iniciais enquanto initial_baseline_pending; no término inteiramente vazio, sem bloco material, remover apenas esse spacing fraco, preservando o top-edge virtual. Incluir o campo no checkpoint/rollback. Não reduzir spacing depois de material nem de vazios consecutivos entre fluxos. Nenhuma interface pública muda.
+
+## Preparação e seletores — 2026-09-28
 
 ### Medição anterior à decisão
 
-HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`:
-`compiler/layout/mod.rs:1484-1501` é o ponto único de Locator/Position;
-`:1523-1525` o chama antes do dispatch real. Strong/Emph em `:1894-1913`
-descem no body por layout_content, mas a medição pura de tamanho em
-`:2640-2666` usa measure_content_constrained e não emite ocorrências.
-A promoção aprovada de NativeElement exige preservar essa distinção.
+O lote bilateral `00_nucleo/diagnosticos/correcao-seletores-paragrafo-2026-09-28/before-pdf/resultados.json` mede 32 entradas, com estado exato em initial.json e before/, contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Em 140pt/margem 8pt, simple escolhe delta epsilon zeta eta, optimized escolhe delta epsilon zeta e junta eta à linha seguinte; Tekt ignora a estratégia. Em 240pt justificado, optimized admite eta na primeira linha reduzindo os espaços. Fonte: eval/rules.rs:3070-3100 e stdlib/structural/par.rs:131-150 validam e descartam linebreaks; text.rs:41 e word_layout.rs:29 escolhem incrementalmente; vanilla inline/mod.rs:194-196 resolve auto pela justificação, linebreak.rs:raw_ratio/raw_cost aplica redução até 1/3 e custos cúbicos/quadráticos; model/par.rs:Limits::SPACING_DEFAULT fixa 2/3..1.5. Estilos adjacentes, literal leading/trailing e conteúdo opaco estão medidos separadamente. Observação não prova intenção histórica; inferência refutável: os scope-outs L0 explícitos de preparação/optimized legitimaram o adiamento, pois ainda vedam a implementação global apesar do transporte aceito.
+
+### Decisão e escopo
+
+Correção interna de paridade ADR-0127: sem novos contratos públicos, flags ou fase. Primeira preparação global certificada: parágrafo latino composto por Text, Space, SpaceFromNewline, Empty, Sequence, Styled tipográfico e Strong/Emph, com hifenização desligada, direção LTR, sem tracking/math/smallcaps, largura finita e constante, fora de colunas/células/floats. O conjunto completo deve ser certificado antes de emitir; uma unidade recusada preserva o caminho anterior. Hifenização, Unicode UAX14 completo, links/objetos/linebreaks, largura variável, limites customizados e seleção incremental restante continuam explicitamente incompletos; este lote não declara estado da arte nem otimização completa da língua.
+
+Declarar quatro módulos privados de planejamento. Armazenar guard boolean paragraph_planning_suppressed inicial false; capturar/restaurar em FlowSuffixCheckpoint. Não colocar algoritmos no hub.
+
+## Hifenização global — 2026-09-28
+
+### Medição anterior à decisão
+
+O lote before-pdf de `00_nucleo/diagnosticos/correcao-hifenizacao-global-2026-09-28/` mede 67 entradas contra vanilla 9f2b6e8715237cb086899a42873660fe744622e8; estado inicial, binários, fontes e comandos estão em initial.json, before/ e proveniencia.json. paragraph_prepare.rs:80-94 recusa a política true, paragraph_select.rs:66 considera só finais de palavras, paragraph_plan.rs:18 escolhe estratégias já transportadas, break_selection.rs:41-66 hifeniza apenas por overflow local. Vanilla inline/linebreak.rs:170-209 usa os mesmos candidatos no greedy, :626-684 aplica 135*(1+0.15*(max(5-left,0)+max(5-right,0))) por hífen, mais 135 em duas linhas consecutivas; inline/shaping.rs:583-635 desenha o glyph de '-' mas conserva SHY no texto copiado. Isto mede comportamento e contratos, não intenção histórica.
 
 ### Decisão
 
-Strong/Emph locatáveis avançam exatamente no ponto canônico pré-dispatch,
-seguindo a classificação de `compiler/introspect/locatable.md`. Não adicionar
-incremento nos braços dos elementos nem nas sondas de tamanho. Styled
-exterior continua sem avanço; seu filho Strong/Emph avança uma única vez.
-O render de bold/italic e as fórmulas de medida não mudam.
+Correção interna ADR-0127 em fluxo contínuo: sem campo/trait/assinatura pública, modo novo, fase ou quebra de compatibilidade. A restrição histórica de hifenização desligada é supersedida nesta rodada para palavras latinas de estilo/política uniformes, inclusive pontuação terminal simples. Mistura dentro da palavra, apostrofes internas, outras quebras UAX14, largura variável e objetos mantêm fallback. Texto copiado '-' versus SHY continua limitação de export independente; a geometria usa o glyph de '-' separado, como fonte medida. Aceitação mede palavras/posições/estilos e política lexical, normaliza somente o hífen de quebra para a comparação geométrica e declara a divergência textual separadamente.
 
-Verificar que as Locations do walk e do layout pertencem às mesmas
-ocorrências em corpo vazio, nested, labels e elementos subsequentes;
-Position associa-se ao nó correto. Medição especulativa e replay de flow
-não podem confirmar outra ocorrência para o mesmo evento. Preservar a
-transação P1292 e o protocolo de callbacks math P1291, sem nova fase,
-assinatura ou execução de Func. Se os braços já satisfizerem a regra,
-não fazer refactor produtivo além de testes/linhagem necessários.
+Declarar o módulo privado paragraph_hyphen; nenhuma fórmula, despacho dinâmico ou contrato público no hub.
 
-## P1292 — dispatch de `Flush` em forma B
+## Proteção regional de viúvas/órfãs — 2026-09-28
 
 ### Medição anterior à decisão
 
-O dispatcher não possui `Content::Flush`; floats são drenados somente em
-fronteiras existentes. O registro P1292 demonstra que o marcador deve realizar
-o prefixo de floats no ponto exato antes do conteúdo seguinte, sem antecipar
-floats posteriores.
+`00_nucleo/diagnosticos/correcao-viuvas-orfas-2026-09-28/before-pdf/` registra 78 entradas e `before-extra/` registra 24 controles, com estado completo em initial.json e before/, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. page-65-100%-0%-False deixa três linhas e uma no Tekt, mas duas e duas no vanilla; custos zero coincidem. Tiny/large-positive têm a mesma proteção vanilla. `lab/typst-original/crates/typst-layout/src/flow/collect.rs:196-229` mede habilitação estritamente positiva, primeiros dois/últimos dois e proteção integral de três linhas; `flow/distribute.rs:343-364` só avança por necessidade agrupada quando cabe na próxima região. paragraph_emit.rs emite linha por linha sem essa necessidade. A semântica observável é a distribuição de linhas/palavras em regiões, não os frames/Child do vanilla. Não inferir intenção do scope-out antigo.
 
-### Decisão
+### Decisão vigente
 
-Declarar o módulo descendente `flush` e adicionar ao match exaustivo somente
-`Content::Flush(e) => flush::layout(self, e)`. Toda decisão de efeito vive no
-owner `compiler/layout/flush.md`; este hub não absorve o corpo, não altera o
-owner de `place` e não introduz despacho dinâmico. O arm não é incluído no
-fallback matemático nem tratado como Empty.
+Correção interna/de paridade em fluxo contínuo ADR-0127: nenhum campo/trait/assinatura pública, flag ou fase nova. Supersede a exclusão anterior de widow/orphan exclusivamente para parágrafos preparados com métricas verticais uniformes, sem baseline offset, geometria paginada constante, sem colunas/células/subframes/notas/floats ou transação regional ativa. Os demais contextos conservam fallback e limites explícitos. Não promete algoritmo completo nem desempenho.
 
-## P1292 amendment-10 — checkpoint atômico do sufixo de flow
+O módulo privado paragraph_pagination possui exclusivamente certificação vertical, agrupamento e admissão regional. Recebe ranges já escolhidos, não refaz seleção, não emite glyphs nem duplica a lógica de new_page. A certificação inteira precede emissão; todos os fragmentos devem ter size/arestas/leading iguais ao estilo exterior (negrito/itálico admissíveis se as métricas coincidirem), e finite nonnegative top/descent/leading. Bounds auto não precisam de proteção. Respeitar a baseline inicial e o colapso existente de block-chain antes de comparar necessidade real com page_bottom_limit. Novo espaço disponível é calculado com margens resolvidas para a página seguinte. Avançar só se há material na região atual e o grupo cabe na próxima. Grupos muito altos conservam progresso ordinário e conteúdo íntegro; nunca repetir new_page em laço.
 
-### Medição anterior à decisão
+Helpers privados de text_costs resolvem widow/orphan independentemente dos pesos hyphenation/runt, reutilizando FIELDS, com default Ratio 1 e teste estrito > 0. O default de estratégia do planejamento passa a Simple para parágrafo comum sem linebreaks, permitindo a preparação necessária à proteção padrão; a escolha automática por justify e todos os contextos recusados permanecem. Emitir sem alterar justificação, carriers, última linha aberta, fronteiras e restauração lexical. Preservar notas e colunas por não aplicar proteção incompleta nesses caminhos.
 
-O contrato v10 estabilizou três páginas e o anchor do float-prefixo, mas uma
-ocorrência de Place não-float dentro do Block posterior ao marker ficou na
-página 2 enquanto a linha que a continha migrou para p3. Um reproducer
-black-box independente obteve no candidato `AFTER_MARKER` em p2 e
-`AFTER_FLOW` em p3; no vanilla ratificado ambos aparecem em p3, exatamente uma
-vez. A migração somente de `current_line` deixa escapar efeitos que já foram
-anexados a `current_items` antes da decisão final de fitting.
+Aceitação: RED→GREEN com mesmas palavras distribuídas 2+2 versus 3+1, proteção integral de três, orphan desligado independentemente, grupo excessivo, restauração e default sem flag. Sondas bilaterais com caixas/palavras/páginas, tipos/spans anteriores preservados e controles de fallback. Não usar grupos XML como número físico de linhas. Resselo restrito aos owners, build e crystalline-lint sem erros.
 
-Isto refuta checkpoint restrito a texto/linha e refuta um caso especial em
-Block: o efeito escapado é Place não-float, mas a unidade causal é todo o
-sufixo de layout produzido depois da fronteira, qualquer que seja o tipo do
-child.
+## Separação interna de tracking e baseline — contrato vigente
 
-### Decisão — transação regional do Layouter
+### Evidência anterior à decisão
 
-Este owner define o checkpoint interno e não-público do estado mutável do
-Layouter. Depois de o prefixo do marker estar realizado e suas reservas
-estabilizadas, o Cursor estabelece uma fronteira de retomada antes de qualquer
-efeito do flow posterior. Todo efeito regional posterior pertence a uma única
-transação de sufixo até a linha/unidade de flow ser aceita.
+`01_core/src/compiler/layout/text_measure.rs:85` e `word_layout.rs:89` acumulam fronteiras e alinhamento de carriers; fontes e hashes anteriores estão em `00_nucleo/diagnosticos/separacao-tracking-2026-09-29/initial.json` e `before/`. A movimentação conserva a correção previamente medida.
 
-O checkpoint captura, por valor lógico ou por comprimentos de cauda, todo
-estado capaz de tornar esse sufixo visível ou afetar fitting: posição e região
-correntes; buffers e métricas da linha; cauda de `current_items`; cauda de
-items/frame da página ou sub-frame ativo; extensões inline e geometria
-pendente; fronteiras de floats/deferred locais criados no sufixo; e o ponto de
-replay por ocorrência. Novos buffers regionais futuros entram na mesma
-transação por obrigação, não podem escapar por terem sido atualizados antes de
-`current_line` estabilizar.
+### Responsabilidade do hub
 
-Estado anterior à fronteira não é clonado, migrado nem desfeito. Páginas e
-items já confirmados, prefix floats realizados, suas reservas top/bottom e
-todo conteúdo anterior permanecem imutáveis. A transação registra somente a
-cauda posterior; floats criados depois do marker continuam sufixo e nunca são
-promovidos ao prefixo.
+Registrar dois descendentes privados: text_tracking, owner `00_nucleo/prompts/compiler/layout/text_tracking.md`, e text_baseline, owner `00_nucleo/prompts/compiler/layout/text_baseline.md`. O hub somente declara os módulos; regras de fronteira e baseline ficam nos owners. Preservar dispatcher exaustivo, contratos públicos e checkpoints.
 
-Se a unidade posterior cabe, commit torna a cauda definitiva. Se a região
-efetiva a rejeita, rollback remove atomicamente toda a cauda pós-fronteira,
-restaura cursor/métricas/buffers ao checkpoint, avança pela regra normal e
-reexecuta as mesmas ocorrências na nova região. `current_line` e
-`current_items` nunca são migrados separadamente. Cada ocorrência produz no
-máximo um efeito confirmado; replay não duplica Place, texto, float posterior,
-tag, link ou item diferido.
-
-O Layouter oferece a transação; `compiler/layout/cursor.md` decide
-commit/rollback/avanço; `compiler/layout/place.md` continua dono de fitting e
-reservas; `compiler/layout/flush.md` continua dono apenas da sentinela. O
-checkpoint não examina o conteúdo futuro, não prevê altura/tipo, não cria fase
-ou passagem e não altera API pública.
-
-### Refutadores e aceitação
-
-Refutam: snapshot apenas de linha; truncar `current_line` sem a cauda de
-`current_items`; recompor o documento/prefixo integral; mover items anteriores;
-duplicar efeitos; inspecionar o próximo Content; especializar Block; ou deixar
-um Place não-float pós-marker na região rejeitada.
-
-No caso focal, PREFLOW permanece p1; FLOAT_BEFORE permanece p2; AFTER_MARKER,
-AFTER_FLOW e FLOAT_AFTER aparecem exatamente uma vez em p3. No-floats,
-no-flush, nested, clearance explícito e prefix identity preservam os resultados
-validados.
-
-### Amendment-11 — limite do checkpoint face ao flow ordinário
-
-Medição bilateral posterior mostrou que o controle sem Flush e o controle sem
-float já divergiam do vanilla do mesmo modo: faltava o gap Block→flow de
-`1.2em` e Place não-float ancorava no topo. Portanto o checkpoint não adquire
-autoria sobre essas fórmulas ordinárias.
-
-Este owner continua dono somente da capacidade transacional e dos campos
-privados necessários para capturar/restaurar a cauda. Qualquer estado de
-origem de replay só pode existir durante uma transação de marker realmente
-rejeitada e deve restaurar exatamente a semântica ordinária fornecida pelos
-owners Block e Place. Fora dessa causalidade, o Layouter não traduz
-`current_items` por crescimento de cauda, não procura items “novos” e não
-redefine baseline/gap de flow.
-
-O fluxo sem marker e o fluxo sem float são controles obrigatórios: não entram
-na transação e devem resultar exclusivamente das fórmulas dos owners
-`compiler/layout/block.md` e `compiler/layout/place.md`. Um reparo que os torna
-verdes por ajuste em Cursor viola ownership mesmo que preserve o vetor
-transacional.
-
-## P1286 — dispatch PDF condicionado ao gate
+## Continuidade lexical do tracking — 2026-09-29
 
 ### Medição anterior à decisão
 
-O dispatcher exaustivo ainda não possui braços para attachment/artifact.
-`PagedDocument` é montado neste consumer; logo um side-channel de attachments
-coletado durante layout precisa ser drenado aqui. O caminho atual de Formula
-já demonstra o envelope `FrameItem::Semantic`; ele não pode ser reutilizado
-como Formula para artifact.
+`00_nucleo/diagnosticos/correcao-tracking-escopos-2026-09-29/before-pdf/results.json` e `summary.json` registram 30 fontes/90 PDFs, comandos, fontes e estado exato em initial.json e before-pdf/provenance.json, contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. Escopos iguais repetidos acumulam cerca de 0.4pt e aninhados 0.8pt; wrap positivo muda a linha. `text_tracking.rs:50` compara apenas TextStyle resolvido. Vanilla `inline/collect.rs:287-295` conserva segmentos de cadeias distintas; `inline/shaping.rs:1269-1295` soma tracking apenas dentro de cada run. Isto mede fronteiras textuais observáveis, não exige copiar PartialEq ou representação da chain. Hide/Box também são fronteiras: hide.rs:21-24 e boxed.rs:157-208 substituem/restauram buffers sem preservar essa distinção.
 
-### Decisão proposta
+### Contrato interno da correção
 
-Após confirmação dos contratos públicos em `entities/content.md` e
-`entities/layout_types.md`, o match central permanece magro e delega:
+Armazenar text_tracking::State em campo privado ao módulo pai, inicializado por Default. Capturar/clonar e restaurar integralmente no FlowSuffixCheckpoint. O hub não possui fórmulas de tracking, alocação de identidade ou decisões de continuidade: delegar ao descendente. Nenhum campo público/trait/assinatura/flag/fase muda.
 
-- `Content::PdfAttach` à futura free function dona da feature, que registra o
-  mesmo `Arc<PdfAttachElem>` no side-channel em ordem documental e não cria
-  frame nem desloca cursor;
-- `Content::PdfArtifact` à futura free function dona da feature, que faz
-  layout do body uma vez e o envolve em `FrameItem::Semantic` com
-  `SemanticKind::Artifact(kind)`, sem alterar dimensões, posição ou texto.
+Correção interna de paridade ADR-0127 em fluxo contínuo. Aceitação RED→GREEN, controles bilaterais de texto/posições/linhas e preservação dos controles de tracking uniforme; build e lint sem erros, resselo somente destes owners. Demais limites abertos mantidos.
 
-A composição final move o side-channel para `PagedDocument.attachments`.
-Não há introspecção global nova, segunda passagem nem mudança da ordem
-eval→layout→export. Os dois ficheiros futuros de feature só recebem Prompt L0
-proprietário 1:1 após a confirmação; este owner não os legitima. O gate é
-obrigatório pelos tipos públicos já listados, não por mudança de fase.
-
-## P1291 — passagem pura de requests math (VIGENTE; PRESERVADA POR P1292)
+## Linhas causais vazias em página auto — 2026-09-29
 
 ### Medição anterior à decisão
 
-O caller de math em `01_core/src/compiler/layout/equation.rs:107-120` constrói
-`MathLayouter` somente com métricas, modo block e estilo. Neste ponto o
-`Layouter` possui região efetiva e `StyleChain`, mas não deve adquirir
-capacidade de executar `Func`. Os precedentes P240/P241/P1159 mantêm o
-Layouter puro e realizam callbacks na pipeline entre passagens.
+`00_nucleo/diagnosticos/correcao-auto-proximas-2026-09-29/before/results.json` mede fontes→PDF com binários pinados e entradas sem newline artificial; `initial.json` guarda HEAD, working tree, hashes e snapshots. `#text("")` e a variante 18pt têm Tekt 3×3pt versus vanilla 3×8.568/12.852pt. `abc\n\n` termina em Tekt 19.872×31.536pt versus vanilla 19.872×8.568pt, enquanto `abc\n\nxyz` coincide a 19.872×31.536pt. `#text("  ")\n\nabc` fica numa linha Tekt (26.112×8.568pt), mas em duas linhas vanilla (19.872×31.536pt). Fonte: `text.rs:37-86` não emite item para Text vazio; `html_frame.rs:72` exclui todo TextSeparator de materialidade; `line_commit.rs:280-286`, `parbreak.rs:43-48` e `mod.rs:1965` usam essa materialidade para linha; `parbreak.rs:40-85` avança cursor após fechar linha e `page_geometry.rs:180-201` usa cursor se não há fundo confirmado. Vanilla `inline/linebreak.rs:695-699` oferece breakpoint obrigatório até para texto vazio. Isto mede o observável; não infere a intenção histórica nem exige a mecânica do vanilla.
 
-### Contrato vigente
+### Contrato interno segregado
 
-Adicionar uma entry point explícita de passagem que recebe
-`&SealedMathCallbacks` e devolve `MathLayoutPassOutcome`. O `Layouter` cria um
-estado de transcript em memória e o compartilha com todos os `MathLayouter`s
-daquela passagem. Ao entrar numa equação, `equation.rs` fornece a `Location`
-corrente da equação,
-`regions.effective().height`, a `StyleChain` léxica e o mesmo estado; não
-fornece função executável.
+Na finalização, reconhecer uma última linha apenas literal como linha causal para usar a sua baseline final; manter o match exaustivo e todos os outros predicados de materialidade. Nenhum estado global, campo público, contrato externo, default ou fase muda.
 
-A entry point compatível devolve `SourceResult<PagedDocument>` e continua
-válida para árvores sem requests. Se a passagem retornar `Pending`, descarta
-as páginas provisórias e devolve `Err(vec![diagnostic])`, conforme
-`SourceResult<T> = Result<T, Vec<SourceDiagnostic>>`, **sem valor e sem
-documento**; não existe `PagedDocument` vazio/de-falha capaz de chegar a um
-exporter. A entry point de passagem não marca a primeira medição como erro:
-retorna `Pending(requests)` ao caller L3, que é obrigado a realizá-las e
-repetir.
-
-Nenhum estado de eval é guardado em `Content`, `Region`, `PagedDocument` ou
-cache de métricas. Request e store pertencem à invocação e são retornados por
-valor. `PagedDocument` só sai na variante `Complete`, depois de o transcript
-estar integralmente resolvido, totalmente consumido e estável.
-
-O escopo da passagem é a tentativa concreta criada por cada `Layouter::new`,
-não a invocação externa inteira. O loop interno que pode refazer layout por TOC
-cria `MathCallbackPassState` novo para cada tentativa, descarta junto com o
-documento os transcripts das iterações rejeitadas e conserva somente o estado
-da tentativa candidata. Se essa candidata possui pendências, devolve apenas
-`Pending`; caso contrário pode devolver `Complete`. Esse ciclo de callbacks é
-ortogonal a `compiler::introspect::run_fixpoint` e não é fundido a ele.
-
-O confirmação/runtime P1291 já foi materializado. P1292 preserva integralmente esta
-ligação e não cria nova fase. Contrato detalhado:
-`compiler/math/layout/callbacks.md`; implementação da capacidade:
-`infra/pipeline.md`.
-
-## P1373 — medição intrínseca de Block relativo
-
-### Medição anterior à decisão
-
-Depois de `BlockElem::height` passar ao contrato confirmado
-`Option<Rel<Length>>`, o check focal encontrou em
-`layout/mod.rs:2588-2618` o segundo consumer produtivo: o braço de
-`measure_content_constrained` ainda chamava `Length::resolve_pt` diretamente.
-Esse braço mede Block para grid e fitting; não é proprietário da fórmula de
-altura.
-
-### Decisão
-
-Ao medir `Content::Block`, o motor delega a resolução relativa ao helper
-estático descendente de `compiler/layout/block.rs`, fornecendo font-size e
-`available_height()` externos. O valor resolvido continua sendo apenas o
-mínimo entre altura declarada e altura natural com inset. Não duplicar a
-fórmula, não usar `max_width` como eixo vertical e não resolver contra a altura
-do body. Alturas absolutas mantêm as expectativas existentes; width relativa
-e height fracionária permanecem no P1374.
-
-## P1391 — arm interno de fechamento overlong validado
-
-### Medição anterior à decisão
-
-Nos pares 39/40→11, a primeira palavra size-only é horizontalmente overlong e
-o layout de texto fecha sua linha antes de Sequence alcançar o segundo
-wrapper. O fechamento ordinário usa o estilo 39/40pt para a baseline seguinte;
-o vanila usa o estilo exterior de 11pt. O carrier posterior P1389 chega tarde
-demais para selecionar a fórmula correta.
-
-### Decisão interna
-
-Layouter mantém um booleano privado one-shot, armado exclusivamente por
-Sequence após o preflight certificar a forma P1391 completa. O primeiro
-`flush_line` consome o estado e pede a fórmula singleton exterior já definida
-por Cursor P1389. O estado inicia falso, integra checkpoint/rollback e é
-isolado em sub-frame; não sobrevive ao fechamento que o consome.
-
-Não há nova API pública, fase ou default. Ausência da validação, prefixo
-incompleto, outra célula de tamanho e fluxo ordinário nunca armam o estado.
-11→39, 39→11, 11→40 e 40→11 devem manter uma página e `After=Tail`;
-40→8 permanece opaco.
-
-## P1392 — reutilização do arm por validado cruzado
-
-### Medição anterior à decisão
-
-Em 40→8 e 40→7, a palavra inicial é overlong e fecha dentro do layout de
-texto, pela mesma causalidade P1391. O vanila prevê a linha seguinte pelo
-estilo exterior; sem o arm, o cristalino usa 40pt e pagina a cauda.
-
-### Decisão interna
-
-O mesmo booleano privado one-shot pode ser armado também depois de Sequence
-certificar a forma P1392 completa. Inicialização, consumo, checkpoint e
-isolamento permanecem idênticos a P1391; não se adiciona campo, API ou fase.
-Formas não validadas nunca armam o estado. P1391 e os controles de replay
-continuam invariantes.
-
-# P1402 — fallback de layout para entry
-
-Uma `OutlineEntry` construída diretamente é transparente ao layout nesta fatia:
-desce no corpo outlinable. A geração visual completa e os helpers contextuais
-permanecem fora do escopo; isso não altera o layout vigente de `outline()`.
-
-# P1405 — consumo do carrier PDF label
-
-Ao encontrar `Content::Styled` cuja propriedade custom privada
-`pdf.marker.tag` seja a string `label`, layoutar o body uma única vez em
-sub-frame inline, conservar o avanço do cursor e recolocar os items produzidos
-num `FrameItem::Semantic { kind: Label, placement: Inline }`. Outros Styled
-seguem o push/pop vigente sem branch semântico. O carrier é visualmente
-transparente e não altera medição.
-# P1406 — delegação de link interno de outline (PROPOSTO; gate autorizado)
-
-Medição anterior à decisão: `Content::Link` cristalino representa somente URL,
-mas o show default de `outline.entry` no vanila ratificado liga o corpo à
-Location causal. `FrameItem::Link` já suporta `LinkTarget::Destination` e o
-layout de referências já o emite.
-
-O arm central de `Content::Styled` reconhece somente o carrier privado e tipado
-de destino produzido pela realização P1406 e delega a captura visual ao módulo
-`layout/outline.rs`. Não interpreta a regra do outline, não generaliza
-`link()` e não reconhece texto por convenção fora da chave privada. O módulo da
-feature envolve os itens dispostos em `LinkTarget::Destination`; todo outro
-Styled conserva o caminho vigente. Confirmação humana explícita recebida em
-2026-09-15.
-
-## P1407 — carrier privado para expansão adiada de `repeat`
-
-Medição anterior à decisão: no baseline `ed7340ada`, `Repeat` é disposto antes
-de uma caixa `width: 1fr` registrar sua parcela, e a largura correta só aparece
-no fechamento da linha. A sonda limitada de 100 pt rendeu 1 cópia no cristalino
-contra 23 no vanila ratificado.
-
-Layouter conserva uma lista privada e finita de peças repetíveis pendentes. O
-registro contém somente faixa de itens, origem, largura resolvida, gap e
-justify; não expõe API nem altera `Region`. Checkpoint/rollback trunca a lista
-pela cauda e a inicialização começa vazia. O owner `repeat.rs` decide a fórmula
-e o teto; Cursor fornece a parcela, e consumidores que selam containers devem
-resolver os pendentes antes de drenar os itens da linha.
-
-## P1408 — largura natural privada de caixas fracionárias
-
-A prova bilateral `1fr:2fr` mostrou que descontar previamente a largura
-natural dos bodies desloca a segunda caixa 2,73 pt para a direita. O vanila
-atribui a cada caixa uma parcela do espaço total disponível e dispõe o body
-dentro dela.
-
-Layouter conserva, em lista privada alinhada às fronteiras `pending_fr`, a
-largura natural já ocupada por cada entrada: zero para `h(Nfr)` e a largura
-exterior natural para `box(width: Nfr)`. Cursor soma essas larguras ao restante
-antes de calcular parcelas e subtrai a largura natural da parcela ao deslocar
-o suffix. Checkpoint/rollback trunca a lista pela cauda, e fechamento ou região
-infinita a limpa junto com `pending_fr`. Nenhum campo de `Region`, assinatura
-pública ou quantidade de itens proporcional ao peso é introduzido.
-
-## P1414 — estado privado da numeração de linhas (PROPOSTO; gate ADR-0127)
-
-Medição anterior à decisão: o Cursor já fecha linhas físicas depois do wrap e
-da eventual migração de página, mas Layouter não conserva progresso de
-`par.line`. O vanila reinicia por página quando pedido e mantém progresso no
-documento caso contrário.
-
-Layouter acrescenta somente estado privado para o próximo número documental e
-a página causal da última linha numerada. Inicializa em zero/ausente, integra
-checkpoint/rollback e sublayouts sem vazar contagem especulativa. Cursor é o
-único consumer e incrementa apenas depois de estabilizar uma linha com itens.
-Não criar counter público, marker em Content, segunda passagem ou estado
-global. A ampliação de comportamento padrão aguarda confirmação humana.
-
-## P1415 — transcript puro de callbacks de linha (PROPOSTO; gate ADR-0127)
-
-### Medição anterior à decisão
-
-O Layouter P1414 conhece a linha física somente depois de wrap, fitting e
-baseline, mas L1 não possui nem pode possuir `Engine`. O precedente P1291 já
-separa medição pura e realização L3 por transcript validado. No baseline
-`0a7de3dd9`, a entry point callback-aware cobre apenas math.
-
-### Decisão proposta
-
-Generalizar a entry point explícita de passagem para receber stores validadas de
-math e de `par.line` e devolver um outcome combinado. O estado privado da
-tentativa registra requests de linha em ordem causal com `Func`, inteiro
-lógico, `StyleChain` e span; não executa a função nem conserva documento no
-outcome `Pending`. Resoluções contêm `Content` já realizado e são consumidas
-uma única vez pela mesma ocorrência na passagem seguinte.
-
-Tentativa interna rejeitada por TOC, replay ou fitting descarta seu transcript.
-`Complete` exige todos os stores consumidos e nenhum request novo. Divergência
-de ordem/quantidade devolve `Pending`, nunca documento parcial. Entry points
-compatíveis permanecem para árvores sem request e falham fechado ao encontrar
-callback que não possam realizar.
-
-O store é local à invocação, integra o ciclo já limitado de callbacks e não
-entra em `Content`, `Region`, `PagedDocument`, cache global ou introspector.
-Não há `Engine`, `World` ou `EvalContext` em L1. A nova passagem pública e a
-mudança de fase aguardam confirmação humana explícita.
-
-## P1416 — contexto privado de ordinal transversal
-
-### Medição anterior à decisão
-
-O modo segmentado cria regiões irmãs independentes, mas P1415 conserva um
-único contador progressivo; por isso `#columns()` soma linhas das colunas em
-vez de contar o ordinal transversal uniforme observado no vanila.
-
-### Decisão interna
-
-Layouter pode manter um contexto opcional, privado e escalar com: limite
-absoluto de ordinais já emitidos e compensações horizontais até os bordos
-inicial/final do contentor. `columns.rs` instala/restaura o valor por segmento;
-Cursor somente consulta. O campo inicia ausente, participa do checkpoint e
-não entra em subframes sem instalação explícita.
-
-O contexto não guarda frames, páginas, callbacks ou vetores, não muda Region,
-entrypoint ou fase. Ele existe somente durante `#columns()` segmentado do
-recorte P1416; colunas de página e fluxo contínuo permanecem nos caminhos
-anteriores.
-
-## P1417 — buffer privado de candidatas marginais
-
-### Medição anterior à decisão
-
-No baseline `af587e30b`, o estado escalar P1416 não representa a ordem de
-baselines heterogêneas. A fonte pinada decide a ocorrência marginal depois de
-ordenar marcadores e mede a altura do número no estilo exterior comum.
-
-### Decisão interna
-
-Layouter acrescenta um contexto booleano privado e uma cauda de candidatas de
-pattern. Cada candidata contém somente baseline, página, pattern e
-`StyleChain`; não contém frame, callback, Engine ou documento. O owner de
-`#columns()` segmentado instala/restaura o contexto, consolida e drena a cauda;
-checkpoint registra o contexto e comprimento para rollback.
-
-O vetor é linear nas linhas numeráveis da composição ativa e não é usado para
-callbacks. Em colunas de página e fora de colunas segmentadas permanece vazio;
-o comportamento P1414/P1415 imediato não muda.
-
-## P1418 — estilo compartilhado privado de coluna de página
-
-### Medição anterior à decisão
-
-No baseline `573c42c14`, a cauda P1417 já contém chain causal suficiente para
-capturar o estilo da primeira ocorrência, mas colunas de página não a ativam.
-O estilo local da segunda coluna diverge do estilo compartilhado observado no
-vanila.
-
-### Decisão interna
-
-Durante uma composição de colunas de página, Layouter mantém um
-`Option<TextStyle>` privado capturado da primeira candidata disponível e o
-índice inicial da cauda da coluna corrente. Ambos integram checkpoint/rollback,
-são instalados e restaurados pelo owner de columns e não entram em entidade ou
-contrato público. `close_current_column` drena a cauda por coluna; o modo
-segmentado direto usa estado local equivalente. A cauda fica vazia ao sair.
-
-Callbacks não usam esse estilo nem essa cauda. Primeira coluna sem candidata e
-configurações locais divergentes permanecem `Unknown`.
-
-## P1436 — encaminhamento geral de `MathLr` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
-
-### Medição anterior à decisão
-
-O dispatcher geral agrupa variantes `Math*` como conteúdo inline entregue ao
-layouter matemático; um novo braço ausente quebra a exaustividade, enquanto
-realizar `lr` aqui duplicaria o owner especializado.
-
-### Decisão proposta
-
-Encaminhar `Content::MathLr` pelo mesmo caminho inline das demais variantes
-matemáticas. Este owner não interpreta size, cercas ou cascata; toda lógica de
-produto permanece em `compiler/math/layout/delimited.rs`.
-
-## P1437 — encaminhamento geral de `MathMid` (PROPOSTA; AGUARDA GATE ADR-0127)
-
-### Medição anterior à decisão
-
-O dispatcher geral agrupa variantes `Math*` como conteúdo inline entregue ao
-layouter matemático; a nova variante exige braço exaustivo, mas realizar `mid`
-neste nível duplicaria seu owner especializado.
-
-### Decisão proposta
-
-Encaminhar `Content::MathMid` pelo mesmo caminho inline das variantes math.
-Este owner não interpreta classe `Relation`, grupo `lr` nem stretch; a lógica
-permanece em `compiler/math/layout/delimited.rs` e no spacing matemático.
-
-## P1439 — encaminhamento geral de `MathOverbrace` (APROVADO NO GATE ADR-0127 EM 2026-09-17)
-
-### Medição anterior à decisão
-
-O dispatcher geral encaminha variantes `Math*` ao layouter matemático; a nova
-variante exige braço exaustivo, mas sua realização não pertence a este nível.
-
-### Decisão proposta
-
-Encaminhar `Content::MathOverbrace` pelo caminho inline math. Este owner não
-interpreta U+23DE, annotation, classe ou stretch; a lógica permanece em
-`compiler/math/layout/underover.rs` e no spacing matemático.
-
-## P1451 — encaminhamento geral de `MathUndershell` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O dispatcher geral exige braço exaustivo para a identidade nova, mas não é
-dono da realização geométrica.
-
-### Decisão proposta
-
-Encaminhar `Content::MathUndershell` pelo caminho inline math; U+23E1,
-annotation, classe e stretch permanecem nos owners matemáticos.
-
-## P1450 — encaminhamento geral de `MathUnderparen` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O dispatcher geral exige braço exaustivo para a identidade nova, mas não é
-dono da realização geométrica.
-
-### Decisão proposta
-
-Encaminhar `Content::MathUnderparen` pelo caminho inline math; U+23DD,
-annotation, classe e stretch permanecem nos owners matemáticos.
-
-## P1440 — encaminhamento geral de `MathOverbracket` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O dispatcher geral encaminha variantes `Math*` ao layouter matemático; a nova
-variante exige braço exaustivo, mas sua realização não pertence a este nível.
-
-### Decisão proposta
-
-Encaminhar `Content::MathOverbracket` pelo caminho inline math. Este owner não
-interpreta U+23B4, annotation, classe ou stretch; a lógica permanece em
-`compiler/math/layout/underover.rs` e no spacing matemático.
-
-## P1441 — encaminhamento genérico de `MathOverline` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-Sem braço explícito, a variante nova pode cair em caminho genérico ou ser
-confundida com a decoração textual homônima.
-
-### Decisão proposta
-
-Encaminhar `Content::MathOverline` pelo caminho inline math. Este owner não
-interpreta cramped, constantes, classe nem posição da regra; a lógica
-permanece em `compiler/math/layout/underline.rs` e no spacing matemático.
-
-## P1442 — encaminhamento geral de `MathOverparen` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O dispatcher geral encaminha variantes `Math*` ao layouter matemático; a nova
-variante exige braço exaustivo, mas sua realização não pertence a este nível.
-
-### Decisão proposta
-
-Encaminhar `Content::MathOverparen` pelo caminho inline math. Este owner não
-interpreta U+23DC, annotation, classe ou stretch; a lógica permanece em
-`compiler/math/layout/underover.rs` e no spacing matemático.
-
-## P1443 — encaminhamento geral de `MathOvershell` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O dispatcher geral encaminha variantes `Math*` ao layouter matemático; a nova
-variante exige braço exaustivo, mas sua realização não pertence a este nível.
-
-### Decisão proposta
-
-Encaminhar `Content::MathOvershell` pelo caminho inline math. Este owner não
-interpreta U+23E0, annotation, classe ou stretch; a lógica permanece em
-`compiler/math/layout/underover.rs` e no spacing matemático.
-
-## P1444 — encaminhamento geral de `MathPrimes` (MATERIALIZADO)
-
-### Medição anterior à decisão
-
-O dispatcher geral precisa reconhecer a nova variante math, mas não é dono da
-geometria dos glyphs agrupados.
-
-### Decisão proposta
-
-Encaminhar `Content::MathPrimes` pelo caminho inline math. Este owner não
-interpreta count, codepoint, sobreposição ou attachment; a realização pertence
-a `compiler/math/layout/attach.rs`.
-## P1446 — roteamento geral de `MathStretch` (PROPOSTA; gate ADR-0127)
-
-Fora de `Equation`, `MathStretch` segue o mesmo fallback matemático dos demais
-carriers. Dentro da equação, somente `MathLayouter` o resolve. O Layouter
-geral não interpreta `size`, não estica frames e não duplica a lógica da
-feature.
-
-## P1448 — encaminhamento geral de `MathUnderbrace` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O dispatcher geral encaminha variantes `Math*` ao layouter matemático; a nova
-variante exige braço exaustivo, mas sua realização não pertence a este nível.
-
-### Decisão proposta
-
-Encaminhar `Content::MathUnderbrace` pelo caminho inline math. Este owner não
-interpreta U+23DF, annotation, classe ou stretch; a lógica permanece em
-`compiler/math/layout/underover.rs` e no spacing matemático.
-
-## P1449 — encaminhamento geral de `MathUnderbracket` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O dispatcher geral encaminha variantes `Math*` ao layouter matemático; a nova
-variante exige braço exaustivo, mas sua realização não pertence a este nível.
-
-### Decisão proposta
-
-Encaminhar `Content::MathUnderbracket` pelo caminho inline math. Este owner não
-interpreta U+23B5, annotation, classe ou stretch; a lógica permanece em
-`compiler/math/layout/underover.rs` e no spacing matemático.
-
-## P1462 — fachada de opções documentais de formato (MATERIALIZADA)
-
-O descendente privado `format_options` reexporta a função pura
-pública `collect_document_format_options` definida e possuída por
-`00_nucleo/prompts/compiler/layout/format_options.md`. A fachada não conhece
-CLI, exporters ou `World`, não duplica a travessia e não incorpora a lógica ao
-dispatcher de render.
-
-A nova entry point L1 é superfície pública entre camadas. A mudança foi aprovada
-e materializada em 2026-09-19. Nenhuma fase ou geometria do layout muda neste owner.
-
-## P1481 — idioma documental no resultado paginado (IMPLEMENTADO; confirmado em 2026-09-23)
-
-Medição: o vanilla escreve `/Lang (fr)` para o documento que define
-`#set text(lang: "fr")` e pinta somente `rect` (fixture
-`p1481-no-text-fr.typ`, SHA-256
-`8e1b27cf49c91d2edbe132aa69f893bb554bca7141121fe87a544ed219455b38`).
-O frame cristalino não conserva a regra textual depois do layout. O
-vanilla sem regra escreve `/Lang (en)`; na fixture de idioma local
-inicial `p1481-local-first.typ`, escreve `/Lang (fr)` e marca o texto
-seguinte em inglês como override local.
-
-Contrato confirmado: capturar o primeiro idioma efetivo da sequência
-documental e transportá-lo em `PagedDocument.document_language`.
-Capturar regra top-level mesmo se não houver glifos; conservar overrides
-locais em `TextStyle.lang`. O campo público exige aprovação
-ADR-0127. A captura ocorre no layout existente: nenhuma decisão de
-idioma é movida entre eval e layout, nenhuma fonte externa é consultada.
-
-## P1485.2 — origem de Locations em layout multi-documento (ratificado; ADR-0127)
-
-### Medição anterior à decisão
-
-Na working tree P1485 não commitada sobre
-`bde47c744e0bffb6229005e4b5f04c2ed0e9ef08`,
-`layout_with_introspector_and_metrics_and_callbacks`
-(`01_core/src/compiler/layout/mod.rs:3327-3450`) recebe o
-introspector global por valor e cria `Layouter::new` em cada
-iteração (`:3423-3424`); `Layouter.locator` inicia sempre em zero
-(`:1108`). O introspector do bundle já conhece os dois headings
-em Locations globais distintas. Com `#set heading(numbering: "1.")`,
-o vanilla pinado extrai `1. Alpha` de `a.pdf` e `2. Beta` de
-`b.pdf`; o cristalino extrai `1. Alpha` e `1. Beta`.
-A diferença é semântica da linguagem, não byte de PDF.
-Classificação ADR-0107: o texto numerado é semântica da
-linguagem; o valor numérico de `Location` e a forma da entrypoint
-são mecânica. O vanilla mede a continuidade, mas não legitima
-copiar seu `SplitLocator`. Inferência: iniciar cada iteração no
-checkpoint do walk global conserva a associação a counters/refs.
-Refutação: heading aninhado, fixpoint ou callback produzir Location
-distinta da introspecção apesar do seed correto.
-
-
-### Contrato público ratificado
-
-Adicionar uma entrypoint irmã
-`layout_with_introspector_and_metrics_and_callbacks_from` com a
-mesma assinatura vigente mais `location_start: LocatorSeed`.
-A entrypoint existente delega ao início zero e conserva resultados
-e API. A nova instala `Locator::from_seed(location_start)` em
-**cada** nova iteração de `Layouter` antes de `layout_content`,
-incluindo fixpoint, replay e callbacks; não avança artificialmente
-o conteúdo, não insere marcadores invisíveis e não altera a ordem
-de páginas. O seed é fornecido pela entrypoint proprietária de
-`compiler/introspect.md`, nunca por contagem ad hoc em L3.
-
-Aceitação: dois bodies paginados e um body HTML intercalado mantêm
-Locations/numeração globais; layout individual pela API antiga é
-idêntico ao anterior; fixpoint, labels, refs, counters, outline,
-equações e contextos não observam colisões nem offsets trocados.
-Repetir o mesmo body/seed no mesmo fixpoint é determinístico.
-A assinatura pública L1 teve o gate ADR-0127 confirmado
-pelo dono em 2026-09-24.
-## P1486 — número lógico inicial da página
-
-### Medição anterior à decisão
-
-`01_core/src/compiler/layout/mod.rs:2650-2665` fecha a última
-`Page` após calcular `page_number = self.pages.len() + 1`.
-`entities/layout_types.md` P1486 introduz o campo público já
-confirmado em 2026-09-24; a realização posterior do número lógico
-pertence a `infra/pipeline.md` P1486. Número mostrado no leitor PDF é
-observável; a inicialização física antes do snapshot é mecânica.
-
-### Decisão
-
-A página final nasce com `logical_number: page_number`. L1 não
-consulta o `PageStore` realizado nem antecipa `counter(page).update`;
-L3 substitui pelo número lógico validado antes do exportador.
-Nenhuma mudança de geometria, texto desenhado ou fase de layout.
-
-## P1486.1 — margem automática usa o número lógico realizado
-
-### Medição anterior à decisão
-
-`00_nucleo/diagnosticos/typst-p1486-page-labels.md` registra a sonda
-bilateral: com `counter(page).update(10)` e seleção 1+3, ambos os leitores
-mostram rótulos PDF `10, 12`, mas `pdftotext` extrai margem `1, 3` no
-cristalino e `10, 12` no vanilla pinado. Neste owner, `finish` usa
-`page_number = self.pages.len() + 1` para `format_counter` e para o
-pending de padrões compostos (`01_core/src/compiler/layout/mod.rs:2516-2584,
-2670-2695`), ignorando `runtime.known_page_store.logical_number_for_page`.
-O texto da margem é observável de linguagem; o momento de injeção da store
-é mecânica. A inferência de que a store final corrige a margem sozinha foi
-refutada pela sonda. Uma página sem store realizada deve manter o fallback
-físico; divergência de paginação na passagem final refutaria um snapshot
-anterior não alinhado.
-
-### Decisão
-
-Ao desenhar a margem automática de `Numbering::Pattern`, usar o número
-lógico da `known_page_store` para a página local quando disponível, e o
-físico apenas antes da realização. Para padrões compostos, preservar o
-adiamento mas usar o número lógico da página e o último número lógico
-realizado como total; sem store, conservar a fórmula física anterior.
-Recalcular a largura e a posição a partir do texto novo, sem substituir
-camadas explícitas. A inicialização física de `Page.logical_number` é
-provisória e continua inalterada. Esta correção de paridade supersede só
-a cláusula histórica acima que excluía mudança do texto desenhado; não
-introduz API pública, modo novo nem outra fase de layout.
-
-
-## P1491 — geometria causal de baseline para `measure`
-
-### Medição anterior à decisão
-
-Em 2026-09-24T14:12:42-03:00, no HEAD
-`b169a78c6c6bc17764b294f501ac09b63d678b03`, a redução vigente de
-`measure_content_real` perde a baseline e, quando há texto, substitui a altura
-do subframe pela aresta textual. O vanilla pinado mede: rect 10×20 → baseline
-20; texto → baseline igual à altura; box 20 com shift 3 → baseline 17; vazio →
-zero; composto texto+box → altura 20 e baseline 17. HTML conserva essas
-relações. Isso refuta `baseline = height` e a altura escolhida só por
-`plain_text()`.
-
-### Decisão proprietária
-
-Manter `pub fn measure_content_real(...) -> (f64, f64)` sem alteração. Um
-helper de visibilidade interna a `compiler` reutiliza exatamente o mesmo
-Layouter isolado e devolve também a baseline. A altura/baseline vêm das
-extensões da linha composta: arestas tipográficas reais para texto e
-`line_inline_ascent`/`line_inline_descent` para frames inline. Conteúdo sem
-baseline natural usa a borda inferior do frame; vazio usa zero. O par público
-legado delega ao helper e descarta apenas baseline.
-
-Não inferir pelo variant de `Content`, não assar 20pt, não criar campo em
-`Frame`, `Region`, entidade ou trait, e não mover fase. Métricas continuam
-injetadas. Width, sombra, diagnóstico e rejeição de `measure(width:/height:)`
-permanecem. O owner `boxed.md` torna o shift já transportado parte das
-extensões inline; este owner apenas extrai a geometria resultante.
-
-## P1493 — fachada intrínseca com posições HTML (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
-
-### Medição anterior à decisão
-
-A fachada `layout_html_frame` devolve somente `Page`; a posição dos markers
-causais é descartada antes de L3 poder estabilizar leituras. Alterar a função
-existente quebraria callers P1424.
-
-### Contrato ratificado
-
-Conservar `layout_html_frame -> Page` como fachada de compatibilidade.
-Adicionar `layout_html_frame_detailed(...) -> HtmlFrameLayout`, com campos
-públicos `page: Page` e `positions: Vec<(u64, HtmlPosition)>`. A chave `u64`
-é o id causal do `ContextBlock` que executa `here()`. A sequência é
-determinística e produzida pelo owner descendente. A fachada não conhece
-pipeline, World, exportador ou target externo e não executa Func.
-
-A Page intrínseca pode conservar `logical_number: 1` apenas como mecânica de
-layout; esse número não integra `HtmlPosition` nem qualquer resposta da
-linguagem. Carriers geométricos privados são removidos antes da Page pública e
-não alteram itens, dimensões nem SVG. A adição da fachada pública entre L1 e L3
-foi confirmada pelo dono em 2026-09-24.
-
-## P1493 — neutralidade de fluxo após revisão adversarial
-
-Medição posterior ao gate: presença física do carrier em `current_line` fazia
-decisões cruas de vazio tratarem um `ContextBlock` no-op como conteúdo;
-espaço, parbreak, flush e transições de container podiam criar avanço
-fantasma.
-
-Em toda decisão de fluxo, somente o carrier privado direto é imaterial. Ele
-continua na árvore para receber a geometria, mas não satisfaz predicados de
-linha ou região com conteúdo. Wrappers preexistentes preservam exatamente a
-materialidade que possuem na fachada legada; conter apenas o carrier não os
-torna vazios. Fora da passagem
-detalhada não existe carrier e o comportamento permanece idêntico.
+Aceitação: testes RED→GREEN e matriz bilateral, regressões anteriores, build/lint sem erros; resselo somente dos owners deste manifesto.

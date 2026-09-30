@@ -1,100 +1,58 @@
-# Prompt L0 — `compiler/layout/footnote` — layout do marcador de nota de rodapé
+# L0 — footnote
 Hash do Código: a8cd810a
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/layout/footnote.rs`
-**Prompt pai (hub)**: `00_nucleo/prompts/compiler/layout.md`
-**ADRs**: ADR-0107 (paridade linguagem), ADR-0109 (atomização, forma B), ADR-0127 (gate de mudança de output visual)
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/footnote.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
----
+## Evidence before specification
 
-## Contexto
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/footnote.rs:31`.
 
-Layout do elemento `footnote`: emite o marcador inline e difere o corpo para
-o rodapé (`pending_footnote_bodies`, flush em `new_page`/`finish`). O arquivo
-foi extraído do monólito `layout/mod.rs` no âmbito da atomização (P381,
-ADR-0109).
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-## Instrução
+## Ownership and contract
 
-### `layout(layouter, e)`
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-1. **Obter o número**: via `layouter.introspector.flat_counter_at("footnote", loc)`
-   (P1016). `loc` é `layouter.current_location`, actualizado no topo de
-   `layout_content` porque Footnote é locatable.
+Read the current causal footnote counter from the injected introspector, with the existing fallback of one. Format the supplied pattern or default `1`, falling back to the decimal value, and dispatch a superscript marker without square brackets. Queue the numbered body for deferred emission. Footnote-body drain and region progress remain in `00_nucleo/prompts/compiler/layout/cursor.md`; terminal coordination remains in `00_nucleo/prompts/compiler/layout.md`.
 
-2. **Aplicar `numbering` do `FootnoteElem`**:
-   - `FootnoteElem::numbering` é `Option<EcoString>`.
-   - Se `Some(pattern)`, formatar o número com `format_pattern` (reusar
-     `compiler/stdlib/numbering.rs::format_pattern`, P793/P844).
-   - Se `None`, usar o default vanilla `"1"` (comportamento actual de
-     `#footnote[...]` sem `#set footnote(numbering:)`).
+## Acceptance and limits
 
-3. **Renderizar em superscript**:
-   - Envolver o texto formatado em `Content::superscript(...)` (P448), de
-     forma a elevar a baseline e reduzir o corpo — paridade visual com o
-     vanilla.
-   - **Não** envolver em colchetes literais (`[N]`); o vanilla usa apenas o
-     número formatado (ex.: `¹`, `*`).
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
 
-> **Fonte de paridade (P1031)** — vanilla ratificado (`e0e8ca4d`):
->
-> - **Default `"1"`** — citação literal de
->   `crates/typst-library/src/model/footnote.rs:79-80`:
->   `#[default(Numbering::Pattern(NumberingPattern::from_str("1").unwrap()))] pub numbering:
->   Numbering`. O doc comment do campo (`footnote.rs:72-78`) publica o exemplo
->   `#set footnote(numbering: "*")`, em
->   `typst.app/docs/reference/model/footnote/#parameters-numbering`.
-> - **Superscript, sem colchetes** — citação literal do doc comment `#[elem]` em
->   `crates/typst-library/src/model/footnote.rs:24-31`: *"A footnote will insert a
->   superscript number that links to the note at the bottom of the page. […] The footnote
->   itself is realized as a normal superscript, so you can use a set rule on the `super`
->   function to customize it."* A implementação confirma-o em `footnote.rs:324`
->   (`let sup = SuperElem::new(link).pack().spanned(span);`) e `footnote.rs:303` (*"Returns
->   the content of the superscript that holds the number and links […]"*).
->   A documentação diz **superscript**; não menciona colchetes em lado nenhum, o que
->   sustenta a instrução negativa do L0.
->
-> **Natureza das citações**: literal para o default `"1"` e para o superscript. O exemplo
-> `¹`/`*` do L0 ilustra o resultado do pattern, não é texto citado da documentação.
+## Admissão da chamada com o primeiro corpo — proposta pendente de materialização
 
-4. **Diferir o body**: empurrar `(n, Box::new(e.body.clone()))` para
-   `layouter.pending_footnote_bodies`, como hoje.
+### Medição anterior à decisão
 
-### Exemplos
+`00_nucleo/diagnosticos/footnote-composicao-2026-09-30/results.json` fixa o
+vanilla `9f2b6e8715237cb086899a42873660fe744622e8`, o binário cristalino,
+HEAD e árvore não commitada da sonda. Em `defer.typ`, o vanilla coloca a linha
+`Alpha¹ omega.` e a nota na página seguinte; o cristalino deixa a chamada na
+página anterior e adia só o corpo. `footnote.rs:47-51` emite a chamada e enfileira
+o corpo, enquanto `footnote_flush.rs:128-169` decide o cabimento tarde demais
+para mover a linha de origem. A causalidade é inferida desses pontos e seria
+refutada por um percurso que já movesse a linha completa antes do flush.
 
-```typst
-A#footnote[nota] B#footnote[outra]
-```
+### Contrato proposto, ainda não vigente
 
-- Sem `#set footnote(numbering:)`: marcadores `¹` e `²` em superscript.
-- Com `#set footnote(numbering: "*")`: marcadores `*` e `**` em superscript.
+O protótipo em `footnote.rs` foi refutado por `defer.typ` fonte→PDF: o
+parágrafo preparado já confirmou a linha e a fila local não consegue movê-la.
+A implementação deve acontecer em passo futuro coordenado com os owners de
+linha/região; este texto não autoriza alterar o consumer atual como se a
+correção estivesse concluída.
 
-## Restrições estruturais
+Antes de emitir a chamada, quando a nota inteira cabe numa região nova mas não
+na região corrente junto à linha portadora, mover a linha em curso inteira para
+a próxima região. Conservar itens, texto anterior/posterior, avanço horizontal,
+estilos e número causal; não mover só o sobrescrito. A nota permanece pendente
+para o flush normal na região da chamada. Não tentar essa migração se não houver
+progresso regional ou se a nota exceder a altura útil completa; a continuação
+de notas oversized pertence a outra materialização. Esta é correção privada de
+paridade em fluxo contínuo ADR-0127, sem campo/assinatura pública, default,
+fase ou compatibilidade novos.
 
-- Manter acesso ao estado privado do `Layouter` por descendência de módulo
-  (forma B da ADR-0109).
-- Não introduzir import reverso `entities → layout`.
-
-## Gatilhos de reabertura
-
-- Mudança na forma do marcador no vanilla.
-- Suporte a `footnote.entry` ou links do marcador para a nota.
-
-## Critérios de verificação
-
-```
-A#footnote[uma] B#footnote[duas]
-  marcadores no corpo → "A¹ B²" (superscript, sem colchetes)
-  notas no rodapé     → "1 uma / 2 duas"  // inalterado
-
-#set footnote(numbering: "*")
-A#footnote[a] B#footnote[b] C#footnote[c]
-  marcadores → "A* B** C***"
-```
-
-Não-regressão: `p552_footnote_counter_avanca_em_set_page_columns` e todos os
-testes de posicionamento/numeração de nota do Passo 1016 — a numeração em si
-não pode mudar, só a forma de desenho.
-
-Aplicação final: `cargo build && crystalline-lint .` — zero violations.
+Aceitação: `defer` coloca chamada e corpo na mesma página como o vanilla;
+`fit` permanece numa página; a linha portadora mantém o texto em ordem; nota
+que excede a região inteira não entra em ciclo de páginas. A prova é por texto,
+páginas e morfologia, não por bytes de PDF.

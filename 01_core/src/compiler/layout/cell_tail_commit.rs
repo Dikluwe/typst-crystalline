@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cell_tail_commit.md
-//! @prompt-hash 401c9e01
+//! @prompt-hash f4f39e78
 //! @layer L1
 //! @updated 2026-09-25
 //!
@@ -43,7 +43,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let mut tail_h = 0.0_f64;
             for item in tail.items.iter() {
                 let y = match item {
-                    FrameItem::Text { pos, .. } => pos.y.0,
+                    FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => pos.y.0,
                     FrameItem::TextShaped { pos, .. } => pos.y.0,
                     FrameItem::Line { start, .. } => start.y.0,
                     FrameItem::Glyph { pos, .. } => pos.y.0,
@@ -51,7 +51,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     FrameItem::Shape { pos, .. } => pos.y.0,
                     FrameItem::Group { pos, .. } => pos.y.0,
                     FrameItem::Link { .. } => 0.0,
-                    FrameItem::Semantic { items, .. } => items
+                    FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items
                         .iter()
                         .map(crate::compiler::layout::slicing::item_y_start)
                         .fold(0.0, f64::max),

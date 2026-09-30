@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/shape_block_behaviour.md
-//! @prompt-hash 8f6a6e95
+//! @prompt-hash 999f4c0d
 //! @layer L1
 //! @updated 2026-09-27
 //!
@@ -36,10 +36,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &ShapeElem,
 ) {
-    // A fresh main-flow block has a geometric top, not a text baseline.
-    // Preserve typography-dependent placement for pending text and subframes.
-    let fresh_block = !layouter.is_sub_frame
-        && layouter.initial_baseline_pending
+    // A fresh block starts at a geometric top, including root Place.
+    // Legacy baseline-origin subframes arrive with the pending flag cleared.
+    let fresh_block = layouter.initial_baseline_pending
         && layouter.regions.current.current_line.is_empty();
     if fresh_block {
         layouter.initial_baseline_pending = false;

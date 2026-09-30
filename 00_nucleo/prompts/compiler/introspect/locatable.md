@@ -1,345 +1,52 @@
-# Prompt L0 — `rules/introspect/locatable`
-Hash do Código: 7304c0b9
+# L0 — introspect/locatable
+Hash do Código: c37d093a
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/introspect/locatable.rs`
-**Criado em**: 2026-04-30 (P164 — passo único de M2 Introspection)
-**ADRs relevantes**: ADR-0033 (paridade vanilla), ADR-0066 (Introspection runtime)
-
----
-
-## P1494 — origem newline não-locatable (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
-
-### Medição anterior à decisão
-
-No baseline `6da06e849d75972651a342ad6aad337313451c79`,
-`is_locatable` tem match exaustivo: `Content::Space` está no conjunto
-não-locatable em `01_core/src/compiler/introspect/locatable.rs:123-131`.
-O extrator de payload não cria ocorrência para espaço
-(`01_core/src/compiler/introspect/extract_payload.rs:92-96`), mantendo o
-invariante deste L0. O diagnóstico P1494 registra a medição de linguagem.
-
-### Decisão ratificada
-
-Adicionar `Content::SpaceFromNewline` explicitamente ao braço `false`, sem
-wildcard novo. A origem lexical não torna espaço consultável: não há payload,
-Location ou identidade de elemento. Manter
-`is_locatable(c) == extract_payload(c).is_some()` também para a nova folha;
-não normalizar o conteúdo neste classificador. O gate ADR-0127 da
-variante pública P1494 foi confirmado em 2026-09-24.
-
-## Contexto
-
-`is_locatable` é a função pura `&Content → bool` que classifica se um nó de `Content` é uma variante locatable (queryable pelo motor de introspecção). Em M1, "locatable" significa um dos 3 kinds que produzem `ElementPayload` em `extract_payload`: `Heading`, `Figure`, `Cite`.
-
-Função extraída em M2 (P164) como utilitária para consumidores futuros — tipicamente `Introspector::from_tags` em M3 quando precisar de classificar tags por kind sem reusar a lógica de `extract_payload`.
-
-Vanilla resolve via marker traits (`Locatable`, `Unqueriable`, `Tagged`); cristalino prefere função pura com match exaustivo top-level. Lista única auditável vs atributos dispersos por dezenas de elementos. Coerente com a topologia "Content é enum fechado" (ADR-0026) e "extract_payload é match exaustivo" (P162).
-
----
-
-## Restrições Estruturais
-
-- Camada **L1**: função pura, sem efeitos secundários, sem I/O.
-- `pub fn is_locatable(content: &Content) -> bool`.
-- **Match exaustivo** sobre `Content` — sem `_ => false` fall-through.
-  Razão: compilador força revisão quando variant novo é adicionado a
-  `Content`. Se usar `_ => false`, novos variants são silenciosamente
-  classificados como não-locatable, perdendo a invariante.
-- **Invariante**: para todo `c: Content`,
-  `is_locatable(c) == extract_payload(c).is_some()`.
-
-## Cobertura (P164 baseline; expandido em P169/P171/P178/P181D)
-
-`Content` tem **56 variants**. Distribuição actual:
-
-- **Locatable (10)** → `true`: `Heading`, `Figure`, `Cite`, `Metadata`
-  (P169 M9), `State` + `StateUpdate` (P171 M9), `Outline` (P178),
-  `Bibliography` (P181D — lacuna #6 fechada),
-  **`SetHeadingNumbering`** (P182C — emite `StateUpdate` com chave
-  `numbering_active:heading`; suporta lacuna #4),
-  **`Equation`** (P186D — eixo 2 do bloqueio P183C C2 desbloqueado;
-  emite `ElementPayload::Equation { block, counter_update }` via
-  `extract_payload` P186C).
-- **Não-locatable (46)** → `false`: todos os outros.
-
----
-
-## Interface pública
-
-```rust
-use crate::entities::content::Content;
-
-pub fn is_locatable(content: &Content) -> bool;
+```text
 ```
 
----
-
-## Semântica
-
-- `is_locatable(c)` é determinístico — mesma entrada produz mesmo output.
-- Não tem state — função pura sobre o discriminante do Content.
-- Equivalente a `extract_payload(c).is_some()` mas mais barato (não constrói `ElementPayload` nem chama `hash_content`).
-
----
-
-## Invariantes
-
-- Função pura sem side-effects.
-- Match exaustivo — qualquer variant novo de `Content` força edição
-  explícita aqui (compile error). Esta é a propriedade arquitectural.
-- `is_locatable(c) == extract_payload(c).is_some()` para todo c. Test
-  exaustivo verifica.
-- Adicionar variant novo a `Content` exige decisão coordenada: editar
-  ambos `extract_payload` (escolher `Some(...)` ou continuar em
-  `_ => None`) e `is_locatable` (escolher `true` ou `false`). Os dois
-  ficheiros são propositadamente paralelos.
-
----
-
-## Tests obrigatórios (sub-passo .B P164)
-
-- **Cobertura locatable**: `is_locatable(&Content::Heading{..}) == true`,
-  `Content::Figure{..} == true`, `Content::Cite{..} == true`.
-- **Cobertura não-locatable**: pelo menos 3 variants não-locatable
-  retornam `false` (e.g. `Content::Empty`, `Content::Text(..)`,
-  `Content::Sequence(..)`).
-- **Invariante exaustivo**: para cada variant de `Content` (ou pelo
-  menos um representante de cada bucket — locatable e não-locatable),
-  construir instância mínima e verificar
-  `is_locatable(&c) == extract_payload(&c).is_some()`.
-
----
-
-## Consumers actuais
-
-Nenhum no momento da criação. Walk em `rules/introspect.rs` **não** é
-modificado em M2 — walk continua a chamar `extract_payload` directamente.
-`is_locatable` está disponível como utilitária para consumers futuros.
-
-## Consumers planeados
-
-- `Introspector::from_tags` em M3 — consulta `is_locatable` quando
-  classificar tags por kind sem reconstruir o payload.
-- M9 features novas que precisem de classificar Content sem extrair
-  payload (e.g. um `query` que filtra por "qualquer locatable").
-
----
-
-## Sobre paridade
-
-Vanilla `Locatable` / `Unqueriable` / `Tagged` são marker traits sobre
-`#[elem]` structs. Cada elemento "anuncia" o seu estado via implementação
-de trait. Cristalino: lista única em função top-level — quando alguém
-quer saber "este nó é locatable?" pergunta-se à função, não ao tipo.
-
-Vantagens cristalinas:
-- Lista única e auditável (uma função, um ficheiro).
-- Compilador força exaustividade quando variant novo é adicionado.
-- Sem dispersion de "atributos arquitecturais" por 56 variants.
-
-Desvantagens reconhecidas:
-- Acrescentar variant locatable nova requer 2 edições (extract_payload
-  + is_locatable). Vanilla acrescenta 1 marker trait impl no `#[elem]`.
-
-Trade-off aceite per ADR-0026 (Content como enum fechado) e topologia
-"sem proc-macros vtable" do cristalino.
-
-Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md`
-(2026-04-30) §3 para classificação de marker traits vanilla como
-vtable-driven (scope-out cristalino).
-
----
-
-## Resultado Esperado
-
-- `01_core/src/compiler/introspect/locatable.rs` — função + tests.
-- `01_core/src/compiler/introspect.rs` — adicionar `pub mod locatable;`
-  (parallel to `pub mod extract_payload;` existente).
-
----
-
-## P1339 — classificação de Strong/Emph próprios
-
-### Medição anterior à decisão
-
-HEAD `2f42d64253547734564513a1159ee6b584c1c4b4`:
-`compiler/introspect/locatable.rs:157-159` exclui Strong/Emph junto de
-Styled. A medição histórica
-(vanilla ratificado `a51e02804`, estado/UTC/comandos no registro) encontra
-ocorrências de strong/emph; text.where é rejeitado como não localizável.
-
-### Decisão
-
-Classificar `Content::Strong(_)` e `Content::Emph(_)` como true, em conjunto
-com a delegação de `compiler/introspect/extract_payload.md`. Preservar match
-exaustivo e assinatura pública. Styled continua false, inclusive quando
-envolve estes nós; sua descida normal não é outra ocorrência. Text, flags
-visuais, variantes dinâmicas e todos os demais casos conservam sua regra
-vigente. Não promover famílias por nome ou por serem aceitas pelo where.
-
-O invariante is_locatable ↔ extract_payload.is_some permanece obrigatório.
-Aceitação deve incluir corpo vazio, aninhamento, Styled exterior e controle
-textual bold/italic; sincronização de Location é testada com walk e layout,
-não deduzida apenas de dois testes unitários verdes.
-
-## Histórico de Revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-04-30 | P164: extracção de classificação locatable como função pura — primeiro passo de M2 | `locatable.rs`, `locatable.md`, `rules/introspect.rs` (declaração `pub mod`) |
-| 2026-05-01 | P181D: `Content::Bibliography` move de não-locatable para locatable; suporte ao plano P181 (decisão P181A cláusula 4 = Opção β; lacuna #6) | `locatable.rs`, `locatable.md` |
-| 2026-05-02 | P182C: `Content::SetHeadingNumbering` move de não-locatable para locatable; emite `StateUpdate { key: "numbering_active:heading", update: Set(Bool(active)) }` em `extract_payload`. Suporte ao plano P182 (lacuna #4). | `locatable.rs`, `locatable.md` |
-| 2026-05-03 | P186D: `Content::Equation` move de não-locatable para locatable. Combinado com arm em `extract_payload` (P186C, ordem invertida pragmaticamente para evitar janela de invariante quebrada — embora a inversão tenha apenas invertido o sentido da quebra, vide P186C `.A.6` empírico). Repõe invariante `is_locatable ↔ extract_payload.is_some()` para Equation; sincronização Locator Layouter ↔ walk reposta. Cobertura `build_minimal_for_each_variant` em test de invariante estendida (lacuna pré-existente fechada). Suporte ao plano P186 (eixo 2 do bloqueio P183C C2). | `locatable.rs`, `locatable.md` |
-| 2026-08-10 | P992: `Content::MathLimitsOverride` (`limits()`/`scripts()`) — braço novo, `false` (mesmo tratamento das restantes variantes da família math: `MathAccent`, `MathCancel`, `MathClassOverride`, `MathOp`, etc.). Contagem "56 variants"/"46 não-locatable" desta secção já estava desactualizada antes deste passo (múltiplas variantes math adicionadas em passos anteriores sem actualização do total) — não recontada aqui, fora de escopo. | `locatable.rs`, `locatable.md` |
-| 2026-09-14 | P1402: `Content::OutlineEntry` é locatable porque `query(outline.entry)` devolve entradas públicas com identidade própria; o campo `element` preserva a identidade causal do heading. | `locatable.rs`, `locatable.md` |
-
-## P1436 — `MathLr` não-locatable (APROVADO NO GATE ADR-0127 EM 2026-09-17)
-
-### Medição anterior à decisão
-
-`LrElem` é carrier matemático sem `ElementKind`, Location ou payload
-selecionável; as variantes matemáticas estruturais vizinhas retornam falso.
-
-### Decisão proposta
-
-O match exaustivo classifica `Content::MathLr(_)` como `false`. Isso preserva
-o invariante `is_locatable ↔ extract_payload.is_some()` e não impede a
-travessia estrutural do body pelo owner apropriado.
-
-## P1437 — `MathMid` não-locatable (PROPOSTA; AGUARDA GATE ADR-0127)
-
-### Medição anterior à decisão
-
-`MidElem` não possui `ElementKind`, Location ou payload selecionável; sua
-relação com `lr` é de layout matemático, não de introspecção.
-
-### Decisão proposta
-
-O match exaustivo classifica `Content::MathMid(_)` como `false`, preservando
-`is_locatable ↔ extract_payload.is_some()` e a travessia do body pelo owner
-estrutural apropriado.
-
-## P1439 — `MathOverbrace` não-locatable (APROVADO NO GATE ADR-0127 EM 2026-09-17)
-
-### Medição anterior à decisão
-
-`OverbraceElem` não possui `ElementKind`, Location ou payload selecionável;
-body e annotation não tornam o wrapper locatável.
-
-### Decisão proposta
-
-O match exaustivo classifica `Content::MathOverbrace(_)` como `false`,
-preservando `is_locatable ↔ extract_payload.is_some()`.
-
-## P1451 — `MathUndershell` não-locatable (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O elemento não possui `ElementKind`, Location ou payload selecionável; body e
-annotation não tornam o wrapper locatável.
-
-### Decisão proposta
-
-O match exaustivo classifica `Content::MathUndershell(_)` como `false`,
-preservando `is_locatable ↔ extract_payload.is_some()`.
-
-## P1450 — `MathUnderparen` não-locatable (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O elemento não possui `ElementKind`, Location ou payload selecionável.
-
-### Decisão proposta
-
-Classificar `Content::MathUnderparen(_)` como `false`, preservando a
-equivalência entre locatabilidade e payload.
-
-## P1440 — `MathOverbracket` não-locatable (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-`OverbracketElem` não possui `ElementKind`, Location ou payload selecionável;
-body e annotation não tornam o wrapper locatável.
-
-### Decisão proposta
-
-O match exaustivo classifica `Content::MathOverbracket(_)` como `false`,
-preservando `is_locatable ↔ extract_payload.is_some()`.
-
-## P1441 — não-locatabilidade de `MathOverline` (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O elemento matemático body-only não possui identidade locatável própria nem
-payload de localização.
-
-### Decisão proposta
-
-O match exaustivo classifica `Content::MathOverline(_)` como `false`,
-preservando `is_locatable ↔ extract_payload.is_some()`.
-
-## P1442 — `MathOverparen` não-locatable (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-`OverparenElem` não possui `ElementKind`, Location ou payload selecionável;
-body e annotation não tornam o wrapper locatável.
-
-### Decisão proposta
-
-O match exaustivo classifica `Content::MathOverparen(_)` como `false`,
-preservando `is_locatable ↔ extract_payload.is_some()`.
-
-## P1443 — `MathOvershell` não-locatable (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-`OvershellElem` não possui `ElementKind`, Location ou payload selecionável;
-body e annotation não tornam o wrapper locatável.
-
-### Decisão proposta
-
-O match exaustivo classifica `Content::MathOvershell(_)` como `false`,
-preservando `is_locatable ↔ extract_payload.is_some()`.
-
-## P1444 — `MathPrimes` não-locatable (MATERIALIZADO)
-
-### Medição anterior à decisão
-
-O elemento não possui `ElementKind`, Location ou payload selecionável; o
-campo count não cria identidade espacial.
-
-### Decisão proposta
-
-O match exaustivo classifica `Content::MathPrimes(_)` como `false`, preservando
-`is_locatable ↔ extract_payload.is_some()`.
-## P1446 — não-locatabilidade de `MathStretch` (PROPOSTA; gate ADR-0127)
-
-`MathStretch` não cria localização própria e não é candidato consultável.
-Adicionar braço exaustivo não-locatável; não herdar localização do body nem
-fabricar elemento dinâmico.
-
-## P1448 — `MathUnderbrace` não-locatable (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-`MathUnderbraceElem` não possui `ElementKind`, Location ou payload
-selecionável; body e annotation não tornam o wrapper locatável.
-
-### Decisão proposta
-
-O match exaustivo classifica `Content::MathUnderbrace(_)` como `false`,
-preservando `is_locatable ↔ extract_payload.is_some()`.
-
-## P1449 — `MathUnderbracket` não-locatable (APROVADO NO GATE ADR-0127 EM 2026-09-18)
-
-### Medição anterior à decisão
-
-O elemento não possui `ElementKind`, Location ou payload selecionável; body e
-annotation não tornam o wrapper locatável.
-
-### Decisão proposta
-
-O match exaustivo classifica `Content::MathUnderbracket(_)` como `false`,
-preservando `is_locatable ↔ extract_payload.is_some()`.
+## Ownership and evidence
+
+Layer: L1. Sole consumer: `01_core/src/compiler/introspect/locatable.rs`.
+The exhaustive Content match in is_locatable at `:20` classifies the current
+node, not its descendants. `01_core/src/compiler/introspect/extract_payload.rs:18`
+is a separate delegated extractor with an open None fallback.
+Layout and introspection share classification for causal allocation; allocation
+and traversal themselves are owned by their respective productive modules.
+
+## Contract
+
+Preserve `pub fn is_locatable(content: &Content) -> bool` as a pure,
+deterministic, stateless classification over the closed enum, without a wildcard.
+A new enum variant requires an explicit classification decision; adding a
+locatable producer also requires extractor/traversal review.
+
+The native true branches are Strong, Emph, Heading, Figure, Cite, Metadata,
+State, StateUpdate, StateDisplay, CounterDisplayCallback, ContextBlock,
+Outline, OutlineEntry, Bibliography, Equation, CounterUpdate, Table and Footnote.
+Dynamic is true only when dyn_element_kind() is present.
+The remaining variants are false, including Styled, Label, Sequence, Columns,
+text/spacing/flow sentinels, mathematical carriers, FigureCaption and
+FootnoteEntry. A non-locatable wrapper can still have traversed locatable children;
+false is not a command to discard its descendants.
+
+Own Strong/Emph occurrences remain true even for empty or repeated bodies.
+Styled surrounding them stays false. Footnote itself is true independently
+of column layout. SpaceFromNewline remains false without origin normalization.
+No boolean classifies an arbitrary wrapper as Heading or invents identity from
+old show flags.
+
+## Alignment and acceptance
+
+The intended ordinary-producer invariant is
+is_locatable(c) == extract_payload(c).is_some(), supporting synchronized
+Location allocation rather than a second independent occurrence count.
+Do not claim universal verified coverage: OutlineEntry is currently true here
+but returns None from the extractor and has a post-walk synthesized query path.
+Its direct-input/traversal alignment is unresolved; see
+`00_nucleo/diagnosticos/sanitization-introspection-columns-history.md`.
+Dynamic alignment also depends on its existing kind/payload boundary.
+
+Cover native true branches and representative false wrappers/leaves, own
+Strong/Emph, both Space variants, and delegation alignment for the ordinary
+producer domain. Preserve the explicit OutlineEntry discrepancy as an audited
+pending issue; fixing either consumer is outside documentation sanitization.

@@ -2361,7 +2361,9 @@ name = "typst-benches"
 version = "0.1.0"
 dependencies = [
  "criterion",
+ "typst-assets",
  "typst-core",
+ "typst-infra",
 ]
 
 [[package]]
@@ -2371,6 +2373,7 @@ dependencies = [
  "ciborium",
  "codex",
  "comemo",
+ "criterion",
  "csv",
  "ecow",
  "hayagriva",

@@ -1,12 +1,22 @@
-# Prompt L0 — consumer visual de linebreak
-Hash do Código: f14daa83
+# L0 — linebreak
+Hash do Código: cc4a4d87
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/layout/linebreak.rs`
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/linebreak.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Contrato e aceitação
+## Evidence before specification
 
-Fechar linha explícita; quando `justify` é true distribuir espaço restante
-pelas oportunidades reais antes do flush. Emitir boundary semântico
-transparente quando aplicável. False/omitido não justificam e nenhum estado
-vaza para a linha seguinte.
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/linebreak.rs:16`.
+
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
+
+## Ownership and contract
+
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
+
+Append the existing transparent ExplicitLinebreakBoundary at the first pending item's position when a first item exists. If `justify` is true, request justification through `00_nucleo/prompts/compiler/layout/line_commit.md`; otherwise do not request it. Close the current line through the ordinary commit hook. The boundary does not paint text, and the adapter does not define the justification formula.
+
+## Acceptance and limits
+
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.

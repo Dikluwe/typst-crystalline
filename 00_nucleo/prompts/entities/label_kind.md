@@ -1,16 +1,15 @@
-# Prompt L0 — `entities/label_kind` — classe de label não referenciável
+# L0 — Unreferencable label classification
 Hash do Código: aa5bec2e
 
-
-**Camada:** L1
-**Ficheiro proprietário:** `01_core/src/entities/label_kind.rs`
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/label_kind.rs`
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/references/unreferencable-label.toml sha256:5dde6e7f84150a121e671dab0d174798e8b56f24355147c1bcc471d6babd69ed
 
-## Contrato
+## Contract
 
-O enum público fechado `UnreferencableKind` distingue `Text`, `Raw`,
-`EquationWithoutNumbering` e `Other`, com `Debug`, `Clone`, `Copy`,
-`PartialEq`, `Eq` e `Hash`. Não contém algoritmo de layout nem texto completo
-de diagnóstico.
+The closed public enum `UnreferencableKind` distinguishes `Text`, `Raw`,
+`EquationWithoutNumbering` and `Other`, with `Debug`, `Clone`, `Copy`,
+`PartialEq`, `Eq` and `Hash`. It contains no layout algorithm or full diagnostic
+text. Diagnostic production belongs to its own owner.

@@ -1,72 +1,36 @@
-# Prompt L0 — `infra/export/gradients/function_dict` — PDF Function dict
+# L0 — infra/export/gradients/function_dict
 Hash do Código: 1cdb3061
 
-**Camada**: L3
-**Ficheiro alvo**: `03_infra/src/export/gradients/function_dict.rs`
-**Criado em**: 2026-05-19 (P307c)
-**ADRs**: ADR-0087 (gradient linear PDF), ADR-0091 (CMYK strategy)
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/export/gradients/function_dict.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0109, ADR-0126, ADR-0127, ADR-0128, ADR-0129, ADR-0130
 
----
+## Consumer evidence
 
-## Contexto
+`03_infra/src/export/gradients/function_dict.rs:12` identifies the current exclusive consumer. The clauses below
+are checked against that source and its delegated calls. They specify current
+export observables and ownership, not full upstream byte or algorithm equality.
 
-Emit do PDF Function dict para gradients:
-- 2 stops → Type 2 (exponential interpolation linear).
-- N > 2 stops → Type 3 stitching (sub-Functions Type 2 entre stops adjacentes).
+## PDF interpolation functions
 
-Duas variants:
-- `emit_function_dict` — RGB (3 componentes `/C0 [r g b] /C1 [r g b]`).
-- `emit_function_dict_cmyk` — CMYK (4 componentes).
+Own RGB, CMYK and one-channel spot function dictionary emitters. Consume already
+sampled stops; do not sample gradients or allocate unrelated PDF objects.
+Return the main dictionary plus subfunction objects, updating the caller-supplied
+sub_first_id for each newly emitted subfunction.
 
-## Restrições estruturais
+RGB/CMYK require at least two samples. Two samples use Type 2, Domain [0 1],
+C0/C1 and N 1 without subobjects. More use Type 3 stitching of adjacent Type 2
+segments, uniform Bounds and repeated Encode [0 1]. RGB uses three components;
+CMYK uses four and Range [0 1 0 1 0 1 0 1]. Preserve current component precision.
 
-- L3 puro. Apenas formatação `format!` sobre stops já amostrados.
-- `pub(crate)` — chamado por `super::super::builder::emit_gradient_objects`.
-- Self-contained (não depende de outros submódulos de gradients/).
-- `sub_first_id: &mut usize` — caller pré-aloca IDs para sub-Functions Type 2.
+Spot uses tint directly, not RGB projection, with Range [0 1] and one component.
+Zero-to-two samples retain the current endpoint/default-zero Type 2 behavior.
+Additional samples use Type 3 adjacent segments and current eight-decimal tint/bounds.
+Output Separation resource/shading routing belongs to
+`00_nucleo/prompts/infra/export/builder/resources.md`.
 
-## Interface
+## Verification
 
-```rust
-pub(crate) fn emit_function_dict(
-    stops: &[(f32, f32, f32)],
-    function_id: usize,
-    sub_first_id: &mut usize,
-) -> (String, Vec<(usize, String)>);
-
-pub(crate) fn emit_function_dict_cmyk(
-    stops: &[(f32, f32, f32, f32)],
-    function_id: usize,
-    sub_first_id: &mut usize,
-) -> (String, Vec<(usize, String)>);
-```
-
-Returns `(main_dict_string, vec_of_sub_function_objects)`.
-
-## Invariantes
-
-- 2 stops → retorna `(dict, vec![])` (sem sub-Functions).
-- N > 2 → retorna `(stitching_dict, sub_objs)` com `sub_objs.len() == n - 1`.
-- Cada sub-Function tem ID único alocado por `*sub_first_id += 1`.
-
-## Critérios de verificação
-
-Tests `p263_emit_function_dict_*` em `super::super::tests`.
-
-## P1483 — função de um canal para spot
-
-### Medição anterior à decisão
-
-`vanilla-gradient.pdf` da sonda P1483 usa shading axial/radial
-com `/ColorSpace` de separação e função de saída única
-(`/Range [0 1]`, `/C0 [tint0]`, `/C1 [tint1]`);
-`function_dict.rs` só produz RGB/CMYK. Tint é um observável
-de impressão; IDs de subfunções não são.
-
-### Decisão interna
-
-Adicionar função Type 2 para dois tints e Type 3
-(stitching de Type 2) para amostras adicionais, sempre com
-um componente e `/Range [0 1]`. Usar tint dos valores spot
-interpolados no espaço do mesmo colorant; não derivar de RGB.
-A API é `pub(crate)`, interna ao cluster L3.
+Check components, domains/ranges, segment endpoints, subreference closure and
+collision-free IDs supplied by the caller. Tint and component identity are output
+contracts; exact external object IDs or stop-allocation mechanics are not parity.

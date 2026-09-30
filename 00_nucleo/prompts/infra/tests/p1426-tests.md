@@ -1,24 +1,24 @@
-# Testes P1426 — integração pública bilateral de `math.root`
+# L0 — Public math root integration tests
+Hash do Código: 28c357f4
 
-## Autoridade
+**Layer:** L3 (integration tests)
+**Exclusive consumer:** `03_infra/tests/p1426_math_root.rs`
 
-Prompt test-only derivado do contrato congelado P1426. Legitima exclusivamente
-`03_infra/tests/p1426_math_root.rs`; não legitima alterações no pipeline L3.
+## Current evidence
 
-## Obrigações
+- `03_infra/tests/p1426_math_root.rs:59`, `:68`, `:80`, `:97` — root convergence, index states, diagnostics and sqrt controls.
+- `00_nucleo/prompts/entities/elements/math_root.md` and `00_nucleo/prompts/compiler/eval/math.md` — observed productive contracts.
 
-1. compilar programas reais e provar convergência morfológica de
-   `root(3, x)` com `math.root([3], [x])`;
-2. preservar separadamente ausência de índice em `sqrt`, `none` explícito e
-   índice vazio;
-3. reproduzir os diagnósticos públicos medidos N01–N08;
-4. manter `math.sqrt` e sintaxe `sqrt` como controles `None/false` sem
-   `index: none` explícito, preservando a morfologia própria dos filhos de
-   cada rota: conteúdo qualificado `[x]`, identificador math bare `x`.
+These are current local source anchors, not a new upstream parity measurement.
 
-Convergência bilateral significa o mesmo estado causal e a mesma semântica
-de raiz quadrada; não autoriza igualar textualmente representações distintas
-do radicando que já existiam antes de P1426.
+## Contract
 
-Cada execução usa mundo temporário isolado por caminho. Erro de identidade,
-timeout, crash, OOM, saída truncada ou extração ambígua é `Unknown` e bloqueia.
+Own only the public integration test, not pipeline implementation. Compile real programs to prove causal/morphological convergence between root(3, x) and math.root([3], [x]). Distinguish absent sqrt index, explicit none and empty index. Preserve the existing eight public negative diagnostic cases in the consumer.
+
+Bare sqrt and math.sqrt remain controls with absent index/false explicit-presence state, without inventing explicit index:none. Keep route-specific children: qualified [x] content versus a bare math identifier x. Convergence means the same causal state and square-root semantics, not forced textual identity between already distinct radicand representations.
+
+Use isolated temporary worlds. Identity errors, timeout, crash, OOM, truncated output or ambiguous extraction are Unknown and block acceptance. Do not turn such outcomes into evidence of parity.
+
+## Verification boundary
+
+The prompt's missing legacy code-seal metadata is recorded in `00_nucleo/diagnosticos/sanitization-infra-wiring-history.md`; sanitation does not invent a seal or alter the test header.

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/sub_frame.md
-//! @prompt-hash 15821346
+//! @prompt-hash 048c8c22
 //! @layer L1
-//! @updated 2026-07-09
+//! @updated 2026-09-29
 //!
 //! Sub-layout de conteúdo numa região isolada.
 //! Extraído de `layout/mod.rs` no Passo 629 (sub-passo A) e refactorizado
@@ -73,9 +73,39 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         Vec<PendingAlignXEntry>,
         Vec<PendingAlignYEntry>,
     ) {
+        self.layout_sub_frame_with_origin(content, region, false)
+    }
+
+    pub(super) fn layout_sub_frame_at_geometric_origin(
+        &mut self,
+        content: &Content,
+        region: SubLayoutRegion,
+    ) -> (
+        f64,
+        Vec<FrameItem>,
+        Vec<DecoSegment>,
+        Vec<PendingAlignXEntry>,
+        Vec<PendingAlignYEntry>,
+    ) {
+        self.layout_sub_frame_with_origin(content, region, true)
+    }
+
+    fn layout_sub_frame_with_origin(
+        &mut self,
+        content: &Content,
+        region: SubLayoutRegion,
+        geometric_origin: bool,
+    ) -> (
+        f64,
+        Vec<FrameItem>,
+        Vec<DecoSegment>,
+        Vec<PendingAlignXEntry>,
+        Vec<PendingAlignYEntry>,
+    ) {
         // Salvar estado.
         let saved_items = std::mem::take(&mut self.regions.current.current_items);
         let saved_line = std::mem::take(&mut self.regions.current.current_line);
+        let saved_tracking = self.text_tracking_state.clone();
         let saved_x = self.regions.current.cursor_x;
         let saved_y = self.regions.current.cursor_y;
         let saved_line_start_x = self.regions.current.line_start_x;
@@ -114,14 +144,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // sem overhead (mesma disciplina de `flush_line`/`decorations.rs`).
         let saved_collector = self.decoration_lines_collector.take();
         self.decoration_lines_collector = saved_collector.is_some().then(Vec::new);
-        // P751 — durante um sub-layout isolado a baseline inicial é fixada
-        // imediatamente pelo próprio sub-frame (cursor_y = ascender); não
-        // queremos que `ensure_initial_baseline` dentro do sub-frame afecte
-        // o estado do layout pai.
-        self.initial_baseline_pending = false;
+        // Legacy callers install an ascender immediately; geometric Place
+        // defers the initial baseline to actual text. Both restore parent state.
+        self.initial_baseline_pending = geometric_origin;
         self.is_sub_frame = true;
 
-        // Inicializar cursor local — x = origin_x, y = ascender (como o layout principal).
+        // Local x is origin_x; y is geometric zero or the legacy ascender.
         // `line_start_x = origin_x` garante que `flush_line()` dentro do sub-frame
         // reinicia o cursor à origem da região, não à margem global da página.
         self.regions.current.cursor_x = Pt(region.origin_x);
@@ -136,8 +164,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.regions.current.width =
             region.origin_x + region.width + self.page_config.margin.right;
         self.regions.current.height = region.height.unwrap_or(1_000_000_000.0);
-        let (ascender, _) = self.metrics.vertical_metrics(self.style.size, &self.style);
-        self.regions.current.cursor_y = ascender;
+        self.regions.current.cursor_y = if geometric_origin {
+            Pt(0.0)
+        } else {
+            self.metrics.vertical_metrics(self.style.size, &self.style).0
+        };
         let start_y = self.regions.current.cursor_y.0;
 
         // Contexto sem altura delimitada — Content::Align decai VAlign::Bottom
@@ -272,7 +303,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P1050 — Altura real do conteúdo no sub-frame: da borda superior da primeira
             // linha ao fundo da última linha (sem adicionar leading espúrio após a última linha).
             let (top, bottom) = self.metrics.text_edges(max_font_size, &max_style);
-            let content_top = start_y - top.0;
+            let content_top = if geometric_origin { start_y } else { start_y - top.0 };
             let content_bottom = self.regions.current.cursor_y.0 - bottom.0;
             (content_bottom - content_top).max(0.0)
         } else {
@@ -297,6 +328,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.regions.current.width = saved_width;
         self.regions.current.height = saved_height;
         self.regions.current.current_line = saved_line;
+        self.text_tracking_state = saved_tracking;
         self.is_height_unconstrained = saved_unconstrained;
         self.is_sub_frame = saved_is_sub_frame;
         self.initial_baseline_pending = saved_initial_baseline_pending;

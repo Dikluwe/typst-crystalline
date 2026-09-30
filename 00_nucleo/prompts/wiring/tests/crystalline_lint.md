@@ -1,56 +1,28 @@
-# Prompt L0 — `wiring/tests/crystalline_lint` — whitelist type-level
+# L0 — wiring/tests/crystalline_lint
 Hash do Código: 687b9f29
 
+**Layer:** L4
+**Exclusive consumer:** `04_wiring/tests/crystalline_lint.rs`
 
-**Camada**: L4
-**Ficheiro alvo**: `04_wiring/tests/crystalline_lint.rs`
-**Criado em**: 2026-08-26 (P1198; individualização de `wiring.md`)
-**ADRs**: ADR-0129
+## Current evidence
 
----
+- `04_wiring/tests/crystalline_lint.rs:20` — `temp_project`.
+- `04_wiring/tests/crystalline_lint.rs:29` — `write_file`.
+- `04_wiring/tests/crystalline_lint.rs:38` — `setup_project_dirs`.
+- `04_wiring/tests/crystalline_lint.rs:85` — `type_level_violation_ecow_ecomap`.
+- `04_wiring/tests/crystalline_lint.rs:116` — `type_level_allowed_ecow_ecostring`.
 
-## Medição antes da decisão
+These are local source anchors, not a new upstream parity measurement.
+Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 04_wiring/tests/crystalline_lint.rs`.
 
-Esta suíte não executa o binário `typst`. Ela cria projetos cristalinos
-mínimos e invoca `crystalline-lint` pelo PATH para verificar exclusivamente a
-whitelist type-level V14. Portanto, não compartilha os observáveis CLI de
-`main.rs` e não consome o núcleo `wiring/cli-observables`.
+## Owned contract
 
-## Responsabilidade
+- Own integration of the type-level V14 whitelist, not the typst CLI observables. Invoke crystalline-lint from PATH against minimal temporary crystalline projects.
+- Declare L0/L1, Rust grammar, entities port, V14 severity and ecow allowlist for EcoString/EcoVec. EcoMap import must report V14 and package ecow; EcoString must not report V14. Do not require the entire forbidden item path when the linter identifies the package.
+- Combine stdout/stderr for the report and isolate/clean fixtures. This test does not consume the CLI-observables nucleus or authorize a linter implementation change.
 
-Validar em integração que `[l1_allowed_external.<crate>].types` distingue
-tipos autorizados e proibidos de uma crate externa já autorizada.
+## Verification and boundary
 
-O fixture mínimo declara L0/L1, gramática Rust, porta `entities`, severidade
-V14 e allowlist de `ecow` com `EcoString` e `EcoVec`.
-
-## Cenários
-
-Um source L1 com `use ecow::EcoMap;` deve produzir output contendo `V14` e o
-pacote normativo `'ecow'`. A mensagem atual do linter identifica o pacote
-externo, não repete o path integral do item proibido. Um source L1 com
-`use ecow::EcoString;` não deve produzir `V14`.
-
-Os testes combinam stdout e stderr porque a posição do relatório entre streams
-é detalhe do executável do linter, não contrato desta suíte.
-
-## Harness
-
-Cada projeto temporário inclui PID no nome, recria os diretórios esperados pelo
-walker de prompts, escreve `crystalline.toml` mínimo e remove a árvore ao fim.
-O binário é resolvido como `crystalline-lint` no PATH.
-
-## Critérios de verificação
-
-- `cargo test -p typst-wiring --test crystalline_lint` passa os dois cenários.
-- O caso proibido contém V14 e o pacote `ecow` na mensagem.
-- O caso autorizado permanece sem V14.
-- A alteração de linhagem do P1198 não modifica corpos Rust.
-
-## Histórico de revisões
-
-| Data | Motivo | Arquivos afetados |
-|------|--------|-------------------|
-| 2026-06-24 | P440 — integração da whitelist type-level V14 | `tests/crystalline_lint.rs` |
-| 2026-08-26 | P1198 — owner independente, sem núcleo de observáveis CLI | `wiring/tests/crystalline_lint.md`, `tests/crystalline_lint.rs` |
-| 2026-08-26 | P1198 RED→GREEN — oracle textual alinhado à mensagem normativa por pacote do linter atual | `wiring/tests/crystalline_lint.md`, `tests/crystalline_lint.rs` |
+Run `cargo test -p typst --test crystalline_lint -- --test-threads=1` with the harness prerequisites above.
+Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.

@@ -16,6 +16,7 @@ use std::sync::Arc;
 use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::{ArgOccurrence, Args};
+use crate::entities::color::{ColorSpaceError, SpotColor, SpotColorant};
 use crate::entities::file_id::FileId;
 use crate::entities::func::Func;
 use crate::entities::layout_types::{Color, ColorSpace};
@@ -23,7 +24,6 @@ use crate::entities::module::Module;
 use crate::entities::scope::Scope;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
-use crate::entities::color::{ColorSpaceError, SpotColor, SpotColorant};
 use crate::entities::value::{Type, Value};
 
 use super::err;
@@ -315,7 +315,11 @@ fn color_space_diagnostic(error: ColorSpaceError) -> Vec<SourceDiagnostic> {
 }
 
 fn check_space(color: &Color, space: &ColorSpace) -> SourceResult<()> {
-    color.clone().to_space(space.clone()).map(|_| ()).map_err(color_space_diagnostic)
+    color
+        .clone()
+        .to_space(space.clone())
+        .map(|_| ())
+        .map_err(color_space_diagnostic)
 }
 
 /// `color.lighten(col, amount)` — aumenta luminância por `amount` **no
@@ -473,8 +477,11 @@ pub(crate) fn native_color_negate(
             let c = extract_color_arg(col, "color.negate", "col")?;
             if let Some(target) = &space {
                 check_space(&c, target)?;
-                if matches!(&c, Color::Spot(_)) && !matches!(target, ColorSpace::Spot(_)) {
-                    return err_typed("cannot convert process color to spot colorant space");
+                if matches!(&c, Color::Spot(_)) && !matches!(target, ColorSpace::Spot(_))
+                {
+                    return err_typed(
+                        "cannot convert process color to spot colorant space",
+                    );
                 }
             }
             Ok(Value::Color(c.negate(space)))
@@ -502,8 +509,11 @@ pub(crate) fn native_color_saturate(
             let c = extract_color_arg(col, "color.saturate", "col")?;
             let a = extract_ratio_arg(amount, "color.saturate", "amount")?;
             if matches!(&c, Color::Spot(_)) {
-                return Err(vec![SourceDiagnostic::error(Span::detached(), "cannot saturate spot color")
-                    .with_hint("try using the fallback color instead")]);
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "cannot saturate spot color",
+                )
+                .with_hint("try using the fallback color instead")]);
             }
             match c.saturate(a) {
                 Some(sat) => Ok(Value::Color(sat)),
@@ -538,8 +548,11 @@ pub(crate) fn native_color_desaturate(
             let c = extract_color_arg(col, "color.desaturate", "col")?;
             let a = extract_ratio_arg(amount, "color.desaturate", "amount")?;
             if matches!(&c, Color::Spot(_)) {
-                return Err(vec![SourceDiagnostic::error(Span::detached(), "cannot desaturate spot color")
-                    .with_hint("try using the fallback color instead")]);
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "cannot desaturate spot color",
+                )
+                .with_hint("try using the fallback color instead")]);
             }
             match c.desaturate(a) {
                 Some(desat) => Ok(Value::Color(desat)),
@@ -694,7 +707,9 @@ pub(crate) fn native_color_space(
             let value = match c.space() {
                 ColorSpace::Srgb => Value::Func(Func::native("rgb", native_rgb)),
                 ColorSpace::Luma => Value::Func(Func::native("luma", native_luma)),
-                ColorSpace::LinearRgb => Value::Func(Func::native("linear-rgb", native_linear_rgb)),
+                ColorSpace::LinearRgb => {
+                    Value::Func(Func::native("linear-rgb", native_linear_rgb))
+                }
                 ColorSpace::Oklab => Value::Func(Func::native("oklab", native_oklab)),
                 ColorSpace::Oklch => Value::Func(Func::native("oklch", native_oklch)),
                 ColorSpace::Cmyk => Value::Func(Func::native("cmyk", native_cmyk)),
@@ -887,12 +902,22 @@ pub(crate) fn native_spot_tint(
     }
     let colorant = match args.items.first() {
         Some(Value::SpotColorant(colorant)) => colorant,
-        Some(other) => return err_typed(format!("expected spot colorant, found {}", vanilla_type_name(other))),
+        Some(other) => {
+            return err_typed(format!(
+                "expected spot colorant, found {}",
+                vanilla_type_name(other)
+            ))
+        }
         None => return err_typed("missing argument: self"),
     };
     let tint = match args.items.get(1) {
         Some(Value::Ratio(value)) => *value,
-        Some(other) => return err_typed(format!("expected ratio, found {}", vanilla_type_name(other))),
+        Some(other) => {
+            return err_typed(format!(
+                "expected ratio, found {}",
+                vanilla_type_name(other)
+            ))
+        }
         None => return err_typed("missing argument: value"),
     };
     if args.items.len() > 2 {
@@ -921,12 +946,15 @@ pub(crate) fn dispatch_spot_colorant_tint(
 ) -> SourceResult<Value> {
     let synth = if args.occurrences.is_some() {
         let mut occurrences = args.occurrence_sequence();
-        occurrences.insert(0, ArgOccurrence {
-            name: None,
-            value: Value::SpotColorant(colorant.clone()),
-            span: Span::detached(),
-            value_span: Span::detached(),
-        });
+        occurrences.insert(
+            0,
+            ArgOccurrence {
+                name: None,
+                value: Value::SpotColorant(colorant.clone()),
+                span: Span::detached(),
+                value_span: Span::detached(),
+            },
+        );
         Args::from_occurrences(args.span, occurrences)
     } else {
         let mut items = args.items;
@@ -1195,21 +1223,51 @@ mod p1473_tests {
     #[test]
     fn p1482_tint_is_a_color_with_stable_repr_and_equality() {
         let source = format!(r#"color.spot("Brand", {FALLBACK})"#);
-        assert_eq!(expect_ok(&format!("type({source}.tint(50%)) == color")), Value::Bool(true));
-        assert_eq!(expect_ok_str(&format!("repr({source}.tint(50%))")), format!("{source}.tint(50%)"));
-        assert_eq!(expect_ok(&format!("{source}.tint(50%) == {source}.tint(50%)")), Value::Bool(true));
-        assert_eq!(expect_ok(&format!("{source}.tint(50%) != {source}.tint(25%)")), Value::Bool(true));
-        assert_eq!(expect_ok(&format!("color.spot.tint({source}, 50%) == {source}.tint(50%)")), Value::Bool(true));
+        assert_eq!(
+            expect_ok(&format!("type({source}.tint(50%)) == color")),
+            Value::Bool(true)
+        );
+        assert_eq!(
+            expect_ok_str(&format!("repr({source}.tint(50%))")),
+            format!("{source}.tint(50%)")
+        );
+        assert_eq!(
+            expect_ok(&format!("{source}.tint(50%) == {source}.tint(50%)")),
+            Value::Bool(true)
+        );
+        assert_eq!(
+            expect_ok(&format!("{source}.tint(50%) != {source}.tint(25%)")),
+            Value::Bool(true)
+        );
+        assert_eq!(
+            expect_ok(&format!("color.spot.tint({source}, 50%) == {source}.tint(50%)")),
+            Value::Bool(true)
+        );
     }
 
     #[test]
     fn p1482_tint_bounds_and_errors() {
         let source = format!(r#"color.spot("Brand", {FALLBACK})"#);
-        assert_eq!(expect_ok_str(&format!("repr({source}.tint(0%))")), format!("{source}.tint(0%)"));
-        assert_eq!(expect_ok_str(&format!("repr({source}.tint(100%))")), format!("{source}.tint(100%)"));
-        assert_eq!(expect_err_message(&format!("{source}.tint(-1%)")), "spot color tint must be positive");
-        assert_eq!(expect_err_message(&format!("{source}.tint(101%)")), "spot color tint must not exceed 100%");
-        assert_eq!(expect_err_message(&format!("{source}.tint(0.5)")), "expected ratio, found float");
+        assert_eq!(
+            expect_ok_str(&format!("repr({source}.tint(0%))")),
+            format!("{source}.tint(0%)")
+        );
+        assert_eq!(
+            expect_ok_str(&format!("repr({source}.tint(100%))")),
+            format!("{source}.tint(100%)")
+        );
+        assert_eq!(
+            expect_err_message(&format!("{source}.tint(-1%)")),
+            "spot color tint must be positive"
+        );
+        assert_eq!(
+            expect_err_message(&format!("{source}.tint(101%)")),
+            "spot color tint must not exceed 100%"
+        );
+        assert_eq!(
+            expect_err_message(&format!("{source}.tint(0.5)")),
+            "expected ratio, found float"
+        );
     }
 
     #[test]
@@ -1217,11 +1275,28 @@ mod p1473_tests {
         let source = format!(r##"color.spot("Brand", rgb("#ff4136"))"##);
         assert_eq!(expect_ok_str(&format!("{source}.tint(0%).to-hex()")), "#ffffff");
         assert_eq!(expect_ok_str(&format!("{source}.tint(100%).to-hex()")), "#ff4136");
-        assert_eq!(expect_ok_str(&format!("repr({source}.tint(50%).lighten(20%))")), format!("{source}.tint(40%)"));
-        assert_eq!(expect_ok_str(&format!("repr({source}.tint(50%).darken(20%))")), format!("{source}.tint(60%)"));
-        assert_eq!(expect_ok(&format!("{source}.tint(50%).space() == {source}")), Value::Bool(true));
-        assert_eq!(expect_ok(&format!("{source}.tint(50%).components() == (50%,)")), Value::Bool(true));
-        assert_eq!(expect_ok(&format!("{source}.tint(12.3456789%).components().at(0) == 12.3456789%")), Value::Bool(true));
+        assert_eq!(
+            expect_ok_str(&format!("repr({source}.tint(50%).lighten(20%))")),
+            format!("{source}.tint(40%)")
+        );
+        assert_eq!(
+            expect_ok_str(&format!("repr({source}.tint(50%).darken(20%))")),
+            format!("{source}.tint(60%)")
+        );
+        assert_eq!(
+            expect_ok(&format!("{source}.tint(50%).space() == {source}")),
+            Value::Bool(true)
+        );
+        assert_eq!(
+            expect_ok(&format!("{source}.tint(50%).components() == (50%,)")),
+            Value::Bool(true)
+        );
+        assert_eq!(
+            expect_ok(&format!(
+                "{source}.tint(12.3456789%).components().at(0) == 12.3456789%"
+            )),
+            Value::Bool(true)
+        );
     }
 
     #[test]
@@ -1230,24 +1305,60 @@ mod p1473_tests {
         let a = format!("{spot}.tint(50%)");
         let b = format!("{spot}.tint(25%)");
         let repr = expect_ok_str(&format!("repr({spot})"));
-        assert_eq!(expect_ok_str(&format!("repr({a}.mix({b}))")), format!("{repr}.tint(37.5%)"));
-        assert_eq!(expect_ok(&format!("gradient.linear({a}, {b}).space() == {spot}")), Value::Bool(true));
-        assert_eq!(expect_ok_str(&format!("repr(gradient.linear({a}, {b}).sample(50%))")), format!("{repr}.tint(37.5%)"));
-        assert_eq!(expect_ok(&format!("gradient.linear({a}, blue).space() == color.oklab")), Value::Bool(true));
+        assert_eq!(
+            expect_ok_str(&format!("repr({a}.mix({b}))")),
+            format!("{repr}.tint(37.5%)")
+        );
+        assert_eq!(
+            expect_ok(&format!("gradient.linear({a}, {b}).space() == {spot}")),
+            Value::Bool(true)
+        );
+        assert_eq!(
+            expect_ok_str(&format!("repr(gradient.linear({a}, {b}).sample(50%))")),
+            format!("{repr}.tint(37.5%)")
+        );
+        assert_eq!(
+            expect_ok(&format!("gradient.linear({a}, blue).space() == color.oklab")),
+            Value::Bool(true)
+        );
     }
 
     #[test]
     fn p1482_rejects_incompatible_spot_space_and_operators() {
         let spot = r#"color.spot("Brand", red)"#;
         let a = format!("{spot}.tint(50%)");
-        assert_eq!(expect_err_message(&format!("{a}.mix(blue, space: {spot})")), "cannot convert process color to spot colorant space");
-        assert_eq!(expect_err_message(&format!("gradient.linear({a}, blue, space: {spot})")), "cannot convert process color to spot colorant space");
-        assert_eq!(expect_err_message(&format!("{a}.saturate(20%)")), "cannot saturate spot color");
-        assert_eq!(expect_err_message(&format!("{a}.desaturate(20%)")), "cannot desaturate spot color");
-        assert_eq!(expect_err_message(&format!("{a}.transparentize(20%)")), "spot colors do not have an alpha component");
-        assert_eq!(expect_err_message(&format!("{a}.opacify(20%)")), "spot colors do not have an alpha component");
-        assert_eq!(expect_err_message(&format!("{a}.rotate(90deg)")), "cannot convert process color to spot colorant space");
-        assert_eq!(expect_err_message(&format!("{a}.negate(space: rgb)")), "cannot convert process color to spot colorant space");
+        assert_eq!(
+            expect_err_message(&format!("{a}.mix(blue, space: {spot})")),
+            "cannot convert process color to spot colorant space"
+        );
+        assert_eq!(
+            expect_err_message(&format!("gradient.linear({a}, blue, space: {spot})")),
+            "cannot convert process color to spot colorant space"
+        );
+        assert_eq!(
+            expect_err_message(&format!("{a}.saturate(20%)")),
+            "cannot saturate spot color"
+        );
+        assert_eq!(
+            expect_err_message(&format!("{a}.desaturate(20%)")),
+            "cannot desaturate spot color"
+        );
+        assert_eq!(
+            expect_err_message(&format!("{a}.transparentize(20%)")),
+            "spot colors do not have an alpha component"
+        );
+        assert_eq!(
+            expect_err_message(&format!("{a}.opacify(20%)")),
+            "spot colors do not have an alpha component"
+        );
+        assert_eq!(
+            expect_err_message(&format!("{a}.rotate(90deg)")),
+            "cannot convert process color to spot colorant space"
+        );
+        assert_eq!(
+            expect_err_message(&format!("{a}.negate(space: rgb)")),
+            "cannot convert process color to spot colorant space"
+        );
     }
 
     #[test]
@@ -1255,9 +1366,21 @@ mod p1473_tests {
         let spot = r##"color.spot("Brand", rgb("#ff4136"))"##;
         let a = format!("{spot}.tint(50%)");
         assert_eq!(expect_ok_str(&format!("rgb({a}).to-hex()")), "#ffa09a");
-        assert_eq!(expect_err_message(&format!("{spot}.tint(value: 50%)")), "the argument `value` is positional");
-        assert_eq!(expect_err_message(&format!("{spot}.tint()")), "missing argument: value");
-        assert_eq!(expect_err_message("color.spot.tint(red, 50%)"), "expected spot colorant, found color");
-        assert_eq!(expect_err_message(&format!(r#"color.spot("X", {a})"#)), "spot color found where process color is required");
+        assert_eq!(
+            expect_err_message(&format!("{spot}.tint(value: 50%)")),
+            "the argument `value` is positional"
+        );
+        assert_eq!(
+            expect_err_message(&format!("{spot}.tint()")),
+            "missing argument: value"
+        );
+        assert_eq!(
+            expect_err_message("color.spot.tint(red, 50%)"),
+            "expected spot colorant, found color"
+        );
+        assert_eq!(
+            expect_err_message(&format!(r#"color.spot("X", {a})"#)),
+            "spot color found where process color is required"
+        );
     }
 }

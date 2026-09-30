@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/sequence.md
-//! @prompt-hash d8f22abf
+//! @prompt-hash 461477fa
 //! @layer L1
-//! @updated 2026-08-20
+//! @updated 2026-09-30
 //!
 //! Layout de `Content::Sequence` — iteração peekable com sticky
 //! lookahead e spacing collapse. Extraído de `layout/mod.rs` no P425
@@ -40,14 +40,17 @@ fn fractional_block(content: &Content) -> Option<&BlockElem> {
             return matches!(block.height, Some(BlockHeight::Fractional(_)))
                 .then_some(block);
         }
-        if let Content::Styled(body, _) = current {
-            current = body;
+        if let Content::Styled(styled) = current {
+            current = &styled.body;
             continue;
         }
         if let Content::Sequence(parts) = current {
-            let mut substantive = parts
-                .iter()
-                .filter(|part| !matches!(part, Content::Space | Content::SpaceFromNewline | Content::Empty));
+            let mut substantive = parts.iter().filter(|part| {
+                !matches!(
+                    part,
+                    Content::Space | Content::SpaceFromNewline | Content::Empty
+                )
+            });
             let only = substantive.next()?;
             if substantive.next().is_some() {
                 return None;
@@ -236,16 +239,16 @@ fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
                 }
                 (p1380_text_fragment(layouter, text, None), p1389_single_word(text))
             }
-            Content::Styled(body, styles) => match body.as_ref() {
+            Content::Styled(styled) => match &styled.body {
                 Content::Text(text) => {
-                    if text_fragments == 0 && p1383_size_only_styles(styles) {
+                    if text_fragments == 0 && p1383_size_only_styles(&styled.styles) {
                         first_fragment_size_only = true;
                     }
-                    if text_fragments == 1 && p1383_size_only_styles(styles) {
+                    if text_fragments == 1 && p1383_size_only_styles(&styled.styles) {
                         second_fragment_size_only = true;
                     }
                     (
-                        p1380_text_fragment(layouter, text, Some(styles)),
+                        p1380_text_fragment(layouter, text, Some(&styled.styles)),
                         p1389_single_word(text),
                     )
                 }
@@ -651,9 +654,12 @@ fn fractional_preflight<M: FontMetrics, S: ImageSizer>(
                         .any(|tail| fractional_block(tail).is_some());
                 // A última linha fecha na sua bottom-edge (baseline por omissão),
                 // não no avanço até à baseline hipotética seguinte.
-                let only_trailing_transparent = parts[index + 1..]
-                    .iter()
-                    .all(|tail| matches!(tail, Content::Space | Content::SpaceFromNewline | Content::Empty));
+                let only_trailing_transparent = parts[index + 1..].iter().all(|tail| {
+                    matches!(
+                        tail,
+                        Content::Space | Content::SpaceFromNewline | Content::Empty
+                    )
+                });
                 if precedes_fraction {
                     let (top, bottom) =
                         layouter.metrics.text_edges(layouter.style.size, &layouter.style);
@@ -752,7 +758,15 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
     parts: &[Content],
 ) {
+    if !layouter.paragraph_planning_suppressed
+        && super::paragraph_plan::try_parts(layouter, parts)
+    {
+        return;
+    }
+    let previous = layouter.paragraph_planning_suppressed;
+    layouter.paragraph_planning_suppressed = true;
     layout_parts(layouter, parts, FractionalRegionBasis::Inherited);
+    layouter.paragraph_planning_suppressed = previous;
 }
 
 /// P1379 — entrada exclusiva para uma região irmã criada por `colbreak()`.
@@ -762,7 +776,9 @@ pub(super) fn layout_segmented_region<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
     content: &Content,
 ) {
-    if let Content::Styled(body, styles) = content {
+    if let Content::Styled(styled) = content {
+        let body = &styled.body;
+        let styles = &styled.styles;
         let previous_chain = layouter.chain.clone();
         let previous_style = layouter.style.clone();
         layouter.chain = layouter.chain.push_styles(styles);
@@ -804,9 +820,9 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
     let saved_descent = layouter.prev_block_equation_descent;
     let saved_fractional_height = layouter.fractional_block_height;
     let distribution = fractional_preflight(layouter, parts, basis);
-    let terminal_flow_index = parts
-        .iter()
-        .rposition(|part| !matches!(part, Content::Space | Content::SpaceFromNewline | Content::Empty));
+    let terminal_flow_index = parts.iter().rposition(|part| {
+        !matches!(part, Content::Space | Content::SpaceFromNewline | Content::Empty)
+    });
 
     let mut iter = parts.iter().peekable();
     let mut part_index = 0usize;
@@ -834,7 +850,13 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
             if layouter.last_seen_item_group.is_some() {
                 layouter.parbreak_since_last_item = true;
             }
-        } else if !matches!(part, Content::Space | Content::SpaceFromNewline | Content::Empty | Content::Styled(..)) {
+        } else if !matches!(
+            part,
+            Content::Space
+                | Content::SpaceFromNewline
+                | Content::Empty
+                | Content::Styled(..)
+        ) {
             // Qualquer outro conteúdo real quebra a consecutividade.
             layouter.last_seen_item_group = None;
             layouter.parbreak_since_last_item = false;
@@ -883,7 +905,10 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         if inline_prefix.is_some_and(|prefix| {
             prefix.wrap_before.is_some_and(|index| part_index > index)
                 && part_index < prefix.block_index
-                && matches!(part, Content::Space | Content::SpaceFromNewline | Content::Empty)
+                && matches!(
+                    part,
+                    Content::Space | Content::SpaceFromNewline | Content::Empty
+                )
         }) && super::html_frame::items_have_material(
             &layouter.regions.current.current_line,
         ) {
@@ -919,7 +944,18 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         if distribution.is_some() && Some(part_index) == terminal_flow_index {
             layouter.fractional_flow_tail_pending = true;
         }
+        let planning_guard = layouter.paragraph_planning_suppressed;
+        let before_flow_break=parts[part_index+1..].iter().find(|part|!matches!(part,
+            Content::Empty|Content::Space|Content::SpaceFromNewline)).is_some_and(|part|matches!(part,Content::Pagebreak(_)|Content::Parbreak));
+        if (terminal_flow_index == Some(part_index) || before_flow_break)
+            && !super::html_frame::items_have_material(
+                &layouter.regions.current.current_line,
+            )
+        {
+            layouter.paragraph_planning_suppressed = false;
+        }
         layouter.layout_content(part);
+        layouter.paragraph_planning_suppressed = planning_guard;
         layouter.fractional_block_height = saved_fractional_height;
 
         // **P1107** — preservação da cadeia de colapso de margens:
@@ -958,7 +994,11 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
     let is_transparent = parts.iter().all(|p| {
         matches!(
             p,
-            Content::Empty | Content::Styled(..) | Content::Space | Content::SpaceFromNewline | Content::Parbreak
+            Content::Empty
+                | Content::Styled(..)
+                | Content::Space
+                | Content::SpaceFromNewline
+                | Content::Parbreak
         )
     });
     if is_transparent && saved_chain {
@@ -1049,7 +1089,7 @@ mod p1375_tests {
     #[test]
     fn p1375_styled_singleton_exposes_fractional_block() {
         for space in [Content::Space, Content::SpaceFromNewline] {
-            let wrapped = Content::Styled(
+            let wrapped = Content::styled(
                 Box::new(Content::sequence(vec![space, fractional(1.0)])),
                 Styles::new(),
             );
@@ -1062,7 +1102,7 @@ mod p1375_tests {
 
     #[test]
     fn p1375_styled_ambiguous_sequence_fails_closed() {
-        let wrapped = Content::Styled(
+        let wrapped = Content::styled(
             Box::new(Content::sequence(vec![fractional(1.0), fractional(2.0)])),
             Styles::new(),
         );

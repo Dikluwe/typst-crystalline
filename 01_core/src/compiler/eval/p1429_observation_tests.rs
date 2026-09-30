@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/p1429-observation-tests.md
-//! @prompt-hash c5df7e0a
+//! @prompt-hash f1aa6dd5
 //! @layer L1
 #![cfg(test)]
 

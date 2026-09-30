@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/html_frame.md
-//! @prompt-hash 2ba9f822
+//! @prompt-hash 835c9c4f
 //! @layer L1
 
 use crate::entities::elements::pdf_artifact::ArtifactKind;
@@ -70,7 +70,18 @@ pub(super) fn is_context_marker_only_tree(item: &FrameItem) -> bool {
 }
 
 pub(super) fn items_have_material(items: &[FrameItem]) -> bool {
-    items.iter().any(|item| !is_context_marker_only_tree(item))
+    items.iter().any(|item| !is_context_marker_only_tree(item) && !matches!(item, FrameItem::TextSeparator { .. }))
+}
+
+/// A linha pode existir semanticamente sem tinta: espaços literais pertencem
+/// à composição textual, mas continuam neutros para materialidade visual.
+pub(super) fn items_have_causal_line(items: &[FrameItem]) -> bool {
+    items_have_material(items) || items.iter().any(|item| matches!(item,
+        FrameItem::TextSeparator {
+            origin: crate::entities::layout_types::TextSeparatorOrigin::Literal,
+            ..
+        }
+    ))
 }
 
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
@@ -85,6 +96,7 @@ fn visible_top<M: FontMetrics>(item: &FrameItem, metrics: &M) -> Option<f64> {
         return None;
     }
     Some(match item {
+        FrameItem::TextSeparator { .. } => return None,
         FrameItem::Text { pos, style, .. } | FrameItem::TextShaped { pos, style, .. } => {
             pos.y.0 - metrics.text_edges(style.size, style).0 .0
         }
@@ -98,7 +110,7 @@ fn visible_top<M: FontMetrics>(item: &FrameItem, metrics: &M) -> Option<f64> {
         | FrameItem::Shape { pos, .. }
         | FrameItem::Group { pos, .. }
         | FrameItem::Link { pos, .. } => pos.y.0,
-        FrameItem::Semantic { items, .. } => items
+        FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items
             .iter()
             .find(|item| !is_context_marker_only_tree(item))
             .map(|item| super::helpers::item_pos(item).1)
@@ -114,7 +126,7 @@ fn collect_context_positions(
     for item in items {
         if let Some(id) = context_marker_id(item) {
             let Some(marker) = (match item {
-                FrameItem::Semantic { items, .. } => items.first(),
+                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items.first(),
                 _ => None,
             }) else {
                 continue;
@@ -125,7 +137,7 @@ fn collect_context_positions(
             continue;
         }
         match item {
-            FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
+            FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
                 collect_context_positions(items, transform, positions);
             }
             FrameItem::Group { pos, matrix, items, .. } => {
@@ -146,6 +158,11 @@ fn strip_context_marker<M: FontMetrics>(
         return None;
     }
     match item {
+        FrameItem::TextReplacement { text, items } => {
+            let items = items.into_iter()
+                .filter_map(|item| strip_context_marker(item, metrics)).collect();
+            Some(FrameItem::TextReplacement { text, items })
+        }
         FrameItem::Semantic { kind, placement, alt, items } => {
             let items = items
                 .into_iter()
@@ -295,7 +312,7 @@ mod p1493_tests {
                 "carrier privado sobreviveu na Page: {item:?}"
             );
             match item {
-                FrameItem::Semantic { items, .. }
+                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. }
                 | FrameItem::Link { items, .. }
                 | FrameItem::Group { items, .. } => assert_no_carrier(items),
                 _ => {}
@@ -455,9 +472,20 @@ mod p1493_tests {
         let style = TextStyle::from(&chain);
         let scaled_space = FixedMetrics.advance(" ", style.size, &style).val() * 2.0;
 
+        fn visible(mut page: crate::entities::layout_types::Page) -> String {
+            fn strip(items: &mut Vec<FrameItem>) {
+                items.retain(|item| !matches!(item, FrameItem::TextSeparator { .. }));
+                for item in items { match item {
+                    FrameItem::Group { items, .. } | FrameItem::Link { items, .. } | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => strip(items),
+                    _ => {}
+                } }
+            }
+            strip(&mut page.items);
+            format!("{page:#?}")
+        }
         assert_eq!(
-            format!("{:#?}", without_space.page),
-            format!("{:#?}", with_space.page),
+            visible(without_space.page.clone()),
+            visible(with_space.page.clone()),
             "trailing space e carrier não podem alterar a Page visível",
         );
         assert_close(

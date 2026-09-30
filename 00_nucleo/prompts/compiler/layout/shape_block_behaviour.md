@@ -1,5 +1,5 @@
 # L0 — shape block behaviour
-Hash do Código: 210e4958
+Hash do Código: e3f1d69e
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/shape.rs`
@@ -16,8 +16,7 @@ The equivalent-input pinned SVG probes in
 initial standalone non-text block moves when only text top-edge changes in
 Tekt, while the pinned vanilla position remains the region's physical top.
 This is observable geometry, not a requirement to copy upstream algorithms.
-Explicit Place controls remain invariant and do not authorize changing the
-subframe coordinate convention.
+Those earlier controls do not cover the root Place regressions measured below; legacy subframe conventions remain unchanged outside the bounded correction.
 
 Inspection of the subframe path in the owned consumer shows that cap-height is
 queried before a branch whose ordinary positioning uses cursor_y directly.
@@ -57,3 +56,13 @@ needed cap-height before transitioning pages, preserving its original style and
 fallback coordinates. Image subframe positioning/extent does not use cap-height.
 Keep the main-flow typography-dependent paths unchanged. This removes unnecessary
 queries, not the subframe owner's initial catalog demand; no speedup is asserted.
+
+## Correction — 2026-09-28
+
+### Measurement before decision
+
+The five `place_regression_*` refutators in `03_infra/src/integration_tests.rs:5690` reproduce loss of configured empty-page dimensions, image clipping, text top edge, and unwanted catalog acquisition. `01_core/src/compiler/layout/helpers.rs:185` discards clip_rect; `sub_frame.rs:143` and `placement.rs:327` acquire unconditional ascenders. `mod.rs:1978` skips the initial empty page. The raster test at `03_infra/src/export/p1431_line_cap_tests.rs:204` uses an A4 viewport at 16 pixels per point for a single isolated line. Provenance and RED logs are recorded in `00_nucleo/diagnosticos/correcao-falhas-2026-09-28/`. These observations justify internal parity and fixture corrections, not a new public contract or a general speedup claim.
+
+### Owner responsibility
+
+A first shape with an initial baseline pending and an empty line consumes a geometric origin in the dedicated root Place sublayout as well as in main flow. It must not request typography for that origin. Existing baseline-origin sublayouts still clear the pending flag before dispatch and retain their positions.

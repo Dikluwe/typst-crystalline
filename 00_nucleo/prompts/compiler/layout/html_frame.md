@@ -1,97 +1,79 @@
-# Prompt L0 — layout da ilha `html.frame`
-Hash do Código: f0ebc1b7
+# L0 — html frame
+Hash do Código: e118dd21
 
-**Estado:** APROVADO NO GATE ADR-0127 P1424 EM 2026-09-16  
-**Camada:** L1  
-**Ficheiro alvo exclusivo:** `01_core/src/compiler/layout/html_frame.rs`  
-**ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0128, ADR-0129
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
 
-## Medição anterior à decisão
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/html_frame.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-`typst-html/src/rules.rs:88-91` torna `FrameElem` transparente no target
-paginado. `typst-html/src/convert.rs:140-154` relayouta seu body sob target
-`Paged`, região ilimitada, e entrega um frame intrínseco ao encoder HTML.
-Sondas P1424 mediram `rect(width: 10pt, height: 5pt)` com `viewBox="0 0 10 5"`
-e nesting de frame byte-idêntico ao frame simples.
+## Evidence before specification
 
-## Obrigação
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/html_frame.rs:22`, `01_core/src/compiler/layout/html_frame.rs:25`, `01_core/src/compiler/layout/html_frame.rs:30`.
 
-Esta unidade contém somente a lógica de layout da variante
-`Content::HtmlFrame`, em forma B:
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-- no dispatcher paginado, `layout(layouter, elem)` delega uma vez ao body e
-  não emite wrapper, margem ou item próprio;
-- a entry point intrínseca cria Layouter isolado com chain, métricas e image
-  sizer injetados, executa o body numa região de largura/altura ilimitadas e
-  devolve `Page` transparente recortada às dimensões reais;
-- nesting colapsa naturalmente porque o braço paginado de um frame interno é
-  transparente;
-- posições são normalizadas ao referencial local sem cortar tinta suportada;
-- callbacks/erros usam os canais existentes e nunca executam Func em layout.
+## Ownership and contract
 
-O dispatcher central conserva somente o braço magro e o entry point público de
-fachada. Não importar L3, não criar renderer SVG, não paginar em A4 e não usar
-`Content::HtmlElem` ou tag sentinela.
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-## Aceitação
+In ordinary paginated dispatch, delegate once to the body without a visual wrapper or default page margin. Intrinsic entrypoints create an isolated Layouter with supplied chain/metrics/sizer, unbounded region and transparent Page cropped to supported visual dimensions, logical_number one, without joining the global paginated sequence. Nesting remains transparent inside the same island.
 
-Texto simples produz dimensões intrínsecas positivas; rect 10pt×5pt produz
-page 10×5 transparente; frame aninhado é geometricamente idêntico; no layout
-paginado ordinário o body ocupa exatamente a posição que teria sem wrapper.
-IDs/bytes SVG não pertencem a esta unidade.
-## P1486 — número da página intrínseca
+The detailed variant captures ContextBlock ids using private zero-size carriers in the existing FrameItem tree, not a public variant or HtmlElem sentinel. Transport carriers through box/place/grid/link/group/transform geometry; after all composition, extract deterministic id/HtmlPosition pairs in the island's causal reference frame before private vertical visual cropping. Then normalize only the visual Page, remove all carriers, and derive final visual dimensions without them. Missing id/Location correspondence does not fabricate a position.
+
+Own the shared marker identity/material predicates: only a direct private marker is non-material. Existing Semantic, Link and Group wrappers retain ordinary legacy material classification even if they contain only a carrier; do not flatten them. Extent helpers ignore a direct marker but transformations still reach its point. No SVG encoder, World, PageStore or logical PDF-label behavior is introduced. The hub owns public reexports, this unit owns intrinsic implementation.
+
+## Acceptance and limits
+
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
+
+## Separadores textuais — materialização autorizada em 2026-09-28
 
 ### Medição anterior à decisão
 
-`01_core/src/compiler/layout/html_frame.rs:74-86` constrói uma
-`Page` isolada para o encoder HTML, fora da sequência paginada
-global; `entities/layout_types.md` P1486 exige número lógico
-explícito em toda `Page`. A ilha não participa em `/PageLabels`.
+`01_core/src/compiler/layout/html_frame.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
+`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+dos handlers desse consumer precedem esta alteração. A aprovação do contrato
+público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
+2026-09-28 e registrada na proveniência da materialização.
 
-### Decisão
+### Responsabilidade deste owner
 
-A única página intrínseca recebe `logical_number: 1`.
-Nenhum contador global, callback ou rótulo PDF é criado.
+TextSeparator é neutro para items_have_material e visible_top; nunca o confundir com marcador de contexto removível.
 
-## P1493 — posições causais da ilha intrínseca (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
+Conservar as responsabilidades existentes; a aceitação segue texto e geometria
+observáveis, incluindo os controles de adjacência e os invariantes pinados.
+
+O refutador P1493 de Page visível compara a projeção sem folhas TextSeparator, preservando dimensões, matriz/pivô e posição do marker; verifica separadamente a retenção do carrier textual. Estrutura do Vec não é a geometria visível.
+
+## Identidade textual — materialização aprovada
 
 ### Medição anterior à decisão
 
-O layout intrínseco usa um Layouter isolado, mas `runtime.positions` grava o
-ponto local antes de sublayouts terminarem. `place` translada somente `FrameItem`s
-ao regressar ao pai; portanto a posição bruta do marker fica na origem e não
-prova os 30pt/20pt observados. A hipótese inicial de extrair o runtime foi
-refutada pela descida `layout_sub_frame` -> `placement`.
+As sondas bilaterais e o estado exato em
+`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
+A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
+O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
 
-Sonda adicional no vanilla pinado, em 2026-09-24T16:41:36-03:00, manteve
-`position() == (x: 30pt, y: 20pt)` quando o próprio contexto colocado também
-emitiu texto; diretamente na ilha, o ponto permaneceu 0pt/0pt. Isso refuta
-aplicar ao `HtmlPosition` o recorte vertical final usado pela Page cristalina.
-A medição partiu do HEAD `b5abe9b288ce168c494a4c5172830e325b9aedae` com
-working tree não commitado enumerado no diagnóstico P1493.
+### Responsabilidade exclusiva
 
-### Contrato ratificado
+Conservar TextReplacement na remoção de marcadores contextuais, descendo nos filhos; materialidade/posição consultam somente os filhos visuais.
 
-Somente a variante detalhada substitui cada `ContextBlock` por um carrier
-privado zero-size identificável pelo id, usando a árvore existente de
-`FrameItem` sem nova variante pública. O carrier atravessa `place`, box, grid,
-grupos, links e transformações como item geométrico. Após essas composições, o
-owner extrai em ordem determinística os pares
-`ContextBlock id -> HtmlPosition` no referencial causal da ilha, **antes** do
-recorte vertical privado da Page. Em seguida calcula o topo ignorando carriers,
-normaliza somente a Page visual e remove integralmente os carriers antes de
-medir largura ou devolver a Page.
+O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
+possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
+transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.
 
-Frames aninhados continuam uma só ilha: o resultado do frame externo contém as
-posições dos markers internos no referencial do externo. Não expor número
-lógico, `Position` paginada, PageStore, SVG ou World. Falta de correspondência
-id/Location não fabrica ponto; L3 a trata como incapacidade. A superfície
-detalhada foi confirmada pelo dono em 2026-09-24.
+## Linhas causais vazias em página auto — 2026-09-29
 
-### P1493 — classificação carrier-only
+### Medição anterior à decisão
 
-Somente o sentinel direto é imaterial. `Semantic`, `Link` e `Group`
-preexistentes conservam a materialidade da fachada legada mesmo quando seu
-único filho é o carrier; classificá-los recursivamente como vazios faria o
-passe detalhado divergir do legado. A composição não remove nem achata
-wrappers, e translações reais continuam a alcançar o ponto causal.
+`00_nucleo/diagnosticos/correcao-auto-proximas-2026-09-29/before/results.json` mede fontes→PDF com binários pinados e entradas sem newline artificial; `initial.json` guarda HEAD, working tree, hashes e snapshots. `#text("")` e a variante 18pt têm Tekt 3×3pt versus vanilla 3×8.568/12.852pt. `abc\n\n` termina em Tekt 19.872×31.536pt versus vanilla 19.872×8.568pt, enquanto `abc\n\nxyz` coincide a 19.872×31.536pt. `#text("  ")\n\nabc` fica numa linha Tekt (26.112×8.568pt), mas em duas linhas vanilla (19.872×31.536pt). Fonte: `text.rs:37-86` não emite item para Text vazio; `html_frame.rs:72` exclui todo TextSeparator de materialidade; `line_commit.rs:280-286`, `parbreak.rs:43-48` e `mod.rs:1965` usam essa materialidade para linha; `parbreak.rs:40-85` avança cursor após fechar linha e `page_geometry.rs:180-201` usa cursor se não há fundo confirmado. Vanilla `inline/linebreak.rs:695-699` oferece breakpoint obrigatório até para texto vazio. Isto mede o observável; não infere a intenção histórica nem exige a mecânica do vanilla.
+
+### Contrato interno segregado
+
+Manter `items_have_material` como predicado de tinta/material visual, com TextSeparator neutro. Acrescentar predicado privado distinto para existência de linha causal: material visual ou TextSeparator Literal; Markup/Newline inicial e marcadores contextuais não criam linha.
+
+Aceitação: testes RED→GREEN e matriz bilateral, regressões anteriores, build/lint sem erros; resselo somente dos owners deste manifesto.

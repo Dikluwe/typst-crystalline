@@ -1,36 +1,36 @@
-# Prompt L0 — testes independentes de layout `math.frac` P1427
+# L0 — math/layout/p1427-tests
 
-## Owner produtivo
+Hash do Código: 68b6cbfd
 
-`01_core/src/compiler/math/layout/p1427_tests.rs` (somente `cfg(test)`).
+**Layer:** L1 (tests)
+**Exclusive consumer:** `01_core/src/compiler/math/layout/p1427_tests.rs`
 
-## Obrigação
+## Consumer evidence
 
-Materializar, sem consultar a implementação candidata, os casos P18–P23 do
-contrato P1427 congelado. Os testes exercitam reconstrução, as três morfologias
-de layout, as constantes independentes e o controlo `binom` com métricas
-determinísticas.
+`01_core/src/compiler/math/layout/p1427_tests.rs:20` locates `fn style() -> TextStyle`.
+This audit locates the existing consumer; it does not establish language parity.
+Historical evidence and unresolved discrepancies are archived in
+`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
 
-## Aceitação
+## Independent fraction-layout tests
 
-- `apply_math_default` e `apply_math_style` preservam `style`, os dois bits e
-  `line` sem normalização;
-- `style=None` sem cascata resolve vertical; uma cascata horizontal muda o
-  layout, mas `Some(Vertical)` no elemento vence essa cascata;
-- vertical empilha os operandos e desenha exatamente uma barra quando
-  `line=true`;
-- skewed posiciona numerador acima/esquerda e denominador abaixo/direita da
-  barra inclinada, usa os dois gaps independentes e não desenha barra horizontal;
-- variar somente o gap vertical altera somente a separação vertical relevante;
-  variar somente o gap horizontal altera somente a separação horizontal
-  relevante; trocar 96/350 é detectável na geometria;
-- horizontal ordena numerador, slash, denominador e só restaura parênteses nos
-  operandos marcados;
-- fallback dos gaps é exatamente 96du vertical e 350du horizontal;
-- `line=false` permanece binom vertical, sem barra/slash e sem herdar estilo,
-  inclusive sob cascata horizontal.
+Own `01_core/src/compiler/math/layout/p1427_tests.rs` only.
+Exercise the approved P18–P23 cases independently of the candidate algorithm,
+using deterministic metrics: reconstruction, three layouts, independent
+constants and the barless binomial control.
 
-## Limites
+Both transformations preserve optional style, both deparenthesization bits
+and line without normalization. None without cascade resolves Vertical;
+a Horizontal cascade affects layout, but explicit Vertical wins.
+Vertical stacks operands with exactly one bar when line=true.
+Skewed positions numerator above/left and denominator below/right of the
+inclined slash, uses independent gaps and has no horizontal bar.
+Changing vertical gap affects only relevant vertical separation; horizontal
+gap affects only horizontal separation. Swapping 96/350 must be detectable;
+fallbacks are exactly 96du vertical and 350du horizontal.
+Horizontal orders numerator/slash/denominator and restores parentheses only
+on marked operands. Line=false always remains barless/slashless vertical
+binomial, including under Horizontal cascade.
 
-As asserções cobrem relações tipográficas públicas e o carrier aprovado; não
-exigem igualdade de bytes, decomposição privada de frame ou ordem de operações.
+Assert typographic relationships and approved carrier preservation, not
+serialized bytes, private frame decomposition or operation order.

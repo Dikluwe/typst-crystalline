@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/value_methods.md
-//! @prompt-hash c59dd513
+//! @prompt-hash 98897e2e
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -378,7 +378,7 @@ pub(in crate::compiler::eval) fn eval_counter_method_value(
                             "expected positive integer, found {}",
                             vanilla_type_name(&other)
                         ),
-                    )])
+                    )]);
                 }
             };
             Ok(counter_step(counter.key.clone(), level))
@@ -442,8 +442,12 @@ pub(in crate::compiler::eval) fn eval_counter_method_value(
                                 span,
                             )
                         }
-                        Value::Label(l) => counter_at(counter, l.clone(), ctx, scopes, engine, span),
-                        Value::Location(loc) => counter_at_location(counter, loc, ctx, scopes, engine, span),
+                        Value::Label(l) => {
+                            counter_at(counter, l.clone(), ctx, scopes, engine, span)
+                        }
+                        Value::Location(loc) => {
+                            counter_at_location(counter, loc, ctx, scopes, engine, span)
+                        }
                         other => Err(vec![SourceDiagnostic::error(
                             span,
                             format!(
@@ -525,13 +529,13 @@ pub(in crate::compiler::eval) fn eval_counter_static_method_value(
                     return Err(vec![SourceDiagnostic::error(
                         named.span(),
                         format!("unexpected argument: {}", named.name().as_str()),
-                    )])
+                    )]);
                 }
                 Arg::Spread(spread) => {
                     return Err(vec![SourceDiagnostic::error(
                         spread.span(),
                         "unexpected argument",
-                    )])
+                    )]);
                 }
             };
             match value {
@@ -576,7 +580,7 @@ pub(in crate::compiler::eval) fn eval_counter_static_method_value(
                         return Err(vec![SourceDiagnostic::error(
                             expr.span(),
                             "counter.display() takes at most one positional argument",
-                        )])
+                        )]);
                     }
                     Arg::Named(named) if named.name().as_str() == "at" => {
                         let value = match named.expr() {
@@ -605,13 +609,13 @@ pub(in crate::compiler::eval) fn eval_counter_static_method_value(
                         return Err(vec![SourceDiagnostic::error(
                             named.span(),
                             format!("unexpected argument: {}", named.name().as_str()),
-                        )])
+                        )]);
                     }
                     Arg::Spread(spread) => {
                         return Err(vec![SourceDiagnostic::error(
                             spread.span(),
                             "spread not allowed in counter.display()",
-                        )])
+                        )]);
                     }
                 }
             }

@@ -1,23 +1,28 @@
-# Prompt L0 — integração de `format.svg`
+# L0 — wiring/tests/p1462-format-svg
 Hash do Código: 37d50b05
 
-**Camada:** L4
-**Consumer exclusivo:** `04_wiring/tests/p1462_format_svg.rs`
+**Layer:** L4
+**Exclusive consumer:** `04_wiring/tests/p1462_format_svg.rs`
 
-## Contrato
+## Current evidence
 
-Executar o binário cristalino e verificar comportamento público de
-`format.svg.pretty`:
+- `04_wiring/tests/p1462_format_svg.rs:20` — `TempDir`.
+- `04_wiring/tests/p1462_format_svg.rs:25` — `new`.
+- `04_wiring/tests/p1462_format_svg.rs:42` — `drop`.
+- `04_wiring/tests/p1462_format_svg.rs:48` — `ProcessResult`.
+- `04_wiring/tests/p1462_format_svg.rs:55` — `Compilation`.
 
-- default compacto;
-- set rule `true`/`false` e regra vazia não destrutiva;
-- precedência `caller explícito > documento > false`;
-- rejeição de regra em container, named/tipo inválido e construção direta;
-- XML válido e morfologia idêntica entre serialização compacta e pretty;
-- neutralidade em PNG, PDF, HTML e `html.frame`;
-- sucessão P1465: sem feature, `format.html` produz o gate público de `html`;
-  com feature, sua superfície pertence exclusivamente ao teste P1465 e não é
-  revalidada como parte de SVG. `format.pdf` não é sibling futuro.
+These are local source anchors, not a new upstream parity measurement.
+Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 04_wiring/tests/p1462_format_svg.rs`.
 
-O teste usa temporários isolados e timeout finito. Não valida hashes de SVG,
-catálogos de mutantes, ordem de agentes ou artefatos administrativos.
+## Owned contract
+
+- Own format.svg.pretty external-process tests: compact default, true/false/root/empty-rule cascade, explicit caller precedence, rejected containers/unknown named/type/direct construction.
+- Check valid XML and unchanged semantic morphology between compact/pretty, without complete SVG hashes. Keep PNG/PDF/HTML/frame neutrality.
+- Without html, sibling format.html produces its public feature gate; with html, only existence belongs here and its detailed surface belongs to `00_nucleo/prompts/wiring/tests/p1465-format-html.md`. Use isolated bounded fixtures; no administrative oracles.
+
+## Verification and boundary
+
+Run `cargo test -p typst --test p1462_format_svg -- --test-threads=1` with the harness prerequisites above.
+Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
+Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.

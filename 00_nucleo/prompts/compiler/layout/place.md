@@ -1,145 +1,68 @@
-# Prompt L0 — `place`
-Hash do Código: aed298c0
+# L0 — place
+Hash do Código: 002271a7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
+- 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
+- 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
 
-**Camada:** L1 render
-**Ficheiro alvo:** `01_core/src/compiler/layout/place.rs`
-**ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0129
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/place.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Medição e contrato
+## Evidence before specification
 
-Materializar Place inline ou float com escopo, alinhamento, offsets, clearance e emissão diferida, preservando rebase e decoração.
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/place.rs:22`, `01_core/src/compiler/layout/place.rs:141`, `01_core/src/compiler/layout/place.rs:154`.
 
-O dispatcher mantém braço magro, exaustivo e estático. A função da feature
-acede ao motor por descendência de módulo; entidade de domínio não importa o
-consumer e nenhum despacho dinâmico é introduzido.
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-## Aceitação
+## Ownership and contract
 
-Testes focais e a suíte do subsistema preservam comportamento e morfologia;
-alteração observável exige medição e decisão próprias.
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-## P1504 — emissão final do float diferido
+Own the Place adapter plus float fitting, reservation and final emission. Merge missing alignment axes from the cell context. Non-float placement delegates geometry to `00_nucleo/prompts/compiler/layout/placement.md`; without explicit vertical alignment it follows the current ordinary flow origin, including pending-line semantic top edge, rather than always the physical page top. Apply that correction locally to this occurrence's items, decorations and vertical fixups; retain out-of-flow cursor behavior.
 
-Medição: no estado P1503 não commitado descrito em
-`00_nucleo/materialization/typst-passo-1504.md`,
-`compiler/layout/cursor.rs:35-65,862-1064` mede a origem física e
-translada um `DeferredFloat` depois de `layout/place.rs:195-245` calcular
-o fitting e o anchor final. Decisão interna: os dois helpers de emissão
-passam a este consumer. A translação rebaseia body, align órfão e segmentos
-de decoração no mesmo referencial, conservando a ordem e a compensação do
-top-edge medido. Cursor continua dono do avanço regional; não há mudança
-de estado, assinatura pública ou fase. Testes de float top/bottom, marker,
-Place aninhado e ausência de float mantêm páginas, posições e unicidade.
+For a float, lay out/measure the body in the active isolated subframe, resolve clearance against effective font size and queue the existing DeferredFloat with dimensions, decoration and orphan alignment metadata. The language's default clearance arrives from its constructor as relative 1.5em; the adapter's absent-field fallback remains zero. The current DeferredFloat does not store dx/dy/scope, which are not applied by this float path: do not claim their support or broaden the private struct here.
 
-## P1292 amendment-9 — inserção float e recomposição da região
+Admit only an ordered fitting prefix using effective usable region and current material flow. Include adjacent clearance when flow or an earlier admitted float exists; retain the existing defensive admission of the first float on an empty region. Once realized, top/bottom reservation includes future-flow clearance. Anchor top floats at the top and accumulate downward, bottom floats at the physical bottom and accumulate upward; auto height retains its current top-placement fallback. Body, orphan paths and decoration share the final reference frame. Preserve existing top-reserve translations and bottom effective-region reduction, without applying clearance twice.
+
+Ask `00_nucleo/prompts/compiler/layout/cursor.md` for region progress and `00_nucleo/prompts/compiler/layout/flow_suffix.md`/`00_nucleo/prompts/compiler/layout.md` for full suffix recomposition; do not emit in-flow at the cursor, inspect a future Content or duplicate replayed occurrences. Direct private HTML markers are non-material for fitting but remain geometrically transported. Oversize/unmeasured float combinations are not full parity guarantees.
+
+## Acceptance and limits
+
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
+
+## Separadores textuais — materialização autorizada em 2026-09-28
 
 ### Medição anterior à decisão
 
-Em páginas 100pt × 100pt, o vanilla ratificado posiciona um bottom float de
-80pt na página 2, reserva o seu `clearance` relativo e só então deixa o flow
-posterior competir pela região restante. Com o default `1.5em`, o flow
-posterior de 10pt inicia na página 3; com `clearance: 0pt`, ele cabe na página
-2. Um caso boundary com `clearance: 5pt` conserva duas páginas nos dois
-renderers, mas o candidato refutado colocou o token do float em `y=65.166`
-contra `y=90.166` no vanilla. Portanto contagem isolada não prova placement.
+`01_core/src/compiler/layout/place.rs` é um consumer do percurso FrameItem. As sondas RED fonte→PDF de
+`00_nucleo/diagnosticos/fatia-funcional-tekt-2026-09-28/` e a inspeção
+dos handlers desse consumer precedem esta alteração. A aprovação do contrato
+público em `00_nucleo/prompts/entities/layout_types.md` foi recebida em
+2026-09-28 e registrada na proveniência da materialização.
 
-No upstream ratificado, `flow/collect.rs:281-331` resolve a ocorrência de
-Place sem a emitir; `flow/compose.rs:298-377` calcula fitting e pede relayout
-quando uma inserção passa a ocupar a região; `:737-785` aplica reservas e
-ancora top/bottom na composição final. Relayout, checkpoints e structs são
-mecânica; a obrigação de linguagem é recompor o flow contra a região efetiva
-já reservada pelo float.
+### Responsabilidade deste owner
 
-### Decisão owner-correct
+Transportar posição, avanço já consumido, estilo e origem do TextSeparator sem criar tinta, baseline ou novo avanço; manter ordem dos filhos. Excluir separador da origem vertical medida.
 
-Para `float: true`, este owner produz e realiza uma inserção do distribuidor
-ativo, nunca um frame empurrado diretamente no cursor corrente. A ocorrência
-conserva identidade, ordem, alinhamento, offsets, scope, frame medido e o
-`clearance` resolvido contra o estilo efetivo. O default relativo chega como
-`1.5em` do owner `compiler/stdlib/layout.md`; não é convertido em pt na eval.
+Conservar as responsabilidades existentes; a aceitação segue texto e geometria
+observáveis, incluindo os controles de adjacência e os invariantes pinados.
 
-O fitting usa a dimensão da região efetiva. Quando já existe flow na região,
-a necessidade inclui `frame.height + clearance`; numa região vazia, o
-clearance não impede que o próprio float seja admitido. Uma vez admitido,
-porém, a reserva top/bottom inclui o clearance adjacente ao futuro flow. Um
-float que não cabe e pode progredir permanece pendente, sem descarte,
-reordenação ou sobreposição forçada.
-
-Adicionar ou alterar uma inserção invalida a composição especulativa da
-região corrente e devolve ao owner `compiler/layout/cursor.md` um pedido
-interno de recomposição estabilizada. Na nova composição, top floats são
-ancorados no topo e acumulados para baixo; bottom floats são ancorados no
-fundo e acumulados para cima; clearance separa a área reservada do flow, não
-desloca o frame para fora da região. O mesmo mecanismo atende Place comum e o
-prefixo liberado por `place.flush`; `flush.rs` não contém fitting, reserva ou
-posicionamento.
-
-A recomposição é idempotente por identidade de ocorrência: uma inserção já
-aceita não é duplicada ao rever o flow. Floats posteriores à fronteira do
-marker continuam fora do prefixo. Em sub-layout, somente inserções e região do
-Layouter ativo participam.
-
-Refutam este contrato: emitir no cursor sem reserva; aplicar clearance duas
-vezes ou ignorá-lo no flow posterior; resolver `em` na eval; posicionar bottom
-relativamente ao cursor usado em vez do fundo da região; duplicar ocorrência
-em replay; ou fazer este owner avançar página/coluna por conta própria.
-
-### Aceitação focal
-
-Omitido equivale a `1.5em` no estilo efetivo, inclusive 15pt a 10pt e 30pt a
-20pt; explícitos `0pt`, `5pt` e `1.5em` permanecem distintos e soberanos.
-Prefix/suffix, top+bottom e boundary preservam páginas, ordem e posições
-ratificadas; no-floats e nested não ganham inserções ou vazamento.
-
-## P1292 amendment-11 — Place não-float segue a origem corrente do flow
+## Identidade textual — materialização aprovada
 
 ### Medição anterior à decisão
 
-No controle sem Flush e no controle sem float, o candidato posicionou
-`AFTER_MARKER` em `yMin=-9.834pt`, no topo do sub-layout, embora a mesma
-unidade já contivesse `AFTER_FLOW`. O vanilla ratificado produziu
-`AFTER_FLOW yMin=40.604pt` e `AFTER_MARKER yMin=47.842pt` nos dois controles.
+As sondas bilaterais e o estado exato em
+`00_nucleo/diagnosticos/identidade-hifen-discricionario-2026-09-28/initial.json`
+e `before/` medem U+002D versus SHY com geometria coincidente em oito controles.
+A inspeção do percurso FrameItem deste consumer está arquivada em approved-before/.
+O dono confirmou o contrato em `00_nucleo/prompts/entities/layout_types.md`.
 
-No upstream, Place não-float vira um item distinto em
-`flow/distribute.rs:504-510`; na composição final,
-`flow/distribute.rs:630-662` avança `offset` pela altura do frame in-flow e
-posiciona o Place sem alinhamento vertical em `offset + ruler.position(free)`.
-Assim, a semântica observável é relativa à origem corrente da unidade de flow,
-não ao topo físico da página. A estrutura `Item` é mecânica informativa, não
-obrigação de cópia.
+### Responsabilidade exclusiva
 
-### Decisão owner-correct
+Tratar TextReplacement como envelope visual transparente nos percursos deste owner; descender nos filhos preservando text, ordem, coordenadas e o cálculo existente, sem novo algoritmo ou avanço.
 
-Para `float: false` sem alinhamento vertical explícito, este owner ancora o
-frame de Place na origem ordinária já alcançada pelo flow. Se existe linha
-pendente na mesma unidade, a origem é a baseline corrente combinada com a
-aresta superior semântica dessa linha; o Place aparece depois do conteúdo
-in-flow já composto, preservando `dx`/`dy`, alinhamento horizontal e rebase do
-container. Não se ancora no topo por a linha ainda não ter sido commitada.
-
-O owner `compiler/layout/block.md` fornece fim/gap/referencial do Block; Place
-consome esse referencial para sua própria coordenada. Cursor pode transportar
-estado e executar rollback, mas não corrige esta fórmula varrendo ou
-traduzindo genericamente itens recém-criados.
-
-### Aceitação e refutadores
-
-No controle focal, `AFTER_MARKER` fica em `47.842±0.002pt`, exatamente uma
-vez, tanto sem Flush quanto sem float. No vetor transacional principal após
-progresso para p3, preserva `4.642±0.002pt`; floats prefixo/sufixo conservam
-seus anchors já validados.
-
-Refutam: anchor no topo; constante do token/fixture; translação global em
-Cursor; depender de marker/replay para o caminho ordinário; transformar
-Place não-float em flow que consome altura; ou alterar o contrato público de
-Place.
-
-## P1493 — região e linha materiais
-
-Durante a captura detalhada HTML, o carrier direto não conta como linha pendente
-nem como flow já materializado para `Place` ou floats. O carrier continua
-transladado junto da árvore que o contém; somente os predicados de vazio usam
-a classificação material comum. Conteúdo real mantém anchors e fitting.
+O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
+possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
+transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.

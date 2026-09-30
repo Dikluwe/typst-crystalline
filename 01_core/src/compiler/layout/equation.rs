@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/equation.md
-//! @prompt-hash df8c145d
+//! @prompt-hash e1d6b002
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -308,6 +308,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let current_line_len_before_eq = self.regions.current.current_line.len();
         for item in math_items {
             match item {
+                FrameItem::TextReplacement { text, mut items } => {
+                    for child in &mut items {
+                        super::helpers::offset_frame_item(child, offset_x.0, offset_y.0);
+                    }
+                    let envelope = FrameItem::TextReplacement { text, items };
+                    let extent = super::helpers::item_pos(&envelope).0
+                        + super::helpers::item_width(&envelope, &self.metrics);
+                    self.regions.current.cursor_x = Pt(self.regions.current.cursor_x.0.max(extent));
+                    self.regions.current.current_line.push(envelope);
+                }
+                FrameItem::TextSeparator { pos, advance, style, origin } => self.regions.current.current_line.push(FrameItem::TextSeparator { pos: Point { x: offset_x + pos.x, y: offset_y + pos.y }, advance, style, origin }),
                 FrameItem::Text { pos, text, style } => {
                     let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
                     let advance = self.metrics.advance(&text, style.size, &style);
@@ -686,26 +697,28 @@ mod smoke {
     use crate::entities::layout_types::{PageDimension, PageMarginSpec};
 
     fn page_auto(body: Vec<Content>) -> crate::entities::layout_types::PagedDocument {
-        let mut parts = vec![Content::SetPage {
-            paper: None,
-            flipped: None,
-            binding: None,
-            width: Some(PageDimension::Auto),
-            height: Some(PageDimension::Auto),
-            margin: Some(PageMarginSpec::uniform(0.0)),
-            numbering: None,
-            number_align: None,
-            header: None,
-            header_ascent: None,
-            footer: None,
-            footer_descent: None,
-            supplement: None,
-            columns: None,
-            bleed: None,
-            fill: None,
-            background: None,
-            foreground: None,
-        }];
+        let mut parts = vec![Content::SetPage(std::sync::Arc::new(
+            crate::entities::content::SetPageDelta {
+                paper: None,
+                flipped: None,
+                binding: None,
+                width: Some(PageDimension::Auto),
+                height: Some(PageDimension::Auto),
+                margin: Some(PageMarginSpec::uniform(0.0)),
+                numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
+                columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
+            },
+        ))];
         parts.extend(body);
         layout(&Content::Sequence(parts.into()))
     }
@@ -717,7 +730,7 @@ mod smoke {
                     return items.first();
                 }
                 FrameItem::Group { items, .. }
-                | FrameItem::Semantic { items, .. }
+                | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. }
                 | FrameItem::Link { items, .. } => {
                     if let Some(found) = formula_group(items) {
                         return Some(found);
@@ -743,7 +756,7 @@ mod smoke {
                         return Some(found);
                     }
                 }
-                FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
+                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
                     if let Some(found) = text_x(items, target, origin_x) {
                         return Some(found);
                     }
@@ -815,26 +828,28 @@ mod smoke {
 
         let finite = layout(&Content::Sequence(
             vec![
-                Content::SetPage {
-                    paper: None,
-                    flipped: None,
-                    binding: None,
-                    width: Some(PageDimension::Length(123.0)),
-                    height: Some(PageDimension::Length(80.0)),
-                    margin: Some(PageMarginSpec::uniform(0.0)),
-                    numbering: None,
-                    number_align: None,
-                    header: None,
-                    header_ascent: None,
-                    footer: None,
-                    footer_descent: None,
-                    supplement: None,
-                    columns: None,
-                    bleed: None,
-                    fill: None,
-                    background: None,
-                    foreground: None,
-                },
+                Content::SetPage(std::sync::Arc::new(
+                    crate::entities::content::SetPageDelta {
+                        paper: None,
+                        flipped: None,
+                        binding: None,
+                        width: Some(PageDimension::Length(123.0)),
+                        height: Some(PageDimension::Length(80.0)),
+                        margin: Some(PageMarginSpec::uniform(0.0)),
+                        numbering: None,
+                        number_align: None,
+                        header: None,
+                        header_ascent: None,
+                        footer: None,
+                        footer_descent: None,
+                        supplement: None,
+                        columns: None,
+                        bleed: None,
+                        fill: None,
+                        background: None,
+                        foreground: None,
+                    },
+                )),
                 attach_with_post("R"),
             ]
             .into(),
@@ -845,5 +860,72 @@ mod smoke {
             formula_group(&finite.pages[0].items),
             Some(FrameItem::Group { .. })
         ));
+    }
+}
+
+impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
+    /// **P896** — resolve a centragem/numeração de equação de bloco que
+    /// ficou adiada (`width: auto`, valor ainda infinito no momento em que
+    /// a equação foi posicionada — ver `equation.rs`). Chamado por
+    /// `finish()`/`new_page()`, depois de `page_width`/`page_height` já
+    /// estarem resolvidos para valores finitos, sobre o `items` local que
+    /// vai ser movido para a `Page` final.
+    ///
+    /// Centragem: desloca os items da equação (pelo índice/gama gravados)
+    /// pela diferença entre o offset correcto (agora que `page_width` é
+    /// finito) e o offset já aplicado (a margem, valor de fallback usado em
+    /// `equation.rs`). Numeração: constrói o `FrameItem::Text` do número
+    /// (posição à direita só era resolúvel agora) e acrescenta-o a `items`.
+    ///
+    /// Esvazia os dois `Vec` pendentes — são sempre resolvidos por completo
+    /// de uma vez (uma página não fecha parcialmente).
+    pub(super) fn apply_pending_equation_fixups(
+        &mut self,
+        items: &mut Vec<FrameItem>,
+        page_width: f64,
+    ) {
+        let usable = page_width - self.page_config.margin.horizontal();
+        for (start_idx, count, eq_width, applied_offset) in
+            std::mem::take(&mut self.pending_equation_centering)
+        {
+            // rationale: P1064 Classe 1A — centragem horizontal de equação ((usable - eq_width) / 2.0)
+            let correct_offset = self.page_config.margin.left + (usable - eq_width) / 2.0;
+            let delta = correct_offset - applied_offset;
+            if delta == 0.0 {
+                continue;
+            }
+            for item in items.iter_mut().skip(start_idx).take(count) {
+                super::helpers::shift_frame_item_x(item, delta);
+            }
+        }
+
+        for (baseline_y, text, style, number_width, eq_width, _applied_offset, align) in
+            std::mem::take(&mut self.pending_equation_numbering)
+        {
+            // **P987** — o número fica junto ao fim do conteúdo centrado da
+            // SUA equação (mesma fórmula do fixup de centragem acima) mais a
+            // calha `NUMBER_GUTTER = 0.5em` (invariante vanilla
+            // `number_x = content_end_x + gutter`), em vez da margem direita
+            // da largura computada da página inteira.
+            let gutter = 0.5 * style.size.val();
+            let number_x = match align {
+                HAlign::Left => self.page_config.margin.left,
+                HAlign::Right => {
+                    // rationale: P1064 Classe 1A — centragem de equação com número ((usable - eq_width) / 2.0)
+                    self.page_config.margin.left
+                        + (usable - eq_width) / 2.0
+                        + eq_width
+                        + gutter
+                }
+                HAlign::Center | HAlign::Start | HAlign::End => {
+                    page_width - self.page_config.margin.right - number_width
+                }
+            };
+            items.push(FrameItem::Text {
+                pos: Point { x: Pt(number_x), y: Pt(baseline_y) },
+                text,
+                style,
+            });
+        }
     }
 }

@@ -1,41 +1,24 @@
-# Prompt L0 — `entities/elements/align` — `AlignElem`
+# L0 — AlignElem
 Hash do Código: f8d8e349
 
-**Camada**: L1 · **Alvo**: `01_core/src/entities/elements/align.rs`
-**Origem**: modelo D (ADR-0105), **Lote 7 P322** (por largura). Trait e glossário (§A.0): ver
-`entities/elements/_comum.md`. **Não-locatável** (confirmado P322). Contentor de
-prosa — `map_*` recursam no body (precedente Heading/Lote 3).
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/entities/elements/align.rs`
 
----
+## Evidence
 
-## Struct
+Retained extraction-era anchors are `content.rs:1798,2356,2640,1958` for text,
+maps and equality. They are historical coordinates, not current-pin parity proof.
 
-```rust
-#[derive(Debug, Clone, PartialEq)]
-pub struct AlignElem {
-    pub alignment: Align2D,
-    pub body:      Content,   // era Box<Content>
-}
-```
+## Contract
 
-`Content::Align { alignment, body }` → `Content::Align(Arc<AlignElem>)`.
-Construtor ergonómico: `Content::align(alignment, body)`. `Align2D` de
-`entities::layout_types`.
-
-> **`Hash` manual via Debug** (regra do modelo): `Align2D` deriva
-> `Debug, Clone, Copy, PartialEq, Default` — **sem `Hash`** → `impl Hash {
-> format!("{self:?}")… }` (paridade `content_hash`). `PartialEq` deriva.
-
-## `impl Element`
-
-| método | comportamento (idêntico ao braço atual) |
-|---|---|
-| `plain_text` | `self.body.plain_text()` (`content.rs:1798`) |
-| `is_empty` | default `false` (Align **não** delega — content-preserving) |
-| `map_content` | **recursivo** no body, preserva `alignment` (`content.rs:2356`) |
-| `map_text` | **recursivo** no body (`content.rs:2640`), preserva `alignment` |
-| `get_field`/`element_kind`/`to_payload` | default |
-
-## `eq`
-
-`#[derive(PartialEq)]` compara `alignment + body` (paridade `content.rs:1958`).
+`AlignElem` has public `alignment: Align2D` and `body: Content`, deriving
+Debug/Clone/PartialEq. Structural equality compares both fields. Preserve the
+specified manual Debug-based Hash because Align2D does not implement Hash;
+this mechanical resource contract is not language observational equality.
+`plain_text` delegates to body. `is_empty` remains the trait default false even
+when body is empty. Both maps recurse into body and preserve alignment.
+`get_field`, `element_kind` and `to_payload` retain their trait defaults.
+The element is non-locatable. Content construction belongs to
+`00_nucleo/prompts/entities/content/construction.md`, and the trait to
+`00_nucleo/prompts/entities/elements/_comum.md`; no layout logic belongs here.
+Verify text, both recursive maps, alignment preservation and structural equality.

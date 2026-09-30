@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/delimited.md
-//! @prompt-hash 569ef396
+//! @prompt-hash 7505fba3
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -57,6 +57,18 @@ fn lr_target_pt(body_height: f64, font_size: f64, size: Rel<Length>) -> f64 {
 
 fn lr_requested_target_pt(body_height: f64, font_size: f64, size: Rel<Length>) -> f64 {
     size.resolve(Length::pt(body_height)).resolve_pt(font_size).max(0.0)
+}
+
+/// Extensão de um corpo delimitado relativa ao eixo matemático. O mesmo
+/// cálculo deve alimentar cercas implícitas e `lr`: a altura bruta de uma
+/// fração assimétrica pode caber numa variante menor que a sua extensão
+/// equilibrada (vanilla `fenced.rs::relative_to_from_fragments`).
+fn fenced_body_target_pt(body: &Content, body_box: &MathBox, axis_pt: f64) -> f64 {
+    if matches!(body, Content::MathFrac(e) if !e.line) {
+        body_box.height()
+    } else {
+        2.0 * (body_box.ascent - axis_pt).max(body_box.descent + axis_pt)
+    }
 }
 
 #[cfg(test)]
@@ -236,8 +248,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     ) -> MathBox {
         let inherited = self.mid_target_pt.replace(None);
         let natural_body = self.layout_node(body, style);
-        let target_pt =
-            lr_requested_target_pt(natural_body.height(), style.size.val(), size);
+        let axis_pt = self.constants.to_pt(self.constants.axis_height, style.size).val();
+        let target_pt = lr_requested_target_pt(
+            fenced_body_target_pt(body, &natural_body, axis_pt),
+            style.size.val(),
+            size,
+        );
         self.mid_target_pt.set(Some(target_pt));
         let body_box = self.layout_node(body, style);
         self.mid_target_pt.set(inherited);
@@ -264,14 +280,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // balanceadas no eixo; o frac-like sem barra de `binom` segue o braço
         // `balanced=false` do vanilla e usa a altura real do corpo.
         let axis_pt = self.constants.to_pt(self.constants.axis_height, style.size).val();
-        let balanced = !matches!(body, Content::MathFrac(e) if !e.line);
-        let body_height_pt = if balanced {
-            let max_extent_pt =
-                (body_box.ascent - axis_pt).max(body_box.descent + axis_pt);
-            2.0 * max_extent_pt
-        } else {
-            body_box.height()
-        };
+        let body_height_pt = fenced_body_target_pt(body, &body_box, axis_pt);
         let min_height_du = if style.size.val() > 0.0 {
             body_height_pt * self.constants.upem / style.size.val()
         } else {

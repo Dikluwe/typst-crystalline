@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math.md
-//! @prompt-hash c08976a3
+//! @prompt-hash 3c7f3108
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -419,7 +419,7 @@ fn eval_p1293_math_args(
                         return Err(vec![SourceDiagnostic::error(
                             spread.span(),
                             format!("cannot spread {}", other.type_name()),
-                        )])
+                        )]);
                     }
                 }
             }
@@ -556,7 +556,7 @@ fn eval_p1431_mat_args(
                         return Err(vec![SourceDiagnostic::error(
                             spread.span(),
                             format!("cannot spread {}", other.type_name()),
-                        )])
+                        )]);
                     }
                 }
             }
@@ -1635,7 +1635,7 @@ fn apply_syntax_vec_option(
                     return Err(vec![SourceDiagnostic::error(
                         span,
                         format!("expected relative length, found {}", type_name(other)),
-                    )])
+                    )]);
                 }
             };
             presence.gap |= explicit;
@@ -1644,7 +1644,7 @@ fn apply_syntax_vec_option(
             return Err(vec![SourceDiagnostic::error(
                 span,
                 format!("unexpected argument: {other}"),
-            )])
+            )]);
         }
     }
     Ok(())

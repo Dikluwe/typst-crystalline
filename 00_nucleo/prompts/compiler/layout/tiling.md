@@ -1,47 +1,22 @@
-# Prompt L0 — `compiler/layout/tiling` — materialização privada de padrões
-Hash do Código: b68ec646
+# L0 — tiling
+Hash do Código: ad7561b7
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/layout/tiling.rs`
-**Origem:** P1245/P1254
-**ADRs:** ADR-0026, ADR-0029, ADR-0107, ADR-0109, ADR-0127, ADR-0129
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/tiling.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## Medição anterior à decisão
+## Evidence before specification
 
-O `Tiling` anterior conserva apenas `TilingBody` fechado e os exporters recebem
-esse valor ainda declarativo em `Paint::Tiling`. O vanilla ratificado
-`a51e02804`, `crates/typst-library/src/visualize/tiling.rs:99-185,278-376`,
-executa layout do corpo uma vez, deriva `size:auto`, resolve offset contra
-`size + spacing` e aplica offset antes de angle. O `Layouter` cristalino já
-oferece `layout_sub_frame`, e `FrameItem::Group` já transporta recorte,
-transformação e filhos pelo pipeline normal. Esta é medição de semântica e
-morfologia, não obrigação de copiar o `Frame` vanilla (ADR-0107).
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/tiling.rs:15`, `01_core/src/compiler/layout/tiling.rs:124`, `01_core/src/compiler/layout/tiling.rs:144`.
 
-## Decisão
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-- `compiler/layout/tiling.rs` é o único owner da materialização privada.
-- `shape.rs` mantém o despacho estático e delega a uma free function deste
-  módulo, conforme a forma B da ADR-0109.
-- O corpo declarativo é layoutado exatamente uma vez em subframe. `size:auto`
-  deriva a extensão desse resultado; size explícito fixa a célula.
-- Pitch é `size + spacing` por eixo. Offset relativo resolve contra o pitch;
-  angle finito é aplicado depois do offset.
-- A saída usa somente `FrameItem::Group`/`Shape` existentes: grupos de célula
-  repetidos e recortados pela geometria do fill. Não existe `ResolvedTiling`
-  público, novo `FrameItem`, I/O, rasterização ou layout no exporter.
-- `relative:auto` permanece contextual: self em shapes; texto e parent ficam
-  fora deste consumer até seus owners fornecerem contexto equivalente.
-- Fill é materializado sem manter `Paint::Tiling` no shape de fundo. Stroke
-  tiling que exija recorte por contorno permanece `Unknown` explícito; não é
-  promovido por sucesso de fill.
-- Geometria, pitch ou tamanho não finitos/não positivos mantêm o paint como
-  `Unknown` e nunca entram em loop de repetição.
+## Ownership and contract
 
-## Testes
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-- body arbitrário é layoutado uma vez e repetido por pitch assimétrico;
-- `size:auto` deriva extensão do subframe;
-- offset resolve percentuais contra pitch e angle sucede offset;
-- fill gera grupos recortados e remove fallback representativo;
-- entradas inválidas não repetem nem promovem paridade;
-- ausência de suporte de stroke permanece separada do fill.
+Materialize only supported Content-backed tiling fills into existing Groups. Reject invalid/nonpositive/nonfinite target, explicit cell dimensions, pitches, offsets or angle without a loop; None means unsupported, not a successful transparent paint. Lay out the body once in an isolated region, derive auto cell dimensions from its actual width/height, and compute pitch as cell size plus resolved spacing. Relative offset uses pitch; apply offset before clockwise angle through the existing matrix order. Shapes' Auto/Itself phase is local; explicit Parent cancels the shape-origin translation before pattern placement. Preserve cell clipping and the enclosing shape clip, clone the already-laid-out cell in the bounded lattice (current maximum 10000 cells), and keep default/unsupported text-parent cases outside this owner. Do not execute body per copy, rasterize or change public Paint types. Shape owns invocation and stroke behavior.
+
+## Acceptance and limits
+
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.

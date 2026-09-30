@@ -1,254 +1,37 @@
-# Prompt L0 — `infra/measurements`
+# L0 — Infrastructure measurement counters
 Hash do Código: 7c7a5ab1
 
-> **P1140.4-A:** `CountingIntrospector` delega também
-> `equation_numbering_content(Location)`. A instrumentação não materializa nem
-> transforma o número; apenas preserva integralmente o novo método read-only do
-> trait L1.
+**Layer:** L3
+**Exclusive consumer:** `03_infra/src/measurements.rs`
 
-**Camada**: L3.
-**Fase**: M8 / P204G.
-**ADRs vinculantes**: ADR-0073 (comemo Introspector — paridade
-vanilla literal); complementa ADR-0066 (Introspection runtime).
-**Cross-references**: P204A C10 (measurements internos); P204G
-C2/C3 (caminhos fixados); `wiring/eviction.md` (wrapper
-paralelo sobre `comemo::evict`).
+## Current evidence
 
----
+- `03_infra/src/measurements.rs:43`, `:48`, `:86` — eviction counters and fixed method matrix.
+- `03_infra/src/measurements.rs:150`, `:158`, `:171`, `:182` — snapshots, reset and recording.
+- `03_infra/src/measurements.rs:199` — `CountingIntrospector`.
+- `04_wiring/src/eviction.rs` — the caller records eviction before delegating to comemo.
 
-## Contexto
+These are current local source anchors, not a new upstream parity measurement.
 
-P204A C10 fixou que measurements internos (cache hits/misses
-do `comemo` + counts de invocação dos métodos do trait
-`Introspector`) entram em sub-passo dedicado pós-paridade
-corpus. P204F fechou paridade corpus (6 ficheiros
-introspection); P204G materializa a infraestrutura.
+## Contract
 
-Investigação `comemo` 0.4.0 (registry source):
+Own the L3 diagnostic counters and the transparent `CountingIntrospector<I>` wrapper. `CacheStats` exposes eviction calls and last max age; it does not report cache hits/misses. `CallCounts` exposes total and fixed-order per-method observations, with `count_for` returning zero for unknown names. `reset` clears both matrices. Atomic operations remain Relaxed: snapshots are approximate concurrent observations, not synchronization guarantees.
 
-- `comemo::testing::last_was_hit` **não existe**. Símbolo
-  está em `comemo::internal::last_was_hit`, atrás de
-  `feature = "testing"` (não default), e é per-call (saber
-  se a última chamada foi hit), não cumulativo.
-- Não existem hooks `comemo::stats` nem feature
-  `track-counts`.
-- Para stats cumulativos sem patchear comemo, é necessário
-  contador próprio em call sites controlados pelo
-  cristalino.
+Preserve the `INTROSPECTOR_METHODS` order and its 28 observed methods:
 
-Investigação topologia: `static AtomicUsize` em L1 dispara
-V13 `MutableStateInCore`. Tipos novos em L4 disparam V12
-("L4 não cria tipos — composição pura"; cf. nota literal
-em `04_wiring/src/main.rs:101`). Counters globais e tipos
-ficam em L3 — L3 já é localização canónica para
-infraestrutura I/O-adjacente (cf. módulos `export`,
-`pipeline`, `world`).
+```text
+query_by_kind, query_by_label, query_first, query_unique, position_of,
+figure_number_for_label, query_metadata, formatted_counter, counter_values_at,
+state_value, state_final_value, query, formatted_counter_at, bib_entry_for_key,
+bib_number_for_key, figure_number_at_index, flat_counter_at, resolved_label_for,
+headings_for_toc, headings_for_bookmarks, query_labelled, label_count, pages,
+page, page_numbering, page_supplement, counter_key_for_label, counter_final_values
+```
 
----
+The wrapper owns its inner value and preserves `new`, `inner` and `into_inner`. Every implemented Introspector method delegates its existing return value unchanged. Increment only methods listed in the matrix at their fixed index. Auxiliary queries, including `element_at`, equation numbering/supplement content and `html_position_of`, delegate without a new counter. HTML positions are neither injected nor converted/stored; `page_numbering` preserves its typed `Option<&Numbering>` return.
 
-## Decisão
+Keep instrumentation in L3; no mutable globals enter L1 and the wrapper does not alter Introspector, layout, fixpoints or production defaults. Do not equate invocation counts with comemo cache hits. `00_nucleo/prompts/wiring/eviction.md` owns eviction composition; `00_nucleo/prompts/wiring/compile.md` owns the `CRYSTALLINE_MEASUREMENTS=1` opt-in dump and its default silence.
 
-### Forma dual (per P204A C10)
+## Verification boundary
 
-1. **Logging opt-in** — env var `CRYSTALLINE_MEASUREMENTS=1`
-   aciona dump de `cache_stats()` + `introspector_call_counts()`
-   no fim do `main()` (L4) via `eprintln!`. Default:
-   silencioso.
-2. **Tests dedicados** — asserts sobre counts; detecção
-   automática de regressão.
-
-### Caminho fixado para hits/misses (C2 = B)
-
-Counter próprio via `AtomicUsize` global (L3). Hook
-`record_evict(max_age: usize)` chamado por
-`crystalline_evict` (L4 wiring) antes de `comemo::evict`.
-API exposta: `cache_stats() -> CacheStats` com campos
-`evict_calls` e `last_max_age`.
-
-P204G **não** activa feature `comemo::testing` (per-call,
-não cumulativo, exige wrapping em todas as call sites
-memoized — magnitude desproporcional).
-
-### Caminho fixado para counts de invocação (C3 = a)
-
-Wrapper newtype `CountingIntrospector<I: Introspector>` que
-delega cada método ao `inner: I` e incrementa `AtomicUsize`
-global por método (24 métodos do trait `Introspector` — 20
-originais + `query_labelled` (P207B) + `label_count` (P207C)
-+ 4 page-aware `pages`/`page`/`page_numbering`/`page_supplement`
-(P207D), todos M9c, − `is_numbering_active`/`_at` removidos no
-F-4 E0/P338). Aplicado em test fixtures (não invade L1
-production).
-
-API exposta:
-
-- `pub struct CountingIntrospector<I> { inner: I }` com
-  `new(inner) -> Self`, `into_inner(self) -> I`,
-  `inner(&self) -> &I`.
-- `impl<I> Introspector for CountingIntrospector<I>` quando
-  `I: Introspector + Send + Sync`.
-- `introspector_call_counts() -> CallCounts` com `total` +
-  `per_method: Vec<(&'static str, usize)>` ordenado por
-  índice fixo. Helper `CallCounts::count_for(&self,
-  method: &str) -> usize`.
-- `reset()` zera cache stats + call counts.
-
----
-
-## Localização
-
-`03_infra/src/measurements.rs` (módulo dedicado).
-
-Exposto como `pub mod measurements` em `03_infra/src/lib.rs`.
-
-`crystalline_evict` em `04_wiring/src/eviction.rs`
-actualizado para chamar
-`typst_infra::measurements::record_evict(max_age)` antes de
-`comemo::evict(max_age)`.
-
-`04_wiring/src/main.rs` lê env var e dispara dump opt-in
-chamando `typst_infra::measurements::{cache_stats,
-introspector_call_counts}`.
-
----
-
-## Restrições absolutas
-
-- L3 (infraestrutura I/O-adjacente; sem lógica de domínio).
-- 24 `AtomicUsize` globais correspondendo aos 24 métodos do
-  trait `Introspector` (F-4 E0/P338 retirou `is_numbering_active`
-  /`_at`) — 20 originais + `query_labelled`
-  (P207B) + `label_count` (P207C) + 4 page-aware (`pages`,
-  `page`, `page_numbering`, `page_supplement`) (P207D) —
-  em ordem fixada na constante `INTROSPECTOR_METHODS`.
-- 2 `AtomicUsize` globais para `EVICT_CALLS` e
-  `LAST_MAX_AGE`.
-- `Ordering::Relaxed` em todos os accesses (não há
-  sincronização explícita; observação aproximada é
-  aceitável).
-- `record_call(idx: usize)` privado ao módulo; invocado
-  apenas pelo wrapper.
-- Sentinelas: `p204g_cache_stats_existe` e
-  `p204g_introspector_call_counts_existe` (compile-time
-  smoke).
-- Sem dependências adicionais em `Cargo.toml`.
-- Trait `Introspector` importado de
-  `typst_core::entities::introspector` (L3 → L1 é permitido
-  por topologia).
-
----
-
-## Não-objectivos
-
-- Não activa feature `comemo::testing` (caminho rejeitado
-  por desproporção).
-- Não wrappa `Introspector` em production code (apenas
-  wrapper newtype usado em test fixtures).
-- Não modifica trait `Introspector` ou impl
-  `TagIntrospector`.
-- Não modifica Layouter ou consumers.
-- Não toca em loops fixpoint.
-- Não adiciona `crystalline_evict` em CLI (pós-M8).
-- Não implementa hits/misses por sub-store individual
-  (granularidade per-method via comemo é suficiente; P204G
-  é leve).
-- Não adiciona benchmarks comparativos com vanilla (per
-  C10 do diagnóstico P204A; sub-passo dedicado pós-M8 se
-  for relevante).
-
----
-
-## Plano de validação
-
-`measurements` é considerado materializado quando:
-
-1. Módulo existe em `03_infra/src/measurements.rs` com
-   API: `cache_stats`, `introspector_call_counts`, `reset`,
-   `record_evict`, `CountingIntrospector`, `CacheStats`,
-   `CallCounts`.
-2. Exportado em `03_infra/src/lib.rs` via `pub mod
-   measurements`.
-3. `crystalline_evict` em `04_wiring/src/eviction.rs` chama
-   `typst_infra::measurements::record_evict(max_age)` antes
-   de `comemo::evict(max_age)`.
-4. `main.rs` lê `CRYSTALLINE_MEASUREMENTS` e dump opt-in
-   no fim do pipeline.
-5. Workspace compila verde.
-6. Tests workspace 1844+ verdes (com 3+ novos de C6).
-7. Sentinelas confirmam `cache_stats` e
-   `introspector_call_counts` existem.
-8. Crystalline-lint 0 violations.
-
----
-
-## Cross-references
-
-- P204A C10 (measurements internos sem comparação vanilla
-  absoluta).
-- P204G C2 + C3 (caminhos fixados B + a).
-- ADR-0073 PROPOSTO (transita ACEITE em P204H).
-- `wiring/eviction.md` (wrapper paralelo sobre `comemo::evict`).
-- comemo 0.4.0:
-  `~/.cargo/registry/src/index.crates.io-*/comemo-0.4.0/src/cache.rs`
-  (linha 96–99: `last_was_hit` per-call atrás de
-  `feature = "testing"`).
-- Trait `Introspector`:
-  `01_core/src/entities/introspector.rs:40` (`#[comemo::track]`
-  com 24 métodos — 20 originais + `query_labelled` (P207B) +
-  `label_count` (P207C) + 4 page-aware (P207D), todos M9c, −
-  `is_numbering_active`/`_at` no F-4 E0/P338).
-- V12 disciplina L4: `04_wiring/src/main.rs:101` (nota
-  "L4 faz I/O trivial sem criar tipos — composição pura").
-
----
-
-## P844 (achado #49 de P831) — 28 métodos contados
-
-- `INTROSPECTOR_METHODS`/`CALL_COUNTERS`: 27 → 28 (nova entrada `counter_final_values`, índice 27). `element_at` (P844, achado #47) delega sem `record_call`, seguindo o padrão de `heading_has_numbering`. Sentinel `p204g_introspector_call_counts_existe` actualizado para 28.
-
-## P1140.4-C — delegação de suplemento de equação
-
-### Medição antes da decisão
-
-Após estender `Introspector`, o compile de L3 apontou somente
-`CountingIntrospector` (`measurements.rs:216`) sem
-`equation_supplement_content`.
-
-### Decisão
-
-O wrapper delega o método sem novo `record_call`, como `element_at`,
-`equation_numbering_content` e demais queries auxiliares de equação. A matriz
-permanece com 28 métodos contados; não há mudança de índices nem de formato do
-relatório.
-
-## P1158 — wrapper acompanha `page_numbering` tipado
-
-### Medição antes da decisão
-
-P1157 altera o retorno público de `Introspector::page_numbering` de
-`Option<&EcoString>` para `Option<&Numbering>`; o índice observado continua 22.
-
-### Decisão
-
-`CountingIntrospector` atualiza apenas o tipo devolvido e delega ao inner. O
-mesmo `record_call(22)` é preservado; contagens e formato do relatório não
-mudam.
-
-
-## P1493 — delegação transparente de posição local HTML (RATIFICADO; gate ADR-0127 confirmado em 2026-09-24)
-
-### Medição anterior à decisão
-
-\`CountingIntrospector\` implementa explicitamente o trait completo. Após a
-adição pública de \`html_position_of\`, usar o default \`None\` ocultaria a
-posição disponível no \`inner\` e faria o wrapper alterar semântica em testes.
-
-### Contrato ratificado
-
-Delegar \`html_position_of\` diretamente ao \`inner\`, sem novo índice nem novo
-\`AtomicUsize\`. A matriz observada permanece com 28 métodos: a consulta HTML é
-auxiliar não contada, no mesmo regime de \`element_at\` e das consultas
-auxiliares de equação. O wrapper não injeta, converte ou armazena posições.
-
-Aceitação: wrapper e inner devolvem o mesmo \`Option<HtmlPosition>\`; os nomes,
-índices e totais públicos de medições permanecem byte a byte estáveis.
+Existing tests check snapshots, observed delegation, count lookup, reset, eviction growth and uncounted HTML-position transparency. Do not infer a successful benchmark or upstream performance comparison from these diagnostic counters.

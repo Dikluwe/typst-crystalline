@@ -1,26 +1,30 @@
-# Prompt L0 — testes A/B de preservação/layout `math.limits` P1425
+# L0 — math/layout/p1425-tests
+
 Hash do Código: cccc33c1
 
-**Camada:** L1 (testes)  
-**Ficheiro alvo exclusivo:** `01_core/src/compiler/math/layout/p1425_tests.rs`  
-**Owner produtivo observado:** `compiler/math/layout/_comum.md`
+**Layer:** L1 (tests)
+**Exclusive consumer:** `01_core/src/compiler/math/layout/p1425_tests.rs`
 
-## Obrigação
+## Consumer evidence
 
-Este consumer exclusivamente de teste congela a preservação P1425 sem
-legitimar código produtivo. Deve provar:
+`01_core/src/compiler/math/layout/p1425_tests.rs:14` locates `fn style() -> TextStyle`.
+This audit locates the existing consumer; it does not establish language parity.
+Historical evidence and unresolved discrepancies are archived in
+`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
 
-- `apply_math_default` recursa no body e preserva exatamente `limits`,
-  `inline` e `inline_explicit`, inclusive a morfologia posterior;
-- alterar apenas `inline_explicit` nunca altera items nem geometria;
-- omitido e `inline:true` mantêm o empilhamento vigente em inline e display;
-- `inline:false` usa scripts laterais em inline e empilha em display;
-- `scripts` permanece lateral mesmo em display.
+## Test-only obligation
 
-Asserções com posições observam somente a relação empilhado/lateral já
-estabelecida. Bytes de render, algoritmo, helper e representação Rust não são
-aceitação.
+Own `01_core/src/compiler/math/layout/p1425_tests.rs` only.
+The productive core is owned by
+`00_nucleo/prompts/compiler/math/layout/_comum.md`.
 
-## Limite
+Prove that apply_math_default recurses through the body and exactly preserves
+limits, inline and inline_explicit, including subsequent morphology.
+Changing only inline_explicit must not alter items or geometry.
+Omitted inline and explicit true preserve stacking in inline/display;
+inline=false uses side scripts inline and stacked limits in display.
+Scripts stays lateral even display.
 
-A cobertura limita-se ao fragmento P1425 e não depende de artifacts externos.
+Position assertions observe stacked-versus-lateral relationships, not render
+bytes, helper choice or Rust representation. Coverage is self-contained
+and does not depend on external artifacts.

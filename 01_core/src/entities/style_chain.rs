@@ -1155,7 +1155,7 @@ mod tests {
     fn integracao_content_styled_resolve_via_style_chain() {
         let body = Content::text("hello");
         let styles = Styles::from_iter([Style::bold(true), Style::Size(Pt(18.0))]);
-        let styled = Content::Styled(Box::new(body), styles);
+        let styled = Content::styled(Box::new(body), styles);
 
         // O consumidor futuro (`eval_markup`) faria:
         //   1. ler os estilos do Content::Styled;
@@ -1163,7 +1163,9 @@ mod tests {
         //   3. passar a StyleChain à avaliação do body.
         // Aqui simulamos o passo 2+3 manualmente.
         let chain = match &styled {
-            Content::Styled(_body, ss) => StyleChain::default_chain().push_styles(ss),
+            Content::Styled(styled) => {
+                StyleChain::default_chain().push_styles(&styled.styles)
+            }
             _ => panic!("esperado Content::Styled"),
         };
 
@@ -1177,11 +1179,11 @@ mod tests {
     #[test]
     fn integracao_styled_aninhado_top_wins() {
         let inner_body = Content::text("hi");
-        let inner = Content::Styled(
+        let inner = Content::styled(
             Box::new(inner_body),
             Styles::from_iter([Style::italic(true)]),
         );
-        let outer = Content::Styled(
+        let outer = Content::styled(
             Box::new(inner),
             Styles::from_iter([Style::bold(true), Style::italic(false)]),
         );
@@ -1189,10 +1191,12 @@ mod tests {
         // Simular o caminho que o eval tomaria: outer primeiro (mais
         // longe do texto), depois inner (mais perto).
         let chain = match &outer {
-            Content::Styled(body, ss_outer) => {
+            Content::Styled(styled) => {
+                let body = &styled.body;
+                let ss_outer = &styled.styles;
                 let chain_outer = StyleChain::default_chain().push_styles(ss_outer);
-                match body.as_ref() {
-                    Content::Styled(_, ss_inner) => chain_outer.push_styles(ss_inner),
+                match body {
+                    Content::Styled(inner) => chain_outer.push_styles(&inner.styles),
                     _ => panic!("esperado Content::Styled aninhado"),
                 }
             }

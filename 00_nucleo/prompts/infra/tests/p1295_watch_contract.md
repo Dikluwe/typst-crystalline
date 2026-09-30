@@ -1,51 +1,26 @@
-# Prompt L0 — contrato externo do snapshot de `watch`
+# L0 — External watch snapshot contract tests
 Hash do Código: 771a5a67
 
-**Camada:** L3 — teste de integração
-**Ficheiro alvo exclusivo:** `03_infra/tests/p1295_watch_contract.rs`
-**ADRs:** ADR-0107, ADR-0108, ADR-0129
+**Layer:** L3 (integration tests)
+**Exclusive consumer:** `03_infra/tests/p1295_watch_contract.rs`
 
-## Propriedade
+## Current evidence
 
-Este prompt possui exclusivamente o integration test acima. O código produtivo
-de filesystem pertence a `shell/watch.md`. O teste observa a API pública sem
-fixar campos, layout, algoritmo de fingerprint ou representação da coleção.
+- `03_infra/tests/p1295_watch_contract.rs` — transition controls, type checks and pinned rustdoc JSON inspection.
+- `03_infra/src/watch.rs` — public product owned by `00_nucleo/prompts/shell/watch.md`.
 
-## Medição anterior à decisão
+These are current local source anchors, not a new upstream parity measurement.
 
-`snapshot` captura o estado antes do estímulo e `wait_for_change_since` recebe
-o token capturado. Isso distingue a API contratada de uma espera que recapture
-o baseline depois da alteração. A API legada `wait_for_change` permanece.
+## Contract
 
-## Contrato funcional
+Own this integration test only. A captured snapshot must precede the stimulus; `wait_for_change_since` receives that token. Preserve the legacy `wait_for_change` API. Observe public behavior without fixing private fields, layout, fingerprint algorithm or collection representation.
 
-Cada caso usa diretório temporário exclusivo e limpeza RAII. O consumer deve:
+Each case uses its own temporary directory and RAII cleanup. Detect equal-length content replacement, creation of an initially absent path and removal of an initially present path after capture. Type-check the three snapshot/wait entrypoints. On Linux, retain the public pseudo-file control whose content changes between reads.
 
-1. detectar troca de conteúdo pelo mesmo comprimento após `snapshot`;
-2. detectar criação posterior de path inicialmente ausente;
-3. detectar remoção posterior de path inicialmente presente;
-4. fixar por type-check `snapshot`, `wait_for_change_since` e
-   `wait_for_change`;
-5. em Linux, provar que a API legada retorna para um pseudo-ficheiro público
-   cujo conteúdo muda entre leituras.
+Complete each transition before starting the waiting thread. `recv_timeout` bounds failure; it is not readiness evidence. Do not add sleep, retry, artificial load or a corrective second mutation.
 
-As transições terminam antes da thread de espera começar. `recv_timeout`
-limita falha; não é sinal de prontidão. Não usar sleep, retry, carga artificial
-ou segunda alteração corretiva.
+Pinned-toolchain rustdoc JSON must show public WatchSnapshot with nonempty private state, no public fields/inherent items/direct traits, and only snapshot/wait_for_change_since among public functions whose signatures reference the token. Accept named or tuple representation without choosing field names/types. Missing identity, unsupported version/schema or invalid JSON fails the test.
 
-## Superfície pública
+## Verification boundary
 
-Com a toolchain pinada no consumer, rustdoc JSON deve provar:
-
-- `WatchSnapshot` público com estado privado não vazio;
-- nenhum campo, item inherent ou trait direto público;
-- somente `snapshot` e `wait_for_change_since` entre funções públicas cujas
-  assinaturas referenciam o token.
-
-A enumeração aceita representação named ou tuple e não escolhe nomes ou tipos
-de campos. Versão, schema, JSON ou identidade ausente fazem o teste falhar.
-
-## Aceitação
-
-Os cinco observáveis, assinaturas e inventário passam. O contrato não declara
-equivalência geral de `watch` nem substitui os testes de processo da CLI.
+Verify transitions, signatures and public inventory. This test does not prove general watch equivalence or replace the CLI process suite.

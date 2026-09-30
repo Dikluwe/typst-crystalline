@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/footnote_overflow_columns.md
-//! @prompt-hash ef9f75c5
+//! @prompt-hash e5f9c2b7
 //! @layer L1
 //! @updated 2026-07-23
 //!
@@ -74,6 +74,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // espaço; ignorá-lo faz a nota sobrepor o conteúdo principal
         // (especialmente em colunas).
         let item_top_y = |it: &FrameItem| match it {
+            FrameItem::TextSeparator { .. } => 0.0,
             FrameItem::Text { pos, .. } => pos.y.0,
             FrameItem::TextShaped { pos, .. } => pos.y.0,
             FrameItem::Line { start, .. } => start.y.0,
@@ -82,7 +83,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             FrameItem::Shape { pos, .. } => pos.y.0,
             FrameItem::Group { pos, .. } => pos.y.0,
             FrameItem::Link { .. } => 0.0,
-            FrameItem::Semantic { items, .. } => items
+            FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items
                 .iter()
                 .map(|child| crate::compiler::layout::helpers::item_pos(child).1)
                 .fold(0.0, f64::max),
@@ -233,6 +234,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
             for item in items {
                 let translated = match item {
+                    FrameItem::TextSeparator { pos, advance, style, origin } => FrameItem::TextSeparator { pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) }, advance, style, origin },
                     FrameItem::Text { pos, text, style } => FrameItem::Text {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                         text,
@@ -351,6 +353,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                         size,
                     },
+                    FrameItem::TextReplacement { text, mut items } => {
+                        for child in &mut items {
+                            crate::compiler::layout::helpers::offset_frame_item(child, target_x, target_y);
+                        }
+                        FrameItem::TextReplacement { text, items }
+                    }
                     FrameItem::Semantic { kind, placement, alt, mut items } => {
                         for child in &mut items {
                             crate::compiler::layout::helpers::offset_frame_item(

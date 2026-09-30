@@ -1,65 +1,32 @@
-# Prompt L0 — `utils` (utilitários internos de L1)
+# L0 — utils
+
 Hash do Código: b6143520
 
-**Camada**: L1
-**Ficheiro**: `01_core/src/utils.rs`
-**ADRs**: `00_nucleo/adr/typst-adr-0006-typst-timing.md`,
-          `00_nucleo/adr/typst-adr-0008-defer-inline.md`
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/utils.rs`
 
----
+## Consumer evidence
 
-## Contexto
+`01_core/src/utils.rs:24` locates `pub(crate) struct DeferHandle<'a, T, F: FnOnce(&mut T)>`.
+This audit locates the existing consumer; it does not establish language parity.
+Historical evidence and unresolved discrepancies are archived in
+`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
 
-`utils.rs` é o módulo canónico para utilitários internos de L1 que não
-pertencem a nenhuma entidade específica. Contém dois utilitários inlinados
-de `typst_utils` (crate upstream do Typst):
+## Internal utilities
 
-1. **`timing_scope!`** — macro no-op que substitui `typst_timing::TimingScope`
-   (ADR-0006). Os pontos de instrumentação estão registados em `00_nucleo/DEBT.md`.
-   Religação prevista no Passo 10.
+Own only `01_core/src/utils.rs`, not compiler phase behavior.
+`timing_scope!($name:expr)` is a no-op instrumentation marker expanding to
+unit without evaluating its name expression or performing I/O.
+It is module-local; do not promise an exported telemetry API or a scheduled
+reactivation.
 
-2. **`defer`** — função RAII que executa uma closure ao sair do scope
-   (ADR-0008). Inlinado de `typst_utils::defer`. Licença: Apache-2.0.
+`pub(crate) defer<T, F: FnOnce(&mut T)>(thing: &mut T, deferred: F)`
+returns `DeferHandle<'_, T, F>`. Its guard borrows the value, implements
+`Deref<Target=T>` and `DerefMut`, and invokes the closure exactly once on
+drop by taking the optional closure. Mutations through the guard are visible
+to that closure. Preserve normal RAII lifetime/unwind behavior; do not add
+global state or external dependencies.
 
----
-
-## Interface pública (crate-interna)
-
-```rust
-/// No-op macro que marca pontos de instrumentação.
-/// ADR-0006: substituição de typst_timing::TimingScope.
-macro_rules! timing_scope { ($name:expr) => { () }; }
-
-/// RAII handle — executa `deferred` sobre `thing` quando dropped.
-pub(crate) struct DeferHandle<'a, T, F: FnOnce(&mut T)> { ... }
-
-/// Retorna um DeferHandle que corre `deferred(thing)` ao ser dropped.
-pub(crate) fn defer<T, F: FnOnce(&mut T)>(
-    thing: &mut T,
-    deferred: F,
-) -> DeferHandle<'_, T, F>;
-```
-
----
-
-## Critérios de verificação
-
-**defer executa ao sair do scope**
-- `defer(&mut value, |v| *v = 42)` → value == 42 após o scope
-
-**defer com DerefMut**
-- Modificações ao guard via `*guard += 100` + Drop `+1` → acumulação correcta
-
-**timing_scope não panic**
-- `timing_scope!("parse")` expande para `()` sem efeitos
-
----
-
-## Notas
-
-- `timing_scope!` é `pub(crate)` via `#[macro_export]` + `#[doc(hidden)]`
-  apenas quando parser.rs existir. Até lá, é local ao módulo.
-- `DeferHandle` e `defer` são `pub(crate)` — não fazem parte da API pública de L1.
-- Quando ADR-0006 for religado no Passo 10, substituir `timing_scope!` pelo
-  mecanismo de telemetria escolhido em cada local marcado com
-  `// ADR-0006: timing removed — ver 00_nucleo/DEBT.md`.
+The inlined defer implementation retains its Apache-2.0 provenance from
+`typst_utils::defer` (ADR-0008); the no-op marker follows ADR-0006.
+Acceptance covers drop effects, mutable access and unit expansion, not timing.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/p1430-tests.md
-//! @prompt-hash bcad6c38
+//! @prompt-hash e9df9f05
 //! @layer L1
 #![cfg(test)]
 
@@ -66,7 +66,7 @@ fn find_cases(content: &Content) -> Option<&Content> {
     match content {
         Content::MathCases(_) => Some(content),
         Content::Equation(elem) => find_cases(&elem.body),
-        Content::Styled(inner, _) => find_cases(inner),
+        Content::Styled(styled) => find_cases(&styled.body),
         Content::MathDelimited(elem) => find_cases(&elem.body),
         Content::Sequence(items) | Content::MathSequence(items) => {
             items.iter().find_map(find_cases)

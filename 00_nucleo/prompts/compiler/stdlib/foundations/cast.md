@@ -1,70 +1,25 @@
-# Prompt L0 — `stdlib/foundations/cast` — conversões e constructors
+# L0 — stdlib/foundations/cast
 Hash do Código: 66cf18e0
 
-**Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/cast.rs`
-**Prompt pai (hub)**: `00_nucleo/prompts/compiler/stdlib/foundations.md`
-**Origem**: Passo 1032 — extraído de `foundations.rs`.
-**ADRs**: ADR-0107 (paridade linguagem).
-**Convenções partilhadas**: `00_nucleo/prompts/compiler/stdlib/_comum.md`.
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/stdlib/foundations/cast.rs`
 
----
+## Evidence and classification
 
-## 1. Funções
+`01_core/src/compiler/stdlib/foundations/cast.rs:27` (pub fn native_int); `01_core/src/compiler/stdlib/foundations/cast.rs:126` (pub fn native_float); `01_core/src/compiler/stdlib/foundations/cast.rs:151` (pub fn native_range) identifies the current owner and its local entrypoints. This is implementation inspection, not a new bilateral parity measurement or an inference of upstream intent. The historical decision evidence and its original snapshot qualifications are retained in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-### `native_int` — `int(v)`
+## Contract and ownership
 
-Aceita `Int`, `Bool`, `Float`, `Decimal` e `Str` (decimal ou `base:` 2–36).
-Float/Decimal truncam em direção a zero; overflow é erro. `base` explícita só
-é aceite para string.
+Own int/float/range/bytes/datetime/symbol constructors, not registry discovery or instance methods. Preserve current native ABIs and diagnostic ordering.
 
-### `native_float` — `float(v)`
+int accepts Int, Bool, Float, Decimal and String; Float/Decimal truncate toward zero and reject overflow. Explicit base is string-only and must be 2..36. float accepts Float, Int and parseable String. range preserves start/end, inclusive and step defaults; incompatible direction yields empty, zero step fails `number must not be zero`, and terminal overflow must not loop.
 
-Aceita `Float`, `Int`, `Str` parseável.
+bytes accepts UTF-8 String, Bytes and Array of integer octets 0..255, not Int. The old bytes((0xFF,)) rejection example contradicts its allowed range and must not be treated as the contract: preserve 255 acceptance; the discrepancy is archived.
 
-### `native_range` — `range(...)`
+datetime takes year/month/day/hour/minute/second named components, requiring a complete date, complete time or both; preserve validation order, limits and literal diagnostics. Calendar operations remain with the Datetime entity and static fields with its child stdlib owner.
 
-Algoritmo verbatim do vanilla `Array::range`: `inclusive:` e `step:`.
-Direção incompatível → array vazio; `step: 0` → erro verbatim.
+symbol variants are strings of exactly one extended grapheme cluster or (modifiers,value) arrays. Preserve complete Unicode strings, including ZWJ, selectors, tone modifiers and flags. Reject empty/multiple graphemes with `invalid variant value: REPR` and `variant value must be exactly one grapheme cluster`. Never truncate through chars().next().
 
-### `native_bytes` — `bytes(value)`
+## Acceptance
 
-Aceita `Str` (UTF-8), `Array` de ints 0–255, `Bytes`. Int não aceite.
-
-### `native_datetime` — `datetime(...)`
-
-Argumentos nomeados `year`, `month`, `day`, `hour`, `minute`, `second`.
-Data completa, hora completa ou ambas. Mensagens verbatim do vanilla.
-
-### `native_symbol` — `symbol(...)`
-
-Constrói `Value::Symbol` a partir de variantes (string de exactamente um
-extended grapheme cluster ou array `(modifiers, value)`). A validação usa
-segmentação Unicode, rejeita vazio/dois graphemes com
-`invalid variant value: <repr>` e hint `variant value must be exactly one
-grapheme cluster`, e preserva a string completa — não usa `chars().next()`.
-Sequências ZWJ, variation selectors, modificadores de tom e bandeiras são
-aceites quando constituem um grapheme único.
-
-## 2. Critérios de verificação
-
-```
-int(42)                    -> 42
-int("-7")                  -> -7
-int(3.7)                   -> 3
-float("2.5")               -> 2.5
-range(3)                   -> (0, 1, 2)
-range(-5)                  -> ()
-range(0, 10, step: 2)      -> (0, 2, 4, 6, 8)
-range(0, 10, step: 0)      -> Err "number must not be zero"
-bytes("α")                 -> bytes UTF-8 de "α"
-bytes((0xFF,))             -> Err "number must be between 0 and 255"
-datetime(year: 2026, month: 6, day: 25) -> Datetime
-symbol("🖂")                -> Symbol com variante base
-symbol("♥️")                -> Symbol com U+2665 U+FE0F integral
-symbol("❤️")                -> Symbol com U+2764 U+FE0F integral
-symbol("👩‍💻")              -> aceite (ZWJ, um grapheme)
-symbol("👍🏽")              -> aceite (tom, um grapheme)
-symbol("🇧🇷")               -> aceite (bandeira, um grapheme)
-symbol("") / symbol("ab")  -> Err + hint de exactamente um grapheme cluster
-```
+Preserve the specified language semantics, syntax, morphology, diagnostics, spans, defaults and public identities. Do not change signatures, compatibility, feature defaults or phase ownership through this documentary revision. Shared pinned claims remain authoritative; this prompt owns only its exclusive consumer. Architectural decisions follow ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.

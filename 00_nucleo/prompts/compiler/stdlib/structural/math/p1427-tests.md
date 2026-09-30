@@ -1,34 +1,17 @@
-# Prompt L0 — testes independentes de `math.frac` P1427
+# L0 — stdlib/structural/math/p1427-tests
+Hash do Código: 76f5f1a8
 
-## Owner produtivo
+Layer: L1 (test-only)
+Exclusive consumer: `01_core/src/compiler/stdlib/structural/math/p1427_tests.rs`
 
-`01_core/src/compiler/stdlib/structural/math/p1427_tests.rs` (somente `cfg(test)`).
+## Evidence and classification
 
-## Obrigação
+The consumer's `@prompt` at `01_core/src/compiler/stdlib/structural/math/p1427_tests.rs:2` establishes this exclusive ownership. Implementation inspection is not a new bilateral parity measurement; original historical qualifications remain in `00_nucleo/diagnosticos/sanitization-parser-stdlib-history.md`.
 
-Materializar, sem consultar a implementação candidata, os casos P01–P07, P16 e
-N01–N11 do contrato P1427 congelado. Os testes devem observar o binding fechado
-`math.frac`, a assinatura posicional, os casts de conteúdo, o domínio fechado de
-`style`, a distinção entre estilo omitido e explícito, o `repr` canónico e a
-preservação de todos os campos causais por clone, igualdade, hash e walkers.
+## Test obligations
 
-Argumentos nomeados duplicados devem ser construídos pela sequência causal de
-`ArgOccurrence`, nunca por um mapa que os colapse. Qualquer impossibilidade de
-observar o carrier é falha, não autorização para aceitar uma aproximação textual.
+Own only tests of the frozen math.frac contract cases P01–P07, P16 and N01–N11, without candidate inspection. Observe the closed binding and positional required num/denom, content casts (none/Str accepted, Int rejected), only named style with vertical/skewed/horizontal values, omission remaining None versus explicit vertical, canonical repr and all causal fields. Duplicate named values must use ArgOccurrence sequence, never a collapsing map. Clone/equality/hash/map_content/map_text preserve style, both unparenthesizing bits and line, transforming only contents recursively. repr must not expose the bits even on a directly constructed carrier with both true. Missing binding, non-callability or inability to observe the carrier fails; no textual approximation, other math binding or productive implementation is authorized.
 
-## Aceitação
+## Limits
 
-- binding ausente ou não chamável falha;
-- `num` e `denom` são obrigatórios e posicionais;
-- somente `style` é nomeado, com valores `vertical`, `skewed`, `horizontal`;
-- `none` e string convertem para conteúdo, inteiro não;
-- omissão permanece `None`; vertical explícito permanece explícito;
-- `repr` não expõe os bits de desparentização, inclusive num carrier
-  construído diretamente com ambos os bits verdadeiros;
-- clone/equality/hash/map_content/map_text preservam `style`, ambos os bits e
-  `line`, e somente os conteúdos são recursivamente transformados.
-
-## Limites
-
-Este prompt não autoriza código produtivo, outro binding matemático nem um
-veredito sobre a implementação.
+Preserve existing public observations and metadata. This documentary revision does not authorize productive-code, test-code, signature, default, pipeline-phase or compatibility changes. Respect exclusive ownership and pinned shared claims under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.

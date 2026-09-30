@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash a5f636e4
+//! @prompt-hash c7a489bc
 //! @layer L1
-//! @updated 2026-06-17
+//! @updated 2026-09-28
 //!
 //! Testes unitários e helpers de teste de eval. Extraído de mod.rs no
 //! Passo 96.1 (ADR-0037 Regra 5: testes seguem o domínio — aqui um
@@ -425,7 +425,9 @@ mod tests {
             match c {
                 Content::Heading(_) => Some(active),
                 Content::Sequence(items) => items.iter().find_map(|i| go(i, active)),
-                Content::Styled(b, s) => {
+                Content::Styled(styled) => {
+                    let b = &styled.body;
+                    let s = &styled.styles;
                     go(b, styled_custom_bool(s, "heading.numbering").unwrap_or(active))
                 }
                 _ => None,
@@ -466,9 +468,10 @@ mod tests {
             match c {
                 Content::Heading(_) => out.push(active),
                 Content::Sequence(items) => items.iter().for_each(|i| go(i, active, out)),
-                Content::Styled(b, s) => go(
-                    b,
-                    styled_custom_bool(s, "heading.numbering").unwrap_or(active),
+                Content::Styled(styled) => go(
+                    &styled.body,
+                    styled_custom_bool(&styled.styles, "heading.numbering")
+                        .unwrap_or(active),
                     out,
                 ),
                 _ => {}
@@ -487,7 +490,9 @@ mod tests {
                 Content::Sequence(items) => {
                     items.iter().find_map(|i| go(i, active.clone()))
                 }
-                Content::Styled(b, s) => {
+                Content::Styled(styled) => {
+                    let b = &styled.body;
+                    let s = &styled.styles;
                     let next = s
                         .delta()
                         .custom
@@ -561,7 +566,7 @@ mod tests {
             Content::Sequence(items) | Content::MathSequence(items) => {
                 items.iter().find_map(find_matrix_or_vec_delim)
             }
-            Content::Styled(b, _) => find_matrix_or_vec_delim(b),
+            Content::Styled(styled) => find_matrix_or_vec_delim(&styled.body),
             Content::Equation(e) => find_matrix_or_vec_delim(&e.body),
             _ => None,
         }
@@ -574,7 +579,7 @@ mod tests {
             Content::Sequence(items) | Content::MathSequence(items) => {
                 items.iter().find_map(find_op_limits)
             }
-            Content::Styled(b, _) => find_op_limits(b),
+            Content::Styled(styled) => find_op_limits(&styled.body),
             Content::Equation(e) => find_op_limits(&e.body),
             _ => None,
         }
@@ -683,7 +688,9 @@ mod tests {
                 Content::Sequence(items) => {
                     items.iter().for_each(|i| go(i, active.clone(), out))
                 }
-                Content::Styled(b, s) => {
+                Content::Styled(styled) => {
+                    let b = &styled.body;
+                    let s = &styled.styles;
                     let a = match s
                         .delta()
                         .custom
@@ -748,7 +755,9 @@ mod tests {
                 Content::Sequence(items) => {
                     items.iter().for_each(|i| go(i, active.clone(), out))
                 }
-                Content::Styled(b, s) => {
+                Content::Styled(styled) => {
+                    let b = &styled.body;
+                    let s = &styled.styles;
                     let a = match s
                         .delta()
                         .custom
@@ -867,7 +876,7 @@ mod tests {
         match c {
             Content::Dynamic(_) => true,
             Content::Sequence(items) => items.iter().any(has_dynamic),
-            Content::Styled(b, _) => has_dynamic(b),
+            Content::Styled(styled) => has_dynamic(&styled.body),
             _ => false,
         }
     }
@@ -879,13 +888,14 @@ mod tests {
         key: &str,
     ) -> Option<crate::entities::value::Value> {
         match c {
-            Content::Styled(b, s) => s
+            Content::Styled(styled) => styled
+                .styles
                 .delta()
                 .custom
                 .iter()
                 .find(|(k, _)| k == key)
                 .map(|(_, v)| v.clone())
-                .or_else(|| find_styled_custom(b, key)),
+                .or_else(|| find_styled_custom(&styled.body, key)),
             Content::Sequence(items) => {
                 items.iter().find_map(|i| find_styled_custom(i, key))
             }
@@ -1013,7 +1023,9 @@ mod tests {
         key: &str,
     ) -> Option<crate::entities::value::Value> {
         match c {
-            Content::Styled(b, s) => {
+            Content::Styled(styled) => {
+                let b = &styled.body;
+                let s = &styled.styles;
                 if let Some((_, v)) = s.delta().custom.iter().find(|(k, _)| k == key) {
                     return Some(v.clone());
                 }
@@ -1125,7 +1137,7 @@ mod tests {
             Content::Space,
             Content::text("B"),
         ]);
-        let wrapped = Content::Styled(
+        let wrapped = Content::styled(
             Box::new(inner.clone()),
             Styles::new().push_custom("heading.numbering", Value::Bool(true)),
         );
@@ -1213,7 +1225,7 @@ mod tests {
         // (o `==` morfológico destravou a→b); o P348 revisita até "c".
         // vanilla 0.14.2: `c`.
         let c = eval_doc(
-            "#show heading: it => { if it.body == [a] {[= b]} else if it.body == [b] {[= c]} else {it} }\n= a"
+            "#show heading: it => { if it.body == [a] {[= b]} else if it.body == [b] {[= c]} else {it} }\n= a",
         );
         let t = c.plain_text();
         assert!(t.contains('c'), "m1 revisita até o ponto-fixo 'c': {t:?}");
@@ -2008,7 +2020,7 @@ mod tests {
         // o `==` da linguagem ignora o render. É o Achado 2 (P342) na forma nova:
         // it.body de `= a` (render na chain) vs `[a]` (sem render) → casa.
         let plain = Content::text("a");
-        let render_na_chain = Content::Styled(
+        let render_na_chain = Content::styled(
             Box::new(Content::text("a")),
             Styles::new().push_custom("text.bold", Value::Bool(true)),
         );
@@ -2061,7 +2073,7 @@ mod tests {
     fn morfologia_eq_transporte_b1_transparente() {
         // Content::Styled semanticamente vazio (só transporte custom numbering β1)
         // → transparente: igual ao body nu. (vanilla: #set numbering não entra no ==.)
-        let transported = Content::Styled(
+        let transported = Content::styled(
             Box::new(Content::text("a")),
             Styles::new().push_custom("heading.numbering", Value::Bool(true)),
         );
@@ -5804,12 +5816,12 @@ mod tests {
 
     /// Passo 133 + 134: `par` é known target em `eval_set_rule`, com
     /// `leading` capturado (adicionado em 134). Outras propriedades
-    /// (ex: `justify`) caem no fallback e emitem warning de
+    /// (ex: `first-line-indent`) caem no fallback e emitem warning de
     /// **propriedade** (não de target). Documentação executável.
     #[test]
     fn eval_set_par_known_target_com_leading_passo_134() {
         use comemo::Track;
-        let world = MockWorld::new("#set par(justify: true)");
+        let world = MockWorld::new("#set par(leading: 2pt, first-line-indent: 3pt)");
         let src = World::source(&world, World::main(&world)).unwrap();
 
         let routines = Routines::new();
@@ -5828,12 +5840,12 @@ mod tests {
 
         assert!(result.is_ok(), "eval falhou: {:?}", result);
         let diags = sink.into_diagnostics();
-        // Warning é sobre PROPRIEDADE 'justify', não sobre target 'par'.
+        // Warning é sobre PROPRIEDADE 'first-line-indent', não sobre target 'par'.
         assert!(
             diags
                 .iter()
-                .any(|d| d.message.contains("par:") && d.message.contains("'justify'")),
-            "par deve emitir warning de propriedade justify; diagnostics: {:?}",
+                .any(|d| d.message.contains("par:") && d.message.contains("'first-line-indent'")),
+            "par deve emitir warning de propriedade first-line-indent; diagnostics: {:?}",
             diags
         );
         // `par` NÃO deve aparecer como target não suportado.
@@ -6019,14 +6031,14 @@ mod tests {
     }
 
     /// Passo 132B (ADR-0053): canary DEBT-50 migrou de `font` para
-    /// `hyphenate`. `font` agora é capturado com `FontList`;
-    /// `hyphenate` é a próxima propriedade não-capturada que serve
+    /// `stroke`. `font` agora é capturado com `FontList`;
+    /// `stroke` substitui hyphenate, agora suportado, e serve
     /// como sinal de vida do mecanismo de warnings. Consolida os 5
     /// canaries anteriores (126/127/128/129/131b) em 1 único teste.
     #[test]
-    fn eval_set_text_hyphenate_canary_passo_132b() {
+    fn eval_set_text_stroke_canary_passo_132b() {
         use comemo::Track;
-        let world = MockWorld::new("#set text(hyphenate: true)\nOlá");
+        let world = MockWorld::new("#set text(stroke: 1pt)\nOlá");
         let src = World::source(&world, World::main(&world)).unwrap();
 
         let routines = Routines::new();
@@ -6046,8 +6058,8 @@ mod tests {
         assert!(result.is_ok(), "eval falhou: {:?}", result);
         let diags = sink.into_diagnostics();
         assert!(
-            diags.iter().any(|d| d.message.contains("'hyphenate'")),
-            "hyphenate deve emitir warning (canary); diagnostics: {:?}",
+            diags.iter().any(|d| d.message.contains("'stroke'")),
+            "stroke deve emitir warning (canary); diagnostics: {:?}",
             diags
         );
     }
@@ -6140,7 +6152,10 @@ mod tests {
 
         // Match expression replicando o arm do eval_set_text:
         let rejeitado = matches!(dict_val, Value::Dict(_));
-        assert!(rejeitado, "Value::Dict é construível e match arm '_ => Dict(_)' funciona estruturalmente");
+        assert!(
+            rejeitado,
+            "Value::Dict é construível e match arm '_ => Dict(_)' funciona estruturalmente"
+        );
     }
 
     /// Passo 132B: valor de tipo inválido (Int) — arm genérico
@@ -6386,7 +6401,9 @@ mod tests {
     fn eval_set_text_font_dict_named_full_passo_414() {
         use crate::entities::value::Value;
         use ecow::EcoString;
-        let c = eval_doc("#set text(font: (family: \"Arial\", variant: \"bold\", weight: 700, style: \"italic\", fallback: false))\nX");
+        let c = eval_doc(
+            "#set text(font: (family: \"Arial\", variant: \"bold\", weight: 700, style: \"italic\", fallback: false))\nX",
+        );
         let font_val =
             find_custom_in_styled(&c, "text.font").expect("text.font deve existir");
         let arr = font_val.cast_array().expect("text.font deve ser array");
@@ -7607,9 +7624,10 @@ mod tests {
         let content = module.content().unwrap();
         fn tem_styled_sobre_label(c: &Content) -> bool {
             match c {
-                Content::Styled(inner, _) => {
-                    matches!(inner.as_ref(), Content::Label(_))
-                        || tem_styled_sobre_label(inner)
+                Content::Styled(styled) => {
+                    let inner = &styled.body;
+                    let _ = &styled.styles;
+                    matches!(inner, Content::Label(_)) || tem_styled_sobre_label(inner)
                 }
                 Content::Sequence(seq) => seq.iter().any(tem_styled_sobre_label),
                 _ => false,
@@ -7717,7 +7735,7 @@ mod tests {
     #[test]
     fn p417_show_rule_where_aplica_a_heading_level_1() {
         let world = MockWorld::new(
-            "#show heading.where(level: 1): it => [CAPÍTULO: ] + it.body\n\n= Um\n\n== Dois"
+            "#show heading.where(level: 1): it => [CAPÍTULO: ] + it.body\n\n= Um\n\n== Dois",
         );
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
@@ -7780,7 +7798,7 @@ mod tests {
     #[test]
     fn p417_show_rule_where_aplica_a_figure_kind() {
         let world = MockWorld::new(
-            "#show figure.where(kind: \"image\"): it => [IMG: ] + it.body\n\n#figure(image(\"x.png\"))"
+            "#show figure.where(kind: \"image\"): it => [IMG: ] + it.body\n\n#figure(image(\"x.png\"))",
         );
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src);
@@ -7883,7 +7901,7 @@ mod tests {
     #[test]
     fn p423_show_rule_and_positivo_where_com_kind() {
         let world = MockWorld::new(
-            "#show heading.where(level: 1).and(heading): it => [AND: ] + it.body\n\n= T\n\n== D"
+            "#show heading.where(level: 1).and(heading): it => [AND: ] + it.body\n\n= T\n\n== D",
         );
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
@@ -7954,7 +7972,7 @@ mod tests {
     #[test]
     fn show_rule_regex_ultima_declarada_vence() {
         let world = MockWorld::new(
-            "#show regex(\"\\\\d+\"): it => strong(it)\n#show regex(\"\\\\d+\"): it => emph(it)\nabc123def"
+            "#show regex(\"\\\\d+\"): it => strong(it)\n#show regex(\"\\\\d+\"): it => emph(it)\nabc123def",
         );
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
@@ -8557,7 +8575,7 @@ mod tests {
             match c {
                 Content::ContextBlock(_) => true,
                 Content::Sequence(items) => items.iter().any(tem_context_block),
-                Content::Styled(b, _) => tem_context_block(b),
+                Content::Styled(styled) => tem_context_block(&styled.body),
                 _ => false,
             }
         }
@@ -8575,7 +8593,7 @@ mod tests {
             match c {
                 Content::Heading(_) => true,
                 Content::Sequence(items) => items.iter().any(tem_heading),
-                Content::Styled(b, _) => tem_heading(b),
+                Content::Styled(styled) => tem_heading(&styled.body),
                 _ => false,
             }
         }
@@ -8805,7 +8823,7 @@ mod tests {
             match c {
                 Content::Equation(e) => Some(e.block),
                 Content::Sequence(items) => items.iter().find_map(encontra_equation),
-                Content::Styled(b, _) => encontra_equation(b),
+                Content::Styled(styled) => encontra_equation(&styled.body),
                 _ => None,
             }
         }
@@ -8831,7 +8849,7 @@ mod tests {
                     go(&e.body, needle)
                 }
                 Content::Sequence(items) => items.iter().any(|i| go(i, needle)),
-                Content::Styled(b, _) => go(b, needle),
+                Content::Styled(styled) => go(&styled.body, needle),
                 _ => false,
             }
         }
@@ -8850,7 +8868,7 @@ mod tests {
                     go(&e.body, needle)
                 }
                 Content::Sequence(items) => items.iter().any(|i| go(i, needle)),
-                Content::Styled(b, _) => go(b, needle),
+                Content::Styled(styled) => go(&styled.body, needle),
                 _ => false,
             }
         }
@@ -8876,7 +8894,9 @@ mod tests {
     /// (direta ou transitivamente) um `Content::Heading`.
     fn styled_bold_envolve_heading(c: &Content) -> bool {
         match c {
-            Content::Styled(b, s) => {
+            Content::Styled(styled) => {
+                let b = &styled.body;
+                let s = &styled.styles;
                 if styles_has_text_bold(s) && contem_heading(b) {
                     return true;
                 }
@@ -8890,7 +8910,7 @@ mod tests {
     fn contem_heading(c: &Content) -> bool {
         match c {
             Content::Heading(_) => true,
-            Content::Styled(b, _) => contem_heading(b),
+            Content::Styled(styled) => contem_heading(&styled.body),
             Content::Sequence(items) => items.iter().any(contem_heading),
             _ => false,
         }
@@ -8903,7 +8923,9 @@ mod tests {
         fn go(c: &Content, needle: &str, bold: bool) -> bool {
             match c {
                 Content::Text(s) => bold && s.as_str().contains(needle),
-                Content::Styled(b, styles) => {
+                Content::Styled(styled) => {
+                    let b = &styled.body;
+                    let styles = &styled.styles;
                     let d = styles.delta();
                     let here = d.custom.iter().any(|(k, v)| {
                         k == "text.weight"
@@ -8991,7 +9013,9 @@ mod tests {
     /// `true` se algum `Content::Styled` com `bold == Some(true)` existe na árvore.
     fn styled_bold_anywhere(c: &Content) -> bool {
         match c {
-            Content::Styled(b, s) => styles_has_text_bold(s) || styled_bold_anywhere(b),
+            Content::Styled(styled) => {
+                styles_has_text_bold(&styled.styles) || styled_bold_anywhere(&styled.body)
+            }
             Content::Sequence(items) => items.iter().any(styled_bold_anywhere),
             Content::Heading(h) => styled_bold_anywhere(&h.body),
             _ => false,
@@ -9007,7 +9031,7 @@ mod tests {
         // show-set era PERDIDO. AGORA: o show-set casa o ELEMENTO original e
         // embrulha o output do func → o "X:" renderiza sob o estilo do show-set.
         let world = MockWorld::new(
-            "#show heading: set text(weight: 700)\n#show heading: it => [X:] + it.body\n\n= T"
+            "#show heading: set text(weight: 700)\n#show heading: it => [X:] + it.body\n\n= T",
         );
         let src = world.source(world.main()).unwrap();
         let c = module_content(&world, &src);
@@ -9027,14 +9051,16 @@ mod tests {
         // Regressão (P352): múltiplos show-set same-kind compõem via `collapse` —
         // o conserto do P356 (casar o nó original) não pode quebrar isto.
         let world = MockWorld::new(
-            "#show heading: set text(weight: 700)\n#show heading: set text(weight: 700)\n\n= T"
+            "#show heading: set text(weight: 700)\n#show heading: set text(weight: 700)\n\n= T",
         );
         let src = world.source(world.main()).unwrap();
         let c = module_content(&world, &src);
         // bold + weight no mesmo Styled (ambos os show-set dobraram)
         fn styled_bold_e_weight(c: &Content) -> bool {
             match c {
-                Content::Styled(b, s) => {
+                Content::Styled(styled) => {
+                    let b = &styled.body;
+                    let s = &styled.styles;
                     (styles_has_text_bold(s) && styles_has_text_weight(s, 700))
                         || styled_bold_e_weight(b)
                 }
@@ -9059,7 +9085,7 @@ mod tests {
         // (`node_rules.iter().rev()`) casa o vanilla. (NÃO é acumulação — o vanilla
         // não acumula func same-kind; recon `f-recon-lacuna-ii-passo-357.md`.)
         let world = MockWorld::new(
-            "#show heading: it => [A:] + it.body\n#show heading: it => [B:] + it.body\n\n= T"
+            "#show heading: it => [A:] + it.body\n#show heading: it => [B:] + it.body\n\n= T",
         );
         let src = world.source(world.main()).unwrap();
         let c = module_content(&world, &src);
@@ -9423,7 +9449,9 @@ mod tests {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("deve haver content");
         match content {
-            Content::Styled(body, styles) => {
+            Content::Styled(styled) => {
+                let body = &styled.body;
+                let styles = &styled.styles;
                 assert_eq!(body.plain_text(), "x");
                 assert_eq!(styles.delta().subscript, Some(true));
                 assert!(styles.delta().superscript.is_none());
@@ -9439,7 +9467,9 @@ mod tests {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("deve haver content");
         match content {
-            Content::Styled(body, styles) => {
+            Content::Styled(styled) => {
+                let body = &styled.body;
+                let styles = &styled.styles;
                 assert_eq!(body.plain_text(), "x");
                 assert_eq!(styles.delta().superscript, Some(true));
                 assert!(styles.delta().subscript.is_none());
@@ -9457,7 +9487,9 @@ mod tests {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("deve haver content");
         match content {
-            Content::Styled(body, styles) => {
+            Content::Styled(styled) => {
+                let body = &styled.body;
+                let styles = &styled.styles;
                 assert_eq!(body.plain_text(), "x");
                 assert_eq!(
                     styles.delta().highlight,
@@ -9477,7 +9509,9 @@ mod tests {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("deve haver content");
         match content {
-            Content::Styled(body, styles) => {
+            Content::Styled(styled) => {
+                let body = &styled.body;
+                let styles = &styled.styles;
                 assert_eq!(body.plain_text(), "x");
                 assert_eq!(
                     styles.delta().highlight,
@@ -9495,7 +9529,9 @@ mod tests {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("deve haver content");
         match content {
-            Content::Styled(body, styles) => {
+            Content::Styled(styled) => {
+                let body = &styled.body;
+                let styles = &styled.styles;
                 assert_eq!(body.plain_text(), "x");
                 assert_eq!(styles.delta().highlight, Some(None));
             }
@@ -11777,7 +11813,7 @@ mod tests {
     #[test]
     fn p653_array_sorted_key_em_dicionarios() {
         let world = MockWorld::new(
-            "#let x = ((name: \"Bob\", age: 30), (name: \"Alice\", age: 25), (name: \"Carol\", age: 35)).sorted(key: x => x.name)"
+            "#let x = ((name: \"Bob\", age: 30), (name: \"Alice\", age: 25), (name: \"Carol\", age: 35)).sorted(key: x => x.name)",
         );
 
         fn dict_with(name: &str, age: i64) -> Value {
@@ -11988,7 +12024,9 @@ mod tests {
 
     #[test]
     fn p491_dict_at_default_named() {
-        let world = MockWorld::new("#let d = (a: 1, b: 2)\n#let x = d.at(\"z\", default: 99)\n#let y = d.at(\"a\")\n#let z = d.at(\"z\", default: \"missing\")");
+        let world = MockWorld::new(
+            "#let d = (a: 1, b: 2)\n#let x = d.at(\"z\", default: 99)\n#let y = d.at(\"a\")\n#let z = d.at(\"z\", default: \"missing\")",
+        );
         assert_eq!(eval_let(&world, "x"), Some(Value::Int(99)));
         assert_eq!(eval_let(&world, "y"), Some(Value::Int(1)));
         assert_eq!(eval_let(&world, "z"), Some(Value::Str("missing".into())));
@@ -12027,7 +12065,9 @@ mod tests {
 
     #[test]
     fn p492_stroke_cores_predefinidas() {
-        let world = MockWorld::new("#let x = rect(stroke: (left: 3pt + red, right: 1pt + blue, top: none, bottom: 2pt + green))");
+        let world = MockWorld::new(
+            "#let x = rect(stroke: (left: 3pt + red, right: 1pt + blue, top: none, bottom: 2pt + green))",
+        );
         match eval_for_test(&world, &world.source) {
             Ok(module) => {
                 let result = module.scope().get("x").cloned();
@@ -12042,7 +12082,9 @@ mod tests {
 
     #[test]
     fn p492_show_regex_text_color() {
-        let world = MockWorld::new("#show regex(\"\\\\d+\"): it => text(red, it)\nO número 42 e o número 100 aparecem a vermelho.");
+        let world = MockWorld::new(
+            "#show regex(\"\\\\d+\"): it => text(red, it)\nO número 42 e o número 100 aparecem a vermelho.",
+        );
         match eval_for_test(&world, &world.source) {
             Ok(_) => {}
             Err(e) => {
@@ -12071,10 +12113,14 @@ mod tests {
         let world = MockWorld::new("#let x = text(\"hello\", size: 20pt)");
         let v = eval_let(&world, "x").expect("x definido");
         let Value::Content(c) = v else { panic!("esperado Content, obtido {v:?}") };
-        let Content::Styled(_, styles) = c else {
+        let Content::Styled(styled) = c else {
             panic!("esperado Content::Styled, obtido {c:?}")
         };
-        assert_eq!(styles.delta().size, Some(20.0), "size deve ir para StyleDelta");
+        assert_eq!(
+            styled.styles.delta().size,
+            Some(20.0),
+            "size deve ir para StyleDelta"
+        );
     }
 
     #[test]
@@ -12136,10 +12182,10 @@ mod tests {
         let world = MockWorld::new("#let x = text(\"hello\", weight: 700)");
         let v = eval_let(&world, "x").expect("x definido");
         let Value::Content(c) = v else { panic!("esperado Content, obtido {v:?}") };
-        let Content::Styled(_, styles) = c else {
+        let Content::Styled(styled) = c else {
             panic!("esperado Content::Styled, obtido {c:?}")
         };
-        assert_eq!(styles.delta().weight, Some(700));
+        assert_eq!(styled.styles.delta().weight, Some(700));
     }
 
     #[test]
@@ -12188,7 +12234,7 @@ mod tests {
     fn p497_stroke_cores_predefinidas() {
         // Ficheiro corpus/p490/test-stroke-sides.typ
         let world = MockWorld::new(
-            "#rect(stroke: (left: 3pt + red, right: 1pt + blue, top: none, bottom: 2pt + green))"
+            "#rect(stroke: (left: 3pt + red, right: 1pt + blue, top: none, bottom: 2pt + green))",
         );
         match eval_for_test(&world, &world.source) {
             Ok(_) => {}
@@ -12203,7 +12249,7 @@ mod tests {
     fn p497_show_regex_text_color() {
         // Ficheiro corpus/p490/test-show-regex.typ
         let world = MockWorld::new(
-            "#show regex(\"\\\\d+\"): it => text(red, it)\nO número 42 e o número 100 aparecem a vermelho."
+            "#show regex(\"\\\\d+\"): it => text(red, it)\nO número 42 e o número 100 aparecem a vermelho.",
         );
         let src = world.source(world.main()).unwrap();
         match eval_for_test(&world, &src) {
@@ -12305,7 +12351,7 @@ mod tests {
     #[test]
     fn p496_heading_where_multi() {
         let world = MockWorld::new(
-            "#show heading.where(level: 1, outlined: true): it => [CAPÍTULO: ] + it.body\n\n= Um\n\n== Dois"
+            "#show heading.where(level: 1, outlined: true): it => [CAPÍTULO: ] + it.body\n\n= Um\n\n== Dois",
         );
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
@@ -12328,7 +12374,7 @@ mod tests {
     fn p498_d3c_residual_heading_query_pos_show_rule() {
         // Ficheiro corpus/p490/test-show-where-multi.typ
         let world = MockWorld::new(
-            "#show heading.where(level: 1, outlined: true): it => upper(it.body)\n\n= Heading nível 1"
+            "#show heading.where(level: 1, outlined: true): it => upper(it.body)\n\n= Heading nível 1",
         );
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
@@ -12699,7 +12745,7 @@ mod tests {
     fn p707_arguments_pos_e_named_nao_regridem_campos() {
         // .positional/.named (campo, P504) continuam a funcionar sem parênteses.
         let world = MockWorld::new(
-            "#let f(..args) = (args.positional, args.named, args.pos(), args.named())\n#let x = f(1, y: 2)"
+            "#let f(..args) = (args.positional, args.named, args.pos(), args.named())\n#let x = f(1, y: 2)",
         );
         let mut expected_named: IndexMap<EcoString, Value, FxBuildHasher> =
             IndexMap::default();
@@ -13691,7 +13737,7 @@ mod tests {
     #[test]
     fn p702_with_closure_nomeado_pre_ligado() {
         let world = MockWorld::new(
-            "#let h(a, named: 10) = a + named\n#let h2 = h.with(named: 20)\n#let x = h2(5)"
+            "#let h(a, named: 10) = a + named\n#let h2 = h.with(named: 20)\n#let x = h2(5)",
         );
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
@@ -13701,7 +13747,7 @@ mod tests {
     #[test]
     fn p702_with_encadeado_posicional() {
         let world = MockWorld::new(
-            "#let f(a, b, c) = a + b + c\n#let f1 = f.with(1)\n#let f2 = f1.with(2)\n#let x = f2(3)"
+            "#let f(a, b, c) = a + b + c\n#let f1 = f.with(1)\n#let f2 = f1.with(2)\n#let x = f2(3)",
         );
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
@@ -13711,7 +13757,7 @@ mod tests {
     #[test]
     fn p702_with_encadeado_nomeado() {
         let world = MockWorld::new(
-            "#let h(a, x: 10, y: 20) = a + x + y\n#let h1 = h.with(x: 100)\n#let h2 = h1.with(y: 200)\n#let r = h2(1)"
+            "#let h(a, x: 10, y: 20) = a + x + y\n#let h1 = h.with(x: 100)\n#let h2 = h1.with(y: 200)\n#let r = h2(1)",
         );
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
@@ -16009,7 +16055,7 @@ mod tests {
     fn p792_layout_custom_asymmetric_margin() {
         let world = MockWorld::new(
             "#set page(width: 20cm, height: 10cm, margin: (left: 1cm, right: 5cm, top: 2cm, bottom: 0.5cm))\n\
-             #let x = layout(size => (size.width, size.height))"
+             #let x = layout(size => (size.width, size.height))",
         );
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
@@ -17119,10 +17165,10 @@ mod tests {
                 "o nome da função não pode vazar como texto: {texto:?}"
             );
             assert_eq!(
-            find_mathlimitsoverride_in(&content),
-            Some((false, true)),
-            "scripts(sum) deve produzir MathLimitsOverride{{limits:false}}: {content:?}"
-        );
+                find_mathlimitsoverride_in(&content),
+                Some((false, true)),
+                "scripts(sum) deve produzir MathLimitsOverride{{limits:false}}: {content:?}"
+            );
         }
 
         /// **Caso do achado**: `limits(A)_1^2` (sem `inline:` explícito) —
@@ -17134,10 +17180,10 @@ mod tests {
             let texto = content.plain_text();
             assert!(!texto.contains("limits"), "sem vazamento: {texto:?}");
             assert_eq!(
-            find_mathlimitsoverride_in(&content),
-            Some((true, true)),
-            "limits(A) sem inline: deve ser {{limits:true, inline:true}}: {content:?}"
-        );
+                find_mathlimitsoverride_in(&content),
+                Some((true, true)),
+                "limits(A) sem inline: deve ser {{limits:true, inline:true}}: {content:?}"
+            );
         }
 
         /// **`inline: false` explícito**: named arg reconhecido e propagado.
@@ -17146,10 +17192,10 @@ mod tests {
             let world = MockWorld::new("$ limits(A, inline: false)_1^2 $");
             let content = extract_math_content(&world);
             assert_eq!(
-            find_mathlimitsoverride_in(&content),
-            Some((true, false)),
-            "limits(A, inline: false): deve ser {{limits:true, inline:false}}: {content:?}"
-        );
+                find_mathlimitsoverride_in(&content),
+                Some((true, false)),
+                "limits(A, inline: false): deve ser {{limits:true, inline:false}}: {content:?}"
+            );
         }
 
         /// **Guarda**: uso normal sem `limits()`/`scripts()` continua
@@ -17327,9 +17373,9 @@ mod tests {
             let texto_depois: String =
                 items[pos_lb..].iter().map(|c| c.plain_text()).collect();
             assert!(
-            texto_depois.contains('=') && texto_depois.contains('x'),
-            "o `=` e o `x` devem vir depois da quebra (linha de baixo): {texto_depois:?}"
-        );
+                texto_depois.contains('=') && texto_depois.contains('x'),
+                "o `=` e o `x` devem vir depois da quebra (linha de baixo): {texto_depois:?}"
+            );
         }
 
         /// **Guarda P996**: `(n \ k)` sozinho continua a subir a quebra para
@@ -18029,9 +18075,11 @@ mod tests {
             "#let d = datetime(year: 2024, month: 2, day: 29)\n#let x = datetime.display(d, \"[hour]\")",
         )
         .unwrap_err();
-        assert!(errors.iter().any(|error| error
-            .message
-            .contains("failed to format datetime (insufficient information)")));
+        assert!(errors.iter().any(|error| {
+            error
+                .message
+                .contains("failed to format datetime (insufficient information)")
+        }));
     }
 
     #[test]
@@ -19006,13 +19054,29 @@ mod tests {
         fn p1327_bare_module_warning_values_profiles_and_orders() {
             let cases = [
                 ("{ import std; std.calc.abs(-7) }", "std", 7),
-                ("{ let renamed = std; import renamed; renamed.calc.abs(-8) }", "renamed", 8),
+                (
+                    "{ let renamed = std; import renamed; renamed.calc.abs(-8) }",
+                    "renamed",
+                    8,
+                ),
                 ("{ import calc; calc.abs(-9) }", "calc", 9),
-                ("{ import \"ordinary.typ\" as original; import original; original.x }", "original", 17),
+                (
+                    "{ import \"ordinary.typ\" as original; import original; original.x }",
+                    "original",
+                    17,
+                ),
                 ("{ import \"math.typ\" as math; import math; math.x }", "math", 23),
-                ("{ import \"ordinary.typ\" as original; let std = original; import std; std.x }", "std", 17),
+                (
+                    "{ import \"ordinary.typ\" as original; let std = original; import std; std.x }",
+                    "std",
+                    17,
+                ),
                 ("{ let f() = { import std; std.calc.abs(-11) }; f() }", "std", 11),
-                ("{\n let prefix = \"á🦀\";\n let módulo = std;\n import módulo; módulo.calc.abs(-13)\n}", "módulo", 13),
+                (
+                    "{\n let prefix = \"á🦀\";\n let módulo = std;\n import módulo; módulo.calc.abs(-13)\n}",
+                    "módulo",
+                    13,
+                ),
             ];
             for reverse in [false, false, true] {
                 for (profile, features) in p1300_profiles() {
@@ -19078,7 +19142,10 @@ mod tests {
         fn p1327_no_warning_on_other_import_forms() {
             for (_, features) in p1300_profiles() {
                 for (expression, expected) in [
-                    ("{ let box = (saved: std); import box.saved; saved.calc.abs(-14) }", 14),
+                    (
+                        "{ let box = (saved: std); import box.saved; saved.calc.abs(-14) }",
+                        14,
+                    ),
                     ("{ import std as chosen; chosen.calc.abs(-15) }", 15),
                     ("{ import std as std; std.calc.abs(-16) }", 16),
                     ("{ import std: calc; calc.abs(-17) }", 17),
@@ -19097,23 +19164,59 @@ mod tests {
         fn p1327_errors_before_binding_keep_exact_diagnostics_and_no_warning() {
             for (_, features) in p1300_profiles() {
                 for (expression, message, range, hints) in [
-                    ("{ import (std); none }", "dynamic import requires an explicit name", 9..14, &["you can name the import with `as`"][..]),
-                    ("{ import { std }; none }", "dynamic import requires an explicit name", 9..16, &["you can name the import with `as`"][..]),
-                    ("{ let f() = std; import f(); none }", "dynamic import requires an explicit name", 24..27, &["you can name the import with `as`"][..]),
-                    ("{ import absent; none }", "unknown variable `absent`", 9..15, &[][..]),
-                    ("{ let specimen = 42; import specimen; none }", "import: a fonte tem de ser um caminho string ou um módulo, recebeu int", 28..36, &[][..]),
-                    ("{ global; import std; none }", "unknown variable `global`", 2..8, &[][..]),
+                    (
+                        "{ import (std); none }",
+                        "dynamic import requires an explicit name",
+                        9..14,
+                        &["you can name the import with `as`"][..],
+                    ),
+                    (
+                        "{ import { std }; none }",
+                        "dynamic import requires an explicit name",
+                        9..16,
+                        &["you can name the import with `as`"][..],
+                    ),
+                    (
+                        "{ let f() = std; import f(); none }",
+                        "dynamic import requires an explicit name",
+                        24..27,
+                        &["you can name the import with `as`"][..],
+                    ),
+                    (
+                        "{ import absent; none }",
+                        "unknown variable `absent`",
+                        9..15,
+                        &[][..],
+                    ),
+                    (
+                        "{ let specimen = 42; import specimen; none }",
+                        "import: a fonte tem de ser um caminho string ou um módulo, recebeu int",
+                        28..36,
+                        &[][..],
+                    ),
+                    (
+                        "{ global; import std; none }",
+                        "unknown variable `global`",
+                        2..8,
+                        &[][..],
+                    ),
                 ] {
                     let source = Source::new_with_parser(
-                        world().main(), expression.to_string(), crate::compiler::parse::parse_code,
+                        world().main(),
+                        expression.to_string(),
+                        crate::compiler::parse::parse_code,
                     );
-                    let (result, side) = eval_expression_with_features(&world(), expression, features);
+                    let (result, side) =
+                        eval_expression_with_features(&world(), expression, features);
                     assert_warnings(expression, &side, &[]);
                     let errors = result.expect_err(expression);
                     assert_eq!(errors.len(), 1);
                     assert_eq!(errors[0].message, message);
                     assert_eq!(errors[0].severity, Severity::Error);
-                    assert_eq!(errors[0].hints.iter().map(|h| h.as_str()).collect::<Vec<_>>(), hints);
+                    assert_eq!(
+                        errors[0].hints.iter().map(|h| h.as_str()).collect::<Vec<_>>(),
+                        hints
+                    );
                     assert!(errors[0].trace.is_empty());
                     assert_eq!(source.span_byte_range(errors[0].span), Some(range));
                 }
@@ -20399,38 +20502,143 @@ mod tests {
         use super::*;
 
         fn world() -> ImportMockWorld {
-            ImportMockWorld::new("", &[
-                ("ordinary/std.typ", "#let x = 7\n#let twice(n) = n * 2\n"),
-                ("ordinary/global.typ", "#let x = 8\n"),
-                ("ordinary/map.typ", "#let x = 9\n"),
-                ("ordinary/aurora.typ", "#let x = 10\n"),
-                ("reexport/std.typ", "#import std: *\n"),
-                ("routes/holder.typ", "#import \"../ordinary/std.typ\" as inner\n#let saved = inner\n"),
-                ("routes/error.typ", "#import \"../ordinary/std.typ\" as inner\n#let result = inner.absent\n"),
-                ("../ordinary/std.typ", "#let x = 7\n#let twice(n) = n * 2\n"),
-            ])
+            ImportMockWorld::new(
+                "",
+                &[
+                    ("ordinary/std.typ", "#let x = 7\n#let twice(n) = n * 2\n"),
+                    ("ordinary/global.typ", "#let x = 8\n"),
+                    ("ordinary/map.typ", "#let x = 9\n"),
+                    ("ordinary/aurora.typ", "#let x = 10\n"),
+                    ("reexport/std.typ", "#import std: *\n"),
+                    (
+                        "routes/holder.typ",
+                        "#import \"../ordinary/std.typ\" as inner\n#let saved = inner\n",
+                    ),
+                    (
+                        "routes/error.typ",
+                        "#import \"../ordinary/std.typ\" as inner\n#let result = inner.absent\n",
+                    ),
+                    ("../ordinary/std.typ", "#let x = 7\n#let twice(n) = n * 2\n"),
+                ],
+            )
         }
 
         #[test]
         fn p1306_named_module_contract_all_profiles() {
             let cases = [
-                ("ordinary-std", "{ import \"ordinary/std.typ\" as specimen; specimen.nope }", "std", "nope", false),
-                ("ordinary-global", "{ import \"ordinary/global.typ\" as specimen; specimen.nope }", "global", "nope", false),
-                ("ordinary-map", "{ import \"ordinary/map.typ\" as specimen; specimen.nope }", "map", "nope", false),
-                ("ordinary-aurora", "{ import \"ordinary/aurora.typ\" as specimen; specimen.nope }", "aurora", "nope", false),
-                ("ordinary-bare", "{ import \"ordinary/std.typ\"; std.nope }", "std", "nope", false),
-                ("ordinary-alias", "{ import \"ordinary/std.typ\" as original; let alias = original; alias.absent }", "std", "absent", false),
-                ("ordinary-shadow", "{ import \"ordinary/std.typ\" as module; let std = module; std.absent }", "std", "absent", false),
-                ("ordinary-nested", "{ import \"ordinary/std.typ\" as item; let box = (inner: (leaf: item)); box.inner.leaf.nope }", "std", "nope", false),
-                ("ordinary-line-column", "{\n import \"ordinary/std.typ\" as named;\n let alias = named;\n    alias.absent\n}", "std", "absent", false),
-                ("reexport", "{ import \"reexport/std.typ\" as exported; exported.nope }", "std", "nope", false),
-                ("reexport-alias", "{ import \"reexport/std.typ\" as exported; let renamed = exported; renamed.absent }", "std", "absent", false),
-                ("imported-nested", "{ import \"routes/holder.typ\" as holder; holder.saved.absent }", "std", "absent", false),
-                ("imported-error", "{ import \"routes/error.typ\" as route; route.result }", "std", "absent", true),
+                (
+                    "ordinary-std",
+                    "{ import \"ordinary/std.typ\" as specimen; specimen.nope }",
+                    "std",
+                    "nope",
+                    false,
+                ),
+                (
+                    "ordinary-global",
+                    "{ import \"ordinary/global.typ\" as specimen; specimen.nope }",
+                    "global",
+                    "nope",
+                    false,
+                ),
+                (
+                    "ordinary-map",
+                    "{ import \"ordinary/map.typ\" as specimen; specimen.nope }",
+                    "map",
+                    "nope",
+                    false,
+                ),
+                (
+                    "ordinary-aurora",
+                    "{ import \"ordinary/aurora.typ\" as specimen; specimen.nope }",
+                    "aurora",
+                    "nope",
+                    false,
+                ),
+                (
+                    "ordinary-bare",
+                    "{ import \"ordinary/std.typ\"; std.nope }",
+                    "std",
+                    "nope",
+                    false,
+                ),
+                (
+                    "ordinary-alias",
+                    "{ import \"ordinary/std.typ\" as original; let alias = original; alias.absent }",
+                    "std",
+                    "absent",
+                    false,
+                ),
+                (
+                    "ordinary-shadow",
+                    "{ import \"ordinary/std.typ\" as module; let std = module; std.absent }",
+                    "std",
+                    "absent",
+                    false,
+                ),
+                (
+                    "ordinary-nested",
+                    "{ import \"ordinary/std.typ\" as item; let box = (inner: (leaf: item)); box.inner.leaf.nope }",
+                    "std",
+                    "nope",
+                    false,
+                ),
+                (
+                    "ordinary-line-column",
+                    "{\n import \"ordinary/std.typ\" as named;\n let alias = named;\n    alias.absent\n}",
+                    "std",
+                    "absent",
+                    false,
+                ),
+                (
+                    "reexport",
+                    "{ import \"reexport/std.typ\" as exported; exported.nope }",
+                    "std",
+                    "nope",
+                    false,
+                ),
+                (
+                    "reexport-alias",
+                    "{ import \"reexport/std.typ\" as exported; let renamed = exported; renamed.absent }",
+                    "std",
+                    "absent",
+                    false,
+                ),
+                (
+                    "imported-nested",
+                    "{ import \"routes/holder.typ\" as holder; holder.saved.absent }",
+                    "std",
+                    "absent",
+                    false,
+                ),
+                (
+                    "imported-error",
+                    "{ import \"routes/error.typ\" as route; route.result }",
+                    "std",
+                    "absent",
+                    true,
+                ),
                 ("global", "std.nope", "global", "nope", false),
-                ("global-alias", "{ let alias = std; alias.absent }", "global", "absent", false),
-                ("global-renamed-import", "{ import std as renamed; renamed.nope }", "global", "nope", false),
-                ("global-line-column", "{\n let alias = std;\n       alias.absent\n}", "global", "absent", false),
+                (
+                    "global-alias",
+                    "{ let alias = std; alias.absent }",
+                    "global",
+                    "absent",
+                    false,
+                ),
+                (
+                    "global-renamed-import",
+                    "{ import std as renamed; renamed.nope }",
+                    "global",
+                    "nope",
+                    false,
+                ),
+                (
+                    "global-line-column",
+                    "{\n let alias = std;\n       alias.absent\n}",
+                    "global",
+                    "absent",
+                    false,
+                ),
                 ("builtin-calc", "calc.absent", "calc", "absent", false),
                 ("builtin-sym", "sym.absent", "sym", "absent", false),
                 ("builtin-map", "color.map.absent", "map", "absent", false),
@@ -20503,17 +20711,93 @@ mod tests {
         #[test]
         fn p1306_existing_lookup_and_repr_all_profiles() {
             let cases = [
-                ("positive-std", "{ import \"ordinary/std.typ\" as specimen; (repr(specimen), specimen.x) }", Value::Array(vec![Value::Str("<module std>".into()), Value::Int(7)])),
-                ("positive-global", "{ import \"ordinary/global.typ\" as specimen; (repr(specimen), specimen.x) }", Value::Array(vec![Value::Str("<module global>".into()), Value::Int(8)])),
-                ("positive-map", "{ import \"ordinary/map.typ\" as specimen; (repr(specimen), specimen.x) }", Value::Array(vec![Value::Str("<module map>".into()), Value::Int(9)])),
-                ("positive-aurora", "{ import \"ordinary/aurora.typ\" as specimen; (repr(specimen), specimen.x) }", Value::Array(vec![Value::Str("<module aurora>".into()), Value::Int(10)])),
-                ("positive-reexport", "{ import \"reexport/std.typ\" as r; let renamed = r; (repr(r), repr(renamed), renamed.calc.abs(-12), repr(r.calc)) }", Value::Array(vec![Value::Str("<module std>".into()), Value::Str("<module std>".into()), Value::Int(12), Value::Str("<module calc>".into())])),
-                ("positive-alias-shadow-nested", "{ import \"ordinary/std.typ\" as original; let alias = original; let std = alias; let box = (inner: std); (repr(alias), repr(std), box.inner.x, box.inner.twice(6)) }", Value::Array(vec![Value::Str("<module std>".into()), Value::Str("<module std>".into()), Value::Int(7), Value::Int(12)])),
-                ("positive-imported-nested", "{ import \"routes/holder.typ\" as holder; (repr(holder.saved), holder.saved.twice(11)) }", Value::Array(vec![Value::Str("<module std>".into()), Value::Int(22)])),
-                ("global-bare-positive", "{ import std; (repr(std), std.calc.abs(-7)) }", Value::Array(vec![Value::Str("<module global>".into()), Value::Int(7)])),
-                ("global-bare-alias-positive", "{ let named = std; import named; (repr(named), named.calc.abs(-8)) }", Value::Array(vec![Value::Str("<module global>".into()), Value::Int(8)])),
-                ("global-import-forms", "{ import (std) as chosen; import std: calc as c; (repr(chosen), c.abs(-9)) }", Value::Array(vec![Value::Str("<module global>".into()), Value::Int(9)])),
-                ("existing-lookups", "(repr(type(std.rgb)), calc.abs(-7), repr(type(sym.alpha)), repr(type(color.map.viridis)), repr(type(pdf.attach)), repr(type(pdf.artifact)))", Value::Array(vec![Value::Str("function".into()), Value::Int(7), Value::Str("symbol".into()), Value::Str("array".into()), Value::Str("function".into()), Value::Str("function".into())])),
+                (
+                    "positive-std",
+                    "{ import \"ordinary/std.typ\" as specimen; (repr(specimen), specimen.x) }",
+                    Value::Array(vec![Value::Str("<module std>".into()), Value::Int(7)]),
+                ),
+                (
+                    "positive-global",
+                    "{ import \"ordinary/global.typ\" as specimen; (repr(specimen), specimen.x) }",
+                    Value::Array(vec![
+                        Value::Str("<module global>".into()),
+                        Value::Int(8),
+                    ]),
+                ),
+                (
+                    "positive-map",
+                    "{ import \"ordinary/map.typ\" as specimen; (repr(specimen), specimen.x) }",
+                    Value::Array(vec![Value::Str("<module map>".into()), Value::Int(9)]),
+                ),
+                (
+                    "positive-aurora",
+                    "{ import \"ordinary/aurora.typ\" as specimen; (repr(specimen), specimen.x) }",
+                    Value::Array(vec![
+                        Value::Str("<module aurora>".into()),
+                        Value::Int(10),
+                    ]),
+                ),
+                (
+                    "positive-reexport",
+                    "{ import \"reexport/std.typ\" as r; let renamed = r; (repr(r), repr(renamed), renamed.calc.abs(-12), repr(r.calc)) }",
+                    Value::Array(vec![
+                        Value::Str("<module std>".into()),
+                        Value::Str("<module std>".into()),
+                        Value::Int(12),
+                        Value::Str("<module calc>".into()),
+                    ]),
+                ),
+                (
+                    "positive-alias-shadow-nested",
+                    "{ import \"ordinary/std.typ\" as original; let alias = original; let std = alias; let box = (inner: std); (repr(alias), repr(std), box.inner.x, box.inner.twice(6)) }",
+                    Value::Array(vec![
+                        Value::Str("<module std>".into()),
+                        Value::Str("<module std>".into()),
+                        Value::Int(7),
+                        Value::Int(12),
+                    ]),
+                ),
+                (
+                    "positive-imported-nested",
+                    "{ import \"routes/holder.typ\" as holder; (repr(holder.saved), holder.saved.twice(11)) }",
+                    Value::Array(vec![Value::Str("<module std>".into()), Value::Int(22)]),
+                ),
+                (
+                    "global-bare-positive",
+                    "{ import std; (repr(std), std.calc.abs(-7)) }",
+                    Value::Array(vec![
+                        Value::Str("<module global>".into()),
+                        Value::Int(7),
+                    ]),
+                ),
+                (
+                    "global-bare-alias-positive",
+                    "{ let named = std; import named; (repr(named), named.calc.abs(-8)) }",
+                    Value::Array(vec![
+                        Value::Str("<module global>".into()),
+                        Value::Int(8),
+                    ]),
+                ),
+                (
+                    "global-import-forms",
+                    "{ import (std) as chosen; import std: calc as c; (repr(chosen), c.abs(-9)) }",
+                    Value::Array(vec![
+                        Value::Str("<module global>".into()),
+                        Value::Int(9),
+                    ]),
+                ),
+                (
+                    "existing-lookups",
+                    "(repr(type(std.rgb)), calc.abs(-7), repr(type(sym.alpha)), repr(type(color.map.viridis)), repr(type(pdf.attach)), repr(type(pdf.artifact)))",
+                    Value::Array(vec![
+                        Value::Str("function".into()),
+                        Value::Int(7),
+                        Value::Str("symbol".into()),
+                        Value::Str("array".into()),
+                        Value::Str("function".into()),
+                        Value::Str("function".into()),
+                    ]),
+                ),
             ];
             for reverse in [false, false, true] {
                 for (profile, features) in p1300_profiles() {
@@ -20560,10 +20844,18 @@ mod tests {
                             Value::Str("function".into())
                         );
                     } else {
-                        let mismatches = p1303_error_mismatches(&expression, features,
-                            &format!("cannot access field `{field}` because the `a11y-extras` feature is not enabled"),
-                            &["try enabling the `a11y-extras` feature", "see https://typst.app/help/compiler-features for more details"],
-                            14..14 + field.len());
+                        let mismatches = p1303_error_mismatches(
+                            &expression,
+                            features,
+                            &format!(
+                                "cannot access field `{field}` because the `a11y-extras` feature is not enabled"
+                            ),
+                            &[
+                                "try enabling the `a11y-extras` feature",
+                                "see https://typst.app/help/compiler-features for more details",
+                            ],
+                            14..14 + field.len(),
+                        );
                         assert!(
                             mismatches.is_empty(),
                             "{profile}/{expression}: {mismatches:?}"
@@ -20774,8 +21066,10 @@ mod tests {
                 "json.encode((sym.alpha, bytes((0, 255, 10)), [hi]), pretty: false)",
                 "[\"α\",\"bytes(3)\",{\"func\":\"text\",\"text\":\"hi\"}]",
             );
-            string_all("json.encode((none, float(\"1e999\"), -float(\"1e999\"), float(\"NaN\"), -0.0), pretty: false)",
-                "[null,null,null,null,-0.0]");
+            string_all(
+                "json.encode((none, float(\"1e999\"), -float(\"1e999\"), float(\"NaN\"), -0.0), pretty: false)",
+                "[null,null,null,null,-0.0]",
+            );
         }
 
         #[test]
@@ -20792,7 +21086,12 @@ mod tests {
             for (parent, expected) in
                 [("json", JSON_PRETTY), ("toml", TOML_PRETTY), ("yaml", YAML)]
             {
-                string_all(&format!("{parent}.with(bytes(\"ignored\"), nope: 9).encode((z: (1, 2), a: 3))"), expected);
+                string_all(
+                    &format!(
+                        "{parent}.with(bytes(\"ignored\"), nope: 9).encode((z: (1, 2), a: 3))"
+                    ),
+                    expected,
+                );
             }
         }
 
@@ -20815,10 +21114,24 @@ mod tests {
         #[test]
         fn p1307_invalid_prebound_pretty_cannot_disappear() {
             for parent in ["json", "toml"] {
-                error_all(&format!("{parent}.encode.with(pretty: \"bad\")((z: (1, 2), a: 3), pretty: true)"),
-                    "expected boolean, found string", &[], 25..30, &[]);
-                error_all(&format!("{parent}.encode.with(pretty: true)((z: (1, 2), a: 3), pretty: \"bad\")"),
-                    "expected boolean, found string", &[], 58..63, &[]);
+                error_all(
+                    &format!(
+                        "{parent}.encode.with(pretty: \"bad\")((z: (1, 2), a: 3), pretty: true)"
+                    ),
+                    "expected boolean, found string",
+                    &[],
+                    25..30,
+                    &[],
+                );
+                error_all(
+                    &format!(
+                        "{parent}.encode.with(pretty: true)((z: (1, 2), a: 3), pretty: \"bad\")"
+                    ),
+                    "expected boolean, found string",
+                    &[],
+                    58..63,
+                    &[],
+                );
             }
         }
 
@@ -20892,7 +21205,9 @@ mod tests {
 
         fn origin_expression(closure: bool, selected: &str) -> String {
             let maker = if closure { "((..xs) => xs)" } else { "arguments" };
-            format!("{{\n  let make(which) = {{\n    let a = {maker}(nope: 1);\n    let b = {maker}(nope: 1);\n    yaml.encode.with(..(if which {{ a }} else {{ b }}))\n  }};\n  let f = make(true);\n  let g = make(false);\n  {selected}((:))\n}}")
+            format!(
+                "{{\n  let make(which) = {{\n    let a = {maker}(nope: 1);\n    let b = {maker}(nope: 1);\n    yaml.encode.with(..(if which {{ a }} else {{ b }}))\n  }};\n  let f = make(true);\n  let g = make(false);\n  {selected}((:))\n}}"
+            )
         }
 
         #[test]
@@ -20941,10 +21256,14 @@ mod tests {
 
         #[test]
         fn p1307_args_join_and_sink_have_different_order_rules() {
-            string_all("repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55) + arguments(..arguments(z: 61), z: 62, 77))",
-                "arguments(22, a: 44, 55, z: 61, z: 62, 77)");
-            string_all("repr(((head, z: 0, ..rest) => rest)(..arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55)))",
-                "arguments(a: 44, 55)");
+            string_all(
+                "repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55) + arguments(..arguments(z: 61), z: 62, 77))",
+                "arguments(22, a: 44, 55, z: 61, z: 62, 77)",
+            );
+            string_all(
+                "repr(((head, z: 0, ..rest) => rest)(..arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55)))",
+                "arguments(a: 44, 55)",
+            );
             string_all(
                 "repr(((first, z: 99, ..rest) => rest)(1, a: 2, 3))",
                 "arguments(a: 2, 3)",
@@ -20960,8 +21279,18 @@ mod tests {
                 );
                 assert_eq!(value("toml(bytes(\"a = 1\")).a", features), Value::Int(1));
                 assert_eq!(value("yaml(bytes(\"a: 1\")).a", features), Value::Int(1));
-                assert_eq!(value("{ let raw = cbor.encode(bytes((0,255,10))); range(raw.len()).map(i => raw.at(i)) }", features),
-                    Value::Array(vec![Value::Int(67), Value::Int(0), Value::Int(255), Value::Int(10)]));
+                assert_eq!(
+                    value(
+                        "{ let raw = cbor.encode(bytes((0,255,10))); range(raw.len()).map(i => raw.at(i)) }",
+                        features
+                    ),
+                    Value::Array(vec![
+                        Value::Int(67),
+                        Value::Int(0),
+                        Value::Int(255),
+                        Value::Int(10)
+                    ])
+                );
             }
         }
 
@@ -20977,7 +21306,14 @@ mod tests {
                     ),
                     Value::Str(expected.into())
                 );
-                assert_eq!(query_value("= Probe <probe>\n", "json.encode(content.fields(query(<probe>).first()), pretty: false)", features), Value::Str(expected.into()));
+                assert_eq!(
+                    query_value(
+                        "= Probe <probe>\n",
+                        "json.encode(content.fields(query(<probe>).first()), pretty: false)",
+                        features
+                    ),
+                    Value::Str(expected.into())
+                );
             }
         }
 
@@ -20985,26 +21321,52 @@ mod tests {
         fn p1307_snapshot_numbering_changes_language_equality() {
             let document = "#set heading(numbering: \"1\")\n= Probe\n#set heading(numbering: \"I\")\n= Probe\n";
             for (_, features) in p1300_profiles() {
-                assert_eq!(query_value(document, "{ let q = query(heading); (q.at(0) == q.at(1), q.at(0) in (q.at(1),), (q.at(0),) == (q.at(1),)) }", features),
-                    Value::Array(vec![Value::Bool(false); 3]));
+                assert_eq!(
+                    query_value(
+                        document,
+                        "{ let q = query(heading); (q.at(0) == q.at(1), q.at(0) in (q.at(1),), (q.at(0),) == (q.at(1),)) }",
+                        features
+                    ),
+                    Value::Array(vec![Value::Bool(false); 3])
+                );
             }
         }
 
         #[test]
         fn p1307_snapshot_labels_not_equality_or_location() {
             for (_, features) in p1300_profiles() {
-                assert_eq!(query_value("= Probe <left>\n= Probe <right>\n",
-                    "{ let q = query(heading); (q.at(0) == q.at(1), q.at(0).location() != q.at(1).location(), heading[Probe] == q.first()) }", features),
-                    Value::Array(vec![Value::Bool(true), Value::Bool(true), Value::Bool(false)]));
+                assert_eq!(
+                    query_value(
+                        "= Probe <left>\n= Probe <right>\n",
+                        "{ let q = query(heading); (q.at(0) == q.at(1), q.at(0).location() != q.at(1).location(), heading[Probe] == q.first()) }",
+                        features
+                    ),
+                    Value::Array(vec![
+                        Value::Bool(true),
+                        Value::Bool(true),
+                        Value::Bool(false)
+                    ])
+                );
             }
         }
 
         #[test]
         fn p1307_snapshot_survives_array_closure_and_absent_label() {
             for (_, features) in p1300_profiles() {
-                assert_eq!(query_value("#set text(lang: \"pt\")\n= Probe\n",
-                    "{ let a = (query(heading).first(),); let get() = a.first(); (get().supplement, get().has(\"label\"), get().at(\"label\", default: 7), get().at(\"numbering\", default: 8), get() == a.first()) }", features),
-                    Value::Array(vec![Value::Content(Content::text("Seção")), Value::Bool(false), Value::Int(7), Value::None, Value::Bool(true)]));
+                assert_eq!(
+                    query_value(
+                        "#set text(lang: \"pt\")\n= Probe\n",
+                        "{ let a = (query(heading).first(),); let get() = a.first(); (get().supplement, get().has(\"label\"), get().at(\"label\", default: 7), get().at(\"numbering\", default: 8), get() == a.first()) }",
+                        features
+                    ),
+                    Value::Array(vec![
+                        Value::Content(Content::text("Seção")),
+                        Value::Bool(false),
+                        Value::Int(7),
+                        Value::None,
+                        Value::Bool(true)
+                    ])
+                );
             }
         }
     }
@@ -21109,13 +21471,48 @@ mod tests {
 
         #[test]
         fn p1308_r6_frozen_diagnostic_obligations() {
-            diagnostic("{\n  let make(which) = {\n    let a = arguments(nope: 1);\n    let b = arguments(nope: 1);\n    yaml.encode.with(..(if which { a } else { b }))\n  };\n  let f = make(true);\n  let g = make(false);\n  f((:))\n}", "unexpected argument: nope", Some(46..53), &[(192..198, "encode")]);
-            diagnostic("{\n  let make(which) = {\n    let a = arguments(nope: 1);\n    let b = arguments(nope: 1);\n    yaml.encode.with(..(if which { a } else { b }))\n  };\n  let f = make(true);\n  let g = make(false);\n  g((:))\n}", "unexpected argument: nope", Some(78..85), &[(192..198, "encode")]);
-            diagnostic("{\n  let make(which) = {\n    let a = ((..xs) => xs)(nope: 1);\n    let b = ((..xs) => xs)(nope: 1);\n    yaml.encode.with(..(if which { a } else { b }))\n  };\n  let f = make(true);\n  let g = make(false);\n  f((:))\n}", "unexpected argument: nope", Some(51..58), &[(202..208, "encode")]);
-            diagnostic("{\n  let make(which) = {\n    let a = ((..xs) => xs)(nope: 1);\n    let b = ((..xs) => xs)(nope: 1);\n    yaml.encode.with(..(if which { a } else { b }))\n  };\n  let f = make(true);\n  let g = make(false);\n  g((:))\n}", "unexpected argument: nope", Some(88..95), &[(202..208, "encode")]);
-            diagnostic("arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55).map(v => panic(str(v)))", "panicked with: 11", Some(74..87), &[]);
-            diagnostic("arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55).filter(v => panic(str(v)))", "panicked with: 11", Some(77..90), &[]);
-            diagnostic("arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55).filter(v => 1)", "expected boolean, found integer", Some(72..73), &[]);
+            diagnostic(
+                "{\n  let make(which) = {\n    let a = arguments(nope: 1);\n    let b = arguments(nope: 1);\n    yaml.encode.with(..(if which { a } else { b }))\n  };\n  let f = make(true);\n  let g = make(false);\n  f((:))\n}",
+                "unexpected argument: nope",
+                Some(46..53),
+                &[(192..198, "encode")],
+            );
+            diagnostic(
+                "{\n  let make(which) = {\n    let a = arguments(nope: 1);\n    let b = arguments(nope: 1);\n    yaml.encode.with(..(if which { a } else { b }))\n  };\n  let f = make(true);\n  let g = make(false);\n  g((:))\n}",
+                "unexpected argument: nope",
+                Some(78..85),
+                &[(192..198, "encode")],
+            );
+            diagnostic(
+                "{\n  let make(which) = {\n    let a = ((..xs) => xs)(nope: 1);\n    let b = ((..xs) => xs)(nope: 1);\n    yaml.encode.with(..(if which { a } else { b }))\n  };\n  let f = make(true);\n  let g = make(false);\n  f((:))\n}",
+                "unexpected argument: nope",
+                Some(51..58),
+                &[(202..208, "encode")],
+            );
+            diagnostic(
+                "{\n  let make(which) = {\n    let a = ((..xs) => xs)(nope: 1);\n    let b = ((..xs) => xs)(nope: 1);\n    yaml.encode.with(..(if which { a } else { b }))\n  };\n  let f = make(true);\n  let g = make(false);\n  g((:))\n}",
+                "unexpected argument: nope",
+                Some(88..95),
+                &[(202..208, "encode")],
+            );
+            diagnostic(
+                "arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55).map(v => panic(str(v)))",
+                "panicked with: 11",
+                Some(74..87),
+                &[],
+            );
+            diagnostic(
+                "arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55).filter(v => panic(str(v)))",
+                "panicked with: 11",
+                Some(77..90),
+                &[],
+            );
+            diagnostic(
+                "arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55).filter(v => 1)",
+                "expected boolean, found integer",
+                Some(72..73),
+                &[],
+            );
             diagnostic(
                 "json.encode((:), ..arguments(pretty: \"bad\").map(v => v))",
                 "expected boolean, found string",
@@ -21128,10 +21525,30 @@ mod tests {
                 None,
                 &[(0..59, "encode")],
             );
-            diagnostic("{\n let make(which) = {\n  let a = arguments(nope: 1);\n  let b = arguments(nope: 1);\n  yaml.encode.with(..(if which { a } else { b }).filter(v => true))\n };\n let f = make(true);\n let g = make(false);\n f((:))\n}", "unexpected argument: nope", Some(43..50), &[(199..205, "encode")]);
-            diagnostic("{\n let make(which) = {\n  let a = arguments(nope: 1);\n  let b = arguments(nope: 1);\n  yaml.encode.with(..(if which { a } else { b }).map(v => v))\n };\n let f = make(true);\n let g = make(false);\n f((:))\n}", "unexpected argument: nope", Some(43..50), &[(193..199, "encode")]);
-            diagnostic("{\n let make(which) = {\n  let a = arguments(nope: 1);\n  let b = arguments(nope: 1);\n  yaml.encode.with(..(if which { a } else { b }).filter(v => true))\n };\n let f = make(true);\n let g = make(false);\n g((:))\n}", "unexpected argument: nope", Some(73..80), &[(199..205, "encode")]);
-            diagnostic("{\n let make(which) = {\n  let a = arguments(nope: 1);\n  let b = arguments(nope: 1);\n  yaml.encode.with(..(if which { a } else { b }).map(v => v))\n };\n let f = make(true);\n let g = make(false);\n g((:))\n}", "unexpected argument: nope", Some(73..80), &[(193..199, "encode")]);
+            diagnostic(
+                "{\n let make(which) = {\n  let a = arguments(nope: 1);\n  let b = arguments(nope: 1);\n  yaml.encode.with(..(if which { a } else { b }).filter(v => true))\n };\n let f = make(true);\n let g = make(false);\n f((:))\n}",
+                "unexpected argument: nope",
+                Some(43..50),
+                &[(199..205, "encode")],
+            );
+            diagnostic(
+                "{\n let make(which) = {\n  let a = arguments(nope: 1);\n  let b = arguments(nope: 1);\n  yaml.encode.with(..(if which { a } else { b }).map(v => v))\n };\n let f = make(true);\n let g = make(false);\n f((:))\n}",
+                "unexpected argument: nope",
+                Some(43..50),
+                &[(193..199, "encode")],
+            );
+            diagnostic(
+                "{\n let make(which) = {\n  let a = arguments(nope: 1);\n  let b = arguments(nope: 1);\n  yaml.encode.with(..(if which { a } else { b }).filter(v => true))\n };\n let f = make(true);\n let g = make(false);\n g((:))\n}",
+                "unexpected argument: nope",
+                Some(73..80),
+                &[(199..205, "encode")],
+            );
+            diagnostic(
+                "{\n let make(which) = {\n  let a = arguments(nope: 1);\n  let b = arguments(nope: 1);\n  yaml.encode.with(..(if which { a } else { b }).map(v => v))\n };\n let f = make(true);\n let g = make(false);\n g((:))\n}",
+                "unexpected argument: nope",
+                Some(73..80),
+                &[(193..199, "encode")],
+            );
         }
 
         #[test]
@@ -21156,13 +21573,28 @@ mod tests {
 
         #[test]
         fn p1308_filter_with() {
-            diagnostic("{ let callback = (prefix, value) => \"bad\"; let bound = callback.with(9); arguments(1).filter(bound) }", "expected boolean, found string", Some(17..32), &[(73..99, "filter")]);
+            diagnostic(
+                "{ let callback = (prefix, value) => \"bad\"; let bound = callback.with(9); arguments(1).filter(bound) }",
+                "expected boolean, found string",
+                Some(17..32),
+                &[(73..99, "filter")],
+            );
         }
 
         #[test]
         fn p1308_filter_spread_sources() {
-            diagnostic("{ let callback = (value) => \"bad\"; let saved = arguments(callback); arguments(1).filter(..saved) }", "expected boolean, found string", Some(17..24), &[(68..96, "filter")]);
-            diagnostic("{ let callback = (value) => \"bad\"; let saved = (callback,); arguments(1).filter(..saved) }", "expected boolean, found string", Some(17..24), &[(60..88, "filter")]);
+            diagnostic(
+                "{ let callback = (value) => \"bad\"; let saved = arguments(callback); arguments(1).filter(..saved) }",
+                "expected boolean, found string",
+                Some(17..24),
+                &[(68..96, "filter")],
+            );
+            diagnostic(
+                "{ let callback = (value) => \"bad\"; let saved = (callback,); arguments(1).filter(..saved) }",
+                "expected boolean, found string",
+                Some(17..24),
+                &[(60..88, "filter")],
+            );
         }
 
         #[test]
@@ -21238,7 +21670,10 @@ mod tests {
 
         #[test]
         fn p1308_none_identity() {
-            string("repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55) + none)", "arguments(z: 11, 22, z: 33, a: 44, 55)");
+            string(
+                "repr(arguments(..arguments(z: 11), 22, ..arguments(z: 33, a: 44), 55) + none)",
+                "arguments(z: 11, 22, z: 33, a: 44, 55)",
+            );
             string("repr(none + arguments(z: 1, 2))", "arguments(z: 1, 2)");
             string("repr(arguments() + none)", "arguments()");
         }
@@ -21266,9 +21701,18 @@ mod tests {
 
         #[test]
         fn p1308_args_integral_unicode_and_long() {
-            string("repr(arguments(\"éééééééééééééééééééééééééééééééééééééééééééééééééé\"))", "arguments(\n  \"éééééééééééééééééééééééééééééééééééééééééééééééééé\",\n)");
-            string("repr(arguments(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29))", "arguments(\n  0,\n  1,\n  2,\n  3,\n  4,\n  5,\n  6,\n  7,\n  8,\n  9,\n  10,\n  11,\n  12,\n  13,\n  14,\n  15,\n  16,\n  17,\n  18,\n  19,\n  20,\n  21,\n  22,\n  23,\n  24,\n  25,\n  26,\n  27,\n  28,\n  29,\n)");
-            string("repr(arguments(first: \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\", second: \"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\"))", "arguments(\n  first: \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n  second: \"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\",\n)");
+            string(
+                "repr(arguments(\"éééééééééééééééééééééééééééééééééééééééééééééééééé\"))",
+                "arguments(\n  \"éééééééééééééééééééééééééééééééééééééééééééééééééé\",\n)",
+            );
+            string(
+                "repr(arguments(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29))",
+                "arguments(\n  0,\n  1,\n  2,\n  3,\n  4,\n  5,\n  6,\n  7,\n  8,\n  9,\n  10,\n  11,\n  12,\n  13,\n  14,\n  15,\n  16,\n  17,\n  18,\n  19,\n  20,\n  21,\n  22,\n  23,\n  24,\n  25,\n  26,\n  27,\n  28,\n  29,\n)",
+            );
+            string(
+                "repr(arguments(first: \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\", second: \"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\"))",
+                "arguments(\n  first: \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n  second: \"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\",\n)",
+            );
         }
 
         #[test]
@@ -21328,10 +21772,18 @@ mod tests {
 
         #[test]
         fn p1308_none_identity_preserves_error_origin() {
-            diagnostic("{ let original = arguments(nope: 1); yaml.encode((:), ..(original + none)) }",
-                "unexpected argument: nope", Some(27..34), &[(37..74, "encode")]);
-            diagnostic("{ let original = arguments(nope: 1); yaml.encode((:), ..(none + original)) }",
-                "unexpected argument: nope", Some(27..34), &[(37..74, "encode")]);
+            diagnostic(
+                "{ let original = arguments(nope: 1); yaml.encode((:), ..(original + none)) }",
+                "unexpected argument: nope",
+                Some(27..34),
+                &[(37..74, "encode")],
+            );
+            diagnostic(
+                "{ let original = arguments(nope: 1); yaml.encode((:), ..(none + original)) }",
+                "unexpected argument: nope",
+                Some(27..34),
+                &[(37..74, "encode")],
+            );
         }
 
         #[test]
@@ -21458,25 +21910,44 @@ mod tests {
         let local = p1303_observe("{ let asset = 1; asset }", Features::empty());
         assert!(local.lateral.is_empty(), "{local:?}");
         assert_eq!(local.outcome, P1303Outcome::Success(Value::Int(1)));
-        let homonym = p1303_observe("{ let std = (asset: 1); std.asset }", Features::empty());
+        let homonym =
+            p1303_observe("{ let std = (asset: 1); std.asset }", Features::empty());
         assert_eq!(homonym.outcome, P1303Outcome::Success(Value::Int(1)));
         let alias = p1303_observe("{ let s = std; s.asset }", Features::empty());
         let P1303Outcome::Failure(errors) = alias.outcome else {
             panic!("alias de std efetivo deve conservar o gate");
         };
-        assert_eq!(errors[0].message, "cannot access field `asset` because the `bundle` feature is not enabled");
+        assert_eq!(
+            errors[0].message,
+            "cannot access field `asset` because the `bundle` feature is not enabled"
+        );
     }
     #[test]
     fn p1485_asset_oito_perfis_e_aliases() {
         for mask in 0..8 {
             let mut features = Features::empty();
-            if mask & 1 != 0 { features.enable(Feature::Html); }
-            if mask & 2 != 0 { features.enable(Feature::A11yExtras); }
-            if mask & 4 != 0 { features.enable(Feature::Bundle); }
+            if mask & 1 != 0 {
+                features.enable(Feature::Html);
+            }
+            if mask & 2 != 0 {
+                features.enable(Feature::A11yExtras);
+            }
+            if mask & 4 != 0 {
+                features.enable(Feature::Bundle);
+            }
             for (expression, gated) in [
-                ("asset", "cannot access variable `asset` because the `bundle` feature is not enabled"),
-                ("std.asset", "cannot access field `asset` because the `bundle` feature is not enabled"),
-                ("format.bundle", "cannot access field `bundle` because the `bundle` feature is not enabled"),
+                (
+                    "asset",
+                    "cannot access variable `asset` because the `bundle` feature is not enabled",
+                ),
+                (
+                    "std.asset",
+                    "cannot access field `asset` because the `bundle` feature is not enabled",
+                ),
+                (
+                    "format.bundle",
+                    "cannot access field `bundle` because the `bundle` feature is not enabled",
+                ),
             ] {
                 let observation = p1303_observe(expression, features);
                 assert!(observation.lateral.is_empty(), "mask {mask}: {observation:?}");
@@ -21487,13 +21958,20 @@ mod tests {
                     assert_eq!(errors.len(), 1, "mask {mask}: {expression}");
                     assert_eq!(errors[0].message, gated, "mask {mask}: {expression}");
                 } else {
-                    let P1303Outcome::Success(Value::Func(_)) = observation.outcome else {
-                        panic!("mask {mask}: {expression} deve resolver função: {observation:?}");
+                    let P1303Outcome::Success(Value::Func(_)) = observation.outcome
+                    else {
+                        panic!(
+                            "mask {mask}: {expression} deve resolver função: {observation:?}"
+                        );
                     };
                 }
             }
             let local = p1303_observe("{ let asset = 1; asset }", features);
-            assert_eq!(local.outcome, P1303Outcome::Success(Value::Int(1)), "mask {mask}");
+            assert_eq!(
+                local.outcome,
+                P1303Outcome::Success(Value::Int(1)),
+                "mask {mask}"
+            );
             if mask & 4 != 0 {
                 let aliases = p1303_observe(
                     "(asset == std.asset, asset == format.bundle.asset, repr(format.bundle), repr(asset(\"a/../b.txt\", bytes((0, 255)))))",
@@ -21582,10 +22060,7 @@ mod tests {
     fn p1494_origem_atravessa_conteudo_dinamico_sem_mudar_igualdade() {
         // O newline dentro de [ ] atravessa #let e #var até a realização.
         // Na linguagem, [newline] == [espaço] continua true.
-        assert_eq!(
-            p1494_plain_text("#let cjk = [水果]\n#cjk\n#cjk"),
-            "水果水果"
-        );
+        assert_eq!(p1494_plain_text("#let cjk = [水果]\n#cjk\n#cjk"), "水果水果");
         assert_eq!(
             p1494_plain_text(
                 "#let inferred = [\n]\n#let explicit = [ ]\n\
@@ -21593,10 +22068,7 @@ mod tests {
             ),
             "啊啊"
         );
-        assert_eq!(
-            p1494_plain_text("#let explicit = [ ]\n啊#explicit;啊"),
-            "啊 啊"
-        );
+        assert_eq!(p1494_plain_text("#let explicit = [ ]\n啊#explicit;啊"), "啊 啊");
         assert_eq!(
             p1494_plain_text("#let latin = [fruit]\n#latin\n#latin"),
             "fruit fruit"
@@ -21633,10 +22105,7 @@ mod tests {
             p1494_plain_text("#show regex(\"new line\"): [R]\npre new\nline post"),
             "pre R post"
         );
-        assert_eq!(
-            p1494_plain_text("#show regex(\"注释\"): [R]\n注//\n释"),
-            "R"
-        );
+        assert_eq!(p1494_plain_text("#show regex(\"注释\"): [R]\n注//\n释"), "R");
         assert_eq!(
             p1494_plain_text("#show regex(\"换行newline\"): [R]\n换行\nnewline"),
             "R"
@@ -21647,9 +22116,8 @@ mod tests {
     fn p1494_regex_nao_atravessa_fronteira_de_estilo() {
         // O primeiro par casa após colapso de newline. O segundo tem a
         // mesma forma textual, mas style chains diferentes.
-        let text = p1494_plain_text(
-            "#show regex(\"a b\"): [MATCH]\na\nb\n\na #strong[b]",
-        );
+        let text =
+            p1494_plain_text("#show regex(\"a b\"): [MATCH]\na\nb\n\na #strong[b]");
         assert_eq!(text.matches("MATCH").count(), 1, "{text:?}");
         assert!(text.contains("a b"), "fronteira de strong: {text:?}");
     }
@@ -21673,11 +22141,8 @@ mod tests {
         // Pin vanilla 9f2b6e871: <p>MATCH</p>; cristalino 6da06e849:
         // <p>ab</p>. A recipe de strong devolve dois nós textuais;
         // o show literal posterior deve casar a forma conjunta.
-        let source = concat!(
-            "#show strong: it => [a] + [b]\n",
-            "#show \"ab\": [MATCH]\n",
-            "*x*",
-        );
+        let source =
+            concat!("#show strong: it => [a] + [b]\n", "#show \"ab\": [MATCH]\n", "*x*",);
         assert_eq!(p1494_plain_text(source), "MATCH");
     }
 
@@ -21689,5 +22154,162 @@ mod tests {
         ] {
             assert_eq!(p1494_plain_text(source), expected, "{source:?}");
         }
+    }
+    // Policy regressions derived from the pinned oracle, before implementation.
+    fn break_policy_eval(source: &str) -> (SourceResult<Module>, Sink) {
+        let world = MockWorld::new(source);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        eval_for_test_keep_sink(&world, &src)
+    }
+
+    #[test]
+    fn custom_costs_set_rejects_invalid_dictionary_and_ratio() {
+        for (value,expected) in [("1","expected dictionary, found integer"),
+            ("(runt:1,hyphenation:false)","expected ratio, found boolean"),
+            ("(other:100%)","unexpected key \"other\", valid keys are \"hyphenation\", \"runt\", \"widow\", and \"orphan\"")] {
+            let (result,_)=break_policy_eval(&format!("#set text(costs:{value})\nx"));
+            let err=result.unwrap_err();assert_eq!(err[0].message,expected);
+            assert!(!err[0].span.is_detached());
+        }
+        let (result,sink)=break_policy_eval("#set text(costs:(hyphenation:1000%,runt:0%))\nx");
+        assert!(result.is_ok());assert!(sink.is_empty());
+    }
+
+    #[test]
+    fn hardcode_overhang_set_validates_boolean_without_discard_warning() {
+        for value in ["true", "false"] {
+            let (result, sink)=break_policy_eval(&format!("#set text(overhang: {value})\nx"));
+            assert!(result.is_ok());
+            assert!(sink.is_empty());
+        }
+        for (value,kind) in [("auto","auto"),("1","integer"),("\"false\"","string")] {
+            let (result,_)=break_policy_eval(&format!("#set text(overhang: {value})\nx"));
+            let err=result.unwrap_err();
+            assert_eq!(err[0].message,format!("expected boolean, found {kind}"));
+            assert!(!err[0].span.is_detached());
+        }
+    }
+
+    #[test]
+    fn break_policy_rejects_invalid_hyphenate_in_set_and_constructor() {
+        for source in ["#set text(hyphenate: 1)\nx", "#text(hyphenate: 1)[x]"] {
+            let (result, _) = break_policy_eval(source);
+            let err = result.expect_err(source);
+            assert_eq!(
+                err[0].message, "expected boolean or auto, found integer",
+                "{source}"
+            );
+            assert!(!err[0].span.is_detached(), "diagnostic lost its causal source");
+        }
+    }
+
+    #[test]
+    fn break_policy_rejects_invalid_justify_in_set_and_constructor() {
+        for source in ["#set par(justify: 1)\nx", "#par(justify: 1)[x]"] {
+            let (result, _) = break_policy_eval(source);
+            assert_eq!(
+                result.expect_err(source)[0].message,
+                "expected boolean, found integer",
+                "{source}"
+            );
+        }
+    }
+
+    #[test]
+    fn break_policy_rejects_invalid_strategy_in_set_and_constructor() {
+        for source in
+            ["#set par(linebreaks: \"nonsense\")\nx", "#par(linebreaks: \"nonsense\")[x]"]
+        {
+            let (result, _) = break_policy_eval(source);
+            assert_eq!(
+                result.expect_err(source)[0].message,
+                "expected \"simple\", \"optimized\", or auto",
+                "{source}"
+            );
+        }
+    }
+
+    fn break_policy_custom_values(content: &Content, key: &str, out: &mut Vec<Value>) {
+        match content {
+            Content::Styled(s) => {
+                out.extend(
+                    s.styles
+                        .delta()
+                        .custom
+                        .iter()
+                        .filter(|(k, _)| k.as_str() == key)
+                        .map(|(_, v)| v.clone()),
+                );
+                break_policy_custom_values(&s.body, key, out);
+            }
+            Content::Sequence(parts) => {
+                for c in parts.iter() {
+                    break_policy_custom_values(c, key, out);
+                }
+            }
+            Content::Par { body } => break_policy_custom_values(body, key, out),
+            _ => {}
+        }
+    }
+
+    #[test]
+    fn break_policy_transports_explicit_and_auto_without_hyphenate_warning() {
+        for (source, key, expected) in [
+            ("#set text(hyphenate: false)\nx", "text.hyphenate", Value::Bool(false)),
+            ("#set text(hyphenate: auto)\nx", "text.hyphenate", Value::Auto),
+            ("#text(hyphenate: true)[x]", "text.hyphenate", Value::Bool(true)),
+            ("#set par(justify: true)\nx", "par.justify", Value::Bool(true)),
+            ("#par(justify: false)[x]", "par.justify", Value::Bool(false)),
+            ("#set par(linebreaks: \"simple\")\nx", "par.linebreaks", Value::Str("simple".into())),
+            ("#set par(linebreaks: auto)\nx", "par.linebreaks", Value::Auto),
+            ("#par(linebreaks: \"optimized\")[x]", "par.linebreaks", Value::Str("optimized".into())),
+            ("#par(linebreaks: auto)[x]", "par.linebreaks", Value::Auto),
+        ] {
+            let (result, sink) = break_policy_eval(source);
+            let module = result.unwrap();
+            let mut values = Vec::new();
+            break_policy_custom_values(module.content().unwrap(), key, &mut values);
+            assert!(
+                values.contains(&expected),
+                "{source}: missing {expected:?}, got {values:?}"
+            );
+            assert!(
+                !sink
+                    .into_diagnostics()
+                    .iter()
+                    .any(|d| d.message.contains("'hyphenate'")),
+                "supported property warned"
+            );
+        }
+    }
+    #[test]
+    fn composition_native_par_repr_preserves_element_identity() {
+        let world = MockWorld::new("#repr(par[hello])");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        assert_eq!(module.content().unwrap().plain_text(), "par(body: [hello])");
+    }
+    #[test]
+    fn composition_show_par_preserves_inline_style_without_extra_paragraph() {
+        fn count(content: &Content) -> usize {
+            match content {
+                Content::Par { body } => 1 + count(body),
+                Content::Styled(s) => count(&s.body),
+                Content::Strong(s) => count(&s.body),
+                Content::Emph(s) => count(&s.body),
+                Content::Sequence(s) => s.iter().map(count).sum(),
+                _ => 0,
+            }
+        }
+        let world =
+            MockWorld::new("#show par: set text(fill: red)\nalpha *beta gamma* delta");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        assert_eq!(count(module.content().unwrap()), 1);
+        assert!(module
+            .content()
+            .unwrap()
+            .plain_text()
+            .contains("alpha beta gamma delta"));
     }
 }

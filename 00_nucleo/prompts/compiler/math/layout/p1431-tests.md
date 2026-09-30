@@ -1,35 +1,46 @@
-# Testes independentes P1431 — layout de `math.mat`
+# L0 — math/layout/p1431-tests
 
-## Dono test-only
+Hash do Código: 1b6caa22
 
-Consumer único: `01_core/src/compiler/math/layout/p1431_tests.rs`.
+**Layer:** L1 (tests)
+**Exclusive consumer:** `01_core/src/compiler/math/layout/p1431_tests.rs`
 
-## Obrigação
+## Consumer evidence
 
-Observar frames com métricas determinísticas. Verificar alinhamento horizontal,
-split tardio de `MathAlignPoint`, gaps relativos por eixo, todos os offsets de
-hline/vline inclusive bordas e negativos, stroke auto/custom, delimitadores,
-estilo denominador e extents. Offsets fora da dimensão são diagnóstico, não
-clamp/ignore. Preservar controles P825/P912/P919/P923/P945/P1042 e wrapper
-legado. Frame, fonte, stroke ou geometria não atribuível é `Unknown` e bloqueia.
+`01_core/src/compiler/math/layout/p1431_tests.rs:27` locates `struct TestWorld`.
+This audit locates the existing consumer; it does not establish language parity.
+Historical evidence and unresolved discrepancies are archived in
+`00_nucleo/diagnosticos/sanitization-remaining-compiler-history.md`.
 
-P26 inclui quantidades desiguais de `MathAlignPoint` e classes mistas. A
-fixture assimétrica `(1 & 2), (33 & 4)` observa as duas equações do alinhamento
-alternado: a subcoluna esquerda alinha à direita, portanto
-`x(1) + width(1) == x(33) + width(33)`; a subcoluna direita alinha à esquerda,
-portanto `x(2) == x(4)`. As larguras são derivadas independentemente por
-`FixedMetrics::text_width` no tamanho observado do item, nunca inferidas das
-posições produzidas pela grelha. Centralizar subcolunas deve falhar a primeira
-equação. P27 compara a mesma matriz em gaps default, 1em e 150% nos dois eixos. P29 observa
-espessura, cor e cap: auto é 0.05em Square e custom/fold conserva os três
-componentes. P30 inclui delimitadores opcionais esquerdo e direito em grid
-alto. P31 percorre Display, Text/Inline, Script e ScriptScript, mantendo a
-descida de denominador. P34 observa Square automático, cap customizado e Butt
-legado no `FrameItem::Line` final.
+## Independent matrix tests
 
-M23 exige offsets duplicados e fora de ordem, preservando quantidade e ordem
-das coordenadas, e calcula o midpoint interior a partir das métricas independentes
-das células; bordas 0/n coincidem com os limites completos da caixa. M25 usa
-matrizes 2x3 e 3x2, válidas e inválidas, para hline validar rows e vline validar
-columns. M26 chama diretamente `Content::math_matrix`, exige carrier `mat`
-completo e compara sua geometria com a rota comum equivalente.
+Own only `01_core/src/compiler/math/layout/p1431_tests.rs`.
+Use deterministic metrics and observe horizontal alignment, late MathAlignPoint
+splitting, axis-specific relative gaps, every hline/vline offset including
+borders/negatives, auto/custom stroke, delimiters, denominator style and extents.
+Out-of-dimension offsets are diagnostic, not clamp/ignore.
+Preserve the established P825/P912/P919/P923/P945/P1042 controls and
+compatibility wrapper. Unattributable frame/font/stroke/geometry is Unknown
+and blocks acceptance.
+
+P26 includes unequal alignment-point counts and mixed classes. For asymmetric
+`(1 & 2), (33 & 4)`, require
+`x(1)+width(1)==x(33)+width(33)` and `x(2)==x(4)`.
+Widths come independently from FixedMetrics::text_width at observed item size,
+never from grid-produced positions. Centering subcolumns must fail the first
+equation.
+
+P27 compares default, 1em and 150% gaps in both axes.
+P29 observes thickness, color and cap: auto=0.05em Square; custom/fold
+preserves all three. P30 includes optional left/right delimiters in a tall
+grid. P31 covers Display, Text/Inline, Script and ScriptScript with denominator
+descent. P34 observes automatic Square, custom cap and compatibility Butt
+in final FrameItem::Line.
+
+M23 requires duplicate/out-of-order offsets, retaining coordinate quantity and
+order; compute interior midpoints independently from cell metrics, while
+borders 0/n coincide with complete box bounds.
+M25 uses valid/invalid 2x3 and 3x2 matrices: hline validates rows, vline columns.
+M26 calls Content::math_matrix directly, requires the complete mat carrier
+and compares geometry with the equivalent common route. None of these
+assertions promotes a private implementation shape or bytes to a requirement.

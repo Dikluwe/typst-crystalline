@@ -44,11 +44,15 @@ pub fn native_document(
     }
     let path = match &args.items[0] {
         Value::Str(path) => normalize_bundle_path(path)?,
-        other => return Err(error(format!("expected string, found {}", other.type_name()))),
+        other => {
+            return Err(error(format!("expected string, found {}", other.type_name())))
+        }
     };
     let body = match &args.items[1] {
         Value::Content(body) => body.clone(),
-        other => return Err(error(format!("expected content, found {}", other.type_name()))),
+        other => {
+            return Err(error(format!("expected content, found {}", other.type_name())))
+        }
     };
     if ctx.target != crate::compiler::eval::EvalTarget::Bundle {
         return Err(vec![SourceDiagnostic::error(
@@ -61,11 +65,15 @@ pub fn native_document(
     let format = match args.named.get("format") {
         None => None,
         Some(Value::Func(func)) => func.name().map(EcoString::from),
-        Some(other) => return Err(error(format!("expected function, found {}", other.type_name()))),
+        Some(other) => {
+            return Err(error(format!("expected function, found {}", other.type_name())))
+        }
     };
     let title = match args.named.get("title") {
         Some(Value::Content(title)) => Some(title.clone()),
-        Some(other) => return Err(error(format!("expected content, found {}", other.type_name()))),
+        Some(other) => {
+            return Err(error(format!("expected content, found {}", other.type_name())))
+        }
         None => None,
     };
     let author = match args.named.get("author") {
@@ -74,14 +82,18 @@ pub fn native_document(
     };
     let date = match args.named.get("date") {
         Some(Value::Datetime(date)) => Some(*date),
-        Some(other) => return Err(error(format!("expected datetime, found {}", other.type_name()))),
+        Some(other) => {
+            return Err(error(format!("expected datetime, found {}", other.type_name())))
+        }
         None => None,
     };
     let keywords = match args.named.get("keywords") {
         Some(value) => extract_string_list(value, "keywords")?,
         None => Vec::new(),
     };
-    Ok(Value::Content(Content::document(path, body, format, title, author, date, keywords)))
+    Ok(Value::Content(Content::document(
+        path, body, format, title, author, date, keywords,
+    )))
 }
 
 /// Construct a bundle asset with byte-exact data.
@@ -110,12 +122,22 @@ pub fn native_asset(
     }
     let path = match &args.items[0] {
         Value::Str(path) => normalize_bundle_path(path)?,
-        other => return Err(error(format!("expected string, found {}", diagnostic_type_name(other)))),
+        other => {
+            return Err(error(format!(
+                "expected string, found {}",
+                diagnostic_type_name(other)
+            )))
+        }
     };
     let data = match &args.items[1] {
         Value::Str(value) => value.as_bytes().to_vec(),
         Value::Bytes(value) => value.as_slice().to_vec(),
-        other => return Err(error(format!("expected string or bytes, found {}", diagnostic_type_name(other)))),
+        other => {
+            return Err(error(format!(
+                "expected string or bytes, found {}",
+                diagnostic_type_name(other)
+            )))
+        }
     };
     Ok(Value::Content(Content::asset(path, data)))
 }
@@ -137,7 +159,8 @@ fn normalize_bundle_path(path: &str) -> SourceResult<EcoString> {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
             "backslashes are not allowed in bundle paths",
-        ).with_hint("use forward slashes instead")]);
+        )
+        .with_hint("use forward slashes instead")]);
     }
     let mut components = Vec::new();
     for component in path.split('/') {
@@ -145,7 +168,9 @@ fn normalize_bundle_path(path: &str) -> SourceResult<EcoString> {
             "" | "." => {}
             ".." => {
                 if components.pop().is_none() {
-                    return Err(error(format!("path {path} would escape the bundle root")));
+                    return Err(error(format!(
+                        "path {path} would escape the bundle root"
+                    )));
                 }
             }
             component => components.push(component),

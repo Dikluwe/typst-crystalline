@@ -40,3 +40,6 @@ lipsum               = { workspace = true }  # P805 — lorem byte-parity (Marko
 codex                = { workspace = true }  # P1283 — dados Unicode declarativos, puros e estáticos
 memmap2              = "0.9"                 # P937 — Font::Mmap em L1 (referência estável de bytes; criação apenas em L3)
 libm                 = "=0.2.11"             # P1253 — versão exata usada por palette no baseline
+
+[dev-dependencies]
+criterion = { workspace = true }

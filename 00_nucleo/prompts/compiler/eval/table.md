@@ -1,140 +1,38 @@
-# Prompt L0 — `rules/eval/table` — `#set table(numbering:)` e namespace `table.*`
+# L0 — compiler/eval/table
 Hash do Código: d3dcb76f
 
-**Camada**: L1 · **Ficheiro alvo exclusivo**: `01_core/src/compiler/eval/table.rs`
-**Prompt pai**: `00_nucleo/prompts/compiler/eval.md`
-**P459**: materializar numeração automática de tables via chain léxica, análoga a `figure.numbering` (P454) e `equation.numbering` (P456).
-**P493b**: namespace anexado em `table` para `table.header`, `table.footer`, `table.cell`.
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/eval/table.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
----
+## Source evidence
 
-## 1. `#set table(numbering: ...)`
+The current exclusive consumer defines the following owned boundaries:
 
-- Target: `"table"`.
-- Argumento nomeado reconhecido: `numbering`.
-- Comportamento:
-  - `Value::Str(pattern)` → empurrar `("table.numbering", Value::Str(pattern))` na `StyleChain` (`engine.styles.push_custom`).
-  - `Value::None` → empurrar `("table.numbering", Value::None)` para limpar no escopo léxico.
-  - Outros tipos → ignorar (herdar).
-- Retorna `Value::None`.
+- `01_core/src/compiler/eval/table.rs:15` — `fn normalize_table_cell`.
 
-## 2. `native_table`
+Prior source readings supporting these clauses (snapshot provenance is
+retained in the assigned history diagnostic, not asserted as a fresh measurement):
 
-- Aceita argumento nomeado `caption: content|string|none` (P459).
-- Armazena `caption` em `TableElem.caption`.
-- Não lê `numbering` directamente — o gate vem da chain via `#set table`.
+- `crates/typst-library/src/model/table.rs:494`.
+- `crates/typst-library/src/model/table.rs:524`.
+- `crates/typst-library/src/model/table.rs:732`.
+- `model/table.rs:496-498`.
+- `model/table.rs:734-780`.
+- `model/table.rs:746-748`.
+- `model/table.rs:750-752`.
+- `model/table.rs:781-784`.
 
-## 3. Namespace anexado `table.*` (P493b)
+## Contract
 
-A função `table` expõe sub-funções via field access:
+Own only normalize_table_cell, the content-or-table.cell cast used by its
+callers. An existing Content::TableCell clones the complete cell, preserving all
+visual, geometric and accessibility fields. Other Value::Content becomes a cell
+with that body, unset x/y/colspan/rowspan/stroke/fill/align/inset/breakable and
+TableCellKind::Auto. Other values fail with `expected content, found <long type>`
+at the existing detached span using the canonical type-name formatter.
 
-| Campo | Função nativa | Propósito |
-|---|---|---|
-| `table.header` | `native_table_header` | Cabeçalho de tabela. |
-| `table.footer` | `native_table_footer` | Rodapé de tabela. |
-| `table.cell`   | `native_table_cell`   | Célula de tabela. |
-
-> **Fonte de paridade (P1031)** — os três sub-elementos existem na linguagem Typst desde
-> 0.11.0. Doc comments `#[elem]` do vanilla ratificado (`e0e8ca4d`), que são o texto
-> publicado em `typst.app/docs` (ver `lab/typst-original/docs/README.md`):
->
-> | Sub-elemento | Doc comment do vanilla | Página publicada |
-> |---|---|---|
-> | `table.header` | `crates/typst-library/src/model/table.rs:494` (`#[elem(name = "header", title = "Table Header", since = "0.11.0")]`) | `reference/model/table/#definitions-header` |
-> | `table.footer` | `crates/typst-library/src/model/table.rs:524` | `reference/model/table/#definitions-footer` |
-> | `table.cell` | `crates/typst-library/src/model/table.rs:732` | `reference/model/table/#definitions-cell` |
-
-### Construção
-
-`native_table` é registada no scope global como `Func::native_with_namespace`:
-
-```rust
-let mut table_ns = Scope::new();
-table_ns.define("header", Value::Func(native_table_header));
-table_ns.define("footer", Value::Func(native_table_footer));
-table_ns.define("cell", Value::Func(native_table_cell));
-
-let table_func = Value::Func(Func::native_with_namespace(
-    "table",
-    native_table,
-    Arc::new(table_ns),
-));
-```
-
-### Field access
-
-Quando o eval encontra `table.header`, resolve `field = "header"` no namespace anexado a `table` e devolve o `Value::Func` correspondente. Ver `00_nucleo/prompts/compiler/eval.md`, secção «Field Access em tipos primitivos, namespaces e módulos» (subsection `Func` com namespace anexado).
-
-### Semântica das sub-funções
-
-- `table.header(body, repeat: true)` → `Content::TableHeader`.
-- `table.footer(body, repeat: true)` → `Content::TableFooter`.
-- `table.cell(body, colspan: 1, rowspan: 1, fill: none, stroke: none)` → `Content::TableCell`.
-
-> **Fonte de paridade dos argumentos (P1031)** — citações literais dos doc comments dos
-> campos no vanilla ratificado (`e0e8ca4d`):
->
-> - `repeat` de `table.header` — `model/table.rs:496-498`: *"Whether this header should be
->   repeated across pages."*, `#[default(true)]`. Idem `table.footer` em `:526-528`.
-> - `colspan` de `table.cell` — `model/table.rs:746-748`: *"The amount of columns spanned by
->   this cell."*, `#[default(NonZeroUsize::ONE)]` (= 1).
-> - `rowspan` — `model/table.rs:750-752`: *"The amount of rows spanned by this cell."*,
->   `#[default(NonZeroUsize::ONE)]` (= 1).
->
-> **Cobertura parcial declarada** — o vanilla define doze campos em `TableCell`
-> (`model/table.rs:734-780`): `body`, `x`, `y`, `colspan`, `rowspan`, `inset`, `align`,
-> `fill`, `stroke`, `breakable`, `kind`, `is_repeated`. A assinatura acima cobre cinco.
-> Os restantes (`x`, `y`, `inset`, `align`, `breakable`, `kind`, `is_repeated`) são **lacuna
-> documentada**, não uma afirmação incorrecta sobre a linguagem — reabrir este L0 quando
-> forem implementados.
-
-Os detalhes de `native_table_header`/`native_table_footer`/`native_table_cell` permanecem como definidos em `entities/elements/table_header.md`, `table_footer.md` e `table_cell.md`.
-
----
-
-## 4. Limitação conhecida (P661)
-
-A numeração automática de P459 é uma extensão do cristalino: a tabela
-numerada não é transformada numa `figure` e, consequentemente, **não**
-dispara show rules de `figure.where(kind: table)` nem herda estilos aplicados
-a `figure`. Ver `00_nucleo/prompts/compiler/layout/table.md` §P661.
-
-## 5. Verificação
-
-- `#set table(numbering: "1.")` deve transportar `"table.numbering"` até `Content::Table` via `Content::Styled` (escopo léxico).
-- `#table([...], caption: [...])` sem `#set table(numbering:)` não recebe prefixo.
-- `table.header[Nome][Idade][Cidade]` deve avaliar para `Content::TableHeader`.
-- `table.footer[Total][2][—]` deve avaliar para `Content::TableFooter`.
-- `table.cell[Conteúdo]` deve avaliar para `Content::TableCell`.
-- `table(...)` sem header/footer continua a funcionar (não-regressão).
-- Show rules de `figure.where(kind: table)` não afectam tabelas numeradas por P459 (P661).
-
-## 6. P1288 — normalização content-or-cell sem colisão de ownership
-
-### Medição anterior à decisão
-
-O header de `01_core/src/compiler/eval/rules.rs:1-4` aponta corretamente para
-`compiler/eval/rules.md`; `compiler/stdlib/structural/table_grid.rs:1-4`
-aponta para `compiler/stdlib/structural/table_grid.md`. Este documento estava
-como exceção órfã histórica e não pode apropriar-se de nenhum desses consumers
-sem violar ADR-0129. A fonte vanilla mede o cast `TableCell` a partir de
-`Content` em `model/table.rs:781-784` e as duas funções usando-o em
-`pdf/accessibility.rs:203-220,264-272`.
-
-### Decisão vigente
-
-Este prompt possui exclusivamente o helper puro em
-`compiler/eval/table.rs`. Ele normaliza o argumento de `pdf.header-cell` e
-`pdf.data-cell`: conteúdo cru vira célula default; `Content::TableCell`
-existente é clonado preservando todos os campos; outro tipo produz o cast
-nominal medido. O caller aplica Header/Data depois da normalização.
-
-O helper não registra bindings, não aplica layout, não lê features e não
-duplica `native_table_cell`. Os casts preservam os diagnósticos medidos:
-célula ausente → `missing argument: cell`; célula inteira → `expected content,
-found integer`; `pdf.data-cell(cell:)` → ``the argument `cell` is positional``;
-nível zero/negativo → `number must be positive`; nível float → `expected
-integer, found float`; scope inválido → `expected "both", "column", or
-"row"`, com `, found none` para none explícito. `pdf.table-summary` aceita
-summary string apenas quando fornecido; omissão produz `None`, mas none
-explícito produz `expected string, found none`.
+This helper neither constructs a table namespace nor evaluates set rules,
+numbering, captions or PDF headers. Those behaviors retain their respective
+stdlib/rules/PDF owners; caller-specific argument diagnostics are not duplicated
+in this cast. Do not discard fields by unwrapping an already constructed cell.

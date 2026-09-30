@@ -1,43 +1,27 @@
-# Prompt L0 — transação e replay do sufixo de flow
-Hash do Código: c6fc265f
+# L0 — flow suffix
+Hash do Código: 8202aaa1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
 
-**Camada:** L1
-**Ficheiro alvo:** `01_core/src/compiler/layout/flow_suffix.rs`
-**Vanilla ratificado:** `9f2b6e8715237cb086899a42873660fe744622e8`
-**ADRs:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129
+**Layer:** L1
+**Exclusive consumer:** `01_core/src/compiler/layout/flow_suffix.rs`
+**Architecture:** ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129, ADR-0130.
 
-## P1504 — medição antes da decisão
+## Evidence before specification
 
-Na working tree P1503 descrita em
-`00_nucleo/materialization/typst-passo-1504.md`,
-`compiler/layout/cursor.rs:361-372` aceita ou rejeita uma transição de
-região conforme a transação de sufixo, e `:753-808` executa a unidade
-posterior ao marker, valida novas inserções, aceita ou restaura o
-checkpoint e repete a ocorrência. `compiler/layout/mod.rs:797-1417`
-possui a estrutura e captura/restauração do checkpoint; `place.rs`
-possui fitting e reservas. O marker e o drain permanecem associados ao
-avanço de região.
+The current consumer implements the operations specified below at `01_core/src/compiler/layout/flow_suffix.rs:15`, `01_core/src/compiler/layout/flow_suffix.rs:36`, `01_core/src/compiler/layout/flow_suffix.rs:97`.
 
-## Decisão e contrato
+Source inspection establishes current behavior and mechanical ownership; it is not a new bilateral parity measurement or evidence of upstream intent. Observable text, morphology, geometry and errors remain language-level obligations; buffer layout and traversal structure are implementation mechanics. Historical probes and their snapshot-specific qualifications are recorded in `00_nucleo/diagnosticos/sanitization-layout-history.md`. Older vanilla pins must not be presented as proof against the current pinned reference `9f2b6e8715237cb086899a42873660fe744622e8`.
 
-Este consumer é dono da **decisão transacional do sufixo**, não da política
-de página: aceita uma unidade estável, rejeita uma unidade cuja inserção
-posterior não cabe, restaura atomicamente a cauda pelo checkpoint do
-`Layouter`, pede a transição ordinária e repete a mesma ocorrência uma vez
-na nova região. Antes de uma transição normal, confirma a transação ativa
-que não foi rejeitada; uma tentativa rejeitada não materializa página.
-`compiler/layout.md` conserva campos, captura/restauração e dispatcher;
-`compiler/layout/cursor.md` conserva `new_page`, marker, drain e
-`flush_pending_floats`; `compiler/layout/place.md` conserva fitting.
+## Ownership and contract
 
-O owner não conhece a variante do conteúdo futuro, não antecipa sua altura,
-não promove floats posteriores ao prefixo e não migra apenas `current_line`.
-PREFLOW e float-prefixo confirmados permanecem intocados; sufixo textual,
-Place não-float, float posterior, tags e links não são duplicados. Controles
-com/sem marker ou float, top/bottom, clearance e sub-layout preservam
-páginas, posições e unicidade. Nenhum estado, API pública, default ou fase
-novos. Refutam a extração: copiar o checkpoint aqui, mover fitting do
-Place, materializar página na tentativa rejeitada ou especializar Block.
+This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
+
+Own acceptance/rejection and replay of the speculative flow suffix. Accumulate top-level occurrences in order while nested dispatch participates in the same unit. Ask Place's existing fitting helper whether newly queued floats fit; preserve the current acceptance conditions and boundary clearing rather than inventing a general fixpoint.
+
+An accepted suffix clears its transaction/checkpoint/replay state before ordinary transition. A rejected suffix takes the hub checkpoint and replay list, restores the full captured tail through `00_nucleo/prompts/compiler/layout.md`, requests an ordinary Cursor transition, and re-dispatches the same occurrences through the non-reopening entry once. No prefix float, post-marker item, counter, location or attachment may be duplicated by replay. Do not peek at future Content, copy state into this module, translate only current_line or special-case Block/Place geometry. Region-progress policy remains in `00_nucleo/prompts/compiler/layout/cursor.md`.
+
+## Acceptance and limits
+
+Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
