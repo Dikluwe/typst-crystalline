@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash d9f9c8e9
+//! @prompt-hash 78a4e896
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -70,6 +70,7 @@ mod call;
 /// Metadados sintáticos privados e pontuais para os diagnósticos de
 /// `float.is-nan`. Não atravessam `entities::Args` nem sobrevivem à chamada.
 mod call_spans;
+mod contextual_calls;
 mod invoke;
 mod location;
 mod selector_intercepts;
