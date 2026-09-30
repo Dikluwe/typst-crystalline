@@ -1,0 +1,518 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/infra/plugin_host/tests.md
+//! @prompt-hash 6a77f01b
+//! @layer L3
+//! @updated 2026-09-26
+
+use super::*;
+
+// ---------------------------------------------------------------------
+// Encoder WASM mínimo (port de `gen_wasm.py` de P696 §A) — mantém os
+// testes auto-contidos e deterministas (sem toolchain WASM / Python).
+// ---------------------------------------------------------------------
+const I32: u8 = 0x7f;
+const I64: u8 = 0x7e;
+const F64: u8 = 0x7c;
+
+fn uleb(mut n: u32) -> Vec<u8> {
+    let mut out = Vec::new();
+    loop {
+        let b = (n & 0x7f) as u8;
+        n >>= 7;
+        if n == 0 {
+            out.push(b);
+            break;
+        } else {
+            out.push(b | 0x80);
+        }
+    }
+    out
+}
+
+fn sleb(mut n: i32) -> Vec<u8> {
+    let mut out = Vec::new();
+    loop {
+        let b = (n & 0x7f) as u8;
+        n >>= 7; // arithmetic shift (i32)
+        let done = (n == 0 && (b & 0x40) == 0) || (n == -1 && (b & 0x40) != 0);
+        out.push(if done { b } else { b | 0x80 });
+        if done {
+            break;
+        }
+    }
+    out
+}
+
+fn vbytes(b: &[u8]) -> Vec<u8> {
+    let mut v = uleb(b.len() as u32);
+    v.extend_from_slice(b);
+    v
+}
+
+fn name(s: &str) -> Vec<u8> {
+    vbytes(s.as_bytes())
+}
+
+fn section(id: u8, payload: &[u8]) -> Vec<u8> {
+    let mut s = vec![id];
+    s.extend(uleb(payload.len() as u32));
+    s.extend_from_slice(payload);
+    s
+}
+
+fn i32const(n: i32) -> Vec<u8> {
+    let mut v = vec![0x41];
+    v.extend(sleb(n));
+    v
+}
+fn call(f: u32) -> Vec<u8> {
+    let mut v = vec![0x10];
+    v.extend(uleb(f));
+    v
+}
+fn unreachable() -> Vec<u8> {
+    vec![0x00]
+}
+fn cat(parts: &[Vec<u8>]) -> Vec<u8> {
+    parts.iter().flat_map(|p| p.iter().copied()).collect()
+}
+
+#[derive(Default)]
+struct Wasm {
+    types: Vec<(Vec<u8>, Vec<u8>)>,
+    imports: Vec<(String, String, u32)>,
+    funcs: Vec<u32>,
+    mem_min: Option<u32>,
+    exports: Vec<(String, u8, u32)>,
+    bodies: Vec<Vec<u8>>,
+    data: Vec<(i32, Vec<u8>)>,
+}
+
+impl Wasm {
+    fn new() -> Self {
+        Self::default()
+    }
+    fn typ(&mut self, p: &[u8], r: &[u8]) -> u32 {
+        let i = self.types.len() as u32;
+        self.types.push((p.to_vec(), r.to_vec()));
+        i
+    }
+    fn import_func(&mut self, m: &str, n: &str, ty: u32) {
+        self.imports.push((m.into(), n.into(), ty));
+    }
+    fn func(&mut self, ty: u32, body: Vec<u8>) -> u32 {
+        let idx = (self.imports.len() as u32) + (self.funcs.len() as u32);
+        self.funcs.push(ty);
+        self.bodies.push(body);
+        idx
+    }
+    fn memory(&mut self, min: u32) {
+        self.mem_min = Some(min);
+    }
+    fn export(&mut self, nm: &str, kind: u8, idx: u32) {
+        self.exports.push((nm.into(), kind, idx));
+    }
+    fn data_seg(&mut self, off: i32, bytes: &[u8]) {
+        self.data.push((off, bytes.to_vec()));
+    }
+    fn build(self) -> Vec<u8> {
+        let mut secs: Vec<Vec<u8>> = Vec::new();
+        if !self.types.is_empty() {
+            let mut p = uleb(self.types.len() as u32);
+            for (params, results) in &self.types {
+                p.push(0x60);
+                p.extend(vbytes(params));
+                p.extend(vbytes(results));
+            }
+            secs.push(section(1, &p));
+        }
+        if !self.imports.is_empty() {
+            let mut p = uleb(self.imports.len() as u32);
+            for (m, n, ty) in &self.imports {
+                p.extend(name(m));
+                p.extend(name(n));
+                p.push(0x00);
+                p.extend(uleb(*ty));
+            }
+            secs.push(section(2, &p));
+        }
+        if !self.funcs.is_empty() {
+            let mut p = uleb(self.funcs.len() as u32);
+            for ty in &self.funcs {
+                p.extend(uleb(*ty));
+            }
+            secs.push(section(3, &p));
+        }
+        if let Some(min) = self.mem_min {
+            let mut p = uleb(1);
+            p.push(0x00); // flags: sem max
+            p.extend(uleb(min));
+            secs.push(section(5, &p));
+        }
+        if !self.exports.is_empty() {
+            let mut p = uleb(self.exports.len() as u32);
+            for (nm, kind, idx) in &self.exports {
+                p.extend(name(nm));
+                p.push(*kind);
+                p.extend(uleb(*idx));
+            }
+            secs.push(section(7, &p));
+        }
+        if !self.bodies.is_empty() {
+            let mut p = uleb(self.bodies.len() as u32);
+            for body in &self.bodies {
+                let mut inner = uleb(0); // 0 declarações de locais
+                inner.extend(body);
+                inner.push(0x0b); // end
+                p.extend(uleb(inner.len() as u32));
+                p.extend(inner);
+            }
+            secs.push(section(10, &p));
+        }
+        if !self.data.is_empty() {
+            let mut p = uleb(self.data.len() as u32);
+            for (off, bytes) in &self.data {
+                p.extend(uleb(0)); // memidx 0 (activo)
+                p.push(0x41);
+                p.extend(sleb(*off));
+                p.push(0x0b); // expr de offset
+                p.extend(vbytes(bytes));
+            }
+            secs.push(section(11, &p));
+        }
+        let mut w = b"\x00asm\x01\x00\x00\x00".to_vec();
+        for s in secs {
+            w.extend(s);
+        }
+        w
+    }
+}
+
+/// Módulo base com os 2 imports `typst_env`, `memory` (1 página) e export
+/// de `memory`. Devolve (Wasm, t_wab, t_srh) para o cenário completar.
+fn base() -> (Wasm, u32, u32) {
+    let mut w = Wasm::new();
+    let t_wab = w.typ(&[I32], &[]);
+    let t_srh = w.typ(&[I32, I32], &[]);
+    w.import_func("typst_env", "wasm_minimal_protocol_write_args_to_buffer", t_wab);
+    w.import_func("typst_env", "wasm_minimal_protocol_send_result_to_host", t_srh);
+    w.memory(1);
+    w.export("memory", 0x02, 0);
+    (w, t_wab, t_srh)
+}
+
+fn host() -> WasmiPluginHost {
+    WasmiPluginHost::new()
+}
+
+// ----- sucesso -------------------------------------------------------
+
+#[test]
+fn hello_devolve_bytes_hello() {
+    let (mut w, _, _) = base();
+    let t = w.typ(&[], &[I32]);
+    // send_result_to_host(0, 5)  [func idx 1]; return 0
+    let body = cat(&[i32const(0), i32const(5), call(1), i32const(0)]);
+    let hello = w.func(t, body);
+    w.export("hello", 0x00, hello);
+    w.data_seg(0, b"hello");
+    let bytes = w.build();
+
+    let h = host();
+    let id = h.load(&bytes).expect("load hello.wasm");
+    let out = h.call(id, "hello", &[]).expect("call hello");
+    assert_eq!(out.as_slice(), b"hello");
+}
+
+// ----- catálogo de mensagens (L0) ------------------------------------
+
+#[test]
+fn msg_01_modulo_sem_memory() {
+    let mut w = Wasm::new();
+    let t_wab = w.typ(&[I32], &[]);
+    let t_srh = w.typ(&[I32, I32], &[]);
+    w.import_func("typst_env", "wasm_minimal_protocol_write_args_to_buffer", t_wab);
+    w.import_func("typst_env", "wasm_minimal_protocol_send_result_to_host", t_srh);
+    // SEM memory / SEM export de memory
+    let t_f = w.typ(&[I32], &[I32]);
+    let f = w.func(t_f, i32const(0));
+    w.export("f", 0x00, f);
+    let e = host().load(&w.build()).unwrap_err();
+    assert_eq!(e.message.as_str(), "plugin does not export its memory");
+}
+
+#[test]
+fn msg_02_wasm_invalido() {
+    let garbage = b"\x00asm\x01\x00\x00\x00\xff\xff";
+    let e = host().load(garbage).unwrap_err();
+    assert!(e.message.starts_with("failed to load WebAssembly module ("), "msg: {e}",);
+}
+
+#[test]
+fn msg_03_param_nao_i32() {
+    let (mut w, _, _) = base();
+    let t_bad = w.typ(&[F64], &[I32]); // param f64
+    let f = w.func(t_bad, i32const(0));
+    w.export("f", 0x00, f);
+    let h = host();
+    let id = h.load(&w.build()).unwrap();
+    let e = h.call(id, "f", &[]).unwrap_err();
+    assert_eq!(
+        e.message.as_str(),
+        "plugin function `f` has a parameter that is not a 32-bit integer"
+    );
+}
+
+#[test]
+fn msg_04_resultado_nao_um_i32() {
+    let (mut w, _, _) = base();
+    let t_bad = w.typ(&[], &[]); // sem resultado
+    let f = w.func(t_bad, Vec::new());
+    w.export("f", 0x00, f);
+    let h = host();
+    let id = h.load(&w.build()).unwrap();
+    let e = h.call(id, "f", &[]).unwrap_err();
+    assert_eq!(
+        e.message.as_str(),
+        "plugin function `f` does not return exactly one 32-bit integer"
+    );
+}
+
+#[test]
+fn msg_05_arg_count_singular() {
+    let (mut w, _, _) = base();
+    let t = w.typ(&[I32], &[I32]); // 1 param
+    let f = w.func(t, i32const(0));
+    w.export("f", 0x00, f);
+    let h = host();
+    let id = h.load(&w.build()).unwrap();
+    let e = h.call(id, "f", &[]).unwrap_err(); // 0 given
+    assert_eq!(e.message.as_str(), "plugin function takes 1 argument, but 0 were given");
+}
+
+#[test]
+fn msg_05_arg_count_plural() {
+    let (mut w, _, _) = base();
+    let t = w.typ(&[I32, I32], &[I32]); // 2 params
+    let f = w.func(t, i32const(0));
+    w.export("f", 0x00, f);
+    let h = host();
+    let id = h.load(&w.build()).unwrap();
+    let e = h.call(id, "f", &[Bytes::new(vec![1])]).unwrap_err(); // 1 given
+    assert_eq!(e.message.as_str(), "plugin function takes 2 arguments, but 1 was given");
+}
+
+#[test]
+fn msg_06_trap() {
+    let (mut w, _, _) = base();
+    let t = w.typ(&[], &[I32]);
+    let body = cat(&[unreachable(), i32const(0)]);
+    let f = w.func(t, body);
+    w.export("f", 0x00, f);
+    let h = host();
+    let id = h.load(&w.build()).unwrap();
+    let e = h.call(id, "f", &[]).unwrap_err();
+    assert!(e.message.starts_with("plugin panicked:"), "msg: {e}");
+}
+
+#[test]
+fn msg_07_out_of_bounds_write() {
+    let (mut w, _, _) = base();
+    let t = w.typ(&[I32], &[I32]); // 1 param (length do arg)
+                                   // write_args_to_buffer(0x100000) [func idx 0]; return 0
+    let body = cat(&[i32const(0x100000), call(0), i32const(0)]);
+    let f = w.func(t, body);
+    w.export("f", 0x00, f);
+    let h = host();
+    let id = h.load(&w.build()).unwrap();
+    let e = h.call(id, "f", &[Bytes::new(b"abcde".to_vec())]).unwrap_err();
+    assert_eq!(
+        e.message.as_str(),
+        "plugin tried to write out of bounds: pointer 0x100000 is out of bounds for write of length 5"
+    );
+}
+
+#[test]
+fn msg_07_out_of_bounds_read() {
+    let (mut w, _, _) = base();
+    let t = w.typ(&[], &[I32]);
+    // send_result_to_host(0x100000, 5) [func idx 1]; return 0
+    let body = cat(&[i32const(0x100000), i32const(5), call(1), i32const(0)]);
+    let f = w.func(t, body);
+    w.export("f", 0x00, f);
+    let h = host();
+    let id = h.load(&w.build()).unwrap();
+    let e = h.call(id, "f", &[]).unwrap_err();
+    assert_eq!(
+        e.message.as_str(),
+        "plugin tried to read out of bounds: pointer 0x100000 is out of bounds for read of length 5"
+    );
+}
+
+#[test]
+fn msg_08_erro_utf8() {
+    let (mut w, _, _) = base();
+    let t = w.typ(&[], &[I32]);
+    // send_result_to_host(0, 4); return 1
+    let body = cat(&[i32const(0), i32const(4), call(1), i32const(1)]);
+    let f = w.func(t, body);
+    w.export("f", 0x00, f);
+    w.data_seg(0, b"boom");
+    let h = host();
+    let id = h.load(&w.build()).unwrap();
+    let e = h.call(id, "f", &[]).unwrap_err();
+    assert_eq!(e.message.as_str(), "plugin errored with: boom");
+}
+
+#[test]
+fn msg_09_erro_nao_utf8() {
+    let (mut w, _, _) = base();
+    let t = w.typ(&[], &[I32]);
+    // send_result_to_host(0, 2); return 1  (0xff 0xfe não é UTF-8)
+    let body = cat(&[i32const(0), i32const(2), call(1), i32const(1)]);
+    let f = w.func(t, body);
+    w.export("f", 0x00, f);
+    w.data_seg(0, &[0xff, 0xfe]);
+    let h = host();
+    let id = h.load(&w.build()).unwrap();
+    let e = h.call(id, "f", &[]).unwrap_err();
+    assert_eq!(
+        e.message.as_str(),
+        "plugin errored, but did not return a valid error message"
+    );
+}
+
+#[test]
+fn msg_10_codigo_retorno_invalido() {
+    let (mut w, _, _) = base();
+    let t = w.typ(&[], &[I32]);
+    let f = w.func(t, i32const(2)); // return 2
+    w.export("f", 0x00, f);
+    let h = host();
+    let id = h.load(&w.build()).unwrap();
+    let e = h.call(id, "f", &[]).unwrap_err();
+    assert_eq!(e.message.as_str(), "plugin did not respect the protocol");
+}
+
+// ----- P699 — exports / Send+Sync ------------------------------------
+
+#[test]
+fn exports_devolve_so_funcoes_exportadas() {
+    let (mut w, _, _) = base();
+    let t = w.typ(&[], &[I32]);
+    let hello = w.func(t, i32const(0));
+    let add = w.func(t, i32const(0));
+    w.export("hello", 0x00, hello);
+    w.export("add", 0x00, add);
+    // `base()` já exporta "memory" (kind 0x02) — não é função, filtrada.
+    let h = host();
+    let id = h.load(&w.build()).unwrap();
+    let mut names = h.exports(id).unwrap();
+    names.sort();
+    assert_eq!(names, vec![EcoString::from("add"), EcoString::from("hello")]);
+}
+
+#[test]
+fn exports_modulo_inexistente_erro_defensivo() {
+    let h = host();
+    let e = h.exports(PluginModuleId(9999)).unwrap_err();
+    assert_eq!(e.message.as_str(), "plugin module not found");
+}
+
+#[test]
+fn host_eh_send_e_sync() {
+    // Obrigatório: `World: Send + Sync` e o host viaja em `SystemWorld` e
+    // dentro de `Value::Func(FuncRepr::Plugin(...))`.
+    fn assert_send_sync<T: Send + Sync>() {}
+    assert_send_sync::<WasmiPluginHost>();
+}
+
+// ----- P819 — transition (snapshot/restore) -----------------------------
+
+fn i32_load8_u() -> Vec<u8> {
+    vec![0x2d, 0x00, 0x00] // opcode + memarg (align 0, offset 0)
+}
+fn i32_store8() -> Vec<u8> {
+    vec![0x3a, 0x00, 0x00]
+}
+fn i32_add() -> Vec<u8> {
+    vec![0x6a]
+}
+
+/// Módulo mutável (port de `temp/p819/mut.wat`): exporta `add` (1 arg —
+/// incrementa o contador no byte 0 da memória) e `get` (0 args — devolve
+/// o byte 0). O contador vive na **memória linear** (o snapshot cobre).
+fn mut_module() -> Vec<u8> {
+    let (mut w, _, _) = base();
+    let t_add = w.typ(&[I32], &[I32]);
+    // addr 0; cur = load8_u(0); store8(0, cur+1); write_args(4096);
+    // send_result(8192, 0); return 0
+    let body_add = cat(&[
+        i32const(0),
+        i32const(0),
+        i32_load8_u(),
+        i32const(1),
+        i32_add(),
+        i32_store8(),
+        i32const(4096),
+        call(0),
+        i32const(8192),
+        i32const(0),
+        call(1),
+        i32const(0),
+    ]);
+    let add = w.func(t_add, body_add);
+    w.export("add", 0x00, add);
+    let t_get = w.typ(&[], &[I32]);
+    // send_result(0, 1); return 0
+    let body_get = cat(&[i32const(0), i32const(1), call(1), i32const(0)]);
+    let get = w.func(t_get, body_get);
+    w.export("get", 0x00, get);
+    w.build()
+}
+
+#[test]
+fn transition_derivado_observa_mutacao_e_base_fica_inalterado() {
+    let h = host();
+    let id = h.load(&mut_module()).unwrap();
+    assert_eq!(h.call(id, "get", &[]).unwrap().as_slice(), &[0u8]);
+    let derived = h.transition(id, "add", &[Bytes::new(b"x".to_vec())]).unwrap();
+    assert_ne!(derived, id, "derivado tem id próprio");
+    assert_eq!(
+        h.call(derived, "get", &[]).unwrap().as_slice(),
+        &[1u8],
+        "derivado observa a mutação",
+    );
+    assert_eq!(
+        h.call(id, "get", &[]).unwrap().as_slice(),
+        &[0u8],
+        "base fica inalterado",
+    );
+}
+
+#[test]
+fn transition_encadeada_acumula() {
+    let h = host();
+    let id = h.load(&mut_module()).unwrap();
+    let d1 = h.transition(id, "add", &[Bytes::new(b"a".to_vec())]).unwrap();
+    let d2 = h.transition(d1, "add", &[Bytes::new(b"b".to_vec())]).unwrap();
+    assert_eq!(h.call(d1, "get", &[]).unwrap().as_slice(), &[1u8]);
+    assert_eq!(h.call(d2, "get", &[]).unwrap().as_slice(), &[2u8]);
+    assert_eq!(h.call(id, "get", &[]).unwrap().as_slice(), &[0u8]);
+}
+
+#[test]
+fn transition_erro_da_chamada_aborta_sem_derivado() {
+    let h = host();
+    let id = h.load(&mut_module()).unwrap();
+    // `add` toma 1 argumento; 0 dados ⇒ erro de aridade (catálogo).
+    let e = h.transition(id, "add", &[]).unwrap_err();
+    assert_eq!(e.message.as_str(), "plugin function takes 1 argument, but 0 were given",);
+}
+
+#[test]
+fn transition_modulo_inexistente_erro_defensivo() {
+    let h = host();
+    let e = h.transition(PluginModuleId(9999), "add", &[]).unwrap_err();
+    assert_eq!(e.message.as_str(), "plugin module not found");
+}

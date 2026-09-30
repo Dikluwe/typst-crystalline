@@ -1,12 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/bundle.md
-//! @prompt-hash 1e98fdf7
+//! @prompt-hash cf56256a
 //! @layer L3
-//! @updated 2026-09-27
+//! @updated 2026-09-30
 //!
 //! Orquestra o target bundle: entradas ordenadas, paths e colisões, snapshots globais, fronteiras Page por body e exportação por formato. Devolve a coleção completa ou erro; o write continua responsabilidade de L4. Reutiliza helpers de paged, html, pdf, svg e resources sem reconstruir snapshots isolados.
 
 use super::*;
+use typst_core::entities::document_info::DocumentInfo;
 
 /// Executa a variante runtime do bundle preservando as fronteiras Page dos
 /// bodies; usa um único Engine e devolve os seeds do mesmo walk.
@@ -180,7 +181,16 @@ pub fn compile_to_bundle_files(
                 data: data.to_vec(),
                 is_html_document: false,
             }),
-            Content::Document { path, format, .. } => {
+            Content::Document { path, format, title, author, keywords, .. } => {
+                let document_info = DocumentInfo {
+                    title: title.as_ref().map(|content| content.plain_text().into()),
+                    author: (!author.is_empty()).then(|| {
+                        author.iter().map(|value| value.as_str()).collect::<Vec<_>>().join(", ").into()
+                    }),
+                    keywords: (!keywords.is_empty()).then(|| {
+                        keywords.iter().map(|value| value.as_str()).collect::<Vec<_>>().join(", ").into()
+                    }),
+                };
                 let selected = format.as_deref().unwrap_or_else(|| {
                     path.rsplit_once('.').map(|(_, extension)| extension).unwrap_or("")
                 });
@@ -195,6 +205,7 @@ pub fn compile_to_bundle_files(
                     location_start,
                     page_offset,
                     selected,
+                    &document_info,
                     &options,
                     &mut warnings,
                 );
@@ -355,6 +366,7 @@ fn render_bundle_document(
     location_start: typst_core::entities::locator::LocatorSeed,
     page_offset: usize,
     format: &str,
+    document_info: &DocumentInfo,
     options: &BundleCompileOptions,
     warnings: &mut Vec<SourceDiagnostic>,
 ) -> SourceResult<(Vec<u8>, bool, usize)> {
@@ -443,6 +455,7 @@ fn render_bundle_document(
     }
     bind_logical_page_numbers(&mut document, &bundle_intr.page_store, page_offset)?;
     let page_count = document.pages.len();
+    document.document_info = document_info.clone();
     document.format_options = collect_document_format_options(&render_content)?;
     let document = crate::layout_bidi::reorder_bidi_document(
         document,
@@ -469,6 +482,9 @@ fn render_bundle_document(
                     &document.format_options,
                 )?;
             warnings.extend(page_warnings);
+            if let Some(diag) = super::pdf::validate_pdf_document(&document, &standards) {
+                return Err(vec![diag]);
+            }
             let serialization = if options.pretty_override.is_some()
                 || document.format_options.pdf.pretty
             {
@@ -478,26 +494,11 @@ fn render_bundle_document(
             };
             let font_combos = collect_fonts_from_doc(&document, world);
             let resolved = resolve_fonts(&font_combos, world);
-            let needs_instancer =
-                resolved.iter().any(|((_, variant, variations), bytes)| {
-                    super::resources::requires_font_instancing(bytes, variant, variations)
-                });
-            if needs_instancer && !variable_font_instancer_available() {
-                for ((font_list, variant, variations), bytes) in &resolved {
-                    if super::resources::requires_font_instancing(
-                        bytes, variant, variations,
-                    ) {
-                        let name = font_list
-                            .as_slice()
-                            .first()
-                            .and_then(|font| font.name.as_str())
-                            .unwrap_or("variable font");
-                        return Err(bundle_error(format!(
-                            "variable font '{}' requires instantiation, but Python/fontTools is unavailable",
-                            name,
-                        )));
-                    }
-                }
+            if let Some(diag) = super::resources::missing_font_instancer_diagnostic(
+                &resolved,
+                variable_font_instancer_available,
+            ) {
+                return Err(vec![diag]);
             }
             let (bytes, _) =
                 export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard(

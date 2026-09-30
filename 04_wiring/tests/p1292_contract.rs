@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/p1292_contract.md
-//! @prompt-hash 3c91d96b
+//! @prompt-hash 216ef6a3
 //! @layer L4
 //! @updated 2026-09-01
 //!

@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1289_float_is_infinite.md
-//! @prompt-hash e756e9a7
+//! @prompt-hash 4d725b3f
 
 use std::process::{Command, Output};
 

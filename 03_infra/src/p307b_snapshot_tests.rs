@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export-fixtures.md
-//! @prompt-hash 4b2b2698
+//! @prompt-hash 805b77ba
 //! @layer L3
-//! @updated 2026-05-19
+//! @updated 2026-09-29
 //!
 //! P307b snapshot binário — consumidor dos fixtures em
 //! `03_infra/fixtures/p307b/`. Cada teste compila um fixture

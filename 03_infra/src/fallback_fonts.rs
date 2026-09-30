@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fallback_fonts.md
-//! @prompt-hash 84b5a5cc
+//! @prompt-hash 984e2bd9
 //! @layer L3
-//! @updated 2026-07-18
+//! @updated 2026-09-29
 //!
 //! **P555** — listas de fallback de fonte divididas por classe visual
 //! (serifa vs sem serifa). Quando a fonte primária declarada não resolve,
@@ -63,6 +63,20 @@ pub(crate) const DEFAULT_FALLBACK_FONTS_MATH: &[&str] = &[
     "Apple Color Emoji",
     "Segoe UI Emoji",
 ];
+
+/// Cadeia textual explícita do vanilla, tentada depois das famílias do
+/// utilizador e antes do fallback global por cobertura.
+pub(crate) const DEFAULT_FALLBACK_FONTS_TEXT: &[&str] = &[
+    "Libertinus Serif",
+    "Twitter Color Emoji",
+    "Noto Color Emoji",
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+];
+
+pub(crate) fn text_fallback_font_list() -> &'static [&'static str] {
+    DEFAULT_FALLBACK_FONTS_TEXT
+}
 
 /// Heurística simples de classe a partir do nome da família.
 /// - Nome contendo "serif" (case-insensitive) → serif.
@@ -133,5 +147,18 @@ mod tests {
             list.contains(&"Libertinus Serif"),
             "lista math deve conter Libertinus Serif como fallback de segunda ordem"
         );
+    }
+}
+
+#[cfg(test)]
+mod common_fallback_regression {
+    use super::text_fallback_font_list;
+
+    #[test]
+    fn vanilla_text_fallback_chain_precedes_global_search() {
+        assert_eq!(text_fallback_font_list(), &[
+            "Libertinus Serif", "Twitter Color Emoji", "Noto Color Emoji",
+            "Apple Color Emoji", "Segoe UI Emoji",
+        ]);
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/cli.md
-//! @prompt-hash 6e763ffe
+//! @prompt-hash 84e9f49a
 //! @layer L4
 //! @updated 2026-04-23
 //!
@@ -458,10 +458,8 @@ fn p1501_completions_nushell_estrutura_determinismo_e_sem_ficheiros() {
         .duration_since(std::time::UNIX_EPOCH)
         .expect("relógio depois de 1970")
         .as_nanos();
-    let sandbox = env::temp_dir().join(format!(
-        "typst-p1501-completions-{}-{stamp}",
-        std::process::id()
-    ));
+    let sandbox = env::temp_dir()
+        .join(format!("typst-p1501-completions-{}-{stamp}", std::process::id()));
     fs::create_dir(&sandbox).expect("criar diretório isolado");
 
     let run = || {
@@ -2841,7 +2839,8 @@ fn p1485_fixture(name: &str, source: &str) -> (WatchFixture, PathBuf, PathBuf) {
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
         .as_nanos();
-    let root = env::temp_dir().join(format!("typst-p1485-{name}-{}-{stamp}", std::process::id()));
+    let root = env::temp_dir()
+        .join(format!("typst-p1485-{name}-{}-{stamp}", std::process::id()));
     fs::create_dir(&root).unwrap();
     let input = root.join("main.typ");
     let output = root.join("bundle");
@@ -2849,7 +2848,11 @@ fn p1485_fixture(name: &str, source: &str) -> (WatchFixture, PathBuf, PathBuf) {
     (WatchFixture(root), input, output)
 }
 
-fn p1485_compile(input: &PathBuf, output: &PathBuf, features: &str) -> std::process::Output {
+fn p1485_compile(
+    input: &PathBuf,
+    output: &PathBuf,
+    features: &str,
+) -> std::process::Output {
     Command::new(BIN)
         .arg("compile")
         .arg(input)
@@ -2861,16 +2864,31 @@ fn p1485_compile(input: &PathBuf, output: &PathBuf, features: &str) -> std::proc
 
 fn p1485_http_get(port: u16, path: &str) -> Option<Vec<u8>> {
     let address = SocketAddr::from(([127, 0, 0, 1], port));
-    let mut stream = TcpStream::connect_timeout(&address, Duration::from_millis(200)).ok()?;
+    let mut stream =
+        TcpStream::connect_timeout(&address, Duration::from_millis(200)).ok()?;
     stream.set_read_timeout(Some(Duration::from_millis(500))).ok()?;
-    stream.write_all(format!("GET {path} HTTP/1.0\r\nHost: localhost\r\nConnection: close\r\n\r\n").as_bytes()).ok()?;
+    stream
+        .write_all(
+            format!(
+                "GET {path} HTTP/1.0\r\nHost: localhost\r\nConnection: close\r\n\r\n"
+            )
+            .as_bytes(),
+        )
+        .ok()?;
     let mut response = Vec::new();
     let mut chunk = [0u8; 4096];
     loop {
         match stream.read(&mut chunk) {
             Ok(0) => break,
             Ok(size) => response.extend_from_slice(&chunk[..size]),
-            Err(error) if matches!(error.kind(), std::io::ErrorKind::TimedOut | std::io::ErrorKind::WouldBlock) => break,
+            Err(error)
+                if matches!(
+                    error.kind(),
+                    std::io::ErrorKind::TimedOut | std::io::ErrorKind::WouldBlock
+                ) =>
+            {
+                break
+            }
             Err(_) => return None,
         }
     }
@@ -2920,11 +2938,36 @@ fn p1485_bundle_mistura_documentos_e_preserva_asset_byte_exato() {
 fn p1485_bundle_rejeita_entradas_invalidas_sem_publicar_arvore() {
     for (name, source, features, diagnostic) in [
         ("no-feature", "#asset(\"a\", \"x\")", "html", "bundle export is only available"),
-        ("duplicate", "#asset(\"a/../x.txt\", \"one\")\n#asset(\"x.txt\", \"two\")", "bundle", "occurs multiple times in the bundle"),
-        ("mixed-duplicate", "#asset(\"x.pdf\", \"one\")\n#document(\"./x.pdf\")[Two]", "bundle", "occurs multiple times in the bundle"),
-        ("escape", "#asset(\"../outside.txt\", \"x\")", "bundle", "would escape the bundle root"),
-        ("top-level", "Loose text", "bundle", "text is not allowed at the top-level in bundle export"),
-        ("unknown-format", "#document(\"x.weird\")[X]", "bundle", "unknown document format"),
+        (
+            "duplicate",
+            "#asset(\"a/../x.txt\", \"one\")\n#asset(\"x.txt\", \"two\")",
+            "bundle",
+            "occurs multiple times in the bundle",
+        ),
+        (
+            "mixed-duplicate",
+            "#asset(\"x.pdf\", \"one\")\n#document(\"./x.pdf\")[Two]",
+            "bundle",
+            "occurs multiple times in the bundle",
+        ),
+        (
+            "escape",
+            "#asset(\"../outside.txt\", \"x\")",
+            "bundle",
+            "would escape the bundle root",
+        ),
+        (
+            "top-level",
+            "Loose text",
+            "bundle",
+            "text is not allowed at the top-level in bundle export",
+        ),
+        (
+            "unknown-format",
+            "#document(\"x.weird\")[X]",
+            "bundle",
+            "unknown document format",
+        ),
         ("html-feature", "#document(\"index.html\")[X]", "bundle", "html"),
     ] {
         let (_fixture, input, output) = p1485_fixture(name, source);
@@ -2937,32 +2980,50 @@ fn p1485_bundle_rejeita_entradas_invalidas_sem_publicar_arvore() {
 
     let (_fixture, input, output) = p1485_fixture("outside", "#asset(\"x.txt\", \"x\")");
     let result = Command::new(BIN)
-        .arg("compile").arg(&input).arg(output.with_extension("pdf"))
+        .arg("compile")
+        .arg(&input)
+        .arg(output.with_extension("pdf"))
         .args(["--format", "pdf", "--features", "bundle"])
-        .output().unwrap();
+        .output()
+        .unwrap();
     let stderr = String::from_utf8_lossy(&result.stderr);
     assert_ne!(result.status.code(), Some(0), "{stderr}");
-    assert!(stderr.contains("assets are only supported in the bundle target"), "{stderr}");
+    assert!(
+        stderr.contains("assets are only supported in the bundle target"),
+        "{stderr}"
+    );
 }
 
 #[test]
 fn p1485_bundle_default_output_e_stdout() {
-    let (_fixture, input, output) = p1485_fixture("default", "#asset(\"a.txt\", \"exact\")");
+    let (_fixture, input, output) =
+        p1485_fixture("default", "#asset(\"a.txt\", \"exact\")");
     let result = Command::new(BIN)
-        .arg("compile").arg(&input)
+        .arg("compile")
+        .arg(&input)
         .args(["--format", "bundle", "--features", "bundle"])
-        .output().unwrap();
-    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+        .output()
+        .unwrap();
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
     let default_output = input.with_extension("");
     assert_eq!(fs::read(default_output.join("a.txt")).unwrap(), b"exact");
     assert!(!output.exists());
 
     let stdout = Command::new(BIN)
-        .arg("compile").arg(&input).arg("-")
+        .arg("compile")
+        .arg(&input)
+        .arg("-")
         .args(["--format", "bundle", "--features", "bundle"])
-        .output().unwrap();
+        .output()
+        .unwrap();
     assert_ne!(stdout.status.code(), Some(0));
-    assert!(String::from_utf8_lossy(&stdout.stderr).contains("cannot write bundle to standard output"));
+    assert!(String::from_utf8_lossy(&stdout.stderr)
+        .contains("cannot write bundle to standard output"));
     assert!(stdout.stdout.is_empty());
 }
 
@@ -2976,23 +3037,31 @@ fn p1485_watch_bundle_http_reload_e_preserva_snapshot_apos_erro() {
     );
     let port = p1485_free_port();
     let mut child = Command::new(BIN)
-        .arg("watch").arg(&input).arg(&output)
+        .arg("watch")
+        .arg(&input)
+        .arg(&output)
         .args(["--format", "bundle", "--features", "bundle,html", "--port"])
         .arg(port.to_string())
-        .stdout(Stdio::null()).stderr(Stdio::piped())
-        .spawn().unwrap();
+        .stdout(Stdio::null())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
     let stderr = child.stderr.take().unwrap();
     let (sender, receiver) = mpsc::channel();
     let log_reader = thread::spawn(move || {
         for line in BufReader::new(stderr).lines().map_while(Result::ok) {
-            if sender.send(line).is_err() { break; }
+            if sender.send(line).is_err() {
+                break;
+            }
         }
     });
     let mut watch = WatchedChild(child);
     wait_until(&mut watch, "bundle inicial e servidor", Duration::from_secs(20), || {
         output.join("raw.bin").exists()
-            && p1485_http_get(port, "/index.html")
-                .is_some_and(|response| response.starts_with(b"HTTP/1.1 200") || response.starts_with(b"HTTP/1.0 200"))
+            && p1485_http_get(port, "/index.html").is_some_and(|response| {
+                response.starts_with(b"HTTP/1.1 200")
+                    || response.starts_with(b"HTTP/1.0 200")
+            })
     });
     let initial = p1485_http_get(port, "/").unwrap();
     assert!(initial.starts_with(b"HTTP/1.1 200") || initial.starts_with(b"HTTP/1.0 200"));
@@ -3001,22 +3070,35 @@ fn p1485_watch_bundle_http_reload_e_preserva_snapshot_apos_erro() {
     assert!(!String::from_utf8_lossy(&disk).contains("EventSource"));
     let raw = p1485_http_get(port, "/raw.bin").unwrap();
     assert_eq!(p1485_http_body(&raw), [0, 255, 10]);
-    assert!(String::from_utf8_lossy(&raw).to_ascii_lowercase().contains("application/octet-stream"));
-    assert!(p1485_http_get(port, "/missing").unwrap().starts_with(b"HTTP/1.1 404")
-        || p1485_http_get(port, "/missing").unwrap().starts_with(b"HTTP/1.0 404"));
+    assert!(String::from_utf8_lossy(&raw)
+        .to_ascii_lowercase()
+        .contains("application/octet-stream"));
+    assert!(
+        p1485_http_get(port, "/missing").unwrap().starts_with(b"HTTP/1.1 404")
+            || p1485_http_get(port, "/missing").unwrap().starts_with(b"HTTP/1.0 404")
+    );
     let redirect = p1485_http_get(port, "/dir").unwrap();
-    assert!(redirect.starts_with(b"HTTP/1.1 301") || redirect.starts_with(b"HTTP/1.0 301"));
+    assert!(
+        redirect.starts_with(b"HTTP/1.1 301") || redirect.starts_with(b"HTTP/1.0 301")
+    );
     let nested = p1485_http_get(port, "/dir/").unwrap();
     assert!(String::from_utf8_lossy(p1485_http_body(&nested)).contains("Nested"));
 
     let address = SocketAddr::from(([127, 0, 0, 1], port));
     let mut sse = TcpStream::connect_timeout(&address, Duration::from_secs(2)).unwrap();
     sse.set_read_timeout(Some(Duration::from_secs(10))).unwrap();
-    sse.write_all(b"GET /__events HTTP/1.1\r\nHost: localhost\r\nAccept: text/event-stream\r\n\r\n").unwrap();
+    sse.write_all(
+        b"GET /__events HTTP/1.1\r\nHost: localhost\r\nAccept: text/event-stream\r\n\r\n",
+    )
+    .unwrap();
     let mut prelude = [0u8; 1024];
     let size = sse.read(&mut prelude).unwrap();
     assert!(String::from_utf8_lossy(&prelude[..size]).contains("200"));
-    fs::write(&input, "#asset(\"raw.bin\", bytes((1, 2, 3)))\n#document(\"index.html\")[Second]").unwrap();
+    fs::write(
+        &input,
+        "#asset(\"raw.bin\", bytes((1, 2, 3)))\n#document(\"index.html\")[Second]",
+    )
+    .unwrap();
     wait_until(&mut watch, "republicação bundle", Duration::from_secs(20), || {
         fs::read(output.join("raw.bin")).is_ok_and(|bytes| bytes == [1, 2, 3])
     });
@@ -3045,7 +3127,10 @@ fn p1485_watch_bundle_http_reload_e_preserva_snapshot_apos_erro() {
     }
     assert!(observed_error, "watch não reportou o erro transitório");
     assert_eq!(fs::read(output.join("index.html")).unwrap(), last_disk);
-    assert_eq!(p1485_http_body(&p1485_http_get(port, "/index.html").unwrap()), p1485_http_body(&last_http));
+    assert_eq!(
+        p1485_http_body(&p1485_http_get(port, "/index.html").unwrap()),
+        p1485_http_body(&last_http)
+    );
     drop(watch);
     log_reader.join().unwrap();
 }
@@ -3056,34 +3141,58 @@ fn p1485_watch_flags_no_reload_no_serve_e_porta_ocupada() {
         ("no-reload", vec!["--no-reload"], true),
         ("no-serve", vec!["--no-serve"], false),
     ] {
-        let (_fixture, input, output) = p1485_fixture(name, "#document(\"index.html\")[Hello]");
+        let (_fixture, input, output) =
+            p1485_fixture(name, "#document(\"index.html\")[Hello]");
         let port = p1485_free_port();
         let mut command = Command::new(BIN);
-        command.arg("watch").arg(&input).arg(&output)
+        command
+            .arg("watch")
+            .arg(&input)
+            .arg(&output)
             .args(["--format", "bundle", "--features", "bundle,html", "--port"])
-            .arg(port.to_string()).args(&flags).stdout(Stdio::null()).stderr(Stdio::null());
+            .arg(port.to_string())
+            .args(&flags)
+            .stdout(Stdio::null())
+            .stderr(Stdio::null());
         let mut watch = WatchedChild(command.spawn().unwrap());
-        wait_until(&mut watch, "watch flags", Duration::from_secs(20), || output.join("index.html").exists());
+        wait_until(&mut watch, "watch flags", Duration::from_secs(20), || {
+            output.join("index.html").exists()
+        });
         if expect_http {
-            wait_until(&mut watch, "HTTP sem reload", Duration::from_secs(10), || p1485_http_get(port, "/").is_some());
+            wait_until(&mut watch, "HTTP sem reload", Duration::from_secs(10), || {
+                p1485_http_get(port, "/").is_some()
+            });
             let response = p1485_http_get(port, "/").unwrap();
-            assert!(response.starts_with(b"HTTP/1.1 200") || response.starts_with(b"HTTP/1.0 200"));
-            assert!(!String::from_utf8_lossy(p1485_http_body(&response)).contains("EventSource"));
+            assert!(
+                response.starts_with(b"HTTP/1.1 200")
+                    || response.starts_with(b"HTTP/1.0 200")
+            );
+            assert!(!String::from_utf8_lossy(p1485_http_body(&response))
+                .contains("EventSource"));
         } else {
-            assert!(TcpStream::connect_timeout(
-                &SocketAddr::from(([127, 0, 0, 1], port)), Duration::from_millis(300)
-            ).is_err(), "--no-serve abriu listener");
+            assert!(
+                TcpStream::connect_timeout(
+                    &SocketAddr::from(([127, 0, 0, 1], port)),
+                    Duration::from_millis(300)
+                )
+                .is_err(),
+                "--no-serve abriu listener"
+            );
         }
     }
 
-    let (_fixture, input, output) = p1485_fixture("occupied", "#document(\"index.html\")[Hello]");
+    let (_fixture, input, output) =
+        p1485_fixture("occupied", "#document(\"index.html\")[Hello]");
     let listener = TcpListener::bind(("127.0.0.1", 0)).unwrap();
     let port = listener.local_addr().unwrap().port();
     let result = Command::new(BIN)
-        .arg("watch").arg(&input).arg(&output)
+        .arg("watch")
+        .arg(&input)
+        .arg(&output)
         .args(["--format", "bundle", "--features", "bundle,html", "--port"])
         .arg(port.to_string())
-        .output().unwrap();
+        .output()
+        .unwrap();
     assert!(!result.status.success(), "watch ignorou porta ocupada");
     assert!(!output.exists());
 }
@@ -3139,7 +3248,12 @@ fn p1485_bundle_contexto_posterior_atualiza_consulta_anterior() {
          #document(\"second.html\")[#context [= Generated]]",
     );
     let result = p1485_compile(&input, &output, "bundle,html");
-    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
     let first = fs::read_to_string(output.join("first.html")).unwrap();
     let second = fs::read_to_string(output.join("second.html")).unwrap();
     assert!(first.contains("<p>1</p>"), "{first}");
@@ -3155,7 +3269,12 @@ fn p1485_bundle_counter_global_entre_html_e_pdf() {
          #document(\"second.pdf\")[= Beta]",
     );
     let result = p1485_compile(&input, &output, "bundle,html");
-    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
     let first = fs::read_to_string(output.join("first.html")).unwrap();
     assert!(first.contains("<p>1</p>"), "{first}");
     assert!(fs::read(output.join("second.pdf")).unwrap().starts_with(b"%PDF-"));
@@ -3170,7 +3289,12 @@ fn p1485_bundle_estado_global_e_contexto_aninhado() {
          #document(\"second.pdf\")[#shared.update(7)]",
     );
     let result = p1485_compile(&input, &output, "bundle,html");
-    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
     let first = fs::read_to_string(output.join("first.html")).unwrap();
     assert!(first.contains("<p>7</p>"), "{first}");
     assert!(fs::read(output.join("second.pdf")).unwrap().starts_with(b"%PDF-"));
@@ -3184,13 +3308,22 @@ fn p1485_bundle_page_counter_e_local_a_cada_pdf() {
          #document(\"two.pdf\")[#context counter(page).get().first()]",
     );
     let result = p1485_compile(&input, &output, "bundle");
-    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
     for name in ["one.pdf", "two.pdf"] {
         let path = output.join(name);
         match Command::new("pdftotext").arg(&path).arg("-").output() {
             Ok(extracted) => {
                 assert!(extracted.status.success(), "{name}: pdftotext falhou");
-                assert_eq!(String::from_utf8_lossy(&extracted.stdout).trim(), "1", "{name}");
+                assert_eq!(
+                    String::from_utf8_lossy(&extracted.stdout).trim(),
+                    "1",
+                    "{name}"
+                );
             }
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
                 assert!(fs::read(path).unwrap().starts_with(b"%PDF-"));
@@ -3208,13 +3341,22 @@ fn p1485_bundle_page_update_nao_vaza_ao_pdf_seguinte() {
          #document(\"two.pdf\")[#context counter(page).get().first()]",
     );
     let result = p1485_compile(&input, &output, "bundle");
-    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
     for (name, expected) in [("one.pdf", "5"), ("two.pdf", "1")] {
         let path = output.join(name);
         match Command::new("pdftotext").arg(&path).arg("-").output() {
             Ok(extracted) => {
                 assert!(extracted.status.success(), "{name}: pdftotext falhou");
-                assert_eq!(String::from_utf8_lossy(&extracted.stdout).trim(), expected, "{name}");
+                assert_eq!(
+                    String::from_utf8_lossy(&extracted.stdout).trim(),
+                    expected,
+                    "{name}"
+                );
             }
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
                 assert!(fs::read(path).unwrap().starts_with(b"%PDF-"));
@@ -3233,7 +3375,12 @@ fn p1485_bundle_referencia_rotulada_cruza_pdfs() {
          #document(\"b.pdf\")[= Beta <beta>]",
     );
     let result = p1485_compile(&input, &output, "bundle");
-    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
     match Command::new("pdftotext").arg(output.join("a.pdf")).arg("-").output() {
         Ok(extracted) => {
             assert!(extracted.status.success());
@@ -3253,7 +3400,12 @@ fn p1485_bundle_html_nao_herda_page_counter_do_pdf() {
          #document(\"second.html\")[#context counter(page).get().first()]",
     );
     let result = p1485_compile(&input, &output, "bundle,html");
-    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
     let html = fs::read_to_string(output.join("second.html")).unwrap();
     assert!(html.contains("<p>1</p>"), "{html}");
 }
@@ -3265,7 +3417,12 @@ fn p1485_bundle_html_respeita_update_page_proprio() {
          #document(\"second.html\")[#counter(page).update(7) #context counter(page).get().first()]",
     );
     let result = p1485_compile(&input, &output, "bundle,html");
-    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
     let html = fs::read_to_string(output.join("second.html")).unwrap();
     assert!(html.contains("<p>7</p>"), "{html}");
 }
@@ -3279,8 +3436,15 @@ fn p1485_bundle_page_func_segue_ordem_causal_entre_bodies() {
          #document(\"third.html\")[#counter(page).update(n => n + 6) #counter(page).step() #context counter(page).get().first()]",
     );
     let result = p1485_compile(&input, &output, "bundle,html");
-    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
-    for (name, expected) in [("first.html", "5"), ("second.html", "1"), ("third.html", "8")] {
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    for (name, expected) in
+        [("first.html", "5"), ("second.html", "1"), ("third.html", "8")]
+    {
         let html = fs::read_to_string(output.join(name)).unwrap();
         assert!(html.contains(&format!("<p>{expected}</p>")), "{name}: {html}");
     }
@@ -3296,7 +3460,12 @@ fn p1485_bundle_body_vazio_reinicia_so_page() {
          #document(\"shared.html\")[#context counter(\"shared\").get().first()]",
     );
     let result = p1485_compile(&input, &output, "bundle,html");
-    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
     let page = fs::read_to_string(output.join("page.html")).unwrap();
     let shared = fs::read_to_string(output.join("shared.html")).unwrap();
     assert!(page.contains("<p>1</p>"), "page.html: {page}");
@@ -3312,7 +3481,12 @@ fn p1485_bundle_page_at_label_cruzado_usa_documento_de_origem() {
          #document(\"reader.html\")[#context counter(page).at(<origin>).first()]",
     );
     let result = p1485_compile(&input, &output, "bundle,html");
-    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
     assert!(fs::read(output.join("origin.pdf")).unwrap().starts_with(b"%PDF-"));
     let html = fs::read_to_string(output.join("reader.html")).unwrap();
     assert!(html.contains("<p>5</p>"), "reader.html: {html}");
@@ -3326,10 +3500,19 @@ fn p1485_bundle_page_func_no_pdf_nao_contamina_html() {
          #document(\"second.html\")[#context counter(page).get().first()]",
     );
     let result = p1485_compile(&input, &output, "bundle,html");
-    assert_eq!(result.status.code(), Some(0), "{}", String::from_utf8_lossy(&result.stderr));
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
     let html = fs::read_to_string(output.join("second.html")).unwrap();
     assert!(html.contains("<p>1</p>"), "second.html: {html}");
-    match Command::new("pdftotext").arg(output.join("first.pdf")).arg("-").output() {
+    match Command::new("pdftotext")
+        .arg(output.join("first.pdf"))
+        .arg("-")
+        .output()
+    {
         Ok(extracted) => {
             assert!(extracted.status.success(), "pdftotext falhou");
             assert_eq!(String::from_utf8_lossy(&extracted.stdout).trim(), "5");
@@ -3350,7 +3533,12 @@ fn p1485_bundle_page_func_erro_impede_publicacao_parcial() {
          #document(\"second.html\")[Would have rendered]",
     );
     let result = p1485_compile(&input, &output, "bundle,html");
-    assert_ne!(result.status.code(), Some(0), "callback inválida passou: {}", String::from_utf8_lossy(&result.stderr));
+    assert_ne!(
+        result.status.code(),
+        Some(0),
+        "callback inválida passou: {}",
+        String::from_utf8_lossy(&result.stderr)
+    );
     let stderr = String::from_utf8_lossy(&result.stderr);
     assert!(stderr.contains("assert"), "erro não veio do callback: {stderr}");
     assert!(!output.exists(), "bundle parcial publicado após erro do callback");
@@ -3441,7 +3629,8 @@ fn p1485_bundle_heading_numbering_continua_entre_pdfs() {
     match Command::new("pdftotext").arg(&a_path).arg("-").output() {
         Ok(first) => {
             assert!(first.status.success(), "extração de a.pdf falhou");
-            let second = Command::new("pdftotext").arg(&b_path).arg("-").output().unwrap();
+            let second =
+                Command::new("pdftotext").arg(&b_path).arg("-").output().unwrap();
             assert!(second.status.success(), "extração de b.pdf falhou");
             let first_text = String::from_utf8_lossy(&first.stdout);
             let second_text = String::from_utf8_lossy(&second.stdout);
@@ -3475,6 +3664,9 @@ fn p1485_bundle_html_frame_heading_rotulada_renderiza_svg() {
         html.contains("<text") || html.contains("<use") || html.contains("<path"),
         "heading deve produzir desenho visível na ilha SVG: {html}"
     );
-    assert!(!html.contains("<h2>"), "heading da ilha não deve virar heading HTML: {html}");
+    assert!(
+        !html.contains("<h2>"),
+        "heading da ilha não deve virar heading HTML: {html}"
+    );
     assert!(!html.contains("<frame"), "ilha não deve virar tag HTML frame: {html}");
 }

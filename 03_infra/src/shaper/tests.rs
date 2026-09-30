@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/tests.md
-//! @prompt-hash a2bbb6fb
+//! @prompt-hash 49007f2a
 //! @layer L3
-//! @updated 2026-09-27
+//! @updated 2026-09-29
 
 use super::bidi::bidi_runs;
 use super::cache::{FaceCache, ShapeCache};
@@ -1557,4 +1557,88 @@ fn language_emission_shared_cache_matches_fresh_in_both_orders() {
             .collect();
         assert_eq!(shape(&codes), fresh, "language cache order {codes:?}");
     }
+}
+
+#[test]
+#[allow(deprecated)]
+fn discretionary_identity_shaper_preserves_envelope_visual_glyph_and_fallback() {
+    let world = language_fixture();
+    let visual = FrameItem::Text { pos: Point { x: Pt(10.0), y: Pt(20.0) },
+        text: "-".into(), style: language_style(Some("en")) };
+    let control = shape_document(&world, doc_with(vec![visual.clone()]));
+    let wrapper = FrameItem::TextReplacement { text: "\u{ad}".into(), items: vec![visual] };
+    let shaped = shape_document(&world, doc_with(vec![wrapper.clone()]));
+    let FrameItem::TextReplacement { text, items } = &shaped.pages[0].items[0] else { panic!("identity lost") };
+    assert_eq!(text.as_str(), "\u{ad}");
+    let FrameItem::TextShaped { text: visual_text, glyphs, units_per_em, .. } = &items[0] else { panic!("visual unshaped") };
+    let FrameItem::TextShaped { glyphs: control_glyphs, units_per_em: control_upem, .. } = &control.pages[0].items[0] else { panic!("control unshaped") };
+    assert_eq!(visual_text.as_str(), "-");
+    assert_eq!(glyphs, control_glyphs);
+    assert_eq!(units_per_em, control_upem);
+    assert_eq!(shaped.pages[0].plain_text(), "\u{ad}");
+    let fallback = shape_document(&empty_world(), doc_with(vec![wrapper]));
+    let FrameItem::TextReplacement { text, items } = &fallback.pages[0].items[0] else { panic!("fallback lost identity") };
+    assert_eq!(text.as_str(), "\u{ad}");
+    assert!(matches!(&items[0], FrameItem::Text { text, .. } if text.as_str()=="-"));
+}
+
+#[test]
+fn authored_shy_occurrence_identity_keeps_visuals_and_existing_envelope() {
+    fn same_visual(actual: &[FrameItem], expected: &[FrameItem]) {
+        assert_eq!(actual.len(), expected.len());
+        for (a, b) in actual.iter().zip(expected) {
+            let (FrameItem::TextShaped { pos, text, glyphs, units_per_em, style },
+                 FrameItem::TextShaped { pos: bp, text: bt, glyphs: bg, units_per_em: bu, style: bs }) = (a, b)
+                 else { panic!("expected visual shaped children") };
+            assert_eq!((pos.x.0, pos.y.0), (bp.x.0, bp.y.0));
+            assert_eq!(text, bt);
+            assert_eq!(units_per_em, bu);
+            let glyph_data = |gs: &[ShapedGlyph]| gs.iter().map(|g|
+                (g.glyph_id, g.x_advance, g.x_offset, g.y_offset, g.cluster, g.char_code)).collect::<Vec<_>>();
+            assert_eq!(glyph_data(glyphs), glyph_data(bg));
+            assert_eq!(format!("{style:?}"), format!("{bs:?}"));
+        }
+    }
+    let world = language_fixture();
+    let font = world.font(0).expect("mandatory fixture");
+    let face = rustybuzz::Face::from_slice(font.as_slice(), 0).unwrap();
+    for tracking in [None, Some(Length::pt(0.2))] {
+        let mut style = language_style(Some("en"));
+        style.tracking = tracking;
+        for text in ["repre\u{ad}sentation", "a\u{ad}\u{ad}b", "f\u{ad}fi"] {
+            let original = FrameItem::Text {
+                pos: Point { x: Pt(17.0), y: Pt(23.0) }, text: text.into(), style: style.clone(),
+            };
+            let FrameItem::Text { pos, text: source, style } = &original else { unreachable!() };
+            let control = super::shaping::try_shape(&world, pos, source, style,
+                &mut ShapeCache::new(), &mut FaceCache::new()).unwrap();
+            let mut buffer = rustybuzz::UnicodeBuffer::new();
+            buffer.push_str(text);
+            buffer.set_direction(rustybuzz::Direction::LeftToRight);
+            buffer.set_language("en".parse().unwrap());
+            buffer.set_flags(rustybuzz::BufferFlags::REMOVE_DEFAULT_IGNORABLES);
+            let control_shape = rustybuzz::shape(&face, &[], buffer);
+            let FrameItem::TextShaped { glyphs, .. } = &control[0] else { panic!("shaping failed") };
+            assert_eq!(glyphs.iter().map(|g| g.glyph_id as u32).collect::<Vec<_>>(),
+                control_shape.glyph_infos().iter().map(|g| g.glyph_id).collect::<Vec<_>>(),
+                "invisible placeholders must not enlarge the extraction box");
+            let shaped = shape_item(&world, original.clone(), &mut ShapeCache::new(), &mut FaceCache::new());
+            assert_eq!(shaped.len(), 1);
+            let FrameItem::TextReplacement { text: replacement, items } = &shaped[0] else {
+                panic!("authored SHY lacks occurrence identity: {shaped:?}");
+            };
+            assert_eq!(replacement, source);
+            same_visual(items, &control);
+            let protected = FrameItem::TextReplacement { text: "external identity".into(), items: vec![original] };
+            let shaped = shape_item(&world, protected, &mut ShapeCache::new(), &mut FaceCache::new());
+            let FrameItem::TextReplacement { text, items } = &shaped[0] else { panic!("envelope lost") };
+            assert_eq!(text, "external identity");
+            same_visual(items, &control);
+        }
+    }
+    let original = FrameItem::Text { pos: Point::ZERO, text: "a\u{ad}b".into(), style: language_style(None) };
+    let absent = shape_item(&empty_world(), original, &mut ShapeCache::new(), &mut FaceCache::new());
+    assert_eq!(absent.len(), 1);
+    let FrameItem::Text { text, .. } = &absent[0] else { panic!("unresolved text changed") };
+    assert_eq!(text, "a\u{ad}b");
 }

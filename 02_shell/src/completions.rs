@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/completions.md
-//! @prompt-hash 2365ce2b
+//! @prompt-hash a73b4e86
 //! @layer L2
 
 use crate::cli::CompletionShell;

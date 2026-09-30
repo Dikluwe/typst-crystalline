@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/tests/p1425-tests.md
-//! @prompt-hash 908c1147
+//! @prompt-hash c9cce1f3
 //! @layer L3
 //!
 //! Testes A/B independentes da convergência pública `math.limits` P1425.

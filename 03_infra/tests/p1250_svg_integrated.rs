@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/p1250_svg_integrated.md
-//! @prompt-hash 54da2b9d
+//! @prompt-hash d14846ca
 //! @layer L3
 //! @updated 2026-08-28
 //!
@@ -31,6 +31,7 @@ fn page(items: Vec<FrameItem>) -> Page {
         width: 160.0,
         height: 100.0,
         numbering: None,
+        logical_number: 1,
         supplement: typst_core::entities::content::Content::Empty,
         bleed: Default::default(),
         fill: Default::default(),
@@ -93,7 +94,8 @@ fn image(data: &[u8], orientation: u32, clip_rect: Option<Rect>) -> FrameItem {
         intrinsic_width: 3,
         intrinsic_height: 2,
         clip_rect,
-        orientation, alt: None,
+        orientation,
+        alt: None,
     }
 }
 

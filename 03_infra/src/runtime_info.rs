@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/runtime_info.md
-//! @prompt-hash 23f6b273
+//! @prompt-hash a7c30b7c
 //! @layer L3
 
 use std::path::PathBuf;

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/tests.md
-//! @prompt-hash 5987b49d
+//! @prompt-hash cfa145ce
 //! @layer L3
-//! @updated 2026-09-27
+//! @updated 2026-09-30
 //!
 //! Possui a suíte integrada anteriormente embutida em pipeline.rs. Conserva integralmente os oráculos e fixtures; somente a localização física muda. Exercita as fachadas públicas e os helpers internos por descendência do módulo. Não legitima alteração de código produtivo.
 
@@ -372,8 +372,8 @@ fn p1407_destination_dot_count(items: &[FrameItem]) -> usize {
             }
             FrameItem::Group { items, .. }
             | FrameItem::Link { items, .. }
-            | FrameItem::Semantic { items, .. } => p1407_destination_dot_count(items),
-            FrameItem::Text { .. }
+            | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => p1407_destination_dot_count(items),
+            FrameItem::TextSeparator { .. } | FrameItem::Text { .. }
             | FrameItem::TextShaped { .. }
             | FrameItem::Line { .. }
             | FrameItem::Glyph { .. }
@@ -436,8 +436,8 @@ fn p1407_dot_positions(items: &[FrameItem], positions: &mut Vec<f64>) {
             }
             FrameItem::Group { items, .. }
             | FrameItem::Link { items, .. }
-            | FrameItem::Semantic { items, .. } => p1407_dot_positions(items, positions),
-            FrameItem::Line { .. }
+            | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => p1407_dot_positions(items, positions),
+            FrameItem::TextSeparator { .. } | FrameItem::Line { .. }
             | FrameItem::Glyph { .. }
             | FrameItem::Image { .. }
             | FrameItem::Shape { .. } => {}
@@ -594,12 +594,12 @@ fn p1408_text_x(items: &[FrameItem], needle: &str) -> Option<f64> {
                     return Some(x);
                 }
             }
-            FrameItem::Semantic { items, .. } => {
+            FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
                 if let Some(x) = p1408_text_x(items, needle) {
                     return Some(x);
                 }
             }
-            FrameItem::Text { .. } => {}
+            FrameItem::TextSeparator { .. } | FrameItem::Text { .. } => {}
             FrameItem::TextShaped { .. } => {}
             FrameItem::Line { .. } => {}
             FrameItem::Glyph { .. } => {}
@@ -721,7 +721,7 @@ fn frame_items_text(items: &[FrameItem]) -> String {
             }
             FrameItem::Group { items, .. }
             | FrameItem::Link { items, .. }
-            | FrameItem::Semantic { items, .. } => out.push_str(&frame_items_text(items)),
+            | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => out.push_str(&frame_items_text(items)),
             _ => {}
         }
     }
@@ -734,7 +734,7 @@ fn contains_bold_text(items: &[FrameItem], expected: &str) -> bool {
         | FrameItem::TextShaped { text, style, .. } => text == expected && style.bold,
         FrameItem::Group { items, .. }
         | FrameItem::Link { items, .. }
-        | FrameItem::Semantic { items, .. } => contains_bold_text(items, expected),
+        | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => contains_bold_text(items, expected),
         _ => false,
     })
 }
@@ -2212,6 +2212,87 @@ fn p1480_compile_with_standard(
             standard,
         );
     result
+}
+
+#[test]
+fn bundle_ua1_requires_title_before_publishing_pdf() {
+    use typst_core::entities::compiler_features::{Feature, Features};
+
+    let run = |body: &str| {
+        let source = format!("#document(\"one.pdf\")[{body}]");
+        let world = mock_world(&source);
+        let mut features = Features::empty();
+        features.enable(Feature::Bundle);
+        compile_to_bundle_files(
+            &world,
+            &world.source,
+            BundleCompileOptions {
+                full_error: false,
+                features,
+                document_id: None,
+                pdf_stream_mode: StreamMode::Verbose,
+                pdf_serialization: PdfSerializationMode::Compact,
+                pdf_tagged_override: None,
+                pdf_pages_override: None,
+                pdf_standard_override: None,
+                png_ppi_override: None,
+                html_serialization: crate::export::HtmlSerializationMode::Crystalline,
+                pretty_override: None,
+            },
+        ).0
+    };
+    let missing = match run("#set format.pdf(standard: \"ua-1\")\nHello") {
+        Err(errors) => errors,
+        Ok(_) => panic!("PDF/UA-1 sem título deve falhar no bundle"),
+    };
+    assert_eq!(missing.len(), 1);
+    assert_eq!(missing[0].message, "PDF/UA-1 error: missing document title");
+    assert_eq!(missing[0].hints, vec!["set the title with `set document(title: [...])`"]);
+
+    let titled = {
+        let source = "#document(\"one.pdf\", title: [Okay])[#set format.pdf(standard: \"ua-1\")\nHello]";
+        let world = mock_world(source);
+        let mut features = Features::empty();
+        features.enable(Feature::Bundle);
+        compile_to_bundle_files(&world, &world.source, BundleCompileOptions {
+            full_error: false, features, document_id: None,
+            pdf_stream_mode: StreamMode::Verbose,
+            pdf_serialization: PdfSerializationMode::Compact,
+            pdf_tagged_override: None, pdf_pages_override: None,
+            pdf_standard_override: None, png_ppi_override: None,
+            html_serialization: crate::export::HtmlSerializationMode::Crystalline,
+            pretty_override: None,
+        }).0.expect("título válido deve permitir o PDF/UA-1 no bundle")
+    };
+    assert_eq!(titled.len(), 1);
+    assert_eq!(titled[0].path, "one.pdf");
+    let titled_pdf = String::from_utf8_lossy(&titled[0].data);
+    assert!(titled_pdf.contains("<pdfuaid:part>1</pdfuaid:part>"));
+    assert!(titled_pdf.contains("<dc:title>"));
+
+    assert!(run("Hello").is_ok(), "sem UA-1 o título continua opcional");
+
+    let two = concat!(
+        "#document(\"first.pdf\", title: [Okay])[#set format.pdf(standard: \"ua-1\")\nFirst]\n",
+        "#document(\"second.pdf\")[#set format.pdf(standard: \"ua-1\")\nSecond]",
+    );
+    let world = mock_world(two);
+    let mut features = Features::empty();
+    features.enable(Feature::Bundle);
+    let (result, _, _) = compile_to_bundle_files(&world, &world.source, BundleCompileOptions {
+        full_error: false, features, document_id: None,
+        pdf_stream_mode: StreamMode::Verbose,
+        pdf_serialization: PdfSerializationMode::Compact,
+        pdf_tagged_override: None, pdf_pages_override: None,
+        pdf_standard_override: None, png_ppi_override: None,
+        html_serialization: crate::export::HtmlSerializationMode::Crystalline,
+        pretty_override: None,
+    });
+    let errors = match result {
+        Err(errors) => errors,
+        Ok(_) => panic!("o segundo documento não pode herdar o primeiro título"),
+    };
+    assert_eq!(errors[0].message, "PDF/UA-1 error: missing document title");
 }
 
 #[test]

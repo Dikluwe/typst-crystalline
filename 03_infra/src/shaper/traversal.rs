@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/traversal.md
-//! @prompt-hash b34edc3d
+//! @prompt-hash 0866c3d0
 //! @layer L3
-//! @updated 2026-09-26
+//! @updated 2026-09-28
 
 use super::cache::{FaceCache, ShapeCache};
 use super::shaping::try_shape;
@@ -58,39 +58,59 @@ fn shape_page(
 /// caractere pode expandir um `Text` em vários `TextShaped` consecutivos).
 pub(super) fn shape_item(
     world: &dyn World,
+    item: FrameItem,
+    cache: &mut ShapeCache,
+    face_cache: &mut FaceCache,
+) -> Vec<FrameItem> {
+    shape_item_inner(world, item, cache, face_cache, false)
+}
+
+fn shape_item_inner(
+    world: &dyn World,
     mut item: FrameItem,
     cache: &mut ShapeCache,
     face_cache: &mut FaceCache,
+    inside_replacement: bool,
 ) -> Vec<FrameItem> {
     match &mut item {
         FrameItem::Text { pos, text, style } if style.font.is_some() => {
             if let Some(shaped) = try_shape(world, pos, text, style, cache, face_cache) {
-                return shaped;
+                return if inside_replacement { shaped } else {
+                    super::text_identity::protect_authored_shy(shaped)
+                };
             }
         }
         FrameItem::Group { items, .. } => {
             let mut new_children = Vec::with_capacity(items.len());
             for child in items.drain(..) {
-                new_children.extend(shape_item(world, child, cache, face_cache));
+                new_children.extend(shape_item_inner(world, child, cache, face_cache, inside_replacement));
             }
             *items = new_children;
         }
         FrameItem::Link { items, .. } => {
             let mut new_children = Vec::with_capacity(items.len());
             for child in items.drain(..) {
-                new_children.extend(shape_item(world, child, cache, face_cache));
+                new_children.extend(shape_item_inner(world, child, cache, face_cache, inside_replacement));
+            }
+            *items = new_children;
+        }
+        FrameItem::TextReplacement { items, .. } => {
+            let mut new_children = Vec::with_capacity(items.len());
+            for child in items.drain(..) {
+                new_children.extend(shape_item_inner(world, child, cache, face_cache, true));
             }
             *items = new_children;
         }
         FrameItem::Semantic { items, .. } => {
             let mut new_children = Vec::with_capacity(items.len());
             for child in items.drain(..) {
-                new_children.extend(shape_item(world, child, cache, face_cache));
+                new_children.extend(shape_item_inner(world, child, cache, face_cache, inside_replacement));
             }
             *items = new_children;
         }
         // intencional: nós já shaped, linhas, glifos, imagens, formas e Text sem fonte resolvida
-        FrameItem::Text { .. }
+        FrameItem::TextSeparator { .. }
+        | FrameItem::Text { .. }
         | FrameItem::TextShaped { .. }
         | FrameItem::Line { .. }
         | FrameItem::Glyph { .. }

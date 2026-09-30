@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/fonts.md
-//! @prompt-hash c03b2bcb
+//! @prompt-hash 724151b9
 //! @layer L3
-//! @updated 2026-05-19
+//! @updated 2026-09-28
 //!
 //! Helpers do caminho CIDFont + `escape_pdf_string`.
 //!
@@ -57,6 +57,7 @@ pub(super) fn collect_codepoints(doc: &PagedDocument) -> Vec<char> {
     struct CodepointCollector<'a>(&'a mut std::collections::BTreeSet<char>);
     impl<'a> FrameVisitor for CodepointCollector<'a> {
         fn visit_text(&mut self, item: &FrameItem) {
+            if matches!(item, FrameItem::TextSeparator { .. }) { self.0.insert(' '); }
             if let FrameItem::Text { text, .. } = item {
                 for c in text.chars() {
                     self.0.insert(c);
@@ -88,6 +89,7 @@ pub(super) fn collect_text_codepoints(doc: &PagedDocument) -> Vec<char> {
     struct TextCodepointCollector<'a>(&'a mut std::collections::BTreeSet<char>);
     impl<'a> FrameVisitor for TextCodepointCollector<'a> {
         fn visit_text(&mut self, item: &FrameItem) {
+            if matches!(item, FrameItem::TextSeparator { .. }) { self.0.insert(' '); }
             if let FrameItem::Text { text, .. } = item {
                 for c in text.chars() {
                     self.0.insert(c);
@@ -314,8 +316,18 @@ pub(super) fn cluster_text(glyphs: &[ShapedGlyph], text: &str) -> Vec<(u16, Stri
             ""
         };
 
+        // SHY is carried by the occurrence envelope. Its invisible glyph can
+        // alias an ordinary space (or share a cluster with a visible letter).
+        let visual_cluster: std::borrow::Cow<'_, str> = if cluster_str.contains('\u{ad}') {
+            std::borrow::Cow::Owned(cluster_str.chars().filter(|&c| c != '\u{ad}').collect())
+        } else {
+            std::borrow::Cow::Borrowed(cluster_str)
+        };
+        if !cluster_str.is_empty() && visual_cluster.is_empty() {
+            continue;
+        }
         let mut hex: String =
-            cluster_str.encode_utf16().map(|u| format!("{:04X}", u)).collect();
+            visual_cluster.encode_utf16().map(|u| format!("{:04X}", u)).collect();
 
         // Mark glyph: mesmo cluster que uma base já vista → sem entrada própria.
         if !seen_clusters.insert(g.cluster) {
@@ -341,6 +353,17 @@ mod tests {
             cluster,
             char_code: '\0',
         }
+    }
+
+    #[test]
+    fn authored_shy_global_mapping_does_not_alias_space_or_letter() {
+        // A default-ignorable can share a font GID with a normal space.
+        let result = cluster_text(&[glyph(3, 0), glyph(3, 2)], "\u{ad} ");
+        assert_eq!(result, vec![(3, "0020".into())]);
+        // A merged cluster must not give every later 'a' a discretionary identity.
+        assert_eq!(cluster_text(&[glyph(5, 0)], "a\u{ad}"), vec![(5, "0061".into())]);
+        // Other characters remain intact, including supplementary Unicode.
+        assert_eq!(cluster_text(&[glyph(8, 0)], "𝄞\u{ad}"), vec![(8, "D834DD1E".into())]);
     }
 
     #[test]

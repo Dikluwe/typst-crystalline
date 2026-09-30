@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1463-format-png.md
-//! @prompt-hash 0af202dd
+//! @prompt-hash 5cf12715
 
 use std::ffi::{OsStr, OsString};
 use std::fs;

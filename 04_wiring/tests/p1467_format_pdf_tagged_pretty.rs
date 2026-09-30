@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1467-format-pdf-tagged-pretty.md
-//! @prompt-hash f9636a14
+//! @prompt-hash 28add07b
 //!
 //! P1467 (RED — Agente B) — integração de binário para
 //! `#set format.pdf(tagged: ..., pretty: ...)` e as flags `--pdf-tagged`,

@@ -17,17 +17,17 @@ critério de escolha e protocolo de regeneração vive no L0
 
 | Source | Output (bytes) | md5 (8 prefix) | Cluster exercitado |
 |---|---:|---|---|
-| `01-markup-plain.typ` | 2266 | `1bb24457` | API + Helvetica + escape_pdf_string |
-| `02-markup-heading.typ` | 2692 | `fe91c656` | Helvetica + emit_text |
-| `03-text-styling.typ` | 2390 | `301b09cb` | Bold/italic via Styled → /F2/F3 |
+| `01-markup-plain.typ` | 2277 | `0c88172f` | API + Helvetica + escape_pdf_string |
+| `02-markup-heading.typ` | 2709 | `75c05666` | Helvetica + emit_text |
+| `03-text-styling.typ` | 2464 | `d6f74d6c` | Bold/italic via Styled → /F2/F3 |
 | `04-shapes.typ` | 2325 | `9d5654cd` | Shape kinds (rect, circle) + paint solid |
 | `05-gradient-linear.typ` | 14129 | `28eb4d9c` | Linear fill Pattern (P1483) |
 | `06-gradient-conic.typ` | 5327 | `0bcb38c3` | Conic fill Pattern + Coons (P1483) |
-| `07-multi-feature.typ` | 14979 | `8f269091` | Integração (heading + gradient + multi-página) |
+| `07-multi-feature.typ` | 15032 | `6c1d05b6` | Integração (heading + gradient + multi-página) |
 | `08-image-jpeg.typ` | 3557 | `e8c26077` | JPEG XObject + dedup + zlib |
-| `09-cidfont.typ` | 6657 | `a41fb9d2` | CIDFont + Type0 + Identity-H + ToUnicode CMap (subset da fonte versionada) |
+| `09-cidfont.typ` | 6759 | `59d0461d` | CIDFont + Type0 + Identity-H + ToUnicode CMap (subset da fonte versionada) |
 
-**Total**: 54.322 bytes de referência distribuídos por 9 fixtures.
+**Total**: 54.579 bytes de referência distribuídos por 9 fixtures.
 
 ## Cobertura por cluster
 
@@ -119,3 +119,26 @@ regeneração".
 
 Ver template em `00_nucleo/prompts/infra/export-fixtures.md`
 §"Uso em P307b.1".
+
+### Correção de falhas — 2026-09-28
+
+Referências 01/02/03/07/09 regeneradas pelo harness controlado após a
+materialização autorizada dos separadores textuais: espaços reais passaram a
+ser emitidos no PDF, incluindo o glifo e mapeamento U+0020 no subset CIDFont.
+04/05/06/08 conservaram exatamente os bytes. O texto extraído e a imagem da
+primeira página a 144 dpi permaneceram iguais nos cinco casos alterados;
+`qpdf --check` aprovou todos. Nova execução sem UPDATE aprovou os nove
+snapshots. A prova, os PDFs anteriores, hashes e comparações estão em
+`00_nucleo/diagnosticos/correcao-falhas-2026-09-28/snapshot-comparison.json`.
+São referências cristalinas controladas, não prova de paridade binária vanilla.
+
+### Tracking shaped — estado PDF em 2026-09-29
+
+Somente 09-cidfont foi regenerado pelo harness Compact/Disabled/fixed epoch
+após a correção de soma dupla de tracking. A stream incorpora Tc=0 explícito
+nos trechos shaped; a remoção desses operadores restitui exatamente a stream
+anterior. Texto e raster a 144dpi são idênticos; qpdf aprovou os PDFs e duas
+gerações produziram bytes idênticos. Referência anterior 6759B,
+SHA-256 4754801d459118860b642267b636375ae983008d65ea51dba06489861ff2a865; atual 6768B,
+SHA-256 29a600be50a6655b49cce33d3d01826dc8e6ccf0aea81928293159498fb59b91. Fonte e entrada não mudaram.
+Provas em `00_nucleo/diagnosticos/tracking-pdf-2026-09-28/snapshot-receipt.json`.

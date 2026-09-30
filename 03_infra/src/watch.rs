@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/watch.md
-//! @prompt-hash 019b231f
+//! @prompt-hash f0f05d2e
 //! @layer L3
 //! @updated 2026-08-23
 
@@ -10,7 +10,10 @@ use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
 use std::io::{Read, Write};
 use std::net::{SocketAddr, TcpListener, TcpStream};
-use std::sync::{Arc, Mutex, atomic::{AtomicBool, AtomicU64, Ordering}, mpsc};
+use std::sync::{
+    atomic::{AtomicBool, AtomicU64, Ordering},
+    mpsc, Arc, Mutex,
+};
 
 use crate::pipeline::BundleFile;
 use std::fs;
@@ -86,7 +89,10 @@ impl ArmedWatch {
         static NEXT_BACKUP: AtomicU64 = AtomicU64::new(0);
         let backup = destination.with_file_name(format!(
             ".{}.crystalline-backup-{}-{}",
-            destination.file_name().and_then(|name| name.to_str()).unwrap_or("bundle"),
+            destination
+                .file_name()
+                .and_then(|name| name.to_str())
+                .unwrap_or("bundle"),
             std::process::id(),
             NEXT_BACKUP.fetch_add(1, Ordering::Relaxed),
         ));
@@ -176,10 +182,12 @@ impl BundleHttpServer {
                         break;
                     }
                 }
-                selected.ok_or_else(|| io::Error::new(
-                    io::ErrorKind::AddrInUse,
-                    "no available local port in 3000..=3005",
-                ))?
+                selected.ok_or_else(|| {
+                    io::Error::new(
+                        io::ErrorKind::AddrInUse,
+                        "no available local port in 3000..=3005",
+                    )
+                })?
             }
         };
         let addr = listener.local_addr()?;
@@ -216,11 +224,14 @@ impl BundleHttpServer {
         let mut state = self.state.lock().expect("bundle server state");
         state.files.clear();
         for file in files {
-            state.files.insert(format!("/{}", file.path.trim_start_matches('/')), ServedFile {
-                data: file.data.clone(),
-                mime: mime_for_path(&file.path),
-                html: file.is_html_document,
-            });
+            state.files.insert(
+                format!("/{}", file.path.trim_start_matches('/')),
+                ServedFile {
+                    data: file.data.clone(),
+                    mime: mime_for_path(&file.path),
+                    html: file.is_html_document,
+                },
+            );
         }
         state.subscribers.retain(|sender| sender.send(()).is_ok());
     }
@@ -228,11 +239,14 @@ impl BundleHttpServer {
     pub fn publish_html(&self, html: &str) {
         let mut state = self.state.lock().expect("bundle server state");
         state.files.clear();
-        state.files.insert("/index.html".to_owned(), ServedFile {
-            data: html.as_bytes().to_vec(),
-            mime: "text/html; charset=utf-8",
-            html: true,
-        });
+        state.files.insert(
+            "/index.html".to_owned(),
+            ServedFile {
+                data: html.as_bytes().to_vec(),
+                mime: "text/html; charset=utf-8",
+                html: true,
+            },
+        );
         state.subscribers.retain(|sender| sender.send(()).is_ok());
     }
 }
@@ -339,15 +353,18 @@ fn serve_connection(
         path.clone()
     };
     if let Some(file) = state.files.get(&lookup) {
-        let data = if live && file.html {
-            inject_reload(&file.data)
-        } else {
-            file.data.clone()
-        };
+        let data =
+            if live && file.html { inject_reload(&file.data) } else { file.data.clone() };
         return respond(&mut stream, "200 OK", file.mime, &data, None);
     }
     if !path.ends_with('/') && state.files.contains_key(&format!("{path}/index.html")) {
-        return respond(&mut stream, "301 Moved Permanently", "text/plain", b"", Some(&format!("{path}/")));
+        return respond(
+            &mut stream,
+            "301 Moved Permanently",
+            "text/plain",
+            b"",
+            Some(&format!("{path}/")),
+        );
     }
     respond(&mut stream, "404 Not Found", "text/plain", b"Not Found", None)
 }
@@ -370,7 +387,11 @@ fn respond(
     body: &[u8],
     location: Option<&str>,
 ) -> io::Result<()> {
-    write!(stream, "HTTP/1.1 {status}\r\nContent-Type: {mime}\r\nContent-Length: {}\r\n", body.len())?;
+    write!(
+        stream,
+        "HTTP/1.1 {status}\r\nContent-Type: {mime}\r\nContent-Length: {}\r\n",
+        body.len()
+    )?;
     if let Some(location) = location {
         write!(stream, "Location: {location}\r\n")?;
     }

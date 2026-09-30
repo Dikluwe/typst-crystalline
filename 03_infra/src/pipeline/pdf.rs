@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/pdf.md
-//! @prompt-hash b9819efc
+//! @prompt-hash 6d8230d2
 //! @layer L3
-//! @updated 2026-09-27
+//! @updated 2026-09-30
 //!
 //! Possui todas as fachadas PDF, os resolvedores documentais e o dispatch font-aware. Conserva os wrappers de compatibilidade, DocumentID, StreamMode, tagged, pretty, pages, standard, diagnósticos UA-1, attachments e oráculo. Recebe o documento paginado pelo owner próprio.
 
@@ -319,7 +319,7 @@ pub(super) fn require_ua1_image_alt(
                 kind: typst_core::entities::layout_types::SemanticKind::Artifact(_),
                 ..
             } => false,
-            FrameItem::Semantic { items, .. }
+            FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. }
             | FrameItem::Group { items, .. }
             | FrameItem::Link { items, .. } => missing(items),
             _ => false,
@@ -333,6 +333,30 @@ pub(super) fn require_ua1_image_alt(
     } else {
         None
     }
+}
+
+/// Gates do target PDF partilhados pelas rotas isolada e bundle.
+/// A ordem é observável quando um documento falha mais de uma validação.
+pub(super) fn validate_pdf_document(
+    doc: &PagedDocument,
+    standards: &PdfStandards,
+) -> Option<SourceDiagnostic> {
+    if let Some(diag) = require_ua1_document_title(doc, standards) {
+        return Some(diag);
+    }
+    if let Some(diag) = require_ua1_image_alt(doc, standards) {
+        return Some(diag);
+    }
+    let mut attachment_paths = HashSet::new();
+    for attachment in &doc.attachments {
+        if !attachment_paths.insert(attachment.path.clone()) {
+            return Some(SourceDiagnostic::error(
+                Span::detached(),
+                format!("attempted to attach file {} twice", attachment.path),
+            ));
+        }
+    }
+    None
 }
 
 /// **P1467** — resolve a precedência `--pretty` (override explícito) >
@@ -399,31 +423,11 @@ fn compile_to_pdf_bytes_impl(
         };
     warnings.extend(pages_diagnostics);
 
-    // **P1480** — `pdf_standards`/`doc` já resolvidos; checagem de título
-    // obrigatório sob PDF/UA-1 (ver `require_ua1_document_title`).
-    if let Some(diag) = require_ua1_document_title(&doc, &pdf_standards) {
-        return (Err(vec![diag]), warnings);
-    }
-    if let Some(diag) = require_ua1_image_alt(&doc, &pdf_standards) {
+    if let Some(diag) = validate_pdf_document(&doc, &pdf_standards) {
         return (Err(vec![diag]), warnings);
     }
 
     let serialization = resolve_pdf_pretty(pretty_override, &doc.format_options);
-
-    // P1286 — nomes duplicados só são erro no target PDF, onde ambos
-    // disputariam a mesma chave da name tree `/EmbeddedFiles`.
-    let mut attachment_paths = HashSet::new();
-    for attachment in &doc.attachments {
-        if !attachment_paths.insert(attachment.path.clone()) {
-            return (
-                Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!("attempted to attach file {} twice", attachment.path),
-                )]),
-                warnings,
-            );
-        }
-    }
 
     // Passo 146 (ADR-0055 decisão 5): dispatch multi-font.
     // 0 fonts resolvidos → fallback Helvetica.
@@ -433,31 +437,11 @@ fn compile_to_pdf_bytes_impl(
     let resolved = resolve_fonts(&font_combos, world);
 
     // P667/P671/P836 — gate de instanciação de fontes variáveis.
-    let needs_variable_font_instancer =
-        resolved.iter().any(|((_, font_variant, variations), bytes)| {
-            super::resources::requires_font_instancing(bytes, font_variant, variations)
-        });
-    if needs_variable_font_instancer && !variable_font_instancer_available() {
-        for ((font_list, font_variant, variations), bytes) in &resolved {
-            if super::resources::requires_font_instancing(bytes, font_variant, variations)
-            {
-                let name = font_list
-                    .as_slice()
-                    .first()
-                    .and_then(|f| f.name.as_str())
-                    .unwrap_or("fonte variável");
-                return (
-                    Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
-                        format!(
-                            "fonte variável '{}' requer instanciação, mas Python/fontTools não está disponível",
-                            name
-                        ),
-                    )]),
-                    warnings,
-                );
-            }
-        }
+    if let Some(diag) = super::resources::missing_font_instancer_diagnostic(
+        &resolved,
+        variable_font_instancer_available,
+    ) {
+        return (Err(vec![diag]), warnings);
     }
 
     let t_render = Instant::now();

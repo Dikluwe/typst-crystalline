@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1465-format-html.md
-//! @prompt-hash 95de2484
+//! @prompt-hash 0e3b3d35
 
 use std::ffi::{OsStr, OsString};
 use std::io::Write;

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/reconciliation.md
-//! @prompt-hash 8d3e5684
+//! @prompt-hash 77d3abbd
 //! @layer L3
-//! @updated 2026-09-26
+//! @updated 2026-09-29
 
 use crate::font_metrics::FallbackFontMetrics;
 use typst_core::contracts::world::World;
@@ -35,7 +35,7 @@ pub fn fix_line_positions(world: &dyn World, mut doc: PagedDocument) -> PagedDoc
 
 fn get_item_x(item: &FrameItem) -> Option<f64> {
     match item {
-        FrameItem::Text { pos, .. } => Some(pos.x.0),
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.0),
         FrameItem::TextShaped { pos, .. } => Some(pos.x.0),
         FrameItem::Glyph { pos, .. } => Some(pos.x.0),
         FrameItem::Image { pos, .. } => Some(pos.x.0),
@@ -43,13 +43,13 @@ fn get_item_x(item: &FrameItem) -> Option<f64> {
         FrameItem::Group { pos, .. } => Some(pos.x.0),
         FrameItem::Link { pos, .. } => Some(pos.x.0),
         FrameItem::Line { start, .. } => Some(start.x.0),
-        FrameItem::Semantic { items, .. } => items.first().and_then(get_item_x),
+        FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items.first().and_then(get_item_x),
     }
 }
 
 fn set_item_x(item: &mut FrameItem, x: f64) {
     match item {
-        FrameItem::Text { pos, .. } => pos.x = Pt(x),
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => pos.x = Pt(x),
         FrameItem::TextShaped { pos, .. } => pos.x = Pt(x),
         FrameItem::Glyph { pos, .. } => pos.x = Pt(x),
         FrameItem::Image { pos, .. } => pos.x = Pt(x),
@@ -61,7 +61,7 @@ fn set_item_x(item: &mut FrameItem, x: f64) {
             start.x = Pt(x);
             end.x = Pt(x + dx);
         }
-        FrameItem::Semantic { items, .. } => {
+        FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
             if let Some(old) = items.first().and_then(get_item_x) {
                 let dx = x - old;
                 for child in items {
@@ -76,7 +76,7 @@ fn set_item_x(item: &mut FrameItem, x: f64) {
 
 fn get_item_y(item: &FrameItem) -> Option<f64> {
     match item {
-        FrameItem::Text { pos, .. } => Some(pos.y.0),
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.0),
         FrameItem::TextShaped { pos, .. } => Some(pos.y.0),
         FrameItem::Glyph { pos, .. } => Some(pos.y.0),
         FrameItem::Image { pos, .. } => Some(pos.y.0),
@@ -84,7 +84,7 @@ fn get_item_y(item: &FrameItem) -> Option<f64> {
         FrameItem::Group { pos, .. } => Some(pos.y.0),
         FrameItem::Link { pos, .. } => Some(pos.y.0),
         FrameItem::Line { start, .. } => Some(start.y.0),
-        FrameItem::Semantic { items, .. } => items.first().and_then(get_item_y),
+        FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items.first().and_then(get_item_y),
     }
 }
 
@@ -122,11 +122,12 @@ fn estimated_and_real_width(
     item: &FrameItem,
 ) -> (f64, f64) {
     match item {
+        FrameItem::TextSeparator { advance, .. } => (advance.0, advance.0),
         FrameItem::TextShaped { text, style, glyphs, units_per_em, .. } => {
             let estimated = estimate_width(metrics, text, style);
             let upem = (*units_per_em).max(1) as f64;
             let real =
-                glyphs.iter().map(|g| g.x_advance as f64 / upem * style.size.0).sum();
+                super::tracking::width(glyphs, style, upem);
             (estimated, real)
         }
         FrameItem::Text { text, style, .. } => {
@@ -142,6 +143,9 @@ fn estimated_and_real_width(
             let width = (end.x.0 - start.x.0).abs();
             (width, width)
         }
+        FrameItem::TextReplacement { items, .. } => items.iter()
+            .map(|item| estimated_and_real_width(metrics, item))
+            .fold((0.0, 0.0), |(e, r), (ce, cr)| (e + ce, r + cr)),
         FrameItem::Semantic { .. } => (0.0, 0.0),
     }
 }
@@ -226,24 +230,13 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
                 set_item_x(&mut page.items[idx], x_orig + shift);
 
                 let (w_est, w_real) = match &page.items[idx] {
-                    FrameItem::TextShaped {
-                        text, style, glyphs, units_per_em, ..
-                    } => {
-                        let is_math = style.math;
-                        if is_math {
-                            (0.0, 0.0)
-                        } else {
-                            let upem = (*units_per_em).max(1) as f64;
-                            let size = style.size.0;
-                            let w_real = glyphs
-                                .iter()
-                                .map(|g| g.x_advance as f64 / upem * size)
-                                .sum::<f64>();
-                            let w_est = estimate_width(metrics, text, style);
-                            (w_est, w_real)
-                        }
-                    }
-                    _ => (0.0, 0.0),
+                    FrameItem::TextReplacement { .. } | FrameItem::TextShaped { .. } =>
+                        estimated_and_real_width(metrics, &page.items[idx]),
+                    FrameItem::TextSeparator { .. } | FrameItem::Text { .. }
+                    | FrameItem::Line { .. } | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. } | FrameItem::Shape { .. }
+                    | FrameItem::Group { .. } | FrameItem::Link { .. }
+                    | FrameItem::Semantic { .. } => (0.0, 0.0),
                 };
                 shift += w_real - w_est;
             }

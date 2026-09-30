@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 5d735143
+//! @prompt-hash 2a51e11c
 //! @layer L3
-//! @updated 2026-09-26
+//! @updated 2026-09-29
 //! Post-layout shaping facade. Implementation remains in private L3 descendants.
 
 #![allow(deprecated)]
@@ -13,6 +13,8 @@ mod font_selection;
 mod reconciliation;
 mod shaping;
 mod traversal;
+mod text_identity;
+pub(crate) mod tracking;
 
 #[cfg(test)]
 mod tests;

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/p1405_pdf_label_tests.md
-//! @prompt-hash 47c38ed1
+//! @prompt-hash 3d034f1f
 //! @layer L3
 //! @updated 2026-09-15
 //!
@@ -17,6 +17,7 @@ fn semantic_label_emits_lbl_structure_and_marked_content() {
     let page = Page {
         width: 100.0,
         height: 100.0,
+        logical_number: 1,
         numbering: None,
         supplement: Content::Empty,
         bleed: Default::default(),

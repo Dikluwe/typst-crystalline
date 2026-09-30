@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/layout_bidi.md
-//! @prompt-hash e1e89260
+//! @prompt-hash e5b89109
 //! @layer L3
-//! @updated 2026-07-04
+//! @updated 2026-09-28
 //!
 //! **P562/P564/P565** — Reordenação visual bidireccional de linhas e
 //! reflow de blocos RTL. Passagem posterior pura sobre `PagedDocument`,
@@ -93,7 +93,7 @@ fn reorder_bidi_page(page: &mut Page, metrics: &dyn FontMetrics) {
 /// Devolve a baseline y de um item para efeitos de agrupamento por linha.
 fn item_baseline_y(item: &FrameItem) -> Pt {
     match item {
-        FrameItem::Text { pos, .. } => pos.y,
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => pos.y,
         FrameItem::TextShaped { pos, .. } => pos.y,
         FrameItem::Line { start, .. } => start.y,
         FrameItem::Glyph { pos, .. } => pos.y,
@@ -101,7 +101,7 @@ fn item_baseline_y(item: &FrameItem) -> Pt {
         FrameItem::Shape { pos, .. } => pos.y,
         FrameItem::Group { pos, .. } => pos.y,
         FrameItem::Link { pos, .. } => pos.y,
-        FrameItem::Semantic { items, .. } => {
+        FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
             items.first().map(item_baseline_y).unwrap_or(Pt(0.0))
         }
     }
@@ -110,7 +110,7 @@ fn item_baseline_y(item: &FrameItem) -> Pt {
 /// Devolve a coordenada x de um item.
 fn item_x(item: &FrameItem) -> f64 {
     match item {
-        FrameItem::Text { pos, .. } => pos.x.0,
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => pos.x.0,
         FrameItem::TextShaped { pos, .. } => pos.x.0,
         FrameItem::Line { start, .. } => start.x.0,
         FrameItem::Glyph { pos, .. } => pos.x.0,
@@ -118,7 +118,7 @@ fn item_x(item: &FrameItem) -> f64 {
         FrameItem::Shape { pos, .. } => pos.x.0,
         FrameItem::Group { pos, .. } => pos.x.0,
         FrameItem::Link { pos, .. } => pos.x.0,
-        FrameItem::Semantic { items, .. } => items.first().map(item_x).unwrap_or(0.0),
+        FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items.first().map(item_x).unwrap_or(0.0),
     }
 }
 
@@ -163,6 +163,22 @@ fn reorder_bidi_line(items: &mut [FrameItem], line: &[usize], metrics: &dyn Font
 
     let target_y = item_baseline_y(&items[text_indices[0]]).0;
     reorder_indices(items, &text_indices, metrics, x_min, gap, target_y);
+    let mut end = None;
+    for &idx in line {
+        match &mut items[idx] {
+            FrameItem::Text { pos, text, style } => {
+                end = Some(pos.x.0 + text_width_for_bidi(metrics, text, style));
+            }
+            FrameItem::TextSeparator { pos, advance, .. } => {
+                if let Some(x) = end {
+                    pos.x = Pt(x);
+                    end = Some(x + advance.0);
+                }
+            }
+            FrameItem::TextShaped { .. } | FrameItem::Line { .. } | FrameItem::Glyph { .. } | FrameItem::Image { .. } | FrameItem::Shape { .. } | FrameItem::Group { .. } | FrameItem::Link { .. } | FrameItem::Semantic { .. } | FrameItem::TextReplacement { .. } => {}
+        }
+    }
+
 
     // P569 — depois de reposicionar visualmente, ordenar os items no vector
     // da página por x crescente (ordem visual esquerda→direita). Extratores
@@ -656,7 +672,7 @@ mod tests {
             .items
             .iter()
             .filter_map(|item| match item {
-                FrameItem::Text { pos, .. } => Some(pos.y.0),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.0),
                 _ => None,
             })
             .collect();
@@ -797,7 +813,7 @@ mod tests {
         let mut ys: Vec<f64> = items
             .iter()
             .filter_map(|item| match item {
-                FrameItem::Text { pos, .. } => Some(pos.y.0),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.0),
                 _ => None,
             })
             .collect();
@@ -824,7 +840,7 @@ mod tests {
         let mut y_values: Vec<f64> = items
             .iter()
             .filter_map(|item| {
-                if let FrameItem::Text { pos, .. } = item {
+                if let FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } = item {
                     Some((pos.y.0 * 100.0).round() / 100.0)
                 } else {
                     None

@@ -1,12 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/font_selection.md
-//! @prompt-hash a8011482
+//! @prompt-hash 8e04e77b
 //! @layer L3
-//! @updated 2026-09-27
+//! @updated 2026-09-29
 
 use super::bidi::BidiRun;
 use super::cache::FaceCache;
-use crate::fallback_fonts::{fallback_font_list_for, math_fallback_font_list};
+use crate::fallback_fonts::{fallback_font_list_for, math_fallback_font_list, text_fallback_font_list};
 use std::collections::HashMap;
 use typst_core::contracts::world::World;
 use typst_core::entities::font_book::{FontInfo, FontVariant};
@@ -68,6 +68,19 @@ pub(super) fn primary_candidates(
                             primary.push(cand);
                         }
                     }
+                }
+            }
+        }
+    }
+
+    // Cadeia textual declarativa do vanilla: famílias escolhidas primeiro,
+    // depois fallback comum, só então busca global por cobertura.
+    for family in text_fallback_font_list() {
+        let list = FontList::single(ecow::EcoString::from(*family));
+        if let Some(candidates) = resolve_candidates(world, &list, variant, face_cache) {
+            for candidate in candidates {
+                if !primary.iter().any(|item| item.slot_idx == candidate.slot_idx) {
+                    primary.push(candidate);
                 }
             }
         }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/p1476_pdfa_attachments_af_tests.md
-//! @prompt-hash 2cb32c89
+//! @prompt-hash 15d96eea
 //! @layer L3
 //! @updated 2026-09-22
 //!
@@ -41,9 +41,7 @@ fn attachment_elem(relationship: Option<AttachedFileRelationship>) -> PdfAttachE
     }
 }
 
-fn doc_with_attachment(
-    relationship: Option<AttachedFileRelationship>,
-) -> PagedDocument {
+fn doc_with_attachment(relationship: Option<AttachedFileRelationship>) -> PagedDocument {
     layout(&Content::sequence(vec![
         Content::text("P1476 núcleo anexos PDF/A"),
         Content::pdf_attach(attachment_elem(relationship)),
@@ -307,10 +305,9 @@ fn p1476_info_suppressed_for_a4f_a4e() {
     // contrato de P1476 (não corrigido aqui; fora do escopo de
     // Agente B tocar testes de P1475).
     for raw in [PdfStandard::A4f, PdfStandard::A4e] {
-        for doc in [
-            plain_doc(),
-            doc_with_attachment(Some(AttachedFileRelationship::Supplement)),
-        ] {
+        for doc in
+            [plain_doc(), doc_with_attachment(Some(AttachedFileRelationship::Supplement))]
+        {
             let pdf = export_doc_with_standard(&doc, standards_for(&[raw]));
             let trailer = trailer_dict(&pdf);
             assert!(
@@ -361,8 +358,7 @@ fn p1476_output_intent_present_for_a4f_a4e() {
 // ── Fronteira do gate — A4 (sem f/e) não é embedded-files-capable ───
 
 #[test]
-fn p1476_a4_alone_with_attachment_stays_outside_embedded_files_gate_regression_guard()
-{
+fn p1476_a4_alone_with_attachment_stays_outside_embedded_files_gate_regression_guard() {
     // Guarda de não-regressão sobre a fronteira exata do gate (L0
     // §3.1, `archival_supports_embedded_files`): A4 sozinho (sem
     // sufixo f/e) tem anexo emitido (P1286, sempre incondicional),

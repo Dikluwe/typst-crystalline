@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/tests/p1428-tests.md
-//! @prompt-hash ff4e1e18
+//! @prompt-hash 7b30628c
 //! @layer L3
 //!
 //! Recalibração independente dos observadores públicos `math.frac` P1428.

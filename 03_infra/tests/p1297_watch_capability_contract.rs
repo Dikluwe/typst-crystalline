@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/tests/p1297_watch_capability_contract.md
-//! @prompt-hash 204e4c79
+//! @prompt-hash 3caeb321
 //! @layer L3
 //! @updated 2026-09-03
 //!

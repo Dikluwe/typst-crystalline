@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 4f29d38c
+//! @prompt-hash a9fe9710
 //! @layer L2
 //! @updated 2026-09-25
 //!
@@ -1282,8 +1282,8 @@ fn content_to_semantic(
                     .unwrap_or(SemanticValue::Null),
             ));
         }
-        Content::Styled(body, _) => {
-            fields.push(("body".into(), content_to_semantic(body)))
+        Content::Styled(styled) => {
+            fields.push(("body".into(), content_to_semantic(&styled.body)))
         }
         _ => {
             if let Some(body) = content.get_field("body") {
@@ -2792,21 +2792,32 @@ mod tests {
         use typst_core::entities::compiler_features::Feature;
         for command in ["compile", "watch"] {
             let parsed = Args::try_parse_from([
-                "typst", command, "in.typ", "--features", "html,bundle,a11y-extras,bundle",
-            ]).expect("features combinadas devem parsear");
+                "typst",
+                command,
+                "in.typ",
+                "--features",
+                "html,bundle,a11y-extras,bundle",
+            ])
+            .expect("features combinadas devem parsear");
             let args = match parsed.command {
                 Command::Compile(args) => args.compile,
                 Command::Watch(args) => args.compile,
                 _ => panic!("compile/watch esperado"),
             };
-            let intent = compile_intent(args, HtmlSerialization::Crystalline, false, None);
+            let intent =
+                compile_intent(args, HtmlSerialization::Crystalline, false, None);
             assert!(intent.features.contains(Feature::Bundle), "{command}");
             assert!(intent.features.contains(Feature::Html), "{command}");
             assert!(intent.features.contains(Feature::A11yExtras), "{command}");
         }
         let parsed = Args::try_parse_from([
-            "typst", "eval", "type(asset)", "--features", "bundle",
-        ]).expect("eval --features bundle deve parsear");
+            "typst",
+            "eval",
+            "type(asset)",
+            "--features",
+            "bundle",
+        ])
+        .expect("eval --features bundle deve parsear");
         let Command::Eval(args) = parsed.command else { panic!("eval esperado") };
         let features = resolve_features(&args.features);
         assert!(features.contains(Feature::Bundle));
@@ -2814,7 +2825,12 @@ mod tests {
         assert!(!features.contains(Feature::A11yExtras));
         assert!(!resolve_features(&[]).contains(Feature::Bundle));
         assert!(Args::try_parse_from([
-            "typst", "eval", "type(asset)", "--features", "unknown",
-        ]).is_err());
+            "typst",
+            "eval",
+            "type(asset)",
+            "--features",
+            "unknown",
+        ])
+        .is_err());
     }
 }

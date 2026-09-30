@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/render.md
-//! @prompt-hash db9a0d30
+//! @prompt-hash c62e4d7a
 //! @layer L3
-//! @updated 2026-07-23
+//! @updated 2026-09-28
 //!
 //! Rasterizador de páginas Typst para PNG.
 //!
@@ -189,7 +189,7 @@ fn render_item(
     fonts: Option<&[FontKey]>,
 ) {
     match item {
-        FrameItem::Text { .. } => {}
+        FrameItem::TextSeparator { .. } | FrameItem::Text { .. } => {}
         FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
             if let Some(fonts) = fonts {
                 render_text_shaped(
@@ -231,7 +231,7 @@ fn render_item(
                 render_item(canvas, state, item, fonts);
             }
         }
-        FrameItem::Semantic { items, .. } => {
+        FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
             for item in items {
                 render_item(canvas, state, item, fonts);
             }

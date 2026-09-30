@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/query-helpers.md
-//! @prompt-hash e5a7dcba
+//! @prompt-hash 0d9cd936
 //! @layer L3
 //! @updated 2026-05-08
 //!
@@ -284,7 +284,7 @@ fn has_any_text(content: &Content) -> bool {
         Content::FigureCaption(caption) => has_any_text(&caption.body),
         Content::FootnoteEntry(entry) => has_any_text(&entry.note),
         // Contentores comuns que podem embrulhar texto.
-        Content::Styled(body, _) => has_any_text(body),
+        Content::Styled(styled) => has_any_text(&styled.body),
         Content::Strong(strong) => has_any_text(&strong.body),
         Content::Emph(emph) => has_any_text(&emph.body),
         Content::Title(title) => has_any_text(&title.body),
@@ -370,7 +370,7 @@ where
         // P1473 — figure.caption/footnote.entry, escopo reduzido.
         Content::FigureCaption(caption) => count_variant(&caption.body, predicate),
         Content::FootnoteEntry(entry) => count_variant(&entry.note, predicate),
-        Content::Styled(body, _) => count_variant(body, predicate),
+        Content::Styled(styled) => count_variant(&styled.body, predicate),
         Content::Strong(strong) => count_variant(&strong.body, predicate),
         Content::Emph(emph) => count_variant(&emph.body, predicate),
         Content::Title(title) => count_variant(&title.body, predicate),
@@ -914,10 +914,7 @@ mod tests {
     fn p1494_espacos_nao_criam_texto_ou_ocorrencia_queryable() {
         for space in [Content::Space, Content::SpaceFromNewline] {
             assert!(!has_any_text(&space));
-            assert_eq!(
-                count_variant(&space, |node| matches!(node, Content::Text(_))),
-                0
-            );
+            assert_eq!(count_variant(&space, |node| matches!(node, Content::Text(_))), 0);
             let neighbors = Content::sequence(vec![
                 Content::text("before"),
                 space,

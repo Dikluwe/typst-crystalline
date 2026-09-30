@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/p1478_pdfa4f_empty_embedded_files_tests.md
-//! @prompt-hash f28758c4
+//! @prompt-hash 242796c4
 //! @layer L3
 //! @updated 2026-09-22
 //!
@@ -114,8 +114,7 @@ fn embedded_files_body(pdf: &[u8]) -> Option<String> {
 
 #[test]
 fn p1478_a4f_sem_anexo_produz_embedded_files_vazio() {
-    let pdf =
-        export_doc_with_standard(&plain_doc(), standards_for(&[PdfStandard::A4f]));
+    let pdf = export_doc_with_standard(&plain_doc(), standards_for(&[PdfStandard::A4f]));
     let ef = embedded_files_body(&pdf).unwrap_or_else(|| {
         panic!(
             "A4f sem anexo: catálogo sem /Names -> /EmbeddedFiles resolúvel (P1478 RED esperado); pdf={}",
@@ -131,8 +130,7 @@ fn p1478_a4f_sem_anexo_produz_embedded_files_vazio() {
 
 #[test]
 fn p1478_a4f_sem_anexo_nao_produz_af_nem_filespec() {
-    let pdf =
-        export_doc_with_standard(&plain_doc(), standards_for(&[PdfStandard::A4f]));
+    let pdf = export_doc_with_standard(&plain_doc(), standards_for(&[PdfStandard::A4f]));
     let catalog = catalog_body(&pdf);
     assert!(
         !catalog.contains("/AF ["),
@@ -153,8 +151,7 @@ fn p1478_a4f_sem_anexo_nao_produz_af_nem_filespec() {
 
 #[test]
 fn p1478_a4e_sem_anexo_nao_produz_embedded_files() {
-    let pdf =
-        export_doc_with_standard(&plain_doc(), standards_for(&[PdfStandard::A4e]));
+    let pdf = export_doc_with_standard(&plain_doc(), standards_for(&[PdfStandard::A4e]));
     assert!(
         embedded_files_body(&pdf).is_none(),
         "A4e sem anexo não deve ganhar /EmbeddedFiles (regressão) — só A4f exige árvore vazia"

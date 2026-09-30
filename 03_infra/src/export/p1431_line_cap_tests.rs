@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/p1431-line-cap-tests.md
-//! @prompt-hash 559159ef
+//! @prompt-hash 2881a1e4
 //! @layer L3
 #![cfg(test)]
 
@@ -139,6 +139,23 @@ fn isolated_page(
     };
     page
 }
+fn raster_line_page(document: &PagedDocument) -> typst_core::entities::layout_types::Page {
+    let mut page = isolated_page(document, false);
+    let FrameItem::Line { start, end, thickness, .. } = &mut page.items[0] else {
+        panic!("isolated raster witness must be a line");
+    };
+    let padding = thickness.max(1.0) + 1.0;
+    let left = (start.x.0.min(end.x.0) - padding).floor();
+    let top = (start.y.0.min(end.y.0) - padding).floor();
+    page.width = (start.x.0.max(end.x.0) + padding).ceil() - left;
+    page.height = (start.y.0.max(end.y.0) + padding).ceil() - top;
+    start.x.0 -= left;
+    end.x.0 -= left;
+    start.y.0 -= top;
+    end.y.0 -= top;
+    page
+}
+
 fn alpha_pixels(png: &[u8]) -> usize {
     image::load_from_memory(png)
         .expect("deterministic PNG")
@@ -205,7 +222,7 @@ fn p1431_raster_mapeia_butt_round_square_e_auto_square() {
     let opts = RenderOptions { pixel_per_pt: 16.0, render_bleed: false };
     let render = |cap| {
         let doc = matrix_document(cap);
-        render_page_to_png(&isolated_page(&doc, false), &opts)
+        render_page_to_png(&raster_line_page(&doc), &opts)
     };
     let butt = render(Some(LineCap::Butt));
     let round = render(Some(LineCap::Round));

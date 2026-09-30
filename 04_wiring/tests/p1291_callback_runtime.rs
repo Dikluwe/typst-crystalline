@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/p1291_callback_runtime.md
-//! @prompt-hash dd4b4788
+//! @prompt-hash 13a40cdd
 //! @layer L4
 //! @updated 2026-08-31
 //!

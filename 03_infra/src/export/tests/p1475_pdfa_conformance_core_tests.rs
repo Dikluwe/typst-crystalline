@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/p1475_pdfa_conformance_core_tests.md
-//! @prompt-hash 43852df9
+//! @prompt-hash c6b15ebc
 //! @layer L3
 //! @updated 2026-09-22
 //!
@@ -137,8 +137,7 @@ fn p1475_trailer_id_is_present_universal_and_matches_xmp_ids() {
     // igual a Y" — as duas asserções abaixo é que provam o contrato.
 
     let xmp = xmp_packet(&pdf);
-    let inst_re =
-        Regex::new(r"<xmpMM:InstanceID>([^<]*)</xmpMM:InstanceID>").unwrap();
+    let inst_re = Regex::new(r"<xmpMM:InstanceID>([^<]*)</xmpMM:InstanceID>").unwrap();
     let doc_re = Regex::new(r"<xmpMM:DocumentID>([^<]*)</xmpMM:DocumentID>").unwrap();
     let inst = inst_re
         .captures(&xmp)
@@ -230,10 +229,7 @@ fn p1475_pdfaid_absent_without_any_standard_regression_guard() {
     // Guarda de não-regressão: já passa hoje (nada emite pdfaid ainda).
     let pdf = export_with_standard(PdfStandards::default());
     let xmp = xmp_packet(&pdf);
-    assert!(
-        !xmp.contains("pdfaid:"),
-        "sem standard, não deve haver pdfaid:*; xmp={xmp}"
-    );
+    assert!(!xmp.contains("pdfaid:"), "sem standard, não deve haver pdfaid:*; xmp={xmp}");
     assert!(
         !xmp.contains("xmlns:pdfaid"),
         "sem standard, não deve declarar xmlns:pdfaid; xmp={xmp}"

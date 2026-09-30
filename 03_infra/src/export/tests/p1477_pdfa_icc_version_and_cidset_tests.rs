@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/p1477_pdfa_icc_version_and_cidset_tests.md
-//! @prompt-hash c341b2d0
+//! @prompt-hash 0031cfe9
 //! @layer L3
 //! @updated 2026-09-22
 //!
@@ -209,9 +209,9 @@ fn p1477_icc_v4_regression_for_output_intent_default_version_gated_archival() {
     let pdf = export_with_standard(standards_for(&[PdfStandard::A2b]));
     let catalog = catalog_body(&pdf);
     let intents_re = Regex::new(r"/OutputIntents\s*\[\s*(\d+)\s+0\s+R\s*\]").unwrap();
-    let caps = intents_re.captures(&catalog).unwrap_or_else(|| {
-        panic!("A2b: catálogo sem /OutputIntents; catalog={catalog}")
-    });
+    let caps = intents_re
+        .captures(&catalog)
+        .unwrap_or_else(|| panic!("A2b: catálogo sem /OutputIntents; catalog={catalog}"));
     let intent_id: usize = caps[1].parse().unwrap();
     let intent_obj = object_body(&pdf, intent_id);
     let profile_re = Regex::new(r"/DestOutputProfile\s+(\d+)\s+0\s+R").unwrap();
@@ -241,10 +241,8 @@ fn p1477_icc_v2_selected_for_output_intent_with_explicit_version_1_4_to_1_6() {
     // item 1, `emit_pdfa_output_intent`) sem depender da ambiguidade
     // sobre se A1a/A1b também ganham /OutputIntent (ver teste separado
     // abaixo).
-    let cases: &[(PdfStandard, PdfStandard)] = &[
-        (PdfStandard::A2b, PdfStandard::V1_4),
-        (PdfStandard::A3u, PdfStandard::V1_6),
-    ];
+    let cases: &[(PdfStandard, PdfStandard)] =
+        &[(PdfStandard::A2b, PdfStandard::V1_4), (PdfStandard::A3u, PdfStandard::V1_6)];
     let intents_re = Regex::new(r"/OutputIntents\s*\[\s*(\d+)\s+0\s+R\s*\]").unwrap();
     let profile_re = Regex::new(r"/DestOutputProfile\s+(\d+)\s+0\s+R").unwrap();
     for (archival, version) in cases.iter().copied() {

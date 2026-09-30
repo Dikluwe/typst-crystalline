@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/shaping.md
-//! @prompt-hash 629d871a
+//! @prompt-hash 52842474
 //! @layer L3
-//! @updated 2026-09-27
+//! @updated 2026-09-29
 
 use super::bidi::bidi_runs;
 use super::cache::{CachedRun, FaceCache, ShapeCache};
@@ -84,6 +84,7 @@ pub(crate) fn shaped_width(
 
                 let mut buffer = UnicodeBuffer::new();
                 buffer.push_str(&subrun.text);
+                super::text_identity::configure_authored_shy_buffer(&mut buffer, &subrun.text);
                 if let Some(lang) = style.lang {
                     buffer.set_language(lang.as_str().parse().expect("Lang is nonempty"));
                 }
@@ -239,7 +240,7 @@ pub(super) fn try_shape(
                     style.lang.as_ref().map(|lang| lang.as_str()),
                 );
                 let cached = cache.map.get(&cache_key).cloned();
-                let (run_glyphs, run_width) = if let Some(cached) = cached {
+                let (run_glyphs, _run_width) = if let Some(cached) = cached {
                     (cached.glyphs, cached.width)
                 } else {
                     let font = world.font(candidate.slot_idx)?;
@@ -252,6 +253,7 @@ pub(super) fn try_shape(
 
                     let mut buffer = UnicodeBuffer::new();
                     buffer.push_str(&subrun.text);
+                    super::text_identity::configure_authored_shy_buffer(&mut buffer, &subrun.text);
                     if let Some(lang) = style.lang {
                         buffer.set_language(lang.as_str().parse().expect("Lang is nonempty"));
                     }
@@ -338,7 +340,7 @@ pub(super) fn try_shape(
 
                 if !run_glyphs.is_empty() {
                     let subrun_width_pt =
-                        run_width as f64 * style.size.0 / candidate.units_per_em as f64;
+                        super::tracking::width(&run_glyphs, style, candidate.units_per_em as f64);
                     let item_pos = Point { x: Pt(pos.x.0 + x_offset.0), y: line_y };
                     x_offset.0 += subrun_width_pt;
 

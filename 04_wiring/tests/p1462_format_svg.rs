@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1462-format-svg.md
-//! @prompt-hash e128c1dc
+//! @prompt-hash e001db42
 
 use std::collections::BTreeMap;
 use std::ffi::{OsStr, OsString};

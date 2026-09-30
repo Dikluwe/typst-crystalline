@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/bitmap_glyphs.md
-//! @prompt-hash b57fa5d4
+//! @prompt-hash e2665eef
 //! @layer L3
 //! @updated 2026-07-31
 //!

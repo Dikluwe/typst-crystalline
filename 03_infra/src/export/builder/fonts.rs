@@ -1,0 +1,1367 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/infra/export/builder/fonts.md
+//! @prompt-hash 6d0083c4
+//! @layer L3
+//! @updated 2026-09-29
+
+use super::navigation::PageIndexConverter;
+use super::resources::{colorspace_resource_entry, has_rgb_jpeg, merge_bitmap_xobjects};
+use super::serialization::insert_pdf_dict_entry;
+use super::{format_dim, PdfBuilder};
+use crate::export::build_icc_profile_stream;
+use crate::export::build_page_stream;
+use crate::export::char_to_utf16_hex;
+use crate::export::collect_codepoints;
+use crate::export::collect_glyph_ids;
+use crate::export::collect_shaped_cluster_texts;
+use crate::export::collect_shaped_glyph_mappings;
+use crate::export::collect_text_codepoints;
+use crate::export::compress_zlib;
+use crate::export::map_chars_to_glyphs;
+use crate::export::pattern_resources_for_page;
+use crate::export::scan_all_gradients;
+use crate::export::scan_all_images;
+use crate::export::srgb_icc_profile_for_version;
+use crate::export::subset::remap_glyph_id;
+use crate::export::subset::subset_font_with_mapping;
+use crate::export::subset::FontSubset;
+use crate::export::to_unicode_cmap;
+use crate::export::widths_array;
+use crate::export::xobject_resources_for_page;
+use crate::export::ImageXObject;
+use crate::export::PageContext;
+use crate::export::StreamMode;
+use crate::font_metrics::build_math_glyph_reverse_map;
+use crate::font_variant::axis_variations_for_font_variant;
+use crate::font_variant::instantiate_variable_font;
+use crate::font_variant::merge_explicit_variations;
+use std::collections::BTreeSet;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use ttf_parser::Face;
+use typst_core::entities::document_format_options::PdfAccessibility;
+use typst_core::entities::font_book::FontVariant;
+use typst_core::entities::font_list::FontList;
+use typst_core::entities::font_variations::FontVariations;
+use typst_core::entities::frame_visitor::walk_frame_items;
+use typst_core::entities::frame_visitor::FrameVisitor;
+use typst_core::entities::layout_types::FrameItem;
+use typst_core::entities::layout_types::PagedDocument;
+
+fn duration_ms(d: std::time::Duration) -> f64 {
+    d.as_secs_f64() * 1000.0
+}
+
+/// **P941** — glyph ids usados no documento, agrupados por fonte resolvida.
+///
+/// Percorre os itens do documento e, para cada `Text`/`TextShaped`/`Glyph`,
+/// atribui os glyph ids à fonte correspondente (mesma selecção de índice que
+/// `emit_shaped_pdf` usa: `font_index_for_style`). Necessário para decidir se
+/// uma fonte é 100% bitmap (CBDT) e pode deixar de ser embutida.
+fn per_font_used_glyphs(
+    doc: &PagedDocument,
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    faces: &[Face<'_>],
+) -> Vec<BTreeSet<u16>> {
+    struct FontGlyphCollector<'a, 'f> {
+        fonts: &'a [((FontList, FontVariant, FontVariations), Vec<u8>)],
+        faces: &'a [Face<'f>],
+        sets: &'a mut [BTreeSet<u16>],
+    }
+    impl<'a, 'f> FrameVisitor for FontGlyphCollector<'a, 'f> {
+        fn visit_text_shaped(&mut self, item: &FrameItem) {
+            if let FrameItem::TextShaped { glyphs, style, .. } = item {
+                let fi = crate::export::stream::font_index_for_style(self.fonts, style);
+                for g in glyphs {
+                    self.sets[fi].insert(g.glyph_id);
+                }
+            }
+        }
+        fn visit_text(&mut self, item: &FrameItem) {
+            if let FrameItem::TextSeparator { style, .. } = item {
+                let fi = crate::export::stream::font_index_for_style(self.fonts, style);
+                if let Some(gid) = self.faces[fi].glyph_index(' ') { self.sets[fi].insert(gid.0); }
+            }
+            if let FrameItem::Text { text, style, .. } = item {
+                let fi = crate::export::stream::font_index_for_style(self.fonts, style);
+                let face = &self.faces[fi];
+                for c in text.chars() {
+                    if let Some(gid) = face.glyph_index(c) {
+                        self.sets[fi].insert(gid.0);
+                    }
+                }
+            }
+        }
+        fn visit_glyph(&mut self, item: &FrameItem) {
+            if let FrameItem::Glyph { glyph_id, style, .. } = item {
+                let fi = crate::export::stream::font_index_for_style(self.fonts, style);
+                self.sets[fi].insert(*glyph_id);
+            }
+        }
+    }
+    let mut sets: Vec<BTreeSet<u16>> = vec![BTreeSet::new(); fonts.len()];
+    let mut collector = FontGlyphCollector { fonts, faces, sets: &mut sets };
+    for page in &doc.pages {
+        walk_frame_items(&mut collector, &page.items);
+    }
+    sets
+}
+
+/// P517 — gera nome de fonte com prefixo de subset quando a fonte foi
+/// efectivamente subsetada. Usa o prefixo fixo `AAAAAA+` conforme
+/// convenção PDF para fontes subsetadas (ex: `AAAAAA+FontName`).
+fn subset_font_name(base_name: &str, _subset_data: &[u8]) -> String {
+    format!("AAAAAA+{}", base_name)
+}
+
+/// **P950** — nome real da fonte para `BaseFont`/`FontName`, lido da tabela
+/// `name` dos bytes da fonte embutida (PostScript name_id 6 → full name 4 →
+/// família 1), sem espaços (convenção BaseFont). Se a leitura falhar (bytes
+/// inválidos, subset sem tabela `name`, ausência dos ids), devolve
+/// `fallback` (o genérico anterior).
+fn real_base_name(font_data: &[u8], fallback: &str) -> String {
+    let sanitize = |s: &str| -> String { s.split_whitespace().collect() };
+    let Ok(face) = ttf_parser::Face::parse(font_data, 0) else {
+        return fallback.to_string();
+    };
+    for name_id in [6u16, 4, 1] {
+        if let Some(entry) = face.names().into_iter().find(|n| n.name_id == name_id) {
+            if let Some(s) = entry.to_string() {
+                if !s.is_empty() {
+                    return sanitize(&s);
+                }
+            }
+        }
+    }
+    fallback.to_string()
+}
+
+/// P560 — extrai a tabela `CFF ` de uma fonte OpenType/SFNT.
+///
+/// Leitores de PDF esperam o programa CFF puro quando o descritor indica
+/// `/Subtype /CIDFontType0C`; o contêiner SFNT completo causa mismatch.
+///
+/// **P797** — `ttf_parser::Face::parse` falha quando o scalerType do cabeçalho
+/// SFNT é `00010000` (TrueType) mas o conteúdo tem tabela `CFF ` (comportamento
+/// observado em subsets gerados pelo `oxifont_subset` para Libertinus Serif e
+/// outras fontes CFF: o subsetter preserva as tabelas mas mantém o scalerType
+/// original da fonte original como `00010000`). Correcção: leitura directa das
+/// table tags do cabeçalho SFNT sem passar por `Face::parse`, garantindo que a
+/// detecção funciona independentemente do valor do scalerType.
+fn cff_table_data(font_data: &[u8]) -> Option<&[u8]> {
+    // Leitura directa do cabeçalho SFNT:
+    // Offset 4–5: numTables (u16 big-endian)
+    // Tabelas: a partir do offset 12, cada entrada é 16 bytes:
+    //   [0–3] tag (4 bytes), [4–7] checksum, [8–11] offset, [12–15] length
+    if font_data.len() < 12 {
+        return None;
+    }
+    let n_tables = u16::from_be_bytes([font_data[4], font_data[5]]) as usize;
+    for i in 0..n_tables {
+        let entry_off = 12 + i * 16;
+        if entry_off + 16 > font_data.len() {
+            break;
+        }
+        let tag = &font_data[entry_off..entry_off + 4];
+        if tag == b"CFF " {
+            let offset = u32::from_be_bytes([
+                font_data[entry_off + 8],
+                font_data[entry_off + 9],
+                font_data[entry_off + 10],
+                font_data[entry_off + 11],
+            ]) as usize;
+            let length = u32::from_be_bytes([
+                font_data[entry_off + 12],
+                font_data[entry_off + 13],
+                font_data[entry_off + 14],
+                font_data[entry_off + 15],
+            ]) as usize;
+            if offset + length <= font_data.len() {
+                return Some(&font_data[offset..offset + length]);
+            }
+        }
+    }
+    None
+}
+
+/// **P772u** — detecta fontes CFF2 (`CFF2`, não `CFF `) — usadas por fontes
+/// variáveis OpenType (ex.: Cantarell-VF.otf). `ttf_parser::Face::tables()`
+/// expõe `cff` (CFF1) e `cff2` como campos **distintos** — `cff_table_data`
+/// só verificava `cff`, pelo que uma fonte CFF2 sem tabela `CFF ` caía
+/// silenciosamente no ramo TrueType (`/CIDFontType2`/`/FontFile2`), mesmo
+/// não tendo tabela `glyf`. Achado por instrumentação (comparação
+/// `ttf_parser`/`rustybuzz`, ambos correctos e concordantes — o defeito não
+/// estava no shaping, mas no `/Subtype`/`FontFile` PDF declarado para o
+/// programa de fonte embutido). Ver `paridade-producao-p772u.md`.
+///
+/// **P797/P882** — devolve `true` se os bytes da fonte SFNT contiverem a tabela
+/// indicada. Usada por `font_embedding_data` para seleccionar o modo de
+/// embutimento correcto.
+fn has_sfnt_table(font_data: &[u8], wanted: &[u8; 4]) -> bool {
+    if font_data.len() < 12 {
+        return false;
+    }
+    let n_tables = u16::from_be_bytes([font_data[4], font_data[5]]) as usize;
+    for i in 0..n_tables {
+        let entry_off = 12 + i * 16;
+        if entry_off + 4 > font_data.len() {
+            break;
+        }
+        let tag = &font_data[entry_off..entry_off + 4];
+        if tag == wanted {
+            return true;
+        }
+    }
+    false
+}
+
+fn has_cff_table(font_data: &[u8]) -> bool {
+    has_sfnt_table(font_data, b"CFF ")
+}
+
+fn has_cff2_table(font_data: &[u8]) -> bool {
+    has_sfnt_table(font_data, b"CFF2")
+}
+
+/// P560/P772u/P882 — devolve os componentes PDF correctos e os bytes a embeber.
+///
+/// TrueType (`glyf`) usa `/CIDFontType2` + `/FontFile2` + stream `/CIDFontType2`
+/// (fonte SFNT completa).
+///
+/// CFF1/OpenType usa `/CIDFontType0` + `/FontFile3` + stream `/CIDFontType0C`,
+/// embutindo **apenas** a tabela `CFF ` (programa CFF puro). O wrapper SFNT
+/// completo acrescenta ~1.5 KB por ocorrência sem benefício para leitores PDF,
+/// que esperam CFF puro neste subtipo (P882).
+///
+/// CFF2/OpenType (fontes variáveis) usa `/CIDFontType0` + `/FontFile3` + stream
+/// `/OpenType` (contêiner SFNT completo), porque o spec PDF não define um
+/// subtipo para "programa CFF2 puro".
+fn font_embedding_data(
+    font_data: &[u8],
+) -> (&'static str, &'static str, &'static str, &[u8]) {
+    // CFF1: embutir o programa CFF puro (/CIDFontType0C).
+    if has_cff_table(font_data) {
+        if let Some(cff) = cff_table_data(font_data) {
+            return ("/CIDFontType0", "/FontFile3", "CIDFontType0C", cff);
+        }
+    }
+    // CFF2 (OpenType variável): não existe subtipo para CFF2 puro,
+    // pelo que se embute o contêiner SFNT completo.
+    if has_cff2_table(font_data) {
+        return ("/CIDFontType0", "/FontFile3", "OpenType", font_data);
+    }
+    // TrueType.
+    ("/CIDFontType2", "/FontFile2", "CIDFontType2", font_data)
+}
+
+/// **P883** — constrói o stream PDF para a fonte embutida, comprimindo com
+/// FlateDecode quando possível (paridade com o vanilla 0.15.0).
+///
+/// Em caso de falha do compressor (input muito pequeno ou erro interno),
+/// emite o stream sem compressão — o PDF continua válido.
+///
+/// **P940** — quando a fonte embutida é o fallback integral (subset falhou,
+/// ex.: fontes CBDT/emoji), o stream tem vários megabytes e a compressão
+/// Flate domina o `render_ms` (~300 ms medidos para ~10.8 MB). Nesse caso,
+/// emitir sem compressão: o custo de CPU cai para uma cópia de memória, ao
+/// preço de um PDF maior. O caminho normal (subset bem-sucedido) continua
+/// comprimido.
+fn build_font_stream(stream_subtype: &str, font_stream_data: &[u8]) -> Vec<u8> {
+    /// Limiar acima do qual a compressão do stream de fonte custa mais do que
+    /// vale (P940). Subsets normais ficam bem abaixo deste valor.
+    const MAX_COMPRESS_FONT_STREAM: usize = 256 * 1024;
+
+    if font_stream_data.len() <= MAX_COMPRESS_FONT_STREAM {
+        match compress_zlib(font_stream_data) {
+            Ok(compressed) => {
+                let len = compressed.len();
+                let mut stream = format!(
+                    "<< /Length {len} /Filter /FlateDecode /Subtype /{stream_subtype} >>\nstream\n"
+                )
+                .into_bytes();
+                stream.extend_from_slice(&compressed);
+                stream.extend_from_slice(b"\nendstream");
+                return stream;
+            }
+            Err(_) => {}
+        }
+    }
+
+    let len = font_stream_data.len();
+    let mut stream =
+        format!("<< /Length {len} /Subtype /{stream_subtype} >>\nstream\n").into_bytes();
+    stream.extend_from_slice(font_stream_data);
+    stream.extend_from_slice(b"\nendstream");
+    stream
+}
+
+/// **P1477** — constrói o stream `/CIDSet` — um bit por CID presente no
+/// subset, `bit=1` se presente, resto do último byte a zero. Aceita
+/// qualquer conjunto de CIDs (não assume contiguidade), comprimido com
+/// FlateDecode (mesmo padrão de `build_icc_profile_stream`/P883).
+fn build_cidset_stream(cids: &HashSet<u16>) -> Vec<u8> {
+    let max_cid = cids.iter().copied().max().unwrap_or(0);
+    let n_bytes = (max_cid as usize / 8) + 1;
+    let mut bits = vec![0u8; n_bytes];
+    for &cid in cids {
+        bits[cid as usize / 8] |= 0x80 >> (cid as usize % 8);
+    }
+    let compressed = compress_zlib(&bits).unwrap_or(bits);
+    let len = compressed.len();
+    let mut obj =
+        format!("<< /Length {len} /Filter /FlateDecode >>\nstream\n").into_bytes();
+    obj.extend_from_slice(&compressed);
+    obj.extend_from_slice(b"\nendstream");
+    obj
+}
+
+fn font_descriptor_metrics(face: &ttf_parser::Face<'_>) -> FontDescriptorMetrics {
+    let upem = face.units_per_em().max(1) as f64;
+    let scale = 1000.0 / upem;
+
+    let bbox = face.global_bounding_box();
+    let font_bbox = [
+        bbox.x_min as f64 * scale,
+        bbox.y_min as f64 * scale,
+        bbox.x_max as f64 * scale,
+        bbox.y_max as f64 * scale,
+    ];
+
+    let italic_angle = face.italic_angle() as f64;
+
+    // Preferir métricas tipográficas do OS/2 quando disponíveis; senão
+    // recair para as métricas do hhea, como faz o Typst vanilla.
+    let (ascent, descent) = if let Some(os2) = face.tables().os2 {
+        let typo_asc = os2.typographic_ascender();
+        let typo_desc = os2.typographic_descender();
+        if typo_asc != 0 || typo_desc != 0 {
+            (typo_asc as f64 * scale, typo_desc as f64 * scale)
+        } else {
+            (face.ascender() as f64 * scale, face.descender() as f64 * scale)
+        }
+    } else {
+        (face.ascender() as f64 * scale, face.descender() as f64 * scale)
+    };
+
+    let cap_height = face
+        .capital_height()
+        .filter(|&h| h > 0)
+        .map(|h| h as f64 * scale)
+        .unwrap_or(ascent);
+
+    FontDescriptorMetrics {
+        font_bbox,
+        italic_angle,
+        ascent,
+        descent,
+        cap_height,
+    }
+}
+
+/// **P760** — métricas do /FontDescriptor a partir de uma face parseada.
+///
+/// Os valores são convertidos para o espaço de 1000 unidades usado pelo PDF
+/// para FontDescriptors de CIDFonts, alinhando-se com o que o Typst vanilla
+/// emite.
+struct FontDescriptorMetrics {
+    font_bbox: [f64; 4],
+    italic_angle: f64,
+    ascent: f64,
+    descent: f64,
+    cap_height: f64,
+}
+
+impl Default for FontDescriptorMetrics {
+    fn default() -> Self {
+        Self {
+            font_bbox: [-1000.0, -200.0, 2000.0, 900.0],
+            italic_angle: 0.0,
+            ascent: 800.0,
+            descent: -200.0,
+            cap_height: 700.0,
+        }
+    }
+}
+
+impl PdfBuilder {
+    pub(super) fn measure_subset(
+        &mut self,
+        font_data: &[u8],
+        char_to_old_gid: &std::collections::BTreeMap<char, u16>,
+        additional_gids: &std::collections::BTreeSet<u16>,
+    ) -> Option<FontSubset> {
+        let t0 = std::time::Instant::now();
+        let result =
+            subset_font_with_mapping(font_data, char_to_old_gid, additional_gids);
+        self.subset_ms += duration_ms(t0.elapsed());
+        result
+    }
+
+    // ── Caminho CIDFont (Unicode completo, Identity-H) ─────────────────────
+
+    pub(super) fn build_cidfont(
+        mut self,
+        doc: &PagedDocument,
+        face: &Face<'_>,
+        font_data: &[u8],
+    ) -> (Vec<u8>, f64) {
+        // **P1468** — ver nota equivalente em `build_helvetica`.
+        let pic = PageIndexConverter::new(doc.pages.len(), self.pages.as_ref());
+        let n = pic.exported_count();
+        let first_page = 3usize;
+        let first_stream = first_page + n;
+        let font_id = first_stream + n; // Type0 — /F1
+        let cidfont_id = font_id + 1;
+        let font_descriptor_id = font_id + 2;
+        let font_stream_id = font_id + 3;
+        let to_unicode_id = font_id + 4;
+
+        // **P777** — reservar ID do perfil ICC sRGB partilhado se houver JPEGs RGB.
+        // **P956** — em modo verbose o ICC é embutido SEMPRE, alocado DEPOIS
+        // dos objectos de fonte (mesma posição da convenção P777).
+        let verbose = self.stream_mode == StreamMode::Verbose;
+        let needs_icc = has_rgb_jpeg(doc) || verbose;
+        let icc_profile_id = if needs_icc { Some(to_unicode_id + 1) } else { None };
+        let first_img_id = to_unicode_id + 1 + if needs_icc { 1 } else { 0 };
+
+        let mut chars = collect_codepoints(doc);
+        chars.extend(collect_text_codepoints(doc).iter().copied());
+        let mut mappings = map_chars_to_glyphs(face, &chars);
+
+        // P520 — glifos reais produzidos pelo shaper (incluindo ligatures como
+        // "fi" → gid_ligature). O char_code é o primeiro caractere do cluster.
+        // Estas entradas têm prioridade sobre o mapeamento codepoint→glyph
+        // da fonte porque reflectem o glifo efectivamente usado.
+        let shaped_mappings = collect_shaped_glyph_mappings(doc);
+
+        // Passo 45 — DEBT-9: adicionar glifos variantes (FrameItem::Glyph) ao ToUnicode.
+        // O dicionário reverso mapeia glyph_id → char base para caracteres extensíveis.
+        let glyph_reverse = build_math_glyph_reverse_map(face);
+        let existing_gids: BTreeSet<u16> = mappings.iter().map(|(_, gid)| *gid).collect();
+        for gid in collect_glyph_ids(doc) {
+            if !existing_gids.contains(&gid) {
+                if let Some(&c) = glyph_reverse.get(&gid) {
+                    mappings.push((c, gid));
+                }
+            }
+        }
+
+        // P520 — recolher larguras nominais (hmtx) dos glyph IDs que o shaper
+        // pode usar, para calcular corretamente os deltas do operador TJ.
+        let mut glyph_to_nominal: HashMap<u16, i32> = HashMap::new();
+        for &gid in collect_glyph_ids(doc)
+            .iter()
+            .chain(mappings.iter().map(|(_, gid)| gid))
+        {
+            let adv =
+                face.glyph_hor_advance(ttf_parser::GlyphId(gid)).unwrap_or(0) as i32;
+            glyph_to_nominal.insert(gid, adv);
+        }
+
+        // P516 — subsetting TrueType/OpenType.
+        // P520: shaped glyphs sobrescrevem codepoints no char_to_old_gid para
+        // que ligatures sejam incluídas no subset e tenham ToUnicode parcial.
+        // P874 — shaped_mappings contém glifos de TODAS as fontes do documento;
+        // só incluir os que pertencem à face actual.
+        let n_glyphs = face.number_of_glyphs();
+        let mut char_to_old_gid: std::collections::BTreeMap<char, u16> =
+            mappings.iter().copied().collect();
+        for (&old_gid, &ch) in &shaped_mappings {
+            if old_gid < n_glyphs {
+                char_to_old_gid.insert(ch, old_gid);
+            }
+        }
+        // P520 — todos os glyph IDs reais (incluindo ligatures com mesmo
+        // char_code representativo) devem ser preservados no subset.
+        // P568 — incluir também glyphs de FrameItem::Text (ex.: espaços entre
+        // palavras), que não passam pelo shaper mas precisam de estar no subset.
+        let mut all_glyph_ids = collect_glyph_ids(doc);
+        for &c in collect_text_codepoints(doc).iter() {
+            if let Some(gid) = face.glyph_index(c) {
+                all_glyph_ids.insert(gid.0);
+            }
+        }
+        // P874 — `collect_glyph_ids` reúne glyph IDs de todas as fontes do
+        // documento. Passar GIDs que não existem na face actual para o
+        // subsetter faz com que ele rejeite a fonte como MalformedFont.
+        // Filtrar para o range válido desta face antes de subsetar.
+        let n_glyphs = face.number_of_glyphs();
+        let all_glyph_ids: BTreeSet<u16> =
+            all_glyph_ids.into_iter().filter(|&gid| gid < n_glyphs).collect();
+        let (embed_font_data, glyph_mapping) =
+            match self.measure_subset(font_data, &char_to_old_gid, &all_glyph_ids) {
+                Some(FontSubset { data, mapping }) => {
+                    if Face::parse(&data, 0).is_ok() {
+                        (data, mapping)
+                    } else {
+                        // Fallback para fonte completa se o subset não parsear.
+                        (font_data.to_vec(), HashMap::new())
+                    }
+                }
+                None => (font_data.to_vec(), HashMap::new()),
+            };
+
+        // Re-mapear mappings para os novos glyph IDs do subset.
+        if !glyph_mapping.is_empty() {
+            for (_, old_gid) in mappings.iter_mut() {
+                *old_gid = remap_glyph_id(*old_gid, &glyph_mapping);
+            }
+        }
+
+        // P521 — ToUnicode CMap e /W a partir dos glifos reais do shaper,
+        // reconstruindo o texto completo de cada cluster (ligatures, RTL).
+        // Caracteres normais (não shaped) são adicionados como fallback
+        // single-codepoint.
+        // **P805a** — incluir os cluster texts TAMBÉM no embed integral
+        // (fallback P797, `glyph_mapping` vazio): antes, o gate
+        // `!glyph_mapping.is_empty()` saltava este bloco e as ligaduras
+        // ("fi" → gid f_i) ficavam sem entrada ToUnicode — renderizavam, mas
+        // a extracção (`pdftotext`) perdia os caracteres. Sem subset, o gid
+        // final é o próprio old_gid.
+        let mut to_unicode_mappings: Vec<(u16, String)> = Vec::new();
+        let mut seen_to_unicode_gids: HashSet<u16> = HashSet::new();
+        for (old_gid, hex) in collect_shaped_cluster_texts(doc) {
+            let new_gid = if glyph_mapping.is_empty() {
+                old_gid
+            } else {
+                remap_glyph_id(old_gid, &glyph_mapping)
+            };
+            if new_gid != 0 && seen_to_unicode_gids.insert(new_gid) {
+                to_unicode_mappings.push((new_gid, hex));
+            }
+        }
+        for &(ch, new_gid) in &mappings {
+            if new_gid != 0 && seen_to_unicode_gids.insert(new_gid) {
+                to_unicode_mappings.push((new_gid, char_to_utf16_hex(ch)));
+            }
+        }
+
+        let subset_face = Face::parse(&embed_font_data, 0).ok();
+        let face_for_widths = subset_face.as_ref().unwrap_or(face);
+        let char_to_gid: HashMap<char, u16> = mappings.iter().copied().collect();
+        let widths = widths_array(face_for_widths, &to_unicode_mappings);
+
+        // **P941** — glifos bitmap (CBDT) como imagens XObject.
+        let used_ids = crate::export::bitmap_glyphs::used_glyph_ids_for_face(doc, face);
+        let bitmap_glyphs =
+            crate::export::bitmap_glyphs::collect_bitmap_glyphs_for_ids(&used_ids, face);
+        let bitmap_only = !used_ids.is_empty()
+            && used_ids.iter().all(|gid| bitmap_glyphs.contains_key(gid));
+
+        let (img_refs, ptr_to_idx, mut img_xobjects) =
+            scan_all_images(doc, first_img_id, icc_profile_id);
+
+        // P263 — gradient pre-pass.
+        let first_grad_id = first_img_id + img_xobjects.len() * 2 + 100;
+        let (pat_refs, pat_ptr_to_idx, grad_objs) =
+            scan_all_gradients(doc, first_grad_id);
+        let n_grads = grad_objs.len();
+        let mut next_sub_id = first_grad_id + n_grads * 3;
+
+        // **P941** — XObjects de glifos bitmap (dedup por glyph id), IDs na zona
+        // livre depois dos gradientes. Em seguida, `next_sub_id` avança para
+        // não colidir com as sub-Functions dos gradientes.
+        let mut next_bitmap_id = next_sub_id;
+        let mut bitmap_name_counter = img_refs.len() + 1;
+        let mut bitmap_refs: HashMap<u16, crate::export::bitmap_glyphs::BitmapGlyphRef> =
+            HashMap::new();
+        let mut bitmap_xobjects: Vec<ImageXObject> = Vec::new();
+        let mut bitmap_res_entries: Vec<String> = Vec::new();
+        for (gid, bmp) in &bitmap_glyphs {
+            let smask_id = if bmp.payload.alpha_data_compressed.is_some() {
+                let id = next_bitmap_id;
+                next_bitmap_id += 1;
+                Some(id)
+            } else {
+                None
+            };
+            let main_id = next_bitmap_id;
+            next_bitmap_id += 1;
+            let name = format!("Im{}", bitmap_name_counter);
+            bitmap_name_counter += 1;
+            bitmap_refs.insert(
+                *gid,
+                crate::export::bitmap_glyphs::BitmapGlyphRef {
+                    name: name.clone(),
+                    width: bmp.payload.width,
+                    height: bmp.payload.height,
+                    bearing_x: bmp.bearing_x,
+                    bearing_y: bmp.bearing_y,
+                    pixels_per_em: bmp.pixels_per_em,
+                },
+            );
+            bitmap_res_entries.push(format!("/{name} {main_id} 0 R"));
+            bitmap_xobjects.push(ImageXObject::Png {
+                payload: bmp.payload.clone(),
+                main_obj_id: main_id,
+                smask_obj_id: smask_id,
+            });
+        }
+        img_xobjects.extend(bitmap_xobjects);
+        next_sub_id = next_bitmap_id;
+
+        self.add(1, "<< /Type /Catalog /Pages 2 0 R >>".into());
+
+        let kids = (first_page..first_page + n)
+            .map(|i| format!("{i} 0 R"))
+            .collect::<Vec<_>>()
+            .join(" ");
+        self.add(2, format!("<< /Type /Pages /Kids [{kids}] /Count {n} >>"));
+
+        for (i, page) in doc.pages.iter().enumerate() {
+            // **P1468** — página excluída pela seleção: não emitir.
+            let Some(new_i) = pic.new_index(i) else { continue };
+            let page_id = first_page + new_i;
+            let stream_id = first_stream + new_i;
+            let w = super::pdf_canvas_extent(page.width);
+            let h = super::pdf_canvas_extent(page.height);
+
+            let xobj_res = merge_bitmap_xobjects(
+                xobject_resources_for_page(page, &ptr_to_idx, &img_refs),
+                &bitmap_res_entries,
+            );
+            let pat_res = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
+            // **P956** — verbose: `/c0` (sRGB ICCBased) nos recursos da página.
+            let cs_res = colorspace_resource_entry(verbose, icc_profile_id, page);
+            let resources_str =
+                format!("/Font << /F1 {font_id} 0 R >> {xobj_res} {pat_res}{cs_res}");
+
+            self.add(
+                page_id,
+                format!(
+                    "<< /Type /Page /Parent 2 0 R \
+/MediaBox [0 0 {} {}] \
+                   /Contents {stream_id} 0 R \
+                   /Resources << {resources_str} >> >>",
+                    format_dim(w),
+                    format_dim(h)
+                ),
+            );
+
+            let ctx = PageContext::cidfont(
+                &ptr_to_idx,
+                &img_refs,
+                &pat_ptr_to_idx,
+                &pat_refs,
+                &char_to_gid,
+                &glyph_mapping,
+                &glyph_to_nominal,
+                if bitmap_only { Some(&bitmap_refs) } else { None },
+                self.stream_mode,
+            )
+            .with_pdf_tags(
+                self.pdf_tags,
+                page,
+                matches!(self.standard.accessibility, Some(PdfAccessibility::Ua1)),
+            )
+            .with_oracle(self.oracle);
+            let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
+            // P884 — content stream comprimido com FlateDecode quando rentável.
+            let stream_object = self.serialize_page_stream(&stream_bytes);
+            self.add_bytes(stream_id, stream_object);
+        }
+
+        // P517 — nome com prefixo de subset quando aplicável.
+        // **P950** — base é o nome REAL da fonte (tabela `name`), não o
+        // genérico `CrystallineFont`; o prefixo determinístico mantém-se.
+        let real_base = real_base_name(&embed_font_data, "CrystallineFont");
+        let base_font_name = if glyph_mapping.is_empty() {
+            real_base
+        } else {
+            subset_font_name(&real_base, &embed_font_data)
+        };
+
+        // P560 — descritor PDF e bytes conforme o tipo de fonte (TrueType vs CFF/OpenType).
+        let (cid_subtype, font_file_key, stream_subtype, font_stream_data) =
+            font_embedding_data(&embed_font_data);
+
+        // Type0 font (F1)
+        self.add(
+            font_id,
+            format!(
+                "<< /Type /Font /Subtype /Type0 /BaseFont /{base_font_name} \
+               /Encoding /Identity-H \
+               /DescendantFonts [{cidfont_id} 0 R] \
+               /ToUnicode {to_unicode_id} 0 R >>"
+            ),
+        );
+
+        // CIDFont
+        self.add(
+            cidfont_id,
+            format!(
+                "<< /Type /Font /Subtype {cid_subtype} /BaseFont /{base_font_name} \
+               /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> \
+               /FontDescriptor {font_descriptor_id} 0 R \
+               /DW 500 \
+               /W [{widths}] >>"
+            ),
+        );
+
+        // FontDescriptor — P760/P1051: métricas reais da fonte embutida
+        let full_face = ttf_parser::Face::parse(font_data, 0).ok();
+        let fd = full_face
+            .as_ref()
+            .or(subset_face.as_ref())
+            .map(font_descriptor_metrics)
+            .unwrap_or_default();
+        // **P941** — fontes 100% bitmap (CBDT) não são embutidas: o descritor
+        // não referencia `/FontFile` e o stream da fonte é um objecto vazio.
+        // Os glifos são desenhados como imagens XObject (ver `bitmap_glyphs.rs`).
+        let font_file_entry = if bitmap_only {
+            String::new()
+        } else {
+            format!("{font_file_key} {font_stream_id} 0 R")
+        };
+        self.add(
+            font_descriptor_id,
+            format!(
+                "<< /Type /FontDescriptor /FontName /{base_font_name} \
+               /Flags 32 \
+               /FontBBox [{:.5} {:.5} {:.5} {:.5}] \
+               /ItalicAngle {:.5} /Ascent {:.5} /Descent {:.5} \
+               /CapHeight {:.5} /StemV 80 \
+               {font_file_entry} >>",
+                fd.font_bbox[0],
+                fd.font_bbox[1],
+                fd.font_bbox[2],
+                fd.font_bbox[3],
+                fd.italic_angle,
+                fd.ascent,
+                fd.descent,
+                fd.cap_height
+            ),
+        );
+
+        // Font data stream — P516: usa subset se possível, senão fonte completa.
+        // P560: stream subtype TrueType (CIDFontType2) ou CFF (CIDFontType0C).
+        // P883: comprime com FlateDecode para aproximar o tamanho do vanilla.
+        // P941: fontes 100% bitmap não embutem a fonte — objecto vazio para
+        // manter a numeração do xref (não é referenciado pelo descritor).
+        if bitmap_only {
+            self.add_bytes(
+                font_stream_id,
+                b"<< /Length 0 >>\nstream\n\nendstream".to_vec(),
+            );
+        } else {
+            self.add_bytes(
+                font_stream_id,
+                build_font_stream(stream_subtype, font_stream_data),
+            );
+        }
+
+        // ToUnicode CMap stream
+        let cmap = to_unicode_cmap(&to_unicode_mappings);
+        let cmap_len = cmap.len();
+        let mut cmap_obj = format!("<< /Length {cmap_len} >>\nstream\n").into_bytes();
+        cmap_obj.extend_from_slice(&cmap);
+        cmap_obj.extend_from_slice(b"\nendstream");
+        self.add_bytes(to_unicode_id, cmap_obj);
+
+        // **P777** — emitir perfil ICC sRGB partilhado antes dos JPEGs RGB.
+        // **P1477** — perfil selecionado pela versão efetiva do PDF.
+        if let Some(id) = icc_profile_id {
+            self.add_bytes(
+                id,
+                build_icc_profile_stream(srgb_icc_profile_for_version(
+                    self.standard.version,
+                )),
+            );
+        }
+
+        self.emit_image_xobjects(img_xobjects);
+
+        // P263 — Emit gradient objects.
+        let page_dimensions: Vec<(f64, f64)> =
+            doc.pages.iter().map(|p| (p.width, p.height)).collect();
+        self.emit_gradient_objects(
+            grad_objs,
+            &page_dimensions,
+            &mut next_sub_id,
+            icc_profile_id,
+        );
+
+        // **P1477** — `/CIDSet` no `/FontDescriptor`, universal para toda
+        // CIDFont com `/FontFile*` embutido (não gated a `standard`).
+        // Alocado dinamicamente (mesmo padrão de P1475/P1476) DEPOIS de
+        // todos os objectos de ID fixo desta fonte (stream/ToUnicode/ICC/
+        // imagens/gradientes) já terem sido adicionados: `font_stream_id`
+        // é o ID fixo seguinte a `font_descriptor_id`, logo alocar
+        // dinamicamente logo após `self.add(font_descriptor_id, ...)`
+        // colidiria com ele.
+        if !bitmap_only {
+            let cids: HashSet<u16> = if !glyph_mapping.is_empty() {
+                glyph_mapping.values().copied().collect()
+            } else {
+                all_glyph_ids.iter().copied().collect()
+            };
+            let cidset_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
+            self.add_bytes(cidset_id, build_cidset_stream(&cids));
+            if let Some((_, content)) =
+                self.objects.iter_mut().find(|(id, _)| *id == font_descriptor_id)
+            {
+                insert_pdf_dict_entry(content, &format!(" /CIDSet {cidset_id} 0 R"));
+            }
+        }
+
+        self.emit_link_annotations(doc);
+        self.emit_named_destinations(doc);
+        self.emit_attachments(doc);
+        self.emit_outlines(doc);
+        self.emit_info(doc);
+        self.emit_pdfa_output_intent();
+        self.emit_xmp_metadata(doc);
+        self.emit_tag_structure(doc);
+        self.emit_pdfua_viewer_preferences();
+        self.emit_page_labels(doc);
+        let subset_ms = self.subset_ms;
+        (self.serialize(), subset_ms)
+    }
+
+    // ── Caminho Multi-font (Passo 146, ADR-0055 decisão 5) ───────────────────
+
+    pub(in crate::export) fn build_multifont(
+        mut self,
+        doc: &PagedDocument,
+        fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+        faces: &[Face<'_>],
+    ) -> (Vec<u8>, f64) {
+        // **P1468** — ver nota equivalente em `build_helvetica`.
+        let pic = PageIndexConverter::new(doc.pages.len(), self.pages.as_ref());
+        let n_pages = pic.exported_count();
+        let n_fonts = fonts.len();
+        let first_page = 3usize;
+        let first_stream = first_page + n_pages;
+        // Cada font ocupa 5 IDs consecutivos: type0, cidfont, descriptor,
+        // font_stream, to_unicode. Type0 é o "/Fn" referenciado no resource.
+        let fonts_start = first_stream + n_pages;
+
+        // **P777** — reservar ID do perfil ICC sRGB partilhado se houver JPEGs RGB.
+        // **P956** — em modo verbose o ICC é embutido SEMPRE, alocado DEPOIS
+        // dos objectos de fonte (mesma posição da convenção P777).
+        let verbose = self.stream_mode == StreamMode::Verbose;
+        let needs_icc = has_rgb_jpeg(doc) || verbose;
+        let icc_profile_id =
+            if needs_icc { Some(fonts_start + 5 * n_fonts) } else { None };
+        let first_img_id = fonts_start + 5 * n_fonts + if needs_icc { 1 } else { 0 };
+
+        // Codepoints + glyph mappings por font. Cada font tem o seu
+        // mapping (chars partilhados; gids específicos da face).
+        let mut chars = collect_codepoints(doc);
+        let text_chars = collect_text_codepoints(doc);
+        chars.extend(text_chars.iter().copied());
+        let glyph_ids = collect_glyph_ids(doc);
+        // P520 — glifos reais do shaper (ligatures) mapeados para o primeiro
+        // caractere do cluster. Prioridade idêntica a build_cidfont.
+        let shaped_mappings = collect_shaped_glyph_mappings(doc);
+        // P675 — colectar textos shaped uma única vez e partilhar entre fontes,
+        // em vez de percorrer o documento N vezes (uma por fonte).
+        let shaped_cluster_texts = collect_shaped_cluster_texts(doc);
+        let mut per_font_mappings: Vec<Vec<(u16, String)>> = Vec::with_capacity(n_fonts);
+        let mut per_font_char_to_gid: Vec<HashMap<char, u16>> =
+            Vec::with_capacity(n_fonts);
+        let mut per_font_widths: Vec<String> = Vec::with_capacity(n_fonts);
+        let mut per_font_embed_data: Vec<Vec<u8>> = Vec::with_capacity(n_fonts);
+        let mut per_font_glyph_mapping: Vec<HashMap<u16, u16>> =
+            Vec::with_capacity(n_fonts);
+        let mut per_font_glyph_to_nominal: Vec<HashMap<u16, i32>> =
+            Vec::with_capacity(n_fonts);
+        // **P906** — mapa reverso glyph_id→char por fonte, partilhado com
+        // `emit_glyph_pdf` (`FontScenario::Multifont::per_font_glyph_reverse`)
+        // para seleccionar `/Fn` correcto de `FrameItem::Glyph` — mesmo
+        // `build_math_glyph_reverse_map` já computado abaixo para o
+        // subsetting DEBT-9/P45, só também guardado aqui. Ver
+        // `export/stream.md` §P906.
+        let mut per_font_glyph_reverse: Vec<HashMap<u16, char>> =
+            Vec::with_capacity(n_fonts);
+        for face in faces {
+            let mut mappings = map_chars_to_glyphs(face, &chars);
+
+            // P568 — incluir glyphs de FrameItem::Text para que espaços e outros
+            // caracteres do caminho fallback sejam subsetados.
+            let mut extended_glyph_ids = glyph_ids.clone();
+            for &c in &text_chars {
+                if let Some(gid) = face.glyph_index(c) {
+                    extended_glyph_ids.insert(gid.0);
+                }
+            }
+
+            let font_index = per_font_mappings.len();
+            let (font_list, font_variant, font_variations) = &fonts[font_index].0;
+            let font_bytes = &fonts[font_index].1;
+            // P836 — eixos fundidos (derivados de `FontVariant` + explícitos
+            // de `#text(variations:)`): a instanciação embute a fonte nas
+            // coordenadas pedidas, não só nos avanços do shaper.
+            let axis_vars = merge_explicit_variations(
+                axis_variations_for_font_variant(font_variant),
+                font_variations,
+            );
+
+            // Adicionar glifos variantes de tamanho matemático
+            // (Passo 45, DEBT-9) — mesmo tratamento que `build_cidfont`.
+            let glyph_reverse = build_math_glyph_reverse_map(face);
+            let existing_gids: BTreeSet<u16> =
+                mappings.iter().map(|(_, gid)| *gid).collect();
+            for &gid in &glyph_ids {
+                if !existing_gids.contains(&gid) {
+                    if let Some(&c) = glyph_reverse.get(&gid) {
+                        mappings.push((c, gid));
+                    }
+                }
+            }
+            per_font_glyph_reverse.push(glyph_reverse);
+
+            // P516 — subsetting por fonte.
+            // P520: shaped glyphs (ligatures) têm prioridade no char_to_old_gid.
+            // P874 — shaped_mappings contém glifos de TODAS as fontes; só
+            // incluir os que pertencem à face actual.
+            let n_glyphs = face.number_of_glyphs();
+            let mut char_to_old_gid: std::collections::BTreeMap<char, u16> =
+                mappings.iter().copied().collect();
+            for (&old_gid, &ch) in &shaped_mappings {
+                if old_gid < n_glyphs {
+                    char_to_old_gid.insert(ch, old_gid);
+                }
+            }
+
+            // P874 — `glyph_ids` contém glyph IDs de todas as fontes do
+            // documento. Filtrar para o range válido desta face antes de
+            // subsetar, senão o subsetter rejeita a fonte como MalformedFont.
+            let face_glyph_ids: BTreeSet<u16> =
+                glyph_ids.iter().copied().filter(|&gid| gid < n_glyphs).collect();
+
+            let (embed_data, glyph_mapping) = match self.measure_subset(
+                font_bytes,
+                &char_to_old_gid,
+                &face_glyph_ids,
+            ) {
+                Some(FontSubset { data, mapping }) => {
+                    if Face::parse(&data, 0).is_ok() {
+                        (data, mapping)
+                    } else {
+                        (font_bytes.clone(), HashMap::new())
+                    }
+                }
+                None => (font_bytes.clone(), HashMap::new()),
+            };
+
+            // P530 — instanciar estaticamente a VF se a combinação usar um
+            // peso/estilo diferente do default. A instanciação é feita depois
+            // do subsetting para operar sobre uma fonte pequena (P529).
+            // `axis_vars` já calculado acima (P772u, usado também para
+            // `glyph_to_nominal`, abaixo).
+            let mut instancing_applied = false;
+            let embed_data = if !axis_vars.is_empty() {
+                let axis_tuples: Vec<(ttf_parser::Tag, f32)> =
+                    axis_vars.iter().map(|v| (v.tag, v.value)).collect();
+                match instantiate_variable_font(&embed_data, &axis_tuples) {
+                    Some(instanced) => {
+                        instancing_applied = true;
+                        instanced
+                    }
+                    None => {
+                        // Se o instancer falhar (ex.: Python/fontTools ausente),
+                        // mantém o subset default com aviso.
+                        eprintln!(
+                            "Aviso: falha ao instanciar fonte variável para {:?}/{:?}; \
+                             a usar instância default.",
+                            font_list, font_variant
+                        );
+                        embed_data
+                    }
+                }
+            } else {
+                embed_data
+            };
+
+            // **P772u** — `glyph_to_nominal` (baseline do delta TJ, P520) tem de
+            // usar a MESMA face/instância que `/W` (`widths_array`, abaixo, que lê
+            // de `embed_data` pós-instanciação). Antes desta correcção,
+            // `glyph_to_nominal` lia sempre `face` sem variação (peso por
+            // omissão), enquanto `/W` já usava a face instanciada (peso correcto)
+            // quando a instanciação tinha sucesso — o delta TJ media a variação
+            // de peso como se fosse kerning, e o avanço real do renderer somava
+            // a variação **duas vezes** (confirmado por instrumentação: delta TJ
+            // bate exactamente com `nominal_default - x_advance_variado` para
+            // todos os glifos de "Weight" a wght=800 — causa real do colapso de
+            // espaço entre palavras em Cantarell-VF/CFF2/HVAR a pesos altos, ver
+            // `paridade-producao-p772u.md`). Só aplicar a variação aqui quando
+            // `instancing_applied` — se a instanciação falhou (fallback Python/
+            // fontTools ausente), `/W` fica na instância por omissão e
+            // `glyph_to_nominal` tem de ficar consistente com ela (mesma
+            // instância dos dois lados, mesmo que "errada").
+            let mut glyph_to_nominal: HashMap<u16, i32> = HashMap::new();
+            {
+                let mut nominal_face = face.clone();
+                if instancing_applied {
+                    for v in &axis_vars {
+                        nominal_face.set_variation(v.tag, v.value);
+                    }
+                }
+                for &gid in
+                    extended_glyph_ids.iter().chain(mappings.iter().map(|(_, gid)| gid))
+                {
+                    let adv = nominal_face
+                        .glyph_hor_advance(ttf_parser::GlyphId(gid))
+                        .unwrap_or(0) as i32;
+                    glyph_to_nominal.insert(gid, adv);
+                }
+            }
+
+            if !glyph_mapping.is_empty() {
+                for (_, old_gid) in mappings.iter_mut() {
+                    *old_gid = remap_glyph_id(*old_gid, &glyph_mapping);
+                }
+            }
+
+            // P521 — ToUnicode/widths a partir dos glifos reais do shaper,
+            // reconstruindo o texto completo de cada cluster.
+            let mut to_unicode_mappings: Vec<(u16, String)> = Vec::new();
+            let mut seen_to_unicode_gids: HashSet<u16> = HashSet::new();
+            if !glyph_mapping.is_empty() {
+                for &(old_gid, ref hex) in &shaped_cluster_texts {
+                    let new_gid = remap_glyph_id(old_gid, &glyph_mapping);
+                    if new_gid != 0 && seen_to_unicode_gids.insert(new_gid) {
+                        to_unicode_mappings.push((new_gid, hex.clone()));
+                    }
+                }
+            }
+            for &(ch, new_gid) in &mappings {
+                if new_gid != 0 && seen_to_unicode_gids.insert(new_gid) {
+                    to_unicode_mappings.push((new_gid, char_to_utf16_hex(ch)));
+                }
+            }
+
+            let subset_face = Face::parse(&embed_data, 0).ok();
+            let face_for_widths = subset_face.as_ref().unwrap_or(face);
+            let char_to_gid: HashMap<char, u16> = mappings.iter().copied().collect();
+            let widths = widths_array(face_for_widths, &to_unicode_mappings);
+            per_font_mappings.push(to_unicode_mappings);
+            per_font_char_to_gid.push(char_to_gid);
+            per_font_widths.push(widths);
+            per_font_embed_data.push(embed_data);
+            per_font_glyph_mapping.push(glyph_mapping);
+            per_font_glyph_to_nominal.push(glyph_to_nominal);
+        }
+
+        // **P941** — glifos bitmap (CBDT) como imagens XObject, por fonte.
+        let per_font_used = per_font_used_glyphs(doc, fonts, faces);
+        let per_font_bitmap_glyphs: Vec<
+            HashMap<u16, crate::export::bitmap_glyphs::BitmapGlyph>,
+        > = faces
+            .iter()
+            .enumerate()
+            .map(|(fi, face)| {
+                crate::export::bitmap_glyphs::collect_bitmap_glyphs_for_ids(
+                    &per_font_used[fi],
+                    face,
+                )
+            })
+            .collect();
+        let per_font_bitmap_only: Vec<bool> = per_font_used
+            .iter()
+            .zip(&per_font_bitmap_glyphs)
+            .map(|(used, bmp)| {
+                !used.is_empty() && used.iter().all(|gid| bmp.contains_key(gid))
+            })
+            .collect();
+
+        let (img_refs, ptr_to_idx, mut img_xobjects) =
+            scan_all_images(doc, first_img_id, icc_profile_id);
+
+        // P263 — gradient pre-pass.
+        let first_grad_id = first_img_id + img_xobjects.len() * 2 + 100;
+        let (pat_refs, pat_ptr_to_idx, grad_objs) =
+            scan_all_gradients(doc, first_grad_id);
+        let n_grads = grad_objs.len();
+        let mut next_sub_id = first_grad_id + n_grads * 3;
+
+        // **P941** — XObjects de glifos bitmap (dedup por glyph id, por fonte),
+        // IDs na zona livre depois dos gradientes.
+        let mut next_bitmap_id = next_sub_id;
+        let mut bitmap_name_counter = img_refs.len() + 1;
+        let mut per_font_bitmap: Vec<
+            Option<HashMap<u16, crate::export::bitmap_glyphs::BitmapGlyphRef>>,
+        > = Vec::with_capacity(n_fonts);
+        let mut bitmap_xobjects: Vec<ImageXObject> = Vec::new();
+        let mut bitmap_res_entries: Vec<String> = Vec::new();
+        for (fi, bmp_map) in per_font_bitmap_glyphs.iter().enumerate() {
+            if !per_font_bitmap_only[fi] {
+                per_font_bitmap.push(None);
+                continue;
+            }
+            let mut refs: HashMap<u16, crate::export::bitmap_glyphs::BitmapGlyphRef> =
+                HashMap::new();
+            for (gid, bmp) in bmp_map {
+                let smask_id = if bmp.payload.alpha_data_compressed.is_some() {
+                    let id = next_bitmap_id;
+                    next_bitmap_id += 1;
+                    Some(id)
+                } else {
+                    None
+                };
+                let main_id = next_bitmap_id;
+                next_bitmap_id += 1;
+                let name = format!("Im{}", bitmap_name_counter);
+                bitmap_name_counter += 1;
+                refs.insert(
+                    *gid,
+                    crate::export::bitmap_glyphs::BitmapGlyphRef {
+                        name: name.clone(),
+                        width: bmp.payload.width,
+                        height: bmp.payload.height,
+                        bearing_x: bmp.bearing_x,
+                        bearing_y: bmp.bearing_y,
+                        pixels_per_em: bmp.pixels_per_em,
+                    },
+                );
+                bitmap_res_entries.push(format!("/{name} {main_id} 0 R"));
+                bitmap_xobjects.push(ImageXObject::Png {
+                    payload: bmp.payload.clone(),
+                    main_obj_id: main_id,
+                    smask_obj_id: smask_id,
+                });
+            }
+            per_font_bitmap.push(Some(refs));
+        }
+        img_xobjects.extend(bitmap_xobjects);
+        next_sub_id = next_bitmap_id;
+
+        self.add(1, "<< /Type /Catalog /Pages 2 0 R >>".into());
+
+        let kids = (first_page..first_page + n_pages)
+            .map(|i| format!("{i} 0 R"))
+            .collect::<Vec<_>>()
+            .join(" ");
+        self.add(2, format!("<< /Type /Pages /Kids [{kids}] /Count {n_pages} >>"));
+
+        for (i, page) in doc.pages.iter().enumerate() {
+            // **P1468** — página excluída pela seleção: não emitir.
+            let Some(new_i) = pic.new_index(i) else { continue };
+            let page_id = first_page + new_i;
+            let stream_id = first_stream + new_i;
+            let w = super::pdf_canvas_extent(page.width);
+            let h = super::pdf_canvas_extent(page.height);
+
+            let xobj_res = merge_bitmap_xobjects(
+                xobject_resources_for_page(page, &ptr_to_idx, &img_refs),
+                &bitmap_res_entries,
+            );
+            let pat_res = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
+            let font_entries = (0..n_fonts)
+                .map(|fi| {
+                    let type0_id = fonts_start + 5 * fi;
+                    format!("/F{} {} 0 R", fi + 1, type0_id)
+                })
+                .collect::<Vec<_>>()
+                .join(" ");
+            // **P956** — verbose: `/c0` (sRGB ICCBased) nos recursos da página.
+            let cs_res = colorspace_resource_entry(verbose, icc_profile_id, page);
+            let resources_str =
+                format!("/Font << {font_entries} >> {xobj_res} {pat_res}{cs_res}");
+
+            self.add(
+                page_id,
+                format!(
+                    "<< /Type /Page /Parent 2 0 R \
+/MediaBox [0 0 {} {}] \
+                   /Contents {stream_id} 0 R \
+                   /Resources << {resources_str} >> >>",
+                    format_dim(w),
+                    format_dim(h)
+                ),
+            );
+
+            let ctx = PageContext::multifont(
+                &ptr_to_idx,
+                &img_refs,
+                &pat_ptr_to_idx,
+                &pat_refs,
+                fonts,
+                &per_font_char_to_gid,
+                &per_font_glyph_mapping,
+                &per_font_glyph_to_nominal,
+                &per_font_glyph_reverse,
+                &per_font_bitmap,
+                self.stream_mode,
+            )
+            .with_pdf_tags(
+                self.pdf_tags,
+                page,
+                matches!(self.standard.accessibility, Some(PdfAccessibility::Ua1)),
+            )
+            .with_oracle(self.oracle);
+            let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
+            // P884 — content stream comprimido com FlateDecode quando rentável.
+            let stream_object = self.serialize_page_stream(&stream_bytes);
+            self.add_bytes(stream_id, stream_object);
+        }
+
+        // Emit objectos por font (5 cada).
+        for (fi, _) in fonts.iter().enumerate() {
+            let font_data = &per_font_embed_data[fi];
+            let type0_id = fonts_start + 5 * fi;
+            let cidfont_id = type0_id + 1;
+            let descriptor_id = type0_id + 2;
+            let stream_id = type0_id + 3;
+            let to_unicode_id = type0_id + 4;
+            let widths = &per_font_widths[fi];
+            let mappings = &per_font_mappings[fi];
+            let glyph_mapping = &per_font_glyph_mapping[fi];
+            // **P950** — base é o nome REAL da fonte (tabela `name`), não o
+            // genérico `CrystallineFont{N}`; prefixo determinístico mantém-se.
+            let fallback_name = format!("CrystallineFont{}", fi + 1);
+            let real_base = real_base_name(font_data, &fallback_name);
+            let name = if glyph_mapping.is_empty() {
+                real_base
+            } else {
+                subset_font_name(&real_base, font_data)
+            };
+
+            // P560 — descritor PDF e bytes conforme o tipo de fonte (TrueType vs CFF/OpenType).
+            let (cid_subtype, font_file_key, stream_subtype, font_stream_data) =
+                font_embedding_data(font_data);
+
+            // Type0
+            self.add(
+                type0_id,
+                format!(
+                    "<< /Type /Font /Subtype /Type0 /BaseFont /{name} \
+                   /Encoding /Identity-H \
+                   /DescendantFonts [{cidfont_id} 0 R] \
+                   /ToUnicode {to_unicode_id} 0 R >>"
+                ),
+            );
+
+            // CIDFont
+            self.add(cidfont_id, format!(
+                "<< /Type /Font /Subtype {cid_subtype} /BaseFont /{name} \
+                   /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> \
+                   /FontDescriptor {descriptor_id} 0 R \
+                   /DW 500 \
+                   /W [{widths}] >>"
+            ));
+
+            // P1051 — métricas reais da face para /FontDescriptor no caminho multi-font
+            let face_parsed = Face::parse(font_data, 0).ok();
+            let face_to_use = faces.get(fi).or(face_parsed.as_ref());
+            let fd = face_to_use.map(font_descriptor_metrics).unwrap_or_default();
+
+            // **P941** — fontes 100% bitmap (CBDT) não são embutidas: o
+            // descritor não referencia `/FontFile` e o stream é um objecto
+            // vazio. Os glifos são desenhados como imagens XObject.
+            let font_file_entry = if per_font_bitmap_only[fi] {
+                String::new()
+            } else {
+                format!("{font_file_key} {stream_id} 0 R")
+            };
+            self.add(
+                descriptor_id,
+                format!(
+                    "<< /Type /FontDescriptor /FontName /{name} \
+                   /Flags 32 \
+                   /FontBBox [{:.5} {:.5} {:.5} {:.5}] \
+                   /ItalicAngle {:.5} /Ascent {:.5} /Descent {:.5} \
+                   /CapHeight {:.5} /StemV 80 \
+                   {font_file_entry} >>",
+                    fd.font_bbox[0],
+                    fd.font_bbox[1],
+                    fd.font_bbox[2],
+                    fd.font_bbox[3],
+                    fd.italic_angle,
+                    fd.ascent,
+                    fd.descent,
+                    fd.cap_height
+                ),
+            );
+
+            // Font data stream — P516: usa subset se possível, senão fonte completa.
+            // P560: stream subtype TrueType (CIDFontType2) ou CFF (CIDFontType0C).
+            // P883: comprime com FlateDecode para aproximar o tamanho do vanilla.
+            // P941: fontes 100% bitmap não embutem a fonte — objecto vazio para
+            // manter a numeração do xref (não é referenciado pelo descritor).
+            if per_font_bitmap_only[fi] {
+                self.add_bytes(
+                    stream_id,
+                    b"<< /Length 0 >>\nstream\n\nendstream".to_vec(),
+                );
+            } else {
+                self.add_bytes(
+                    stream_id,
+                    build_font_stream(stream_subtype, font_stream_data),
+                );
+            }
+
+            // ToUnicode CMap
+            let cmap = to_unicode_cmap(mappings);
+            let cmap_len = cmap.len();
+            let mut cmap_obj = format!("<< /Length {cmap_len} >>\nstream\n").into_bytes();
+            cmap_obj.extend_from_slice(&cmap);
+            cmap_obj.extend_from_slice(b"\nendstream");
+            self.add_bytes(to_unicode_id, cmap_obj);
+        }
+
+        // **P777** — emitir perfil ICC sRGB partilhado antes dos JPEGs RGB.
+        // **P1477** — perfil selecionado pela versão efetiva do PDF.
+        if let Some(id) = icc_profile_id {
+            self.add_bytes(
+                id,
+                build_icc_profile_stream(srgb_icc_profile_for_version(
+                    self.standard.version,
+                )),
+            );
+        }
+
+        self.emit_image_xobjects(img_xobjects);
+
+        // P263 — Emit gradient objects.
+        let page_dimensions: Vec<(f64, f64)> =
+            doc.pages.iter().map(|p| (p.width, p.height)).collect();
+        self.emit_gradient_objects(
+            grad_objs,
+            &page_dimensions,
+            &mut next_sub_id,
+            icc_profile_id,
+        );
+
+        // **P1477** — `/CIDSet` no `/FontDescriptor` de cada fonte embutida
+        // (mesmo raciocínio de `build_cidfont`, ver comentário lá). Segunda
+        // passagem por `fonts` DEPOIS de todos os objectos de ID fixo (fontes/
+        // ICC/imagens/gradientes) já terem sido adicionados, para a alocação
+        // dinâmica (`self.objects.max()+1`) não colidir com `stream_id`
+        // (o ID fixo seguinte a `descriptor_id` dentro do loop acima).
+        for (fi, _) in fonts.iter().enumerate() {
+            if per_font_bitmap_only[fi] {
+                continue;
+            }
+            let descriptor_id = fonts_start + 5 * fi + 2;
+            let glyph_mapping = &per_font_glyph_mapping[fi];
+            let cids: HashSet<u16> = if !glyph_mapping.is_empty() {
+                glyph_mapping.values().copied().collect()
+            } else {
+                let n_glyphs = faces[fi].number_of_glyphs();
+                glyph_ids.iter().copied().filter(|&gid| gid < n_glyphs).collect()
+            };
+            let cidset_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
+            self.add_bytes(cidset_id, build_cidset_stream(&cids));
+            if let Some((_, content)) =
+                self.objects.iter_mut().find(|(id, _)| *id == descriptor_id)
+            {
+                insert_pdf_dict_entry(content, &format!(" /CIDSet {cidset_id} 0 R"));
+            }
+        }
+
+        self.emit_link_annotations(doc);
+        self.emit_named_destinations(doc);
+        self.emit_attachments(doc);
+        self.emit_outlines(doc);
+        self.emit_info(doc);
+        self.emit_pdfa_output_intent();
+        self.emit_xmp_metadata(doc);
+        self.emit_tag_structure(doc);
+        self.emit_pdfua_viewer_preferences();
+        self.emit_page_labels(doc);
+        let subset_ms = self.subset_ms;
+        (self.serialize(), subset_ms)
+    }
+}

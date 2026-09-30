@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/oracle.md
-//! @prompt-hash fe541492
+//! @prompt-hash dfd06840
 //! @layer L3
 //! @updated 2026-08-05
 //!

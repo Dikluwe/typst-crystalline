@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/mod.md
-//! @prompt-hash c27be96f
+//! @prompt-hash efb5549b
 //! @layer L3
 //! @updated 2026-09-22
 //!
@@ -8622,7 +8622,7 @@ fn p285_underline_herda_fill_do_texto_quando_stroke_none() {
     let inner = Content::underline(Content::text("h"), None, None, None);
     let mut style = TextStyle::default();
     style.fill = Some(Color::rgb(255, 0, 0));
-    let styled = Content::Styled(
+    let styled = Content::styled(
         Box::new(inner),
         Styles::from_iter([Style::Fill(Color::rgb(255, 0, 0))]),
     );

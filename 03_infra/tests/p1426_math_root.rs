@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/tests/p1426-tests.md
-//! @prompt-hash 3ca78f47
+//! @prompt-hash c95fdeb1
 //! @layer L3
 //!
 //! Testes independentes da superfície pública bilateral `math.root` P1426.

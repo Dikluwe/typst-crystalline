@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/integration_tests.md
-//! @prompt-hash 268c6a32
+//! @prompt-hash 666ace2b
 //! @layer L3
-//! @updated 2026-04-03 (Passo 34)
+//! @updated 2026-09-28
 
 /// Testes de integração: pipeline completo via SystemWorld real.
 ///
@@ -51,7 +51,7 @@ mod integration {
 
             let mut projected = item.clone();
             match &mut projected {
-                FrameItem::Text { pos, .. }
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
                 | FrameItem::TextShaped { pos, .. }
                 | FrameItem::Glyph { pos, .. }
                 | FrameItem::Image { pos, .. }
@@ -62,7 +62,7 @@ mod integration {
                     *start = project_point(transform, *start);
                     *end = project_point(transform, *end);
                 }
-                FrameItem::Semantic { .. } => {}
+                FrameItem::TextReplacement { .. } | FrameItem::Semantic { .. } => {}
             }
 
             // O helper preserva a API histórica de referências usada pela
@@ -79,7 +79,7 @@ mod integration {
             for item in items {
                 out.push(project_item(item, transform));
                 match item {
-                    FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
+                    FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
                         walk(items, transform, out)
                     }
                     FrameItem::Group { pos, matrix, items, .. } => {
@@ -2106,13 +2106,13 @@ mod integration {
     ) -> typst_core::entities::layout_types::Point {
         use typst_core::entities::layout_types::FrameItem;
         match item {
-            FrameItem::Text { pos, .. } => *pos,
+            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => *pos,
             FrameItem::TextShaped { pos, .. } => *pos,
             FrameItem::Line { start, .. } => *start,
             FrameItem::Glyph { pos, .. } => *pos,
             FrameItem::Image { pos, .. } => *pos,
             FrameItem::Shape { pos, .. } => *pos,
-            FrameItem::Semantic { items, .. } => items
+            FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items
                 .first()
                 .map(frame_item_pos)
                 .expect("Semantic inspecionado deve conter ao menos um filho visual"),
@@ -2820,16 +2820,17 @@ mod integration {
 
     // ── Passo 107 (encerra DEBT-49): warnings reais de #set ────────────
 
-    /// Propriedade `hyphenate` em `#set text(...)` não está
+    /// Propriedade `stroke` em `#set text(...)` não está
     /// implementada — emite warning com mensagem específica.
     ///
     /// Passo 132B (ADR-0053): canary DEBT-50 migrou de `font`
-    /// para `hyphenate` porque `font` passou a ser capturado
+    /// para hyphenate; agora usa `stroke`, pois hyphenate é capturado.
+    /// `font` passou a ser capturado
     /// via `FontList`. Teste renomeado de
     /// `debt49_set_text_font_emite_warning`.
     #[test]
-    fn debt49_set_text_hyphenate_emite_warning() {
-        let (world, _dir) = world_from_str(r#"#set text(hyphenate: true)"#);
+    fn debt49_set_text_stroke_emite_warning() {
+        let (world, _dir) = world_from_str(r#"#set text(stroke: 1pt)"#);
         let source = world.source(world.main()).unwrap();
 
         let (result, warnings) = do_eval_with_sink(&world, &source);
@@ -2837,13 +2838,13 @@ mod integration {
         assert_eq!(
             warnings.len(),
             1,
-            "esperado 1 warning para propriedade 'hyphenate'; obteve {}: {:?}",
+            "esperado 1 warning para propriedade 'stroke'; obteve {}: {:?}",
             warnings.len(),
             warnings.iter().map(|d| &d.message).collect::<Vec<_>>()
         );
         assert!(
-            warnings[0].message.contains("'hyphenate'"),
-            "mensagem deve identificar a propriedade 'hyphenate'; obteve: {:?}",
+            warnings[0].message.contains("'stroke'"),
+            "mensagem deve identificar a propriedade 'stroke'; obteve: {:?}",
             warnings[0].message
         );
         assert!(
@@ -2900,14 +2901,14 @@ mod integration {
     #[test]
     fn debt49_set_text_multiplas_propriedades_desconhecidas() {
         let (world, _dir) =
-            world_from_str(r#"#set text(hyphenate: true, baseline: 3pt, stroke: 1pt)"#);
+            world_from_str(r#"#set text(kerning: false, baseline: 3pt, stroke: 1pt)"#);
         let source = world.source(world.main()).unwrap();
 
         let (_result, warnings) = do_eval_with_sink(&world, &source);
         assert_eq!(
             warnings.len(),
             3,
-            "esperado 3 warnings (hyphenate, baseline, stroke); obteve {}: {:?}",
+            "esperado 3 warnings (kerning, baseline, stroke); obteve {}: {:?}",
             warnings.len(),
             warnings.iter().map(|d| &d.message).collect::<Vec<_>>()
         );
@@ -2916,7 +2917,7 @@ mod integration {
             .map(|d| d.message.clone())
             .collect::<Vec<_>>()
             .join("\n");
-        assert!(joined.contains("'hyphenate'"), "faltou 'hyphenate': {}", joined);
+        assert!(joined.contains("'kerning'"), "faltou 'kerning': {}", joined);
         assert!(joined.contains("'baseline'"), "faltou 'baseline': {}", joined);
         assert!(joined.contains("'stroke'"), "faltou 'stroke': {}", joined);
     }
@@ -2975,7 +2976,7 @@ mod integration {
     /// `hyphenate: true`.
     #[test]
     fn debt49_dedup_warnings_identicos() {
-        // Dois `#set text(hyphenate: true)` no mesmo ficheiro. Os spans
+        // Dois `#set text(stroke: 1pt)` no mesmo ficheiro. Os spans
         // são diferentes (linha 1 vs linha 2), por isso dedup não aplica
         // aqui — spans distintos contam como warnings distintos.
         //
@@ -2985,13 +2986,13 @@ mod integration {
         // parsed uma vez por eval). O mecanismo existe no Sink, mas validá-lo
         // requer chamada artificial à API; ver `sink.rs#tests`.
         let (world, _dir) =
-            world_from_str("#set text(hyphenate: true)\n#set text(hyphenate: true)");
+            world_from_str("#set text(stroke: 1pt)\n#set text(stroke: 1pt)");
         let source = world.source(world.main()).unwrap();
 
         let (_result, warnings) = do_eval_with_sink(&world, &source);
         // Dois spans distintos → 2 warnings (não deduplicados).
         assert_eq!(warnings.len(), 2,
-            "#set text(hyphenate) repetido em 2 linhas distintas → 2 warnings (spans diferem); \
+            "#set text(stroke) repetido em 2 linhas distintas → 2 warnings (spans diferem); \
              dedup real validado em tests unitários de Sink");
     }
 
@@ -3569,20 +3570,122 @@ mod integration {
         layout(content)
     }
 
-    fn count_hyphenated_words(
-        doc: &typst_core::entities::layout_types::PagedDocument,
-    ) -> usize {
-        doc.pages
+    #[test]
+    fn composition_pipeline_native_par_boundaries_and_lexical_leading() {
+        use typst_core::entities::layout_types::FrameItem;
+        let doc = build_doc("#set page(width: 140pt, height: 400pt, margin: 8pt)\n#set text(size: 12pt)\nBEFORE #par(leading: 2pt)[MIDDLE] AFTER");
+        let words: Vec<_> = doc
+            .pages
             .iter()
-            .flat_map(|page| frame_items_recursive(&page.items))
-            .filter_map(|i| match i {
-                typst_core::entities::layout_types::FrameItem::Text { text, .. } => {
-                    Some(text.as_str())
+            .flat_map(|p| frame_items_recursive(&p.items))
+            .filter_map(|item| match item {
+                FrameItem::Text { text, pos, .. } if !text.is_empty() => {
+                    Some((text.as_str(), pos))
                 }
                 _ => None,
             })
-            .filter(|t| t.ends_with('-') && t.chars().count() > 1)
-            .count()
+            .collect();
+        assert_eq!(
+            words.iter().map(|p| p.0).collect::<Vec<_>>(),
+            vec!["BEFORE", "MIDDLE", "AFTER"]
+        );
+        assert!(words.windows(2).all(|p| p[1].1.y.0 > p[0].1.y.0));
+        assert!(words.iter().all(|p| (p.1.x.0 - 8.0).abs() < 1e-8));
+        assert!(
+            ((words[1].1.y.0 - words[0].1.y.0) - (words[2].1.y.0 - words[1].1.y.0)).abs()
+                < 1e-8
+        );
+    }
+
+    #[test]
+    fn composition_pipeline_justified_continuation_and_natural_final_line() {
+        use typst_core::entities::layout_types::FrameItem;
+        let settings = "#set page(width: 70pt, height: 400pt, margin: 0pt)\n#set text(size: 12pt, hyphenate: false)\n";
+        let natural =
+            build_doc(&format!("{settings}#set par(justify: false)\naa bb ccccccc"));
+        let justified = build_doc(&format!(
+            "{settings}#set par(justify: true, linebreaks: \"simple\")\naa bb ccccccc"
+        ));
+        let positions = |doc: &typst_core::entities::layout_types::PagedDocument| {
+            doc.pages
+                .iter()
+                .flat_map(|p| frame_items_recursive(&p.items))
+                .filter_map(|item| match item {
+                    FrameItem::Text { text, pos, .. } if !text.is_empty() => {
+                        Some((text.to_string(), *pos))
+                    }
+                    _ => None,
+                })
+                .collect::<Vec<_>>()
+        };
+        let a = positions(&natural);
+        let b = positions(&justified);
+        assert_eq!(
+            a.iter().map(|p| &p.0).collect::<Vec<_>>(),
+            b.iter().map(|p| &p.0).collect::<Vec<_>>()
+        );
+        assert_eq!(b.len(), 3);
+        assert!(b[1].1.x.0 > a[1].1.x.0);
+        assert_eq!(b[0].1.y, b[1].1.y);
+        assert!(b[2].1.y.0 > b[1].1.y.0);
+        assert_eq!(b[2].1.x, a[2].1.x);
+    }
+
+    #[test]
+    fn composition_show_par_overrides_outer_set_with_page_configuration() {
+        let doc=build_doc("#set page(width: 100pt,height: 400pt,margin: 8pt)\n#set text(size: 12pt,lang: \"en\",hyphenate: true)\n#show par: set text(hyphenate: false)\nA extraordinary internationalization representation");
+        assert_eq!(count_hyphenated_words(&doc), 0);
+        let prefix="#set page(width:100pt,height:400pt,margin:8pt)\n#set text(size:12pt,lang:\"en\")\n#show par: set text(hyphenate:false)\n";
+        let whole=build_doc(&format!("{prefix}#text(hyphenate:true)[A extraordinary internationalization representation]"));
+        assert_eq!(count_hyphenated_words(&whole), 0);
+        let inline=build_doc(&format!("{prefix}A #text(hyphenate:true)[extraordinary internationalization representation]"));
+        assert!(count_hyphenated_words(&inline) > 0);
+    }
+
+    fn count_hyphenated_words(
+        doc: &typst_core::entities::layout_types::PagedDocument,
+    ) -> usize {
+        use typst_core::compiler::layout::{FixedMetrics, FontMetrics};
+        use typst_core::entities::layout_types::FrameItem;
+        doc.pages.iter().map(|page| {
+            let items = frame_items_recursive(&page.items);
+            let texts: Vec<_> = items.iter().filter_map(|item| match item {
+                FrameItem::Text { pos, text, style } => Some((pos, text, style)),
+                _ => None,
+            }).collect();
+            texts.iter().filter(|(pos, text, _)| {
+                if text.ends_with('-') && text.chars().count() > 1 {
+                    return true;
+                }
+                text.as_str() == "-" && texts.iter().any(|(before, prefix, style)| {
+                    prefix.chars().last().is_some_and(char::is_alphabetic)
+                        && (before.y.0 - pos.y.0).abs() < 1e-6
+                        && (before.x.0 + FixedMetrics.advance(prefix, style.size, style).0
+                            - pos.x.0).abs() < 1e-6
+                })
+            }).count()
+        }).sum()
+    }
+
+    #[test]
+    fn hyphenation_observer_requires_visible_prefix_adjacency() {
+        for (source, expected) in [("word-", 1), ("word -", 0), ("-", 0),
+            ("word#linebreak()-", 0)] {
+            assert_eq!(count_hyphenated_words(&build_doc(source)), expected, "{source}");
+        }
+        let mut doc = build_doc("word-");
+        use typst_core::entities::layout_types::{FrameItem, Point, Pt};
+        let text = frame_items_recursive(&doc.pages[0].items).into_iter().find_map(|item| {
+            if let FrameItem::Text { pos, text, style } = item {
+                (text.as_str() == "word-").then(|| (*pos, style.clone()))
+            } else { None }
+        }).unwrap();
+        doc.pages[0].items = vec![
+            FrameItem::Text { pos: text.0, text: "word".into(), style: text.1.clone() },
+            FrameItem::Text { pos: Point { x: text.0.x + Pt(4.0 * 0.6 * text.1.size.0),
+                y: text.0.y }, text: "-".into(), style: text.1 },
+        ];
+        assert_eq!(count_hyphenated_words(&doc), 1);
     }
 
     #[test]
@@ -3591,13 +3694,13 @@ mod integration {
         // ~11 chars a 12pt com FixedMetrics 0.6×size) força quebra
         // de palavras longas como "extraordinary".
         let src = "#set page(width: 100pt, height: 400pt, margin: 10pt)\n\
-                   #set text(lang: \"en\")\n\
+                   #set text(lang: \"en\", hyphenate: true)\n\
                    The extraordinary characteristics of this remarkable phenomenon.";
         let doc = build_doc(src);
         let n = count_hyphenated_words(&doc);
         assert!(
             n >= 1,
-            "documento com `lang: \"en\"` em coluna estreita deve produzir \
+            "documento com `lang: \"en\", hyphenate: true` em coluna estreita deve produzir \
              pelo menos 1 palavra com hífen de quebra; encontradas {}",
             n
         );
@@ -3606,16 +3709,31 @@ mod integration {
     #[test]
     fn lang_hyphenation_pt_palavra_longa_quebra_com_hifen() {
         let src = "#set page(width: 100pt, height: 400pt, margin: 10pt)\n\
-                   #set text(lang: \"pt\")\n\
+                   #set text(lang: \"pt\", hyphenate: true)\n\
                    As características extraordinárias deste fenómeno notável.";
         let doc = build_doc(src);
         let n = count_hyphenated_words(&doc);
         assert!(
             n >= 1,
-            "documento com `lang: \"pt\"` em coluna estreita deve produzir \
+            "documento com `lang: \"pt\", hyphenate: true` em coluna estreita deve produzir \
              pelo menos 1 palavra com hífen de quebra; encontradas {}",
             n
         );
+    }
+
+
+    #[test]
+    fn break_policy_integration_hyphenate_follows_lexical_options() {
+        for (mode,justify,expected) in [
+            ("false",true,false), ("true",false,true),
+            ("auto",false,false), ("auto",true,true),
+            ("absent",false,false), ("absent",true,true),
+        ] {
+            let hyphen = if mode == "absent" {String::new()} else {format!(", hyphenate: {mode}")};
+            let source=format!("#set page(width: 100pt, height: 400pt, margin: 10pt)\n#set text(lang: \"en\"{hyphen})\n#set par(justify: {justify})\nThe extraordinary characteristics of this remarkable phenomenon.");
+            let doc=build_doc(&source);
+            assert_eq!(count_hyphenated_words(&doc)>0,expected,"mode={mode}, justify={justify}");
+        }
     }
 
     #[test]
@@ -4731,7 +4849,7 @@ mod integration {
                         equations(x, out);
                     }
                 }
-                Content::Styled(inner, _) => equations(inner, out),
+                Content::Styled(styled) => equations(&styled.body, out),
                 _ => {}
             }
         }
@@ -5688,5 +5806,230 @@ mod integration {
                 ws[0]
             );
         }
+    }
+
+    // Current pinned-vanilla witnesses: these deliberately remain RED until
+    // the respective production owners correct the observable behavior.
+    #[test]
+    fn place_regression_empty_page_keeps_requested_media_box() {
+        let (world, _dir) = world_from_str("#set page(width: 160pt, height: 180pt, margin: 8pt)\n");
+        let source = world.source(world.main()).unwrap();
+        let (result, warnings) = crate::pipeline::compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Disabled,
+        );
+        assert!(warnings.is_empty(), "{warnings:?}");
+        let pdf = result.expect("empty document must still export one page");
+        let text = String::from_utf8_lossy(&pdf);
+        let media_box =
+            Regex::new(r"/MediaBox\s*\[\s*0\s+0\s+160(?:\.0+)?\s+180(?:\.0+)?\s*\]").unwrap();
+        assert!(
+            media_box.is_match(&text),
+            "requested 160 × 180pt page missing from PDF MediaBox"
+        );
+    }
+
+    #[test]
+    fn place_regression_cover_image_keeps_clip_after_translation() {
+        use typst_core::entities::layout_types::FrameItem;
+        let (world, dir) = world_from_str(
+            "#set page(width: 160pt, height: 180pt, margin: 8pt)\n\
+                 #place(top + left, dx: 3pt, dy: 5pt, image(\"tile.png\", width: 80pt, height: 40pt, fit: \"cover\"))\n",
+        );
+        write_png_rgba(dir.path(), "tile.png", vec![0, 0, 255, 255].repeat(4), 2, 2);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("placed image content");
+        let doc = layout(content);
+        let image = frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
+            .find(|item| matches!(item, FrameItem::Image { .. }))
+            .expect("placed image must materialize");
+        let FrameItem::Image { clip_rect, .. } = image else {
+            unreachable!()
+        };
+        let rect = clip_rect.expect("cover image must preserve its translated clip");
+        assert!((rect.x.0 - 11.0).abs() < 0.01, "clip x={}", rect.x.0);
+        assert!((rect.y.0 - 13.0).abs() < 0.01, "clip y={}", rect.y.0);
+        assert!((rect.w.0 - 80.0).abs() < 0.01);
+        assert!((rect.h.0 - 40.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn place_regression_text_baseline_matches_pinned_vanilla_geometry() {
+        use typst_core::entities::layout_types::FrameItem;
+        let (world, _dir) = world_from_str(
+            "#set page(width: 160pt, height: 180pt, margin: 8pt)\n\
+                 #set text(font: \"Libertinus Serif\")\n\
+                 #place(top + left, dx: 3pt, dy: 5pt)[Hello world]\n",
+        );
+        let world = world.with_fonts_and_system(&[]);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("placed text content");
+        let intr = introspect_with_introspector(content);
+        let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
+            content,
+            intr,
+            crate::font_metrics::FallbackFontMetrics::new(&world),
+            crate::image_sizer::ImageSizeImageSizer,
+            11.0,
+        )
+        .expect("placed text must lay out");
+        let baseline = frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
+            .find_map(|item| match item {
+                FrameItem::TextShaped { pos, text, .. } | FrameItem::Text { pos, text, .. }
+                    if text.contains("Hello") =>
+                {
+                    Some(pos.y.0)
+                }
+                _ => None,
+            })
+            .expect("placed text must materialize");
+        // The pinned vanilla PDF positions the baseline at 20.238pt on this
+        // 160 × 180pt fixture; Tekt currently emits it about 7.238pt high.
+        assert!(
+            (baseline - 20.238).abs() < 0.1,
+            "placed baseline={baseline}"
+        );
+    }
+
+    struct PlaceBookObserver<'a> {
+        inner: &'a SystemWorld,
+        calls: std::sync::atomic::AtomicUsize,
+    }
+
+    impl World for PlaceBookObserver<'_> {
+        fn library(&self) -> &typst_core::entities::world_types::Library {
+            self.inner.library()
+        }
+        fn book(&self) -> &typst_core::entities::font_book::FontBook {
+            self.calls
+                .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            self.inner.book()
+        }
+        fn main(&self) -> typst_core::entities::file_id::FileId {
+            self.inner.main()
+        }
+        fn source(
+            &self,
+            id: typst_core::entities::file_id::FileId,
+        ) -> typst_core::entities::world_types::FileResult<Source> {
+            self.inner.source(id)
+        }
+        fn file(
+            &self,
+            id: typst_core::entities::file_id::FileId,
+        ) -> typst_core::entities::world_types::FileResult<typst_core::entities::world_types::Bytes>
+        {
+            self.inner.file(id)
+        }
+        fn font(&self, index: usize) -> Option<typst_core::entities::world_types::Font> {
+            self.inner.font(index)
+        }
+        fn today(
+            &self,
+            offset: Option<typst_core::entities::duration::Duration>,
+        ) -> Option<typst_core::entities::world_types::Datetime> {
+            self.inner.today(offset)
+        }
+        fn resolve_path(
+            &self,
+            id: typst_core::entities::file_id::FileId,
+            path: &str,
+        ) -> Result<typst_core::entities::path::RootedPath, String> {
+            self.inner.resolve_path(id, path)
+        }
+        fn read_path(
+            &self,
+            path: &typst_core::entities::path::RootedPath,
+        ) -> Result<std::sync::Arc<Vec<u8>>, String> {
+            self.inner.read_path(path)
+        }
+        fn include_path(
+            &self,
+            path: &typst_core::entities::path::RootedPath,
+        ) -> Result<Source, String> {
+            self.inner.include_path(path)
+        }
+        fn read_bytes(
+            &self,
+            id: typst_core::entities::file_id::FileId,
+            path: &str,
+        ) -> Result<std::sync::Arc<Vec<u8>>, String> {
+            self.inner.read_bytes(id, path)
+        }
+        fn resolve_package(
+            &self,
+            spec: &typst_core::entities::package_spec::PackageSpec,
+        ) -> Result<Source, String> {
+            self.inner.resolve_package(spec)
+        }
+        fn inputs(&self) -> typst_core::contracts::world::SysInputs {
+            self.inner.inputs()
+        }
+        fn plugin_host(
+            &self,
+        ) -> Option<std::sync::Arc<dyn typst_core::contracts::plugin_host::PluginHost>> {
+            self.inner.plugin_host()
+        }
+        fn candidates_for_char(&self, c: char) -> Vec<usize> {
+            self.inner.candidates_for_char(c)
+        }
+    }
+
+    fn place_nontext_book_calls(body: &str, is_image: bool) -> usize {
+        let (world, dir) = world_from_str(&format!(
+            "#set page(width: 160pt, height: 180pt, margin: 8pt)\n{body}\n"
+        ));
+        if is_image {
+            write_png_rgba(dir.path(), "tile.png", vec![0, 0, 255, 255].repeat(4), 2, 2);
+        }
+        let world = world.with_fonts_and_system(&[]);
+        let observed = PlaceBookObserver {
+            inner: &world,
+            calls: std::sync::atomic::AtomicUsize::new(0),
+        };
+        let source = observed.source(observed.main()).unwrap();
+        let (result, warnings) = crate::pipeline::compile_to_pdf_bytes(
+            &observed,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Disabled,
+        );
+        assert!(warnings.is_empty(), "{warnings:?}");
+        result.expect("nontext control must compile");
+        observed.calls.load(std::sync::atomic::Ordering::Relaxed)
+    }
+
+    #[test]
+    fn place_regression_nontext_shape_does_not_acquire_font_book() {
+        assert_eq!(
+            place_nontext_book_calls("#rect(width: 80pt, height: 40pt, fill: blue)", false),
+            0
+        );
+        assert_eq!(
+            place_nontext_book_calls(
+                "#place(top + left, dx: 3pt, dy: 5pt, rect(width: 80pt, height: 40pt, fill: blue))",
+                false
+            ),
+            0
+        );
+    }
+
+    #[test]
+    fn place_regression_nontext_image_does_not_acquire_font_book() {
+        let image = "image(\"tile.png\", width: 80pt, height: 40pt, fit: \"cover\")";
+        assert_eq!(place_nontext_book_calls(&format!("#{image}"), true), 0);
+        assert_eq!(
+            place_nontext_book_calls(
+                &format!("#place(top + left, dx: 3pt, dy: 5pt, {image})"),
+                true
+            ),
+            0
+        );
     }
 }

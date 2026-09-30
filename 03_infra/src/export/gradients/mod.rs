@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/gradients/mod.md
-//! @prompt-hash 44eb5d9a
+//! @prompt-hash 5c322662
 //! @layer L3
-//! @updated 2026-05-19
+//! @updated 2026-09-28
 //!
 //! Gradient cluster — Linear (P263) + Radial + CMYK (P270.2) +
 //! relative (P273) + Adaptive N (P274) + Conic Coons (P272).
@@ -291,7 +291,7 @@ pub(super) fn scan_all_gradients(
                         counter,
                     );
                 }
-                FrameItem::Semantic { items, .. } => {
+                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
                     walk(
                         items,
                         parent_bbox_override,
@@ -304,7 +304,7 @@ pub(super) fn scan_all_gradients(
                     );
                 }
                 // intencional: texto, linhas, glifos e imagens não contêm gradientes vetoriais de Shape
-                FrameItem::Text { .. }
+                FrameItem::TextSeparator { .. } | FrameItem::Text { .. }
                 | FrameItem::TextShaped { .. }
                 | FrameItem::Line { .. }
                 | FrameItem::Glyph { .. }
@@ -402,11 +402,11 @@ pub(super) fn pattern_resources_for_page(
                         group_bbox_from_fields(*pos, *inner_width, *inner_height);
                     walk(items, Some(group_bbox), ptr_to_idx, refs, entries, seen);
                 }
-                FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
+                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
                     walk(items, parent_bbox_override, ptr_to_idx, refs, entries, seen);
                 }
                 // intencional: texto, linhas, glifos e imagens não definem recursos /Pattern
-                FrameItem::Text { .. }
+                FrameItem::TextSeparator { .. } | FrameItem::Text { .. }
                 | FrameItem::TextShaped { .. }
                 | FrameItem::Line { .. }
                 | FrameItem::Glyph { .. }

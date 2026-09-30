@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/resources.md
-//! @prompt-hash c768ecdc
+//! @prompt-hash d6ff1619
 //! @layer L3
-//! @updated 2026-09-27
+//! @updated 2026-09-28
 //!
 //! Possui coleta ordenada e resolução das fontes do documento, fallback por família, variações explícitas e instanciação de fontes variáveis. Recursa pelos containers e pelas camadas marginais existentes, preservando a chave completa e os diagnósticos vigentes.
 
@@ -22,6 +22,33 @@ pub(super) fn requires_font_instancing(
         .any(|axis| merged.iter().any(|request| request.tag == axis.tag))
 }
 
+/// Shared early dependency gate for every resolved-font export path.
+/// The availability probe is lazy: unknown-axis and static-only requests never
+/// consult Python. The first matching resolved font supplies the diagnostic.
+pub(super) fn missing_font_instancer_diagnostic(
+    resolved: &[FontKey],
+    is_available: impl FnOnce() -> bool,
+) -> Option<SourceDiagnostic> {
+    let ((font_list, _, _), _) = resolved.iter().find(|((_, variant, variations), bytes)| {
+        requires_font_instancing(bytes, variant, variations)
+    })?;
+    if is_available() {
+        return None;
+    }
+    let name = font_list
+        .as_slice()
+        .first()
+        .and_then(|font| font.name.as_str())
+        .unwrap_or("fonte variável");
+    Some(SourceDiagnostic::error(
+        Span::detached(),
+        format!(
+            "fonte variável '{}' requer instanciação, mas Python/fontTools não está disponível",
+            name
+        ),
+    ))
+}
+
 /// Resolve e instancia estaticamente as fontes necessárias para
 /// rasterização PNG / exportação SVG (P870).
 ///
@@ -37,27 +64,10 @@ pub(super) fn resolve_and_instantiate_fonts(
     let combos = collect_fonts_from_doc(doc, world);
     let resolved = resolve_fonts(&combos, world);
 
-    let needs_instancer =
-        resolved.iter().any(|((_, font_variant, variations), bytes)| {
-            requires_font_instancing(bytes, font_variant, variations)
-        });
-    if needs_instancer && !variable_font_instancer_available() {
-        for ((font_list, font_variant, variations), bytes) in &resolved {
-            if requires_font_instancing(bytes, font_variant, variations) {
-                let name = font_list
-                    .as_slice()
-                    .first()
-                    .and_then(|f| f.name.as_str())
-                    .unwrap_or("fonte variável");
-                return Err(SourceDiagnostic::error(
-                    Span::detached(),
-                    format!(
-                        "fonte variável '{}' requer instanciação, mas Python/fontTools não está disponível",
-                        name
-                    ),
-                ));
-            }
-        }
+    if let Some(diag) =
+        missing_font_instancer_diagnostic(&resolved, variable_font_instancer_available)
+    {
+        return Err(diag);
     }
 
     Ok(resolved
@@ -127,7 +137,7 @@ fn collect_fonts_in_items(
 ) {
     for item in items {
         match item {
-            FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
+            FrameItem::TextSeparator { style, .. } | FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
                 if let Some(fl) = &style.font {
                     let variant = text_style_to_font_variant(style);
                     // P836 — variações explícitas (`#text(variations:)`)
@@ -152,7 +162,7 @@ fn collect_fonts_in_items(
             }
             FrameItem::Group { items, .. }
             | FrameItem::Link { items, .. }
-            | FrameItem::Semantic { items, .. } => {
+            | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
                 collect_fonts_in_items(items, metrics, seen);
             }
             FrameItem::Line { .. }
@@ -205,14 +215,14 @@ pub(super) fn first_font_from_doc(doc: &PagedDocument) -> Option<FontList> {
 fn first_font_in_items(items: &[FrameItem]) -> Option<FontList> {
     for item in items {
         match item {
-            FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
+            FrameItem::TextSeparator { style, .. } | FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
                 if let Some(fl) = &style.font {
                     return Some(fl.clone());
                 }
             }
             FrameItem::Group { items, .. }
             | FrameItem::Link { items, .. }
-            | FrameItem::Semantic { items, .. } => {
+            | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
                 if let Some(fl) = first_font_in_items(items) {
                     return Some(fl);
                 }
@@ -257,4 +267,30 @@ pub(super) fn resolve_font(
         }
     }
     None
+}
+
+#[cfg(test)]
+mod instancer_gate_tests {
+    use super::*;
+
+    #[test]
+    fn matching_axis_has_one_shared_diagnostic_and_unknown_axis_skips_probe() {
+        let bytes = include_bytes!("../../fixtures/fonts/UbuntuSans-Variable.ttf").to_vec();
+        let font_list = FontList::single("ubuntu sans".into());
+        let key = |axis| {
+            ((
+                font_list.clone(),
+                FontVariant::default(),
+                FontVariations(vec![(axis, 700.0)]),
+            ), bytes.clone())
+        };
+        let unknown = key(*b"ZZZZ");
+        assert!(missing_font_instancer_diagnostic(&[unknown], || {
+            panic!("unknown axis must not probe Python")
+        }).is_none());
+        let matching = key(*b"wght");
+        let diag = missing_font_instancer_diagnostic(&[matching], || false)
+            .expect("matching axis requires the missing-tool diagnostic");
+        assert_eq!(diag.message, "fonte variável 'ubuntu sans' requer instanciação, mas Python/fontTools não está disponível");
+    }
 }

@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1464-format-pdf.md
-//! @prompt-hash 77c9dd93
+//! @prompt-hash 67295d05
 
 use std::ffi::{OsStr, OsString};
 use std::path::Path;

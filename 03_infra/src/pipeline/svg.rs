@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/svg.md
-//! @prompt-hash 578981e3
+//! @prompt-hash 6b42ebc5
 //! @layer L3
-//! @updated 2026-09-26
+//! @updated 2026-09-28
 //!
 //! Possui as fachadas SVG, o contexto de destinos por página e a associação de fontes de glifos. Compila pelo caminho paginado comum, conserva pretty, primeira página, identidade de fontes e Unknown nos casos sem associação comprovada.
 
@@ -210,7 +210,7 @@ pub(super) fn svg_glyph_font_context_for_page(
                 }
                 FrameItem::Group { items, .. }
                 | FrameItem::Link { items, .. }
-                | FrameItem::Semantic { items, .. } => collect(items, metrics, out),
+                | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => collect(items, metrics, out),
                 _ => {}
             }
         }
