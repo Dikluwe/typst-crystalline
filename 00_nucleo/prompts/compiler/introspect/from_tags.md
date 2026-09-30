@@ -1,5 +1,5 @@
 # L0 — introspect/from_tags
-Hash do Código: f66f2d18
+Hash do Código: c7169954
 
 ```text
 Núcleos Tekt:
@@ -9,7 +9,7 @@ Núcleos Tekt:
 ## Ownership and evidence
 
 Layer: L1. Sole consumer: `01_core/src/compiler/introspect/from_tags.rs`.
-The current module has no from_tags constructor. Its productive bodies are
+The current module has no from_tags constructor. Delegate filtered and ordinary counter replay to `counter_updates.md`, state function replay to `state_updates.md`, state/counter display to `displays.md`, and equation realization to `equations.md`. This consumer remains the import boundary and retains its tests. Its productive bodies are
 resolve_filtered_counter (`:36`), apply_state_funcs (`:123`),
 apply_counter_funcs (`:157`), bundle Page replay (`:185`), state/counter
 display passes (`:310`, `:411`) and equation passes (`:462`, `:523`, `:570`).
