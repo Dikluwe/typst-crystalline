@@ -329,3 +329,9 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         (math_box, baselines)
     }
 }
+
+#[cfg(test)]
+mod smoke {
+    #[test]
+    fn modulo_compila_e_carrega() {}
+}

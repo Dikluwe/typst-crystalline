@@ -1,5 +1,5 @@
 # L0 — compiler/math/layout/grid_composition
-Hash do Código: fac5d67e
+Hash do Código: 2d9634be
 
 ## Ownership e medição
 
