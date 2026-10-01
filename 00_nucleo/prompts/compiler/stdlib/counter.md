@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/counter` — objeto `counter` e métodos
-Hash do Código: a303f8ac
+Hash do Código: 7c34cd17
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/counter.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).
@@ -508,3 +508,7 @@ locatabilidade, percorre recursivamente o `base`; o limite não substitui a
 identidade da chave. Não normaliza `Before`/`After` para base e não consulta o
 documento por conta própria. O suporte acompanha o enum público e aguarda o
 gate ADR-0127.
+
+## Atomização de leituras e exibição — 2026-09-30
+
+A fachada conserva constructor, dispatch nativo e API pública. A política de leituras filtradas/replay pertence exclusivamente a `00_nucleo/prompts/compiler/stdlib/counter/filtered_reads.md`; a política de `.display()` pertence exclusivamente a `00_nucleo/prompts/compiler/stdlib/counter/display.md`. As regras históricas acima são contexto de semântica, não ownership duplicado destes dois consumers.
