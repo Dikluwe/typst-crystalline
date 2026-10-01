@@ -266,3 +266,37 @@ pub(super) fn emit_row_borders(
         }
     }
 }
+
+/// Ordena as células da linha por coluna antes de fundir bordas.
+#[allow(clippy::too_many_arguments)]
+pub(super) fn emit_placed_row_borders(
+    items: &mut Vec<FrameItem>,
+    row_idx: usize,
+    row_start_y: f64,
+    row_h: f64,
+    row_cells: &[usize],
+    placed_cells: &[PlacedCell],
+    grid_owner: &[Vec<Option<usize>>],
+    open_vsegments: &mut [Option<(f64, f64, Stroke)>],
+    col_starts: &[f64],
+    resolved_widths: &[f64],
+    num_cols: usize,
+    stroke: Option<&Stroke>,
+) {
+    let mut sorted = row_cells.to_vec();
+    sorted.sort_by_key(|&idx| placed_cells[idx].col);
+    emit_row_borders(
+        items,
+        row_idx,
+        row_start_y,
+        row_h,
+        &sorted,
+        placed_cells,
+        grid_owner,
+        open_vsegments,
+        col_starts,
+        resolved_widths,
+        num_cols,
+        stroke,
+    );
+}

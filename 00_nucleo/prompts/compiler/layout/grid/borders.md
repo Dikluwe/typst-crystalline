@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/borders
-Hash do Código: b9e19479
+Hash do Código: 97240db7
 
 ## Ownership e medição
 

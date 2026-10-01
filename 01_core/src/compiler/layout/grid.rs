@@ -8,8 +8,10 @@
 //! no Passo 96.7 conforme ADR-0037.
 
 mod borders;
+mod cell_body;
 mod cell_emission;
 mod row_groups;
+mod row_pagination;
 mod rules;
 mod tracks;
 use self::borders::*;

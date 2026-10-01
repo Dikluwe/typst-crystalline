@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/cell_emission
-Hash do Código: 37c8d9f9
+Hash do Código: cc3c7dde
 
 ## Ownership e medição
 
