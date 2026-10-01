@@ -1,5 +1,5 @@
 # L0 — columns
-Hash do Código: 850b2f14
+Hash do Código: 5d637fc9
 
 ```text
 ```
@@ -14,13 +14,11 @@ continuous flow at `:638`, marginal patterns at `:36`, and physical column
 operations at `:715`. The producer/transform boundary is
 `01_core/src/entities/content/page_structure.rs:181`, not this consumer.
 
-This owner specifies column layout, local geometry and consolidation only.
+This owner specifies the column layout entrypoint and local geometry. Segmented sibling regions, continuous flow and physical transitions are owned by `00_nucleo/prompts/compiler/layout/columns/segmented.md`, `flow.md` and `transitions.md` respectively.
 ColumnsElem and page_columns are existing input data owned by
 `00_nucleo/prompts/entities/elements/columns.md`; page-body transformation
 belongs to `00_nucleo/prompts/entities/content/page-structure.md`.
-Cursor decides when to advance; this consumer owns close_current_column,
-merge_column_items, finish_columns, start_next_column and start_column,
-with descendant visibility for layout coordination.
+Cursor decides when to advance; `00_nucleo/prompts/compiler/layout/columns/transitions.md` owns close_current_column, merge_column_items, finish_columns, start_next_column and start_column, with descendant visibility for layout coordination.
 Footnote body fitting/overflow is owned exclusively by
 `00_nucleo/prompts/compiler/footnote_overflow_columns.md`.
 
