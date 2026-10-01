@@ -1,5 +1,5 @@
 # L0 — bibliography
-Hash do Código: e8ed5446
+Hash do Código: 98bdbe17
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/bibliography.rs`
@@ -15,7 +15,7 @@ Source inspection establishes current behavior and mechanical ownership; it is n
 
 This prompt owns only the named consumer. State storage and general coordination remain in `00_nucleo/prompts/compiler/layout.md`; the contract below defines this unit's operations, not ownership of that hub.
 
-Render an optional title and close its line. When the precomputed CSL cache supplies bibliography Content, dispatch it directly. Otherwise stably order entries by first citation, leave uncited entries in original order, add sequential `[N]` prefixes and the existing back-reference arrows. Use the hub's current `format_bib_entry_body` compatibility helper; do not relocate its ownership by prose. This fallback is a local compatibility renderer, not evidence of complete vanilla CSL parity. Citation rendering belongs only to `00_nucleo/prompts/compiler/layout/cite.md`; cache construction belongs to `00_nucleo/prompts/compiler/layout/bib_csl.md`.
+Render an optional title and close its line. When the precomputed CSL cache supplies bibliography Content, dispatch it directly. Otherwise stably order entries by first citation, leave uncited entries in original order, add sequential `[N]` prefixes and the existing back-reference arrows. Own the `format_bib_entry_body` compatibility helper and its conditional field composition. The hub delegates fallback formatting here; preserve the existing field order and organization-as-publisher rule. This fallback is a local compatibility renderer, not evidence of complete vanilla CSL parity. Citation rendering belongs only to `00_nucleo/prompts/compiler/layout/cite.md`; cache construction belongs to `00_nucleo/prompts/compiler/layout/bib_csl.md`.
 
 ## Acceptance and limits
 

@@ -1,5 +1,5 @@
 # L0 — Layout engine coordination
-Hash do Código: 56838f15
+Hash do Código: 713a235d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -50,11 +50,11 @@ Rollback restores the complete speculative suffix, including already-emitted Pla
 
 Preserve the existing public layout, introspector/metrics, callback-aware, locator-seeded, intrinsic HTML-frame and real-measurement façade paths and signatures. The metrics entrypoint returns SourceResult and diagnoses unresolved math callbacks rather than returning a placeholder document; the legacy FixedMetrics convenience entrypoint retains its current expect behavior.
 
-The callback-aware coordinator installs fresh math and par.line pass state for each candidate Layouter. Each attempt restores the same supplied LocatorSeed and uses the tracked introspector, injected metrics/sizer and current known label/figure/table/page stores. Carry forward extracted page maps until they stabilize within the existing retry limit of five attempts. The source currently runs this convergence comparison regardless of the computed has_outline flag: do not restore an obsolete “no outline means exactly one attempt” promise.
+The convergence child installs fresh math and par.line pass state for each candidate Layouter. Each attempt restores the same supplied LocatorSeed and uses the tracked introspector, injected metrics/sizer and current known label/figure/table/page stores. Carry forward extracted page maps until they stabilize within the existing retry limit of five attempts. The source currently runs this convergence comparison regardless of the computed has_outline flag: do not restore an obsolete “no outline means exactly one attempt” promise.
 
 Return Complete only with a stable candidate and successfully consumed math/par.line transcripts; otherwise return Pending requests without exposing the tentative document. A rejected candidate's transcript is discarded, not merged into its successor. Exhausting the retry bound returns the existing empty Pending request sets, not a completed candidate. The mathematical callback protocol remains owned by its math prompt; the par.line protocol belongs to `00_nucleo/prompts/compiler/layout/par_line_callbacks.md`. No eval ↔ layout phase change or layout-time Func execution is introduced.
 
-Discover the first bibliography's supplied style/locale and construct a pure CSL cache only for an explicitly named or already-resolved style. Retain cache-conversion diagnostics in each candidate and the local fallback when no style is requested. `00_nucleo/prompts/compiler/layout/bib_csl.md` owns cache interpretation; `00_nucleo/prompts/compiler/layout/bibliography.md`/`00_nucleo/prompts/compiler/layout/cite.md` own rendering. The current BibEntry compatibility body formatter remains here, preserving conditional field order and organization-as-publisher fallback.
+The convergence child discovers the first bibliography's supplied style/locale and constructs a pure CSL cache only for an explicitly named or already-resolved style. Retain cache-conversion diagnostics in each candidate and the local fallback when no style is requested. `00_nucleo/prompts/compiler/layout/bib_csl.md` owns cache interpretation; `00_nucleo/prompts/compiler/layout/bibliography.md`/`00_nucleo/prompts/compiler/layout/cite.md` own rendering. The BibEntry compatibility body formatter belongs to `00_nucleo/prompts/compiler/layout/bibliography.md`, preserving conditional field order and organization-as-publisher fallback.
 
 ### Terminal composition
 
@@ -224,3 +224,7 @@ Correção interna de paridade ADR-0127 em fluxo contínuo. Aceitação RED→GR
 Na finalização, reconhecer uma última linha apenas literal como linha causal para usar a sua baseline final; manter o match exaustivo e todos os outros predicados de materialidade. Nenhum estado global, campo público, contrato externo, default ou fase muda.
 
 Aceitação: testes RED→GREEN e matriz bilateral, regressões anteriores, build/lint sem erros; resselo somente dos owners deste manifesto.
+
+## Atomização da convergência — 2026-09-30
+
+A fachada mantém as entradas públicas, o estado Layouter e o dispatcher estático. A preparação de candidatos, transporte de páginas conhecidas e decisão Complete/Pending pertencem exclusivamente a `00_nucleo/prompts/compiler/layout/convergence.md`. A descoberta do primeiro style bibliográfico permanece auxiliar dessa coordenação. As obrigações históricas de convergência acima são contrato preservado, não ownership duplicado. O formatter bibliográfico de fallback pertence exclusivamente a `00_nucleo/prompts/compiler/layout/bibliography.md`.
