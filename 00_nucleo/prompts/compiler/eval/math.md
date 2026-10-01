@@ -1,5 +1,5 @@
 # L0 — compiler/eval/math
-Hash do Código: 2c153357
+Hash do Código: c2ed7a17
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58

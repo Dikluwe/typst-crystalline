@@ -1,5 +1,5 @@
 # L0 — compiler/eval/math/native_dispatch
-Hash do Código: 3a801d86
+Hash do Código: a8850bdf
 
 ## Ownership e medição
 
@@ -7,7 +7,7 @@ Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/math/native_dis
 
 ## Contrato
 
-Own exhaustive static dispatch for recognized bare math function names. Preserve constructor validation, argument order, span and morphology. Delegate unrecognized/global/symbol behavior to call_fallback without changing precedence. Não alterar contratos públicos, fase do pipeline, defaults nem compatibilidade. Preservar despacho estático e pureza L1.
+Own exhaustive static dispatch for recognized bare math function names. Delegate over/under decoration and vector constructors to `00_nucleo/prompts/compiler/eval/math/native_decorations.md`. Preserve constructor validation, argument order, span and morphology. Delegate unrecognized/global/symbol behavior to call_fallback without changing precedence. Não alterar contratos públicos, fase do pipeline, defaults nem compatibilidade. Preservar despacho estático e pureza L1.
 
 ## Aceitação
 
