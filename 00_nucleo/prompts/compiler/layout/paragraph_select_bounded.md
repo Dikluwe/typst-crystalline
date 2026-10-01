@@ -1,5 +1,5 @@
 # L0 — paragraph_select_bounded
-Hash do Código: f8c0872f
+Hash do Código: cb376f6b
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/paragraph_select_bounded.rs`
@@ -20,3 +20,7 @@ Testes diferenciais devem comparar a sequência completa de ranges com a seleç�
 ## Microbenchmark comparativo — 2026-09-30
 
 Medição anterior à decisão: os testes diferenciais do protótipo demonstram equivalência das quebras e poda efetiva, mas não medem tempo; ambos os caminhos estão acessíveis neste consumer sob `cfg(test)`. Adicionar microbenchmark Criterion ignorado por padrão, em release, com as mesmas instâncias `Prepared` reutilizadas por ambas as variantes. Medir seleção completa, incluindo a construção do limite guloso no protótipo, com entradas determinísticas curta/estreita, média e larga. Consumir o resultado via black_box; verificar equivalência antes de cronometrar. Usar o mesmo custo, tamanho de fonte, justificação e largura por par. Os resultados são locais e devem registrar commit/árvore, comando, ambiente e incerteza; não extrapolar diretamente para o compilador completo.
+
+## Escala de 1.000 palavras — 2026-10-01
+
+Medição anterior à decisão: o relatório `00_nucleo/diagnosticos/microbench-paragraph-select-bounded-2026-09-30.md` contém somente 40 e 160 palavras; 160 palavras com 240pt e 1200pt favoreceram a poda, enquanto 40 palavras com 76pt não. Estender o mesmo benchmark aos três regimes de largura com 1.000 palavras, mantendo gerador, fonte, gaps, custos, verificação diferencial e medição da seleção completa. Registrar resultados e proveniência separados; não inferir escala pelo conjunto anterior.

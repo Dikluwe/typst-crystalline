@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/paragraph_select_bounded.md
-//! @prompt-hash c5da74ab
+//! @prompt-hash e66dad7b
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -259,6 +259,9 @@ mod tests {
             ("short_narrow", 40, 76.0, false),
             ("medium", 160, 240.0, false),
             ("wide_justified", 160, 1200.0, true),
+            ("large_narrow", 1000, 76.0, false),
+            ("large_medium", 1000, 240.0, false),
+            ("large_wide_justified", 1000, 1200.0, true),
         ] {
             let widths: Vec<f64> =
                 (0..count).map(|i| ((i * 17) % 19 + 9) as f64).collect();
