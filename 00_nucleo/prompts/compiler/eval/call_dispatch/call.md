@@ -1,5 +1,5 @@
 # L0 — compiler/eval/call_dispatch/call
-Hash do Código: c3407db5
+Hash do Código: d591cfd7
 
 ## Ownership e medição
 
@@ -7,7 +7,7 @@ Camada L1. Consumer produtivo único: `01_core/src/compiler/eval/call_dispatch/c
 
 ## Contrato
 
-Resolver e interceptar chamadas de funções e métodos na prioridade existente; preservar avaliação única de receiver e argumentos. A unidade delega a sequência de métodos de Selector para `selector_intercepts.rs` e as chamadas contextuais de medida/layout para `contextual_calls.rs` e a invocação final do callee para `invoke.rs`, cujos Prompts L0 são proprietários individuais. Preservar assinaturas públicas, diagnósticos, prioridades de intercepção, rastros e semântica de argumentos especificados em `00_nucleo/prompts/compiler/eval/call_dispatch.md`. A extração permanece em L1 com despacho estático, sem I/O ou estado global mutável.
+Resolver e interceptar chamadas de funções e métodos na prioridade existente; preservar avaliação única de receiver e argumentos. A unidade delega a sequência de métodos de Selector para `selector_intercepts.rs` e as chamadas contextuais de medida/layout para `contextual_calls.rs`, métodos de coleção/`with` para `collection_methods.rs` e métodos de Location/Content/OutlineEntry para `content_methods.rs` e a invocação final do callee para `invoke.rs`, cujos Prompts L0 são proprietários individuais. Preservar assinaturas públicas, diagnósticos, prioridades de intercepção, rastros e semântica de argumentos especificados em `00_nucleo/prompts/compiler/eval/call_dispatch.md`. A extração permanece em L1 com despacho estático, sem I/O ou estado global mutável.
 
 ## Aceitação
 

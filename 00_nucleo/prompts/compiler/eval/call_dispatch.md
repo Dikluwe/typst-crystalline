@@ -1,5 +1,5 @@
 # L0 — compiler/eval/call_dispatch
-Hash do Código: 53e9728a
+Hash do Código: c64a11fb
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24

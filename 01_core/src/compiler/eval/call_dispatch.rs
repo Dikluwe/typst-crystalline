@@ -70,6 +70,8 @@ mod call;
 /// Metadados sintáticos privados e pontuais para os diagnósticos de
 /// `float.is-nan`. Não atravessam `entities::Args` nem sobrevivem à chamada.
 mod call_spans;
+mod collection_methods;
+mod content_methods;
 mod contextual_calls;
 mod invoke;
 mod location;

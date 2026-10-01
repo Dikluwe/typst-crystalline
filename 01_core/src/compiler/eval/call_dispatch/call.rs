@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch/call.md
-//! @prompt-hash dcb9bb1a
+//! @prompt-hash 4288a7d6
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -262,56 +262,10 @@ pub(in crate::compiler::eval) fn eval_func_call(
             }
         }
 
-        // **P466** — Métodos de instância para `array`, `dict` e `str`.
-        if let Expr::FieldAccess(access) = call.callee() {
-            let target = eval_expr(access.target(), scopes, ctx, engine)?;
-            let method = access.field().as_str();
-            let trace_arguments_callback =
-                matches!(&target, Value::Args(_)) && matches!(method, "filter" | "map");
-            let mut positional = Vec::new();
-            let mut named: IndexMap<EcoString, Span, FxBuildHasher> = IndexMap::default();
-            for arg in call.args().items() {
-                match arg {
-                    Arg::Pos(expr) => positional.push(expr.span()),
-                    Arg::Named(named_arg) => {
-                        named.insert(named_arg.name().as_str().into(), named_arg.span());
-                    }
-                    Arg::Spread(_) => {}
-                }
-            }
-            let call_spans = CollectionCallSpans { call: call.span(), positional, named };
-            let args = eval_args(call.args(), scopes, ctx, engine)?;
-            if let Some(result) = try_dispatch_collection_method(
-                target,
-                method,
-                args,
-                Some(&call_spans),
-                scopes,
-                ctx,
-                engine,
-            ) {
-                return if trace_arguments_callback {
-                    trace_call(result, Some(method), call.span(), engine)
-                } else {
-                    result
-                };
-            }
-        }
-
-        // **P702** — `f.with(...)`: aplicação parcial de argumentos, disponível
-        // em qualquer `Value::Func` (nativa com/sem namespace, closure, elemento,
-        // plugin, ou já parcialmente aplicada). Mesmo padrão de intercepção das
-        // secções acima; se o alvo não for `Value::Func`, não intercepta — cai
-        // no field access genérico, sem mudança de comportamento para
-        // não-funções (ver `entities/func.md` §"Variante `With`").
-        if let Expr::FieldAccess(access) = call.callee() {
-            if access.field().as_str() == "with" {
-                let target = eval_expr(access.target(), scopes, ctx, engine)?;
-                if let Value::Func(f) = target {
-                    let args = eval_args(call.args(), scopes, ctx, engine)?;
-                    return Ok(Value::Func(f.with(args)));
-                }
-            }
+        if let Some(result) =
+            super::collection_methods::try_collection_or_with(call, scopes, ctx, engine)?
+        {
+            return Ok(result);
         }
 
         if let Some(result) =
@@ -320,104 +274,10 @@ pub(in crate::compiler::eval) fn eval_func_call(
             return Ok(result);
         }
 
-        // **P792** — Métodos de `Location`: `loc.page()`, `loc.position()`,
-        // `loc.page-numbering()` — paridade vanilla `location.rs #[scope]`.
-        if let Expr::FieldAccess(access) = call.callee() {
-            let method = access.field().as_str();
-            if matches!(method, "page" | "position" | "page-numbering") {
-                let target = eval_expr(access.target(), scopes, ctx, engine)?;
-                if let Value::Location(loc) = target {
-                    let _args = eval_args(call.args(), scopes, ctx, engine)?;
-                    return eval_location_method(loc, method, ctx, call.span());
-                }
-            }
-        }
-
-        // **P829-B** — Métodos de instância de `Value::Content`:
-        // `func`/`has`/`at`/`fields`/`location` — paridade vanilla `Content`
-        // `#[scope]` (`foundations/content/mod.rs:510-590`). Corre depois de
-        // todos os despachos legítimos acima (nenhum intercepta estes nomes para
-        // Content) e antes do fallback P815, que de outra forma reportaria
-        // `element strong has no method `func`` (medido m14/b1).
-        if let Expr::FieldAccess(access) = call.callee() {
-            let method = access.field().as_str();
-            if matches!(method, "func" | "has" | "at" | "fields" | "location") {
-                let target = eval_expr(access.target(), scopes, ctx, engine)?;
-                if let Value::Content(c) = target {
-                    let args = eval_args(call.args(), scopes, ctx, engine)?;
-                    return bindings::eval_content_method(&c, method, args, call.span());
-                }
-                if let Value::LocatedContent(c, loc) = target {
-                    let args = eval_args(call.args(), scopes, ctx, engine)?;
-                    return bindings::eval_introspected_content_method_at(
-                        &c,
-                        loc,
-                        method,
-                        args,
-                        call.span(),
-                    );
-                }
-            }
-        }
-
-        // P1402/P1403 — métodos próprios da entry.
-        if let Expr::FieldAccess(access) = call.callee() {
-            let method = access.field().as_str();
-            if matches!(method, "body" | "prefix" | "page" | "inner" | "indented") {
-                let target = eval_expr(access.target(), scopes, ctx, engine)?;
-                let content = match &target {
-                    Value::Content(content) => Some(content),
-                    Value::LocatedContent(content, _) => Some(content.content()),
-                    _ => None,
-                };
-                if let Some(
-                    content @ crate::entities::content::Content::OutlineEntry(_),
-                ) = content
-                {
-                    let mut args = eval_args(call.args(), scopes, ctx, engine)?;
-                    if method == "body" {
-                        return bindings::eval_outline_entry_body_method(
-                            content,
-                            args,
-                            call.span(),
-                        );
-                    }
-                    args.items.insert(0, Value::Content(content.clone()));
-                    args.occurrences = None;
-                    let world = engine.world;
-                    let current_file = engine.current_file;
-                    return match method {
-                        "prefix" => {
-                            native_outline_entry_prefix(ctx, &args, world, current_file)
-                        }
-                        "page" => native_outline_entry_page(
-                            ctx,
-                            &args,
-                            world,
-                            current_file,
-                            scopes,
-                            engine,
-                        ),
-                        "inner" => native_outline_entry_inner(
-                            ctx,
-                            &args,
-                            world,
-                            current_file,
-                            scopes,
-                            engine,
-                        ),
-                        "indented" => native_outline_entry_indented(
-                            ctx,
-                            &args,
-                            world,
-                            current_file,
-                            scopes,
-                            engine,
-                        ),
-                        _ => unreachable!("outline entry method already checked"),
-                    };
-                }
-            }
+        if let Some(result) =
+            super::content_methods::try_content_methods(call, scopes, ctx, engine)?
+        {
+            return Ok(result);
         }
 
         // **P815** — `eval_field_callee` do vanilla (`call.rs:239-345`): depois
