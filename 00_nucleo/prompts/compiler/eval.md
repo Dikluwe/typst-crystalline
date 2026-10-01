@@ -1,5 +1,5 @@
 # L0 — compiler/eval
-Hash do Código: ce5c6327
+Hash do Código: e00b8cab
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -44,9 +44,7 @@ retained in the assigned history diagnostic, not asserted as a fresh measurement
 
 ## Contract
 
-Own EvalContext, public evaluation entrypoints, base-scope construction, the
-two document passes, markup-stream coordination and the exhaustive Expr
-dispatcher. Retain explicit Engine/Scopes/context state and the pinned core and
+Own EvalContext storage, public evaluation entrypoints, base-scope construction and the two document passes. Context-read capture/replay, markup-stream coordination and the exhaustive Expr dispatcher belong to `00_nucleo/prompts/compiler/eval/context_reads.md`, `markup_stream.md` and `expression_dispatch.md` respectively. Retain explicit Engine/Scopes/context state and the pinned core and
 feature-gate invariants. No child behavior becomes hub-owned merely because
 the hub calls or reexports it.
 
