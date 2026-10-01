@@ -73,6 +73,7 @@ mod call_spans;
 mod collection_methods;
 mod content_methods;
 mod contextual_calls;
+mod instance_methods;
 mod invoke;
 mod location;
 mod selector_intercepts;
