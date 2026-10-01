@@ -1,5 +1,5 @@
 # Prompt L0 — Color (espaços de cor vanilla paridade)
-Hash do Código: f0559d46
+Hash do Código: f1cc6723
 
 > **Estado P1482 confirmado em 2026-09-23:** a secção P1482 ao final amplia o carrier público
 > e prevalece sobre descrições históricas de apenas oito variantes e `Copy`.
