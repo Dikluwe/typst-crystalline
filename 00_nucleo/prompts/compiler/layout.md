@@ -1,5 +1,5 @@
 # L0 — Layout engine coordination
-Hash do Código: 713a235d
+Hash do Código: 16902dfe
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -228,3 +228,7 @@ Aceitação: testes RED→GREEN e matriz bilateral, regressões anteriores, buil
 ## Atomização da convergência — 2026-09-30
 
 A fachada mantém as entradas públicas, o estado Layouter e o dispatcher estático. A preparação de candidatos, transporte de páginas conhecidas e decisão Complete/Pending pertencem exclusivamente a `00_nucleo/prompts/compiler/layout/convergence.md`. A descoberta do primeiro style bibliográfico permanece auxiliar dessa coordenação. As obrigações históricas de convergência acima são contrato preservado, não ownership duplicado. O formatter bibliográfico de fallback pertence exclusivamente a `00_nucleo/prompts/compiler/layout/bibliography.md`.
+
+## Protótipo de seleção limitada — 2026-09-30
+
+Medição anterior à decisão: `paragraph_plan.rs` liga a seleção exata de `paragraph_select.rs`; `mod.rs` declara apenas o módulo existente. O hub declara `paragraph_select_bounded` apenas sob `cfg(test)`, com owner exclusivo em `00_nucleo/prompts/compiler/layout/paragraph_select_bounded.md`. Não altera a fachada, o despacho ou o caminho produtivo.
