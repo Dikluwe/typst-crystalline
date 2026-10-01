@@ -1,5 +1,5 @@
 # L0 — sequence
-Hash do Código: ed35fbfa
+Hash do Código: f704fcc6
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:e9038b453bbb1971c9a75a76eced99c35db742f57bebbb09b03c4922b3862800
 
