@@ -34,6 +34,7 @@ mod entry;
 mod expression;
 mod expression_call;
 mod lookup;
+mod native_attachments;
 mod native_decorations;
 mod native_dispatch;
 
