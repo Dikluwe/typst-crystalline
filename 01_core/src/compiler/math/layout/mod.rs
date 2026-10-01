@@ -32,7 +32,9 @@ mod external_bridge;
 mod frac;
 mod grid_composition;
 mod large_operator;
+mod line_decorations;
 mod matrix;
+mod node_wrappers;
 mod op;
 mod root;
 mod sequence_composition;
@@ -1066,38 +1068,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
             // P772y — `math.class(class, body)`: override de classe afecta
             // apenas espaçamento (spacing.rs); o layout do body é normal.
-            Content::MathClassOverride(e) => {
-                // Um `Content::Text` diretamente promovido por
-                // `math.class` representa o GlyphFragment de P1132w, não o
-                // TextItem direto do catch-all P1293. Preserve a largura
-                // vigente aqui; a IC do fragmento é aplicada abaixo.
-                let mut box_ = if let Content::Text(text) = &e.body {
-                    let mut box_ = self.layout_text_node(text, style);
-                    box_.width = self.metrics.text_width(text, style.size, style).val();
-                    box_
-                } else {
-                    self.layout_node(&e.body, style)
-                };
-                // **P1132w** — ao transformar o GlyphItem num frame com
-                // classe explícita, o vanilla conserva a IC no avanço. O
-                // wrapper cristalino era totalmente transparente e perdia-a.
-                if let Some(c) = single_math_leaf_char(&e.body) {
-                    let extended = !self
-                        .metrics
-                        .vertical_glyph_variants(c, style)
-                        .is_empty()
-                        || !self.metrics.vertical_glyph_assembly(c, style).is_empty()
-                        || !self.metrics.horizontal_glyph_variants(c, style).is_empty()
-                        || !self.metrics.horizontal_glyph_assembly(c, style).is_empty();
-                    if !extended {
-                        box_.width += self
-                            .metrics
-                            .char_italics_correction(c, style.size, style)
-                            .val();
-                    }
-                }
-                box_
-            }
+            Content::MathClassOverride(e) => self.layout_class_override(e, style),
 
             // P992 — `limits(body)`/`scripts(body)`: override afecta só o
             // discriminador `is_limits` de `layout_attach`; o layout do
@@ -1115,86 +1086,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             // P311b.4/P1291 — Math style wrapper: resolve a cadeia por eixos.
             // No mesmo eixo o setter mais interno vence; glyph, tamanho,
             // bold, italic e cramped permanecem ortogonais.
-            Content::MathStyled(m) => {
-                let mut node = m.as_ref();
-                let mut glyph_kind = None;
-                let mut size_kind = None;
-                let mut bold = None;
-                let mut italic = None;
-                let mut cramped = None;
-
-                let body = loop {
-                    if let Some(kind) = node.kind {
-                        if kind.is_size_variant() {
-                            size_kind = Some(kind);
-                        } else {
-                            glyph_kind = Some(kind);
-                        }
-                    }
-                    if node.bold.is_some() {
-                        bold = node.bold;
-                    }
-                    if node.italic.is_some() {
-                        italic = node.italic;
-                    }
-                    if node.cramped.is_some() {
-                        cramped = node.cramped;
-                    }
-
-                    match &node.body {
-                        Content::MathStyled(inner) => node = inner.as_ref(),
-                        body => break body,
-                    }
-                };
-
-                let transformed = apply_math_style(body, glyph_kind, bold, italic);
-                let size_factor = size_kind.map(|k| k.size_factor()).unwrap_or(1.0);
-                let mut math_style = style.clone();
-                math_style.size = style.size * size_factor;
-                if let Some(k) = size_kind {
-                    use crate::entities::layout_types::MathSize;
-                    use crate::entities::math_style::MathStyleKind;
-                    match k {
-                        MathStyleKind::Display => {
-                            math_style.math_size = MathSize::Display;
-                        }
-                        MathStyleKind::Inline => {
-                            math_style.math_size = MathSize::Text;
-                        }
-                        MathStyleKind::Script => {
-                            math_style.math_size = MathSize::Script;
-                        }
-                        MathStyleKind::SScript => {
-                            math_style.math_size = MathSize::ScriptScript;
-                        }
-                        _ => {}
-                    }
-                }
-                if let Some(c) = cramped {
-                    math_style.cramped = c;
-                }
-                if matches!(transformed, Content::MathMatrix(_))
-                    && matches!(size_kind, Some(MathStyleKind::Display))
-                {
-                    // `display(mat(..))` escolhe Text como nível exterior;
-                    // uma equação de bloco mantém Display→Text a tamanho
-                    // cheio conforme P945.
-                    math_style.math_size = crate::entities::layout_types::MathSize::Text;
-                }
-                // Se kind glyph foi aplicado (chars já variant-encoded) OU
-                // italic explícito foi set, suprimir auto-itálico do
-                // `MathIdent` handler. Itálico explícito é honrado via
-                // codepoint já transformado (Italic plane).
-                if glyph_kind.is_some()
-                    || size_kind.is_some()
-                    || italic.is_some()
-                    || bold.is_some()
-                    || cramped.is_some()
-                {
-                    math_style.italic = false;
-                }
-                self.layout_node(&transformed, &math_style)
-            }
+            Content::MathStyled(m) => self.layout_styled_node(m, style),
 
             // **P895** — espaçamentos nomeados de modo math (`thin`/`med`/
             // `thick`/`quad`/`wide`, registados em `make_math_module()` como
@@ -1297,99 +1189,6 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             }
             other => self.layout_external(other, style),
         }
-    }
-
-    /// **P990-C** — `Content::Strike` em contexto math: layout do corpo
-    /// (já com itálico por defeito, `apply_math_default`) + uma
-    /// `FrameItem::Line` horizontal sobre a caixa. Mesma geometria do lado
-    /// de texto (`compiler/layout/decorations.rs::layout`): offset por
-    /// omissão `-0.25em`, thickness `max(0.05em, 0.4pt)`, extent simétrico
-    /// nos dois lados. Convenção baseline-relativa (ADR-0123: `y=0` =
-    /// baseline própria do `MathBox`, positivo para baixo) — `offset_pt`
-    /// já vem negativo (acima da baseline) e aplica-se directamente, sem
-    /// somar a nenhum `y` de base (ao contrário do lado de texto, que soma
-    /// a `baseline_y` de cada linha). Ver `_comum.md` §P990-C.
-    fn layout_overline(
-        &self,
-        body: &Content,
-        stroke: Option<Color>,
-        _offset: Option<Length>,
-        _extent: Option<Length>,
-        style: &TextStyle,
-    ) -> MathBox {
-        let cramped_style = TextStyle { cramped: true, ..style.clone() };
-        let body_box = self.layout_node(body, &cramped_style);
-
-        let size = style.size;
-        let sep = self
-            .constants
-            .to_pt(self.constants.overbar_extra_ascender, size)
-            .val();
-        let thickness = self
-            .constants
-            .to_pt(self.constants.overbar_rule_thickness, size)
-            .val();
-        let gap = self.constants.to_pt(self.constants.overbar_vertical_gap, size).val();
-        let extra_height = sep + thickness + gap;
-
-        let width = body_box.width;
-        let ascent = body_box.ascent + extra_height;
-        let descent = body_box.descent;
-
-        let line_y = -(body_box.ascent + gap + thickness / 2.0);
-        let color = stroke.or(style.fill.clone());
-
-        let mut items = body_box.items;
-        items.push(FrameItem::Line {
-            start: Point { x: Pt(0.0), y: Pt(line_y) },
-            end: Point { x: Pt(width), y: Pt(line_y) },
-            thickness,
-            color,
-            cap: crate::entities::geometry::LineCap::Butt,
-        });
-
-        MathBox { width, ascent, descent, items }
-    }
-
-    fn layout_underline(
-        &self,
-        body: &Content,
-        stroke: Option<Color>,
-        _offset: Option<Length>,
-        _extent: Option<Length>,
-        style: &TextStyle,
-    ) -> MathBox {
-        let body_box = self.layout_node(body, style);
-
-        let size = style.size;
-        let sep = self
-            .constants
-            .to_pt(self.constants.underbar_extra_descender, size)
-            .val();
-        let thickness = self
-            .constants
-            .to_pt(self.constants.underbar_rule_thickness, size)
-            .val();
-        let gap = self.constants.to_pt(self.constants.underbar_vertical_gap, size).val();
-        let extra_height = sep + thickness + gap;
-
-        let width = body_box.width;
-        let ascent = body_box.ascent;
-        let descent = body_box.descent + extra_height;
-
-        let line_y = body_box.descent + gap + thickness / 2.0;
-        let color = stroke.or(style.fill.clone());
-
-        let mut items = body_box.items;
-        items.push(FrameItem::Line {
-            start: Point { x: Pt(0.0), y: Pt(line_y) },
-            end: Point { x: Pt(width), y: Pt(line_y) },
-            thickness,
-            color,
-            cap: crate::entities::geometry::LineCap::Butt,
-        });
-
-        MathBox { width, ascent, descent, items }
     }
 
     /// **P906** — guard partilhado por `layout_underover`/`layout_accent`

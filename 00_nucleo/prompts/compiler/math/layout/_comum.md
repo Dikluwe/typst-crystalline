@@ -1,5 +1,5 @@
 # L0 — math/layout/_comum
-Hash do Código: 971b34ec
+Hash do Código: 634153d9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
