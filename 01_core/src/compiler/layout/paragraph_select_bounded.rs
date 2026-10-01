@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/paragraph_select_bounded.md
-//! @prompt-hash 42bbffb3
+//! @prompt-hash c5da74ab
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -242,6 +242,69 @@ mod tests {
             }
         }
         assert!(pruned > 0, "the test matrix must exercise upper-bound pruning");
+    }
+
+    #[test]
+    #[ignore = "microbenchmark de release; executar explicitamente com --ignored --nocapture"]
+    fn microbench_exact_vs_bounded() {
+        use criterion::Criterion;
+        use std::hint::black_box;
+        use std::time::Duration;
+
+        let mut criterion = Criterion::default()
+            .sample_size(30)
+            .warm_up_time(Duration::from_secs(1))
+            .measurement_time(Duration::from_secs(2));
+        for (name, count, width, justify) in [
+            ("short_narrow", 40, 76.0, false),
+            ("medium", 160, 240.0, false),
+            ("wide_justified", 160, 1200.0, true),
+        ] {
+            let widths: Vec<f64> =
+                (0..count).map(|i| ((i * 17) % 19 + 9) as f64).collect();
+            let p = prepared(&widths, 3.0, 0.0);
+            let costs = LineCosts::default();
+            let exact = paragraph_select::select(
+                &p,
+                width,
+                12.0,
+                justify,
+                Strategy::Optimized,
+                costs,
+            );
+            let trial = select_bounded(&p, width, 12.0, justify, costs);
+            assert_eq!(trial.lines, exact, "case={name}");
+            eprintln!(
+                "case={name} evaluated={} pruned={} bound={}",
+                trial.evaluated, trial.pruned, trial.upper_bound
+            );
+            let mut group = criterion.benchmark_group(name);
+            group.bench_function("exact", |b| {
+                b.iter(|| {
+                    black_box(paragraph_select::select(
+                        black_box(&p),
+                        black_box(width),
+                        12.0,
+                        justify,
+                        Strategy::Optimized,
+                        costs,
+                    ))
+                })
+            });
+            group.bench_function("bounded", |b| {
+                b.iter(|| {
+                    black_box(select_bounded(
+                        black_box(&p),
+                        black_box(width),
+                        12.0,
+                        justify,
+                        costs,
+                    ))
+                })
+            });
+            group.finish();
+        }
+        criterion.final_summary();
     }
 
     #[test]

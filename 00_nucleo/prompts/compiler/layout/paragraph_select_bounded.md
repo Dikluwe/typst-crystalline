@@ -1,5 +1,5 @@
 # L0 — paragraph_select_bounded
-Hash do Código: 032eb474
+Hash do Código: f8c0872f
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/paragraph_select_bounded.rs`
@@ -16,3 +16,7 @@ Protótipo privado compilado apenas em testes. Recebe a mesma entrada preparada,
 Calcular um limite superior válido somando os custos exatos das linhas da solução Simple existente, mas medir essas linhas pela mesma fórmula de prefixos do caminho Optimized. Como cada custo de linha é um quadrado e portanto não negativo, um prefixo acumulado estritamente maior que o limite não pode participar de solução melhor ou empatada; só esses prefixos podem ser podados. Preservar o descarte overfull e o desempate `<=` da DP exata. Se o limite ou resultado não for finito, delegar à seleção exata. Não aplicar margem aproximada nem mudar a função de custo.
 
 Testes diferenciais devem comparar a sequência completa de ranges com a seleção exata em entradas variadas: vazio, overlong, justificado/não justificado, larguras/gaps, tracking e custo runt negativo. Expor contagens de candidatos avaliados e podados apenas ao teste; isso não prova ganho temporal. Build e crystalline-lint sem violações.
+
+## Microbenchmark comparativo — 2026-09-30
+
+Medição anterior à decisão: os testes diferenciais do protótipo demonstram equivalência das quebras e poda efetiva, mas não medem tempo; ambos os caminhos estão acessíveis neste consumer sob `cfg(test)`. Adicionar microbenchmark Criterion ignorado por padrão, em release, com as mesmas instâncias `Prepared` reutilizadas por ambas as variantes. Medir seleção completa, incluindo a construção do limite guloso no protótipo, com entradas determinísticas curta/estreita, média e larga. Consumir o resultado via black_box; verificar equivalência antes de cronometrar. Usar o mesmo custo, tamanho de fonte, justificação e largura por par. Os resultados são locais e devem registrar commit/árvore, comando, ambiente e incerteza; não extrapolar diretamente para o compilador completo.
