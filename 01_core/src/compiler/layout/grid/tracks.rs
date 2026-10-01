@@ -273,3 +273,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         (row_heights, num_rows_produced)
     }
 }
+
+#[cfg(test)]
+mod smoke {
+    #[test]
+    fn modulo_compila_e_carrega() {}
+}

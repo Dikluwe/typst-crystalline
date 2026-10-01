@@ -1,5 +1,5 @@
 # L0 — compiler/layout/grid/tracks
-Hash do Código: 97a2f4eb
+Hash do Código: 74ba0d73
 
 ## Ownership e medição
 
