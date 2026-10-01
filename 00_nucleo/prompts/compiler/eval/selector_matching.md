@@ -1,5 +1,5 @@
 # L0 — compiler/eval/selector_matching
-Hash do Código: d55c40e2
+Hash do Código: 676840d2
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/selector_matching.rs`
