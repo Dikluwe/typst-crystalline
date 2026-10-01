@@ -1,5 +1,5 @@
 # L0 — Layout engine coordination
-Hash do Código: 500f386a
+Hash do Código: 56838f15
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -20,9 +20,9 @@ Source inspection establishes current behavior and mechanical ownership; it is n
 
 ## Ownership and contract
 
-Native dispatch and the state/checkpoint contract are specified here.
+Native dispatch and state storage are specified here. Checkpoint capture/restore and terminal document composition belong to `00_nucleo/prompts/compiler/layout/checkpoint.md` and `finish.md`.
 
-This is the exclusive owner of `01_core/src/compiler/layout/mod.rs`: Layouter construction and state, checkpoint representation/capture/restore, causal dispatch, public façade entrypoints, attempt coordination, compatibility helpers actually defined here, and terminal document composition. Child owners define their own layout behavior; importing or calling them does not transfer ownership to this prompt.
+This is the exclusive owner of `01_core/src/compiler/layout/mod.rs`: Layouter construction and state, causal dispatch, public façade entrypoints, attempt coordination, and compatibility helpers actually defined here. Checkpoint and terminal composition behavior is delegated to the child owners named above. Child owners define their own layout behavior; importing or calling them does not transfer ownership to this prompt.
 
 ### State and injected dependencies
 
