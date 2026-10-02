@@ -1,8 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/paragraph_select_bounded.md
-//! @prompt-hash a7eeec81
+//! @prompt-hash 1f461420
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-02
+
+mod justice_overflow;
+mod vanilla_lower;
 
 use super::paragraph_prepare::Prepared;
 use super::paragraph_select::{self, line_cost, ratio, Line, Measure, Strategy};
@@ -16,15 +19,219 @@ struct Trial {
     upper_bound: f64,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum PruneMode {
-    UpperOnly,
-    VanillaLineLower,
-    JusticeOverflow,
-    JusticeOverflowNoSeed,
+struct Search<'a> {
+    p: &'a Prepared,
+    width: f64,
+    font: f64,
+    justify: bool,
+    costs: LineCosts,
+    n: usize,
+    prefix: Vec<Measure>,
+    before: Vec<Measure>,
+    upper_bound: f64,
+    monotone: bool,
+    active: usize,
+    totals: Vec<f64>,
+    predecessors: Vec<usize>,
+    evaluated: usize,
+    pruned: usize,
 }
 
-/// Experimental upper-bound pruning. This module is compiled only by tests.
+impl<'a> Search<'a> {
+    fn new(
+        p: &'a Prepared,
+        width: f64,
+        font: f64,
+        justify: bool,
+        costs: LineCosts,
+        seed: bool,
+    ) -> Self {
+        let n = p.words.len();
+        let before: Vec<Measure> = p
+            .words
+            .iter()
+            .enumerate()
+            .map(|(index, word)| {
+                let base = word.before.iter().map(|gap| gap.width).sum::<f64>();
+                let count = word.before.len();
+                let intervals = if index == 0 {
+                    count
+                } else if count > 0 {
+                    count + 1
+                } else {
+                    0
+                };
+                Measure {
+                    width: base + p.tracking() * intervals as f64,
+                    spaces: base,
+                    count,
+                }
+            })
+            .collect();
+        let mut prefix = vec![Measure::default(); n + 1];
+        for i in 0..n {
+            prefix[i + 1] = Measure {
+                width: prefix[i].width + p.words[i].width + before[i].width,
+                spaces: prefix[i].spaces + before[i].spaces,
+                count: prefix[i].count + before[i].count,
+            };
+        }
+        let monotone = width.is_finite()
+            && font.is_finite()
+            && font > 0.0
+            && p.tracking().is_finite()
+            && p.tracking() >= 0.0
+            && p.words.iter().all(|word| {
+                word.width.is_finite()
+                    && word.width >= 0.0
+                    && word
+                        .before
+                        .iter()
+                        .all(|gap| gap.width.is_finite() && gap.width >= 0.0)
+            });
+        let mut search = Self {
+            p,
+            width,
+            font,
+            justify,
+            costs,
+            n,
+            prefix,
+            before,
+            upper_bound: if seed { 0.0 } else { f64::INFINITY },
+            monotone,
+            active: 0,
+            totals: vec![f64::INFINITY; n + 1],
+            predecessors: vec![0; n + 1],
+            evaluated: 0,
+            pruned: 0,
+        };
+        search.totals[0] = 0.0;
+        if seed && n > 0 {
+            search.upper_bound = paragraph_select::select(
+                p,
+                width,
+                font,
+                justify,
+                Strategy::Simple,
+                costs,
+            )
+            .into_iter()
+            .map(|line| search.price(line, search.measure(line)))
+            .sum();
+        }
+        search
+    }
+
+    fn measure(&self, line: Line) -> Measure {
+        let trim =
+            if line.start > 0 { self.before[line.start] } else { Measure::default() };
+        let terminal = if line.end < self.n && !self.p.words[line.end].before.is_empty() {
+            self.p.tracking()
+        } else {
+            0.0
+        };
+        Measure {
+            width: self.prefix[line.end].width
+                - self.prefix[line.start].width
+                - trim.width
+                + terminal,
+            spaces: self.prefix[line.end].spaces
+                - self.prefix[line.start].spaces
+                - trim.spaces,
+            count: self.prefix[line.end].count
+                - self.prefix[line.start].count
+                - trim.count,
+        }
+    }
+
+    fn price(&self, line: Line, m: Measure) -> f64 {
+        line_cost(
+            m,
+            self.width,
+            self.font,
+            self.justify,
+            line.end == self.n,
+            line.end == line.start + 1,
+            0.0,
+            self.costs,
+        )
+    }
+
+    fn min_ratio(&self) -> f64 {
+        if self.justify {
+            -1.0
+        } else {
+            0.0
+        }
+    }
+
+    fn run_upper_only(&mut self) {
+        for end in 1..=self.n {
+            let old_active = self.active;
+            for start in old_active..end {
+                let line = Line { start, end };
+                let m = self.measure(line);
+                if start == self.active
+                    && ratio(m, self.width, self.font) < self.min_ratio()
+                {
+                    self.active += 1;
+                }
+                if self.totals[start] > self.upper_bound {
+                    self.pruned += 1;
+                    continue;
+                }
+                self.evaluated += 1;
+                let total = self.totals[start] + self.price(line, m);
+                if total <= self.totals[end] {
+                    self.totals[end] = total;
+                    self.predecessors[end] = start;
+                }
+            }
+        }
+    }
+
+    fn finish(self) -> Trial {
+        if self.n == 0 {
+            return Trial {
+                lines: Vec::new(),
+                evaluated: 0,
+                pruned: 0,
+                upper_bound: 0.0,
+            };
+        }
+        if !self.totals[self.n].is_finite() {
+            return Trial {
+                lines: paragraph_select::select(
+                    self.p,
+                    self.width,
+                    self.font,
+                    self.justify,
+                    Strategy::Optimized,
+                    self.costs,
+                ),
+                evaluated: self.evaluated,
+                pruned: self.pruned,
+                upper_bound: self.upper_bound,
+            };
+        }
+        let mut lines = Vec::new();
+        let mut end = self.n;
+        while end > 0 {
+            let start = self.predecessors[end];
+            lines.push(Line { start, end });
+            end = start;
+        }
+        lines.reverse();
+        Trial {
+            lines,
+            evaluated: self.evaluated,
+            pruned: self.pruned,
+            upper_bound: self.upper_bound,
+        }
+    }
+}
+
 fn select_bounded(
     p: &Prepared,
     width: f64,
@@ -32,7 +239,11 @@ fn select_bounded(
     justify: bool,
     costs: LineCosts,
 ) -> Trial {
-    select_bounded_variant(p, width, font, justify, costs, PruneMode::UpperOnly)
+    let mut search = Search::new(p, width, font, justify, costs, true);
+    if search.upper_bound.is_finite() {
+        search.run_upper_only();
+    }
+    search.finish()
 }
 
 fn select_bounded_vanilla_lower(
@@ -42,7 +253,11 @@ fn select_bounded_vanilla_lower(
     justify: bool,
     costs: LineCosts,
 ) -> Trial {
-    select_bounded_variant(p, width, font, justify, costs, PruneMode::VanillaLineLower)
+    let mut search = Search::new(p, width, font, justify, costs, true);
+    if search.upper_bound.is_finite() {
+        vanilla_lower::run(&mut search);
+    }
+    search.finish()
 }
 
 fn select_bounded_justice(
@@ -52,7 +267,11 @@ fn select_bounded_justice(
     justify: bool,
     costs: LineCosts,
 ) -> Trial {
-    select_bounded_variant(p, width, font, justify, costs, PruneMode::JusticeOverflow)
+    let mut search = Search::new(p, width, font, justify, costs, true);
+    if search.upper_bound.is_finite() {
+        justice_overflow::run(&mut search);
+    }
+    search.finish()
 }
 
 fn select_justice_without_seed(
@@ -62,247 +281,9 @@ fn select_justice_without_seed(
     justify: bool,
     costs: LineCosts,
 ) -> Trial {
-    select_bounded_variant(
-        p,
-        width,
-        font,
-        justify,
-        costs,
-        PruneMode::JusticeOverflowNoSeed,
-    )
-}
-
-fn select_bounded_variant(
-    p: &Prepared,
-    width: f64,
-    font: f64,
-    justify: bool,
-    costs: LineCosts,
-    mode: PruneMode,
-) -> Trial {
-    let n = p.words.len();
-    if n == 0 {
-        return Trial {
-            lines: Vec::new(),
-            evaluated: 0,
-            pruned: 0,
-            upper_bound: 0.0,
-        };
-    }
-    let mut prefix = vec![Measure::default(); n + 1];
-    let before: Vec<Measure> = p
-        .words
-        .iter()
-        .enumerate()
-        .map(|(index, word)| {
-            let base = word.before.iter().map(|gap| gap.width).sum::<f64>();
-            let count = word.before.len();
-            let intervals = if index == 0 {
-                count
-            } else if count > 0 {
-                count + 1
-            } else {
-                0
-            };
-            Measure {
-                width: base + p.tracking() * intervals as f64,
-                spaces: base,
-                count,
-            }
-        })
-        .collect();
-    for i in 0..n {
-        prefix[i + 1] = Measure {
-            width: prefix[i].width + p.words[i].width + before[i].width,
-            spaces: prefix[i].spaces + before[i].spaces,
-            count: prefix[i].count + before[i].count,
-        };
-    }
-    let measured = |line: Line| {
-        let trim = if line.start > 0 { before[line.start] } else { Measure::default() };
-        let terminal = if line.end < n && !p.words[line.end].before.is_empty() {
-            p.tracking()
-        } else {
-            0.0
-        };
-        Measure {
-            width: prefix[line.end].width - prefix[line.start].width - trim.width
-                + terminal,
-            spaces: prefix[line.end].spaces - prefix[line.start].spaces - trim.spaces,
-            count: prefix[line.end].count - prefix[line.start].count - trim.count,
-        }
-    };
-    let score = |line: Line| {
-        line_cost(
-            measured(line),
-            width,
-            font,
-            justify,
-            line.end == n,
-            line.end == line.start + 1,
-            0.0,
-            costs,
-        )
-    };
-    let upper_bound: f64 = if mode == PruneMode::JusticeOverflowNoSeed {
-        f64::INFINITY
-    } else {
-        paragraph_select::select(p, width, font, justify, Strategy::Simple, costs)
-            .into_iter()
-            .map(score)
-            .sum()
-    };
-    if mode != PruneMode::JusticeOverflowNoSeed && !upper_bound.is_finite() {
-        return Trial {
-            lines: paragraph_select::select(
-                p,
-                width,
-                font,
-                justify,
-                Strategy::Optimized,
-                costs,
-            ),
-            evaluated: 0,
-            pruned: 0,
-            upper_bound,
-        };
-    }
-    let mut active = 0;
-    // Adding a word on the left cannot shorten the line under this guard.
-    // For negative contributions, both experimental prunes fall back to full search.
-    let monotone = width.is_finite()
-        && font.is_finite()
-        && font > 0.0
-        && p.tracking() >= 0.0
-        && p.tracking().is_finite()
-        && p.words.iter().all(|word| {
-            word.width.is_finite()
-                && word.width >= 0.0
-                && word
-                    .before
-                    .iter()
-                    .all(|gap| gap.width.is_finite() && gap.width >= 0.0)
-        });
-    let mut totals = vec![f64::INFINITY; n + 1];
-    let mut predecessors = vec![0; n + 1];
-    let (mut evaluated, mut pruned) = (0, 0);
-    totals[0] = 0.0;
-    for end in 1..=n {
-        let old_active = active;
-        let min_ratio = if justify { -1.0 } else { 0.0 };
-        if matches!(mode, PruneMode::JusticeOverflow | PruneMode::JusticeOverflowNoSeed) {
-            for start in (old_active..end).rev() {
-                let line = Line { start, end };
-                let m = measured(line);
-                let r = ratio(m, width, font);
-                let line_price = line_cost(
-                    m,
-                    width,
-                    font,
-                    justify,
-                    end == n,
-                    end == start + 1,
-                    0.0,
-                    costs,
-                );
-                if totals[start] > upper_bound {
-                    pruned += 1;
-                } else {
-                    evaluated += 1;
-                    let total = totals[start] + line_price;
-                    // Reverse order: on equal totals, retain the later start.
-                    if total < totals[end] {
-                        totals[end] = total;
-                        predecessors[end] = start;
-                    }
-                }
-                // Earlier overfull starts contain at least two words, so a
-                // one-word last-line runt adjustment cannot lower this floor.
-                let overflow_floor = if end == n && start + 1 == end {
-                    line_cost(m, width, font, justify, true, false, 0.0, costs)
-                } else {
-                    line_price
-                };
-                if monotone && r < min_ratio && overflow_floor >= totals[end] {
-                    pruned += start - old_active;
-                    break;
-                }
-            }
-            // Match the productive selector's frontier for the next endpoint.
-            while active < end
-                && ratio(measured(Line { start: active, end }), width, font) < min_ratio
-            {
-                active += 1;
-            }
-        } else {
-            let mut line_lower_bound = None;
-            for start in old_active..end {
-                let line = Line { start, end };
-                let m = measured(line);
-                let r = ratio(m, width, font);
-                if start == active && r < min_ratio {
-                    active += 1;
-                }
-                if totals[start] > upper_bound
-                    || (mode == PruneMode::VanillaLineLower
-                        && monotone
-                        && line_lower_bound
-                            .is_some_and(|lower| totals[start] + lower > upper_bound))
-                {
-                    pruned += 1;
-                    continue;
-                }
-                evaluated += 1;
-                let current_cost = line_cost(
-                    m,
-                    width,
-                    font,
-                    justify,
-                    end == n,
-                    end == start + 1,
-                    0.0,
-                    costs,
-                );
-                let total = totals[start] + current_cost;
-                if mode == PruneMode::VanillaLineLower
-                    && monotone
-                    && end < n
-                    && r > 0.0
-                    && line_lower_bound.is_none()
-                {
-                    line_lower_bound = Some(current_cost);
-                }
-                if total <= totals[end] {
-                    totals[end] = total;
-                    predecessors[end] = start;
-                }
-            }
-        }
-    }
-    if !totals[n].is_finite() {
-        return Trial {
-            lines: paragraph_select::select(
-                p,
-                width,
-                font,
-                justify,
-                Strategy::Optimized,
-                costs,
-            ),
-            evaluated,
-            pruned,
-            upper_bound,
-        };
-    }
-    let mut lines = Vec::new();
-    let mut end = n;
-    while end > 0 {
-        let start = predecessors[end];
-        lines.push(Line { start, end });
-        end = start;
-    }
-    lines.reverse();
-    Trial { lines, evaluated, pruned, upper_bound }
+    let mut search = Search::new(p, width, font, justify, costs, false);
+    justice_overflow::run(&mut search);
+    search.finish()
 }
 
 #[cfg(test)]
