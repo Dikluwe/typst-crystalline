@@ -1,0 +1,21 @@
+warning: Missing auto-load script at offset 0 in section .debug_gdb_scripts
+of file /repos/Antigravity/typst-crystalline/target/debug/typst.
+Use `info auto-load python-scripts [REGEXP]' to list them.
+Breakpoint 1 at 0x213d555: 01_core/src/compiler/layout/grid/tracks.rs:175. (2 locations)
+Breakpoint 2 at 0x213f485: 01_core/src/compiler/layout/grid/cell_body.rs:154. (2 locations)
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Inferior 1 (process 3588294) exited normally]
+Num     Type           Disp Enb Address            What
+1       breakpoint     keep y   <MULTIPLE>         
+	breakpoint already hit 160 times
+        silent
+        continue
+1.1                         y   0x0000555557691555 in typst_core::compiler::layout::Layouter<typst_infra::font_metrics::FallbackFontMetrics, typst_infra::image_sizer::ImageSizeImageSizer>::resolve_grid_rows<typst_infra::font_metrics::FallbackFontMetrics, typst_infra::image_sizer::ImageSizeImageSizer> at 01_core/src/compiler/layout/grid/tracks.rs:175
+1.2                         y   0x0000555558e28a65 in typst_core::compiler::layout::Layouter<&dyn typst_core::compiler::layout::metrics::FontMetrics, typst_core::entities::image_sizer::NullImageSizer>::resolve_grid_rows<&dyn typst_core::compiler::layout::metrics::FontMetrics, typst_core::entities::image_sizer::NullImageSizer> at 01_core/src/compiler/layout/grid/tracks.rs:175
+2       breakpoint     keep y   <MULTIPLE>         
+	breakpoint already hit 160 times
+        silent
+        continue
+2.1                         y   0x0000555557693485 in typst_core::compiler::layout::Layouter<typst_infra::font_metrics::FallbackFontMetrics, typst_infra::image_sizer::ImageSizeImageSizer>::emit_grid_cell_body<typst_infra::font_metrics::FallbackFontMetrics, typst_infra::image_sizer::ImageSizeImageSizer> at 01_core/src/compiler/layout/grid/cell_body.rs:154
+2.2                         y   0x0000555558e2a995 in typst_core::compiler::layout::Layouter<&dyn typst_core::compiler::layout::metrics::FontMetrics, typst_core::entities::image_sizer::NullImageSizer>::emit_grid_cell_body<&dyn typst_core::compiler::layout::metrics::FontMetrics, typst_core::entities::image_sizer::NullImageSizer> at 01_core/src/compiler/layout/grid/cell_body.rs:154
