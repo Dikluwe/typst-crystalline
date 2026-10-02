@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/paragraph_select_forward.md
-//! @prompt-hash 4ee4b629
+//! @prompt-hash 09a383a9
 //! @layer L1
 //! @updated 2026-10-02
 
@@ -25,7 +25,7 @@ fn select_forward(
     justify: bool,
     costs: LineCosts,
 ) -> Trial {
-    select_forward_variant::<true, false>(p, width, font, justify, costs)
+    select_forward_variant::<true, false, false>(p, width, font, justify, costs)
 }
 
 /// Ablation without the packed and balanced initial layouts.
@@ -36,7 +36,7 @@ fn select_forward_simple_bound(
     justify: bool,
     costs: LineCosts,
 ) -> Trial {
-    select_forward_variant::<false, false>(p, width, font, justify, costs)
+    select_forward_variant::<false, false, false>(p, width, font, justify, costs)
 }
 
 /// Ablation reusing prefix measures to build the greedy upper bound.
@@ -47,13 +47,25 @@ fn select_forward_prefix_bound(
     justify: bool,
     costs: LineCosts,
 ) -> Trial {
-    select_forward_variant::<false, true>(p, width, font, justify, costs)
+    select_forward_variant::<false, true, false>(p, width, font, justify, costs)
+}
+
+/// Locally repair adjacent greedy lines before using them as an upper bound.
+fn select_forward_local_seed(
+    p: &Prepared,
+    width: f64,
+    font: f64,
+    justify: bool,
+    costs: LineCosts,
+) -> Trial {
+    select_forward_variant::<false, true, true>(p, width, font, justify, costs)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum SelectedPath {
     Exact,
     Forward,
+    Local,
 }
 
 /// Test-only route decision; both branches use the same semantic line cost.
@@ -81,8 +93,11 @@ fn select_adaptive(
         } else {
             32.0
         };
-        if avg_advance > 0.0 && width / avg_advance >= target_words {
+        let words_per_line = width / avg_advance;
+        if avg_advance > 0.0 && words_per_line >= target_words {
             SelectedPath::Forward
+        } else if avg_advance > 0.0 && n > 256 && n <= 1200 && words_per_line >= 7.0 {
+            SelectedPath::Local
         } else {
             SelectedPath::Exact
         }
@@ -94,11 +109,18 @@ fn select_adaptive(
         SelectedPath::Forward => {
             select_forward_prefix_bound(p, width, font, justify, costs).lines
         }
+        SelectedPath::Local => {
+            select_forward_local_seed(p, width, font, justify, costs).lines
+        }
     };
     (lines, path)
 }
 
-fn select_forward_variant<const EXTRA_SEEDS: bool, const PREFIX_GREEDY: bool>(
+fn select_forward_variant<
+    const EXTRA_SEEDS: bool,
+    const PREFIX_GREEDY: bool,
+    const LOCAL_SEED: bool,
+>(
     p: &Prepared,
     width: f64,
     font: f64,
@@ -171,7 +193,7 @@ fn select_forward_variant<const EXTRA_SEEDS: bool, const PREFIX_GREEDY: bool>(
         )
     };
     let total_score = |lines: &[Line]| lines.iter().copied().map(score).sum::<f64>();
-    let greedy = if PREFIX_GREEDY {
+    let mut greedy = if PREFIX_GREEDY {
         let mut lines = Vec::new();
         let mut start = 0;
         while start < n {
@@ -186,8 +208,38 @@ fn select_forward_variant<const EXTRA_SEEDS: bool, const PREFIX_GREEDY: bool>(
     } else {
         paragraph_select::select(p, width, font, justify, Strategy::Simple, costs)
     };
-    let mut upper_bound = total_score(&greedy);
+    let simple_bound = total_score(&greedy);
+    if LOCAL_SEED && greedy.len() > 1 {
+        for pair in 0..greedy.len() - 1 {
+            let first = greedy[pair];
+            let second = greedy[pair + 1];
+            let mut best_score = score(first) + score(second);
+            let mut best_end = first.end;
+            for end in [first.end.saturating_sub(1), first.end + 1] {
+                if end <= first.start || end >= second.end {
+                    continue;
+                }
+                let candidate = score(Line { start: first.start, end })
+                    + score(Line { start: end, end: second.end });
+                if candidate.is_finite() && candidate < best_score {
+                    best_score = candidate;
+                    best_end = end;
+                }
+            }
+            greedy[pair].end = best_end;
+            greedy[pair + 1].start = best_end;
+        }
+    }
+    let local_bound = if LOCAL_SEED { total_score(&greedy) } else { simple_bound };
+    let mut upper_bound = if local_bound.is_finite() && local_bound < simple_bound {
+        local_bound
+    } else {
+        simple_bound
+    };
     let mut bound_source = "simple";
+    if upper_bound < simple_bound {
+        bound_source = "local";
+    }
     let min_ratio = if justify { -1.0 } else { 0.0 };
     if EXTRA_SEEDS {
         let mut word_widths = vec![0.0; n + 1];
@@ -396,6 +448,13 @@ mod tests {
                                     prefix_seed.lines, exact,
                                     "prefix-seed size={size} width={width}"
                                 );
+                                let local = select_forward_local_seed(
+                                    &p, width, 12.0, justify, cost,
+                                );
+                                assert_eq!(
+                                    local.lines, exact,
+                                    "local size={size} gap={gap} tracking={tracking} width={width} justify={justify} runt={}", cost.runt
+                                );
                                 let (adaptive, _) =
                                     select_adaptive(&p, width, 12.0, justify, cost);
                                 assert_eq!(
@@ -410,6 +469,27 @@ mod tests {
             }
         }
         assert!(skipped > 0, "the matrix must exercise whole-start pruning");
+        for (count, width, justify, expected_path) in [
+            (500, 240.0, false, SelectedPath::Local),
+            (1000, 240.0, false, SelectedPath::Local),
+            (1000, 1200.0, true, SelectedPath::Forward),
+        ] {
+            let widths: Vec<f64> =
+                (0..count).map(|i| ((i * 17) % 19 + 9) as f64).collect();
+            let p = prepared(&widths, 3.0, 0.0);
+            let (lines, path) =
+                select_adaptive(&p, width, 12.0, justify, LineCosts::default());
+            let exact = paragraph_select::select(
+                &p,
+                width,
+                12.0,
+                justify,
+                Strategy::Optimized,
+                LineCosts::default(),
+            );
+            assert_eq!(path, expected_path, "count={count} width={width}");
+            assert_eq!(lines, exact, "count={count} width={width}");
+        }
     }
 
     #[test]
@@ -426,7 +506,9 @@ mod tests {
             ("short_narrow", 40, 76.0, false),
             ("medium", 160, 240.0, false),
             ("medium_narrow", 160, 76.0, false),
+            ("mid_large_medium", 500, 240.0, false),
             ("large_medium", 1000, 240.0, false),
+            ("very_large_medium", 2000, 240.0, false),
             ("large_wide_justified", 1000, 1200.0, true),
             ("large_wide_ragged", 1000, 1200.0, false),
         ] {
@@ -449,14 +531,19 @@ mod tests {
             let prefix_seed =
                 select_forward_prefix_bound(&p, width, 12.0, justify, costs);
             assert_eq!(prefix_seed.lines, exact, "prefix-seed case={name}");
+            let local = select_forward_local_seed(&p, width, 12.0, justify, costs);
+            assert_eq!(local.lines, exact, "local case={name}");
             let (adaptive, selected) = select_adaptive(&p, width, 12.0, justify, costs);
             assert_eq!(adaptive, exact, "adaptive case={name}");
             eprintln!(
-                "case={name} selected={selected:?} evaluated={} skipped_starts={} bound={} source={}",
-                trial.evaluated,
-                trial.skipped_starts,
-                trial.upper_bound,
-                trial.bound_source
+                "case={name} selected={selected:?} evaluated={} local_evaluated={} skipped_starts={} local_skipped_starts={} bound={} local_bound={} source={}",
+                prefix_seed.evaluated,
+                local.evaluated,
+                prefix_seed.skipped_starts,
+                local.skipped_starts,
+                prefix_seed.upper_bound,
+                local.upper_bound,
+                prefix_seed.bound_source
             );
             let mut group = criterion.benchmark_group(format!("forward_{name}"));
             group.bench_function("exact", |b| {
@@ -474,6 +561,17 @@ mod tests {
             group.bench_function("forward_prefix_seed", |b| {
                 b.iter(|| {
                     black_box(select_forward_prefix_bound(
+                        black_box(&p),
+                        black_box(width),
+                        12.0,
+                        justify,
+                        costs,
+                    ))
+                })
+            });
+            group.bench_function("forward_local_seed", |b| {
+                b.iter(|| {
+                    black_box(select_forward_local_seed(
                         black_box(&p),
                         black_box(width),
                         12.0,

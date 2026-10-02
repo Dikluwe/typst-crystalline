@@ -1,5 +1,5 @@
 # L0 — paragraph_select_forward
-Hash do Código: e3e02bf0
+Hash do Código: 37a64a32
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/paragraph_select_forward.rs`
@@ -33,4 +33,10 @@ Medição anterior à decisão: `00_nucleo/diagnosticos/microbench-paragraph-sel
 
 Primeira medição da escolha (`2026-10-02 18:50:57 UTC`, working tree sobre `39a74d477`, dois arquivos alterados): com 160 palavras/76pt, selecionar forward pela contagem isolada custou 10,744 µs contra 8,338 µs do exato. A largura relativa ao avanço médio deve participar também nesse intervalo; repetir a rodada após ajustar a regra. Essa calibração sintética não constitui limiar de produção.
 
-Regra experimental após a correção: menos de 64 palavras escolhe exato; de 64 a 256 escolhe forward apenas se a largura comporta pelo menos sete avanços médios; acima disso exige 24 avanços médios com justificação ou 32 sem justificação. O avanço médio soma largura das palavras e gaps anteriores. Larguras não positivas ou médias inválidas caem no exato. Esses limiares servem à ablação, não são contrato do comportamento por defeito.
+## Reparação local da semente — 2026-10-02
+
+Medição anterior à decisão: `00_nucleo/diagnosticos/microbench-paragraph-select-local-seed-2026-10-02.md` registra que, em 500 palavras/240pt, o forward prefixado avaliou 2.932 candidatos em 43,289 µs, enquanto a variante com reparação local de uma passagem avaliou 2.305 em 39,529 µs. Em 1.000 palavras/240pt, foram 10.300 candidatos/134,19 µs contra 7.895/114,82 µs. No cenário largo, a reparação não reduziu candidatos nem tempo. A busca de todos os cortes por par e a segunda passagem foram medidas e rejeitadas no diagnóstico.
+
+Partir da partição Simple prefixada. Percorrer pares de linhas vizinhas uma vez, da esquerda para a direita. Para cada par, testar apenas mover o corte uma palavra para a esquerda ou para a direita, conservando ambas as linhas não vazias. Usar a soma dos custos exatos das duas linhas e aceitar somente melhoria estrita e finita. A partição reparada fornece apenas um limite superior; nenhum candidato da DP é excluído por esta heurística. Preservar medida prefixada, fronteira ativa e desempate da busca. Testar diferencialmente as quebras contra o seletor exato.
+
+A escolha experimental `cfg(test)` seleciona exato para menos de 64 palavras; entre 64 e 256 seleciona forward prefixado quando cabem pelo menos sete avanços médios por linha; acima disso seleciona forward prefixado quando cabem pelo menos 24 avanços médios com justificação ou 32 sem ela. Nos demais casos de 257 a 1.200 palavras com pelo menos sete avanços médios, seleciona forward com reparação local; fora dessas faixas, seleciona exato. O avanço médio soma largura de palavra e gaps anteriores. Esses limiares não alteram o default de produção e exigem validação em corpus real antes de qualquer promoção.
