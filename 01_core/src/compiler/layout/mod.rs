@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 24e88d78
+//! @prompt-hash d8e8ee92
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -155,6 +155,8 @@ mod paragraph_prepare;
 mod paragraph_select;
 #[cfg(test)]
 mod paragraph_select_bounded;
+#[cfg(test)]
+mod paragraph_select_forward;
 mod parbreak;
 mod pdf_artifact;
 mod pdf_attach;

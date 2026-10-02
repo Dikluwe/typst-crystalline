@@ -1,5 +1,5 @@
 # L0 — Layout engine coordination
-Hash do Código: 16902dfe
+Hash do Código: 6057cf99
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -232,3 +232,7 @@ A fachada mantém as entradas públicas, o estado Layouter e o dispatcher estát
 ## Protótipo de seleção limitada — 2026-09-30
 
 Medição anterior à decisão: `paragraph_plan.rs` liga a seleção exata de `paragraph_select.rs`; `mod.rs` declara apenas o módulo existente. O hub declara `paragraph_select_bounded` apenas sob `cfg(test)`, com owner exclusivo em `00_nucleo/prompts/compiler/layout/paragraph_select_bounded.md`. Não altera a fachada, o despacho ou o caminho produtivo.
+
+## Protótipo de seleção com início fixo — 2026-10-02
+
+Medição anterior à decisão: `paragraph_select.rs` percorre finais com inícios variáveis; `paragraph_select_bounded.rs` é test-only. Declarar o novo descendente experimental `paragraph_select_forward` somente em `cfg(test)`, com owner exclusivo `00_nucleo/prompts/compiler/layout/paragraph_select_forward.md`. Sem alteração do planejamento, façade ou default de produção.
