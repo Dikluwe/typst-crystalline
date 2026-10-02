@@ -1,5 +1,5 @@
 # L0 — paragraph_select_bounded
-Hash do Código: cb376f6b
+Hash do Código: adc9f605
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/paragraph_select_bounded.rs`
@@ -24,3 +24,9 @@ Medição anterior à decisão: os testes diferenciais do protótipo demonstram 
 ## Escala de 1.000 palavras — 2026-10-01
 
 Medição anterior à decisão: o relatório `00_nucleo/diagnosticos/microbench-paragraph-select-bounded-2026-09-30.md` contém somente 40 e 160 palavras; 160 palavras com 240pt e 1200pt favoreceram a poda, enquanto 40 palavras com 76pt não. Estender o mesmo benchmark aos três regimes de largura com 1.000 palavras, mantendo gerador, fonte, gaps, custos, verificação diferencial e medição da seleção completa. Registrar resultados e proveniência separados; não inferir escala pelo conjunto anterior.
+
+## Comparação de podas por linha — 2026-10-02
+
+Medição anterior à decisão: `lab/typst-original/crates/typst-layout/src/inline/linebreak.rs:264-344` estabelece o custo de uma linha subcheia como limite inferior para tentativas seguintes, desde que não haja largura negativa. O código de `kitlangton/justice` no commit `86dbc6da8cc2059cabb2a67c0aa42d773d5023e2`, `src/engine.ts:340-400`, percorre predecessores em ordem inversa e interrompe após transbordamento somente sob guarda de monotonicidade. `paragraph_select_bounded.rs:91-143` hoje possui apenas o limite superior global e visita os demais pares antes de podar. A descoberta externa é indício de mecânica, não contrato de linguagem nem prova de ganho local.
+
+Adicionar duas variantes privadas sob `cfg(test)` no mesmo consumer, sem alterar API, modo, default ou fase. Ambas usam a mesma função `line_cost`, medidas prefixadas e desempate do seletor exato. A primeira mantém a solução Simple como limite superior, percorre inícios crescentes e usa o custo da primeira linha subcheia não final como limite inferior para os inícios posteriores no mesmo fim; só aplica quando todas as contribuições de largura e tracking relevantes são não negativas. A segunda percorre inícios decrescentes e interrompe após a primeira linha overfull se seu custo sozinho não pode melhorar nem empatar com vantagem o melhor custo já encontrado para aquele fim; só aplica quando a largura da linha não diminui ao estender o início para a esquerda, comprovada conservadoramente por palavras, gaps e tracking não negativos. Medir a segunda com e sem a construção da solução Simple para separar o custo da semente da eficácia da poda local. Em caso de dúvida ou valores não finitos, não podar. O prefixo tem custo não negativo porque a função de custo é quadrática, inclusive com runt negativo. Preservar a fronteira ativa e validar ranges iguais ao seletor exato, incluindo larguras negativas em que a poda de monotonicidade deve desligar. Medir separadamente visitas, podas e tempo com as mesmas entradas de 40, 160, 500, 1.000 e 2.000 palavras, também em largura larga. Resultados só valem para as entradas e o estado medidos.
