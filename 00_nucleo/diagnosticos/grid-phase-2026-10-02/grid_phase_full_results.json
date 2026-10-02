@@ -1,0 +1,1071 @@
+{
+  "head": "b388851b081bdf54579d9e731aed057dd9ea468f",
+  "status": "",
+  "diff_stat": "",
+  "utc": "2026-10-02 22:20:29 UTC",
+  "binary_sha256": "a12d75ded40944932b20dbd751d7969d3f846ac04de10c817cfffee707175cc4",
+  "gdb_script_sha256": "d751ae491c5d89234428e37eaca5a78920818a8e58b698a7f3dc23e04ddc699d",
+  "summary": {
+    "1": {
+      "columns_ms": {
+        "median": 4.8065435,
+        "range": [
+          4.5692,
+          4.900693
+        ]
+      },
+      "rows_ms": {
+        "median": 0.721085,
+        "range": [
+          0.681392,
+          0.8175939999999999
+        ]
+      },
+      "emit_ms": {
+        "median": 0.763212,
+        "range": [
+          0.696439,
+          0.878887
+        ]
+      }
+    },
+    "20": {
+      "columns_ms": {
+        "median": 10.120161,
+        "range": [
+          9.418747,
+          10.914336
+        ]
+      },
+      "rows_ms": {
+        "median": 3.01133,
+        "range": [
+          2.956894,
+          3.430621
+        ]
+      },
+      "emit_ms": {
+        "median": 4.1939095,
+        "range": [
+          4.075546,
+          4.275906
+        ]
+      }
+    },
+    "80": {
+      "columns_ms": {
+        "median": 25.9735515,
+        "range": [
+          25.707916,
+          26.547919999999998
+        ]
+      },
+      "rows_ms": {
+        "median": 10.3310265,
+        "range": [
+          10.195305,
+          10.714236
+        ]
+      },
+      "emit_ms": {
+        "median": 15.42116,
+        "range": [
+          15.253761,
+          16.016373
+        ]
+      }
+    }
+  },
+  "samples": [
+    {
+      "fixture_rows": 1,
+      "sample": 0,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 4.226595
+        },
+        {
+          "phase": "rows",
+          "ms": 0.396053
+        },
+        {
+          "phase": "emit",
+          "ms": 0.385654
+        },
+        {
+          "phase": "columns",
+          "ms": 0.476842
+        },
+        {
+          "phase": "rows",
+          "ms": 0.326785
+        },
+        {
+          "phase": "emit",
+          "ms": 0.342604
+        }
+      ],
+      "columns_ms": 4.703436999999999,
+      "rows_ms": 0.722838,
+      "emit_ms": 0.7282580000000001
+    },
+    {
+      "fixture_rows": 1,
+      "sample": 1,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 4.003011
+        },
+        {
+          "phase": "rows",
+          "ms": 0.369213
+        },
+        {
+          "phase": "emit",
+          "ms": 0.393598
+        },
+        {
+          "phase": "columns",
+          "ms": 0.566189
+        },
+        {
+          "phase": "rows",
+          "ms": 0.343706
+        },
+        {
+          "phase": "emit",
+          "ms": 0.37264
+        }
+      ],
+      "columns_ms": 4.5692,
+      "rows_ms": 0.7129190000000001,
+      "emit_ms": 0.766238
+    },
+    {
+      "fixture_rows": 1,
+      "sample": 2,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 4.284271
+        },
+        {
+          "phase": "rows",
+          "ms": 0.38877
+        },
+        {
+          "phase": "emit",
+          "ms": 0.452177
+        },
+        {
+          "phase": "columns",
+          "ms": 0.509514
+        },
+        {
+          "phase": "rows",
+          "ms": 0.428824
+        },
+        {
+          "phase": "emit",
+          "ms": 0.42671
+        }
+      ],
+      "columns_ms": 4.793785000000001,
+      "rows_ms": 0.8175939999999999,
+      "emit_ms": 0.878887
+    },
+    {
+      "fixture_rows": 1,
+      "sample": 3,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 4.414252
+        },
+        {
+          "phase": "rows",
+          "ms": 0.338908
+        },
+        {
+          "phase": "emit",
+          "ms": 0.375746
+        },
+        {
+          "phase": "columns",
+          "ms": 0.431469
+        },
+        {
+          "phase": "rows",
+          "ms": 0.342484
+        },
+        {
+          "phase": "emit",
+          "ms": 0.361559
+        }
+      ],
+      "columns_ms": 4.845721,
+      "rows_ms": 0.681392,
+      "emit_ms": 0.7373050000000001
+    },
+    {
+      "fixture_rows": 1,
+      "sample": 4,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 4.316791
+        },
+        {
+          "phase": "rows",
+          "ms": 0.398438
+        },
+        {
+          "phase": "emit",
+          "ms": 0.379823
+        },
+        {
+          "phase": "columns",
+          "ms": 0.41572
+        },
+        {
+          "phase": "rows",
+          "ms": 0.30253
+        },
+        {
+          "phase": "emit",
+          "ms": 0.347834
+        }
+      ],
+      "columns_ms": 4.732511000000001,
+      "rows_ms": 0.700968,
+      "emit_ms": 0.727657
+    },
+    {
+      "fixture_rows": 1,
+      "sample": 5,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 4.379408
+        },
+        {
+          "phase": "rows",
+          "ms": 0.416832
+        },
+        {
+          "phase": "emit",
+          "ms": 0.457757
+        },
+        {
+          "phase": "columns",
+          "ms": 0.445605
+        },
+        {
+          "phase": "rows",
+          "ms": 0.315615
+        },
+        {
+          "phase": "emit",
+          "ms": 0.359256
+        }
+      ],
+      "columns_ms": 4.825012999999999,
+      "rows_ms": 0.732447,
+      "emit_ms": 0.817013
+    },
+    {
+      "fixture_rows": 1,
+      "sample": 6,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 4.45105
+        },
+        {
+          "phase": "rows",
+          "ms": 0.404248
+        },
+        {
+          "phase": "emit",
+          "ms": 0.429314
+        },
+        {
+          "phase": "columns",
+          "ms": 0.449643
+        },
+        {
+          "phase": "rows",
+          "ms": 0.315084
+        },
+        {
+          "phase": "emit",
+          "ms": 0.337976
+        }
+      ],
+      "columns_ms": 4.900693,
+      "rows_ms": 0.719332,
+      "emit_ms": 0.76729
+    },
+    {
+      "fixture_rows": 1,
+      "sample": 7,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 4.209292
+        },
+        {
+          "phase": "rows",
+          "ms": 0.393809
+        },
+        {
+          "phase": "emit",
+          "ms": 0.387397
+        },
+        {
+          "phase": "columns",
+          "ms": 0.564716
+        },
+        {
+          "phase": "rows",
+          "ms": 0.346602
+        },
+        {
+          "phase": "emit",
+          "ms": 0.423715
+        }
+      ],
+      "columns_ms": 4.774007999999999,
+      "rows_ms": 0.740411,
+      "emit_ms": 0.811112
+    },
+    {
+      "fixture_rows": 1,
+      "sample": 8,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 4.416266
+        },
+        {
+          "phase": "rows",
+          "ms": 0.415139
+        },
+        {
+          "phase": "emit",
+          "ms": 0.374443
+        },
+        {
+          "phase": "columns",
+          "ms": 0.439774
+        },
+        {
+          "phase": "rows",
+          "ms": 0.300155
+        },
+        {
+          "phase": "emit",
+          "ms": 0.321996
+        }
+      ],
+      "columns_ms": 4.85604,
+      "rows_ms": 0.715294,
+      "emit_ms": 0.696439
+    },
+    {
+      "fixture_rows": 1,
+      "sample": 9,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 4.392963
+        },
+        {
+          "phase": "rows",
+          "ms": 0.406583
+        },
+        {
+          "phase": "emit",
+          "ms": 0.378981
+        },
+        {
+          "phase": "columns",
+          "ms": 0.426339
+        },
+        {
+          "phase": "rows",
+          "ms": 0.376537
+        },
+        {
+          "phase": "emit",
+          "ms": 0.381205
+        }
+      ],
+      "columns_ms": 4.819302,
+      "rows_ms": 0.78312,
+      "emit_ms": 0.760186
+    },
+    {
+      "fixture_rows": 20,
+      "sample": 0,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 7.973271
+        },
+        {
+          "phase": "rows",
+          "ms": 1.532147
+        },
+        {
+          "phase": "emit",
+          "ms": 2.091602
+        },
+        {
+          "phase": "columns",
+          "ms": 2.941065
+        },
+        {
+          "phase": "rows",
+          "ms": 1.51216
+        },
+        {
+          "phase": "emit",
+          "ms": 2.029256
+        }
+      ],
+      "columns_ms": 10.914336,
+      "rows_ms": 3.044307,
+      "emit_ms": 4.120858
+    },
+    {
+      "fixture_rows": 20,
+      "sample": 1,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 7.122015
+        },
+        {
+          "phase": "rows",
+          "ms": 1.516808
+        },
+        {
+          "phase": "emit",
+          "ms": 2.105969
+        },
+        {
+          "phase": "columns",
+          "ms": 2.968406
+        },
+        {
+          "phase": "rows",
+          "ms": 1.913813
+        },
+        {
+          "phase": "emit",
+          "ms": 2.077657
+        }
+      ],
+      "columns_ms": 10.090421,
+      "rows_ms": 3.430621,
+      "emit_ms": 4.183626
+    },
+    {
+      "fixture_rows": 20,
+      "sample": 2,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 7.106476
+        },
+        {
+          "phase": "rows",
+          "ms": 1.63665
+        },
+        {
+          "phase": "emit",
+          "ms": 1.963015
+        },
+        {
+          "phase": "columns",
+          "ms": 2.874792
+        },
+        {
+          "phase": "rows",
+          "ms": 1.471434
+        },
+        {
+          "phase": "emit",
+          "ms": 2.112531
+        }
+      ],
+      "columns_ms": 9.981268,
+      "rows_ms": 3.108084,
+      "emit_ms": 4.075546
+    },
+    {
+      "fixture_rows": 20,
+      "sample": 3,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 7.631979
+        },
+        {
+          "phase": "rows",
+          "ms": 1.515366
+        },
+        {
+          "phase": "emit",
+          "ms": 2.100098
+        },
+        {
+          "phase": "columns",
+          "ms": 3.022355
+        },
+        {
+          "phase": "rows",
+          "ms": 1.441528
+        },
+        {
+          "phase": "emit",
+          "ms": 2.104095
+        }
+      ],
+      "columns_ms": 10.654334,
+      "rows_ms": 2.956894,
+      "emit_ms": 4.204193
+    },
+    {
+      "fixture_rows": 20,
+      "sample": 4,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 7.188498
+        },
+        {
+          "phase": "rows",
+          "ms": 1.562031
+        },
+        {
+          "phase": "emit",
+          "ms": 2.109235
+        },
+        {
+          "phase": "columns",
+          "ms": 3.031141
+        },
+        {
+          "phase": "rows",
+          "ms": 1.488215
+        },
+        {
+          "phase": "emit",
+          "ms": 2.042762
+        }
+      ],
+      "columns_ms": 10.219639,
+      "rows_ms": 3.050246,
+      "emit_ms": 4.151997
+    },
+    {
+      "fixture_rows": 20,
+      "sample": 5,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 7.407945
+        },
+        {
+          "phase": "rows",
+          "ms": 1.51802
+        },
+        {
+          "phase": "emit",
+          "ms": 2.160149
+        },
+        {
+          "phase": "columns",
+          "ms": 2.960752
+        },
+        {
+          "phase": "rows",
+          "ms": 1.500769
+        },
+        {
+          "phase": "emit",
+          "ms": 2.089909
+        }
+      ],
+      "columns_ms": 10.368697,
+      "rows_ms": 3.018789,
+      "emit_ms": 4.250058
+    },
+    {
+      "fixture_rows": 20,
+      "sample": 6,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 7.114391
+        },
+        {
+          "phase": "rows",
+          "ms": 1.522589
+        },
+        {
+          "phase": "emit",
+          "ms": 2.118583
+        },
+        {
+          "phase": "columns",
+          "ms": 3.03551
+        },
+        {
+          "phase": "rows",
+          "ms": 1.481282
+        },
+        {
+          "phase": "emit",
+          "ms": 2.049044
+        }
+      ],
+      "columns_ms": 10.149901,
+      "rows_ms": 3.003871,
+      "emit_ms": 4.1676269999999995
+    },
+    {
+      "fixture_rows": 20,
+      "sample": 7,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 6.490606
+        },
+        {
+          "phase": "rows",
+          "ms": 1.45297
+        },
+        {
+          "phase": "emit",
+          "ms": 2.087816
+        },
+        {
+          "phase": "columns",
+          "ms": 2.928141
+        },
+        {
+          "phase": "rows",
+          "ms": 1.526807
+        },
+        {
+          "phase": "emit",
+          "ms": 2.180867
+        }
+      ],
+      "columns_ms": 9.418747,
+      "rows_ms": 2.9797770000000003,
+      "emit_ms": 4.268683
+    },
+    {
+      "fixture_rows": 20,
+      "sample": 8,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 6.539057
+        },
+        {
+          "phase": "rows",
+          "ms": 1.483617
+        },
+        {
+          "phase": "emit",
+          "ms": 2.093897
+        },
+        {
+          "phase": "columns",
+          "ms": 3.061348
+        },
+        {
+          "phase": "rows",
+          "ms": 1.50723
+        },
+        {
+          "phase": "emit",
+          "ms": 2.153036
+        }
+      ],
+      "columns_ms": 9.600405,
+      "rows_ms": 2.990847,
+      "emit_ms": 4.246933
+    },
+    {
+      "fixture_rows": 20,
+      "sample": 9,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 6.686639
+        },
+        {
+          "phase": "rows",
+          "ms": 1.480361
+        },
+        {
+          "phase": "emit",
+          "ms": 2.104626
+        },
+        {
+          "phase": "columns",
+          "ms": 3.051038
+        },
+        {
+          "phase": "rows",
+          "ms": 1.498444
+        },
+        {
+          "phase": "emit",
+          "ms": 2.17128
+        }
+      ],
+      "columns_ms": 9.737677000000001,
+      "rows_ms": 2.9788050000000004,
+      "emit_ms": 4.275906
+    },
+    {
+      "fixture_rows": 80,
+      "sample": 0,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 14.783169
+        },
+        {
+          "phase": "rows",
+          "ms": 4.998645
+        },
+        {
+          "phase": "emit",
+          "ms": 7.538116
+        },
+        {
+          "phase": "columns",
+          "ms": 11.764751
+        },
+        {
+          "phase": "rows",
+          "ms": 5.305893
+        },
+        {
+          "phase": "emit",
+          "ms": 8.068017
+        }
+      ],
+      "columns_ms": 26.547919999999998,
+      "rows_ms": 10.304538,
+      "emit_ms": 15.606133
+    },
+    {
+      "fixture_rows": 80,
+      "sample": 1,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 14.719702
+        },
+        {
+          "phase": "rows",
+          "ms": 5.040913
+        },
+        {
+          "phase": "emit",
+          "ms": 7.727617
+        },
+        {
+          "phase": "columns",
+          "ms": 11.005716
+        },
+        {
+          "phase": "rows",
+          "ms": 5.154392
+        },
+        {
+          "phase": "emit",
+          "ms": 7.699855
+        }
+      ],
+      "columns_ms": 25.725417999999998,
+      "rows_ms": 10.195305,
+      "emit_ms": 15.427472000000002
+    },
+    {
+      "fixture_rows": 80,
+      "sample": 2,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 14.953043
+        },
+        {
+          "phase": "rows",
+          "ms": 5.031094
+        },
+        {
+          "phase": "emit",
+          "ms": 7.74588
+        },
+        {
+          "phase": "columns",
+          "ms": 11.260797
+        },
+        {
+          "phase": "rows",
+          "ms": 5.221336
+        },
+        {
+          "phase": "emit",
+          "ms": 7.668968
+        }
+      ],
+      "columns_ms": 26.213839999999998,
+      "rows_ms": 10.25243,
+      "emit_ms": 15.414848
+    },
+    {
+      "fixture_rows": 80,
+      "sample": 3,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 14.768893
+        },
+        {
+          "phase": "rows",
+          "ms": 5.257043
+        },
+        {
+          "phase": "emit",
+          "ms": 7.705555
+        },
+        {
+          "phase": "columns",
+          "ms": 10.939023
+        },
+        {
+          "phase": "rows",
+          "ms": 5.079544
+        },
+        {
+          "phase": "emit",
+          "ms": 7.5618
+        }
+      ],
+      "columns_ms": 25.707916,
+      "rows_ms": 10.336587000000002,
+      "emit_ms": 15.267355
+    },
+    {
+      "fixture_rows": 80,
+      "sample": 4,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 15.014488
+        },
+        {
+          "phase": "rows",
+          "ms": 5.166144
+        },
+        {
+          "phase": "emit",
+          "ms": 7.802546
+        },
+        {
+          "phase": "columns",
+          "ms": 11.132751
+        },
+        {
+          "phase": "rows",
+          "ms": 5.218641
+        },
+        {
+          "phase": "emit",
+          "ms": 7.819868
+        }
+      ],
+      "columns_ms": 26.147239,
+      "rows_ms": 10.384785,
+      "emit_ms": 15.622414
+    },
+    {
+      "fixture_rows": 80,
+      "sample": 5,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 14.54621
+        },
+        {
+          "phase": "rows",
+          "ms": 5.229983
+        },
+        {
+          "phase": "emit",
+          "ms": 7.689877
+        },
+        {
+          "phase": "columns",
+          "ms": 11.2727
+        },
+        {
+          "phase": "rows",
+          "ms": 5.171244
+        },
+        {
+          "phase": "emit",
+          "ms": 7.646427
+        }
+      ],
+      "columns_ms": 25.818910000000002,
+      "rows_ms": 10.401226999999999,
+      "emit_ms": 15.336304
+    },
+    {
+      "fixture_rows": 80,
+      "sample": 6,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 14.631749
+        },
+        {
+          "phase": "rows",
+          "ms": 5.226145
+        },
+        {
+          "phase": "emit",
+          "ms": 7.752923
+        },
+        {
+          "phase": "columns",
+          "ms": 11.098688
+        },
+        {
+          "phase": "rows",
+          "ms": 5.099321
+        },
+        {
+          "phase": "emit",
+          "ms": 7.533287
+        }
+      ],
+      "columns_ms": 25.730437,
+      "rows_ms": 10.325465999999999,
+      "emit_ms": 15.28621
+    },
+    {
+      "fixture_rows": 80,
+      "sample": 7,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 14.847869
+        },
+        {
+          "phase": "rows",
+          "ms": 5.37438
+        },
+        {
+          "phase": "emit",
+          "ms": 7.847158
+        },
+        {
+          "phase": "columns",
+          "ms": 11.280324
+        },
+        {
+          "phase": "rows",
+          "ms": 5.209134
+        },
+        {
+          "phase": "emit",
+          "ms": 7.807425
+        }
+      ],
+      "columns_ms": 26.128193,
+      "rows_ms": 10.583514000000001,
+      "emit_ms": 15.654583
+    },
+    {
+      "fixture_rows": 80,
+      "sample": 8,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 15.036359
+        },
+        {
+          "phase": "rows",
+          "ms": 5.482881
+        },
+        {
+          "phase": "emit",
+          "ms": 8.47996
+        },
+        {
+          "phase": "columns",
+          "ms": 11.277699
+        },
+        {
+          "phase": "rows",
+          "ms": 5.231355
+        },
+        {
+          "phase": "emit",
+          "ms": 7.536413
+        }
+      ],
+      "columns_ms": 26.314058,
+      "rows_ms": 10.714236,
+      "emit_ms": 16.016373
+    },
+    {
+      "fixture_rows": 80,
+      "sample": 9,
+      "spans": [
+        {
+          "phase": "columns",
+          "ms": 14.655653
+        },
+        {
+          "phase": "rows",
+          "ms": 5.107776
+        },
+        {
+          "phase": "emit",
+          "ms": 7.655794
+        },
+        {
+          "phase": "columns",
+          "ms": 11.119106
+        },
+        {
+          "phase": "rows",
+          "ms": 5.140126
+        },
+        {
+          "phase": "emit",
+          "ms": 7.597967
+        }
+      ],
+      "columns_ms": 25.774759,
+      "rows_ms": 10.247902,
+      "emit_ms": 15.253761
+    }
+  ]
+}

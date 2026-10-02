@@ -1,0 +1,271 @@
+{
+  "utc": "2026-10-02 22:22:12 UTC",
+  "fixture_sha256": "8f25fa3c91dfbb6885251f18fa156eb56e86d0bb887d144a18e6a6e2d5ffe5c8",
+  "summary_second_pass_ms": {
+    "columns": 0.3451995,
+    "rows": 13.728420499999999,
+    "emit": 7.6108080000000005
+  },
+  "samples": [
+    [
+      {
+        "phase": "columns",
+        "ms": 3.880788
+      },
+      {
+        "phase": "rows",
+        "ms": 14.165219
+      },
+      {
+        "phase": "emit",
+        "ms": 8.039502
+      },
+      {
+        "phase": "columns",
+        "ms": 0.335592
+      },
+      {
+        "phase": "rows",
+        "ms": 13.818687
+      },
+      {
+        "phase": "emit",
+        "ms": 7.924719
+      }
+    ],
+    [
+      {
+        "phase": "columns",
+        "ms": 3.830004
+      },
+      {
+        "phase": "rows",
+        "ms": 13.750642
+      },
+      {
+        "phase": "emit",
+        "ms": 7.592624
+      },
+      {
+        "phase": "columns",
+        "ms": 0.341683
+      },
+      {
+        "phase": "rows",
+        "ms": 13.737798
+      },
+      {
+        "phase": "emit",
+        "ms": 7.602242
+      }
+    ],
+    [
+      {
+        "phase": "columns",
+        "ms": 4.149577
+      },
+      {
+        "phase": "rows",
+        "ms": 14.175719
+      },
+      {
+        "phase": "emit",
+        "ms": 7.264606
+      },
+      {
+        "phase": "columns",
+        "ms": 0.289276
+      },
+      {
+        "phase": "rows",
+        "ms": 13.56604
+      },
+      {
+        "phase": "emit",
+        "ms": 7.956899
+      }
+    ],
+    [
+      {
+        "phase": "columns",
+        "ms": 4.042769
+      },
+      {
+        "phase": "rows",
+        "ms": 13.685581
+      },
+      {
+        "phase": "emit",
+        "ms": 7.561267
+      },
+      {
+        "phase": "columns",
+        "ms": 0.316195
+      },
+      {
+        "phase": "rows",
+        "ms": 13.777662
+      },
+      {
+        "phase": "emit",
+        "ms": 7.619374
+      }
+    ],
+    [
+      {
+        "phase": "columns",
+        "ms": 3.780643
+      },
+      {
+        "phase": "rows",
+        "ms": 13.778914
+      },
+      {
+        "phase": "emit",
+        "ms": 7.618853
+      },
+      {
+        "phase": "columns",
+        "ms": 0.347223
+      },
+      {
+        "phase": "rows",
+        "ms": 13.847662
+      },
+      {
+        "phase": "emit",
+        "ms": 7.698912
+      }
+    ],
+    [
+      {
+        "phase": "columns",
+        "ms": 3.915282
+      },
+      {
+        "phase": "rows",
+        "ms": 13.76634
+      },
+      {
+        "phase": "emit",
+        "ms": 7.866893
+      },
+      {
+        "phase": "columns",
+        "ms": 0.343176
+      },
+      {
+        "phase": "rows",
+        "ms": 13.719043
+      },
+      {
+        "phase": "emit",
+        "ms": 7.635224
+      }
+    ],
+    [
+      {
+        "phase": "columns",
+        "ms": 3.842548
+      },
+      {
+        "phase": "rows",
+        "ms": 14.126738
+      },
+      {
+        "phase": "emit",
+        "ms": 7.606791
+      },
+      {
+        "phase": "columns",
+        "ms": 0.355378
+      },
+      {
+        "phase": "rows",
+        "ms": 13.588882
+      },
+      {
+        "phase": "emit",
+        "ms": 7.544846
+      }
+    ],
+    [
+      {
+        "phase": "columns",
+        "ms": 4.179833
+      },
+      {
+        "phase": "rows",
+        "ms": 13.945322
+      },
+      {
+        "phase": "emit",
+        "ms": 7.710013
+      },
+      {
+        "phase": "columns",
+        "ms": 0.357722
+      },
+      {
+        "phase": "rows",
+        "ms": 13.79863
+      },
+      {
+        "phase": "emit",
+        "ms": 7.542092
+      }
+    ],
+    [
+      {
+        "phase": "columns",
+        "ms": 4.071472
+      },
+      {
+        "phase": "rows",
+        "ms": 14.14883
+      },
+      {
+        "phase": "emit",
+        "ms": 7.202342
+      },
+      {
+        "phase": "columns",
+        "ms": 0.355168
+      },
+      {
+        "phase": "rows",
+        "ms": 13.42005
+      },
+      {
+        "phase": "emit",
+        "ms": 7.51451
+      }
+    ],
+    [
+      {
+        "phase": "columns",
+        "ms": 3.876541
+      },
+      {
+        "phase": "rows",
+        "ms": 13.875083
+      },
+      {
+        "phase": "emit",
+        "ms": 7.726724
+      },
+      {
+        "phase": "columns",
+        "ms": 0.353305
+      },
+      {
+        "phase": "rows",
+        "ms": 13.17231
+      },
+      {
+        "phase": "emit",
+        "ms": 7.383147
+      }
+    ]
+  ]
+}
