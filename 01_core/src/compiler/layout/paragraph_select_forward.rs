@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/paragraph_select_forward.md
-//! @prompt-hash 829d6e0a
+//! @prompt-hash 4ee4b629
 //! @layer L1
 //! @updated 2026-10-02
 
@@ -48,6 +48,54 @@ fn select_forward_prefix_bound(
     costs: LineCosts,
 ) -> Trial {
     select_forward_variant::<false, true>(p, width, font, justify, costs)
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum SelectedPath {
+    Exact,
+    Forward,
+}
+
+/// Test-only route decision; both branches use the same semantic line cost.
+fn select_adaptive(
+    p: &Prepared,
+    width: f64,
+    font: f64,
+    justify: bool,
+    costs: LineCosts,
+) -> (Vec<Line>, SelectedPath) {
+    let n = p.words.len();
+    let path = if n < 64 {
+        SelectedPath::Exact
+    } else {
+        let total_advance: f64 = p
+            .words
+            .iter()
+            .map(|word| word.width + word.before.iter().map(|gap| gap.width).sum::<f64>())
+            .sum();
+        let avg_advance = total_advance / n as f64;
+        let target_words = if n <= 256 {
+            7.0
+        } else if justify {
+            24.0
+        } else {
+            32.0
+        };
+        if avg_advance > 0.0 && width / avg_advance >= target_words {
+            SelectedPath::Forward
+        } else {
+            SelectedPath::Exact
+        }
+    };
+    let lines = match path {
+        SelectedPath::Exact => {
+            paragraph_select::select(p, width, font, justify, Strategy::Optimized, costs)
+        }
+        SelectedPath::Forward => {
+            select_forward_prefix_bound(p, width, font, justify, costs).lines
+        }
+    };
+    (lines, path)
 }
 
 fn select_forward_variant<const EXTRA_SEEDS: bool, const PREFIX_GREEDY: bool>(
@@ -348,6 +396,12 @@ mod tests {
                                     prefix_seed.lines, exact,
                                     "prefix-seed size={size} width={width}"
                                 );
+                                let (adaptive, _) =
+                                    select_adaptive(&p, width, 12.0, justify, cost);
+                                assert_eq!(
+                                    adaptive, exact,
+                                    "adaptive size={size} width={width}"
+                                );
                                 skipped += trial.skipped_starts;
                             }
                         }
@@ -371,8 +425,10 @@ mod tests {
         for (name, count, width, justify) in [
             ("short_narrow", 40, 76.0, false),
             ("medium", 160, 240.0, false),
+            ("medium_narrow", 160, 76.0, false),
             ("large_medium", 1000, 240.0, false),
             ("large_wide_justified", 1000, 1200.0, true),
+            ("large_wide_ragged", 1000, 1200.0, false),
         ] {
             let widths: Vec<f64> =
                 (0..count).map(|i| ((i * 17) % 19 + 9) as f64).collect();
@@ -393,8 +449,10 @@ mod tests {
             let prefix_seed =
                 select_forward_prefix_bound(&p, width, 12.0, justify, costs);
             assert_eq!(prefix_seed.lines, exact, "prefix-seed case={name}");
+            let (adaptive, selected) = select_adaptive(&p, width, 12.0, justify, costs);
+            assert_eq!(adaptive, exact, "adaptive case={name}");
             eprintln!(
-                "case={name} evaluated={} skipped_starts={} bound={} source={}",
+                "case={name} selected={selected:?} evaluated={} skipped_starts={} bound={} source={}",
                 trial.evaluated,
                 trial.skipped_starts,
                 trial.upper_bound,
@@ -413,31 +471,20 @@ mod tests {
                     ))
                 })
             });
-            group.bench_function("forward", |b| {
-                b.iter(|| {
-                    black_box(select_forward(
-                        black_box(&p),
-                        black_box(width),
-                        12.0,
-                        justify,
-                        costs,
-                    ))
-                })
-            });
-            group.bench_function("forward_simple_only", |b| {
-                b.iter(|| {
-                    black_box(select_forward_simple_bound(
-                        black_box(&p),
-                        black_box(width),
-                        12.0,
-                        justify,
-                        costs,
-                    ))
-                })
-            });
             group.bench_function("forward_prefix_seed", |b| {
                 b.iter(|| {
                     black_box(select_forward_prefix_bound(
+                        black_box(&p),
+                        black_box(width),
+                        12.0,
+                        justify,
+                        costs,
+                    ))
+                })
+            });
+            group.bench_function("adaptive", |b| {
+                b.iter(|| {
+                    black_box(select_adaptive(
                         black_box(&p),
                         black_box(width),
                         12.0,

@@ -1,5 +1,5 @@
 # L0 — paragraph_select_forward
-Hash do Código: 5b9e7d9e
+Hash do Código: e3e02bf0
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/paragraph_select_forward.rs`
@@ -26,3 +26,11 @@ Medição anterior à decisão: `00_nucleo/diagnosticos/microbench-paragraph-sel
 ## Ablação da medição do limite Simple — 2026-10-02
 
 Medição anterior à decisão: `01_core/src/compiler/layout/paragraph_select.rs:110-122` recompõe a medida de todo o intervalo para cada palavra candidata da linha Simple; `paragraph_select_forward.rs:49-101` já calcula medidas prefixadas para a DP. A variante Simple-only ainda perde para a seleção exata no cenário de 1.000 palavras a 240pt. Comparar uma terceira variante experimental que constrói a mesma partição gulosa com a medida prefixada O(1) já disponível, mantendo a regra de avanço e de palavra indivisível. A medida prefixada pode ter arredondamento distinto; exigir igualdade das quebras finais com a seleção exata na matriz diferencial e nos cenários cronometrados. Medir as três variantes forward e o baseline na mesma rodada, sem alterar o caminho produtivo.
+
+## Escolha experimental do caminho — 2026-10-02
+
+Medição anterior à decisão: `00_nucleo/diagnosticos/microbench-paragraph-select-forward-ablation-2026-10-02.md` mostra que a variante Simple prefixada vence o seletor exato com 160 palavras/240pt e 1.000 palavras/1.200pt justificadas, mas perde com 40 palavras/76pt e 1.000 palavras/240pt. Não há vencedor universal nessa matriz. Acrescentar ao consumer `cfg(test)` uma escolha determinística de baixo custo entre o seletor exato e a variante forward prefixada, baseada apenas em tamanho do parágrafo, largura relativa ao avanço médio e justificação; não executar ambos para decidir. Expor o caminho escolhido ao teste. Ajustar a regra com cenários adicionais, incluindo largura larga sem justificação e parágrafo médio estreito. O teste diferencial compara o resultado escolhido com o exato. O microbenchmark mede a seleção adaptativa inteira, inclusive o custo de escolha, contra os caminhos isolados sobre as mesmas entradas. Não alterar default de produção nem alegar ganho geral sem medir corpus real.
+
+Primeira medição da escolha (`2026-10-02 18:50:57 UTC`, working tree sobre `39a74d477`, dois arquivos alterados): com 160 palavras/76pt, selecionar forward pela contagem isolada custou 10,744 µs contra 8,338 µs do exato. A largura relativa ao avanço médio deve participar também nesse intervalo; repetir a rodada após ajustar a regra. Essa calibração sintética não constitui limiar de produção.
+
+Regra experimental após a correção: menos de 64 palavras escolhe exato; de 64 a 256 escolhe forward apenas se a largura comporta pelo menos sete avanços médios; acima disso exige 24 avanços médios com justificação ou 32 sem justificação. O avanço médio soma largura das palavras e gaps anteriores. Larguras não positivas ou médias inválidas caem no exato. Esses limiares servem à ablação, não são contrato do comportamento por defeito.
