@@ -1,0 +1,116 @@
+{
+  "schema_version": "1",
+  "idea": {
+    "problem": "Find implementation patterns for document table layout that avoid laying out each cell twice when resolving automatic row heights and emitting paginated cells",
+    "users": [
+      "maintainers of a document layout engine"
+    ],
+    "capabilities": [
+      "measure intrinsic cell height for automatic rows",
+      "reuse cell frame at final placement when width and style are unchanged",
+      "recompute when alignment spans or pagination changes",
+      "preserve text and geometry"
+    ],
+    "constraints": [
+      "static typed implementation",
+      "no I/O in core layout",
+      "nested tables and pagination"
+    ],
+    "non_goals": [
+      "CSS grid for browser UI",
+      "network graph drawing"
+    ],
+    "preferred_stack": [
+      "Rust",
+      "document layout"
+    ]
+  },
+  "strategy": "lexical",
+  "language": "rust",
+  "per_expansion": null,
+  "candidates": [
+    {
+      "repository": {
+        "owner": "local",
+        "repo": "typst-original-e50cca70",
+        "url": "file:///repos/Antigravity/typst-crystalline/lab/typst-original",
+        "description": "",
+        "stars": 0,
+        "commit_id": "36771bda8813f4176da763b693acce789c60ed8cf887e6274b6ea7ae6cd0f252",
+        "consultado_em": "0001-01-01T00:00:00Z",
+        "stale": false,
+        "updated_at": "0001-01-01T00:00:00Z"
+      },
+      "expansion_ids": [
+        "exp-problem-73206d3b3776",
+        "exp-capability-edc09c7e21d4",
+        "exp-capability-ace05f6533ed",
+        "exp-capability-ec559eb62c98",
+        "exp-capability-7b40c754ae3e",
+        "exp-constraint-59d373d2f1e4",
+        "exp-constraint-2c981124d79f",
+        "exp-constraint-216691a71ff9"
+      ],
+      "queries": [
+        "Find implementation patterns for document table layout that avoid laying out each cell twice when resolving automatic row heights and emitting paginated cells",
+        "measure intrinsic cell height for automatic rows",
+        "reuse cell frame at final placement when width and style are unchanged",
+        "recompute when alignment spans or pagination changes",
+        "preserve text and geometry",
+        "static typed implementation",
+        "no I/O in core layout",
+        "nested tables and pagination"
+      ],
+      "origins": [
+        {
+          "expansion_id": "exp-problem-73206d3b3776",
+          "planned_query": "Find implementation patterns for document table layout that avoid laying out each cell twice when resolving automatic row heights and emitting paginated cells",
+          "attempt_index": 0,
+          "effective_query": "Find implementation patterns for document table layout that avoid laying out each cell twice when resolving automatic row heights and emitting paginated cells"
+        },
+        {
+          "expansion_id": "exp-capability-edc09c7e21d4",
+          "planned_query": "measure intrinsic cell height for automatic rows",
+          "attempt_index": 0,
+          "effective_query": "measure intrinsic cell height for automatic rows"
+        },
+        {
+          "expansion_id": "exp-constraint-216691a71ff9",
+          "planned_query": "nested tables and pagination",
+          "attempt_index": 0,
+          "effective_query": "nested tables and pagination"
+        },
+        {
+          "expansion_id": "exp-constraint-2c981124d79f",
+          "planned_query": "no I/O in core layout",
+          "attempt_index": 0,
+          "effective_query": "no I/O in core layout"
+        },
+        {
+          "expansion_id": "exp-capability-7b40c754ae3e",
+          "planned_query": "preserve text and geometry",
+          "attempt_index": 0,
+          "effective_query": "preserve text and geometry"
+        },
+        {
+          "expansion_id": "exp-capability-ec559eb62c98",
+          "planned_query": "recompute when alignment spans or pagination changes",
+          "attempt_index": 0,
+          "effective_query": "recompute when alignment spans or pagination changes"
+        },
+        {
+          "expansion_id": "exp-capability-ace05f6533ed",
+          "planned_query": "reuse cell frame at final placement when width and style are unchanged",
+          "attempt_index": 0,
+          "effective_query": "reuse cell frame at final placement when width and style are unchanged"
+        },
+        {
+          "expansion_id": "exp-constraint-59d373d2f1e4",
+          "planned_query": "static typed implementation",
+          "attempt_index": 0,
+          "effective_query": "static typed implementation"
+        }
+      ]
+    }
+  ]
+}

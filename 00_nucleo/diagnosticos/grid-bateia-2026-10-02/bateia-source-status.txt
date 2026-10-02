@@ -1,0 +1,14 @@
+ M 01_core/domain/market_discovery.go
+ M 02_shell/cli/app.go
+ M 04_wiring/main.go
+ M 04_wiring/market_discovery.go
+ M 04_wiring/step0034_android_and_forges_test.go
+ M README.md
+?? 02_shell/cli/idea_research.go
+?? 02_shell/cli/idea_research_test.go
+?? 03_infra/bitbucket/connector.go
+?? 03_infra/bitbucket/connector_test.go
+?? 03_infra/research/common.go
+?? 03_infra/research/joss.go
+?? 03_infra/research/research_test.go
+?? 03_infra/research/zbmath.go

@@ -1,0 +1,7 @@
+ 01_core/domain/market_discovery.go            | 38 +++++++++++++++++++++------
+ 02_shell/cli/app.go                           |  2 ++
+ 04_wiring/main.go                             |  7 +++++
+ 04_wiring/market_discovery.go                 | 26 +++++++++++++++---
+ 04_wiring/step0034_android_and_forges_test.go | 25 ++++++++++++++++--
+ README.md                                     | 26 ++++++++++++++++++
+ 6 files changed, 111 insertions(+), 13 deletions(-)

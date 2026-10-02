@@ -1,0 +1,28 @@
+# Busca Bateia: alternativas para a segunda diagramação de células
+
+## Proveniência e escopo
+
+Em 2026-10-02 21:30:01 UTC, Tekt HEAD `5120a0f0493eaee825fd4c08dae422a6e0095c85`, árvore limpa (`git status --short` vazio). O Bateia foi compilado em `/tmp` a partir de `/repos/Antigravity/Bateia` HEAD `9d00e2f58661289a12d67bb9bd40f0027dc6fe2e`, com alterações não commitadas na [lista exata](grid-bateia-2026-10-02/bateia-source-status.txt) e [diff stat](grid-bateia-2026-10-02/bateia-source-diff-stat.txt); SHA-256 do executável usado: `4d5b7ffc4152eeb4fe58a0094ab9fa47bad923eb3286e2dab48c7cef9e21ae9d`. O binário `bateia` já existente era anterior ao subcomando de pesquisa acadêmica; por isso foi usado o build atual. Nenhuma alteração foi feita no projeto Bateia.
+
+O pedido de busca remota `idea recommend --mode live` foi recusado pela revisão automática: enviaria ao Sourcegraph a descrição técnica, restrições internas e identidade do repositório, sem autorização específica para divulgar esses dados. Não houve execução remota desse comando. A alternativa local usou `idea recommend --mode local --local lab/typst-original --strategy lexical --language rust`, com IdeaSpec e política em [anexos](grid-bateia-2026-10-02/). O Bateia terminou `INCONCLUSIVE`: seu catálogo não possui regras para comprovar medição de linhas automáticas, reúso de frame e invalidação por geometria. Isso descreve a cobertura do Bateia, **não** ausência dessas capacidades no vanilla.
+
+O segundo comando local, `analyze -path lab/typst-original -query 'table cell layout row measure frame reuse' -lang rust`, recuperou `crates/typst-layout/src/grid/layouter.rs` e `rowspans.rs`, mas marcou a implementação como não verificada. O [relatório lexical](grid-bateia-2026-10-02/local-analysis.md) serviu para localizar código; a conclusão abaixo vem da leitura desse código. Uma consulta acadêmica pública do Bateia aos catálogos zbMATH/JOSS retornou dez registros JOSS, majoritariamente sobre grid numérico, grafos e aprendizado incremental; nenhum trouxe evidência de layout de tabela tipográfica. O [snapshot](grid-bateia-2026-10-02/academic-search.json) está preservado, sem promover esses resultados a candidatos técnicos.
+
+## Evidência no vanilla pinado
+
+No vanilla local correspondente ao pin `9f2b6e8715237cb086899a42873660fe744622e8`:
+
+- `crates/typst-layout/src/grid/layouter.rs:1149–1190`: uma linha `Auto` chama `measure_auto_row` e, quando o resultado cabe em uma região, chama `layout_single_row`.
+- `layouter.rs:1243–1364`: `measure_auto_row` chama `layout_cell`, conserva apenas alturas dos frames e descarta esses frames para a decisão de altura.
+- `layouter.rs:1471–1524`: `layout_single_row` chama novamente `layout_cell` para formar o frame final da linha.
+- `grid/mod.rs:30–66`: `layout_cell` chama `layout_fragment`; `flow/mod.rs:57–76,117–135` encaminha a `layout_fragment_impl`, que é memoizada por `comemo`.
+
+Logo, o vanilla também tem duas chamadas de layout de célula nesse caso. A memoização interior pode reaproveitar trabalho quando os argumentos e dependências rastreadas coincidirem; a medição e a emissão recebem regiões com alturas e condições potencialmente diferentes. Esta inspeção **não mede taxa de acerto de cache**, custo exclusivo da segunda chamada nem o número efetivo de layouts internos do vanilla. SHA-256 dos arquivos inspecionados: `90a7c440b312070c7859193606e350b079250c2ed083362f963428e267008b20` (`layouter.rs`), `a62554f21a9039f3be7c5dde1cd00536132b2dc322266b55157ced108e46d621` (`grid/mod.rs`) e `1010ce26a41c270c9aaadb975e6dbb3e5aa7629be1a41dacda6f6955ff92aee5` (`flow/mod.rs`).
+
+No Tekt, `01_core/src/compiler/layout/grid/tracks.rs:130–188` e `grid/cell_body.rs:139–166` também fazem medição e emissão separadas. A [sonda anterior](grid-time-2026-10-02.md) demonstrou chamadas repetidas no Tekt e crescimento do delta total com células, mas **não** demonstrou que essa repetição, por si, seja a diferença algorítmica frente ao vanilla.
+
+## Resultado para a investigação de tempo
+
+A hipótese simples “vanilla diagrama uma vez e Tekt duas” está refutada pela fonte. A pergunta útil agora é **quanto trabalho real cada chamada repetida executa** em cada motor. Um próximo experimento deve contar/acumular tempo em `layout_fragment_impl` no vanilla e em `layout_sub_frame` no Tekt, para a mesma tabela, distinguindo medida de emissão e alinhando controles de geometria. Reúso explícito de frames somente seria seguro com igualdade do contexto de largura, altura, estilo, localização, paginação e decoração; o código lido não prova essa igualdade.
+
+Esta busca não muda L0 nem código produtivo. A recusa automática da busca remota permanece: para usar `--mode live` com detalhes do projeto seria necessária autorização explícita para enviar a IdeaSpec e o repositório-alvo ao Sourcegraph.

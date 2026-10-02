@@ -1,0 +1,25 @@
+{
+  "problem": "Find implementation patterns for document table layout that avoid laying out each cell twice when resolving automatic row heights and emitting paginated cells",
+  "users": [
+    "maintainers of a document layout engine"
+  ],
+  "capabilities": [
+    "measure intrinsic cell height for automatic rows",
+    "reuse cell frame at final placement when width and style are unchanged",
+    "recompute when alignment spans or pagination changes",
+    "preserve text and geometry"
+  ],
+  "constraints": [
+    "static typed implementation",
+    "no I/O in core layout",
+    "nested tables and pagination"
+  ],
+  "non_goals": [
+    "CSS grid for browser UI",
+    "network graph drawing"
+  ],
+  "preferred_stack": [
+    "Rust",
+    "document layout"
+  ]
+}

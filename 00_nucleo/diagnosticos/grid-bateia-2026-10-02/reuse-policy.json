@@ -1,0 +1,15 @@
+{
+  "schema_version": "1",
+  "allowed_licenses": [
+    "MIT",
+    "Apache-2.0",
+    "MPL-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause"
+  ],
+  "require_local": true,
+  "allow_archived": true,
+  "max_components": 6,
+  "extend_min_coverage": 0.6,
+  "integration_min_value": 0.3
+}

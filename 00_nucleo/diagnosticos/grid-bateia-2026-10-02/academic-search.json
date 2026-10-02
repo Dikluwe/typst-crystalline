@@ -1,0 +1,414 @@
+{
+  "schema_version": "1",
+  "queries": [
+    "incremental table grid layout measurement reuse cached cell layout"
+  ],
+  "attempts": [
+    {
+      "query": "incremental table grid layout measurement reuse cached cell layout",
+      "connector_id": "zbmath-research-software",
+      "status": "EMPTY_OBSERVED",
+      "result_count": 0,
+      "response_hash": "6e0540f1c9d392a353e1719baad43637ea94695e2553db8a35514479a01b8cbf"
+    },
+    {
+      "query": "incremental table grid layout measurement reuse cached cell layout",
+      "connector_id": "joss-reviewed-software",
+      "status": "SUCCEEDED",
+      "result_count": 10,
+      "response_hash": "4e7fe6bdabcf51567eb6b163a3f7266347b85240e5b3095d5d0755c1e1916f04"
+    }
+  ],
+  "candidates": [
+    {
+      "identity": {
+        "connector_id": "joss-reviewed-software",
+        "external_id": "10.21105/joss.05238",
+        "canonical_url": "https://joss.theoj.org/papers/10.21105/joss.05238"
+      },
+      "name": "graphlayouts: Layout algorithms for network visualizations in R",
+      "summary": "network visualization; graph drawing; layout algorithms",
+      "product_kind": "research_software",
+      "listing_locales": [
+        "en-US"
+      ],
+      "observed_markets": [],
+      "publisher_countries": null,
+      "repository_links": [],
+      "origins": [
+        {
+          "connector_id": "joss-reviewed-software",
+          "connector_version": "joss-crossref-v1",
+          "query_id": "research-1",
+          "query_locale": "en-US",
+          "observed_market": "",
+          "response_hash": "4e7fe6bdabcf51567eb6b163a3f7266347b85240e5b3095d5d0755c1e1916f04"
+        }
+      ],
+      "resolution": "DISTINCT",
+      "witnesses": null,
+      "foss_link": {
+        "upstream_url": "https://github.com/schochastics/graphlayouts",
+        "status": "UNVERIFIED"
+      },
+      "scholarly_evidence": {
+        "catalogue": "joss",
+        "record_url": "https://joss.theoj.org/papers/10.21105/joss.05238",
+        "doi": "10.21105/joss.05238",
+        "review_url": "https://github.com/openjournals/joss-reviews/issues/5238",
+        "assessment": "PEER_REVIEWED"
+      }
+    },
+    {
+      "identity": {
+        "connector_id": "joss-reviewed-software",
+        "external_id": "10.21105/joss.03527",
+        "canonical_url": "https://joss.theoj.org/papers/10.21105/joss.03527"
+      },
+      "name": "ClusterValidityIndices.jl: Batch and Incremental Metrics for Unsupervised Learning",
+      "summary": "CVI; ICVI; Cluster Validity Indices; Cluster Validity Index; Incremental Cluster Validity Indices; Incremental Cluster Validity Index; Machine Learning; Clustering; Metrics; Streaming; Time Series",
+      "product_kind": "research_software",
+      "listing_locales": [
+        "en-US"
+      ],
+      "observed_markets": [],
+      "publisher_countries": null,
+      "repository_links": [],
+      "origins": [
+        {
+          "connector_id": "joss-reviewed-software",
+          "connector_version": "joss-crossref-v1",
+          "query_id": "research-1",
+          "query_locale": "en-US",
+          "observed_market": "",
+          "response_hash": "4e7fe6bdabcf51567eb6b163a3f7266347b85240e5b3095d5d0755c1e1916f04"
+        }
+      ],
+      "resolution": "DISTINCT",
+      "witnesses": null,
+      "foss_link": {
+        "upstream_url": "https://github.com/AP6YC/ClusterValidityIndices.jl",
+        "status": "UNVERIFIED"
+      },
+      "scholarly_evidence": {
+        "catalogue": "joss",
+        "record_url": "https://joss.theoj.org/papers/10.21105/joss.03527",
+        "doi": "10.21105/joss.03527",
+        "review_url": "https://github.com/openjournals/joss-reviews/issues/3527",
+        "assessment": "PEER_REVIEWED"
+      }
+    },
+    {
+      "identity": {
+        "connector_id": "joss-reviewed-software",
+        "external_id": "10.21105/joss.06148",
+        "canonical_url": "https://joss.theoj.org/papers/10.21105/joss.06148"
+      },
+      "name": "checkpoint_schedules: schedules for incremental checkpointing of adjoint simulations",
+      "summary": "Checkpointing methods; Adjoint-based gradient",
+      "product_kind": "research_software",
+      "listing_locales": [
+        "en-US"
+      ],
+      "observed_markets": [],
+      "publisher_countries": null,
+      "repository_links": [],
+      "origins": [
+        {
+          "connector_id": "joss-reviewed-software",
+          "connector_version": "joss-crossref-v1",
+          "query_id": "research-1",
+          "query_locale": "en-US",
+          "observed_market": "",
+          "response_hash": "4e7fe6bdabcf51567eb6b163a3f7266347b85240e5b3095d5d0755c1e1916f04"
+        }
+      ],
+      "resolution": "DISTINCT",
+      "witnesses": null,
+      "foss_link": {
+        "upstream_url": "https://github.com/firedrakeproject/checkpoint_schedules",
+        "status": "UNVERIFIED"
+      },
+      "scholarly_evidence": {
+        "catalogue": "joss",
+        "record_url": "https://joss.theoj.org/papers/10.21105/joss.06148",
+        "doi": "10.21105/joss.06148",
+        "review_url": "https://github.com/openjournals/joss-reviews/issues/6148",
+        "assessment": "PEER_REVIEWED"
+      }
+    },
+    {
+      "identity": {
+        "connector_id": "joss-reviewed-software",
+        "external_id": "10.21105/joss.02744",
+        "canonical_url": "https://joss.theoj.org/papers/10.21105/joss.02744"
+      },
+      "name": "PyGDH: Python Grid Discretization Helper",
+      "summary": "nonlinear; differential equations; finite volume method; solver; simulation",
+      "product_kind": "research_software",
+      "listing_locales": [
+        "en-US"
+      ],
+      "observed_markets": [],
+      "publisher_countries": null,
+      "repository_links": [],
+      "origins": [
+        {
+          "connector_id": "joss-reviewed-software",
+          "connector_version": "joss-crossref-v1",
+          "query_id": "research-1",
+          "query_locale": "en-US",
+          "observed_market": "",
+          "response_hash": "4e7fe6bdabcf51567eb6b163a3f7266347b85240e5b3095d5d0755c1e1916f04"
+        }
+      ],
+      "resolution": "DISTINCT",
+      "witnesses": null,
+      "foss_link": {
+        "upstream_url": "https://bitbucket.org/berkeleylab/esdr-pygdh/",
+        "status": "UNVERIFIED"
+      },
+      "scholarly_evidence": {
+        "catalogue": "joss",
+        "record_url": "https://joss.theoj.org/papers/10.21105/joss.02744",
+        "doi": "10.21105/joss.02744",
+        "review_url": "https://github.com/openjournals/joss-reviews/issues/2744",
+        "assessment": "PEER_REVIEWED"
+      }
+    },
+    {
+      "identity": {
+        "connector_id": "joss-reviewed-software",
+        "external_id": "10.21105/joss.06766",
+        "canonical_url": "https://joss.theoj.org/papers/10.21105/joss.06766"
+      },
+      "name": "ASGarD: Adaptive Sparse Grid Discretization",
+      "summary": "Cuda; fusion; plasma; sparse grid; high dimensional; discontinuous Galerkin",
+      "product_kind": "research_software",
+      "listing_locales": [
+        "en-US"
+      ],
+      "observed_markets": [],
+      "publisher_countries": null,
+      "repository_links": [],
+      "origins": [
+        {
+          "connector_id": "joss-reviewed-software",
+          "connector_version": "joss-crossref-v1",
+          "query_id": "research-1",
+          "query_locale": "en-US",
+          "observed_market": "",
+          "response_hash": "4e7fe6bdabcf51567eb6b163a3f7266347b85240e5b3095d5d0755c1e1916f04"
+        }
+      ],
+      "resolution": "DISTINCT",
+      "witnesses": null,
+      "foss_link": {
+        "upstream_url": "https://github.com/project-asgard/asgard",
+        "status": "UNVERIFIED"
+      },
+      "scholarly_evidence": {
+        "catalogue": "joss",
+        "record_url": "https://joss.theoj.org/papers/10.21105/joss.06766",
+        "doi": "10.21105/joss.06766",
+        "review_url": "https://github.com/openjournals/joss-reviews/issues/6766",
+        "assessment": "PEER_REVIEWED"
+      }
+    },
+    {
+      "identity": {
+        "connector_id": "joss-reviewed-software",
+        "external_id": "10.21105/joss.05443",
+        "canonical_url": "https://joss.theoj.org/papers/10.21105/joss.05443"
+      },
+      "name": "Rosalution: Supporting data accessibility, integration, curation, interoperability, and reuse for precision animal modeling",
+      "summary": "animal modeling; rare disease; diagnosis; genomics; phenotype; python; javascript; web application",
+      "product_kind": "research_software",
+      "listing_locales": [
+        "en-US"
+      ],
+      "observed_markets": [],
+      "publisher_countries": null,
+      "repository_links": [],
+      "origins": [
+        {
+          "connector_id": "joss-reviewed-software",
+          "connector_version": "joss-crossref-v1",
+          "query_id": "research-1",
+          "query_locale": "en-US",
+          "observed_market": "",
+          "response_hash": "4e7fe6bdabcf51567eb6b163a3f7266347b85240e5b3095d5d0755c1e1916f04"
+        }
+      ],
+      "resolution": "DISTINCT",
+      "witnesses": null,
+      "foss_link": {
+        "upstream_url": "https://github.com/uab-cgds-worthey/rosalution",
+        "status": "UNVERIFIED"
+      },
+      "scholarly_evidence": {
+        "catalogue": "joss",
+        "record_url": "https://joss.theoj.org/papers/10.21105/joss.05443",
+        "doi": "10.21105/joss.05443",
+        "review_url": "https://github.com/openjournals/joss-reviews/issues/5443",
+        "assessment": "PEER_REVIEWED"
+      }
+    },
+    {
+      "identity": {
+        "connector_id": "joss-reviewed-software",
+        "external_id": "10.21105/joss.03959",
+        "canonical_url": "https://joss.theoj.org/papers/10.21105/joss.03959"
+      },
+      "name": "Dune-MMesh: The Dune Grid Module for Moving Interfaces",
+      "summary": "Python; Dune; partial differential equations; mixed-dimensional; moving mesh",
+      "product_kind": "research_software",
+      "listing_locales": [
+        "en-US"
+      ],
+      "observed_markets": [],
+      "publisher_countries": null,
+      "repository_links": [],
+      "origins": [
+        {
+          "connector_id": "joss-reviewed-software",
+          "connector_version": "joss-crossref-v1",
+          "query_id": "research-1",
+          "query_locale": "en-US",
+          "observed_market": "",
+          "response_hash": "4e7fe6bdabcf51567eb6b163a3f7266347b85240e5b3095d5d0755c1e1916f04"
+        }
+      ],
+      "resolution": "DISTINCT",
+      "witnesses": null,
+      "foss_link": {
+        "upstream_url": "https://github.com/samuelburbulla/dune-mmesh/",
+        "status": "UNVERIFIED"
+      },
+      "scholarly_evidence": {
+        "catalogue": "joss",
+        "record_url": "https://joss.theoj.org/papers/10.21105/joss.03959",
+        "doi": "10.21105/joss.03959",
+        "review_url": "https://github.com/openjournals/joss-reviews/issues/3959",
+        "assessment": "PEER_REVIEWED"
+      }
+    },
+    {
+      "identity": {
+        "connector_id": "joss-reviewed-software",
+        "external_id": "10.21105/joss.09943",
+        "canonical_url": "https://joss.theoj.org/papers/10.21105/joss.09943"
+      },
+      "name": "BaderKit: A Python Package for Grid-based Bader Charge Analysis",
+      "summary": "Chemistry; Quantum Theory of Atoms in Molecules; Topology; Oxidation States; Bader",
+      "product_kind": "research_software",
+      "listing_locales": [
+        "en-US"
+      ],
+      "observed_markets": [],
+      "publisher_countries": null,
+      "repository_links": [],
+      "origins": [
+        {
+          "connector_id": "joss-reviewed-software",
+          "connector_version": "joss-crossref-v1",
+          "query_id": "research-1",
+          "query_locale": "en-US",
+          "observed_market": "",
+          "response_hash": "4e7fe6bdabcf51567eb6b163a3f7266347b85240e5b3095d5d0755c1e1916f04"
+        }
+      ],
+      "resolution": "DISTINCT",
+      "witnesses": null,
+      "foss_link": {
+        "upstream_url": "https://github.com/SWeav02/baderkit",
+        "status": "UNVERIFIED"
+      },
+      "scholarly_evidence": {
+        "catalogue": "joss",
+        "record_url": "https://joss.theoj.org/papers/10.21105/joss.09943",
+        "doi": "10.21105/joss.09943",
+        "review_url": "https://github.com/openjournals/joss-reviews/issues/9943",
+        "assessment": "PEER_REVIEWED"
+      }
+    },
+    {
+      "identity": {
+        "connector_id": "joss-reviewed-software",
+        "external_id": "10.21105/joss.03766",
+        "canonical_url": "https://joss.theoj.org/papers/10.21105/joss.03766"
+      },
+      "name": "LaplaceInterpolation.jl: A Julia package for fast interpolation on a grid",
+      "summary": "statistics; spatial statistics; space-time processes",
+      "product_kind": "research_software",
+      "listing_locales": [
+        "en-US"
+      ],
+      "observed_markets": [],
+      "publisher_countries": null,
+      "repository_links": [],
+      "origins": [
+        {
+          "connector_id": "joss-reviewed-software",
+          "connector_version": "joss-crossref-v1",
+          "query_id": "research-1",
+          "query_locale": "en-US",
+          "observed_market": "",
+          "response_hash": "4e7fe6bdabcf51567eb6b163a3f7266347b85240e5b3095d5d0755c1e1916f04"
+        }
+      ],
+      "resolution": "DISTINCT",
+      "witnesses": null,
+      "foss_link": {
+        "upstream_url": "https://github.com/vishwas1984/LaplaceInterpolation.jl",
+        "status": "UNVERIFIED"
+      },
+      "scholarly_evidence": {
+        "catalogue": "joss",
+        "record_url": "https://joss.theoj.org/papers/10.21105/joss.03766",
+        "doi": "10.21105/joss.03766",
+        "review_url": "https://github.com/openjournals/joss-reviews/issues/3766",
+        "assessment": "PEER_REVIEWED"
+      }
+    },
+    {
+      "identity": {
+        "connector_id": "joss-reviewed-software",
+        "external_id": "10.21105/joss.05410",
+        "canonical_url": "https://joss.theoj.org/papers/10.21105/joss.05410"
+      },
+      "name": "Ethical Smart Grid: a Gym environment for learning ethical behaviours",
+      "summary": "Reinforcement Learning; Machine Ethics; Smart Grid; Multi-Agent System; OpenAI Gym",
+      "product_kind": "research_software",
+      "listing_locales": [
+        "en-US"
+      ],
+      "observed_markets": [],
+      "publisher_countries": null,
+      "repository_links": [],
+      "origins": [
+        {
+          "connector_id": "joss-reviewed-software",
+          "connector_version": "joss-crossref-v1",
+          "query_id": "research-1",
+          "query_locale": "en-US",
+          "observed_market": "",
+          "response_hash": "4e7fe6bdabcf51567eb6b163a3f7266347b85240e5b3095d5d0755c1e1916f04"
+        }
+      ],
+      "resolution": "DISTINCT",
+      "witnesses": null,
+      "foss_link": {
+        "upstream_url": "https://github.com/ethicsai/ethical-smart-grid",
+        "status": "UNVERIFIED"
+      },
+      "scholarly_evidence": {
+        "catalogue": "joss",
+        "record_url": "https://joss.theoj.org/papers/10.21105/joss.05410",
+        "doi": "10.21105/joss.05410",
+        "review_url": "https://github.com/openjournals/joss-reviews/issues/5410",
+        "assessment": "PEER_REVIEWED"
+      }
+    }
+  ]
+}

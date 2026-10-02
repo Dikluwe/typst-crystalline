@@ -1,0 +1,319 @@
+{
+  "schema_version": "1",
+  "rules_version": "2026-09-07.0040",
+  "rules_hash": "ab4a3135b46cbdd68dfb360f0cb49465ed8ae3a21d65cb917cf8a955ecc2e703",
+  "catalog_coverage": {
+    "schema_version": "1",
+    "rules_version": "2026-09-07.0040",
+    "rules_hash": "ab4a3135b46cbdd68dfb360f0cb49465ed8ae3a21d65cb917cf8a955ecc2e703",
+    "entries": [
+      {
+        "requirement_kind": "capability",
+        "requirement": "measure intrinsic cell height for automatic rows",
+        "status": "CATALOG_GAP",
+        "reason_code": "CATALOG_GAP"
+      },
+      {
+        "requirement_kind": "capability",
+        "requirement": "preserve text and geometry",
+        "status": "CATALOG_GAP",
+        "reason_code": "CATALOG_GAP"
+      },
+      {
+        "requirement_kind": "capability",
+        "requirement": "recompute when alignment spans or pagination changes",
+        "status": "CATALOG_GAP",
+        "reason_code": "CATALOG_GAP"
+      },
+      {
+        "requirement_kind": "capability",
+        "requirement": "reuse cell frame at final placement when width and style are unchanged",
+        "status": "CATALOG_GAP",
+        "reason_code": "CATALOG_GAP"
+      },
+      {
+        "requirement_kind": "problem",
+        "requirement": "Find implementation patterns for document table layout that avoid laying out each cell twice when resolving automatic row heights and emitting paginated cells",
+        "status": "CATALOG_GAP",
+        "reason_code": "CATALOG_GAP"
+      }
+    ]
+  },
+  "assessments": [
+    {
+      "repository": {
+        "owner": "local",
+        "repo": "typst-original-e50cca70",
+        "commit": "36771bda8813f4176da763b693acce789c60ed8cf887e6274b6ea7ae6cd0f252"
+      },
+      "screening_decision": {
+        "repository": "local/typst-original-e50cca70",
+        "ranking_score": 0.33000000000000007,
+        "probability": null,
+        "calibration_status": "uncalibrated",
+        "decision": "AUDIT",
+        "signals": {
+          "expansion_prior": 0,
+          "query_retention": 1,
+          "fallback_depth": 0,
+          "match_specificity": 0,
+          "description_alignment": 0,
+          "origin_convergence": 8,
+          "capability_coverage": 0,
+          "non_goal_conflict": 0,
+          "evidence_completeness": 0.3
+        },
+        "contributions": [
+          {
+            "signal": "intercept",
+            "value": 1,
+            "weight": 0.05,
+            "effect": 0.05,
+            "reason": "base explícita do modelo"
+          },
+          {
+            "signal": "expansion_prior",
+            "value": 0,
+            "weight": 0.15,
+            "effect": 0,
+            "reason": "produtividade julgada da expansão"
+          },
+          {
+            "signal": "query_retention",
+            "value": 1,
+            "weight": 0.15,
+            "effect": 0.15,
+            "reason": "termos informativos preservados"
+          },
+          {
+            "signal": "fallback_depth",
+            "value": 0,
+            "weight": -0.1,
+            "effect": -0,
+            "reason": "profundidade do fallback efetivo"
+          },
+          {
+            "signal": "match_specificity",
+            "value": 0,
+            "weight": 0.1,
+            "effect": 0,
+            "reason": "especificidade do tipo de match"
+          },
+          {
+            "signal": "description_alignment",
+            "value": 0,
+            "weight": 0.15,
+            "effect": 0,
+            "reason": "alinhamento lexical da descrição"
+          },
+          {
+            "signal": "origin_convergence",
+            "value": 1,
+            "weight": 0.1,
+            "effect": 0.1,
+            "reason": "convergência de expansões independentes"
+          },
+          {
+            "signal": "capability_coverage",
+            "value": 0,
+            "weight": 0.15,
+            "effect": 0,
+            "reason": "capacidades com sinal preliminar"
+          },
+          {
+            "signal": "non_goal_conflict",
+            "value": 0,
+            "weight": -0.4,
+            "effect": -0,
+            "reason": "conflito explícito com não objetivos"
+          },
+          {
+            "signal": "evidence_completeness",
+            "value": 0.3,
+            "weight": 0.1,
+            "effect": 0.03,
+            "reason": "completude da evidência disponível"
+          }
+        ],
+        "uncertainty_reasons": [
+          "evidência incompleta"
+        ],
+        "origins": [
+          {
+            "expansion_id": "exp-problem-73206d3b3776",
+            "planned_query": "Find implementation patterns for document table layout that avoid laying out each cell twice when resolving automatic row heights and emitting paginated cells",
+            "attempt_index": 0,
+            "effective_query": "Find implementation patterns for document table layout that avoid laying out each cell twice when resolving automatic row heights and emitting paginated cells"
+          },
+          {
+            "expansion_id": "exp-capability-edc09c7e21d4",
+            "planned_query": "measure intrinsic cell height for automatic rows",
+            "attempt_index": 0,
+            "effective_query": "measure intrinsic cell height for automatic rows"
+          },
+          {
+            "expansion_id": "exp-constraint-216691a71ff9",
+            "planned_query": "nested tables and pagination",
+            "attempt_index": 0,
+            "effective_query": "nested tables and pagination"
+          },
+          {
+            "expansion_id": "exp-constraint-2c981124d79f",
+            "planned_query": "no I/O in core layout",
+            "attempt_index": 0,
+            "effective_query": "no I/O in core layout"
+          },
+          {
+            "expansion_id": "exp-capability-7b40c754ae3e",
+            "planned_query": "preserve text and geometry",
+            "attempt_index": 0,
+            "effective_query": "preserve text and geometry"
+          },
+          {
+            "expansion_id": "exp-capability-ec559eb62c98",
+            "planned_query": "recompute when alignment spans or pagination changes",
+            "attempt_index": 0,
+            "effective_query": "recompute when alignment spans or pagination changes"
+          },
+          {
+            "expansion_id": "exp-capability-ace05f6533ed",
+            "planned_query": "reuse cell frame at final placement when width and style are unchanged",
+            "attempt_index": 0,
+            "effective_query": "reuse cell frame at final placement when width and style are unchanged"
+          },
+          {
+            "expansion_id": "exp-constraint-59d373d2f1e4",
+            "planned_query": "static typed implementation",
+            "attempt_index": 0,
+            "effective_query": "static typed implementation"
+          }
+        ]
+      },
+      "problem_alignment": {
+        "capability": "Find implementation patterns for document table layout that avoid laying out each cell twice when resolving automatic row heights and emitting paginated cells",
+        "status": "INCONCLUSIVE",
+        "sources": [],
+        "confidence": 0,
+        "explanation": "o catálogo não possui regra declarada única e segura para este requisito",
+        "reason_code": "CATALOG_GAP"
+      },
+      "capabilities": [
+        {
+          "capability": "measure intrinsic cell height for automatic rows",
+          "status": "INCONCLUSIVE",
+          "sources": [],
+          "confidence": 0,
+          "explanation": "o catálogo não possui regra declarada única e segura para este requisito",
+          "reason_code": "CATALOG_GAP"
+        },
+        {
+          "capability": "preserve text and geometry",
+          "status": "INCONCLUSIVE",
+          "sources": [],
+          "confidence": 0,
+          "explanation": "o catálogo não possui regra declarada única e segura para este requisito",
+          "reason_code": "CATALOG_GAP"
+        },
+        {
+          "capability": "recompute when alignment spans or pagination changes",
+          "status": "INCONCLUSIVE",
+          "sources": [],
+          "confidence": 0,
+          "explanation": "o catálogo não possui regra declarada única e segura para este requisito",
+          "reason_code": "CATALOG_GAP"
+        },
+        {
+          "capability": "reuse cell frame at final placement when width and style are unchanged",
+          "status": "INCONCLUSIVE",
+          "sources": [],
+          "confidence": 0,
+          "explanation": "o catálogo não possui regra declarada única e segura para este requisito",
+          "reason_code": "CATALOG_GAP"
+        }
+      ],
+      "constraints": [
+        {
+          "constraint": "static typed implementation",
+          "evidence": {
+            "capability": "static typed implementation",
+            "status": "INCONCLUSIVE",
+            "sources": [],
+            "confidence": 0,
+            "explanation": "restrição sem regra determinística específica"
+          }
+        },
+        {
+          "constraint": "no I/O in core layout",
+          "evidence": {
+            "capability": "no I/O in core layout",
+            "status": "INCONCLUSIVE",
+            "sources": [],
+            "confidence": 0,
+            "explanation": "restrição sem regra determinística específica"
+          }
+        },
+        {
+          "constraint": "nested tables and pagination",
+          "evidence": {
+            "capability": "nested tables and pagination",
+            "status": "INCONCLUSIVE",
+            "sources": [],
+            "confidence": 0,
+            "explanation": "restrição sem regra determinística específica"
+          }
+        },
+        {
+          "constraint": "non_goal: CSS grid for browser UI",
+          "evidence": {
+            "capability": "CSS grid for browser UI",
+            "status": "INCONCLUSIVE",
+            "sources": [],
+            "confidence": 0,
+            "explanation": "coleta incompleta"
+          }
+        },
+        {
+          "constraint": "non_goal: network graph drawing",
+          "evidence": {
+            "capability": "network graph drawing",
+            "status": "INCONCLUSIVE",
+            "sources": [],
+            "confidence": 0,
+            "explanation": "coleta incompleta"
+          }
+        }
+      ],
+      "license": {
+        "status": "INCONCLUSIVE",
+        "caveat": "coleta incompleta"
+      },
+      "maintenance": {
+        "status": "INCONCLUSIVE",
+        "archived": false,
+        "sources": [
+          {
+            "kind": "repository_metadata",
+            "ref": {
+              "owner": "local",
+              "repo": "typst-original-e50cca70",
+              "commit": "36771bda8813f4176da763b693acce789c60ed8cf887e6274b6ea7ae6cd0f252"
+            },
+            "path": "@repository-metadata",
+            "snippet": "metadados imutáveis da coleta",
+            "rule_id": "repository-maintenance",
+            "content_hash": "62b2e3848b672417fd7569b3c7a9d60efd7ec1a2365b3384a8a9cdd5d57ac61d",
+            "strength": 0.7
+          }
+        ],
+        "warnings": [
+          "coleta incompleta"
+        ]
+      },
+      "operation": {
+        "local_status": "INCONCLUSIVE"
+      },
+      "reusable_parts": [],
+      "gaps": []
+    }
+  ]
+}
