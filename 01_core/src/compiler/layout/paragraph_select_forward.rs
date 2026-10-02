@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/paragraph_select_forward.md
-//! @prompt-hash f704a564
+//! @prompt-hash 829d6e0a
 //! @layer L1
 //! @updated 2026-10-02
 
@@ -19,6 +19,38 @@ struct Trial {
 
 /// Alternative test-only DP: start is fixed while the line end moves.
 fn select_forward(
+    p: &Prepared,
+    width: f64,
+    font: f64,
+    justify: bool,
+    costs: LineCosts,
+) -> Trial {
+    select_forward_variant::<true, false>(p, width, font, justify, costs)
+}
+
+/// Ablation without the packed and balanced initial layouts.
+fn select_forward_simple_bound(
+    p: &Prepared,
+    width: f64,
+    font: f64,
+    justify: bool,
+    costs: LineCosts,
+) -> Trial {
+    select_forward_variant::<false, false>(p, width, font, justify, costs)
+}
+
+/// Ablation reusing prefix measures to build the greedy upper bound.
+fn select_forward_prefix_bound(
+    p: &Prepared,
+    width: f64,
+    font: f64,
+    justify: bool,
+    costs: LineCosts,
+) -> Trial {
+    select_forward_variant::<false, true>(p, width, font, justify, costs)
+}
+
+fn select_forward_variant<const EXTRA_SEEDS: bool, const PREFIX_GREEDY: bool>(
     p: &Prepared,
     width: f64,
     font: f64,
@@ -57,14 +89,12 @@ fn select_forward(
             }
         })
         .collect();
-    let mut word_widths = vec![0.0; n + 1];
     for i in 0..n {
         prefix[i + 1] = Measure {
             width: prefix[i].width + p.words[i].width + before[i].width,
             spaces: prefix[i].spaces + before[i].spaces,
             count: prefix[i].count + before[i].count,
         };
-        word_widths[i + 1] = word_widths[i] + p.words[i].width;
     }
     let measured = |line: Line| {
         let trim = if line.start > 0 { before[line.start] } else { Measure::default() };
@@ -93,47 +123,67 @@ fn select_forward(
         )
     };
     let total_score = |lines: &[Line]| lines.iter().copied().map(score).sum::<f64>();
-    let greedy =
-        paragraph_select::select(p, width, font, justify, Strategy::Simple, costs);
-    let mut upper_bound = total_score(&greedy);
-    let mut bound_source = "simple";
-    let min_ratio = if justify { -1.0 } else { 0.0 };
-    // Two seed layouts: the fullest legal line and the one nearest the
-    // average remaining word width per estimated remaining line.
-    for balanced in [false, true] {
+    let greedy = if PREFIX_GREEDY {
         let mut lines = Vec::new();
         let mut start = 0;
         while start < n {
-            let remaining = word_widths[n] - word_widths[start];
-            let estimated_lines = (remaining / width).ceil().max(1.0) as usize;
-            let estimated_lines = estimated_lines.clamp(1, n - start);
-            let target = remaining / estimated_lines as f64;
-            let mut chosen = start + 1;
-            let mut distance =
-                (measured(Line { start, end: chosen }).width - target).abs();
-            for end in start + 2..=n {
-                let m = measured(Line { start, end });
-                if ratio(m, width, font) < min_ratio {
-                    break;
-                }
-                if balanced {
-                    let candidate_distance = (m.width - target).abs();
-                    if candidate_distance < distance {
-                        chosen = end;
-                        distance = candidate_distance;
-                    }
-                } else {
-                    chosen = end;
-                }
+            let mut end = start + 1;
+            while end < n && measured(Line { start, end: end + 1 }).width <= width {
+                end += 1;
             }
-            lines.push(Line { start, end: chosen });
-            start = chosen;
+            lines.push(Line { start, end });
+            start = end;
         }
-        let candidate = total_score(&lines);
-        if candidate.is_finite() && (!upper_bound.is_finite() || candidate < upper_bound)
-        {
-            upper_bound = candidate;
-            bound_source = if balanced { "balanced" } else { "packed" };
+        lines
+    } else {
+        paragraph_select::select(p, width, font, justify, Strategy::Simple, costs)
+    };
+    let mut upper_bound = total_score(&greedy);
+    let mut bound_source = "simple";
+    let min_ratio = if justify { -1.0 } else { 0.0 };
+    if EXTRA_SEEDS {
+        let mut word_widths = vec![0.0; n + 1];
+        for i in 0..n {
+            word_widths[i + 1] = word_widths[i] + p.words[i].width;
+        }
+        // Two seed layouts: the fullest legal line and the one nearest the
+        // average remaining word width per estimated remaining line.
+        for balanced in [false, true] {
+            let mut lines = Vec::new();
+            let mut start = 0;
+            while start < n {
+                let remaining = word_widths[n] - word_widths[start];
+                let estimated_lines = (remaining / width).ceil().max(1.0) as usize;
+                let estimated_lines = estimated_lines.clamp(1, n - start);
+                let target = remaining / estimated_lines as f64;
+                let mut chosen = start + 1;
+                let mut distance =
+                    (measured(Line { start, end: chosen }).width - target).abs();
+                for end in start + 2..=n {
+                    let m = measured(Line { start, end });
+                    if ratio(m, width, font) < min_ratio {
+                        break;
+                    }
+                    if balanced {
+                        let candidate_distance = (m.width - target).abs();
+                        if candidate_distance < distance {
+                            chosen = end;
+                            distance = candidate_distance;
+                        }
+                    } else {
+                        chosen = end;
+                    }
+                }
+                lines.push(Line { start, end: chosen });
+                start = chosen;
+            }
+            let candidate = total_score(&lines);
+            if candidate.is_finite()
+                && (!upper_bound.is_finite() || candidate < upper_bound)
+            {
+                upper_bound = candidate;
+                bound_source = if balanced { "balanced" } else { "packed" };
+            }
         }
     }
     if !upper_bound.is_finite() {
@@ -284,6 +334,20 @@ mod tests {
                                     select_forward(&p, width, 12.0, justify, cost);
                                 assert_eq!(trial.lines, exact,
                                     "size={size} gap={gap} tracking={tracking} width={width} justify={justify} runt={}", cost.runt);
+                                let minimal = select_forward_simple_bound(
+                                    &p, width, 12.0, justify, cost,
+                                );
+                                assert_eq!(
+                                    minimal.lines, exact,
+                                    "simple-only size={size} width={width}"
+                                );
+                                let prefix_seed = select_forward_prefix_bound(
+                                    &p, width, 12.0, justify, cost,
+                                );
+                                assert_eq!(
+                                    prefix_seed.lines, exact,
+                                    "prefix-seed size={size} width={width}"
+                                );
                                 skipped += trial.skipped_starts;
                             }
                         }
@@ -324,6 +388,11 @@ mod tests {
             );
             let trial = select_forward(&p, width, 12.0, justify, costs);
             assert_eq!(trial.lines, exact, "case={name}");
+            let minimal = select_forward_simple_bound(&p, width, 12.0, justify, costs);
+            assert_eq!(minimal.lines, exact, "simple-only case={name}");
+            let prefix_seed =
+                select_forward_prefix_bound(&p, width, 12.0, justify, costs);
+            assert_eq!(prefix_seed.lines, exact, "prefix-seed case={name}");
             eprintln!(
                 "case={name} evaluated={} skipped_starts={} bound={} source={}",
                 trial.evaluated,
@@ -347,6 +416,28 @@ mod tests {
             group.bench_function("forward", |b| {
                 b.iter(|| {
                     black_box(select_forward(
+                        black_box(&p),
+                        black_box(width),
+                        12.0,
+                        justify,
+                        costs,
+                    ))
+                })
+            });
+            group.bench_function("forward_simple_only", |b| {
+                b.iter(|| {
+                    black_box(select_forward_simple_bound(
+                        black_box(&p),
+                        black_box(width),
+                        12.0,
+                        justify,
+                        costs,
+                    ))
+                })
+            });
+            group.bench_function("forward_prefix_seed", |b| {
+                b.iter(|| {
+                    black_box(select_forward_prefix_bound(
                         black_box(&p),
                         black_box(width),
                         12.0,
