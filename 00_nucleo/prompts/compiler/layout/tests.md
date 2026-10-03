@@ -1,5 +1,5 @@
 # L0 — tests
-Hash do Código: 4a185f8f
+Hash do Código: de483934
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -106,3 +106,13 @@ prova que text substituto não altera glyphs/avanços nem contamina o cache.
 ### Decisão e aceitação
 
 Superseder somente essa expectativa por controle de mesmo tamanho 12pt: `A B` deve deslocar B em exatamente 2*tracking, com tracking positivo/negativo. Não relaxar tolerância nem mudar demais regressões. Alterar o nome/comentário para declarar a semântica atual. Sem código produtivo neste owner; resselo restrito.
+
+## Regressão da largura Auto — 2026-10-03
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/grid-vanilla-phase-2026-10-03.md` mede desvio acumulado de 2,5 pt por coluna Auto de uma palavra, ausência desse desvio nas colunas fixas e largura de espaço de 2,5 pt nos dois motores. `measurement.rs:70-96` soma o espaço após a palavra final. A causa é hipótese verificável por regressão e ablação, não intenção atribuída ao vanilla.
+
+### Responsabilidade deste owner
+
+Adicionar testes de medição restrita com métricas controladas: palavra única sem espaço final, duas palavras com exatamente um separador, e quebra quando apenas a palavra adicional excede a largura. Cobrir largura e número de linhas, sem relaxar testes existentes. A aceitação externa usa posições de PDF contra o vanilla pinado; estes testes isolam a fórmula interna.

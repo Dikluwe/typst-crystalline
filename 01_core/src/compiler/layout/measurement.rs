@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/measurement.md
-//! @prompt-hash dcec4f3f
+//! @prompt-hash a05adbfd
 //! @layer L1
-//! @updated 2026-09-26
+//! @updated 2026-10-03
 
 use crate::entities::{
     content::Content,
@@ -79,12 +79,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 for word in text.split_whitespace() {
                     let word_w =
                         self.metrics.text_width(word, self.style.size, &self.style).0;
-                    if current_w + word_w > max_width && current_w > 0.0 {
+                    let next_w = if current_w > 0.0 {
+                        current_w + space_w + word_w
+                    } else {
+                        word_w
+                    };
+                    if next_w > max_width && current_w > 0.0 {
                         max_line_w = max_line_w.max(current_w);
                         line_count += 1;
-                        current_w = word_w + space_w;
+                        current_w = word_w;
                     } else {
-                        current_w += word_w + space_w;
+                        current_w = next_w;
                     }
                 }
                 max_line_w = max_line_w.max(current_w);

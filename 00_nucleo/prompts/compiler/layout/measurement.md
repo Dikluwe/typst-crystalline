@@ -1,5 +1,5 @@
 # L0 — measurement
-Hash do Código: 3ea9f008
+Hash do Código: b1365934
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
@@ -25,3 +25,13 @@ Preserve the public `measure_content_real` pair and internal baseline-bearing co
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
+
+## Largura intrínseca de texto em coluna Auto — 2026-10-03
+
+### Medição anterior à decisão
+
+O controle bilateral pinado em `00_nucleo/diagnosticos/grid-vanilla-phase-2026-10-03.md` mediu quatro colunas Auto com desvios acumulados de 0, 2,5, 5,0 e 7,5 pt nos inícios das células. Com colunas fixas, os 320 inícios coincidiram em x dentro de 0,001 pt. A sonda de linguagem mediu 2,5 pt para o espaço sob Libertinus Serif 10pt nos dois motores. Em `01_core/src/compiler/layout/measurement.rs:70-96`, a largura de `Content::Text` soma um espaço após cada palavra, inclusive a última; `01_core/src/compiler/layout/grid/tracks.rs:79` usa essa largura em Auto. A fonte vanilla pinada mede o frame da célula em `lab/typst-original/crates/typst-layout/src/grid/layouter.rs:967-1100`. A atribuição causal ainda exige ablação e controle RED→GREEN; a observação não prova equivalência para células complexas.
+
+### Decisão e aceitação
+
+Na medição restrita de texto, contar o espaço entre palavras consecutivas, sem adicionar um espaço artificial após a última palavra de cada linha. A seleção de quebra deve comparar a largura da próxima palavra mais o separador quando a linha já contém palavra. Preservar a restrição de largura, a altura por número de linhas e os outros braços do dispatcher. Exigir regressões para uma palavra, várias palavras e quebra; comparar a geometria Auto antes/depois com o vanilla pinado, mantendo coluna fixa como controle. Esta é correção interna de paridade, sem mudança de contrato público, comportamento padrão ou fase do pipeline (ADR-0127).

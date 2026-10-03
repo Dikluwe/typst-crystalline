@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/tests.md
-//! @prompt-hash 8c96c3f9
+//! @prompt-hash 76cbe750
 //! @layer L1
-//! @updated 2026-09-29
+//! @updated 2026-10-03
 //!
 //! Testes de layout — extraídos de `layout/mod.rs` no Passo 96.7
 //! conforme ADR-0037.
@@ -4542,6 +4542,37 @@ fn grid_fr_recebe_zero_quando_auto_e_guloso() {
 
     // Comportamento documentado: fr pode receber 0pt (DEBT-34d). Sem pânico.
     assert!(resolved[2] >= 0.0, "fr não deve ter largura negativa");
+}
+
+#[test]
+fn auto_text_measurement_counts_only_interword_spaces() {
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use comemo::Track;
+
+    let intr = TagIntrospector::empty();
+    let intr_dyn: &dyn Introspector = &intr;
+    let mut layouter =
+        Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_dyn.track());
+    let style = layouter.style.clone();
+    let word = FixedMetrics.text_width("AB", style.size, &style).0;
+    let other = FixedMetrics.text_width("CD", style.size, &style).0;
+    let space = FixedMetrics.text_width(" ", style.size, &style).0;
+    let (_, line_height) = FixedMetrics.vertical_metrics(style.size, &style);
+
+    let (single_w, single_h) =
+        layouter.measure_content_constrained(&Content::text("AB"), 1000.0);
+    assert!((single_w - word).abs() < 1e-9, "palavra única sem espaço final");
+    assert!((single_h - line_height.0).abs() < 1e-9);
+
+    let (pair_w, pair_h) =
+        layouter.measure_content_constrained(&Content::text("AB CD"), 1000.0);
+    assert!((pair_w - (word + space + other)).abs() < 1e-9);
+    assert!((pair_h - line_height.0).abs() < 1e-9);
+
+    let (wrap_w, wrap_h) = layouter
+        .measure_content_constrained(&Content::text("AB CD"), word + space + other - 0.1);
+    assert!((wrap_w - word.max(other)).abs() < 1e-9);
+    assert!((wrap_h - 2.0 * line_height.0).abs() < 1e-9);
 }
 
 // ── P772f — `measure_content_constrained` colapsava a 0 para `Content::Align`
