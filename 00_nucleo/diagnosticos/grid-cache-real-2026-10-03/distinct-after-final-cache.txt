@@ -1,0 +1,19 @@
+warning: Missing auto-load script at offset 0 in section .debug_gdb_scripts
+of file /repos/Antigravity/typst-crystalline/target/debug/typst.
+Use `info auto-load python-scripts [REGEXP]' to list them.
+Breakpoint 1 at 0x24901e9: file 03_infra/src/font_metrics/caches.rs, line 170.
+Breakpoint 2 at 0x24902e4: 03_infra/src/font_metrics/caches.rs:175. (2 locations)
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Inferior 1 (process 3811365) exited normally]
+Num     Type           Disp Enb Address            What
+1       breakpoint     keep y   0x00005555579e41e9 in typst_infra::font_metrics::FallbackFontMetrics::cached_shaped_width<typst_infra::font_metrics::fallback::{impl#0}::advance_shaped::{closure_env#0}> at 03_infra/src/font_metrics/caches.rs:170
+	breakpoint already hit 2880 times
+        silent
+        continue
+2       breakpoint     keep y   <MULTIPLE>
+	breakpoint already hit 641 times
+        silent
+        continue
+2.1                         y   0x00005555579e42e4 in typst_infra::font_metrics::FallbackFontMetrics::cached_shaped_width<typst_infra::font_metrics::fallback::{impl#0}::advance_shaped::{closure_env#0}> at 03_infra/src/font_metrics/caches.rs:175
+2.2                         y   0x00005555579e45d3 in typst_infra::font_metrics::FallbackFontMetrics::cached_shaped_width<typst_infra::font_metrics::fallback::{impl#0}::advance_shaped::{closure_env#0}> at 03_infra/src/font_metrics/caches.rs:175

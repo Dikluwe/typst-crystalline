@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/paged.md
-//! @prompt-hash 17d87d76
+//! @prompt-hash 6adcd7d9
 //! @layer L3
-//! @updated 2026-09-26
+//! @updated 2026-10-03
 //!
 //! Orquestra a compilação paginada, introspecção runtime, realização de outlines, callbacks math/par.line, PageStore e binding dos números lógicos. Devolve somente candidatos completos, conserva os ciclos e os orçamentos vigentes e passa ao shaping a geração final validada.
 
@@ -315,15 +315,20 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
             Err(errors) => return (Err(errors), warnings),
         };
         let mut final_realized_content = realized_content.clone();
-        let (mut doc, callback_warnings) = match layout_with_realized_math_callbacks(
-            &realized_content,
-            layout_intr.clone(),
-            world,
-            source,
-        ) {
-            Ok(pair) => pair,
-            Err(errors) => return (Err(errors), warnings),
-        };
+        // One World and one compilation: let the second numbering candidate
+        // reuse font/shaping caches warmed by the first layout.
+        let layout_metrics = FallbackFontMetrics::new(world);
+        let (mut doc, callback_warnings) =
+            match layout_with_realized_math_callbacks_with_metrics(
+                &realized_content,
+                layout_intr.clone(),
+                world,
+                source,
+                &layout_metrics,
+            ) {
+                Ok(pair) => pair,
+                Err(errors) => return (Err(errors), warnings),
+            };
         warnings.extend(callback_warnings);
         // P1159: callbacks são executados somente aqui, onde existe Engine. O
         // layouter recebe apenas vistas Content seladas da passagem anterior.
@@ -387,15 +392,17 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
                 Ok(content) => content,
                 Err(errors) => return (Err(errors), warnings),
             };
-            let (next, callback_warnings) = match layout_with_realized_math_callbacks(
-                &realized_content,
-                layout_intr.clone(),
-                world,
-                source,
-            ) {
-                Ok(pair) => pair,
-                Err(errors) => return (Err(errors), warnings),
-            };
+            let (next, callback_warnings) =
+                match layout_with_realized_math_callbacks_with_metrics(
+                    &realized_content,
+                    layout_intr.clone(),
+                    world,
+                    source,
+                    &layout_metrics,
+                ) {
+                    Ok(pair) => pair,
+                    Err(errors) => return (Err(errors), warnings),
+                };
             warnings.extend(callback_warnings);
             let converged = next.pages.len() == previous_pages;
             final_realized_content = realized_content;
@@ -504,12 +511,47 @@ pub(super) fn layout_with_realized_math_callbacks(
     )
 }
 
+fn layout_with_realized_math_callbacks_with_metrics(
+    content: &Content,
+    introspector: typst_core::entities::introspector::TagIntrospector,
+    world: &dyn World,
+    source: &Source,
+    font_metrics: &FallbackFontMetrics<'_>,
+) -> SourceResult<(PagedDocument, Vec<SourceDiagnostic>)> {
+    layout_with_realized_math_callbacks_from_with_metrics(
+        content,
+        introspector,
+        world,
+        source,
+        typst_core::entities::locator::Locator::new().checkpoint(),
+        Some(font_metrics),
+    )
+}
+
 pub(super) fn layout_with_realized_math_callbacks_from(
     content: &Content,
     introspector: typst_core::entities::introspector::TagIntrospector,
     world: &dyn World,
     source: &Source,
     location_start: typst_core::entities::locator::LocatorSeed,
+) -> SourceResult<(PagedDocument, Vec<SourceDiagnostic>)> {
+    layout_with_realized_math_callbacks_from_with_metrics(
+        content,
+        introspector,
+        world,
+        source,
+        location_start,
+        None,
+    )
+}
+
+fn layout_with_realized_math_callbacks_from_with_metrics(
+    content: &Content,
+    introspector: typst_core::entities::introspector::TagIntrospector,
+    world: &dyn World,
+    source: &Source,
+    location_start: typst_core::entities::locator::LocatorSeed,
+    shared_metrics: Option<&FallbackFontMetrics<'_>>,
 ) -> SourceResult<(PagedDocument, Vec<SourceDiagnostic>)> {
     let mut math_store: Option<SealedMathCallbacks> = None;
     let mut par_line_store: Option<SealedParLineCallbacks> = None;
@@ -518,7 +560,9 @@ pub(super) fn layout_with_realized_math_callbacks_from(
         match layout_with_introspector_and_metrics_and_callbacks_from(
             content,
             introspector.clone(),
-            FallbackFontMetrics::new(world),
+            shared_metrics
+                .map(Clone::clone)
+                .unwrap_or_else(|| FallbackFontMetrics::new(world)),
             ImageSizeImageSizer,
             11.0,
             math_store.as_ref(),

@@ -1,0 +1,685 @@
+{
+  "head": "616a8ff50281efd5bec8329a3fc8f9fdbfbe2612",
+  "status": " M 00_nucleo/prompts/infra/pipeline/paged.md\n M 03_infra/src/pipeline/paged.rs\n?? 00_nucleo/diagnosticos/grid-cache-real-2026-10-03/compare_cache_share.py\n",
+  "diff_stat": " 00_nucleo/prompts/infra/pipeline/paged.md |  4 +-\n 03_infra/src/pipeline/paged.rs            | 86 +++++++++++++++++++++++--------\n 2 files changed, 68 insertions(+), 22 deletions(-)\n",
+  "utc": "2026-10-03 02:52:11 UTC",
+  "cpu": 0,
+  "binary_sha256": {
+    "before": "a12d75ded40944932b20dbd751d7969d3f846ac04de10c817cfffee707175cc4",
+    "after": "acedd6624e8f370cc2b622976b6fb44ae5f04ca47b84b1414718236400965ff9"
+  },
+  "fixture_sha256": {
+    "distinct": "902986bd28ace4b39144ce567592229c5a5621453cbb661a408414c803a58d6d",
+    "same": "a3a8454c6ffa0ab9763ad5ac0e804abf992deba7d1818e58390fe0e3672389d5"
+  },
+  "summary": {
+    "distinct": {
+      "before_median_ms": 243.41598249999998,
+      "after_median_ms": 234.226416,
+      "paired_after_minus_before_median_ms": -9.463055499999996,
+      "before_range_ms": [
+        240.392572,
+        246.631974
+      ],
+      "after_range_ms": [
+        232.499454,
+        244.259607
+      ]
+    },
+    "same": {
+      "before_median_ms": 211.79695049999998,
+      "after_median_ms": 210.898483,
+      "paired_after_minus_before_median_ms": -0.9346795000000014,
+      "before_range_ms": [
+        210.107952,
+        213.113515
+      ],
+      "after_range_ms": [
+        208.634529,
+        212.042051
+      ]
+    }
+  },
+  "samples": [
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 0,
+      "wall_ms": 246.631974,
+      "user_ms": 158.029,
+      "system_ms": 86.469
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 0,
+      "wall_ms": 233.887898,
+      "user_ms": 157.225,
+      "system_ms": 74.63199999999999
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 1,
+      "wall_ms": 234.363464,
+      "user_ms": 151.914,
+      "system_ms": 80.425
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 1,
+      "wall_ms": 242.375923,
+      "user_ms": 158.529,
+      "system_ms": 81.75699999999999
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 2,
+      "wall_ms": 243.158821,
+      "user_ms": 162.81699999999998,
+      "system_ms": 78.43
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 2,
+      "wall_ms": 232.499454,
+      "user_ms": 150.7,
+      "system_ms": 79.841
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 3,
+      "wall_ms": 233.649374,
+      "user_ms": 159.03499999999997,
+      "system_ms": 72.56
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 3,
+      "wall_ms": 243.483344,
+      "user_ms": 152.96099999999998,
+      "system_ms": 88.39899999999999
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 4,
+      "wall_ms": 242.773573,
+      "user_ms": 159.14899999999997,
+      "system_ms": 81.563
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 4,
+      "wall_ms": 233.049978,
+      "user_ms": 151.31799999999998,
+      "system_ms": 79.64099999999999
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 5,
+      "wall_ms": 234.272232,
+      "user_ms": 145.894,
+      "system_ms": 86.34499999999998
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 5,
+      "wall_ms": 245.198195,
+      "user_ms": 160.415,
+      "system_ms": 82.698
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 6,
+      "wall_ms": 244.507239,
+      "user_ms": 163.964,
+      "system_ms": 78.50399999999999
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 6,
+      "wall_ms": 235.857292,
+      "user_ms": 160.17199999999997,
+      "system_ms": 73.61899999999999
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 7,
+      "wall_ms": 234.907715,
+      "user_ms": 160.223,
+      "system_ms": 72.647
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 7,
+      "wall_ms": 243.429904,
+      "user_ms": 165.58299999999997,
+      "system_ms": 75.809
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 8,
+      "wall_ms": 243.32014,
+      "user_ms": 156.476,
+      "system_ms": 84.716
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 8,
+      "wall_ms": 233.834528,
+      "user_ms": 156.976,
+      "system_ms": 74.514
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 9,
+      "wall_ms": 234.01348,
+      "user_ms": 157.282,
+      "system_ms": 74.659
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 9,
+      "wall_ms": 243.720645,
+      "user_ms": 160.132,
+      "system_ms": 81.55799999999999
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 10,
+      "wall_ms": 240.392572,
+      "user_ms": 166.857,
+      "system_ms": 71.50999999999999
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 10,
+      "wall_ms": 234.63674,
+      "user_ms": 160.987,
+      "system_ms": 71.55
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 11,
+      "wall_ms": 233.768634,
+      "user_ms": 148.19299999999998,
+      "system_ms": 83.54499999999999
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 11,
+      "wall_ms": 243.190518,
+      "user_ms": 154.469,
+      "system_ms": 86.702
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 12,
+      "wall_ms": 243.402061,
+      "user_ms": 164.892,
+      "system_ms": 76.486
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 12,
+      "wall_ms": 234.212921,
+      "user_ms": 153.462,
+      "system_ms": 78.724
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 13,
+      "wall_ms": 234.417662,
+      "user_ms": 152.979,
+      "system_ms": 79.469
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 13,
+      "wall_ms": 245.27133,
+      "user_ms": 155.441,
+      "system_ms": 87.685
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 14,
+      "wall_ms": 243.736003,
+      "user_ms": 168.09099999999998,
+      "system_ms": 73.602
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 14,
+      "wall_ms": 234.532485,
+      "user_ms": 156.939,
+      "system_ms": 75.49
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 15,
+      "wall_ms": 235.122433,
+      "user_ms": 153.42899999999997,
+      "system_ms": 79.703
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 15,
+      "wall_ms": 243.927829,
+      "user_ms": 149.32,
+      "system_ms": 92.579
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 16,
+      "wall_ms": 243.381062,
+      "user_ms": 163.593,
+      "system_ms": 77.33500000000001
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 16,
+      "wall_ms": 233.903224,
+      "user_ms": 146.261,
+      "system_ms": 85.567
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 17,
+      "wall_ms": 233.081274,
+      "user_ms": 147.804,
+      "system_ms": 83.326
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 17,
+      "wall_ms": 242.529547,
+      "user_ms": 158.712,
+      "system_ms": 81.851
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 18,
+      "wall_ms": 243.277459,
+      "user_ms": 157.948,
+      "system_ms": 83.44399999999999
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 18,
+      "wall_ms": 244.259607,
+      "user_ms": 155.48499999999999,
+      "system_ms": 76.746
+    },
+    {
+      "fixture": "distinct",
+      "engine": "after",
+      "index": 19,
+      "wall_ms": 234.239911,
+      "user_ms": 148.042,
+      "system_ms": 83.46
+    },
+    {
+      "fixture": "distinct",
+      "engine": "before",
+      "index": 19,
+      "wall_ms": 245.578951,
+      "user_ms": 162.69599999999997,
+      "system_ms": 80.84899999999999
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 0,
+      "wall_ms": 212.255599,
+      "user_ms": 135.466,
+      "system_ms": 74.70599999999999
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 0,
+      "wall_ms": 212.042051,
+      "user_ms": 137.377,
+      "system_ms": 72.67
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 1,
+      "wall_ms": 211.117341,
+      "user_ms": 139.725,
+      "system_ms": 69.367
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 1,
+      "wall_ms": 212.279484,
+      "user_ms": 131.54399999999998,
+      "system_ms": 78.72699999999999
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 2,
+      "wall_ms": 212.141938,
+      "user_ms": 135.377,
+      "system_ms": 74.656
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 2,
+      "wall_ms": 211.704334,
+      "user_ms": 119.22899999999998,
+      "system_ms": 90.416
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 3,
+      "wall_ms": 211.024157,
+      "user_ms": 119.86099999999999,
+      "system_ms": 89.152
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 3,
+      "wall_ms": 212.101792,
+      "user_ms": 128.39899999999997,
+      "system_ms": 81.618
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 4,
+      "wall_ms": 211.700637,
+      "user_ms": 142.03,
+      "system_ms": 67.538
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 4,
+      "wall_ms": 209.538012,
+      "user_ms": 125.09199999999998,
+      "system_ms": 82.402
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 5,
+      "wall_ms": 210.485445,
+      "user_ms": 130.671,
+      "system_ms": 77.804
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 5,
+      "wall_ms": 211.356195,
+      "user_ms": 135.88799999999998,
+      "system_ms": 73.39899999999999
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 6,
+      "wall_ms": 210.107952,
+      "user_ms": 146.344,
+      "system_ms": 61.723
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 6,
+      "wall_ms": 210.879288,
+      "user_ms": 130.278,
+      "system_ms": 78.565
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 7,
+      "wall_ms": 209.788648,
+      "user_ms": 140.185,
+      "system_ms": 67.607
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 7,
+      "wall_ms": 213.113515,
+      "user_ms": 130.804,
+      "system_ms": 80.26599999999999
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 8,
+      "wall_ms": 212.628162,
+      "user_ms": 129.701,
+      "system_ms": 80.814
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 8,
+      "wall_ms": 211.653318,
+      "user_ms": 126.163,
+      "system_ms": 83.446
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 9,
+      "wall_ms": 211.964307,
+      "user_ms": 143.571,
+      "system_ms": 66.33999999999999
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 9,
+      "wall_ms": 212.258845,
+      "user_ms": 130.5,
+      "system_ms": 79.694
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 10,
+      "wall_ms": 211.247412,
+      "user_ms": 132.53699999999998,
+      "system_ms": 76.732
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 10,
+      "wall_ms": 210.638089,
+      "user_ms": 127.06799999999998,
+      "system_ms": 81.403
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 11,
+      "wall_ms": 210.917678,
+      "user_ms": 129.325,
+      "system_ms": 79.584
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 11,
+      "wall_ms": 211.893264,
+      "user_ms": 123.689,
+      "system_ms": 86.087
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 12,
+      "wall_ms": 210.901618,
+      "user_ms": 136.00199999999998,
+      "system_ms": 72.46799999999999
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 12,
+      "wall_ms": 210.709811,
+      "user_ms": 130.17499999999998,
+      "system_ms": 78.502
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 13,
+      "wall_ms": 211.390287,
+      "user_ms": 138.49699999999999,
+      "system_ms": 70.743
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 13,
+      "wall_ms": 211.174175,
+      "user_ms": 125.779,
+      "system_ms": 83.193
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 14,
+      "wall_ms": 212.111059,
+      "user_ms": 123.83699999999999,
+      "system_ms": 85.886
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 14,
+      "wall_ms": 208.830674,
+      "user_ms": 139.143,
+      "system_ms": 67.58399999999999
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 15,
+      "wall_ms": 211.878777,
+      "user_ms": 132.27800000000002,
+      "system_ms": 77.576
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 15,
+      "wall_ms": 210.97235,
+      "user_ms": 124.317,
+      "system_ms": 84.535
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 16,
+      "wall_ms": 210.369508,
+      "user_ms": 124.93399999999998,
+      "system_ms": 83.289
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 16,
+      "wall_ms": 208.634529,
+      "user_ms": 127.73599999999999,
+      "system_ms": 78.83699999999999
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 17,
+      "wall_ms": 209.869326,
+      "user_ms": 122.304,
+      "system_ms": 85.51299999999999
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 17,
+      "wall_ms": 210.845503,
+      "user_ms": 123.225,
+      "system_ms": 85.462
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 18,
+      "wall_ms": 212.454167,
+      "user_ms": 133.56699999999998,
+      "system_ms": 76.751
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 18,
+      "wall_ms": 211.559652,
+      "user_ms": 123.17699999999999,
+      "system_ms": 86.423
+    },
+    {
+      "fixture": "same",
+      "engine": "after",
+      "index": 19,
+      "wall_ms": 210.454476,
+      "user_ms": 125.04299999999999,
+      "system_ms": 83.362
+    },
+    {
+      "fixture": "same",
+      "engine": "before",
+      "index": 19,
+      "wall_ms": 211.465878,
+      "user_ms": 124.633,
+      "system_ms": 84.75099999999999
+    }
+  ]
+}
