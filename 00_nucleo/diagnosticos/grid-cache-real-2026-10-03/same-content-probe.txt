@@ -1,0 +1,11 @@
+warning: Missing auto-load script at offset 0 in section .debug_gdb_scripts
+of file /repos/Antigravity/typst-crystalline/target/debug/typst.
+Use `info auto-load python-scripts [REGEXP]' to list them.
+Breakpoint 1 at 0x212d778: 01_core/src/compiler/layout/measurement.rs:64. (2 locations)
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Inferior 1 (process 3787149) exited normally]
+PROBE calls= 640 distinct_content_addresses= 640 kinds= {'Text': 640}
+PROBE example= ('0x55555ad56ec0', 'typst_core::entities::content::Content::Text(ecow::string::EcoString (ecow::dynamic::DynamicVec (ecow::dynamic::Repr {inline: ecow::dynamic::InlineVec {buf: [67, 48, 48, 48, 0 <rep')
+PROBE example= ('0x55555ad570a0', 'typst_core::entities::content::Content::Text(ecow::string::EcoString (ecow::dynamic::DynamicVec (ecow::dynamic::Repr {inline: ecow::dynamic::InlineVec {buf: [67, 48, 48, 48, 0 <rep')
+PROBE example= ('0x55555ad57280', 'typst_core::entities::content::Content::Text(ecow::string::EcoString (ecow::dynamic::DynamicVec (ecow::dynamic::Repr {inline: ecow::dynamic::InlineVec {buf: [67, 48, 48, 48, 0 <rep')

@@ -1,0 +1,12 @@
+warning: Missing auto-load script at offset 0 in section .debug_gdb_scripts
+of file /repos/Antigravity/typst-crystalline/target/debug/typst.
+Use `info auto-load python-scripts [REGEXP]' to list them.
+Breakpoint 1 at 0x24a5f14: 03_infra/src/font_metrics/caches.rs:175. (2 locations)
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Inferior 1 (process 3788928) exited normally]
+EPOCH ('" "', '0x55555a864c00', 4621819117588971520, 7859686032207818017)
+EPOCH ('"C000"', '0x55555a864c00', 4621819117588971520, 7859686032207818017)
+EPOCH ('" "', '0x55555af26bf0', 4621819117588971520, 7859686032207818017)
+EPOCH ('"C000"', '0x55555af26bf0', 4621819117588971520, 7859686032207818017)
+EPOCH ('"C000"', '0x55555acb1890', 4621819117588971520, 7859686032207818017)
