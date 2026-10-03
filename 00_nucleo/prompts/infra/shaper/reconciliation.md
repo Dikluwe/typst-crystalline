@@ -1,5 +1,5 @@
 # L0 — infra/shaper/reconciliation
-Hash do Código: c97ced40
+Hash do Código: 862061d3
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
@@ -24,6 +24,7 @@ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/sh
 - Skip the entire line if it contains math TextShaped or Glyph.
 - LTR anchors its first item and accumulates real-minus-estimated advances while preserving layout gaps. Nontext widths remain stable under the existing supported cases.
 - RTL captures `gap[i]=x[i+1]-(x[i]+w_est[i])` and `right_edge=x[last]+w_est[last]`; reconstruct `x_real[last]=right_edge-w_real[last]`, then `x_real[i]=x_real[i+1]-gap[i]-w_real[i]`. Preserve normal/justified gaps and the right edge; do not replace them with fixture constants or recompute layout decisions.
+- Permit an internal helper to borrow `FallbackFontMetrics` already warmed by the same World and compilation. Keep the existing public `fix_line_positions(world, doc)` signature and its fresh-metrics behavior for all other callers. Width equations, item order and positions remain identical; only the cache lifetime changes.
 
 ## Verification and boundary
 

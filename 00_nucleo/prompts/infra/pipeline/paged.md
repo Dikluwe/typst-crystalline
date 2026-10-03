@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/paged
-Hash do Código: 34bc70da
+Hash do Código: 24f26116
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/pipeline/paged.rs`
@@ -31,6 +31,7 @@ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/pi
 - Coordinate independent math and `par.line` stores outside L1 layout. Pending requests are realized with their captured style/span and Engine, then replayed under the existing finite eight-attempt budget. Math angle requests receive the default Angle and must return Angle; line numbering receives exactly one integer and uses canonical `value_to_content`.
 - New transcripts or partially consumed stores invalidate the candidate. Errors, invalid casts or exhausted callback budgets prevent export. Rebuild stores for every external relayout; never cache them across compilations or merge their budget with introspection fixpoints.
 - Within one ordinary paged compilation and the same World, reuse the `FallbackFontMetrics` cache allocation across page-numbering relayout candidates by cloning its cache-sharing handle. Keep each candidate, callback transcript/store, and introspector fresh as before. Do not retain metric caches across compilations or change the selected context-stabilization path. Cache reuse must preserve language-visible text, geometry and diagnostics; it is an internal optimization, not a semantic equality rule for `Content`.
+- The final line-position reconciliation of that ordinary compilation may borrow the same metrics handle after the numbering loop. The GDB cache probe in `00_nucleo/diagnosticos/grid-cache-real-2026-10-03.md` observed a separate third cache instance for the same `C000` width key in reconciliation (`03_infra/src/shaper/reconciliation.rs:234`). This predicts redundant internal shaping; the hypothesis is refuted by changed output or no decrease in misses/time. Retain the existing fresh-metrics reconciliation for a selected contextual result and for other callers. No cache survives the compilation.
 - Realize visible page numbering with `[current,total]`; realize the unary reference view `[current]` only for actual resolved page-reference targets. Preserve raw numbering objects separately from realized content and propagate callback diagnostics.
 - The page-numbering cycle is bounded to five passes and checks page counts, logical snapshots, raw objects and realized content, not page count alone. Reconstruct from original input; never accumulate markers, callbacks or warnings.
 - Preserve zero-size causal context markers for layout position sealing. Convert layout-warning strings to detached `SourceDiagnostic::warning` in L3 and retain them through errors.

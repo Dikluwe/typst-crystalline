@@ -1,5 +1,5 @@
 # L0 — infra/shaper/tests
-Hash do Código: e49276d7
+Hash do Código: 16bd3870
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
@@ -31,6 +31,7 @@ tested without optional system fonts or fixture generation.
 
 - Own only the unit suite, mocks and real-font fixtures under shaper::tests. Preserve existing names and descendant helper access; tests do not define a new API.
 - Cover text passthrough, all page layers/semantic groups, bidi/UTF-8 offsets/multiline paragraphs, script/font fallback, sparse local slot identity, variations without contamination, tracking, math TextItem/ssty and LTR/RTL reconciliation.
+- Compare the existing fresh-metrics reconciliation entry point with the internal borrowed-metrics path on the same two-item document and World; their resulting x positions must agree.
 - Require explicit-language measurement and emission to match configured same-face controls, preserving original text/clusters. Cover Russian/Serbian localized substitutions with the versioned Noto Sans fixture; independently assert distinct advances, fresh results, shared AB/BA/repeated runs and absent-language behavior. These are internal render/cache controls, not a claim of full upstream language parity.
 - Distinguish dense-local candidate identity from global slot number; cardinality alone is insufficient. Cover scoring with sparse global slots and decoy metadata at the colliding local indices, and script boundaries within one face (including leading Common and inherited characters). Verify isolated versus mixed AB/BA shaping for tracking precision and absolute tracking at different sizes; retain same-effective-increment reuse controls. Mandatory new regressions use embedded/repository fixtures rather than silently skipping missing system fonts. Keep missing-font and no-panic controls and compare language text/positions where relevant rather than claim a new upstream parity measurement.
 

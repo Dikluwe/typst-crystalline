@@ -1,5 +1,5 @@
 # L0 — infra/shaper
-Hash do Código: 0b78a31d
+Hash do Código: 832c87c2
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:3b0c535436048536ecd3133fcf8299e88c128a62c222661f36b7bcc6d98a598c
@@ -17,6 +17,7 @@ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/sh
 ## Owned contract
 
 - Own only private module declarations and facade reexports. Preserve public shape_document/fix_line_positions and the existing crate-private FaceCache/CachedFace/shaped_width import paths.
+- A crate-private reexport may expose reconciliation with borrowed metrics to the paged pipeline, while the public entry point and pipeline phase stay unchanged. `00_nucleo/prompts/infra/shaper/reconciliation.md` owns that implementation.
 - The paged pipeline owner places the pass: `00_nucleo/prompts/infra/pipeline/paged.md`. Text traversal and fallback are governed by `00_nucleo/prompts/infra/shaper/traversal.md`; glyph materialization is governed by `00_nucleo/prompts/infra/shaper/shaping.md`. This facade does not repeat those contracts.
 - Traversal, bidi, font selection, shaping, caching and reconciliation are owned independently below. Keep static delegation and existing visibility; do not add a registry, dynamic dispatcher, public contract or L1 font-byte access.
 

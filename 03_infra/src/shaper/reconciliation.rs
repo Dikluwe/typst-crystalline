@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/reconciliation.md
-//! @prompt-hash 77d3abbd
+//! @prompt-hash f717c429
 //! @layer L3
-//! @updated 2026-09-29
+//! @updated 2026-10-03
 
 use crate::font_metrics::FallbackFontMetrics;
 use typst_core::contracts::world::World;
@@ -25,10 +25,17 @@ const Y_TOL_SHAPED: f64 = 0.5;
 /// de forma a manter todos os espaçamentos e layouts relativos intactos.
 ///
 /// Chamado na pipeline logo após `shape_document`.
-pub fn fix_line_positions(world: &dyn World, mut doc: PagedDocument) -> PagedDocument {
+pub fn fix_line_positions(world: &dyn World, doc: PagedDocument) -> PagedDocument {
     let metrics = FallbackFontMetrics::new(world);
+    fix_line_positions_with_metrics(doc, &metrics)
+}
+
+pub(crate) fn fix_line_positions_with_metrics(
+    mut doc: PagedDocument,
+    metrics: &FallbackFontMetrics,
+) -> PagedDocument {
     for page in &mut doc.pages {
-        fix_line_positions_page(&metrics, page);
+        fix_line_positions_page(metrics, page);
     }
     doc
 }

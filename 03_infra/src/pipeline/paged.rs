@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/paged.md
-//! @prompt-hash 6adcd7d9
+//! @prompt-hash 78c2d875
 //! @layer L3
 //! @updated 2026-10-03
 //!
@@ -267,6 +267,7 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
     let t3 = Instant::now();
     timings.expand_context_ms = duration_ms(t3.duration_since(t2));
     let mut format_content = content.clone();
+    let mut metrics_for_reconciliation = None;
     let (mut doc, mut intr_for_positions, extracted_headings) = if let Some((intr, doc)) =
         prepared.settled
     {
@@ -413,6 +414,7 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
         }
         intr_for_positions.inject_pages(layout_intr.page_store.clone());
         format_content = final_realized_content;
+        metrics_for_reconciliation = Some(layout_metrics);
         (doc, intr_for_positions, extracted_headings)
     };
 
@@ -476,7 +478,10 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
         crate::layout_bidi::reorder_bidi_document(doc, &FallbackFontMetrics::new(world));
 
     let doc = crate::shaper::shape_document(world, doc);
-    let doc = crate::shaper::fix_line_positions(world, doc);
+    let doc = match metrics_for_reconciliation.as_ref() {
+        Some(metrics) => crate::shaper::fix_line_positions_with_metrics(doc, metrics),
+        None => crate::shaper::fix_line_positions(world, doc),
+    };
     let t5 = Instant::now();
     timings.shape_ms = duration_ms(t5.duration_since(t4));
 

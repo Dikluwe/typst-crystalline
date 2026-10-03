@@ -1,15 +1,17 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/tests.md
-//! @prompt-hash 49007f2a
+//! @prompt-hash e5b56bfa
 //! @layer L3
-//! @updated 2026-09-29
+//! @updated 2026-10-03
 
 use super::bidi::bidi_runs;
 use super::cache::{FaceCache, ShapeCache};
 use super::font_selection::{
     intern_fallback_slot, is_p1404_format_control, resolve_candidates, CandidateSet,
 };
-use super::reconciliation::{fix_line_positions, reconcile_rtl_positions};
+use super::reconciliation::{
+    fix_line_positions, fix_line_positions_with_metrics, reconcile_rtl_positions,
+};
 use super::shaping::{byte_idx_to_char, shaped_width, ssty_level_for_subrun};
 use super::traversal::{shape_document, shape_item};
 use crate::font_variant::axis_variations_for_font_variant;
@@ -903,6 +905,26 @@ fn page_with(items: Vec<FrameItem>) -> Page {
         fill: Default::default(),
         background: vec![],
         foreground: vec![],
+    }
+}
+
+#[test]
+fn reconciliation_with_borrowed_metrics_matches_fresh_entry_point() {
+    let world = empty_world();
+    let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+    let doc = PagedDocument::new(vec![page_with(vec![
+        make_textshaped(70.0, 50.0, vec![glyph(500)], 1000, 12.0),
+        make_textshaped(100.0, 50.0, vec![glyph(300)], 1000, 12.0),
+    ])]);
+    let fresh = fix_line_positions(&world, doc.clone());
+    let borrowed = fix_line_positions_with_metrics(doc, &metrics);
+    for (old, new) in fresh.pages[0].items.iter().zip(&borrowed.pages[0].items) {
+        let (FrameItem::TextShaped { pos: old, .. }, FrameItem::TextShaped { pos: new, .. }) =
+            (old, new)
+        else {
+            panic!("expected shaped text");
+        };
+        assert_eq!(old.x, new.x);
     }
 }
 
