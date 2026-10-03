@@ -12,6 +12,7 @@ cargo run --release --manifest-path lab/grid-prototypes/Cargo.toml --bin grid-pr
 cargo run --release --manifest-path lab/grid-prototypes/Cargo.toml --bin grid-prototypes -- --rows 320 --unique
 cargo run --release --manifest-path lab/grid-prototypes/Cargo.toml --bin grid-prototypes -- --rows 320 --first-page
 taskset -c 0 cargo run --release --manifest-path lab/grid-prototypes/Cargo.toml --bin grid-prototypes-measure -- --rows 80 --blocks 31 --iterations 200
+taskset -c 0 cargo run --release --manifest-path lab/grid-prototypes/Cargo.toml --bin grid-prototypes-measure -- --rows 80 --word-repeat 16 --blocks 31 --iterations 200
 ```
 
 O executável percorre as 16 combinações dos quatro eixos, compara a saída de
@@ -25,13 +26,15 @@ célula; assim testa quando o cache de largura perde sua vantagem.
 alterna a ordem dos 16 modos e imprime mediana, percentis 10/90 e contadores.
 Use este binário para comparar tempos; o binário principal é uma exploração
 rápida. Os percentis refletem variação entre blocos, não intervalo de confiança.
+`--word-repeat N` multiplica as palavras de cada célula para estudar o custo
+da largura intrínseca com conteúdo mais longo.
 
 | Eixo | Operação experimental | Evidência que esperamos | Limite do modelo |
 | --- | --- | --- | --- |
 | `reuse` | Guarda o frame da medição e o move para emissão quando largura, estilo e inset coincidem; recusa conteúdo sensível à página, span e alinhamento vertical. | Menos layouts completos, saída igual. | Identidade real de `Content`, `place_cells`, decoração e `PendingAlign*` não modelados. |
 | `height` | Mede linhas sem guardar itens, para células cujo frame não será reutilizado. | Menos frames produzidos; a contagem total de quebras não diminui. | O caminho real `layout_sub_frame` tem efeitos que o modelo não representa. |
 | `window` | Resolve cada altura imediatamente antes de emitir a linha. | Menos linhas medidas até a primeira página; menor pico de frames com `reuse`. | Em documento completo, todas as linhas ainda são medidas; ganhos totais não decorrem da janela sozinha. |
-| `width` | Guarda largura intrínseca por palavras e escala de fonte. | Acertos quando textos se repetem; saída igual. | Tekt já usa cache de métricas de fonte; isto não demonstra ganho adicional. |
+| `width` | Guarda largura intrínseca por identidade de uma alocação de palavras já compartilhada e escala de fonte; conteúdo não compartilhado passa direto. | Acertos sem percorrer/copiar palavras; saída igual. | A fixture repetida compartilha `Arc<[u16]>` antes do cronômetro. Ainda não há prova de que as células repetidas do Tekt compartilhem a mesma identidade; Tekt já usa cache de métricas de fonte. |
 
 ## Combinações
 
@@ -39,6 +42,13 @@ rápida. Os percentis refletem variação entre blocos, não intervalo de confia
 as demais usam o caminho de altura. `reuse+window` conserva no máximo os frames
 da linha corrente, enquanto `reuse` sem janela pode conservar frames de todas
 as linhas antes de emitir. `width` é independente dos outros eixos no modelo.
+
+O primeiro cache estrutural (chave copiada), o cache estrutural com chave
+emprestada e hash rápido foram mais lentos no modelo. A chave por identidade
+evita construir e comparar conteúdo em cada consulta, mas **só** produz
+acertos quando o mesmo objeto já é compartilhado. A construção da identidade
+compartilhada não está no tempo de `run` e não pode ser atribuída gratuitamente
+ao compilador real.
 
 ## Passagem para o motor real
 
@@ -53,8 +63,9 @@ as linhas antes de emitir. `width` é independente dos outros eixos no modelo.
 4. Testar `window` com documento de muitas páginas, comparando latência da
    primeira página, pico de memória e tempo total; preservar a decisão de
    paginação anterior a tracks fracionários.
-5. Testar `width` com conteúdo repetido e único, comparando acertos do cache
-   novo aos caches de fonte existentes.
+5. Verificar se há identidade compartilhada entre células reais antes de
+   testar `width`; medir também o custo de criá-la, caso ela não exista, e
+   comparar aos caches de fonte existentes.
 
 Antes de alterar o L1, atualizar os owners L0 de `grid/tracks`, `grid/cell_body`
 e, se necessário, `grid/row_pagination` e `layout/sub_frame`. O L0 atual de

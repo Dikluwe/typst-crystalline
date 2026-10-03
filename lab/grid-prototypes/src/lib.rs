@@ -1,7 +1,8 @@
 //! Laboratório independente: estratégias de medição e emissão de células.
 //! Não é uma implementação de Typst e não é importado pelas camadas L1–L4.
 
-use std::collections::HashMap;
+use rustc_hash::FxHashMap;
+use std::sync::Arc;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Column {
@@ -23,7 +24,7 @@ pub struct Cell {
     pub col: usize,
     pub colspan: usize,
     pub rowspan: usize,
-    pub words: Vec<u16>,
+    pub words: Arc<[u16]>,
     pub font_scale: u16,
     pub inset: u16,
     pub align: Align,
@@ -133,7 +134,8 @@ struct SavedFrame {
 
 #[derive(Hash, Eq, PartialEq)]
 struct WidthKey {
-    words: Vec<u16>,
+    address: usize,
+    len: usize,
     font_scale: u16,
 }
 
@@ -141,7 +143,7 @@ struct Engine<'a> {
     grid: &'a Grid,
     options: Options,
     stats: Stats,
-    widths: HashMap<WidthKey, (u32, u32)>,
+    widths: FxHashMap<WidthKey, (u32, u32)>,
     saved: Vec<Option<SavedFrame>>,
     saved_lines: usize,
 }
@@ -152,19 +154,25 @@ impl<'a> Engine<'a> {
             grid,
             options,
             stats: Stats::default(),
-            widths: HashMap::new(),
+            widths: FxHashMap::default(),
             saved: vec![None; grid.cells.len()],
             saved_lines: 0,
         }
     }
 
     fn intrinsic(&mut self, cell: &Cell) -> (u32, u32) {
-        let key = self.options.width_cache.then(|| WidthKey {
-            words: cell.words.clone(),
-            font_scale: cell.font_scale,
-        });
-        if self.options.width_cache {
-            if let Some(&result) = self.widths.get(key.as_ref().expect("cache ativo")) {
+        // Identidade de uma alocação já compartilhada: O(1), sem copiar nem
+        // percorrer palavras. Conteúdo apenas igual, mas distinto, não acerta.
+        let key =
+            (self.options.width_cache && Arc::strong_count(&cell.words) > 1).then(|| {
+                WidthKey {
+                    address: Arc::as_ptr(&cell.words) as *const u16 as usize,
+                    len: cell.words.len(),
+                    font_scale: cell.font_scale,
+                }
+            });
+        if let Some(key) = key.as_ref() {
+            if let Some(&result) = self.widths.get(key) {
                 self.stats.intrinsic_hits += 1;
                 return result;
             }
@@ -236,7 +244,7 @@ impl<'a> Engine<'a> {
         let mut count = 0_u32;
         let mut used = 0_u32;
         let scale = u32::from(cell.font_scale);
-        for &word in &cell.words {
+        for &word in cell.words.iter() {
             let word_width = u32::from(word) * scale;
             let next = if used == 0 { word_width } else { used + scale + word_width };
             if used != 0 && next > width {
@@ -474,15 +482,24 @@ fn measure_row(
 }
 
 pub fn fixture(rows: usize, repeated: bool) -> Grid {
+    fixture_with_word_repeat(rows, repeated, 1)
+}
+
+/// Repete a sequência de palavras antes de acrescentar a identidade única.
+/// Permite medir o ponto em que uma chave de cache compensa a conta intrínseca.
+pub fn fixture_with_word_repeat(rows: usize, repeated: bool, word_repeat: usize) -> Grid {
     let mut cells = Vec::with_capacity(rows * 4);
+    let shared_words = (0..4)
+        .map(|col| Arc::<[u16]>::from(word_pattern(col, word_repeat)))
+        .collect::<Vec<_>>();
     for row in 0..rows {
         for col in 0..4 {
             let id = row * 4 + col;
             let seed = if repeated { col } else { id };
-            let mut words = (0..(4 + seed % 9))
-                .map(|i| (3 + (seed * 7 + i * 11) % 18) as u16)
-                .collect::<Vec<_>>();
-            if !repeated {
+            let words = if repeated {
+                Arc::clone(&shared_words[col])
+            } else {
+                let mut words = word_pattern(seed, word_repeat);
                 // Código de cinco dígitos, suficiente para as fixtures usuais.
                 // Evita que o padrão modular acima finja ter conteúdo único.
                 let mut identity = id;
@@ -490,7 +507,8 @@ pub fn fixture(rows: usize, repeated: bool) -> Grid {
                     words.push(3 + (identity % 7) as u16);
                     identity /= 7;
                 }
-            }
+                Arc::from(words)
+            };
             cells.push(Cell {
                 id,
                 row,
@@ -511,6 +529,13 @@ pub fn fixture(rows: usize, repeated: bool) -> Grid {
         page_width: 440,
         page_height: 210,
     }
+}
+
+fn word_pattern(seed: usize, word_repeat: usize) -> Vec<u16> {
+    let base = (0..(4 + seed % 9))
+        .map(|i| (3 + (seed * 7 + i * 11) % 18) as u16)
+        .collect::<Vec<_>>();
+    base.repeat(word_repeat)
 }
 
 #[cfg(test)]
@@ -565,6 +590,32 @@ mod tests {
         assert!(variant.stats.intrinsic_calls < baseline.stats.intrinsic_calls);
         let unique = run(&fixture(40, false), Options::from_mask(8), false).unwrap();
         assert_eq!(unique.stats.intrinsic_hits, 0);
+    }
+
+    #[test]
+    fn width_cache_requires_shared_allocation_and_matching_scale() {
+        let shared = fixture(2, true);
+        assert!(Arc::ptr_eq(&shared.cells[0].words, &shared.cells[4].words));
+        let mut distinct = shared.clone();
+        for cell in &mut distinct.cells {
+            cell.words = Arc::from(cell.words.as_ref().to_vec());
+        }
+        let distinct_run = run(&distinct, Options::from_mask(8), false).unwrap();
+        assert_eq!(distinct_run.stats.intrinsic_hits, 0);
+        assert_eq!(
+            distinct_run.output,
+            run(&distinct, Options::BASELINE, false).unwrap().output
+        );
+
+        let mut styled = shared;
+        styled.cells[4].font_scale += 1;
+        let styled_run = run(&styled, Options::from_mask(8), false).unwrap();
+        assert_eq!(styled_run.stats.intrinsic_calls, 3);
+        assert_eq!(styled_run.stats.intrinsic_hits, 1);
+        assert_eq!(
+            styled_run.output,
+            run(&styled, Options::BASELINE, false).unwrap().output
+        );
     }
 
     #[test]

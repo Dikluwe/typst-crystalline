@@ -1,7 +1,7 @@
 //! Medição intercalada dos protótipos. Os tempos abrangem `run`, inclusive
 //! alocações e preparação da grade, mas não a construção da fixture.
 
-use grid_prototypes::{fixture, run, Options};
+use grid_prototypes::{fixture_with_word_repeat, run, Options};
 use std::hint::black_box;
 use std::time::Instant;
 
@@ -11,6 +11,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut iterations = 100_usize;
     let mut repeated = true;
     let mut first_page = false;
+    let mut word_repeat = 1_usize;
     let mut args = std::env::args().skip(1);
     while let Some(arg) = args.next() {
         match arg.as_str() {
@@ -21,18 +22,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
             "--unique" => repeated = false,
             "--first-page" => first_page = true,
+            "--word-repeat" => {
+                word_repeat = args.next().ok_or("--word-repeat exige valor")?.parse()?
+            }
             "--help" | "-h" => {
-                println!("Uso: grid-prototypes-measure [--rows N] [--blocks N] [--iterations N] [--unique] [--first-page]");
+                println!("Uso: grid-prototypes-measure [--rows N] [--blocks N] [--iterations N] [--unique] [--first-page] [--word-repeat N]");
                 return Ok(());
             }
             _ => return Err(format!("argumento desconhecido: {arg}").into()),
         }
     }
-    if rows == 0 || blocks == 0 || iterations == 0 {
-        return Err("rows, blocks e iterations devem ser positivos".into());
+    if rows == 0 || blocks == 0 || iterations == 0 || word_repeat == 0 {
+        return Err("rows, blocks, iterations e word-repeat devem ser positivos".into());
     }
 
-    let grid = fixture(rows, repeated);
+    let grid = fixture_with_word_repeat(rows, repeated, word_repeat);
     let reference = run(&grid, Options::BASELINE, first_page)?.output;
     let mut timings: [Vec<f64>; 16] = std::array::from_fn(|_| Vec::with_capacity(blocks));
     let mut stats = Vec::with_capacity(16);
@@ -74,7 +78,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         samples.sort_by(|a, b| a.total_cmp(b));
     }
     let baseline = median(&timings[0]);
-    println!("fixture: rows={rows} cells={} repeated={repeated} first_page={first_page} blocks={blocks} iterations={iterations}", grid.cells.len());
+    println!("fixture: rows={rows} cells={} repeated={repeated} first_page={first_page} word_repeat={word_repeat} blocks={blocks} iterations={iterations}", grid.cells.len());
     println!("mode,median_ns,p10_ns,p90_ns,vs_baseline,intrinsic_calls,intrinsic_hits,full_layouts,height_layouts,frame_reuses,frame_fallbacks,peak_saved_lines,measured_rows");
     for mask in 0..16 {
         let samples = &timings[mask];
