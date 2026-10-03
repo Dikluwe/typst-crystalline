@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/paged.md
-//! @prompt-hash 78c2d875
+//! @prompt-hash 927957fd
 //! @layer L3
 //! @updated 2026-10-03
 //!
@@ -474,8 +474,10 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
     let t4 = Instant::now();
     timings.layout_ms = duration_ms(t4.duration_since(t3));
 
-    let doc =
-        crate::layout_bidi::reorder_bidi_document(doc, &FallbackFontMetrics::new(world));
+    let doc = match metrics_for_reconciliation.as_ref() {
+        Some(metrics) => crate::layout_bidi::reorder_bidi_document(doc, metrics),
+        None => crate::layout_bidi::reorder_bidi_document(doc, &FallbackFontMetrics::new(world)),
+    };
 
     let doc = crate::shaper::shape_document(world, doc);
     let doc = match metrics_for_reconciliation.as_ref() {

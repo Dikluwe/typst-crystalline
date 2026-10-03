@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--before', type=pathlib.Path, required=True)
 parser.add_argument('--after', type=pathlib.Path, required=True)
 parser.add_argument('--output', type=pathlib.Path, required=True)
-parser.add_argument('--fixtures', nargs='+', choices=('one_cell_row', 'distinct', 'same'))
+parser.add_argument('--fixtures', nargs='+', choices=('one_cell_row', 'distinct', 'same', 'rtl'))
 parser.add_argument('--pairs', type=int, default=16)
 args = parser.parse_args()
 if args.pairs <= 0:
@@ -25,9 +25,22 @@ fixtures = {
     'one_cell_row': root / '00_nucleo/diagnosticos/grid-time-2026-10-02/grid1.typ',
     'distinct': here / 'grid80-distinct.typ',
     'same': here / 'grid80-same.typ',
+    'rtl': here / 'grid80-rtl.typ',
 }
 if args.fixtures:
     fixtures = {name: fixtures[name] for name in args.fixtures}
+if 'rtl' in fixtures:
+    letters = 'אבגדהוזחטיכלמנסעפצקרשת'
+    lines = [
+        '#set page(width: 500pt, height: 3500pt, margin: 30pt)',
+        '#set text(font: "DejaVu Sans", lang: "he", dir: rtl, size: 10pt)',
+        '#table(columns: 4, rows: 80,',
+    ]
+    for row in range(80):
+        for col in range(4):
+            lines.append(f'[{letters[(row + col) % len(letters)]}שלום{letters[(row + 2 * col) % len(letters)]}],')
+    lines.append(')')
+    fixtures['rtl'].write_text('\n'.join(lines) + '\n')
 binaries = {'before': args.before.resolve(), 'after': args.after.resolve()}
 scratch = pathlib.Path('/tmp/tekt-grid-cache-ab')
 scratch.mkdir(exist_ok=True)
