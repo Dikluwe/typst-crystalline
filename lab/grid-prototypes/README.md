@@ -8,9 +8,10 @@ real. O comportamento de produção permanece inalterado.
 
 ```sh
 cargo test --manifest-path lab/grid-prototypes/Cargo.toml
-cargo run --release --manifest-path lab/grid-prototypes/Cargo.toml -- --rows 80
-cargo run --release --manifest-path lab/grid-prototypes/Cargo.toml -- --rows 320 --unique
-cargo run --release --manifest-path lab/grid-prototypes/Cargo.toml -- --rows 320 --first-page
+cargo run --release --manifest-path lab/grid-prototypes/Cargo.toml --bin grid-prototypes -- --rows 80
+cargo run --release --manifest-path lab/grid-prototypes/Cargo.toml --bin grid-prototypes -- --rows 320 --unique
+cargo run --release --manifest-path lab/grid-prototypes/Cargo.toml --bin grid-prototypes -- --rows 320 --first-page
+taskset -c 0 cargo run --release --manifest-path lab/grid-prototypes/Cargo.toml --bin grid-prototypes-measure -- --rows 80 --blocks 31 --iterations 200
 ```
 
 O executável percorre as 16 combinações dos quatro eixos, compara a saída de
@@ -19,6 +20,11 @@ larguras, alturas e linhas posicionadas por página. Uma divergência termina a
 execução com erro. Execute em processo ocioso e compare contadores antes de
 interpretar tempos. `--unique` acrescenta uma identidade ao texto de cada
 célula; assim testa quando o cache de largura perde sua vantagem.
+
+`grid-prototypes-measure` faz a medição temporal em blocos, aquece cada modo,
+alterna a ordem dos 16 modos e imprime mediana, percentis 10/90 e contadores.
+Use este binário para comparar tempos; o binário principal é uma exploração
+rápida. Os percentis refletem variação entre blocos, não intervalo de confiança.
 
 | Eixo | Operação experimental | Evidência que esperamos | Limite do modelo |
 | --- | --- | --- | --- |

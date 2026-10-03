@@ -9,3 +9,7 @@ publish = false
 [[bin]]
 name = "grid-prototypes"
 path = "src/main.rs"
+
+[[bin]]
+name = "grid-prototypes-measure"
+path = "src/measure.rs"
