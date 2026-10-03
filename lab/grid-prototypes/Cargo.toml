@@ -1,0 +1,11 @@
+[package]
+name = "grid-prototypes"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[[bin]]
+name = "grid-prototypes"
+path = "src/main.rs"
