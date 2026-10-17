@@ -1,5 +1,5 @@
 # L0 — compiler/eval/repr/format
-Hash do Código: a96f1f53
+Hash do Código: 5c300ef6
 
 ## Ownership e medição
 

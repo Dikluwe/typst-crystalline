@@ -1,8 +1,10 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: 49607334
+Hash do Código: 7180626a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+- 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:bdbe23b72d7083b7672d71e851dc3d35baa8ed7ccb66f009f61edcf770d0aeff
+
 
 ## P1470 — exemplos executáveis de injeção pós-layout
 
@@ -572,3 +574,19 @@ feature ativa não escolhe o store. Clone/default começam vazios. Colisão de
 Location entre ilhas, posição não associável à topologia ou mistura de
 gerações falha fechado em L3, não é resolvida pelo trait. O novo método público
 foi confirmado pelo dono em 2026-09-24.
+
+
+## Snapshot realizado de Page — ratificado em 2026-10-05
+
+Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree e binários exatos em `00_nucleo/diagnosticos/contexto-page-total-2026-10-05/measurement.json.gz`. single imprime B1/0 F0 contra B1/1 F1; duas páginas total/final 0 contra 2; update inicial 7 conserva total 7 contra 8; update intermediário altera página anterior (7/7 e 8/7 contra 1/7 e 7/7); step final imprime final 1 contra 2. Bundle imprime 1/7 no primeiro PDF contra 1/1, e final 7 no segundo contra 8. HTML misto devolve 1 contra 7. `03_infra/src/pipeline/paged.rs:360–365,840–913` usa o último update como início de todas as páginas; `context_stabilization.rs:969–1010` faz o mesmo por body. `compiler/stdlib/counter.rs:490–513` e `counter/display.rs:96–110` leem final global causal. Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, `lab/typst-original/crates/typst-library/src/introspection/counter.rs:246–254,730–773,934–963`, combina escopo documental, updates e avanços físicos. A classificação é paridade de linguagem; não exige copiar a mecânica de memoização upstream.
+
+Decisão proposta: aplicar o Núcleo page-counter-snapshot. Esta unidade substitui o scope-out histórico de final apenas após ratificação. Contrato público e realização page-aware de updates exigem gate ADR-0127; não materializar ou ressellar antes da confirmação. Preservar as assinaturas existentes, ciclos e budget; não adivinhar página/total antes do snapshot conhecido.
+
+Extensão pública proposta de TagIntrospector, mantendo ownership deste consumer e os demais campos:
+```rust
+pub page_counter_values: HashMap<Location, Vec<usize>>,
+pub page_counter_final_values: HashMap<Location, Vec<usize>>,
+```
+Ambos começam vazios. São vistas completas da geração realizada, por ocorrência existente, incluídos contextos, updates e aliases já reconhecidos. Armazenar estado inteiro, inclusive vetor vazio; ausência difere de estado vazio. Final de cada Location é do seu documento. Clone/Default/igualdade copiam e comparam ambas; não se muda o trait público Introspector. O producer não reutiliza entradas de geração anterior para completar outra. A memória retida deve ser contabilizada; não introduzir global ou cache persistente nesta correção.
+
+Ratificação: o humano confirmou o conjunto do manifesto `00_nucleo/diagnosticos/contexto-page-total-2026-10-05/l0-manifest.json` (SHA-256 1af5de11b1bbbe41cc59b907fdfafc21d98b6aab63fc1db0bfb1a028329ef66e). O gate ADR-0127 deste conjunto está satisfeito. Clarificações internas subsequentes seguem fluxo contínuo, L0 antes do código e RED→GREEN.

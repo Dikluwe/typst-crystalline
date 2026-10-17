@@ -33,20 +33,20 @@ pub fn apply_state_funcs(
     let mut scopes = Scopes::new(None);
     for tag in tags {
         if let Tag::Start(loc, info) = tag {
-            if let ElementPayload::StateUpdate { key, update } = &info.payload {
-                if let StateUpdate::Func(func) = update {
-                    if let Some(curr) = intr.state.value_at(key, *loc).cloned() {
-                        let args = Args::positional(vec![curr]);
-                        match apply_func(func.clone(), args, &mut scopes, ctx, engine) {
-                            Ok(new_value) => {
-                                intr.state.update(key.clone(), new_value, *loc);
-                            }
-                            Err(diagnostics) => return Err(diagnostics),
+            if let ElementPayload::StateUpdate { key, update: StateUpdate::Func(func) } =
+                &info.payload
+            {
+                if let Some(curr) = intr.state.value_at(key, *loc).cloned() {
+                    let args = Args::positional(vec![curr]);
+                    match apply_func(func.clone(), args, &mut scopes, ctx, engine) {
+                        Ok(new_value) => {
+                            intr.state.update(key.clone(), new_value, *loc);
                         }
+                        Err(diagnostics) => return Err(diagnostics),
                     }
-                    // value_at == None: defensive ignore (P171 padrão
-                    // "update sem init").
                 }
+                // value_at == None: defensive ignore (P171 padrão
+                // "update sem init").
             }
         }
     }

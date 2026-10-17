@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/shaping.md
-//! @prompt-hash 52842474
+//! @prompt-hash 5f2c4516
 //! @layer L3
 //! @updated 2026-09-29
 
@@ -12,7 +12,9 @@ use crate::font_variant::{axis_variations_for_text_style, text_style_to_font_var
 use rustybuzz::{Direction, UnicodeBuffer};
 use typst_core::contracts::world::World;
 use typst_core::entities::font_list::FontList;
-use typst_core::entities::layout_types::{FrameItem, Point, Pt, ShapedGlyph, TextStyle};
+use typst_core::entities::layout_types::{
+    FrameItem, MathSize, Point, Pt, ShapedGlyph, TextStyle,
+};
 
 /// Nível OpenType `ssty` solicitado para um sub-run matemático.
 ///
@@ -23,9 +25,9 @@ pub(super) fn ssty_level_for_subrun(style: &TextStyle, text: &str) -> Option<u8>
         return None;
     }
     match style.math_size {
-        typst_core::entities::layout_types::MathSize::Script => Some(1),
-        typst_core::entities::layout_types::MathSize::ScriptScript => Some(2),
-        _ => None,
+        MathSize::Script => Some(1),
+        MathSize::ScriptScript => Some(2),
+        MathSize::Display | MathSize::Text => None,
     }
 }
 
@@ -84,7 +86,10 @@ pub(crate) fn shaped_width(
 
                 let mut buffer = UnicodeBuffer::new();
                 buffer.push_str(&subrun.text);
-                super::text_identity::configure_authored_shy_buffer(&mut buffer, &subrun.text);
+                super::text_identity::configure_authored_ignorables_buffer(
+                    &mut buffer,
+                    &subrun.text,
+                );
                 if let Some(lang) = style.lang {
                     buffer.set_language(lang.as_str().parse().expect("Lang is nonempty"));
                 }
@@ -107,6 +112,7 @@ pub(crate) fn shaped_width(
     Some(Pt(max_width))
 }
 
+#[cfg(test)]
 pub(super) fn try_shape(
     world: &dyn World,
     pos: &Point,
@@ -114,6 +120,22 @@ pub(super) fn try_shape(
     style: &TextStyle,
     cache: &mut ShapeCache,
     face_cache: &mut FaceCache,
+) -> Option<Vec<FrameItem>> {
+    try_shape_context(world, pos, text, style, cache, face_cache, None, None)
+}
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C117: Owner do shaping recebe dois caches com lifetimes próprios, serviços e dados da ocorrência, mais BidiSpan causal e view resolvida compartilhada"
+)]
+pub(super) fn try_shape_context(
+    world: &dyn World,
+    pos: &Point,
+    text: &ecow::EcoString,
+    style: &TextStyle,
+    cache: &mut ShapeCache,
+    face_cache: &mut FaceCache,
+    bidi: Option<&typst_core::entities::bidi_context::BidiSpan>,
+    resolved: Option<&crate::bidi_context::Resolved<'_>>,
 ) -> Option<Vec<FrameItem>> {
     // P568 — espaços entre palavras são emitidos como FrameItem::Text para
     // que o PDF contenha o caractere de espaço. Não os shapear, para que
@@ -136,6 +158,13 @@ pub(super) fn try_shape(
     // classe (serif/sans) antes de recair no fallback global carácter-a-carácter.
     let primary = primary_candidates(world, font_list, &variant, face_cache, style.math);
 
+    let bidi_only = text.chars().all(|c| {
+        matches!(
+            c, '\u{61c}' | '\u{200e}' | '\u{200f}'
+                | '\u{202a}'..='\u{202e}' | '\u{2066}'..='\u{2069}'
+        )
+    });
+
     // P534 — candidatos de fallback: todo o FontBook, carregados lazy.
     // P838 — `like` = info da primeira primária (o `ctx.first()` do vanilla).
     let like = primary
@@ -147,9 +176,21 @@ pub(super) fn try_shape(
     // truncando texto com `\n` interno na primeira linha — achado #55 de
     // P831). Cada parágrafo é uma linha visível: x reinicia e y avança por
     // `line_advance`.
-    let paragraphs = bidi_runs(text.as_str());
+    let paragraphs = if let (Some(span), Some(resolved)) = (bidi, resolved) {
+        vec![resolved
+            .runs(span, text)?
+            .into_iter()
+            .map(|(r, rtl)| super::bidi::BidiRun {
+                text: text[r.clone()].to_string(),
+                rtl,
+                byte_start: r.start,
+            })
+            .collect()]
+    } else {
+        bidi_runs(text.as_str())
+    };
     if paragraphs.iter().all(|p| p.is_empty()) {
-        return None;
+        return if bidi_only && !primary.is_empty() { Some(Vec::new()) } else { None };
     }
 
     // **P845** — avanço vertical por linha: top-edge + |bottom-edge| +
@@ -203,7 +244,10 @@ pub(super) fn try_shape(
         let mut x_offset = Pt(0.0);
 
         for run in runs {
+            let mut subrun_start = run.byte_start;
             for subrun in split_run_by_font(run, &mut candidates) {
+                let subrun_range = subrun_start..subrun_start + subrun.text.len();
+                subrun_start = subrun_range.end;
                 let candidate = candidates.get(subrun.candidate_idx)?;
 
                 // P657 — cache de shaping: reaproveita o resultado bruto do shaper
@@ -240,8 +284,8 @@ pub(super) fn try_shape(
                     style.lang.as_ref().map(|lang| lang.as_str()),
                 );
                 let cached = cache.map.get(&cache_key).cloned();
-                let (run_glyphs, _run_width) = if let Some(cached) = cached {
-                    (cached.glyphs, cached.width)
+                let (run_glyphs, _run_width, source_font) = if let Some(cached) = cached {
+                    (cached.glyphs, cached.width, cached.font)
                 } else {
                     let font = world.font(candidate.slot_idx)?;
                     let mut rb_face = rustybuzz::Face::from_slice(font.as_slice(), 0)?;
@@ -253,9 +297,14 @@ pub(super) fn try_shape(
 
                     let mut buffer = UnicodeBuffer::new();
                     buffer.push_str(&subrun.text);
-                    super::text_identity::configure_authored_shy_buffer(&mut buffer, &subrun.text);
+                    super::text_identity::configure_authored_ignorables_buffer(
+                        &mut buffer,
+                        &subrun.text,
+                    );
                     if let Some(lang) = style.lang {
-                        buffer.set_language(lang.as_str().parse().expect("Lang is nonempty"));
+                        buffer.set_language(
+                            lang.as_str().parse().expect("Lang is nonempty"),
+                        );
                     }
                     if run.rtl {
                         buffer.set_direction(Direction::RightToLeft);
@@ -332,15 +381,22 @@ pub(super) fn try_shape(
 
                     cache.map.insert(
                         cache_key,
-                        CachedRun { glyphs: run_glyphs.clone(), width: run_width },
+                        CachedRun {
+                            glyphs: run_glyphs.clone(),
+                            width: run_width,
+                            font: font.clone(),
+                        },
                     );
 
-                    (run_glyphs, run_width)
+                    (run_glyphs, run_width, font)
                 };
 
                 if !run_glyphs.is_empty() {
-                    let subrun_width_pt =
-                        super::tracking::width(&run_glyphs, style, candidate.units_per_em as f64);
+                    let subrun_width_pt = super::tracking::width(
+                        &run_glyphs,
+                        style,
+                        candidate.units_per_em as f64,
+                    );
                     let item_pos = Point { x: Pt(pos.x.0 + x_offset.0), y: line_y };
                     x_offset.0 += subrun_width_pt;
 
@@ -359,13 +415,16 @@ pub(super) fn try_shape(
                         style: segment_style,
                         text: subrun.text.clone().into(),
                         units_per_em: candidate.units_per_em,
+                        bidi: bidi.and_then(|span| span.subspan(subrun_range)),
+                        font: Some(source_font),
                     });
                 }
             }
         }
     }
 
-    if items.is_empty() {
+    // Successful removal of a bidi-only run must not re-enter plain fallback.
+    if items.is_empty() && !bidi_only {
         None
     } else {
         Some(items)

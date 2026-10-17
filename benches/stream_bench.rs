@@ -8,12 +8,12 @@ mod profile;
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use typst_core::entities::content::Content;
+use typst_core::entities::frame_paint::FramePaint as Paint;
 use typst_core::entities::geometry::{FillRule, PathItem, ShapeKind};
 use typst_core::entities::layout_types::{
     Color, FrameItem, LinkTarget, Page, PagedDocument, Point, Pt, SemanticKind,
     SemanticPlacement, Size, TextStyle, TransformMatrix,
 };
-use typst_core::entities::paint::Paint;
 use typst_infra::export::{
     export_pdf_with_tags_and_serialization, PdfSerializationMode, PdfTags, StreamMode,
 };
@@ -27,6 +27,7 @@ fn text(index: usize) -> FrameItem {
         pos: point(24.0, 24.0 + index as f64 * 4.0),
         text: "Stream benchmark".into(),
         style: TextStyle { size: Pt(10.0), ..Default::default() },
+        bidi: None,
     }
 }
 
@@ -36,7 +37,7 @@ fn shape(kind: ShapeKind<Pt>) -> FrameItem {
         kind,
         width: 40.0,
         height: 30.0,
-        fill: Some(Paint::solid(Color::rgb(20, 80, 160))),
+        fill: Some(Paint::Solid(Color::rgb(20, 80, 160))),
         stroke: None,
         fill_rule: FillRule::NonZero,
         parent_bbox_at_emit: None,
@@ -66,6 +67,7 @@ fn bench_stream(c: &mut Criterion) {
         PathItem::ClosePath,
     ]);
     let group = FrameItem::Group {
+        paint_root: false,
         pos: point(50.0, 50.0),
         matrix: TransformMatrix::rotate(0.2),
         clip_mask: Some(ShapeKind::Rect),

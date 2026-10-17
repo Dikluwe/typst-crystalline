@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/plugin.md
-//! @prompt-hash 8fe7c660
+//! @prompt-hash f5242d68
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -171,20 +171,13 @@ mod tests {
     use std::sync::atomic::{AtomicU64, Ordering};
     use std::sync::{Arc, Mutex};
 
+    #[derive(Default)]
     struct MockWorld {
         files: HashMap<String, Arc<Vec<u8>>>,
         library: crate::entities::world_types::Library,
         book: crate::entities::font_book::FontBook,
     }
-    impl Default for MockWorld {
-        fn default() -> Self {
-            Self {
-                files: HashMap::new(),
-                library: crate::entities::world_types::Library::default(),
-                book: crate::entities::font_book::FontBook::default(),
-            }
-        }
-    }
+
     impl crate::contracts::world::World for MockWorld {
         fn library(&self) -> &crate::entities::world_types::Library {
             &self.library

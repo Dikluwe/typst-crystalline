@@ -1,0 +1,3 @@
+[build.env]
+# Preserve the release source identity inside cross's build container.
+passthrough = ["TYPST_COMMIT_SHA"]

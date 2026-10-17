@@ -1,0 +1,21 @@
+{
+  "utc": "2026-10-07T12:17:28.307496+00:00",
+  "user_confirmation": "comfirmo",
+  "manifest_sha256": "5fec42835e38e9a28ee2ea2714b30135f069f111c140bb5e918a0902a06cc82b",
+  "scope": "D08B3-A",
+  "status": "materialized-with-documented-metric-residuals",
+  "execution_report": "00_nucleo/diagnosticos/table-cell-realizacao-d08b3-execucao-2026-10-07.md",
+  "supplemental_test_owner": [
+    "01_core/src/compiler/eval/tests.rs",
+    "00_nucleo/prompts/compiler/eval/tests.md"
+  ],
+  "limits": [
+    "Raw default typography outside ratified owners",
+    "D08B3-B isolated Cell and fresh reconstruction",
+    "generic Table equality and rich properties"
+  ],
+  "completed_utc": "2026-10-07T13:34:25.853473+00:00",
+  "result": "00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/final-results.json",
+  "binary_sha256": "58456b9b54041983612e5946f89fef2cf4591b9f31a09d8dcce9ae5c8a9c0eea",
+  "raw_defaults_followup": "00_nucleo/diagnosticos/raw-defaults-execucao-2026-10-07.md"
+}

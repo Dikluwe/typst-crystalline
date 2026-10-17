@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/loading/csv.md
-//! @prompt-hash f7824b14
+//! @prompt-hash 09f810a3
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -16,12 +16,14 @@ pub enum RowType {
     Dictionary,
 }
 
+#[cfg(test)]
 pub fn decode_csv(bytes: &[u8], delimiter: u8, row_type: RowType) -> SourceResult<Value> {
     decode_csv_impl(bytes, delimiter, row_type, CsvErrorContext::Pure)
 }
 
 #[derive(Clone, Copy)]
 enum CsvErrorContext<'a> {
+    #[cfg(test)]
     Pure,
     Bytes,
     File(&'a crate::entities::path::RootedPath, Span),
@@ -83,6 +85,7 @@ fn decode_csv_impl(
                     cause.push_str(&format!(":{line}:{column}"));
                 }
             }
+            #[cfg(test)]
             CsvErrorContext::Pure => {}
             CsvErrorContext::File(_, _) => {}
         }
@@ -262,18 +265,11 @@ fn csv_delimiter(value: &Value) -> SourceResult<u8> {
             let mut chars = s.chars();
             match (chars.next(), chars.next()) {
                 (Some(c), None) if c.is_ascii() => Ok(c as u8),
-                (Some(_), None) => {
-                    return Err(err("delimiter must be an ASCII character"))
-                }
-                _ => return Err(err("expected exactly one character")),
+                (Some(_), None) => Err(err("delimiter must be an ASCII character")),
+                _ => Err(err("expected exactly one character")),
             }
         }
-        other => {
-            return Err(err(format!(
-                "expected string, found {}",
-                vanilla_type_name(other)
-            )))
-        }
+        other => Err(err(format!("expected string, found {}", vanilla_type_name(other)))),
     }
 }
 
@@ -286,11 +282,9 @@ fn csv_row_type(value: &Value) -> SourceResult<RowType> {
         Value::Type(t) => match t {
             crate::entities::value::Type::Array => Ok(RowType::Array),
             crate::entities::value::Type::Dictionary => Ok(RowType::Dictionary),
-            _ => return Err(err("expected `array` or `dictionary`")),
+            _ => Err(err("expected `array` or `dictionary`")),
         },
-        other => {
-            return Err(err(format!("expected type, found {}", vanilla_type_name(other))))
-        }
+        other => Err(err(format!("expected type, found {}", vanilla_type_name(other)))),
     }
 }
 

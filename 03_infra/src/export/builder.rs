@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 043af4bb
+//! @prompt-hash 5995ebe8
 //! @layer L3
 //! @updated 2026-09-29
 //!
@@ -205,6 +205,32 @@ impl PdfBuilder {
         } else {
             doc
         };
+        let bound = super::font_binding::bind_document(doc, &[]);
+        if !bound.is_empty() {
+            if let [((_, variant, variations), data)] = bound.as_ref() {
+                let needs_instance = Face::parse(data, 0).ok().is_some_and(|face| {
+                    let axes = crate::font_variant::merge_explicit_variations(
+                        crate::font_variant::axis_variations_for_font_variant(variant),
+                        variations,
+                    );
+                    face.variation_axes()
+                        .into_iter()
+                        .any(|axis| axes.iter().any(|v| v.tag == axis.tag))
+                });
+                if !needs_instance {
+                    if let Ok(face) = Face::parse(data, 0) {
+                        return self.build_cidfont(doc, &face, data);
+                    }
+                }
+            }
+            let faces: Vec<_> = bound
+                .iter()
+                .filter_map(|(_, data)| Face::parse(data, 0).ok())
+                .collect();
+            if faces.len() == bound.len() {
+                return self.build_multifont(doc, &bound, &faces);
+            }
+        }
         if let Some(data) = font_data {
             if let Ok(face) = Face::parse(data, 0) {
                 return self.build_cidfont(doc, &face, data);
@@ -253,6 +279,7 @@ impl PdfBuilder {
         let n_grads = grad_objs.len();
         // Sub-function IDs após os 3*N gradient object IDs.
         let mut next_sub_id = first_grad_id + n_grads * 3;
+        let tilings = crate::export::pdf_tiling::Patterns::scan(doc, &mut next_sub_id);
 
         self.add(1, "<< /Type /Catalog /Pages 2 0 R >>".into());
 
@@ -273,7 +300,10 @@ impl PdfBuilder {
             let h = pdf_canvas_extent(page.canvas_height());
 
             let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
-            let pat_res = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
+            let pat_res = tilings.resources(
+                &pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs),
+                i,
+            );
             // **P956** — verbose: `/c0` (sRGB ICCBased) nos recursos da página.
             let cs_res = colorspace_resource_entry(verbose, icc_profile_id, page);
             let resources_str = format!(
@@ -303,7 +333,7 @@ impl PdfBuilder {
                 ),
             );
 
-            let ctx = PageContext::type1(
+            let mut ctx = PageContext::type1(
                 &ptr_to_idx,
                 &img_refs,
                 &pat_ptr_to_idx,
@@ -316,6 +346,10 @@ impl PdfBuilder {
                 matches!(self.standard.accessibility, Some(PdfAccessibility::Ua1)),
             )
             .with_oracle(self.oracle);
+            ctx.tiling_names = Some(&tilings.names[i]);
+            for (id, bytes) in tilings.emit(i, &mut ctx, &resources_str) {
+                self.add_bytes(id, bytes);
+            }
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
             let stream_object = self.serialize_page_stream(&stream_bytes);

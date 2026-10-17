@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/paragraph_select.md
-//! @prompt-hash 5d2c7132
+//! @prompt-hash 148626df
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -24,14 +24,20 @@ pub(super) struct Measure {
 }
 /// Um intervalo precede cada gap salvo o primeiro literal do parágrafo.
 pub(super) fn before_gap(p: &Prepared, line: Line, word: usize, gap: usize) -> f64 {
-    if line.start == 0 && word == 0 && gap == 0 { 0.0 } else { p.tracking() }
+    if line.start == 0 && word == 0 && gap == 0 {
+        0.0
+    } else {
+        p.tracking()
+    }
 }
 
 /// A palavra após gaps na mesma linha recebe o intervalo terminal desses gaps.
 pub(super) fn before_word(p: &Prepared, line: Line, word: usize) -> f64 {
     if (word > line.start || line.start == 0) && !p.words[word].before.is_empty() {
         p.tracking()
-    } else { 0.0 }
+    } else {
+        0.0
+    }
 }
 
 /// O espaço da quebra é moldado, mesmo que seu avanço seja zerado.
@@ -74,9 +80,21 @@ pub(super) fn ratio(m: Measure, width: f64, font: f64) -> f64 {
     }
     r.clamp(-2.0, 10.0)
 }
-fn cost(m: Measure, line: Line, width: f64, font: f64, justify: bool, last: bool, costs: LineCosts) -> f64 {
+fn cost(
+    m: Measure,
+    line: Line,
+    width: f64,
+    font: f64,
+    justify: bool,
+    last: bool,
+    costs: LineCosts,
+) -> f64 {
     line_cost(m, width, font, justify, last, line.end == line.start + 1, 0.0, costs)
 }
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C015: Função matemática pura de custo: Measure, largura, tamanho, justify, last, unbreakable, penalidade e LineCosts são os operandos efetivos da fórmula compartilhada com a hifenização"
+)]
 pub(super) fn line_cost(
     m: Measure,
     width: f64,
@@ -91,12 +109,14 @@ pub(super) fn line_cost(
     let badness = if r < if justify { -1.0 } else { 0.0 } {
         1_000_000.0
     } else if !last || r < 0.0 {
-        100.0 * r.abs().powi(3)
+        let abs_r = r.abs();
+        100.0 * ((abs_r * abs_r) * abs_r)
     } else {
         0.0
     };
     let runt = if last && unbreakable { costs.runt } else { 0.0 };
-    (1.0 + badness + runt + penalty).powi(2)
+    let cost = 1.0 + badness + runt + penalty;
+    cost * cost
 }
 pub(super) fn select(
     p: &Prepared,
@@ -128,8 +148,18 @@ pub(super) fn select(
         .map(|(index, w)| {
             let base = w.before.iter().map(|g| g.width).sum::<f64>();
             let count = w.before.len();
-            let intervals = if index == 0 { count } else if count > 0 { count + 1 } else { 0 };
-            Measure { width: base + p.tracking() * intervals as f64, spaces: base, count }
+            let intervals = if index == 0 {
+                count
+            } else if count > 0 {
+                count + 1
+            } else {
+                0
+            };
+            Measure {
+                width: base + p.tracking() * intervals as f64,
+                spaces: base,
+                count,
+            }
         })
         .collect();
     for i in 0..n {
@@ -155,14 +185,17 @@ pub(super) fn select(
     // Exhaustive exact DP: the observable cost is shared with the pinned source,
     // its approximate bounds and buffer mechanics are not architecture contracts.
     for end in 1..=n {
-        for start in active..end {
+        // Keep this candidate range fixed while pruning future prefixes.
+        let first_active = active;
+        for start in first_active..end {
             let line = Line { start, end };
             let m = measured(line);
             if start == active && ratio(m, width, font) < if justify { -1.0 } else { 0.0 }
             {
                 active += 1;
             }
-            let total = totals[start] + cost(m, line, width, font, justify, end == n, costs);
+            let total =
+                totals[start] + cost(m, line, width, font, justify, end == n, costs);
             if total <= totals[end] {
                 totals[end] = total;
                 predecessors[end] = start;
@@ -218,21 +251,31 @@ mod tests {
         style.tracking = Some(Length::pt(0.2));
         for (word, &width) in p.words.iter_mut().zip([60.0, 63.536, 5.0].iter()) {
             word.fragments.push(Fragment {
-                text: "x".into(), replacement: None, style: style.clone(), width,
-                hyphenate: false, overhang: false,
+                text: "x".into(),
+                replacement: None,
+                style: style.clone(),
+                width,
+                hyphenate: false,
+                overhang: false,
             });
-            for gap in &mut word.before { gap.style = style.clone(); }
+            for gap in &mut word.before {
+                gap.style = style.clone();
+            }
         }
         let candidate = Line { start: 0, end: 2 };
         assert!((measure(&p, candidate).width - 124.136).abs() < 1e-9);
-        assert_eq!(select(&p, 124.0, 12.0, false, Strategy::Simple, LineCosts::default())[0],
-            Line { start: 0, end: 1 });
+        assert_eq!(
+            select(&p, 124.0, 12.0, false, Strategy::Simple, LineCosts::default())[0],
+            Line { start: 0, end: 1 }
+        );
     }
     #[test]
     fn selector_balances_complete_paragraph_and_can_shrink() {
         let p = prepared(&[30.0, 30.0, 30.0, 30.0, 30.0, 30.0, 10.0, 10.0], 6.0);
-        let simple = select(&p, 100.0, 12.0, true, Strategy::Simple, LineCosts::default());
-        let opt = select(&p, 100.0, 12.0, true, Strategy::Optimized, LineCosts::default());
+        let simple =
+            select(&p, 100.0, 12.0, true, Strategy::Simple, LineCosts::default());
+        let opt =
+            select(&p, 100.0, 12.0, true, Strategy::Optimized, LineCosts::default());
         assert_eq!(simple[0], Line { start: 0, end: 2 });
         assert!(opt.iter().any(|&line| measure(&p, line).width > 100.0));
         assert!(opt.iter().all(|&line| {
@@ -240,8 +283,23 @@ mod tests {
             m.width - m.spaces / 3.0 <= 100.0
         }));
         assert!(
-            cost(measure(&p, opt[0]), opt[0], 100.0, 12.0, true, false, LineCosts::default())
-                < cost(measure(&p, simple[0]), simple[0], 100.0, 12.0, true, false, LineCosts::default())
+            cost(
+                measure(&p, opt[0]),
+                opt[0],
+                100.0,
+                12.0,
+                true,
+                false,
+                LineCosts::default()
+            ) < cost(
+                measure(&p, simple[0]),
+                simple[0],
+                100.0,
+                12.0,
+                true,
+                false,
+                LineCosts::default()
+            )
         );
     }
     #[test]
@@ -271,9 +329,18 @@ mod final_line_cost_regression {
     #[test]
     fn hardcode_final_line_preserves_natural_cost() {
         let m = Measure { width: 20.0, spaces: 10.0, count: 1 };
-        assert_eq!(line_cost(m, 25.0, 12.0, false, true, false, 0.0, LineCosts::default()), 1.0);
-        assert_eq!(line_cost(m, 25.0, 12.0, true, true, false, 0.0, LineCosts::default()), 1.0);
-        assert_eq!(line_cost(m, 25.0, 12.0, true, false, false, 0.0, LineCosts::default()), 10201.0);
+        assert_eq!(
+            line_cost(m, 25.0, 12.0, false, true, false, 0.0, LineCosts::default()),
+            1.0
+        );
+        assert_eq!(
+            line_cost(m, 25.0, 12.0, true, true, false, 0.0, LineCosts::default()),
+            1.0
+        );
+        assert_eq!(
+            line_cost(m, 25.0, 12.0, true, false, false, 0.0, LineCosts::default()),
+            10201.0
+        );
     }
 }
 
@@ -282,9 +349,36 @@ mod configurable_runt_cost {
     use super::*;
     #[test]
     fn custom_costs_runt_multiplier_changes_only_penalty() {
-        let m=Measure{width:20.0,spaces:0.0,count:0};
-        assert_eq!(line_cost(m,25.0,12.0,false,true,true,0.0,LineCosts::default()),10201.0);
-        assert_eq!(line_cost(m,25.0,12.0,false,true,true,0.0,LineCosts{runt:0.0,..LineCosts::default()}),1.0);
-        assert_eq!(line_cost(m,25.0,12.0,false,true,true,0.0,LineCosts{runt:200.0,..LineCosts::default()}),40401.0);
+        let m = Measure { width: 20.0, spaces: 0.0, count: 0 };
+        assert_eq!(
+            line_cost(m, 25.0, 12.0, false, true, true, 0.0, LineCosts::default()),
+            10201.0
+        );
+        assert_eq!(
+            line_cost(
+                m,
+                25.0,
+                12.0,
+                false,
+                true,
+                true,
+                0.0,
+                LineCosts { runt: 0.0, ..LineCosts::default() }
+            ),
+            1.0
+        );
+        assert_eq!(
+            line_cost(
+                m,
+                25.0,
+                12.0,
+                false,
+                true,
+                true,
+                0.0,
+                LineCosts { runt: 200.0, ..LineCosts::default() }
+            ),
+            40401.0
+        );
     }
 }

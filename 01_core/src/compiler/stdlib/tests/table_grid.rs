@@ -244,7 +244,7 @@ fn p224_native_grid_header_aceita_body() {
     .unwrap();
     if let Value::Content(Content::GridHeader(e)) = r {
         assert_eq!(e.body.plain_text(), "hdr");
-        assert_eq!(e.repeat, true, "default repeat == true (paridade vanilla)");
+        assert!(e.repeat, "default repeat == true (paridade vanilla)");
     } else {
         panic!("esperado GridHeader");
     }
@@ -258,7 +258,7 @@ fn p224_native_grid_footer_aceita_body_repeat_false() {
     let r = native_grid_footer(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::GridFooter(e)) = r {
         assert_eq!(e.body.plain_text(), "ftr");
-        assert_eq!(e.repeat, false);
+        assert!(!e.repeat);
     } else {
         panic!("esperado GridFooter");
     }

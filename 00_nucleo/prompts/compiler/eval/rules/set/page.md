@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/set/page — Set page e transporte de geometria
-Hash do Código: 9d5ee249
+Hash do Código: 4cdd2cc0
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/eval/rules/set/page.rs`

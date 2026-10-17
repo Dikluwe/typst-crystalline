@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/world-types.md
-//! @prompt-hash 7119f2ea
+//! @prompt-hash bb9c916b
 //! @layer L1
-//! @updated 2026-07-31
+//! @updated 2026-10-05
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
@@ -43,7 +43,7 @@ pub enum Font {
 }
 
 impl Font {
-    /// Constrói a partir de um Vec<u8> (fontes embutidas, faces extraídas).
+    /// Constrói a partir de um `Vec<u8>` (fontes embutidas, faces extraídas).
     pub fn from_data(data: Vec<u8>) -> Self {
         Self::Vec(Arc::new(data))
     }
@@ -508,6 +508,13 @@ impl Sink {
     /// Convenção: `hint == ""` = sem hint. Para warnings complexos
     /// (múltiplos hints, severity custom, trace), usar a API não-tracked
     /// `Sink::warn(diag)` via `&mut Sink` directo.
+    pub(crate) fn warn_diagnostic(
+        &mut self,
+        diagnostic: crate::entities::source_result::SourceDiagnostic,
+    ) {
+        self.record(diagnostic);
+    }
+
     pub fn warn_note(
         &mut self,
         span: crate::entities::span::Span,
@@ -836,7 +843,7 @@ mod tests {
         let root = Route::root();
         let child = Route::extend(root.track()).unnested();
         let tr = child.track();
-        assert_eq!(check_show_depth(tr).is_ok(), true);
+        assert!(check_show_depth(tr).is_ok());
     }
 
     #[test]
@@ -847,7 +854,7 @@ mod tests {
             .unnested()
             .with_id(FileId::from_raw(std::num::NonZeroU16::new(42).unwrap()));
         let tr = child.track();
-        assert_eq!(check_show_depth(tr).is_ok(), true);
+        assert!(check_show_depth(tr).is_ok());
     }
 
     #[test]
@@ -856,6 +863,6 @@ mod tests {
         let root = Route::root();
         let child = Route::extend(root.track());
         let tr = child.track();
-        assert_eq!(check_show_depth(tr).is_ok(), true);
+        assert!(check_show_depth(tr).is_ok());
     }
 }

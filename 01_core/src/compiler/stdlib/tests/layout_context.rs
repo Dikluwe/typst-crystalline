@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/tests/layout_context.md
-//! @prompt-hash 057a285a
+//! @prompt-hash ebff4ec8
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -148,7 +148,7 @@ fn p220_native_colbreak_sem_args_aceita() {
     null_ctx!(ctx);
     let r = native_colbreak(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Colbreak(e)) = r {
-        assert_eq!(e.weak, false, "default weak == false");
+        assert!(!e.weak, "default weak == false");
     } else {
         panic!("esperado Value::Content(Content::Colbreak)");
     }
@@ -161,7 +161,7 @@ fn p220_native_colbreak_weak_true_aceita() {
     args.named.insert("weak".into(), Value::Bool(true));
     let r = native_colbreak(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Colbreak(e)) = r {
-        assert_eq!(e.weak, true);
+        assert!(e.weak);
     } else {
         panic!("esperado Value::Content(Content::Colbreak {{ weak: true }})");
     }
@@ -298,15 +298,18 @@ fn p712_measure_tamanho_maior_produz_texto_mais_largo() {
     // Paridade com o vanilla: measure() depende do #set text(size:)
     // activo (P711 já corrigiu o mesmo princípio para `context`).
     use crate::compiler::layout::measure_content_real;
-    use crate::entities::layout_types::Pt;
     use crate::entities::style::{Style, Styles};
     use crate::entities::style_chain::StyleChain;
 
     let content = Content::text("mesmo texto");
-    let chain_pequena = StyleChain::default_chain()
-        .push_styles(&Styles::from_iter([Style::Size(Pt(10.0))]));
-    let chain_grande = StyleChain::default_chain()
-        .push_styles(&Styles::from_iter([Style::Size(Pt(40.0))]));
+    let chain_pequena =
+        StyleChain::default_chain().push_styles(&Styles::from_iter([Style::Size(
+            crate::entities::layout_types::Length::pt(10.0),
+        )]));
+    let chain_grande =
+        StyleChain::default_chain().push_styles(&Styles::from_iter([Style::Size(
+            crate::entities::layout_types::Length::pt(40.0),
+        )]));
 
     let (w_pequena, _) = measure_content_real(&content, &chain_pequena, &FixedMetrics);
     let (w_grande, _) = measure_content_real(&content, &chain_grande, &FixedMetrics);
@@ -347,7 +350,7 @@ fn p223_native_place_float_aceita() {
     args.named.insert("float".into(), Value::Bool(true));
     let r = native_place(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Place(e)) = r {
-        assert_eq!(e.float, true);
+        assert!(e.float);
     } else {
         panic!("esperado Content::Place");
     }
@@ -365,7 +368,7 @@ fn p223_native_place_float_default_false() {
     )
     .unwrap();
     if let Value::Content(Content::Place(e)) = r {
-        assert_eq!(e.float, false, "default float == false");
+        assert!(!e.float, "default float == false");
     } else {
         panic!("esperado Content::Place");
     }
@@ -430,7 +433,7 @@ fn p223_native_place_parent_com_float_aceita() {
     use crate::entities::layout_types::PlaceScope;
     if let Value::Content(Content::Place(e)) = r {
         assert!(matches!(e.scope, PlaceScope::Parent));
-        assert_eq!(e.float, true);
+        assert!(e.float);
     } else {
         panic!("esperado Content::Place");
     }
@@ -464,4 +467,58 @@ fn p1250a_page_binding_aceita_so_alinhamento_horizontal_puro() {
     assert!(super::layout::is_horizontal_page_binding(right, HAlign::Right));
     assert!(!super::layout::is_horizontal_page_binding(vertical, HAlign::Left));
     assert!(!super::layout::is_horizontal_page_binding(left, HAlign::Right));
+}
+
+#[test]
+fn ts1_text_positional_size_fill_body_permutations() {
+    use crate::entities::layout_types::{Color, Length};
+    use crate::entities::style_chain::StyleChain;
+    let values = [
+        Value::Length(Length::em(2.0)),
+        Value::Color(Color::rgb(255, 0, 0)),
+        Value::Content(Content::text("A")),
+    ];
+    for order in [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]] {
+        null_ctx!(ctx);
+        let result = native_text(
+            &mut ctx,
+            &p(order.into_iter().map(|i| values[i].clone()).collect()),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        let Value::Content(Content::Styled(styled)) = result else {
+            panic!("text must retain styles")
+        };
+        assert_eq!(styled.body.plain_text(), "A");
+        let chain = StyleChain::default_chain().push_styles(&styled.styles);
+        assert_eq!(chain.size(), 22.0);
+        assert_eq!(chain.fill(), Some(Color::rgb(255, 0, 0)));
+    }
+}
+
+#[test]
+fn ts1_text_none_is_empty_and_body_is_required() {
+    null_ctx!(ctx);
+    let Value::Content(c) =
+        native_text(&mut ctx, &p(vec![Value::None]), &null_world(), test_file_id())
+            .unwrap()
+    else {
+        panic!("content")
+    };
+    assert!(c.plain_text().is_empty());
+    let errors =
+        native_text(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap_err();
+    assert_eq!(errors[0].message.as_str(), "missing argument: body");
+}
+
+#[test]
+fn ts1_named_size_does_not_consume_positional_length() {
+    use crate::entities::layout_types::Length;
+    null_ctx!(ctx);
+    let mut args =
+        p(vec![Value::Length(Length::pt(18.0)), Value::Content(Content::text("A"))]);
+    args.named.insert("size".into(), Value::Length(Length::pt(20.0)));
+    let errors = native_text(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
+    assert_eq!(errors[0].message.as_str(), "expected content, found length");
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/outline.md
-//! @prompt-hash 55fa1c26
+//! @prompt-hash 619d6d59
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -129,9 +129,9 @@ pub fn native_outline_entry_body(
         .map_err(|message| vec![SourceDiagnostic::error(args.span, message)])
 }
 
-fn outline_entry_receiver<'a>(
-    args: &'a Args,
-) -> SourceResult<&'a crate::entities::elements::outline_entry::OutlineEntryElem> {
+fn outline_entry_receiver(
+    args: &Args,
+) -> SourceResult<&crate::entities::elements::outline_entry::OutlineEntryElem> {
     let Some(first) = args.items.first() else {
         return Err(vec![SourceDiagnostic::error(args.span, "missing argument: self")]);
     };
@@ -337,9 +337,7 @@ fn prefix_info(parent_key: i64, level: usize, inset: f64) -> Content {
     )
 }
 
-fn compose_outline_entry_indented(
-    prefix: Option<Content>,
-    inner: Content,
+struct OutlineIndentPlan {
     prefix_width_pt: Option<f64>,
     base: crate::entities::layout_types::Length,
     hanging_pt: Option<f64>,
@@ -347,7 +345,22 @@ fn compose_outline_entry_indented(
     parent_key: i64,
     level: usize,
     rtl: bool,
+}
+
+fn compose_outline_entry_indented(
+    prefix: Option<Content>,
+    inner: Content,
+    plan: OutlineIndentPlan,
 ) -> Content {
+    let OutlineIndentPlan {
+        prefix_width_pt,
+        base,
+        hanging_pt,
+        auto,
+        parent_key,
+        level,
+        rtl,
+    } = plan;
     use crate::entities::layout_types::Length;
 
     let body = match (prefix, prefix_width_pt, hanging_pt) {
@@ -488,21 +501,23 @@ pub fn native_outline_entry_indented(
     let result = Value::Content(compose_outline_entry_indented(
         prefix,
         inner,
-        prefix_width_pt,
-        base,
-        hanging_pt,
-        auto,
-        parent_key,
-        entry.level,
-        rtl,
+        OutlineIndentPlan {
+            prefix_width_pt,
+            base,
+            hanging_pt,
+            auto,
+            parent_key,
+            level: entry.level,
+            rtl,
+        },
     ));
     ctx.observe_context_read(
-        crate::compiler::eval::ContextReadRequest::OutlineEntryIndented {
-            entry: Content::OutlineEntry(std::sync::Arc::new(entry)),
-            prefix: args.items.get(1).cloned().unwrap_or(Value::None),
-            inner: args.items.get(2).cloned().unwrap_or(Value::None),
+        crate::compiler::eval::ContextReadRequest::outline_entry_indented(
+            Content::OutlineEntry(std::sync::Arc::new(entry)),
+            args.items.get(1).cloned().unwrap_or(Value::None),
+            args.items.get(2).cloned().unwrap_or(Value::None),
             gap,
-        },
+        ),
         args.span,
         Ok(result),
     )
@@ -522,17 +537,17 @@ pub fn native_outline(
     let title_set = args.named.contains_key("title") || !args.items.is_empty();
     // Título: named `title` tem prioridade; fallback para primeiro argumento
     // posicional (vanilla aceita `outline([Título])`).
-    let title_named = args.named.get("title").and_then(|v| match v {
-        Value::Content(c) => Some(Ok(Some(c.clone()))),
-        Value::Str(s) => Some(Ok(Some(Content::text(s.as_str())))),
-        Value::None => Some(Ok(None)),
-        other => Some(Err(vec![SourceDiagnostic::error(
+    let title_named = args.named.get("title").map(|v| match v {
+        Value::Content(c) => Ok(Some(c.clone())),
+        Value::Str(s) => Ok(Some(Content::text(s.as_str()))),
+        Value::None => Ok(None),
+        other => Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!(
                 "outline(title:): espera content ou string, recebeu {}",
                 other.type_name()
             ),
-        )])),
+        )]),
     });
 
     let title_positional = if args.items.is_empty() {
@@ -742,13 +757,15 @@ mod tests {
         let actual = compose_outline_entry_indented(
             Some(Content::strong(Content::text("P"))),
             Content::emph(Content::text("I")),
-            Some(6.0),
-            Length::em(2.0),
-            Some(11.5),
-            false,
-            0,
-            2,
-            false,
+            OutlineIndentPlan {
+                prefix_width_pt: Some(6.0),
+                base: Length::em(2.0),
+                hanging_pt: Some(11.5),
+                auto: false,
+                parent_key: 0,
+                level: 2,
+                rtl: false,
+            },
         );
         let Content::Block(block) = actual else { panic!("esperado Block") };
         assert_eq!(block.inset.left, Length::em(2.0) + Length::pt(11.5));
@@ -767,13 +784,15 @@ mod tests {
         let actual = compose_outline_entry_indented(
             None,
             inner.clone(),
-            None,
-            Length::pt(13.2),
-            None,
-            true,
-            9,
-            2,
-            true,
+            OutlineIndentPlan {
+                prefix_width_pt: None,
+                base: Length::pt(13.2),
+                hanging_pt: None,
+                auto: true,
+                parent_key: 9,
+                level: 2,
+                rtl: true,
+            },
         );
         let Content::Block(block) = actual else { panic!("esperado Block") };
         assert_eq!(block.inset.left, Length::ZERO);

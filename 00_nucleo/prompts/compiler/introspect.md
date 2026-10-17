@@ -1,5 +1,5 @@
 # L0 — introspect
-Hash do Código: ee4924de
+Hash do Código: e9b71363
 
 ```text
 Núcleos Tekt:
@@ -210,3 +210,8 @@ API, default, phase change or compatibility decision is authorized by this
 sanitization. Audited limitations and unresolved classifier/extractor alignment
 are recorded in
 `00_nucleo/diagnosticos/sanitization-introspection-columns-history.md`.
+
+
+## Realização com avaliação única
+
+Serviço interno de reserva de IDs do walk é acessível a layout, mantendo ownership do algoritmo em introspect/walk.

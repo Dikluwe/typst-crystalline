@@ -1,26 +1,24 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/eval.md
-//! @prompt-hash 2d7e60a4
+//! @prompt-hash c317d33b
 //! @layer L4
-//! @updated 2026-09-26
+//! @updated 2026-10-06
 
 use super::diagnostics::drain_to_stderr_with_primary;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 use typst_core::contracts::world::World;
-use typst_core::entities::source::Source;
 use typst_infra::world::SystemWorld;
 use typst_shell::cli::{self, EvalIntent};
 
 pub(super) fn run_eval(intent: EvalIntent) -> ExitCode {
-    let (world, contextual_source, input_path) = match intent.input.as_deref() {
+    let (world, contextual_source) = match intent.input.as_deref() {
         None => (
             SystemWorld::for_eval(PathBuf::from("."))
                 .with_fonts_and_system(&[])
                 .with_custom_ca(intent.cert_path.clone()),
             None,
-            PathBuf::from("<input-expression>"),
         ),
         Some(path) if path == Path::new("-") => {
             let mut text = String::new();
@@ -28,11 +26,18 @@ pub(super) fn run_eval(intent: EvalIntent) -> ExitCode {
                 eprintln!("error: failed to read source from stdin: {error}");
                 return ExitCode::from(2);
             }
-            let world = SystemWorld::for_eval(PathBuf::from("."))
+            let root = match std::env::current_dir() {
+                Ok(root) => root,
+                Err(error) => {
+                    eprintln!("error: failed to acquire current directory: {error}");
+                    return ExitCode::from(2);
+                }
+            };
+            let world = SystemWorld::for_stdin(root, text)
                 .with_fonts_and_system(&[])
                 .with_custom_ca(intent.cert_path.clone());
-            let source = Source::new(world.main(), text);
-            (world, Some(source), PathBuf::from("-"))
+            let source = world.source(world.main()).expect("preloaded stdin Source");
+            (world, Some(source))
         }
         Some(path) => {
             let root = path
@@ -59,24 +64,26 @@ pub(super) fn run_eval(intent: EvalIntent) -> ExitCode {
                     return ExitCode::from(2);
                 }
             };
-            (world, Some(source), path.to_path_buf())
+            (world, Some(source))
         }
     };
-    let eval_source = Source::new_with_parser(
-        world.main(),
-        intent.expression.clone(),
-        typst_core::compiler::parse::parse_code,
-    );
+    let eval_source = match world.source_for_expression(intent.expression) {
+        Ok(source) => source,
+        Err(error) => {
+            eprintln!("error: failed to acquire expression source: {error}");
+            return ExitCode::from(2);
+        }
+    };
     let (result, warnings) = match contextual_source.as_ref() {
-        Some(source) => typst_infra::pipeline::eval_expression_with_document_features(
+        Some(source) => typst_infra::pipeline::eval_source_with_document_features(
             &world,
             source,
-            &intent.expression,
+            &eval_source,
             intent.features,
         ),
-        None => typst_infra::pipeline::eval_expression_with_sink_features(
+        None => typst_infra::pipeline::eval_source_with_sink_features(
             &world,
-            &intent.expression,
+            &eval_source,
             intent.features,
         ),
     };
@@ -84,7 +91,7 @@ pub(super) fn run_eval(intent: EvalIntent) -> ExitCode {
         drain_to_stderr_with_primary(
             &world,
             errors,
-            &input_path,
+            Path::new("<input-expression>"),
             intent.colored,
             Some(&eval_source),
         );
@@ -92,7 +99,7 @@ pub(super) fn run_eval(intent: EvalIntent) -> ExitCode {
     drain_to_stderr_with_primary(
         &world,
         &warnings,
-        &input_path,
+        Path::new("<input-expression>"),
         intent.colored,
         Some(&eval_source),
     );

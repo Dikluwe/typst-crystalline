@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_class_override.md
-//! @prompt-hash 226cb166
+//! @prompt-hash 6729542d
 //! @layer L1
-//! @updated 2026-07-17
+//! @updated 2026-10-10
 //!
 //! `MathClassOverrideElem` — P772y. Força a `MathClass` de um símbolo/
 //! expressão, override do valor inferido automaticamente por
@@ -41,10 +41,9 @@ impl Element for MathClassOverrideElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathClassOverride(Arc::new(MathClassOverrideElem {
-            class: self.class,
-            body: self.body.map_content(transform)?,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathClassOverride(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, transform: &mut F) -> Content
@@ -55,6 +54,26 @@ impl Element for MathClassOverrideElem {
             class: self.class,
             body: self.body.map_text(transform),
         }))
+    }
+}
+
+impl MathClassOverrideElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        if body.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        Ok(Some(Content::MathClassOverride(Arc::new(mapped))))
     }
 }
 

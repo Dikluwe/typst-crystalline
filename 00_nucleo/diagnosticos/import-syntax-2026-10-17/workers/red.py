@@ -1,0 +1,6 @@
+from pathlib import Path
+import subprocess,gzip,json,hashlib,datetime
+out=Path(__file__).resolve().parents[1];b=json.load(gzip.open(out/'before.json.gz'));scope=json.load(open(out/'scope.json'));sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest();hashes={p:sha(p) for p in list(b['hashes'])+scope['nuclei']};cmd=['cargo','test','--offline','--locked','--workspace','import_syntax_','--','--test-threads=1','--nocapture'];start=datetime.datetime.now(datetime.timezone.utc).isoformat()
+with gzip.open(out/'red-state.json.gz','wt') as f:json.dump(dict(utc=start,hashes=hashes,files={p:(Path(p).read_text() if Path(p).exists() else '') for p in scope['sources']},command=cmd),f)
+with (out/'red.log').open('w') as f:r=subprocess.run(cmd,stdout=f,stderr=subprocess.STDOUT)
+s=(out/'red.log').read_text();x=dict(start=start,end=datetime.datetime.now(datetime.timezone.utc).isoformat(),command=cmd,exit=r.returncode,functional_red='test result: FAILED.' in s,compiler_error='error[E' in s,sources_unchanged=all(sha(p)==h for p,h in hashes.items()));(out/'red-result.json').write_text(json.dumps(x,indent=2)+'\n');print(s[-9000:]);assert x['functional_red'] and not x['compiler_error'] and x['sources_unchanged'];raise SystemExit(r.returncode)

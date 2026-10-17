@@ -1,5 +1,5 @@
 # L0 — stdlib/structural/p1430-tests
-Hash do Código: 5b27ed65
+Hash do Código: dba9ee21
 
 Layer: L1 (test-only)
 Exclusive consumer: `01_core/src/compiler/stdlib/structural/p1430_tests.rs`

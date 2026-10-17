@@ -1,0 +1,38 @@
+{
+  "package": "catalogo-seletivo-2026-10-07",
+  "state": "awaiting_concrete_ratification",
+  "head": "06848cdcb5450f2c555626bf116bc7acd82bd82b",
+  "base_release_sha256": "e44043d9471a6d2eec25da7562dd5b0a071d4e14ab0f307011ca978e46e49109",
+  "gate": "ADR-0127 §2.2/§5: proposed default File acquisition path; private API only",
+  "contract": {
+    "path": "00_nucleo/materialization/catalogo-seletivo-2026-10-07/contract.md",
+    "sha256": "df73119e6089f5ffbe8a838bc7eb6ec0b66777cb258ebfe710636ae558e8b829"
+  },
+  "owners": [
+    {
+      "consumer": "03_infra/src/fontdb.rs",
+      "owner": "00_nucleo/prompts/infra/fontdb.md",
+      "candidate": "00_nucleo/materialization/catalogo-seletivo-2026-10-07/candidates/00_nucleo/prompts/infra/fontdb.md",
+      "candidate_sha256": "e67ba1d24df057e28bbdd486e3e95fd03b007582f2ac42efa791c5d7ad88b436",
+      "base_consumer_sha256": "684288c20cf845ab90b40788dcbe6a1a38cac25e2216798dcf14ec6349350dae",
+      "base_l0_sha256": "ff4211d843d3a9db5ec88222399bcf6584cee5f35ee68aa9e8a40d900f91ecda"
+    },
+    {
+      "consumer": "03_infra/src/fontdb/selective.rs",
+      "owner": "00_nucleo/prompts/infra/fontdb/selective.md",
+      "candidate": "00_nucleo/materialization/catalogo-seletivo-2026-10-07/candidates/00_nucleo/prompts/infra/fontdb/selective.md",
+      "candidate_sha256": "a1ee308f0c678480b83a4bcfe9386dc4b652b968dff116565d3a7ee50edc72a5",
+      "base_consumer_sha256": null,
+      "base_l0_sha256": null
+    }
+  ],
+  "unchanged_owners": [
+    "00_nucleo/prompts/infra/fonts.md",
+    "00_nucleo/prompts/infra/fonts/coverage.md",
+    "00_nucleo/prompts/entities/font_book.md"
+  ],
+  "audit": {
+    "path": "00_nucleo/diagnosticos/catalogo-seletivo-preparacao-2026-10-07/audit.json",
+    "sha256": "2e06583d74ec3c0888f7807f258ccc31e3947269c40e717bd1096d5cf53f9a77"
+  }
+}

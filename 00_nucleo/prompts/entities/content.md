@@ -1,8 +1,10 @@
 # L0 — entities/content
-Hash do Código: 765a49a7
+Hash do Código: 8785a28b
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:81b492ca5d01377da0b54b6deb21b6cb24b20919009ea3ea21b7350959779715
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/content.rs`
@@ -197,3 +199,41 @@ pub enum Content {
 Verify the owned behavior through local tests and its existing integrations.
 Preserve public paths and observable results. Ownership, nucleus integrity and
 lineage checks must remain valid; no unrelated consumer is authorized by this prompt.
+
+
+## Realização com avaliação única
+
+Content possui ShowRecipe(Arc<ShowRecipeContent>) com body, rules Arc<[ShowRule]>, styles StyleChain, guards Vec<RuleId>, file FileId; Realized(Arc<RealizedContent>) com original e visual; Located(Arc<LocatedContent>) com location Location e body. São transportes internos imutáveis; Located conserva a ocorrência durante receitas, Realized conserva a origem consumida sem emitir seu visual anterior. Projeções da linguagem são transparentes. Locator permanece único construtor de Location.
+
+
+## Realização com avaliação única
+
+ShowRecipeContent inclui textual: bool para distinguir captura de grupo textual causal da receita de elemento. A realização textual reutiliza agrupamento/splice do owner vigente depois de realizar elementos do grupo.
+
+Located é referência a uma ocorrência já preparada: múltiplos aliases conservam a identidade. A criação de novas ocorrências por inserção acontece antes de essa preparação, sem colapsar conteúdo comum por igualdade.
+
+
+## Realização com avaliação única
+
+ShowRecipeContent transporta context_id_floor: u64, watermark de ids contextuais já alocados no ambiente capturado. A realização começa depois dessa faixa; não colidir produtor novo com conteúdo contextual capturado em bindings.
+
+
+## D08B3-C2 — candidato não vigente antes do gate ADR-0127
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz` registra oito sondas completas: fontes, comandos, UTC, HEAD, working tree/diffstat, hashes e binários. Pin 9f2b6e8715237cb086899a42873660fe744622e8. Executável Tekt congelado do C validado; `source-verification.json` confirma hashes produtivos/L0 iguais ao snapshot tested-final do C. O target da raiz não estava disponível nesta retomada; não foi fingido um rebuild.
+
+bare/alias/spread-conflict: mensagens e hints iguais, caret/trace divergentes. No alias o vanilla usa a definição [a] (linha 1), não a chamada (linha 3). No spread usa [a], não o spread inteiro. local-body publica sequence com metadata+Cell preparada no Tekt, styled contendo Cell crua no vanilla; cores/efeitos coincidem no fixture. plain-func coincide cell; set-func/show-func/set-show-func medem cell/sequence contra styled. A primeira rodada `before` tinha str(function), foi invalidada para decidir morfologia; somente baseline usa repr(function).
+
+Fonte: vanilla `typst-eval/src/code.rs:148` aplica Value.spanned; `typst-library/src/foundations/value.rs:210–216` só assenta Content/Func; `foundations/content/mod.rs:109–114` preserva span já assentado. `model/table.rs:436–437` transporta value.span ao fabricar Cell. `typst-eval/src/code.rs:26–57` conserva set/show como styled sobre a cauda. Tekt `eval/expression_dispatch.rs:125–136` realiza Cell no join; `stdlib/structural/table_grid.rs:160–175` guarda children sem origem; `realize/table_cells.rs:176–183` fabrica Cell com span detached; `layout/grid/row_groups.rs:109` usa esse span. É língua (diagnóstico/morfologia/efeitos), não igualdade Rust ou bytes PDF. Não inferir intenção upstream.
+
+### Responsabilidade exclusiva candidata
+
+Declaração pública exata SourceContent e Content::Source conforme contract.md; preservação da transparência e separação de origem/localização. Este owner só declara dados; projeções e travessias permanecem nos owners exclusivos existentes.
+
+A especificação detalhada e limites estão no contrato candidato do pacote C2. Antes de materializar, instalar este conteúdo no caminho canônico do owner, auditar seus núcleos e selar hashes somente depois de RED→GREEN. A fonte vigente permanece intacta até aprovação.
+
+A cláusula C2 supersede a realização imediata da Cell no join descrita pelo refinamento A: capturar valor lexical e realizar somente na inserção efetiva. Essa mudança de fronteira/ordem também integra o gate ADR-0127 §2.3; preservar a ordem Table→placement→Cell→body do núcleo vigente.
+
+Ratificação C2: dono confirmou `confirmo` em 2026-10-07; contrato Source e fronteira causal aprovados.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/page_geometry.md
-//! @prompt-hash fa95ffd3
+//! @prompt-hash 48248099
 //! @layer L1
 //! @updated 2026-08-24
 
@@ -164,7 +164,7 @@ impl PageBinding {
     }
     pub fn swap(self, page: std::num::NonZeroUsize) -> bool {
         match self {
-            Self::Left => page.get() % 2 == 0,
+            Self::Left => page.get().is_multiple_of(2),
             Self::Right => page.get() % 2 == 1,
             Self::Auto => false,
         }

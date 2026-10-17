@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/mod.md
-//! @prompt-hash 51d5eb5f
+//! @prompt-hash 3a488b77
 //! @layer L1
 //! @updated 2026-04-30
 
@@ -8,6 +8,7 @@ pub mod args;
 pub mod ast;
 pub mod bib_entry;
 pub mod bib_store;
+pub mod bidi_context;
 pub mod citation_form;
 pub mod color;
 pub mod compiler_features;
@@ -97,6 +98,8 @@ pub mod style;
 pub mod style_chain;
 // P261 — Paint wrapper enum (Solid only) per ADR-0086.
 pub mod paint;
+// Prepared paint carriers; declarative Paint remains separate.
+pub mod frame_paint;
 // P262 — Gradient Linear-only per ADR-0087; activa Paint::Gradient.
 pub mod gradient;
 // P395 — Tiling (pattern fill) per ADR-0017.
@@ -124,5 +127,4 @@ pub mod frame_visitor {
     pub use super::layout_types::{walk_frame_items, FrameVisitor};
 }
 
-#[cfg(test)]
 mod p1431_line_cap_tests;

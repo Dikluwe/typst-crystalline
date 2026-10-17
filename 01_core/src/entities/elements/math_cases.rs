@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_cases.md
-//! @prompt-hash a468a807
+//! @prompt-hash 4bd07957
 //! @layer L1
-//! @updated 2026-06-11
+//! @updated 2026-10-10
 //!
 //! `MathCasesElem` — Lote 2 P317 (família math). Função por ramos `cases(...)`.
 //! Comportamento idêntico ao braço anterior do hub (content-preserving).
@@ -67,18 +67,9 @@ impl Element for MathCasesElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        let children = self
-            .children
-            .iter()
-            .map(|child| child.map_content(transform))
-            .collect::<SourceResult<Vec<_>>>()?;
-        Ok(Content::MathCases(Arc::new(MathCasesElem {
-            children,
-            delim: self.delim,
-            reverse: self.reverse,
-            gap: self.gap,
-            explicit: self.explicit,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathCases(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -87,6 +78,26 @@ impl Element for MathCasesElem {
     {
         // Terminal (math structural; não desce).
         Content::MathCases(Arc::new(self.clone()))
+    }
+}
+
+impl MathCasesElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        Ok(Content::map_children_if_changed(&self.children, transform)?.map(|children| {
+            Content::MathCases(Arc::new(Self {
+                children,
+                delim: self.delim,
+                reverse: self.reverse,
+                gap: self.gap,
+                explicit: self.explicit,
+            }))
+        }))
     }
 }
 

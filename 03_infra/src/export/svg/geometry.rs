@@ -1,14 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/geometry.md
-//! @prompt-hash 5b9f950a
+//! @prompt-hash 46b8c047
 //! @layer L3
 //! @updated 2026-09-26
 
 use super::paints::PaintDefs;
 use super::serialization::{color_to_css, fmt_num, fmt_pair};
-use typst_core::entities::geometry::{PathItem, ShapeKind, Stroke};
+use typst_core::entities::frame_paint::{FramePaint as Paint, FrameStroke as Stroke};
+use typst_core::entities::geometry::{PathItem, ShapeKind};
 use typst_core::entities::layout_types::{Color, Point};
-use typst_core::entities::paint::Paint;
 use xmlwriter::XmlWriter;
 
 pub(super) fn render_line(
@@ -28,6 +28,10 @@ pub(super) fn render_line(
     xml.write_attribute("stroke-linecap", "butt");
     xml.end_element();
 }
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C065: Leaf SVG de Shape usa a geometria resolvida, fill/stroke/fill-rule e PaintDefs para referências locais"
+)]
 pub(super) fn render_shape(
     xml: &mut XmlWriter,
     pos: &Point,
@@ -45,6 +49,9 @@ pub(super) fn render_shape(
     // espessura em cada lado. Usar apenas a caixa geométrica desloca o campo
     // angular e, com alpha, torna a diferença observável nas bordas.
     let stroke_reference = stroke.map(|value| {
+        if matches!(value.paint, Paint::Tiling(_)) {
+            return paint_defs.reference(&value.paint, pos.x.0, pos.y.0, width, height);
+        }
         let outset = value.thickness / 2.0;
         paint_defs.reference(
             &value.paint,
@@ -120,7 +127,11 @@ pub(super) fn render_shape(
         }
         ShapeKind::Path(items) => {
             xml.start_element("path");
-            if let [PathItem::MoveTo(start), PathItem::LineTo(end)] = items.as_slice() {
+            if let ([PathItem::MoveTo(start), PathItem::LineTo(end)], false) = (
+                items.as_slice(),
+                matches!(fill, Some(Paint::Tiling(_)))
+                    || stroke.is_some_and(|s| matches!(s.paint, Paint::Tiling(_))),
+            ) {
                 xml.write_attribute(
                     "transform",
                     &format!(

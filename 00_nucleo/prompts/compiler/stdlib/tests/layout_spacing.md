@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/layout_spacing
-Hash do Código: 45155acb
+Hash do Código: b3d8045f
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/layout_spacing.rs`

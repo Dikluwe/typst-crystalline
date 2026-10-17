@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math/matrix.md
-//! @prompt-hash 9d2a6246
+//! @prompt-hash cd84a51c
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-16
 //!
 //! Opções, leitura de linhas e construção semântica de `math.mat`.
 
@@ -102,11 +102,55 @@ pub(crate) fn math_matrix_augment(
                 .unwrap_or_default();
             let stroke = match dict.get("stroke") {
                 None | Some(Value::Auto) => None,
-                Some(value) => Some(crate::compiler::stdlib::layout::extract_stroke(
-                    value,
-                    "math.mat",
-                    "augment.stroke",
-                )?),
+                Some(value) => {
+                    let mut stroke = crate::compiler::stdlib::layout::extract_stroke(
+                        value,
+                        "math.mat",
+                        "augment.stroke",
+                    )?;
+                    match value {
+                        Value::Length(_) => stroke.specified.thickness = true,
+                        Value::Color(_) => stroke.specified.paint = true,
+                        Value::None
+                        | Value::Bool(_)
+                        | Value::Int(_)
+                        | Value::Float(_)
+                        | Value::Str(_)
+                        | Value::Array(_)
+                        | Value::Dict(_)
+                        | Value::Module(_)
+                        | Value::Datetime(_)
+                        | Value::Func(_)
+                        | Value::Content(_)
+                        | Value::LocatedContent(_, _)
+                        | Value::Auto
+                        | Value::Relative(_)
+                        | Value::Ratio(_)
+                        | Value::Angle(_)
+                        | Value::Stroke(_)
+                        | Value::Fraction(_)
+                        | Value::Align(_)
+                        | Value::Location(_)
+                        | Value::Gradient(_)
+                        | Value::Regex(_)
+                        | Value::Tiling(_)
+                        | Value::Bytes(_)
+                        | Value::Decimal(_)
+                        | Value::Duration(_)
+                        | Value::Version(_)
+                        | Value::Selector(_)
+                        | Value::Symbol(_)
+                        | Value::Args(_)
+                        | Value::State(_)
+                        | Value::Counter(_)
+                        | Value::Label(_)
+                        | Value::Dir(_)
+                        | Value::Path(_)
+                        | Value::Type(_)
+                        | Value::SpotColorant(_) => {}
+                    }
+                    Some(stroke)
+                }
             };
             Ok(Some(MathMatrixAugment { hline, vline, stroke }))
         }
@@ -251,13 +295,37 @@ pub(crate) fn math_matrix_content(args: &Args) -> SourceResult<Content> {
         }
     }
 
+    let named_value_span = |name: &str| {
+        args.occurrences
+            .as_ref()
+            .and_then(|occurrences| {
+                occurrences.iter().rev().find(|occurrence| {
+                    occurrence.name.as_deref() == Some(name)
+                        && !occurrence.value_span.is_detached()
+                })
+            })
+            .map(|occurrence| occurrence.value_span)
+            .unwrap_or(args.span)
+    };
     let mut options = MathMatrixOptions::default();
     if let Some(value) = args.named.get("gap") {
-        apply_math_matrix_option(&mut options, "gap", value, args.span, true)?;
+        apply_math_matrix_option(
+            &mut options,
+            "gap",
+            value,
+            named_value_span("gap"),
+            true,
+        )?;
     }
     for name in ["delim", "align", "augment", "row-gap", "column-gap"] {
         if let Some(value) = args.named.get(name) {
-            apply_math_matrix_option(&mut options, name, value, args.span, true)?;
+            apply_math_matrix_option(
+                &mut options,
+                name,
+                value,
+                named_value_span(name),
+                true,
+            )?;
         }
     }
 
@@ -269,20 +337,19 @@ pub(crate) fn math_matrix_content(args: &Args) -> SourceResult<Content> {
     let mut rows = if array_mode || delimited_mode {
         args.items
             .iter()
-            .map(|value| match value {
-                Value::Array(values) if array_mode && !delimited_mode => {
+            .map(|value| match (array_mode, delimited_mode, value) {
+                (true, false, Value::Array(values)) => {
                     Ok(values.iter().map(math_matrix_cell).collect::<Vec<_>>())
                 }
-                _ if delimited_mode && !array_mode => math_matrix_delimited_row(value)
-                    .ok_or_else(|| {
-                        vec![SourceDiagnostic::error(
-                            args.span,
-                            format!(
-                                "expected array, found {}",
-                                vanilla_type_name_class(value)
-                            ),
-                        )]
-                    }),
+                (false, true, _) => math_matrix_delimited_row(value).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        format!(
+                            "expected array, found {}",
+                            vanilla_type_name_class(value)
+                        ),
+                    )]
+                }),
                 _ => Err(vec![SourceDiagnostic::error(
                     args.span,
                     format!("expected array, found {}", vanilla_type_name_class(value)),
@@ -345,6 +412,42 @@ mod tests {
     use super::*;
 
     #[test]
+    fn matrix_invalid_augment_is_anchored_to_named_value() {
+        let id = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        let aggregate = Span::from_range(id, 8..24);
+        let value_span = Span::from_range(id, 17..19);
+        let args = Args::from_occurrences(
+            aggregate,
+            vec![crate::entities::args::ArgOccurrence {
+                name: Some("augment".into()),
+                value: Value::Array(vec![]),
+                span: Span::from_range(id, 9..19),
+                value_span,
+            }],
+        );
+        let errors = math_matrix_content(&args).unwrap_err();
+        assert_eq!(errors[0].span, value_span);
+        assert_eq!(
+            errors[0].message,
+            "expected integer, dictionary, or none, found array"
+        );
+    }
+
+    #[test]
+    fn augment_length_preserves_only_supplied_thickness() {
+        let dict = [("stroke".into(), Value::Length(Length::pt(2.0)))]
+            .into_iter()
+            .collect();
+        let augment = math_matrix_augment(&Value::Dict(dict), Span::detached())
+            .unwrap()
+            .unwrap();
+        let stroke = augment.stroke.unwrap();
+        assert!(stroke.specified.thickness);
+        assert!(!stroke.specified.paint);
+        assert_eq!(stroke.thickness, 2.0);
+    }
+
+    #[test]
     fn short_row_is_padded_and_specific_gap_overrides_shorthand() {
         let mut args = Args::positional(vec![
             Value::Array(vec![Value::Int(1), Value::Int(2)]),
@@ -362,5 +465,68 @@ mod tests {
         assert_eq!(matrix.row_gap.abs, Length::em(0.7));
         assert_eq!(matrix.column_gap.abs, Length::em(0.3));
         assert!(matrix.explicit.row_gap && matrix.explicit.column_gap);
+    }
+}
+
+#[cfg(test)]
+mod v16_math_value_tests {
+    use super::*;
+    use crate::entities::geometry::{LineCap, LineJoin, Stroke, StrokeFields};
+    use crate::entities::layout_types::Color;
+    use crate::entities::paint::Paint;
+    use std::sync::Arc;
+
+    #[test]
+    fn v16_math_value_matrix_color_shortcut_marks_only_paint() {
+        let color = Color::rgb(10, 20, 30);
+        let dict = [("stroke".into(), Value::Color(color.clone()))].into_iter().collect();
+        let stroke = math_matrix_augment(&Value::Dict(dict), Span::detached())
+            .unwrap()
+            .unwrap()
+            .stroke
+            .unwrap();
+        assert!(stroke.specified.paint);
+        assert!(!stroke.specified.thickness);
+        assert_eq!(stroke.thickness, 1.0);
+        assert_eq!(stroke.paint, Paint::Solid(color));
+    }
+
+    #[test]
+    fn v16_math_value_matrix_existing_stroke_preserves_payload_and_presence() {
+        let original = Arc::new(Stroke {
+            thickness: 3.0,
+            cap: LineCap::Round,
+            join: LineJoin::Bevel,
+            overhang: true,
+            specified: StrokeFields {
+                cap: true,
+                join: true,
+                miter_limit: true,
+                ..StrokeFields::default()
+            },
+            ..Stroke::default()
+        });
+        let dict = [("stroke".into(), Value::Stroke(original.clone()))]
+            .into_iter()
+            .collect();
+        let stroke = math_matrix_augment(&Value::Dict(dict), Span::detached())
+            .unwrap()
+            .unwrap()
+            .stroke
+            .unwrap();
+        assert_eq!(stroke, *original);
+        assert!(!stroke.specified.paint);
+        assert!(!stroke.specified.thickness);
+    }
+
+    #[test]
+    fn v16_math_value_matrix_invalid_stroke_is_rejected_before_presence() {
+        for (value, kind) in [(Value::Bool(false), "bool"), (Value::None, "none")] {
+            let dict = [("stroke".into(), value)].into_iter().collect();
+            let errors =
+                math_matrix_augment(&Value::Dict(dict), Span::detached()).unwrap_err();
+            assert_eq!(errors[0].message, format!("math.mat(augment.stroke): espera Length / Color / Stroke, recebeu {kind}"));
+            assert_eq!(errors[0].span, Span::detached());
+        }
     }
 }

@@ -1,5 +1,5 @@
 # L0 — Explicit OpenType variation axes
-Hash do Código: 8669fc16
+Hash do Código: 5c20bf6b
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/font_variations.rs`

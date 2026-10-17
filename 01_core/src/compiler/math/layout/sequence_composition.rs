@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/sequence_composition.md
-//! @prompt-hash 7f76dd0c
+//! @prompt-hash f09bcb14
 //! @layer L1
-//! @updated 2026-10-01
+//! @updated 2026-10-17
 
 use super::*;
 
@@ -21,13 +21,17 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             let mut filtered: Vec<Content> = flat
                 .into_iter()
                 .filter(|n| {
-                    !matches!(n, Content::MathAlignPoint(_) | Content::Linebreak(_))
+                    !matches!(
+                        n.source_body(),
+                        Content::MathAlignPoint(_) | Content::Linebreak(_)
+                    )
                 })
                 .collect();
             // **P1132m** — `HElem(..., weak:true)` colapsa nas bordas do
             // run. `dif` usa exactamente esse prefixo fino: preserva-o entre
             // dois itens, mas não cria margem em `$dif x$`.
-            let is_weak_hspace = |n: &Content| matches!(n, Content::HSpace(e) if e.weak);
+            let is_weak_hspace =
+                |n: &Content| matches!(n.source_body(), Content::HSpace(e) if e.weak);
             let first_material = filtered.iter().position(|n| !is_weak_hspace(n));
             let last_material = filtered.iter().rposition(|n| !is_weak_hspace(n));
             if let (Some(first), Some(last)) = (first_material, last_material) {
@@ -51,12 +55,132 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 .enumerate()
                 .map(|(index, node)| {
                     let has_next_material =
-                        filtered[index + 1..].iter().any(|next| !match next {
-                            Content::Empty => true,
-                            Content::HSpace(e) if e.weak => true,
-                            _ => false,
-                        });
-                    let Content::MathText(text) = node else {
+                        filtered[index + 1..].iter().any(
+                            |next| !match next.source_body() {
+                                Content::Empty => true,
+                                Content::HSpace(e) if e.weak => true,
+                                Content::Source(_)
+                                | Content::ShowRecipe(_)
+                                | Content::Realized(_)
+                                | Content::Located(_)
+                                | Content::Text(_)
+                                | Content::Space
+                                | Content::SpaceFromNewline
+                                | Content::Parbreak
+                                | Content::Sequence(_)
+                                | Content::HtmlElem(_)
+                                | Content::HtmlFrame(_)
+                                | Content::Par { .. }
+                                | Content::Heading(_)
+                                | Content::Title(_)
+                                | Content::Strong(_)
+                                | Content::Emph(_)
+                                | Content::Raw(_)
+                                | Content::ListItem(_)
+                                | Content::EnumItem(_)
+                                | Content::Link(_)
+                                | Content::Equation(_)
+                                | Content::MathSequence(_)
+                                | Content::MathIdent(_)
+                                | Content::MathText(_)
+                                | Content::MathFrac(_)
+                                | Content::MathAttach(_)
+                                | Content::MathPrimes(_)
+                                | Content::MathRoot(_)
+                                | Content::MathStretch(_)
+                                | Content::MathDelimited(_)
+                                | Content::MathLr(_)
+                                | Content::MathMid(_)
+                                | Content::MathOverbrace(_)
+                                | Content::MathUnderbrace(_)
+                                | Content::MathUnderbracket(_)
+                                | Content::MathUnderparen(_)
+                                | Content::MathUndershell(_)
+                                | Content::MathOverbracket(_)
+                                | Content::MathOverparen(_)
+                                | Content::MathOvershell(_)
+                                | Content::MathAlignPoint(_)
+                                | Content::Linebreak(_)
+                                | Content::MathMatrix(_)
+                                | Content::MathCases(_)
+                                | Content::MathAccent(_)
+                                | Content::MathCancel(_)
+                                | Content::MathUnderline(_)
+                                | Content::MathOverline(_)
+                                | Content::MathVec(_)
+                                | Content::MathClassOverride(_)
+                                | Content::MathLimitsOverride(_)
+                                | Content::MathUnderover(_)
+                                | Content::MathOp(_)
+                                | Content::MathStyled(_)
+                                | Content::Label(_)
+                                | Content::Ref(_)
+                                | Content::CounterDisplay(_)
+                                | Content::CounterUpdate(_)
+                                | Content::Outline(_)
+                                | Content::OutlineEntry(_)
+                                | Content::Figure(_)
+                                | Content::FigureCaption(_)
+                                | Content::Image(_)
+                                | Content::Shape(_)
+                                | Content::Curve(_)
+                                | Content::Transform(_)
+                                | Content::Grid(_)
+                                | Content::GridHeader(_)
+                                | Content::GridFooter(_)
+                                | Content::GridCell(_)
+                                | Content::SetPage(_)
+                                | Content::PageRun(_)
+                                | Content::Align(_)
+                                | Content::Place(_)
+                                | Content::Flush(_)
+                                | Content::Styled(_)
+                                | Content::Divider(_)
+                                | Content::Terms(_)
+                                | Content::TermItem(_)
+                                | Content::Quote(_)
+                                | Content::Document { .. }
+                                | Content::Asset { .. }
+                                | Content::SmartQuote(_)
+                                | Content::PdfAttach(_)
+                                | Content::PdfArtifact(_)
+                                | Content::Underline(_)
+                                | Content::Strike(_)
+                                | Content::Overline(_)
+                                | Content::SmallCaps { .. }
+                                | Content::Pad(_)
+                                | Content::Hide(_)
+                                | Content::HSpace(_)
+                                | Content::VSpace(_)
+                                | Content::Pagebreak(_)
+                                | Content::Colbreak(_)
+                                | Content::Stack(_)
+                                | Content::Boxed(_)
+                                | Content::Block(_)
+                                | Content::TableCell(_)
+                                | Content::Bibliography(_)
+                                | Content::Cite(_)
+                                | Content::Footnote(_)
+                                | Content::FootnoteEntry(_)
+                                | Content::TableHeader(_)
+                                | Content::TableFooter(_)
+                                | Content::GridHLine(_)
+                                | Content::GridVLine(_)
+                                | Content::TableHLine(_)
+                                | Content::TableVLine(_)
+                                | Content::Table(_)
+                                | Content::Repeat(_)
+                                | Content::Columns(_)
+                                | Content::Metadata(_)
+                                | Content::State(_)
+                                | Content::StateUpdate(_)
+                                | Content::StateDisplay(_)
+                                | Content::CounterDisplayCallback(_)
+                                | Content::ContextBlock(_)
+                                | Content::Dynamic(_) => false,
+                            },
+                        );
+                    let Content::MathText(text) = node.source_body() else {
                         return (node.clone(), false);
                     };
                     let trimmed = text.trim_end_matches(char::is_whitespace);
@@ -69,7 +193,11 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                         });
                     if has_next_material && trimmed.len() != text.len() && is_punctuation
                     {
-                        (Content::MathText(trimmed.into()), true)
+                        (
+                            Content::MathText(trimmed.into())
+                                .with_source_span(node.source_span()),
+                            true,
+                        )
                     } else {
                         (node.clone(), false)
                     }
@@ -85,8 +213,12 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 if !was_normalized {
                     continue;
                 }
-                if let Some(Content::Text(text)) = spacing_view.get(index + 1).cloned() {
-                    spacing_view[index + 1] = Content::MathText(text);
+                if let Some(next) = spacing_view.get(index + 1) {
+                    if let Content::Text(text) = next.source_body() {
+                        let replacement = Content::MathText(text.clone())
+                            .with_source_span(next.source_span());
+                        spacing_view[index + 1] = replacement;
+                    }
                 }
             }
             let text_space_pt = self.metrics.advance(" ", style.size, style).val();

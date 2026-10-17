@@ -1,5 +1,5 @@
 # Prompt L0 — Sink
-Hash do Código: 2602b896
+Hash do Código: 55084846
 
 ## Módulo
 `01_core/src/entities/sink.rs`
@@ -82,3 +82,15 @@ O bloco tracked vive em `01_core/src/entities/world_types.rs`
 - ADR-0042 — formalização.
 - ADR-0017 — `Sink` listado como stub inicial.
 - ADR-0036 — DEBT-49 propagará `sink: &mut Sink` pelas eval_*.
+
+## Default derivado com valor preservado — 2026-10-13
+
+### Medição anterior à decisão
+
+`01_core/src/entities/sink.rs:73` contém a implementação manual de Default sinalizada pelo Clippy. O corpo existente retorna a mesma variante ou inicializa cada campo pelo seu default. O tipo não é genérico, portanto a derivação não acrescenta bounds a parâmetros públicos. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, spans, UTC, status e diffstat estão em `00_nucleo/diagnosticos/expressoes-defaults-ci-2026-10-13/before.json.gz`. É evidência de implementação, não nova medição de paridade ou desempenho.
+
+### Decisão e aceitação
+
+Substituir somente a implementação manual de Default por derive(Default), conservando o trait já implementado e seu valor. Sink mantém diagnostics vazio e seen vazio, cada campo pelo seu Default existente, na mesma ordem. Preservar Clone, deduplicação, ordem e integração comemo. Os exemplos anteriores de impl Default explicitam o valor exigido; a derivação equivalente passa a ser a forma desta implementação.
+
+Não alterar assinatura pública, campos, variantes, comportamento padrão do produto ou fase. Correção mecânica interna em fluxo contínuo ADR-0127. Preservar testes e expectativas; validar todos os targets do workspace, suíte core, registro de testes, build, rustdoc, Clippy e linhagem.

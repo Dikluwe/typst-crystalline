@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/measurement.md
-//! @prompt-hash a05adbfd
+//! @prompt-hash 2c082f8e
 //! @layer L1
-//! @updated 2026-10-03
+//! @updated 2026-10-07
 
 use crate::entities::{
     content::Content,
@@ -16,6 +16,38 @@ use super::metrics::FontMetrics;
 use super::{
     block, curve, resolve_pt, sub_frame, Layouter, COLUMNS_DEFAULT_GUTTER_RATIO,
 };
+
+/// Positive certificate for sequences whose children share an inline flow.
+fn inline_flow(content: &Content) -> bool {
+    if matches!(
+        content,
+        Content::Empty | Content::Text(_) | Content::Space | Content::SpaceFromNewline
+    ) {
+        return true;
+    }
+    if let Content::Sequence(children) = content {
+        return children.iter().all(inline_flow);
+    }
+    if let Content::Styled(e) = content {
+        return inline_flow(&e.body);
+    }
+    if let Content::Strong(e) = content {
+        return inline_flow(&e.body);
+    }
+    if let Content::Emph(e) = content {
+        return inline_flow(&e.body);
+    }
+    if let Content::Source(e) = content {
+        return inline_flow(&e.body);
+    }
+    if let Content::Realized(e) = content {
+        return inline_flow(&e.visual);
+    }
+    if let Content::Located(e) = content {
+        return inline_flow(&e.body);
+    }
+    false
+}
 
 impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     // ── Auxiliares de Grid (Passo 80) ─────────────────────────────────────
@@ -57,6 +89,48 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         }
     }
 
+    /// Measure an inline flow in a separate domain instance, never the emitter.
+    fn measure_inline_flow(&self, content: &Content, width: f64) -> (f64, f64) {
+        use comemo::Track;
+        let intr = crate::entities::introspector::TagIntrospector::empty();
+        let metrics: &dyn FontMetrics = &self.metrics;
+        let mut isolated = Layouter::new(
+            metrics,
+            NullImageSizer,
+            self.style.size.0,
+            (&intr as &dyn crate::entities::introspector::Introspector).track(),
+        );
+        isolated.chain = self.chain.clone();
+        isolated.style = self.style.clone();
+        isolated.explicit_line_alignment =
+            Some(crate::entities::layout_types::HAlign::Left);
+        let (height, items, _, _, _) = isolated.layout_sub_frame(
+            content,
+            sub_frame::SubLayoutRegion {
+                origin_x: 0.0,
+                width,
+                height: None,
+                align_rtl: false,
+                unconstrained_height: true,
+            },
+        );
+        let refs: Vec<_> = items.iter().collect();
+        let visual_right = self.metrics.line_content_right(&refs);
+        let literal_right = items
+            .iter()
+            .filter_map(|item| match item {
+                FrameItem::TextSeparator {
+                    pos,
+                    advance,
+                    origin: crate::entities::layout_types::TextSeparatorOrigin::Literal,
+                    ..
+                } => Some(pos.x.0 + advance.0),
+                _ => None,
+            })
+            .fold(0.0_f64, f64::max);
+        (visual_right.max(literal_right).min(width), height)
+    }
+
     /// Mede conteúdo com restrição de largura máxima.
     ///
     /// Usado pelo algoritmo de grid para determinar a largura das colunas Auto.
@@ -67,6 +141,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         max_width: f64,
     ) -> (f64, f64) {
         match content {
+            Content::Realized(e) => {
+                self.measure_content_constrained(&e.visual, max_width)
+            }
+            Content::Located(e) => self.measure_content_constrained(&e.body, max_width),
+            Content::Source(e) => self.measure_content_constrained(&e.body, max_width),
+            Content::ShowRecipe(e) => {
+                self.measure_content_constrained(&e.body, max_width)
+            }
             Content::Text(text) => {
                 let mut max_line_w = 0.0_f64;
                 let mut current_w = 0.0_f64;
@@ -99,6 +181,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             Content::Sequence(children) => {
+                if max_width.is_finite() && max_width > 0.0 && inline_flow(content) {
+                    return self.measure_inline_flow(content, max_width);
+                }
                 let mut total_h = 0.0_f64;
                 let mut max_w = 0.0_f64;
                 for child in children.iter() {
@@ -195,16 +280,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let inset_r = inset.right.resolve_pt(font);
                 let inset_t = inset.top.resolve_pt(font);
                 let inset_b = inset.bottom.resolve_pt(font);
-                let body_max = match width {
-                    Some(w) => w.resolve_pt(font).min(max_width - inset_l - inset_r),
-                    None => (max_width - inset_l - inset_r).max(0.0),
+                let body_max = if e.width_fraction.is_none() {
+                    (width.map_or(max_width, |w| w.resolve_pt(font)) - inset_l - inset_r)
+                        .max(0.0)
+                } else {
+                    (max_width - inset_l - inset_r).max(0.0)
                 };
                 let (bw, bh) = self.measure_content_constrained(body, body_max);
-                let total_w = bw + inset_l + inset_r;
-                let body_h_with_inset = bh + inset_t + inset_b;
-                let total_h = match height {
-                    Some(h) => h.resolve_pt(font).max(body_h_with_inset),
-                    None => body_h_with_inset,
+                let natural_w = bw + inset_l + inset_r;
+                let natural_h = bh + inset_t + inset_b;
+                let (total_w, total_h) = if e.width_fraction.is_none() {
+                    (
+                        width.map_or(natural_w, |w| w.resolve_pt(font).max(0.0)),
+                        height.map_or(natural_h, |h| h.resolve_pt(font).max(0.0)),
+                    )
+                } else {
+                    (
+                        natural_w,
+                        height.map_or(natural_h, |h| h.resolve_pt(font).max(natural_h)),
+                    )
                 };
                 (total_w, total_h)
             }
@@ -421,8 +515,8 @@ pub(in crate::compiler) fn measure_content_real_with_baseline(
         (top.val(), -bottom.val())
     };
 
-    let inline_ascent = layouter.line_inline_ascent.max(0.0);
-    let inline_descent = layouter.line_inline_descent.max(0.0);
+    let inline_ascent = layouter.last_sub_frame_inline_extents.0.max(0.0);
+    let inline_descent = layouter.last_sub_frame_inline_extents.1.max(0.0);
     let has_inline_frame = inline_ascent > 0.0 || inline_descent > 0.0;
 
     let (height, baseline) = if has_inline_frame {
@@ -443,8 +537,64 @@ pub(in crate::compiler) fn measure_content_real_with_baseline(
 #[cfg(test)]
 mod smoke {
     #[test]
+    fn realization_transports_preserve_constrained_measurement() {
+        use super::*;
+        use crate::compiler::layout::FixedMetrics;
+        use crate::entities::content::{LocatedContent, RealizedContent};
+        use crate::entities::locator::Locator;
+        use comemo::Track;
+        use std::sync::Arc;
+        let metrics = FixedMetrics;
+        let intr = crate::entities::introspector::TagIntrospector::empty();
+        let intr_dyn: &dyn crate::entities::introspector::Introspector = &intr;
+        let mut layouter = Layouter::new(metrics, NullImageSizer, 10.0, intr_dyn.track());
+        let body = Content::text("AB");
+        let expected = layouter.measure_content_constrained(&body, 1000.0);
+        let realized = Content::Realized(Arc::new(RealizedContent {
+            original: Content::text("A much longer consumed original"),
+            visual: body.clone(),
+        }));
+        let located = Content::Located(Arc::new(LocatedContent {
+            location: Locator::new().next(),
+            body,
+        }));
+        assert_eq!(layouter.measure_content_constrained(&realized, 1000.0), expected);
+        assert_eq!(layouter.measure_content_constrained(&located, 1000.0), expected);
+    }
+
+    #[test]
     fn module_compila_e_carrega() {
         // Cobertura funcional: `compiler::layout::tests`, inclusive os casos
         // de medida constrangida, baseline e estilos aninhados.
+    }
+}
+
+#[cfg(test)]
+mod inline_flow_regression {
+    use super::*;
+    use comemo::Track;
+    #[test]
+    fn inline_sequence_is_measured_as_one_flow() {
+        use crate::entities::{dir::Dir, style::Styles, value::Value};
+        let intr = crate::entities::introspector::TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn crate::entities::introspector::Introspector).track(),
+        );
+        let body = Content::sequence(vec![
+            Content::styled(
+                Content::text("ABC"),
+                Styles::new().push_custom("text.dir", Value::Dir(Dir::LTR)),
+            ),
+            Content::Space,
+            Content::text("DEF"),
+        ]);
+        let expected = l.metrics.text_width("ABC DEF", l.style.size, &l.style).0;
+        let before = l.regions.current.cursor_x;
+        let (width, _) = l.measure_content_constrained(&body, 1000.0);
+        assert!((width - expected).abs() < 1e-6, "width={width} expected={expected}");
+        assert_eq!(l.regions.current.cursor_x, before);
     }
 }

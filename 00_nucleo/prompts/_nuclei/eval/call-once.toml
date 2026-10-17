@@ -1,0 +1,34 @@
+tekt = 1
+kind = "nucleus"
+id = "eval-call-once"
+title = "Resolução e efeitos uma vez por chamada"
+
+[[claims]]
+id = "receiver-ownership"
+level = "must"
+statement = "Uma chamada conserva seu receiver efetivamente resolvido ao atravessar interceptores e fallback. Cache é local à chamada, sem memoização global/por texto; clones de coleções não substituem transferência de ownership e empréstimo."
+
+[[claims]]
+id = "lazy-arguments"
+level = "must"
+statement = "Resolver método/callee e seus gates antes de avaliar argumentos de chamada comum; método desconhecido não executa argumentos. Coleções avaliam argumentos só depois de reconhecer a operação na tabela estática única, uma vez e com spans/occurrences intactos."
+
+[[claims]]
+id = "mutating-order"
+level = "must"
+statement = "Métodos mutantes preservam a ordem especial argumentos, local mutável, operação. Se o local permite fallback para campo chamável, transportar o receiver resolvido e os Args já avaliados; nunca reavaliar o alvo/argumentos nem mutar uma cópia temporária."
+
+[[claims]]
+id = "callee-fallback"
+level = "must"
+statement = "Seletores, conteúdo e interceptores contextuais conservam receivers/callee quando não interceptam; despacho final recebe o valor e Args resolvidos, mantendo políticas de field access, span, trace, contexto, aliases e prioridades."
+
+[[claims]]
+id = "no-compensating-effects"
+level = "must-not"
+statement = "Identificar uma função por seu nome para isolar scopes, truncar arrays, apagar efeitos ou compensar contagens de avaliação. Argumentos matemáticos seguem uma avaliação causal normal; a preparação/inserção matemática mantém sua fase e carriers próprios."
+
+[[claims]]
+id = "static-surface"
+level = "must"
+statement = "Preservar APIs Rust externas, catálogo estático de métodos e suas extensões Tekt, callbacks, esquema de argumentos, defaults e pureza L1. Nenhuma vtable, registry dinâmico, nova feature ou mudança de fase é autorizada."

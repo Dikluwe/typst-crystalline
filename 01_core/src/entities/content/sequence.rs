@@ -7,6 +7,11 @@
 use super::*;
 
 impl Content {
+    /// Cria uma sequência, normalizando casos degenerados.
+    ///
+    /// - 0 partes → `Empty`
+    /// - 1 parte → desembrulha (evita `Sequence([x])`)
+    /// - n > 1 → `Sequence(parts)`
     pub fn sequence(parts: Vec<Content>) -> Self {
         match parts.len() {
             0 => Self::Empty,

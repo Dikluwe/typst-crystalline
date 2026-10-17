@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/calc/round.md
-//! @prompt-hash 10025b9b
+//! @prompt-hash 74b3396f
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -64,9 +64,9 @@ pub(crate) fn calc_round(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     // P491 — arg nomeado `digits` (default 0). Apenas `digits` é aceite como named arg.
-    let digits: i32 = match args.named.get("digits") {
+    let digits: i64 = match args.named.get("digits") {
         Some(v) => match v {
-            Value::Int(i) => *i as i32,
+            Value::Int(i) => *i,
             other => {
                 return err(format!(
                     "calc.round() argumento 'digits' requer Int, recebeu {}",
@@ -92,6 +92,7 @@ pub(crate) fn calc_round(
         // P817-D — paridade vanilla: `round(Int)` → `Int`. `digits` > 0 é
         // no-op; `digits` < 0 arredonda antes do ponto (away from zero).
         [Value::Int(i)] => {
+            let digits = digits.clamp(i64::from(i16::MIN), i64::from(i16::MAX)) as i32;
             if digits >= 0 {
                 Ok(Value::Int(*i))
             } else {
@@ -105,23 +106,30 @@ pub(crate) fn calc_round(
         }
         // P817-D — paridade vanilla: `round(Float)` → `Float` (não `Int`).
         [Value::Float(f)] => {
+            let digits = digits.clamp(i64::from(i16::MIN), i64::from(i16::MAX)) as i32;
             if digits == 0 {
                 Ok(Value::Float(f.round()))
-            } else if digits >= 15 {
-                // Paridade vanilla `round_with_precision`: precisão ≥ 15 é no-op.
+            } else if digits >= 15
+                || (digits > 0 && f.is_finite() && f.abs() >= 9_007_199_254_740_992.0)
+            {
+                // Precisão ≥ 15 ou mantissa inteira já preenchida: no-op.
                 Ok(Value::Float(*f))
             } else if digits < -308 {
                 // Além de qualquer dígito representável → zero com sinal.
                 Ok(Value::Float(*f * 0.0))
             } else {
-                let factor = 10f64.powi(digits);
-                #[allow(clippy::disallowed_methods)]
-                guard_float((f * factor).round() / factor)
+                let factor = libm::exp10(f64::from(digits.abs()));
+                guard_float(if digits > 0 {
+                    (f * factor).round() / factor
+                } else {
+                    (f / factor).round() * factor
+                })
             }
         }
         // P817-D — paridade vanilla: `round(Decimal)` → `Decimal`
         // (midpoint away from zero).
         [Value::Decimal(d)] => {
+            let digits = digits.clamp(i64::from(i32::MIN), i64::from(i32::MAX)) as i32;
             d.round_with_digits(digits).map(Value::Decimal).ok_or_else(|| {
                 vec![SourceDiagnostic::error(
                     args.span,
@@ -223,6 +231,92 @@ pub(crate) fn calc_fract(
 mod tests {
     use super::super::calc_test_support::call;
     use super::*;
+    use crate::entities::decimal::Decimal;
+
+    fn round(value: Value, digits: i64) -> SourceResult<Value> {
+        fn with_digits(
+            ctx: &mut EvalContext,
+            args: &Args,
+            world: &dyn crate::contracts::world::World,
+            file: FileId,
+        ) -> SourceResult<Value> {
+            let mut named = Args::positional(vec![args.items[0].clone()]);
+            named.named.insert("digits".into(), args.items[1].clone());
+            calc_round(ctx, &named, world, file)
+        }
+        call(with_digits, vec![value, Value::Int(digits)])
+    }
+
+    #[test]
+    fn finite_large_values_avoid_intermediate_overflow() {
+        for value in [1e308, -1e308] {
+            assert_eq!(round(Value::Float(value), 1).unwrap(), Value::Float(value));
+        }
+        for (value, expected) in [(1e308, 1e308), (1.4e308, 1e308), (-1.4e308, -1e308)] {
+            assert_eq!(round(Value::Float(value), -308).unwrap(), Value::Float(expected));
+        }
+    }
+
+    #[test]
+    fn wide_precision_saturates_without_wrapping() {
+        for digits in [1i64 << 32, i64::MAX] {
+            for value in [
+                Value::Int(125),
+                Value::Float(1.25),
+                Value::Decimal(Decimal::new(125, 2)),
+            ] {
+                assert_eq!(round(value.clone(), digits).unwrap(), value);
+            }
+        }
+        for digits in [-(1i64 << 32), i64::MIN] {
+            for (value, expected) in [
+                (Value::Int(125), Value::Int(0)),
+                (Value::Float(1.25), Value::Float(0.0)),
+                (
+                    Value::Decimal(Decimal::new(125, 2)),
+                    Value::Decimal(Decimal::new(0, 0)),
+                ),
+            ] {
+                assert_eq!(round(value, digits).unwrap(), expected);
+            }
+        }
+    }
+
+    #[test]
+    fn ties_and_signed_zero_remain_observable() {
+        for (value, expected) in [(1250.0, 1300.0), (-1250.0, -1300.0)] {
+            assert_eq!(round(Value::Float(value), -2).unwrap(), Value::Float(expected));
+        }
+        for (value, digits) in [(-0.4, 0), (-1e-300, -309), (-1.0, i64::MIN)] {
+            let Value::Float(result) = round(Value::Float(value), digits).unwrap() else {
+                panic!("round(float) must preserve the language type");
+            };
+            assert_eq!(result, 0.0);
+            assert!(result.is_sign_negative());
+        }
+    }
+
+    #[test]
+    fn existing_nonfinite_and_overflow_policy_is_preserved() {
+        for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+            assert!(round(Value::Float(value), 2).is_err());
+        }
+        for value in [1.6e308, -1.6e308] {
+            assert!(round(Value::Float(value), -308).is_err());
+        }
+        assert!(round(Value::Int(i64::MAX), -1).is_err());
+        for digits in [0, 15, i64::MAX] {
+            assert_eq!(
+                round(Value::Float(f64::INFINITY), digits).unwrap(),
+                Value::Float(f64::INFINITY)
+            );
+        }
+        let Value::Float(value) = round(Value::Float(f64::INFINITY), -309).unwrap()
+        else {
+            panic!("round(float) must preserve the language type");
+        };
+        assert!(value.is_nan());
+    }
 
     #[test]
     fn preserves_modeled_result() {

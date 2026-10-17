@@ -1,5 +1,5 @@
 # L0 — title
-Hash do Código: 3da4144c
+Hash do Código: 258432f8
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/title.rs`

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/shapes/paint.md
-//! @prompt-hash 84599476
+//! @prompt-hash 1f44e3b0
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -42,6 +42,9 @@ pub(in crate::compiler::stdlib) fn parse_paint(
 
 /// Preserva o stroke rico já produzido pelo avaliador.
 pub(super) fn parse_shape_stroke(val: &Value, fn_name: &str) -> SourceResult<Stroke> {
+    if matches!(val, Value::Gradient(_) | Value::Tiling(_) | Value::Dict(_)) {
+        return crate::compiler::stdlib::layout::positional_stroke(val, Span::detached());
+    }
     if let Some(color) = parse_color(val) {
         return Ok(Stroke {
             paint: Paint::Solid(color),

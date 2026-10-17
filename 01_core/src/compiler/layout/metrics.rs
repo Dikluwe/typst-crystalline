@@ -258,10 +258,14 @@ pub trait FontMetrics: Send + Sync {
         items
             .iter()
             .copied()
-            .filter(|item| !super::html_frame::is_context_marker(item) && !matches!(item, FrameItem::TextSeparator { .. }))
+            .filter(|item| {
+                !super::html_frame::is_context_marker(item)
+                    && !matches!(item, FrameItem::TextSeparator { .. })
+            })
             .map(|item| {
                 let x = match item {
-                    FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
+                    FrameItem::TextSeparator { pos, .. }
+                    | FrameItem::Text { pos, .. }
                     | FrameItem::TextShaped { pos, .. }
                     | FrameItem::Glyph { pos, .. }
                     | FrameItem::Image { pos, .. }
@@ -269,7 +273,8 @@ pub trait FontMetrics: Send + Sync {
                     | FrameItem::Group { pos, .. }
                     | FrameItem::Link { pos, .. } => pos.x.0,
                     FrameItem::Line { start, .. } => start.x.0,
-                    FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items
+                    FrameItem::TextReplacement { items, .. }
+                    | FrameItem::Semantic { items, .. } => items
                         .first()
                         .map(|child| crate::compiler::layout::helpers::item_pos(child).0)
                         .unwrap_or(0.0),
@@ -290,7 +295,8 @@ pub trait FontMetrics: Send + Sync {
                     FrameItem::Shape { width, .. } => *width,
                     FrameItem::Group { inner_width, .. } => *inner_width,
                     FrameItem::Link { size, .. } => size.width.0,
-                    FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
+                    FrameItem::TextReplacement { items, .. }
+                    | FrameItem::Semantic { items, .. } => {
                         let refs: Vec<&FrameItem> = items.iter().collect();
                         let right = self.line_content_right(&refs);
                         let left = items

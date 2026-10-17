@@ -71,6 +71,65 @@ pub(crate) fn grid_axis_baseline(height: f64, axis: f64) -> f64 {
     height / 2.0 + axis
 }
 
+/// **P970** — subida da baseline do índice de raiz (`root(n, x)`).
+/// Transcrição literal de `layout_radical`,
+/// `lab/typst-original/crates/typst-layout/src/math/radical.rs:94`:
+/// `shift_up = raise × (inner_ascent − descent) + index.descent` —
+/// `inner_ascent = sqrt_ascent + RadicalExtraAscender`, `descent` =
+/// profundidade do surd esticado (`sqrt.height − sqrt_ascent`,
+/// `radical.rs:79`). A baseline do índice fica a `−shift_up` da baseline
+/// do composto (tradução da posição top-anchored `radical.rs:114` para a
+/// convenção baseline-relativa — `root.md` §P970 Parte 2).
+pub(crate) fn radical_degree_shift_up(
+    raise: f64,
+    inner_ascent: f64,
+    descent: f64,
+    index_descent: f64,
+) -> f64 {
+    raise * (inner_ascent - descent) + index_descent
+}
+
+/// **P970** — deslocamento horizontal que o índice impõe ao √/radicando
+/// (`radical.rs:87`): `sqrt_offset = kern_before + index.width +
+/// kern_after` (kern_after tipicamente negativo). O √ desloca-se para
+/// `max(sqrt_offset, 0)` (`radical.rs:98`) e o índice fica em
+/// `−min(sqrt_offset, 0) + kern_before` (`radical.rs:113`).
+pub(crate) fn radical_sqrt_offset(
+    kern_before: f64,
+    index_width: f64,
+    kern_after: f64,
+) -> f64 {
+    kern_before + index_width + kern_after
+}
+
+/// **P1130** — redistribuição do excesso de altura do `√` escolhido de
+/// volta para o gap barra→radicando (TeXbook p443, item 11). Transcrição
+/// literal de `layout_radical`,
+/// `lab/typst-original/crates/typst-layout/src/math/radical.rs:76`:
+/// `gap = gap.max((sqrt.height() - thickness - radicand.height() + gap) /
+/// 2.0)`. As variantes verticais só existem em tamanhos discretos — a
+/// variante seleccionada raramente bate no alvo exacto e é quase sempre
+/// mais alta; sem esta redistribuição o gap fica preso ao mínimo mesmo
+/// quando o glifo escolhido sobra altura (achado do Passo 1130).
+pub(crate) fn radical_gap_redistribution(
+    gap: f64,
+    sqrt_height: f64,
+    thickness: f64,
+    radicand_height: f64,
+) -> f64 {
+    gap.max((sqrt_height - thickness - radicand_height + gap) / 2.0)
+}
+
+/// **P971** — kern do subscrito pós-fixado de uma base inclinada.
+/// Transcrição literal de `compute_post_script_widths`,
+/// `lab/typst-original/crates/typst-layout/src/math/scripts.rs:220-228`:
+/// `br_kern = math_kern(base, br, shift, BottomRight) −
+/// base.italics_correction()` — "a bounding box da base já conta com a
+/// italic correction". O sobrescrito não leva termo (`tr_kern` puro).
+pub(crate) fn post_subscript_kern(kern: f64, base_italics_correction: f64) -> f64 {
+    kern - base_italics_correction
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -135,63 +194,4 @@ mod tests {
             gap + 1.0
         );
     }
-}
-
-/// **P970** — subida da baseline do índice de raiz (`root(n, x)`).
-/// Transcrição literal de `layout_radical`,
-/// `lab/typst-original/crates/typst-layout/src/math/radical.rs:94`:
-/// `shift_up = raise × (inner_ascent − descent) + index.descent` —
-/// `inner_ascent = sqrt_ascent + RadicalExtraAscender`, `descent` =
-/// profundidade do surd esticado (`sqrt.height − sqrt_ascent`,
-/// `radical.rs:79`). A baseline do índice fica a `−shift_up` da baseline
-/// do composto (tradução da posição top-anchored `radical.rs:114` para a
-/// convenção baseline-relativa — `root.md` §P970 Parte 2).
-pub(crate) fn radical_degree_shift_up(
-    raise: f64,
-    inner_ascent: f64,
-    descent: f64,
-    index_descent: f64,
-) -> f64 {
-    raise * (inner_ascent - descent) + index_descent
-}
-
-/// **P970** — deslocamento horizontal que o índice impõe ao √/radicando
-/// (`radical.rs:87`): `sqrt_offset = kern_before + index.width +
-/// kern_after` (kern_after tipicamente negativo). O √ desloca-se para
-/// `max(sqrt_offset, 0)` (`radical.rs:98`) e o índice fica em
-/// `−min(sqrt_offset, 0) + kern_before` (`radical.rs:113`).
-pub(crate) fn radical_sqrt_offset(
-    kern_before: f64,
-    index_width: f64,
-    kern_after: f64,
-) -> f64 {
-    kern_before + index_width + kern_after
-}
-
-/// **P1130** — redistribuição do excesso de altura do `√` escolhido de
-/// volta para o gap barra→radicando (TeXbook p443, item 11). Transcrição
-/// literal de `layout_radical`,
-/// `lab/typst-original/crates/typst-layout/src/math/radical.rs:76`:
-/// `gap = gap.max((sqrt.height() - thickness - radicand.height() + gap) /
-/// 2.0)`. As variantes verticais só existem em tamanhos discretos — a
-/// variante seleccionada raramente bate no alvo exacto e é quase sempre
-/// mais alta; sem esta redistribuição o gap fica preso ao mínimo mesmo
-/// quando o glifo escolhido sobra altura (achado do Passo 1130).
-pub(crate) fn radical_gap_redistribution(
-    gap: f64,
-    sqrt_height: f64,
-    thickness: f64,
-    radicand_height: f64,
-) -> f64 {
-    gap.max((sqrt_height - thickness - radicand_height + gap) / 2.0)
-}
-
-/// **P971** — kern do subscrito pós-fixado de uma base inclinada.
-/// Transcrição literal de `compute_post_script_widths`,
-/// `lab/typst-original/crates/typst-layout/src/math/scripts.rs:220-228`:
-/// `br_kern = math_kern(base, br, shift, BottomRight) −
-/// base.italics_correction()` — "a bounding box da base já conta com a
-/// italic correction". O sobrescrito não leva termo (`tr_kern` puro).
-pub(crate) fn post_subscript_kern(kern: f64, base_italics_correction: f64) -> f64 {
-    kern - base_italics_correction
 }

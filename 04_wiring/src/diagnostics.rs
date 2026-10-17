@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/diagnostics.md
-//! @prompt-hash c6e4d69b
+//! @prompt-hash b45b6b83
 //! @layer L4
-//! @updated 2026-09-26
+//! @updated 2026-10-06
 
 use std::path::Path;
 use typst_core::contracts::world::World;
@@ -61,8 +61,8 @@ pub(super) fn drain_to_stderr_with_primary(
                 };
                 let display = cwd
                     .as_deref()
-                    .and_then(|base| path.strip_prefix(base).ok())
-                    .unwrap_or(&path)
+                    .and_then(|base| pathdiff::diff_paths(&path, base))
+                    .unwrap_or(path)
                     .display()
                     .to_string();
                 Some(DiagnosticSource::new(source, display))

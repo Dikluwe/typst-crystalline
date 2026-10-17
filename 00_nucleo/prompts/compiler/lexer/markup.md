@@ -1,6 +1,6 @@
 # L0 — lexer/markup
+Hash do Código: 232437b4
 
-Hash do Código: 4c2bac88
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/lexer/mode-boundaries.toml sha256:aae80d538980eeec87b884712269e3b777fe44c0dae6b3503b5fa9ee4f9ad76f

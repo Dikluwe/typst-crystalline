@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "watch-source-generation"
+title = "Reuso sintático validado por edição"
+
+[[claims]]
+id = "exact-current-source"
+level = "must"
+statement = "Um hit sintático exige leitura atual bem-sucedida, caminho canônico físico, FileId atribuído pelo World corrente e texto UTF-8 integral iguais; hash ou metadata não bastam."
+
+[[claims]]
+id = "fresh-world"
+level = "must"
+statement = "IDs/mapas/dependências/bytes/inputs/plugins/clock e caches restantes continuam por World; a sessão nunca restaura IDs ou dispensa resolução e registro atuais."
+
+[[claims]]
+id = "syntax-only"
+level = "must-not"
+statement = "Não guardar Module, Func, efeito, diagnóstico emitido, frame, Location, fonte ou transiente na sessão; somente Source markup física imutável, sem mudar fase ou avaliação."
+
+[[claims]]
+id = "bounded-lifetime"
+level = "must"
+statement = "A sessão pertence a uma chamada watch, sem estado global/disco/unsafe, com LRU limitada a 8 entradas, 1 MiB de texto agregado e 512 KiB por entrada; orçamento não promete RSS."

@@ -1,5 +1,5 @@
 # L0 — stdlib/html/attr_specs
-Hash do Código: 9ea428f5
+Hash do Código: c47447c6
 
 ## Ownership e medição
 

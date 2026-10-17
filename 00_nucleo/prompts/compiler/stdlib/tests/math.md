@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/math
-Hash do Código: aece2733
+Hash do Código: 4bd8eadb
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/math.rs`

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/numbering.md
-//! @prompt-hash 31f4c4ce
+//! @prompt-hash 900dddab
 //! @layer L1
 //! @updated 2026-07-23
 //!
@@ -165,7 +165,7 @@ pub(crate) fn format_pattern(
     let mut result = String::new();
     let mut numbers_iter = numbers.iter();
 
-    for (idx, (prefix, symbol)) in pieces.iter().enumerate() {
+    for (prefix, symbol) in &pieces {
         if let Some(&n) = numbers_iter.next() {
             result.push_str(prefix);
             let formatted_num = format_numeral(engine, span, *symbol, n)?;
@@ -299,7 +299,7 @@ fn to_hebrew_numeral(mut n: u32) -> String {
     let thousands = n / 1000;
     if thousands > 0 {
         result.push_str(&to_hebrew_numeral(thousands));
-        result.push_str("'");
+        result.push('\'');
         n %= 1000;
     }
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/calc/logarithms.md
-//! @prompt-hash 928602e9
+//! @prompt-hash 4b1dfd2f
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -12,7 +12,7 @@ pub(crate) fn calc_exp(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    unary_f64("calc.exp", args, f64::exp)
+    unary_f64("calc.exp", args, libm::exp)
 }
 
 pub(crate) fn calc_ln(
@@ -30,8 +30,7 @@ pub(crate) fn calc_ln(
                     "calc.ln() valor deve ser estritamente positivo, recebeu {x}"
                 ));
             }
-            #[allow(clippy::disallowed_methods)]
-            let r = f64::ln(x);
+            let r = libm::log(x);
             guard_float(r)
         }
         _ => err(format!("calc.ln() requer 1 argumento, recebeu {}", args.items.len())),
@@ -96,15 +95,14 @@ pub(crate) fn calc_log(
     // P817-F — paridade vanilla (`calc.rs:506-515`): despacho por base
     // exacta. `ln(x)/ln(10)` dava `log(1000) = 2.9999999999999996`; o
     // vanilla despacha base 10 para `libm::log10` (resultado `3`).
-    #[allow(clippy::disallowed_methods)]
     let r = if base == std::f64::consts::E {
-        f64::ln(x)
+        libm::log(x)
     } else if base == 2.0 {
-        f64::log2(x)
+        libm::log2(x)
     } else if base == 10.0 {
-        f64::log10(x)
+        libm::log10(x)
     } else {
-        f64::ln(x) / f64::ln(base)
+        libm::log(x) / libm::log(base)
     };
     guard_float(r)
 }
@@ -125,8 +123,7 @@ pub(crate) fn calc_log10(
                     "calc.log10() valor deve ser estritamente positivo, recebeu {x}"
                 ));
             }
-            #[allow(clippy::disallowed_methods)]
-            guard_float(f64::log10(x))
+            guard_float(libm::log10(x))
         }
         _ => {
             err(format!("calc.log10() requer 1 argumento, recebeu {}", args.items.len()))
@@ -162,5 +159,29 @@ mod tests {
     #[test]
     fn preserves_modeled_result() {
         assert_eq!(call(calc_log, vec![Value::Int(100)]).unwrap(), Value::Float(2.0));
+    }
+
+    #[test]
+    fn transcendental_log_bases_and_domains() {
+        for (number, base, expected) in [(1000, 10, 3.0), (8, 2, 3.0), (81, 3, 4.0)] {
+            let Value::Float(value) =
+                call(calc_log, vec![Value::Int(number), Value::Int(base)]).unwrap()
+            else {
+                panic!("log must return float");
+            };
+            assert!((value - expected).abs() < 1e-14);
+        }
+        let Value::Float(value) = call(calc_exp, vec![Value::Int(1)]).unwrap() else {
+            panic!("exp must return float");
+        };
+        assert!((value - std::f64::consts::E).abs() < 1e-14);
+        for number in [0, -1] {
+            assert!(call(calc_ln, vec![Value::Int(number)]).is_err());
+            assert!(call(calc_log, vec![Value::Int(number)]).is_err());
+        }
+        for base in [0, 1, -1] {
+            assert!(call(calc_log, vec![Value::Int(8), Value::Int(base)]).is_err());
+        }
+        assert!(call(calc_exp, vec![Value::Int(1000)]).is_err());
     }
 }

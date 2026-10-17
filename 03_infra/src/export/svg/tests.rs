@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/tests.md
-//! @prompt-hash 0429f5a5
+//! @prompt-hash 3afb7dae
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -14,9 +14,10 @@ use crate::font_variant::text_style_to_font_variant;
 use base64::Engine;
 use std::sync::Arc;
 use ttf_parser::{Face, GlyphId};
-use typst_core::entities::geometry::{PathItem, Stroke};
+use typst_core::entities::frame_paint::FramePaint as Paint;
+use typst_core::entities::frame_paint::FrameStroke as Stroke;
+use typst_core::entities::geometry::PathItem;
 use typst_core::entities::layout_types::{Color, LinkTarget, Size, TransformMatrix};
-use typst_core::entities::paint::Paint;
 
 use super::*;
 use ecow::EcoString;
@@ -149,8 +150,8 @@ fn p1133_rounded_rect_svg_preserva_quatro_cantos_em_pt() {
 
 #[test]
 fn p1222_rounded_rect_inseta_centro_do_stroke_e_separa_paints() {
-    use typst_core::entities::geometry::Stroke;
-    use typst_core::entities::paint::Paint;
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
     let page = Page {
         width: 100.0,
         height: 100.0,
@@ -190,10 +191,9 @@ fn p1222_rounded_rect_inseta_centro_do_stroke_e_separa_paints() {
 
 #[test]
 fn p1224_svg_emite_stroke_complexo_sem_perder_ordem_ou_phase() {
-    use typst_core::entities::geometry::{
-        DashLength, DashPattern, LineCap, LineJoin, Stroke,
-    };
-    use typst_core::entities::paint::Paint;
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::{DashLength, DashPattern, LineCap, LineJoin};
     let stroke = Stroke {
         paint: Paint::Solid(Color::rgba(255, 65, 54, 128)),
         thickness: 2.0,
@@ -715,12 +715,32 @@ fn p1227_reutiliza_paint_morfologicamente_igual() {
 
 #[test]
 fn p1227_tiling_de_cor_emite_pattern_com_tamanho_e_spacing() {
-    use typst_core::entities::tiling::{Tiling, TilingBody};
-    let mut tiling = Tiling::new(TilingBody::Color(Color::rgb(0, 128, 255)));
-    tiling.size = Some(Size { width: Pt(4.0), height: Pt(6.0) });
-    tiling.spacing = Some(Size { width: Pt(1.0), height: Pt(2.0) });
+    use typst_core::entities::frame_paint::TilingFrame;
+    use typst_core::entities::layout_types::{Angle, Frame};
+    let value = TilingFrame {
+        frame: Frame {
+            size: Size { width: Pt(4.0), height: Pt(6.0) },
+            items: vec![FrameItem::Shape {
+                pos: Point::ZERO,
+                kind: ShapeKind::Rect,
+                width: 4.0,
+                height: 6.0,
+                fill: Some(Paint::Solid(Color::rgb(0, 128, 255))),
+                stroke: None,
+                parent_bbox_at_emit: None,
+                fill_rule: Default::default(),
+            }],
+        },
+        spacing: Size { width: Pt(1.0), height: Pt(2.0) },
+        offset: Point::ZERO,
+        angle: Angle::deg(0.0),
+        relative: typst_core::entities::gradient::RelativeTo::Self_,
+    };
     let svg = export_svg(
-        &p1227_page(vec![p1227_rect(Some(Paint::Tiling(tiling)), None)]),
+        &p1227_page(vec![p1227_rect(
+            Some(Paint::Tiling(std::sync::Arc::new(value))),
+            None,
+        )]),
         &SvgOptions::default(),
     );
     assert!(svg.contains("fill=\"url(#p0)\""));
@@ -839,6 +859,8 @@ fn text_shaped_emits_glyph_paths_not_text() {
             style,
             text: EcoString::from(" "),
             units_per_em: 1000,
+            bidi: None,
+            font: None,
         }],
     };
 
@@ -851,6 +873,7 @@ fn text_shaped_emits_glyph_paths_not_text() {
 
 fn p1246_group(kind: ShapeKind<Pt>, width: f64, height: f64) -> Page {
     p1227_page(vec![FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(10.0), y: Pt(20.0) },
         matrix: TransformMatrix { a: 2.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0 },
         clip_mask: Some(kind),
@@ -908,6 +931,7 @@ fn p1246_ellipse_e_path_clip_sao_geometrias_locais() {
 #[test]
 fn p1246_nested_clips_mantem_arestas_ancestral_e_local() {
     let inner = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(2.0), y: Pt(3.0) },
         matrix: TransformMatrix::default(),
         clip_mask: Some(ShapeKind::Ellipse),
@@ -916,6 +940,7 @@ fn p1246_nested_clips_mantem_arestas_ancestral_e_local() {
         items: vec![p1227_rect(Some(Paint::Solid(Color::rgb(0, 0, 255))), None)],
     };
     let page = p1227_page(vec![FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(5.0), y: Pt(7.0) },
         matrix: TransformMatrix::default(),
         clip_mask: Some(ShapeKind::Rect),
@@ -1265,6 +1290,7 @@ fn p1248_imagens_preservam_payload_geometria_clip_orientacao_e_fallback() {
 fn p1254_svg_executa_grafo_repetido_e_recortado_do_layout() {
     use std::sync::Arc;
     use typst_core::entities::layout_types::{Length, Size};
+    use typst_core::entities::paint::Paint;
     use typst_core::entities::tiling::{Tiling, TilingBody};
     use typst_core::entities::value::Value;
 
@@ -1299,8 +1325,9 @@ fn p1254_svg_executa_grafo_repetido_e_recortado_do_layout() {
     let second = render();
     assert_eq!(first, second);
     assert!(first.contains("<clipPath"));
-    assert!(first.matches("fill=\"#ff0000\"").count() > 1);
-    assert!(first.matches("fill=\"#0000ff\"").count() > 1);
+    assert_eq!(first.matches("fill=\"#ff0000\"").count(), 1);
+    assert!(first.contains("patternUnits=\"userSpaceOnUse\""));
+    assert_eq!(first.matches("fill=\"#0000ff\"").count(), 1);
     assert!(first.find("fill=\"#ff0000\"") < first.find("fill=\"#0000ff\""));
 }
 
@@ -1459,6 +1486,7 @@ fn p1249_assembly_transform_e_advance_sao_preservados_sem_relayout() {
         parent_bbox_at_emit: None,
     };
     let group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(5.0), y: Pt(7.0) },
         matrix: TransformMatrix { a: 0.0, b: 1.0, c: -1.0, d: 0.0, tx: 3.0, ty: 4.0 },
         clip_mask: None,
@@ -1571,4 +1599,40 @@ fn p1249_discrimina_variante_glyph_id_e_escala_uma_vez() {
         expected(gid_sum, 40.0),
         "M05: escala deve ser exatamente size / units_per_em uma vez"
     );
+}
+
+#[test]
+fn prepared_nested_cells_keep_resources_and_drop_decorative_links() {
+    use std::sync::Arc;
+    use typst_core::entities::frame_paint::TilingFrame;
+    use typst_core::entities::gradient::RelativeTo;
+    use typst_core::entities::layout_types::{Angle, Frame, LinkTarget};
+    let size = Size { width: Pt(8.0), height: Pt(9.0) };
+    let cell = |items| {
+        Paint::Tiling(Arc::new(TilingFrame {
+            frame: Frame { size, items },
+            spacing: Size { width: Pt(2.0), height: Pt(3.0) },
+            offset: Point::ZERO,
+            angle: Angle::deg(0.0),
+            relative: RelativeTo::Self_,
+        }))
+    };
+    let nested = cell(vec![p1227_rect(Some(Paint::Solid(Color::rgb(255, 0, 0))), None)]);
+    let outer = cell(vec![FrameItem::Link {
+        target: LinkTarget::Url("https://example.invalid/decorative".into()),
+        pos: Point::ZERO,
+        size,
+        items: vec![p1227_rect(Some(nested), None)],
+    }]);
+    let page = p1227_page(vec![p1227_rect(
+        Some(outer.clone()),
+        Some(Stroke { paint: outer, thickness: 3.0, ..Stroke::default() }),
+    )]);
+    let svg = export_svg(&page, &SvgOptions::default());
+    assert_eq!(svg.matches("<pattern ").count(), 2);
+    assert_eq!(svg.matches("<clipPath ").count(), 2);
+    assert!(svg.contains("fill=\"url(#p0)\"") && svg.contains("stroke=\"url(#p0)\""));
+    assert!(svg.contains("fill=\"url(#p1)\""));
+    assert!(!svg.contains("<a ") && !svg.contains("example.invalid"));
+    assert!(!svg.contains("data-crystalline-fill-fallback"));
 }

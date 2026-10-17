@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/gradients/radial.md
-//! @prompt-hash b3b8a735
+//! @prompt-hash 500bec4b
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -8,10 +8,6 @@
 //!
 //! Extraído de `gradients.rs` em P307b.2 (ADR-0100 / diagnóstico
 //! P307a §5). Conteúdo bit-exact pré e pós migração.
-
-use typst_core::entities::axes::Axes;
-use typst_core::entities::gradient::Radial;
-use typst_core::entities::layout_types::Ratio;
 
 pub(crate) fn compute_radial_coords(
     center: typst_core::entities::axes::Axes<typst_core::entities::layout_types::Ratio>,

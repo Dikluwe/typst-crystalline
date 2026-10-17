@@ -1,11 +1,15 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1463-format-png.md
-//! @prompt-hash 5cf12715
+//! @prompt-hash 79b87880
+
+#[path = "../../03_infra/tests/support/wiring/p1463_format_png.rs"]
+mod harness;
+
+use harness::{Checks, TempDir};
 
 use std::ffi::{OsStr, OsString};
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::process::{Command, Stdio};
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::thread;
 use std::time::{Duration, Instant};
 
@@ -14,35 +18,6 @@ const PNG_SIGNATURE: &[u8; 8] = b"\x89PNG\r\n\x1a\n";
 const CONTAINER_ERROR: &str = "format set rules are not allowed inside of containers";
 const PAGE_1PT: &str = "#set page(width: 1pt, height: 1pt, margin: 0pt)\n";
 const OPAQUE_1PT: &str = "#rect(width: 1pt, height: 1pt, fill: black)\n";
-
-static NEXT_TEMP: AtomicU64 = AtomicU64::new(0);
-
-struct TempDir {
-    path: PathBuf,
-}
-
-impl TempDir {
-    fn new(label: &str) -> Self {
-        loop {
-            let suffix = NEXT_TEMP.fetch_add(1, Ordering::Relaxed);
-            let path = std::env::temp_dir()
-                .join(format!("typst-p1463-{label}-{}-{suffix}", std::process::id()));
-            match fs::create_dir(&path) {
-                Ok(()) => return Self { path },
-                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {
-                    continue;
-                }
-                Err(error) => panic!("cannot create {}: {error}", path.display()),
-            }
-        }
-    }
-}
-
-impl Drop for TempDir {
-    fn drop(&mut self) {
-        let _ = fs::remove_dir_all(&self.path);
-    }
-}
 
 #[derive(Debug)]
 struct ProcessResult {
@@ -56,27 +31,6 @@ struct Compilation {
     _temp: TempDir,
     process: ProcessResult,
     artifact: Option<Vec<u8>>,
-}
-
-#[derive(Default)]
-struct Checks {
-    failures: Vec<String>,
-}
-
-impl Checks {
-    fn require(&mut self, condition: bool, message: impl Into<String>) {
-        if !condition {
-            self.failures.push(message.into());
-        }
-    }
-
-    fn finish(self) {
-        assert!(
-            self.failures.is_empty(),
-            "P1463 contract failures:\n- {}",
-            self.failures.join("\n- ")
-        );
-    }
 }
 
 fn typst_binary() -> &'static Path {

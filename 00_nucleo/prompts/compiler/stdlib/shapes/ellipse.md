@@ -1,5 +1,8 @@
 # L0 — stdlib/shapes/ellipse
-Hash do Código: 44bafdb4
+Hash do Código: 83dcf664
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/shapes/optional-stroke.toml sha256:2e8b819c96592ad1c548acb8736b6cc880b1db0e9e8866f7dc9068ed5483b1e3
 
 ## Ownership e medição
 
@@ -14,3 +17,21 @@ As regras detalhadas, evidências históricas, limites de paridade e diagnóstic
 ## Aceitação
 
 Preservar a suíte L1 e os testes de shapes, compilar e passar `crystalline-lint .` com ownership e hashes corretos. Não inferir ganho de desempenho.
+
+
+## Correção de ausência explícita — 2026-10-06
+
+Medição anterior à decisão: as sondas visual-rect/visual-circle em
+`00_nucleo/diagnosticos/paridade-dominios-2026-10-06/measurement.json.gz`
+compilam no vanilla pinado 9f2b6e871 e são rejeitadas pelo Tekt no cast de stroke.
+`lab/typst-original/crates/typst-layout/src/shapes.rs:125-129,335-339` distingue
+Auto condicionado a fill de Custom(None). O consumer sempre enviava None ao
+parser de Stroke obrigatório e seu fallback ignorava a presença do argumento.
+Sem inferir intenção histórica, corrigir aceitação/forma da linguagem.
+
+Aplicar o núcleo optional-stroke na leitura do argumento e na decisão de
+fallback dos dois construtores deste owner. Não modificar o parser obrigatório
+compartilhado, strokes por-lado ainda não representados, assinaturas, dimensões
+ou radius. Testar None com e sem fill e omissão sem fill, RED→GREEN.
+Correção interna de paridade ADR-0127: fluxo contínuo, sem API/fase/default novo,
+unsafe ou dependência. Revalidar PDF/raster e a matriz macro contra o pin atual.

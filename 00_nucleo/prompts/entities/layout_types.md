@@ -1,9 +1,11 @@
 # Prompt L0 — layout_types
-Hash do Código: 0e311c04
+Hash do Código: 5aafda0a
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:96fe00a0c6071bb88ffc63806b3e42c23b78c398fa26d46866e0f099ab0d4e36
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
 
 ## Identidade do hífen discricionário — contrato aprovado ADR-0127
 
@@ -1101,3 +1103,272 @@ somente para identidade de SHY autoral em runs já shaped. O texto original
 é a causa da substituição por ocorrência. Filhos continuam TextShaped,
 sem envelope aninhado, sem novo avanço ou candidato de quebra. A seleção
 explícita de quebra SHY e o fallback sem fonte permanecem fora desta correção.
+
+## Transporte de contexto bidi — contrato ratificado ADR-0127, 2026-10-05
+
+### Medição anterior à decisão
+
+Medição anterior à decisão: `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/initial.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree integral, UTC, fontes e binários; treze entradas CLI com vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8. rtl_auto_mixed põe ABC em x=124.020510 no Tekt contra152.949220 no vanilla; ltr_numeric põe árabe à esquerda e inverte 123/456, contra números à esquerda no vanilla. `layout_bidi.rs:73–82` usa primeiro caractere forte da linha e `:227–240` usa qualquer style.dir RTL como nível padrão; `shaper/bidi.rs:34` resolve cada string novamente com base automática. O contexto privado de paragraph.rs não chega a esses consumers. Vanilla `inline/mod.rs:189,232` resolve direção compartilhada; `inline/collect.rs:156–178` conserva embedding explícito por TextElem com direção diferente da base. `probe.json.gz` registra receita, rustc, hashes da biblioteca unicode-bidi 0.3.18 e sonda independente: dentro de ABC 123 456 789 مرحبا, linha 456 789 é um run LTR; a mesma string isolada com a mesma base RTL tem runs 789, espaço, 456. Isso refuta o transporte somente de Dir e a resolução por linha/palavra isolada. Não é prova de geometria de um candidato produtivo. Semântica/sintaxe/morfologia são obrigações; biblioteca, ranges, Arc e estratégia de cache são mecânica interna (ADR-0107).
+
+### Contrato público ratificado
+
+Adicionar exatamente este campo às variantes existentes `FrameItem::Text`, `FrameItem::TextSeparator` e `FrameItem::TextShaped`:
+
+```rust
+bidi: Option<crate::entities::bidi_context::BidiSpan>,
+```
+
+A entidade nova e sua validação pertencem exclusivamente a `00_nucleo/prompts/entities/bidi_context.md`. Não adicionar campo a TextStyle, variante a SemanticKind/FrameItem, método ao visitor ou trait FontMetrics. Preservar campos existentes, deprecação de Text e TextSeparatorOrigin. Produtores não certificados, matemática e frames manuais legados usam None; o default Typst/CLI e fases não mudam. O campo é contexto lógico opcional de uma ocorrência, sem tinta, largura, fonte, baseline, espaço ou conteúdo próprio. Debug/Rust patterns e struct literals de clientes precisam de migração: esta é mudança de contrato público, não compatibilidade Rust automática.
+
+Todos os clones, translações, envelopes, visitors e diagnósticos conservam a opção sem extrair texto/controles dela. O shaper transporta o span quando substitui Text por TextShaped; splits fazem subspans validados. Não duplicar a lógica/validação da entidade neste módulo. Plain-text e PDF continuam extraindo o texto da folha e a origem existente do separador, nunca a entrada auxiliar de bidi. Nenhum código consumidor é autorizado por este bloco enquanto o pacote L0 não for confirmado.
+
+Ratificação recebida: “confirmo”, manifesto 1ae7513eb3af426754909954aef165c97257a9f62d3911fbb111e2002fac4043, evidência em `00_nucleo/materialization/bidi-contexto-aprovacao-2026-10-05.json`. Versões congeladas estão no receipt before.json.gz da implementação; alterações de Hash do Código não substituem a prova da aprovação.
+
+
+## Face real de TextShaped — contrato ratificado ADR-0127
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/initial.json.gz`
+conserva HEAD, working tree completa não commitada, UTC, fontes, binários e
+owners antes desta proposta. `probe.rs`, `probe-build.txt` e `probe.txt`
+reproduzem um catálogo controlado com DejaVu Sans regular e Oblique.
+`03_infra/src/shaper/shaping.rs:254-255` carrega o slot efetivo para shaping;
+`:358-362` conserva apenas sua família no estilo do sub-run.
+`03_infra/src/pipeline/resources.rs:182-196,262-265` seleciona outra vez por
+família/variante; `03_infra/src/export/stream/text.rs:22-43`,
+`03_infra/src/export/render.rs:255-259` e
+`03_infra/src/export/svg/glyphs.rs:299` usam a chave derivada do estilo.
+A sonda emite os GIDs [5256,5260,5277,5288,5341] para مرحبا em ênfase,
+iguais aos da face regular. O estilo ainda pede italic e seleciona Oblique;
+a mesma entrada diretamente nessa face produz cinco GIDs zero e não cobre م.
+`bilateral.json` conserva três controles fonte→PDF em cada compilador,
+contra vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, sem inferir
+correção visual apenas da extração. O raster previamente registrado em
+`00_nucleo/diagnosticos/bidi-contexto-implementacao-2026-10-05/raster.json`
+confirma tinta incompatível no Emph árabe.
+
+O relatório `00_nucleo/diagnosticos/paridade-producao-p534.md:79-80`
+descreve explicitamente transportar a família para embutir a face correta.
+Isto prova a aproximação histórica documentada, não uma decisão consciente
+de aceitar corrupção de GIDs. Identidade da face é mecânica de integridade
+necessária à morfologia renderizada da língua; não exige mesmos bytes PDF,
+mesma estrutura interna ou mesmas escolhas de fonte do vanilla em geral.
+A hipótese seria refutada se a seleção de exportação já usasse a mesma face
+que produziu os GIDs; a sonda controlada distingue as duas.
+
+### Contrato público ratificado (materialização 2026-10-05)
+
+Acrescentar **somente a TextShaped**, na enum FrameItem:
+
+```rust
+font: Option<crate::entities::world_types::Font>,
+```
+
+Some transporta um clone da fonte efetivamente usada para produzir glyphs e
+units_per_em. Font já é uma entidade L1 existente, com armazenamento Arc;
+este campo não cria mmap, lê arquivos, interpreta OpenType nem referencia
+World. A fonte deve estar carregada antes de entrar no carrier. Não guardar
+slot de catálogo, caminho de arquivo, nome de família ou ponteiro de World
+como identidade persistente. O carrier continua válido depois da sessão e
+em outro World, mantendo os mesmos bytes de origem. O caminho vigente trata
+face normalizada no índice zero; suporte novo a coleção/índice não zero é
+scope-out. Não acrescentar unsafe ou estado global.
+
+None preserva itens legados/manuais e sua resolução anterior. Toda emissão
+produtiva bem-sucedida do shaper fornece Some, incluindo cache hits e fontes
+variáveis. Nenhum item Text/TextSeparator adquire esse campo nesta mudança;
+Glyph matemático mantém seu contrato próprio e fica fora desta correção.
+
+A fonte carregada define o domínio de glyph_id e units_per_em; eixos
+OpenType continuam derivados e explícitos segundo o contrato vigente de
+TextStyle. O shaper e a preparação de recursos aplicam as mesmas coordenadas
+fundidas a essa face, com explícitas vencendo por tag. Não mudar italic,
+bold, weight, semantic_emph ou semantic_strong para forçar seleção de outra
+face. Também não aplicar o número de GID a uma fonte apenas porque seu nome
+ou sua variante coincide. Instanciação/subset pertencem a L3 e devem manter
+uma associação explícita à face original e aos eixos efetivos; bytes do
+subset/instância não substituem a identidade da origem.
+
+Clone, tradução, reconciliação, fragmentação e wrappers geométricos/semânticos
+preservam o campo. Junção de itens shaped exige fonte e coordenadas
+compatíveis, além dos critérios anteriores; igual família não basta. Não
+inferir a fonte por char_code, cluster, GID ou cobertura posterior.
+
+Os owners L3 próprios conduzem uma migração interna de bindings de recursos
+por face original + eixos efetivos e transportam essa associação a PDF,
+SVG e PNG. Coleta, subset, CMap, recurso PDF e consumo de outlines devem usar
+a mesma associação. Preservar os entrypoints públicos existentes, com
+adaptação interna compatível para os recursos legados; se essa adaptação
+exigir nova assinatura pública, redigir seu L0 e submetê-la a novo gate antes
+de implementá-la. Não alterar FontKey público por inércia nesta aprovação.
+Apenas o novo campo acima é o contrato público ratificável neste pacote.
+
+### Aceitação e limites da materialização
+
+- RED→GREEN: catálogo controlado regular/italic, árabe em ênfase e latim em
+  ênfase; conferir transporte da fonte e desenho com face correta, conservando
+  os marcadores semânticos. Executar novamente após cache hit.
+- Duas faces de mesma família e variante mas cobertura/GIDs diferentes não
+  podem compartilhar binding. Dois Worlds com slots diferentes não podem
+  alterar a fonte já transportada. None segue o fallback legado.
+- Fonte variável: pedidos derivados/explicitamente sobrepostos, dois eixos
+  diferentes no mesmo documento, miss/hit e instanciação preservam as
+  coordenadas do shaping. Não provar isto só com uma fonte estática.
+- Exercitar envelopes e camadas de página; bilateral PDF com inspeção de
+  tinta, texto e geometria; SVG e PNG devem desenhar com a face efetiva.
+  Latin regular/italic, árabe regular, strong, math e recursos ausentes são
+  controles de regressão. Não copiar defeitos do vanilla.
+- Build, testes pertinentes, V15/V26 e resselo restrito; registrar warnings
+  preexistentes. Medição de CLI só depois da correção, com estado/fontes/
+  binários e amostras pareadas, sem prometer ganho de desempenho.
+
+Este owner continua 1:1 com `01_core/src/entities/layout_types.rs`.
+Os owners internos recebem seus próprios L0 atualizados antes de código;
+o inventário de candidatos não constitui ownership compartilhado.
+
+
+## Face efetiva de TextShaped — materialização ratificada 2026-10-05
+
+Medição anterior à decisão: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `00_nucleo/diagnosticos/identidade-fonte-shaped-implementacao-2026-10-05/`.
+
+Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
+
+A associação é por bytes da face original e pedido de eixos; nomes e slots não bastam. A tabela local dura a exportação e conserva ordem dos recursos fornecidos, anexando faces faltantes. Para multifont, distribuir itens pelos bindings uma vez antes de coletores por fonte; não reutilizar GIDs/CMap globais em faces diferentes. Código deste owner continua 1:1 com seu L0; referências a outros owners não compartilham propriedade. Aceitação RED→GREEN e controles bilaterais incluindo miss/hit/VF, sem promessa de ganho de tempo.
+
+Claims compartilhadas desta migração pertencem ao núcleo shaped-face-identity pinado acima; este owner materializa somente as referências da sua unidade.
+
+## Metadado do carrier permanente de pré-shaping — 2026-10-13
+
+Medição anterior à decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
+working tree não commitado; fontes, UTC, status, diffstat e hashes em
+`00_nucleo/diagnosticos/pre-shaping-ci-2026-10-13/before.json.gz`.
+O inventário Clippy anterior desta árvore, cfg-test-ci-2026-10-13,
+contém 89 diagnósticos deprecated no core, todos da variante Text e seus
+campos. layout_types.rs:393-407 mantém a marcação P483; text.rs:37 emite
+Text em L1 e shaper/traversal.rs converte-o em L3. Este L0 §P484 e a
+ADR-0120 §P484 declaram Text permanente como entrada pré-shaping.
+Os testes shaper/tests.rs:235,286,309,465 exigem fallback Text sem fonte;
+:426,448 exercitam shaping multilinha com fonte real.
+
+Retificar apenas o metadado de obsolescência legado de P483: remover
+#[deprecated] da variante Text e atualizar sua documentação para seu papel
+permanente. Text não pode ser substituído por TextShaped nos emissores L1,
+pois os bytes da fonte pertencem a L3. Nenhuma variante, campo, assinatura,
+valor, algoritmo, default ou fase muda. Shaping permanece em L3 e os
+exporters conservam TextShaped e o fallback Text conforme seus owners.
+A referência de P484 ao atributo deprecated fica superada por esta correção;
+seu contrato de pré-shaping permanece obrigatório. A nota de P483 é histórica,
+não uma obrigação de restaurar um warning em usos arquiteturalmente válidos.
+
+Remover também os allow(deprecated) locais deste consumer que só compensavam
+essa marcação. Não introduzir allow global, não alterar os consumers nem
+migrar dados artificialmente para glyphs. Aceitação: uma prova independente
+constrói/lê Text sob deny(deprecated), falha antes e compila/executa depois;
+os corpos e dados Rust permanecem iguais descontando comentários e os
+metadados explicitamente retirados. Revalidar testes core, fallback/shaping
+com e sem fontes, build, Clippy, ownership/núcleos e selos.
+
+
+## Operações numéricas puras — 2026-10-13
+
+### Medição anterior à decisão
+
+`01_core/src/entities/layout_types.rs` nas linhas 1096, 1097, 1113, 1114 contém as chamadas sinalizadas como disallowed_methods pelo Clippy vigente. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. `00_nucleo/diagnosticos/geometria-numerica-ci-2026-10-13/before.json.gz` conserva fonte, owner, configuração, libm, compilador, UTC, status e diffstat. A sonda host-math compara os backends antes da escolha: 4968 casos, 69 diferenças de até 1 ULP em trigonometria/atan2, sem mudança de classe numérica ou sinal de zero; potências e hypot coincidem na amostra. É medição deste host, não prova universal nem nova paridade contra vanilla.
+
+### Decisão e aceitação
+
+TransformMatrix::rotate usa libm::cos/sin; skew usa libm::tan. Preservar matriz Y-down, sinais, posição dos coeficientes, concatenação, assinaturas, translação zero e política vigente para entradas não finitas. Manter o backend puro libm 0.2.11 já pinado; não criar uma nova representação de transformação.
+
+Mudança interna em fluxo contínuo ADR-0127, sem contrato público novo, default ou fase. Preservar testes de geometria/linguagem existentes e comparar os exemplos SVG medidos antes/depois, declarando diferenças. A comparação geométrica não certifica todos os casos ou plataformas. Validar build, todos os targets, core, Clippy e linhagem. Não suprimir o lint nem substituir aceitação por identidade de bytes do compilador.
+
+## Referencial de pintura — transporte aprovado T1b — 2026-10-14
+
+### Medição anterior à decisão
+
+O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
+foi aprovado pelo humano para T1–T3; recibo em
+`00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+A evidência bilateral de Parent e controles Solid está no contrato aprovado;
+ela não é substituída por inspeção estrutural. A rodada
+`00_nucleo/diagnosticos/paint-root-2026-10-14/before/results.json.gz` conserva
+fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
+diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
+e Gradient Parent. O inventário before-source/syntax-nodes registra neste
+consumer as construções/desestruturações antes da edição: [].
+layout_types.rs:531–539 não distingue raízes de grupos técnicos; helpers.rs:253–269
+reconstrói o Group e precisará preservar o campo. Box agrega fundo/corpo;
+Block mantém body plano exceto no clip. Preservação do referencial é requisito
+de linguagem; formato dos envelopes é mecânica. A aprovação não fecha as
+divergências gerais de geometria previamente medidas em Rotate/Box.
+
+### Responsabilidade exclusiva
+
+Adicionar somente o campo público paint_root: bool em FrameItem::Group, conforme o contrato ratificado. True estabelece raiz local com inner_width/inner_height; false herda. FrameVisitor mantém assinatura e travessia. Os campos de Shape ainda serão migrados no próximo sublote T1c; não reivindicar transporte fechado de FramePaint neste estado.
+
+### Aceitação e incompletude
+
+L0 primeiro, testes RED→GREEN, resselo restrito; conservar geometria e texto
+nos controles fonte→PDF/SVG e revalidar suíte/build/doc/check/fmt/linhagem.
+A migração deste metadado não substitui Shape.fill/stroke por FramePaint nem
+implementa patterns PDF/SVG/raster; T1c/T2/T3 continuam explicitamente abertos
+e já autorizados. Não alegar paridade de tiling ou produção a partir do build.
+
+
+## Transporte preparado em Shape — T1c/T2 aprovado — 2026-10-14
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
+layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
+materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
+prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
+`tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
+comprovam que dense-open e stroke-open ainda divergem nos três targets.
+O contrato foi aprovado no manifesto
+`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
+recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+A preparação/contagem de objetos é mecânica de transporte; render, contornos,
+texto, geometria e diagnósticos são obrigações observáveis de linguagem.
+
+### Responsabilidade exclusiva desta unidade
+
+Trocar somente Shape.fill por Option<FramePaint> e Shape.stroke por Option<FrameStroke>, conforme API aprovada. Não alterar outros variants, PageFill, TextStyle, FrameVisitor ou plain_text. Células de paint não são filhos semânticos da página.
+
+### Aceitação e continuidade
+
+Aplicar o núcleo pinado. A ratificação supersede cláusulas antigas que
+aguardavam aprovação ou exigiam Paint/Stroke declarativo dentro de Shape,
+somente no âmbito do contrato aprovado. Preservar os demais comportamentos
+vigentes desta unidade. L0 primeiro e testes RED→GREEN; migração explícita de
+fixtures e consumidores, sem conversão total From<Paint>, sem PartialEq nos
+carriers e sem fallback sólido para obter build verde. Não elevar o limite
+antigo nem transferir layout para L3. Validar transporte fill/stroke, recursos,
+clipping, Parent afim, alvos nativos, controles Solid/Gradient, semântica de
+página e toda a suíte/build/doc/fmt/linhagem. T1c, T2 e T3 só estão concluídos
+quando integrados e verificados; estado intermediário quebrado ou parcial
+não é certificação de produção. T4 e publicação continuam fora deste pacote.
+
+
+## FrameItem — exaustividade de decisões existentes, V16, 2026-10-16
+
+### Medição anterior à decisão
+
+F051: 01_core/src/entities/layout_types.rs:1392 (visit_item). Os spans AST, patterns/guards/corpos e complements foram conferidos antes do código. `00_nucleo/diagnosticos/tekt-frame-items-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, hashes, status e git diff HEAD --stat. `classification.json` registra os 70 casos e seus complements em 26 owners, usando a árvore do parser pinado do CI. Cláusulas pertinentes do L0 foram lidas junto da fonte; não há proposta de nova arquitetura ou interpretação de intenção upstream. Padrões e exaustividade Rust são mecânica; semântica/morfologia, geometria, efeitos e diagnósticos do produto devem permanecer.
+
+### Prescrição exclusiva desta unidade
+
+- **F051 — `visit_item`**: Remover somente o último braço _ com debug_assert e seu #[allow(unreachable_patterns)]: as onze variantes já são cobertas pelos braços anteriores. Conservar a assinatura pública de FrameVisitor, todos os callbacks, seus defaults, ordem e recursão. Atualizar a descrição do trait para exigir decisão em compilação quando o enum cresce, em vez de prometer fallback apenas em debug. Não adicionar método de trait. O novo controle percorre as onze variantes, incluindo wrappers e filhos, e verifica a sequência de callbacks antes/depois.
+A prescrição desta rodada supersede apenas a política de fallback hipotético de FrameVisitor; as restrições históricas de não alterar o trait nos pacotes de transporte continuam para métodos, assinaturas e travessia. FrameItem mantém exatamente as onze variantes e todos os campos.
+
+
+Manter callbacks, efeitos, metadados, clipping, fontes, positions, tinta e largura conforme os owners vigentes. Esta rodada não amplia travessias, não transforma wrappers em folhas nem usa text/ActualText como substituto da geometria. Helpers de teste mantêm fixtures, esperados, tolerâncias, contagens e falha Unknown; não aproveitar o saneamento para aceitar ausência de observação. Grupos nominais compartilham o mesmo corpo anterior: notas V19 de alternativas continuam visíveis, sem confundir cobertura de um braço com todas as alternativas.
+
+### Gate e aceitação
+
+Manutenção interna ADR-0127 em fluxo contínuo: nenhum enum/campo novo, método de trait/assinatura pública, default, dependência, compatibilidade ou fase nova. Não materializar propostas históricas pendentes por este adendo. L0 primeiro e resselo restrito em ambas as direções. Não adicionar supressões, alterar limiar ou reescrever match como if-let para esconder V16.
+
+Antes do código, executar o controle novo de FrameVisitor e a suíte workspace nos mesmos esperados, e confirmar RED dos 70 avisos da família por leitura AST. Após código, zero V16 dessa família nos locais abrangidos e nenhum aviso novo; manter V16 externos como pendências. Nos matches do core produtivo alcançados por cargo check -p typst-core, usar cópia descartável com uma variante sentinela de FrameItem para medir ausência de E0004 nos locais antes e presença depois. A sonda cobre somente os locais efetivamente compilados: não extrapolar aos helpers cfg(test) ou L3 que a dependência impede de alcançar. Para todo o lote, conferir padrões/guards/corpos por replay, enum e assinaturas inalterados, build e testes reais. Não substituir corpos por stubs.
+
+Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, Rustdoc -D warnings com quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF e diff --check. Fontes/L0/configuração ficam congelados durante comandos. Execuções pesadas sequenciais com MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não apresentar saneamento estrutural como nova paridade global, ganho de memória ou benefício medido para IA.

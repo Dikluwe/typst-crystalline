@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/queries.md
-//! @prompt-hash c69f3cd9
+//! @prompt-hash f35385e9
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-06
 
 use super::*;
 
@@ -89,16 +89,39 @@ impl Introspector for TagIntrospector {
 
     fn query(&self, selector: &Selector) -> Vec<Location> {
         let mut result = match selector {
-            Selector::Element { function, fields } => self
+            Selector::NativeElement(function) => self
                 .elements
                 .iter()
                 .filter(|(_, entry)| {
-                    crate::compiler::eval::selector_matching::element_selector_matches(
-                        entry, function, fields,
+                    crate::compiler::eval::selector_matching::native_element_matches(
+                        entry.content(),
+                        function,
                     )
                 })
                 .map(|(location, _)| *location)
                 .collect(),
+            Selector::Element { function, fields } => {
+                let has_label_filter =
+                    fields.iter().any(|(name, _)| name.as_str() == "label");
+                let ordinary_fields: Vec<_> = fields
+                    .iter()
+                    .filter(|(name, _)| name.as_str() != "label")
+                    .cloned()
+                    .collect();
+                self.elements.iter().filter(|(location, entry)| {
+                    if entry.fields().is_some() || !has_label_filter {
+                        return crate::compiler::eval::selector_matching::element_selector_matches(entry, function, fields);
+                    }
+                    let labels_match = fields.iter().filter(|(name, _)| name.as_str() == "label").all(|(name, expected)| {
+                        if let crate::entities::value::Value::Label(label) = expected {
+                            self.labels.lookup_all(label).contains(*location)
+                        } else {
+                            crate::compiler::eval::selector_matching::element_selector_matches(entry, function, &[(name.clone(), expected.clone())])
+                        }
+                    });
+                    labels_match && crate::compiler::eval::selector_matching::element_selector_matches(entry, function, &ordinary_fields)
+                }).map(|(location, _)| *location).collect()
+            }
             Selector::Kind(kind) => self.query_by_kind(*kind),
             // P209B (M9c): Label match → delega a query_by_label
             // (devolve 0 ou 1 Location; P207C multi-label refactor
@@ -182,7 +205,8 @@ impl Introspector for TagIntrospector {
                 base_matches
                     .into_iter()
                     .filter(|location| {
-                        location.as_u128() < boundary.as_u128()
+                        self.counters.order_key(*location)
+                            < self.counters.order_key(boundary)
                             || (*inclusive && location == &boundary)
                     })
                     .collect()
@@ -195,7 +219,8 @@ impl Introspector for TagIntrospector {
                 base_matches
                     .into_iter()
                     .filter(|location| {
-                        location.as_u128() > boundary.as_u128()
+                        self.counters.order_key(*location)
+                            > self.counters.order_key(boundary)
                             || (*inclusive && location == &boundary)
                     })
                     .collect()
@@ -203,7 +228,7 @@ impl Introspector for TagIntrospector {
         };
         if crate::compiler::eval::operators::equality::selector_contains_element(selector)
         {
-            result.sort_by_key(|location| location.as_u128());
+            result.sort_by_key(|location| self.counters.order_key(*location));
             result.dedup();
         }
         result
@@ -398,6 +423,19 @@ mod tests {
     use super::*;
 
     #[test]
+    fn native_bare_query_matches_registered_identity_without_filter_group() {
+        use crate::entities::{content::Content, func::Func, value::IntrospectedContent};
+        let mut intr = TagIntrospector::empty();
+        let location = Locator::new().next();
+        let body = Content::equation(Content::text("a"), true);
+        intr.elements
+            .insert(location, IntrospectedContent::new(body, Some(Default::default())));
+        let function =
+            Func::native("alias", crate::compiler::stdlib::native_math_equation);
+        assert_eq!(intr.query(&Selector::NativeElement(function)), vec![location]);
+    }
+
+    #[test]
     fn kind_queries_keep_causal_order_and_unique_gate() {
         let mut locator = Locator::new();
         let first = locator.next();
@@ -410,5 +448,42 @@ mod tests {
         assert_eq!(intr.query_first(ElementKind::Heading), Some(first));
         assert_eq!(intr.query_unique(ElementKind::Heading), None);
         assert_eq!(intr.query_unique(ElementKind::Figure), Some(second));
+    }
+}
+
+#[cfg(test)]
+mod equation_where_label_tests {
+    use super::*;
+    #[test]
+    fn equation_where_label_uses_index_only_for_legacy_none_snapshot() {
+        use crate::entities::{
+            content::Content,
+            value::{IntrospectedContent, Value},
+        };
+        let Value::Module(math) = crate::compiler::stdlib::make_math_module() else {
+            panic!("math module")
+        };
+        let Some(Value::Func(eq)) = math.scope().get("equation") else {
+            panic!("equation")
+        };
+        let mut intr = TagIntrospector::empty();
+        let location = Locator::new().next();
+        let label = Label("display".into());
+        intr.labels.add(label.clone(), location);
+        let body = Content::equation(Content::text("a"), true);
+        intr.elements
+            .insert(location, IntrospectedContent::new(body.clone(), None));
+        let selector = Selector::Element {
+            function: eq.clone(),
+            fields: vec![
+                ("label".into(), Value::Label(label)),
+                ("block".into(), Value::Bool(true)),
+            ]
+            .into(),
+        };
+        assert_eq!(intr.query(&selector), vec![location]);
+        intr.elements
+            .insert(location, IntrospectedContent::new(body, Some(Default::default())));
+        assert!(intr.query(&selector).is_empty(), "Some fields remain authoritative");
     }
 }

@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "raw-defaults"
+title = "Defaults de render Raw e precedência de show-set"
+
+[[claims]]
+id = "default-style"
+level = "must"
+statement = "No render, Raw usa DejaVu Sans Mono e 0.8 do tamanho exterior antes dos overrides explícitos; a substituição por show conserva esse escopo de defaults. Fill exterior é herdado e bold/italic iniciais são desativados."
+
+[[claims]]
+id = "scope-once"
+level = "must"
+statement = "O marcador privado raw.defaults transporta apenas a fronteira de estilo, sem geometria; raw.defaults.active impede aplicação dupla ao Raw devolvido por it. Os overrides Styled internos prevalecem e comprimentos em são resolvidos contra o tamanho anterior dentro desse escopo. O exterior é restaurado depois."
+
+[[claims]]
+id = "geometry-phase"
+level = "must-not"
+statement = "A preparação de show não escolhe coordenadas, mede fontes ou executa layout; o renderer não executa receita. Não criar campo público, trait ou fase nova para esses defaults."

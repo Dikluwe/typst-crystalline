@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout_references.md
-//! @prompt-hash 0402d9db
+//! @prompt-hash 6dd3439b
 //! @layer L1
 //! @updated 2026-09-18
 
@@ -17,14 +17,14 @@ use crate::{
         elements::r#ref::RefElem,
         introspector::Introspector,
         label::Label,
-        layout_types::{FrameItem, LinkTarget, Point},
+        layout_types::{LinkTarget, Point},
         selector::Selector,
         source_result::SourceDiagnostic,
         span::Span,
     },
 };
 
-use super::{link::link_bbox, FontMetrics, ImageSizer, Layouter};
+use super::{FontMetrics, ImageSizer, Layouter};
 
 /// Layout transparente do body com registo de página e posição (P460/P464).
 pub(super) fn layout_label<M: FontMetrics, S: ImageSizer>(
@@ -38,8 +38,7 @@ pub(super) fn layout_label<M: FontMetrics, S: ImageSizer>(
     };
     layouter.layout_content(body);
     let page = layouter.current_page_number();
-    layouter.runtime.label_pages.insert(label.clone(), page);
-    layouter.runtime.label_positions.insert(label, pos);
+    layouter.record_label_position(label, page, pos);
 }
 
 /// Braço `Ref` (P462/P463) — resolve o número do elemento associado ao label
@@ -214,36 +213,7 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
 
     let text = resolve_ref_text(layouter, elem, &target_label);
 
-    // P463: todo ref é clicável, mesmo que o destino não exista (PDF reader
-    // simplesmente não navega). O label inexistente renderiza "?".
-    let items_before = layouter.regions.current.current_items.len();
-    let line_before = layouter.regions.current.current_line.len();
-
-    layouter.layout_content(&Content::text(text));
-
-    // O layout pode fazer flush (move itens de current_line para current_items),
-    // pelo que line_before pode ficar maior que o length actual.
-    let new_line: Vec<FrameItem> =
-        if line_before <= layouter.regions.current.current_line.len() {
-            layouter.regions.current.current_line.drain(line_before..).collect()
-        } else {
-            Vec::new()
-        };
-    let new_items: Vec<FrameItem> =
-        layouter.regions.current.current_items.drain(items_before..).collect();
-
-    let mut link_items = Vec::with_capacity(new_line.len() + new_items.len());
-    link_items.extend(new_line);
-    link_items.extend(new_items);
-
-    let (pos, size) = link_bbox(&link_items, &layouter.metrics);
-
-    layouter.regions.current.current_line.push(FrameItem::Link {
-        target: LinkTarget::Destination(target_label),
-        items: link_items,
-        pos,
-        size,
-    });
+    layout_ref_link_text(layouter, &target_label, &text);
 }
 
 fn layout_ref_link_text<M: FontMetrics, S: ImageSizer>(
@@ -251,34 +221,11 @@ fn layout_ref_link_text<M: FontMetrics, S: ImageSizer>(
     target_label: &Label,
     text: &str,
 ) {
-    let items_before = layouter.regions.current.current_items.len();
-    let line_before = layouter.regions.current.current_line.len();
-    layouter.layout_content(&Content::text(text));
-    let new_line = if line_before <= layouter.regions.current.current_line.len() {
-        layouter
-            .regions
-            .current
-            .current_line
-            .drain(line_before..)
-            .collect::<Vec<_>>()
-    } else {
-        vec![]
-    };
-    let new_items = layouter
-        .regions
-        .current
-        .current_items
-        .drain(items_before..)
-        .collect::<Vec<_>>();
-    let mut link_items = new_line;
-    link_items.extend(new_items);
-    let (pos, size) = link_bbox(&link_items, &layouter.metrics);
-    layouter.regions.current.current_line.push(FrameItem::Link {
-        target: LinkTarget::Destination(target_label.clone()),
-        items: link_items,
-        pos,
-        size,
-    });
+    layouter.layout_link_capture(
+        &Content::text(text),
+        LinkTarget::Destination(target_label.clone()),
+        false,
+    );
 }
 
 /// Resolve o texto a renderizar para um `RefElem`.

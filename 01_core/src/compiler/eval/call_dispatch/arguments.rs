@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch/arguments.md
-//! @prompt-hash d91900e9
+//! @prompt-hash c5fc8d82
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 
 use super::*;
 
@@ -96,7 +96,7 @@ pub(in crate::compiler::eval) fn transport_native_call_span(
     };
     match func.repr() {
         FuncRepr::With(with) => transport_native_call_span(&with.0, args, call_span),
-        FuncRepr::Native(native)
+        FuncRepr::Native(native) => {
             if std::ptr::fn_addr_eq(
                 native.call,
                 native_json_encode as fn(_, _, _, _) -> _,
@@ -106,18 +106,20 @@ pub(in crate::compiler::eval) fn transport_native_call_span(
             ) || std::ptr::fn_addr_eq(
                 native.call,
                 native_yaml_encode as fn(_, _, _, _) -> _,
-            ) || std::ptr::fn_addr_eq(
-                native.call,
-                native_panic as fn(_, _, _, _) -> _,
-            ) || std::ptr::fn_addr_eq(
-                native.call,
-                native_csv as fn(_, _, _, _) -> _,
-            ) || std::ptr::fn_addr_eq(
-                native.call,
-                calc_abs as fn(_, _, _, _) -> _,
-            ) =>
-        {
-            args.span = call_span;
+            ) || std::ptr::fn_addr_eq(native.call, native_panic as fn(_, _, _, _) -> _)
+                || std::ptr::fn_addr_eq(native.call, native_csv as fn(_, _, _, _) -> _)
+                || std::ptr::fn_addr_eq(native.call, calc_abs as fn(_, _, _, _) -> _)
+                || std::ptr::fn_addr_eq(
+                    native.call,
+                    crate::compiler::stdlib::native_table as fn(_, _, _, _) -> _,
+                )
+                || std::ptr::fn_addr_eq(
+                    native.call,
+                    crate::compiler::stdlib::native_table_cell as fn(_, _, _, _) -> _,
+                )
+            {
+                args.span = call_span;
+            }
         }
         _ => {}
     }

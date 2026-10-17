@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content/fields.md
-//! @prompt-hash 00d48209
+//! @prompt-hash ac577cf8
 //! @layer L1
-//! @updated 2026-09-26
+//! @updated 2026-10-07
 
 use super::*;
 
@@ -10,7 +10,124 @@ fn styled_equation(content: &Content) -> Option<&EquationElem> {
     match content {
         Content::Equation(e) => Some(e),
         Content::Styled(styled) => styled_equation(&styled.body),
-        _ => None,
+        Content::Source(e) => styled_equation(&e.body),
+        Content::ShowRecipe(e) => styled_equation(&e.body),
+        Content::Located(e) => styled_equation(&e.body),
+        Content::Realized(e) => styled_equation(&e.visual),
+        Content::Empty
+        | Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(..)
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::TableCell(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Table(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => None,
     }
 }
 
@@ -18,8 +135,14 @@ impl Content {
     pub fn get_field(&self, field: &str) -> Option<crate::entities::value::Value> {
         use crate::entities::value::Value;
         match (self, field) {
+            (Content::Source(e), f) => e.body.get_field(f),
+            (Content::ShowRecipe(e), f) => e.body.get_field(f),
+            (Content::Located(e), f) => e.body.get_field(f),
+            (Content::Realized(e), f) => e.visual.get_field(f),
             // Modelo D (P316): Heading delega ao elemento.
             (Content::Heading(h), f) => h.get_field(f),
+            (Content::Raw(e), f) => e.get_field(f),
+            (Content::Transform(e), f) => e.get_field(f),
             (Content::OutlineEntry(e), f) => e.get_field(f),
             // P765a: Title delega ao elemento.
             (Content::Title(t), f) => t.get_field(f),
@@ -27,8 +150,48 @@ impl Content {
             (Content::Strong(e), f) => e.get_field(f),
             (Content::Emph(e), f) => e.get_field(f),
             (Content::Linebreak(e), f) => e.get_field(f),
-            (Content::Figure(e), "body") => Some(Value::Content(e.body.clone())),
+            (Content::SmartQuote(e), "double") => {
+                Some(Value::Bool(e.double.unwrap_or(true)))
+            }
+            (Content::SmartQuote(e), "enabled") => {
+                Some(Value::Bool(e.enabled.unwrap_or(true)))
+            }
+            (Content::SmartQuote(e), "alternative") => {
+                Some(Value::Bool(e.alternative.unwrap_or(false)))
+            }
+            (Content::SmartQuote(e), "quotes") => {
+                use crate::entities::elements::smartquote::SmartQuoteQuotes;
+                Some(match &e.quotes {
+                    Some(SmartQuoteQuotes::Custom(overrides)) => {
+                        let pair = |p: &Option<
+                            crate::entities::elements::smartquote::SmartQuotePair,
+                        >| {
+                            p.as_ref()
+                                .map(|p| {
+                                    Value::Array(vec![
+                                        Value::Str(p.open.clone()),
+                                        Value::Str(p.close.clone()),
+                                    ])
+                                })
+                                .unwrap_or(Value::Auto)
+                        };
+                        Value::Dict(
+                            [
+                                ("double".into(), pair(&overrides.double)),
+                                ("single".into(), pair(&overrides.single)),
+                            ]
+                            .into_iter()
+                            .collect(),
+                        )
+                    }
+                    _ => Value::Auto,
+                })
+            }
+            (Content::Figure(e), f) => e.get_field(f),
+            (Content::FigureCaption(e), f) => e.get_field(f),
             (Content::Equation(e), f) => e.get_field(f),
+            (Content::MathMatrix(e), f) => e.get_field(f),
+            (Content::TableCell(e), f) => e.get_field(f),
             (Content::MathPrimes(e), f) => e.get_field(f),
             (Content::MathLr(e), f) => e.get_field(f),
             (Content::MathUnderbrace(e), f) => e.get_field(f),
@@ -72,7 +235,103 @@ impl Content {
             // **P844** (achado #47 de P831) — `query(<meta>).first().value`
             // (paridade vanilla `MetadataElem.value`).
             (Content::Metadata(e), "value") => Some(e.value.as_ref().clone()),
-            _ => None, // neutro: N16[β] — variantes de Content sem campos expostos retornam None em get_field
+            (
+                Content::Empty
+                | Content::Text(..)
+                | Content::Space
+                | Content::SpaceFromNewline
+                | Content::Parbreak
+                | Content::Sequence(..)
+                | Content::HtmlElem(..)
+                | Content::HtmlFrame(..)
+                | Content::Par { .. }
+                | Content::ListItem(..)
+                | Content::EnumItem(..)
+                | Content::Link(..)
+                | Content::MathSequence(..)
+                | Content::MathIdent(..)
+                | Content::MathText(..)
+                | Content::MathFrac(..)
+                | Content::MathAttach(..)
+                | Content::MathRoot(..)
+                | Content::MathDelimited(..)
+                | Content::MathMid(..)
+                | Content::MathOverbrace(..)
+                | Content::MathOverbracket(..)
+                | Content::MathOverparen(..)
+                | Content::MathOvershell(..)
+                | Content::MathAlignPoint(..)
+                | Content::MathCases(..)
+                | Content::MathAccent(..)
+                | Content::MathCancel(..)
+                | Content::MathUnderline(..)
+                | Content::MathOverline(..)
+                | Content::MathVec(..)
+                | Content::MathClassOverride(..)
+                | Content::MathLimitsOverride(..)
+                | Content::MathUnderover(..)
+                | Content::MathOp(..)
+                | Content::MathStyled(..)
+                | Content::Label(..)
+                | Content::Ref(..)
+                | Content::CounterDisplay(..)
+                | Content::CounterUpdate(..)
+                | Content::Outline(..)
+                | Content::Image(..)
+                | Content::Shape(..)
+                | Content::Curve(..)
+                | Content::Grid(..)
+                | Content::GridHeader(..)
+                | Content::GridFooter(..)
+                | Content::GridCell(..)
+                | Content::SetPage(..)
+                | Content::PageRun(..)
+                | Content::Align(..)
+                | Content::Place(..)
+                | Content::Flush(..)
+                | Content::Styled(..)
+                | Content::Divider(..)
+                | Content::Terms(..)
+                | Content::TermItem(..)
+                | Content::Quote(..)
+                | Content::Document { .. }
+                | Content::Asset { .. }
+                | Content::SmartQuote(..)
+                | Content::PdfAttach(..)
+                | Content::Underline(..)
+                | Content::Strike(..)
+                | Content::Overline(..)
+                | Content::SmallCaps { .. }
+                | Content::Pad(..)
+                | Content::Hide(..)
+                | Content::HSpace(..)
+                | Content::VSpace(..)
+                | Content::Pagebreak(..)
+                | Content::Colbreak(..)
+                | Content::Stack(..)
+                | Content::Boxed(..)
+                | Content::Block(..)
+                | Content::Bibliography(..)
+                | Content::Cite(..)
+                | Content::Footnote(..)
+                | Content::FootnoteEntry(..)
+                | Content::TableHeader(..)
+                | Content::TableFooter(..)
+                | Content::GridHLine(..)
+                | Content::GridVLine(..)
+                | Content::TableHLine(..)
+                | Content::TableVLine(..)
+                | Content::Table(..)
+                | Content::Repeat(..)
+                | Content::Columns(..)
+                | Content::Metadata(..)
+                | Content::State(..)
+                | Content::StateUpdate(..)
+                | Content::StateDisplay(..)
+                | Content::CounterDisplayCallback(..)
+                | Content::ContextBlock(..),
+                _,
+            ) => None, // neutro: N16[β] — variantes de Content sem campos expostos retornam None em get_field
         }
     }
 }
@@ -84,5 +343,133 @@ mod fields_tests {
     #[test]
     fn unsupported_field_is_absent() {
         assert_eq!(Content::Empty.get_field("missing"), None);
+    }
+}
+
+#[cfg(test)]
+mod content_view_regressions {
+    use crate::entities::{
+        content::{
+            Content, LocatedContent, RealizedContent, ShowRecipeContent, SourceContent,
+        },
+        elements::equation::EquationElem,
+        file_id::FileId,
+        locator::Locator,
+        span::Span,
+        style::Styles,
+        style_chain::StyleChain,
+        value::Value,
+    };
+    use std::sync::Arc;
+    fn wrap(kind: usize, body: Content) -> Content {
+        match kind {
+            0 => Content::Source(Arc::new(SourceContent {
+                body,
+                span: Span::from_range(
+                    FileId::from_raw(std::num::NonZeroU16::new(7).unwrap()),
+                    0..1,
+                ),
+            })),
+            1 => Content::Located(Arc::new(LocatedContent {
+                body,
+                location: Locator::new().next(),
+            })),
+            2 => Content::Realized(Arc::new(RealizedContent {
+                original: Content::text("causal original"),
+                visual: body,
+            })),
+            3 => Content::ShowRecipe(Arc::new(ShowRecipeContent {
+                body,
+                textual: false,
+                context_id_floor: 0,
+                rules: Arc::from([]),
+                styles: StyleChain::default_chain(),
+                guards: vec![],
+                file: FileId::from_raw(std::num::NonZeroU16::new(7).unwrap()),
+            })),
+            _ => panic!("probe kind"),
+        }
+    }
+    fn styles() -> Styles {
+        Styles::new()
+            .push_custom("equation.numbering", Value::Str("(1)".into()))
+            .push_custom("equation.supplement", Value::Str("Eq".into()))
+            .push_custom("equation.alt", Value::Str("alternative".into()))
+            .push_custom("equation.number-align", Value::None)
+    }
+
+    #[test]
+    fn content_views_styled_equation_carriers_preserve_fields() {
+        let eq = Content::Equation(Arc::new(EquationElem::new(Content::text("x"), true)));
+        let expected = Content::styled(eq.clone(), styles());
+        let fields = [
+            "numbering",
+            "supplement",
+            "alt",
+            "number-align",
+            "body",
+            "block",
+            "missing",
+        ];
+        let mut differences = Vec::new();
+        for kind in 0..4 {
+            for position in 0..3 {
+                let observed = match position {
+                    0 => Content::styled(wrap(kind, eq.clone()), styles()),
+                    1 => wrap(kind, expected.clone()),
+                    2 => Content::styled(
+                        wrap(kind, Content::styled(eq.clone(), Styles::new())),
+                        styles(),
+                    ),
+                    _ => unreachable!(),
+                };
+                for field in fields {
+                    let a = expected.get_field(field);
+                    let z = observed.get_field(field);
+                    if a != z {
+                        differences
+                            .push(format!("{kind}/{position}/{field}: {a:?} != {z:?}"));
+                    }
+                }
+            }
+        }
+        assert!(differences.is_empty(), "{}", differences.join("\n"));
+    }
+    #[test]
+    fn content_views_non_equations_and_style_precedence_stay_separate() {
+        let eq = Content::Equation(Arc::new(EquationElem::new(Content::text("x"), true)));
+        for kind in 0..4 {
+            let non_equation = Content::styled(wrap(kind, Content::text("x")), styles());
+            for key in ["alt", "body", "block", "numbering"] {
+                assert_eq!(non_equation.get_field(key), None, "{kind}/{key}");
+            }
+            let visual_text = Content::styled(
+                Content::Realized(Arc::new(RealizedContent {
+                    original: eq.clone(),
+                    visual: Content::text("x"),
+                })),
+                styles(),
+            );
+            assert_eq!(visual_text.get_field("alt"), None);
+            let inner = Content::styled(
+                wrap(kind, eq.clone()),
+                Styles::new().push_custom("equation.alt", Value::Str("inner".into())),
+            );
+            let outer = Content::styled(
+                wrap(kind, inner.clone()),
+                Styles::new().push_custom("equation.alt", Value::Str("outer".into())),
+            );
+            assert_eq!(
+                outer.get_field("alt"),
+                Some(Value::Str("outer".into())),
+                "{kind}/outer"
+            );
+            let fallback = Content::styled(wrap(kind, inner), Styles::new());
+            assert_eq!(
+                fallback.get_field("alt"),
+                Some(Value::Str("inner".into())),
+                "{kind}/inner"
+            );
+        }
     }
 }

@@ -1,8 +1,11 @@
 # L0 — region progress
-Hash do Código: fc48c17c
+Hash do Código: f1159ad2
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
+- 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:77c7d31bf3f7276cc9b4d1b2951634724a6d0fb4352a0b45c76e6f3775b512dc
+- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:7b8a61eaafc8a07df12218f8f0560c33fae5c36f621b822b7350ccefc9774711
+- 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml sha256:04f91fc931871165d4fef399ea9c2e21e8b75f7fd57031183a4e2aed0ed1b62a
+- 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:0e7c32f877924fea773be54f9719b43bb72b4c3bb065f6ff44a842c56683ff78
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/region_progress.rs`
@@ -37,3 +40,62 @@ Own admission of the next text line through a private static descendant function
 The first implementation's 36 real-font controls are preserved in first-after-pdf/ and first-pdf-green.log (before any later rebuild). terminal-columns still loses Three; terminal-footnote changes from 2 to 1 pages and its raster shows note/main overlap. Column start returns before clearing previous block spacing; terminal note fitting uses cursor_y and must retain the conservative following-line clearance rather than the terminal geometry cursor. These measurements require the refinements below, without changing the footnote body format, reservation model or public contract.
 
 After start_next_column, clear last_flush_advance, prev_block_equation_descent, prev_block_below_pending and block_chain_active exactly as a physical-region transition does. Do not let another word rebuild a baseline from the closed column. The private reset belongs to this owner and is shared by the two transition branches.
+
+## Isolamento de overflow local — 2026-10-13
+
+### Medição anterior à decisão
+
+As sondas em containers-clip-2026-10-13/before-renders.json registram
+block(shape maior que altura declarada) criando duas páginas vazias no
+Tekt contra uma região recortada no controle. Fonte e proveniência completas
+estão naquele lote. Para corrigir a composição é necessário que o helper
+isolado retenha o corpo, mas shape.rs:119, cursor.rs:125,
+line_commit.rs:438 e region_progress.rs:115,131 ainda permitem avanço
+externo por overflow com is_sub_frame ativo. sub_frame.rs:109-121,317-340
+salva buffers/cursor, mas não uma página já comitada por esses descendentes.
+Essa hipótese será testada diretamente antes de modificar as condições.
+Fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC estão
+em `00_nucleo/diagnosticos/subframe-isolamento-2026-10-13/before.json.gz`.
+
+### Responsabilidade exclusiva e aceitação
+
+post_line e admit_next_text_line não pedem transição nem rejeitam a transação externa durante is_sub_frame. next_region e o protocolo explícito de páginas/colunas permanecem intactos.
+
+Os invariantes compartilhados pertencem ao núcleo subframe-overflow pinado.
+Correção interna ADR-0127, sem campo/assinatura pública, fase ou novo default.
+Exigir RED→GREEN antes/depois das condições, preservação da paginação
+ordinária externa, suíte core, build, formato e linhagem. Não elevar a
+altura de teste para esconder overflow nem descartar itens do frame.
+A correção do helper não equivale a terminar a composição de block/box;
+a coleta, dimensões e recorte desses containers continuam nos seus owners.
+
+## Place após fluxo comitado — etapa B1 — 2026-10-14
+
+### Medição antes da decisão
+
+`00_nucleo/diagnosticos/place-fluxo-2026-10-14/before/results.json.gz` registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/UTC/fontes/binários/argv e pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Nos 24 pares root/Box após 12 prefixos, o marcador diverge em todos; Linebreak/Parbreak precisam y22.25pt, Shape y27pt, Block/Grid/VSpace20pt precisam y35pt, mas Tekt usa15pt. Em Rotate há também sobreposição visual, defeito independente. line_commit.rs:721–733 prepara próxima baseline; shape.rs:196–206 agrega below/cap; block.rs:465 conserva fronteira e margem separadas; place.rs:91–99 só reconhece linha ainda pendente. Fonte pinada flow/distribute.rs:703–715 usa offset físico de flow para Place sem eixo explícito. Isso é geometria de linguagem, não exigência de estrutura Rust. A hipótese é refutada por margem fraca, sobreposição, página nova, rollback ou vazamento entre subframes.
+
+### Responsabilidade exclusiva
+
+Limpar flow_placement_end em reset_closed_region_flow, tanto página como coluna, sem mover ownership de transição.
+
+### Aceitação e extensão pendente
+
+Correção interna ADR-0127: L0 primeiro, RED→GREEN e resselo; sem campo público, flag/default ou fase nova. Este adendo autoriza somente o estado privado necessário a esse contrato, supersedendo proibições de novo estado limitadas a extrações anteriores. Guardar/restaurar em LIFO é obrigatório. Revalidar suíte completa, HTML/contexto, PDF/SVG, build/doc/fmt/check, linhagem e inventário de avisos.
+B1 completa a âncora após produtores certificados (linha, forma, Block, Align, Grid, Raw, VSpace), sem substituir o objetivo de corrigir todo o sistema. B2 completa região de Block/inset; B3 resolve assentamento tardio de linha pendente com inline Box/Transform, e audita demais produtores (Heading/List/Stack/Equation/Columns) antes de certificar Place universal. Testemunha inválida conserva a rota legada e é pendência, não crédito de paridade. O gate público de tiling continua pendente.
+
+## Block: região local e recorte — B2a — 2026-10-14
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/place-fluxo-2026-10-14/block-regions-before/results.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore suja, diffstat, UTC, fontes e binários. Em 24 pares contra vanilla pin 9f2b6e8715237cb086899a42873660fe744622e8, só 2 bboxes coincidem: inset3/top Tekt(20,15), vanilla(20,18); bottom/right Tekt(71,37), vanilla(62,44); clip apaga o marcador Tekt. block.rs:90 ignora inset.right; :220 instala largura como body, :275 usa avanço zero de Place como altura de clip, :290 agrupa filhos absolutos sem rebase. placement.rs:505 usa página/subframe sem região Block. Fonte pinada typst-layout/src/flow/block.rs:66-89 e :223-234 força tamanho interno, cresce inset e só então recorta; :278-280 desconta inset da região. Geometria é observável de linguagem; buffers Rust são mecânica. A hipótese de região local é refutada por aninhamento, texto, auto, clipping ou vazamento aos irmãos.
+
+### Responsabilidade exclusiva
+
+Invalidar block_place_region ao fechar página/coluna, sem restaurar limites do fragmento anterior.
+
+### Aceitação e incompletude explícita
+
+Correção interna/de paridade ADR-0127, sem campo público, modo ou fase. Este adendo substitui somente as fórmulas incompatíveis de região/width/clip anteriores; não legitima outros reparos sem medição. L0 primeiro, RED→GREEN, validação bilateral, suíte e resselo restrito. B2a cobre região local e clipping na região sobrevivente. B2b completa fragmentação de Block, dimensões/outset e integração dos metadados/decoradores que controles adicionais refutarem; B3 continua responsável por baseline tardia de inline Box/Transform e produtores ainda não certificados. Não declarar objetivo completo com essas frentes abertas.
+
+B2a conserva também uma lista privada de faixas de decoração associadas ao índice do fixup Y de Place auto. O hub armazena; checkpoint clona/restaura; subframe e Block isolam/restauram; transição limpa; placement registra somente os segmentos emitidos pela ocorrência; Block aplica a mesma delta da geometria antes de encerrar o escopo.

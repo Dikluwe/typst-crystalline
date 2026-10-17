@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/numbering` — numbering tipado e vistas realizadas
-Hash do Código: ffffffff
+Hash do Código: 1f987367
 
 **Camada:** L1
 **Ficheiro alvo:** `01_core/src/entities/numbering.rs`

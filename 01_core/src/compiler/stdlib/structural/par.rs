@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/par.md
-//! @prompt-hash f9d6d7e4
+//! @prompt-hash e2bcbdd4
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -10,6 +10,7 @@
 //! estava sustentada por um cluster de co-mudança que não existia (artefacto
 //! de atribuição da ferramenta). Fronteira nova medida no L0 deste nó.
 
+use crate::compiler::eval::rules::expected_length_error;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
@@ -149,11 +150,27 @@ pub fn native_par(
                 }
                 styles = styles.push_custom("par.linebreaks", value.clone());
             }
+            "spacing" => {
+                let span = args
+                    .occurrences
+                    .as_ref()
+                    .and_then(|items| {
+                        items
+                            .iter()
+                            .rev()
+                            .find(|item| item.name.as_deref() == Some("spacing"))
+                    })
+                    .map_or(args.span, |item| item.value_span);
+                match value {
+                    Value::Length(length) => {
+                        styles =
+                            styles.push_custom("par.spacing", Value::Length(*length));
+                    }
+                    other => return Err(vec![expected_length_error(other, span)]),
+                }
+            }
             // Known properties awaiting their own consumers.
-            "spacing"
-            | "first-line-indent"
-            | "hanging-indent"
-            | "justification-limits" => {}
+            "first-line-indent" | "hanging-indent" | "justification-limits" => {}
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     Span::detached(),
@@ -183,4 +200,122 @@ fn break_policy_error(expected: &str, found: &Value, span: Span) -> SourceDiagno
         other => other,
     };
     SourceDiagnostic::error(span, format!("{expected}, found {name}"))
+}
+
+#[cfg(test)]
+mod v16_paragraph_spacing_tests {
+    use super::*;
+    use crate::contracts::world::World;
+    use crate::entities::{
+        args::ArgOccurrence,
+        font_book::FontBook,
+        source::Source,
+        world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+    };
+    use std::num::NonZeroU16;
+
+    #[derive(Default)]
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+    }
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+    fn invoke(args: &Args) -> SourceResult<Value> {
+        let world = TestWorld::default();
+        native_par(&mut EvalContext::new(), args, &world, world.main())
+    }
+
+    #[test]
+    fn v16_paragraph_spacing_rejects_invalid_types() {
+        for value in [
+            Value::None,
+            Value::Auto,
+            Value::Bool(true),
+            Value::Int(1),
+            Value::Float(1.5),
+            Value::Str("x".into()),
+            Value::Ratio(crate::entities::layout_types::Ratio(0.5)),
+        ] {
+            let mut args = Args::positional(vec![Value::Content(Content::Empty)]);
+            args.named.insert("spacing".into(), value);
+            assert!(invoke(&args).unwrap_err()[0]
+                .message
+                .starts_with("expected length, found"));
+        }
+    }
+
+    #[test]
+    fn v16_paragraph_spacing_integer_hint_and_last_origin() {
+        let file = TestWorld::default().main();
+        let whole = Span::from_range(file, 0..30);
+        let first = Span::from_range(file, 5..9);
+        let last = Span::from_range(file, 25..26);
+        let args = Args::from_occurrences(
+            whole,
+            vec![
+                ArgOccurrence {
+                    name: None,
+                    value: Value::Content(Content::Empty),
+                    span: whole,
+                    value_span: whole,
+                },
+                ArgOccurrence {
+                    name: Some("spacing".into()),
+                    value: Value::Length(Length::pt(30.0)),
+                    span: first,
+                    value_span: first,
+                },
+                ArgOccurrence {
+                    name: Some("spacing".into()),
+                    value: Value::Int(1),
+                    span: last,
+                    value_span: last,
+                },
+            ],
+        );
+        let diagnostics = invoke(&args).unwrap_err();
+        assert_eq!(diagnostics[0].message, "expected length, found integer");
+        assert_eq!(diagnostics[0].span, last);
+        assert_eq!(diagnostics[0].hints, ["a length needs a unit - did you mean 1pt?"]);
+    }
+
+    #[test]
+    fn v16_paragraph_spacing_synthetic_arguments_use_aggregate_span() {
+        let mut args = Args::positional(vec![Value::Content(Content::Empty)]);
+        args.span = Span::from_range(TestWorld::default().main(), 10..20);
+        args.named.insert("spacing".into(), Value::Auto);
+        assert_eq!(invoke(&args).unwrap_err()[0].span, args.span);
+    }
+
+    #[test]
+    fn v16_paragraph_spacing_body_error_precedes_option_error() {
+        let mut args = Args::positional(vec![Value::Bool(true)]);
+        args.named.insert("spacing".into(), Value::None);
+        assert!(invoke(&args).unwrap_err()[0].message.starts_with("expected content"));
+    }
 }

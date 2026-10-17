@@ -1,0 +1,8 @@
+.git
+**/target
+dist
+lab
+00_nucleo
+.codex
+.agents
+**/__pycache__

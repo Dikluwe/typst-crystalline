@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/layout/place.md
-//! @prompt-hash 688454f3
+//! @prompt-hash 0268b6de
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -39,12 +39,12 @@ pub fn native_place(
         }
     }
 
-    // Default "top-left" para Place, "left" (default Align2D) para Align.
+    // Preserve an omitted vertical axis: it follows flow, unlike explicit Top.
     let alignment = extract_alignment(
         args,
         Align2D {
             h: Some(crate::entities::layout_types::HAlign::Left),
-            v: Some(crate::entities::layout_types::VAlign::Top),
+            v: None,
         },
     );
 

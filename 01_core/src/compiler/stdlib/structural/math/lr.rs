@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math/lr.md
-//! @prompt-hash eb20e12d
+//! @prompt-hash d827dcc2
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -40,4 +40,9 @@ pub fn native_math_lr(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     math_lr_from_args(args).map(Value::Content)
+}
+
+/// Classify the pinned left/right symbol wrappers without calling them.
+pub(crate) fn is_callable_lr_symbol(value: &str) -> bool {
+    value.chars().count() == 1 && "⌈⌊(⟮⦇⦅⦓⦕{⦃[⦍⦏⟦⦋❲⟬⦗⟅⎰⎱⧘⧚⟨⧼⦑⦉⟪⌜⌞|‖⦀⦙⦚".contains(value)
 }

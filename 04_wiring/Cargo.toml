@@ -16,6 +16,7 @@ typst-core  = { path = "../01_core" }
 typst-shell = { path = "../02_shell" }
 typst-infra = { path = "../03_infra" }
 anyhow      = { workspace = true }
+pathdiff    = "=0.2.3" # Pure lexical diagnostic paths; pinned with the vanilla oracle.
 comemo      = { workspace = true }  # P204E: wrapper crystalline_evict (ADR-0073)
 time        = { workspace = true }
 # `clap` foi removido no Passo 117 (ADR-0049): CLI vive agora em L2

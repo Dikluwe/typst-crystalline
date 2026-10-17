@@ -1,5 +1,5 @@
 # Prompt L0 — `Symbol` — grapheme Unicode nomeado com modifiers e constructor
-Hash do Código: 9e803b06
+Hash do Código: 7f311153
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/symbol.rs`

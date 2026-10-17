@@ -1,0 +1,7 @@
+{
+  "utc": "2026-10-06T20:47:51.434712+00:00",
+  "authorization": "confirmo",
+  "manifest": "00_nucleo/materialization/math-bare-2026-10-06/manifest.json",
+  "sha256": "149d6535b442a9275aa6612647ad79eac460351808ea1858175d09d1cf07e1f6",
+  "status": "ratified; promoted before tests/code"
+}

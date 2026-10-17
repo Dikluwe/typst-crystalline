@@ -1,5 +1,5 @@
 # L0 — bib csl
-Hash do Código: 0ce22280
+Hash do Código: edfa8951
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/bib_csl.rs`

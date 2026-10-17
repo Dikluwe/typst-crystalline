@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_delimited.md
-//! @prompt-hash ce303859
+//! @prompt-hash 0700e76a
 //! @layer L1
-//! @updated 2026-06-11
+//! @updated 2026-10-10
 //!
 //! `MathDelimitedElem` — Lote 2 P317 (família math). Expressão delimitada.
 //! Comportamento idêntico ao braço anterior do hub (content-preserving).
@@ -66,11 +66,9 @@ impl Element for MathDelimitedElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathDelimited(Arc::new(MathDelimitedElem {
-            open: self.open,
-            body: self.body.map_content(transform)?,
-            close: self.close,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathDelimited(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -91,11 +89,9 @@ impl Element for MathLrElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::math_lr(
-            self.body.map_content(transform)?,
-            self.size,
-            self.size_explicit,
-        ))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathLr(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -123,7 +119,9 @@ impl Element for MathMidElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::math_mid(self.body.map_content(transform)?))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathMid(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -131,6 +129,66 @@ impl Element for MathMidElem {
         F: FnMut(&str) -> String,
     {
         Content::MathMid(Arc::new(self.clone()))
+    }
+}
+
+impl MathDelimitedElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        if body.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        Ok(Some(Content::MathDelimited(Arc::new(mapped))))
+    }
+}
+
+impl MathLrElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        if body.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        Ok(Some(Content::MathLr(Arc::new(mapped))))
+    }
+}
+
+impl MathMidElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        if body.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        Ok(Some(Content::MathMid(Arc::new(mapped))))
     }
 }
 

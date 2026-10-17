@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/raw.md
-//! @prompt-hash 470ded04
+//! @prompt-hash 629a7bc1
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -16,15 +16,35 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 
+/// Presença lexical de `block`, inclusive quando falso.
+pub const RAW_SET_BLOCK: u8 = 1;
+/// Presença lexical de `lang`, inclusive quando `none`.
+pub const RAW_SET_LANG: u8 = 2;
+
 /// Código raw. `lang` opcional (syntax highlighting); `block` = bloco vs inline.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct RawElem {
     pub text: EcoString,
     pub lang: Option<EcoString>,
     pub block: bool,
+    /// Máscara dos campos opcionais conhecidos; demais bits são reservados.
+    pub set_fields: u8,
 }
 
 impl Element for RawElem {
+    fn get_field(&self, field: &str) -> Option<Value> {
+        match field {
+            "text" => Some(Value::Str(self.text.clone())),
+            "block" if self.set_fields & RAW_SET_BLOCK != 0 => {
+                Some(Value::Bool(self.block))
+            }
+            "lang" if self.set_fields & RAW_SET_LANG != 0 => {
+                Some(self.lang.clone().map(Value::Str).unwrap_or(Value::None))
+            }
+            _ => None,
+        }
+    }
+
     fn plain_text(&self) -> String {
         self.text.to_string()
     }
@@ -146,6 +166,7 @@ mod tests {
             text: "let x = 1".into(),
             lang: Some("rust".into()),
             block: true,
+            set_fields: RAW_SET_BLOCK | RAW_SET_LANG,
         }
     }
 
@@ -160,5 +181,43 @@ mod tests {
         let mut other = ex();
         other.block = false;
         assert_ne!(ex(), other);
+    }
+
+    #[test]
+    fn raw_presence_maps_preserve_known_none_and_false() {
+        for set_fields in [0, RAW_SET_BLOCK, RAW_SET_LANG, RAW_SET_BLOCK | RAW_SET_LANG] {
+            let raw = RawElem {
+                text: "x".into(),
+                lang: None,
+                block: false,
+                set_fields,
+            };
+            let original = Content::Raw(Arc::new(raw.clone()));
+            for mapped in [
+                original.clone(),
+                original.map_content(&mut |_| Ok(None)).unwrap(),
+                original.map_text(&mut |s| s.to_owned()),
+            ] {
+                assert_eq!(mapped, original);
+                assert_eq!(mapped.get_field("text"), Some(Value::Str("x".into())));
+                assert_eq!(
+                    mapped.get_field("block"),
+                    (set_fields & RAW_SET_BLOCK != 0).then_some(Value::Bool(false))
+                );
+                assert_eq!(
+                    mapped.get_field("lang"),
+                    (set_fields & RAW_SET_LANG != 0).then_some(Value::None)
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn raw_presence_required_constructor_block_and_optional_language() {
+        let inline = Content::raw("x", None, false);
+        assert_eq!(inline.get_field("block"), Some(Value::Bool(false)));
+        assert_eq!(inline.get_field("lang"), None);
+        let typed = Content::raw("x", Some("typc".into()), false);
+        assert_eq!(typed.get_field("lang"), Some(Value::Str("typc".into())));
     }
 }

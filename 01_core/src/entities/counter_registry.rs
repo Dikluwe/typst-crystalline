@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/counter_registry.md
-//! @prompt-hash bc62b516
+//! @prompt-hash f09df7e5
 //! @layer L1
-//! @updated 2026-08-12
+//! @updated 2026-10-17
 //!
 //! `CounterRegistry` — sub-store de counters por `CounterKey` para
 //! `Introspector`. P165 sub-passo .C (M3 Introspection).
@@ -41,9 +41,60 @@ pub struct CounterRegistry {
     /// de inserção é cronológica — `value_at` faz lookup linear.
     history: HashMap<CounterKey, Vec<(Location, Vec<usize>)>>,
     actions: Vec<CounterActionEvent>,
+    document_order: HashMap<Location, usize>,
+    document_locations: Vec<Vec<Location>>,
 }
 
 impl CounterRegistry {
+    pub(crate) fn record_document_locations(&mut self, locations: Vec<Location>) {
+        self.document_locations.push(locations);
+    }
+
+    pub(crate) fn document_locations(&self, index: usize) -> Option<&[Location]> {
+        self.document_locations.get(index).map(Vec::as_slice)
+    }
+
+    pub(crate) fn observe_location(&mut self, location: Location) {
+        let ordinal = self.document_order.len();
+        self.document_order.entry(location).or_insert(ordinal);
+    }
+
+    /// Register a fresh causal block without changing existing identities or histories.
+    pub(crate) fn observe_locations_after(
+        &mut self,
+        anchor: Location,
+        locations: &[Location],
+    ) {
+        let Some(anchor_order) = self.document_order.get(&anchor).copied() else {
+            return;
+        };
+        let mut seen = std::collections::HashSet::new();
+        let fresh: Vec<_> = locations
+            .iter()
+            .copied()
+            .filter(|location| {
+                !self.document_order.contains_key(location) && seen.insert(*location)
+            })
+            .collect();
+        if fresh.is_empty() {
+            return;
+        }
+        for ordinal in self.document_order.values_mut() {
+            if *ordinal > anchor_order {
+                *ordinal += fresh.len();
+            }
+        }
+        for (offset, location) in fresh.into_iter().enumerate() {
+            self.document_order.insert(location, anchor_order + offset + 1);
+        }
+    }
+
+    pub(crate) fn order_key(&self, location: Location) -> u128 {
+        self.document_order
+            .get(&location)
+            .map_or_else(|| location.as_u128(), |n| *n as u128)
+    }
+
     pub(crate) fn record_action(
         &mut self,
         location: Location,
@@ -154,8 +205,7 @@ impl CounterRegistry {
         let history = self.history.get(key)?;
         history
             .iter()
-            .filter(|(loc, _)| loc.as_u128() <= location.as_u128())
-            .last()
+            .rfind(|(loc, _)| self.order_key(*loc) <= self.order_key(location))
             .map(|(_, v)| v.as_slice())
     }
 
@@ -439,5 +489,34 @@ mod tests {
         assert_eq!(r.value_at_index(&key("figure:image"), 1), Some(&[2usize][..]));
         assert_eq!(r.value_at_index(&key("figure:table"), 0), Some(&[1usize][..]));
         assert_eq!(r.value_at_index(&key("figure:table"), 1), None);
+    }
+}
+
+#[cfg(test)]
+mod v16_walk_order_contract_tests {
+    use super::*;
+    use crate::entities::locator::Locator;
+
+    #[test]
+    fn v16_walk_order_block_preserves_identity_density_and_idempotence() {
+        let mut allocator = Locator::new();
+        let later = allocator.next();
+        let anchor = allocator.next();
+        let inserted = allocator.next();
+        let unknown = allocator.next();
+        let next = allocator.next();
+        let mut registry = CounterRegistry::empty();
+        registry.observe_location(anchor);
+        registry.observe_location(later);
+        registry.observe_locations_after(anchor, &[inserted, inserted, anchor, later]);
+        assert_eq!(registry.order_key(anchor), 0);
+        assert_eq!(registry.order_key(inserted), 1);
+        assert_eq!(registry.order_key(later), 2);
+        let previous = registry.document_order.clone();
+        registry.observe_locations_after(anchor, &[inserted]);
+        registry.observe_locations_after(unknown, &[next]);
+        assert_eq!(registry.document_order, previous);
+        registry.observe_location(next);
+        assert_eq!(registry.order_key(next), 3);
     }
 }

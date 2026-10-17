@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/slicing.md
-//! @prompt-hash 06336b70
+//! @prompt-hash 3da21b07
 //! @layer L1
 //! @updated 2026-05-14
 //!
@@ -83,21 +83,32 @@ pub(super) fn item_y_start(item: &FrameItem) -> f64 {
 /// `layout_types.rs`: "itens em espaço local").
 pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
     match item {
-        FrameItem::TextSeparator { pos, advance, style, origin } => FrameItem::TextSeparator { pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) }, advance, style, origin },
-        FrameItem::Text { pos, text, style } => FrameItem::Text {
+        FrameItem::TextSeparator { pos, advance, style, origin, .. } => {
+            FrameItem::TextSeparator {
+                pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
+                advance,
+                style,
+                origin,
+                bidi: None,
+            }
+        }
+        FrameItem::Text { pos, text, style, .. } => FrameItem::Text {
             pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
             text,
             style,
+            bidi: None,
         },
-        FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
-            FrameItem::TextShaped {
-                pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
-                glyphs,
-                style,
-                text,
-                units_per_em,
-            }
-        }
+        FrameItem::TextShaped {
+            pos, glyphs, style, text, units_per_em, font, ..
+        } => FrameItem::TextShaped {
+            pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
+            glyphs,
+            style,
+            text,
+            units_per_em,
+            bidi: None,
+            font,
+        },
         FrameItem::Line { start, end, thickness, color, cap } => FrameItem::Line {
             start: Point { x: start.x, y: Pt(start.y.0 + delta) },
             end: Point { x: end.x, y: Pt(end.y.0 + delta) },
@@ -157,6 +168,7 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
             parent_bbox_at_emit,
         },
         FrameItem::Group {
+            paint_root,
             pos,
             matrix,
             clip_mask,
@@ -164,6 +176,7 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
             inner_height,
             items,
         } => FrameItem::Group {
+            paint_root,
             pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
             matrix,
             clip_mask,
@@ -202,6 +215,7 @@ mod tests {
             pos: Point { x: Pt(0.0), y: Pt(y) },
             text: EcoString::from("t"),
             style: TextStyle::default(),
+            bidi: None,
         }
     }
 
@@ -240,10 +254,14 @@ mod tests {
         assert!(head.is_empty());
         assert_eq!(tail.len(), 3, "items >= threshold vão para tail");
         // Rebased: pos.y -= 10.0.
-        if let FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } = &tail[0] {
+        if let FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } =
+            &tail[0]
+        {
             assert_eq!(pos.y.0, 0.0, "rebase pos.y -= threshold");
         }
-        if let FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } = &tail[2] {
+        if let FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } =
+            &tail[2]
+        {
             assert_eq!(pos.y.0, 10.0);
         }
     }
@@ -282,7 +300,9 @@ mod tests {
     fn p251_rebase_item_y_text() {
         let item = mk_text(15.0);
         let rebased = rebase_item_y(item, -10.0);
-        if let FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } = rebased {
+        if let FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } =
+            rebased
+        {
             assert_eq!(pos.y.0, 5.0);
         } else {
             panic!("esperado Text");
@@ -326,6 +346,7 @@ mod tests {
         use crate::entities::layout_types::TransformMatrix;
         let inner = mk_text(3.0);
         let group = FrameItem::Group {
+            paint_root: false,
             pos: Point { x: Pt(0.0), y: Pt(20.0) },
             matrix: TransformMatrix::identity(),
             clip_mask: None,

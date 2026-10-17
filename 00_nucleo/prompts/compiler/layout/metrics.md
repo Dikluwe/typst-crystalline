@@ -1,5 +1,5 @@
 # L0 — metrics
-Hash do Código: 317308c5
+Hash do Código: 59bd5446
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/ptr-eq-arc.md
-//! @prompt-hash 42982017
+//! @prompt-hash eb1d9bd2
 //! @layer L1
 //! @updated 2026-04-20
 

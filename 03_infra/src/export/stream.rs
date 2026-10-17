@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash b1c65082
+//! @prompt-hash 0e4af887
 //! @layer L3
 //! @updated 2026-09-28
 //!
@@ -8,14 +8,12 @@
 #![allow(deprecated)]
 
 use super::{
-    dedup_key_for, escape_pdf_string, group_bbox_from_fields, pdf_defaults,
-    remap_glyph_id, spot_bbox_for_shape, text_to_hex_string, DedupKey, ImageRef,
-    PatternRef, PdfTags, StreamMode,
+    escape_pdf_string, group_bbox_from_fields, pdf_defaults, remap_glyph_id,
+    spot_bbox_for_shape, text_to_hex_string, DedupKey, ImageRef, PatternRef, PdfTags,
+    StreamMode,
 };
+use crate::export::FontKey;
 use std::collections::HashMap;
-use typst_core::entities::font_book::FontVariant;
-use typst_core::entities::font_list::FontList;
-use typst_core::entities::font_variations::FontVariations;
 use typst_core::entities::layout_types::{FrameItem, Page};
 
 mod page;
@@ -24,10 +22,9 @@ mod text;
 pub(crate) use self::text::font_index_for_style;
 pub(super) use self::text::{
     emit_glyph_pdf, emit_glyph_pdf_marked, emit_glyph_pdf_verbose,
-    emit_glyph_pdf_verbose_marked, emit_shaped_pdf, emit_shaped_pdf_verbose,
-    emit_text_pdf, emit_text_pdf_verbose,
-    emit_text_pdf_deferred, emit_text_pdf_verbose_deferred,
-    emit_shaped_pdf_deferred, emit_shaped_pdf_verbose_deferred,
+    emit_glyph_pdf_verbose_marked, emit_shaped_pdf, emit_shaped_pdf_deferred,
+    emit_shaped_pdf_verbose, emit_shaped_pdf_verbose_deferred, emit_text_pdf,
+    emit_text_pdf_deferred, emit_text_pdf_verbose, emit_text_pdf_verbose_deferred,
 };
 use self::text::{emit_verbose_text_run, verbose_run_end};
 mod shape;
@@ -36,12 +33,11 @@ use self::shape::{
 };
 pub(super) use self::shape::{
     emit_rounded_rect_ops, emit_shape_path_local, emit_stroke_paint, fill_rg_prefix,
-    line_rg_prefix, spot_resource_name,
+    line_rg_prefix, opacity_name, opacity_operator, solid_opacity, spot_resource_name,
 };
+mod draw;
 mod separator;
 mod text_replacement;
-mod draw;
-pub(super) use self::draw::draw_item_local;
 use self::draw::draw_item_top;
 
 // ── P281 — PageContext + FontScenario (agregador unificado) ───────────────
@@ -75,7 +71,8 @@ pub(crate) enum FontScenario<'a> {
     },
     /// Multifont Identity-H com selecção `/F{fi+1}` por `(style.font, variant)`.
     Multifont {
-        fonts: &'a [((FontList, FontVariant, FontVariations), Vec<u8>)],
+        fonts: &'a [FontKey],
+        bindings: Option<crate::export::font_binding::LookupCache>,
         per_font_char_to_gid: &'a [HashMap<char, u16>],
         /// P516 — mapa old → new glyph ID por fonte (vazio se não subsetada).
         per_font_glyph_mapping: &'a [HashMap<u16, u16>],
@@ -101,6 +98,7 @@ pub(crate) struct PageContext<'a> {
     pub img_refs: &'a [ImageRef],
     pub pat_ptr_to_idx: &'a HashMap<DedupKey, usize>,
     pub pat_refs: &'a [PatternRef],
+    pub tiling_names: Option<&'a HashMap<super::pdf_tiling::Key, String>>,
     pub font_scenario: FontScenario<'a>,
     /// **P956** — modo de emissão de texto (ADR-0126): `Verbose` (envelope
     /// vanilla-espelhado, novo padrão) ou `Compact` (formato Passo 20,
@@ -120,11 +118,12 @@ pub(crate) struct PageContext<'a> {
 }
 
 impl<'a> PageContext<'a> {
-    pub(crate) fn type1(
+    pub(crate) fn with_font_scenario(
         ptr_to_idx: &'a HashMap<usize, usize>,
         img_refs: &'a [ImageRef],
         pat_ptr_to_idx: &'a HashMap<DedupKey, usize>,
         pat_refs: &'a [PatternRef],
+        font_scenario: FontScenario<'a>,
         mode: StreamMode,
     ) -> Self {
         Self {
@@ -132,13 +131,31 @@ impl<'a> PageContext<'a> {
             img_refs,
             pat_ptr_to_idx,
             pat_refs,
-            font_scenario: FontScenario::Type1,
+            tiling_names: None,
+            font_scenario,
             mode,
             tags: PdfTags::Disabled,
             semantic_mcids: HashMap::new(),
             ua1: false,
             oracle: false,
         }
+    }
+
+    pub(crate) fn type1(
+        ptr_to_idx: &'a HashMap<usize, usize>,
+        img_refs: &'a [ImageRef],
+        pat_ptr_to_idx: &'a HashMap<DedupKey, usize>,
+        pat_refs: &'a [PatternRef],
+        mode: StreamMode,
+    ) -> Self {
+        Self::with_font_scenario(
+            ptr_to_idx,
+            img_refs,
+            pat_ptr_to_idx,
+            pat_refs,
+            FontScenario::Type1,
+            mode,
+        )
     }
 
     /// **P980/P983** — activa o caminho do oráculo neste contexto.
@@ -192,21 +209,24 @@ impl<'a> PageContext<'a> {
                             );
                         }
                     }
-                    FrameItem::TextReplacement { items, .. } | FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
+                    FrameItem::TextReplacement { items, .. }
+                    | FrameItem::Group { items, .. }
+                    | FrameItem::Link { items, .. } => {
                         for child in items {
                             collect(child, next, out, inside_artifact, ua1);
                         }
                     }
-                    FrameItem::TextSeparator { .. } | FrameItem::Text { .. }
+                    FrameItem::TextSeparator { .. }
+                    | FrameItem::Text { .. }
                     | FrameItem::TextShaped { .. }
                     | FrameItem::Glyph { .. }
-                    | FrameItem::Image { .. }
-                        if ua1 && !inside_artifact =>
-                    {
-                        out.insert(item as *const FrameItem as usize, *next);
-                        *next += 1;
+                    | FrameItem::Image { .. } => {
+                        if ua1 && !inside_artifact {
+                            out.insert(item as *const FrameItem as usize, *next);
+                            *next += 1;
+                        }
                     }
-                    _ => {}
+                    FrameItem::Line { .. } | FrameItem::Shape { .. } => {}
                 }
             }
             let mut next = 0;
@@ -216,72 +236,14 @@ impl<'a> PageContext<'a> {
         }
         self
     }
+}
 
-    pub(crate) fn cidfont(
-        ptr_to_idx: &'a HashMap<usize, usize>,
-        img_refs: &'a [ImageRef],
-        pat_ptr_to_idx: &'a HashMap<DedupKey, usize>,
-        pat_refs: &'a [PatternRef],
-        char_to_gid: &'a HashMap<char, u16>,
-        glyph_mapping: &'a HashMap<u16, u16>,
-        glyph_to_nominal: &'a HashMap<u16, i32>,
-        bitmap: Option<&'a HashMap<u16, crate::export::bitmap_glyphs::BitmapGlyphRef>>,
-        mode: StreamMode,
-    ) -> Self {
-        Self {
-            ptr_to_idx,
-            img_refs,
-            pat_ptr_to_idx,
-            pat_refs,
-            font_scenario: FontScenario::Cidfont {
-                char_to_gid,
-                glyph_mapping,
-                glyph_to_nominal,
-                bitmap,
-            },
-            mode,
-            tags: PdfTags::Disabled,
-            semantic_mcids: HashMap::new(),
-            ua1: false,
-            oracle: false,
-        }
+pub(super) fn build_cell_stream(items: &[FrameItem], ctx: &PageContext) -> Vec<u8> {
+    let mut ops = String::new();
+    for item in items {
+        draw::draw_item_local(&mut ops, item, None, ctx);
     }
-
-    pub(crate) fn multifont(
-        ptr_to_idx: &'a HashMap<usize, usize>,
-        img_refs: &'a [ImageRef],
-        pat_ptr_to_idx: &'a HashMap<DedupKey, usize>,
-        pat_refs: &'a [PatternRef],
-        fonts: &'a [((FontList, FontVariant, FontVariations), Vec<u8>)],
-        per_font_char_to_gid: &'a [HashMap<char, u16>],
-        per_font_glyph_mapping: &'a [HashMap<u16, u16>],
-        per_font_glyph_to_nominal: &'a [HashMap<u16, i32>],
-        per_font_glyph_reverse: &'a [HashMap<u16, char>],
-        per_font_bitmap: &'a [Option<
-            HashMap<u16, crate::export::bitmap_glyphs::BitmapGlyphRef>,
-        >],
-        mode: StreamMode,
-    ) -> Self {
-        Self {
-            ptr_to_idx,
-            img_refs,
-            pat_ptr_to_idx,
-            pat_refs,
-            font_scenario: FontScenario::Multifont {
-                fonts,
-                per_font_char_to_gid,
-                per_font_glyph_mapping,
-                per_font_glyph_to_nominal,
-                per_font_glyph_reverse,
-                per_font_bitmap,
-            },
-            mode,
-            tags: PdfTags::Disabled,
-            semantic_mcids: HashMap::new(),
-            ua1: false,
-            oracle: false,
-        }
-    }
+    ops.into_bytes()
 }
 
 #[cfg(test)]
@@ -324,7 +286,9 @@ mod stream_tests {
             glyph_to_nominal: &std::collections::HashMap::new(),
             bitmap: None,
         };
-        emit_shaped_pdf(&mut ops, 72.0, 770.0, &glyphs, "A", &style, &scenario, 1000);
+        emit_shaped_pdf(
+            &mut ops, 72.0, 770.0, &glyphs, "A", &style, &scenario, 1000, None,
+        );
         assert!(ops.contains("TJ"), "P485: CIDFont deve usar TJ, não Tj");
         assert!(!ops.contains("] Tj"), "P485: não deve conter Tj no path CIDFont");
         assert!(ops.contains("<0041>"), "P485: deve conter hex do glyph_id");
@@ -343,7 +307,7 @@ mod stream_tests {
             glyph_to_nominal: &std::collections::HashMap::new(),
             bitmap: None,
         };
-        emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "B", &style, &scenario, 1000);
+        emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "B", &style, &scenario, 1000, None);
         assert!(
             ops.contains("<0042> 0"),
             "P485: fallback nominal=x_advance → delta TJ = 0"
@@ -365,6 +329,7 @@ mod stream_tests {
             &style,
             &FontScenario::Type1,
             1000,
+            None,
         );
         assert!(!ops.contains("TJ"), "P485: Type1 não deve usar TJ");
     }
@@ -381,6 +346,7 @@ mod stream_tests {
             &TextStyle::default(),
             &FontScenario::Type1,
             1000,
+            None,
         );
         assert!(ops.is_empty(), "P485: glyphs vazios → sem output");
     }
@@ -397,7 +363,7 @@ mod stream_tests {
             glyph_to_nominal: &std::collections::HashMap::new(),
             bitmap: None,
         };
-        emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "B", &style, &scenario, 1000);
+        emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "B", &style, &scenario, 1000, None);
         assert!(ops.contains("<0042>"), "P486: GID presente");
         assert!(ops.contains("<0042> 0"), "P486: delta 0 igual a P485");
         let after_bracket = ops.split("[ ").nth(1).unwrap_or("");
@@ -419,7 +385,7 @@ mod stream_tests {
             glyph_to_nominal: &std::collections::HashMap::new(),
             bitmap: None,
         };
-        emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "C", &style, &scenario, 1000);
+        emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "C", &style, &scenario, 1000, None);
         let after_bracket = ops.split("[ ").nth(1).unwrap_or("");
         assert!(
             after_bracket.starts_with("50 "),
@@ -440,7 +406,7 @@ mod stream_tests {
             glyph_to_nominal: &std::collections::HashMap::new(),
             bitmap: None,
         };
-        emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "D", &style, &scenario, 1000);
+        emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "D", &style, &scenario, 1000, None);
         let after_bracket = ops.split("[ ").nth(1).unwrap_or("");
         assert!(
             after_bracket.starts_with("-30 "),
@@ -473,7 +439,7 @@ mod stream_tests {
             glyph_to_nominal: &nominal,
             bitmap: None,
         };
-        emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "A", &style, &scenario, 1000);
+        emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "A", &style, &scenario, 1000, None);
         assert!(
             ops.contains("<0041> 40"),
             "P548: kerning negativo → delta positivo (aproxima)"
@@ -498,6 +464,7 @@ mod stream_tests {
             pos: Point { x: Pt(70.0), y: Pt(100.0) },
             text: "Clique".into(),
             style: TextStyle::default(),
+            bidi: None,
         };
         let page = Page {
             width: 595.0,
@@ -567,6 +534,7 @@ mod stream_tests {
             pos: Point { x: Pt(x), y: Pt(y) },
             text: text.into(),
             style,
+            bidi: None,
         }
     }
 
@@ -777,6 +745,7 @@ mod stream_tests {
         let ctx = p956_type1_ctx(&ptr, &imgs, &pats, &pat_refs, StreamMode::Verbose);
         let child = p956_text_item(10.0, 15.0, "Hi", TextStyle::regular(Pt(11.0)));
         let group = FrameItem::Group {
+            paint_root: false,
             pos: Point { x: Pt(50.0), y: Pt(60.0) },
             matrix: TransformMatrix::identity(),
             clip_mask: None,
@@ -851,15 +820,17 @@ mod stream_tests {
         let char_to_gid: HashMap<char, u16> = HashMap::new();
         let glyph_mapping: HashMap<u16, u16> = HashMap::new();
         let glyph_to_nominal: HashMap<u16, i32> = HashMap::new();
-        let ctx = PageContext::cidfont(
+        let ctx = PageContext::with_font_scenario(
             &ptr,
             &imgs,
             &pats,
             &pat_refs,
-            &char_to_gid,
-            &glyph_mapping,
-            &glyph_to_nominal,
-            None,
+            FontScenario::Cidfont {
+                char_to_gid: &char_to_gid,
+                glyph_mapping: &glyph_mapping,
+                glyph_to_nominal: &glyph_to_nominal,
+                bitmap: None,
+            },
             StreamMode::Verbose,
         );
         let item = FrameItem::Glyph {

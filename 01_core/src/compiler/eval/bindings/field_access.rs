@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 097127da
+//! @prompt-hash 719f35fe
 //! @layer L1
 //! @updated 2026-09-20
 //!
@@ -447,15 +447,18 @@ mod identity;
 
 pub(in crate::compiler::eval) use self::callee_error::field_callee_error;
 pub(in crate::compiler::eval) use self::content_methods::content_type_field;
+#[cfg(test)]
+pub(crate) use self::content_methods::eval_content_method_at;
 pub(crate) use self::content_methods::{
-    eval_content_method, eval_content_method_at, eval_introspected_content_method_at,
+    eval_content_method, eval_introspected_content_method_at,
     eval_outline_entry_body_method,
 };
 pub(in crate::compiler::eval) use self::fields::{
-    eval_field_access, eval_value_field_access,
+    check_module_field_feature, eval_field_access, eval_field_access_with_target,
+    eval_value_field_access,
 };
 pub(in crate::compiler::eval) use self::identity::warn_deprecated_symbol_binding;
-use self::{callee_error::*, content_methods::*, fields::*, identity::*};
+use self::{content_methods::*, identity::*};
 
 #[cfg(test)]
 mod p1325_tests {
@@ -936,7 +939,7 @@ mod p1338_tests {
     fn p1338_preserve_other_categories_diagnostics() {
         for (text, anchor, message) in [
             ("#((1pt).nope)", "(1pt).nope", "length does not contain field \"nope\""),
-            ("#array.nope", "array.nope", "type array does not contain field \"nope\""),
+            ("#array.nope", "nope", "type array does not contain field `nope`"),
             ("#(true.nope)", "nope", "cannot access fields on type boolean"),
             ("#(none.nope)", "nope", "cannot access fields on type none"),
             ("#(auto.nope)", "nope", "cannot access fields on type auto"),

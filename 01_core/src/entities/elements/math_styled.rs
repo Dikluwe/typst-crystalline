@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_styled.md
-//! @prompt-hash 3dc8ac7e
+//! @prompt-hash d2a5ac70
 //! @layer L1
-//! @updated 2026-06-10
+//! @updated 2026-10-10
 //!
 //! `MathStyledElem` — meio do lote piloto D (campos + math layout).
 //! Mecanismo do variant: ADR-0102/0103.
@@ -35,14 +35,9 @@ impl Element for MathStyledElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        // Recursivo no body; preserva kind/flags (content.rs:2145).
-        Ok(Content::MathStyled(Arc::new(MathStyledElem {
-            kind: self.kind,
-            bold: self.bold,
-            italic: self.italic,
-            body: self.body.map_content(transform)?,
-            cramped: self.cramped,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathStyled(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -51,6 +46,26 @@ impl Element for MathStyledElem {
     {
         // Terminal em map_text (math structural; content.rs:2636).
         Content::MathStyled(Arc::new(self.clone()))
+    }
+}
+
+impl MathStyledElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        if body.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        Ok(Some(Content::MathStyled(Arc::new(mapped))))
     }
 }
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/grid/rules.md
-//! @prompt-hash 9a1825c0
+//! @prompt-hash f978025b
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -8,7 +8,12 @@ use super::*;
 
 /// Emite as regras h/v explícitas sobre as células após paginação.
 #[allow(clippy::too_many_arguments)]
-pub(super) fn emit_explicit_rules<H: LayoutHLine, V: LayoutVLine>(
+pub(super) fn emit_explicit_rules<
+    M: FontMetrics,
+    S: ImageSizer,
+    H: LayoutHLine,
+    V: LayoutVLine,
+>(
     hlines: &[H],
     vlines: &[V],
     num_rows_produced_final: usize,
@@ -17,7 +22,7 @@ pub(super) fn emit_explicit_rules<H: LayoutHLine, V: LayoutVLine>(
     row_heights: &[f64],
     col_starts: &[f64],
     resolved_widths: &[f64],
-    items: &mut Vec<FrameItem>,
+    layouter: &mut super::super::Layouter<M, S>,
 ) {
     // P512 — desenhar hlines/vlines por cima das células, usando os
     // Y reais emitidos (já consideraram paginação).
@@ -53,13 +58,15 @@ pub(super) fn emit_explicit_rules<H: LayoutHLine, V: LayoutVLine>(
             // P887 (achado 3 de P885, extensão) — `width` = `dx.abs()`,
             // não `0.0` (ver comentário equivalente nas bordas de
             // célula acima); sem isto o traço tem comprimento zero.
-            items.push(FrameItem::Shape {
+            let prepared_stroke =
+                super::super::tiling::resolve_stroke(layouter, Some(stroke));
+            layouter.regions.current.current_items.push(FrameItem::Shape {
                 pos: Point { x: Pt(x0), y: Pt(y) },
                 kind: ShapeKind::Line { dx: x1 - x0, dy: 0.0 },
                 width: (x1 - x0).abs(),
                 height: 0.0,
                 fill: None,
-                stroke: Some(stroke.clone()),
+                stroke: prepared_stroke,
                 fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             });
@@ -84,13 +91,15 @@ pub(super) fn emit_explicit_rules<H: LayoutHLine, V: LayoutVLine>(
             let y1 = row_bottom(end.saturating_sub(1));
             // P887 (achado 3 de P885, extensão) — `height` = `dy.abs()`,
             // não `0.0` (mesma correcção do hline acima).
-            items.push(FrameItem::Shape {
+            let prepared_stroke =
+                super::super::tiling::resolve_stroke(layouter, Some(stroke));
+            layouter.regions.current.current_items.push(FrameItem::Shape {
                 pos: Point { x: Pt(x), y: Pt(y0) },
                 kind: ShapeKind::Line { dx: 0.0, dy: y1 - y0 },
                 width: 0.0,
                 height: (y1 - y0).abs(),
                 fill: None,
-                stroke: Some(stroke.clone()),
+                stroke: prepared_stroke,
                 fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
             });

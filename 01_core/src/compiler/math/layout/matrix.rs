@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/matrix.md
-//! @prompt-hash 0ba7a931
+//! @prompt-hash b3708598
 //! @layer L1
-//! @updated 2026-09-17
+//! @updated 2026-10-17
 
 use std::sync::Arc;
 
@@ -18,6 +18,11 @@ use crate::entities::rel::Rel;
 use crate::entities::span::Span;
 
 impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
+    #[cfg(test)]
+    #[expect(
+        clippy::too_many_arguments,
+        reason = "C120: Compatibilidade exclusivamente cfg(test): o L0 manda conservar assinatura/corpo e defaults históricos do wrapper, enquanto produção usa layout_matrix_elem com carrier completo"
+    )]
     pub(super) fn layout_matrix(
         &self,
         rows: &[Vec<Content>],
@@ -166,7 +171,7 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
                     .cloned()
                     .map(|item| offset_item(item, x, Pt(0.0))),
             );
-            x = x + Pt(left_box.width);
+            x += Pt(left_box.width);
         }
         let grid_origin_x = x;
         items.extend(
@@ -207,7 +212,7 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
             }
         }
 
-        x = x + Pt(grid_box.width);
+        x += Pt(grid_box.width);
         if effective.delim.1.is_some() {
             items.extend(
                 right_box
@@ -216,7 +221,7 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
                     .cloned()
                     .map(|item| offset_item(item, x, Pt(0.0))),
             );
-            x = x + Pt(right_box.width);
+            x += Pt(right_box.width);
         }
         MathBox {
             width: x.val(),
@@ -227,8 +232,10 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
     }
 
     fn effective_matrix_options(&self, elem: &MathMatrixElem) -> MathMatrixOptions {
-        let mut inherited = MathMatrixOptions::default();
-        inherited.explicit = Default::default();
+        let mut inherited = MathMatrixOptions {
+            explicit: Default::default(),
+            ..MathMatrixOptions::default()
+        };
         if let Some(chain) = self.lexical_styles {
             if let Some(value) = chain.custom("math.mat.gap") {
                 let _ = apply_math_matrix_option(
@@ -374,8 +381,6 @@ fn augment_stroke(
 struct GridGeometry {
     col_widths: Vec<f64>,
     boundary_col_widths: Vec<f64>,
-    row_ascent: Vec<f64>,
-    row_descent: Vec<f64>,
     boundary_ascent: Vec<f64>,
     boundary_descent: Vec<f64>,
     row_baselines: Vec<f64>,
@@ -451,8 +456,6 @@ impl GridGeometry {
         Self {
             col_widths,
             boundary_col_widths,
-            row_ascent,
-            row_descent,
             boundary_ascent,
             boundary_descent,
             row_baselines,
@@ -502,12 +505,12 @@ impl GridGeometry {
 }
 
 pub(super) fn split_cell_on_align_point(cell: &Content) -> Vec<Content> {
-    match cell {
+    let parts = match cell.source_body() {
         Content::MathSequence(sequence) => {
             let mut parts = Vec::new();
             let mut current = Vec::new();
             for item in sequence.iter() {
-                if matches!(item, Content::MathAlignPoint(_)) {
+                if matches!(item.source_body(), Content::MathAlignPoint(_)) {
                     parts.push(std::mem::take(&mut current));
                 } else {
                     current.push(item.clone());
@@ -527,11 +530,133 @@ pub(super) fn split_cell_on_align_point(cell: &Content) -> Vec<Content> {
             Content::MathSequence(Arc::from(Vec::new())),
             Content::MathSequence(Arc::from(Vec::new())),
         ],
-        _ => vec![cell.clone()],
-    }
+        Content::Source(_)
+        | Content::ShowRecipe(_)
+        | Content::Realized(_)
+        | Content::Located(_)
+        | Content::Empty
+        | Content::Text(_)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(_)
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_)
+        | Content::Par { .. }
+        | Content::Heading(_)
+        | Content::Title(_)
+        | Content::Strong(_)
+        | Content::Emph(_)
+        | Content::Raw(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::Link(_)
+        | Content::Equation(_)
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathPrimes(_)
+        | Content::MathRoot(_)
+        | Content::MathStretch(_)
+        | Content::MathDelimited(_)
+        | Content::MathLr(_)
+        | Content::MathMid(_)
+        | Content::MathOverbrace(_)
+        | Content::MathUnderbrace(_)
+        | Content::MathUnderbracket(_)
+        | Content::MathUnderparen(_)
+        | Content::MathUndershell(_)
+        | Content::MathOverbracket(_)
+        | Content::MathOverparen(_)
+        | Content::MathOvershell(_)
+        | Content::Linebreak(_)
+        | Content::MathMatrix(_)
+        | Content::MathCases(_)
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathOverline(_)
+        | Content::MathVec(_)
+        | Content::MathClassOverride(_)
+        | Content::MathLimitsOverride(_)
+        | Content::MathUnderover(_)
+        | Content::MathOp(_)
+        | Content::MathStyled(_)
+        | Content::Label(_)
+        | Content::Ref(_)
+        | Content::CounterDisplay(_)
+        | Content::CounterUpdate(_)
+        | Content::Outline(_)
+        | Content::OutlineEntry(_)
+        | Content::Figure(_)
+        | Content::FigureCaption(_)
+        | Content::Image(_)
+        | Content::Shape(_)
+        | Content::Curve(_)
+        | Content::Transform(_)
+        | Content::Grid(_)
+        | Content::GridHeader(_)
+        | Content::GridFooter(_)
+        | Content::GridCell(_)
+        | Content::SetPage(_)
+        | Content::PageRun(_)
+        | Content::Align(_)
+        | Content::Place(_)
+        | Content::Flush(_)
+        | Content::Styled(_)
+        | Content::Divider(_)
+        | Content::Terms(_)
+        | Content::TermItem(_)
+        | Content::Quote(_)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(_)
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. }
+        | Content::Pad(_)
+        | Content::Hide(_)
+        | Content::HSpace(_)
+        | Content::VSpace(_)
+        | Content::Pagebreak(_)
+        | Content::Colbreak(_)
+        | Content::Stack(_)
+        | Content::Boxed(_)
+        | Content::Block(_)
+        | Content::TableCell(_)
+        | Content::Bibliography(_)
+        | Content::Cite(_)
+        | Content::Footnote(_)
+        | Content::FootnoteEntry(_)
+        | Content::TableHeader(_)
+        | Content::TableFooter(_)
+        | Content::GridHLine(_)
+        | Content::GridVLine(_)
+        | Content::TableHLine(_)
+        | Content::TableVLine(_)
+        | Content::Table(_)
+        | Content::Repeat(_)
+        | Content::Columns(_)
+        | Content::Metadata(_)
+        | Content::State(_)
+        | Content::StateUpdate(_)
+        | Content::StateDisplay(_)
+        | Content::CounterDisplayCallback(_)
+        | Content::ContextBlock(_)
+        | Content::Dynamic(_) => vec![cell.clone()],
+    };
+    parts
+        .into_iter()
+        .map(|part| part.with_source_span(cell.source_span()))
+        .collect()
 }
 
-pub(super) fn edge_node<'a>(cell: &'a Content, first: bool) -> &'a Content {
+pub(super) fn edge_node(cell: &Content, first: bool) -> &Content {
+    let cell = cell.source_body();
     if let Content::MathSequence(items) = cell {
         if let Some(node) = if first { items.first() } else { items.last() } {
             return node;
@@ -542,8 +667,70 @@ pub(super) fn edge_node<'a>(cell: &'a Content, first: bool) -> &'a Content {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use crate::compiler::layout::FixedMetrics;
+    use crate::entities::elements::math_matrix::MathMatrixExplicit;
+
     #[test]
-    fn test_matrix_stub() {
-        assert!(true);
+    fn matrix_cells_preserve_rows_columns_and_gap_changes() {
+        let style = TextStyle::regular(Pt(12.0));
+        let layouter = MathLayouter::new(&FixedMetrics, false, &style);
+        let mut elem = MathMatrixElem {
+            rows: vec![
+                vec![Content::MathText("a".into()), Content::MathText("bb".into())],
+                vec![Content::MathText("ccc".into()), Content::MathText("d".into())],
+            ],
+            delim: (None, None),
+            align: HAlign::Left,
+            augment: None,
+            row_gap: Rel { rel: 0.0, abs: Length::pt(12.0) },
+            column_gap: Rel { rel: 0.0, abs: Length::pt(8.0) },
+            explicit: MathMatrixExplicit {
+                delim: true,
+                align: true,
+                augment: true,
+                row_gap: true,
+                column_gap: true,
+            },
+        };
+        let cells = |frame: &MathBox| {
+            frame
+                .items
+                .iter()
+                .map(|item| match item {
+                    FrameItem::Text { text, pos, .. } => {
+                        (text.to_string(), pos.x.val(), pos.y.val())
+                    }
+                    item => panic!("unexpected cell item: {item:?}"),
+                })
+                .collect::<Vec<_>>()
+        };
+        let initial = layouter.layout_matrix_elem(&elem, &style);
+        let positions = cells(&initial);
+        assert_eq!(
+            positions.iter().map(|cell| cell.0.as_str()).collect::<Vec<_>>(),
+            ["a", "bb", "ccc", "d"]
+        );
+        assert_eq!(positions[0].2, positions[1].2);
+        assert_eq!(positions[2].2, positions[3].2);
+        assert!(positions[2].2 > positions[0].2);
+        assert_eq!(positions[0].1, positions[2].1);
+        assert_eq!(positions[1].1, positions[3].1);
+        assert!(positions[1].1 > positions[0].1);
+
+        elem.column_gap.abs = Length::pt(15.0);
+        let wider = layouter.layout_matrix_elem(&elem, &style);
+        let wider_cells = cells(&wider);
+        assert!((wider.width - initial.width - 7.0).abs() < 1e-9);
+        assert!((wider_cells[1].1 - positions[1].1 - 7.0).abs() < 1e-9);
+        assert_eq!(wider_cells[0].1, positions[0].1);
+
+        elem.row_gap.abs = Length::pt(23.0);
+        let taller = layouter.layout_matrix_elem(&elem, &style);
+        let taller_cells = cells(&taller);
+        let before = positions[2].2 - positions[0].2;
+        let after = taller_cells[2].2 - taller_cells[0].2;
+        assert!((after - before - 11.0).abs() < 1e-9);
+        assert!((taller.width - wider.width).abs() < 1e-9);
     }
 }

@@ -1,5 +1,8 @@
 # L0 — stdlib/layout/place — place e flush
-Hash do Código: bd2ef842
+Hash do Código: 49a25ab1
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml sha256:2baf472bb540640d571ae618aa218e5f2b166839a2070f8a4a907ec65d7ded20
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/layout/place.rs`
@@ -17,3 +20,13 @@ A extração preserva assinatura, identidade de função, sintaxe, morfologia, e
 ## Aceitação
 
 Suíte L1 e `crystalline-lint .` sem regressão. A paridade é da linguagem, segundo ADR-0107/0108; a mecânica pode divergir. Owner exclusivo conforme ADR-0129/0130.
+
+## Preservar omissão vertical — 2026-10-14
+
+### Medição antes da decisão
+
+`01_core/src/compiler/stdlib/layout/place.rs:42–48` converte omissão em `Some(Top)`. As sondas `00_nucleo/diagnosticos/place-origem-local-2026-10-14/{before,extra-before}/results.json.gz` guardam HEAD, árvore suja, diffstat, UTC, binários e SVGs contra o pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8: após texto A, alinhamento omitido ancora na baseline; Top explícito ancora na região. `lab/typst-original/crates/typst-layout/src/flow/distribute.rs:703–715` distingue o eixo explícito do offset de flow. Trata-se de geometria de linguagem, não de igualdade Rust. Os testes place_origin_pending_line_and_explicit_top_are_distinct reproduzem a divergência antes da correção.
+
+### Decisão e aceitação
+
+Usar o Option existente para preservar v=None quando o eixo vertical é omitido; manter o alinhamento explícito. Não adicionar campo ou alterar assinatura. Correção de paridade em fluxo contínuo ADR-0127, sem novo modo, flag ou fase. Layout decide a âncora segundo o núcleo place-coordinate-origin. Preservar clearance, scope, validação e floats; validar testes de linha pendente, Top explícito, geometria, floats e suíte completa. A etapa B de âncora após fluxo já comitado permanece aberta no diagnóstico de origem local.

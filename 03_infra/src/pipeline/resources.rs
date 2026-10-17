@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/resources.md
-//! @prompt-hash d6ff1619
+//! @prompt-hash 1d52b8c6
 //! @layer L3
-//! @updated 2026-09-28
+//! @updated 2026-10-08
 //!
 //! Possui coleta ordenada e resolução das fontes do documento, fallback por família, variações explícitas e instanciação de fontes variáveis. Recursa pelos containers e pelas camadas marginais existentes, preservando a chave completa e os diagnósticos vigentes.
 
@@ -29,9 +29,10 @@ pub(super) fn missing_font_instancer_diagnostic(
     resolved: &[FontKey],
     is_available: impl FnOnce() -> bool,
 ) -> Option<SourceDiagnostic> {
-    let ((font_list, _, _), _) = resolved.iter().find(|((_, variant, variations), bytes)| {
-        requires_font_instancing(bytes, variant, variations)
-    })?;
+    let ((font_list, _, _), _) =
+        resolved.iter().find(|((_, variant, variations), bytes)| {
+            requires_font_instancing(bytes, variant, variations)
+        })?;
     if is_available() {
         return None;
     }
@@ -49,20 +50,17 @@ pub(super) fn missing_font_instancer_diagnostic(
     ))
 }
 
-/// Resolve e instancia estaticamente as fontes necessárias para
-/// rasterização PNG / exportação SVG (P870).
-///
-/// Aplica o mesmo gate de fontes variáveis do caminho PDF: se uma VF
-/// precisa de instanciação e Python/fontTools não está disponível,
-/// devolve um diagnóstico de erro. Fontes estáticas são passadas
-/// inalteradas; VFs são instanciadas para as variações fundidas
-/// (derivadas + explícitas).
-pub(super) fn resolve_and_instantiate_fonts(
+/// Resolve os bindings originais e valida a dependência de instanciação.
+/// PNG/SVG preparam bytes da instância no exportador, mantendo a identidade
+/// original distinta dos bytes preparados na mesma fase de exportação.
+pub(super) fn resolve_export_fonts(
     doc: &PagedDocument,
     world: &dyn World,
 ) -> Result<Vec<FontKey>, SourceDiagnostic> {
     let combos = collect_fonts_from_doc(doc, world);
-    let resolved = resolve_fonts(&combos, world);
+    let resolved =
+        crate::export::font_binding::bind_document(doc, &resolve_fonts(&combos, world))
+            .into_owned();
 
     if let Some(diag) =
         missing_font_instancer_diagnostic(&resolved, variable_font_instancer_available)
@@ -70,21 +68,7 @@ pub(super) fn resolve_and_instantiate_fonts(
         return Err(diag);
     }
 
-    Ok(resolved
-        .into_iter()
-        .map(|(key, bytes)| {
-            let (_, font_variant, variations) = &key;
-            let merged = merge_explicit_variations(
-                axis_variations_for_font_variant(font_variant),
-                variations,
-            );
-            let tuple_vars: Vec<(ttf_parser::Tag, f32)> =
-                merged.iter().map(|v| (v.tag, v.value)).collect();
-            let instanced =
-                instantiate_variable_font(&bytes, &tuple_vars).unwrap_or(bytes);
-            (key, instanced)
-        })
-        .collect())
+    Ok(resolved)
 }
 
 /// Itera `doc.pages → items` recursivamente (atravessa `Group`)
@@ -95,6 +79,26 @@ pub(super) fn resolve_and_instantiate_fonts(
 /// Deduplicação por igualdade estrutural via `Vec::contains`.
 /// Complexidade O(N²) em N = combinações distintas; aceite porque N é
 /// tipicamente pequeno (<10) em documentos reais.
+fn record_text_font(
+    seen: &mut Vec<(FontList, FontVariant, FontVariations)>,
+    list: &FontList,
+    variant: FontVariant,
+    axes: Option<&FontVariations>,
+    build: impl FnOnce() -> (FontList, FontVariant, FontVariations),
+) {
+    let present = seen.iter().any(|(known_list, known_variant, known_axes)| {
+        known_list == list
+            && *known_variant == variant
+            && match axes {
+                Some(axes) => known_axes == axes,
+                None => known_axes.0.is_empty(),
+            }
+    });
+    if !present {
+        seen.push(build());
+    }
+}
+
 /// **P906** — `world` adicionado: `FrameItem::Glyph` precisa de resolver a
 /// fonte que efectivamente o cobre (`FallbackFontMetrics::resolve_font_
 /// combo`, via `base_char`), à semelhança do que `style.font` já faz
@@ -137,20 +141,27 @@ fn collect_fonts_in_items(
 ) {
     for item in items {
         match item {
-            FrameItem::TextSeparator { style, .. } | FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
+            FrameItem::TextSeparator { style, .. }
+            | FrameItem::Text { style, .. }
+            | FrameItem::TextShaped { style, .. } => {
                 if let Some(fl) = &style.font {
                     let variant = text_style_to_font_variant(style);
                     // P836 — variações explícitas (`#text(variations:)`)
                     // entram na chave: runs com o mesmo FontVariant mas
                     // eixos explícitos distintos embutem fontes distintas.
-                    let key = (
-                        fl.clone(),
+                    record_text_font(
+                        seen,
+                        fl,
                         variant,
-                        style.variations.clone().unwrap_or_default(),
+                        style.variations.as_ref(),
+                        || {
+                            (
+                                fl.clone(),
+                                variant,
+                                style.variations.clone().unwrap_or_default(),
+                            )
+                        },
                     );
-                    if !seen.contains(&key) {
-                        seen.push(key);
-                    }
                 }
             }
             FrameItem::Glyph { style, base_char, .. } => {
@@ -162,12 +173,20 @@ fn collect_fonts_in_items(
             }
             FrameItem::Group { items, .. }
             | FrameItem::Link { items, .. }
-            | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
+            | FrameItem::TextReplacement { items, .. }
+            | FrameItem::Semantic { items, .. } => {
                 collect_fonts_in_items(items, metrics, seen);
             }
-            FrameItem::Line { .. }
-            | FrameItem::Image { .. }
-            | FrameItem::Shape { .. } => {}
+            FrameItem::Shape { fill, stroke, .. } => {
+                for paint in fill.iter().chain(stroke.iter().map(|s| &s.paint)) {
+                    if let typst_core::entities::frame_paint::FramePaint::Tiling(cell) =
+                        paint
+                    {
+                        collect_fonts_in_items(&cell.frame.items, metrics, seen);
+                    }
+                }
+            }
+            FrameItem::Line { .. } | FrameItem::Image { .. } => {}
         }
     }
 }
@@ -191,7 +210,7 @@ pub(super) fn resolve_fonts(
         .iter()
         .filter_map(|(fl, variant, variations)| {
             resolve_font(fl, variant, font_book, world)
-                .map(|bytes| ((fl.clone(), variant.clone(), variations.clone()), bytes))
+                .map(|bytes| ((fl.clone(), *variant, variations.clone()), bytes))
         })
         .collect()
 }
@@ -215,14 +234,17 @@ pub(super) fn first_font_from_doc(doc: &PagedDocument) -> Option<FontList> {
 fn first_font_in_items(items: &[FrameItem]) -> Option<FontList> {
     for item in items {
         match item {
-            FrameItem::TextSeparator { style, .. } | FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
+            FrameItem::TextSeparator { style, .. }
+            | FrameItem::Text { style, .. }
+            | FrameItem::TextShaped { style, .. } => {
                 if let Some(fl) = &style.font {
                     return Some(fl.clone());
                 }
             }
             FrameItem::Group { items, .. }
             | FrameItem::Link { items, .. }
-            | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
+            | FrameItem::TextReplacement { items, .. }
+            | FrameItem::Semantic { items, .. } => {
                 if let Some(fl) = first_font_in_items(items) {
                     return Some(fl);
                 }
@@ -275,22 +297,156 @@ mod instancer_gate_tests {
 
     #[test]
     fn matching_axis_has_one_shared_diagnostic_and_unknown_axis_skips_probe() {
-        let bytes = include_bytes!("../../fixtures/fonts/UbuntuSans-Variable.ttf").to_vec();
+        let bytes =
+            include_bytes!("../../fixtures/fonts/UbuntuSans-Variable.ttf").to_vec();
         let font_list = FontList::single("ubuntu sans".into());
         let key = |axis| {
-            ((
-                font_list.clone(),
-                FontVariant::default(),
-                FontVariations(vec![(axis, 700.0)]),
-            ), bytes.clone())
+            (
+                (
+                    font_list.clone(),
+                    FontVariant::default(),
+                    FontVariations(vec![(axis, 700.0)]),
+                ),
+                bytes.clone(),
+            )
         };
         let unknown = key(*b"ZZZZ");
         assert!(missing_font_instancer_diagnostic(&[unknown], || {
             panic!("unknown axis must not probe Python")
-        }).is_none());
+        })
+        .is_none());
         let matching = key(*b"wght");
         let diag = missing_font_instancer_diagnostic(&[matching], || false)
             .expect("matching axis requires the missing-tool diagnostic");
         assert_eq!(diag.message, "fonte variável 'ubuntu sans' requer instanciação, mas Python/fontTools não está disponível");
+    }
+}
+
+#[cfg(test)]
+mod textual_key_tests {
+    use super::*;
+    #[test]
+    fn duplicates_construct_one_owned_key_only() {
+        let list = FontList::single("Libertinus Serif".into());
+        let axes = FontVariations(vec![(*b"wght", 400.0)]);
+        let variant = FontVariant::default();
+        let mut seen = Vec::new();
+        let mut builds = 0;
+        for _ in 0..1000 {
+            record_text_font(&mut seen, &list, variant, Some(&axes), || {
+                builds += 1;
+                (list.clone(), variant, axes.clone())
+            });
+        }
+        assert_eq!(seen.len(), 1);
+        assert_eq!(builds, 1);
+    }
+    #[test]
+    fn first_occurrence_and_full_key_equivalences_are_preserved() {
+        let a = FontList::single("First".into());
+        let b = FontList::single("Second".into());
+        let base = FontVariant::default();
+        let bold = FontVariant {
+            weight: typst_core::entities::font_book::FontWeight::BOLD,
+            ..base
+        };
+        let empty = FontVariations::default();
+        let zero = FontVariations(vec![(*b"wght", 0.0)]);
+        let neg = FontVariations(vec![(*b"wght", -0.0)]);
+        let nan = FontVariations(vec![(*b"wght", f32::NAN)]);
+        let requests = [
+            (&a, base, None),
+            (&b, base, None),
+            (&a, base, Some(&empty)),
+            (&a, bold, None),
+            (&a, base, Some(&zero)),
+            (&a, base, Some(&neg)),
+            (&a, base, Some(&nan)),
+            (&a, base, Some(&nan)),
+        ];
+        let mut seen = Vec::new();
+        let mut builds = 0;
+        for (list, variant, axes) in requests {
+            record_text_font(&mut seen, list, variant, axes, || {
+                builds += 1;
+                (list.clone(), variant, axes.cloned().unwrap_or_default())
+            });
+        }
+        assert_eq!(seen.len(), 6);
+        assert_eq!(builds, 6);
+        assert_eq!(seen[0].0, a);
+        assert_eq!(seen[1].0, b);
+        assert_eq!(seen[2].1, bold);
+        assert_eq!(seen[3].2, zero);
+        assert!(seen[4].2 .0[0].1.is_nan());
+        assert!(seen[5].2 .0[0].1.is_nan());
+    }
+    #[test]
+    #[ignore = "diagnostic timing, run alone in release"]
+    fn collection_timing_probe() {
+        use std::{hint::black_box, time::Instant};
+        let world = crate::world::SystemWorld::for_eval("/");
+        let metrics = FallbackFontMetrics::new(&world);
+        for (cohort, distinct, axes) in
+            [("repeated", 1, false), ("axes", 1, true), ("diverse", 24, true)]
+        {
+            let items = (0..10000)
+                .map(|n| {
+                    let mut style = typst_core::entities::layout_types::TextStyle {
+                        font: Some(FontList::single(
+                            format!("Family{}", n % distinct).into(),
+                        )),
+                        ..typst_core::entities::layout_types::TextStyle::default()
+                    };
+                    if axes {
+                        style.variations = Some(FontVariations(vec![
+                            (*b"wght", 400.0),
+                            (*b"wdth", 100.0),
+                        ]));
+                    }
+                    #[allow(deprecated)]
+                    FrameItem::Text {
+                        pos: typst_core::entities::layout_types::Point {
+                            x: typst_core::entities::layout_types::Pt(0.0),
+                            y: typst_core::entities::layout_types::Pt(0.0),
+                        },
+                        text: "x".into(),
+                        style,
+                        bidi: None,
+                    }
+                })
+                .collect::<Vec<_>>();
+            for round in 0..31 {
+                for legacy in if round % 2 == 0 { [true, false] } else { [false, true] } {
+                    let mut seen = Vec::new();
+                    let start = Instant::now();
+                    if legacy {
+                        for item in black_box(&items) {
+                            #[allow(deprecated)]
+                            let FrameItem::Text { style, .. } = item
+                            else {
+                                unreachable!()
+                            };
+                            let key = (
+                                style.font.as_ref().unwrap().clone(),
+                                text_style_to_font_variant(style),
+                                style.variations.clone().unwrap_or_default(),
+                            );
+                            if !seen.contains(&key) {
+                                seen.push(key);
+                            }
+                        }
+                    } else {
+                        collect_fonts_in_items(black_box(&items), &metrics, &mut seen);
+                    }
+                    let elapsed = start.elapsed().as_nanos();
+                    assert_eq!(seen.len(), distinct);
+                    black_box(&seen);
+                    if round > 0 {
+                        println!("P7,{cohort},{round},{legacy},{elapsed}");
+                    }
+                }
+            }
+        }
     }
 }

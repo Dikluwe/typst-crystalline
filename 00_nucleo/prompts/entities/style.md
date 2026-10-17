@@ -1,5 +1,8 @@
 # Prompt L0 — Style e Styles
-Hash do Código: 95f76ecc
+Hash do Código: a312cea9
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:f10f7afaabd1b97f3048736842df89d0ba48d4daa0ae3cd453c9be317f32ef91
 
 ## Módulo
 `01_core/src/entities/style.rs`
@@ -18,7 +21,7 @@ Variantes obrigatórias (Passo 99.A + **P288**):
 
 - `Bold(bool)` — forma booleana interna de `text.weight` (**não** existe `text.bold`)
 - `Italic(bool)` — forma booleana interna de `text.style` (**não** existe `text.italic`)
-- `Size(Pt)` — propriedade `text.size` em pontos tipográficos
+- `Size(Length)` — propriedade `text.size` declarada como abs + em
 - `Fill(Color)` — propriedade `text.fill` (forward-compat)
 
 > **Correcção P1031 — duas variantes nomeavam propriedades que a linguagem não tem.**
@@ -207,3 +210,70 @@ Derive: `Debug, Clone, Default, PartialEq`.
 - Deteção de `#show` (`eval/rules.rs`) lê `styles.delta().bold/italic` — não
   mais `iter()` sobre variantes.
 - Pipeline futuro de `#set`/`#show` — activação fora do Passo 99.
+
+
+## Traits Rust de formatação/construção — proposta 2026-10-16
+
+### Medição anterior à decisão
+
+O inventário anterior tem should_implement_trait em Styles.from_iter e inherent_to_string nos três tipos. As quatro implementações e os L0 vigentes foram lidos; fontes/hashes/HEAD/working tree/UTC/diffstat estão no base.json.gz deste pacote. Os dois parsers Option e os dois next de domínio foram classificados separadamente; não são alvo de conversão para traits. A sonda duration-before-probe e a correção interna anterior documentam a faixa i128 sem copiar o defeito. É mudança de contrato Rust, não mudança de linguagem Typst ou nova paridade medida.
+
+### Contrato proposto
+
+Implementar std::iter::FromIterator<Style> para Styles. Mover o mesmo fold ordenado de Style para StyleDelta ao trait, sem segundo backing/clones/reordenação. Conservar o método inerente público from_iter<I: IntoIterator<Item=Style>>(iter)->Self como adapter para <Self as FromIterator<Style>>::from_iter(iter). Preservar last-write-wins por campo, vazio, canais custom e todas as outras APIs. A implementação do trait resolve a ambiguidade nominal sem expect neste método.
+
+O contrato só materializa após confirmação humana ADR-0127 §2.1/2.4: existem três novos impls Display, um FromIterator e migração de três métodos inerentes públicos para o blanket ToString. Código genérico pode passar a depender desses traits; rollback pode quebrar esse código. A implementação não deve adicionar FromStr, novas variantes/campos, flags, defaults, fase, dependências ou supressões. Os comentários/exemplos antigos de to_string passam a significar a interface ToString, somente após ratificação.
+
+### Aceitação
+
+T1: usos genéricos Display+ToString e collect::<Styles> devem falhar antes por trait ausente e passar depois. T2: Decimal exibe 1.2300 sem perder zeros, preserva negativo/zero e mantém rejeições Option; Version exibe vazio e 1.2.0 preservando componentes. T3: Duration mantém textos corrigidos de MIN/MAX/MIN+1, zero e limites negativos, via format! e ToString. T4: collect vazio é vazio e Weight(400),Weight(700) produz weight Some(700), com demais campos inalterados; adapter inerente mantém chamadas existentes. T5: suíte existente de linguagem/casts/repr/show/CLI, workspace completo, build, Clippy/expectativas, Rustdoc, formato e linhagem, sob 12 GiB, swap zero e um job, sem relaxar esperados. Sem publicar release.
+
+## Ratificação humana — 2026-10-16
+
+Proposta aprovada pelo humano nesta sessão, manifesto SHA-256 `d3fba43d799461d294ad562c37649ba9c2e4da2a45d7b7099953624ced28e7e8`. O contrato acima passa a vigente; a aprovação inclui materialização e testes T1–T5, sem release. Registro em `00_nucleo/diagnosticos/clippy-enums-2026-10-16/approval-receipt.json`.
+
+## Adaptador inerente — previsão corrigida após medição 2026-10-16
+
+### Medição anterior à decisão
+
+A primeira validação deste lote, após ratificação e implementação, terminou no gate do inventário Clippy: first-validation/validation-clippy.log em 00_nucleo/diagnosticos/clippy-enums-2026-10-16 contém should_implement_trait em Styles::from_iter mesmo com FromIterator<Style> implementado. Os quatro testes approved_traits passaram, incluindo collect::<Styles> vazio e a dobra ordenada de Weight. traits-green-result.json registra comando, UTC, cgroup e retorno; first-validation/validation-details.json preserva hashes, HEAD, working tree e diffstat. Portanto a previsão anterior de que apenas implementar o trait eliminaria este aviso foi refutada na ferramenta instalada (Clippy/Rust 1.92). Não é ausência do trait nem evidência de ambiguidade na linguagem Typst.
+
+### Decisão e aceitação
+
+Manter o adaptador inerente e sua assinatura exatamente como ratificados. Corrigir somente a previsão anterior de ausência de expect: prescrever #[expect(clippy::should_implement_trait, reason="S005: adapter inerente de compatibilidade; FromIterator<Style> implementado e validado por collect")] no adaptador. O corpo continua delegando integralmente ao trait; nenhum fold duplicado ou supressão no trait/impl/módulo/crate. O atributo deve ser cumprido com unfulfilled_lint_expectations como erro; collect e chamadas inerentes continuam validados. É adendo interno de documentação/metadados em fluxo contínuo ADR-0127; nenhum contrato público ratificado é alterado. A cláusula anterior sem expect e a previsão de eliminação automática ficam substituídas apenas por esta medição/decisão. L0 primeiro e resselo restrito; suíte completa e gates sob 12 GiB, swap zero e um job.
+
+
+
+## TS1 — tamanho completo de texto (ratificado pelo humano, 2026-10-17)
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
+`morph-before-measurement.json.gz` e `audit.json` conservam HEAD
+06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
+fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
+Em named-em, A mede0pt contra24pt; em affine,3pt contra27pt; nested sobre18pt
+mede0pt contra36pt. As seis permutações Size/Color/body são aceitas pelo pin
+mas rejeitadas pelo Tekt. Set posicional18pt é ignorado (12 contra18pt).
+Fonte pinada text/mod.rs:290,303,924–930,1136–1142 e args.rs:178–247
+estabelece busca tipada, preferência nomeada, body restante e composição.
+style_chain.rs:513–517 e constructor.rs:123 descartam em; collapse em
+style_chain.rs:394–395,419–422 aplica top-wins onde tamanho precisa fold.
+É tamanho/escopo observável da linguagem; a representação Rust é escolha
+interna. Não inferir intenção histórica. Refutar por restauração, Raw,
+heading, math, capture/show, dupes/spans, zero/negativos ou métricas divergentes.
+A sonda de igualdade refutou a hipótese de comparar os valores declarados:
+no pin, text(size:2em)[A] == text(size:24pt)[A] é true. StyledElem::eq no pin
+content/mod.rs:779–782 compara child. Esse defeito de igualdade requer sua
+própria correção; o tipo completo não é prova de fechamento desse eixo.
+
+### Ratificação
+
+O humano aprovou TS1 e os dois contratos públicos da proposta de manifesto
+771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba.
+Implementação e testes S1–S16 sob 12 GiB/swap zero; sem release/merge/push.
+Resselo somente após implementação e grafo válido. RG1 continua independente.
+
+### Responsabilidade exclusiva adicional
+
+Style::Size recebe Length completo; fold_into transfere esse valor para StyleDelta.size. Coleção/backing único, demais variantes, campos e métodos permanecem. Sem um segundo size paralelo ou marcador falso para codificar em. Construtores absolutos antigos migram explicitamente para Length::pt(pt.val()).

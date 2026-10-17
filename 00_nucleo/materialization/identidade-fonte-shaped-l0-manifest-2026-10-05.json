@@ -1,0 +1,14 @@
+{
+  "status": "awaiting-human-confirmation",
+  "utc": "2026-10-06T01:38:46.490376+00:00",
+  "gate": "ADR-0127: novo campo público em FrameItem::TextShaped",
+  "contract": {
+    "owner": "00_nucleo/prompts/entities/layout_types.md",
+    "sha256": "f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409",
+    "consumer": "01_core/src/entities/layout_types.rs",
+    "new_field": "font: Option<crate::entities::world_types::Font>"
+  },
+  "scope": "Fonte efetiva de TextShaped; APIs existentes e FontKey público preservados; mudanças públicas adicionais exigem gate próprio",
+  "evidence": "00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/initial.json.gz",
+  "production_code_changed_in_this_front": false
+}

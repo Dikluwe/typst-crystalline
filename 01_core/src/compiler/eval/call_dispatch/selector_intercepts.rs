@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch/selector_intercepts.md
-//! @prompt-hash 818bb4ca
+//! @prompt-hash b8744dd3
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -15,6 +15,7 @@ pub(super) fn try_selector_call(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
+    cached_receiver: &mut Option<Value>,
 ) -> SourceResult<Option<Value>> {
     // **P423 (S-M)** — Intercepção de `selector.or(other)` e
     // `selector.and(other)` antes de avaliar o callee genérico. O target e o
@@ -23,7 +24,13 @@ pub(super) fn try_selector_call(
         let method = access.field().as_str();
         if is_selector_logical(method) {
             if let Some(selector) = bindings::eval_selector_or_and(
-                access.target(),
+                super::call::resolve_receiver(
+                    access,
+                    cached_receiver,
+                    scopes,
+                    ctx,
+                    engine,
+                )?,
                 method,
                 call.args(),
                 scopes,
@@ -39,7 +46,13 @@ pub(super) fn try_selector_call(
     if let Expr::FieldAccess(access) = call.callee() {
         if access.field().as_str() == "within" {
             if let Some(selector) = bindings::eval_selector_within(
-                access.target(),
+                super::call::resolve_receiver(
+                    access,
+                    cached_receiver,
+                    scopes,
+                    ctx,
+                    engine,
+                )?,
                 call.args(),
                 scopes,
                 ctx,
@@ -55,7 +68,13 @@ pub(super) fn try_selector_call(
         let method = access.field().as_str();
         if method == "before" || method == "after" {
             if let Some(value) = bindings::eval_selector_before_after(
-                access.target(),
+                super::call::resolve_receiver(
+                    access,
+                    cached_receiver,
+                    scopes,
+                    ctx,
+                    engine,
+                )?,
                 method,
                 call.args(),
                 scopes,

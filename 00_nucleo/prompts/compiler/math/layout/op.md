@@ -1,6 +1,6 @@
 # L0 — math/layout/op
-
 Hash do Código: 7b8881f3
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/layout/op.rs`

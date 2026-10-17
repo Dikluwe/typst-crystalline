@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/p1486_pdf_page_labels_tests.md
-//! @prompt-hash 7f73c03b
+//! @prompt-hash 70c2d559
 //! @layer L3
 //! @updated 2026-09-24
 
@@ -104,19 +104,17 @@ fn page_labels(pdf: &[u8]) -> Vec<String> {
     };
     let tree = dict(pdf, tree_id);
     let refs = Regex::new(r"(\d+)\s+(\d+)\s+0\s+R").unwrap();
+    let start_re = Regex::new(r"/St\s+(\d+)").unwrap();
+    let style_re = Regex::new(r"/S\s*/([A-Za-z]+)").unwrap();
     let mut starts = Vec::new();
     for entry in refs.captures_iter(tree.split_once("/Nums").expect("/Nums").1) {
         let index: usize = entry[1].parse().unwrap();
         let label = dict(pdf, entry[2].parse().unwrap());
-        let start = Regex::new(r"/St\s+(\d+)")
-            .unwrap()
+        let start = start_re
             .captures(&label)
             .map(|m| m[1].parse::<usize>().unwrap())
             .unwrap_or(1);
-        let style = Regex::new(r"/S\s*/([A-Za-z]+)")
-            .unwrap()
-            .captures(&label)
-            .map(|m| m[1].to_string());
+        let style = style_re.captures(&label).map(|m| m[1].to_string());
         starts.push((index, start, style, pdf_utf16_prefix(&label)));
     }
     (0..count)

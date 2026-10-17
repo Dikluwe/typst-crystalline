@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/format.md
-//! @prompt-hash 78ee2c0e
+//! @prompt-hash 7463cb8e
 //! @layer L1
 //! @updated 2026-09-20
 
@@ -10,7 +10,7 @@ use crate::compiler::eval::EvalContext;
 use crate::contracts::world::World;
 use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
-use crate::entities::func::Func;
+use crate::entities::func::{FormatElementKind, Func, NativeFunc};
 use crate::entities::module::Module;
 use crate::entities::scope::Scope;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -95,47 +95,62 @@ pub(crate) fn make_format_module(pdf: &Value, html: &Value, asset: &Value) -> Mo
     let mut scope = Scope::new();
     scope.define(
         "svg",
-        Value::Func(Func::native_with_namespace(
-            "svg",
-            native_format,
-            Arc::new(svg_namespace),
+        Value::Func(Func::native_format(
+            FormatElementKind::Svg,
+            NativeFunc {
+                name: "svg",
+                call: native_format,
+                namespace: Some(Arc::new(svg_namespace)),
+            },
         )),
     );
     scope.define(
         "png",
-        Value::Func(Func::native_with_namespace(
-            "png",
-            native_format,
-            Arc::new(png_namespace),
+        Value::Func(Func::native_format(
+            FormatElementKind::Png,
+            NativeFunc {
+                name: "png",
+                call: native_format,
+                namespace: Some(Arc::new(png_namespace)),
+            },
         )),
     );
     scope.define(
         "pdf",
-        Value::Func(Func::native_with_namespace(
-            "pdf",
-            native_format,
-            Arc::new(pdf_namespace),
+        Value::Func(Func::native_format(
+            FormatElementKind::Pdf,
+            NativeFunc {
+                name: "pdf",
+                call: native_format,
+                namespace: Some(Arc::new(pdf_namespace)),
+            },
         )),
     );
     scope.define(
         "html",
-        Value::Func(Func::native_with_namespace(
-            "html",
-            native_format,
-            Arc::new(html_namespace),
+        Value::Func(Func::native_format(
+            FormatElementKind::Html,
+            NativeFunc {
+                name: "html",
+                call: native_format,
+                namespace: Some(Arc::new(html_namespace)),
+            },
         )),
     );
     let mut bundle_namespace = Scope::new();
     bundle_namespace.define("asset", asset.clone());
     scope.define(
         "bundle",
-        Value::Func(Func::native_with_namespace(
-            "bundle",
-            native_format,
-            Arc::new(bundle_namespace),
+        Value::Func(Func::native_format(
+            FormatElementKind::Bundle,
+            NativeFunc {
+                name: "bundle",
+                call: native_format,
+                namespace: Some(Arc::new(bundle_namespace)),
+            },
         )),
     );
-    Module::new("format", scope)
+    Module::format(scope)
 }
 
 #[cfg(test)]

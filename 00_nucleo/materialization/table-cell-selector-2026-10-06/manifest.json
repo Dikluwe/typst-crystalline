@@ -1,0 +1,96 @@
+{
+  "status": "PROPOSED; no productive code or canonical L0 changed by D08A",
+  "stage": "D08A; D08B realization explicitly incomplete",
+  "utc": "2026-10-06T21:59:27.139739+00:00",
+  "head": "06848cdcb5450f2c555626bf116bc7acd82bd82b",
+  "gate": "ADR-0127 public enum variant; breaks external exhaustive matches",
+  "public_contract": "Selector::NativeElement(crate::entities::func::Func)",
+  "entries": [
+    {
+      "canonical_l0": "00_nucleo/prompts/entities/selector.md",
+      "proposed_path": "00_nucleo/materialization/table-cell-selector-2026-10-06/l0/entities/selector.md",
+      "consumer": "01_core/src/entities/selector.rs",
+      "baseline_l0_sha256": "f0bb72b07fb9d4e707f900bbdc79aa16ff90aa667916fc08df3b2e4b2bc85957",
+      "baseline_source_sha256": "2f2b35aa5a994f961b488f4028917049b1a8811719b736bcc45310c8a5b171f5",
+      "proposed_sha256": "740472b416e90e5b03842e9ed75390db8508efda89c6378685a7262a6064ad86"
+    },
+    {
+      "canonical_l0": "00_nucleo/prompts/compiler/eval/bindings/value_methods/element_where.md",
+      "proposed_path": "00_nucleo/materialization/table-cell-selector-2026-10-06/l0/compiler/eval/bindings/value_methods/element_where.md",
+      "consumer": "01_core/src/compiler/eval/bindings/value_methods/element_where.rs",
+      "baseline_l0_sha256": "0df62379404febd1ffabe9325d23ef8674b9e2d3bc7a1050c2227a8ace9b9898",
+      "baseline_source_sha256": "8e3db069f82b61d9c847092e70a8135b382fd58e0db1963966a82efd10dd2181",
+      "proposed_sha256": "b38ebf40fd24ead6ce0a21db1e828a1dc98a76599e1ae0d40b7e8e3ed6997230"
+    },
+    {
+      "canonical_l0": "00_nucleo/prompts/compiler/eval/context_reads.md",
+      "proposed_path": "00_nucleo/materialization/table-cell-selector-2026-10-06/l0/compiler/eval/context_reads.md",
+      "consumer": "01_core/src/compiler/eval/context_reads.rs",
+      "baseline_l0_sha256": "5314fb160751e2b0caa4494c0f7f55b3f81874ed37ad7dd02b4109f3386a0846",
+      "baseline_source_sha256": "1d38bf8f1e24a0268cf94718bd16211dbd5768b466bc8317ba4a9580fde92bda",
+      "proposed_sha256": "9ad56fbfe734b66d5cd6e9d4e168ff298431b785019ca15d7bcc5043c5ea9856"
+    },
+    {
+      "canonical_l0": "00_nucleo/prompts/compiler/eval/operators/equality.md",
+      "proposed_path": "00_nucleo/materialization/table-cell-selector-2026-10-06/l0/compiler/eval/operators/equality.md",
+      "consumer": "01_core/src/compiler/eval/operators/equality.rs",
+      "baseline_l0_sha256": "b0e67c3ee22c4ec6270cde7f76f586c528bdade621ad108c2198f76f72c71497",
+      "baseline_source_sha256": "e7c404f0e3611cd9d7aec1e01f5d33e1a84dc551aa773e9bf113fa6205808216",
+      "proposed_sha256": "fce6d7735772a068f40009608d39a67735f26923dc867b777ed2a922deb56886"
+    },
+    {
+      "canonical_l0": "00_nucleo/prompts/compiler/eval/repr/selector.md",
+      "proposed_path": "00_nucleo/materialization/table-cell-selector-2026-10-06/l0/compiler/eval/repr/selector.md",
+      "consumer": "01_core/src/compiler/eval/repr/selector.rs",
+      "baseline_l0_sha256": "504beeb5a3f7655997ccbc05be07db3385cb5d1663561c592512a823b2d1b861",
+      "baseline_source_sha256": "bf51b9683be9af85a076e0eb5d67b342f6150a0c2fcd81c65eab1dc96c78d7b6",
+      "proposed_sha256": "5ee4ab6eecc05ce1ee51ab2d41ce1a4da8b49f295fce9b3307d18b7a8245820a"
+    },
+    {
+      "canonical_l0": "00_nucleo/prompts/compiler/eval/selector_matching.md",
+      "proposed_path": "00_nucleo/materialization/table-cell-selector-2026-10-06/l0/compiler/eval/selector_matching.md",
+      "consumer": "01_core/src/compiler/eval/selector_matching.rs",
+      "baseline_l0_sha256": "ab988d504aeff396a86643ea529237327b4bc0a34adcca4d4203953f46fd0ad6",
+      "baseline_source_sha256": "0b454632e7baecdce17fefba75a52593aeb3b085592a301cc84ebaddf39af0b3",
+      "proposed_sha256": "f728da8d31d1cc70590a66742a5c15d8cb9861b7987ee49f5b20a0c48b36b05b"
+    },
+    {
+      "canonical_l0": "00_nucleo/prompts/compiler/introspect/queries.md",
+      "proposed_path": "00_nucleo/materialization/table-cell-selector-2026-10-06/l0/compiler/introspect/queries.md",
+      "consumer": "01_core/src/compiler/introspect/queries.rs",
+      "baseline_l0_sha256": "420dc5d00233753fe8525e832d0deb2825bc1dbb918838084963bb3ceaad0379",
+      "baseline_source_sha256": "4a3f0348485e1711f6d46439766e1500ef42591e482edf9f7727d4549ee06d90",
+      "proposed_sha256": "0c0d33ae8247304f1cb3ddf3ebaff3a6bd358a5d7e3830dc85d96d6b2dcee250"
+    },
+    {
+      "canonical_l0": "00_nucleo/prompts/compiler/stdlib/counter.md",
+      "proposed_path": "00_nucleo/materialization/table-cell-selector-2026-10-06/l0/compiler/stdlib/counter.md",
+      "consumer": "01_core/src/compiler/stdlib/counter.rs",
+      "baseline_l0_sha256": "6d50421dba687330b2ed4102d19f931d2485e1e708a4d82abf6121a64ea4ee03",
+      "baseline_source_sha256": "18101d09f23f60f3a9cf710bdaa9c3d86526cd2702859e4418968d498616858d",
+      "proposed_sha256": "0ce8c3556eefdf9aa2e50e8f929761f4b82447b040dcd0109567c67d8df7aed7"
+    },
+    {
+      "canonical_l0": "00_nucleo/prompts/compiler/stdlib/foundations/selector.md",
+      "proposed_path": "00_nucleo/materialization/table-cell-selector-2026-10-06/l0/compiler/stdlib/foundations/selector.md",
+      "consumer": "01_core/src/compiler/stdlib/foundations/selector.rs",
+      "baseline_l0_sha256": "73ac0db45ffc84b37d44c128177c80f000684b251377187d2fb8069d4698fd0e",
+      "baseline_source_sha256": "1b521a289a2570774d4fb7b79f76f9379e144080d72b2dfa55184bf2fc94a7ee",
+      "proposed_sha256": "817e98ddf21b2c7b13b3da8fbb663e2f748434dff86550c085532fbccd217021"
+    },
+    {
+      "canonical_l0": "00_nucleo/prompts/compiler/stdlib/foundations/query.md",
+      "proposed_path": "00_nucleo/materialization/table-cell-selector-2026-10-06/l0/compiler/stdlib/foundations/query.md",
+      "consumer": "01_core/src/compiler/stdlib/foundations/query.rs",
+      "baseline_l0_sha256": "1be99386d127bc59647c76f744216eeb6483749f4ceaecdbfd784cf378d2ee31",
+      "baseline_source_sha256": "b23e8fe39ebd020dc62978bce5e4621362656ca3b988ae9832decf66652d1f5d",
+      "proposed_sha256": "270a661348a5037738ff00a59e48bb16d6ccc26fc7d64b7df5bf67d30a30133d"
+    }
+  ],
+  "nucleus": {
+    "canonical_path": "00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml",
+    "proposed_path": "00_nucleo/materialization/table-cell-selector-2026-10-06/l0/_nuclei/selectors/native-bare-identity.toml",
+    "sha256": "de503e6815330ae4d63b8b37332f20e804b541583fbfc0eece9c03bde03d3b53",
+    "framed_pin": "a37779d03a4ba0f16ebcc5919477bfdcf783021511a28cf8c9203c67cd64a9e5"
+  }
+}

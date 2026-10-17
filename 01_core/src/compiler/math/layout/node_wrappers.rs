@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/node_wrappers.md
-//! @prompt-hash c352b85c
+//! @prompt-hash 0e80c84d
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-17
 //!
 //! Layout dos wrappers matemáticos de classe e estilo.
 
@@ -99,7 +99,13 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 MathStyleKind::SScript => {
                     math_style.math_size = MathSize::ScriptScript;
                 }
-                _ => {}
+                MathStyleKind::Plain
+                | MathStyleKind::SansSerif
+                | MathStyleKind::Chancery
+                | MathStyleKind::Roundhand
+                | MathStyleKind::Fraktur
+                | MathStyleKind::Monospace
+                | MathStyleKind::DoubleStruck => {}
             }
         }
         if let Some(c) = cramped {

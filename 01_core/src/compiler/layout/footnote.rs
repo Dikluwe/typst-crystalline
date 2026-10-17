@@ -39,7 +39,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let n = layouter
         .current_location
         .and_then(|loc| layouter.introspector.flat_counter_at(&footnote_key, loc))
-        .unwrap_or(1) as usize;
+        .unwrap_or(1);
     // **P1020** — marcador formatado pelo pattern `e.numbering` (default "1")
     // e envolvido em superscript, em vez do literal `[N]`.
     let pattern = e.numbering.as_deref().unwrap_or("1");

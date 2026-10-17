@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/glyphs.md
-//! @prompt-hash 578585e6
+//! @prompt-hash c4325895
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -283,28 +283,21 @@ pub(super) fn render_direct_glyph(
     xml.end_element();
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C066: Leaf SVG usa oito inputs efetivos de contorno, face, escala e definições; texto HTML segue writer separado"
+)]
 pub(super) fn render_text_shaped(
     xml: &mut XmlWriter,
     pos: &Point,
     glyphs: &[ShapedGlyph],
     style: &typst_core::entities::layout_types::TextStyle,
-    _text: &ecow::EcoString,
     units_per_em: u16,
-    fonts: &[FontKey],
+    fonts: &super::super::font_binding::PreparedFonts,
     glyph_defs: &mut GlyphDefs,
+    font: Option<&typst_core::entities::world_types::Font>,
 ) {
-    let Some(font_list) = &style.font else {
-        return;
-    };
-    let variant = text_style_to_font_variant(style);
-    let variations = style.variations.clone().unwrap_or_default();
-    let Some((font_idx, (_, font_bytes))) =
-        fonts.iter().enumerate().find(|(_, ((fl, v, var), _))| {
-            fl == font_list && v == &variant && var == &variations
-        })
-    else {
-        return;
-    };
+    let Some((font_idx, font_bytes)) = fonts.get(style, font) else { return };
 
     if units_per_em == 0 {
         return;
@@ -326,7 +319,7 @@ pub(super) fn render_text_shaped(
         .map(color_to_css)
         .unwrap_or_else(|| "#000000".to_string());
     let mut x = 0.0;
-    let mut y = 0.0;
+    let y = 0.0;
     for glyph in glyphs {
         let x_offset = f64::from(glyph.x_offset) * scale;
         let y_offset = f64::from(glyph.y_offset) * scale;

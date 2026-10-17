@@ -1,6 +1,6 @@
 # L0 — math/symbols
-
 Hash do Código: 53b8abb9
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/symbols.rs`

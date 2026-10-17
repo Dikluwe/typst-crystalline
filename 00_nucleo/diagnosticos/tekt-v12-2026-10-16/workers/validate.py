@@ -1,0 +1,15 @@
+from pathlib import Path
+import json,gzip,hashlib,subprocess,datetime,collections,os
+out=Path('00_nucleo/diagnosticos/tekt-v12-2026-10-16');now=lambda:datetime.datetime.now(datetime.timezone.utc).isoformat();sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest();before=json.load(gzip.open(out/'before.json.gz'));pre=json.loads((out/'preflight-details.json').read_text());assert all(c['exit']==0 for c in pre['commands']) and json.loads((out/'preflight-result.json').read_text())['exit']==0
+hashes=pre['source_hashes'];assert all(sha(p)==h for p,h in hashes.items());strict=json.loads((out/'strict-details.json').read_text());assert strict['exit']==0 and not strict['diagnostics'];(out/'clippy-inventory.json').write_text('[]\n')
+record=dict(start=now(),head=before['head'],status=subprocess.check_output(['git','status','--porcelain=v1'],text=True),diffstat=subprocess.check_output(['git','diff','HEAD','--stat'],text=True),source_hashes=hashes,strict_clippy_reused_from_preflight=True,preflight_details_sha256=sha(out/'preflight-details.json'),commands=[])
+linter='/tmp/tekt-linter-ci-target/debug/crystalline-lint';commands=[('guard',['python3',str(out/'workers/guard.py')]),('build',['cargo','build','--offline','--locked']),('fmt',['cargo','fmt','--check','--all']),('lineage',[linter,'.','--checks','v1,v5,v15,v26','--fail-on','warning']),('reverse',['python3','tools/ci/check_reverse_lineage.py']),('v12',['python3',str(out/'workers/gate.py'),'green']),('architecture',[linter,'.','--format','sarif']),('workspace',['python3',str(out/'workers/suite.py')]),('rustdoc',['cargo','doc','--offline','--locked','--workspace','--no-deps']),('diff',['git','diff','--check'])]
+for label,cmd in commands:
+ start=now();print(json.dumps(dict(label=label,start=start,command=cmd)),flush=True);env=dict(os.environ)
+ if label=='rustdoc':env['RUSTDOCFLAGS']='-D warnings'
+ with (out/('validation-'+label+'.log')).open('w') as f:r=subprocess.run(cmd,stdout=f,stderr=subprocess.STDOUT,env=env)
+ record['commands'].append(dict(label=label,command=cmd,start=start,end=now(),exit=r.returncode,environment_override={'RUSTDOCFLAGS':'-D warnings'} if label=='rustdoc' else {}));record.update(end=now(),sources_unchanged_during_validation=all(sha(p)==h for p,h in hashes.items()));(out/'validation-details.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps(record['commands'][-1]),flush=True);assert record['sources_unchanged_during_validation']
+ if r.returncode:raise SystemExit(r.returncode)
+ if label=='architecture':
+  results=json.loads((out/'validation-architecture.log').read_text())['runs'][0]['results'];assert not any(x['level']=='error' for x in results);warnings=collections.Counter(x['ruleId'] for x in results if x['level']=='warning');record['architecture_warnings']=dict(warnings);record['architecture_levels']=dict(collections.Counter(x['level'] for x in results));(out/'validation-details.json').write_text(json.dumps(record,indent=2)+'\n');assert dict(warnings)=={'V16':242},warnings
+print(json.dumps(dict(end=record['end'],sources_unchanged=True,clippy=0,tekt=record['architecture_warnings'])),flush=True)

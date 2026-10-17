@@ -1,5 +1,5 @@
 # Prompt L0 — `Decimal` — precisão fixa decimal
-Hash do Código: c4e022f6
+Hash do Código: bc96717c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/decimal.rs`, `01_core/src/entities/value.rs`
@@ -126,3 +126,49 @@ pelo dispatcher estático e delegado ao construtor L1 já existente. Assim,
 `type(decimal) == type` e `repr(type(decimal)) == "type"`, enquanto valores
 construídos continuam com `type_name() == "decimal"`. A representação interna
 da entidade e suas operações não mudam.
+
+## Default derivado com valor preservado — 2026-10-13
+
+### Medição anterior à decisão
+
+`01_core/src/entities/decimal.rs:127` contém a implementação manual de Default sinalizada pelo Clippy. O corpo existente retorna a mesma variante ou inicializa cada campo pelo seu default. O tipo não é genérico, portanto a derivação não acrescenta bounds a parâmetros públicos. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, spans, UTC, status e diffstat estão em `00_nucleo/diagnosticos/expressoes-defaults-ci-2026-10-13/before.json.gz`. É evidência de implementação, não nova medição de paridade ou desempenho.
+
+### Decisão e aceitação
+
+Substituir somente a implementação manual de Default por derive(Default), conservando o trait já implementado e seu valor. Decimal continua delegando somente a InnerDecimal::default. Não alterar mantissa, escala, métodos numéricos ou traits restantes. Os exemplos anteriores de impl Default explicitam o valor exigido; a derivação equivalente passa a ser a forma desta implementação.
+
+Não alterar assinatura pública, campos, variantes, comportamento padrão do produto ou fase. Correção mecânica interna em fluxo contínuo ADR-0127. Preservar testes e expectativas; validar todos os targets do workspace, suíte core, registro de testes, build, rustdoc, Clippy e linhagem.
+
+
+## Nomes de domínio e traits Rust — 2026-10-16
+
+### Medição anterior à decisão
+
+Decimal.from_str aparece no inventário Clippy de 13 avisos. A assinatura e o corpo vigentes foram lidos antes desta decisão; snapshot 00_nucleo/diagnosticos/clippy-traits-formatacao-2026-10-16/before.json.gz conserva fontes/L0 completos, hashes globais, HEAD, working tree não commitado, UTC e diffstat. O contrato de retorno difere do trait sugerido. É comparação de interfaces Rust, sem nova medição de paridade ou benefício de leitura por IA.
+
+### Responsabilidade exclusiva e aceitação
+
+Preservar from_str(&str) -> Option<Self> e delegação ao parser atual; nenhum FromStr/Err novo ou mudança de rejeições. O consumidor escolhe diagnóstico de linguagem; não fabricar um erro Rust só para cumprir um nome. from_str recebe expectativa nominal de should_implement_trait. A migração de to_string para Display é proposta pública separada e não está autorizada por este adendo.
+
+Usar somente #[expect(clippy::should_implement_trait, reason="S003: parser de domínio Option preservado; FromStr exige Result e um contrato de erro distinto")] sobre o método nomeado. Não suprimir módulo/impl/crate, elevar limiar ou estender a exceção a Styles::from_iter. Implementar o trait proposto aqui exigiria contrato novo ou semântica diferente; a exceção preserva o contrato existente. Fluxo contínuo ADR-0127 para metadados/documentação, sem API, default ou fase novos. L0 primeiro e resselo restrito; RED do lint e GREEN incluindo unfulfilled_lint_expectations como erro; preservar corpos e usar os testes funcionais existentes sem alterar esperados. Validar workspace/build/Clippy/doc/fmt/linhagem sob 12 GiB, swap zero e um job.
+
+
+## Traits Rust de formatação/construção — proposta 2026-10-16
+
+### Medição anterior à decisão
+
+O inventário anterior tem should_implement_trait em Styles.from_iter e inherent_to_string nos três tipos. As quatro implementações e os L0 vigentes foram lidos; fontes/hashes/HEAD/working tree/UTC/diffstat estão no base.json.gz deste pacote. Os dois parsers Option e os dois next de domínio foram classificados separadamente; não são alvo de conversão para traits. A sonda duration-before-probe e a correção interna anterior documentam a faixa i128 sem copiar o defeito. É mudança de contrato Rust, não mudança de linguagem Typst ou nova paridade medida.
+
+### Contrato proposto
+
+Implementar std::fmt::Display para Decimal, delegando à implementação Display de InnerDecimal. Retirar somente o método inerente público to_string; chamadas usuais e UFCS ToString usam o blanket ToString. Preservar texto decimal, escala/zeros e sinais no formato padrão, sem notação científica nova. FromStr não é adicionado: from_str continua Option e sua expectativa nominal permanece. Nenhum método aritmético/round/cast/Default ou campo muda.
+
+O contrato só materializa após confirmação humana ADR-0127 §2.1/2.4: existem três novos impls Display, um FromIterator e migração de três métodos inerentes públicos para o blanket ToString. Código genérico pode passar a depender desses traits; rollback pode quebrar esse código. A implementação não deve adicionar FromStr, novas variantes/campos, flags, defaults, fase, dependências ou supressões. Os comentários/exemplos antigos de to_string passam a significar a interface ToString, somente após ratificação.
+
+### Aceitação
+
+T1: usos genéricos Display+ToString e collect::<Styles> devem falhar antes por trait ausente e passar depois. T2: Decimal exibe 1.2300 sem perder zeros, preserva negativo/zero e mantém rejeições Option; Version exibe vazio e 1.2.0 preservando componentes. T3: Duration mantém textos corrigidos de MIN/MAX/MIN+1, zero e limites negativos, via format! e ToString. T4: collect vazio é vazio e Weight(400),Weight(700) produz weight Some(700), com demais campos inalterados; adapter inerente mantém chamadas existentes. T5: suíte existente de linguagem/casts/repr/show/CLI, workspace completo, build, Clippy/expectativas, Rustdoc, formato e linhagem, sob 12 GiB, swap zero e um job, sem relaxar esperados. Sem publicar release.
+
+## Ratificação humana — 2026-10-16
+
+Proposta aprovada pelo humano nesta sessão, manifesto SHA-256 `d3fba43d799461d294ad562c37649ba9c2e4da2a45d7b7099953624ced28e7e8`. O contrato acima passa a vigente; a aprovação inclui materialização e testes T1–T5, sem release. Registro em `00_nucleo/diagnosticos/clippy-enums-2026-10-16/approval-receipt.json`.

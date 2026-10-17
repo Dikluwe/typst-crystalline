@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/pagebreak.md
-//! @prompt-hash 1c5872e4
+//! @prompt-hash 0b9aef81
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -30,7 +30,14 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         return;
     }
     // 1. Termina linha em curso (caso contrário fica meio-render).
-    if layouter.regions.current.cursor_x.0 > layouter.regions.current.line_start_x.0 {
+    if layouter.regions.current.cursor_x.0 > layouter.regions.current.line_start_x.0
+        || layouter
+            .regions
+            .current
+            .current_line
+            .iter()
+            .any(super::position_marker::is_marker)
+    {
         layouter.flush_line();
     }
     // 2. Força nova página (mesmo se actual está vazia — vanilla

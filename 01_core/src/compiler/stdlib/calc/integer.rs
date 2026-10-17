@@ -173,8 +173,8 @@ pub(crate) fn calc_quo(
             }
             let q = (af / bf).floor();
             if !q.is_finite()
-                || q < -9_223_372_036_854_775_808.0
-                || q >= 9_223_372_036_854_775_808.0
+                || !(-9_223_372_036_854_775_808.0..9_223_372_036_854_775_808.0)
+                    .contains(&q)
             {
                 return err("calc.quo() resultado fora do alcance i64");
             }

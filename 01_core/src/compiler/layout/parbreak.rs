@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/parbreak.md
-//! @prompt-hash 8f7c21be
+//! @prompt-hash 02b3a90e
 //! @layer L1
-//! @updated 2026-09-29
+//! @updated 2026-10-06
 //!
 //! Materialização transparente da fronteira de parágrafo (P1140.13).
 
@@ -33,11 +33,13 @@ pub(super) fn mark_boundary<M: FontMetrics, S: ImageSizer>(
             pos: Point { x: Pt(x), y: Pt(y) },
             text: "".into(),
             style: layouter.style.clone(),
+            bidi: None,
         }],
     });
 }
 
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>) {
+    layouter.smartquote_context.reset_paragraph();
     let had_items =
         html_frame::items_have_causal_line(&layouter.regions.current.current_line);
     if had_items {
@@ -46,12 +48,15 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S
         }
         mark_boundary(layouter);
         layouter.flush_line();
+        let flow_end = layouter.flow_placement_y();
         // O espaçamento que prepara o próximo parágrafo não estende uma
         // página auto se nenhum conteúdo vier depois desta fronteira.
-        layouter.last_block_descent_y = Some(layouter
-            .last_block_descent_y
-            .unwrap_or(layouter.prev_line_baseline)
-            .max(layouter.prev_line_baseline));
+        layouter.last_block_descent_y = Some(
+            layouter
+                .last_block_descent_y
+                .unwrap_or(layouter.prev_line_baseline)
+                .max(layouter.prev_line_baseline),
+        );
         let font_size = layouter.style.size.val();
         use super::vanilla_defaults::{PAR_LEADING, PAR_SPACING};
         use crate::entities::value::Value;
@@ -84,6 +89,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S
         };
         layouter.block_chain_active = true;
         layouter.prev_margin_is_parbreak = true;
+        if let Some(end) = flow_end {
+            layouter.record_flow_placement_end(end);
+        }
     }
 }
 
@@ -152,8 +160,12 @@ mod tests {
 #[cfg(test)]
 mod causal_empty_lines_tests {
     use super::super::{FixedMetrics, FontMetrics, Layouter};
-    use crate::entities::{content::Content, image_sizer::NullImageSizer,
-        introspector::{Introspector, TagIntrospector}, layout_types::{PageMargins, Pt}};
+    use crate::entities::{
+        content::Content,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{PageMargins, Pt},
+    };
     use comemo::Track;
 
     fn make(intr: &dyn Introspector) -> Layouter<'_, FixedMetrics, NullImageSizer> {
@@ -173,7 +185,10 @@ mod causal_empty_lines_tests {
         let intr = TagIntrospector::empty();
         let mut l = make(&intr);
         let top = l.metrics.text_edges(l.style.size, &l.style).0 .0;
-        l.layout_content(&Content::sequence(vec![Content::text("abc"), Content::Parbreak]));
+        l.layout_content(&Content::sequence(vec![
+            Content::text("abc"),
+            Content::Parbreak,
+        ]));
         let page = &l.finish().pages[0];
         assert!((page.height - top).abs() < 1e-9);
     }
@@ -183,8 +198,11 @@ mod causal_empty_lines_tests {
         let intr = TagIntrospector::empty();
         let mut l = make(&intr);
         let width = l.metrics.advance(" ", l.style.size, &l.style).0;
-        l.layout_content(&Content::sequence(vec![Content::text("  "),
-            Content::Parbreak, Content::text(" ")]));
+        l.layout_content(&Content::sequence(vec![
+            Content::text("  "),
+            Content::Parbreak,
+            Content::text(" "),
+        ]));
         let size = l.style.size.0;
         let page = &l.finish().pages[0];
         assert!((page.width - 2.0 * width).abs() < 1e-9);

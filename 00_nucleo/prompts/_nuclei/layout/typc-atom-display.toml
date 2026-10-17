@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "typc-atom-display"
+title = "Apresentação dos átomos de linguagem Auto e Bool"
+
+[[claims]]
+id = "display-morphology"
+level = "must"
+statement = "Auto e Bool interpolados preservam representação Raw inline lang typc; não são Text comum. O valor cru e seus getters não são alterados por essa apresentação."
+
+[[claims]]
+id = "constant-style"
+level = "must"
+statement = "Os átomos typc auto, true e false usam a classificação constant.language e cor Typst Light #d73948, sob os defaults Raw vigentes."
+
+[[claims]]
+id = "html-atom-boundary"
+level = "must"
+statement = "HTML serializa somente o subconjunto Raw inline typc auto/true/false com code data-lang typc e span da cor constante, preservando escaping/modo. Outros Raw continuam fora deste recorte; HTML não chama layout paginado."

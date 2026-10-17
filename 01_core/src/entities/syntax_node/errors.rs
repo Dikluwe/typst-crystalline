@@ -125,7 +125,6 @@ mod tests {
 
     #[test]
     fn numbering_failure_display_stays_stable() {
-        let result: NumberingResult = Err(Unnumberable);
-        assert_eq!(result.unwrap_err().to_string(), "cannot number within this interval");
+        assert_eq!(Unnumberable.to_string(), "cannot number within this interval");
     }
 }

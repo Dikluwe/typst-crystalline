@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics/fallback.md
-//! @prompt-hash e67eb6fc
+//! @prompt-hash be795624
 //! @layer L3
 //! @updated 2026-09-27
 
@@ -634,7 +634,7 @@ mod tests {
 
     /// **P891** — `FallbackFontMetrics::math_kern` deve ler a tabela MATH
     /// real da face que cobre `c` (via `resolve_primary_with_math_fallback`
-    /// + `covering`), não devolver sempre o default do trait (kern zero
+    /// e `covering`), não devolver sempre o default do trait (kern zero
     /// incondicional — o bug confirmado em `typst-passo-891-relatorio.md`
     /// para `i^2`, onde a base `𝑖` nunca aproximava o expoente).
     ///
@@ -755,8 +755,10 @@ mod tests {
         };
 
         let metrics = FallbackFontMetrics::new(&world);
-        let mut style = TextStyle::default();
-        style.math = true; // engata DEFAULT_FALLBACK_FONTS_MATH (P890).
+        let style = TextStyle {
+            math: true, // engata DEFAULT_FALLBACK_FONTS_MATH (P890).
+            ..TextStyle::default()
+        };
 
         let kern = metrics.math_kern(c, &style);
         assert_eq!(
@@ -892,8 +894,10 @@ mod tests {
         };
 
         let metrics = FallbackFontMetrics::new(&world);
-        let mut style = TextStyle::default();
-        style.math = true; // engata DEFAULT_FALLBACK_FONTS_MATH (P890).
+        let style = TextStyle {
+            math: true, // engata DEFAULT_FALLBACK_FONTS_MATH (P890).
+            ..TextStyle::default()
+        };
 
         let variants = metrics.vertical_glyph_variants(c, &style);
         let actual: Vec<(u16, f64, f64)> = variants
@@ -1037,8 +1041,7 @@ mod tests {
         };
 
         let metrics = FallbackFontMetrics::new(&world);
-        let mut style = TextStyle::default();
-        style.math = true;
+        let style = TextStyle { math: true, ..TextStyle::default() };
 
         let assembly = metrics.vertical_glyph_assembly(c, &style);
         let actual: Vec<(u16, u16, u16, u16, bool, f64)> = assembly
@@ -1156,8 +1159,7 @@ mod tests {
         };
 
         let metrics = FallbackFontMetrics::new(&world);
-        let mut style = TextStyle::default();
-        style.math = true;
+        let style = TextStyle { math: true, ..TextStyle::default() };
         let variant = text_style_to_font_variant(&style);
         let primary = metrics.resolve_primary_with_math_fallback(&style, &variant);
         let cand = metrics
@@ -1221,11 +1223,13 @@ mod tests {
         }
 
         let metrics = FallbackFontMetrics::new(&world);
-        let mut style = TextStyle::default();
-        style.font = Some(typst_core::entities::font_list::FontList::single(
-            ecow::EcoString::from("DejaVu Sans"),
-        ));
-        style.size = Pt(12.0);
+        let style = TextStyle {
+            font: Some(typst_core::entities::font_list::FontList::single(
+                ecow::EcoString::from("DejaVu Sans"),
+            )),
+            size: Pt(12.0),
+            ..TextStyle::default()
+        };
 
         let text = metrics.advance("Texto", Pt(12.0), &style);
         let t = metrics.advance("T", Pt(12.0), &style);
@@ -1259,13 +1263,15 @@ mod tests {
         }
 
         let metrics = FallbackFontMetrics::new(&world);
-        let mut style = TextStyle::default();
-        style.font = Some(typst_core::entities::font_list::FontList::single(
-            ecow::EcoString::from("DejaVu Sans"),
-        ));
-        style.size = Pt(40.0);
-        style.lang = Some("ar".parse().unwrap());
-        style.dir = Some(typst_core::entities::dir::Dir::RTL);
+        let style = TextStyle {
+            font: Some(typst_core::entities::font_list::FontList::single(
+                ecow::EcoString::from("DejaVu Sans"),
+            )),
+            size: Pt(40.0),
+            lang: Some("ar".parse().unwrap()),
+            dir: Some(typst_core::entities::dir::Dir::RTL),
+            ..TextStyle::default()
+        };
 
         // Para palavras árabes, a largura com shaping deve ser menor que a
         // soma das letras isoladas.
@@ -1318,12 +1324,14 @@ mod tests {
         };
 
         let metrics = FallbackFontMetrics::new(&world);
-        let mut style_400 = TextStyle::default();
-        style_400.font = Some(typst_core::entities::font_list::FontList::single(
-            ecow::EcoString::from("Ubuntu Sans"),
-        ));
-        style_400.size = Pt(11.0);
-        style_400.weight = Some(400);
+        let style_400 = TextStyle {
+            font: Some(typst_core::entities::font_list::FontList::single(
+                ecow::EcoString::from("Ubuntu Sans"),
+            )),
+            size: Pt(11.0),
+            weight: Some(400),
+            ..TextStyle::default()
+        };
 
         let mut style_800 = style_400.clone();
         style_800.weight = Some(800);

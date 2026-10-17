@@ -1,6 +1,6 @@
 # L0 — math/layout/stretchy
-
 Hash do Código: c2394720
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/layout/stretchy.rs`

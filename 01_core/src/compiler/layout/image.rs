@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout-image.md
-//! @prompt-hash 8997bfbb
+//! @prompt-hash f1552c67
 //! @layer L1
 //! @updated 2026-09-27
 
@@ -149,7 +149,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // A fresh block starts at a geometric top, including root Place.
     // Legacy baseline-origin subframes arrive with the pending flag cleared.
     let fresh_block = layouter.initial_baseline_pending
-        && layouter.regions.current.current_line.is_empty();
+        && layouter
+            .regions
+            .current
+            .current_line
+            .iter()
+            .all(super::html_frame::is_context_marker);
     if fresh_block {
         layouter.initial_baseline_pending = false;
     } else {
@@ -251,6 +256,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         _ => (dims.width_pt, dims.height_pt, None),
     };
 
+    layouter.record_flow_width_at(layouter.regions.current.cursor_x.0, target_w);
     let pos = Point {
         // rationale: P1064 Classe 1A — centragem de imagem em frame ((target_w - dims.w) / 2.0)
         x: Pt(layouter.regions.current.cursor_x.0 + (target_w - dims.width_pt) / 2.0),
@@ -580,5 +586,4 @@ mod initial_nontext_block_regressions {
     fn ordinary_subframe_block_does_not_query_unused_typography() {
         check(NoTypography, None, true);
     }
-
 }

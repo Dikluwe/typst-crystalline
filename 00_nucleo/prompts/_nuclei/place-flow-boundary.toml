@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "place-flow-boundary"
+title = "Fronteira física causal para Place fora do fluxo"
+
+[[claims]]
+id = "causal-end"
+level = "must"
+statement = "Place sem alinhamento vertical explícito usa a baseline da linha pendente ou a última fronteira física de fluxo certificada. A fronteira exclui preparação da próxima baseline e margens fracas; não é o máximo dos bboxes, pois overlays não consomem fluxo. Top/Bottom/Horizon explícitos mantêm a região."
+
+[[claims]]
+id = "witness"
+level = "must"
+statement = "O certificado privado guarda fim físico e cursor preparado no instante da produção. Só é reutilizado quando esse cursor ainda corresponde ao estado corrente; alteração desconhecida invalida a evidência, sem adivinhar um fim. Parbreak pode preservar o fim ao preparar margem; VSpace acrescenta seu avanço físico."
+
+[[claims]]
+id = "isolation"
+level = "must"
+statement = "Subframe inicia sem certificado e restaura o do pai em LIFO; checkpoint captura/restaura; nova página/coluna/configuração limpa o certificado. Place não altera a fronteira do pai. Não mudar contratos públicos, pipeline ou política de margens dos produtores."

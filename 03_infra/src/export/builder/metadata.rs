@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder/metadata.md
-//! @prompt-hash 54980c37
+//! @prompt-hash 7ecba2ba
 //! @layer L3
 //! @updated 2026-09-28
 
@@ -709,7 +709,8 @@ impl PdfBuilder {
             next: &mut usize,
         ) -> Option<TagNode> {
             let (role, alt, lang) = match item {
-                FrameItem::TextSeparator { style, .. } | FrameItem::Text { style, .. }
+                FrameItem::TextSeparator { style, .. }
+                | FrameItem::Text { style, .. }
                 | FrameItem::TextShaped { style, .. }
                 | FrameItem::Glyph { style, .. } => {
                     let role = match style.heading_level {
@@ -740,7 +741,12 @@ impl PdfBuilder {
                 FrameItem::Image { alt, .. } => {
                     ("Figure", alt.as_ref().map(ToString::to_string), None)
                 }
-                _ => return None,
+                FrameItem::TextReplacement { .. }
+                | FrameItem::Semantic { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Shape { .. }
+                | FrameItem::Group { .. }
+                | FrameItem::Link { .. } => return None,
             };
             let mcid = *next;
             *next += 1;
@@ -804,37 +810,65 @@ impl PdfBuilder {
                         );
                     }
                 }
-                FrameItem::Link { items, .. } if ua1 && !inside_artifact => {
-                    let mut children = Vec::new();
-                    for child in items {
-                        collect_top(child, page_index, next, &mut children, false, ua1);
-                    }
-                    if !children.is_empty() {
-                        out.push(TagNode {
-                            role: "Link",
-                            object_id: 0,
-                            table_id: None,
-                            page_index: Some(page_index),
-                            mcid: None,
-                            alt: None,
-                            lang: None,
-                            summary: None,
-                            attrs: TagAttrs::None,
-                            children,
-                        });
+                FrameItem::Link { items, .. } => {
+                    if ua1 && !inside_artifact {
+                        let mut children = Vec::new();
+                        for child in items {
+                            collect_top(
+                                child,
+                                page_index,
+                                next,
+                                &mut children,
+                                false,
+                                ua1,
+                            );
+                        }
+                        if !children.is_empty() {
+                            out.push(TagNode {
+                                role: "Link",
+                                object_id: 0,
+                                table_id: None,
+                                page_index: Some(page_index),
+                                mcid: None,
+                                alt: None,
+                                lang: None,
+                                summary: None,
+                                attrs: TagAttrs::None,
+                                children,
+                            });
+                        }
+                    } else {
+                        for child in items {
+                            collect_top(
+                                child,
+                                page_index,
+                                next,
+                                out,
+                                inside_artifact,
+                                ua1,
+                            );
+                        }
                     }
                 }
-                FrameItem::TextReplacement { items, .. } | FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
+                FrameItem::TextReplacement { items, .. }
+                | FrameItem::Group { items, .. } => {
                     for child in items {
                         collect_top(child, page_index, next, out, inside_artifact, ua1);
                     }
                 }
-                _ if ua1 && !inside_artifact => {
-                    if let Some(node) = ua1_leaf_node(item, page_index, next) {
-                        out.push(node);
+                FrameItem::TextSeparator { .. }
+                | FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. } => {
+                    if ua1 && !inside_artifact {
+                        if let Some(node) = ua1_leaf_node(item, page_index, next) {
+                            out.push(node);
+                        }
                     }
                 }
-                _ => {}
             }
         }
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/paragraph_select_forward.md
-//! @prompt-hash 09a383a9
+//! @prompt-hash 2585746f
 //! @layer L1
 //! @updated 2026-10-02
 
@@ -306,8 +306,8 @@ fn select_forward_variant<
     // Each failed earliest candidate is retired after its current attempt.
     let mut active_before = vec![0; n + 1];
     let mut active = 0;
-    for end in 1..=n {
-        active_before[end] = active;
+    for (end, first_active) in active_before.iter_mut().enumerate().skip(1) {
+        *first_active = active;
         while active < end
             && ratio(measured(Line { start: active, end }), width, font) < min_ratio
         {

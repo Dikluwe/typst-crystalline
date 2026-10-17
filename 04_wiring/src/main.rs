@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 3f5bdfad
+//! @prompt-hash 40ac91ca
 //! @layer L4
 //! @updated 2026-09-26
 
@@ -16,13 +16,8 @@ mod query;
 mod watch;
 
 use std::process::ExitCode;
-use typst_infra::pipeline::BundleFile;
+use typst_infra::watch::Published;
 use typst_shell::cli::{self, RunIntent};
-
-enum Published {
-    Html(String),
-    Bundle(Vec<BundleFile>),
-}
 
 fn main() -> ExitCode {
     match cli::parse() {

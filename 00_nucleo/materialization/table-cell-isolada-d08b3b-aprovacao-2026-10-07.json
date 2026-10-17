@@ -1,0 +1,19 @@
+{
+  "status": "materialized-with-documented-scope-limits",
+  "utc": "2026-10-07T14:53:19.127601+00:00",
+  "authorization": "confirmo",
+  "manifest_sha256": "3375b0a09a4d39d02c2f0bafbcaf3016c6afde27acdf632331da7a98de31e1df",
+  "public_fields": {
+    "TableCellElem": [
+      "standalone: Option<Arc<TableCellStandaloneResolved>>"
+    ]
+  },
+  "public_types": [
+    "TableCellStandaloneResolved"
+  ],
+  "completed_utc": "2026-10-07T15:21:50.581533+00:00",
+  "report": "00_nucleo/diagnosticos/table-cell-isolada-d08b3b-execucao-2026-10-07.md",
+  "final_release_sha256": "721b7c2ae63b32b77e71913cc8f86788ce1c8bbc1090f54cd59138ac6ead5bf3",
+  "final_snapshot": "00_nucleo/diagnosticos/table-cell-isolada-d08b3b-2026-10-07/tested-fifth.json.gz",
+  "supplemental_internal_parity": "Auto display/constant-language/HTML typc atoms; existing markup_stream owner added, no supplemental public contract or phase change"
+}

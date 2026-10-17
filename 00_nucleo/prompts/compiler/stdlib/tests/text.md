@@ -1,8 +1,9 @@
 # L0 — compiler/stdlib/tests/text
-Hash do Código: 6008b671
+Hash do Código: c25a4217
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:70b72ac9efb2bf81aa4ef496c4e1c867264f696d454a9916e7e2e5f385b92020
+- 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:dc549d79f9e996433894effc8e4efd1f8f3da3d9c30933110eeabbab582ae9a8
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/text.rs`
@@ -117,3 +118,11 @@ O módulo privado paragraph_pagination possui exclusivamente certificação vert
 Helpers privados de text_costs resolvem widow/orphan independentemente dos pesos hyphenation/runt, reutilizando FIELDS, com default Ratio 1 e teste estrito > 0. O default de estratégia do planejamento passa a Simple para parágrafo comum sem linebreaks, permitindo a preparação necessária à proteção padrão; a escolha automática por justify e todos os contextos recusados permanecem. Emitir sem alterar justificação, carriers, última linha aberta, fronteiras e restauração lexical. Preservar notas e colunas por não aplicar proteção incompleta nesses caminhos.
 
 Aceitação: RED→GREEN com mesmas palavras distribuídas 2+2 versus 3+1, proteção integral de três, orphan desligado independentemente, grupo excessivo, restauração e default sem flag. Sondas bilaterais com caixas/palavras/páginas, tipos/spans anteriores preservados e controles de fallback. Não usar grupos XML como número físico de linhas. Resselo restrito aos owners, build e crystalline-lint sem erros.
+
+## Correção de expectativas após contrato ratificado de aspas
+
+Medição: core-quotes-green.log registra falha de tipo nos testes históricos
+que tratavam double como bool. O contrato ratificado distingue omitido None
+e explícito Some; enabled:false permanece SmartQuote. Atualizar essas
+expectativas para os campos semânticos, preservando coverage dos argumentos
+e validação. Não muda contrato produtivo adicional (ADR-0127, fluxo contínuo).

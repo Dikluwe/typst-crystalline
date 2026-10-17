@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/image-sizer.md
-//! @prompt-hash b94d8a37
+//! @prompt-hash c4112f24
 //! @layer L3
 //! @updated 2026-09-27
 
@@ -258,6 +258,25 @@ fn exif_orientation(data: &[u8]) -> Option<u32> {
     None
 }
 
+struct TiffReaders {
+    read_u16: fn(&[u8]) -> u16,
+    read_u32: fn(&[u8]) -> u32,
+}
+
+fn tiff_readers(header: &[u8]) -> Option<TiffReaders> {
+    match header {
+        b"II" => Some(TiffReaders {
+            read_u16: |b| u16::from_le_bytes([b[0], b[1]]),
+            read_u32: |b| u32::from_le_bytes([b[0], b[1], b[2], b[3]]),
+        }),
+        b"MM" => Some(TiffReaders {
+            read_u16: |b| u16::from_be_bytes([b[0], b[1]]),
+            read_u32: |b| u32::from_be_bytes([b[0], b[1], b[2], b[3]]),
+        }),
+        _ => None,
+    }
+}
+
 /// Faz parsing de um bloco TIFF (little ou big endian) e devolve a tag
 /// Orientation (0x0112), se existir.
 fn parse_tiff_orientation(tiff: &[u8]) -> Option<u32> {
@@ -265,28 +284,15 @@ fn parse_tiff_orientation(tiff: &[u8]) -> Option<u32> {
         return None;
     }
 
-    let (_le, u16_, u32_): (bool, fn(&[u8]) -> u16, fn(&[u8]) -> u32) = match &tiff[0..2]
-    {
-        b"II" => (
-            true,
-            |b| u16::from_le_bytes([b[0], b[1]]),
-            |b| u32::from_le_bytes([b[0], b[1], b[2], b[3]]),
-        ),
-        b"MM" => (
-            false,
-            |b| u16::from_be_bytes([b[0], b[1]]),
-            |b| u32::from_be_bytes([b[0], b[1], b[2], b[3]]),
-        ),
-        _ => return None,
-    };
+    let readers = tiff_readers(&tiff[0..2])?;
 
-    let magic = u16_(&tiff[2..4]);
+    let magic = (readers.read_u16)(&tiff[2..4]);
     if magic != 42 {
         return None;
     }
 
-    let ifd_offset = u32_(&tiff[4..8]) as usize;
-    read_ifd_orientation(tiff, ifd_offset, u16_, u32_)
+    let ifd_offset = (readers.read_u32)(&tiff[4..8]) as usize;
+    read_ifd_orientation(tiff, ifd_offset, readers.read_u16, readers.read_u32)
 }
 
 /// Lê a tag Orientation (0x0112) de um IFD TIFF.
@@ -337,28 +343,15 @@ fn parse_tiff_dpi(tiff: &[u8]) -> Option<f64> {
         return None;
     }
 
-    let (_le, u16_, u32_): (bool, fn(&[u8]) -> u16, fn(&[u8]) -> u32) = match &tiff[0..2]
-    {
-        b"II" => (
-            true,
-            |b| u16::from_le_bytes([b[0], b[1]]),
-            |b| u32::from_le_bytes([b[0], b[1], b[2], b[3]]),
-        ),
-        b"MM" => (
-            false,
-            |b| u16::from_be_bytes([b[0], b[1]]),
-            |b| u32::from_be_bytes([b[0], b[1], b[2], b[3]]),
-        ),
-        _ => return None,
-    };
+    let readers = tiff_readers(&tiff[0..2])?;
 
-    let magic = u16_(&tiff[2..4]);
+    let magic = (readers.read_u16)(&tiff[2..4]);
     if magic != 42 {
         return None;
     }
 
-    let ifd_offset = u32_(&tiff[4..8]) as usize;
-    read_ifd_dpi(tiff, ifd_offset, u16_, u32_)
+    let ifd_offset = (readers.read_u32)(&tiff[4..8]) as usize;
+    read_ifd_dpi(tiff, ifd_offset, readers.read_u16, readers.read_u32)
 }
 
 /// Lê a tag XResolution (0x011A) de um IFD TIFF.

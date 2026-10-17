@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/figure_image.md
-//! @prompt-hash 69b30001
+//! @prompt-hash b563560f
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -15,12 +15,37 @@ use crate::entities::content::Content;
 use crate::entities::elements::figure_caption::CaptionPosition;
 use crate::entities::file_id::FileId;
 use crate::entities::image_format::{detect_image_format, ImageFormat};
-use crate::entities::layout_types::VAlign;
+use crate::entities::layout_types::{Align2D, VAlign};
 use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 use ecow::EcoString;
+
+fn figure_argument_value_span(args: &Args, name: Option<&str>) -> Span {
+    let occurrence = args.occurrences.as_ref().and_then(|occurrences| {
+        if let Some(name) = name {
+            occurrences.iter().rev().find(|arg| arg.name.as_deref() == Some(name))
+        } else {
+            occurrences.iter().find(|arg| arg.name.is_none())
+        }
+    });
+    occurrence.map_or(args.span, |arg| arg.value_span.or(arg.span).or(args.span))
+}
+
+fn caption_content_value(value: &Value, span: Span) -> SourceResult<Content> {
+    match value {
+        Value::Content(body) => Ok(body.clone()),
+        Value::LocatedContent(body, _) => Ok(body.content().clone()),
+        Value::Str(text) => Ok(Content::text(text.as_str())),
+        Value::Symbol(symbol) => Ok(Content::text(symbol.value.clone())),
+        Value::None => Ok(Content::Empty),
+        other => Err(vec![SourceDiagnostic::error(
+            span,
+            format!("expected content, found {}", vanilla_type_name(other)),
+        )]),
+    }
+}
 
 /// Auto-detecção de `kind` baseada no body — Passo 158A
 /// (Model figure-kinds sub-passo 1).
@@ -64,46 +89,134 @@ pub fn native_figure(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     let _ = ctx;
-    // Argumento posicional: body (obrigatório)
+    let value_span = |name: Option<&str>| figure_argument_value_span(args, name);
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
+        Some(Value::LocatedContent(c, _)) => c.content().clone(),
         Some(Value::Str(s)) => Content::text(s.as_str()),
-        Some(_) => Content::Empty,
+        Some(Value::Symbol(s)) => Content::text(s.value.clone()),
+        Some(Value::None) => Content::Empty,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                value_span(None),
+                format!("expected content, found {}", vanilla_type_name(other)),
+            )])
+        }
         None => {
             return Err(vec![SourceDiagnostic::error(
-                args.span,
-                "figure() requer um argumento posicional (body)".to_string(),
+                Span::detached(),
+                "missing argument: body",
             )])
         }
     };
 
-    // Argumento nomeado: caption (opcional)
-    // Value::None → ausência de legenda (comportamento intencional).
-    // **P1473** — `Content::FigureCaption` (produzido por `figure.caption(...)`)
-    // extrai só o `.body`; `position`/`separator` explícitos não têm efeito
-    // nesta fatia (permanecem preservados no valor original, não consultados
-    // aqui — ver `compiler/stdlib/figure_image.md` §P1473).
-    let caption = args.named.get("caption").and_then(|v| match v {
-        Value::Content(Content::FigureCaption(fc)) => Some(fc.body.clone()),
-        Value::Content(c) => Some(c.clone()),
-        Value::Str(s) => Some(Content::text(s.as_str())),
-        Value::None => None,
-        other => Some(Content::text(other.type_name())),
-    });
+    // Keep the existing caption body extraction; reject invalid casts explicitly.
+    let caption = match args.named.get("caption") {
+        None | Some(Value::None) => None,
+        Some(Value::Content(Content::FigureCaption(fc))) => Some(fc.body.clone()),
+        Some(Value::Content(c)) => Some(c.clone()),
+        Some(Value::LocatedContent(c, _)) => Some(c.content().clone()),
+        Some(Value::Str(s)) => Some(Content::text(s.as_str())),
+        Some(Value::Symbol(s)) => Some(Content::text(s.value.clone())),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                value_span(Some("caption")),
+                format!("expected content or none, found {}", vanilla_type_name(other)),
+            )])
+        }
+    };
 
-    // Argumento nomeado: kind (Passo 75 DEBT-15; P158A auto-detect;
-    // P158C ADR-0064 Caso A estrito — refactor String → Option<String>).
-    // Precedência: `kind:` explícito > inferência > **None** (default
-    // "image" resolvido em uso, não em construção).
-    let kind: Option<String> = args
-        .named
-        .get("kind")
-        .and_then(|v| match v {
-            Value::Str(s) => Some(Some(s.to_string())),
-            Value::Auto | Value::None => Some(None),
-            _ => None, // tipo inválido — cai em fallback // neutro: N16[β] — tipo inválido de kind retorna None para fallback
-        })
-        .unwrap_or_else(|| infer_kind_from_body(&body)); // P158A
+    let kind = match args.named.get("kind") {
+        Some(Value::Str(s)) => Some(s.to_string()),
+        None => infer_kind_from_body(&body),
+        Some(Value::Auto) => None,
+        Some(Value::Func(function)) => {
+            let is_element = function.element_name().is_some()
+                || crate::compiler::eval::bindings::native_element_fields(function)
+                    .is_some();
+            if !is_element {
+                return Err(vec![SourceDiagnostic::error(
+                    value_span(Some("kind")),
+                    "expected element",
+                )]);
+            }
+            // Typed element identity needs the separate public FigureKind contract.
+            // Preserve the historical path until that contract is approved.
+            infer_kind_from_body(&body)
+        }
+        Some(Value::Type(ty)) => {
+            let message = match ty {
+                crate::entities::value::Type::Int
+                | crate::entities::value::Type::Float
+                | crate::entities::value::Type::Str
+                | crate::entities::value::Type::Array
+                | crate::entities::value::Type::Dictionary
+                | crate::entities::value::Type::Datetime
+                | crate::entities::value::Type::Stroke
+                | crate::entities::value::Type::Regex
+                | crate::entities::value::Type::Tiling
+                | crate::entities::value::Type::Bytes
+                | crate::entities::value::Type::Decimal
+                | crate::entities::value::Type::Duration
+                | crate::entities::value::Type::Version
+                | crate::entities::value::Type::Selector
+                | crate::entities::value::Type::Symbol
+                | crate::entities::value::Type::Arguments
+                | crate::entities::value::Type::State
+                | crate::entities::value::Type::Counter
+                | crate::entities::value::Type::Label
+                | crate::entities::value::Type::Path
+                | crate::entities::value::Type::Type
+                | crate::entities::value::Type::SpotColorant => {
+                    "expected element".to_string()
+                }
+                crate::entities::value::Type::Bool => {
+                    "type boolean does not have a constructor".to_string()
+                }
+                crate::entities::value::Type::Relative => {
+                    "type relative length does not have a constructor".to_string()
+                }
+                crate::entities::value::Type::None
+                | crate::entities::value::Type::Auto
+                | crate::entities::value::Type::Module
+                | crate::entities::value::Type::Function
+                | crate::entities::value::Type::Content
+                | crate::entities::value::Type::Length
+                | crate::entities::value::Type::Ratio
+                | crate::entities::value::Type::Angle
+                | crate::entities::value::Type::Color
+                | crate::entities::value::Type::Fraction
+                | crate::entities::value::Type::Alignment
+                | crate::entities::value::Type::Gradient
+                | crate::entities::value::Type::Direction
+                | crate::entities::value::Type::Location => {
+                    format!("type {} does not have a constructor", ty.name())
+                }
+            };
+            return Err(vec![SourceDiagnostic::error(value_span(Some("kind")), message)]);
+        }
+        Some(Value::Symbol(symbol)) => {
+            let value = symbol.value.as_str();
+            let callable =
+                crate::compiler::stdlib::structural::is_known_math_accent(value)
+                    || crate::compiler::stdlib::structural::is_callable_lr_symbol(value);
+            let message = if callable {
+                "expected element".to_string()
+            } else {
+                format!("symbol {value} is not callable")
+            };
+            return Err(vec![SourceDiagnostic::error(value_span(Some("kind")), message)]);
+        }
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                value_span(Some("kind")),
+                format!(
+                    "expected function, string, or auto, found {}",
+                    vanilla_type_name(other)
+                ),
+            )])
+        }
+    };
 
     // F-5a de-bake (P365, `f_fronteira_e1.md` §3a.9): `native_figure` **não baka**
     // mais o padrão de numeração. O `#set figure(numbering:)` vive **só na chain**
@@ -155,26 +268,22 @@ pub fn native_figure_caption(
         )]);
     }
     let body = match args.items.first() {
-        Some(Value::Content(c)) => c.clone(),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("expected content, found {}", vanilla_type_name(other)),
-            )]);
+        Some(value) => {
+            caption_content_value(value, figure_argument_value_span(args, None))?
         }
         None => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                "missing argument: body".to_string(),
+                "missing argument: body",
             )]);
         }
     };
     let position = match args.named.get("position") {
         None => None,
-        Some(Value::Align(a)) if a.h.is_none() && a.v == Some(VAlign::Top) => {
+        Some(Value::Align(Align2D { h: None, v: Some(VAlign::Top) })) => {
             Some(CaptionPosition::Top)
         }
-        Some(Value::Align(a)) if a.h.is_none() && a.v == Some(VAlign::Bottom) => {
+        Some(Value::Align(Align2D { h: None, v: Some(VAlign::Bottom) })) => {
             Some(CaptionPosition::Bottom)
         }
         Some(other @ Value::Align(_)) => {
@@ -192,13 +301,10 @@ pub fn native_figure_caption(
     };
     let separator = match args.named.get("separator") {
         None => None,
-        Some(Value::Content(c)) => Some(c.clone()),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("expected content, found {}", vanilla_type_name(other)),
-            )]);
-        }
+        Some(value) => Some(caption_content_value(
+            value,
+            figure_argument_value_span(args, Some("separator")),
+        )?),
     };
     Ok(Value::Content(Content::figure_caption(body, position, separator)))
 }
@@ -554,5 +660,260 @@ mod p1473_tests {
         // Chamada directa (sem caption qualificada) não deve regredir.
         eval(r#"figure(rect(), caption: [plain caption])"#)
             .unwrap_or_else(|e| panic!("chamada directa de figure() regrediu: {e:?}"));
+    }
+    #[test]
+    fn figure_domain_rejects_invalid_body_instead_of_empty_content() {
+        for (expr, kind) in
+            [("1", "integer"), ("true", "boolean"), ("(1,2)", "array"), ("auto", "auto")]
+        {
+            assert_eq!(
+                expect_err_message(&format!("figure({expr})")),
+                format!("expected content, found {kind}")
+            );
+        }
+        assert_eq!(expect_err_message("figure()"), "missing argument: body");
+    }
+
+    #[test]
+    fn figure_domain_rejects_invalid_caption_instead_of_type_text() {
+        for (expr, kind) in [("1", "integer"), ("true", "boolean"), ("auto", "auto")] {
+            assert_eq!(
+                expect_err_message(&format!("figure([A],caption:{expr})")),
+                format!("expected content or none, found {kind}")
+            );
+        }
+    }
+
+    #[test]
+    fn figure_domain_rejects_invalid_kind_and_non_element_functions() {
+        for (expr, kind) in [
+            ("none", "none"),
+            ("1", "integer"),
+            ("true", "boolean"),
+            ("(a:1)", "dictionary"),
+            ("[A]", "content"),
+        ] {
+            assert_eq!(
+                expect_err_message(&format!("figure([A],kind:{expr})")),
+                format!("expected function, string, or auto, found {kind}")
+            );
+        }
+        for expr in ["assert", "x=>x", "int", "table.with(columns:1)"] {
+            assert_eq!(
+                expect_err_message(&format!("figure([A],kind:{expr})")),
+                "expected element"
+            );
+        }
+        for (expr, name) in [
+            ("bool", "boolean"),
+            ("type(ltr)", "direction"),
+            ("type(50%+1pt)", "relative length"),
+        ] {
+            assert_eq!(
+                expect_err_message(&format!("figure([A],kind:{expr})")),
+                format!("type {name} does not have a constructor")
+            );
+        }
+        let world = NullWorld::default();
+        let mut args = Args::positional(vec![Value::Content(Content::text("A"))]);
+        args.named.insert(
+            "kind".into(),
+            Value::Func(crate::entities::func::Func::native(
+                "table",
+                crate::compiler::stdlib::native_assert,
+            )),
+        );
+        let errors = native_figure(
+            &mut EvalContext::new(),
+            &args,
+            &world,
+            crate::contracts::world::World::main(&world),
+        )
+        .unwrap_err();
+        assert_eq!(
+            errors[0].message, "expected element",
+            "names must not impersonate element identity"
+        );
+    }
+
+    #[test]
+    fn figure_domain_errors_follow_field_order_and_causal_value_spans() {
+        use crate::entities::args::ArgOccurrence;
+        let world = NullWorld::default();
+        let file = crate::contracts::world::World::main(&world);
+        let span = |n| Span::from_range(file, n..n + 1);
+        let make = |body, caption| {
+            Args::from_occurrences(
+                span(1),
+                vec![
+                    ArgOccurrence {
+                        name: None,
+                        value: body,
+                        span: span(2),
+                        value_span: span(3),
+                    },
+                    ArgOccurrence {
+                        name: Some("kind".into()),
+                        value: Value::Int(1),
+                        span: span(4),
+                        value_span: span(5),
+                    },
+                    ArgOccurrence {
+                        name: Some("caption".into()),
+                        value: caption,
+                        span: span(6),
+                        value_span: span(7),
+                    },
+                ],
+            )
+        };
+        for (body, caption, message, anchor) in [
+            (Value::Int(1), Value::Int(1), "expected content, found integer", span(3)),
+            (
+                Value::Content(Content::text("A")),
+                Value::Int(1),
+                "expected content or none, found integer",
+                span(7),
+            ),
+            (
+                Value::Content(Content::text("A")),
+                Value::None,
+                "expected function, string, or auto, found integer",
+                span(5),
+            ),
+        ] {
+            let errors = native_figure(
+                &mut EvalContext::new(),
+                &make(body, caption),
+                &world,
+                file,
+            )
+            .unwrap_err();
+            assert_eq!(errors.len(), 1);
+            assert_eq!(errors[0].message, message);
+            assert_eq!(errors[0].span, anchor);
+        }
+    }
+
+    #[test]
+    fn figure_domain_valid_controls_keep_body_caption_and_explicit_name() {
+        for expr in [
+            "figure(none)",
+            "figure(\"A\")",
+            "figure([A],caption:none)",
+            "figure([A],caption:\"C\")",
+            "figure([A],caption:[C])",
+            "figure([A],kind:auto)",
+            "{let t=table;figure([A],kind:t)}",
+        ] {
+            expect_ok(expr);
+        }
+        let Value::Content(Content::Figure(f)) = expect_ok("figure([A],kind:\"custom\")")
+        else {
+            panic!("figure expected")
+        };
+        assert_eq!(f.kind.as_deref(), Some("custom"));
+        assert_eq!(f.body.plain_text(), "A");
+    }
+
+    #[test]
+    fn figure_domain_located_values_are_content_for_body_and_caption() {
+        use crate::entities::value::IntrospectedContent;
+        let world = NullWorld::default();
+        let file = crate::contracts::world::World::main(&world);
+        let origin = Span::from_range(file, 21..22);
+        let mut locator = crate::entities::locator::Locator::new();
+        let body = Value::LocatedContent(
+            IntrospectedContent::new(Content::text("A").with_source_span(origin), None),
+            locator.next(),
+        );
+        let caption = Value::LocatedContent(
+            IntrospectedContent::new(Content::text("C"), None),
+            locator.next(),
+        );
+        let mut args = Args::positional(vec![body]);
+        args.named.insert("caption".into(), caption);
+        let Value::Content(Content::Figure(f)) =
+            native_figure(&mut EvalContext::new(), &args, &world, file).unwrap()
+        else {
+            panic!("expected figure")
+        };
+        assert_eq!(f.body.plain_text(), "A");
+        assert_eq!(f.body.source_span(), origin);
+        assert_eq!(f.caption.as_ref().unwrap().plain_text(), "C");
+    }
+    #[test]
+    fn figure_symbol_kind_uses_function_cast_diagnostics() {
+        for value in ["α", ")"] {
+            assert_eq!(
+                expect_err_message(&format!("figure([A],kind:symbol(\"{value}\"))")),
+                format!("symbol {value} is not callable")
+            );
+        }
+        for value in ["^", "(", "[", "⌈", "|", "↔\u{fe0e}", "\u{0302}"] {
+            assert_eq!(
+                expect_err_message(&format!("figure([A],kind:symbol(\"{value}\"))")),
+                "expected element"
+            );
+        }
+    }
+
+    #[test]
+    fn figure_symbol_body_and_caption_keep_effective_grapheme() {
+        let Value::Content(Content::Figure(f)) =
+            expect_ok("figure(sym.alpha,caption:sym.beta)")
+        else {
+            panic!("expected figure")
+        };
+        assert_eq!(f.body.plain_text(), "α");
+        assert_eq!(f.caption.as_ref().unwrap().plain_text(), "β");
+    }
+    #[test]
+    fn caption_shape_constructor_uses_content_casts_and_causal_error() {
+        for (expr, text) in [("none", ""), ("\"C\"", "C"), ("sym.alpha", "α")] {
+            let Value::Content(Content::FigureCaption(c)) =
+                expect_ok(&format!("figure.caption({expr})"))
+            else {
+                panic!("expected caption")
+            };
+            assert_eq!(c.body.plain_text(), text);
+        }
+        let Value::Content(Content::FigureCaption(c)) =
+            expect_ok("figure.caption([C],separator:none)")
+        else {
+            panic!("expected caption")
+        };
+        assert!(c.separator.as_ref().unwrap().is_empty());
+        let Value::Content(Content::FigureCaption(c)) =
+            expect_ok("figure.caption([C],separator:\"S\")")
+        else {
+            panic!("expected caption")
+        };
+        assert_eq!(c.separator.as_ref().unwrap().plain_text(), "S");
+        use crate::entities::args::ArgOccurrence;
+        let world = NullWorld::default();
+        let file = crate::contracts::world::World::main(&world);
+        let anchor = Span::from_range(file, 22..23);
+        let args = Args::from_occurrences(
+            Span::detached(),
+            vec![
+                ArgOccurrence {
+                    name: None,
+                    value: Value::Content(Content::text("C")),
+                    span: Span::detached(),
+                    value_span: Span::detached(),
+                },
+                ArgOccurrence {
+                    name: Some("separator".into()),
+                    value: Value::Int(1),
+                    span: Span::detached(),
+                    value_span: anchor,
+                },
+            ],
+        );
+        let errors = native_figure_caption(&mut EvalContext::new(), &args, &world, file)
+            .unwrap_err();
+        assert_eq!(errors[0].message, "expected content, found integer");
+        assert_eq!(errors[0].span, anchor);
     }
 }

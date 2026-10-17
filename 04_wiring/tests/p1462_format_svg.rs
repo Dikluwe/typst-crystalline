@@ -1,12 +1,16 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1462-format-svg.md
-//! @prompt-hash e001db42
+//! @prompt-hash ffeba6a3
+
+#[path = "../../03_infra/tests/support/wiring/p1462_format_svg.rs"]
+mod harness;
+
+use harness::{Checks, TempDir};
 
 use std::collections::BTreeMap;
 use std::ffi::{OsStr, OsString};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::thread;
 use std::time::{Duration, Instant};
 
@@ -14,35 +18,6 @@ const PROCESS_TIMEOUT: Duration = Duration::from_secs(90);
 const OBSERVER_TIMEOUT: Duration = Duration::from_secs(30);
 const PAGE: &str = "#set page(width: 20pt, height: 20pt, margin: 0pt)\n";
 const CONTAINER_ERROR: &str = "format set rules are not allowed inside of containers";
-
-static NEXT_TEMP: AtomicU64 = AtomicU64::new(0);
-
-struct TempDir {
-    path: PathBuf,
-}
-
-impl TempDir {
-    fn new(label: &str) -> Self {
-        loop {
-            let suffix = NEXT_TEMP.fetch_add(1, Ordering::Relaxed);
-            let path = std::env::temp_dir()
-                .join(format!("typst-p1462-{label}-{}-{suffix}", std::process::id()));
-            match fs::create_dir(&path) {
-                Ok(()) => return Self { path },
-                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {
-                    continue
-                }
-                Err(error) => panic!("cannot create {}: {error}", path.display()),
-            }
-        }
-    }
-}
-
-impl Drop for TempDir {
-    fn drop(&mut self) {
-        let _ = fs::remove_dir_all(&self.path);
-    }
-}
 
 #[derive(Debug)]
 struct ProcessResult {
@@ -57,27 +32,6 @@ struct Compilation {
     output_path: PathBuf,
     process: ProcessResult,
     artifact: Option<Vec<u8>>,
-}
-
-#[derive(Default)]
-struct Checks {
-    failures: Vec<String>,
-}
-
-impl Checks {
-    fn require(&mut self, condition: bool, message: impl Into<String>) {
-        if !condition {
-            self.failures.push(message.into());
-        }
-    }
-
-    fn finish(self) {
-        assert!(
-            self.failures.is_empty(),
-            "P1462 contract failures:\n- {}",
-            self.failures.join("\n- ")
-        );
-    }
 }
 
 #[derive(Debug)]
@@ -451,7 +405,7 @@ fn inline_svg(html: &[u8]) -> Result<XmlObservation, String> {
         .find("</svg>")
         .ok_or_else(|| "inline SVG has no closing tag".to_string())?;
     let end = start + relative_end + "</svg>".len();
-    normalize_xml(source[start..end].as_bytes())
+    normalize_xml(&source.as_bytes()[start..end])
 }
 
 fn pdf_summary(path: &Path) -> Result<(String, BTreeMap<String, String>), String> {
@@ -512,9 +466,7 @@ fn observe_svg(
     compiled: &Compilation,
 ) -> Option<XmlObservation> {
     require_success(checks, label, compiled);
-    let Some(bytes) = compiled.artifact.as_deref() else {
-        return None;
-    };
+    let bytes = compiled.artifact.as_deref()?;
     match normalize_xml(bytes) {
         Ok(observed) => Some(observed),
         Err(error) => {

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_cancel.md
-//! @prompt-hash e3ba6e0a
+//! @prompt-hash e2a43219
 //! @layer L1
-//! @updated 2026-06-11
+//! @updated 2026-10-10
 //!
 //! `MathCancelElem` — Lote 2 P317 (família math). Linha de cancelamento (P296).
 //! Comportamento idêntico ao braço anterior do hub (content-preserving).
@@ -110,17 +110,9 @@ impl Element for MathCancelElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathCancel(Arc::new(MathCancelElem {
-            body: self.body.map_content(transform)?,
-            length: self.length,
-            inverted: self.inverted,
-            cross: self.cross,
-            angle: self.angle.clone(),
-            stroke: self.stroke.clone(),
-            background: self.background,
-            span: self.span,
-            explicit: self.explicit,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathCancel(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -129,6 +121,26 @@ impl Element for MathCancelElem {
     {
         // Terminal (math structural; não desce).
         Content::MathCancel(Arc::new(self.clone()))
+    }
+}
+
+impl MathCancelElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        if body.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        Ok(Some(Content::MathCancel(Arc::new(mapped))))
     }
 }
 

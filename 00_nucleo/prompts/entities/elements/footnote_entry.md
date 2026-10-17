@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/footnote_entry` — `FootnoteEntryElem`
-Hash do Código: 46ef1952
+Hash do Código: 941e45c4
 
 **Estado**: MATERIALIZADO (confirmação humana 2026-09-21, posterior ao commit
 causal somente-L0 `3ac60a578`; execução segregada A/B/C — ver

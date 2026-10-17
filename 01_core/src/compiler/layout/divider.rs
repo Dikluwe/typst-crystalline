@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/divider.md
-//! @prompt-hash 523ac722
+//! @prompt-hash aac64c7a
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -8,9 +8,9 @@
 //! `layout_content` para o arquivo da feature (forma B). Content-preserving.
 
 use crate::entities::elements::divider::DividerElem;
-use crate::entities::geometry::{ShapeKind, Stroke};
+use crate::entities::frame_paint::{FramePaint as Paint, FrameStroke as Stroke};
+use crate::entities::geometry::ShapeKind;
 use crate::entities::layout_types::{Color, FrameItem, Point, Pt};
-use crate::entities::paint::Paint;
 
 use super::{FontMetrics, ImageSizer, Layouter};
 

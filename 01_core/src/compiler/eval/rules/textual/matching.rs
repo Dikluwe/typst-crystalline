@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/textual/matching.md
-//! @prompt-hash 1dc051b7
+//! @prompt-hash 7e1d4978
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-17
 //!
 //! Agrupamento, recorte e transformação de matches textuais.
 
@@ -51,7 +51,7 @@ pub(super) fn apply_textual_groups(
             let Some(piece) = textual_piece(&parts[end]) else {
                 break;
             };
-            has_text |= matches!(&parts[end], Content::Text(_));
+            has_text |= piece.chars().any(|ch| !ch.is_whitespace());
             merged.push_str(&piece);
             end += 1;
         }
@@ -228,10 +228,192 @@ fn transform_textual_match(
 
 fn textual_piece(content: &Content) -> Option<String> {
     match content {
+        Content::Realized(e) => textual_piece(&e.visual),
+        Content::Source(e) => textual_piece(&e.body),
+        Content::Located(e) => textual_piece(&e.body),
+        Content::Sequence(parts) => parts
+            .iter()
+            .map(textual_piece)
+            .collect::<Option<Vec<_>>>()
+            .map(|v| v.concat()),
         Content::Empty => Some(String::new()),
         Content::Text(text) => Some(text.to_string()),
         Content::Space | Content::SpaceFromNewline => Some(" ".to_string()),
         // A quebra explícita é fronteira destrutiva, nunca texto agregado.
-        _ => None,
+        Content::ShowRecipe(_)
+        | Content::Parbreak
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_)
+        | Content::Par { .. }
+        | Content::Heading(_)
+        | Content::Title(_)
+        | Content::Strong(_)
+        | Content::Emph(_)
+        | Content::Raw(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::Link(_)
+        | Content::Equation(_)
+        | Content::MathSequence(_)
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathPrimes(_)
+        | Content::MathRoot(_)
+        | Content::MathStretch(_)
+        | Content::MathDelimited(_)
+        | Content::MathLr(_)
+        | Content::MathMid(_)
+        | Content::MathOverbrace(_)
+        | Content::MathUnderbrace(_)
+        | Content::MathUnderbracket(_)
+        | Content::MathUnderparen(_)
+        | Content::MathUndershell(_)
+        | Content::MathOverbracket(_)
+        | Content::MathOverparen(_)
+        | Content::MathOvershell(_)
+        | Content::MathAlignPoint(_)
+        | Content::Linebreak(_)
+        | Content::MathMatrix(_)
+        | Content::MathCases(_)
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathOverline(_)
+        | Content::MathVec(_)
+        | Content::MathClassOverride(_)
+        | Content::MathLimitsOverride(_)
+        | Content::MathUnderover(_)
+        | Content::MathOp(_)
+        | Content::MathStyled(_)
+        | Content::Label(_)
+        | Content::Ref(_)
+        | Content::CounterDisplay(_)
+        | Content::CounterUpdate(_)
+        | Content::Outline(_)
+        | Content::OutlineEntry(_)
+        | Content::Figure(_)
+        | Content::FigureCaption(_)
+        | Content::Image(_)
+        | Content::Shape(_)
+        | Content::Curve(_)
+        | Content::Transform(_)
+        | Content::Grid(_)
+        | Content::GridHeader(_)
+        | Content::GridFooter(_)
+        | Content::GridCell(_)
+        | Content::SetPage(_)
+        | Content::PageRun(_)
+        | Content::Align(_)
+        | Content::Place(_)
+        | Content::Flush(_)
+        | Content::Styled(_)
+        | Content::Divider(_)
+        | Content::Terms(_)
+        | Content::TermItem(_)
+        | Content::Quote(_)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(_)
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. }
+        | Content::Pad(_)
+        | Content::Hide(_)
+        | Content::HSpace(_)
+        | Content::VSpace(_)
+        | Content::Pagebreak(_)
+        | Content::Colbreak(_)
+        | Content::Stack(_)
+        | Content::Boxed(_)
+        | Content::Block(_)
+        | Content::TableCell(_)
+        | Content::Bibliography(_)
+        | Content::Cite(_)
+        | Content::Footnote(_)
+        | Content::FootnoteEntry(_)
+        | Content::TableHeader(_)
+        | Content::TableFooter(_)
+        | Content::GridHLine(_)
+        | Content::GridVLine(_)
+        | Content::TableHLine(_)
+        | Content::TableVLine(_)
+        | Content::Table(_)
+        | Content::Repeat(_)
+        | Content::Columns(_)
+        | Content::Metadata(_)
+        | Content::State(_)
+        | Content::StateUpdate(_)
+        | Content::StateDisplay(_)
+        | Content::CounterDisplayCallback(_)
+        | Content::ContextBlock(_)
+        | Content::Dynamic(_) => None,
+    }
+}
+
+#[cfg(test)]
+mod v16_whitespace_tests {
+    use super::*;
+    use crate::entities::content::{LocatedContent, RealizedContent};
+    use crate::entities::{file_id::FileId, location::Location};
+    fn carriers(body: Content) -> Vec<Content> {
+        let span = Span::from_range(
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+            1..2,
+        );
+        vec![
+            body.clone().with_source_span(span),
+            Content::Located(Arc::new(LocatedContent {
+                body: body.clone(),
+                location: Location::from_raw(9),
+            })),
+            Content::Realized(Arc::new(RealizedContent {
+                original: Content::linebreak(),
+                visual: body,
+            })),
+        ]
+    }
+    #[test]
+    fn v16_whitespace_matching_preserves_pieces() {
+        for (body, expected) in [
+            (Content::text("alpha"), "alpha"),
+            (Content::Space, " "),
+            (Content::SpaceFromNewline, " "),
+            (Content::Empty, ""),
+            (
+                Content::sequence(vec![
+                    Content::text("a"),
+                    Content::Space,
+                    Content::text("b"),
+                ]),
+                "a b",
+            ),
+        ] {
+            for content in carriers(body) {
+                assert_eq!(textual_piece(&content).as_deref(), Some(expected));
+            }
+        }
+    }
+    #[test]
+    fn v16_whitespace_matching_keeps_boundaries() {
+        for body in [
+            Content::linebreak(),
+            Content::Parbreak,
+            Content::styled(Box::new(Content::text("x")), Styles::default()),
+            Content::MathIdent("x".into()),
+            Content::sequence(vec![
+                Content::text("a"),
+                Content::Parbreak,
+                Content::text("b"),
+            ]),
+        ] {
+            for content in carriers(body) {
+                assert!(textual_piece(&content).is_none());
+            }
+        }
     }
 }

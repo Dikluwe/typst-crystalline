@@ -1,5 +1,5 @@
 # L0 — Dynamic callout and badge fixtures
-Hash do Código: b7b63e64
+Hash do Código: 2484f695
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/elements/test_callout.rs`

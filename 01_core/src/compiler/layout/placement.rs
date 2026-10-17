@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/placement.md
-//! @prompt-hash ef9ce841
+//! @prompt-hash 8d3c2f6b
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -15,12 +15,90 @@ use crate::entities::{
 
 use super::metrics::FontMetrics;
 use super::{item_pos, translate_frame_item};
+use crate::entities::value::Value;
+
+/// Closed certificate for textual line alignment; geometric consumers keep
+/// the established envelope path and its deferred coordinate protocol.
+pub(super) fn text_alignment_body(content: &Content) -> bool {
+    if matches!(content, Content::Empty) {
+        return true;
+    }
+    if matches!(content, Content::Text(_)) {
+        return true;
+    }
+    if matches!(content, Content::Space) {
+        return true;
+    }
+    if matches!(content, Content::SpaceFromNewline) {
+        return true;
+    }
+    if matches!(content, Content::Linebreak(_)) {
+        return true;
+    }
+    if let Content::Sequence(parts) = content {
+        return parts.iter().all(text_alignment_body);
+    }
+    if let Content::Styled(e) = content {
+        return text_alignment_body(&e.body);
+    }
+    if let Content::Strong(e) = content {
+        return text_alignment_body(&e.body);
+    }
+    if let Content::Emph(e) = content {
+        return text_alignment_body(&e.body);
+    }
+    if let Content::Par { body } = content {
+        return text_alignment_body(body);
+    }
+    if let Content::Align(e) = content {
+        return text_alignment_body(&e.body);
+    }
+    if let Content::Block(e) = content {
+        return !e.clip
+            && e.fill.is_none()
+            && e.stroke.is_none()
+            && e.inset
+                == crate::entities::sides::Sides::uniform(
+                    crate::entities::layout_types::Length::ZERO,
+                )
+            && e.outset
+                == crate::entities::sides::Sides::uniform(
+                    crate::entities::layout_types::Length::ZERO,
+                )
+            && text_alignment_body(&e.body);
+    }
+    // Absence of positive proof keeps this carrier on its existing layout path.
+    false
+}
+
+/// A complete grid frame owns its horizontal placement inside the flow region.
+fn grid_alignment_body(content: &Content) -> bool {
+    if matches!(content, Content::Grid(_) | Content::Table(_)) {
+        return true;
+    }
+    if let Content::Sequence(parts) = content {
+        return parts.len() == 1 && grid_alignment_body(&parts[0]);
+    }
+    if let Content::Styled(e) = content {
+        return grid_alignment_body(&e.body);
+    }
+    if let Content::Located(e) = content {
+        return grid_alignment_body(&e.body);
+    }
+    if let Content::Realized(e) = content {
+        return grid_alignment_body(&e.visual);
+    }
+    false
+}
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// Layout de `Content::Align { alignment, body }`.
     pub(super) fn layout_align(&mut self, alignment: Align2D, body: &Content) {
         // Garantir que não há texto inline pendente antes de posicionar o bloco.
         // flush_line usa line_start_x (Passo 81.5).
+        let had_pending_line =
+            super::html_frame::items_have_causal_line(&self.regions.current.current_line);
+        let incoming_page = self.pages.len();
         self.flush_line();
 
         let avail_w = self.available_width();
@@ -37,23 +115,72 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // o início; só falta somar o deslocamento *incremental* do
         // alinhamento (`delta_x` abaixo), não o `target_x` inteiro.
         let origin_x_abs = self.regions.current.line_start_x.0;
-        let (sub_h, sub_items, sub_deco, orphaned_align_x, orphaned_align_y) = self
-            .layout_sub_frame(
-                body,
-                super::sub_frame::SubLayoutRegion {
-                    origin_x: origin_x_abs,
-                    width: avail_w,
-                    height: None,
-                    align_rtl: false,
-                    unconstrained_height: true,
-                },
-            );
-
-        // Origem vertical local do sub-frame (ascender). Necessária para
-        // rebaser as coordenadas Y ao colocar no frame pai.
-        let (ascender_local, _) =
-            self.metrics.vertical_metrics(self.style.size, &self.style);
-        let sub_origin_y = ascender_local.0;
+        let textual = avail_w.is_finite()
+            && matches!(alignment.v, None | Some(VAlign::Top))
+            && text_alignment_body(body);
+        let grid_aligned = avail_w.is_finite()
+            && matches!(alignment.v, None | Some(VAlign::Top))
+            && grid_alignment_body(body);
+        let flow_aligned = textual || grid_aligned;
+        let saved_alignment = self.explicit_line_alignment;
+        if flow_aligned {
+            let rtl = self.chain.custom("text.dir")
+                == Some(&crate::entities::value::Value::Dir(
+                    crate::entities::dir::Dir::RTL,
+                ));
+            self.explicit_line_alignment = alignment
+                .h
+                .map(|h| match h {
+                    HAlign::Start => {
+                        if rtl {
+                            HAlign::Right
+                        } else {
+                            HAlign::Left
+                        }
+                    }
+                    HAlign::End => {
+                        if rtl {
+                            HAlign::Left
+                        } else {
+                            HAlign::Right
+                        }
+                    }
+                    h => h,
+                })
+                .or(saved_alignment);
+        }
+        let region = super::sub_frame::SubLayoutRegion {
+            origin_x: origin_x_abs,
+            width: avail_w,
+            height: None,
+            align_rtl: false,
+            unconstrained_height: true,
+        };
+        let (sub_h, sub_items, sub_deco, orphaned_align_x, orphaned_align_y) =
+            self.layout_sub_frame_at_geometric_origin(body, region);
+        let flow_width = self.last_sub_frame_flow_width;
+        self.explicit_line_alignment = saved_alignment;
+        let sub_origin_y = 0.0;
+        let occupies_flow = sub_h > 0.0;
+        if occupies_flow && self.pages.len() == incoming_page {
+            if self.block_chain_active && !self.initial_baseline_pending {
+                self.regions.current.cursor_y = Pt(self.prev_line_baseline
+                    + self.prev_block_equation_descent
+                    + self.prev_block_below_pending);
+            } else if had_pending_line
+                || (!self.initial_baseline_pending && self.flow_placement_y().is_some())
+            {
+                let spacing = match self.chain.custom("par.spacing") {
+                    Some(Value::Length(length)) => length.resolve_pt(self.style.size.0),
+                    _ => self.style.size.0 * super::vanilla_defaults::PAR_SPACING,
+                };
+                let end = self.flow_placement_y().unwrap_or(self.prev_line_baseline);
+                self.regions.current.cursor_y = Pt(end + spacing);
+            } else if !self.is_sub_frame && !self.initial_baseline_pending {
+                let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
+                self.regions.current.cursor_y = self.regions.current.cursor_y - top;
+            }
+        }
 
         // P772j — largura do conteúdo medida a partir dos `sub_items` já
         // layoutados (via `FontMetrics::line_content_right`, o mesmo
@@ -75,11 +202,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let sub_item_refs: Vec<&crate::entities::layout_types::FrameItem> =
             sub_items.iter().collect();
         let content_right_abs = self.metrics.line_content_right(&sub_item_refs);
-        let content_w = (content_right_abs - origin_x_abs).max(0.0);
+        let content_w = if flow_aligned {
+            avail_w
+        } else {
+            (content_right_abs - origin_x_abs).max(0.0)
+        };
 
         // Verificar quebra de página com a altura do sub-frame.
         if self.regions.current.cursor_y.0 + sub_h > self.page_bottom_limit() {
             self.new_page();
+            if !self.initial_baseline_pending {
+                let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
+                self.regions.current.cursor_y = self.regions.current.cursor_y - top;
+            }
         }
 
         // Selecção de remaining_h e VAlign efectivo (Passo 83).
@@ -112,7 +247,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // correcção diferida (`pending_align_centering`) para reaplicar
         // quando a largura final da página for conhecida
         // (`apply_pending_align_fixups`, chamado de `finish()`/`new_page()`).
-        let avail_w_is_finite = avail_w.is_finite();
+        let defer_block_x = self.block_auto_width && !flow_aligned;
+        let avail_w_is_finite = avail_w.is_finite() && !defer_block_x;
         let avail_w_for_resolve = if avail_w_is_finite { avail_w } else { content_w };
 
         // **P898** — mesma vulnerabilidade no eixo Y: sob `height: auto` e
@@ -151,7 +287,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             ));
         }
 
-        if !remaining_h_is_finite {
+        if !remaining_h_is_finite && !occupies_flow {
             let start_idx = self.regions.current.current_items.len();
             let count = sub_items.len();
             self.pending_align_v_centering.push((
@@ -271,6 +407,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 self.regions.current.cursor_y = Pt(target_y + sub_h);
             }
         }
+        self.record_flow_placement_end(self.regions.current.cursor_y.0);
+        self.record_flow_width_at(origin_x_abs, flow_width);
+        if occupies_flow {
+            let frame_end = self.regions.current.cursor_y.0;
+            self.last_block_descent_y = Some(frame_end);
+            self.prev_line_baseline = frame_end;
+            self.prev_block_equation_descent = 0.0;
+            self.prev_block_below_pending = match self.chain.custom("par.spacing") {
+                Some(Value::Length(length)) => length.resolve_pt(self.style.size.0),
+                _ => self.style.size.0 * super::vanilla_defaults::PAR_SPACING,
+            };
+            self.block_chain_active = true;
+            self.prev_margin_is_parbreak = false;
+            self.initial_baseline_pending = false;
+        }
     }
 
     /// Layout de `Content::Place { alignment, dx, dy, scope, body }`.
@@ -281,9 +432,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         dy: f64,
         scope: PlaceScope,
         body: &Content,
+        flow_y: Option<f64>,
     ) {
         // Place NÃO chama flush_line e NÃO modifica cursor_x nem cursor_y.
-        let avail_w_page = self.available_width();
+        let block_region = self.block_place_region;
+        let avail_w_page = block_region.map_or_else(|| self.available_width(), |r| r.w.0);
         // **P908** — `available_height()` lê `regions.current.height`, que
         // `layout_sub_frame` substitui por um sentinel interno
         // (`1_000_000_000.0`, finito) sempre que a região é chamada com
@@ -304,17 +457,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // corrida como controlo). `layout_align` já tinha esta guarda
         // (`else if self.is_height_unconstrained`, antes de chamar
         // `page_bottom_limit()`); `layout_place` não tinha.
-        let avail_h_page = if self.is_height_unconstrained {
+        let avail_h_page = if let Some(region) = block_region {
+            region.h.0
+        } else if self.is_height_unconstrained {
             f64::INFINITY
         } else {
             self.available_height()
         };
 
-        let geometric_origin = !self.is_sub_frame
-            && !super::html_frame::items_have_material(&self.regions.current.current_line)
-            && !(self.cell_origin_x.is_some()
-                && self.cell_origin_y.is_some()
-                && self.regions.cell.is_some());
         let region = super::sub_frame::SubLayoutRegion {
             origin_x: 0.0,
             width: avail_w_page,
@@ -323,16 +473,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             unconstrained_height: true,
         };
         let (sub_h, sub_items, sub_deco, orphaned_align_x, orphaned_align_y) =
-            if geometric_origin {
-                self.layout_sub_frame_at_geometric_origin(body, region)
-            } else {
-                self.layout_sub_frame(body, region)
-            };
-        let sub_origin_y = if geometric_origin {
-            0.0
-        } else {
-            self.metrics.vertical_metrics(self.style.size, &self.style).0.0
-        };
+            self.layout_sub_frame_at_geometric_origin(body, region);
 
         // **P904 (Item 3)** — `measure_content` (`helpers.rs`) só tem
         // braços para `Content::Shape`/`Content::Sequence`; para
@@ -368,42 +509,48 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // para baixo pelo valor da margem dentro do referencial local.
         let in_sub_frame = self.is_sub_frame;
 
-        let (origin_x, origin_y, avail_w, avail_h, y_offset) = match scope {
-            PlaceScope::Column => {
-                match (self.cell_origin_x, self.cell_origin_y, self.regions.cell.as_ref())
-                {
-                    (Some(cx), Some(cy), Some(cell)) => {
-                        (cx, cy, cell.width, cell.height, cy)
-                    }
-                    _ => {
-                        if in_sub_frame {
-                            (0.0, 0.0, avail_w_page, avail_h_page, 0.0)
-                        } else {
-                            (
-                                self.regions.current.line_start_x.0,
-                                self.page_config.margin.top,
-                                avail_w_page,
-                                avail_h_page,
-                                sub_origin_y,
-                            )
-                        }
+        let local_origin = (
+            self.regions.current.line_start_x.0,
+            self.sub_frame_origin_y,
+            avail_w_page,
+            avail_h_page,
+        );
+        let (origin_x, origin_y, avail_w, avail_h) = if let Some(region) = block_region {
+            (region.x.0, region.y.0, region.w.0, region.h.0)
+        } else {
+            match scope {
+                PlaceScope::Column => {
+                    match (
+                        self.cell_origin_x,
+                        self.cell_origin_y,
+                        self.regions.cell.as_ref(),
+                    ) {
+                        (Some(cx), Some(cy), Some(cell)) => (
+                            cx,
+                            if in_sub_frame { self.sub_frame_origin_y } else { cy },
+                            cell.width,
+                            cell.height,
+                        ),
+                        _ if in_sub_frame => local_origin,
+                        _ => (
+                            self.regions.current.line_start_x.0,
+                            self.page_config.margin.top,
+                            avail_w_page,
+                            avail_h_page,
+                        ),
                     }
                 }
-            }
-            PlaceScope::Parent => {
-                if in_sub_frame {
-                    (0.0, 0.0, avail_w_page, avail_h_page, 0.0)
-                } else {
-                    (
-                        self.page_config.margin.left,
-                        self.page_config.margin.top,
-                        avail_w_page,
-                        avail_h_page,
-                        sub_origin_y,
-                    )
-                }
+                PlaceScope::Parent if in_sub_frame => local_origin,
+                PlaceScope::Parent => (
+                    self.page_config.margin.left,
+                    self.page_config.margin.top,
+                    avail_w_page,
+                    avail_h_page,
+                ),
             }
         };
+        let origin_y =
+            if alignment.v.is_none() { flow_y.unwrap_or(origin_y) } else { origin_y };
 
         // **P897** — mesma vulnerabilidade de `layout_align`: `avail_w` (aqui
         // vindo de `avail_w_page` nos ramos `Parent`/`Column`-sem-célula
@@ -451,6 +598,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             ));
         }
 
+        let deferred_y_index = self.pending_align_v_centering.len();
         if !avail_h_is_finite {
             let start_idx = self.regions.current.current_items.len();
             let count = sub_items.len();
@@ -482,13 +630,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // target_x` directamente (paralelo `content_w` em P904 Item 3).
         // `path[0]` passa a apontar para a posição real em `current_items`
         // (soma o comprimento actual, capturado ANTES do merge).
-        // **Distinção física vs lógica (eixo Y)** — mesma nota de
-        // `layout_align`: `origin_y`/`applied_y` são quantidades LÓGICAS
-        // (sem ascender embutido), ao contrário dos `FrameItem`s reais
-        // (`iy` já é baseline); a translação lógica usa `target_y`
-        // directamente — NÃO `target_y - y_offset` (essa subtracção só
-        // compensa o ascender já presente em `iy`). Ver
-        // `00_nucleo/prompts/compiler/layout.md` §P908.
+        // Body items and orphaned fixups share geometric zero. Translate both
+        // by the same target_y; no font ascender is embedded in that origin.
         let insertion_base = self.regions.current.current_items.len();
         let delta_x = target_x;
         for (mut path, count, align, content_w, origin_x, applied_x) in orphaned_align_x {
@@ -520,7 +663,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         for item in sub_items {
             let (ix, iy) = item_pos(&item);
             let new_x = Pt(target_x + ix);
-            let new_y = Pt(target_y + iy - y_offset);
+            let new_y = Pt(target_y + iy);
             self.regions
                 .current
                 .current_items
@@ -529,12 +672,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // **P772x** — mesma translação para segmentos de decoração do body
         // (repro original de P772w: `#underline[.. #place(..)[explanation]]`).
         if let Some(coll) = self.decoration_lines_collector.as_mut() {
+            let start = coll.len();
             for seg in &sub_deco {
                 coll.push(super::DecoSegment {
                     start_x: Pt(target_x + seg.start_x.val()),
                     end_x: Pt(target_x + seg.end_x.val()),
-                    baseline_y: Pt(target_y + seg.baseline_y.val() - y_offset),
+                    baseline_y: Pt(target_y + seg.baseline_y.val()),
                 });
+            }
+            if block_region.is_some() && !avail_h_is_finite && start < coll.len() {
+                self.block_place_decorations
+                    .push((deferred_y_index, start, coll.len()));
             }
         }
         // cursor_y e cursor_x ficam intocados — Place não consome espaço.
@@ -567,7 +715,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// vertical usa `apply_pending_align_v_fixups` (**P898**), abaixo.
     pub(super) fn apply_pending_align_fixups(
         &mut self,
-        items: &mut Vec<FrameItem>,
+        items: &mut [FrameItem],
         page_width: f64,
     ) {
         let final_avail_w = page_width - self.page_config.margin.horizontal();
@@ -611,7 +759,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// `origin_x` são dummies (`0.0`).
     pub(super) fn apply_pending_align_v_fixups(
         &mut self,
-        items: &mut Vec<FrameItem>,
+        items: &mut [FrameItem],
         page_height: f64,
     ) {
         for (path, count, align, content_h, origin_y, dy, applied_y) in
@@ -673,5 +821,427 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         };
 
         (x, y)
+    }
+}
+
+#[cfg(test)]
+mod block_align_regressions {
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::{
+        content::Content,
+        dir::Dir,
+        image_sizer::NullImageSizer,
+        introspector::TagIntrospector,
+        layout_types::{Align2D, FrameItem, HAlign, TextStyle},
+        style::Styles,
+        value::Value,
+    };
+    use comemo::Track;
+
+    #[test]
+    fn alignment_preserves_spacing_after_the_previous_paragraph() {
+        let intr = TagIntrospector::empty();
+        let make = || {
+            Layouter::new(
+                FixedMetrics,
+                NullImageSizer,
+                11.0,
+                (&intr as &dyn crate::entities::introspector::Introspector).track(),
+            )
+        };
+        let mut normal = make();
+        normal.layout_content(&Content::text("A"));
+        normal.layout_content(&Content::Parbreak);
+        normal.layout_content(&Content::text("B"));
+        let expected = normal.finish();
+        let mut aligned = make();
+        aligned.layout_content(&Content::text("A"));
+        aligned.layout_align(
+            Align2D { h: Some(HAlign::Left), v: None },
+            &Content::text("B"),
+        );
+        let actual = aligned.finish();
+        let y = |d: &crate::entities::layout_types::PagedDocument| {
+            d.pages[0]
+                .items
+                .iter()
+                .find_map(|it| {
+                    if let FrameItem::Text { pos, text, .. } = it {
+                        (text.as_str() == "B").then_some(pos.y.0)
+                    } else {
+                        None
+                    }
+                })
+                .unwrap()
+        };
+        assert!(
+            (y(&actual) - y(&expected)).abs() < 1e-6,
+            "align={} normal={}",
+            y(&actual),
+            y(&expected)
+        );
+    }
+
+    #[test]
+    fn checkpoint_restores_alignment_before_emitting_a_line() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn crate::entities::introspector::Introspector).track(),
+        );
+        let right = l.regions.current.width - l.page_config.margin.right;
+        l.explicit_line_alignment = Some(HAlign::Right);
+        let checkpoint = l.capture_flow_suffix_checkpoint();
+        l.explicit_line_alignment = Some(HAlign::Left);
+        l.restore_flow_suffix_checkpoint(checkpoint);
+        l.layout_content(&Content::text("A"));
+        let doc = l.finish();
+        let x = doc.pages[0]
+            .items
+            .iter()
+            .find_map(|it| {
+                if let FrameItem::Text { pos, .. } = it {
+                    Some(pos.x.0)
+                } else {
+                    None
+                }
+            })
+            .unwrap();
+        assert!((x - (right - 6.6)).abs() < 1e-6, "restored line x={x}");
+    }
+
+    #[test]
+    fn alignment_scope_does_not_override_the_following_rtl_paragraph() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn crate::entities::introspector::Introspector).track(),
+        );
+        l.chain = l.chain.push_custom("text.dir", Value::Dir(Dir::RTL));
+        l.style = TextStyle::from(&l.chain);
+        let right = l.regions.current.width - l.page_config.margin.right;
+        l.layout_align(Align2D { h: Some(HAlign::Left), v: None }, &Content::text("A"));
+        l.layout_content(&Content::Parbreak);
+        l.layout_content(&Content::text("BBB"));
+        let doc = l.finish();
+        let x = doc.pages[0]
+            .items
+            .iter()
+            .find_map(|it| {
+                if let FrameItem::Text { pos, text, .. } = it {
+                    (text.as_str() == "BBB").then_some(pos.x.0)
+                } else {
+                    None
+                }
+            })
+            .unwrap();
+        assert!((x - (right - 19.8)).abs() < 1e-6, "outer paragraph x={x}");
+    }
+
+    #[test]
+    fn alignment_preserves_spacing_to_the_following_paragraph() {
+        let intr = TagIntrospector::empty();
+        let mut plain = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn crate::entities::introspector::Introspector).track(),
+        );
+        plain.layout_content(&Content::text("A"));
+        plain.layout_content(&Content::Parbreak);
+        plain.layout_content(&Content::text("B"));
+        let expected = plain.finish();
+        let mut aligned = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn crate::entities::introspector::Introspector).track(),
+        );
+        aligned.layout_align(
+            Align2D { h: Some(HAlign::Left), v: None },
+            &Content::text("A"),
+        );
+        aligned.layout_content(&Content::Parbreak);
+        aligned.layout_content(&Content::text("B"));
+        let actual = aligned.finish();
+        let y = |d: &crate::entities::layout_types::PagedDocument| {
+            d.pages[0]
+                .items
+                .iter()
+                .find_map(|it| {
+                    if let FrameItem::Text { pos, text, .. } = it {
+                        (text.as_str() == "B").then_some(pos.y.0)
+                    } else {
+                        None
+                    }
+                })
+                .unwrap()
+        };
+        assert!(
+            (y(&actual) - y(&expected)).abs() < 1e-6,
+            "align={} plain={}",
+            y(&actual),
+            y(&expected)
+        );
+    }
+
+    #[test]
+    fn auto_block_positions_the_frame_without_changing_its_ltr_body() {
+        use crate::entities::{
+            corners::Corners, elements::block::BlockElem, layout_types::Length, rel::Rel,
+            sides::Sides,
+        };
+        for width in [None, Some(Rel { rel: 0.0, abs: Length::pt(100.0) })] {
+            let intr = TagIntrospector::empty();
+            let mut l = Layouter::new(
+                FixedMetrics,
+                NullImageSizer,
+                11.0,
+                (&intr as &dyn crate::entities::introspector::Introspector).track(),
+            );
+            l.chain = l.chain.push_custom("text.dir", Value::Dir(Dir::RTL));
+            l.style = TextStyle::from(&l.chain);
+            let right = l.regions.current.width - l.page_config.margin.right;
+            let b = BlockElem {
+                body: Content::styled(
+                    Content::text("ABC"),
+                    Styles::new().push_custom("text.dir", Value::Dir(Dir::LTR)),
+                ),
+                width,
+                height: None,
+                inset: Sides::uniform(Length::ZERO),
+                breakable: true,
+                outset: Sides::uniform(Length::ZERO),
+                radius: Corners::uniform(Length::ZERO),
+                clip: false,
+                fill: None,
+                stroke: None,
+                spacing: None,
+                above: None,
+                below: None,
+                sticky: false,
+            };
+            super::super::block::layout(&mut l, &b);
+            let doc = l.finish();
+            let (pos, style) =
+                super::super::tests::frame_items_recursive(&doc.pages[0].items)
+                    .into_iter()
+                    .find_map(|it| {
+                        if let FrameItem::Text { pos, style, .. } = it {
+                            Some((pos, style))
+                        } else {
+                            None
+                        }
+                    })
+                    .unwrap();
+            assert_eq!(style.dir, Some(Dir::LTR));
+            let expected = right - if width.is_some() { 100.0 } else { 19.8 };
+            assert!(
+                (pos.x.0 - expected).abs() < 1e-6,
+                "width={width:?} x={} expected={expected}",
+                pos.x.0
+            );
+        }
+    }
+
+    #[test]
+    fn explicit_alignment_controls_each_line_without_changing_run_direction() {
+        for h in [HAlign::Left, HAlign::Center, HAlign::Right] {
+            let intr = TagIntrospector::empty();
+            let mut l = Layouter::new(
+                FixedMetrics,
+                NullImageSizer,
+                11.0,
+                (&intr as &dyn crate::entities::introspector::Introspector).track(),
+            );
+            l.chain = l.chain.push_custom("text.dir", Value::Dir(Dir::RTL));
+            l.style = TextStyle::from(&l.chain);
+            let start = l.regions.current.line_start_x.0;
+            let width = l.available_width();
+            let body = Content::sequence(vec![
+                Content::text("AAAAA"),
+                Content::Linebreak(std::sync::Arc::new(
+                    crate::entities::elements::linebreak::LinebreakElem {
+                        justify: false,
+                        justify_explicit: false,
+                    },
+                )),
+                Content::styled(
+                    Content::text("BBB"),
+                    Styles::new().push_custom("text.dir", Value::Dir(Dir::LTR)),
+                ),
+            ]);
+            l.layout_align(Align2D { h: Some(h), v: None }, &body);
+            let doc = l.finish();
+            let texts: Vec<_> = doc
+                .pages
+                .iter()
+                .flat_map(|p| &p.items)
+                .filter_map(|it| {
+                    if let FrameItem::Text { pos, text, style, .. } = it {
+                        Some((pos, text, style))
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+            assert_eq!(texts.len(), 2);
+            for (pos, text, style) in texts {
+                let w = text.len() as f64 * 6.6;
+                let x = match h {
+                    HAlign::Left => start,
+                    HAlign::Center => start + (width - w) / 2.0,
+                    HAlign::Right => start + width - w,
+                    _ => unreachable!(),
+                };
+                assert!(
+                    (pos.x.0 - x).abs() < 1e-6,
+                    "{h:?} {text}: actual={} expected={x}",
+                    pos.x.0
+                );
+                if text.as_str() == "BBB" {
+                    assert_eq!(style.dir, Some(Dir::LTR));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn align_text_preserves_the_first_text_baseline() {
+        let intr = TagIntrospector::empty();
+        let mut plain = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn crate::entities::introspector::Introspector).track(),
+        );
+        plain.layout_content(&Content::text("A"));
+        let expected = plain.finish();
+        let mut aligned = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn crate::entities::introspector::Introspector).track(),
+        );
+        aligned.layout_align(
+            Align2D { h: Some(HAlign::Left), v: None },
+            &Content::text("A"),
+        );
+        let actual = aligned.finish();
+        let y = |d: &crate::entities::layout_types::PagedDocument| {
+            d.pages[0]
+                .items
+                .iter()
+                .find_map(|it| {
+                    if let FrameItem::Text { pos, .. } = it {
+                        Some(pos.y.0)
+                    } else {
+                        None
+                    }
+                })
+                .unwrap()
+        };
+        assert!(
+            (y(&actual) - y(&expected)).abs() < 1e-6,
+            "align={} plain={}",
+            y(&actual),
+            y(&expected)
+        );
+    }
+}
+
+#[cfg(test)]
+mod grid_align_regressions {
+    use super::*;
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::{
+        dir::Dir,
+        elements::grid::GridElem,
+        geometry::{ShapeKind, Stroke},
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{FrameItem, HAlign, Length, TextStyle, TrackSizing},
+        sides::Sides,
+    };
+    use comemo::Track;
+
+    fn grid(cols: usize) -> Content {
+        Content::Grid(std::sync::Arc::new(GridElem {
+            columns: vec![TrackSizing::Fixed(50.0); cols],
+            rows: vec![TrackSizing::Fixed(25.0)],
+            cells: vec![Content::text("A"); cols],
+            hlines: vec![],
+            vlines: vec![],
+            gutter: None,
+            align: None,
+            inset: Sides::uniform(Length::ZERO),
+            header: None,
+            footer: None,
+            stroke: Some(Stroke::default()),
+            fill: None,
+        }))
+    }
+
+    fn bounds(items: &[FrameItem]) -> (f64, f64, f64) {
+        let mut left = f64::INFINITY;
+        let mut right = f64::NEG_INFINITY;
+        let mut top = f64::INFINITY;
+        for item in items {
+            if let FrameItem::Shape {
+                pos, kind: ShapeKind::Line { dx, dy: 0.0 }, ..
+            } = item
+            {
+                left = left.min(pos.x.0 + 0.5);
+                right = right.max(pos.x.0 + dx - 0.5);
+                top = top.min(pos.y.0);
+            }
+        }
+        (left, right, top)
+    }
+
+    #[test]
+    fn aligned_grid_uses_geometric_top_and_physical_anchor_once() {
+        let intr = TagIntrospector::empty();
+        for dir in [Dir::LTR, Dir::RTL] {
+            for cols in [1, 2] {
+                for h in [HAlign::Left, HAlign::Center, HAlign::Right] {
+                    let mut l = Layouter::new(
+                        FixedMetrics,
+                        NullImageSizer,
+                        11.0,
+                        (&intr as &dyn Introspector).track(),
+                    );
+                    l.chain = l.chain.push_custom("text.dir", Value::Dir(dir));
+                    l.style = TextStyle::from(&l.chain);
+                    let origin = l.regions.current.line_start_x.0;
+                    let width = l.available_width();
+                    let top = l.regions.current.cursor_y.0;
+                    let free = width - cols as f64 * 50.0;
+                    let x = match h {
+                        HAlign::Left => origin,
+                        HAlign::Center => origin + free / 2.0,
+                        HAlign::Right => origin + free,
+                        _ => unreachable!(),
+                    };
+                    l.layout_align(Align2D { h: Some(h), v: None }, &grid(cols));
+                    assert!(l.explicit_line_alignment.is_none());
+                    let (left, right, actual_top) =
+                        bounds(&l.regions.current.current_items);
+                    assert!(
+                        (actual_top - top).abs() < 1e-6,
+                        "dir={dir:?} cols={cols} h={h:?} top={actual_top} expected={top}"
+                    );
+                    assert!(
+                        (left - x).abs() < 1e-6,
+                        "dir={dir:?} cols={cols} h={h:?} x={left} expected={x}"
+                    );
+                    assert!((right - left - cols as f64 * 50.0).abs() < 1e-6);
+                }
+            }
+        }
     }
 }

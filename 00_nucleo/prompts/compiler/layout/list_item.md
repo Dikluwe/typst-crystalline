@@ -1,5 +1,8 @@
 # L0 — list item
-Hash do Código: 9662cf3a
+Hash do Código: 30fc8130
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/list_item.rs`
@@ -20,3 +23,7 @@ Establish the initial baseline and close prior horizontally pending text. Resolv
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
+
+## Migração do carrier bidi ratificado (2026-10-05)
+
+Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.

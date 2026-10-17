@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/table.md
-//! @prompt-hash 926162a0
+//! @prompt-hash 70133aa4
 //! @layer L1
-//! @updated 2026-06-25
+//! @updated 2026-10-10
 //!
 //! `TableElem` — Lote 12 P327 (bloco grid/table cell). `table(columns, rows, …)`.
 //! P459: `caption` opcional para numeração automática via `table.numbering`.
@@ -28,6 +28,9 @@ use ecow::EcoString;
 /// que `GridElem` ganhou em P772i (extensão directa, sem redesenho).
 #[derive(Debug, Clone, PartialEq)]
 pub struct TableElem {
+    pub source_span: crate::entities::span::Span,
+    pub rows_explicit: bool,
+    pub resolved: Option<Arc<TableGridResolved>>,
     pub columns: Vec<TrackSizing>,
     pub rows: Vec<TrackSizing>,
     pub children: Vec<Content>,
@@ -43,6 +46,16 @@ pub struct TableElem {
     pub align: Option<Align2D>,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct TableGridResolved {
+    pub cells: Vec<Content>,
+    pub num_cols: usize,
+    pub num_rows: usize,
+    pub header_rows: usize,
+    pub footer_start: usize,
+    pub(crate) complete: bool,
+}
+
 // `Hash` manual via `Debug` (paridade `content_hash`): `TrackSizing`/`Stroke`/
 // `Color` carregam `f64`. Ressalva `-0.0` vs `0.0` aceitável.
 impl std::hash::Hash for TableElem {
@@ -51,10 +64,82 @@ impl std::hash::Hash for TableElem {
     }
 }
 
+impl TableElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        if let Some(resolved) = &self.resolved {
+            let cells = Content::map_children_if_changed(&resolved.cells, transform)?;
+            let caption = self
+                .caption
+                .as_ref()
+                .map(|c| c.map_content_if_changed(transform))
+                .transpose()?
+                .flatten();
+            if cells.is_none() && caption.is_none() {
+                return Ok(None);
+            }
+            let mut table = self.clone();
+            if let Some(cells) = cells {
+                let mut plan = resolved.as_ref().clone();
+                plan.cells = cells;
+                table.resolved = Some(Arc::new(plan));
+            }
+            if let Some(caption) = caption {
+                table.caption = Some(caption);
+            }
+            return Ok(Some(Content::Table(Arc::new(table))));
+        }
+        let children = Content::map_children_if_changed(&self.children, transform)?;
+        let header = self
+            .header
+            .as_ref()
+            .map(|c| c.map_content_if_changed(transform))
+            .transpose()?
+            .flatten();
+        let footer = self
+            .footer
+            .as_ref()
+            .map(|c| c.map_content_if_changed(transform))
+            .transpose()?
+            .flatten();
+        let caption = self
+            .caption
+            .as_ref()
+            .map(|c| c.map_content_if_changed(transform))
+            .transpose()?
+            .flatten();
+        if children.is_none() && header.is_none() && footer.is_none() && caption.is_none()
+        {
+            return Ok(None);
+        }
+        let mut table = self.clone();
+        if let Some(children) = children {
+            table.children = children;
+        }
+        if let Some(header) = header {
+            table.header = Some(header);
+        }
+        if let Some(footer) = footer {
+            table.footer = Some(footer);
+        }
+        if let Some(caption) = caption {
+            table.caption = Some(caption);
+        }
+        Ok(Some(Content::Table(Arc::new(table))))
+    }
+}
+
 impl Element for TableElem {
     fn plain_text(&self) -> String {
         let cells = self
-            .children
+            .resolved
+            .as_ref()
+            .map_or(&self.children, |r| &r.cells)
             .iter()
             .map(|c| c.plain_text())
             .collect::<Vec<_>>()
@@ -69,41 +154,37 @@ impl Element for TableElem {
     }
 
     fn is_empty(&self) -> bool {
-        self.children.is_empty() && self.caption.as_ref().is_none_or(|c| c.is_empty())
+        self.resolved.as_ref().map_or_else(
+            || self.children.is_empty(),
+            |r| r.cells.iter().all(Content::is_empty),
+        ) && self.caption.as_ref().is_none_or(|c| c.is_empty())
     }
 
     fn map_content<F>(&self, transform: &mut F) -> SourceResult<Content>
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        let new_children: SourceResult<Vec<Content>> =
-            self.children.iter().map(|c| c.map_content(transform)).collect();
-        Ok(Content::Table(Arc::new(TableElem {
-            columns: self.columns.clone(),
-            rows: self.rows.clone(),
-            children: new_children?,
-            hlines: self.hlines.clone(),
-            vlines: self.vlines.clone(),
-            header: self.header.as_ref().map(|h| h.map_content(transform)).transpose()?,
-            footer: self.footer.as_ref().map(|f| f.map_content(transform)).transpose()?,
-            stroke: self.stroke.clone(),
-            fill: self.fill.clone(),
-            caption: self
-                .caption
-                .as_ref()
-                .map(|c| c.map_content(transform))
-                .transpose()?,
-            summary: self.summary.clone(),
-            inset: self.inset,
-            align: self.align,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::Table(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, transform: &mut F) -> Content
     where
         F: FnMut(&str) -> String,
     {
+        if let Some(r) = &self.resolved {
+            let mut table = self.clone();
+            let mut r = r.as_ref().clone();
+            r.cells = r.cells.iter().map(|c| c.map_text(transform)).collect();
+            table.resolved = Some(Arc::new(r));
+            table.caption = self.caption.as_ref().map(|c| c.map_text(transform));
+            return Content::Table(Arc::new(table));
+        }
         Content::Table(Arc::new(TableElem {
+            source_span: self.source_span,
+            resolved: self.resolved.clone(),
+            rows_explicit: self.rows_explicit,
             columns: self.columns.clone(),
             rows: self.rows.clone(),
             children: self.children.iter().map(|c| c.map_text(transform)).collect(),
@@ -144,6 +225,9 @@ mod tests {
 
     fn ex() -> TableElem {
         TableElem {
+            source_span: crate::entities::span::Span::detached(),
+            resolved: None,
+            rows_explicit: false,
             columns: vec![],
             rows: vec![],
             children: vec![Content::text("a"), Content::text("b")],
@@ -169,6 +253,9 @@ mod tests {
     fn is_empty_so_sem_children() {
         assert!(!ex().is_empty());
         assert!(TableElem {
+            source_span: crate::entities::span::Span::detached(),
+            resolved: None,
+            rows_explicit: false,
             columns: vec![],
             rows: vec![],
             children: vec![],
@@ -211,6 +298,9 @@ mod tests {
     #[test]
     fn payload_diferente_produz_hash_diferente() {
         let outro = TableElem {
+            source_span: crate::entities::span::Span::detached(),
+            resolved: None,
+            rows_explicit: false,
             columns: vec![],
             rows: vec![],
             children: vec![],

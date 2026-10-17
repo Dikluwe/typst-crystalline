@@ -1,0 +1,8 @@
+from pathlib import Path
+import json,gzip,collections,re,datetime
+out=Path(__file__).resolve().parents[1];prior=out.parent/'call-once-2026-10-17';b=json.load(gzip.open(out/'before.json.gz'));assert json.load(gzip.open(prior/'final-state.json.gz'))['source_hashes']==b['hashes'];old=json.load(open(prior/'validation-architecture.log'))['runs'][0]['results'];new=json.load(open(out/'validation-architecture.log'))['runs'][0]['results']
+def key(r):return r['locations'][0]['physicalLocation']['artifactLocation']['uri'].removeprefix('./'),r['ruleId'],r['level'],r['message']['text']
+a=collections.Counter(map(key,old));z=collections.Counter(map(key,new));removed=list((a-z).elements());added=list((z-a).elements());(out/'differential-review.json').write_text(json.dumps(dict(removed=removed,added=added),indent=2)+'\n')
+assert len(removed)==len(added)==1,(removed,added)
+r=removed[0];n=added[0];assert r[:3]==('01_core/src/compiler/eval/mod.rs','V19','note');assert n[:3]==('01_core/src/compiler/eval/syntax_diagnostics.rs','V19','note');assert r[3]==n[3],(r,n)
+count=lambda rows:dict(collections.Counter(r['ruleId']+':'+r['level'] for r in rows));result=dict(utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),before=count(old),after=count(new),new_errors_or_warnings=False,moved_v19=dict(before=r,after=n,reason='Extract unchanged three-kind hard-error classification into its syntax validation owner; no wildcard or suppression'),all_other_diagnostics_preserved_by_source_severity_message=True);(out/'architecture-delta.json').write_text(json.dumps(result,indent=2)+'\n');print(result['after'])

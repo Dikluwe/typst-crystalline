@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-16T14:36:57.015196+00:00",
+  "source": "direct human reply to request_user_input_async",
+  "answer": "Aprovar a proposta",
+  "manifest_sha256": "11f3e138f5ba006d04ed4dd1e829e27c004778e691f4a1df63127b1644146d03",
+  "scope": [
+    "Default for EvalContext",
+    "Default for FontCatalogSession",
+    "Default for SourceSession",
+    "four proposed L0",
+    "tests D1-D5"
+  ],
+  "release": false
+}

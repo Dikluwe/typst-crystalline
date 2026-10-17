@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/format_options.md
-//! @prompt-hash bb5b3540
+//! @prompt-hash 58324420
 //! @layer L1
-//! @updated 2026-09-21
+//! @updated 2026-10-07
 
 use std::num::NonZeroUsize;
 
@@ -31,7 +31,42 @@ fn typst_type_name(value: &Value) -> &'static str {
         Value::Bool(_) => "boolean",
         Value::Int(_) => "integer",
         Value::Str(_) => "string",
-        _ => value.type_name(),
+        Value::None
+        | Value::Float(_)
+        | Value::Array(_)
+        | Value::Dict(_)
+        | Value::Module(_)
+        | Value::Datetime(_)
+        | Value::Func(_)
+        | Value::Content(_)
+        | Value::LocatedContent(_, _)
+        | Value::Auto
+        | Value::Length(_)
+        | Value::Relative(_)
+        | Value::Ratio(_)
+        | Value::Angle(_)
+        | Value::Color(_)
+        | Value::Stroke(_)
+        | Value::Fraction(_)
+        | Value::Align(_)
+        | Value::Location(_)
+        | Value::Gradient(_)
+        | Value::Regex(_)
+        | Value::Tiling(_)
+        | Value::Bytes(_)
+        | Value::Decimal(_)
+        | Value::Duration(_)
+        | Value::Version(_)
+        | Value::Selector(_)
+        | Value::Symbol(_)
+        | Value::Args(_)
+        | Value::State(_)
+        | Value::Counter(_)
+        | Value::Label(_)
+        | Value::Dir(_)
+        | Value::Path(_)
+        | Value::Type(_)
+        | Value::SpotColorant(_) => value.type_name(),
     }
 }
 
@@ -288,7 +323,7 @@ fn collect_root_options(
     options: &mut DocumentFormatOptions,
     root_occurrences: &mut usize,
 ) -> SourceResult<()> {
-    match content {
+    match content.source_body() {
         Content::Sequence(sequence) => {
             for child in sequence.iter() {
                 collect_root_options(child, options, root_occurrences)?;
@@ -392,6 +427,24 @@ pub fn collect_document_format_options(
 mod tests {
     use super::*;
     use crate::entities::style::Styles;
+
+    #[test]
+    fn v16_value_projection_format_diagnostics_keep_long_aliases() {
+        for (value, expected) in [
+            (Value::Bool(false), "boolean"),
+            (Value::Int(0), "integer"),
+            (Value::Str("x".into()), "string"),
+            (Value::None, "none"),
+            (Value::Auto, "auto"),
+            (Value::Float(1.5), "float"),
+            (Value::Array(vec![]), "array"),
+            (Value::Content(Content::Empty), "content"),
+            (Value::Length(crate::entities::layout_types::Length::pt(3.0)), "length"),
+            (Value::Type(crate::entities::value::Type::Int), "type"),
+        ] {
+            assert_eq!(typst_type_name(&value), expected);
+        }
+    }
 
     fn svg_pretty(body: Content, value: Value) -> Content {
         Content::styled(Box::new(body), Styles::new().push_custom(SVG_PRETTY_KEY, value))

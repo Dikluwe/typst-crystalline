@@ -1,5 +1,5 @@
 # Prompt L0 — Color (espaços de cor vanilla paridade)
-Hash do Código: f1cc6723
+Hash do Código: 1833c11f
 
 > **Estado P1482 confirmado em 2026-09-23:** a secção P1482 ao final amplia o carrier público
 > e prevalece sobre descrições históricas de apenas oito variantes e `Copy`.
@@ -269,12 +269,13 @@ proibidos porque mudam o observável público de vermelho de `54.02%` para
 proibidas porque alteram os componentes públicos e a subdivisão SVG. A curva
 sRGB adjacente replica a ordem numérica do `palette`: decode usa
 `c.mul_add(1/1.055, 0.055/1.055).powf(2.4)` e encode usa
-`powf(1/2.4).mul_add(1.055, -0.055)`; decompor essas operações introduz ULPs
-observáveis e também é proibido. A raiz cúbica deve ser bit-compatível com
+`powf(1/2.4) * 1.055 - 0.055` sem fusão, conforme MulSub da fonte
+ratificada. A ordem própria de cada direção deve ser preservada. A raiz cúbica deve ser bit-compatível com
 `libm::cbrtf`, usado pela configuração `no_std` de `palette 0.7.6`; a raiz
 intrínseca de `std` não é substituto numericamente equivalente.
-`libm 0.2.11` é dependência pura autorizada em L1 somente para `powf`, `fmaf`
-e `cbrtf`, sem expor tipos externos em contratos.
+`libm 0.2.11` é dependência pura autorizada para estas conversões em L1:
+`powf`, `fmaf`, `cbrtf`, `sinf`, `cosf`, `sincosf` e `atan2f`, sem expor tipos externos
+em contratos.
 
 **P1271-C2 — medição do caminho D65 Luma → Oklab antes da decisão.** No
 baseline ratificado, `visualize/color.rs:1784-1794` despacha uma origem
@@ -626,3 +627,82 @@ corpus atual. Esta quebra de trait pública integra o mesmo gate.
 Projeção medida em `visualize/color.rs:2295-2297`:
 `fallback.lighten(1 - tint)` no espaço processual do fallback;
 `0%` projeta branco e `100%` projeta o fallback integral.
+
+## Correção medida em 2026-10-13
+
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado.
+Fontes, hashes, UTC, status e diffstat: `00_nucleo/diagnosticos/cores-ci-2026-10-13/before.json.gz`
+e `constructors-before.json.gz`. Sondas e prova numérica em `evidence.json.gz`.
+Vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`, SHA-256 ratificado
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+
+Medição/decisão: palette 0.7.6 configurada com libm usa sinf/cosf/atan2f em
+Oklch/Oklab; o owner conversion ainda usava métodos nativos proibidos. Ampliar
+explicitamente os símbolos puros autorizados; implementação e testes ficam
+com conversion. A fachada não altera código semântico, apenas seu resselo.
+
+## Limites e precisão de cor — 2026-10-13
+
+Medição anterior à decisão, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`,
+working tree não commitado: fontes, SHA-256, UTC, status e diffstat em
+`00_nucleo/diagnosticos/limites-cor-2026-10-13/before.json.gz` e
+`parents-before.json.gz`; sondas em `evidence.json.gz`. Oráculo pinado
+`9f2b6e8715237cb086899a42873660fe744622e8`, binário SHA-256
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+
+`red.rotate(45deg)` expõe blue negativo no cristalino; o vanilla limita a zero.
+`rgb(10%,20%,30%,40%)` expõe 10.2%/30.2% em vez de 10%/30%. Linear RGB aceita
+256 e alpha -1%, que o vanilla rejeita. Chroma Oklch negativo converte para
+cor cromática no cristalino e cinza no vanilla. As saídas completas ficam
+conservadas, inclusive dígitos adicionais dos componentes públicos.
+
+Fonte: upstream `visualize/color.rs:1825-1895` distingue FromColor limitado,
+identidade e from_linear; palette 0.7.6 `convert/from_into_color.rs:53-59`
+chama clamp após converter. `encoding/srgb.rs:100-120` usa multiplicação pelo
+recíproco na parte linear do decode e mul_sub no encode; `num.rs:718-722`
+implementa mul_sub SEM fusão. A antiga cláusula P1253 de encode com fmaf era
+incorreta para esta fonte. `oklab.rs:355-368` limita chroma a zero antes da
+conversão polar; `hues.rs:155-157` usa sincosf via o trait libm.
+
+Correção interna contínua ADR-0127: nenhum campo/assinatura pública, binding,
+modo padrão, compatibilidade externa ou fase muda. L0 primeiro, testes RED
+para observáveis, implementação e revalidação. Diferenças restantes das
+sondas não são normalizadas nem recebem certificado genérico de paridade.
+
+Retificar a cláusula semântica P1253: decode exponencial usa fmaf e powf;
+encode usa powf seguido de multiplicação e subtração separadas, conforme
+MulSub real. Não exigir a fusão errada. Decode linear usa multiplicação pelo
+recíproco. As implementações pertencem ao owner conversion; esta fachada
+recebe somente resselo. Aprovar sincosf puro no mesmo conjunto libm pinado.
+
+
+## Guards de domínio explícitos — V17, 2026-10-16
+
+### Medição anterior à decisão
+
+T276: 01_core/src/entities/color.rs:78. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+
+### Responsabilidade exclusiva e aceitação
+
+Unir braços Srgb do Debug; no corpo manter exatamente as quatro comparações == do azul nominal e a escrita blue; fallback usa o mesmo debug_struct com r/g/b/a. Preservar signed zero/NaN e todos os demais espaços, sem mudar fórmulas de cor.
+
+Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default, compatibilidade ou fase novos. A responsabilidade permanece somente no consumer exclusivo deste L0. Não criar helper apenas para esconder a conjunção, não adicionar supressões nem mudar a configuração do linter. Executar controles funcionais existentes antes do código e preservar seus esperados; o RED real é o gate V17 com 28 avisos, GREEN exige zero V17. Conferir caminhos de sucesso/fallback/erro, curto-circuito e efeitos; resselo restrito por owner. Revalidar build, suíte workspace completa, Clippy all-targets com warnings e expectativas não cumpridas como erro, formato, Rustdoc com warnings como erro, linhagem V1/V5/V15/V26 estrita/reversa e SARIF sem novos avisos. Executar sob 12 GiB, swap zero e um job. Não alegar ganho de memória/desempenho ou paridade global sem medição separada.
+
+
+## Exaustividade de representação e identidade — V16, 2026-10-16
+
+### Medição anterior à decisão
+
+01_core/src/entities/color.rs:214. Fonte e owner vigentes lidos e conferidos por hash antes da decisão. `00_nucleo/diagnosticos/tekt-enums-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, status e git diff HEAD --stat. O SARIF anterior registra onze avisos e uma nota V16 nestes sete owners. Foram também medidos os fallbacks sem emissão; estes fazem parte do mesmo recorte. Classificação: padrão Rust e evolução do enum são mecânica; resultados/campos/identidade observáveis e erros devem permanecer. Não se infere intenção upstream ou ganho para IA.
+
+### Responsabilidade exclusiva
+
+Color::eq: manter primeiro os nove pares de mesmo espaço e seus corpos (f32::to_bits, Spot estrutural). Substituir o catchall false por par cujo primeiro eixo nomeia as nove variantes atuais (Srgb/Luma/LinearRgb/Oklab/Oklch/Hsl/Hsv/Cmyk/Spot) e cujo segundo eixo permanece _. Não converter espaços para comparar. A lista no primeiro eixo força decisão quando Color cresce, inclusive no par nova/nova. Preservar NaN/signed zero e semântica específica Spot. Adicionar controle de desigualdade cruzada entre nove espaços e identidade de clone antes do código. A igualdade Rust é verificação do mecanismo existente, não prova nova de paridade da linguagem.
+
+### Aceitação e gate
+
+Manutenção interna ADR-0127 em fluxo contínuo: nenhuma definição de enum, campo, trait, assinatura pública, default, dependência, compatibilidade ou fase muda. Conservar cada corpo, ordem e guard; não mover lógica entre owners nem criar helper para esconder o catchall. Padrões nominais devem forçar erro de compilação ao surgir variante nova; comentários de neutralidade não servem como supressão.
+
+Antes do código, testes funcionais locais e gate V16 RED por escopo. Executar sonda de evolução em cópia descartável do workspace: acrescentar somente uma variante sentinela a Color, ColorSpace, MathStyleKind, FuncRepr e StateUpdate, sem alterar as definições produtivas. Usar cargo check --offline --locked -p typst-core com um job e cache de artefatos compartilhado; registrar fontes/hashes/argv/UTC/diagnósticos. Para cada um dos 21 matches selecionados, a baseline deve demonstrar a ausência de E0004 naquele match; GREEN exige E0004 ali, independentemente de erros de exaustividade já emitidos por outros matches na cópia. O controle de compilação sem sentinelas e os testes de comportamento aprovam o código real; não usar a sonda negativa como prova de paridade. Não editar source produtivo durante comandos.
+
+Resselo restrito, direto e reverso, sem reparo global da working tree. Revalidar build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, suíte workspace completa, Rustdoc -D warnings e quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF sem avisos novos e diff --check. Limite MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1, tarefas pesadas sequenciais. Nenhuma tolerância/fixture histórica é relaxada. As pendências V16 externas, inclusive T027/T158/T160 rastreadas sem emissão, continuam abertas.

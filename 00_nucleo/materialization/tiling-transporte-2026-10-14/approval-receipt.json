@@ -1,0 +1,9 @@
+{
+  "recorded_utc": "2026-10-14T12:20:02.570235+00:00",
+  "questionItemId": "[\"request_user_input_async\",\"call_28239ea1b7764508bca3c64c50aaac73\",0]",
+  "answer": "Aprovar a proposta",
+  "manifest_sha256": "d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d",
+  "candidates_verified": true,
+  "changed_since_proposal": [],
+  "scope": "Autoriza T1\u2013T3 do contrato aprovado; n\u00e3o autoriza publica\u00e7\u00e3o/release; T4 fora deste pacote."
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/heading.md
-//! @prompt-hash 39ebca57
+//! @prompt-hash 08e43dbf
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -144,6 +144,10 @@ pub(super) fn compute_heading_for_toc<I: Introspector>(
 }
 
 /// Percorre um Heading após o Start real ter sido emitido pelo walk pai.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C009: Free function descendente da feature Heading sob ADR-0109: conserva os acumuladores emprestados e a chain causal, delegando a recursão ao walk"
+)]
 pub(super) fn walk_heading(
     h: &HeadingElem,
     emitted_loc: Option<Location>,
@@ -247,7 +251,7 @@ pub(super) fn walk_heading(
             figure_number: None,
         });
         populate_intr_from_tag_start(intr, &info, loc);
-        tags.push(Tag::Start(loc, info));
+        tags.push(Tag::Start(loc, Box::new(info)));
         tags.push(Tag::End(loc, 0));
     }
 
@@ -273,7 +277,7 @@ pub(super) fn walk_heading(
                     level: lvl,
                 });
                 populate_intr_from_tag_start(intr, &info, loc);
-                tags.push(Tag::Start(loc, info));
+                tags.push(Tag::Start(loc, Box::new(info)));
                 tags.push(Tag::End(loc, 0));
             }
             if h.is_bookmarked() {
@@ -284,7 +288,7 @@ pub(super) fn walk_heading(
                     level: lvl,
                 });
                 populate_intr_from_tag_start(intr, &info, loc);
-                tags.push(Tag::Start(loc, info));
+                tags.push(Tag::Start(loc, Box::new(info)));
                 tags.push(Tag::End(loc, 0));
             }
         }

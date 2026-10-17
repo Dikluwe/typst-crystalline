@@ -12,7 +12,6 @@ use super::*;
 /// Aceita `Value::Str("self" | "parent" | "auto")`. Default (sem named arg)
 /// = `None` (Auto = `Self_` resolved). ADR-0064 §Caso A (`Smart<T>` →
 /// `Option<T>` cristalino).
-
 pub(super) fn parse_relative_named(
     args: &Args,
     fn_name: &str,

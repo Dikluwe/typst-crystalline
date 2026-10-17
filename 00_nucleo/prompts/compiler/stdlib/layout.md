@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/layout` — módulo `layout`
-Hash do Código: c573dde7
+Hash do Código: 0c034029
 
 ## P1408 — largura fracionária pública de `box`
 
@@ -923,3 +923,29 @@ continua owner de validação dos 18 named e body; nenhum dispatch por nome.
 **Medição:** a working tree não commitada em `00_nucleo/diagnosticos/atomizacao-stdlib-layout-2026-09-30-before.json.gz` contém 2966 linhas neste consumer; a suíte L1 passou com 6401 testes e 2 ignorados. Não é benchmark nem nova comparação com o vanilla.
 
 **Decisão:** este owner conserva `native_align`, a extração de alinhamento e os bindings estáticos. Os outros algoritmos são delegados a owners exclusivos `layout/{place,grid,page,casting,pad,hide,spacing,block,stack,box_elem,repeat,columns,measure,stroke,pagebreak}.md`. As cláusulas anteriores deste documento mantêm o histórico e o mapa da superfície; cada filho é owner da sua família. A separação não altera comportamento por defeito, assinaturas nem fase.
+
+## Imports de produção e teste — 2026-10-13
+
+### Medição anterior à decisão
+
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/stdlib/layout.rs:64-77; 01_core/src/compiler/stdlib/tests/layout_context.rs:452-466; 01_core/src/compiler/stdlib/tests/stroke.rs:400-402 registra a composição e os usos existentes. O inventário Clippy distingue imports sem uso na compilação produtiva; os usos de teste foram conferidos separadamente. Fontes, L0, UTC, status e diffstat estão em `00_nucleo/diagnosticos/imports-ci-2026-10-13/before.json.gz`. Não é medição de paridade ou desempenho.
+
+### Decisão e aceitação
+
+As reexportações is_horizontal_page_binding, is_positional_paper, validate_flush_args e is_valid_miter_limit neste hub são somente de teste e devem ficar sob cfg(test). As implementações e seus usos produtivos nos filhos permanecem intactos.
+
+Correção de composição interna, sem mudança de assinatura pública, defaults, fase ou comportamento da linguagem. Preservar cenários/assertivas, executar a suíte core, build, Clippy e linhagem. Não mascarar avisos com allow/expect.
+
+## Acesso interno ao cast de Stroke — 2026-10-14
+
+Medição anterior: implementation-private-module.log no diagnóstico
+stroke-paint-2026-10-14 mostra E0603 ao chamar layout::stroke a partir de shapes.
+layout.rs:41 mantém o módulo filho privado e :82 já reexporta native_stroke.
+facade-before.json.gz conserva fonte/owner, HEAD, diffstat e UTC.
+
+Reexportar positional_stroke somente com pub(super), para o consumo estático
+por shapes/paint através do facade layout. A lógica e assinatura já existentes
+continuam no owner 00_nucleo/prompts/compiler/stdlib/layout/stroke.md. Sem
+API externa, novo tipo, comportamento de linguagem ou mudança de fase. Essa
+reexportação tem uso produtivo e não recebe cfg(test). Revalidar todos os alvos,
+linhagem e suíte; nenhuma duplicação de cast no hub.

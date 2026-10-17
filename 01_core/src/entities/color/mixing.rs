@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/color/mixing.md
-//! @prompt-hash b4b9a199
+//! @prompt-hash 89b3c0bd
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -11,7 +11,7 @@ use super::*;
 impl Color {
     /// **P744** — converte a cor para um vec4 no espaço indicado. Usado por
     /// `mix` (paridade vanilla `ProcessColor::to_vec4`).
-    fn to_vec4_in_space(self, space: ColorSpace) -> [f32; 4] {
+    fn into_vec4_in_space(self, space: ColorSpace) -> [f32; 4] {
         let c = if self.space() == space {
             self.clone()
         } else {
@@ -57,10 +57,21 @@ impl Color {
             (Color::Spot(a), Color::Spot(b)) if a.colorant == b.colorant => {
                 ColorSpace::Spot((*a.colorant).clone())
             }
-            _ => ColorSpace::Oklab,
+            (
+                Color::Srgb { .. }
+                | Color::Luma { .. }
+                | Color::LinearRgb { .. }
+                | Color::Oklab { .. }
+                | Color::Oklch { .. }
+                | Color::Hsl { .. }
+                | Color::Hsv { .. }
+                | Color::Cmyk { .. }
+                | Color::Spot(_),
+                _,
+            ) => ColorSpace::Oklab,
         });
-        let mut c0 = self.to_vec4_in_space(space.clone());
-        let mut c1 = other.to_vec4_in_space(space.clone());
+        let mut c0 = self.into_vec4_in_space(space.clone());
+        let mut c1 = other.into_vec4_in_space(space.clone());
         let t = weight.clamp(0.0, 1.0);
 
         // Para espaços com hue, percorre o círculo cromático pelo caminho
@@ -68,7 +79,12 @@ impl Color {
         let hue_idx = match &space {
             ColorSpace::Oklch => Some(2),
             ColorSpace::Hsl | ColorSpace::Hsv => Some(0),
-            _other => None, // neutro: N16[β] — espaços cromáticos sem componente angular/hue não necessitam de correcção circular
+            ColorSpace::Spot(_)
+            | ColorSpace::Oklab
+            | ColorSpace::Srgb
+            | ColorSpace::Luma
+            | ColorSpace::LinearRgb
+            | ColorSpace::Cmyk => None,
         };
         if let Some(idx) = hue_idx {
             if (c0[idx] - c1[idx]).abs() > 180.0 {
@@ -107,13 +123,18 @@ impl Color {
             Color::Spot(first) if colors.iter().all(|(color, _)| {
                 matches!(color, Color::Spot(spot) if spot.colorant == first.colorant)
             }) => ColorSpace::Spot((*first.colorant).clone()),
-            _ => ColorSpace::Oklab,
+            Color::Srgb { .. } | Color::Luma { .. } | Color::LinearRgb { .. } | Color::Oklab { .. } | Color::Oklch { .. } | Color::Hsl { .. } | Color::Hsv { .. } | Color::Cmyk { .. } | Color::Spot(_) => ColorSpace::Oklab,
         }
         });
         let hue_idx = match &space {
             ColorSpace::Oklch => Some(2),
             ColorSpace::Hsl | ColorSpace::Hsv => Some(0),
-            _ => None,
+            ColorSpace::Spot(_)
+            | ColorSpace::Oklab
+            | ColorSpace::Srgb
+            | ColorSpace::Luma
+            | ColorSpace::LinearRgb
+            | ColorSpace::Cmyk => None,
         };
         if hue_idx.is_some() && colors.len() > 2 {
             return None;
@@ -122,8 +143,8 @@ impl Color {
             if colors.len() == 1 {
                 return colors[0].0.clone().to_space(space).ok();
             }
-            let mut first = colors[0].0.clone().to_vec4_in_space(space.clone());
-            let mut second = colors[1].0.clone().to_vec4_in_space(space.clone());
+            let mut first = colors[0].0.clone().into_vec4_in_space(space.clone());
+            let mut second = colors[1].0.clone().into_vec4_in_space(space.clone());
             if (first[idx] - second[idx]).abs() > 180.0 {
                 if first[idx] < second[idx] {
                     first[idx] += 360.0;
@@ -139,7 +160,7 @@ impl Color {
 
         let mut mixed = [0.0_f32; 4];
         for (color, weight) in colors {
-            let components = color.clone().to_vec4_in_space(space.clone());
+            let components = color.clone().into_vec4_in_space(space.clone());
             for index in 0..4 {
                 mixed[index] += components[index] * *weight / total;
             }

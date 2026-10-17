@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math/accent.md
-//! @prompt-hash 4acb9a7c
+//! @prompt-hash f05e8794
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -40,6 +40,14 @@ const ACCENT_ALIASES: &[(char, &[&str])] = &[
     ('\u{20d0}', &["↼"]),
     ('\u{20d1}', &["⇀"]),
 ];
+
+/// Only known combining marks/aliases are callable as symbol wrappers.
+pub(crate) fn is_known_math_accent(value: &str) -> bool {
+    let direct = value.parse::<char>().ok();
+    ACCENT_ALIASES
+        .iter()
+        .any(|(accent, aliases)| Some(*accent) == direct || aliases.contains(&value))
+}
 
 pub(crate) fn normalize_math_accent(value: &str) -> Option<char> {
     let direct = value.parse::<char>().ok();

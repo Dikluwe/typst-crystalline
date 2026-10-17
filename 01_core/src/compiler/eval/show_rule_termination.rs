@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/show_rule_termination.md
-//! @prompt-hash 26f77709
+//! @prompt-hash f8594f9a
 //! @layer L1
-//! @updated 2026-08-12
+//! @updated 2026-10-07
 //!
 //! Mecanismo de paragem do loop α de show rules — detecção de ponto-fixo e
 //! ciclos por formas canónicas (`morph_canon`). Extraído de
@@ -23,6 +23,7 @@ use crate::entities::span::Span;
 /// `apply_one_step` recebe o conteúdo actual e devolve:
 /// - `Ok(Some((new_content, rule_id)))` se uma regra foi aplicada;
 /// - `Ok(None)` se nenhuma regra casa (ponto-fixo local).
+///
 /// Resultado do loop α: conteúdo final e flag que indica se pelo menos uma
 /// regra foi aplicada.
 pub(crate) type ShowRuleLoopResult = (Content, bool);
@@ -36,6 +37,14 @@ pub(crate) fn run_show_rule_loop<F>(
 where
     F: FnMut(&Content) -> SourceResult<Option<(Content, RuleId)>>,
 {
+    // Prepared Cell is nominal: its product is visited by the insertion owner.
+    // A fresh constructor is a new occurrence even if its morphology is identical.
+    if matches!(&initial,Content::TableCell(c) if c.stage().is_some()) {
+        return match apply_one_step(&initial)? {
+            Some((product, _)) => Ok((product, true)),
+            None => Ok((initial, false)),
+        };
+    }
     let mut seen: Vec<(Content, usize)> = Vec::new();
     let mut transitions: Vec<Vec<RuleId>> = Vec::new();
     let mut cycle = false;
@@ -69,7 +78,7 @@ where
 
         // P350c (sob flag): registo para classificação do hint extra.
         if full_error {
-            if history.iter().any(|h| *h == new_canon) {
+            if history.contains(&new_canon) {
                 cycle = true;
             }
             history.push(new_canon.clone());

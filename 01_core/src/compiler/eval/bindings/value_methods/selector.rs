@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/value_methods/selector.md
-//! @prompt-hash ad32bba3
+//! @prompt-hash 1525f7f0
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -40,15 +40,14 @@ pub(in crate::compiler::eval) fn value_to_query_selector(
 }
 
 pub(in crate::compiler::eval) fn eval_selector_or_and<'a>(
-    target_expr: Expr<'_>,
+    target: &Value,
     method: &str,
     args_node: crate::entities::ast::expr::Args<'a>,
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Option<Selector>> {
-    let target = eval_expr(target_expr, scopes, ctx, engine)?;
-    let Some(base) = value_to_query_selector(&target) else {
+    let Some(base) = value_to_query_selector(target) else {
         return Ok(None);
     };
 
@@ -84,14 +83,13 @@ pub(in crate::compiler::eval) fn eval_selector_or_and<'a>(
 
 /// **P504** — Intercepta `selector(base).within(ancestor)`.
 pub(in crate::compiler::eval) fn eval_selector_within<'a>(
-    target_expr: Expr<'_>,
+    target: &Value,
     args_node: crate::entities::ast::expr::Args<'a>,
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Option<Selector>> {
-    let target = eval_expr(target_expr, scopes, ctx, engine)?;
-    let Some(base) = value_to_query_selector(&target) else {
+    let Some(base) = value_to_query_selector(target) else {
         return Ok(None);
     };
 
@@ -118,15 +116,14 @@ pub(in crate::compiler::eval) fn eval_selector_within<'a>(
 
 /// **P1401** — Intercepta os métodos contextuais de selector.
 pub(in crate::compiler::eval) fn eval_selector_before_after<'a>(
-    target_expr: Expr<'_>,
+    target: &Value,
     method: &str,
     args_node: crate::entities::ast::expr::Args<'a>,
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Option<Selector>> {
-    let target = eval_expr(target_expr, scopes, ctx, engine)?;
-    let Some(base) = value_to_query_selector(&target) else {
+    let Some(base) = value_to_query_selector(target) else {
         return Ok(None);
     };
     let args =

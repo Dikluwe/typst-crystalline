@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/loading/cbor.md
-//! @prompt-hash 7edcc9c6
+//! @prompt-hash 83944d1f
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -10,6 +10,7 @@ use super::*;
 // CBOR — ciborium. byte-strings → graded Err (Value::Bytes ausente, DEBT-62).
 // ─────────────────────────────────────────────────────────────────────────────
 
+#[cfg(test)]
 pub fn decode_cbor(bytes: &[u8]) -> SourceResult<Value> {
     decode_cbor_with_source(bytes, None)
 }

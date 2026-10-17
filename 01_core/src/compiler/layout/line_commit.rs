@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/line_commit.md
-//! @prompt-hash 695e65e1
+//! @prompt-hash 4e420d76
 //! @layer L1
-//! @updated 2026-09-29
+//! @updated 2026-10-17
 //!
 //! Fechamento de linha: expansão horizontal, justificação, baseline e commit.
 #![allow(deprecated)] // FrameItem::Text fallback path legítimo
@@ -27,11 +27,17 @@ fn justify_frame_item<M: super::FontMetrics>(
         share * opportunities.iter().filter(|anchor| **anchor <= x).count() as f64
     };
     match item {
-        FrameItem::TextSeparator { mut pos, advance, style, origin } => {
+        FrameItem::TextSeparator { mut pos, advance, style, origin, bidi } => {
             let start_shift = shift_at(pos.x.0);
             let end_shift = shift_at(pos.x.0 + advance.0);
             pos.x = Pt(pos.x.0 + start_shift);
-            FrameItem::TextSeparator { pos, advance: Pt(advance.0 + end_shift - start_shift), style, origin }
+            FrameItem::TextSeparator {
+                pos,
+                advance: Pt(advance.0 + end_shift - start_shift),
+                style,
+                origin,
+                bidi,
+            }
         }
         FrameItem::Line { mut start, mut end, thickness, color, cap } => {
             start.x = Pt(start.x.0 + shift_at(start.x.0));
@@ -48,8 +54,10 @@ fn justify_frame_item<M: super::FontMetrics>(
         }
         FrameItem::TextReplacement { text, items } => FrameItem::TextReplacement {
             text,
-            items: items.into_iter()
-                .map(|child| justify_frame_item(child, opportunities, share, metrics)).collect(),
+            items: items
+                .into_iter()
+                .map(|child| justify_frame_item(child, opportunities, share, metrics))
+                .collect(),
         },
         FrameItem::Semantic { kind, placement, items, alt } => FrameItem::Semantic {
             kind,
@@ -67,7 +75,52 @@ fn justify_frame_item<M: super::FontMetrics>(
     }
 }
 
+fn literal_line_right(items: &[FrameItem]) -> f64 {
+    items
+        .iter()
+        .map(|item| match item {
+            FrameItem::TextSeparator { pos, advance, origin, .. }
+                if *origin
+                    == crate::entities::layout_types::TextSeparatorOrigin::Literal =>
+            {
+                pos.x.0 + advance.0
+            }
+            FrameItem::Link { items, .. } => literal_line_right(items),
+            FrameItem::Semantic { items, .. } => literal_line_right(items),
+            FrameItem::TextReplacement { items, .. } => literal_line_right(items),
+            // These carriers have no terminal literal-space advance.
+            FrameItem::TextSeparator { .. } => 0.0,
+            FrameItem::Text { .. } => 0.0,
+            FrameItem::TextShaped { .. } => 0.0,
+            FrameItem::Line { .. } => 0.0,
+            FrameItem::Glyph { .. } => 0.0,
+            FrameItem::Image { .. } => 0.0,
+            FrameItem::Shape { .. } => 0.0,
+            FrameItem::Group { .. } => 0.0,
+        })
+        .fold(0.0_f64, f64::max)
+}
+
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
+    pub(super) fn record_pending_line_width(&mut self) {
+        self.record_line_width(true);
+    }
+
+    fn record_line_width(&mut self, preserve_terminal_literal: bool) {
+        if super::html_frame::items_have_causal_line(&self.regions.current.current_line) {
+            let right = super::helpers::line_content_right(
+                &self.regions.current.current_line,
+                &self.metrics,
+            );
+            let right = if preserve_terminal_literal {
+                right.max(literal_line_right(&self.regions.current.current_line))
+            } else {
+                right
+            };
+            self.record_flow_width_at(right, 0.0);
+        }
+    }
+
     /// **P842 (#38)** — expande os spacings fracionários (`h(Nfr)`)
     /// pendentes na linha actual, distribuindo o espaço restante
     /// proporcionalmente (paridade vanilla `Spacing::Fractional`: o fr
@@ -113,15 +166,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 0.0
             }
         };
-        let total_delta = distributable
-            .is_finite()
-            .then(|| {
-                pending
-                    .iter()
-                    .map(|(_, weight, natural_width)| share(*weight) - natural_width)
-                    .sum::<f64>()
-            })
-            .unwrap_or(0.0);
+        let total_delta = if distributable.is_finite() {
+            pending
+                .iter()
+                .map(|(_, weight, natural_width)| share(*weight) - natural_width)
+                .sum::<f64>()
+        } else {
+            0.0
+        };
         if distributable.is_finite() {
             // Ordenado por índice de inserção. Cada fr translada os items
             // à sua direita APENAS pelo seu próprio share — os shares dos
@@ -193,6 +245,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // O cursor reflete a linha já expandida (decorações e medidas
         // subsequentes vêem o fim real da linha).
         self.regions.current.cursor_x += Pt(total_delta);
+        if !pending.is_empty() {
+            self.record_flow_width_at(content_right + total_delta, 0.0);
+        }
     }
 
     /// P1140.11 — distribui dinamicamente o espaço restante pelos espaços
@@ -207,13 +262,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let line_refs: Vec<&FrameItem> =
             self.regions.current.current_line.iter().collect();
         let content_right = self.metrics.line_content_right(&line_refs);
-        let is_rtl =
-            self.regions.current.current_line.iter().find_map(|item| match item {
-                FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
-                    style.dir
-                }
-                _ => None,
-            }) == Some(Dir::RTL);
+        let is_rtl = super::paragraph::line_direction(self) == Some(Dir::RTL);
         let opportunities: Vec<f64> = self
             .justify_opportunities
             .iter()
@@ -271,7 +320,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.flush_line_with_outer_singleton(true, false);
     }
 
-    fn flush_line_with_outer_singleton(&mut self, force_outer_singleton: bool, continued: bool) {
+    fn flush_line_with_outer_singleton(
+        &mut self,
+        force_outer_singleton: bool,
+        continued: bool,
+    ) {
         self.terminal_paragraph_line = false;
         // **P842 (#38)** — expandir h(Nfr) pendentes antes de qualquer
         // medição da linha (collector de decorações, leading, RTL align).
@@ -282,9 +335,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // chamam flush_line por segurança antes do seu próprio push.
         let had_items =
             super::html_frame::items_have_causal_line(&self.regions.current.current_line);
-        if had_items && !super::html_frame::items_have_material(&self.regions.current.current_line) {
+        if had_items
+            && !super::html_frame::items_have_material(&self.regions.current.current_line)
+        {
             super::text_baseline::admit_literal_line(self);
         }
+
+        // A soft wrap consumes terminal spaces without allocating their advance.
+        // Keep their carriers for text extraction; explicit final spaces remain.
+        self.record_line_width(!continued);
 
         // Determinar o tamanho máximo de fonte presente nos items da linha e
         // o estilo do item que o possui (clonado para não manter borrow da
@@ -292,42 +351,60 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // usa self.style como fallback.
         let outer_font_size = self.style.size;
         #[allow(deprecated)]
-        let (max_font_size, max_style, first_text_size, mut mixed_text_sizes, text_count) =
-            self.regions
-                .current
-                .current_line
-                .iter()
-                .filter_map(|item| match item {
-                    crate::entities::layout_types::FrameItem::Text { style, .. }
-                    | crate::entities::layout_types::FrameItem::TextShaped {
-                        style,
-                        ..
-                    }
-                    | crate::entities::layout_types::FrameItem::TextSeparator {
-                        style,
-                        origin: crate::entities::layout_types::TextSeparatorOrigin::Literal,
-                        ..
-                    } => Some((style.size, style.clone())),
-                    _ => None, // neutro: N16[β] — itens não-textuais não contribuem métricas de tamanho para cálculo de linha
-                })
-                .fold(
-                    (self.style.size, self.style.clone(), None::<f64>, false, 0usize),
-                    |(max_size, max_style, first_size, mixed, text_count),
-                     (size, style)| {
-                        let mixed = mixed
-                            || (text_count > 0 && size.0 != outer_font_size.0)
-                            || first_size.is_some_and(|first| size.0 != first);
-                        let first_size = first_size.or(Some(size.0));
-                        if size.0 > max_size.0 {
-                            (size, style, first_size, mixed, text_count + 1)
-                        } else {
-                            (max_size, max_style, first_size, mixed, text_count + 1)
+        let (max_text, first_text_size, mut mixed_text_sizes, text_count) = self
+            .regions
+            .current
+            .current_line
+            .iter()
+            .filter_map(|item| match item {
+                crate::entities::layout_types::FrameItem::Text { style, .. }
+                | crate::entities::layout_types::FrameItem::TextShaped {
+                    style, ..
+                }
+                | crate::entities::layout_types::FrameItem::TextSeparator {
+                    style,
+                    origin: crate::entities::layout_types::TextSeparatorOrigin::Literal,
+                    ..
+                } => Some((style.size, style.clone())),
+                _ => None, // neutro: N16[β] — itens não-textuais não contribuem métricas de tamanho para cálculo de linha
+            })
+            .fold(
+                (
+                    None::<(Pt, crate::entities::layout_types::TextStyle)>,
+                    None::<f64>,
+                    false,
+                    0usize,
+                ),
+                |(max_text, first_size, mixed, text_count), (size, style)| {
+                    let mixed = mixed
+                        || (text_count > 0 && size.0 != outer_font_size.0)
+                        || first_size.is_some_and(|first| size.0 != first);
+                    let first_size = first_size.or(Some(size.0));
+                    let max_text = match max_text {
+                        Some((max_size, max_style)) if max_size.0 >= size.0 => {
+                            Some((max_size, max_style))
                         }
-                    },
-                );
+                        _ => Some((size, style)),
+                    };
+                    (max_text, first_size, mixed, text_count + 1)
+                },
+            );
+        let actual_text_top = max_text
+            .as_ref()
+            .map_or(0.0, |(size, style)| self.metrics.text_edges(*size, style).0 .0);
         let forced_smaller_singleton = force_outer_singleton
             && text_count == 1
             && first_text_size.is_some_and(|size| size < outer_font_size.0);
+        let (max_font_size, max_style) = if !self.geometric_text_lines
+            && (forced_smaller_singleton || self.column_mode)
+        {
+            match max_text {
+                Some((size, style)) if size.0 > self.style.size.0 => (size, style),
+                _ => (self.style.size, self.style.clone()),
+            }
+        } else {
+            max_text.unwrap_or_else(|| (self.style.size, self.style.clone()))
+        };
         if force_outer_singleton
             && text_count == 1
             && !forced_smaller_singleton
@@ -340,7 +417,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // estilo activo do parágrafo. Linhas uniformes preservam a regra
         // P762/P1381 já selada, baseada no último fragmento textual.
         #[allow(deprecated)]
-        let line_leading_pt = if mixed_text_sizes || forced_smaller_singleton {
+        let common_style = self.geometric_text_lines.then(|| {
+            TextStyle::from(self.text_segment_chain.as_ref().unwrap_or(&self.chain))
+        });
+        let line_leading_pt = if let Some(style) = &common_style {
+            style
+                .leading
+                .map(|l| l.resolve_pt(style.size.0))
+                .unwrap_or(style.size.0 * super::vanilla_defaults::PAR_LEADING)
+        } else if mixed_text_sizes || forced_smaller_singleton {
             self.style
                 .leading
                 .map(|l| l.resolve_pt(self.style.size.val()))
@@ -393,22 +478,27 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         } else {
             (Pt(0.0), Pt(0.0))
         };
-        let next_text_top = if had_items && mixed_text_sizes {
-            self.metrics.text_edges(self.style.size, &self.style).0
-        } else {
-            current_text_top
-        };
-        let assumed_ascent = if self.line_assumed_ascent > 0.0 {
-            self.line_assumed_ascent
-        } else {
-            next_text_top.0
-        };
-        let line_extra_ascent = if mixed_text_sizes {
+        let next_text_top =
+            if let Some(style) = common_style.as_ref().filter(|_| had_items) {
+                self.metrics.text_edges(style.size, style).0
+            } else if had_items && mixed_text_sizes {
+                self.metrics.text_edges(self.style.size, &self.style).0
+            } else {
+                current_text_top
+            };
+        let assumed_ascent = self.line_assumed_ascent.unwrap_or(next_text_top.0);
+        let line_extra_ascent = if self.geometric_text_lines {
+            inline_ascent.max(actual_text_top) - assumed_ascent
+        } else if mixed_text_sizes {
             inline_ascent.max(current_text_top.0) - assumed_ascent
         } else {
-            inline_ascent - assumed_ascent
-        }
-        .max(0.0);
+            inline_ascent.max(actual_text_top) - assumed_ascent
+        };
+        let mut line_extra_ascent = if self.geometric_text_lines {
+            line_extra_ascent
+        } else {
+            line_extra_ascent.max(0.0)
+        };
 
         // P1292-D v10 — uma inserção bottom reduz a geometria efectiva
         // antes de o próximo child estabilizar. Se a tinta da linha corrente
@@ -416,6 +506,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // caminho normal de avanço; não é preciso conhecer seu Content.
         let mut effective_line_committed = false;
         if had_items
+            && !self.is_sub_frame
             && self.page_config.height.is_finite()
             && self.regions.current.height + f64::EPSILON < self.page_config.height
         {
@@ -444,6 +535,62 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // A tinta cabe; o avanço para a baseline seguinte pode
                 // ultrapassar a reserva sem expulsar retroactivamente esta
                 // linha. Um próximo child fará o progresso normal.
+                effective_line_committed = true;
+            }
+        }
+
+        // Ordinary root pages admit the entire settled line before commit.
+        // Reserved regions and suffix transactions retain their own protocol.
+        let ordinary_root = had_items
+            && !self.is_sub_frame
+            && self.page_config.height.is_finite()
+            && self.regions.current.height == self.page_config.height
+            && !self.column_mode
+            && self.page_columns.is_none()
+            && self.floats_pending.is_empty()
+            && self.cursor_y_top_reserve == 0.0
+            && self.cursor_y_bottom_reserve == 0.0
+            && !self.flow_suffix_checkpoint_pending
+            && !self.flow_suffix_transaction_active
+            && self.flow_suffix_checkpoint.is_none()
+            && self.decoration_lines_collector.is_none();
+        if ordinary_root {
+            let descent = if text_count == 0 {
+                inline_descent
+            } else {
+                (-current_text_bottom.0).max(inline_descent)
+            };
+            let ink_bottom =
+                self.regions.current.cursor_y.0 + line_extra_ascent + descent;
+            if ink_bottom > self.page_bottom_limit() {
+                let has_previous_unit = super::html_frame::items_have_material(
+                    &self.regions.current.current_items,
+                ) || self.flow_placement_end.is_some();
+                if has_previous_unit {
+                    let old_baseline = self.regions.current.cursor_y.0;
+                    let old_left = self.page_config.margin.left;
+                    let old_cursor = self.regions.current.cursor_x.0;
+                    let old_start = self.regions.current.line_start_x.0;
+                    let ascent = assumed_ascent + line_extra_ascent;
+                    // Ask the region owner for its geometric top, without a
+                    // font strut that could differ from this line's real ascent.
+                    self.initial_baseline_pending = true;
+                    self.new_page();
+                    self.regions.current.cursor_y += Pt(ascent);
+                    self.initial_baseline_pending = false;
+                    self.line_assumed_ascent = Some(ascent);
+                    let dx = self.page_config.margin.left - old_left;
+                    let dy = self.regions.current.cursor_y.0 - old_baseline;
+                    for item in &mut self.regions.current.current_line {
+                        super::helpers::offset_frame_item(item, dx, dy);
+                    }
+                    self.regions.current.cursor_x = Pt(old_cursor + dx);
+                    self.regions.current.line_start_x = Pt(old_start + dx);
+                    line_extra_ascent = 0.0;
+                }
+                // An oversized first unit is committed once, even if its ink
+                // exceeds an empty region. Its predicted next baseline is not
+                // a reason to manufacture a terminal blank page.
                 effective_line_committed = true;
             }
         }
@@ -479,7 +626,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // alta que o texto), o topo da linha mantém-se e é a baseline que
         // desce — o vanilla alinha os items inline pela baseline. A linha
         // inteira desce a diferença, antes de ser drenada.
-        if had_items && line_extra_ascent > 0.0 {
+        if had_items && line_extra_ascent != 0.0 {
             self.shift_current_line_y(line_extra_ascent);
             self.regions.current.cursor_y += Pt(line_extra_ascent);
         }
@@ -570,6 +717,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                                     },
                                     text: number.into(),
                                     style: style.clone(),
+                                    bidi: None,
                                 }],
                                 width,
                             )
@@ -685,14 +833,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 + (-current_text_bottom.0).max(inline_descent);
             effective_line_committed |= ink_bottom <= self.page_bottom_limit();
         }
+        self.pending_line_dir = None;
+        self.close_link_line_segments();
         for item in self.regions.current.current_line.drain(..) {
             self.regions.current.current_items.push(item);
         }
+        self.open_link_segments();
         self.justify_opportunities.clear();
         if had_items {
             // **P1382** — a próxima baseline nasce com o ascent do estilo
             // activo, não com o maior ascent transitório da linha corrente.
-            self.line_assumed_ascent = next_text_top.0;
+            self.line_assumed_ascent = Some(next_text_top.0);
 
             // **P1120** — descida da linha = a maior entre a aresta inferior
             // do texto e o descent dos items inline (`h − ascent` da caixa).
@@ -706,6 +857,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let baseline_y = self.regions.current.cursor_y.0;
             self.prev_line_baseline = baseline_y;
             self.regions.current.cursor_y += advance;
+            self.record_flow_placement_end(baseline_y + line_descent);
             // **P1131** — uma linha substitui o fundo vertical anterior
             // quando ele existe. Texto comum fecha na baseline (aresta
             // inferior padrão do vanilla para `height: auto`); uma caixa
@@ -738,30 +890,92 @@ mod tests {
     use crate::entities::geometry::LineCap;
 
     #[test]
+    fn two_smaller_fragments_do_not_take_outer_ascent_for_current_line() {
+        use crate::entities::{
+            image_sizer::NullImageSizer,
+            introspector::{Introspector, TagIntrospector},
+            layout_types::TextStyle,
+        };
+        use comemo::Track;
+        let intr = TagIntrospector::empty();
+        let mut l = super::super::Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        let style = TextStyle::regular(Pt(10.0));
+        l.initial_baseline_pending = false;
+        l.regions.current.cursor_y = Pt(7.0);
+        l.line_assumed_ascent = Some(7.0);
+        for (x, text) in [(0.0, "A"), (6.0, "B")] {
+            l.regions.current.current_line.push(FrameItem::Text {
+                pos: Point { x: Pt(x), y: Pt(7.0) },
+                text: text.into(),
+                style: style.clone(),
+                bidi: None,
+            });
+        }
+        l.flush_line();
+        let ys: Vec<_> = l
+            .regions
+            .current
+            .current_items
+            .iter()
+            .filter_map(|item| {
+                if let FrameItem::Text { pos, .. } = item {
+                    Some(pos.y.0)
+                } else {
+                    None
+                }
+            })
+            .collect();
+        assert_eq!(ys, vec![7.0, 7.0]);
+    }
+
+    #[test]
     fn rtl_continued_line_reserves_signed_terminal_tracking() {
-        use crate::entities::{dir::Dir, image_sizer::NullImageSizer,
-            introspector::{Introspector, TagIntrospector}, layout_types::{Length, TextStyle}};
+        use crate::entities::{
+            dir::Dir,
+            image_sizer::NullImageSizer,
+            introspector::{Introspector, TagIntrospector},
+            layout_types::{Length, TextStyle},
+        };
         use comemo::Track;
         let intr = TagIntrospector::empty();
         for t in [0.2, -0.2, 0.0] {
-            let mut l = super::super::Layouter::new(FixedMetrics, NullImageSizer, 80.0,
-                (&intr as &dyn Introspector).track());
+            let mut l = super::super::Layouter::new(
+                FixedMetrics,
+                NullImageSizer,
+                80.0,
+                (&intr as &dyn Introspector).track(),
+            );
             let mut style = TextStyle::regular(Pt(12.0));
             style.dir = Some(Dir::RTL);
             style.tracking = Some(Length::pt(t));
             l.style = style.clone();
             let width = super::super::text_measure::word(&l.metrics, "abc", &style);
             l.regions.current.current_line.push(FrameItem::Text {
-                pos: Point {x: Pt(0.0), y: Pt(0.0)},
-                text: "abc".into(), style,
+                pos: Point { x: Pt(0.0), y: Pt(0.0) },
+                text: "abc".into(),
+                style,
+                bidi: None,
             });
             l.regions.current.cursor_x = width;
             let right = l.regions.current.width - l.page_config.margin.right;
             l.flush_continued_line();
-            let item = l.regions.current.current_items.iter().find(|item| matches!(item, FrameItem::Text { .. })).unwrap();
-            let FrameItem::Text {pos, ..} = item else {panic!()};
-            assert!((pos.x.0 - (right - width.0 - t)).abs() < 1e-9,
-                "continued RTL line must reserve its terminal tracking interval");
+            let item = l
+                .regions
+                .current
+                .current_items
+                .iter()
+                .find(|item| matches!(item, FrameItem::Text { .. }))
+                .unwrap();
+            let FrameItem::Text { pos, .. } = item else { panic!() };
+            assert!(
+                (pos.x.0 - (right - width.0 - t)).abs() < 1e-9,
+                "continued RTL line must reserve its terminal tracking interval"
+            );
         }
     }
 

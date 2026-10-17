@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/locator`
-Hash do Código: 6e50bd9c
+Hash do Código: eb1f3a28
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/locator.rs`
@@ -154,3 +154,21 @@ checkpoint, produza a mesma sequência de Locations de um walk contínuo;
 replay do segundo corpo começa no seu seed, sem colisão com o primeiro.
 Este par de métodos é contrato público L1; gate ADR-0127
 confirmado pelo dono em 2026-09-24.
+
+
+## Realização com avaliação única
+
+observe(Location), interno ao crate, conserva disjunção entre ocorrências explicitamente realizadas e futuras alocações ordinárias. Não constrói Location por outro caminho; counter avança no mínimo além da Location observada.
+
+
+## Nomes de domínio e traits Rust — 2026-10-16
+
+### Medição anterior à decisão
+
+Locator.next aparece no inventário Clippy de 13 avisos. A assinatura e o corpo vigentes foram lidos antes desta decisão; snapshot 00_nucleo/diagnosticos/clippy-traits-formatacao-2026-10-16/before.json.gz conserva fontes/L0 completos, hashes globais, HEAD, working tree não commitado, UTC e diffstat. O contrato de retorno difere do trait sugerido. É comparação de interfaces Rust, sem nova medição de paridade ou benefício de leitura por IA.
+
+### Responsabilidade exclusiva e aceitação
+
+Preservar next(&mut self) -> Location, sequência/checkpoint, ausência de Clone e overflow checked já existente. Alocador de identidade não tem fim normal Option::None; não implementar Iterator ou transformar overflow em conclusão silenciosa. next recebe expectativa nominal de should_implement_trait.
+
+Usar somente #[expect(clippy::should_implement_trait, reason="S002: alocador causal de Location com overflow explícito; não é Iterator de itens opcionais")] sobre o método nomeado. Não suprimir módulo/impl/crate, elevar limiar ou estender a exceção a Styles::from_iter. Implementar o trait proposto aqui exigiria contrato novo ou semântica diferente; a exceção preserva o contrato existente. Fluxo contínuo ADR-0127 para metadados/documentação, sem API, default ou fase novos. L0 primeiro e resselo restrito; RED do lint e GREEN incluindo unfulfilled_lint_expectations como erro; preservar corpos e usar os testes funcionais existentes sem alterar esperados. Validar workspace/build/Clippy/doc/fmt/linhagem sob 12 GiB, swap zero e um job.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/decimal.md
-//! @prompt-hash 108f6c23
+//! @prompt-hash 785f538a
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -15,7 +15,7 @@ use std::str::FromStr;
 ///
 /// Wrapper sobre `rust_decimal::Decimal` — é `Copy` (128-bit stack value),
 /// puro-Rust e sem alocação dinâmica.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct Decimal(pub InnerDecimal);
 
 impl Decimal {
@@ -27,6 +27,10 @@ impl Decimal {
     }
 
     /// Parse a partir de string decimal.
+    #[expect(
+        clippy::should_implement_trait,
+        reason = "S003: parser de domínio Option preservado; FromStr exige Result e um contrato de erro distinto"
+    )]
     pub fn from_str(s: &str) -> Option<Self> {
         InnerDecimal::from_str(s).ok().map(Self)
     }
@@ -39,11 +43,6 @@ impl Decimal {
     /// Conversão exata a partir de `i64`.
     pub fn from_i64(i: i64) -> Self {
         Self(InnerDecimal::from(i))
-    }
-
-    /// Representação textual decimal pura (sem notação científica).
-    pub fn to_string(&self) -> String {
-        self.0.to_string()
     }
 
     /// Valor absoluto (paridade vanilla `calc.abs(decimal)`).
@@ -124,14 +123,29 @@ impl Decimal {
     }
 }
 
-impl Default for Decimal {
-    fn default() -> Self {
-        Self(InnerDecimal::default())
+impl std::fmt::Display for Decimal {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(&self.0, f)
     }
 }
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn approved_traits_decimal_display_preserves_scale() {
+        fn render<T: std::fmt::Display + ToString>(value: &T) -> (String, String) {
+            (format!("{value}"), ToString::to_string(value))
+        }
+        for (value, expected) in [
+            (Decimal::new(12300, 4), "1.2300"),
+            (Decimal::new(-12300, 4), "-1.2300"),
+            (Decimal::default(), "0"),
+        ] {
+            assert_eq!(render(&value), (expected.into(), expected.into()));
+        }
+        assert!(Decimal::from_str("invalid").is_none());
+    }
+
     use super::*;
 
     #[test]

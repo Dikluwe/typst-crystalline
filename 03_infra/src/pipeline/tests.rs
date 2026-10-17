@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/tests.md
-//! @prompt-hash cfa145ce
+//! @prompt-hash 1fbcf811
 //! @layer L3
-//! @updated 2026-09-30
+//! @updated 2026-10-09
 //!
 //! Possui a suíte integrada anteriormente embutida em pipeline.rs. Conserva integralmente os oráculos e fixtures; somente a localização física muda. Exercita as fachadas públicas e os helpers internos por descendência do módulo. Não legitima alteração de código produtivo.
 
@@ -210,6 +210,28 @@ fn p1339_filtered_context_does_not_discard_independent_error() {
 }
 
 #[test]
+fn single_evaluation_recipe_context_ids_do_not_collide_with_captured_content() {
+    let world = mock_world("#let cached = [#context [Captured]]\n#show heading: it => [#cached #context [Generated]]\n= Original");
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let text = result
+        .expect("distinct contextual producers must execute")
+        .plain_text();
+    assert!(text.contains("Captured") && text.contains("Generated"), "{text:?}");
+}
+
+#[test]
+fn single_evaluation_context_query_sees_original_and_generated() {
+    let world = mock_world("#show heading.where(level: 1): it => heading(level: 2)[Generated]\n= Original\n#context query(heading).map(it => it.body).join([ | ])");
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let text = result.expect("contextual query must render").plain_text();
+    assert!(text.contains("Original | Generated"), "{text:?}");
+}
+
+#[test]
 fn p1406_show_outline_entry_direto_realiza_entries() {
     let world = mock_world(concat!(
         "#set heading(numbering: \"1.\")\n",
@@ -362,18 +384,17 @@ fn p1407_destination_dot_count(items: &[FrameItem]) -> usize {
     items
         .iter()
         .map(|item| match item {
-            FrameItem::Link { target, items, .. }
-                if matches!(
-                    target,
-                    typst_core::entities::layout_types::LinkTarget::Destination(_)
-                ) =>
-            {
-                frame_items_text(items).matches('.').count()
-            }
+            FrameItem::Link {
+                target: typst_core::entities::layout_types::LinkTarget::Destination(_),
+                items,
+                ..
+            } => frame_items_text(items).matches('.').count(),
             FrameItem::Group { items, .. }
             | FrameItem::Link { items, .. }
-            | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => p1407_destination_dot_count(items),
-            FrameItem::TextSeparator { .. } | FrameItem::Text { .. }
+            | FrameItem::TextReplacement { items, .. }
+            | FrameItem::Semantic { items, .. } => p1407_destination_dot_count(items),
+            FrameItem::TextSeparator { .. }
+            | FrameItem::Text { .. }
             | FrameItem::TextShaped { .. }
             | FrameItem::Line { .. }
             | FrameItem::Glyph { .. }
@@ -436,8 +457,10 @@ fn p1407_dot_positions(items: &[FrameItem], positions: &mut Vec<f64>) {
             }
             FrameItem::Group { items, .. }
             | FrameItem::Link { items, .. }
-            | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => p1407_dot_positions(items, positions),
-            FrameItem::TextSeparator { .. } | FrameItem::Line { .. }
+            | FrameItem::TextReplacement { items, .. }
+            | FrameItem::Semantic { items, .. } => p1407_dot_positions(items, positions),
+            FrameItem::TextSeparator { .. }
+            | FrameItem::Line { .. }
             | FrameItem::Glyph { .. }
             | FrameItem::Image { .. }
             | FrameItem::Shape { .. } => {}
@@ -594,7 +617,8 @@ fn p1408_text_x(items: &[FrameItem], needle: &str) -> Option<f64> {
                     return Some(x);
                 }
             }
-            FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
+            FrameItem::TextReplacement { items, .. }
+            | FrameItem::Semantic { items, .. } => {
                 if let Some(x) = p1408_text_x(items, needle) {
                     return Some(x);
                 }
@@ -721,8 +745,13 @@ fn frame_items_text(items: &[FrameItem]) -> String {
             }
             FrameItem::Group { items, .. }
             | FrameItem::Link { items, .. }
-            | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => out.push_str(&frame_items_text(items)),
-            _ => {}
+            | FrameItem::TextReplacement { items, .. }
+            | FrameItem::Semantic { items, .. } => out.push_str(&frame_items_text(items)),
+            FrameItem::TextSeparator { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. } => {}
         }
     }
     out
@@ -734,8 +763,13 @@ fn contains_bold_text(items: &[FrameItem], expected: &str) -> bool {
         | FrameItem::TextShaped { text, style, .. } => text == expected && style.bold,
         FrameItem::Group { items, .. }
         | FrameItem::Link { items, .. }
-        | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => contains_bold_text(items, expected),
-        _ => false,
+        | FrameItem::TextReplacement { items, .. }
+        | FrameItem::Semantic { items, .. } => contains_bold_text(items, expected),
+        FrameItem::TextSeparator { .. }
+        | FrameItem::Line { .. }
+        | FrameItem::Glyph { .. }
+        | FrameItem::Image { .. }
+        | FrameItem::Shape { .. } => false,
     })
 }
 
@@ -1120,7 +1154,12 @@ use typst_core::entities::layout_types::{
 fn text_item_with_font(font: Option<FontList>) -> FrameItem {
     let mut style = TextStyle::regular(Pt(12.0));
     style.font = font;
-    FrameItem::Text { pos: Point::ZERO, text: "X".into(), style }
+    FrameItem::Text {
+        pos: Point::ZERO,
+        text: "X".into(),
+        style,
+        bidi: None,
+    }
 }
 
 fn page_with(items: Vec<FrameItem>) -> Page {
@@ -1167,7 +1206,7 @@ fn first_font_from_doc_com_font_primeira_vence() {
 
 #[test]
 fn first_font_from_doc_font_em_pagina_segunda_encontrada() {
-    // Página 1 sem font, página 2 com font.
+    // Página 1 sem, font, página 2 com font.
     let doc = PagedDocument::new(vec![
         page_with(vec![text_item_with_font(None)]),
         page_with(vec![text_item_with_font(Some(font_list("Inria Serif")))]),
@@ -1455,7 +1494,6 @@ fn resolve_fonts_nenhum_resolve_devolve_vazio() {
 
 // ── Passo 407: regex keys em FontList (DEBT-52) ─────────────────────
 
-use typst_core::entities::font_list::FontNamePattern;
 use typst_core::entities::regex::Regex;
 
 fn font_list_regex(pattern: &str) -> FontList {
@@ -1521,7 +1559,9 @@ fn dummy_context_block(id: u64) -> Content {
 
 #[test]
 fn collect_context_blocks_acumula_size_de_set_ancestral() {
-    let styles = Styles::from_iter([Style::Size(Pt(20.0))]);
+    let styles = Styles::from_iter([Style::Size(
+        typst_core::entities::layout_types::Length::pt(20.0),
+    )]);
     let content = Content::styled(Box::new(dummy_context_block(1)), styles);
     let blocks = collect_context_blocks(&content, &StyleChain::default_chain());
     let (_, chain) = blocks.get(&1).expect("bloco 1 deve ter sido colectado");
@@ -1547,9 +1587,13 @@ fn collect_context_blocks_sem_set_mantem_default() {
 #[test]
 fn collect_context_blocks_sets_aninhados_o_mais_interno_vence() {
     // #set text(size: 20pt) [ #set text(size: 30pt) [ context ] ]
-    let inner_styles = Styles::from_iter([Style::Size(Pt(30.0))]);
+    let inner_styles = Styles::from_iter([Style::Size(
+        typst_core::entities::layout_types::Length::pt(30.0),
+    )]);
     let inner = Content::styled(Box::new(dummy_context_block(3)), inner_styles);
-    let outer_styles = Styles::from_iter([Style::Size(Pt(20.0))]);
+    let outer_styles = Styles::from_iter([Style::Size(
+        typst_core::entities::layout_types::Length::pt(20.0),
+    )]);
     let content = Content::styled(Box::new(inner), outer_styles);
     let blocks = collect_context_blocks(&content, &StyleChain::default_chain());
     let (_, chain) = blocks.get(&3).expect("bloco 3 deve ter sido colectado");
@@ -1564,7 +1608,9 @@ fn collect_context_blocks_sets_aninhados_o_mais_interno_vence() {
 fn collect_context_blocks_multiplos_blocos_em_sequence_cadeias_independentes() {
     let a = Content::styled(
         Box::new(dummy_context_block(4)),
-        Styles::from_iter([Style::Size(Pt(14.0))]),
+        Styles::from_iter([Style::Size(typst_core::entities::layout_types::Length::pt(
+            14.0,
+        ))]),
     );
     let b = dummy_context_block(5);
     let content = Content::sequence(vec![a, b]);
@@ -1575,6 +1621,66 @@ fn collect_context_blocks_multiplos_blocos_em_sequence_cadeias_independentes() {
         11.0,
         "bloco irmão fora do Styled não deve herdar o #set do outro ramo"
     );
+}
+
+#[test]
+fn collect_context_blocks_table_cell_header_footer_caption_keep_visual_styles() {
+    use typst_core::entities::layout_types::TrackSizing;
+
+    let inner = Content::styled(
+        Box::new(dummy_context_block(41)),
+        Styles::from_iter([Style::Size(typst_core::entities::layout_types::Length::pt(
+            18.0,
+        ))]),
+    );
+    let cell = Content::table_cell(inner, None, None, None, None);
+    let mut table = match Content::table(vec![TrackSizing::Auto], vec![], vec![cell]) {
+        Content::Table(table) => table.as_ref().clone(),
+        _ => unreachable!(),
+    };
+    table.header = Some(dummy_context_block(43));
+    table.footer = Some(dummy_context_block(44));
+    table.caption = Some(dummy_context_block(42));
+    let wrapped = Content::styled(
+        Box::new(Content::Table(Arc::new(table))),
+        Styles::from_iter([Style::Size(typst_core::entities::layout_types::Length::pt(
+            14.0,
+        ))]),
+    );
+    let blocks = collect_context_blocks(&wrapped, &StyleChain::default_chain());
+    assert_eq!(blocks.len(), 4);
+    assert_eq!(blocks.get(&41).unwrap().1.size(), 18.0);
+    assert_eq!(blocks.get(&42).unwrap().1.size(), 14.0);
+    assert_eq!(blocks.get(&43).unwrap().1.size(), 14.0);
+    assert_eq!(blocks.get(&44).unwrap().1.size(), 14.0);
+}
+
+#[test]
+fn collect_context_blocks_reused_id_in_table_keeps_later_visual_occurrence() {
+    use typst_core::entities::layout_types::TrackSizing;
+
+    let cell = |size| {
+        Content::table_cell(
+            Content::styled(
+                Box::new(dummy_context_block(51)),
+                Styles::from_iter([Style::Size(
+                    typst_core::entities::layout_types::Length::pt(size),
+                )]),
+            ),
+            None,
+            None,
+            None,
+            None,
+        )
+    };
+    let table = Content::table(
+        vec![TrackSizing::Auto, TrackSizing::Auto],
+        vec![],
+        vec![cell(14.0), cell(20.0)],
+    );
+    let blocks = collect_context_blocks(&table, &StyleChain::default_chain());
+    assert_eq!(blocks.len(), 1);
+    assert_eq!(blocks.get(&51).unwrap().1.size(), 20.0);
 }
 
 // ── P1467 (RED — Agente B) — resolução documental/CLI de
@@ -2239,7 +2345,8 @@ fn bundle_ua1_requires_title_before_publishing_pdf() {
                 html_serialization: crate::export::HtmlSerializationMode::Crystalline,
                 pretty_override: None,
             },
-        ).0
+        )
+        .0
     };
     let missing = match run("#set format.pdf(standard: \"ua-1\")\nHello") {
         Err(errors) => errors,
@@ -2254,15 +2361,25 @@ fn bundle_ua1_requires_title_before_publishing_pdf() {
         let world = mock_world(source);
         let mut features = Features::empty();
         features.enable(Feature::Bundle);
-        compile_to_bundle_files(&world, &world.source, BundleCompileOptions {
-            full_error: false, features, document_id: None,
-            pdf_stream_mode: StreamMode::Verbose,
-            pdf_serialization: PdfSerializationMode::Compact,
-            pdf_tagged_override: None, pdf_pages_override: None,
-            pdf_standard_override: None, png_ppi_override: None,
-            html_serialization: crate::export::HtmlSerializationMode::Crystalline,
-            pretty_override: None,
-        }).0.expect("título válido deve permitir o PDF/UA-1 no bundle")
+        compile_to_bundle_files(
+            &world,
+            &world.source,
+            BundleCompileOptions {
+                full_error: false,
+                features,
+                document_id: None,
+                pdf_stream_mode: StreamMode::Verbose,
+                pdf_serialization: PdfSerializationMode::Compact,
+                pdf_tagged_override: None,
+                pdf_pages_override: None,
+                pdf_standard_override: None,
+                png_ppi_override: None,
+                html_serialization: crate::export::HtmlSerializationMode::Crystalline,
+                pretty_override: None,
+            },
+        )
+        .0
+        .expect("título válido deve permitir o PDF/UA-1 no bundle")
     };
     assert_eq!(titled.len(), 1);
     assert_eq!(titled[0].path, "one.pdf");
@@ -2279,15 +2396,23 @@ fn bundle_ua1_requires_title_before_publishing_pdf() {
     let world = mock_world(two);
     let mut features = Features::empty();
     features.enable(Feature::Bundle);
-    let (result, _, _) = compile_to_bundle_files(&world, &world.source, BundleCompileOptions {
-        full_error: false, features, document_id: None,
-        pdf_stream_mode: StreamMode::Verbose,
-        pdf_serialization: PdfSerializationMode::Compact,
-        pdf_tagged_override: None, pdf_pages_override: None,
-        pdf_standard_override: None, png_ppi_override: None,
-        html_serialization: crate::export::HtmlSerializationMode::Crystalline,
-        pretty_override: None,
-    });
+    let (result, _, _) = compile_to_bundle_files(
+        &world,
+        &world.source,
+        BundleCompileOptions {
+            full_error: false,
+            features,
+            document_id: None,
+            pdf_stream_mode: StreamMode::Verbose,
+            pdf_serialization: PdfSerializationMode::Compact,
+            pdf_tagged_override: None,
+            pdf_pages_override: None,
+            pdf_standard_override: None,
+            png_ppi_override: None,
+            html_serialization: crate::export::HtmlSerializationMode::Crystalline,
+            pretty_override: None,
+        },
+    );
     let errors = match result {
         Err(errors) => errors,
         Ok(_) => panic!("o segundo documento não pode herdar o primeiro título"),
@@ -2617,7 +2742,7 @@ fn font_lifecycle_shape_resources_do_not_request_fonts() {
     let combos = collect_fonts_from_doc(&doc, &world);
     assert!(combos.is_empty());
     assert!(resolve_fonts(&combos, &world).is_empty());
-    assert!(resolve_and_instantiate_fonts(&doc, &world).unwrap().is_empty());
+    assert!(resolve_export_fonts(&doc, &world).unwrap().is_empty());
 }
 
 #[test]
@@ -2650,15 +2775,579 @@ fn infra_axis_gate_unknown_axis_preserves_bytes() {
                 variations: Some(FontVariations(vec![(tag, value)])),
                 ..TextStyle::regular(Pt(12.0))
             },
+            bidi: None,
         }])])
     };
-    let unknown = resolve_and_instantiate_fonts(&doc_for(*b"ZZZZ", 1.0), &world)
+    let unknown = resolve_export_fonts(&doc_for(*b"ZZZZ", 1.0), &world)
         .expect("unknown axes must not require an instancer");
     assert_eq!(unknown.len(), 1);
     assert_eq!(unknown[0].1.as_slice(), bytes);
     if !variable_font_instancer_available() {
-        let error = resolve_and_instantiate_fonts(&doc_for(*b"wght", 700.0), &world)
+        let error = resolve_export_fonts(&doc_for(*b"wght", 700.0), &world)
             .expect_err("matching axes still require an instancer");
         assert!(error.message.contains("Python/fontTools"));
     }
+}
+
+#[test]
+fn unchanged_context_session_preserves_carrier() {
+    let world = mock_world("Hello");
+    let content = Content::Sequence(
+        vec![Content::heading(1, Content::text("Original")), Content::text("Tail")]
+            .into(),
+    );
+    let intr = introspect_with_introspector(&content);
+    let (result, warnings) = context_stabilization::prepare(
+        content.clone(),
+        &intr,
+        &world,
+        &world.source,
+        false,
+        typst_core::entities::compiler_features::Features::default(),
+        None,
+    );
+    let prepared = result.unwrap();
+    assert!(warnings.is_empty());
+    assert!(
+        prepared.settled.is_none(),
+        "an unselected session must not retain a layout cache"
+    );
+    assert_eq!(prepared.content.plain_text(), content.plain_text());
+    let (Content::Sequence(before), Content::Sequence(after)) =
+        (&content, &prepared.content)
+    else {
+        panic!("expected sequences")
+    };
+    assert!(
+        Arc::ptr_eq(before, after),
+        "a session without producers must preserve its carrier"
+    );
+}
+
+#[test]
+fn unchanged_outline_phase_preserves_carrier_and_index() {
+    let world = mock_world("Hello");
+    let content = Content::Sequence(
+        vec![Content::heading(1, Content::text("Original")), Content::text("Tail")]
+            .into(),
+    );
+    let intr = introspect_with_introspector(&content);
+    let (result, warnings) =
+        paged::realize_outlines_for_pipeline(&content, &intr, &world, &world.source);
+    let (output, index) = result.unwrap();
+    assert!(warnings.is_empty());
+    assert_eq!(
+        index.query_by_kind(ElementKind::Heading),
+        intr.query_by_kind(ElementKind::Heading)
+    );
+    let (Content::Sequence(before), Content::Sequence(after)) = (&content, &output)
+    else {
+        panic!("expected sequences")
+    };
+    assert!(
+        Arc::ptr_eq(before, after),
+        "a phase without outline transformations must preserve its carrier"
+    );
+}
+
+thread_local! {
+    static INITIAL_LAYOUT_CALLS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+pub(super) fn record_initial_layout_call() {
+    INITIAL_LAYOUT_CALLS.with(|count| count.set(count.get() + 1));
+}
+
+#[test]
+fn independent_table_reuses_first_layout_and_binds_all_pages() {
+    let world = mock_world("#set page(width: 200pt, height: 120pt, margin: 10pt)\n#set text(font: \"Libertinus Serif\", size: 10pt)\n#table(columns: 2, ..range(40).map(i => [Cell #i]))");
+    INITIAL_LAYOUT_CALLS.with(|count| count.set(0));
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let doc = result.expect("table must compile");
+    assert!(doc.pages.len() > 1, "fixture must exercise multiple pages");
+    assert!(doc.plain_text().contains("Cell") && doc.plain_text().contains("39"));
+    for (index, page) in doc.pages.iter().enumerate() {
+        assert_eq!(page.logical_number, index + 1);
+    }
+    INITIAL_LAYOUT_CALLS.with(|count| {
+        assert_eq!(
+            count.get(),
+            1,
+            "independent table must reuse complete first candidate"
+        )
+    });
+}
+
+#[test]
+fn local_cell_fill_reuses_first_layout_without_page_dependencies() {
+    let world = mock_world(
+        "#set page(width: 200pt, height: 120pt, margin: 10pt)\n\
+         #set text(font: \"Libertinus Serif\", size: 10pt)\n\
+         #let c = { set table.cell(fill: red); table.cell[Local] }\n\
+         #table(columns: 2, ..range(40).map(_ => c))",
+    );
+    INITIAL_LAYOUT_CALLS.with(|count| count.set(0));
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let doc = result.expect("local cell table must compile");
+    assert!(doc.pages.len() > 1);
+    assert_eq!(doc.plain_text().matches("Local").count(), 40);
+    INITIAL_LAYOUT_CALLS.with(|count| assert_eq!(count.get(), 1));
+}
+
+#[test]
+fn local_cell_show_recipe_keeps_numbering_fixpoint() {
+    let world = mock_world(
+        "#let c = { show table.cell: it => it; set table.cell(fill: red); table.cell[Local] }\n\
+         #table(columns: 2, ..range(4).map(_ => c))",
+    );
+    INITIAL_LAYOUT_CALLS.with(|count| count.set(0));
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let doc = result.expect("local show recipe must compile");
+    assert_eq!(doc.plain_text().matches("Local").count(), 4);
+    INITIAL_LAYOUT_CALLS.with(|count| assert_eq!(count.get(), 2));
+}
+
+#[test]
+fn numbered_table_keeps_second_layout() {
+    let world = mock_world(
+        "#set page(numbering: \"1 / 1\")\n#table(columns: 2, [A], [B], [C], [D])",
+    );
+    INITIAL_LAYOUT_CALLS.with(|count| count.set(0));
+    let mut timings = Timings::default();
+    let (result, _) =
+        compile_to_paged_document_full_error(&world, &world.source, false, &mut timings);
+    let doc = result.expect("numbered table must compile");
+    assert_eq!(frame_items_text(&doc.pages[0].foreground), "1 / 1");
+    INITIAL_LAYOUT_CALLS.with(|count| assert_eq!(count.get(), 2));
+}
+
+#[test]
+fn initial_layout_proof_rejects_hidden_and_unknown_dependencies() {
+    use typst_core::entities::content::{RealizedContent, SetPageDelta};
+    use typst_core::entities::page_running::PageMarginal;
+    assert!(paged::initial_layout_independent(&Content::text("ready")));
+    let header = Content::SetPage(Arc::new(SetPageDelta {
+        header: Some(PageMarginal::Content(Arc::new(Content::text("hidden")))),
+        ..SetPageDelta::default()
+    }));
+    assert!(!paged::initial_layout_independent(&header));
+    let background = Content::SetPage(Arc::new(SetPageDelta {
+        background: Some(Some(Arc::new(Content::text("layer")))),
+        ..SetPageDelta::default()
+    }));
+    assert!(!paged::initial_layout_independent(&background));
+    let heading = Content::heading(1, Content::text("origin"));
+    let realized = Content::Realized(Arc::new(RealizedContent {
+        original: heading.clone(),
+        visual: Content::text("ready"),
+    }));
+    assert!(!paged::initial_layout_independent(&heading));
+    assert!(!paged::initial_layout_independent(&realized));
+    let styles = typst_core::entities::style::Styles::new()
+        .push_custom("par.line.numbering", Value::Str("1".into()));
+    assert!(!paged::initial_layout_independent(&Content::styled(
+        Content::text("ready"),
+        styles
+    )));
+}
+
+#[test]
+fn page_display_uses_realized_logical_page_at_each_context() {
+    for (prefix, expected) in
+        [("", ["1", "2"]), ("#counter(page).update(7)\n", ["7", "8"])]
+    {
+        for expression in [
+            "counter(page).display()",
+            "counter(page).display(\"1\")",
+            "counter(page).display(n => str(n))",
+        ] {
+            let program = format!(
+                "{prefix}#context {expression}\n#pagebreak()\n#context {expression}"
+            );
+            let w = mock_world(&program);
+            let doc = compile_to_paged_document_full_error(
+                &w,
+                &w.source,
+                false,
+                &mut Timings::default(),
+            )
+            .0
+            .expect("page context should compile");
+            assert_eq!(
+                doc.pages
+                    .iter()
+                    .map(|p| frame_items_text(&p.items))
+                    .collect::<Vec<_>>(),
+                expected,
+                "{program}"
+            );
+        }
+    }
+}
+
+#[test]
+fn page_display_does_not_replace_nonpage_counter_state() {
+    let w = mock_world(
+        "#counter(\"custom\").update(3)\n#context counter(\"custom\").display(\"1\")",
+    );
+    let doc = compile_to_paged_document_full_error(
+        &w,
+        &w.source,
+        false,
+        &mut Timings::default(),
+    )
+    .0
+    .expect("custom counter should compile");
+    assert_eq!(frame_items_text(&doc.pages[0].items), "3");
+}
+
+#[test]
+fn page_snapshot_current_and_final_follow_physical_pages_and_causal_updates() {
+    for (program, expected) in [
+        ("#context [B#counter(page).display(\"1 / 1\", both: true) F#counter(page).final().first()]", vec!["B1/1F1"]),
+        ("#context counter(page).display(\"1 / 1\", both: true)\n#pagebreak()\n#context counter(page).final().first()", vec!["1/2", "2"]),
+        ("#counter(page).update(7)\n#context counter(page).display(\"1 / 1\", both: true)\n#pagebreak()\n#context counter(page).final().first()", vec!["7/8", "8"]),
+        ("#context counter(page).display(\"1 / 1\", both: true)\n#pagebreak()\n#counter(page).update(7)\n#context counter(page).display(\"1 / 1\", both: true)", vec!["1/7", "7/7"]),
+        ("#context [B#counter(page).display(\"1 / 1\", both: true) F#counter(page).final().first()]\n#counter(page).step()", vec!["B1/2F2"]),
+        ("#context counter(page).display(\"1 / 1\", both: true)\n#pagebreak()\n#counter(page).update(n => n + 5)\n#context counter(page).get().first()", vec!["1/7", "7"]),
+        ("#context counter(page).final().first()\n#pagebreak()\nLast", vec!["2", "Last"]),
+        ("#counter(page).update(())\n#context [G#repr(counter(page).get()) F#repr(counter(page).final())]\n#pagebreak()\n#context [G#repr(counter(page).get()) F#repr(counter(page).final())]", vec!["G(0,)F(1,)", "G(1,)F(1,)"]),
+        ("#counter(page).update((7, 2))\n#context [G#repr(counter(page).get()) F#repr(counter(page).final())]\n#pagebreak()\n#context [G#repr(counter(page).get()) F#repr(counter(page).final())]", vec!["G(7,)F(8,)", "G(8,)F(8,)"]),
+    ] {
+        let world=mock_world(program);
+        let doc=compile_to_paged_document_full_error(&world,&world.source,false,&mut Timings::default()).0.expect(program);
+        assert_eq!(doc.pages.iter().map(|p|frame_items_text(&p.items)).collect::<Vec<_>>(),expected,"{program}");
+    }
+}
+
+#[test]
+fn page_snapshot_html_final_preserves_manual_updates() {
+    let world =
+        mock_world("#counter(page).update(7)\n#context counter(page).final().first()");
+    let html = compile_to_html_string_with_features(
+        &world,
+        &world.source,
+        typst_core::entities::compiler_features::Features::html(),
+    )
+    .0
+    .expect("HTML page counter");
+    assert!(html.contains(">7<"), "{html}");
+}
+
+#[test]
+fn page_snapshot_retention_keeps_one_complete_generation() {
+    use typst_core::entities::location::Location;
+    for cells in [4, 320] {
+        let program = format!("#context counter(page).final().first()\n#table(columns: 4, ..range({cells}).map(i => [Cell #i]))\n#pagebreak()\nLast");
+        let world = mock_world(&program);
+        let paged::PagedCompilation { document: doc, introspector: intr } =
+            compile_to_paged_document_full_error_and_features_with_introspector(
+                &world,
+                &world.source,
+                false,
+                typst_core::entities::compiler_features::Features::default(),
+                &mut Timings::default(),
+            )
+            .0
+            .expect("retained snapshot");
+        assert!(!intr.page_counter_values.is_empty());
+        assert!(intr
+            .page_counter_values
+            .keys()
+            .all(|loc| intr.page_counter_final_values.contains_key(loc)));
+        assert!(intr
+            .page_counter_final_values
+            .values()
+            .all(|value| value == &vec![doc.pages.len()]));
+        let entries =
+            intr.page_counter_values.len() + intr.page_counter_final_values.len();
+        let slots = intr.page_counter_values.capacity()
+            + intr.page_counter_final_values.capacity();
+        let payload = intr
+            .page_counter_values
+            .values()
+            .chain(intr.page_counter_final_values.values())
+            .map(|v| v.capacity() * std::mem::size_of::<usize>())
+            .sum::<usize>();
+        let lower_bound = std::mem::size_of_val(&intr.page_counter_values)
+            + std::mem::size_of_val(&intr.page_counter_final_values)
+            + slots * std::mem::size_of::<(Location, Vec<usize>)>()
+            + payload;
+        eprintln!("PAGE_RETENTION cells={cells} pages={} entries={entries} slots={slots} vector_bytes={payload} known_reserved_bytes={lower_bound}", doc.pages.len());
+    }
+}
+
+#[test]
+fn page_snapshot_failed_callback_does_not_poison_later_compilation() {
+    let mut world = mock_world(
+        "#counter(page).update(n => false)\n#context counter(page).final().first()",
+    );
+    let bad = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    )
+    .0;
+    assert!(bad.is_err(), "an invalid Page callback must fail");
+    world.source = Source::new(
+        world.source.id(),
+        "#context counter(page).display(\"1 / 1\", both: true)\n#pagebreak()\nLast"
+            .into(),
+    );
+    let doc = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    )
+    .0
+    .expect("recovery in the same World");
+    assert_eq!(frame_items_text(&doc.pages[0].items), "1/2");
+    assert_eq!(doc.pages.len(), 2);
+}
+
+thread_local! {
+    static UNCACHED_LAYOUT_METRICS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+pub(super) fn record_uncached_layout_metrics() {
+    UNCACHED_LAYOUT_METRICS.with(|count| count.set(count.get() + 1));
+}
+
+#[test]
+fn selected_context_shares_metric_cache_across_layout_attempts() {
+    let world = mock_world("#let c = counter(heading.where(level: 1))\n#context [#c.final() #table(columns: 2, ..range(64).map(i => [Cell #i]))]");
+    UNCACHED_LAYOUT_METRICS.with(|count| count.set(0));
+    INITIAL_LAYOUT_CALLS.with(|count| count.set(0));
+    let doc = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    )
+    .0
+    .expect("selected contextual table");
+    assert!(doc.plain_text().contains("Cell") && doc.plain_text().contains("63"));
+    assert!(
+        INITIAL_LAYOUT_CALLS.with(|count| count.get()) >= 2,
+        "fixture must exercise multiple layout attempts"
+    );
+    for (index, page) in doc.pages.iter().enumerate() {
+        assert_eq!(page.logical_number, index + 1);
+    }
+    UNCACHED_LAYOUT_METRICS.with(|count| {
+        assert_eq!(count.get(), 0, "selected attempts must share the session cache")
+    });
+}
+
+thread_local! {
+    static UNCACHED_RECONCILIATION_METRICS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+pub(super) fn record_uncached_reconciliation_metrics() {
+    UNCACHED_RECONCILIATION_METRICS.with(|count| count.set(count.get() + 1));
+}
+
+#[test]
+fn selected_context_retains_metrics_until_final_reconciliation() {
+    let world = mock_world("#let c = counter(heading.where(level: 1))\n#context [#c.final() #table(columns: 2, ..range(64).map(i => [Cell #i]))]");
+    UNCACHED_RECONCILIATION_METRICS.with(|count| count.set(0));
+    let doc = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    )
+    .0
+    .expect("selected contextual table");
+    assert!(doc.plain_text().contains("Cell") && doc.plain_text().contains("63"));
+    for (index, page) in doc.pages.iter().enumerate() {
+        assert_eq!(page.logical_number, index + 1);
+    }
+    UNCACHED_RECONCILIATION_METRICS.with(|count| {
+        assert_eq!(count.get(), 0, "reconciliation must borrow the selected layout cache")
+    });
+}
+
+thread_local! {
+    static UNCACHED_BIDI_METRICS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+pub(super) fn record_uncached_bidi_metrics() {
+    UNCACHED_BIDI_METRICS.with(|count| count.set(count.get() + 1));
+}
+
+#[test]
+fn selected_context_retains_metrics_until_bidi() {
+    let world = mock_world("#set text(dir: rtl, lang: \"ar\")\n#let c = counter(heading.where(level: 1))\n#context { let _ = c.final(); [مرحبا بالعالم ABC 123] }");
+    UNCACHED_BIDI_METRICS.with(|count| count.set(0));
+    INITIAL_LAYOUT_CALLS.with(|count| count.set(0));
+    let doc = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    )
+    .0
+    .expect("selected RTL context");
+    assert!(doc.plain_text().contains("مرحبا") && doc.plain_text().contains("123"));
+    assert!(INITIAL_LAYOUT_CALLS.with(|count| count.get()) >= 2);
+    for (index, page) in doc.pages.iter().enumerate() {
+        assert_eq!(page.logical_number, index + 1);
+    }
+    UNCACHED_BIDI_METRICS.with(|count| {
+        assert_eq!(count.get(), 0, "bidi must borrow the selected layout cache")
+    });
+}
+
+#[test]
+fn bidi_complete_context_reaches_pipeline_for_mixed_source() {
+    let src="#set page(width: 220pt, height: 600pt, margin: 20pt)\n#set text(dir: rtl)\nABC 123 مرحبا";
+    let doc = p1502_compile_paged(src);
+
+    assert!(
+        doc.pages[0]
+            .items
+            .iter()
+            .filter(|i| matches!(
+                i,
+                FrameItem::Text { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::TextSeparator { .. }
+            ))
+            .all(|i| crate::bidi_context::span(i).is_some()),
+        "entire textual pipeline paragraph must preserve certified origin"
+    );
+}
+
+#[test]
+fn expression_source_identity_context_errors_and_warnings_keep_their_sources() {
+    let expression = Source::new_with_parser(
+        FileId::from_raw(NonZeroU16::new(2).unwrap()),
+        "missing".into(),
+        typst_core::compiler::parse::parse_code,
+    );
+    let features = typst_core::entities::compiler_features::Features::empty();
+    let world = mock_world("#document_missing");
+    let (result, _) =
+        eval_source_with_document_features(&world, &world.source, &expression, features);
+    let errors = result.unwrap_err();
+    assert!(errors.iter().all(|e| e.span.id() == Some(world.main())));
+    let world = mock_world("**\n= Document");
+    let (result, warnings) =
+        eval_source_with_document_features(&world, &world.source, &expression, features);
+    assert!(result
+        .unwrap_err()
+        .iter()
+        .all(|e| e.span.id() == Some(expression.id())));
+    assert!(warnings.iter().any(
+        |e| e.message == "no text within stars" && e.span.id() == Some(world.main())
+    ));
+}
+
+#[test]
+fn expression_source_identity_document_program_runs_once() {
+    struct CountingWorld {
+        inner: MockWorld,
+        reads: std::sync::atomic::AtomicUsize,
+    }
+    impl World for CountingWorld {
+        fn library(&self) -> &Library {
+            self.inner.library()
+        }
+        fn book(&self) -> &FontBook {
+            self.inner.book()
+        }
+        fn main(&self) -> FileId {
+            self.inner.main()
+        }
+        fn source(&self, id: FileId) -> FileResult<Source> {
+            self.inner.source(id)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<typst_core::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+        fn resolve_path(
+            &self,
+            file: FileId,
+            path: &str,
+        ) -> Result<typst_core::entities::path::RootedPath, String> {
+            assert_eq!(file, self.main());
+            Ok(typst_core::entities::path::RootedPath::new(
+                typst_core::entities::path::VirtualRoot::Project,
+                typst_core::entities::path::VirtualPath::new(path).unwrap(),
+            ))
+        }
+        fn read_path(
+            &self,
+            _: &typst_core::entities::path::RootedPath,
+        ) -> Result<Arc<Vec<u8>>, String> {
+            self.reads.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            Ok(Arc::new(b"marker".to_vec()))
+        }
+    }
+    let world = CountingWorld {
+        inner: mock_world("#let probe = read(\"marker.txt\")\n= Document"),
+        reads: std::sync::atomic::AtomicUsize::new(0),
+    };
+    let expression = Source::new_with_parser(
+        FileId::from_raw(NonZeroU16::new(2).unwrap()),
+        "query(heading).len()".into(),
+        typst_core::compiler::parse::parse_code,
+    );
+    let (result, _) = eval_source_with_document_features(
+        &world,
+        &world.inner.source,
+        &expression,
+        typst_core::entities::compiler_features::Features::empty(),
+    );
+    assert_eq!(result.unwrap(), Value::Int(1));
+    assert_eq!(world.reads.load(std::sync::atomic::Ordering::Relaxed), 1);
+    let reading = Source::new_with_parser(
+        expression.id(),
+        "read(\"marker.txt\")".into(),
+        typst_core::compiler::parse::parse_code,
+    );
+    let (result, _) = eval_source_with_sink_features(
+        &world,
+        &reading,
+        typst_core::entities::compiler_features::Features::empty(),
+    );
+    assert_eq!(result.unwrap(), Value::Str("marker".into()));
+    assert_eq!(world.reads.load(std::sync::atomic::Ordering::Relaxed), 2);
+}
+
+#[test]
+fn query_compiled_context_reports_callback_and_retains_final_metadata_and_warning() {
+    let world = mock_world("#let bad() = unknown\n#context bad()");
+    let (result, warnings) = compile_query_context(&world, &world.source);
+    assert!(warnings.is_empty());
+    let errors = result.unwrap_err();
+    assert!(errors[0].message.contains("unknown variable `unknown`"));
+    assert_eq!(errors[0].span.id(), Some(world.source.id()));
+    assert!(!errors[0].trace.is_empty(), "callback trace must survive compilation");
+
+    let world = mock_world("**\n#context metadata(\"context-value\")");
+    let (result, warnings) = compile_query_context(&world, &world.source);
+    let intr = result.unwrap();
+    assert_eq!(warnings.len(), 1, "{warnings:?}");
+    let values = intr.query_metadata();
+    assert_eq!(values.len(), 1);
+    assert!(matches!(&values[0], Value::Str(value) if value == "context-value"));
 }

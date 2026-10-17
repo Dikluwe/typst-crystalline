@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/counter/display.md
-//! @prompt-hash e4f72342
+//! @prompt-hash 573a1357
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-05
 
 use super::filtered_reads::filtered_history;
 use super::*;
@@ -63,19 +63,25 @@ pub(super) fn render(
     } else {
         None
     };
-    let mut values = match &history {
-        Some(history) => history
-            .iter()
-            .rev()
-            .find(|(at, _)| at.as_u128() <= location.as_u128())
-            .map(|(_, state)| state.as_slice())
-            .unwrap_or(&[0]),
-        None => ctx
-            .introspector
-            .counter_values_at(&counter.key, location)
-            .unwrap_or(&[0]),
-    }
-    .to_vec();
+    let page_values = page_counter_value(counter, location, ctx);
+    let mut values = page_values
+        .as_deref()
+        .unwrap_or_else(|| match &history {
+            Some(history) => history
+                .iter()
+                .rev()
+                .find(|(at, _)| {
+                    ctx.introspector.counters.order_key(*at)
+                        <= ctx.introspector.counters.order_key(location)
+                })
+                .map(|(_, state)| state.as_slice())
+                .unwrap_or(&[0]),
+            None => ctx
+                .introspector
+                .counter_values_at(&counter.key, location)
+                .unwrap_or(&[0]),
+        })
+        .to_vec();
     ctx.observe_context_read(
         crate::compiler::eval::ContextReadRequest::CounterAt {
             key: counter.key.clone(),
@@ -91,9 +97,9 @@ pub(super) fn render(
                 .and_then(|(_, state)| state.first())
                 .copied()
                 .unwrap_or(0),
-            None => ctx
-                .introspector
-                .counter_final_values(&counter.key)
+            None => page_counter_final_value(counter, ctx)
+                .as_deref()
+                .or_else(|| ctx.introspector.counter_final_values(&counter.key))
                 .and_then(|state| state.first())
                 .copied()
                 .unwrap_or(0),
@@ -132,8 +138,9 @@ pub(super) fn render(
             match pattern {
                 Some(p) => {
                     let numbers: Vec<u32> = values.iter().map(|&n| n as u32).collect();
-                    let text =
-                        super::super::numbering::format_pattern(engine, span, &p, &numbers)?;
+                    let text = super::super::numbering::format_pattern(
+                        engine, span, &p, &numbers,
+                    )?;
                     Ok(Value::Content(Content::text(text)))
                 }
                 None => {

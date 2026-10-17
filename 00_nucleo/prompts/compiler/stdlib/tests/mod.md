@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/mod
-Hash do Código: c526a531
+Hash do Código: 7cbdf185
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/mod.rs`

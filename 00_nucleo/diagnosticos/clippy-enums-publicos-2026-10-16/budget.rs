@@ -1,0 +1,2 @@
+use typst_core::entities::{tag::Tag,location::Location,show::Transformation,content::Content};
+fn main(){match std::env::args().nth(1).as_deref(){Some("tag")=>{let actual=std::mem::size_of::<Tag>();let budget=3*std::mem::size_of::<Location>();println!("tag actual={actual} budget={budget}");assert!(actual<=budget);},Some("show")=>{let actual=std::mem::size_of::<Transformation>();let budget=std::mem::size_of::<Content>()+std::mem::align_of::<Transformation>();println!("show actual={actual} budget={budget}");assert!(actual<=budget);},_=>unreachable!()}}

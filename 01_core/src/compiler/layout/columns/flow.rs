@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/columns/flow.md
-//! @prompt-hash 5733b48d
+//! @prompt-hash 376d1881
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -132,7 +132,7 @@ pub(super) fn layout_flow<M: FontMetrics, S: ImageSizer>(
     // altura útil da página, excepto a última página que pode ser parcial.
     // Simplificação segura: avançar para `height - margin` quando houve
     // pelo menos uma página física criada; caso contrário manter o cursor.
-    if layouter.pages.len() > 0 {
+    if !layouter.pages.is_empty() {
         // O Layouter acabou de fechar uma página? Não — finish_columns não
         // cria página. Se new_page() foi chamado, a(s) página(s) anterior(es)
         // já estão em `pages`; a última página ainda está em current_items.

@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "block-place-region"
+title = "Região geométrica local de Block para Place"
+
+[[claims]]
+id = "local-region"
+level = "must"
+statement = "Block instala região privada para Place com origem interna após inset e dimensão declarada menos os dois insets. Altura auto é resolvida pelo fluxo causal do próprio Block; overlay não aumenta a altura. Não usar a página como tamanho final do container."
+
+[[claims]]
+id = "flow-origin"
+level = "must"
+statement = "Place recebe opcionalmente a origem de fluxo já certificada; somente o eixo vertical omitido a usa. Alinhamento explícito usa a região local. O body recebe a largura local e é composto uma vez. Itens, decoração e metadados recebem a mesma translação."
+
+[[claims]]
+id = "scope"
+level = "must"
+statement = "A região privada é guardada e restaurada por Block e checkpoint, isolada em subframes e invalidada na transição física de região. Não muda API pública ou fase. Um Block fragmentado requer regiões por fragmento antes de ser certificado universalmente."
+
+[[claims]]
+id = "clip"
+level = "must"
+statement = "O recorte usa dimensões alocadas do container, incluindo inset, e filhos locais ao Group; não pode usar avanço zero de Place como altura explícita nem aplicar origem duas vezes. Correções diferidas do container são resolvidas antes do encapsulamento; caminhos remanescentes acompanham a estrutura."

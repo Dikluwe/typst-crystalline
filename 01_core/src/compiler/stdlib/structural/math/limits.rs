@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math/limits.md
-//! @prompt-hash d7e6bc6f
+//! @prompt-hash 17674017
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -16,7 +16,7 @@ use crate::entities::value::Value;
 
 /// `scripts(body)` — força attachments laterais reutilizando o constructor
 /// canónico de `MathLimitsOverride`.
-pub(super) fn native_math_scripts(
+pub(in crate::compiler) fn native_math_scripts(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
@@ -53,7 +53,7 @@ pub(super) fn native_math_scripts(
 
 /// `math.limits(body, inline: true)` — constructor qualificado convergente
 /// com a sintaxe bare, inclusive na presença causal do named `inline`.
-pub(super) fn native_math_limits(
+pub(in crate::compiler) fn native_math_limits(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,

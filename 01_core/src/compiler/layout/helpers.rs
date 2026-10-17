@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/helpers.md
-//! @prompt-hash 44e560f0
+//! @prompt-hash 266dc49c
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-10-07
 //!
 //! Helpers livres usados pelo Layouter: manipulação de `FrameItem`,
 //! medição aproximada de `Content`, recolha de items para sub-frames.
@@ -21,7 +21,9 @@ pub(crate) fn item_pos(item: &FrameItem) -> (f64, f64) {
         return items.first().map(item_pos).unwrap_or((0.0, 0.0));
     }
     match item {
-        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => (pos.x.0, pos.y.0),
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+            (pos.x.0, pos.y.0)
+        }
         FrameItem::TextShaped { pos, .. } => (pos.x.0, pos.y.0),
         FrameItem::Line { start, .. } => (start.x.0, start.y.0),
         FrameItem::Glyph { pos, .. } => (pos.x.0, pos.y.0),
@@ -77,7 +79,10 @@ pub(crate) fn item_width(item: &FrameItem, metrics: &dyn super::FontMetrics) -> 
         FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
             let left = items
                 .iter()
-                .filter(|item| !super::html_frame::is_context_marker(item) && !matches!(item, FrameItem::TextSeparator { .. }))
+                .filter(|item| {
+                    !super::html_frame::is_context_marker(item)
+                        && !matches!(item, FrameItem::TextSeparator { .. })
+                })
                 .map(|item| item_pos(item).0)
                 .fold(f64::INFINITY, f64::min);
             if !left.is_finite() {
@@ -98,7 +103,10 @@ pub(super) fn line_content_right<'a>(
 ) -> f64 {
     items
         .into_iter()
-        .filter(|item| !super::html_frame::is_context_marker(item) && !matches!(item, FrameItem::TextSeparator { .. }))
+        .filter(|item| {
+            !super::html_frame::is_context_marker(item)
+                && !matches!(item, FrameItem::TextSeparator { .. })
+        })
         .map(|item| {
             let (x, _) = item_pos(item);
             x + item_width(item, metrics)
@@ -108,16 +116,20 @@ pub(super) fn line_content_right<'a>(
 
 /// **P1096** — limite inferior real de tinta do conteúdo de uma página/linha,
 /// calculado a partir das bounding boxes verticais dos items desenhados.
+#[cfg(test)]
 pub(super) fn line_content_bottom<'a>(
     items: impl IntoIterator<Item = &'a FrameItem>,
     metrics: &dyn super::FontMetrics,
 ) -> f64 {
     items
         .into_iter()
-        .filter(|item| !super::html_frame::is_context_marker(item) && !matches!(item, FrameItem::TextSeparator { .. }))
+        .filter(|item| {
+            !super::html_frame::is_context_marker(item)
+                && !matches!(item, FrameItem::TextSeparator { .. })
+        })
         .map(|item| match item {
             FrameItem::TextSeparator { .. } => 0.0,
-            FrameItem::Text { pos, text, style } => {
+            FrameItem::Text { pos, text, style, .. } => {
                 let (_, ink_down) = metrics.text_ink_bounds(text, style.size, style);
                 pos.y.val() + ink_down.val()
             }
@@ -136,7 +148,8 @@ pub(super) fn line_content_bottom<'a>(
             FrameItem::Group { pos, inner_height, .. } => pos.y.val() + inner_height,
             FrameItem::Image { pos, height, .. } => pos.y.val() + height.val(),
             FrameItem::Link { .. } => 0.0,
-            FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => line_content_bottom(items, metrics),
+            FrameItem::TextReplacement { items, .. }
+            | FrameItem::Semantic { items, .. } => line_content_bottom(items, metrics),
         })
         .fold(0.0, f64::max)
 }
@@ -144,19 +157,32 @@ pub(super) fn line_content_bottom<'a>(
 /// Cria um FrameItem com a posição substituída por `(new_x, new_y)`.
 pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> FrameItem {
     match item {
-        FrameItem::TextSeparator { advance, style, origin, .. } => FrameItem::TextSeparator { pos: Point { x: new_x, y: new_y }, advance, style, origin },
-        FrameItem::Text { text, style, .. } => {
-            FrameItem::Text { pos: Point { x: new_x, y: new_y }, text, style }
-        }
-        FrameItem::TextShaped { glyphs, style, text, units_per_em, .. } => {
-            FrameItem::TextShaped {
+        FrameItem::TextSeparator { advance, style, origin, bidi, .. } => {
+            FrameItem::TextSeparator {
                 pos: Point { x: new_x, y: new_y },
-                glyphs,
+                advance,
                 style,
-                text,
-                units_per_em,
+                origin,
+                bidi,
             }
         }
+        FrameItem::Text { text, style, bidi, .. } => FrameItem::Text {
+            pos: Point { x: new_x, y: new_y },
+            text,
+            style,
+            bidi,
+        },
+        FrameItem::TextShaped {
+            glyphs, style, text, units_per_em, bidi, font, ..
+        } => FrameItem::TextShaped {
+            pos: Point { x: new_x, y: new_y },
+            glyphs,
+            style,
+            text,
+            units_per_em,
+            bidi,
+            font,
+        },
         FrameItem::Line { start, end, thickness, color, cap } => {
             let dx = end.x.0 - start.x.0;
             let dy = end.y.0 - start.y.0;
@@ -225,6 +251,7 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
             parent_bbox_at_emit,
         },
         FrameItem::Group {
+            paint_root,
             matrix,
             clip_mask,
             inner_width,
@@ -232,6 +259,7 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
             items,
             ..
         } => FrameItem::Group {
+            paint_root,
             pos: Point { x: new_x, y: new_y },
             matrix,
             clip_mask,
@@ -255,7 +283,8 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
             }
         }
         FrameItem::TextReplacement { text, mut items } => {
-            let (old_x, old_y) = items.first().map(item_pos).unwrap_or((new_x.0, new_y.0));
+            let (old_x, old_y) =
+                items.first().map(item_pos).unwrap_or((new_x.0, new_y.0));
             for child in &mut items {
                 offset_frame_item(child, new_x.0 - old_x, new_y.0 - old_y);
             }
@@ -281,7 +310,9 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
 /// valor e recalcular y também).
 pub(super) fn shift_frame_item_x(item: &mut FrameItem, dx: f64) {
     match item {
-        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => pos.x = Pt(pos.x.0 + dx),
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+            pos.x = Pt(pos.x.0 + dx)
+        }
         FrameItem::TextShaped { pos, .. } => pos.x = Pt(pos.x.0 + dx),
         FrameItem::Line { start, end, .. } => {
             start.x = Pt(start.x.0 + dx);
@@ -290,8 +321,10 @@ pub(super) fn shift_frame_item_x(item: &mut FrameItem, dx: f64) {
         FrameItem::Glyph { pos, .. } => pos.x = Pt(pos.x.0 + dx),
         FrameItem::Image { pos, clip_rect, .. } => {
             pos.x.0 += dx;
-            if let Some(rect) = clip_rect { rect.x.0 += dx; }
-        },
+            if let Some(rect) = clip_rect {
+                rect.x.0 += dx;
+            }
+        }
         FrameItem::Shape { pos, .. } => pos.x = Pt(pos.x.0 + dx),
         FrameItem::Group { pos, .. } => pos.x = Pt(pos.x.0 + dx),
         FrameItem::Link { pos, items, .. } => {
@@ -315,7 +348,9 @@ pub(super) fn shift_frame_item_x(item: &mut FrameItem, dx: f64) {
 /// auto`), depois de a altura final da página ser conhecida.
 pub(super) fn shift_frame_item_y(item: &mut FrameItem, dy: f64) {
     match item {
-        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => pos.y = Pt(pos.y.0 + dy),
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+            pos.y = Pt(pos.y.0 + dy)
+        }
         FrameItem::TextShaped { pos, .. } => pos.y = Pt(pos.y.0 + dy),
         FrameItem::Line { start, end, .. } => {
             start.y = Pt(start.y.0 + dy);
@@ -324,8 +359,10 @@ pub(super) fn shift_frame_item_y(item: &mut FrameItem, dy: f64) {
         FrameItem::Glyph { pos, .. } => pos.y = Pt(pos.y.0 + dy),
         FrameItem::Image { pos, clip_rect, .. } => {
             pos.y.0 += dy;
-            if let Some(rect) = clip_rect { rect.y.0 += dy; }
-        },
+            if let Some(rect) = clip_rect {
+                rect.y.0 += dy;
+            }
+        }
         FrameItem::Shape { pos, .. } => pos.y = Pt(pos.y.0 + dy),
         FrameItem::Group { pos, .. } => pos.y = Pt(pos.y.0 + dy),
         FrameItem::Link { pos, items, .. } => {
@@ -362,7 +399,8 @@ pub(super) fn resolve_path_slice<'a>(
         [idx, rest @ ..] => match items.get_mut(*idx)? {
             FrameItem::Group { items, .. }
             | FrameItem::Link { items, .. }
-            | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => resolve_path_slice(items, rest, count),
+            | FrameItem::TextReplacement { items, .. }
+            | FrameItem::Semantic { items, .. } => resolve_path_slice(items, rest, count),
             _ => None,
         },
     }
@@ -411,6 +449,10 @@ pub(super) fn resolve_pt(
 /// cross-módulo primeira materialização parcial).
 pub(crate) fn measure_content(content: &Content, available_w: f64) -> (f64, f64) {
     match content {
+        Content::Realized(e) => measure_content(&e.visual, available_w),
+        Content::Located(e) => measure_content(&e.body, available_w),
+        Content::Source(e) => measure_content(&e.body, available_w),
+        Content::ShowRecipe(e) => measure_content(&e.body, available_w),
         Content::Shape(e) => {
             let (kind, width, height) = (&e.kind, &e.width, &e.height);
             match kind {
@@ -443,7 +485,8 @@ pub(crate) fn measure_content(content: &Content, available_w: f64) -> (f64, f64)
 /// Desloca a posição de um `FrameItem` por `(dx, dy)`.
 pub(super) fn offset_frame_item(item: &mut FrameItem, dx: f64, dy: f64) {
     match item {
-        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
+        FrameItem::TextSeparator { pos, .. }
+        | FrameItem::Text { pos, .. }
         | FrameItem::TextShaped { pos, .. }
         | FrameItem::Glyph { pos, .. }
         | FrameItem::Shape { pos, .. }
@@ -487,7 +530,7 @@ pub(crate) fn item_bottom_y(item: &FrameItem) -> f64 {
     }
     match item {
         FrameItem::TextSeparator { .. } => 0.0,
-        FrameItem::Text { pos, text, style } => {
+        FrameItem::Text { pos, text, style, .. } => {
             let has_descender = text.chars().any(|ch| "gjpqy,".contains(ch));
             pos.y.0 + if has_descender { style.size.val() * 0.25 } else { 0.0 }
         }
@@ -572,8 +615,16 @@ mod p1293_attach_refutator_tests {
 mod separator_transport_tests {
     use super::*;
     use crate::compiler::layout::FixedMetrics;
-    use crate::entities::layout_types::{TextStyle, TextSeparatorOrigin};
-    fn separator() -> FrameItem { FrameItem::TextSeparator { pos: Point { x: Pt(900.0), y: Pt(800.0) }, advance: Pt(3.0), style: TextStyle::regular(Pt(50.0)), origin: TextSeparatorOrigin::Literal } }
+    use crate::entities::layout_types::{TextSeparatorOrigin, TextStyle};
+    fn separator() -> FrameItem {
+        FrameItem::TextSeparator {
+            pos: Point { x: Pt(900.0), y: Pt(800.0) },
+            advance: Pt(3.0),
+            style: TextStyle::regular(Pt(50.0)),
+            origin: TextSeparatorOrigin::Literal,
+            bidi: None,
+        }
+    }
     #[test]
     fn lexical_separator_contract_has_no_visual_extent() {
         let s = separator();
@@ -604,9 +655,12 @@ mod image_clip_transport_tests {
     fn cover_clip_tracks_every_translation_without_changing_extent() {
         let mut item = FrameItem::Image {
             pos: Point { x: Pt(3.0), y: Pt(5.0) },
-            data: std::sync::Arc::new(vec![]), alt: None,
-            width: Pt(80.0), height: Pt(40.0),
-            intrinsic_width: 2, intrinsic_height: 2,
+            data: std::sync::Arc::new(vec![]),
+            alt: None,
+            width: Pt(80.0),
+            height: Pt(40.0),
+            intrinsic_width: 2,
+            intrinsic_height: 2,
             orientation: 1,
             clip_rect: Some(Rect { x: Pt(1.0), y: Pt(2.0), w: Pt(70.0), h: Pt(30.0) }),
         };
@@ -614,7 +668,9 @@ mod image_clip_transport_tests {
         offset_frame_item(&mut item, -4.0, 3.0);
         shift_frame_item_x(&mut item, 2.0);
         shift_frame_item_y(&mut item, -1.0);
-        let FrameItem::Image { pos, clip_rect: Some(clip), .. } = item else { panic!("cover clip lost") };
+        let FrameItem::Image { pos, clip_rect: Some(clip), .. } = item else {
+            panic!("cover clip lost")
+        };
         assert_eq!(pos, Point { x: Pt(11.0), y: Pt(27.0) });
         assert_eq!(clip, Rect { x: Pt(9.0), y: Pt(24.0), w: Pt(70.0), h: Pt(30.0) });
     }
@@ -624,14 +680,19 @@ mod image_clip_transport_tests {
 mod replacement_transport_tests {
     use super::*;
     use crate::compiler::layout::FixedMetrics;
-    use crate::entities::layout_types::{FrameVisitor, Frame, Size, TextStyle};
+    use crate::entities::layout_types::{Frame, FrameVisitor, Size, TextStyle};
     #[test]
     #[allow(deprecated)]
     fn discretionary_identity_transport_uses_visual_metrics_and_extracts_once() {
-        let visual = FrameItem::Text { pos: Point { x: Pt(10.0), y: Pt(20.0) },
-            text: "-".into(), style: TextStyle::regular(Pt(12.0)) };
+        let visual = FrameItem::Text {
+            pos: Point { x: Pt(10.0), y: Pt(20.0) },
+            text: "-".into(),
+            style: TextStyle::regular(Pt(12.0)),
+            bidi: None,
+        };
         let width = item_width(&visual, &FixedMetrics);
-        let mut item = FrameItem::TextReplacement { text: "\u{ad}".into(), items: vec![visual] };
+        let mut item =
+            FrameItem::TextReplacement { text: "\u{ad}".into(), items: vec![visual] };
         assert!((item_width(&item, &FixedMetrics) - width).abs() < 1e-12);
         item = translate_frame_item(item, Pt(30.0), Pt(40.0));
         offset_frame_item(&mut item, 2.0, 3.0);
@@ -642,7 +703,9 @@ mod replacement_transport_tests {
         struct Resources(Vec<String>);
         impl FrameVisitor for Resources {
             fn visit_text(&mut self, item: &FrameItem) {
-                if let FrameItem::Text { text, .. } = item { self.0.push(text.to_string()); }
+                if let FrameItem::Text { text, .. } = item {
+                    self.0.push(text.to_string());
+                }
             }
         }
         let mut resources = Resources(vec![]);
@@ -651,5 +714,33 @@ mod replacement_transport_tests {
         let mut frame = Frame::new(Size { width: Pt(100.0), height: Pt(100.0) });
         frame.push(item);
         assert_eq!(frame.plain_text(), "\u{ad}");
+    }
+}
+
+#[cfg(test)]
+mod realization_measurement_tests {
+    #[test]
+    fn generated_shape_keeps_legacy_dimensions() {
+        use super::*;
+        use crate::entities::content::{LocatedContent, RealizedContent};
+        use crate::entities::elements::shape::ShapeElem;
+        use crate::entities::locator::Locator;
+        use std::sync::Arc;
+        let shape = Content::Shape(Arc::new(ShapeElem {
+            kind: ShapeKind::Line { dx: 40.0, dy: 20.0 },
+            width: None,
+            height: None,
+            fill: None,
+            stroke: None,
+            fill_rule: Default::default(),
+        }));
+        let content = Content::Located(Arc::new(LocatedContent {
+            location: Locator::new().next(),
+            body: Content::Realized(Arc::new(RealizedContent {
+                original: Content::text("Consumed"),
+                visual: shape,
+            })),
+        }));
+        assert_eq!(measure_content(&content, 100.0), (40.0, 20.0));
     }
 }

@@ -1,11 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics/caches.md
-//! @prompt-hash 695fdba9
+//! @prompt-hash 7529511f
 //! @layer L3
 //! @updated 2026-09-27
 
 use super::FallbackFontMetrics;
-use crate::font_variant::{axis_variations_for_text_style, text_style_to_font_variant};
+use crate::font_variant::axis_variations_for_text_style;
 use std::sync::Arc;
 use ttf_parser::Face;
 use typst_core::entities::layout_types::{Pt, TextStyle};
@@ -126,7 +126,6 @@ impl FallbackFontMetrics<'_> {
         // P659 — incluir variações de eixo OpenType na chave. O mesmo texto,
         // tamanho e peso nominal pode ter larguras diferentes se os eixos
         // (wdth, wght real, etc.) divergirem.
-        let variant = text_style_to_font_variant(style);
         let axis_vars = axis_variations_for_text_style(style);
         let axis_hash = {
             let mut h = DefaultHasher::new();
@@ -207,7 +206,6 @@ impl FallbackFontMetrics<'_> {
             })
             .unwrap_or(0);
 
-        let variant = text_style_to_font_variant(style);
         let axis_vars = axis_variations_for_text_style(style);
         let axis_hash = {
             let mut h = DefaultHasher::new();
@@ -280,11 +278,9 @@ mod tests {
     // diferentes se o eixo efectivo (ex.: wght) divergir.
     #[test]
     fn p659_shaped_width_key_distingue_variacoes_de_eixo() {
-        let mut style_a = TextStyle::default();
-        style_a.weight = Some(400);
+        let style_a = TextStyle { weight: Some(400), ..TextStyle::default() };
 
-        let mut style_b = TextStyle::default();
-        style_b.weight = Some(700);
+        let style_b = TextStyle { weight: Some(700), ..TextStyle::default() };
 
         let key_a = FallbackFontMetrics::shaped_width_key("abc", &style_a).unwrap();
         let key_b = FallbackFontMetrics::shaped_width_key("abc", &style_b).unwrap();

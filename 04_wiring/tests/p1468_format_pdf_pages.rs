@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1468-format-pdf-pages.md
-//! @prompt-hash 16e2e41a
+//! @prompt-hash 168c3b03
 //!
 //! P1468 (RED — Agente B) — integração de binário para `pdf.pages`
 //! (`#set format.pdf(pages: ...)`) e a flag `compile --pages`. Modelado em
@@ -16,6 +16,11 @@
 //! aqui o eixo é exclusivamente `pages` e sua interação com esses dois
 //! campos.
 
+#[path = "../../03_infra/tests/support/wiring/p1468_format_pdf_pages.rs"]
+mod harness;
+
+use harness::ProcessResult;
+
 use std::ffi::{OsStr, OsString};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -25,19 +30,6 @@ use std::time::{Duration, Instant};
 
 const PROCESS_TIMEOUT: Duration = Duration::from_secs(60);
 static FIXTURE_ID: AtomicU64 = AtomicU64::new(0);
-
-#[derive(Debug)]
-struct ProcessResult {
-    code: Option<i32>,
-    stdout: String,
-    stderr: String,
-}
-
-impl ProcessResult {
-    fn success(&self) -> bool {
-        self.code == Some(0)
-    }
-}
 
 fn typst_binary() -> &'static Path {
     Path::new(env!("CARGO_BIN_EXE_typst"))
@@ -222,7 +214,7 @@ fn p1468_document_pages_int_selects_single_page() {
         "#set format.pdf(pages: 2)\nFirst\n#pagebreak()\nSecond\n#pagebreak()\nThird\n#pagebreak()\nFourth",
         &[],
     );
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert_eq!(count_page_objects(&pdf), 1, "pages:2 deve exportar exatamente 1 página");
     assert_eq!(parsed_count_field(&pdf), Some(1));
 }
@@ -234,7 +226,7 @@ fn p1468_document_pages_dict_range_selects_two_pages() {
         "#set format.pdf(pages: (from: 2, to: 3))\nFirst\n#pagebreak()\nSecond\n#pagebreak()\nThird\n#pagebreak()\nFourth",
         &[],
     );
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert_eq!(count_page_objects(&pdf), 2);
     assert_eq!(parsed_count_field(&pdf), Some(2));
 }
@@ -246,7 +238,7 @@ fn p1468_cli_pages_flag_selects_pages_without_document_decision() {
         "First\n#pagebreak()\nSecond\n#pagebreak()\nThird\n#pagebreak()\nFourth",
         &["--pages=2,4"],
     );
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert_eq!(count_page_objects(&pdf), 2, "--pages=2,4 deve exportar 2 páginas");
 }
 
@@ -259,7 +251,7 @@ fn p1468_cli_pages_overrides_document_pages() {
         "#set format.pdf(pages: 1)\nFirst\n#pagebreak()\nSecond\n#pagebreak()\nThird\n#pagebreak()\nFourth",
         &["--pages=2-4"],
     );
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert_eq!(
         count_page_objects(&pdf),
         3,
@@ -326,7 +318,7 @@ fn p1468_cli_pages_with_pdf_tagged_true_is_cli_only_error() {
 fn p1468_document_pages_with_tagged_auto_warns_and_disables_tags() {
     let (result, pdf) =
         compile_pdf("doc-pages-tagged-auto", "#set format.pdf(pages: 1)\nHello", &[]);
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert!(!has_tagged_pdf_morphology(&pdf), "auto + pages deve desabilitar tagging");
     assert!(
         result.stderr.contains("exporting a page range disables PDF tagging"),
@@ -354,7 +346,7 @@ fn p1468_document_pages_with_tagged_false_is_silent_and_untagged() {
         "#set format.pdf(pages: 1, tagged: false)\nHello",
         &[],
     );
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert!(!has_tagged_pdf_morphology(&pdf));
     assert!(
         !result.stderr.contains("disables PDF tagging"),
@@ -372,7 +364,7 @@ fn p1468_native_bookmarks_survive_for_included_page_heading() {
         "#set format.pdf(pages: 2)\n= First\n#pagebreak()\n= Second\n#pagebreak()\n= Third",
         &[],
     );
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert!(
         has_outlines_catalog_entry(&pdf),
         "divergência deliberada (builder.md P1468): headings de páginas incluídas \
@@ -399,7 +391,7 @@ fn p1468_outline_child_is_reparented_when_parent_page_is_excluded() {
         "#set format.pdf(pages: 2)\n= Parent\n#pagebreak()\n== Child",
         &[],
     );
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert!(
         has_outline_title(&pdf, "Child"),
         "filho de nível mais profundo cuja página está incluída deve sobreviver, \
@@ -425,7 +417,12 @@ fn p1468_link_to_removed_page_omits_annotation() {
     let source = "#set heading(numbering: \"1.\")\nSee @target.\n#pagebreak()\n= Target <target>\n#pagebreak()\nTrailer";
 
     let (baseline_result, baseline_pdf) = compile_pdf("link-baseline", source, &[]);
-    assert!(baseline_result.success(), "stderr:\n{}", baseline_result.stderr);
+    assert!(
+        baseline_result.success(),
+        "stdout:\n{}\nstderr:\n{}",
+        baseline_result.stdout,
+        baseline_result.stderr
+    );
     assert!(
         annots_count(&baseline_pdf) >= 1,
         "controle: sem seleção de páginas o link deve produzir pelo menos uma \
@@ -433,7 +430,7 @@ fn p1468_link_to_removed_page_omits_annotation() {
     );
 
     let (result, pdf) = compile_pdf("link-removed", source, &["--pages=1"]);
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert_eq!(
         annots_count(&pdf),
         0,

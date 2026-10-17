@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 3517bb2f
+//! @prompt-hash 3759c784
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -24,7 +24,7 @@ use crate::entities::document_format_options::DocumentFormatOptions;
 use crate::entities::document_info::DocumentInfo;
 use crate::entities::elements::pdf_artifact::ArtifactKind;
 use crate::entities::elements::pdf_attach::PdfAttachElem;
-use crate::entities::geometry::{ShapeKind, Stroke};
+use crate::entities::geometry::ShapeKind;
 use crate::entities::label::Label;
 use crate::entities::source_result::SourceDiagnostic;
 
@@ -380,6 +380,7 @@ pub enum FrameItem {
         advance: Pt,
         style: TextStyle,
         origin: TextSeparatorOrigin,
+        bidi: Option<crate::entities::bidi_context::BidiSpan>,
     },
     /// Envelope semântico transparente. Os filhos mantêm as coordenadas
     /// absolutas e constituem a representação visual do item.
@@ -389,16 +390,16 @@ pub enum FrameItem {
         alt: Option<EcoString>,
         items: Vec<FrameItem>,
     },
-    /// Texto posicionado (string plana, sem shaping real).
+    /// Texto posicionado antes do shaping, produzido por L1.
     ///
-    /// **P483 — DEPRECATED**: Use `FrameItem::TextShaped`.
-    /// Preservado como fallback para fontes não carregadas ou Type1.
-    #[deprecated(
-        since = "0.1.0",
-        note = "Use FrameItem::TextShaped. \
-        Preserved as fallback for fonts not loaded or Type1."
-    )]
-    Text { pos: Point, text: EcoString, style: TextStyle },
+    /// L3 converte para `FrameItem::TextShaped` quando dispõe da fonte.
+    /// Este carrier permanente também preserva o fallback sem fonte ou Type1.
+    Text {
+        pos: Point,
+        text: EcoString,
+        style: TextStyle,
+        bidi: Option<crate::entities::bidi_context::BidiSpan>,
+    },
     /// **P482** — Texto com shaping real (rustybuzz). Substitui `Text`
     /// após a passagem do shaper (L3). `Text` preservado para fallback
     /// quando shaping não disponível (fonte não carregada, etc.).
@@ -413,6 +414,9 @@ pub enum FrameItem {
         /// Usado em export para converter `x_advance` (font units) em pt:
         /// `advance_pt = x_advance / units_per_em × font_size`.
         units_per_em: u16,
+        /// Fonte carregada que produziu estes glifos; None para carriers legados.
+        font: Option<crate::entities::world_types::Font>,
+        bidi: Option<crate::entities::bidi_context::BidiSpan>,
     },
     /// Linha horizontal. Usada pela linha de fracção matemática (Passo 38).
     /// `start` e `end` são posições absolutas no Frame.
@@ -503,8 +507,8 @@ pub enum FrameItem {
         kind: ShapeKind<Pt>,
         width: f64,
         height: f64,
-        fill: Option<crate::entities::paint::Paint>,
-        stroke: Option<Stroke>,
+        fill: Option<crate::entities::frame_paint::FramePaint>,
+        stroke: Option<crate::entities::frame_paint::FrameStroke>,
         fill_rule: crate::entities::geometry::FillRule,
         /// **P273.6** — bbox do contentor imediato no momento do emit.
         /// `Some(rect)` quando shape foi emitida dentro de `Content::Block`
@@ -525,6 +529,8 @@ pub enum FrameItem {
     ///   Necessárias para clip_mask do tipo Rect no espaço local.
     /// `items`: itens em espaço local (Y-down, origem em (0,0)).
     Group {
+        /// Establishes a local paint root; technical groups inherit when false.
+        paint_root: bool,
         pos: Point,
         matrix: TransformMatrix,
         clip_mask: Option<ShapeKind<Pt>>,
@@ -890,13 +896,14 @@ pub struct Page {
     pub items: Vec<FrameItem>,
 }
 
-#[allow(deprecated)] // P483 — Text é fallback legítimo em plain_text
 fn plain_text_items<'a>(items: &'a [FrameItem], out: &mut Vec<&'a str>) {
     for item in items {
         match item {
-            FrameItem::TextReplacement { text, .. } | FrameItem::Text { text, .. } => out.push(text.as_str()),
+            FrameItem::TextReplacement { text, .. } | FrameItem::Text { text, .. } => {
+                out.push(text.as_str())
+            }
             FrameItem::TextShaped { text, .. } => out.push(text.as_str()),
-            FrameItem::TextSeparator { .. } => {}, // plain_text é diagnóstico aproximado legado; não é oráculo lexical.
+            FrameItem::TextSeparator { .. } => {} // plain_text é diagnóstico aproximado legado; não é oráculo lexical.
             FrameItem::Link { items, .. } => plain_text_items(items, out),
             FrameItem::Group { items, .. } => plain_text_items(items, out),
             FrameItem::Semantic { items, .. } => plain_text_items(items, out),
@@ -1088,8 +1095,8 @@ impl TransformMatrix {
     ///   x' =  cos*x - sin*y
     ///   y' =  sin*x + cos*y
     pub fn rotate(radians: f64) -> Self {
-        let cos = radians.cos();
-        let sin = radians.sin();
+        let cos = libm::cos(radians);
+        let sin = libm::sin(radians);
         Self { a: cos, b: sin, c: -sin, d: cos, tx: 0.0, ty: 0.0 }
     }
 
@@ -1105,8 +1112,8 @@ impl TransformMatrix {
     pub fn skew(ax_rad: f64, ay_rad: f64) -> Self {
         Self {
             a: 1.0,
-            b: ay_rad.tan(),
-            c: ax_rad.tan(),
+            b: libm::tan(ay_rad),
+            c: libm::tan(ax_rad),
             d: 1.0,
             tx: 0.0,
             ty: 0.0,
@@ -1342,9 +1349,209 @@ pub use crate::entities::color::{Color, ColorSpace};
 
 // ── Testes ─────────────────────────────────────────────────────────────────
 
+/// Trait unificador para percurso recursivo de árvores de `FrameItem`.
+///
+/// Centraliza a travessia recursiva e cobre todas as variantes de `FrameItem`.
+/// Uma variante nova exige decidir seu callback e sua travessia em compilação.
+pub trait FrameVisitor {
+    /// Ponto de entrada padrão para visitar um `FrameItem`.
+    fn visit_item(&mut self, item: &FrameItem) {
+        match item {
+            FrameItem::Text { .. } | FrameItem::TextSeparator { .. } => {
+                self.visit_text(item)
+            }
+            FrameItem::TextShaped { .. } => self.visit_text_shaped(item),
+            FrameItem::Line { .. } => self.visit_line(item),
+            FrameItem::Glyph { .. } => self.visit_glyph(item),
+            FrameItem::Image { .. } => self.visit_image(item),
+            FrameItem::Shape { .. } => self.visit_shape(item),
+            FrameItem::Group { items, .. } => {
+                self.visit_group(item);
+                for child in items {
+                    self.visit_item(child);
+                }
+            }
+            FrameItem::Link { items, .. } => {
+                self.visit_link(item);
+                for child in items {
+                    self.visit_item(child);
+                }
+            }
+            FrameItem::TextReplacement { items, .. } => {
+                for child in items {
+                    self.visit_item(child);
+                }
+            }
+            FrameItem::Semantic { items, .. } => {
+                self.visit_semantic(item);
+                for child in items {
+                    self.visit_item(child);
+                }
+            }
+        }
+    }
+
+    /// Visita uma fatia de `FrameItem` sequencialmente.
+    fn visit_items(&mut self, items: &[FrameItem]) {
+        for item in items {
+            self.visit_item(item);
+        }
+    }
+
+    fn visit_text(&mut self, _item: &FrameItem) {}
+    fn visit_semantic(&mut self, _item: &FrameItem) {}
+    fn visit_text_shaped(&mut self, _item: &FrameItem) {}
+    fn visit_line(&mut self, _item: &FrameItem) {}
+    fn visit_glyph(&mut self, _item: &FrameItem) {}
+    fn visit_image(&mut self, _item: &FrameItem) {}
+    fn visit_shape(&mut self, _item: &FrameItem) {}
+    fn visit_group(&mut self, _item: &FrameItem) {}
+    fn visit_link(&mut self, _item: &FrameItem) {}
+}
+
+/// Helper para invocar um `FrameVisitor` sobre uma lista de `FrameItem`.
+pub fn walk_frame_items<V: FrameVisitor>(visitor: &mut V, items: &[FrameItem]) {
+    visitor.visit_items(items);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn v16_frame_visitor_keeps_all_variants_callback_order_and_wrappers() {
+        #[derive(Default)]
+        struct Recorder {
+            events: Vec<&'static str>,
+        }
+        impl FrameVisitor for Recorder {
+            fn visit_text(&mut self, _: &FrameItem) {
+                self.events.push("text");
+            }
+            fn visit_text_shaped(&mut self, _: &FrameItem) {
+                self.events.push("shaped");
+            }
+            fn visit_line(&mut self, _: &FrameItem) {
+                self.events.push("line");
+            }
+            fn visit_glyph(&mut self, _: &FrameItem) {
+                self.events.push("glyph");
+            }
+            fn visit_image(&mut self, _: &FrameItem) {
+                self.events.push("image");
+            }
+            fn visit_shape(&mut self, _: &FrameItem) {
+                self.events.push("shape");
+            }
+            fn visit_group(&mut self, _: &FrameItem) {
+                self.events.push("group");
+            }
+            fn visit_link(&mut self, _: &FrameItem) {
+                self.events.push("link");
+            }
+            fn visit_semantic(&mut self, _: &FrameItem) {
+                self.events.push("semantic");
+            }
+        }
+        let style = TextStyle::regular(Pt(12.0));
+        let text = FrameItem::Text {
+            pos: Point::ZERO,
+            text: "x".into(),
+            style: style.clone(),
+            bidi: None,
+        };
+        let line = FrameItem::Line {
+            start: Point::ZERO,
+            end: Point { x: Pt(1.0), y: Pt::ZERO },
+            thickness: 1.0,
+            color: None,
+            cap: crate::entities::geometry::LineCap::Butt,
+        };
+        let glyph = FrameItem::Glyph {
+            pos: Point::ZERO,
+            glyph_id: 1,
+            x_advance: Pt(1.0),
+            size: Pt(12.0),
+            style: style.clone(),
+            base_char: 'x',
+        };
+        let items = vec![
+            text.clone(),
+            FrameItem::TextSeparator {
+                pos: Point::ZERO,
+                advance: Pt(1.0),
+                style: style.clone(),
+                origin: TextSeparatorOrigin::Literal,
+                bidi: None,
+            },
+            FrameItem::TextShaped {
+                pos: Point::ZERO,
+                glyphs: vec![],
+                style,
+                text: "shaped".into(),
+                units_per_em: 1000,
+                font: None,
+                bidi: None,
+            },
+            line.clone(),
+            glyph.clone(),
+            FrameItem::Image {
+                pos: Point::ZERO,
+                data: std::sync::Arc::new(vec![]),
+                alt: None,
+                width: Pt(1.0),
+                height: Pt(1.0),
+                intrinsic_width: 1,
+                intrinsic_height: 1,
+                clip_rect: None,
+                orientation: 1,
+            },
+            FrameItem::Shape {
+                pos: Point::ZERO,
+                kind: crate::entities::geometry::ShapeKind::Rect,
+                width: 1.0,
+                height: 1.0,
+                fill: None,
+                stroke: None,
+                fill_rule: crate::entities::geometry::FillRule::NonZero,
+                parent_bbox_at_emit: None,
+            },
+            FrameItem::TextReplacement {
+                text: "logical".into(),
+                items: vec![text.clone()],
+            },
+            FrameItem::Semantic {
+                kind: SemanticKind::Formula,
+                placement: SemanticPlacement::Inline,
+                alt: None,
+                items: vec![text],
+            },
+            FrameItem::Group {
+                paint_root: false,
+                pos: Point::ZERO,
+                matrix: TransformMatrix::identity(),
+                clip_mask: None,
+                inner_width: 1.0,
+                inner_height: 1.0,
+                items: vec![line],
+            },
+            FrameItem::Link {
+                target: LinkTarget::Url("https://example.test".into()),
+                items: vec![glyph],
+                pos: Point::ZERO,
+                size: Size { width: Pt(1.0), height: Pt(1.0) },
+            },
+        ];
+        let mut visitor = Recorder::default();
+        walk_frame_items(&mut visitor, &items);
+        assert_eq!(
+            visitor.events,
+            [
+                "text", "text", "shaped", "line", "glyph", "image", "shape", "text",
+                "semantic", "text", "group", "line", "link", "glyph"
+            ]
+        );
+    }
 
     #[test]
     fn pt_add_pt() {
@@ -1419,11 +1626,13 @@ mod tests {
             pos: Point::ZERO,
             text: "Hello".into(),
             style: style.clone(),
+            bidi: None,
         });
         f.push(FrameItem::Text {
             pos: Point { x: Pt(50.0), y: Pt::ZERO },
             text: "world".into(),
             style,
+            bidi: None,
         });
         assert_eq!(f.plain_text(), "Hello world");
     }
@@ -1445,6 +1654,7 @@ mod tests {
                 pos: Point::ZERO,
                 text: "page1".into(),
                 style: style.clone(),
+                bidi: None,
             }],
         };
         let p2 = Page {
@@ -1461,6 +1671,7 @@ mod tests {
                 pos: Point::ZERO,
                 text: "page2".into(),
                 style,
+                bidi: None,
             }],
         };
         let doc = PagedDocument::new(vec![p1, p2]);
@@ -1840,7 +2051,7 @@ mod tests {
     }
 
     // P485 — campo units_per_em em FrameItem::TextShaped
-    #[allow(deprecated)]
+
     #[test]
     fn p485_textshaped_tem_units_per_em() {
         let item = FrameItem::TextShaped {
@@ -1849,6 +2060,8 @@ mod tests {
             style: TextStyle::default(),
             text: EcoString::from("A"),
             units_per_em: 1000,
+            bidi: None,
+            font: None,
         };
         if let FrameItem::TextShaped { units_per_em, .. } = item {
             assert_eq!(units_per_em, 1000, "P485: units_per_em deve ser 1000");
@@ -1857,7 +2070,6 @@ mod tests {
         }
     }
 
-    #[allow(deprecated)]
     #[test]
     fn p485_textshaped_units_per_em_cast_nao_zero() {
         // Garantir que units_per_em > 0 (prevenção de divisão por zero em emit)
@@ -1887,8 +2099,7 @@ mod tests {
     #[test]
     fn p598_page_config_margin_formula_uses_smaller_dimension() {
         // Se height for a dimensão menor, a margem deve ser proporcional a height.
-        let mut cfg = PageConfig::default();
-        cfg.height = 200.0;
+        let mut cfg = PageConfig { height: 200.0, ..PageConfig::default() };
         cfg.margin.refresh_auto(cfg.auto_margin());
         assert!((cfg.margin.top - 23.8095).abs() < 0.001);
     }
@@ -1896,9 +2107,11 @@ mod tests {
     #[test]
     fn p598_page_config_auto_margin_follows_dimension_changes() {
         // Margem automática acompanha a menor dimensão mesmo quando width > height.
-        let mut cfg = PageConfig::default();
-        cfg.width = 800.0;
-        cfg.height = 200.0;
+        let mut cfg = PageConfig {
+            width: 800.0,
+            height: 200.0,
+            ..PageConfig::default()
+        };
         cfg.margin.refresh_auto(cfg.auto_margin());
         assert!((cfg.margin.bottom - 23.8095).abs() < 0.001);
 
@@ -1907,70 +2120,4 @@ mod tests {
         cfg.margin.refresh_auto(cfg.auto_margin());
         assert!((cfg.margin.left - 23.8095).abs() < 0.001);
     }
-}
-
-/// Trait unificador para percurso recursivo de árvores de `FrameItem`.
-///
-/// Centraliza a travessia de `Group` e `Link` e define um ponto único de fallback
-/// com `debug_assert!` para capturar variantes novas em tempo de debug/teste sem
-/// custo em release.
-pub trait FrameVisitor {
-    /// Ponto de entrada padrão para visitar um `FrameItem`.
-    fn visit_item(&mut self, item: &FrameItem) {
-        match item {
-            FrameItem::Text { .. } | FrameItem::TextSeparator { .. } => self.visit_text(item),
-            FrameItem::TextShaped { .. } => self.visit_text_shaped(item),
-            FrameItem::Line { .. } => self.visit_line(item),
-            FrameItem::Glyph { .. } => self.visit_glyph(item),
-            FrameItem::Image { .. } => self.visit_image(item),
-            FrameItem::Shape { .. } => self.visit_shape(item),
-            FrameItem::Group { items, .. } => {
-                self.visit_group(item);
-                for child in items {
-                    self.visit_item(child);
-                }
-            }
-            FrameItem::Link { items, .. } => {
-                self.visit_link(item);
-                for child in items {
-                    self.visit_item(child);
-                }
-            }
-            FrameItem::TextReplacement { items, .. } => {
-                for child in items { self.visit_item(child); }
-            }
-            FrameItem::Semantic { items, .. } => {
-                self.visit_semantic(item);
-                for child in items {
-                    self.visit_item(child);
-                }
-            }
-            #[allow(unreachable_patterns)]
-            _ => {
-                debug_assert!(false, "FrameItem não tratado: {:?}", item);
-            }
-        }
-    }
-
-    /// Visita uma fatia de `FrameItem` sequencialmente.
-    fn visit_items(&mut self, items: &[FrameItem]) {
-        for item in items {
-            self.visit_item(item);
-        }
-    }
-
-    fn visit_text(&mut self, _item: &FrameItem) {}
-    fn visit_semantic(&mut self, _item: &FrameItem) {}
-    fn visit_text_shaped(&mut self, _item: &FrameItem) {}
-    fn visit_line(&mut self, _item: &FrameItem) {}
-    fn visit_glyph(&mut self, _item: &FrameItem) {}
-    fn visit_image(&mut self, _item: &FrameItem) {}
-    fn visit_shape(&mut self, _item: &FrameItem) {}
-    fn visit_group(&mut self, _item: &FrameItem) {}
-    fn visit_link(&mut self, _item: &FrameItem) {}
-}
-
-/// Helper para invocar um `FrameVisitor` sobre uma lista de `FrameItem`.
-pub fn walk_frame_items<V: FrameVisitor>(visitor: &mut V, items: &[FrameItem]) {
-    visitor.visit_items(items);
 }

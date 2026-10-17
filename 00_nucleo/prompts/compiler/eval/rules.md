@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules
-Hash do Código: dc76d148
+Hash do Código: ed07b107
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
@@ -336,3 +336,13 @@ Quando set text(costs:) inclui widow/orphan, atualizar o aviso factual para supo
 **Medição:** a working tree não commitada em `00_nucleo/diagnosticos/atomizacao-eval-rules-2026-09-30-before.json.gz` contém 4754 linhas neste consumer; a suíte L1 passou com 6401 testes e 2 ignorados. Não é benchmark nem nova comparação bilateral.
 
 **Decisão:** este owner conserva diagnósticos genéricos, bindings e testes. Os comportamentos de PDF, math set, realização, aplicação show, outline, intercepção, set e show são delegados aos owners exclusivos `rules/{pdf,math_set,realize,apply,outline,intercept,set,show}.md`. O owner `rules/textual.md` permanece independente. As cláusulas históricas acima mapeiam a superfície; cada filho especifica sua família. A separação não altera contrato público, defaults ou fase.
+
+
+## Realização com avaliação única
+
+O consumer de realização reutiliza apply_show_rules; não duplicar matching ou terminação.
+
+
+## Realização com avaliação única
+
+Serviço de grupo textual capturado é interno ao crate e reutilizável pelo consumer de realização.

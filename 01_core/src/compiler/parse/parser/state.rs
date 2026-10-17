@@ -351,7 +351,7 @@ mod tests {
     #[test]
     fn parser_new_smoke() {
         // Smoke test: criar um Parser não deve crashar em input vazio.
-        let mut p = Parser::new("", 0, SyntaxMode::Markup);
+        let p = Parser::new("", 0, SyntaxMode::Markup);
         assert!(p.end());
     }
 

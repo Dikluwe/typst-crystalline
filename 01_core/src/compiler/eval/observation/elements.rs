@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/observation/elements.md
-//! @prompt-hash cfa3d814
+//! @prompt-hash 116af5ac
 //! @layer L1
-//! @updated 2026-09-26
+//! @updated 2026-10-07
 //!
 //! Relação observacional causal — família `elements`.
 
@@ -241,9 +241,10 @@ impl ObservationEq for crate::entities::elements::pdf_artifact::ArtifactKind {
 }
 impl ObservationEq for crate::entities::elements::smartquote::SmartQuoteElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        let Self { double: _, alternative: _, quotes: _ } = self;
+        let Self { double: _, enabled: _, alternative: _, quotes: _ } = self;
         ObservationRelation::Same
             .and(self.double.observation_relation(&other.double))
+            .and(self.enabled.observation_relation(&other.enabled))
             .and(self.alternative.observation_relation(&other.alternative))
             .and(self.quotes.observation_relation(&other.quotes))
     }
@@ -311,11 +312,12 @@ impl ObservationEq for crate::entities::elements::strong::StrongElem {
 }
 impl ObservationEq for crate::entities::elements::raw::RawElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        let Self { text: _, lang: _, block: _ } = self;
+        let Self { text: _, lang: _, block: _, set_fields: _ } = self;
         ObservationRelation::Same
             .and(self.text.observation_relation(&other.text))
             .and(self.lang.observation_relation(&other.lang))
             .and(self.block.observation_relation(&other.block))
+            .and(self.set_fields.observation_relation(&other.set_fields))
     }
 }
 impl ObservationEq for crate::entities::elements::bibliography::BibliographyElem {
@@ -379,6 +381,10 @@ impl ObservationEq for crate::entities::elements::pdf_attach::AttachedFileRelati
 impl ObservationEq for crate::entities::elements::table::TableElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         let Self {
+            source_span: _,
+            rows_explicit: _,
+            resolved: _,
+
             columns: _,
             rows: _,
             children: _,
@@ -394,6 +400,9 @@ impl ObservationEq for crate::entities::elements::table::TableElem {
             align: _,
         } = self;
         ObservationRelation::Same
+            .and(self.source_span.observation_relation(&other.source_span))
+            .and(self.rows_explicit.observation_relation(&other.rows_explicit))
+            .and(self.resolved.observation_relation(&other.resolved))
             .and(self.columns.observation_relation(&other.columns))
             .and(self.rows.observation_relation(&other.rows))
             .and(self.children.observation_relation(&other.children))
@@ -696,10 +705,14 @@ impl ObservationEq for crate::entities::elements::outline::OutlineIndent {
 }
 impl ObservationEq for crate::entities::elements::transform::TransformElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
-        let Self { matrix: _, body: _ } = self;
-        ObservationRelation::Same
-            .and(self.matrix.observation_relation(&other.matrix))
-            .and(self.body.observation_relation(&other.body))
+        let Self { operation: _, body: _ } = self;
+        // All operation payloads are pure scalars. NaN remains conservative.
+        (if self.operation == other.operation {
+            ObservationRelation::Same
+        } else {
+            ObservationRelation::Different
+        })
+        .and(self.body.observation_relation(&other.body))
     }
 }
 impl ObservationEq for crate::entities::elements::list_item::ListItemElem {
@@ -971,6 +984,10 @@ impl ObservationEq for crate::entities::elements::counter_display::CounterDispla
 impl ObservationEq for crate::entities::elements::table_cell::TableCellElem {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         let Self {
+            source_span: _,
+            resolved: _,
+            standalone: _,
+
             body: _,
             x: _,
             y: _,
@@ -982,8 +999,12 @@ impl ObservationEq for crate::entities::elements::table_cell::TableCellElem {
             inset: _,
             breakable: _,
             kind: _,
+            presence: _,
         } = self;
         ObservationRelation::Same
+            .and(self.source_span.observation_relation(&other.source_span))
+            .and(self.resolved.observation_relation(&other.resolved))
+            .and(self.standalone.observation_relation(&other.standalone))
             .and(self.body.observation_relation(&other.body))
             .and(self.x.observation_relation(&other.x))
             .and(self.y.observation_relation(&other.y))
@@ -995,6 +1016,7 @@ impl ObservationEq for crate::entities::elements::table_cell::TableCellElem {
             .and(self.inset.observation_relation(&other.inset))
             .and(self.breakable.observation_relation(&other.breakable))
             .and(self.kind.observation_relation(&other.kind))
+            .and(self.presence.observation_relation(&other.presence))
     }
 }
 impl ObservationEq for crate::entities::elements::table_cell::TableCellKind {
@@ -1108,5 +1130,211 @@ mod tests {
         let b = StrongElem::new(Content::text("b"));
         assert_eq!(a.observation_relation(&a), ObservationRelation::Same);
         assert_eq!(a.observation_relation(&b), ObservationRelation::Different);
+    }
+}
+
+impl ObservationEq for crate::entities::elements::table_cell::CellFieldPresence {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        match (self, other) {
+            (Self::Omitted, Self::Omitted)
+            | (Self::Auto, Self::Auto)
+            | (Self::Explicit, Self::Explicit) => ObservationRelation::Same,
+            (Self::Omitted, Self::Auto | Self::Explicit)
+            | (Self::Auto, Self::Omitted | Self::Explicit)
+            | (Self::Explicit, Self::Omitted | Self::Auto) => {
+                ObservationRelation::Different
+            }
+        }
+    }
+}
+impl ObservationEq for crate::entities::elements::table_cell::TableCellPresence {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self {
+            x: _,
+            y: _,
+            colspan: _,
+            rowspan: _,
+            fill: _,
+            stroke: _,
+            align: _,
+            inset: _,
+            breakable: _,
+        } = self;
+        ObservationRelation::Same
+            .and(self.x.observation_relation(&other.x))
+            .and(self.y.observation_relation(&other.y))
+            .and(self.colspan.observation_relation(&other.colspan))
+            .and(self.rowspan.observation_relation(&other.rowspan))
+            .and(self.fill.observation_relation(&other.fill))
+            .and(self.stroke.observation_relation(&other.stroke))
+            .and(self.align.observation_relation(&other.align))
+            .and(self.inset.observation_relation(&other.inset))
+            .and(self.breakable.observation_relation(&other.breakable))
+    }
+}
+
+#[cfg(test)]
+mod cell_presence_observation_tests {
+    use super::*;
+    #[test]
+    fn cell_presence_is_observed_even_when_body_and_render_values_match() {
+        use crate::entities::content::Content;
+        use crate::entities::elements::table_cell::CellFieldPresence;
+        let Content::TableCell(original) =
+            Content::table_cell(Content::text("a"), None, None, None, None)
+        else {
+            unreachable!()
+        };
+        let mut explicit = (*original).clone();
+        explicit.presence.fill = CellFieldPresence::Explicit;
+        assert_eq!(
+            original.as_ref().observation_relation(&explicit),
+            ObservationRelation::Different
+        );
+        assert_eq!(
+            explicit.observation_relation(&explicit.clone()),
+            ObservationRelation::Same
+        );
+        let mut automatic = explicit.clone();
+        automatic.presence.fill = CellFieldPresence::Auto;
+        assert_eq!(
+            explicit.observation_relation(&automatic),
+            ObservationRelation::Different
+        );
+    }
+}
+
+impl ObservationEq for crate::entities::elements::table::TableGridResolved {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self {
+            cells: _,
+            num_cols: _,
+            num_rows: _,
+            header_rows: _,
+            footer_start: _,
+            complete: _,
+        } = self;
+        ObservationRelation::Same
+            .and(self.cells.observation_relation(&other.cells))
+            .and(self.num_cols.observation_relation(&other.num_cols))
+            .and(self.num_rows.observation_relation(&other.num_rows))
+            .and(self.header_rows.observation_relation(&other.header_rows))
+            .and(self.footer_start.observation_relation(&other.footer_start))
+            .and(self.complete.observation_relation(&other.complete))
+    }
+}
+
+impl ObservationEq for crate::entities::elements::table_cell::TableCellResolved {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self {
+            x: _,
+            y: _,
+            colspan: _,
+            rowspan: _,
+            fill: _,
+            stroke: _,
+            align: _,
+            inset: _,
+            breakable: _,
+            visual: _,
+            stage: _,
+            guards: _,
+        } = self;
+        ObservationRelation::Same
+            .and(self.x.observation_relation(&other.x))
+            .and(self.y.observation_relation(&other.y))
+            .and(self.colspan.observation_relation(&other.colspan))
+            .and(self.rowspan.observation_relation(&other.rowspan))
+            .and(self.fill.observation_relation(&other.fill))
+            .and(self.stroke.observation_relation(&other.stroke))
+            .and(self.align.observation_relation(&other.align))
+            .and(self.inset.observation_relation(&other.inset))
+            .and(self.breakable.observation_relation(&other.breakable))
+            .and(self.visual.observation_relation(&other.visual))
+            .and(self.stage.observation_relation(&other.stage))
+            .and(self.guards.observation_relation(&other.guards))
+    }
+}
+
+impl ObservationEq for crate::entities::elements::table_cell::TableCellStage {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        match (self, other) {
+            (Self::Prepared, Self::Prepared)
+            | (Self::RecipeApplied, Self::RecipeApplied)
+            | (Self::Complete, Self::Complete) => ObservationRelation::Same,
+            _ => ObservationRelation::Different,
+        }
+    }
+}
+
+impl ObservationEq
+    for crate::entities::elements::table_cell::TableCellStandaloneResolved
+{
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self { visual: _, stage: _, guards: _, properties: _ } = self;
+        self.visual
+            .observation_relation(&other.visual)
+            .and(self.properties.observation_relation(&other.properties))
+            .and(self.stage.observation_relation(&other.stage))
+            .and(self.guards.observation_relation(&other.guards))
+    }
+}
+
+impl ObservationEq for crate::entities::elements::table_cell::TableCellProperties {
+    fn observation_relation(&self, other: &Self) -> ObservationRelation {
+        let Self {
+            x: _,
+            y: _,
+            colspan: _,
+            rowspan: _,
+            fill: _,
+            stroke: _,
+            stroke_inherited: _,
+            align: _,
+            inset: _,
+            breakable: _,
+            presence: _,
+        } = self;
+        self.x
+            .observation_relation(&other.x)
+            .and(self.y.observation_relation(&other.y))
+            .and(self.colspan.observation_relation(&other.colspan))
+            .and(self.rowspan.observation_relation(&other.rowspan))
+            .and(self.fill.observation_relation(&other.fill))
+            .and(self.stroke.observation_relation(&other.stroke))
+            .and(self.stroke_inherited.observation_relation(&other.stroke_inherited))
+            .and(self.align.observation_relation(&other.align))
+            .and(self.inset.observation_relation(&other.inset))
+            .and(self.breakable.observation_relation(&other.breakable))
+            .and(self.presence.observation_relation(&other.presence))
+    }
+}
+
+#[cfg(test)]
+mod raw_presence_tests {
+    use super::*;
+    use crate::entities::elements::raw::{RawElem, RAW_SET_BLOCK, RAW_SET_LANG};
+
+    #[test]
+    fn raw_presence_observation_distinguishes_masks_with_equal_values() {
+        for a in [0, RAW_SET_BLOCK, RAW_SET_LANG, RAW_SET_BLOCK | RAW_SET_LANG] {
+            for b in [0, RAW_SET_BLOCK, RAW_SET_LANG, RAW_SET_BLOCK | RAW_SET_LANG] {
+                let left = RawElem {
+                    text: "x".into(),
+                    lang: None,
+                    block: false,
+                    set_fields: a,
+                };
+                let right = RawElem { set_fields: b, ..left.clone() };
+                assert_eq!(
+                    left.observation_relation(&right),
+                    if a == b {
+                        ObservationRelation::Same
+                    } else {
+                        ObservationRelation::Different
+                    }
+                );
+            }
+        }
     }
 }

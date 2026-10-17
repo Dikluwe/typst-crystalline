@@ -1,5 +1,9 @@
 # Prompt L0 — `stdlib/counter` — objeto `counter` e métodos
-Hash do Código: 7c34cd17
+Hash do Código: a8c2a797
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:bdbe23b72d7083b7672d71e851dc3d35baa8ed7ccb66f009f61edcf770d0aeff
+- 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:a37779d03a4ba0f16ebcc5919477bfdcf783021511a28cf8c9203c67cd64a9e5
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/counter.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).
@@ -512,3 +516,76 @@ gate ADR-0127.
 ## Atomização de leituras e exibição — 2026-09-30
 
 A fachada conserva constructor, dispatch nativo e API pública. A política de leituras filtradas/replay pertence exclusivamente a `00_nucleo/prompts/compiler/stdlib/counter/filtered_reads.md`; a política de `.display()` pertence exclusivamente a `00_nucleo/prompts/compiler/stdlib/counter/display.md`. As regras históricas acima são contexto de semântica, não ownership duplicado destes dois consumers.
+
+
+
+
+## Snapshot realizado de Page — ratificado em 2026-10-05
+
+Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree e binários exatos em `00_nucleo/diagnosticos/contexto-page-total-2026-10-05/measurement.json.gz`. single imprime B1/0 F0 contra B1/1 F1; duas páginas total/final 0 contra 2; update inicial 7 conserva total 7 contra 8; update intermediário altera página anterior (7/7 e 8/7 contra 1/7 e 7/7); step final imprime final 1 contra 2. Bundle imprime 1/7 no primeiro PDF contra 1/1, e final 7 no segundo contra 8. HTML misto devolve 1 contra 7. `03_infra/src/pipeline/paged.rs:360–365,840–913` usa o último update como início de todas as páginas; `context_stabilization.rs:969–1010` faz o mesmo por body. `compiler/stdlib/counter.rs:490–513` e `counter/display.rs:96–110` leem final global causal. Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8, `lab/typst-original/crates/typst-library/src/introspection/counter.rs:246–254,730–773,934–963`, combina escopo documental, updates e avanços físicos. A classificação é paridade de linguagem; não exige copiar a mecânica de memoização upstream.
+
+Decisão proposta: aplicar o Núcleo page-counter-snapshot. Esta unidade substitui o scope-out histórico de final apenas após ratificação. Contrato público e realização page-aware de updates exigem gate ADR-0127; não materializar ou ressellar antes da confirmação. Preservar as assinaturas existentes, ciclos e budget; não adivinhar página/total antes do snapshot conhecido.
+
+Leitores Page usam snapshot realizado por Location quando presente. Current get/at/display consulta page_counter_values, final/both consulta page_counter_final_values da Location contextual pertinente; antes disso, conservar fallback causal existente, sem misturar entrada parcial e total de outra geração. Replay de CounterAt/CounterFinal/CounterTotal segue a mesma resolução, incluindo erros e estado vazio. Outras chaves não são modificadas. A vista lógica antiga do PageStore não corrige snapshots inexistentes por inferência do último PDF.
+
+Ratificação: o humano confirmou o conjunto do manifesto `00_nucleo/diagnosticos/contexto-page-total-2026-10-05/l0-manifest.json` (SHA-256 1af5de11b1bbbe41cc59b907fdfafc21d98b6aab63fc1db0bfb1a028329ef66e). O gate ADR-0127 deste conjunto está satisfeito. Clarificações internas subsequentes seguem fluxo contínuo, L0 antes do código e RED→GREEN.
+
+## D08A — seletor bare de table.cell (PROPOSTO, gate ADR-0127)
+
+### Medição anterior à decisão
+
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
+UTC, diffstat, entradas, comandos, hashes das fontes e executáveis em
+00_nucleo/diagnosticos/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
+Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8.
+selector(table.cell) devolve cell, where() devolve cell.where(:), a comparação
+é false, query/counter rejeitam cell não locatable. Alias verdadeiro medido
+por CodeBlock conserva esses resultados. A fixture anterior que definiu alias
+apenas no documento não disponibilizava a variável à expressão eval e não
+prova alias positivo; table-aliases-before corrige a fixture.
+
+Fonte: lab/typst-original/crates/typst-library/src/foundations/selector.rs:309–321
+distingue dict None de Some; :421–450 valida locatabilidade separadamente.
+No Tekt, entities/selector.rs:34–37 só representa grupo Element presente;
+stdlib/foundations/selector.rs:69–77,348–354 omite a nativa cell; os demais
+limites atuais e hashes estão em d08-owner-audit.json.
+
+Classificação: formato, identidade e rejeição de consulta são linguagem;
+o novo carrier fechado é mecânica escolhida para preservar esses observáveis.
+A distinção do vanilla é explícita na fonte; não se infere intenção apenas
+da saída. Inferência: a nova variante basta à fatia de seleção/locatabilidade;
+a hipótese será refutada por um caso público cuja ausência de grupo ou
+identidade não caiba nela. Não se presume correção de realização de células.
+
+### Contrato materializável somente após ratificação
+
+Reconhecer somente a nativa table.cell adicional no argumento função por endereço, construir internamente o NativeElement correspondente e validar locatabilidade antes de criar Counter. Rejeitar table.cell, alias e selector(table.cell) com cell is not locatable; ancorar no value_span do argumento fornecido, com fallback agregado quando detached. Não reconhecer cell pelo nome; conservar a exceção histórica da rota page sem ampliá-la. Estender matches/classificadores para a nova folha conservando sua árvore; manter todos os outros métodos e snapshots.
+
+### Fronteira incompleta e aceitação
+
+D08A cobre apenas carrier, construção, repr, igualdade, composição e
+locatabilidade. D08 permanece incompleto: D08B completa show direto, projeção
+de body/campos e preparação de células explícitas/implícitas, incluindo
+posições, padding, spans, header/footer e escopo lexical. D08B precisa de
+seus L0s medidos e de gate próprio caso mude contrato ou fase; esta ratificação
+não o autoriza. Não esconder negativos D08B ou declarar paridade universal.
+
+Após ratificação: promover este conjunto atomicamente; escrever testes
+linguísticos e verificar RED válido antes do código; materializar com
+despacho estático e Rust seguro; validar 1:1/V26 antes de ressellar somente
+owners deste manifesto; build, suíte core e linter sem erros. Revalidar
+selector cell bare/where/alias, igualdade true/false, query/counter diretos
+e compostos, função homônima, partial/closure; preservar D05, D07 e query.
+
+
+## Caminhos residuais internos — 2026-10-13
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/stdlib/counter.rs` nas linhas 484 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `00_nucleo/diagnosticos/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
+
+### Decisão e aceitação
+
+Eliminar somente o wrapper sem chamadas counter_at_location de três argumentos, cujo módulo é pub(crate) e não possui reexport externo. Preservar counter_at_location_owned, usado pelo despacho com Engine/scopes/span, e counter_at_location_recorded. Os aliases em value_methods referem-se à versão owned e não ao wrapper morto. Não modificar a superfície counter.at(location), rastreamento de contexto, fallback ou diagnóstico.
+
+Correção interna em fluxo contínuo ADR-0127, sem nova assinatura pública, default de produto ou fase. Preservar os resultados de linguagem e as expectativas dos testes. Revalidar todos os targets, suíte core, build, Clippy e linhagem; não suprimir warnings para substituir a correção.

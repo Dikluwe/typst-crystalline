@@ -1,5 +1,5 @@
 # L0 — Injected element registry
-Hash do Código: 0b151b49
+Hash do Código: 0f3b0720
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/element_registry.rs`

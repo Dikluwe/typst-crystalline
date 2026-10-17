@@ -1,11 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/convergence.md
-//! @prompt-hash 0737918f
+//! @prompt-hash 7a4b8db9
 //! @layer L1
 //! @updated 2026-09-30
 
 use super::*;
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C010: Coordenador privado recebe exatamente os inputs da fachada seeded: métricas/sizer injetados, introspector, font_size e dois transcripts selados com seed"
+)]
 pub(super) fn run<M: FontMetrics + Clone, S: ImageSizer + Clone>(
     content: &Content,
     introspector: crate::entities::introspector::TagIntrospector,

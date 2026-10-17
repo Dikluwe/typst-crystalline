@@ -58,8 +58,8 @@ impl Element for ListItemElem {
             body: self.body.map_content(transform)?,
             marker: self.marker.clone(),
             marker_align: self.marker_align,
-            indent: self.indent.clone(),
-            body_indent: self.body_indent.clone(),
+            indent: self.indent,
+            body_indent: self.body_indent,
             tight: self.tight,
         })))
     }
@@ -72,8 +72,8 @@ impl Element for ListItemElem {
             body: self.body.map_text(transform),
             marker: self.marker.clone(),
             marker_align: self.marker_align,
-            indent: self.indent.clone(),
-            body_indent: self.body_indent.clone(),
+            indent: self.indent,
+            body_indent: self.body_indent,
             tight: self.tight,
         }))
     }

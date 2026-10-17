@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr.md
-//! @prompt-hash 6536fbef
+//! @prompt-hash 4050b32e
 //! @layer L1
-//! @updated 2026-09-01
+//! @updated 2026-10-08
 //!
 //! P421 — `repr()` exaustivo para `Value`, `Content` e `Selector`.
 //!
@@ -37,7 +37,7 @@ use self::format::*;
 use self::math::*;
 use self::measure::*;
 pub(super) use self::paint::repr_stroke;
-use self::paint::{repr_align, repr_color, repr_gradient, repr_paint, repr_tiling};
+use self::paint::{repr_align, repr_color, repr_gradient, repr_tiling};
 pub use self::selector::repr_selector;
 pub use self::value::repr_value;
 
@@ -469,7 +469,7 @@ mod tests {
             overhang: true,
             ..Stroke::default()
         };
-        assert_eq!(repr_value(&Value::Stroke(s)), "2pt + rgb(\"#ff4136\")");
+        assert_eq!(repr_value(&Value::from(s)), "2pt + rgb(\"#ff4136\")");
     }
 
     #[test]
@@ -498,16 +498,16 @@ mod tests {
             ..Stroke::default()
         };
 
-        assert_eq!(repr_value(&Value::Stroke(automatic.clone())), "stroke()");
-        assert_eq!(repr_value(&Value::Stroke(thickness.clone())), "1pt");
-        assert_eq!(repr_value(&Value::Stroke(paint.clone())), "luma(0%)");
-        assert_eq!(repr_value(&Value::Stroke(both.clone())), "1pt + luma(0%)");
+        assert_eq!(repr_value(&Value::from(automatic.clone())), "stroke()");
+        assert_eq!(repr_value(&Value::from(thickness.clone())), "1pt");
+        assert_eq!(repr_value(&Value::from(paint.clone())), "luma(0%)");
+        assert_eq!(repr_value(&Value::from(both.clone())), "1pt + luma(0%)");
         assert_eq!(
             repr_value(&Value::Array(vec![
-                Value::Stroke(automatic),
-                Value::Stroke(thickness),
-                Value::Stroke(paint),
-                Value::Stroke(both),
+                Value::from(automatic),
+                Value::from(thickness),
+                Value::from(paint),
+                Value::from(both),
             ])),
             "(stroke(), 1pt, luma(0%), 1pt + luma(0%))"
         );

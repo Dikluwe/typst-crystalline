@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/module.md
-//! @prompt-hash 2b62d6aa
+//! @prompt-hash 99919097
 //! @layer L1
-//! @updated 2026-06-23
+//! @updated 2026-10-05
 //!
 //! Resultado da avaliação de um ficheiro Typst.
 //!
@@ -20,6 +20,7 @@ use hayagriva::citationberg::IndependentStyle;
 
 use crate::entities::content::Content;
 use crate::entities::document_info::DocumentInfo;
+use crate::entities::introspector::TagIntrospector;
 use crate::entities::scope::Scope;
 
 /// Resultado da avaliação de um ficheiro Typst.
@@ -28,15 +29,24 @@ use crate::entities::scope::Scope;
 /// passados entre ramos de eval() e copiar um IndexMap inteiro seria O(n).
 pub struct Module(Arc<ModuleInner>);
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ModuleKind {
+    Ordinary,
+    Std,
+    Format,
+}
+
 #[derive(Debug)]
 struct ModuleInner {
+    kind: ModuleKind,
     name: String,
     scope: Scope,
     content: Option<Content>,
-    /// **P498** — conteúdo original (pré-show-rules) para introspecção.
+    /// Semantic graph of originals and products for introspection.
     /// Permite que `query(heading)` encontre o elemento mesmo quando uma
     /// show-rule o transforma no output renderizado.
     introspection_content: Option<Content>,
+    realization_introspector: Option<Arc<TagIntrospector>>,
     /// **P429** — styles CSL resolvidos em eval time. Tabela lateral
     /// indexada por `BibliographyElem::style_key()`.
     bib_styles: HashMap<u64, Arc<IndependentStyle>>,
@@ -60,11 +70,33 @@ impl PartialEq for Module {
 
 impl Module {
     pub fn new(name: impl Into<String>, scope: Scope) -> Self {
+        Self::with_kind(name.into(), scope, ModuleKind::Ordinary)
+    }
+
+    pub(crate) fn stdlib(scope: Scope) -> Self {
+        Self::with_kind("global".into(), scope, ModuleKind::Std)
+    }
+
+    pub(crate) fn format(scope: Scope) -> Self {
+        Self::with_kind("format".into(), scope, ModuleKind::Format)
+    }
+
+    pub(crate) fn is_std(&self) -> bool {
+        self.0.kind == ModuleKind::Std
+    }
+
+    pub(crate) fn is_format(&self) -> bool {
+        self.0.kind == ModuleKind::Format
+    }
+
+    fn with_kind(name: String, scope: Scope, kind: ModuleKind) -> Self {
         Self(Arc::new(ModuleInner {
-            name: name.into(),
+            kind,
+            name,
             scope,
             content: None,
             introspection_content: None,
+            realization_introspector: None,
             bib_styles: HashMap::new(),
             document_info: DocumentInfo::empty(),
         }))
@@ -89,6 +121,7 @@ impl Module {
     /// após `Module::new`). Se já foi clonado, não muta.
     pub fn set_content(&mut self, content: Option<Content>) {
         if let Some(inner) = Arc::get_mut(&mut self.0) {
+            inner.realization_introspector = None;
             inner.content = content;
         }
     }
@@ -101,7 +134,19 @@ impl Module {
     /// **P498** — define o conteúdo original para introspecção.
     pub fn set_introspection_content(&mut self, content: Option<Content>) {
         if let Some(inner) = Arc::get_mut(&mut self.0) {
+            inner.realization_introspector = None;
             inner.introspection_content = content;
+        }
+    }
+
+    /// Semantic index produced by this module's realization, before layout.
+    pub fn realization_introspector(&self) -> Option<&TagIntrospector> {
+        self.0.realization_introspector.as_deref()
+    }
+
+    pub(crate) fn set_realization_introspector(&mut self, introspector: TagIntrospector) {
+        if let Some(inner) = Arc::get_mut(&mut self.0) {
+            inner.realization_introspector = Some(Arc::new(introspector));
         }
     }
 
@@ -176,5 +221,55 @@ mod tests {
     fn bibliography_styles_default_vazio() {
         let m = Module::new("empty", Scope::new());
         assert!(m.bibliography_styles().is_empty());
+    }
+
+    #[test]
+    fn realization_index_is_invalidated_by_content_carriers() {
+        let mut module = Module::new("test", Scope::new());
+        module.set_realization_introspector(TagIntrospector::empty());
+        assert!(module.realization_introspector().is_some());
+        module.set_content(Some(Content::text("changed")));
+        assert!(module.realization_introspector().is_none());
+        module.set_realization_introspector(TagIntrospector::empty());
+        module.set_introspection_content(Some(Content::text("semantic change")));
+        assert!(module.realization_introspector().is_none());
+    }
+
+    #[test]
+    fn realization_index_clone_keeps_snapshot_isolated() {
+        let content = Content::heading(1, Content::text("Original"));
+        let index = crate::compiler::introspect::introspect_with_introspector(&content);
+        let mut module = Module::new("test", Scope::new());
+        module.set_content(Some(content));
+        module.set_realization_introspector(index);
+        let clone = module.clone();
+        let mut attempt = clone.realization_introspector().unwrap().clone();
+        attempt.elements.clear();
+        assert_eq!(module.realization_introspector().unwrap().elements.len(), 1);
+        assert_eq!(clone.realization_introspector().unwrap().elements.len(), 1);
+    }
+}
+
+#[cfg(test)]
+mod builtin_module_identity_layout_tests {
+    use super::*;
+
+    #[test]
+    fn builtin_module_identity_public_control_and_footprint() {
+        let module = Module::new("global", Scope::new());
+        let clone = module.clone();
+        assert_eq!(module, clone);
+        assert_ne!(module, Module::new("global", Scope::new()));
+        assert_eq!(format!("{module:?}"), "Module { name: \"global\" }");
+        assert!(module.content().is_none());
+        assert!(module.introspection_content().is_none());
+        assert!(module.realization_introspector().is_none());
+        assert!(module.document_info().is_empty());
+        assert!(module.bibliography_styles().is_empty());
+        println!(
+            "MODULE_LAYOUT {} {}",
+            std::mem::size_of::<Module>(),
+            std::mem::size_of::<ModuleInner>()
+        );
     }
 }

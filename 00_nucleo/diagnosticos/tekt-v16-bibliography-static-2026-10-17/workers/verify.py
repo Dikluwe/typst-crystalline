@@ -1,0 +1,5 @@
+from pathlib import Path
+import gzip,json,hashlib,re,datetime
+out=Path(__file__).resolve().parents[1];b=json.load(gzip.open(out/'before.json.gz'));scope=json.load(open(out/'scope.json'));expected=json.load(gzip.open(out/'expected-sources.json.gz'));owners=json.load(gzip.open(out/'expected-owners.json.gz'));norm=lambda s:re.sub(r'^//! @prompt-hash .*$', '//! @prompt-hash SEALED',re.sub(r'^Hash do Código: .*$', 'Hash do Código: SEALED',s,flags=re.M),flags=re.M);sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
+assert all(norm(Path(p).read_text())==norm(s) for p,s in {**expected,**owners}.items());allowed=set(scope['sources'])|set(scope['owners'].values());assert all(sha(p)==h for p,h in b['hashes'].items() if p not in allowed)
+r=dict(utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),expected_sources_and_owners=True,protected_files=len(b['hashes'])-len(allowed),source_hashes={p:sha(p) for p in b['hashes']});(out/'integrity-result.json').write_text(json.dumps(r,indent=2)+'\n');print('Expected edits and protected files verified',r['protected_files'])

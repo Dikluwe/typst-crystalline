@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics/basic.md
-//! @prompt-hash ef6ca0e5
+//! @prompt-hash 87ac0ed4
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -501,24 +501,30 @@ mod tests {
         let m = FontBookMetrics::from_bytes(&data).expect("fonte válida");
         let size = Pt(11.0);
 
-        let mut style = TextStyle::default();
-        style.top_edge = Some(TextEdge::Length(Length::pt(18.0)));
-        style.bottom_edge = Some(TextEdge::Length(Length::pt(-4.0)));
+        let style = TextStyle {
+            top_edge: Some(TextEdge::Length(Length::pt(18.0))),
+            bottom_edge: Some(TextEdge::Length(Length::pt(-4.0))),
+            ..TextStyle::default()
+        };
         let (top, bottom) = m.text_edges(size, &style);
         assert!((top.val() - 18.0).abs() < 1e-9, "top={:?}", top);
         assert!((bottom.val() + 4.0).abs() < 1e-9, "bottom={:?}", bottom);
 
         // Componente em resolve no font-size: 1.5em a 11pt = 16.5pt.
-        let mut style = TextStyle::default();
-        style.top_edge = Some(TextEdge::Length(Length::em(1.5)));
+        let style = TextStyle {
+            top_edge: Some(TextEdge::Length(Length::em(1.5))),
+            ..TextStyle::default()
+        };
         let (top, _) = m.text_edges(size, &style);
         assert!((top.val() - 16.5).abs() < 1e-9, "top={:?}", top);
 
         // Métrica enumerada continua a vir da face (sem regressão):
         // "baseline" = 0 nos dois edges.
-        let mut style = TextStyle::default();
-        style.top_edge = Some(TextEdge::Metric("baseline".into()));
-        style.bottom_edge = Some(TextEdge::Metric("baseline".into()));
+        let style = TextStyle {
+            top_edge: Some(TextEdge::Metric("baseline".into())),
+            bottom_edge: Some(TextEdge::Metric("baseline".into())),
+            ..TextStyle::default()
+        };
         let (top, bottom) = m.text_edges(size, &style);
         assert_eq!(top.val(), 0.0, "top baseline={:?}", top);
         assert_eq!(bottom.val(), 0.0, "bottom baseline={:?}", bottom);

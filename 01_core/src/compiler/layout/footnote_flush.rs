@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/footnote_overflow_columns.md
-//! @prompt-hash e5f9c2b7
+//! @prompt-hash ffe83252
 //! @layer L1
 //! @updated 2026-07-23
 //!
@@ -48,6 +48,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         if self.pending_footnote_bodies.is_empty() {
             return;
         }
+        let saved_link_scopes = self.pause_link_items();
         let bodies: Vec<(u32, Box<Content>)> =
             std::mem::take(&mut self.pending_footnote_bodies);
         let margin = self.page_config.margin;
@@ -83,7 +84,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             FrameItem::Shape { pos, .. } => pos.y.0,
             FrameItem::Group { pos, .. } => pos.y.0,
             FrameItem::Link { .. } => 0.0,
-            FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items
+            FrameItem::TextReplacement { items, .. }
+            | FrameItem::Semantic { items, .. } => items
                 .iter()
                 .map(|child| crate::compiler::layout::helpers::item_pos(child).1)
                 .fold(0.0, f64::max),
@@ -234,24 +236,41 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
             for item in items {
                 let translated = match item {
-                    FrameItem::TextSeparator { pos, advance, style, origin } => FrameItem::TextSeparator { pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) }, advance, style, origin },
-                    FrameItem::Text { pos, text, style } => FrameItem::Text {
-                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
-                        text,
-                        style,
-                    },
-                    FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
-                        FrameItem::TextShaped {
+                    FrameItem::TextSeparator { pos, advance, style, origin, .. } => {
+                        FrameItem::TextSeparator {
                             pos: Point {
                                 x: pos.x + Pt(target_x),
                                 y: pos.y + Pt(target_y),
                             },
-                            glyphs,
+                            advance,
                             style,
-                            text,
-                            units_per_em,
+                            origin,
+                            bidi: None,
                         }
                     }
+                    FrameItem::Text { pos, text, style, .. } => FrameItem::Text {
+                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        text,
+                        style,
+                        bidi: None,
+                    },
+                    FrameItem::TextShaped {
+                        pos,
+                        glyphs,
+                        style,
+                        text,
+                        units_per_em,
+                        font,
+                        ..
+                    } => FrameItem::TextShaped {
+                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        glyphs,
+                        style,
+                        text,
+                        units_per_em,
+                        bidi: None,
+                        font,
+                    },
                     FrameItem::Shape {
                         pos,
                         kind,
@@ -272,6 +291,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         parent_bbox_at_emit,
                     },
                     FrameItem::Group {
+                        paint_root,
                         pos,
                         matrix,
                         clip_mask,
@@ -279,6 +299,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         inner_height,
                         items,
                     } => FrameItem::Group {
+                        paint_root,
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                         matrix,
                         clip_mask,
@@ -355,7 +376,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     },
                     FrameItem::TextReplacement { text, mut items } => {
                         for child in &mut items {
-                            crate::compiler::layout::helpers::offset_frame_item(child, target_x, target_y);
+                            crate::compiler::layout::helpers::offset_frame_item(
+                                child, target_x, target_y,
+                            );
                         }
                         FrameItem::TextReplacement { text, items }
                     }
@@ -389,6 +412,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // automática até buffer vazio. `finish()` itera explicitamente
         // via loop com new_page() se buffer não-vazio pós-flush final.
         self.pending_footnote_bodies = remainder;
+        self.resume_link_items(saved_link_scopes);
     }
 }
 

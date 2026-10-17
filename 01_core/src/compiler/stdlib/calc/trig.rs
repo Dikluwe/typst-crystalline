@@ -1,22 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/calc/trig.md
-//! @prompt-hash 62f77b89
+//! @prompt-hash b31107eb
 //! @layer L1
 //! @updated 2026-09-30
 
 use super::*;
 
-// ── P283 — trig, hiperbólicas, log/exp ──────────────────────────────────────
-//
-// Decisão de A.2 (ver diagnostico-calc-passo-283.md): usar `f64::*` agora com
-// helper `trig_op` que centraliza `#[allow(clippy::disallowed_methods)]`. A
-// migração futura a `libm` (ADR-0018 §DEBT) toca 4 sítios (este helper +
-// `calc_atan2` + `calc_ln` + `calc_log`) em vez de 17.
-
-/// Aplica uma função `f64 -> f64` da família matemática vanilla e envolve o
-/// resultado em [`guard_float`]. Único ponto que tolera os métodos `f64::*`
-/// banidos por `clippy.toml`.
-#[allow(clippy::disallowed_methods)]
+/// Aplica uma função matemática pura e envolve o resultado em [`guard_float`].
+/// As famílias transcendentais usam a versão pinada de `libm`.
 pub(super) fn trig_op(op: fn(f64) -> f64, x: f64) -> SourceResult<Value> {
     guard_float(op(x))
 }
@@ -41,7 +32,6 @@ pub(super) fn unary_f64(
 /// P817-A — aplica `op` e envolve o resultado em [`Value::Angle`] (paridade
 /// vanilla: `asin`/`acos`/`atan` devolvem `angle`). Resultado NaN não é
 /// alcançável: `asin`/`acos` têm checagem de domínio e `atan` é finito.
-#[allow(clippy::disallowed_methods)]
 fn angle_op(op: fn(f64) -> f64, x: f64) -> SourceResult<Value> {
     Ok(Value::Angle(Angle::rad(op(x))))
 }
@@ -69,7 +59,7 @@ pub(crate) fn calc_sin(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    unary_angle("calc.sin", args, f64::sin)
+    unary_angle("calc.sin", args, libm::sin)
 }
 
 pub(crate) fn calc_cos(
@@ -78,7 +68,7 @@ pub(crate) fn calc_cos(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    unary_angle("calc.cos", args, f64::cos)
+    unary_angle("calc.cos", args, libm::cos)
 }
 
 pub(crate) fn calc_tan(
@@ -87,7 +77,7 @@ pub(crate) fn calc_tan(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    unary_angle("calc.tan", args, f64::tan)
+    unary_angle("calc.tan", args, libm::tan)
 }
 
 /// P817-A — paridade vanilla: `asin` devolve `Angle` (não `float`).
@@ -107,7 +97,7 @@ pub(crate) fn calc_asin(
                     "calc.asin() valor deve estar entre -1 e 1, recebeu {x}"
                 ));
             }
-            angle_op(f64::asin, x)
+            angle_op(libm::asin, x)
         }
         _ => err(format!("calc.asin() requer 1 argumento, recebeu {}", args.items.len())),
     }
@@ -129,7 +119,7 @@ pub(crate) fn calc_acos(
                     "calc.acos() valor deve estar entre -1 e 1, recebeu {x}"
                 ));
             }
-            angle_op(f64::acos, x)
+            angle_op(libm::acos, x)
         }
         _ => err(format!("calc.acos() requer 1 argumento, recebeu {}", args.items.len())),
     }
@@ -146,14 +136,14 @@ pub(crate) fn calc_atan(
     match args.items.as_slice() {
         [v] => {
             let x = coerce_to_f64(v, "calc.atan()")?;
-            angle_op(f64::atan, x)
+            angle_op(libm::atan, x)
         }
         _ => err(format!("calc.atan() requer 1 argumento, recebeu {}", args.items.len())),
     }
 }
 
 /// `calc.atan2(x, y)` — paridade vanilla na **ordem dos parâmetros** (`x` antes
-/// de `y`); a stdlib Rust expõe `f64::atan2(y, x)` portanto a chamada interna
+/// de `y`); `libm` expõe `atan2(y, x)` portanto a chamada interna
 /// passa-os trocados (cf. diagnóstico §A.1).
 /// P817-A — paridade vanilla: `atan2` devolve `Angle` (não `float`).
 pub(crate) fn calc_atan2(
@@ -167,8 +157,7 @@ pub(crate) fn calc_atan2(
         [vx, vy] => {
             let x = coerce_to_f64(vx, "calc.atan2() x")?;
             let y = coerce_to_f64(vy, "calc.atan2() y")?;
-            #[allow(clippy::disallowed_methods)]
-            let r = f64::atan2(y, x);
+            let r = libm::atan2(y, x);
             Ok(Value::Angle(Angle::rad(r)))
         }
         _ => {
@@ -185,5 +174,33 @@ mod tests {
     #[test]
     fn preserves_modeled_result() {
         assert_eq!(call(calc_sin, vec![Value::Int(0)]).unwrap(), Value::Float(0.0));
+    }
+
+    #[test]
+    fn transcendental_angle_inputs_and_inverse_quadrants() {
+        let Value::Float(sine) =
+            call(calc_sin, vec![Value::Angle(Angle::deg(30.0))]).unwrap()
+        else {
+            panic!("sin(angle) must return float");
+        };
+        assert!((sine - 0.5).abs() < 1e-14);
+        let Value::Angle(inverse) = call(calc_asin, vec![Value::Float(0.5)]).unwrap()
+        else {
+            panic!("asin must return angle");
+        };
+        assert!((inverse.to_deg() - 30.0).abs() < 1e-12);
+        for (x, y, degrees) in
+            [(1, 1, 45.0), (-1, 1, 135.0), (-1, -1, -135.0), (1, -1, -45.0)]
+        {
+            let Value::Angle(angle) =
+                call(calc_atan2, vec![Value::Int(x), Value::Int(y)]).unwrap()
+            else {
+                panic!("atan2 must return angle");
+            };
+            assert!((angle.to_deg() - degrees).abs() < 1e-12);
+        }
+        assert!(call(calc_asin, vec![Value::Float(1.01)]).is_err());
+        assert!(call(calc_acos, vec![Value::Float(-1.01)]).is_err());
+        assert!(call(calc_sin, vec![]).is_err());
     }
 }

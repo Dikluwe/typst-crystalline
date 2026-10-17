@@ -30,7 +30,7 @@ use crate::entities::tiling::Tiling;
 ///
 /// **P262 (ADR-0087)** — `Paint::Gradient(Gradient)` variant
 /// activada via ADR-0086 §"Critério revisão" cumprido.
-/// `Copy` removido — Gradient não é Copy (Arc<Linear>).
+/// `Copy` removido — Gradient não é Copy (`Arc<Linear>`).
 ///
 /// Per ADR-0086 + ADR-0087 + P395, materializa `Solid(Color)` +
 /// `Gradient(Gradient)` e `Tiling(Tiling)`.

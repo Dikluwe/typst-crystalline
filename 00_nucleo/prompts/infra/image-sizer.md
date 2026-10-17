@@ -1,5 +1,5 @@
 # L0 — Image byte metadata adapter
-Hash do Código: 074d77bc
+Hash do Código: da23162b
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/image_sizer.rs`
@@ -25,3 +25,32 @@ The existing L1 image layout owner interprets absent DPI/default sizing and orie
 ## Verification boundary
 
 Existing byte fixtures control dimensions, density precedence and legal/invalid orientation. Optional `/tmp/p773-dpi300.png` and `.jpg` probes are environmental legacy inputs, not required persistent fixtures or proof when absent. No replacement is assumed.
+
+
+## Tipos explícitos e leitura local — type_complexity (2026-10-15)
+
+### Medição anterior à decisão
+
+03_infra/src/image_sizer.rs:268 (C093); 03_infra/src/image_sizer.rs:340 (C094).
+O snapshot before.json.gz em 00_nucleo/diagnosticos/type-complexity-2026-10-15
+conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
+O gate red-clippy.log falha com este lint promovido a erro antes da edição.
+A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos
+estáticos já explícitos. É manutenção de representação Rust; não medição de
+benefício da IA, bug funcional ou paridade nova.
+
+### Responsabilidade e aceitação
+
+Nomear os dois leitores estáticos de TIFF em TiffReaders privado com read_u16 e read_u32, ambos fn-pointers existentes. Um helper privado tiff_readers escolhe II/MM na mesma ordem e retorna None para outro header; retirar o boolean _le sem uso. Os parsers mantêm seus testes de comprimento/magic antes de IFD, chamando os mesmos leitores e helpers nas mesmas fatias. Sem novo parser, bounds, dependência, precisão ou política de DPI/orientação.
+
+Correção interna em fluxo contínuo ADR-0127: nenhuma entidade, assinatura pública
+resolvida, default ou fase é alterada. Uma abreviação de tipo só é permitida com
+expansão comprovadamente idêntica; incompatibilidade ou tipo público novo exige
+outro gate. As exceções são nominais apenas para type_complexity; não autorizar
+supressão em módulo/impl/crate nem elevar limiar. Esta permissão pontual supera
+proibições genéricas anteriores somente para os três itens justificados neste lote;
+continuam proibidas supressões dos demais casos destinados à correção.
+Usar os controles funcionais existentes sem mudar seus esperados. O gate selecionado
+deve passar RED→GREEN, incluindo unfulfilled_lint_expectations como erro; revalidar
+build, Clippy all-targets, suíte workspace, formato, Rustdoc e linhagem com resselo
+restrito. Não criar testes que apenas espelhem aliases ou nomes de campos.

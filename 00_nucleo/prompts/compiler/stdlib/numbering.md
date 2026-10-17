@@ -1,5 +1,5 @@
 # L0 — stdlib/numbering
-Hash do Código: 13a8aa93
+Hash do Código: ef544b5b
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/numbering.rs`
@@ -21,3 +21,16 @@ Calculated usize/u32-to-Int callback arguments use Args::from_parts with empty n
 ## Acceptance
 
 Preserve the specified syntax, semantics, morphology, errors/hints/spans, defaults and public identities, with no productive-code change. Preserve pinned shared claims and the exclusive owner boundary under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130. Historical evidence does not establish parity against a newer snapshot.
+
+
+## Caminhos residuais internos — 2026-10-13
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/stdlib/numbering.rs` nas linhas 168 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `00_nucleo/diagnosticos/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
+
+### Decisão e aceitação
+
+Percorrer os pares prefix/symbol sem enumerar um índice nunca usado. Preservar ordem, consumo de numbers_iter, chamadas ao formatador, erros e interrupção quando faltam números. A emissão de apóstrofo por push(char) preserva o mesmo texto.
+
+Correção interna em fluxo contínuo ADR-0127, sem nova assinatura pública, default de produto ou fase. Preservar os resultados de linguagem e as expectativas dos testes. Revalidar todos os targets, suíte core, build, Clippy e linhagem; não suprimir warnings para substituir a correção.

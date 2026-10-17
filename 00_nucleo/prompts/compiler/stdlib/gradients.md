@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/gradients` — tipo `gradient`
-Hash do Código: e95b07b3
+Hash do Código: f67670c0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/gradients.rs`

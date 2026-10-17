@@ -421,11 +421,11 @@ impl ObservationEq for crate::entities::elements::math_underover::MathUndershell
         ObservationRelation::Same
             .and(self.body.observation_relation(&other.body))
             .and(self.annotation.observation_relation(&other.annotation))
-            .and(
-                (self.annotation_explicit == other.annotation_explicit)
-                    .then_some(ObservationRelation::Same)
-                    .unwrap_or(ObservationRelation::Different),
-            )
+            .and(if self.annotation_explicit == other.annotation_explicit {
+                ObservationRelation::Same
+            } else {
+                ObservationRelation::Different
+            })
     }
 }
 

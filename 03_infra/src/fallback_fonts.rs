@@ -156,9 +156,15 @@ mod common_fallback_regression {
 
     #[test]
     fn vanilla_text_fallback_chain_precedes_global_search() {
-        assert_eq!(text_fallback_font_list(), &[
-            "Libertinus Serif", "Twitter Color Emoji", "Noto Color Emoji",
-            "Apple Color Emoji", "Segoe UI Emoji",
-        ]);
+        assert_eq!(
+            text_fallback_font_list(),
+            &[
+                "Libertinus Serif",
+                "Twitter Color Emoji",
+                "Noto Color Emoji",
+                "Apple Color Emoji",
+                "Segoe UI Emoji",
+            ]
+        );
     }
 }

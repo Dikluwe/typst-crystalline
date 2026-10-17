@@ -13,7 +13,6 @@
 //! sintáctico tipado.
 
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
-use crate::entities::span::Span;
 
 use crate::entities::ast::code::{
     Conditional, Contextual, DestructAssignment, ForLoop, FuncReturn, LetBinding,

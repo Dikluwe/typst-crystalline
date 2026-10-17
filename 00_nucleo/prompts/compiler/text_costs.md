@@ -1,5 +1,5 @@
 # L0 — compiler/text_costs
-Hash do Código: d032cabe
+Hash do Código: 0860a944
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:70b72ac9efb2bf81aa4ef496c4e1c867264f696d454a9916e7e2e5f385b92020

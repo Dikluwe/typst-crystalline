@@ -11,3 +11,5 @@
 !*.lock
 !*.sha256
 !*.json.gz
+!table-local-scaling-followup-2026-10-09/*.c
+!table-local-scaling-followup-2026-10-09/fixtures/*.typ

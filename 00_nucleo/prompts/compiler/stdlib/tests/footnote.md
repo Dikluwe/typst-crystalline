@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/footnote
-Hash do Código: 9ea0d8f1
+Hash do Código: c5464057
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/footnote.rs`

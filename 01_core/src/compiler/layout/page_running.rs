@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/page_running.md
-//! @prompt-hash e4254118
+//! @prompt-hash 06b1f0b7
 //! @layer L1
 //! @updated 2026-08-24
 
@@ -52,6 +52,7 @@ fn layout_content<M: FontMetrics, S: ImageSizer>(
     height: f64,
     y: f64,
 ) -> Vec<FrameItem> {
+    let saved_link_scopes = std::mem::take(&mut layouter.link_capture.active);
     let (_, items, _, _, _) = layouter.layout_sub_frame(
         content,
         SubLayoutRegion {
@@ -62,7 +63,9 @@ fn layout_content<M: FontMetrics, S: ImageSizer>(
             unconstrained_height: false,
         },
     );
+    layouter.link_capture.active = saved_link_scopes;
     vec![FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(layouter.page_config.margin.left), y: Pt(y) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -129,6 +132,7 @@ pub(super) fn realized_numbering_layer<M: FontMetrics, S: ImageSizer>(
         ha,
         fd,
     );
+    let saved_link_scopes = std::mem::take(&mut layouter.link_capture.active);
     let (_, items, _, _, _) = layouter.layout_sub_frame(
         content,
         SubLayoutRegion {
@@ -139,7 +143,9 @@ pub(super) fn realized_numbering_layer<M: FontMetrics, S: ImageSizer>(
             unconstrained_height: true,
         },
     );
+    layouter.link_capture.active = saved_link_scopes;
     vec![FrameItem::Group {
+        paint_root: false,
         pos,
         matrix: TransformMatrix::identity(),
         clip_mask: None,

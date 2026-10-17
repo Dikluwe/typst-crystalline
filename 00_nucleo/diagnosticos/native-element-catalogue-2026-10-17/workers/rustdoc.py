@@ -1,0 +1,3 @@
+from pathlib import Path
+import subprocess,os,json,datetime,sys,tomllib
+cmd=['cargo','doc','--offline','--locked','--workspace','--no-deps'];r=subprocess.run(cmd,env=dict(os.environ,RUSTDOCFLAGS='-D warnings'));indices=[Path('target/doc')/p/'index.html' for p in ['typst_core','typst_shell','typst_infra',tomllib.loads(Path('04_wiring/Cargo.toml').read_text())['bin'][0]['name']]];record=dict(utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),command=cmd,exit=r.returncode,indices={str(p):p.exists() and p.stat().st_size>0 for p in indices});Path(__file__).resolve().parents[1].joinpath('rustdoc-result.json').write_text(json.dumps(record,indent=2)+'\n');assert r.returncode==0 and all(record['indices'].values())

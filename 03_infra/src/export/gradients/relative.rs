@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/gradients/relative.md
-//! @prompt-hash 75ec0d2e
+//! @prompt-hash fed7b770
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -8,8 +8,6 @@
 //!
 //! Extraído de `gradients.rs` em P307b.2 (ADR-0100 / diagnóstico
 //! P307a §5). Conteúdo bit-exact pré e pós migração.
-
-use typst_core::entities::gradient::RelativeTo;
 
 // ── P273 — Gradient `relative: RelativeTo` cross-variant ──
 //

@@ -1,16 +1,17 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/images/scan.md
-//! @prompt-hash 72a9e58c
+//! @prompt-hash f520227a
 //! @layer L3
 //! @updated 2026-09-26
 
 use super::jpeg::jpeg_is_rgb;
 use super::png::process_png_for_pdf;
 use super::{detect_image_format, ImageFormat, ImageRef, ImageXObject, PdfImagePayload};
+use crate::export::tiling::walk_resources as walk_frame_items;
 use std::cell::RefCell;
 use std::collections::{BTreeSet, HashMap};
 use std::sync::Arc;
-use typst_core::entities::frame_visitor::{walk_frame_items, FrameVisitor};
+use typst_core::entities::frame_visitor::FrameVisitor;
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
 
 // P876 — cache thread-local de `PdfImagePayload` processados, indexado pelo
@@ -54,7 +55,9 @@ pub(crate) fn validate_document_images(doc: &PagedDocument) -> Result<(), String
     }
     let mut validator = ImageValidator(Ok(()));
     for page in &doc.pages {
-        walk_frame_items(&mut validator, &page.items);
+        for items in [&page.background, &page.items, &page.foreground] {
+            walk_frame_items(&mut validator, items);
+        }
         if validator.0.is_err() {
             return validator.0;
         }
@@ -136,7 +139,9 @@ pub(in crate::export) fn scan_all_images(
     };
 
     for page in &doc.pages {
-        walk_frame_items(&mut scanner, &page.items);
+        for items in [&page.background, &page.items, &page.foreground] {
+            walk_frame_items(&mut scanner, items);
+        }
     }
     (refs, ptr_to_idx, xobjects)
 }
@@ -270,7 +275,9 @@ pub(in crate::export) fn xobject_resources_for_page(
         seen: &mut seen,
         entries: &mut entries,
     };
-    walk_frame_items(&mut collector, &page.items);
+    for items in [&page.background, &page.items, &page.foreground] {
+        walk_frame_items(&mut collector, items);
+    }
     if entries.is_empty() {
         return String::new();
     }
@@ -312,6 +319,7 @@ mod tests {
     }
     fn group(items: Vec<FrameItem>) -> FrameItem {
         FrameItem::Group {
+            paint_root: false,
             pos: Point::ZERO,
             matrix: TransformMatrix::identity(),
             clip_mask: None,

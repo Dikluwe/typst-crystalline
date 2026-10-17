@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/geometry.md
-//! @prompt-hash 659dbd13
+//! @prompt-hash d986f7e6
 //! @layer L1
 //! @updated 2026-04-20
 
@@ -188,10 +188,12 @@ fn solve_quadratic_in_unit(a: f64, b: f64, c: f64) -> Vec<f64> {
 /// Devolve o componente do ponto na curva paramétrica em `t ∈ [0,1]`.
 fn bezier_at_axis(t: f64, p0: f64, p1: f64, p2: f64, p3: f64) -> f64 {
     let one_minus_t = 1.0 - t;
-    one_minus_t.powi(3) * p0
-        + 3.0 * one_minus_t.powi(2) * t * p1
-        + 3.0 * one_minus_t * t.powi(2) * p2
-        + t.powi(3) * p3
+    let one_minus_t_squared = one_minus_t * one_minus_t;
+    let t_squared = t * t;
+    (one_minus_t_squared * one_minus_t) * p0
+        + 3.0 * one_minus_t_squared * t * p1
+        + 3.0 * one_minus_t * t_squared * p2
+        + (t_squared * t) * p3
 }
 
 /// **P277 — DEBT-33 CLOSED**: calcula a AABB analítica de uma curva
@@ -412,7 +414,7 @@ mod tests {
     }
 
     /// 2) Curva monotonicamente crescente (control points entre endpoints).
-    /// Endpoints sempre extremos.
+    ///    Endpoints sempre extremos.
     #[test]
     fn p277_bezier_bbox_endpoints_unicos_extremos() {
         let (min_x, min_y, max_x, max_y) =
@@ -424,9 +426,9 @@ mod tests {
     }
 
     /// 3) Curva U-shape em Y: P0=(0,0), P1=(0,10), P2=(10,10), P3=(10,0).
-    /// Control points têm y_max=10, mas curva real tem y_max em t=0.5 que é
-    /// mais baixo (curva é puxada para os control points mas não os atinge).
-    /// Bbox analítica deve ter max_y < 10 (mais apertado).
+    ///    Control points têm y_max=10, mas curva real tem y_max em t=0.5 que é
+    ///    mais baixo (curva é puxada para os control points mas não os atinge).
+    ///    Bbox analítica deve ter max_y < 10 (mais apertado).
     #[test]
     fn p277_bezier_bbox_curva_tighter_em_y() {
         let (_min_x, _min_y, _max_x, max_y) =
@@ -470,7 +472,7 @@ mod tests {
     }
 
     /// 6) solve_quadratic_in_unit: a=0, b≠0 → caso linear; verificar raiz
-    /// em (0, 1).
+    ///    em (0, 1).
     #[test]
     fn p277_solve_quadratic_in_unit_a_zero_linear() {
         // b*t + c = 0 → t = -c/b
@@ -490,7 +492,7 @@ mod tests {
     }
 
     /// 7) path_bbox com apenas MoveTo+LineTo → equivalente a min/max
-    /// simples (preserva polygon() behavior bit-exact).
+    ///    simples (preserva polygon() behavior bit-exact).
     #[test]
     fn p277_path_bbox_polygon_lineto_preserva() {
         let path = vec![
@@ -508,7 +510,7 @@ mod tests {
     }
 
     /// 8) path_bbox com CubicTo: bbox usa analítica para o segmento curvo,
-    /// produz resultado tighter do que min/max de todos os control points.
+    ///    produz resultado tighter do que min/max de todos os control points.
     #[test]
     fn p277_path_bbox_cubic_usa_analitica() {
         // Path: MoveTo(0,0) → CubicTo(0,10; 10,10; 10,0)

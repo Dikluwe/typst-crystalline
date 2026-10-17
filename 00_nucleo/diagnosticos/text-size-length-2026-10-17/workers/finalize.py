@@ -1,0 +1,65 @@
+from pathlib import Path
+import datetime,gzip,json,hashlib,subprocess,collections,difflib
+out=Path(__file__).resolve().parents[1];sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest();b=json.load(gzip.open(out/'before.json.gz'));s=json.load(open(out/'scope.json'));v=json.load(open(out/'validation-result.json'));assert v.get('complete') and v['sources_unchanged'];assert all(sha(p)==h for p,h in v['source_hashes'].items());assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==b['head'];changed=[p for p,h in b['hashes'].items() if sha(p)!=h];assert set(changed)==set(s['sources'])|set(s['owners'].values())
+packages={'text-size-length-2026-10-17':'771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba','table-row-groups-2026-10-17':'a47fe97272fd6a5bd96022be959ba277a317a74086f5e5f4a569bba008f4fae9'}
+for n,h in packages.items():
+ p=Path('00_nucleo/materialization')/n;assert sha(p/'SHA256SUMS')==h
+ for line in (p/'SHA256SUMS').read_text().splitlines():want,f=line.split('  ',1);assert sha(p/f)==want
+rg=json.load(open('00_nucleo/materialization/table-row-groups-2026-10-17/scope.json'));allowed=set(s['sources'])|set(s['owners'].values());protected=rg['semantic_sources']+rg['metadata_only_sources']+list(rg['owners']);assert all(sha(p)==b['hashes'][p] for p in protected if p not in allowed)
+suite=json.load(open(out/'workspace/workspace-result.json'));assert (suite['exit'],suite['passed'],suite['failed'],suite['ignored'])==(0,8810,0,7);assert '0 passed; 6 failed;' in (out/'red.log').read_text();assert '0 passed; 4 failed;' in (out/'heading-red.log').read_text();assert '14 passed; 0 failed;' in (out/'heading-green-2.log').read_text();delta=json.load(open(out/'architecture-delta.json'));assert delta['after']=={'V16:error':124,'V19:note':1069,'V20:note':865};assert delta['no_new_errors_or_warnings'];assert json.load(open(out/'parbox-regressions.json'))['pairs']==50;assert json.load(open(out/'rg1-controls.json'))['pairs']==105;assert json.load(open(out/'solid-paint-result.json'))['pairs']==8
+api=json.load(open(out/'api-probe.json'));assert api['sizes']['styles']==api['sizes']['style_delta']==336 and api['sizes']['style']==32
+allresources={str(f.relative_to(out)):json.load(open(f)) for f in out.rglob('*resources.json')};unique={}
+for name,r in allresources.items():
+ m=r['memory_after'];assert (m['memory.max'],m['memory.high'],m['memory.swap.max'])==('12884901888','10737418240','0');events=dict((n,int(v)) for n,v in (line.split() for line in m['memory.events'].splitlines()));assert events['oom']==events['oom_kill']==0;unique[(r['start'],r['label'])]=r
+peak=max(int(r['memory_after']['memory.peak']) for r in unique.values());events={n:sum(int(next(line.split()[1] for line in r['memory_after']['memory.events'].splitlines() if line.startswith(n+' '))) for r in unique.values()) for n in ['high','max','oom','oom_kill']}
+measurements={n:json.load(gzip.open(out/f'{n}-measurement.json.gz')) for n in ['before','after','morph-after']};extended=json.load(gzip.open(out/'after-extended.json.gz'));pairs={n:len(d['cases'])//2 for n,d in measurements.items()};pairs['extended-after']=len(extended['cases'])//2;assert pairs['after']==48 and pairs['extended-after']==41 and pairs['morph-after']==16
+rows=json.load(open(out/'validation-architecture.log'))['runs'][0]['results'];remaining=[r for r in rows if r['ruleId']=='V16'];(out/'remaining-v16.json').write_text(json.dumps(remaining,indent=2)+'\n');groups=collections.defaultdict(list)
+for r in remaining:
+ p=r['locations'][0]['physicalLocation'];groups[p['artifactLocation']['uri']].append(p['region']['startLine'])
+(out/'inventario-v16-restante.md').write_text('# V16 após TS1\n\n124 erros; fonte e estado exatos em final-state.json.gz e SARIF integral.\n\n| Consumer | Casos | Linhas |\n|---|---:|---|\n'+''.join(f'| `{p}` | {len(ns)} | {", ".join(map(str,ns))} |\n' for p,ns in sorted(groups.items())))
+state=dict(utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),head=b['head'],working_tree='uncommitted',status=subprocess.check_output(['git','status','--porcelain=v1'],text=True),diffstat=subprocess.check_output(['git','diff','HEAD','--stat'],text=True),source_hashes=v['source_hashes'],changed_since_checkpoint=changed,new_nucleus='00_nucleo/prompts/_nuclei/text-size-affine.toml',tests={k:suite[k] for k in ['passed','failed','ignored']},architecture=delta,peak_bytes=peak,memory_events=events,resources=allresources,public_changes=s['public_changes'],approved_package_manifests_preserved=packages,language_equality_followup_required=True)
+with gzip.open(out/'final-state.json.gz','wt') as f:json.dump(state,f)
+patch=''.join(''.join(difflib.unified_diff(b['files'][p].splitlines(True),Path(p).read_text().splitlines(True),fromfile='before/'+p,tofile='after/'+p)) for p in s['sources']+list(s['owners'].values()));(out/'patch-since-checkpoint.diff').write_text(patch)
+(out/'pendencias.json').write_text(json.dumps(dict(V16=124,RG1='Public proposal pending; full package preserved; rebase apply/tests over TS1 independently',Styled_equality='Two true->false regressions in relative-vs-zero and affine-vs-absolute-part; old relative-vs-resolved remains wrong. Separate operator-only corrective batch will close before final user delivery; do not rewrite Rust PartialEq or morph_canon.',Heading_replaced='27pt versus36.6pt when show function replaces Heading: default/realization-order debt; no universal Heading parity claim',scripts='Absolute24pt and relative2em controls agree inside each renderer; preexisting script size/offset divergence against pin retained',Paint='Gradient/Tiling text transport and relative:self error remain separate; do not hide under solid-color tests',show_text='Unsupported text selector remains open',other='Integer manual minimum literal, fractional Box, multi-page SVG and remaining inventories are still part of the active goal'),indent=2)+'\n')
+(out/'relatorio.md').write_text(f'''# TS1 — tamanho textual abs + em
+
+Materialização da superfície aprovada concluída e gates executados. **Este registro é o checkpoint TS1; a igualdade Styled necessita o lote corretivo separado descrito abaixo antes da entrega final.** O objetivo global permanece aberto.
+
+## Mudança e autorização
+
+O humano aprovou o manifesto 771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba, resposta “Aprovar proposta TS1”. Style::Size agora recebe Length e StyleDelta.size é Option<Length>. TextStyle.size continua Pt resolvido, StyleChain::size retorna f64; nenhum outro contrato público mudou. Migração Rust: Size(Pt(v))→Size(Length::pt(v)); size:Some(v)→Some(Length::pt(v)). Não houve publicação, merge, release ou commit/push do Typst. O pin CI do linter permanece12797073972e375d9ab078cf6750c8b30b71e2b9, publicado na etapa anterior.
+
+Constructor encontra Length/Color em qualquer posição, com preferência nomeada, ocorrência causal, validação de duplicatas e body Content/Str/None. Erros de corpo, sobras e length/hint foram corrigidos. Set text passa a avaliar argumentos uma vez e transportar os posicionais; em não é truncado. Dobra afim, collapse e captura preservam declaração e ausência sem inserir default cedo. Typed vence custom no mesmo nó; captura exclusivamente custom conserva sua transparência morfológica. Raw/math recebem valores já resolvidos como comprimentos absolutos.
+
+Os19 consumers originais e seus L0s foram migrados. A validação S3/S4 exigiu um20º consumer: Heading vincula o Pt resolvido como Length absoluto na chain do corpo e a restaura. Show-set de Heading usa proveniência privada nos caminhos legado e nominal Located; a cópia local do delta normaliza só abs antes da escala já existente. O Length declarado original permanece intacto; nenhuma resolução foi movida de layout para eval. Sobre12pt, 2em+3pt em show-heading passou37.8→36.6pt, e o filho relativo54→73.2pt; os valores finais coincidem com o pin. L2=31.8pt e L3=27pt. A substituição completa por função ainda perde defaults e não está certificada.
+
+L0 primeiro e resselo somente dos20 owners. Núcleo afim pinado por sete owners. Metadados dos candidatos precisaram de posição/ordenação corretas e hash efetivo Tekt; bytes normativos originais foram preservados inicialmente e o refinamento interno de Heading foi medido antes de acrescentar sua claim. O pacote aprovado original permanece imutável. SHA bruto não foi usado como pin efetivo.
+
+## Verificação
+
+Seis RED funcionais iniciais; quatro RED adicionais de Heading. **14 testes novos GREEN**. Suíte completa: **8810 aprovados, zero falhas, sete ignorados**. Build workspace, fmt, Clippy all-targets com -D warnings/-D unfulfilled_lint_expectations, Rustdoc -D warnings/quatro índices, V1/V5/V15/V26 estrito, reverse lineage e diff check passaram. Os dois V17 introduzidos na primeira tentativa foram corrigidos por desdobramento de guards, sem supressões.
+
+SARIF final: **124 V16 erros**, **1069 V19 notas**, **865 V20 notas**. Todos os diagnósticos fora dos consumers alterados são idênticos; V16 por consumer preservado; nenhum erro/warning novo. Gate global continua exit1 pelos V16 existentes. Notas novas de Paint e lookup AST têm política coesa prescrita no L0; não foram silenciadas.
+
+Coletas finais:48 pares principais +41 estendidos +16 suplementares =105 pares textuais; são entradas, não105 defeitos nem105 certificações universais. Oito pares de cor sólida foram conferidos em vetores derivados de PDF; a paleta Typst red é #ff4136, não vermelho RGB puro. Cinquenta pares Par/Box preservam a geometria anterior dentro0.002pt;105 pares RG1 preservam códigos/saídas/diagnósticos, estrutura de corpo HTML e geometria de linhas coloridas SVG. O pacote RG1 segue pendente, sem implementar seus contratos. Sete sondas avaliam admissão/repr de zero, negativos e não finitos; não certificam render de NaN/infinito.
+
+A primeira implementação e seu binário/fontes estão arquivados em candidate-1.tar.gz. Falhas de metadados, parser de SVG/paleta e script parcial foram guardadas; não contam como RED funcional. A compilação parcial foi interrompida antes do GREEN válido. O comparador SARIF foi corrigido para calcular um mapa por arquivo. As coletas/gates finais usam fontes congeladas; tentativas não foram ocultadas.
+
+## Limites que permanecem explícitos
+
+A igualdade Styled já estava errada contra o pin, mas TS1 também expôs **duas regressões observáveis**: relative-vs-zero e affine-vs-absolute-part mudaram true→false, com vanilla true. A causa é a comparação estrutural dos Styles na igualdade da linguagem. Não são aceitas como contrato novo nem tratadas como sucesso; requerem lote separado do operador antes do relatório final ao usuário. Não apagar wrappers ou alterar PartialEq Rust para esconder o problema. Os corpora e o diagnóstico anterior conservam a medição antes/depois.
+
+Paint Gradient/Tiling, seletor show text, defaults de Heading substituído, scripts, Box1fr, SVG multipágina, literal mínimo e V16 restantes continuam no objetivo global. Os controles absolutos de scripts coincidem com os relativos dentro de cada backend e confirmam que a diferença contra o pin antecede a migração. Resíduos de contorno/xMax e os demais limites estão nos dados brutos, sem afirmar paridade global.
+
+## RAM e proveniência
+
+MemoryMax12GiB, MemoryHigh10GiB, swap zero, Cargo jobs1 e comandos pesados sequenciais. Pico observado nos grupos: **{peak} bytes ({peak/1024**3:.3f} GiB)**; eventos {events}. Memória inclui cache, não é RSS isolado. Styles/StyleDelta medidos336bytes, antes328; Style permanece32. O custo do campo é+8bytes; não foi alegada otimização de RAM.
+
+HEAD {b['head']}, working tree não commitado. before/final-state.json.gz, snapshots, validation-result.json e recursos registram UTC, status/diffstat, hashes de fontes/L0/config, argv, binários e artefatos. Oráculo9f2b6e8715237cb086899a42873660fe744622e8, SHA7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea. Linter12797073972e375d9ab078cf6750c8b30b71e2b9, SHA {b['linter']['sha256']}.
+
+[Inventário V16](inventario-v16-restante.md) · [Pendências](pendencias.json) · [Patch restrito](patch-since-checkpoint.diff). RG1 deve ser rebaseado preservando TS1 em apply/tests; seu manifesto original foi conferido, não substituído.
+''')
+p=out/'relatorio.md';t=p.read_text()
+for a,z in [('Os19','Os 19'),('um20º','um 20º'),('dos20','dos 20'),('Sobre12','Sobre 12'),('passou37','passou 37'),('relativo54','relativo 54'),('exit1','exit 1'),('dentro0.002','dentro de 0.002'),('MemoryMax12','MemoryMax 12'),('MemoryHigh10','MemoryHigh 10'),('Cargo jobs1','Cargo jobs=1'),('medidos336','medidos 336'),('antes328','antes 328'),('permanece32','permanece 32'),('campo é+8','campo é +8'),('Oráculo9','Oráculo 9'),('SHA7','SHA 7'),('Linter127','Linter 127')]:t=t.replace(a,z)
+p.write_text(t)
+manifest=''.join(f'{sha(p)}  {p.relative_to(out)}\n' for p in sorted(out.rglob('*')) if p.is_file() and p.name!='SHA256SUMS');(out/'SHA256SUMS').write_text(manifest);print(json.dumps(dict(tests=suite['passed'],peak_bytes=peak,manifest_sha256=sha(out/'SHA256SUMS'))))

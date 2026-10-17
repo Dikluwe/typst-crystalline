@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/page.md
-//! @prompt-hash 35aebbc7
+//! @prompt-hash 49717955
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -22,6 +22,15 @@ pub(in crate::export) fn build_page_stream(page: &Page, ctx: &PageContext) -> Ve
         if ctx.ua1 {
             ops.push_str("/Artifact << /Type /Layout >> BDC\n");
         }
+        let opacity = if let typst_core::entities::paint::Paint::Solid(c) = paint {
+            super::opacity_operator(c.to_rgba_f32().3, 1.0)
+        } else {
+            String::new()
+        };
+        if !opacity.is_empty() {
+            ops.push_str("q\n");
+            ops.push_str(&opacity);
+        }
         if let typst_core::entities::paint::Paint::Solid(color) = paint {
             if let Some(op) = spot_fill_operator(color) {
                 ops.push_str(&op);
@@ -38,6 +47,9 @@ pub(in crate::export) fn build_page_stream(page: &Page, ctx: &PageContext) -> Ve
             page.canvas_width(),
             page.canvas_height(),
         ));
+        if !opacity.is_empty() {
+            ops.push_str("Q\n");
+        }
         if ctx.ua1 {
             ops.push_str("EMC\n");
         }

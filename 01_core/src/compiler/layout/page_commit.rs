@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/page_commit.md
-//! @prompt-hash 7e5577c5
+//! @prompt-hash 5b423599
 //! @layer L1
 //! @updated 2026-09-25
 //!
@@ -27,7 +27,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             .logical_number_for_page(page)
             .unwrap_or(page_number);
 
+        self.close_link_items();
         let mut items = std::mem::take(&mut self.regions.current.current_items);
+        self.open_link_items();
         self.apply_pending_par_line_fixups(&mut items);
         // **P896** — resolve centragem/numeração de equação de bloco
         // adiadas por `width: auto` (ver `equation.rs`), agora que
@@ -104,6 +106,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         ),
                         text: text.into(),
                         style,
+                        bidi: None,
                     });
                 }
             }

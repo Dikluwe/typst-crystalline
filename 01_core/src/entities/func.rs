@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/func.md
-//! @prompt-hash b87d9f16
+//! @prompt-hash dc4aa7b9
 //! @layer L1
 //! @updated 2026-04-13
 
@@ -21,9 +21,19 @@ use crate::entities::value::Value;
 #[derive(Clone)]
 pub struct Func(pub(crate) Arc<FuncRepr>, Span);
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum FormatElementKind {
+    Svg,
+    Png,
+    Pdf,
+    Html,
+    Bundle,
+}
+
 pub(crate) enum FuncRepr {
     Closure(ClosureRepr),
     Native(NativeFunc),
+    Format(FormatElementKind, NativeFunc),
     /// **P394** — variante de native function com acesso ao `Scopes` e `Engine`
     /// actuais. Usada por `eval(source)` para re-avaliar código Typst no contexto
     /// corrente. O ABI geral das nativas permanece inalterado.
@@ -139,6 +149,10 @@ pub struct NativeFuncWithEngine {
 }
 
 impl Func {
+    pub(crate) fn native_format(kind: FormatElementKind, native: NativeFunc) -> Self {
+        Self(Arc::new(FuncRepr::Format(kind, native)), Span::detached())
+    }
+
     /// Constrói uma Func a partir de uma ClosureRepr.
     pub fn closure(repr: ClosureRepr) -> Self {
         Self(Arc::new(FuncRepr::Closure(repr)), Span::detached())
@@ -279,7 +293,12 @@ impl Func {
     pub fn element_name(&self) -> Option<&str> {
         match self.0.as_ref() {
             FuncRepr::Element(e) => Some(&e.name),
-            _ => None,
+            FuncRepr::Closure(_)
+            | FuncRepr::Native(_)
+            | FuncRepr::Format(_, _)
+            | FuncRepr::NativeWithEngine(_)
+            | FuncRepr::Plugin(_)
+            | FuncRepr::With(_) => None,
         }
     }
 
@@ -291,7 +310,7 @@ impl Func {
     pub fn name(&self) -> Option<&str> {
         match self.0.as_ref() {
             FuncRepr::Closure(c) => c.name.as_deref(),
-            FuncRepr::Native(n) => Some(n.name),
+            FuncRepr::Native(n) | FuncRepr::Format(_, n) => Some(n.name),
             FuncRepr::NativeWithEngine(n) => Some(n.name),
             FuncRepr::Element(e) => Some(&e.name),
             FuncRepr::Plugin(p) => Some(p.name.as_str()),
@@ -303,7 +322,7 @@ impl Func {
 
     /// Endereço da função nativa subjacente como identidade opaca.
     ///
-    /// Retorna `Some(fn_ptr)` apenas para `FuncRepr::Native`. Closures
+    /// Retorna `Some(fn_ptr)` para Native e Format com o mesmo NativeFunc. Closures
     /// retornam `None` — function pointers de closures não são estáveis
     /// nem comparáveis em Rust, pelo que não servem para selectors.
     ///
@@ -312,6 +331,10 @@ impl Func {
     /// substituindo a comparação por nome (DEBT-21).
     ///
     /// Safe: `fn(...)` é function pointer, não `*const c_void`.
+    #[expect(
+        clippy::type_complexity,
+        reason = "native_fn_addr: ABI nativa explícita preservada"
+    )]
     pub fn native_fn_addr(
         &self,
     ) -> Option<
@@ -323,7 +346,7 @@ impl Func {
         ) -> SourceResult<Value>,
     > {
         match self.0.as_ref() {
-            FuncRepr::Native(n) => Some(n.call),
+            FuncRepr::Native(n) | FuncRepr::Format(_, n) => Some(n.call),
             FuncRepr::Closure(_) => None,
             // P394: assinatura diferente; não comparável com nativas normais.
             FuncRepr::NativeWithEngine(_) => None,
@@ -354,14 +377,14 @@ impl Func {
     /// **P493** — retorna o namespace anexado à função nativa, se existir.
     pub fn namespace(&self) -> Option<&Scope> {
         match self.0.as_ref() {
-            FuncRepr::Native(n) => n.namespace.as_deref(),
+            FuncRepr::Native(n) | FuncRepr::Format(_, n) => n.namespace.as_deref(),
             FuncRepr::NativeWithEngine(n) => n.namespace.as_deref(),
             // P702 — delega à função interna. Medido contra o vanilla (não
             // assumido): `table.with(columns: 2).cell` compila e devolve
             // `function` (`foundations/func.rs:275`,
             // `FuncInner::With(with) => with.0.scope()`).
             FuncRepr::With(w) => w.0.namespace(),
-            _ => None,
+            FuncRepr::Closure(_) | FuncRepr::Element(_) | FuncRepr::Plugin(_) => None,
         }
     }
 }
@@ -387,11 +410,23 @@ impl PartialEq for Func {
             return true;
         }
         match (self.0.as_ref(), other.0.as_ref()) {
-            (FuncRepr::Native(a), FuncRepr::Native(b)) => a.name == b.name,
+            (
+                FuncRepr::Native(a) | FuncRepr::Format(_, a),
+                FuncRepr::Native(b) | FuncRepr::Format(_, b),
+            ) => a.name == b.name,
             (FuncRepr::NativeWithEngine(a), FuncRepr::NativeWithEngine(b)) => {
                 a.name == b.name
             }
-            _other => false, // neutro: N16[β] — funções com representações internas diferentes são desiguais,
+            (
+                FuncRepr::Closure(_)
+                | FuncRepr::Native(_)
+                | FuncRepr::Format(_, _)
+                | FuncRepr::NativeWithEngine(_)
+                | FuncRepr::Element(_)
+                | FuncRepr::Plugin(_)
+                | FuncRepr::With(_),
+                _,
+            ) => false,
         }
     }
 }
@@ -401,7 +436,7 @@ impl Eq for Func {}
 impl Hash for Func {
     fn hash<H: Hasher>(&self, state: &mut H) {
         match self.0.as_ref() {
-            FuncRepr::Native(native) => {
+            FuncRepr::Native(native) | FuncRepr::Format(_, native) => {
                 0u8.hash(state);
                 native.name.hash(state);
             }
@@ -409,7 +444,10 @@ impl Hash for Func {
                 1u8.hash(state);
                 native.name.hash(state);
             }
-            _ => {
+            FuncRepr::Closure(_)
+            | FuncRepr::Element(_)
+            | FuncRepr::Plugin(_)
+            | FuncRepr::With(_) => {
                 2u8.hash(state);
                 Arc::as_ptr(&self.0).hash(state);
             }
@@ -435,6 +473,111 @@ mod tests {
             captured: Arc::new(Scope::new()),
             capturer: Capturer::Function,
         })
+    }
+
+    #[test]
+    fn v16_func_representations_keep_identity_hash_and_metadata_without_calls() {
+        use crate::contracts::plugin_host::{PluginError, PluginHost, PluginModuleId};
+        use crate::entities::bytes::Bytes;
+        use crate::entities::content::Content;
+        use crate::entities::plugin_func::PluginFunc;
+        struct UncalledHost;
+        impl PluginHost for UncalledHost {
+            fn load(&self, _: &[u8]) -> Result<PluginModuleId, PluginError> {
+                panic!("metadata called plugin host")
+            }
+            fn exports(
+                &self,
+                _: PluginModuleId,
+            ) -> Result<Vec<ecow::EcoString>, PluginError> {
+                panic!("metadata called plugin host")
+            }
+            fn call(
+                &self,
+                _: PluginModuleId,
+                _: &str,
+                _: &[Bytes],
+            ) -> Result<Bytes, PluginError> {
+                panic!("metadata called plugin host")
+            }
+            fn transition(
+                &self,
+                _: PluginModuleId,
+                _: &str,
+                _: &[Bytes],
+            ) -> Result<PluginModuleId, PluginError> {
+                panic!("metadata called plugin host")
+            }
+        }
+        fn fingerprint(func: &Func) -> u64 {
+            let mut state = std::collections::hash_map::DefaultHasher::new();
+            func.hash(&mut state);
+            state.finish()
+        }
+        let mut namespace = Scope::new();
+        namespace.define("member", Value::Int(1));
+        let namespace = Arc::new(namespace);
+        let native = Func::native_with_namespace(
+            "same",
+            |_, _, _, _| panic!("metadata called native"),
+            namespace.clone(),
+        );
+        let engine = Func::native_with_engine_and_namespace(
+            "same",
+            |_, _, _, _, _, _| panic!("metadata called engine native"),
+            namespace,
+        );
+        let functions = [
+            native.clone(),
+            engine.clone(),
+            make_closure(),
+            Func::element(
+                "same",
+                Arc::new(|_| -> SourceResult<Content> {
+                    panic!("metadata called constructor")
+                }),
+            ),
+            Func::plugin(PluginFunc {
+                host: Arc::new(UncalledHost),
+                module: PluginModuleId(0),
+                name: "same".into(),
+            }),
+            native.clone().with(Args::positional(vec![])),
+            Func::native_format(
+                FormatElementKind::Svg,
+                NativeFunc {
+                    name: "same",
+                    call: native.native_fn_addr().unwrap(),
+                    namespace: Some(Arc::new(native.namespace().unwrap().clone())),
+                },
+            ),
+        ];
+        for (i, left) in functions.iter().enumerate() {
+            let alias = left.clone();
+            assert_eq!(left, &alias);
+            assert_eq!(fingerprint(left), fingerprint(&alias));
+            for (j, right) in functions.iter().enumerate() {
+                assert_eq!(
+                    left == right,
+                    i == j || matches!((i, j), (0, 6) | (6, 0)),
+                    "representations {i}/{j}"
+                );
+            }
+            assert_eq!(left.native_fn_addr().is_some(), matches!(i, 0 | 6));
+            assert_eq!(left.element_name(), (i == 3).then_some("same"));
+            assert_eq!(
+                left.namespace().and_then(|s| s.get("member")).cloned(),
+                matches!(i, 0 | 1 | 5 | 6).then_some(Value::Int(1))
+            );
+        }
+        let native_alias = Func::native("same", |_, _, _, _| Ok(Value::None));
+        assert_eq!(native, native_alias);
+        assert_eq!(fingerprint(&native), fingerprint(&native_alias));
+        let engine_alias =
+            Func::native_with_engine("same", |_, _, _, _, _, _| Ok(Value::None));
+        assert_eq!(engine, engine_alias);
+        assert_eq!(fingerprint(&engine), fingerprint(&engine_alias));
+        assert_ne!(functions[5], native.with(Args::positional(vec![])));
     }
 
     #[test]
@@ -576,5 +719,121 @@ mod tests {
         let w1 = native.with(Args::positional(vec![Value::Int(1)]));
         let w2 = w1.with(Args::positional(vec![Value::Int(2)]));
         assert_eq!(w2.name(), Some("round"), "encadeamento continua a delegar o nome");
+    }
+}
+
+#[cfg(test)]
+mod native_format_catalogue_compat_tests {
+    use super::*;
+
+    fn formats() -> Vec<Func> {
+        let scope = crate::compiler::stdlib::make_stdlib_with_features(
+            &crate::contracts::world::SysInputs::default(),
+            crate::entities::compiler_features::Features::empty(),
+        );
+        let Value::Module(module) = scope.get("format").unwrap() else {
+            panic!("format module")
+        };
+        ["svg", "png", "pdf", "html", "bundle"]
+            .into_iter()
+            .map(|name| {
+                let Value::Func(function) = module.scope().get(name).unwrap() else {
+                    panic!("format function")
+                };
+                function.clone()
+            })
+            .collect()
+    }
+
+    #[test]
+    fn native_format_catalogue_public_native_projections() {
+        fn fingerprint(function: &Func) -> u64 {
+            let mut state = std::collections::hash_map::DefaultHasher::new();
+            function.hash(&mut state);
+            state.finish()
+        }
+        for function in formats() {
+            let name = function.name().unwrap();
+            let static_name = match name {
+                "svg" => "svg",
+                "png" => "png",
+                "pdf" => "pdf",
+                "html" => "html",
+                "bundle" => "bundle",
+                other => panic!("unexpected format {other}"),
+            };
+            let namespace = function.namespace().unwrap();
+            let native = Func::native_with_namespace(
+                static_name,
+                function.native_fn_addr().unwrap(),
+                Arc::new(namespace.clone()),
+            );
+            assert_eq!(function, native);
+            assert_eq!(fingerprint(&function), fingerprint(&native));
+            assert!(function.element_name().is_none());
+            assert_eq!(format!("{function:?}"), "<function>");
+            let alias = function.clone();
+            assert_eq!(alias, function);
+            let bound = function.clone().with(Args::positional(vec![]));
+            assert_eq!(bound.name(), function.name());
+            assert!(bound.native_fn_addr().is_none());
+            assert!(bound.element_name().is_none());
+            assert_eq!(bound.namespace().unwrap().len(), namespace.len());
+            let mut named = function.clone();
+            named.set_name("renamed".into());
+            assert_eq!(named.name(), function.name());
+        }
+    }
+
+    #[test]
+    fn native_format_catalogue_layout_measurement() {
+        println!(
+            "FORMAT_LAYOUT {{\"func\":{},\"repr\":{},\"native\":{},\"engine\":{}}}",
+            std::mem::size_of::<Func>(),
+            std::mem::size_of::<FuncRepr>(),
+            std::mem::size_of::<NativeFunc>(),
+            std::mem::size_of::<NativeFuncWithEngine>()
+        );
+    }
+}
+
+#[cfg(test)]
+mod native_format_catalogue_witness_tests {
+    use super::*;
+    fn never_called(
+        _: &mut crate::compiler::eval::EvalContext,
+        _: &Args,
+        _: &dyn crate::contracts::world::World,
+        _: FileId,
+    ) -> SourceResult<Value> {
+        panic!("metadata executed callback")
+    }
+    #[test]
+    fn native_format_catalogue_witness_is_not_name_or_callback() {
+        use crate::compiler::eval::bindings::native_element_fields;
+        let cases: &[(FormatElementKind, &str, &[&str])] = &[
+            (FormatElementKind::Svg, "svg", &["pretty"]),
+            (FormatElementKind::Png, "png", &["ppi"]),
+            (FormatElementKind::Pdf, "pdf", &["pages", "standard", "tagged", "pretty"]),
+            (FormatElementKind::Html, "html", &["pretty"]),
+            (FormatElementKind::Bundle, "bundle", &[]),
+        ];
+        let unmarked = Func::native("same", never_called);
+        assert!(native_element_fields(&unmarked).is_none());
+        for (kind, name, fields) in cases {
+            let function = Func::native_format(
+                *kind,
+                NativeFunc { name: "same", call: never_called, namespace: None },
+            );
+            assert_eq!(function, unmarked);
+            let (actual_name, actual_fields, locatable) =
+                native_element_fields(&function).unwrap();
+            assert_eq!(&actual_name, name);
+            assert_eq!(&actual_fields, fields);
+            assert!(!locatable);
+            assert!(
+                native_element_fields(&function.with(Args::positional(vec![]))).is_none()
+            );
+        }
     }
 }

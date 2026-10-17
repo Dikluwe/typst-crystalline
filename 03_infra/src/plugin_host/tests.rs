@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/plugin_host/tests.md
-//! @prompt-hash 6a77f01b
+//! @prompt-hash d561dfb2
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -11,7 +11,6 @@ use super::*;
 // testes auto-contidos e deterministas (sem toolchain WASM / Python).
 // ---------------------------------------------------------------------
 const I32: u8 = 0x7f;
-const I64: u8 = 0x7e;
 const F64: u8 = 0x7c;
 
 fn uleb(mut n: u32) -> Vec<u8> {

@@ -1,0 +1,1 @@
+15 fixtures; 3 blocos x 4 pares; motores current/vanilla, ordem alternada; warmup antes de cada caso/bloco; CPU 0; jobs/Rayon 1; %M RSS filho, wall wrapper comum; decisões condicionadas à saída. Comandos/inputs íntegros em bench.json.gz.

@@ -1,9 +1,10 @@
 # L0 — stdlib/text/constructor
-Hash do Código: 0c727c6d
+Hash do Código: bf087640
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-break-policy.toml sha256:7e41c96527dd5936bebe6916f2a9ea93477c057495845c7e8b52ce3c5917855a
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:70b72ac9efb2bf81aa4ef496c4e1c867264f696d454a9916e7e2e5f385b92020
+- 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:f10f7afaabd1b97f3048736842df89d0ba48d4daa0ae3cd453c9be317f32ef91
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/text/constructor.rs`
@@ -14,9 +15,9 @@ Exclusive consumer: `01_core/src/compiler/stdlib/text/constructor.rs`
 
 ## Contract and ownership
 
-Own native_text and its private length/weight/style/lang/font/edge validators. Require body: Content|Str; an initial positional Color is optional fill only when no named fill is supplied, moving body to the next item. Reject excess positionals and missing body (`text() requer body como argumento`).
+Own native_text and its private length/weight/style/lang/font/edge validators. TS1 supersedes the old initial-color restriction: body accepts Content|Str|None, typed positional size/fill search spans the argument list, and named properties take priority without consuming positional values of the same type. Missing body is `missing argument: body`; remaining positional arguments fail `unexpected argument`.
 
-Accept the current VANILLA_TEXT_SET_PROPS closed set, with the same validation and transport as the set-rule owner. Known but uncaptured fields retain the existing accepted-without-effect scope limitation; unknown names, including bold/italic, fail `unexpected argument: {name}`. Preserve implemented transports: size Length -> Size(Pt), fill Color|none -> Fill/removal, weight raw Int or symbolic Str -> Weight(u16), style normal|italic|oblique -> text.style, tracking Length -> Tracking, lang BCP-47 Str -> Lang, font Str|Array[Str]|Dict -> FontList, top-edge/bottom-edge named metric or Length -> their custom values, horizontal Dir -> text.dir, variations Dict -> folded text.variations through FontVariations::from_value.
+Accept the current VANILLA_TEXT_SET_PROPS closed set, with the same validation and transport as the set-rule owner. Known but uncaptured fields retain the existing accepted-without-effect scope limitation; unknown names, including bold/italic, fail `unexpected argument: {name}`. Preserve implemented transports: size Length -> Size(Length), fill Color -> Fill (None fails the paint cast; Gradient/Tiling transport remains separate), weight raw Int or symbolic Str -> Weight(u16), style normal|italic|oblique -> text.style, tracking Length -> Tracking, lang BCP-47 Str -> Lang, font Str|Array[Str]|Dict -> FontList, top-edge/bottom-edge named metric or Length -> their custom values, horizontal Dir -> text.dir, variations Dict -> folded text.variations through FontVariations::from_value.
 
 Font accepts one family, a nonempty string array, named dict with required family and optional variant/weight/style, or legacy family-keyed variants/variant arrays. Empty fallback fails `font fallback list must not be empty`. Top-edge metrics are ascender/cap-height/x-height/baseline/bounds; bottom-edge baseline/descender/bounds. Invalid metrics use edge_cast_error. Vertical ttb/btt fails `text direction must be horizontal`. Preserve `unknown font weight name: {name}` and `unknown font style name: {name}`.
 
@@ -129,3 +130,40 @@ O módulo privado paragraph_pagination possui exclusivamente certificação vert
 Helpers privados de text_costs resolvem widow/orphan independentemente dos pesos hyphenation/runt, reutilizando FIELDS, com default Ratio 1 e teste estrito > 0. O default de estratégia do planejamento passa a Simple para parágrafo comum sem linebreaks, permitindo a preparação necessária à proteção padrão; a escolha automática por justify e todos os contextos recusados permanecem. Emitir sem alterar justificação, carriers, última linha aberta, fronteiras e restauração lexical. Preservar notas e colunas por não aplicar proteção incompleta nesses caminhos.
 
 Aceitação: RED→GREEN com mesmas palavras distribuídas 2+2 versus 3+1, proteção integral de três, orphan desligado independentemente, grupo excessivo, restauração e default sem flag. Sondas bilaterais com caixas/palavras/páginas, tipos/spans anteriores preservados e controles de fallback. Não usar grupos XML como número físico de linhas. Resselo restrito aos owners, build e crystalline-lint sem erros.
+
+
+## TS1 — tamanho completo de texto (ratificado pelo humano, 2026-10-17)
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
+`morph-before-measurement.json.gz` e `audit.json` conservam HEAD
+06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
+fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
+Em named-em, A mede0pt contra24pt; em affine,3pt contra27pt; nested sobre18pt
+mede0pt contra36pt. As seis permutações Size/Color/body são aceitas pelo pin
+mas rejeitadas pelo Tekt. Set posicional18pt é ignorado (12 contra18pt).
+Fonte pinada text/mod.rs:290,303,924–930,1136–1142 e args.rs:178–247
+estabelece busca tipada, preferência nomeada, body restante e composição.
+style_chain.rs:513–517 e constructor.rs:123 descartam em; collapse em
+style_chain.rs:394–395,419–422 aplica top-wins onde tamanho precisa fold.
+É tamanho/escopo observável da linguagem; a representação Rust é escolha
+interna. Não inferir intenção histórica. Refutar por restauração, Raw,
+heading, math, capture/show, dupes/spans, zero/negativos ou métricas divergentes.
+A sonda de igualdade refutou a hipótese de comparar os valores declarados:
+no pin, text(size:2em)[A] == text(size:24pt)[A] é true. StyledElem::eq no pin
+content/mod.rs:779–782 compara child. Esse defeito de igualdade requer sua
+própria correção; o tipo completo não é prova de fechamento desse eixo.
+
+### Ratificação
+
+O humano aprovou TS1 e os dois contratos públicos da proposta de manifesto
+771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba.
+Implementação e testes S1–S16 sob 12 GiB/swap zero; sem release/merge/push.
+Resselo somente após implementação e grafo válido. RG1 continua independente.
+
+### Responsabilidade exclusiva adicional
+
+NativeText encontra Size Length e Color pela primeira ocorrência posicional castable em qualquer posição, salvo propriedade nomeada presente. Preservar ocorrências/spans e validação das ocorrências nomeadas; body restante aceita Content, Str e None como Empty; rejeitar sobras e body nomeado com mensagem/hint pinados. Transportar Size Length tipado completo, sem ler fonte/região nem avaliar argumentos/corpo outra vez. Fill Gradient/Tiling e sua pintura permanecem pendência separada; não simulá-los com cor sólida. Demais propriedades e limitações anteriores continuam explicitadas.
+
+Gradient e Tiling mantêm neste lote a rejeição parcial histórica e sua mensagem/span; não emitir o cast contraditório expected gradient/found gradient nem fingir suporte. O grupo V19 dessas duas variantes é coeso pela ausência do carrier Paint textual e fica explícito. None e demais tipos inválidos seguem o erro Paint medido.

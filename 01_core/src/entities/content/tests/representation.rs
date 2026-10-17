@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content/tests/representation.md
-//! @prompt-hash 9e785420
+//! @prompt-hash 5e9dfe49
 //! @layer L1
-//! @updated 2026-09-26
+//! @updated 2026-10-07
 
 use super::super::*;
 use crate::entities::style::{Style, Styles};
@@ -156,8 +156,8 @@ fn decoration_partial_eq_distingue_cosmeticos() {
 fn smartquote_variant_construtor_basico() {
     let sd = Content::smartquote(true);
     let ss = Content::smartquote(false);
-    assert!(matches!(&sd, Content::SmartQuote(e) if e.double));
-    assert!(matches!(&ss, Content::SmartQuote(e) if !e.double));
+    assert!(matches!(&sd, Content::SmartQuote(e) if e.double == Some(true)));
+    assert!(matches!(&ss, Content::SmartQuote(e) if e.double == Some(false)));
     // Variants distintos por valor `double`.
     assert_ne!(sd, ss);
 }
@@ -522,13 +522,13 @@ fn p217_columns_partial_eq_3_fields() {
 fn p220_colbreak_variant_existe() {
     let c = Content::colbreak(false);
     if let Content::Colbreak(e) = &c {
-        assert_eq!(e.weak, false);
+        assert!(!e.weak);
     } else {
         panic!("esperado Content::Colbreak");
     }
     let c2 = Content::colbreak(true);
     if let Content::Colbreak(e) = &c2 {
-        assert_eq!(e.weak, true);
+        assert!(e.weak);
     } else {
         panic!("esperado Content::Colbreak");
     }
@@ -556,7 +556,7 @@ fn p223_place_variant_aceita_float_clearance() {
         Content::text("body"),
     );
     if let Content::Place(e) = &p {
-        assert_eq!(e.float, true);
+        assert!(e.float);
         assert_eq!(e.clearance, Some(Length::pt(10.0)));
     } else {
         panic!("esperado Content::Place");
@@ -577,7 +577,7 @@ fn p223_place_default_float_false_clearance_none() {
         Content::text("body"),
     );
     if let Content::Place(e) = &p {
-        assert_eq!(e.float, false, "default float == false");
+        assert!(!e.float, "default float == false");
         assert!(e.clearance.is_none(), "default clearance == None");
     } else {
         panic!("esperado Content::Place");
@@ -750,6 +750,9 @@ fn p227_table_variant_aceita_stroke() {
     use crate::entities::layout_types::{Color, TrackSizing};
     let t = Content::Table(std::sync::Arc::new(
         crate::entities::elements::table::TableElem {
+            source_span: crate::entities::span::Span::detached(),
+            resolved: None,
+            rows_explicit: false,
             columns: vec![TrackSizing::Auto],
             rows: vec![],
             children: vec![Content::text("X")],
@@ -845,6 +848,9 @@ fn p228_table_variant_aceita_fill() {
     use crate::entities::layout_types::{Color, TrackSizing};
     let t = Content::Table(std::sync::Arc::new(
         crate::entities::elements::table::TableElem {
+            source_span: crate::entities::span::Span::detached(),
+            resolved: None,
+            rows_explicit: false,
             columns: vec![TrackSizing::Auto],
             rows: vec![],
             children: vec![Content::text("X")],
@@ -928,6 +934,13 @@ fn p230_tablecell_variant_aceita_stroke_fill() {
     use crate::entities::layout_types::Color;
     let c = Content::TableCell(std::sync::Arc::new(
         crate::entities::elements::table_cell::TableCellElem {
+            source_span: crate::entities::span::Span::detached(),
+            resolved: None,
+            standalone: None,
+            presence: crate::entities::elements::table_cell::TableCellPresence {
+                fill: crate::entities::elements::table_cell::CellFieldPresence::Explicit,
+                ..Default::default()
+            },
             body: Content::text("cell"),
             x: None,
             y: None,
@@ -1004,6 +1017,16 @@ fn p235_tablecell_variant_aceita_align_inset_breakable() {
     use crate::entities::sides::Sides;
     let c = Content::TableCell(std::sync::Arc::new(
         crate::entities::elements::table_cell::TableCellElem {
+            source_span: crate::entities::span::Span::detached(),
+            resolved: None,
+            standalone: None,
+            presence: crate::entities::elements::table_cell::TableCellPresence {
+                align: crate::entities::elements::table_cell::CellFieldPresence::Explicit,
+                inset: crate::entities::elements::table_cell::CellFieldPresence::Explicit,
+                breakable:
+                    crate::entities::elements::table_cell::CellFieldPresence::Explicit,
+                ..Default::default()
+            },
             body: Content::text("p235t"),
             x: None,
             y: None,
@@ -1077,7 +1100,7 @@ fn p231_block_variant_aceita_outset_radius_clip() {
         assert_eq!(e.radius.top_right, Length::pt(3.0));
         assert_eq!(e.radius.bottom_right, Length::pt(3.0));
         assert_eq!(e.radius.bottom_left, Length::pt(3.0));
-        assert_eq!(e.clip, true);
+        assert!(e.clip);
         assert_eq!(e.outset.left, Length::pt(5.0));
     } else {
         panic!("esperado Block");
@@ -1106,7 +1129,7 @@ fn p231_boxed_variant_aceita_outset_radius_clip() {
     ));
     if let Content::Boxed(e) = &b {
         assert_eq!(e.radius.top_left, Length::pt(4.0));
-        assert_eq!(e.clip, false);
+        assert!(!e.clip);
         assert_eq!(e.outset.left, Length::pt(2.0));
     } else {
         panic!("esperado Boxed");

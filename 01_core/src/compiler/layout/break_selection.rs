@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/break_selection.md
-//! @prompt-hash 2979ee7d
+//! @prompt-hash ad0302fd
 //! @layer L1
 //! @updated 2026-09-28
 
@@ -14,7 +14,7 @@ pub(super) enum Decision {
     Hyphenate { prefix: String, replacement: String, width: Pt, rest: String },
 }
 
-/// Preserve the existing page-margin threshold, including first-word behavior.
+/// Compare coordinates in one frame; an overlong first word must make progress.
 pub(super) fn should_wrap(
     width: Pt,
     cursor_x: f64,
@@ -24,6 +24,10 @@ pub(super) fn should_wrap(
     cursor_x + width.0 > right_edge && cursor_x > threshold_x
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C016: Seletor puro isolado do Layouter por decisão explícita do L0: recebe palavra/largura medida, métricas/estilo, cursor/borda/origem reais e política de hifenização"
+)]
 pub(super) fn word<M: FontMetrics + ?Sized>(
     metrics: &M,
     style: &TextStyle,

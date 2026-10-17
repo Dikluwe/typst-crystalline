@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_align_point.md
-//! @prompt-hash 9681452f
+//! @prompt-hash dfde6dbb
 //! @layer L1
-//! @updated 2026-06-11
+//! @updated 2026-10-10
 //!
 //! `MathAlignPointElem` — Lote 2 P317 (família math). Ponto de alinhamento `&`.
 //! Marcador unit; comportamento idêntico ao braço anterior do hub.
@@ -22,12 +22,13 @@ impl Element for MathAlignPointElem {
         String::new()
     }
 
-    fn map_content<F>(&self, _transform: &mut F) -> SourceResult<Content>
+    fn map_content<F>(&self, transform: &mut F) -> SourceResult<Content>
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        // Terminal (marcador unit; sem filhos).
-        Ok(Content::MathAlignPoint(Arc::new(self.clone())))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathAlignPoint(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -36,6 +37,18 @@ impl Element for MathAlignPointElem {
     {
         // Terminal (math structural; não desce).
         Content::MathAlignPoint(Arc::new(self.clone()))
+    }
+}
+
+impl MathAlignPointElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        _transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        Ok(None)
     }
 }
 

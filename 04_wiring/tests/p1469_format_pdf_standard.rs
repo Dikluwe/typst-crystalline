@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1469-format-pdf-standard.md
-//! @prompt-hash 59e59aa4
+//! @prompt-hash 5e36225f
 //!
 //! P1469 (RED — Agente B) — integração de binário para `pdf.standard`
 //! (`#set format.pdf(standard: ...)`) e a flag `compile --pdf-standard`.
@@ -16,6 +16,11 @@
 //! contraste de acessibilidade) — isso é scope-out explícito, fora deste
 //! ficheiro e deste passo.
 
+#[path = "../../03_infra/tests/support/wiring/p1469_format_pdf_standard.rs"]
+mod harness;
+
+use harness::ProcessResult;
+
 use std::ffi::{OsStr, OsString};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -25,19 +30,6 @@ use std::time::{Duration, Instant};
 
 const PROCESS_TIMEOUT: Duration = Duration::from_secs(60);
 static FIXTURE_ID: AtomicU64 = AtomicU64::new(0);
-
-#[derive(Debug)]
-struct ProcessResult {
-    code: Option<i32>,
-    stdout: String,
-    stderr: String,
-}
-
-impl ProcessResult {
-    fn success(&self) -> bool {
-        self.code == Some(0)
-    }
-}
 
 fn typst_binary() -> &'static Path {
     Path::new(env!("CARGO_BIN_EXE_typst"))
@@ -159,7 +151,7 @@ fn pdf_header_version(pdf: &[u8]) -> Option<String> {
 fn p1469_document_standard_explicit_version_sets_header() {
     let (result, pdf) =
         compile_pdf("doc-version-1-4", "#set format.pdf(standard: \"1.4\")\nHello", &[]);
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert_eq!(pdf_header_version(&pdf).as_deref(), Some("1.4"));
 }
 
@@ -169,7 +161,7 @@ fn p1469_document_standard_archival_without_explicit_version_uses_range_maximum(
     // do range), medido em `krilla/src/configure/mod.rs:68-96`.
     let (result, pdf) =
         compile_pdf("doc-a2b", "#set format.pdf(standard: \"a-2b\")\nHello", &[]);
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert_eq!(pdf_header_version(&pdf).as_deref(), Some("1.7"));
 }
 
@@ -178,14 +170,14 @@ fn p1469_document_standard_a1b_without_explicit_version_uses_1_4() {
     // `a-1b` (range 1.4..=1.4, min == max) -> efetivo 1.4.
     let (result, pdf) =
         compile_pdf("doc-a1b", "#set format.pdf(standard: \"a-1b\")\nHello", &[]);
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert_eq!(pdf_header_version(&pdf).as_deref(), Some("1.4"));
 }
 
 #[test]
 fn p1469_cli_pdf_standard_flag_sets_header_without_document_decision() {
     let (result, pdf) = compile_pdf("cli-2-0", "Hello", &["--pdf-standard=2.0"]);
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert_eq!(pdf_header_version(&pdf).as_deref(), Some("2.0"));
 }
 
@@ -199,7 +191,7 @@ fn p1469_cli_pdf_standard_overrides_document_standard() {
         "#set format.pdf(standard: \"a-1b\")\nHello",
         &["--pdf-standard=a-4"],
     );
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert_eq!(
         pdf_header_version(&pdf).as_deref(),
         Some("2.0"),
@@ -213,7 +205,7 @@ fn p1469_no_standard_decision_anywhere_keeps_default_header_1_7() {
     // continua exatamente `%PDF-1.7` (comportamento fixado por P1462-P1468
     // e pelos ~8 testes pré-existentes de `export/tests.rs`).
     let (result, pdf) = compile_pdf("no-standard", "Hello", &[]);
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert_eq!(pdf_header_version(&pdf).as_deref(), Some("1.7"));
 }
 

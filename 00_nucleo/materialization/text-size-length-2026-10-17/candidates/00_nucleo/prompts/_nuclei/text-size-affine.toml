@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "text-size-affine"
+title = "Tamanho textual declarado completo e resolução contextual"
+
+[[claims]]
+id = "declared-versus-resolved"
+level = "must"
+statement = "Tamanho textual declarado conserva Length completo (abs e em); TextStyle de render conserva Pt resolvido. Valores já resolvidos introduzidos por layout/math são transportados como Length absoluto e não voltam a ganhar fator em."
+
+[[claims]]
+id = "affine-composition"
+level = "must"
+statement = "Compor tamanho interno (ai,ei) sobre externo (ao,eo) produz (ai + ei*ao, ei*eo), em ordem lexical. Ausência não declara estilo; em=0 é override absoluto; default final permanece 11pt. Captura e collapse preservam o comprimento composto sem assumir base ausente."
+
+[[claims]]
+id = "surface-separation"
+level = "must"
+statement = "Constructor mantém a presença de Styled e o corpo; set mantém seu transporte lexical. Igualdade estrutural Rust e igualdade da linguagem não são confundidas nem usadas como atalhos de render. O tipo completo não prova por si só a correção da igualdade entre Styleds."

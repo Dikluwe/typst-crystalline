@@ -1,0 +1,46 @@
+{
+  "utc": "2026-10-06T18:09:34.102574+00:00",
+  "human_response": "confirmo",
+  "package": "00_nucleo/materialization/query-compilada-2026-10-06.md",
+  "manifest": {
+    "utc": "2026-10-06T18:06:16.257520+00:00",
+    "status": "proposed_requires_human_confirmation",
+    "items": [
+      {
+        "owner": "00_nucleo/prompts/infra/pipeline.md",
+        "consumer": "03_infra/src/pipeline.rs",
+        "candidate": "00_nucleo/materialization/query-compilada-2026-10-06/infra/pipeline.md",
+        "base_sha256": "a71bd7f3236e5f40ef44b430f95834b9dff82c1194447da6c5c16ddf6c06191d",
+        "candidate_sha256": "39b2069bdc28e150baaece2dff3efad4d8a5a4ef769416f9a37176071365fd4c"
+      },
+      {
+        "owner": "00_nucleo/prompts/infra/query-helpers.md",
+        "consumer": "03_infra/src/query_helpers.rs",
+        "candidate": "00_nucleo/materialization/query-compilada-2026-10-06/infra/query-helpers.md",
+        "base_sha256": "1511ee9f4386e41bf207363292dceb01ab6bccbe14ed14d0ae576e879b20f3af",
+        "candidate_sha256": "1fc43eaa0c12a74270af9158b05008d96959d56f2aa981c5ef383946327ad1cf"
+      },
+      {
+        "owner": "00_nucleo/prompts/wiring/query.md",
+        "consumer": "04_wiring/src/query.rs",
+        "candidate": "00_nucleo/materialization/query-compilada-2026-10-06/wiring/query.md",
+        "base_sha256": "cca3e84cd468529802994e3adbcefd014e79dad1e2da9a6aa97d73e9d5e6ea7b",
+        "candidate_sha256": "34f57b8d6fbf8f3f7dee13dc07972b144f701ed6772baaa9c3da469250166ced"
+      },
+      {
+        "owner": "00_nucleo/prompts/infra/pipeline/tests.md",
+        "consumer": "03_infra/src/pipeline/tests.rs",
+        "candidate": "00_nucleo/materialization/query-compilada-2026-10-06/infra/pipeline/tests.md",
+        "base_sha256": "40a67c29af659d74a50a2662379da2f6cbce50176b20dc846448eaa5514dfa8d",
+        "candidate_sha256": "76e33263061212f210de579a309b7937b4278422b9f4a30aa6c6535dabecf4aa"
+      },
+      {
+        "owner": "00_nucleo/prompts/wiring/tests/cli.md",
+        "consumer": "04_wiring/tests/cli.rs",
+        "candidate": "00_nucleo/materialization/query-compilada-2026-10-06/wiring/tests/cli.md",
+        "base_sha256": "eb9a85368919b09e7fa0157f74f15ec05cc130f962f5d0ab43d91d2e08c9949a",
+        "candidate_sha256": "81bf45e9ea0227db05664cda16036b9cdf508320aaf741196c9ba5ea60e59383"
+      }
+    ]
+  }
+}

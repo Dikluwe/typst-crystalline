@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/realize.md
-//! @prompt-hash 6188bf64
+//! @prompt-hash 792e40a7
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 //!
 //! Comportamento de `eval/rules::realize`.
 
@@ -29,21 +29,25 @@ pub(crate) fn realize_paragraphs(content: Content) -> Content {
 /// trechos entre `Parbreak` são embrulhados em `Content::Par`.
 pub(crate) fn is_flow_carrier(content: &Content) -> bool {
     matches!(
-        content,
+        content.source_body(),
         Content::Empty | Content::Space | Content::SpaceFromNewline | Content::SetPage(_)
     )
 }
 
 pub(crate) fn realize_flow(content: &Content) -> Vec<Content> {
     match content {
+        Content::Source(e) => realize_flow(&e.body)
+            .into_iter()
+            .map(|c| c.with_source_span(e.span))
+            .collect(),
         Content::Sequence(seq) => {
             let mut out = Vec::new();
             let mut current = Vec::new();
             for (index, child) in seq.iter().enumerate() {
-                let scoped_prefix = matches!(child, Content::Styled(styled)
+                let scoped_prefix = matches!(child.source_body(), Content::Styled(styled)
                     if styled.styles.delta().custom.iter().any(|(key, value)|
                         key.as_str() == "eval.flow.scope" && matches!(value, Value::Bool(true))));
-                let whole_style = matches!(child, Content::Styled(_))
+                let whole_style = matches!(child.source_body(), Content::Styled(_))
                     && seq.iter().skip(index + 1).all(is_flow_carrier);
                 if (scoped_prefix || whole_style) && current.iter().all(is_flow_carrier) {
                     out.append(&mut current);
@@ -51,7 +55,9 @@ pub(crate) fn realize_flow(content: &Content) -> Vec<Content> {
                     continue;
                 }
                 for piece in realize_flow(child) {
-                    if matches!(piece, Content::Parbreak) || is_paragraph_node(&piece) {
+                    if matches!(piece.source_body(), Content::Parbreak)
+                        || is_paragraph_node(&piece)
+                    {
                         if !current.is_empty() {
                             out.push(Content::par(Content::sequence(current)));
                             current = Vec::new();
@@ -77,6 +83,7 @@ pub(crate) fn realize_flow(content: &Content) -> Vec<Content> {
 
 pub(crate) fn realize_scoped_flow(content: &Content) -> Content {
     match content {
+        Content::Source(e) => realize_scoped_flow(&e.body).with_source_span(e.span),
         Content::Styled(styled) => {
             Content::styled(realize_scoped_flow(&styled.body), styled.styles.clone())
         }
@@ -87,6 +94,7 @@ pub(crate) fn realize_scoped_flow(content: &Content) -> Content {
 
 pub(crate) fn is_paragraph_node(content: &Content) -> bool {
     match content {
+        Content::Source(e) => is_paragraph_node(&e.body),
         Content::Par { .. } => true,
         Content::Styled(styled) => is_paragraph_node(&styled.body),
         _ => false,
@@ -95,6 +103,7 @@ pub(crate) fn is_paragraph_node(content: &Content) -> bool {
 
 pub(crate) fn realize_inline_node(content: &Content) -> Content {
     match content {
+        Content::Source(e) => realize_inline_node(&e.body).with_source_span(e.span),
         Content::Sequence(seq) => {
             Content::sequence(seq.iter().map(realize_inline_node).collect())
         }
@@ -108,6 +117,7 @@ pub(crate) fn realize_inline_node(content: &Content) -> Content {
 
 pub(crate) fn realize_node(content: &Content) -> Content {
     match content {
+        Content::Source(e) => realize_node(&e.body).with_source_span(e.span),
         Content::Sequence(_) => Content::sequence(realize_flow(content)),
         Content::Par { body } => Content::par(realize_inline_node(body)),
         Content::Styled(styled) => {

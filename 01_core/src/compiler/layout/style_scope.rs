@@ -1,13 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/style_scope.md
-//! @prompt-hash dd66dc06
+//! @prompt-hash f7a2357b
 //! @layer L1
-//! @updated 2026-09-29
+//! @updated 2026-10-07
 
 use crate::entities::{
     content::Content,
     image_sizer::ImageSizer,
-    layout_types::{FrameItem, SemanticKind, SemanticPlacement, TextStyle},
+    layout_types::{FrameItem, Length, SemanticKind, SemanticPlacement, TextStyle},
     style::Styles,
     value::Value,
 };
@@ -33,8 +33,84 @@ pub(super) fn layout_styled<M: FontMetrics, S: ImageSizer>(
         != &crate::entities::style_chain::StyleDelta::empty())
         .then(|| layouter.text_tracking_state.enter());
     let prev_style = layouter.style.clone();
-    layouter.chain = layouter.chain.push_styles(styles);
+    let mut delta = styles.delta().clone();
+    let owns_raw_block = delta
+        .custom
+        .iter()
+        .any(|(k, v)| k.as_str() == "raw.block" && v == &Value::Bool(true));
+    let raw_block_size = delta.custom.iter().rev().find_map(|(k, v)| {
+        if k.as_str() == "raw.block.size" {
+            if let Value::Length(l) = v {
+                Some(*l)
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    });
+    if owns_raw_block {
+        delta.custom.push(("raw.block.active".into(), Value::Bool(true)));
+    }
+
+    if delta
+        .custom
+        .iter()
+        .any(|(key, value)| key.as_str() == "raw.defaults" && value == &Value::Bool(true))
+    {
+        let base = super::raw::default_style(&prev_style, &prev_chain);
+        delta.size = Some(Length::pt(base.size.val()));
+        delta.font = base.font;
+        delta.fill = base.fill;
+        delta.bold = Some(base.bold);
+        delta.italic = Some(base.italic);
+        delta.custom.push(("raw.defaults.active".into(), Value::Bool(true)));
+    } else if prev_chain.custom("raw.defaults.active") == Some(&Value::Bool(true)) {
+        if let Some(Value::Length(length)) = delta
+            .custom
+            .iter()
+            .rev()
+            .find_map(|(key, value)| (key.as_str() == "text.size").then_some(value))
+        {
+            delta.size = Some(Length::pt(length.resolve_pt(prev_style.size.val())));
+        }
+    }
+    let heading_show_set = delta.custom.iter().any(|(key, value)| {
+        key.as_str() == "heading.show-set-size" && value == &Value::Bool(true)
+    });
+    delta
+        .custom
+        .retain(|(key, _)| key.as_str() != "heading.show-set-size");
+    if heading_show_set {
+        let mut target = body.source_body();
+        while let Content::Located(located) = target {
+            target = located.body.source_body();
+        }
+        if let Content::Heading(heading) = target {
+            // Heading applies its default scale after this scope. Only its
+            // show-set's absolute contribution must bypass that multiplication.
+            let scale = super::helpers::heading_scale(heading.level);
+            if let Some(size) = &mut delta.size {
+                size.abs =
+                    crate::entities::layout_types::Abs::pt(size.abs.to_pt() / scale);
+            } else if let Some(Value::Length(size)) = delta
+                .custom
+                .iter_mut()
+                .find_map(|(key, value)| (key.as_str() == "text.size").then_some(value))
+            {
+                size.abs =
+                    crate::entities::layout_types::Abs::pt(size.abs.to_pt() / scale);
+            }
+        }
+    }
+    layouter.chain = layouter.chain.push(delta);
     layouter.style = TextStyle::from(&layouter.chain);
+    let block_font = raw_block_size
+        .map(|v| v.resolve_pt(layouter.style.size.val()))
+        .unwrap_or(layouter.style.size.val());
+    if owns_raw_block {
+        super::raw::begin_block(layouter, block_font, &prev_style);
+    }
     if layouter.document_language.is_none() {
         layouter.document_language = layouter.style.lang;
     }
@@ -72,6 +148,9 @@ pub(super) fn layout_styled<M: FontMetrics, S: ImageSizer>(
         });
     } else {
         layouter.layout_content(body);
+    }
+    if owns_raw_block {
+        super::raw::end_block(layouter, block_font);
     }
     let owns_par_line_style = styles
         .delta()

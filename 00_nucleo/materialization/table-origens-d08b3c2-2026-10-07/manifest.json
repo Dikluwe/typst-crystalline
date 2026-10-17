@@ -1,0 +1,40 @@
+{
+  "utc": "2026-10-07T17:43:15.679358+00:00",
+  "head": "06848cdcb5450f2c555626bf116bc7acd82bd82b",
+  "measurement_sha256": "b7d144446b96931a0d03d58fb9d0645abb3b858803c913a90ec375e5ab38ee20",
+  "contract_sha256": "55c87fa44f0a2ab09ae1c76396e87c7a6d5301d15b9a71937b297b773b82d8ab",
+  "candidates": {
+    "entities/content": {
+      "owner": "00_nucleo/prompts/entities/content.md",
+      "consumer": "01_core/src/entities/content.rs",
+      "base_l0_sha256": "50995c9da9eca7c2ac2808e2f19dbe2889350bc5575afb33e648ac25dfa3e527",
+      "base_code_sha256": "c4c5d3636f9533b37b57a38fcb695a65eb5a47f7921f2f14a7d00fdff6513e8a",
+      "candidate": "00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/candidates/00_nucleo/prompts/entities/content.md",
+      "candidate_sha256": "e70af53848199013aa8de797f16bbc5bd70db89253ec54ec17d1c205a449fba0"
+    },
+    "compiler/eval/expression_dispatch": {
+      "owner": "00_nucleo/prompts/compiler/eval/expression_dispatch.md",
+      "consumer": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "base_l0_sha256": "9a073b25ebf3afd9a405d68612a6e4ed10672922968225bf3b7792c9ecaaf7d3",
+      "base_code_sha256": "11f1b3ae34a446af8776c9141ee935a241ae3338e1ba3b09742515cef155d999",
+      "candidate": "00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/candidates/00_nucleo/prompts/compiler/eval/expression_dispatch.md",
+      "candidate_sha256": "dff3995443e711781dd63cca1536f109ab2dfc79ed4fc2eafaaea2b42b26770c"
+    },
+    "compiler/stdlib/structural/table_grid": {
+      "owner": "00_nucleo/prompts/compiler/stdlib/structural/table_grid.md",
+      "consumer": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+      "base_l0_sha256": "70c59f8dec216d288cc8f10f6e7658a8ec04e8866b950f959890089649851e6e",
+      "base_code_sha256": "9b6f201c80407f51fb06de63e69c1c1a44efd001ceca6abd02874e50302a4ea2",
+      "candidate": "00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/candidates/00_nucleo/prompts/compiler/stdlib/structural/table_grid.md",
+      "candidate_sha256": "a3d6fa9d233dfdff6e6e70f8c7dc8e3e2159bf9e1d77be7740f73a3d8d0f98ca"
+    },
+    "compiler/realize/table_cells": {
+      "owner": "00_nucleo/prompts/compiler/realize/table_cells.md",
+      "consumer": "01_core/src/compiler/realize/table_cells.rs",
+      "base_l0_sha256": "6c1616d8b73d253629d60920b249d3e4942e7c7945d47977dbcd9e93bcc04611",
+      "base_code_sha256": "6d04812208e3e287d95b443b107d4f539d1beacea24792546a60ecf6c8d4e2b3",
+      "candidate": "00_nucleo/materialization/table-origens-d08b3c2-2026-10-07/candidates/00_nucleo/prompts/compiler/realize/table_cells.md",
+      "candidate_sha256": "41f58dc044a123a778e387a735e838dbacb324b30ec5108e3934e802bca1c426"
+    }
+  }
+}

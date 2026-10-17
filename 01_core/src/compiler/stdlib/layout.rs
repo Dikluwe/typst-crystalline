@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/layout.md
-//! @prompt-hash 0ee1ecf4
+//! @prompt-hash 12c011fd
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -61,12 +61,15 @@ pub use self::measure::extract_measure_body;
 pub use self::measure::native_layout;
 pub use self::measure::native_measure;
 pub use self::pad::native_pad;
+#[cfg(test)]
 pub(super) use self::page::is_horizontal_page_binding;
+#[cfg(test)]
 pub(super) use self::page::is_positional_paper;
 pub use self::page::native_page;
 pub use self::pagebreak::native_pagebreak;
 pub use self::place::native_flush;
 pub use self::place::native_place;
+#[cfg(test)]
 pub(super) use self::place::validate_flush_args;
 pub(super) use self::repeat::extract_count;
 pub use self::repeat::native_repeat;
@@ -74,8 +77,10 @@ pub use self::spacing::native_h;
 pub use self::spacing::native_linebreak;
 pub use self::spacing::native_v;
 pub use self::stack::native_stack;
+#[cfg(test)]
 pub(super) use self::stroke::is_valid_miter_limit;
 pub use self::stroke::native_stroke;
+pub(super) use self::stroke::positional_stroke;
 
 /// `align(alignment, body)` → `Content::Align`.
 ///

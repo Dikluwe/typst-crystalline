@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural.md
-//! @prompt-hash 59507c7a
+//! @prompt-hash fc21a51f
 //! @layer L1
-//! @updated 2026-09-28
+//! @updated 2026-10-06
 //!
 //! Funções nativas estruturais do stdlib. Extraído de `stdlib.rs` no
 //! Passo 96.5 conforme ADR-0037.
@@ -35,62 +35,45 @@ mod table_grid;
 mod table_lines;
 mod title;
 
-#[cfg(test)]
 #[path = "p1429_tests.rs"]
 mod p1429_tests;
 
-#[cfg(test)]
 #[path = "p1430_tests.rs"]
 mod p1430_tests;
 
-#[cfg(test)]
 #[path = "p1431_tests.rs"]
 mod p1431_tests;
 
-#[cfg(test)]
 #[path = "p1436_tests.rs"]
 mod p1436_tests;
 
-#[cfg(test)]
 #[path = "p1437_tests.rs"]
 mod p1437_tests;
 
-#[cfg(test)]
 #[path = "p1438_tests.rs"]
 mod p1438_tests;
 
-#[cfg(test)]
 #[path = "p1439_tests.rs"]
 mod p1439_tests;
 
-#[cfg(test)]
 #[path = "p1440_tests.rs"]
 mod p1440_tests;
 
-#[cfg(test)]
 #[path = "p1441_tests.rs"]
 mod p1441_tests;
-#[cfg(test)]
 #[path = "p1442_tests.rs"]
 mod p1442_tests;
-#[cfg(test)]
 mod p1443_tests;
-#[cfg(test)]
 mod p1444_tests;
-#[cfg(test)]
 mod p1445_tests;
-#[cfg(test)]
 mod p1446_tests;
-#[cfg(test)]
 mod p1447_tests;
-#[cfg(test)]
 mod p1448_tests;
-#[cfg(test)]
 mod p1449_tests;
-#[cfg(test)]
 mod p1450_tests;
-#[cfg(test)]
 mod p1451_tests;
+
+pub(in crate::compiler) use math::equation::native_math_equation;
 
 pub use bibliography::{native_bibliography, native_cite};
 pub use divider::native_divider;
@@ -103,8 +86,8 @@ pub use lists::{
 };
 pub use markup::{native_emph, native_link, native_raw, native_strong};
 pub(crate) use math::abs::math_abs_from_args;
-pub(crate) use math::accent::math_accent_content;
 pub use math::accent::native_accent;
+pub(crate) use math::accent::{is_known_math_accent, math_accent_content};
 pub(crate) use math::annotations::{
     math_overbrace_from_args, math_overbracket_from_args, math_overparen_from_args,
     math_overshell_from_args, math_underbrace_from_args, math_underbracket_from_args,
@@ -114,15 +97,15 @@ pub use math::cancel::native_cancel;
 pub(crate) use math::cases::{
     apply_math_cases_option, math_cases_delim, MathCasesOptions,
 };
+#[cfg(test)]
 pub use math::class::native_math_class;
 pub(crate) use math::equation::{
     equation_alt, equation_content, equation_number_align, equation_supplement,
 };
+pub(crate) use math::lr::is_callable_lr_symbol;
 pub(crate) use math::lr::math_lr_from_args;
 pub use math::make_math_module;
-pub(crate) use math::matrix::{
-    apply_math_matrix_option, math_matrix_augment, MathMatrixOptions,
-};
+pub(crate) use math::matrix::{apply_math_matrix_option, MathMatrixOptions};
 pub(crate) use math::mid::math_mid_from_args;
 pub(crate) use math::norm::math_norm_from_args;
 pub use math::op::native_op;
@@ -147,6 +130,18 @@ pub use table_lines::{
     native_grid_hline, native_grid_vline, native_table_hline, native_table_vline,
 };
 pub use title::native_title;
+
+pub(in crate::compiler) use math::matrix::native_math_mat;
+
+pub(in crate::compiler) use math::{
+    native_math_attach, native_math_binom, native_math_cases,
+    native_math_class_for_metadata, native_math_frac, native_math_limits, native_math_lr,
+    native_math_mid, native_math_overbrace, native_math_overbracket,
+    native_math_overline, native_math_overparen, native_math_overshell,
+    native_math_primes, native_math_root, native_math_scripts, native_math_stretch,
+    native_math_underbrace, native_math_underbracket, native_math_underline,
+    native_math_underparen, native_math_undershell, native_math_vec,
+};
 
 #[cfg(test)]
 mod tests {

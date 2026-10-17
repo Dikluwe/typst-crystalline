@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/cli.md
-//! @prompt-hash 84e9f49a
+//! @prompt-hash 29f035bb
 //! @layer L4
-//! @updated 2026-04-23
+//! @updated 2026-10-06
 //!
 //! Integration tests para o binário `typst` (Passo 114).
 //!
@@ -17,12 +17,17 @@
 //! Zero deps externas — `std::process::Command` + `std::fs` apenas
 //! (ADR-0046 estabelece a CLI sem deps ergonómicas neste passo).
 
+#[path = "../../03_infra/tests/support/wiring/cli.rs"]
+mod harness;
+
+use harness::WatchedChild;
+
 use std::env;
 use std::fs;
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::{SocketAddr, TcpListener, TcpStream};
 use std::path::PathBuf;
-use std::process::{Child, Command, Stdio};
+use std::process::{Command, Stdio};
 use std::sync::mpsc;
 use std::thread;
 use std::time::{Duration, Instant};
@@ -54,29 +59,6 @@ fn temp_pdf(name: &str) -> PathBuf {
 fn cleanup(paths: &[&PathBuf]) {
     for p in paths {
         let _ = fs::remove_file(p);
-    }
-}
-
-struct WatchedChild(Child);
-
-impl WatchedChild {
-    fn assert_alive(&mut self, phase: &str) {
-        match self.0.try_wait() {
-            Ok(None) => {}
-            Ok(Some(status)) => {
-                panic!("watch terminou durante {phase} com status {status}")
-            }
-            Err(error) => {
-                panic!("não foi possível consultar watch durante {phase}: {error}")
-            }
-        }
-    }
-}
-
-impl Drop for WatchedChild {
-    fn drop(&mut self) {
-        let _ = self.0.kill();
-        let _ = self.0.wait();
     }
 }
 
@@ -199,9 +181,8 @@ fn p1137_watch_dependencias_recuperacao_e_filtro() {
 
 #[test]
 fn cli_sucesso_com_warning() {
-    // Passo 132B (ADR-0053): canary migrou de `font` para `hyphenate`
-    // porque `font` passou a ser capturado via `FontList`.
-    let input = temp_typ("warn", "#set text(hyphenate: true)\n\nOlá");
+    // Empty strong markup is a language warning; hyphenate is now consumed.
+    let input = temp_typ("warn", "**\n\nOlá");
     let output = temp_pdf("warn");
 
     let result = Command::new(BIN)
@@ -227,8 +208,8 @@ fn cli_sucesso_com_warning() {
         stderr
     );
     assert!(
-        stderr.contains("hyphenate"),
-        "stderr deve mencionar 'hyphenate'; got:\n{}",
+        stderr.contains("no text within stars"),
+        "stderr deve mencionar 'no text within stars'; got:\n{}",
         stderr
     );
 
@@ -1587,16 +1568,11 @@ fn p617_document_id_invalido_erro() {
     cleanup(&[&input, &output]);
 }
 
-/// Ordem: warnings aparecem antes de errors no stderr (ADR-0045).
-/// Input misto = `#set text(hyphenate: true)` (warning ADR-0040) +
-/// `#variavel_desconhecida` (erro de eval).
-///
-/// Passo 132B (ADR-0053): canary migrou de `font` para `hyphenate`
-/// porque `font` passou a ser capturado via `FontList`.
+/// Ordem ratificada: errors precedem warnings no stderr (ADR-0045, adendo 2026-10-06).
+/// Empty strong markup warns before the unknown binding fails.
 #[test]
-fn disciplina_warnings_antes_de_errors() {
-    let input =
-        temp_typ("disc_order", "#set text(hyphenate: true)\n#variavel_desconhecida");
+fn disciplina_errors_antes_de_warnings() {
+    let input = temp_typ("disc_order", "**\n#variavel_desconhecida");
     let output = temp_pdf("disc_order");
 
     let result = Command::new(BIN)
@@ -1620,7 +1596,7 @@ fn disciplina_warnings_antes_de_errors() {
 
     match (warning_pos, error_pos) {
         (Some(w), Some(e)) => {
-            assert!(w < e, "warning: deve aparecer antes de error:; stderr:\n{}", stderr)
+            assert!(e < w, "error: deve aparecer antes de warning:; stderr:\n{}", stderr)
         }
         (None, _) => panic!("esperava warning no input misto; stderr:\n{}", stderr),
         (_, None) => panic!("esperava error no input misto; stderr:\n{}", stderr),
@@ -3669,4 +3645,705 @@ fn p1485_bundle_html_frame_heading_rotulada_renderiza_svg() {
         "heading da ilha não deve virar heading HTML: {html}"
     );
     assert!(!html.contains("<frame"), "ilha não deve virar tag HTML frame: {html}");
+}
+
+#[test]
+fn diagnostic_paths_sibling_sources_are_relative_for_compile_and_query() {
+    let root =
+        env::temp_dir().join(format!("tekt-diag-path-sibling-{}", std::process::id()));
+    let cwd = root.join("work/a");
+    let project = root.join("project/src");
+    fs::create_dir_all(&cwd).unwrap();
+    fs::create_dir_all(&project).unwrap();
+    let input = project.join("main.typ");
+    let expected_path = PathBuf::from("..").join("..").join("project/src/main.typ");
+    for mode in ["compile-absolute", "compile-relative", "query"] {
+        fs::write(&input, "#unknown").unwrap();
+        let mut command = Command::new(BIN);
+        command.current_dir(&cwd);
+        match mode {
+            "query" => {
+                command.args(["query"]).arg(&input).arg("heading");
+            }
+            "compile-relative" => {
+                command
+                    .arg("compile")
+                    .arg(&expected_path)
+                    .arg(root.join("output.pdf"));
+            }
+            _ => {
+                command.arg("compile").arg(&input).arg(root.join("output.pdf"));
+            }
+        }
+        let result = command.output().unwrap();
+        let stderr = String::from_utf8_lossy(&result.stderr);
+        assert_eq!(result.status.code(), Some(1), "{mode}: {stderr}");
+        assert!(stderr.contains("unknown variable `unknown`"), "{mode}: {stderr}");
+        assert!(
+            stderr.contains(&format!("┌─ {}:1:", expected_path.display())),
+            "{mode}: {stderr}"
+        );
+        // The diagnostic path is relative; the migration hint retains the supplied input.
+        let diagnostics = stderr.split("warning: the `typst query`").next().unwrap();
+        assert!(!diagnostics.contains(&input.display().to_string()), "{mode}: {stderr}");
+    }
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn diagnostic_paths_import_error_and_call_trace_share_relative_base() {
+    let root =
+        env::temp_dir().join(format!("tekt-diag-path-import-{}", std::process::id()));
+    let cwd = root.join("work/a");
+    let project = root.join("project/src");
+    fs::create_dir_all(&cwd).unwrap();
+    fs::create_dir_all(&project).unwrap();
+    fs::write(project.join("lib.typ"), "#let broken(x) = x + missing").unwrap();
+    fs::write(project.join("main.typ"), "#import \"lib.typ\": broken\n#broken(1)")
+        .unwrap();
+    let result = Command::new(BIN)
+        .current_dir(&cwd)
+        .arg("compile")
+        .arg(project.join("main.typ"))
+        .arg(root.join("output.pdf"))
+        .output()
+        .unwrap();
+    let stderr = String::from_utf8_lossy(&result.stderr);
+    assert_eq!(result.status.code(), Some(1), "{stderr}");
+    let relative_base = PathBuf::from("..").join("..").join("project/src");
+    assert!(
+        stderr.contains(&format!("┌─ {}:1:21", relative_base.join("lib.typ").display())),
+        "{stderr}"
+    );
+    assert!(
+        stderr.contains(&format!(
+            "while calling `broken` at {}:2:1",
+            relative_base.join("main.typ").display()
+        )),
+        "{stderr}"
+    );
+    assert!(stderr.contains("unknown variable `missing`"), "{stderr}");
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn diagnostic_paths_descendant_unicode_and_spaces_keep_source_position() {
+    let root =
+        env::temp_dir().join(format!("tekt-diag-path-child-{}", std::process::id()));
+    let project = root.join("sub pasta");
+    fs::create_dir_all(&project).unwrap();
+    let input = project.join("ação.typ");
+    fs::write(&input, "#unknown").unwrap();
+    let result = Command::new(BIN)
+        .current_dir(&root)
+        .arg("compile")
+        .arg(&input)
+        .arg(root.join("output.pdf"))
+        .output()
+        .unwrap();
+    let stderr = String::from_utf8_lossy(&result.stderr);
+    assert_eq!(result.status.code(), Some(1), "{stderr}");
+    let expected = PathBuf::from("sub pasta").join("ação.typ");
+    assert!(stderr.contains(&format!("┌─ {}:1:1", expected.display())), "{stderr}");
+    assert!(stderr.contains("^^^^^^^"), "{stderr}");
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn expression_source_identity_document_and_expression_errors() {
+    let path = temp_typ("expression-source-document-error", "#document_missing");
+    let out = Command::new(BIN)
+        .args(["eval", "--in"])
+        .arg(&path)
+        .arg("0")
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(1));
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(stderr.contains("document_missing"), "{stderr}");
+    assert!(
+        stderr.contains(".typ:1:1") && stderr.contains("#document_missing"),
+        "{stderr}"
+    );
+    assert!(!stderr.contains("<input-expression>"), "{stderr}");
+    fs::write(&path, "= Document").unwrap();
+    let out = Command::new(BIN)
+        .args(["eval", "--in"])
+        .arg(&path)
+        .arg("expression_missing")
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(1));
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(stderr.contains("<input-expression>:1:0"), "{stderr}");
+    cleanup(&[&path]);
+}
+
+#[test]
+fn expression_source_identity_warning_and_stdin_are_documents() {
+    let path = temp_typ("expression-source-warning", "**\n= Document");
+    let out = Command::new(BIN)
+        .args(["eval", "--in"])
+        .arg(&path)
+        .arg("0")
+        .output()
+        .unwrap();
+    assert!(out.status.success());
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(
+        stderr.contains("no text within stars")
+            && stderr.contains(".typ:1:0")
+            && stderr.contains("**"),
+        "{stderr}"
+    );
+    let mut child = Command::new(BIN)
+        .args(["eval", "--in", "-", "0"])
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    child.stdin.take().unwrap().write_all(b"#stdin_missing").unwrap();
+    let out = child.wait_with_output().unwrap();
+    assert_eq!(out.status.code(), Some(1));
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(
+        stderr.contains("<stdin>:1:1") && stderr.contains("#stdin_missing"),
+        "{stderr}"
+    );
+    cleanup(&[&path]);
+}
+
+#[test]
+fn expression_source_identity_relative_reads_imports_and_callback_trace() {
+    let root =
+        env::temp_dir().join(format!("expression-source-base-{}", std::process::id()));
+    let project = root.join("project");
+    let cwd = root.join("cwd");
+    fs::create_dir_all(&project).unwrap();
+    fs::create_dir_all(&cwd).unwrap();
+    fs::write(project.join("asset.txt"), "project").unwrap();
+    fs::write(cwd.join("asset.txt"), "wrong base").unwrap();
+    fs::write(project.join("lib.typ"), "#let value = 42").unwrap();
+    let main = project.join("main.typ");
+    fs::write(&main, "= Document").unwrap();
+    for (expression, expected) in [
+        ("read(\"asset.txt\")", "\"project\""),
+        ("{ import \"lib.typ\": value; value }", "42"),
+    ] {
+        let out = Command::new(BIN)
+            .current_dir(&cwd)
+            .args(["eval", "--in"])
+            .arg(&main)
+            .arg(expression)
+            .output()
+            .unwrap();
+        assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
+        assert_eq!(String::from_utf8(out.stdout).unwrap().trim(), expected);
+        assert!(out.stderr.is_empty());
+    }
+    fs::write(&main, "#let broken() = callback_missing\n#metadata(broken)<f>").unwrap();
+    let out = Command::new(BIN)
+        .current_dir(&cwd)
+        .args(["eval", "--in"])
+        .arg(&main)
+        .arg("(query(<f>).first().value)()")
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(1));
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(
+        stderr.contains("../project/main.typ:1:16")
+            && stderr.contains("#let broken() = callback_missing"),
+        "{stderr}"
+    );
+    assert!(
+        stderr.contains("while calling `broken` at <input-expression>:1:0"),
+        "{stderr}"
+    );
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn empty_markup_warning_caret_matches_with_and_without_expression_error() {
+    for marker in ["**", "__"] {
+        let path = temp_typ("empty-markup-caret", &format!("{marker}\n= Document"));
+        for (expression, code) in [("0", 0), ("expression_missing", 1)] {
+            let out = Command::new(BIN)
+                .args(["eval", "--in"])
+                .arg(&path)
+                .arg(expression)
+                .output()
+                .unwrap();
+            assert_eq!(out.status.code(), Some(code));
+            let stderr = String::from_utf8(out.stderr).unwrap();
+            assert!(
+                stderr.contains(".typ:1:0") && stderr.contains("  │ ^^\n"),
+                "{stderr}"
+            );
+            assert!(stderr.contains("has no additional effect"), "{stderr}");
+            if code == 1 {
+                assert!(stderr.contains("<input-expression>:1:0"), "{stderr}");
+            }
+        }
+        cleanup(&[&path]);
+    }
+}
+
+fn compile_stdin_case(
+    root: &std::path::Path,
+    bytes: &[u8],
+    args: &[&str],
+) -> std::process::Output {
+    let mut child = Command::new(BIN)
+        .current_dir(root)
+        .args(["compile", "-"])
+        .args(args)
+        .env("NO_COLOR", "1")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    child.stdin.take().unwrap().write_all(bytes).unwrap();
+    child.wait_with_output().unwrap()
+}
+
+#[test]
+fn compile_stdin_formats_ignore_physical_dash() {
+    let root = env::temp_dir().join(format!("tekt-stdin-formats-{}", std::process::id()));
+    fs::create_dir_all(&root).unwrap();
+    let _fixture = WatchFixture(root.clone());
+    fs::write(root.join("-"), "#unknown_physical").unwrap();
+    for (format, flags, signature) in [
+        ("pdf", vec![], b"%PDF".as_slice()),
+        ("svg", vec!["--format", "svg"], b"<svg".as_slice()),
+        ("png", vec!["--format", "png"], b"\x89PNG".as_slice()),
+        ("html", vec!["--format", "html", "--features", "html"], b"<!DOCTYPE".as_slice()),
+    ] {
+        let name = format!("out.{format}");
+        let mut args = vec![name.as_str()];
+        args.extend(flags);
+        let result = compile_stdin_case(&root, "Olá stdin".as_bytes(), &args);
+        assert!(
+            result.status.success(),
+            "{format}: {}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+        assert!(result.stdout.is_empty());
+        let artifact = fs::read(root.join(&name)).unwrap();
+        assert!(artifact.starts_with(signature), "{format}");
+        if format == "html" {
+            assert!(String::from_utf8_lossy(&artifact).contains("Olá stdin"));
+        } else {
+            assert!(result.stderr.is_empty());
+        }
+    }
+    let stdout = compile_stdin_case(&root, b"Stdin stdout", &["-"]);
+    assert!(stdout.status.success(), "{}", String::from_utf8_lossy(&stdout.stderr));
+    assert!(stdout.stdout.starts_with(b"%PDF"));
+    assert!(stdout.stderr.is_empty());
+    assert_eq!(fs::read_to_string(root.join("-")).unwrap(), "#unknown_physical");
+}
+
+#[test]
+fn compile_stdin_root_resources_inputs_and_origins() {
+    let root = env::temp_dir().join(format!("tekt-stdin-root-{}", std::process::id()));
+    let project = root.join("project");
+    fs::create_dir_all(&project).unwrap();
+    let _fixture = WatchFixture(root.clone());
+    fs::write(project.join("lib.typ"), "#let value = 7").unwrap();
+    fs::write(project.join("data.txt"), "Recurso").unwrap();
+    let source = b"#import \"lib.typ\": value\n#assert(value == 7)\n#assert(read(\"data.txt\") == \"Recurso\")\n#assert(sys.inputs.name == \"test\")\nRecursos";
+    let result = compile_stdin_case(
+        &root,
+        source,
+        &["out.pdf", "--root", "project", "--input", "name=test"],
+    );
+    assert!(result.status.success(), "{}", String::from_utf8_lossy(&result.stderr));
+    assert!(result.stderr.is_empty());
+    let result = compile_stdin_case(
+        &root,
+        b"#let bad() = unknown\n#context bad()",
+        &["out.pdf", "--root", "project"],
+    );
+    assert_eq!(result.status.code(), Some(1));
+    let stderr = String::from_utf8_lossy(&result.stderr);
+    assert!(stderr.contains("┌─ project/<stdin>:1:13"), "{stderr}");
+    assert!(stderr.contains("while calling `bad` at project/<stdin>:2:9"), "{stderr}");
+    fs::write(project.join("lib.typ"), "#let value = unknown").unwrap();
+    let result = compile_stdin_case(
+        &root,
+        b"#import \"lib.typ\": value\n#value",
+        &["out.pdf", "--root", "project"],
+    );
+    let stderr = String::from_utf8_lossy(&result.stderr);
+    assert_eq!(result.status.code(), Some(1));
+    assert!(stderr.contains("project/lib.typ:1:13"), "{stderr}");
+}
+
+#[test]
+fn compile_stdin_warning_invalid_utf8_and_root() {
+    let root = env::temp_dir().join(format!("tekt-stdin-errors-{}", std::process::id()));
+    fs::create_dir_all(&root).unwrap();
+    let _fixture = WatchFixture(root.clone());
+    let warning = compile_stdin_case(&root, b"**\n", &["out.pdf"]);
+    assert_eq!(warning.status.code(), Some(0));
+    let stderr = String::from_utf8_lossy(&warning.stderr);
+    assert!(stderr.contains("<stdin>:1:0"), "{stderr}");
+    assert!(stderr.contains("│ ^^"), "{stderr}");
+    let invalid = compile_stdin_case(&root, b"\xff", &["out.pdf"]);
+    assert_eq!(invalid.status.code(), Some(1));
+    assert_eq!(String::from_utf8_lossy(&invalid.stderr), "error: file is not valid UTF-8\n = hint: a file without an extension is not usually a Typst file\n\n");
+    let missing = compile_stdin_case(&root, b"Hello", &["out.pdf", "--root", "missing"]);
+    assert_eq!(missing.status.code(), Some(1));
+    assert_eq!(
+        String::from_utf8_lossy(&missing.stderr),
+        "error: root directory not found (searched at missing)\n"
+    );
+}
+
+#[test]
+fn stdin_output_required_before_compilation() {
+    let root =
+        env::temp_dir().join(format!("tekt-stdin-required-{}", std::process::id()));
+    fs::create_dir_all(&root).unwrap();
+    let _fixture = WatchFixture(root.clone());
+    for args in [
+        vec!["compile", "-"],
+        vec!["c", "-"],
+        vec!["-"],
+        vec!["compile", "-", "--format", "svg"],
+        vec!["compile", "-", "--format", "bundle", "--features", "bundle"],
+    ] {
+        let result = Command::new(BIN)
+            .current_dir(&root)
+            .args(&args)
+            .stdin(Stdio::null())
+            .output()
+            .unwrap();
+        assert_eq!(
+            result.status.code(),
+            Some(2),
+            "{args:?}: {}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+        let stderr = String::from_utf8_lossy(&result.stderr);
+        assert!(
+            stderr.contains(
+                "the following required arguments were not provided:\n  <OUTPUT>"
+            ),
+            "{args:?}: {stderr}"
+        );
+        assert!(stderr.contains("Usage: typst compile"), "{stderr}");
+        assert!(stderr.contains("<INPUT> <OUTPUT>"), "{stderr}");
+        assert!(result.stdout.is_empty());
+        assert!(!root.join("-.pdf").exists());
+        assert!(!root.join("-").exists());
+    }
+}
+
+#[test]
+fn stdin_output_explicit_forms_preserve_flag_precedence_and_file_default() {
+    let root =
+        env::temp_dir().join(format!("tekt-stdin-output-forms-{}", std::process::id()));
+    fs::create_dir_all(&root).unwrap();
+    let _fixture = WatchFixture(root.clone());
+    for args in [
+        vec!["--output", "flag.pdf"],
+        vec!["pos.pdf", "-o", "flag.pdf"],
+        vec!["-o", "flag.pdf", "pos.pdf"],
+    ] {
+        let result = compile_stdin_case(&root, b"Hello", &args);
+        assert!(
+            result.status.success(),
+            "{args:?}: {}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+        assert!(fs::read(root.join("flag.pdf")).unwrap().starts_with(b"%PDF"));
+        assert!(!root.join("pos.pdf").exists());
+    }
+    fs::write(root.join("main.typ"), "Hello").unwrap();
+    let result = Command::new(BIN)
+        .current_dir(&root)
+        .args(["compile", "main.typ"])
+        .output()
+        .unwrap();
+    assert!(result.status.success(), "{}", String::from_utf8_lossy(&result.stderr));
+    assert!(fs::read(root.join("main.pdf")).unwrap().starts_with(b"%PDF"));
+}
+
+#[test]
+fn equation_native_selector_queries_existing_equations_and_aliases() {
+    let root =
+        env::temp_dir().join(format!("tekt-equation-selector-{}", std::process::id()));
+    fs::create_dir_all(&root).unwrap();
+    let _fixture = WatchFixture(root.clone());
+    fs::write(root.join("main.typ"), "$a$\n$ b $").unwrap();
+    for expression in [
+        "query(math.equation).len()",
+        "query(selector(math.equation)).len()",
+        "{ let e = math.equation; query(e).len() }",
+    ] {
+        let result = Command::new(BIN)
+            .current_dir(&root)
+            .args(["eval", "--in", "main.typ", expression])
+            .output()
+            .unwrap();
+        assert!(
+            result.status.success(),
+            "{expression}: {}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+        assert_eq!(String::from_utf8_lossy(&result.stdout), "2\n");
+        assert!(result.stderr.is_empty());
+    }
+}
+
+#[test]
+fn warnings_cli_query_stdin_preserva_origem_e_ordem() {
+    let mut child = Command::new(BIN)
+        .args(["query", "-", "heading"])
+        .env("NO_COLOR", "1")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    child.stdin.take().unwrap().write_all(b"**\n#unknown").unwrap();
+    let result = child.wait_with_output().unwrap();
+    let stderr = String::from_utf8_lossy(&result.stderr);
+    assert_eq!(result.status.code(), Some(1), "{stderr}");
+    assert!(stderr.contains("<stdin>:2:1"), "{stderr}");
+    let e = stderr.find("error:").unwrap();
+    let w = stderr.find("warning: no text within stars").unwrap();
+    let d = stderr.find("warning: the `typst query`").unwrap();
+    assert!(e < w && w < d, "{stderr}");
+    assert!(stderr.contains("use `typst eval 'query(heading)'` instead"), "{stderr}");
+}
+
+#[test]
+fn warnings_cli_query_hint_e_falhas_de_recuperacao() {
+    let input = temp_typ("warnings_query_hint", "= A\n= B");
+    let failed = Command::new(BIN)
+        .arg("query")
+        .arg(&input)
+        .args(["heading", "--one"])
+        .output()
+        .unwrap();
+    let stderr = String::from_utf8_lossy(&failed.stderr);
+    assert_eq!(failed.status.code(), Some(1), "{stderr}");
+    assert!(!stderr.contains("deprecated"), "{stderr}");
+    let success = Command::new(BIN)
+        .arg("query")
+        .arg(&input)
+        .args(["heading", "--field", "body"])
+        .output()
+        .unwrap();
+    let stderr = String::from_utf8_lossy(&success.stderr);
+    assert_eq!(success.status.code(), Some(0), "{stderr}");
+    assert!(
+        stderr.contains(&format!(
+            "use `typst eval 'query(heading).map(it => it.body)' --in {}` instead",
+            input.display()
+        )),
+        "{stderr}"
+    );
+    cleanup(&[&input]);
+}
+
+#[test]
+fn warnings_cli_html_preserva_ordem_dos_avisos() {
+    for (name, source, status) in
+        [("warnings_html_fail", "**\n#unknown", 1), ("warnings_html_ok", "**\nOlá", 0)]
+    {
+        let input = temp_typ(name, source);
+        let output = temp_output_with_ext(name, "html");
+        let result = Command::new(BIN)
+            .arg("compile")
+            .arg(&input)
+            .arg(&output)
+            .args(["--format", "html", "--features", "html"])
+            .output()
+            .unwrap();
+        let stderr = String::from_utf8_lossy(&result.stderr);
+        assert_eq!(result.status.code(), Some(status), "{stderr}");
+        let experimental = stderr.find("warning: html export").unwrap();
+        let domain = stderr.find("warning: no text within stars").unwrap();
+        assert!(experimental < domain, "{stderr}");
+        if status == 1 {
+            assert!(stderr.find("error:").unwrap() < experimental, "{stderr}");
+        }
+        cleanup(&[&input, &output]);
+    }
+}
+
+#[test]
+fn query_residuos_missing_file_preserva_argumento_e_status() {
+    let root = env::temp_dir().join(format!("tekt-query-missing-{}", std::process::id()));
+    fs::create_dir_all(&root).unwrap();
+    let absolute = root.join("missing.typ").display().to_string();
+    for input in ["missing.typ", "./missing.typ", absolute.as_str()] {
+        let result = Command::new(BIN)
+            .current_dir(&root)
+            .args(["query", input, "heading"])
+            .output()
+            .unwrap();
+        assert_eq!(result.status.code(), Some(1), "{:?}", result);
+        assert!(result.stdout.is_empty());
+        assert_eq!(
+            String::from_utf8_lossy(&result.stderr),
+            format!("error: input file not found (searched at {input})\n")
+        );
+    }
+    fs::remove_dir_all(root).unwrap();
+}
+
+fn query_compiled_stdin(
+    source: &str,
+    selector: &str,
+    flags: &[&str],
+) -> std::process::Output {
+    let mut child = Command::new(BIN)
+        .args(["query", "-", selector])
+        .args(flags)
+        .env("NO_COLOR", "1")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    child.stdin.take().unwrap().write_all(source.as_bytes()).unwrap();
+    child.wait_with_output().unwrap()
+}
+
+#[test]
+fn query_compiled_context_errors_preserve_origin_trace_and_deprecation() {
+    for (source, anchor) in [
+        ("#let bad() = unknown\n#context bad()", "<stdin>:1:13"),
+        ("#context [#context unknown]", "<stdin>:1:19"),
+    ] {
+        let result = query_compiled_stdin(source, "heading", &[]);
+        let stderr = String::from_utf8_lossy(&result.stderr);
+        assert_eq!(result.status.code(), Some(1), "{stderr}");
+        assert!(result.stdout.is_empty());
+        assert!(stderr.contains(anchor), "{stderr}");
+        assert!(stderr.contains("unknown variable `unknown`"), "{stderr}");
+        assert!(
+            stderr.find("error:").unwrap() < stderr.find("deprecated").unwrap(),
+            "{stderr}"
+        );
+        if source.contains("bad()") {
+            assert!(stderr.contains("while calling `bad` at <stdin>:2:9"), "{stderr}");
+        }
+    }
+}
+
+#[test]
+fn query_compiled_context_metadata_is_visible() {
+    let result = query_compiled_stdin(
+        "#context metadata(\"context-value\")",
+        "metadata",
+        &["--field", "value"],
+    );
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert_eq!(result.stdout, b"[\"context-value\"]\n");
+}
+
+#[test]
+fn query_compiled_where_and_labels_preserve_language_fields() {
+    let result = query_compiled_stdin(
+        "= A\n== B",
+        "heading.where(level: 2)",
+        &["--field", "level"],
+    );
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert_eq!(result.stdout, b"[2]\n");
+    let result = query_compiled_stdin(
+        "= it's Ω",
+        "heading.where(body: [it's Ω])",
+        &["--field", "body"],
+    );
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let json: serde_json::Value = serde_json::from_slice(&result.stdout).unwrap();
+    assert_eq!(json.as_array().unwrap().len(), 1, "{json}");
+    assert_eq!(json[0]["func"], "sequence");
+    // Smartquote identity and its explicit double field survive compiled query.
+    assert_eq!(json[0]["children"].as_array().unwrap().len(), 3);
+    assert_eq!(json[0]["children"][0]["text"], "it");
+    assert_eq!(json[0]["children"][1]["func"], "smartquote");
+    assert_eq!(json[0]["children"][1]["double"], false);
+    assert_eq!(json[0]["children"][2]["text"], "s Ω");
+    let input = temp_typ("query_compiled_body_reference", "= it's Ω");
+    let reference = Command::new(BIN)
+        .arg("eval")
+        .arg("--in")
+        .arg(&input)
+        .arg("query(heading.where(body: [it's Ω])).map(it => it.body)")
+        .output()
+        .unwrap();
+    assert_eq!(
+        reference.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&reference.stderr)
+    );
+    assert_eq!(
+        result.stdout, reference.stdout,
+        "query must preserve the complete evaluated body"
+    );
+    cleanup(&[&input]);
+    let result = query_compiled_stdin("#figure[one] <fig-one>", "<fig-one>", &[]);
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let json: serde_json::Value = serde_json::from_slice(&result.stdout).unwrap();
+    assert_eq!(json.as_array().unwrap().len(), 1);
+    assert_eq!(json[0]["label"], "<fig-one>");
+}
+
+#[test]
+fn query_compiled_document_error_precedes_selector_but_retrieval_has_no_warning() {
+    for selector in ["unknown_selector", "heading.where(body: [it's Ω])"] {
+        let result = query_compiled_stdin("#unknown", selector, &[]);
+        let stderr = String::from_utf8_lossy(&result.stderr);
+        assert_eq!(result.status.code(), Some(1), "{stderr}");
+        assert!(stderr.contains("unknown variable `unknown`"), "{stderr}");
+        assert!(stderr.contains("<stdin>:1:1"), "{stderr}");
+        assert!(!stderr.contains("invalid selector"), "{stderr}");
+        assert!(stderr.contains("deprecated"), "{stderr}");
+    }
+    for (selector, message) in [
+        (
+            "unknown_selector",
+            "failed to evaluate selector: unknown variable `unknown_selector`",
+        ),
+        ("\"A\"", "text is not locatable"),
+    ] {
+        let result = query_compiled_stdin("**\n= A", selector, &[]);
+        assert_eq!(result.status.code(), Some(1));
+        assert!(result.stdout.is_empty());
+        assert_eq!(
+            String::from_utf8_lossy(&result.stderr),
+            format!("error: {message}\n")
+        );
+    }
 }

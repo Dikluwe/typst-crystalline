@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/state_update.md
-//! @prompt-hash 2b68a2a3
+//! @prompt-hash 910f953e
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -55,7 +55,8 @@ impl PartialEq for StateUpdate {
         match (self, other) {
             (StateUpdate::Set(a), StateUpdate::Set(b)) => a == b,
             (StateUpdate::Func(a), StateUpdate::Func(b)) => Arc::ptr_eq(&a.0, &b.0),
-            _other => false, // neutro: N16[β] — actualizações de estado com tipos de operação distintos são desiguais,
+            (StateUpdate::Set(_), StateUpdate::Func(_))
+            | (StateUpdate::Func(_), StateUpdate::Set(_)) => false,
         }
     }
 }
@@ -73,6 +74,22 @@ impl Eq for StateUpdate {}
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn v16_state_update_function_identity_remains_stricter_than_func_names() {
+        let first = Func::native("same", |_, _, _, _| Ok(Value::None));
+        let second = Func::native("same", |_, _, _, _| Ok(Value::None));
+        assert_eq!(first, second);
+        let first_update = StateUpdate::Func(first.clone());
+        let alias = StateUpdate::Func(first);
+        let second_update = StateUpdate::Func(second);
+        assert_eq!(first_update, alias);
+        assert_ne!(first_update, second_update);
+        assert_ne!(second_update, first_update);
+        let set = StateUpdate::Set(Box::new(Value::None));
+        assert_ne!(set, first_update);
+        assert_ne!(first_update, set);
+    }
 
     #[test]
     fn set_round_trip() {

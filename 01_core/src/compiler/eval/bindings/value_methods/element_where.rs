@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/value_methods/element_where.md
-//! @prompt-hash 35c00c2c
+//! @prompt-hash e24a1232
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-06
 
 use super::*;
 
@@ -58,16 +58,32 @@ pub(crate) fn native_function_where(
 }
 
 /// Tabela estática dos campos de linguagem, excluindo #[internal]/#[external].
-/// Fonte: typst-library e field_id de typst-macros::elem (a51e02804).
+/// Fonte: field_id de typst-macros::elem; lotes auditados no pin 9f2b6e871.
+/// As entradas históricas preservadas ainda têm auditoria própria pendente.
 /// O nome serve ao diagnóstico; só o ponteiro tipado reconhece a função.
 pub(crate) fn native_element_fields(
     function: &crate::entities::func::Func,
 ) -> Option<(&'static str, &'static [&'static str], bool)> {
     use crate::compiler::stdlib::*;
+    use crate::entities::func::FormatElementKind;
+    if let crate::entities::func::FuncRepr::Format(kind, _) = function.repr() {
+        return match kind {
+            FormatElementKind::Svg => Some(("svg", &["pretty"], false)),
+            FormatElementKind::Png => Some(("png", &["ppi"], false)),
+            FormatElementKind::Pdf => {
+                Some(("pdf", &["pages", "standard", "tagged", "pretty"], false))
+            }
+            FormatElementKind::Html => Some(("html", &["pretty"], false)),
+            FormatElementKind::Bundle => Some(("bundle", &[], false)),
+        };
+    }
     if function.element_name() == Some("raw.line") {
         return Some(("raw.line", &["number", "count", "text", "body"], false));
     }
     if let crate::entities::func::FuncRepr::NativeWithEngine(native) = function.repr() {
+        if std::ptr::fn_addr_eq(native.call, native_op as fn(_, _, _, _, _, _) -> _) {
+            return Some(("op", &["text", "limits"], false));
+        }
         if std::ptr::fn_addr_eq(native.call, native_page as fn(_, _, _, _, _, _) -> _) {
             return Some((
                 "page",
@@ -102,6 +118,91 @@ pub(crate) fn native_element_fields(
             }
         };
     }
+    element!(native_html_elem, "elem", false, ["tag", "attrs", "body"]);
+    element!(native_html_frame, "frame", false, ["body"]);
+    element!(native_pdf_artifact, "artifact", false, ["kind", "body"]);
+    element!(
+        native_pdf_attach,
+        "attach",
+        true,
+        ["path", "data", "relationship", "mime-type", "description"]
+    );
+    element!(native_accent, "accent", false, ["base", "accent", "size", "dotless"]);
+    element!(
+        native_math_attach,
+        "attach",
+        false,
+        ["base", "t", "b", "tl", "bl", "tr", "br"]
+    );
+    element!(native_math_binom, "binom", false, ["upper", "lower"]);
+    element!(
+        native_cancel,
+        "cancel",
+        false,
+        ["body", "length", "inverted", "cross", "angle", "stroke", "background"]
+    );
+    element!(native_math_cases, "cases", false, ["delim", "reverse", "gap", "children"]);
+    element!(native_math_class_for_metadata, "class", false, ["class", "body"]);
+    element!(native_math_frac, "frac", false, ["num", "denom", "style"]);
+    element!(native_math_limits, "limits", false, ["body", "inline"]);
+    element!(native_math_lr, "lr", false, ["size", "body"]);
+    element!(
+        native_math_mat,
+        "mat",
+        false,
+        ["delim", "align", "augment", "row-gap", "column-gap", "rows"]
+    );
+    element!(native_math_mid, "mid", false, ["body"]);
+    element!(native_math_overbrace, "overbrace", false, ["body", "annotation"]);
+    element!(native_math_overbracket, "overbracket", false, ["body", "annotation"]);
+    element!(native_math_overline, "overline", false, ["body"]);
+    element!(native_math_overparen, "overparen", false, ["body", "annotation"]);
+    element!(native_math_overshell, "overshell", false, ["body", "annotation"]);
+    element!(native_math_primes, "primes", false, ["count"]);
+    element!(native_math_root, "root", false, ["index", "radicand"]);
+    element!(native_math_scripts, "scripts", false, ["body"]);
+    element!(native_math_stretch, "stretch", false, ["body", "size"]);
+    element!(native_math_underbrace, "underbrace", false, ["body", "annotation"]);
+    element!(native_math_underbracket, "underbracket", false, ["body", "annotation"]);
+    element!(native_math_underline, "underline", false, ["body"]);
+    element!(native_math_underparen, "underparen", false, ["body", "annotation"]);
+    element!(native_math_undershell, "undershell", false, ["body", "annotation"]);
+    element!(native_math_vec, "vec", false, ["delim", "align", "gap", "children"]);
+    element!(native_title, "title", true, ["body"]);
+    element!(
+        native_document,
+        "document",
+        true,
+        ["path", "format", "title", "author", "description", "keywords", "date", "body"]
+    );
+    element!(native_divider, "divider", false, []);
+    element!(native_list_item, "item", false, ["body"]);
+    element!(native_enum_item, "item", false, ["number", "body"]);
+    element!(native_terms_item, "item", false, ["term", "description"]);
+    element!(
+        native_footnote_entry,
+        "entry",
+        true,
+        ["note", "separator", "clearance", "gap", "indent"]
+    );
+    element!(native_flush, "flush", false, []);
+    element!(native_curve_move, "move", false, ["start", "relative"]);
+    element!(native_curve_line, "line", false, ["end", "relative"]);
+    element!(native_curve_quad, "quad", false, ["control", "end", "relative"]);
+    element!(
+        native_curve_cubic,
+        "cubic",
+        false,
+        ["control-start", "control-end", "end", "relative"]
+    );
+    element!(native_curve_close, "close", false, ["mode"]);
+    element!(native_asset, "asset", true, ["path", "data"]);
+    element!(
+        native_math_equation,
+        "equation",
+        true,
+        ["block", "numbering", "number-align", "supplement", "alt", "body"]
+    );
     element!(native_strong, "strong", true, ["delta", "body"]);
     element!(native_emph, "emph", true, ["body"]);
     element!(
@@ -137,6 +238,12 @@ pub(crate) fn native_element_fields(
             "outlined",
             "counter"
         ]
+    );
+    element!(
+        native_figure_caption,
+        "caption",
+        true,
+        ["position", "separator", "body", "kind", "supplement", "numbering", "counter"]
     );
     element!(
         native_text,
@@ -498,7 +605,7 @@ pub(crate) fn validate_element_locatability(
     span: Span,
 ) -> SourceResult<()> {
     match selector {
-        Selector::Element { function, .. } => {
+        Selector::NativeElement(function) | Selector::Element { function, .. } => {
             if let Some((name, _, false)) = native_element_fields(function) {
                 return Err(vec![SourceDiagnostic::error(
                     span,
@@ -527,4 +634,696 @@ pub(crate) fn validate_element_locatability(
         _ => {}
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod equation_where_tests {
+    use super::*;
+    #[test]
+    fn equation_where_recognizes_native_identity_and_public_field_schema() {
+        let Value::Module(math) = crate::compiler::stdlib::make_math_module() else {
+            panic!("math module")
+        };
+        let Some(Value::Func(eq)) = math.scope().get("equation") else {
+            panic!("missing equation")
+        };
+        let alias =
+            crate::entities::func::Func::native("alias", eq.native_fn_addr().unwrap());
+        for f in [eq.clone(), alias] {
+            let (name, fields, locatable) =
+                native_element_fields(&f).expect("equation is an element");
+            assert_eq!(name, "equation");
+            assert_eq!(
+                fields,
+                ["block", "numbering", "number-align", "supplement", "alt", "body"]
+            );
+            assert!(locatable);
+            let mut args = Args::positional(vec![]);
+            args.named.insert("block".into(), Value::Bool(true));
+            assert!(matches!(
+                eval_element_where(&f, &args).unwrap(),
+                Selector::Element { .. }
+            ));
+            validate_element_locatability(
+                &eval_element_where(&f, &args).unwrap(),
+                args.span,
+            )
+            .unwrap();
+            args.named.insert("size".into(), Value::Auto);
+            assert_eq!(
+                eval_element_where(&f, &args).unwrap_err()[0].message,
+                "element `equation` does not have field `size`"
+            );
+        }
+        let fake = crate::entities::func::Func::native(
+            "math.equation",
+            crate::compiler::stdlib::native_heading,
+        );
+        assert_eq!(native_element_fields(&fake).unwrap().0, "heading");
+        let applied = eq.clone().with(Args::positional(vec![]));
+        assert!(native_element_fields(&applied).is_none());
+    }
+}
+
+#[cfg(test)]
+mod caption_shape_tests {
+    use super::*;
+    #[test]
+    fn caption_shape_native_metadata_uses_callback_not_name() {
+        let real = crate::entities::func::Func::native(
+            "alias",
+            crate::compiler::stdlib::native_figure_caption,
+        );
+        let (name, fields, locatable) =
+            native_element_fields(&real).expect("caption element metadata missing");
+        assert_eq!(name, "caption");
+        assert_eq!(
+            fields,
+            &[
+                "position",
+                "separator",
+                "body",
+                "kind",
+                "supplement",
+                "numbering",
+                "counter"
+            ]
+        );
+        assert!(locatable);
+        let fake = crate::entities::func::Func::native(
+            "caption",
+            crate::compiler::stdlib::native_assert,
+        );
+        assert!(native_element_fields(&fake).is_none());
+    }
+}
+
+#[cfg(test)]
+mod native_catalogue_tests {
+    use super::*;
+    use crate::compiler::stdlib::*;
+    use crate::entities::func::Func;
+
+    fn check(function: Func, name: &str, fields: &[&str], locatable: bool) {
+        let (actual_name, actual_fields, actual_locatable) =
+            native_element_fields(&function).expect("existing native element missing");
+        assert_eq!(actual_name, name);
+        assert_eq!(actual_fields, fields);
+        assert_eq!(actual_locatable, locatable);
+        let mut args = Args::positional(vec![]);
+        for field in fields {
+            args.named.insert((*field).into(), Value::Auto);
+        }
+        args.named.insert(
+            "label".into(),
+            Value::Label(crate::entities::label::Label("audit".into())),
+        );
+        let selector = eval_element_where(&function, &args).unwrap();
+        for selector in [selector, Selector::NativeElement(function.clone())] {
+            let result = validate_element_locatability(&selector, args.span);
+            if locatable {
+                result.unwrap();
+            } else {
+                assert_eq!(
+                    result.unwrap_err()[0].message,
+                    format!("{name} is not locatable")
+                );
+            }
+        }
+        args.named.insert("__audit_missing".into(), Value::Auto);
+        assert_eq!(
+            eval_element_where(&function, &args).unwrap_err()[0].message,
+            format!("element `{name}` does not have field `__audit_missing`")
+        );
+        assert!(native_element_fields(&function.with(Args::positional(vec![]))).is_none());
+    }
+
+    #[test]
+    fn native_catalogue_title() {
+        check(Func::native("alias", native_title), "title", &["body"], true);
+    }
+
+    #[test]
+    fn native_catalogue_document() {
+        check(
+            Func::native("alias", native_document),
+            "document",
+            &[
+                "path",
+                "format",
+                "title",
+                "author",
+                "description",
+                "keywords",
+                "date",
+                "body",
+            ],
+            true,
+        );
+    }
+
+    #[test]
+    fn native_catalogue_divider() {
+        check(Func::native("alias", native_divider), "divider", &[], false);
+    }
+
+    #[test]
+    fn native_catalogue_list_item() {
+        check(Func::native("alias", native_list_item), "item", &["body"], false);
+    }
+
+    #[test]
+    fn native_catalogue_enum_item() {
+        check(
+            Func::native("alias", native_enum_item),
+            "item",
+            &["number", "body"],
+            false,
+        );
+    }
+
+    #[test]
+    fn native_catalogue_terms_item() {
+        check(
+            Func::native("alias", native_terms_item),
+            "item",
+            &["term", "description"],
+            false,
+        );
+    }
+
+    #[test]
+    fn native_catalogue_footnote_entry() {
+        check(
+            Func::native("alias", native_footnote_entry),
+            "entry",
+            &["note", "separator", "clearance", "gap", "indent"],
+            true,
+        );
+    }
+
+    #[test]
+    fn native_catalogue_flush() {
+        check(Func::native("alias", native_flush), "flush", &[], false);
+    }
+
+    #[test]
+    fn native_catalogue_op() {
+        check(
+            Func::native_with_engine("alias", native_op),
+            "op",
+            &["text", "limits"],
+            false,
+        );
+    }
+
+    #[test]
+    fn native_catalogue_curve_move() {
+        check(
+            Func::native("alias", native_curve_move),
+            "move",
+            &["start", "relative"],
+            false,
+        );
+    }
+
+    #[test]
+    fn native_catalogue_curve_line() {
+        check(
+            Func::native("alias", native_curve_line),
+            "line",
+            &["end", "relative"],
+            false,
+        );
+    }
+
+    #[test]
+    fn native_catalogue_curve_quad() {
+        check(
+            Func::native("alias", native_curve_quad),
+            "quad",
+            &["control", "end", "relative"],
+            false,
+        );
+    }
+
+    #[test]
+    fn native_catalogue_curve_cubic() {
+        check(
+            Func::native("alias", native_curve_cubic),
+            "cubic",
+            &["control-start", "control-end", "end", "relative"],
+            false,
+        );
+    }
+
+    #[test]
+    fn native_catalogue_curve_close() {
+        check(Func::native("alias", native_curve_close), "close", &["mode"], false);
+    }
+
+    #[test]
+    fn native_catalogue_asset() {
+        check(Func::native("alias", native_asset), "asset", &["path", "data"], true);
+    }
+
+    #[test]
+    fn native_catalogue_homonyms_and_page_controls() {
+        for name in ["title", "op", "item", "document", "asset", "move"] {
+            let fake = Func::native(name, native_assert);
+            assert!(native_element_fields(&fake).is_none());
+        }
+        let page = Func::native_with_engine("alias", native_page);
+        let (name, fields, locatable) = native_element_fields(&page).unwrap();
+        assert_eq!(name, "page");
+        assert!(fields.contains(&"width"));
+        assert!(!locatable);
+        assert!(native_element_fields(&page.with(Args::positional(vec![]))).is_none());
+    }
+}
+
+#[cfg(test)]
+mod native_math_catalogue_tests {
+    use super::*;
+    use crate::entities::func::Func;
+
+    fn binding(name: &str) -> Func {
+        let Value::Module(module) = crate::compiler::stdlib::make_math_module() else {
+            panic!("math module")
+        };
+        let Some(Value::Func(function)) = module.scope().get(name) else {
+            panic!("math function missing")
+        };
+        function.clone()
+    }
+
+    fn check(name: &'static str, fields: &[&str], excluded: &[&str]) {
+        let function = binding(name);
+        let alias = Func::native("alias", function.native_fn_addr().unwrap());
+        for function in [function, alias] {
+            let (actual_name, actual_fields, locatable) =
+                native_element_fields(&function).expect("existing math element missing");
+            assert_eq!(actual_name, name);
+            assert_eq!(actual_fields, fields);
+            assert!(!locatable);
+            let mut args = Args::positional(vec![]);
+            for field in fields {
+                args.named.insert((*field).into(), Value::Auto);
+            }
+            args.named.insert(
+                "label".into(),
+                Value::Label(crate::entities::label::Label("audit".into())),
+            );
+            let selector = eval_element_where(&function, &args).unwrap();
+            for selector in [selector, Selector::NativeElement(function.clone())] {
+                assert_eq!(
+                    validate_element_locatability(&selector, args.span).unwrap_err()[0]
+                        .message,
+                    format!("{name} is not locatable")
+                );
+            }
+            for field in
+                std::iter::once("__audit_missing").chain(excluded.iter().copied())
+            {
+                args.named.insert(field.into(), Value::Auto);
+                assert_eq!(
+                    eval_element_where(&function, &args).unwrap_err()[0].message,
+                    format!("element `{name}` does not have field `{field}`")
+                );
+                args.named.shift_remove(field);
+            }
+            assert!(
+                native_element_fields(&function.with(Args::positional(vec![]))).is_none()
+            );
+        }
+        let fake = Func::native(name, crate::compiler::stdlib::native_assert);
+        assert!(native_element_fields(&fake).is_none());
+    }
+
+    #[test]
+    fn native_math_catalogue_accent() {
+        check("accent", &["base", "accent", "size", "dotless"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_attach() {
+        check("attach", &["base", "t", "b", "tl", "bl", "tr", "br"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_binom() {
+        check("binom", &["upper", "lower"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_cancel() {
+        check(
+            "cancel",
+            &["body", "length", "inverted", "cross", "angle", "stroke", "background"],
+            &[],
+        );
+    }
+
+    #[test]
+    fn native_math_catalogue_cases() {
+        check("cases", &["delim", "reverse", "gap", "children"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_class() {
+        check("class", &["class", "body"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_frac() {
+        check(
+            "frac",
+            &["num", "denom", "style"],
+            &["num-deparenthesized", "denom-deparenthesized"],
+        );
+    }
+
+    #[test]
+    fn native_math_catalogue_limits() {
+        check("limits", &["body", "inline"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_lr() {
+        check("lr", &["size", "body"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_mat() {
+        check(
+            "mat",
+            &["delim", "align", "augment", "row-gap", "column-gap", "rows"],
+            &["gap"],
+        );
+    }
+
+    #[test]
+    fn native_math_catalogue_mid() {
+        check("mid", &["body"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_overbrace() {
+        check("overbrace", &["body", "annotation"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_overbracket() {
+        check("overbracket", &["body", "annotation"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_overline() {
+        check("overline", &["body"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_overparen() {
+        check("overparen", &["body", "annotation"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_overshell() {
+        check("overshell", &["body", "annotation"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_primes() {
+        check("primes", &["count"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_root() {
+        check("root", &["index", "radicand"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_scripts() {
+        check("scripts", &["body"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_stretch() {
+        check("stretch", &["body", "size"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_underbrace() {
+        check("underbrace", &["body", "annotation"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_underbracket() {
+        check("underbracket", &["body", "annotation"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_underline() {
+        check("underline", &["body"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_underparen() {
+        check("underparen", &["body", "annotation"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_undershell() {
+        check("undershell", &["body", "annotation"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_vec() {
+        check("vec", &["delim", "align", "gap", "children"], &[]);
+    }
+
+    #[test]
+    fn native_math_catalogue_non_elements_and_global_decorations() {
+        for name in ["sqrt", "abs", "norm", "round"] {
+            assert!(native_element_fields(&binding(name)).is_none());
+        }
+        for function in [
+            Func::native("math.underline", crate::compiler::stdlib::native_underline),
+            Func::native("math.overline", crate::compiler::stdlib::native_overline),
+        ] {
+            let (_, fields, _) = native_element_fields(&function).unwrap();
+            assert!(fields.contains(&"stroke"));
+        }
+    }
+}
+
+#[cfg(test)]
+mod native_format_catalogue_tests {
+    use super::*;
+    use crate::entities::func::Func;
+
+    fn binding(path: &str) -> Func {
+        use crate::entities::compiler_features::{Feature, Features};
+        let mut features = Features::empty();
+        for feature in [Feature::Html, Feature::A11yExtras, Feature::Bundle] {
+            features.enable(feature);
+        }
+        let scope = crate::compiler::stdlib::make_stdlib_with_features(
+            &crate::contracts::world::SysInputs::default(),
+            features,
+        );
+        let mut parts = path.strip_prefix("std.").unwrap().split('.');
+        let mut value = scope.get(parts.next().unwrap()).unwrap().clone();
+        for part in parts {
+            let next = if let Value::Module(module) = &value {
+                module.scope().get(part)
+            } else if let Value::Func(function) = &value {
+                function.namespace().unwrap().get(part)
+            } else {
+                panic!("not a namespace")
+            };
+            value = next.unwrap().clone();
+        }
+        let Value::Func(function) = value else { panic!("function binding") };
+        function
+    }
+
+    fn check(
+        path: &str,
+        name: &'static str,
+        fields: &[&str],
+        excluded: &[&str],
+        locatable: bool,
+        format: bool,
+    ) {
+        let function = binding(path);
+        let alias = function.clone();
+        for function in [function, alias] {
+            let (actual_name, actual_fields, actual_locatable) =
+                native_element_fields(&function)
+                    .expect("registered format element missing");
+            assert_eq!(actual_name, name);
+            assert_eq!(actual_fields, fields);
+            assert_eq!(actual_locatable, locatable);
+            let mut args = Args::positional(vec![]);
+            for field in fields {
+                args.named.insert((*field).into(), Value::Auto);
+            }
+            args.named.insert(
+                "label".into(),
+                Value::Label(crate::entities::label::Label("audit".into())),
+            );
+            let selector = eval_element_where(&function, &args).unwrap();
+            let result = validate_element_locatability(&selector, args.span);
+            if locatable {
+                result.unwrap();
+            } else {
+                assert_eq!(
+                    result.unwrap_err()[0].message,
+                    format!("{name} is not locatable")
+                );
+            }
+            for field in
+                std::iter::once("__audit_missing").chain(excluded.iter().copied())
+            {
+                args.named.insert(field.into(), Value::Auto);
+                assert_eq!(
+                    eval_element_where(&function, &args).unwrap_err()[0].message,
+                    format!("element `{name}` does not have field `{field}`")
+                );
+                args.named.shift_remove(field);
+            }
+            let unmarked = Func::native("alias", function.native_fn_addr().unwrap());
+            assert_eq!(native_element_fields(&unmarked).is_none(), format);
+            assert!(
+                native_element_fields(&function.with(Args::positional(vec![]))).is_none()
+            );
+        }
+        let fake = Func::native(name, crate::compiler::stdlib::native_assert);
+        assert!(native_element_fields(&fake).is_none());
+    }
+
+    #[test]
+    fn native_format_catalogue_format_bundle() {
+        check("std.format.bundle", "bundle", &[], &[], false, true);
+    }
+
+    #[test]
+    fn native_format_catalogue_format_html() {
+        check("std.format.html", "html", &["pretty"], &[], false, true);
+    }
+
+    #[test]
+    fn native_format_catalogue_format_html_elem() {
+        check(
+            "std.format.html.elem",
+            "elem",
+            &["tag", "attrs", "body"],
+            &["css", "parent", "role"],
+            false,
+            false,
+        );
+    }
+
+    #[test]
+    fn native_format_catalogue_format_html_frame() {
+        check("std.format.html.frame", "frame", &["body"], &[], false, false);
+    }
+
+    #[test]
+    fn native_format_catalogue_format_pdf() {
+        check(
+            "std.format.pdf",
+            "pdf",
+            &["pages", "standard", "tagged", "pretty"],
+            &[],
+            false,
+            true,
+        );
+    }
+
+    #[test]
+    fn native_format_catalogue_format_pdf_artifact() {
+        check(
+            "std.format.pdf.artifact",
+            "artifact",
+            &["kind", "body"],
+            &[],
+            false,
+            false,
+        );
+    }
+
+    #[test]
+    fn native_format_catalogue_format_pdf_attach() {
+        check(
+            "std.format.pdf.attach",
+            "attach",
+            &["path", "data", "relationship", "mime-type", "description"],
+            &[],
+            true,
+            false,
+        );
+    }
+
+    #[test]
+    fn native_format_catalogue_format_png() {
+        check("std.format.png", "png", &["ppi"], &[], false, true);
+    }
+
+    #[test]
+    fn native_format_catalogue_format_svg() {
+        check("std.format.svg", "svg", &["pretty"], &[], false, true);
+    }
+
+    #[test]
+    fn native_format_catalogue_html() {
+        check("std.html", "html", &["pretty"], &[], false, true);
+    }
+
+    #[test]
+    fn native_format_catalogue_html_elem() {
+        check(
+            "std.html.elem",
+            "elem",
+            &["tag", "attrs", "body"],
+            &["css", "parent", "role"],
+            false,
+            false,
+        );
+    }
+
+    #[test]
+    fn native_format_catalogue_html_frame() {
+        check("std.html.frame", "frame", &["body"], &[], false, false);
+    }
+
+    #[test]
+    fn native_format_catalogue_pdf() {
+        check(
+            "std.pdf",
+            "pdf",
+            &["pages", "standard", "tagged", "pretty"],
+            &[],
+            false,
+            true,
+        );
+    }
+
+    #[test]
+    fn native_format_catalogue_pdf_artifact() {
+        check("std.pdf.artifact", "artifact", &["kind", "body"], &[], false, false);
+    }
+
+    #[test]
+    fn native_format_catalogue_pdf_attach() {
+        check(
+            "std.pdf.attach",
+            "attach",
+            &["path", "data", "relationship", "mime-type", "description"],
+            &[],
+            true,
+            false,
+        );
+    }
 }

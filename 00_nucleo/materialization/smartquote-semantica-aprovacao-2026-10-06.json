@@ -1,0 +1,226 @@
+{
+  "utc": "2026-10-06T19:22:09.048147+00:00",
+  "authorization": "user: confirmo",
+  "manifest_sha256": "af128f74ed82f309215a9df72c8dfbbbb9d678f35ad841ee8766de1d5859aad5",
+  "status": "materialized_validated",
+  "owners": [
+    {
+      "owner": "00_nucleo/prompts/entities/elements/smartquote.md",
+      "consumer": "01_core/src/entities/elements/smartquote.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/entities/elements/smartquote.md",
+      "base_sha256": "f4b0025fa56ab8ebed4577ff473e5a7b4205256ccfce853e2de03f0626b3ad07",
+      "candidate_sha256": "de241d4aa85b138ccd9f2f38ee31dbdd772af477cb2fd5f2b210f44e1f3fee80",
+      "ratified_sha256": "2c02841d5e0436e4cef798abb42930a495a7190d27f04af3538adab561f4aa3e"
+    },
+    {
+      "owner": "00_nucleo/prompts/entities/content/construction/layout.md",
+      "consumer": "01_core/src/entities/content/construction/layout.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/entities/content/construction/layout.md",
+      "base_sha256": "f76451c4fa593fb29fb3ff724a6d8da1ff11ea107aced716437bb9e621d1cd92",
+      "candidate_sha256": "e137c28593f8d0b74d1069228b7f5be3091bc8a0dea57abf26797e2db3fda227",
+      "ratified_sha256": "148e7874dc76d16f91198f93041b0994f78fade867334132a5e48892589774c6"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/stdlib/text/smartquote.md",
+      "consumer": "01_core/src/compiler/stdlib/text/smartquote.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/compiler/stdlib/text/smartquote.md",
+      "base_sha256": "51a94d68e85a9286e75c0f00f6d3ed8f48e1cc9961ebaef4cc9d7f15f07c36fc",
+      "candidate_sha256": "e6b23df05068a44bad17bed410c7ae3273215bfd66055b9aef0e8af149aba1e5",
+      "ratified_sha256": "3a740b499a2fb361db4cff1b8283cab6ad3acf76a6a6f759c0488878bee66234"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/eval/observation/elements.md",
+      "consumer": "01_core/src/compiler/eval/observation/elements.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/compiler/eval/observation/elements.md",
+      "base_sha256": "996b210e1eb6e5cc45f641ffb825435c5000f4fba1b1f89584b035759d9bd71f",
+      "candidate_sha256": "c21b46cb809a0170d925acbb2362761a3a1c123fccf49b92f44de6057ea9c9fc",
+      "ratified_sha256": "d32305b492fa6dd0dee75e58ec86dd73729d5bad9a4085ecaf1b30dfad60e351"
+    },
+    {
+      "owner": "00_nucleo/prompts/entities/content/fields.md",
+      "consumer": "01_core/src/entities/content/fields.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/entities/content/fields.md",
+      "base_sha256": "3d93acac09a057b5ecf2d90bd88555d959409a98ee7834fb9fa8c9bb32a19832",
+      "candidate_sha256": "b2e5013fff2368a51c0b3c78dc7904ff60aa2326e8f68dd845fe6bfee54c41ac",
+      "ratified_sha256": "4f52ff58bf328c6aeb274f525097e86071d83a0ed12afdb3fae0b3a76aec8fe4"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/eval/bindings/field_access/content_methods.md",
+      "consumer": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/compiler/eval/bindings/field_access/content_methods.md",
+      "base_sha256": "74ade98e7e3016f8311632cac922b3390bea42b4d1a9e5929cfbce77758ac3cb",
+      "candidate_sha256": "e5fc2dc29e2fbef48a16f7598bf729eff625796b304e36327e785568595c7330",
+      "ratified_sha256": "0418e18d5bbc9f5369654e1f15118e19ec611f3f0dd2b001bb7cd01333b4589f"
+    },
+    {
+      "owner": "00_nucleo/prompts/entities/content/identity.md",
+      "consumer": "01_core/src/entities/content/identity.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/entities/content/identity.md",
+      "base_sha256": "3406781c6191c386bdc691d3cb6fd44c2e2ba1c2de608b087c62d2c96b3c2eec",
+      "candidate_sha256": "cc396b441505e799c5f9097d297b4d86cc9dd30f50773d39800059355467a977",
+      "ratified_sha256": "0f7565e0655ed3d98e74ee59203e01185badf74bf34f0a48b171257977c6a3bb"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/eval/markup_stream.md",
+      "consumer": "01_core/src/compiler/eval/markup_stream.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/compiler/eval/markup_stream.md",
+      "base_sha256": "ba71b65a148bbf31064087685a6b04cd16cdf741c2f0391f958ea3ee57a3e474",
+      "candidate_sha256": "e51e310f3c53dcd57c49af063b122cc1aa9a21fcaf684ffefc44e1561733fded",
+      "ratified_sha256": "b3b6b1bd0021fe5c4882e9afe307a61b92977abbdc754a8fe503ce2d0bfc17a9"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/eval/rules/set.md",
+      "consumer": "01_core/src/compiler/eval/rules/set.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/compiler/eval/rules/set.md",
+      "base_sha256": "c514b8b465a4cb9dde9aae5fed6c6a2f42d58147091fd2bbff296b707d7dab33",
+      "candidate_sha256": "05395cfb6d06c48cf0f94f58a2e646f8aeeeb7d45e9bd64683cd52c615667a6c",
+      "ratified_sha256": "563cb3f04c9fdaee83ba9baed62b67767ed4e59b20e8783060897c83c4277287"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/lang/quotes.md",
+      "consumer": "01_core/src/compiler/lang/quotes.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/compiler/lang/quotes.md",
+      "base_sha256": "faeea2858d18e539b73d4a5c27c71468c8f152a72af3631e68b2badae0a5ff8a",
+      "candidate_sha256": "6565c96c459dffe30f07340e46ec07192be0140a1806fc3d9456739711084edc",
+      "ratified_sha256": "95c56986a35311aa64e1930b5134557aa8f39f44b4173828acc389c1f763852e"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/layout.md",
+      "consumer": "01_core/src/compiler/layout/mod.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/compiler/layout.md",
+      "base_sha256": "5d4ebf920e2cf4a77473067cbdac4c76e29f1ae788e9484c1e13107613296ea6",
+      "candidate_sha256": "6aebd440b235defb4fc6544a63f05574b5f9404397d2707eb1c29f28f2aa34f8",
+      "ratified_sha256": "887b0d3b71d8ba05da40e5c38f292de25a2cabdee40b633763d22b233420f101"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/layout/smartquote.md",
+      "consumer": "01_core/src/compiler/layout/smartquote.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/compiler/layout/smartquote.md",
+      "base_sha256": "2a8d20fb08731e68def60ef31b774205084b37c1e05e1e974bfe776de0a3d6bb",
+      "candidate_sha256": "4bcded81bba0a3724361e3ac7651d7508c961659cd00536809ae7a14cc0d204b",
+      "ratified_sha256": "cd0079783042fdb4d1449ed94f306cd7406b563000576caeabcd7b52018d3609"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/layout/checkpoint.md",
+      "consumer": "01_core/src/compiler/layout/checkpoint.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/compiler/layout/checkpoint.md",
+      "base_sha256": "5d3d8515895e4c310e7e3d77a3cf404704a6e689a1fb9c57e720c977cad89f51",
+      "candidate_sha256": "f487179dae0ca5b3b7ec3e287d803814d4d473a030713807e09ada2d07522bc9",
+      "ratified_sha256": "b9ee5315dce31fe573f3fa25910e10a90b92d0b0d06573affa41f3323db947f9"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/layout/parbreak.md",
+      "consumer": "01_core/src/compiler/layout/parbreak.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/compiler/layout/parbreak.md",
+      "base_sha256": "f862acf0fe8f26477566e8e1630c284ef2c1d0aea9bf09b49da4e9b8c38579b3",
+      "candidate_sha256": "c176be9bb9e15f511cb1536bef664dfb958fa13771d162b36567d24f6cb560b0",
+      "ratified_sha256": "2f16db1f8d856439eef56e10b92efe135cf646334896ce7353655593bcd23195"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/layout/linebreak.md",
+      "consumer": "01_core/src/compiler/layout/linebreak.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/compiler/layout/linebreak.md",
+      "base_sha256": "31a8f92e35b9b8059f803791c04ac15af15706eba8554a1662173365600ed1bc",
+      "candidate_sha256": "22d6bfad939c483643c8b75deacef1699b41053defb30e982f802050244954d6",
+      "ratified_sha256": "a2b6c2a71cd6821b35582d0dfd84419dc9c0b51e670c2a9aacf5b8f6ba2c5027"
+    },
+    {
+      "owner": "00_nucleo/prompts/shell/cli.md",
+      "consumer": "02_shell/src/cli.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/shell/cli.md",
+      "base_sha256": "97684fa994658833789e07941bb89228f2707546bba46fd44d77f8eb8364bc34",
+      "candidate_sha256": "b31ca59e68effed8cff74ce8b4fc56f7d1388d11d288015d902bd3ec3f38372c",
+      "ratified_sha256": "ace502f08a9f121018c4df3965e998d71c444cee224704f5459c1aa8a82ccd72"
+    },
+    {
+      "owner": "00_nucleo/prompts/infra/export/html/inline.md",
+      "consumer": "03_infra/src/export/html/inline.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/infra/export/html/inline.md",
+      "base_sha256": "e1dae71adc709ffcb4a06db2ff91dfe6768ddca92147b57f9730257190e211bf",
+      "candidate_sha256": "0aa1fa36b5c9979e2e59dd8c501d8dfd5ebf6520d820a1dd9efd626229e423eb",
+      "ratified_sha256": "f7ace1944b47901faaa4593936c4a906ce19a39e5241637157e281254fcbdc9a"
+    },
+    {
+      "owner": "00_nucleo/prompts/infra/export/html/document.md",
+      "consumer": "03_infra/src/export/html/document.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/infra/export/html/document.md",
+      "base_sha256": "5c44e6d61503337280254ffd599666099b21283d59ea681bf929fb0c339a61d7",
+      "candidate_sha256": "ac2001a46d0380b6c8632c400c62bc78b41813b46865099771e16510e33d6862",
+      "ratified_sha256": "4563052f1aecdf54c9b07fd27096deb10468d816da07d5f7d64b4ca350d95a17"
+    },
+    {
+      "owner": "00_nucleo/prompts/infra/export/html/whitespace.md",
+      "consumer": "03_infra/src/export/html/whitespace.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/infra/export/html/whitespace.md",
+      "base_sha256": "2d8c263ed022ca66f210fdb1c9fe482433a00939a604263f4cc66102b6ef17ca",
+      "candidate_sha256": "872e3da8a21885aef7112171def04c0d5aadbb543031549abefc3e4977e22e57",
+      "ratified_sha256": "b37cf752bf8d93edf0488cd1cd96837d920e4389520392f26369970f8d0f0066"
+    },
+    {
+      "owner": "00_nucleo/prompts/infra/export/html/encoding.md",
+      "consumer": "03_infra/src/export/html/encoding.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/infra/export/html/encoding.md",
+      "base_sha256": "ef08cf92029b04b2d065b41f48ee074e6532cd5073a39851ecfafb821a0d8511",
+      "candidate_sha256": "da439107083553802f110ac592de4cecef1edd2bc84e6abd33ff122cfa660751",
+      "ratified_sha256": "41d1ada257a9b84359a717635da4fc00d9bf29d625426b235996645ed567729a"
+    },
+    {
+      "owner": "00_nucleo/prompts/infra/export/html/tests.md",
+      "consumer": "03_infra/src/export/html/tests.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/infra/export/html/tests.md",
+      "base_sha256": "ad4a2c22039c77e9cbad5de1030a0b141b5175b4e7cd7a68e6fcee5f9a3a424a",
+      "candidate_sha256": "327861b459419b24e18c7719e9705a16cea4121da7ee22ade5a0a14c114f2f6d",
+      "ratified_sha256": "35a56cbd9f068cb661c579c55d4e7bd7a5c7f65772803ae356937d06f9da3602"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/eval/tests.md",
+      "consumer": "01_core/src/compiler/eval/tests.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/compiler/eval/tests.md",
+      "base_sha256": "29abdf96615e49384e7e2f473ad558c8539e01cec7f02b024df5fec0c2b8efe8",
+      "candidate_sha256": "f5316b0f45ea1c0dbb8a14e051e0edc2e3d9989df39a1de5fdc0a2542a515c1d",
+      "ratified_sha256": "6f1acf953335c2b11ebf6cb2648e074adce088dd8ceaa9e81d4edb993fac39ec"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/layout/tests.md",
+      "consumer": "01_core/src/compiler/layout/tests.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/compiler/layout/tests.md",
+      "base_sha256": "884147b1cc373b2b33ece1648e43904b8f83dd18f199541d98d4ea631f69ab17",
+      "candidate_sha256": "ee1efdf0772dfff166aae38a404e5a6a0dfce57f5da7c4520c7723701bb5b218",
+      "ratified_sha256": "8748325015064fa3d901d5696d6d1790bd9ed5965a46b05c4f4b529d6f6750f1"
+    },
+    {
+      "owner": "00_nucleo/prompts/wiring/tests/cli.md",
+      "consumer": "04_wiring/tests/cli.rs",
+      "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/wiring/tests/cli.md",
+      "base_sha256": "4a23a4ec74e68d98dd5d7d82ada6ee2c5b44036f13c7ca51bafa7fa97e38ce7a",
+      "candidate_sha256": "32ae9993025b044359ce75ceafa230b5c0404deb221537d3e5eb07e21dbe3a01",
+      "ratified_sha256": "58a6ea9cf01e060c2e3da45260c809cac78c0c5714b01f2aaf2dea60c6badd8d"
+    }
+  ],
+  "nucleus": {
+    "canonical_path": "00_nucleo/prompts/_nuclei/smartquote-semantics.toml",
+    "candidate": "00_nucleo/materialization/smartquote-semantica-2026-10-06/_nuclei/smartquote-semantics.toml",
+    "raw_sha256": "d9948ef516e5336db7efe674eea65cdc2c377f8b02784bf09188481d55f08168",
+    "effective_sha256": "dc549d79f9e996433894effc8e4efd1f8f3da3d9c30933110eeabbab582ae9a8",
+    "status": "new_proposed_not_installed"
+  },
+  "continuous_extensions": [
+    {
+      "owner": "00_nucleo/prompts/compiler/stdlib/tests/text.md",
+      "consumer": "01_core/src/compiler/stdlib/tests/text.rs",
+      "reason": "adaptar testes ao schema ratificado; erro de compilação medido"
+    },
+    {
+      "owner": "00_nucleo/prompts/entities/content/tests/representation.md",
+      "consumer": "01_core/src/entities/content/tests/representation.rs",
+      "reason": "adaptar assertion bool para presença Some do constructor público preservado"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/eval/bindings/field_access/fields.md",
+      "consumer": "01_core/src/compiler/eval/bindings/field_access/fields.rs",
+      "reason": "corrigir acesso direto a campo omitido; assinatura e fase mantidas; field-access-before.json e RED→GREEN"
+    }
+  ],
+  "final_checks": "00_nucleo/diagnosticos/smartquote-2026-10-06/final-checks.json",
+  "final_seals": "00_nucleo/diagnosticos/smartquote-2026-10-06/ratified-seals.json"
+}

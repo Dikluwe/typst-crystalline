@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr/value.md
-//! @prompt-hash 032f7b80
+//! @prompt-hash 716cc8bc
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -51,7 +51,7 @@ pub fn repr_value(v: &Value) -> String {
                 .iter()
                 .map(|(k, v)| format!("{}: {}", k.as_str(), repr_value(v)))
                 .collect();
-            format!("({})", items.join(", "))
+            pretty_array_like(&items, false)
         }
         Value::Module(m) => format!("<module {}>", m.name()),
         Value::Datetime(d) => repr_datetime(d),
@@ -60,7 +60,7 @@ pub fn repr_value(v: &Value) -> String {
             // nomeadas) repr como `"(..) => .."`; nativas usam o nome
             // (`repr(rgb)` → `"rgb"`, P742); função sem nome mantém
             // `"#function(...)"`.
-            if is_closure(&f) {
+            if is_closure(f) {
                 "(..) => ..".to_string()
             } else if let Some(name) = f.name() {
                 if name.is_empty() {
@@ -97,7 +97,7 @@ pub fn repr_value(v: &Value) -> String {
         Value::Tiling(tiling) => repr_tiling(tiling),
         Value::Bytes(b) => format!("bytes({})", b.len()),
         // P817-D — paridade vanilla: repr de decimal é `decimal("...")`.
-        Value::Decimal(d) => format!("decimal(\"{}\")", d.to_string()),
+        Value::Decimal(d) => format!("decimal(\"{}\")", d),
         Value::Duration(d) => repr_duration(d),
         Value::Version(ver) => {
             // P684 — componentes arbitrários; só os três primeiros têm nome, mas
@@ -183,10 +183,7 @@ pub fn repr_value(v: &Value) -> String {
 /// representam-se com componentes negativos (P850).
 /// Closures e qualquer aplicação parcial são anônimas na representação pública.
 pub(super) fn is_closure(f: &Func) -> bool {
-    match f.repr() {
-        FuncRepr::Closure(_) | FuncRepr::With(_) => true,
-        _ => false,
-    }
+    matches!(f.repr(), FuncRepr::Closure(_) | FuncRepr::With(_))
 }
 
 /// Float com decimal sempre visível (evita "1" para 1.0).
@@ -247,5 +244,21 @@ mod tests {
     fn singleton_array_and_empty_dictionary_have_distinct_morphology() {
         assert_eq!(repr_value(&Value::Array(vec![Value::Int(5)])), "(5,)");
         assert_eq!(repr_value(&Value::Dict(Default::default())), "(:)");
+    }
+    #[test]
+    fn dictionary_repr_uses_the_shared_multiline_layout() {
+        let values = [
+            ("angle", Value::Angle(Angle::deg(23.0))),
+            (
+                "origin",
+                Value::Align(crate::entities::layout_types::Align2D::from_string(
+                    "top-left",
+                )),
+            ),
+            ("reflow", Value::Bool(false)),
+            ("body", Value::Content(Content::text("X"))),
+        ];
+        let dict = values.into_iter().map(|(k, v)| (k.into(), v)).collect();
+        assert_eq!(repr_value(&Value::Dict(dict)), "(\n  angle: 23deg,\n  origin: left + top,\n  reflow: false,\n  body: [X],\n)");
     }
 }

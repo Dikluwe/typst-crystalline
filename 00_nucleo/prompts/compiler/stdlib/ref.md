@@ -1,5 +1,5 @@
 # L0 — stdlib/ref
-Hash do Código: ffffffff
+Hash do Código: 99ba5612
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/ref.rs`

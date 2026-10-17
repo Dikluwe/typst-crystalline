@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/scopes.md
-//! @prompt-hash 3e72b30c
+//! @prompt-hash 35237067
 //! @layer L1
-//! @updated 2026-07-16
+//! @updated 2026-10-08
 
 use std::sync::Arc;
 
@@ -81,13 +81,19 @@ impl<'a> Scopes<'a> {
     /// com a mensagem do caso "captured", não "constant" — P772l §2.2,
     /// deliberadamente fora do âmbito de P772n).
     pub fn snapshot(&self) -> Scope {
-        let mut s = Scope::new();
-        if let Some(base) = self.base {
-            for (name, binding) in base.global.iter() {
-                s.define(name, binding.value().clone());
-            }
-        }
-        if let Some(cap) = &self.captured {
+        self.snapshot_with_seed(Scope::clone)
+    }
+
+    fn snapshot_with_seed(&self, seed: impl FnOnce(&Scope) -> Scope) -> Scope {
+        // Copy the first prefix as a map instead of reinserting its bindings.
+        let (mut s, capture_overlay) = if let Some(base) = self.base {
+            (seed(&base.global), self.captured.as_deref())
+        } else if let Some(cap) = &self.captured {
+            (seed(cap), None)
+        } else {
+            (Scope::new(), None)
+        };
+        if let Some(cap) = capture_overlay {
             for (name, binding) in cap.iter() {
                 s.define(name, binding.value().clone());
             }
@@ -128,7 +134,7 @@ impl<'a> Scopes<'a> {
 
     /// Itera sobre todos os bindings visíveis em todos os âmbitos.
     ///
-    /// Ordem: captured → scopes[0] (mais antigo) → scopes[n-1] → top (mais recente).
+    /// Ordem: captured → `scopes[0]` (mais antigo) → `scopes[n-1]` → top (mais recente).
     /// Inserção mais recente sobrescreve anterior, garantindo o valor correcto.
     pub fn iter_all(&self) -> impl Iterator<Item = (&str, &Value)> + '_ {
         let cap_iter: Box<dyn Iterator<Item = (&str, &Value)> + '_> =
@@ -515,5 +521,80 @@ mod tests {
             Some(&Value::Int(1)),
             "deve atravessar a pilha de scopes"
         );
+    }
+}
+
+#[cfg(test)]
+mod snapshot_seed_tests {
+    use super::*;
+
+    #[test]
+    fn prefix_is_copied_once_and_overlay_order_is_preserved() {
+        let mut base = Scope::new();
+        base.define("base", Value::Int(1));
+        base.define("shadow", Value::Int(0));
+        let library = Library::with_global(base);
+        let mut cap = Scope::new();
+        cap.define("shadow", Value::Int(2));
+        cap.define("capture", Value::Int(3));
+        let parent = Arc::new(cap);
+        let mut scopes = Scopes::new(Some(&library));
+        scopes.captured = Some(parent.clone());
+        scopes.captured_by = Some(Capturer::Function);
+        scopes.define("shadow", Value::Int(4));
+        scopes.define("older", Value::Int(5));
+        scopes.enter();
+        scopes.define("shadow", Value::Int(6));
+        scopes.define("top", Value::Int(7));
+        let mut copies = 0;
+        let mut snapshot = scopes.snapshot_with_seed(|scope| {
+            copies += 1;
+            scope.clone()
+        });
+        assert_eq!(
+            snapshot
+                .iter()
+                .map(|(n, b)| (n, b.value().clone()))
+                .collect::<Vec<_>>(),
+            vec![
+                ("base", Value::Int(1)),
+                ("shadow", Value::Int(6)),
+                ("capture", Value::Int(3)),
+                ("older", Value::Int(5)),
+                ("top", Value::Int(7))
+            ]
+        );
+        *snapshot.get_mut("shadow").unwrap() = Value::Int(8);
+        assert_eq!(scopes.get("shadow"), Some(&Value::Int(6)));
+        assert_eq!(library.global.get("shadow"), Some(&Value::Int(0)));
+        assert_eq!(parent.get("shadow"), Some(&Value::Int(2)));
+        assert_eq!(
+            copies, 1,
+            "clone the prefix once instead of rebuilding it by insertion"
+        );
+    }
+
+    #[test]
+    fn captured_prefix_is_copied_without_base_and_empty_fallback_stays_local() {
+        let mut cap = Scope::new();
+        cap.define("parent", Value::Int(1));
+        let mut scopes = Scopes::with_parent(Arc::new(cap), Capturer::Context);
+        scopes.define("child", Value::Int(2));
+        let mut copies = 0;
+        let mut snap = scopes.snapshot_with_seed(|scope| {
+            copies += 1;
+            scope.clone()
+        });
+        assert_eq!(snap.get("parent"), Some(&Value::Int(1)));
+        assert_eq!(snap.get("child"), Some(&Value::Int(2)));
+        scopes.define("parent", Value::Int(3));
+        *snap.get_mut("child").unwrap() = Value::Int(4);
+        assert_eq!(snap.get("parent"), Some(&Value::Int(1)));
+        assert_eq!(scopes.get("child"), Some(&Value::Int(2)));
+        assert_eq!(copies, 1);
+        let mut local = Scopes::new(None);
+        local.define("local", Value::Int(5));
+        let snap = local.snapshot_with_seed(|_| panic!("no prefix to copy"));
+        assert_eq!(snap.get("local"), Some(&Value::Int(5)));
     }
 }

@@ -1,5 +1,8 @@
 # L0 — stream/page
-Hash do Código: fc7f7e39
+Hash do Código: 32f519a3
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/pdf-solid-opacity.toml sha256:8b7fcfaf39e60540d16868e662d48fb466fab58860385fcdae499f8c2edfe799
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/stream/page.rs`
@@ -27,3 +30,17 @@ ParentTree entries or fonts, and do not compress the returned operators.
 
 Check blank pages, fill, bleed, background/foreground order and unchanged top-level
 coordinates with both graphic modes and tagging settings.
+
+## Composição de período e alpha sólido — 2026-10-14
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/tiling-overlap-2026-10-14/before.json.gz` preserva fontes, owners, HEAD, UTC e working tree. `tiling-nativo-2026-10-14/final-renders` e `remaining-analysis.md` registram cell8×8/pitch4×4 alpha50%: PDF vermelho opaco; SVG só uma contribuição; PNG quatro contribuições (255,15,15). `pdf_tiling.rs:184` emite BBox=size, `svg/paints.rs:148` usa overflow visible; `stream/shape.rs:155` e `stream/text.rs:275` descartam alpha. São defeitos observáveis de composição; o vanilla também corta overlap e não serve de requisito para esse defeito. Hipótese refutável: compor explicitamente um período preserva controles sem overlap e quatro contribuições coincidem com fonte-over analítica.
+
+### Responsabilidade desta unidade
+
+No canvas Solid translúcido, aplicar opacidade com q/Q envolvendo somente o fill da página. Não alterar projeção antiga de PageFill Gradient/Tiling nem fingir que esta etapa a corrige. Os itens seguintes começam opacos.
+
+### Aceitação
+
+Correção interna ADR-0127 dentro do T1–T3 já aprovado, sem nova API/fase/flag/default. L0 primeiro, RED→GREEN, composição analítica (incluindo ordem com cores distintas), controles simples/nested/rotated/text/image e extração/seleção de páginas. Build, suíte workspace, formato, Rustdoc e linhagem. Alpha variável de gradientes e qualidade PNG seguem incompletos; não certificar pacote de produção com esses itens abertos.

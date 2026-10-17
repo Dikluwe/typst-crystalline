@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/pdf.md
-//! @prompt-hash 56745813
+//! @prompt-hash e4871017
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -26,7 +26,7 @@ use crate::entities::elements::pdf_artifact::{ArtifactKind, PdfArtifactElem};
 use crate::entities::elements::pdf_attach::{AttachedFileRelationship, PdfAttachElem};
 use crate::entities::elements::table_cell::{TableCellKind, TableHeaderScope};
 use crate::entities::file_id::FileId;
-use crate::entities::func::Func;
+use crate::entities::func::{FormatElementKind, Func, NativeFunc};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
@@ -57,10 +57,13 @@ pub fn make_pdf_module(features: Features) -> Value {
             Value::Func(Func::native("pdf.data-cell", native_pdf_data_cell)),
         );
     }
-    Value::Func(Func::native_with_namespace(
-        "pdf",
-        native_pdf_root,
-        std::sync::Arc::new(scope),
+    Value::Func(Func::native_format(
+        FormatElementKind::Pdf,
+        NativeFunc {
+            name: "pdf",
+            call: native_pdf_root,
+            namespace: Some(std::sync::Arc::new(scope)),
+        },
     ))
 }
 
@@ -124,10 +127,13 @@ pub(crate) fn native_pdf_header_cell(
     }
     let level = match args.named.get("level") {
         None => 1,
-        Some(Value::Int(value)) if *value > 0 && *value <= u32::MAX as i64 => {
-            *value as u32
+        Some(Value::Int(value)) => {
+            if *value > 0 && *value <= u32::MAX as i64 {
+                *value as u32
+            } else {
+                return super::err("number must be positive");
+            }
         }
-        Some(Value::Int(_)) => return super::err("number must be positive"),
         Some(other) => {
             return super::err(format!(
                 "expected integer, found {}",

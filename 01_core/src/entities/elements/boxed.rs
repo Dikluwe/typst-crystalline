@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/boxed.md
-//! @prompt-hash b957547e
+//! @prompt-hash b6b9368b
 //! @layer L1
-//! @updated 2026-06-12
+//! @updated 2026-10-10
 //!
 //! `BoxedElem` — Lote 14 P329 (reclassificado da triagem DEBT-58). `box(body, …)`
 //! — container inline denso (~10 campos). Contentor: recurse no body. Não-locatável.
@@ -54,19 +54,9 @@ impl Element for BoxedElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::Boxed(Arc::new(BoxedElem {
-            body: self.body.map_content(transform)?,
-            width: self.width,
-            width_fraction: self.width_fraction,
-            height: self.height,
-            inset: self.inset,
-            baseline: self.baseline,
-            outset: self.outset,
-            radius: self.radius,
-            clip: self.clip,
-            fill: self.fill.clone(),
-            stroke: self.stroke.clone(),
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::Boxed(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, transform: &mut F) -> Content
@@ -86,6 +76,26 @@ impl Element for BoxedElem {
             fill: self.fill.clone(),
             stroke: self.stroke.clone(),
         }))
+    }
+}
+
+impl BoxedElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        if body.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        Ok(Some(Content::Boxed(Arc::new(mapped))))
     }
 }
 

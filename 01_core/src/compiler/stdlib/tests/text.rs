@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/tests/text.md
-//! @prompt-hash 571f6ecb
+//! @prompt-hash 67557d53
 //! @layer L1
-//! @updated 2026-09-28
+//! @updated 2026-10-06
 
 use super::*;
 
@@ -100,10 +100,8 @@ fn p287_native_smartquote_sem_args_emite_variant_double_true() {
     null_ctx!(ctx);
     let r =
         native_smartquote(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
-    assert_eq!(
-        r,
-        Value::Content(Content::smartquote(true)),
-        "smartquote() sem args → SmartQuote {{ double: true }} (vanilla default)"
+    assert!(
+        matches!(r, Value::Content(Content::SmartQuote(e)) if e.double.is_none() && e.enabled.is_none())
     );
 }
 
@@ -118,22 +116,25 @@ fn p287_native_smartquote_double_false_emite_variant_single() {
 }
 
 #[test]
-fn p287_native_smartquote_enabled_false_emite_text_ascii_directo() {
-    // Paridade vanilla `set smartquote(enabled: false)` — ASCII literal,
-    // não passa pelo variant SmartQuote (consumer Layouter ignora).
+fn p287_native_smartquote_enabled_false_preserva_identidade() {
+    // Disabled preserves semantic identity until render.
     use super::native_smartquote;
     null_ctx!(ctx);
-    // enabled=false + double=true → Text("\"").
+    // enabled=false and omitted double remain distinct.
     let mut args = p(vec![]);
     args.named.insert("enabled".into(), Value::Bool(false));
     let r = native_smartquote(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
-    assert_eq!(r, Value::Content(Content::text("\"")));
-    // enabled=false + double=false → Text("'").
+    assert!(
+        matches!(r, Value::Content(Content::SmartQuote(e)) if e.enabled == Some(false) && e.double.is_none())
+    );
+    // Explicit single and disabled fields are retained.
     let mut args2 = p(vec![]);
     args2.named.insert("enabled".into(), Value::Bool(false));
     args2.named.insert("double".into(), Value::Bool(false));
     let r2 = native_smartquote(&mut ctx, &args2, &null_world(), test_file_id()).unwrap();
-    assert_eq!(r2, Value::Content(Content::text("'")));
+    assert!(
+        matches!(r2, Value::Content(Content::SmartQuote(e)) if e.enabled == Some(false) && e.double == Some(false))
+    );
 }
 
 #[test]
@@ -146,7 +147,7 @@ fn p287_native_smartquote_alternative_preserva_override_no_carrier() {
         native_smartquote(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     match value {
         Value::Content(Content::SmartQuote(e)) => {
-            assert!(e.double);
+            assert_eq!(e.double, None);
             assert_eq!(e.alternative, Some(true));
             assert!(e.quotes.is_none());
         }
@@ -537,33 +538,61 @@ fn hardcode_native_overhang_is_boolean_and_transported() {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("overhang".into(), value.clone());
-        let result = text::native_text(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let result =
+            text::native_text(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         let Value::Content(Content::Styled(s)) = result else { panic!("missing policy") };
-        assert!(s.styles.delta().custom.iter().any(|(k,v)| k == "text.overhang" && v == &value));
+        assert!(s
+            .styles
+            .delta()
+            .custom
+            .iter()
+            .any(|(k, v)| k == "text.overhang" && v == &value));
         assert_eq!(s.body.plain_text(), "x");
     }
-    for (value, kind) in [(Value::Auto,"auto"),(Value::Int(1),"integer"),(Value::Str("false".into()),"string")] {
+    for (value, kind) in [
+        (Value::Auto, "auto"),
+        (Value::Int(1), "integer"),
+        (Value::Str("false".into()), "string"),
+    ] {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("overhang".into(), value);
-        let err=text::native_text(&mut ctx,&args,&null_world(),test_file_id()).unwrap_err();
-        assert_eq!(err[0].message,format!("expected boolean, found {kind}"));
+        let err = text::native_text(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap_err();
+        assert_eq!(err[0].message, format!("expected boolean, found {kind}"));
     }
 }
 
 #[test]
 fn custom_costs_native_text_transports_four_fields_and_rejects_types() {
     use crate::entities::layout_types::Ratio;
-    let mut dict=match Value::Dict(Default::default()) {Value::Dict(d)=>d,_=>unreachable!()};
-    for key in ["hyphenation","runt","widow","orphan"] {dict.insert(key.into(),Value::Ratio(Ratio(2.0)));}
-    null_ctx!(ctx);let mut args=p(vec![Value::Content(Content::text("x"))]);
-    args.named.insert("costs".into(),Value::Dict(dict));
-    let value=text::native_text(&mut ctx,&args,&null_world(),test_file_id()).unwrap();
-    let Value::Content(Content::Styled(s))=value else {panic!("costs discarded")};
-    for key in ["hyphenation","runt","widow","orphan"] {
-        assert!(s.styles.delta().custom.iter().any(|(k,v)|k.as_str()==format!("text.costs.{key}")&&v==&Value::Ratio(Ratio(2.0))));
+    let mut dict = match Value::Dict(Default::default()) {
+        Value::Dict(d) => d,
+        _ => unreachable!(),
+    };
+    for key in ["hyphenation", "runt", "widow", "orphan"] {
+        dict.insert(key.into(), Value::Ratio(Ratio(2.0)));
     }
-    assert_eq!(s.body.plain_text(),"x");
-    args.named.insert("costs".into(),Value::Int(1));
-    assert_eq!(text::native_text(&mut ctx,&args,&null_world(),test_file_id()).unwrap_err()[0].message,"expected dictionary, found integer");
+    null_ctx!(ctx);
+    let mut args = p(vec![Value::Content(Content::text("x"))]);
+    args.named.insert("costs".into(), Value::Dict(dict));
+    let value =
+        text::native_text(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+    let Value::Content(Content::Styled(s)) = value else { panic!("costs discarded") };
+    for key in ["hyphenation", "runt", "widow", "orphan"] {
+        assert!(s
+            .styles
+            .delta()
+            .custom
+            .iter()
+            .any(|(k, v)| k.as_str() == format!("text.costs.{key}")
+                && v == &Value::Ratio(Ratio(2.0))));
+    }
+    assert_eq!(s.body.plain_text(), "x");
+    args.named.insert("costs".into(), Value::Int(1));
+    assert_eq!(
+        text::native_text(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err()[0]
+            .message,
+        "expected dictionary, found integer"
+    );
 }

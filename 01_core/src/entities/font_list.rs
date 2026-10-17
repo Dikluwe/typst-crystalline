@@ -94,7 +94,7 @@ impl FontFamily {
     /// Constrói família literal explicitando variants.
     pub fn new_literal(name: EcoString, variants: Vec<EcoString>) -> Self {
         Self {
-            name: FontNamePattern::Literal(name.to_lowercase().into()),
+            name: FontNamePattern::Literal(name.to_lowercase()),
             variants,
             variant: None,
             weight: None,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/p1250_svg_integrated.md
-//! @prompt-hash d14846ca
+//! @prompt-hash 556362c9
 //! @layer L3
 //! @updated 2026-08-28
 //!
@@ -13,14 +13,15 @@ use typst_core::entities::corners::Corners;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::font_variations::FontVariations;
+use typst_core::entities::frame_paint::FramePaint as Paint;
+use typst_core::entities::frame_paint::FrameStroke as Stroke;
 use typst_core::entities::geometry::{
-    DashLength, DashPattern, LineCap, LineJoin, ShapeKind, Stroke,
+    DashLength, DashPattern, LineCap, LineJoin, ShapeKind,
 };
 use typst_core::entities::label::Label;
 use typst_core::entities::layout_types::{
     Color, FrameItem, LinkTarget, Page, Point, Pt, Rect, Size, TextStyle, TransformMatrix,
 };
-use typst_core::entities::paint::Paint;
 use typst_infra::export::{
     export_svg, export_svg_with_context, export_svg_with_fonts_and_contexts, FontKey,
     GlyphFontRequest, SvgDestinationContext, SvgGlyphFontContext, SvgOptions,
@@ -64,11 +65,28 @@ fn link(label: &str, items: Vec<FrameItem>) -> FrameItem {
 }
 
 fn tiling() -> Paint {
-    use typst_core::entities::tiling::{Tiling, TilingBody};
-    let mut value = Tiling::new(TilingBody::Color(Color::rgba(0, 128, 255, 128)));
-    value.size = Some(Size { width: Pt(4.0), height: Pt(6.0) });
-    value.spacing = Some(Size { width: Pt(1.0), height: Pt(2.0) });
-    Paint::Tiling(value)
+    use typst_core::entities::frame_paint::TilingFrame;
+    use typst_core::entities::layout_types::{Angle, Frame};
+    let value = TilingFrame {
+        frame: Frame {
+            size: Size { width: Pt(4.0), height: Pt(6.0) },
+            items: vec![FrameItem::Shape {
+                pos: Point::ZERO,
+                kind: ShapeKind::Rect,
+                width: 4.0,
+                height: 6.0,
+                fill: Some(Paint::Solid(Color::rgba(0, 128, 255, 128))),
+                stroke: None,
+                parent_bbox_at_emit: None,
+                fill_rule: Default::default(),
+            }],
+        },
+        spacing: Size { width: Pt(1.0), height: Pt(2.0) },
+        offset: Point::ZERO,
+        angle: Angle::deg(0.0),
+        relative: typst_core::entities::gradient::RelativeTo::Self_,
+    };
+    Paint::Tiling(Arc::new(value))
 }
 
 fn gradient() -> Paint {
@@ -170,6 +188,7 @@ fn corpus() -> [String; 7] {
     )]);
     let c01 = export_svg_with_context(
         &page(vec![FrameItem::Group {
+            paint_root: false,
             pos: Point { x: Pt(5.0), y: Pt(7.0) },
             matrix: TransformMatrix { a: 0.0, b: 1.0, c: -1.0, d: 0.0, tx: 3.0, ty: 4.0 },
             clip_mask: Some(ShapeKind::RoundedRect { radii: Corners::uniform(Pt(2.0)) }),
@@ -188,6 +207,7 @@ fn corpus() -> [String; 7] {
     let glyph_ctx = SvgGlyphFontContext::from_resolutions([(request, font.0.clone())]);
     let c03 = export_svg_with_fonts_and_contexts(
         &page(vec![FrameItem::Group {
+            paint_root: false,
             pos: Point { x: Pt(2.0), y: Pt(4.0) },
             matrix: TransformMatrix { a: 0.0, b: 1.0, c: -1.0, d: 0.0, tx: 6.0, ty: 8.0 },
             clip_mask: None,
@@ -240,6 +260,7 @@ fn corpus() -> [String; 7] {
             rect(Some(gradient()), None),
             rect(Some(tiling()), None),
             FrameItem::Group {
+                paint_root: false,
                 pos: Point::ZERO,
                 matrix: TransformMatrix::default(),
                 clip_mask: Some(ShapeKind::Ellipse),

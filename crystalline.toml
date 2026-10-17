@@ -14,6 +14,8 @@ L4  = "04_wiring"
 
 # Excluídos — ignorados intencionalmente, não disparam V8
 [excluded]
+# Evidência histórica não é consumer produtivo (ADRs 0129/0130).
+diagnostics = "diagnosticos" # o walker compara nomes de diretório
 build   = "target"
 vcs     = ".git"
 cargo   = ".cargo"
@@ -60,7 +62,7 @@ V1  = { level = "error" }
 V2  = { level = "error" }
 V3  = { level = "error" }
 V4  = { level = "error" }
-V5  = { level = "warning" }
+V5  = { level = "error" }
 V6  = { level = "warning" }
 V7  = { level = "warning" }
 V8  = { level = "fatal" }
@@ -85,8 +87,9 @@ types = ["Error"]  # derive em tipos de erro de domínio L1
 [l1_allowed_external.comemo]
 types = ["memoize", "track", "Track", "Tracked", "TrackedMut", "Validate", "analyze"]  # ADR-0001 / ADR-0074 / P699 (memoize em PluginFunc::call)
 
+# Matemática de calc: funções puras pinadas 0.2.11; decisão nos owners L0 trig/hyperbolic/logarithms (2026-10-13).
 [l1_allowed_external.libm]
-types = ["cbrtf", "fmaf", "powf", "cos", "sin"]  # P1253 — paridade numérica com palette 0.7.6 no_std; cos/sin acrescentados em P1473 (geometria determinística de polygon.regular, mesma razão de disallowed-methods em clippy.toml: f64::cos/sin são não-determinísticos)
+types = ["cbrtf", "fmaf", "powf", "cos", "sin", "tan", "asin", "acos", "atan", "atan2", "hypot", "sinh", "cosh", "tanh", "asinh", "acosh", "atanh", "exp", "exp10", "log", "log2", "log10", "sinf", "cosf", "sincosf", "atan2f"]  # P1253 — paridade numérica com palette 0.7.6 no_std; cos/sin acrescentados em P1473 (geometria determinística de polygon.regular, mesma razão de disallowed-methods em clippy.toml: f64::cos/sin são não-determinísticos)
 
 [l1_allowed_external.unicode_ident]
 types = ["is_xid_continue", "is_xid_start"]  # ADR-0010

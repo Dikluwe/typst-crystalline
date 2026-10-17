@@ -1,0 +1,3 @@
+use std::mem::{align_of,size_of};
+use typst_core::entities::{style::{Style,Styles},style_chain::{StyleDelta,StyleChain},layout_types::{Length,Pt,TextStyle}};
+fn main(){let l=Length::pt(3.0)+Length::em(2.0);let s=Style::Size(l);let d=StyleDelta{size:Some(l),..StyleDelta::empty()};let c=StyleChain::default_chain().push(d);assert_eq!(c.size(),25.0);let _:Pt=TextStyle::from(&c).size;assert_eq!(Styles::from_iter([s]).delta().size,Some(l));println!("{{\"length\":{},\"option_length\":{},\"option_f64\":{},\"style\":{},\"styles\":{},\"style_delta\":{},\"alignment\":{}}}",size_of::<Length>(),size_of::<Option<Length>>(),size_of::<Option<f64>>(),size_of::<Style>(),size_of::<Styles>(),size_of::<StyleDelta>(),align_of::<StyleDelta>());}

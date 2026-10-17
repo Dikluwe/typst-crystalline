@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/page_canvas.md
-//! @prompt-hash c9668aa8
+//! @prompt-hash 706b872f
 //! @layer L1
 //!
 //! Composição isolada dos layers decorativos da página (ADR-0109 forma B).
@@ -24,6 +24,7 @@ pub(super) fn layout_layer<M: FontMetrics, S: ImageSizer>(
     let Some(content) = content else { return vec![] };
     let canvas_width = trim_width + bleed.horizontal();
     let canvas_height = trim_height + bleed.vertical();
+    let saved_link_scopes = std::mem::take(&mut layouter.link_capture.active);
     let (_, items, _, _, _) = layouter.layout_sub_frame(
         content,
         SubLayoutRegion {
@@ -34,7 +35,9 @@ pub(super) fn layout_layer<M: FontMetrics, S: ImageSizer>(
             unconstrained_height: false,
         },
     );
+    layouter.link_capture.active = saved_link_scopes;
     vec![FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(-bleed.left), y: Pt(-bleed.top) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,

@@ -8,6 +8,7 @@ license.workspace    = true
 repository.workspace = true
 
 [dependencies]
+libm = "=0.2.11" # Matemática de exportação sem chamadas trigonométricas da plataforma.
 typst-core = { path = "../01_core" }
 thiserror  = { workspace = true }
 # comemo: eval() tracking. Promovido de [dev-dependencies] a
@@ -27,6 +28,7 @@ rustybuzz   = { workspace = true }  # ADR-0019 — shaping de texto
 unicode-bidi = { workspace = true } # P484 — re-order de runs RTL
 unicode-script = { workspace = true } # P534 — segmentação por script para fallback
 fontdb        = "0.23"              # P515 — descoberta automática de fontes do sistema
+fontconfig-parser = "0.5.8"        # prova conservadora da geração Linux de fontdb no watch
 memmap2       = "0.9"               # P937 — mmap de ficheiros de fonte (I/O em L3)
 subsetter     = "0.2.6"             # P874 — subsetting TrueType/CFF para PDF (mesma versão do vanilla Typst 0.15.0)
 time          = { workspace = true }  # ADR-0021 — today() em SystemWorld

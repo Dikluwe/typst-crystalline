@@ -1,0 +1,22 @@
+{
+  "00_nucleo/prompts/shell/cli.md": {
+    "base_sha256": "5c0f8d368170f2a3f0a4dfd5049fe2efa32135fa1a3949c7759b9d557feec1d9",
+    "candidate": "00_nucleo/materialization/warnings-cli-2026-10-06/00_nucleo__prompts__shell__cli.md.txt",
+    "candidate_sha256": "d1a6100bd56a19c21ae28c0770f7c99d210f4ab7163c23a387150fc4fb1d0473"
+  },
+  "00_nucleo/prompts/wiring/query.md": {
+    "base_sha256": "98d11d7ff993393f8912312bf0799cad8bcc305ac1e6ac8aae1f5bb49851ee40",
+    "candidate": "00_nucleo/materialization/warnings-cli-2026-10-06/00_nucleo__prompts__wiring__query.md.txt",
+    "candidate_sha256": "c7094408a4aa54037fb72ef70418c69acb09e5e3d54ea63570f0ee17241a14ec"
+  },
+  "00_nucleo/prompts/wiring/compile.md": {
+    "base_sha256": "1ca07f7e9593b7637f0eb63a6168f521f5389dce6efc4a26badb4b05cdbea842",
+    "candidate": "00_nucleo/materialization/warnings-cli-2026-10-06/00_nucleo__prompts__wiring__compile.md.txt",
+    "candidate_sha256": "461038da1f2e9c5138d4e3802848aacef0e58741d08bf928ec8a206372c07c7d"
+  },
+  "00_nucleo/prompts/wiring/tests/cli.md": {
+    "base_sha256": "907dd7ce80c58b68c6e791b7a92e573b2acac5ff1f1d8fb2f9598c5cbef34278",
+    "candidate": "00_nucleo/materialization/warnings-cli-2026-10-06/00_nucleo__prompts__wiring__tests__cli.md.txt",
+    "candidate_sha256": "b46b5ca6d5c232f43b0048124a06f846518c5f28ba401561b62f4dfa2b535695"
+  }
+}

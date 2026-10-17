@@ -1,5 +1,5 @@
 # L0 — Object-safe DynElement bridge
-Hash do Código: c54d909a
+Hash do Código: ef731397
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/elements/dynamic.rs`

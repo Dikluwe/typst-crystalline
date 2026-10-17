@@ -17,6 +17,7 @@ tarpaulin-report.html
 
 # Rust
 /target
+/dist/
 **/target/
 /target-original/
 **/*.rs.bk

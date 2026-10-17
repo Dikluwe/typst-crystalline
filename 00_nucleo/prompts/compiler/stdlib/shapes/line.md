@@ -1,5 +1,5 @@
 # L0 — stdlib/shapes/line
-Hash do Código: acabbc71
+Hash do Código: cae05ca0
 
 ## Ownership e medição
 
@@ -14,3 +14,16 @@ As regras detalhadas, evidências históricas, limites de paridade e diagnóstic
 ## Aceitação
 
 Preservar a suíte L1 e os testes de shapes, compilar e passar `crystalline-lint .` com ownership e hashes corretos. Não inferir ganho de desempenho.
+
+
+## Operações numéricas puras — 2026-10-13
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/stdlib/shapes/line.rs` nas linhas 134, 135 contém as chamadas sinalizadas como disallowed_methods pelo Clippy vigente. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. `00_nucleo/diagnosticos/geometria-numerica-ci-2026-10-13/before.json.gz` conserva fonte, owner, configuração, libm, compilador, UTC, status e diffstat. A sonda host-math compara os backends antes da escolha: 4968 casos, 69 diferenças de até 1 ULP em trigonometria/atan2, sem mudança de classe numérica ou sinal de zero; potências e hypot coincidem na amostra. É medição deste host, não prova universal nem nova paridade contra vanilla.
+
+### Decisão e aceitação
+
+Usar libm::cos/sin para projetar length e angle em dx/dy. Preservar start/end, precedência de argumentos, rejeições, origem do Path e dimensões causais. Não introduzir arredondamento, clamp ou novo default.
+
+Mudança interna em fluxo contínuo ADR-0127, sem contrato público novo, default ou fase. Preservar testes de geometria/linguagem existentes e comparar os exemplos SVG medidos antes/depois, declarando diferenças. A comparação geométrica não certifica todos os casos ou plataformas. Validar build, todos os targets, core, Clippy e linhagem. Não suprimir o lint nem substituir aceitação por identidade de bytes do compilador.

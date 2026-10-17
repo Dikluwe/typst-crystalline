@@ -68,6 +68,7 @@ pub(in crate::compiler::eval) fn eval_state_method(
 /// - `s.at(1)` → `expected label, function, location, or selector, found integer`
 /// - `s.at("x")` → `text is not locatable`
 /// - `s.at(<inexistente>)` → ``label `<inexistente>` does not exist in the document``
+///
 /// A validação de argumentos precede o gate de contexto (ordem medida:
 /// `s.at(1)` fora de contexto → erro de tipo, não gate).
 fn state_at_dispatch(
@@ -78,8 +79,6 @@ fn state_at_dispatch(
     engine: &mut Engine<'_>,
     span: Span,
 ) -> SourceResult<Value> {
-    use crate::entities::introspector::Introspector;
-
     let mut items = args.items();
     let Some(first) = items.next() else {
         return Err(vec![SourceDiagnostic::error(

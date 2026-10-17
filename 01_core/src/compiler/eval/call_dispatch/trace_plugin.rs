@@ -1,10 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch/trace_plugin.md
-//! @prompt-hash 0c4fa46a
+//! @prompt-hash 4ff70cff
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 
 use super::*;
+use crate::entities::content::Content;
 
 /// **P846 (#57)** — envolve o resultado de uma chamada com um
 /// `Tracepoint::Call`, mirror de `call_func` + `Trace::trace` do vanilla
@@ -59,6 +60,36 @@ pub(super) fn trace_call(
             .push(Spanned::new(Tracepoint::Call(name.map(String::from)), call_span));
     }
     Err(errors)
+}
+
+/// Table realization keeps the constructor's causal call even after eval returns.
+pub(crate) fn trace_table_realization(
+    result: SourceResult<Content>,
+    arguments_span: Span,
+    engine: &Engine<'_>,
+) -> SourceResult<Content> {
+    let call_span = arguments_span
+        .id()
+        .and_then(|id| engine.world.source(id).ok())
+        .and_then(|source| {
+            let root = crate::entities::syntax_node::LinkedNode::new(source.root());
+            let args = root.find(arguments_span)?;
+            if args.kind() == crate::entities::syntax_kind::SyntaxKind::FuncCall {
+                return Some(args.span());
+            }
+            let parent = args.parent()?;
+            (parent.kind() == crate::entities::syntax_kind::SyntaxKind::FuncCall)
+                .then(|| parent.span())
+        });
+    let Some(span) = call_span else {
+        return result;
+    };
+    trace_call(result.map(Value::Content), Some("table"), span, engine).map(|value| {
+        match value {
+            Value::Content(c) => c,
+            _ => unreachable!(),
+        }
+    })
 }
 
 /// **P702** — funde os `Args` pré-ligados por `.with(...)` com os da chamada

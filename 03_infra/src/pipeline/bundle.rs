@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/bundle.md
-//! @prompt-hash cf56256a
+//! @prompt-hash 5710ea3f
 //! @layer L3
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 //!
 //! Orquestra o target bundle: entradas ordenadas, paths e colisões, snapshots globais, fronteiras Page por body e exportação por formato. Devolve a coleção completa ou erro; o write continua responsabilidade de L4. Reutiliza helpers de paged, html, pdf, svg e resources sem reconstruir snapshots isolados.
 
@@ -167,7 +167,11 @@ pub fn compile_to_bundle_files(
         options.features,
     );
     warnings.extend(contextual_warnings);
-    let (prepared_bodies, bundle_intr, document_starts) = match prepared {
+    let context_stabilization::PreparedBundle {
+        bodies: prepared_bodies,
+        introspector: bundle_intr,
+        document_starts,
+    } = match prepared {
         Ok(prepared) => prepared,
         Err(errors) => return (Err(errors), warnings, timings),
     };
@@ -185,10 +189,20 @@ pub fn compile_to_bundle_files(
                 let document_info = DocumentInfo {
                     title: title.as_ref().map(|content| content.plain_text().into()),
                     author: (!author.is_empty()).then(|| {
-                        author.iter().map(|value| value.as_str()).collect::<Vec<_>>().join(", ").into()
+                        author
+                            .iter()
+                            .map(|value| value.as_str())
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                            .into()
                     }),
                     keywords: (!keywords.is_empty()).then(|| {
-                        keywords.iter().map(|value| value.as_str()).collect::<Vec<_>>().join(", ").into()
+                        keywords
+                            .iter()
+                            .map(|value| value.as_str())
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                            .into()
                     }),
                 };
                 let selected = format.as_deref().unwrap_or_else(|| {
@@ -250,6 +264,10 @@ pub(super) fn collect_bundle_entries(
     entries: &mut Vec<Content>,
 ) -> SourceResult<()> {
     match content {
+        Content::Source(e) => collect_bundle_entries(&e.body, entries),
+        Content::ShowRecipe(e) => collect_bundle_entries(&e.body, entries),
+        Content::Located(e) => collect_bundle_entries(&e.body, entries),
+        Content::Realized(e) => collect_bundle_entries(&e.visual, entries),
         Content::Sequence(children) => {
             for child in children.iter() {
                 collect_bundle_entries(child, entries)?;
@@ -266,7 +284,7 @@ pub(super) fn collect_bundle_entries(
             // inherited style to each document body before introspection.
             for entry in &mut entries[start..] {
                 if let Content::Document { body, .. } = entry {
-                    *body = Box::new(Content::styled(body.clone(), styles.clone()));
+                    **body = Content::styled(body.clone(), styles.clone());
                 }
             }
             Ok(())
@@ -298,6 +316,10 @@ fn bundle_html_semantic_content(
     use typst_core::entities::html::{HtmlBody, HtmlElem};
 
     match content {
+        Content::Source(e) => bundle_html_semantic_content(&e.body, warnings),
+        Content::ShowRecipe(e) => bundle_html_semantic_content(&e.body, warnings),
+        Content::Located(e) => bundle_html_semantic_content(&e.body, warnings),
+        Content::Realized(e) => bundle_html_semantic_content(&e.visual, warnings),
         // A frame is paginated independently. Its body must not be converted
         // into HTML nodes before the frame resolver sees it.
         Content::HtmlFrame(_) => content.clone(),
@@ -358,6 +380,10 @@ fn bundle_html_semantic_content(
     }
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C100: Fronteira por documento do bundle recebe corpo/formato/metadados e o snapshot global, seed/offset causais, serviços/opções e warnings"
+)]
 fn render_bundle_document(
     world: &dyn World,
     source: &Source,
@@ -410,7 +436,7 @@ fn render_bundle_document(
                 ImageSizeImageSizer,
             );
             let doc = PagedDocument::new(vec![page.clone()]);
-            let fonts = resolve_and_instantiate_fonts(&doc, world)?;
+            let fonts = resolve_export_fonts(&doc, world)?;
             let glyph_fonts = svg_glyph_font_context_for_page(&page, world);
             let svg_options = crate::export::SvgOptions { pretty, ..Default::default() };
             Ok(svg_options.export_html_frame_with_fonts(&page, &fonts, &glyph_fonts))
@@ -493,7 +519,11 @@ fn render_bundle_document(
                 options.pdf_serialization
             };
             let font_combos = collect_fonts_from_doc(&document, world);
-            let resolved = resolve_fonts(&font_combos, world);
+            let resolved = crate::export::font_binding::bind_document(
+                &document,
+                &resolve_fonts(&font_combos, world),
+            )
+            .into_owned();
             if let Some(diag) = super::resources::missing_font_instancer_diagnostic(
                 &resolved,
                 variable_font_instancer_available,
@@ -519,7 +549,7 @@ fn render_bundle_document(
                 options.pretty_override.unwrap_or(document.format_options.svg.pretty);
             let svg_options = crate::export::SvgOptions { pretty, ..Default::default() };
             let destinations = svg_destination_context_for_page(&document, 1);
-            let fonts = resolve_and_instantiate_fonts(&document, world)
+            let fonts = resolve_export_fonts(&document, world)
                 .map_err(|diagnostic| vec![diagnostic])?;
             let glyph_fonts = svg_glyph_font_context_for_page(page, world);
             let svg = if fonts.is_empty() {
@@ -542,7 +572,7 @@ fn render_bundle_document(
                 pixel_per_pt: (ppi / 72.0) as f32,
                 render_bleed: false,
             };
-            let fonts = resolve_and_instantiate_fonts(&document, world)
+            let fonts = resolve_export_fonts(&document, world)
                 .map_err(|diagnostic| vec![diagnostic])?;
             let bytes = if fonts.is_empty() {
                 export_png(page, &render_options)
@@ -616,4 +646,59 @@ fn localize_bundle_margin_views(
         reference_numberings,
         supplements,
     ))
+}
+
+#[cfg(test)]
+mod carrier_tests {
+    use super::*;
+
+    use std::sync::Arc;
+    use typst_core::entities::content::{
+        LocatedContent, RealizedContent, ShowRecipeContent, SourceContent,
+    };
+    use typst_core::entities::span::Span;
+    use typst_core::entities::style_chain::StyleChain;
+
+    fn carriers(body: Content) -> Vec<Content> {
+        vec![
+            Content::Source(Arc::new(SourceContent {
+                body: body.clone(),
+                span: Span::detached(),
+            })),
+            Content::Located(Arc::new(LocatedContent {
+                body: body.clone(),
+                location: typst_core::entities::locator::Locator::new().next(),
+            })),
+            Content::Realized(Arc::new(RealizedContent {
+                original: Content::text("must-not-render"),
+                visual: body.clone(),
+            })),
+            Content::ShowRecipe(Arc::new(ShowRecipeContent {
+                body,
+                textual: false,
+                context_id_floor: 0,
+                rules: Arc::from([]),
+                styles: StyleChain::empty(),
+                guards: vec![],
+                file: typst_core::entities::file_id::FileId::from_raw(
+                    std::num::NonZeroU16::new(1).unwrap(),
+                ),
+            })),
+        ]
+    }
+
+    #[test]
+    fn carrier_bundle_heading_projects_visual_once() {
+        let heading = Content::heading(1, Content::text("Kept"));
+        for wrapped in carriers(heading) {
+            let mut warnings = vec![];
+            let result = bundle_html_semantic_content(&wrapped, &mut warnings);
+            let Content::HtmlElem(elem) = result else {
+                panic!("heading was not projected");
+            };
+            assert_eq!(elem.tag.as_str(), "h2");
+            assert_eq!(elem.body.content().unwrap().plain_text(), "Kept");
+            assert!(warnings.is_empty());
+        }
+    }
 }

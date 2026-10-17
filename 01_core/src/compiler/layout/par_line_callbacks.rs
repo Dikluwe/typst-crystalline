@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/par_line_callbacks.md
-//! @prompt-hash d2b57880
+//! @prompt-hash 1ffa8f6a
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -51,6 +51,10 @@ pub struct LayoutCallbackRequests {
     pub par_line: Vec<ParLineCallbackRequest>,
 }
 
+#[expect(
+    clippy::large_enum_variant,
+    reason = "E002: resultado único de layout por valor; Box adiciona alocação ao Complete, sem reduzir o documento"
+)]
 pub enum LayoutPassOutcome {
     Pending(LayoutCallbackRequests),
     Complete(PagedDocument),

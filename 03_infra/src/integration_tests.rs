@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/integration_tests.md
-//! @prompt-hash 666ace2b
+//! @prompt-hash a245d1a4
 //! @layer L3
-//! @updated 2026-09-28
+//! @updated 2026-10-06
 
 /// Testes de integração: pipeline completo via SystemWorld real.
 ///
@@ -17,7 +17,7 @@ mod integration {
 
     use regex::Regex;
 
-    use typst_core::compiler::introspect::{introspect, introspect_with_introspector};
+    use typst_core::compiler::introspect::introspect_with_introspector;
     use typst_core::compiler::layout::layout;
     use typst_core::contracts::world::World;
     use typst_core::entities::bytes::Bytes;
@@ -29,7 +29,6 @@ mod integration {
 
     use crate::export::{export_pdf, extract_page_content_streams_text, StreamMode};
     use crate::world::SystemWorld;
-    use image::ImageFormat;
 
     fn frame_items_recursive(
         items: &[typst_core::entities::layout_types::FrameItem],
@@ -41,17 +40,15 @@ mod integration {
             Point { x: Pt(x), y: Pt(y) }
         }
 
-        fn project_item<'a>(
-            item: &'a FrameItem,
-            transform: TransformMatrix,
-        ) -> &'a FrameItem {
+        fn project_item(item: &FrameItem, transform: TransformMatrix) -> &FrameItem {
             if transform == TransformMatrix::identity() {
                 return item;
             }
 
             let mut projected = item.clone();
             match &mut projected {
-                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
+                FrameItem::TextSeparator { pos, .. }
+                | FrameItem::Text { pos, .. }
                 | FrameItem::TextShaped { pos, .. }
                 | FrameItem::Glyph { pos, .. }
                 | FrameItem::Image { pos, .. }
@@ -79,16 +76,22 @@ mod integration {
             for item in items {
                 out.push(project_item(item, transform));
                 match item {
-                    FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
-                        walk(items, transform, out)
-                    }
+                    FrameItem::TextReplacement { items, .. }
+                    | FrameItem::Semantic { items, .. }
+                    | FrameItem::Link { items, .. } => walk(items, transform, out),
                     FrameItem::Group { pos, matrix, items, .. } => {
                         let group_transform = transform
                             .concat(&TransformMatrix::translate(pos.x.0, pos.y.0))
                             .concat(matrix);
                         walk(items, group_transform, out);
                     }
-                    _ => {}
+                    FrameItem::TextSeparator { .. }
+                    | FrameItem::Text { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. } => {}
                 }
             }
         }
@@ -223,7 +226,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
     }
@@ -234,7 +236,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
@@ -332,7 +333,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
 
         if let Some(font) = world.font(0) {
@@ -357,7 +357,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
     }
@@ -370,7 +369,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
     }
@@ -382,7 +380,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
         // Confirmar ausência de "[" nos itens de texto
@@ -411,7 +408,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
@@ -423,7 +419,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -437,7 +432,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -456,7 +450,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -471,7 +464,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -486,7 +478,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -501,7 +492,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -516,7 +506,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = extract_page_content_streams_text(&pdf);
@@ -533,7 +522,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -548,7 +536,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -573,7 +560,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -588,7 +574,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -606,7 +591,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -620,7 +604,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -634,7 +617,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
@@ -648,7 +630,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
@@ -664,7 +645,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
@@ -678,7 +658,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
@@ -692,7 +671,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
@@ -706,7 +684,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
@@ -722,7 +699,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
@@ -736,7 +712,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
@@ -750,7 +725,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = extract_page_content_streams_text(&pdf);
@@ -769,7 +743,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
@@ -782,7 +755,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
@@ -795,7 +767,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
@@ -860,7 +831,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let _state = introspect(content);
         let doc = layout(content);
         let pdf = crate::export::export_pdf_with_font(&doc, &data, StreamMode::Verbose);
         let s = String::from_utf8_lossy(&pdf);
@@ -1070,7 +1040,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
@@ -1149,7 +1118,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
         // Pipeline completo deve produzir PDF válido sem numeração
@@ -1196,7 +1164,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty(), "PDF com #outline() não deve estar vazio");
@@ -1303,25 +1270,43 @@ mod integration {
                     if c == '>' {
                         in_hex = false;
                     }
-                } else {
-                    if c == '(' {
-                        in_paren = true;
-                    } else if c == '<' {
-                        in_hex = true;
-                    } else if i + 1 < text.len() && c == '<' && bytes[i + 1] == b'<' {
-                        depth += 1;
-                        i += 1;
-                    } else if i + 1 < text.len() && c == '>' && bytes[i + 1] == b'>' {
-                        depth -= 1;
-                        i += 1;
-                    }
+                } else if c == '(' {
+                    in_paren = true;
+                } else if i + 1 < text.len() && c == '<' && bytes[i + 1] == b'<' {
+                    depth += 1;
+                    i += 1;
+                } else if c == '<' {
+                    in_hex = true;
+                } else if i + 1 < text.len() && c == '>' && bytes[i + 1] == b'>' {
+                    depth -= 1;
+                    i += 1;
                 }
                 i += 1;
             }
+            assert_eq!(depth, 0, "unterminated PDF dictionary observation");
             let end = i.saturating_sub(2);
             objects.insert(id, text[start..end].to_string());
         }
         objects
+    }
+
+    #[test]
+    fn pdf_object_observer_preserves_fields_after_nested_dictionaries() {
+        let pdf = br"1 0 obj << /Before 1 /Nested << /Hex <3e3e> /Text (literal >> and \) escaped) /Empty <<>> >> /After 7 >> endobj
+2 0 obj << /Second true >> endobj";
+        let objects = parse_pdf_objects(pdf);
+        assert_eq!(objects.len(), 2);
+        assert_eq!(
+            objects[&1],
+            r" /Before 1 /Nested << /Hex <3e3e> /Text (literal >> and \) escaped) /Empty <<>> >> /After 7 "
+        );
+        assert_eq!(objects[&2], " /Second true ");
+    }
+
+    #[test]
+    #[should_panic(expected = "unterminated PDF dictionary observation")]
+    fn pdf_object_observer_rejects_truncated_dictionary() {
+        parse_pdf_objects(b"1 0 obj << /Count 3 /Nested << /Value 1 >>");
     }
 
     /// Devolve os valores de `/Count` presentes apenas na árvore de bookmarks.
@@ -1499,7 +1484,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         let s = String::from_utf8_lossy(&pdf);
@@ -1523,7 +1507,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         let s = String::from_utf8_lossy(&pdf);
@@ -1538,8 +1521,7 @@ mod integration {
     fn pipeline_figura_numerada_prefixo_no_pdf() {
         let dir = tempdir();
         // JPEG mínimo válido (magic bytes suficientes para a detecção de formato)
-        std::fs::write(dir.path().join("foto.jpg"), &[0xFF_u8, 0xD8, 0xFF, 0xE0])
-            .unwrap();
+        std::fs::write(dir.path().join("foto.jpg"), [0xFF_u8, 0xD8, 0xFF, 0xE0]).unwrap();
         std::fs::write(
             dir.path().join("main.typ"),
             "#set figure(numbering: \"1\")\n#figure(image(\"foto.jpg\"), caption: [A foto])",
@@ -1567,7 +1549,7 @@ mod integration {
         std::fs::create_dir(dir.path().join("capitulo1")).unwrap();
         std::fs::write(
             dir.path().join("capitulo1/foto.jpg"),
-            &[0xFF_u8, 0xD8, 0xFF, 0xE0],
+            [0xFF_u8, 0xD8, 0xFF, 0xE0],
         )
         .unwrap();
         std::fs::write(dir.path().join("capitulo1/intro.typ"), "#image(\"foto.jpg\")")
@@ -1589,11 +1571,10 @@ mod integration {
     fn current_file_restaurado_apos_include() {
         let dir = tempdir();
         std::fs::create_dir(dir.path().join("capitulo1")).unwrap();
-        std::fs::write(dir.path().join("capa.jpg"), &[0xFF_u8, 0xD8, 0xFF, 0xE0])
-            .unwrap();
+        std::fs::write(dir.path().join("capa.jpg"), [0xFF_u8, 0xD8, 0xFF, 0xE0]).unwrap();
         std::fs::write(
             dir.path().join("capitulo1/foto.jpg"),
-            &[0xFF_u8, 0xD8, 0xFF, 0xE0],
+            [0xFF_u8, 0xD8, 0xFF, 0xE0],
         )
         .unwrap();
         std::fs::write(dir.path().join("capitulo1/intro.typ"), "#image(\"foto.jpg\")")
@@ -1624,7 +1605,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
 
@@ -1661,7 +1641,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
 
@@ -1699,7 +1678,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = extract_page_content_streams_text(&pdf);
@@ -1710,29 +1688,37 @@ mod integration {
     }
 
     #[test]
-    fn rect_fill_tiling_cai_no_fallback_color_no_pdf() {
-        // #rect(fill: tiling(red)) → Paint::Tiling; o exportador PDF ainda não
-        // renderiza padrões (ADR-0054), pelo que o layout converte para a cor
-        // de fallback do tiling antes de emitir FrameItem::Shape.
+    fn rect_fill_tiling_emite_celula_pdf_sem_fallback() {
+        let (world, _dir) = world_from_str(
+            "#rect(width: 50pt, height: 30pt, fill: tiling(rgb(255,0,0), size: (4pt, 4pt)))",
+        );
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let doc = layout(module.content().expect("deve ter content"));
+        assert!(doc.layout_errors.is_empty(), "{:?}", doc.layout_errors);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+        assert!(pdf_str.contains("/PatternType 1"));
+        assert!(pdf_str.contains("/Pattern cs") && pdf_str.contains(" scn\n"));
+        assert!(pdf_str.contains(" re\n") && pdf_str.contains("f\n"));
+        assert!(
+            pdf_str.contains("1.000 0.000 0.000 rg\n"),
+            "célula mantém vermelho puro"
+        );
+    }
+
+    #[test]
+    fn rect_fill_tiling_de_cor_sem_size_preserva_diagnostico() {
         let (world, _dir) = world_from_str(
             "#rect(width: 50pt, height: 30pt, fill: tiling(rgb(255,0,0)))",
         );
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
-        let content = module.content().expect("deve ter content");
-        let state = introspect(content);
-        let doc = layout(content);
-        let pdf = export_pdf(&doc, StreamMode::Verbose);
-        let pdf_str = String::from_utf8_lossy(&pdf);
-
-        // Deve emitir o rectângulo preenchido com a cor de fallback (vermelho).
-        assert!(pdf_str.contains(" re\n"), "PDF deve ter rectângulo re");
-        assert!(pdf_str.contains(" rg\n"), "PDF deve ter operador de fill rg");
-        assert!(pdf_str.contains("f\n"), "PDF deve ter paint operator f (fill only)");
-        // Red DeviceRGB ≈ 1.000 0.000 0.000 rg.
-        assert!(
-            pdf_str.contains("1.000 0.000 0.000 rg\n"),
-            "PDF deve preencher com vermelho puro (fallback do tiling)"
+        let doc = layout(module.content().expect("deve ter content"));
+        assert_eq!(doc.layout_errors.len(), 1);
+        assert_eq!(
+            doc.layout_errors[0].message.as_str(),
+            "tile size must be explicit for a color or gradient body"
         );
     }
 
@@ -1746,7 +1732,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let _state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = String::from_utf8_lossy(&pdf);
@@ -1831,7 +1816,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = extract_page_content_streams_text(&pdf);
@@ -1869,7 +1853,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = extract_page_content_streams_text(&pdf);
@@ -1896,7 +1879,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = extract_page_content_streams_text(&pdf);
@@ -1919,7 +1901,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = extract_page_content_streams_text(&pdf);
@@ -1943,7 +1924,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
 
         assert_eq!(doc.pages.len(), 2, "SetPage com conteúdo deve criar 2 páginas");
@@ -1966,7 +1946,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
 
         assert_eq!(
@@ -1990,7 +1969,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
 
         assert_eq!(doc.pages.len(), 3);
@@ -2010,7 +1988,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
 
         // available_width = 400 - 2*20 = 360pt; cada 1fr = 180pt.
@@ -2044,7 +2021,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc, StreamMode::Verbose);
 
@@ -2096,7 +2072,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         layout(content)
     }
 
@@ -2112,7 +2087,8 @@ mod integration {
             FrameItem::Glyph { pos, .. } => *pos,
             FrameItem::Image { pos, .. } => *pos,
             FrameItem::Shape { pos, .. } => *pos,
-            FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items
+            FrameItem::TextReplacement { items, .. }
+            | FrameItem::Semantic { items, .. } => items
                 .first()
                 .map(frame_item_pos)
                 .expect("Semantic inspecionado deve conter ao menos um filho visual"),
@@ -2334,7 +2310,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
 
         let items = &doc.pages[0].items;
@@ -2360,7 +2335,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
 
         let rect_x = frame_item_pos(&doc.pages[0].items[0]).x.0;
@@ -2395,7 +2369,6 @@ mod integration {
             let source = world.source(world.main()).unwrap();
             let module = do_eval(&world, &source).unwrap();
             let content = module.content().expect("deve ter content");
-            let state = introspect(content);
             layout(content)
         };
 
@@ -2470,7 +2443,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
 
         let items = &doc.pages[0].items;
@@ -2508,7 +2480,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
 
         let items = &doc.pages[0].items;
@@ -2540,7 +2511,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
 
         let items = &doc.pages[0].items;
@@ -2585,7 +2555,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
 
         let items = &doc.pages[0].items;
@@ -2618,7 +2587,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
 
         let items = &doc.pages[0].items;
@@ -2646,7 +2614,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
 
         let items = &doc.pages[0].items;
@@ -2693,7 +2660,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
 
         let items = &doc.pages[0].items;
@@ -2734,7 +2700,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         let doc = layout(content);
 
         let items = &doc.pages[0].items;
@@ -3566,7 +3531,6 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
         layout(content)
     }
 
@@ -3647,43 +3611,78 @@ mod integration {
     ) -> usize {
         use typst_core::compiler::layout::{FixedMetrics, FontMetrics};
         use typst_core::entities::layout_types::FrameItem;
-        doc.pages.iter().map(|page| {
-            let items = frame_items_recursive(&page.items);
-            let texts: Vec<_> = items.iter().filter_map(|item| match item {
-                FrameItem::Text { pos, text, style } => Some((pos, text, style)),
-                _ => None,
-            }).collect();
-            texts.iter().filter(|(pos, text, _)| {
-                if text.ends_with('-') && text.chars().count() > 1 {
-                    return true;
-                }
-                text.as_str() == "-" && texts.iter().any(|(before, prefix, style)| {
-                    prefix.chars().last().is_some_and(char::is_alphabetic)
-                        && (before.y.0 - pos.y.0).abs() < 1e-6
-                        && (before.x.0 + FixedMetrics.advance(prefix, style.size, style).0
-                            - pos.x.0).abs() < 1e-6
-                })
-            }).count()
-        }).sum()
+        doc.pages
+            .iter()
+            .map(|page| {
+                let items = frame_items_recursive(&page.items);
+                let texts: Vec<_> = items
+                    .iter()
+                    .filter_map(|item| match item {
+                        FrameItem::Text { pos, text, style, .. } => {
+                            Some((pos, text, style))
+                        }
+                        _ => None,
+                    })
+                    .collect();
+                texts
+                    .iter()
+                    .filter(|(pos, text, _)| {
+                        if text.ends_with('-') && text.chars().count() > 1 {
+                            return true;
+                        }
+                        text.as_str() == "-"
+                            && texts.iter().any(|(before, prefix, style)| {
+                                prefix.chars().last().is_some_and(char::is_alphabetic)
+                                    && (before.y.0 - pos.y.0).abs() < 1e-6
+                                    && (before.x.0
+                                        + FixedMetrics
+                                            .advance(prefix, style.size, style)
+                                            .0
+                                        - pos.x.0)
+                                        .abs()
+                                        < 1e-6
+                            })
+                    })
+                    .count()
+            })
+            .sum()
     }
 
     #[test]
     fn hyphenation_observer_requires_visible_prefix_adjacency() {
-        for (source, expected) in [("word-", 1), ("word -", 0), ("-", 0),
-            ("word#linebreak()-", 0)] {
+        for (source, expected) in
+            [("word-", 1), ("word -", 0), ("-", 0), ("word#linebreak()-", 0)]
+        {
             assert_eq!(count_hyphenated_words(&build_doc(source)), expected, "{source}");
         }
         let mut doc = build_doc("word-");
         use typst_core::entities::layout_types::{FrameItem, Point, Pt};
-        let text = frame_items_recursive(&doc.pages[0].items).into_iter().find_map(|item| {
-            if let FrameItem::Text { pos, text, style } = item {
-                (text.as_str() == "word-").then(|| (*pos, style.clone()))
-            } else { None }
-        }).unwrap();
+        let text = frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
+            .find_map(|item| {
+                if let FrameItem::Text { pos, text, style, .. } = item {
+                    (text.as_str() == "word-").then(|| (*pos, style.clone()))
+                } else {
+                    None
+                }
+            })
+            .unwrap();
         doc.pages[0].items = vec![
-            FrameItem::Text { pos: text.0, text: "word".into(), style: text.1.clone() },
-            FrameItem::Text { pos: Point { x: text.0.x + Pt(4.0 * 0.6 * text.1.size.0),
-                y: text.0.y }, text: "-".into(), style: text.1 },
+            FrameItem::Text {
+                pos: text.0,
+                text: "word".into(),
+                style: text.1.clone(),
+                bidi: None,
+            },
+            FrameItem::Text {
+                pos: Point {
+                    x: text.0.x + Pt(4.0 * 0.6 * text.1.size.0),
+                    y: text.0.y,
+                },
+                text: "-".into(),
+                style: text.1,
+                bidi: None,
+            },
         ];
         assert_eq!(count_hyphenated_words(&doc), 1);
     }
@@ -3721,18 +3720,28 @@ mod integration {
         );
     }
 
-
     #[test]
     fn break_policy_integration_hyphenate_follows_lexical_options() {
-        for (mode,justify,expected) in [
-            ("false",true,false), ("true",false,true),
-            ("auto",false,false), ("auto",true,true),
-            ("absent",false,false), ("absent",true,true),
+        for (mode, justify, expected) in [
+            ("false", true, false),
+            ("true", false, true),
+            ("auto", false, false),
+            ("auto", true, true),
+            ("absent", false, false),
+            ("absent", true, true),
         ] {
-            let hyphen = if mode == "absent" {String::new()} else {format!(", hyphenate: {mode}")};
+            let hyphen = if mode == "absent" {
+                String::new()
+            } else {
+                format!(", hyphenate: {mode}")
+            };
             let source=format!("#set page(width: 100pt, height: 400pt, margin: 10pt)\n#set text(lang: \"en\"{hyphen})\n#set par(justify: {justify})\nThe extraordinary characteristics of this remarkable phenomenon.");
-            let doc=build_doc(&source);
-            assert_eq!(count_hyphenated_words(&doc)>0,expected,"mode={mode}, justify={justify}");
+            let doc = build_doc(&source);
+            assert_eq!(
+                count_hyphenated_words(&doc) > 0,
+                expected,
+                "mode={mode}, justify={justify}"
+            );
         }
     }
 
@@ -3878,7 +3887,15 @@ mod integration {
             .filter_map(|i| match i {
                 FrameItem::Text { text, .. } => Some(text.as_str()),
                 FrameItem::TextShaped { text, .. } => Some(text.as_str()),
-                _ => None,
+                FrameItem::TextReplacement { .. }
+                | FrameItem::TextSeparator { .. }
+                | FrameItem::Semantic { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. }
+                | FrameItem::Group { .. }
+                | FrameItem::Link { .. } => None,
             })
             .collect()
     }
@@ -4810,15 +4827,29 @@ mod integration {
                 } if matches!(text.as_str(), "y" | "𝑦") => y_y = Some(pos.y.0),
                 typst_core::entities::layout_types::FrameItem::Glyph {
                     pos,
-                    base_char,
+                    base_char: 'x' | '𝑥',
                     ..
-                } if matches!(base_char, 'x' | '𝑥') => x_y = Some(pos.y.0),
+                } => x_y = Some(pos.y.0),
                 typst_core::entities::layout_types::FrameItem::Glyph {
                     pos,
-                    base_char,
+                    base_char: 'y' | '𝑦',
                     ..
-                } if matches!(base_char, 'y' | '𝑦') => y_y = Some(pos.y.0),
-                _ => {}
+                } => y_y = Some(pos.y.0),
+                typst_core::entities::layout_types::FrameItem::TextReplacement {
+                    ..
+                }
+                | typst_core::entities::layout_types::FrameItem::TextSeparator {
+                    ..
+                }
+                | typst_core::entities::layout_types::FrameItem::Semantic { .. }
+                | typst_core::entities::layout_types::FrameItem::Text { .. }
+                | typst_core::entities::layout_types::FrameItem::TextShaped { .. }
+                | typst_core::entities::layout_types::FrameItem::Line { .. }
+                | typst_core::entities::layout_types::FrameItem::Glyph { .. }
+                | typst_core::entities::layout_types::FrameItem::Image { .. }
+                | typst_core::entities::layout_types::FrameItem::Shape { .. }
+                | typst_core::entities::layout_types::FrameItem::Group { .. }
+                | typst_core::entities::layout_types::FrameItem::Link { .. } => {}
             }
         }
         let (x_y, eq_y, y_y) = (x_y.unwrap(), eq_y.unwrap(), y_y.unwrap());
@@ -5249,6 +5280,7 @@ mod integration {
                     pos,
                     text,
                     style,
+                    ..
                 } if text.contains('+') => Some((style.size.0, pos.x.0, pos.y.0)),
                 typst_core::entities::layout_types::FrameItem::TextShaped {
                     pos,
@@ -5256,7 +5288,21 @@ mod integration {
                     style,
                     ..
                 } if text.contains('+') => Some((style.size.0, pos.x.0, pos.y.0)),
-                _ => None,
+                typst_core::entities::layout_types::FrameItem::TextReplacement {
+                    ..
+                }
+                | typst_core::entities::layout_types::FrameItem::TextSeparator {
+                    ..
+                }
+                | typst_core::entities::layout_types::FrameItem::Semantic { .. }
+                | typst_core::entities::layout_types::FrameItem::Text { .. }
+                | typst_core::entities::layout_types::FrameItem::TextShaped { .. }
+                | typst_core::entities::layout_types::FrameItem::Line { .. }
+                | typst_core::entities::layout_types::FrameItem::Glyph { .. }
+                | typst_core::entities::layout_types::FrameItem::Image { .. }
+                | typst_core::entities::layout_types::FrameItem::Shape { .. }
+                | typst_core::entities::layout_types::FrameItem::Group { .. }
+                | typst_core::entities::layout_types::FrameItem::Link { .. } => None,
             })
             .collect();
         runs.retain(|(_, _, y)| *y < 80.0);
@@ -5403,7 +5449,14 @@ mod integration {
                         FI::Glyph { pos, base_char, .. } => {
                             out.push((format!("glyph:{base_char}"), pos.y.val()));
                         }
-                        _ => {}
+                        FI::TextReplacement { .. }
+                        | FI::TextSeparator { .. }
+                        | FI::Semantic { .. }
+                        | FI::Line { .. }
+                        | FI::Image { .. }
+                        | FI::Shape { .. }
+                        | FI::Group { .. }
+                        | FI::Link { .. } => {}
                     }
                 }
             }
@@ -5483,7 +5536,14 @@ mod integration {
                         FI::Glyph { pos, base_char, .. } => {
                             out.push((format!("glyph:{base_char}"), pos.x.val()));
                         }
-                        _ => {}
+                        FI::TextReplacement { .. }
+                        | FI::TextSeparator { .. }
+                        | FI::Semantic { .. }
+                        | FI::Line { .. }
+                        | FI::Image { .. }
+                        | FI::Shape { .. }
+                        | FI::Group { .. }
+                        | FI::Link { .. } => {}
                     }
                 }
             }
@@ -5534,7 +5594,17 @@ mod integration {
                         FI::Glyph { pos, base_char, .. } if *base_char == '(' => {
                             x_paren = Some(pos.x.val())
                         }
-                        _ => {}
+                        FI::TextReplacement { .. }
+                        | FI::TextSeparator { .. }
+                        | FI::Semantic { .. }
+                        | FI::Text { .. }
+                        | FI::TextShaped { .. }
+                        | FI::Line { .. }
+                        | FI::Glyph { .. }
+                        | FI::Image { .. }
+                        | FI::Shape { .. }
+                        | FI::Group { .. }
+                        | FI::Link { .. } => {}
                     }
                 }
             }
@@ -5812,7 +5882,8 @@ mod integration {
     // the respective production owners correct the observable behavior.
     #[test]
     fn place_regression_empty_page_keeps_requested_media_box() {
-        let (world, _dir) = world_from_str("#set page(width: 160pt, height: 180pt, margin: 8pt)\n");
+        let (world, _dir) =
+            world_from_str("#set page(width: 160pt, height: 180pt, margin: 8pt)\n");
         let source = world.source(world.main()).unwrap();
         let (result, warnings) = crate::pipeline::compile_to_pdf_bytes(
             &world,
@@ -5824,7 +5895,8 @@ mod integration {
         let pdf = result.expect("empty document must still export one page");
         let text = String::from_utf8_lossy(&pdf);
         let media_box =
-            Regex::new(r"/MediaBox\s*\[\s*0\s+0\s+160(?:\.0+)?\s+180(?:\.0+)?\s*\]").unwrap();
+            Regex::new(r"/MediaBox\s*\[\s*0\s+0\s+160(?:\.0+)?\s+180(?:\.0+)?\s*\]")
+                .unwrap();
         assert!(
             media_box.is_match(&text),
             "requested 160 × 180pt page missing from PDF MediaBox"
@@ -5838,7 +5910,7 @@ mod integration {
             "#set page(width: 160pt, height: 180pt, margin: 8pt)\n\
                  #place(top + left, dx: 3pt, dy: 5pt, image(\"tile.png\", width: 80pt, height: 40pt, fit: \"cover\"))\n",
         );
-        write_png_rgba(dir.path(), "tile.png", vec![0, 0, 255, 255].repeat(4), 2, 2);
+        write_png_rgba(dir.path(), "tile.png", [0, 0, 255, 255].repeat(4), 2, 2);
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("placed image content");
@@ -5847,9 +5919,7 @@ mod integration {
             .into_iter()
             .find(|item| matches!(item, FrameItem::Image { .. }))
             .expect("placed image must materialize");
-        let FrameItem::Image { clip_rect, .. } = image else {
-            unreachable!()
-        };
+        let FrameItem::Image { clip_rect, .. } = image else { unreachable!() };
         let rect = clip_rect.expect("cover image must preserve its translated clip");
         assert!((rect.x.0 - 11.0).abs() < 0.01, "clip x={}", rect.x.0);
         assert!((rect.y.0 - 13.0).abs() < 0.01, "clip y={}", rect.y.0);
@@ -5881,7 +5951,8 @@ mod integration {
         let baseline = frame_items_recursive(&doc.pages[0].items)
             .into_iter()
             .find_map(|item| match item {
-                FrameItem::TextShaped { pos, text, .. } | FrameItem::Text { pos, text, .. }
+                FrameItem::TextShaped { pos, text, .. }
+                | FrameItem::Text { pos, text, .. }
                     if text.contains("Hello") =>
                 {
                     Some(pos.y.0)
@@ -5891,10 +5962,7 @@ mod integration {
             .expect("placed text must materialize");
         // The pinned vanilla PDF positions the baseline at 20.238pt on this
         // 160 × 180pt fixture; Tekt currently emits it about 7.238pt high.
-        assert!(
-            (baseline - 20.238).abs() < 0.1,
-            "placed baseline={baseline}"
-        );
+        assert!((baseline - 20.238).abs() < 0.1, "placed baseline={baseline}");
     }
 
     struct PlaceBookObserver<'a> {
@@ -5907,8 +5975,7 @@ mod integration {
             self.inner.library()
         }
         fn book(&self) -> &typst_core::entities::font_book::FontBook {
-            self.calls
-                .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            self.calls.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
             self.inner.book()
         }
         fn main(&self) -> typst_core::entities::file_id::FileId {
@@ -5923,8 +5990,9 @@ mod integration {
         fn file(
             &self,
             id: typst_core::entities::file_id::FileId,
-        ) -> typst_core::entities::world_types::FileResult<typst_core::entities::world_types::Bytes>
-        {
+        ) -> typst_core::entities::world_types::FileResult<
+            typst_core::entities::world_types::Bytes,
+        > {
             self.inner.file(id)
         }
         fn font(&self, index: usize) -> Option<typst_core::entities::world_types::Font> {
@@ -5973,7 +6041,8 @@ mod integration {
         }
         fn plugin_host(
             &self,
-        ) -> Option<std::sync::Arc<dyn typst_core::contracts::plugin_host::PluginHost>> {
+        ) -> Option<std::sync::Arc<dyn typst_core::contracts::plugin_host::PluginHost>>
+        {
             self.inner.plugin_host()
         }
         fn candidates_for_char(&self, c: char) -> Vec<usize> {
@@ -5986,7 +6055,7 @@ mod integration {
             "#set page(width: 160pt, height: 180pt, margin: 8pt)\n{body}\n"
         ));
         if is_image {
-            write_png_rgba(dir.path(), "tile.png", vec![0, 0, 255, 255].repeat(4), 2, 2);
+            write_png_rgba(dir.path(), "tile.png", [0, 0, 255, 255].repeat(4), 2, 2);
         }
         let world = world.with_fonts_and_system(&[]);
         let observed = PlaceBookObserver {
@@ -6008,7 +6077,10 @@ mod integration {
     #[test]
     fn place_regression_nontext_shape_does_not_acquire_font_book() {
         assert_eq!(
-            place_nontext_book_calls("#rect(width: 80pt, height: 40pt, fill: blue)", false),
+            place_nontext_book_calls(
+                "#rect(width: 80pt, height: 40pt, fill: blue)",
+                false
+            ),
             0
         );
         assert_eq!(
@@ -6031,5 +6103,43 @@ mod integration {
             ),
             0
         );
+    }
+    #[test]
+    fn math_bare_insertion_context_and_local_block_use_production_query() {
+        use typst_core::entities::element_kind::ElementKind;
+        use typst_core::entities::selector::Selector;
+        for (src, expected) in [
+            ("#context math.frac([1],[2])", 1),
+            ("#show math.equation.where():it=>[EQ]\n#context math.frac([1],[2])", 1),
+            ("#let f=math.frac([1],[2]); #f #f", 2),
+            ("$frac(1,2)$", 1),
+        ] {
+            let (world, _dir) = world_from_str(src);
+            let source = world.source(world.main()).unwrap();
+            let (intr, warnings) =
+                crate::pipeline::compile_query_context(&world, &source);
+            assert!(warnings.is_empty(), "{src}: {warnings:?}");
+            assert_eq!(
+                intr.unwrap().query(&Selector::Kind(ElementKind::Equation)).len(),
+                expected,
+                "{src}"
+            );
+        }
+    }
+
+    #[test]
+    fn math_bare_insertion_context_uses_captured_equation_show() {
+        let (world, _dir) = world_from_str(
+            "#show math.equation.where():it=>[EQ]\n#context math.frac([1],[2])",
+        );
+        let source = world.source(world.main()).unwrap();
+        let (result, warnings) = crate::pipeline::compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
+        assert!(warnings.is_empty());
+        assert!(extract_page_content_streams_text(&result.unwrap()).contains("(EQ)"));
     }
 }

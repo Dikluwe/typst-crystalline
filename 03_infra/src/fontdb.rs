@@ -1,13 +1,16 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fontdb.md
-//! @prompt-hash 9dcbb363
+//! @prompt-hash 89c932fb
 //! @layer L3
-//! @updated 2026-09-15
+//! @updated 2026-10-07
 //!
 //! **P515** — Descoberta automática de fontes do sistema via `fontdb`.
 //! Ativação da ADR-0020. L3 puro.
 
-use std::path::{Path, PathBuf};
+pub(crate) mod generation;
+mod selective;
+
+use std::path::Path;
 
 use typst_core::entities::font_book::FontBook;
 
@@ -24,6 +27,19 @@ fn font_info_with_coverage(
     let face = ttf_parser::Face::parse(data, index).ok()?;
     info.coverage = extract_coverage(&face);
     Some(info)
+}
+
+fn acquire_info(
+    db: &fontdb::Database,
+    id: fontdb::ID,
+) -> Option<typst_core::entities::font_book::FontInfo> {
+    let face = db.face(id)?;
+    if let fontdb::Source::File(path) = &face.source {
+        if let Some(info) = selective::acquire(path, face.index) {
+            return Some(info);
+        }
+    }
+    db.with_face_data(id, font_info_with_coverage).flatten()
 }
 
 /// Carrega as fontes instaladas no sistema operativo.
@@ -43,6 +59,10 @@ pub fn load_system_fonts() -> (Vec<FontSlot>, FontBook) {
     let mut db = fontdb::Database::new();
     db.load_system_fonts();
 
+    catalog_from_database(&db)
+}
+
+pub(crate) fn catalog_from_database(db: &fontdb::Database) -> (Vec<FontSlot>, FontBook) {
     let mut slots = Vec::new();
     let mut book = FontBook::new();
     for face in db.faces() {
@@ -57,9 +77,9 @@ pub fn load_system_fonts() -> (Vec<FontSlot>, FontBook) {
             }
         };
 
-        // P674 — reutiliza os bytes já carregados pelo fontdb em vez de reler
-        // o ficheiro do disco. Isto corta pela metade o I/O de arranque.
-        let info = db.with_face_data(face.id, font_info_with_coverage).flatten();
+        // Leitura seletiva de File; SharedFile e tentativas rejeitadas
+        // conservam os bytes/callback do fontdb.
+        let info = acquire_info(db, face.id);
 
         // P839 — slot e entrada no book são inseridos juntos (índices
         // alinhados); faces sem info extraível são descartadas de ambos.
@@ -93,7 +113,7 @@ pub fn load_fonts_from_dir<P: AsRef<Path>>(dir: P) -> (Vec<FontSlot>, FontBook) 
             fontdb::Source::Binary(_) => continue,
         };
 
-        let info = db.with_face_data(face.id, font_info_with_coverage).flatten();
+        let info = acquire_info(&db, face.id);
 
         // P839 — slot e entrada no book são inseridos juntos (índices
         // alinhados); faces sem info extraível são descartadas de ambos.
@@ -197,5 +217,55 @@ mod tests {
         assert_eq!(book.len(), 1, "só a fonte com info extraível entra");
         assert_eq!(slots[0].path.file_name().unwrap(), "NimbusSans-Regular.otf");
         let _ = std::fs::remove_dir_all(&dir);
+    }
+    #[test]
+    fn selective_decline_keeps_legacy_metadata_and_coverage() {
+        let bytes = include_bytes!("../fixtures/fonts/NotoSans-Regular.ttf");
+        let dir = std::env::temp_dir()
+            .join(format!("selective-fallback-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let mut data = bytes.to_vec();
+        let count = u16::from_be_bytes(data[4..6].try_into().unwrap()) as usize;
+        let at = (0..count)
+            .map(|i| 12 + i * 16)
+            .find(|&at| &data[at..at + 4] == b"post")
+            .unwrap();
+        data[at + 8..at + 12].copy_from_slice(&u32::MAX.to_be_bytes());
+        let path = dir.join("font.ttf");
+        std::fs::write(&path, &data).unwrap();
+        assert!(selective::acquire(&path, 0).is_none());
+        let mut db = fontdb::Database::new();
+        db.load_font_file(&path).unwrap();
+        let face = db.faces().next().unwrap();
+        assert_eq!(
+            acquire_info(&db, face.id),
+            db.with_face_data(face.id, font_info_with_coverage).flatten()
+        );
+        let (slots, book) = load_fonts_from_dir(&dir);
+        assert_eq!(slots.len(), 1);
+        assert_eq!(book.len(), 1);
+        assert!(book.infos().first().unwrap().coverage.contains('A' as u32));
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+    #[test]
+    fn shared_source_keeps_retained_bytes_even_when_path_is_different() {
+        let bytes = include_bytes!("../fixtures/fonts/NotoSans-Regular.ttf").to_vec();
+        let dir =
+            std::env::temp_dir().join(format!("selective-shared-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("font.ttf");
+        std::fs::write(&path, include_bytes!("../fixtures/fonts/NimbusSans-Regular.otf"))
+            .unwrap();
+        assert_ne!(selective::acquire(&path, 0), font_info_with_coverage(&bytes, 0));
+        let mut db = fontdb::Database::new();
+        let ids = db.load_font_source(fontdb::Source::SharedFile(
+            path.clone(),
+            std::sync::Arc::new(bytes.clone()),
+        ));
+        assert_eq!(ids.len(), 1);
+        assert_eq!(acquire_info(&db, ids[0]), font_info_with_coverage(&bytes, 0));
+        std::fs::remove_file(&path).unwrap();
+        assert_eq!(acquire_info(&db, ids[0]), font_info_with_coverage(&bytes, 0));
+        std::fs::remove_dir_all(dir).unwrap();
     }
 }

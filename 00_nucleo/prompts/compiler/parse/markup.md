@@ -1,5 +1,5 @@
 # L0 — parse/markup
-Hash do Código: f2acf0f7
+Hash do Código: acb5a934
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/parse/core.toml sha256:ffba4f0f6d7276a3beac03c1bd2bef40135d74681be616112a1e1f172d2f24b0

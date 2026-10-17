@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/primitives-constructors/duration.md
-//! @prompt-hash 5a5a3122
+//! @prompt-hash 7c3b612e
 //! @layer L1
 //! @updated 2026-08-23
 
@@ -13,7 +13,13 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 
-/// Mistura das duas formas → erro. Todos os named args são `Int` ≥ 0.
+/// `duration(...)` → `Value::Duration`.
+///
+/// Duas formas suportadas:
+/// 1. Named args vanilla: `duration(days: 3, hours: 2, minutes: 30)`.
+/// 2. String posicional (compatibilidade P403): `duration("1h30m")`.
+///
+/// Mistura das duas formas → erro. Os named args aceitam `Int`, incluindo negativos.
 pub fn native_duration(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -101,15 +107,16 @@ pub fn native_duration(
     Ok(Value::Duration(Duration::from_nanos(total)))
 }
 
-/// `version(...)` → `Value::Version`.
+/// Parser canónico de duração.
 ///
-/// Formas suportadas (paridade vanilla 0.15.0):
-/// 1. String posicional (compatibilidade P403): `version("1.2.3")` — só inteiros.
-/// 2. Componentes posicionais, qualquer número: `version(1, 2, 3)`,
-///    `version(1, 2, 3, 4, 5)`.
-/// 3. Array de componentes (P682): `version((1, 2, 3))`, `version((1, 2, 3, 4, 5))`.
-
-/// - `s` aceita `f64` não negativo (com ou sem fração).
+/// Formatos aceites: `"0s"`, `"1h30m"`, `"3d2h30m15.5s"`, `"0.001s"`.
+/// Regras:
+/// - Sufixos `d`, `h`, `m`, `s` em qualquer combinação não vazia.
+/// - Ordem fixa d → h → m → s.
+/// - Cada sufixo no máximo uma vez.
+/// - `d`, `h`, `m` são lidos como inteiros decimais (`i64`).
+/// - Sinal inicial opcional, aplicado à duração inteira.
+/// - `s` é lido como `f64` finito (com ou sem fração).
 /// - Componentes ausentes contribuem 0; string vazia ou mal formada → `None`.
 fn parse_duration(s: &str) -> Option<Duration> {
     if s.is_empty() {

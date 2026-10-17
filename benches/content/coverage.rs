@@ -13,6 +13,10 @@ enum Family {
 
 fn family(content: &Content) -> Family {
     match content {
+        Content::Source(content) => family(&content.body),
+        Content::ShowRecipe(content) => family(&content.body),
+        Content::Realized(content) => family(&content.original),
+        Content::Located(content) => family(&content.body),
         Content::Empty
         | Content::Text(_)
         | Content::Space

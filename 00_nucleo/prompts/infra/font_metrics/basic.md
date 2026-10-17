@@ -1,5 +1,5 @@
 # L0 — infra/font_metrics/basic
-Hash do Código: e974652a
+Hash do Código: fffeb8c0
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/font_metrics/basic.rs`
@@ -27,3 +27,16 @@ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/fo
 Run `cargo test -p typst-infra --lib font_metrics:: -- --test-threads=1` when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
+
+
+## Inicialização explícita dos fixtures — field_reassign_with_default
+
+### Medição anterior à decisão
+
+`03_infra/src/font_metrics/basic.rs` nas linhas 505, 513, 520 cria defaults e em seguida sobrescreve campos locais de testes. A fonte, os spans e os L0 anteriores estão em `00_nucleo/diagnosticos/field-reassign-2026-10-15/before.json.gz`, com HEAD, working tree, UTC e diffstat; initial-diagnostics.json conserva os inicializadores apontados. Esta manutenção trata representação Rust, sem nova medição de paridade ou mudança no default do produto.
+
+### Responsabilidade e aceitação
+
+Construir os três TextStyle locais com os mesmos top_edge/bottom_edge: comprimentos pt/em e métrica baseline, herdando os demais defaults. Conservar tamanho fornecido, conversão de unidades, chamadas text_edges e tolerâncias existentes.
+
+Usar `..Tipo::default()` para os campos restantes e retirar `mut` apenas onde deixam de existir mutações. Sem novos tipos, builders, APIs ou supressões de lint. L0 precede código e resselo restrito (fluxo contínuo ADR-0127). O gate selecionado deve falhar antes e passar depois; preservar nomes, inputs, expectativas e tolerâncias dos testes. Revalidar Clippy all-targets, suíte workspace, build, formato, Rustdoc e linhagem. Não criar testes que apenas espelhem a sintaxe do inicializador.

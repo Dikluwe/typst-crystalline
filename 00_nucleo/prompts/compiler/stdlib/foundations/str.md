@@ -1,5 +1,5 @@
 # L0 — stdlib/foundations/str
-Hash do Código: 890a94d9
+Hash do Código: 7bbeaebd
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/foundations/str.rs`

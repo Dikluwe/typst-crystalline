@@ -1,12 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/font_selection.md
-//! @prompt-hash 8e04e77b
+//! @prompt-hash 4da514b6
 //! @layer L3
-//! @updated 2026-09-29
+//! @updated 2026-10-10
 
 use super::bidi::BidiRun;
-use super::cache::FaceCache;
-use crate::fallback_fonts::{fallback_font_list_for, math_fallback_font_list, text_fallback_font_list};
+use super::cache::{FaceCache, PrimaryResolution};
+use crate::fallback_fonts::{
+    fallback_font_list_for, math_fallback_font_list, text_fallback_font_list,
+};
 use std::collections::HashMap;
 use typst_core::contracts::world::World;
 use typst_core::entities::font_book::{FontInfo, FontVariant};
@@ -20,6 +22,14 @@ pub(super) fn primary_candidates(
     face_cache: &mut FaceCache,
     math: bool,
 ) -> Vec<FontCandidate> {
+    if let Some(entry) = face_cache.primary_resolution.as_ref() {
+        if entry.font_list == *font_list
+            && entry.variant == *variant
+            && entry.math == math
+        {
+            return entry.candidates.clone();
+        }
+    }
     let mut primary =
         resolve_candidates(world, font_list, variant, face_cache).unwrap_or_default();
     if primary.is_empty() {
@@ -56,7 +66,7 @@ pub(super) fn primary_candidates(
         let primary_has_math = primary
             .first()
             .and_then(|cand| face_cache.get(world, cand.slot_idx))
-            .map_or(false, |cached| cached.face().tables().math.is_some());
+            .is_some_and(|cached| cached.face().tables().math.is_some());
         if math || primary_has_math {
             for family in math_fallback_font_list() {
                 let math_font_list = FontList::single(ecow::EcoString::from(*family));
@@ -86,6 +96,15 @@ pub(super) fn primary_candidates(
         }
     }
 
+    // A failed face makes completeness unproved; keep catalog queries on misses.
+    if !primary.is_empty() && face_cache.map.values().all(Option::is_some) {
+        face_cache.primary_resolution = Some(PrimaryResolution {
+            font_list: font_list.clone(),
+            variant: *variant,
+            math,
+            candidates: primary.clone(),
+        });
+    }
     primary
 }
 
@@ -107,9 +126,9 @@ pub(super) fn resolve_candidates(
     let book = world.book();
     let mut candidates = Vec::new();
     for family in font_list.as_slice() {
-        if let Some(idx) = book.select_pattern(&family.name, &variant) {
+        if let Some(idx) = book.select_pattern(&family.name, variant) {
             if let Some(cached) = face_cache.get(world, idx) {
-                let units_per_em = cached.face().units_per_em().max(1) as u16;
+                let units_per_em = cached.face().units_per_em().max(1);
                 candidates.push(FontCandidate { slot_idx: idx, units_per_em });
             }
         }
@@ -283,7 +302,7 @@ impl<'a> CandidateSet<'a> {
                     self.fallback
                         .get(idx - self.primary.len())
                         .and_then(|f| *f)
-                        .map_or(false, |slot_idx| self.slot_covers_char(slot_idx, c))
+                        .is_some_and(|slot_idx| self.slot_covers_char(slot_idx, c))
                 };
                 if !covers {
                     break;
@@ -328,7 +347,7 @@ impl<'a> CandidateSet<'a> {
             let cached = self.face_cache.get(self.world, slot_idx)?;
             Some(FontCandidate {
                 slot_idx,
-                units_per_em: cached.face().units_per_em().max(1) as u16,
+                units_per_em: cached.face().units_per_em().max(1),
             })
         }
     }
@@ -394,8 +413,8 @@ pub(super) fn split_run_by_font(
     while pos < text.len() {
         let c = text[pos..].chars().next().unwrap();
         // P1404/P1412 — controles de formato não consultam cobertura global.
-        // Conservá-los no sub-run permite ao shaper/ToUnicode preservar o
-        // codepoint invisível sem reabrir a alocação causada pelo slot global.
+        // Conservá-los na entrada evita selecionar outra face por cobertura;
+        // shaping e export distinguem controles da identidade do glifo visual.
         if is_p1404_format_control(c) {
             if let Some(ref mut cur) = current {
                 cur.text.push(c);
@@ -450,7 +469,10 @@ pub(super) fn split_run_by_font(
 }
 
 pub(super) fn is_p1404_format_control(c: char) -> bool {
-    matches!(c, '\u{2060}' | '\u{202b}' | '\u{202c}')
+    matches!(
+        c, '\u{2060}' | '\u{61c}' | '\u{200e}' | '\u{200f}'
+            | '\u{202a}'..='\u{202e}' | '\u{2066}'..='\u{2069}'
+    )
 }
 
 /// Script efectivo de `c` dado o script do segmento actual: scripts genéricos
@@ -483,4 +505,232 @@ fn is_generic_script(script: Script) -> bool {
 
 fn is_compatible(a: Script, b: Script) -> bool {
     is_generic_script(a) || is_generic_script(b) || a == b
+}
+
+#[cfg(test)]
+mod primary_chain_reuse_tests {
+    use super::*;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use typst_core::entities::{
+        duration::Duration,
+        file_id::FileId,
+        font_book::{Coverage, FontBook, FontFlags, FontStyle, FontWeight},
+        font_list::FontFamily,
+        regex::Regex,
+        source::Source,
+        world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+    };
+    struct ProbeWorld {
+        library: Library,
+        book: FontBook,
+        fonts: Vec<Font>,
+        book_reads: AtomicUsize,
+        blocked_slot: AtomicUsize,
+    }
+    impl World for ProbeWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            self.book_reads.fetch_add(1, Ordering::Relaxed);
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, id: usize) -> Option<Font> {
+            if self.blocked_slot.load(Ordering::Relaxed) == id {
+                None
+            } else {
+                self.fonts.get(id).cloned()
+            }
+        }
+        fn today(&self, _: Option<Duration>) -> Option<Datetime> {
+            None
+        }
+    }
+    fn world(reverse: bool) -> ProbeWorld {
+        let load = |name: &str| {
+            Font::from_data(
+                std::fs::read(
+                    std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                        .join("fixtures/fonts")
+                        .join(name),
+                )
+                .unwrap(),
+            )
+        };
+        let regular = load("NimbusSans-Regular.otf");
+        let mut entries = vec![
+            ("Alpha", FontVariant::default(), regular.clone()),
+            (
+                "Alpha",
+                FontVariant { weight: FontWeight::BOLD, ..Default::default() },
+                regular.clone(),
+            ),
+            (
+                "Alpha",
+                FontVariant { style: FontStyle::Italic, ..Default::default() },
+                regular.clone(),
+            ),
+            ("Beta", FontVariant::default(), regular),
+            (
+                "New Computer Modern Math",
+                FontVariant::default(),
+                load("NewCMMath-Book.otf"),
+            ),
+            ("Noto Sans", FontVariant::default(), load("NotoSans-Regular.ttf")),
+        ];
+        if reverse {
+            entries.reverse();
+        }
+        let mut book = FontBook::new();
+        let mut fonts = Vec::new();
+        for (family, variant, font) in entries {
+            book.push(FontInfo {
+                family: family.into(),
+                variant,
+                flags: FontFlags::default(),
+                coverage: Coverage::default(),
+            });
+            fonts.push(font);
+        }
+        ProbeWorld {
+            library: Library::new(),
+            book,
+            fonts,
+            book_reads: AtomicUsize::new(0),
+            blocked_slot: AtomicUsize::new(usize::MAX),
+        }
+    }
+
+    fn list(names: &[&str]) -> FontList {
+        FontList::new(
+            names
+                .iter()
+                .map(|name| FontFamily::new(ecow::EcoString::from(*name)))
+                .collect(),
+        )
+        .unwrap()
+    }
+    fn slots(candidates: Vec<FontCandidate>) -> Vec<(usize, u16)> {
+        candidates.into_iter().map(|c| (c.slot_idx, c.units_per_em)).collect()
+    }
+    fn resolve(
+        world: &ProbeWorld,
+        cache: &mut FaceCache,
+        list: &FontList,
+        variant: &FontVariant,
+        math: bool,
+    ) -> Vec<(usize, u16)> {
+        slots(primary_candidates(world, list, variant, cache, math))
+    }
+    #[test]
+    fn repeated_primary_chain_avoids_new_catalog_queries() {
+        let world = world(false);
+        let mut cache = FaceCache::new();
+        let list = list(&["Alpha"]);
+        let variant = FontVariant::default();
+        let expected = resolve(&world, &mut cache, &list, &variant, false);
+        assert!(!expected.is_empty());
+        let reads = world.book_reads.load(Ordering::Relaxed);
+        for _ in 0..8 {
+            assert_eq!(resolve(&world, &mut cache, &list, &variant, false), expected);
+        }
+        assert_eq!(
+            world.book_reads.load(Ordering::Relaxed),
+            reads,
+            "identical primary requests must reuse selection"
+        );
+    }
+    #[test]
+    fn changed_families_variants_and_math_match_fresh_in_both_orders() {
+        let world = world(false);
+        let regex = FontList::new(vec![FontFamily::new_regex(
+            Regex::new("Alpha|Beta").unwrap(),
+            vec![],
+        )])
+        .unwrap();
+        let cases = [
+            (list(&["Alpha", "Beta"]), FontVariant::default(), false),
+            (list(&["Beta", "Alpha"]), FontVariant::default(), false),
+            (
+                list(&["Alpha"]),
+                FontVariant { weight: FontWeight::BOLD, ..Default::default() },
+                false,
+            ),
+            (
+                list(&["Alpha"]),
+                FontVariant { style: FontStyle::Italic, ..Default::default() },
+                false,
+            ),
+            (list(&["Missing", "Alpha"]), FontVariant::default(), false),
+            (list(&["Alpha"]), FontVariant::default(), true),
+            (list(&["New Computer Modern Math"]), FontVariant::default(), false),
+            (regex, FontVariant::default(), false),
+        ];
+        for reverse in [false, true] {
+            let mut cache = FaceCache::new();
+            let order: Vec<_> = if reverse {
+                cases.iter().rev().collect()
+            } else {
+                cases.iter().collect()
+            };
+            for (list, variant, math) in order {
+                let fresh = resolve(&world, &mut FaceCache::new(), list, variant, *math);
+                assert_eq!(resolve(&world, &mut cache, list, variant, *math), fresh);
+                assert_eq!(resolve(&world, &mut cache, list, variant, *math), fresh);
+            }
+        }
+    }
+    #[test]
+    fn failed_face_does_not_add_selection_negative_cache() {
+        let blocked = world(false);
+        blocked.blocked_slot.store(0, Ordering::Relaxed);
+        let mut cache = FaceCache::new();
+        let list = list(&["Alpha"]);
+        let variant = FontVariant::default();
+        let expected = resolve(&blocked, &mut cache, &list, &variant, false);
+        assert!(!expected.iter().any(|x| x.0 == 0));
+        let reads = blocked.book_reads.load(Ordering::Relaxed);
+        assert_eq!(resolve(&blocked, &mut cache, &list, &variant, false), expected);
+        assert!(
+            blocked.book_reads.load(Ordering::Relaxed) > reads,
+            "partial requests must still query catalog"
+        );
+        let broken = Font::from_data(vec![0, 1, 2]);
+        let mut invalid = world(false);
+        invalid.fonts[0] = broken;
+        let mut cache = FaceCache::new();
+        resolve(&invalid, &mut cache, &list, &variant, false);
+        let reads = invalid.book_reads.load(Ordering::Relaxed);
+        resolve(&invalid, &mut cache, &list, &variant, false);
+        assert!(invalid.book_reads.load(Ordering::Relaxed) > reads);
+
+        let mut empty = world(false);
+        empty.book = FontBook::new();
+        empty.fonts.clear();
+        let mut cache = FaceCache::new();
+        assert!(resolve(&empty, &mut cache, &list, &variant, false).is_empty());
+        let reads = empty.book_reads.load(Ordering::Relaxed);
+        assert!(resolve(&empty, &mut cache, &list, &variant, false).is_empty());
+        assert!(empty.book_reads.load(Ordering::Relaxed) > reads);
+    }
+    #[test]
+    fn new_face_cache_does_not_inherit_previous_world_slots() {
+        let first = world(false);
+        let second = world(true);
+        let list = list(&["Alpha"]);
+        let variant = FontVariant::default();
+        let a = resolve(&first, &mut FaceCache::new(), &list, &variant, false);
+        let b = resolve(&second, &mut FaceCache::new(), &list, &variant, false);
+        assert_eq!(a[0].0, 0);
+        assert_eq!(b[0].0, 5);
+    }
 }

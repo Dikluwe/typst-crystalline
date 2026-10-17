@@ -1,5 +1,5 @@
 # L0 — paragraph_hyphen
-Hash do Código: b447959c
+Hash do Código: e5167191
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
@@ -141,3 +141,28 @@ Na materialização de corte escolhido, fragmento visual hífen recebe replaceme
 O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
 possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
 transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.
+
+## Fluxo de controle e verificações executáveis — 2026-10-13
+
+### Medição anterior à decisão
+
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/layout/paragraph_hyphen.rs:283-309 contém o trecho medido. O inventário Clippy e a leitura dos owners distinguem código sem efeito, dados inválidos deliberados e verificações vazias. Fontes, L0, UTC, status, diffstat e comandos estão em `00_nucleo/diagnosticos/controle-fluxo-ci-2026-10-13/before.json.gz` e nas evidências do mesmo diretório. Não é nova medição de paridade nem inferência sobre intenção upstream.
+
+### Decisão e aceitação
+
+Dar nome ao limite inicial active antes de percorrer os candidatos do final atual. Alterações em active conservam o descarte de prefixos para futuros finais, sem modificar a faixa já iniciada, a tentativa overfull atual, penalidades ou materialização dos hifens.
+
+Preservar APIs públicas, comportamento padrão, fase e expectativas de linguagem existentes. Revalidar a suíte apropriada, Clippy, build e linhagem. Correção interna em fluxo contínuo ADR-0127.
+
+
+## Operações numéricas puras — 2026-10-13
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/layout/paragraph_hyphen.rs` nas linhas 427 contém as chamadas sinalizadas como disallowed_methods pelo Clippy vigente. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. `00_nucleo/diagnosticos/geometria-numerica-ci-2026-10-13/before.json.gz` conserva fonte, owner, configuração, libm, compilador, UTC, status e diffstat. A sonda host-math compara os backends antes da escolha: 4968 casos, 69 diferenças de até 1 ULP em trigonometria/atan2, sem mudança de classe numérica ou sinal de zero; potências e hypot coincidem na amostra. É medição deste host, não prova universal nem nova paridade contra vanilla.
+
+### Decisão e aceitação
+
+Na fixture NonAdditive, calcular o quadrado do número de caracteres por multiplicação f64 explícita. Manter o mesmo contador Unicode, propriedade não aditiva, panics de métricas proibidas e expectativas dos testes.
+
+Mudança interna em fluxo contínuo ADR-0127, sem contrato público novo, default ou fase. Preservar testes de geometria/linguagem existentes e comparar os exemplos SVG medidos antes/depois, declarando diferenças. A comparação geométrica não certifica todos os casos ou plataformas. Validar build, todos os targets, core, Clippy e linhagem. Não suprimir o lint nem substituir aceitação por identidade de bytes do compilador.

@@ -1,5 +1,5 @@
 # L0 — Paper and page binding
-Hash do Código: e9e7a288
+Hash do Código: c8fc6329
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/page_geometry.rs`

@@ -1,5 +1,5 @@
 # Prompt L0 — BibEntry
-Hash do Código: b13046c2
+Hash do Código: 3aa3a494
 
 ## Módulo
 `01_core/src/entities/bib_entry.rs`

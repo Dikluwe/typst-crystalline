@@ -1,8 +1,8 @@
 # L0 — par line callbacks
-Hash do Código: 1255ba9d
+Hash do Código: 0074fefc
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
+- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:7b8a61eaafc8a07df12218f8f0560c33fae5c36f621b822b7350ccefc9774711
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/par_line_callbacks.rs`
@@ -25,3 +25,16 @@ Own the final region-local maximum-number-width fixup over the existing hub buff
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
+
+
+## Tamanho dos enums — decisão medida 2026-10-16
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/clippy-enums-2026-10-16/before.json.gz conserva fontes/L0, hashes globais, HEAD, working tree não commitado, UTC e diffstat; callers.txt registra usos no workspace. probe-details.json e measurements.json guardam rustc 1.92/x86_64, comandos/binário/rlib e tamanhos/alocações de candidatos isolados antes de código. O enum privado é espelhado fielmente da fonte; os tipos públicos são medidos diretamente do rlib. O observador unsafe existe somente no executável diagnóstico, nunca na camada produtiva. É medição de representação Rust, não igualdade de linguagem, intenção upstream ou prova de ganho global.
+
+### Responsabilidade exclusiva e aceitação
+
+Preservar LayoutPassOutcome::Pending(LayoutCallbackRequests) e Complete(PagedDocument), públicos, diretamente por valor. A busca dos usos produtivos mostra retorno e consumo por match no coordenador, não coleção de outcomes. A sonda Complete-only com documento vazio e black_box mede inline sem alocação contra uma por Complete na candidata Box: 20.000 extras por amostra. O enum é 440 bytes e a candidata 48; o documento de 440 continua existindo separadamente na caixa. Portanto reduzir o discriminated container não é reduzir a memória total do resultado completo. Esta fronteira de resultado único deve continuar direta, sem impor alocação/indireção nova ao caminho Complete. Usar somente #[expect(clippy::large_enum_variant, reason="E002: resultado único de layout por valor; Box adiciona alocação ao Complete, sem reduzir o documento")] no enum. Não supor que esta sonda é benchmark de layout real ou prova sobre todos os workloads.
+
+Fluxo contínuo ADR-0127: esta etapa altera somente representação/constructor privados ao crate e metadados nominais; os contratos externos dos outcomes e entidades permanecem. L0 antes do código, resselo restrito. Gate de tamanho privado RED→GREEN e Clippy large_enum_variant deve confirmar três spans selecionados antes e resolver um com código e dois com expectativas satisfeitas. Não elevar limiar ou silenciar módulo/impl/crate; não estender expectativas a Tag/Transformation ou ao request privado. Preservar fixtures/esperados e testar os controles existentes de outline (incluindo oito casos P1405), contexto/replay, callbacks e pipeline. Validar workspace completo/build/Clippy/expectativas/Rustdoc/fmt/linhagem, sem avisos Tekt novos, sob 12 GiB, swap zero e um job. Tag/Transformation continuam medidos, sem alteração pública autorizada neste pacote.

@@ -1,5 +1,5 @@
 # L0 — infra/font_metrics/caches
-Hash do Código: 74e4321c
+Hash do Código: e559f648
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/font_metrics/caches.rs`
@@ -29,3 +29,41 @@ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/fo
 Run `cargo test -p typst-infra --lib font_metrics:: -- --test-threads=1` when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
+
+
+## Auxiliares de teste e bindings produtivos — 2026-10-14
+
+### Medição anterior à decisão
+
+`03_infra/src/font_metrics/caches.rs` nas linhas [129, 210] apresenta os avisos selecionados.
+`00_nucleo/diagnosticos/ci-helpers-testes-2026-10-14/before.json.gz`
+conserva fonte/owner, HEAD, working tree não commitado, UTC e diffstat.
+references-before.json.gz registra chamadas, imports, módulos e referências;
+o estado da suíte/inventário anterior foi verificado por hashes. A lista de
+testes foi capturada antes da edição. Não se infere inutilidade funcional
+apenas de dead_code: as chamadas privadas e sua compilação foram auditadas.
+
+### Responsabilidade e aceitação
+
+Remover as duas atribuições locais puras variant sem consumidor e seu import exclusivo. axis_variations_for_text_style já chama text_style_to_font_variant internamente e continua sendo usado para o hash de eixos, com as mesmas variações explícitas e precedência. Preservar integralmente campos/chaves, ordem do hash, tamanhos, math, tracking bypass, locks e política de cache. Não substituir estas chamadas por locals com underscore.
+
+Manutenção interna em fluxo contínuo ADR-0127: nenhuma API pública, campo,
+default de produto, fase, dependência ou supressão de lint muda. O gate de
+diagnósticos selecionados deve falhar antes e passar depois; ele não é um
+novo teste funcional nem prova de paridade. Preservar a lista e as expectativas
+dos testes existentes, executar a suíte completa, compilar lib/all-targets,
+verificar build/rustdoc/fmt/linhagem e registrar o inventário total. Não criar
+testes que apenas espelhem cfg ou remoção de bindings. Resselo restrito ao owner.
+
+
+## Inicialização explícita dos fixtures — field_reassign_with_default
+
+### Medição anterior à decisão
+
+`03_infra/src/font_metrics/caches.rs` nas linhas 282, 285 cria defaults e em seguida sobrescreve campos locais de testes. A fonte, os spans e os L0 anteriores estão em `00_nucleo/diagnosticos/field-reassign-2026-10-15/before.json.gz`, com HEAD, working tree, UTC e diffstat; initial-diagnostics.json conserva os inicializadores apontados. Esta manutenção trata representação Rust, sem nova medição de paridade ou mudança no default do produto.
+
+### Responsabilidade e aceitação
+
+Construir style_a e style_b com weight 400 e 700 nos próprios literais TextStyle. Preservar as comparações de axis_hash/chaves e o controle repetido do mesmo peso; não tocar caches, locks ou derivação de variações.
+
+Usar `..Tipo::default()` para os campos restantes e retirar `mut` apenas onde deixam de existir mutações. Sem novos tipos, builders, APIs ou supressões de lint. L0 precede código e resselo restrito (fluxo contínuo ADR-0127). O gate selecionado deve falhar antes e passar depois; preservar nomes, inputs, expectativas e tolerâncias dos testes. Revalidar Clippy all-targets, suíte workspace, build, formato, Rustdoc e linhagem. Não criar testes que apenas espelhem a sintaxe do inicializador.

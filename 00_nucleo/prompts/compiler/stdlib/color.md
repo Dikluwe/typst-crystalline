@@ -1,5 +1,5 @@
 # L0 — stdlib/color
-Hash do Código: 5adad83e
+Hash do Código: c5529a8a
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/color.rs`

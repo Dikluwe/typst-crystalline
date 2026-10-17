@@ -1,38 +1,21 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/p1292_contract.md
-//! @prompt-hash 216ef6a3
+//! @prompt-hash d34bc24b
 //! @layer L4
 //! @updated 2026-09-01
 //!
 //! Testes black-box funcionais das superfícies materializadas no Passo 1292.
 
-use std::env;
+#[path = "../../03_infra/tests/support/wiring/p1292_contract.rs"]
+mod harness;
+
+use harness::{Scratch, SvgTransform};
+
 use std::fs;
 use std::path::PathBuf;
 use std::process::{Command, Output};
 
 const BIN: &str = env!("CARGO_BIN_EXE_typst");
-
-struct Scratch(PathBuf);
-
-impl Scratch {
-    fn new(name: &str) -> Self {
-        let path = env::temp_dir().join(format!(
-            "typst-p1292-{name}-{}-{:?}",
-            std::process::id(),
-            std::thread::current().id(),
-        ));
-        let _ = fs::remove_dir_all(&path);
-        fs::create_dir_all(&path).expect("create P1292 scratch directory");
-        Self(path)
-    }
-}
-
-impl Drop for Scratch {
-    fn drop(&mut self) {
-        let _ = fs::remove_dir_all(&self.0);
-    }
-}
 
 fn eval(expr: &str) -> Output {
     Command::new(BIN)
@@ -137,31 +120,6 @@ fn svg_root_size(svg: &str) -> (f64, f64) {
     let end = svg.find('>').expect("SVG root end");
     let root = &svg[..=end];
     (parse_pt(&tag_attr(root, "width")), parse_pt(&tag_attr(root, "height")))
-}
-
-#[derive(Clone, Copy)]
-struct SvgTransform {
-    a: f64,
-    b: f64,
-    c: f64,
-    d: f64,
-    e: f64,
-    f: f64,
-}
-
-impl SvgTransform {
-    const IDENTITY: Self = Self { a: 1.0, b: 0.0, c: 0.0, d: 1.0, e: 0.0, f: 0.0 };
-
-    fn compose(self, inner: Self) -> Self {
-        Self {
-            a: self.a * inner.a + self.c * inner.b,
-            b: self.b * inner.a + self.d * inner.b,
-            c: self.a * inner.c + self.c * inner.d,
-            d: self.b * inner.c + self.d * inner.d,
-            e: self.a * inner.e + self.c * inner.f + self.e,
-            f: self.b * inner.e + self.d * inner.f + self.f,
-        }
-    }
 }
 
 fn optional_tag_attr<'a>(tag: &'a str, name: &str) -> Option<&'a str> {
@@ -716,13 +674,14 @@ fn p1292_c_vec_gap_finite_auto_absolute_and_mixed() {
     assert_ne!(syntax, none, "delim must affect visible fences");
     let left = compile_svg(
         "vec-align-left",
-        "#set page(width:100pt,height:100pt,margin:10pt)\n$vec(a, wide, align:left)$",
+        "#set page(width:100pt,height:100pt,margin:10pt)\n$vec(a, wide, align:#left)$",
     );
     let right = compile_svg(
         "vec-align-right",
-        "#set page(width:100pt,height:100pt,margin:10pt)\n$vec(a, wide, align:right)$",
+        "#set page(width:100pt,height:100pt,margin:10pt)\n$vec(a, wide, align:#right)$",
     );
     assert_ne!(left, right, "align must change unequal-row placement");
+    assert_error("repr($vec(a, wide, align:left)$)", "unknown variable `left`");
 }
 
 #[test]

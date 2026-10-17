@@ -1,13 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/system-world/fonts.md
-//! @prompt-hash 89f61b34
+//! @prompt-hash 2d11011c
 //! @layer L3
-//! @updated 2026-09-26
+//! @updated 2026-10-07
 
 use super::SystemWorld;
 use crate::fonts::FontSlot;
 use std::path::PathBuf;
-use std::sync::OnceLock;
+use std::sync::{Arc, OnceLock};
 use typst_core::contracts::world::World;
 use typst_core::entities::font_book::{Coverage, FontBook};
 use typst_core::entities::source::Source;
@@ -33,7 +33,7 @@ impl SystemWorld {
     /// `FontBook` fica vazio mas o `SystemWorld` continua funcional.
     pub fn with_system_fonts(mut self) -> Self {
         self.font_catalog = OnceLock::new();
-        self.font_loader = Box::new(crate::fontdb::load_system_fonts);
+        self.font_loader = Box::new(|| Arc::new(crate::fontdb::load_system_fonts()));
         self.coverage_cache.get_mut().unwrap().clear();
         self
     }
@@ -65,44 +65,19 @@ impl SystemWorld {
     pub fn with_fonts_and_system(mut self, font_paths: &[PathBuf]) -> Self {
         let project_paths = font_paths.to_vec();
         self.font_catalog = OnceLock::new();
-        self.font_loader = Box::new(move || {
-            let sets = crate::embedded_fonts::load_embedded_fonts();
-            let mut slots = sets.text_slots;
-            let mut book = sets.text_book;
-
-            let (system_slots, system_book) = crate::fontdb::load_system_fonts();
-            slots.extend(system_slots);
-            for info in system_book.infos() {
-                book.push(info.clone());
-            }
-
-            slots.extend(sets.math_code_slots);
-            for info in sets.math_code_book.infos() {
-                book.push(info.clone());
-            }
-
-            let project_slots = crate::fonts::discover_fonts(&project_paths);
-            let (project_slots, project_book) =
-                crate::fonts::pair_slots_with_book(project_slots);
-            slots.extend(project_slots);
-            for info in project_book.infos() {
-                book.push(info.clone());
-            }
-
-            (slots, book)
-        });
+        self.font_loader = Box::new(move || Arc::new(fresh_catalog(&project_paths)));
         self.coverage_cache.get_mut().unwrap().clear();
         self
     }
 
     fn install_font_catalog(&mut self, catalog: (Vec<FontSlot>, FontBook)) {
-        self.font_catalog = OnceLock::from(catalog);
-        self.font_loader = Box::new(|| (Vec::new(), FontBook::new()));
+        self.font_catalog = OnceLock::from(Arc::new(catalog));
+        self.font_loader = Box::new(|| Arc::new((Vec::new(), FontBook::new())));
         self.coverage_cache.get_mut().unwrap().clear();
     }
 
     pub(super) fn font_catalog(&self) -> &(Vec<FontSlot>, FontBook) {
-        self.font_catalog.get_or_init(|| (self.font_loader)())
+        self.font_catalog.get_or_init(|| (self.font_loader)()).as_ref()
     }
 
     /// **P927/P938** — pré-carrega a coverage das fontes do sistema se o
@@ -205,5 +180,55 @@ impl SystemWorld {
             }
         }
         result
+    }
+}
+
+pub(super) fn fresh_catalog(paths: &[PathBuf]) -> (Vec<FontSlot>, FontBook) {
+    let sets = crate::embedded_fonts::load_embedded_fonts();
+    let system = crate::fontdb::load_system_fonts();
+    let project = crate::fonts::discover_fonts(paths);
+    combine_catalog(sets, system, project)
+}
+pub(super) fn prepared_catalog(
+    prepared: crate::fontdb::generation::PreparedDiscovery,
+) -> (Vec<FontSlot>, FontBook) {
+    let sets = crate::embedded_fonts::load_embedded_fonts();
+    let system = crate::fontdb::catalog_from_database(&prepared.db);
+    combine_catalog(sets, system, prepared.project_slots)
+}
+fn combine_catalog(
+    sets: crate::embedded_fonts::EmbeddedFontSets,
+    system: (Vec<FontSlot>, FontBook),
+    project: Vec<FontSlot>,
+) -> (Vec<FontSlot>, FontBook) {
+    let mut slots = sets.text_slots;
+    let mut book = sets.text_book;
+    slots.extend(system.0);
+    for info in system.1.infos() {
+        book.push(info.clone());
+    }
+    slots.extend(sets.math_code_slots);
+    for info in sets.math_code_book.infos() {
+        book.push(info.clone());
+    }
+    let (project_slots, project_book) = crate::fonts::pair_slots_with_book(project);
+    slots.extend(project_slots);
+    for info in project_book.infos() {
+        book.push(info.clone());
+    }
+    (slots, book)
+}
+impl SystemWorld {
+    /// Captures a session policy without acquiring fonts until first demand.
+    pub fn with_font_catalog_session(
+        mut self,
+        session: Arc<super::FontCatalogSession>,
+        paths: &[PathBuf],
+    ) -> Self {
+        let paths = paths.to_vec();
+        self.font_catalog = OnceLock::new();
+        self.font_loader = Box::new(move || session.catalog(&paths));
+        self.coverage_cache.get_mut().unwrap().clear();
+        self
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/context_block.md
-//! @prompt-hash 9e1179b3
+//! @prompt-hash 357d79a6
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -13,12 +13,21 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     elem: &ContextBlockElem,
 ) {
     if layouter.capture_html_context_markers {
-        let (ascender, _) = layouter
-            .metrics
-            .vertical_metrics(layouter.style.size, &layouter.style);
+        // Sub-frame callers already rebase their physical coordinates. A
+        // private marker follows that same transform, without a second ascent.
+        let origin_y = if layouter.is_sub_frame {
+            0.0
+        } else {
+            layouter
+                .metrics
+                .vertical_metrics(layouter.style.size, &layouter.style)
+                .0
+                 .0
+        };
         let point = Point {
             x: layouter.regions.current.cursor_x,
-            y: layouter.regions.current.cursor_y - ascender,
+            y: layouter.regions.current.cursor_y
+                - crate::entities::layout_types::Pt(origin_y),
         };
         layouter
             .regions
@@ -66,9 +75,15 @@ mod tests {
             )));
             assert_eq!(layouter.regions.current.cursor_x, x);
             assert_eq!(layouter.regions.current.cursor_y, y);
-            assert_eq!(layouter.regions.current.current_line.len(), usize::from(capture));
+            let html_markers: Vec<_> = layouter.regions.current.current_line.iter().filter(|item| {
+                matches!(item, FrameItem::Semantic { alt: Some(alt), .. } if alt.starts_with("\0p1493-context:"))
+            }).collect();
+            assert_eq!(html_markers.len(), usize::from(capture));
+            assert!(!super::super::html_frame::items_have_material(
+                &layouter.regions.current.current_line
+            ));
             if capture {
-                match &layouter.regions.current.current_line[0] {
+                match html_markers[0] {
                     FrameItem::Semantic { alt, items, .. } => {
                         assert_eq!(alt.as_deref(), Some("\0p1493-context:42"));
                         assert_eq!(items.len(), 1);

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/p1431-math-matrix-tests.md
-//! @prompt-hash 00808d70
+//! @prompt-hash 9222efcc
 //! @layer L1
 #![cfg(test)]
 
@@ -91,9 +91,11 @@ fn hash(content: &Content) -> u64 {
     state.finish()
 }
 fn complete() -> Content {
-    let mut stroke = Stroke::default();
-    stroke.thickness = 2.0;
-    stroke.cap = LineCap::Round;
+    let stroke = Stroke {
+        thickness: 2.0,
+        cap: LineCap::Round,
+        ..Stroke::default()
+    };
     let mut args = Args::positional(vec![
         Value::Array(vec![cv("a"), cv("b")]),
         Value::Array(vec![cv("c")]),
@@ -109,7 +111,7 @@ fn complete() -> Content {
         dict(vec![
             ("hline", Value::Array(vec![Value::Int(1), Value::Int(-1)])),
             ("vline", Value::Array(vec![Value::Int(2), Value::Int(1)])),
-            ("stroke", Value::Stroke(stroke)),
+            ("stroke", Value::from(stroke)),
         ]),
     );
     args.named
@@ -223,13 +225,15 @@ fn p1431_igualdade_e_hash_discriminam_campos_e_presenca() {
         let mut args = Args::positional(vec![cv("x")]);
         args.named.insert(
             "augment".into(),
-            dict(vec![(field, Value::Array(offsets)), ("stroke", Value::Stroke(stroke))]),
+            dict(vec![(field, Value::Array(offsets)), ("stroke", Value::from(stroke))]),
         );
         call(args)
     };
-    let mut round = Stroke::default();
-    round.thickness = 1.0;
-    round.cap = LineCap::Round;
+    let round = Stroke {
+        thickness: 1.0,
+        cap: LineCap::Round,
+        ..Stroke::default()
+    };
     let mut square = round.clone();
     square.cap = LineCap::Square;
     let mut thick = round.clone();

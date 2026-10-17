@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/raster
-Hash do Código: aff33680
+Hash do Código: abec53af
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/pipeline/raster.rs`
@@ -34,3 +34,8 @@ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/pi
 Verify this unit through its existing family/CLI tests when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
+
+
+## Preparação de bindings de exportação — 2026-10-05
+
+Medição: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/probe.txt`. Consumir helper privado resolve_export_fonts: fontes originais vinculadas, com gate de instanciação existente. Instanciação fica no consumidor exportador, na mesma fase de render/export, preservando diagnósticos/API/seleção de páginas. O nome antigo prometia bytes já instanciados e não descreve este contrato.

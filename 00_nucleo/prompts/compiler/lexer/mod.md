@@ -1,6 +1,6 @@
 # L0 — lexer/mod
+Hash do Código: 3fecf689
 
-Hash do Código: 33a1fe9b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/lexer/mode-boundaries.toml sha256:aae80d538980eeec87b884712269e3b777fe44c0dae6b3503b5fa9ee4f9ad76f
@@ -42,3 +42,16 @@ Quote localization and evaluation are not lexer responsibilities.
 Acceptance covers universal precedence, nested comments, lossless token
 boundaries, mode isolation, newline/column behavior and pending diagnostics.
 Do not infer language parity from matching tokenization code.
+
+
+## Nomes de domínio e traits Rust — 2026-10-16
+
+### Medição anterior à decisão
+
+Lexer.next aparece no inventário Clippy de 13 avisos. A assinatura e o corpo vigentes foram lidos antes desta decisão; snapshot 00_nucleo/diagnosticos/clippy-traits-formatacao-2026-10-16/before.json.gz conserva fontes/L0 completos, hashes globais, HEAD, working tree não commitado, UTC e diffstat. O contrato de retorno difere do trait sugerido. É comparação de interfaces Rust, sem nova medição de paridade ou benefício de leitura por IA.
+
+### Responsabilidade exclusiva e aceitação
+
+Preservar next(&mut self) -> (SyntaxKind, SyntaxNode), token End explícito inclusive em chamadas repetidas ao fim, erros/newline e mudança de modo pelo parser. Não implementar Iterator nem alterar o retorno para Option. Corrigir somente a descrição do tipo para tokenizer com sentinela explícita; next recebe expectativa nominal de should_implement_trait.
+
+Usar somente #[expect(clippy::should_implement_trait, reason="S001: tokenizer com token End explícito e modo/cursor controlados pelo parser; retorno não é Option")] sobre o método nomeado. Não suprimir módulo/impl/crate, elevar limiar ou estender a exceção a Styles::from_iter. Implementar o trait proposto aqui exigiria contrato novo ou semântica diferente; a exceção preserva o contrato existente. Fluxo contínuo ADR-0127 para metadados/documentação, sem API, default ou fase novos. L0 primeiro e resselo restrito; RED do lint e GREEN incluindo unfulfilled_lint_expectations como erro; preservar corpos e usar os testes funcionais existentes sem alterar esperados. Validar workspace/build/Clippy/doc/fmt/linhagem sob 12 GiB, swap zero e um job.

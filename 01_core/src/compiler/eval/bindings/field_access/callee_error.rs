@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access/callee_error.md
-//! @prompt-hash ff776f1f
+//! @prompt-hash a95dd40e
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -15,7 +15,43 @@ pub(super) fn element_or_type_with_name(value: &Value) -> (&'static str, String)
     match value {
         Value::Content(c) => ("element", c.elem_name().to_string()),
         Value::LocatedContent(c, _) => ("element", c.content().elem_name().to_string()),
-        _ => ("type", vanilla_type_name(value).to_string()),
+        Value::None
+        | Value::Bool(_)
+        | Value::Int(_)
+        | Value::Float(_)
+        | Value::Str(_)
+        | Value::Array(_)
+        | Value::Dict(_)
+        | Value::Module(_)
+        | Value::Datetime(_)
+        | Value::Func(_)
+        | Value::Auto
+        | Value::Length(_)
+        | Value::Relative(_)
+        | Value::Ratio(_)
+        | Value::Angle(_)
+        | Value::Color(_)
+        | Value::Stroke(_)
+        | Value::Fraction(_)
+        | Value::Align(_)
+        | Value::Location(_)
+        | Value::Gradient(_)
+        | Value::Regex(_)
+        | Value::Tiling(_)
+        | Value::Bytes(_)
+        | Value::Decimal(_)
+        | Value::Duration(_)
+        | Value::Version(_)
+        | Value::Selector(_)
+        | Value::Symbol(_)
+        | Value::Args(_)
+        | Value::State(_)
+        | Value::Counter(_)
+        | Value::Label(_)
+        | Value::Dir(_)
+        | Value::Path(_)
+        | Value::Type(_)
+        | Value::SpotColorant(_) => ("type", vanilla_type_name(value).to_string()),
     }
 }
 
@@ -31,6 +67,7 @@ pub(super) fn element_or_type_with_name(value: &Value) -> (&'static str, String)
 ///   - dict → `cannot directly call dictionary keys as functions` + 2 hints;
 ///   - args → `cannot directly call named argument fields as functions` + 2 hints;
 ///   - outros → `` `{field}` is not a valid method for {kind} `{name}` `` + hint.
+///
 ///   O primeiro hint muda se o valor guardado for função:
 ///   `to call the stored function, wrap the field access in parentheses:
 ///   `({full_text})(..)`` — senão `to access the `{field}` {key|argument|
@@ -115,6 +152,43 @@ pub(in crate::compiler::eval) fn field_callee_error(
                 span,
                 format!("{kind} {name} has no method `{field}`"),
             )])
+        }
+    }
+}
+
+#[cfg(test)]
+mod v16_projection_tests {
+    use super::*;
+    use crate::entities::content::Content;
+    use crate::entities::locator::Locator;
+    use crate::entities::value::IntrospectedContent;
+
+    #[test]
+    fn v16_value_projection_callee_diagnostics_keep_element_identity_and_long_names() {
+        let heading = Content::heading(1, Content::text("Title"));
+        let mut locator = Locator::new();
+        for value in [
+            Value::Content(heading.clone()),
+            Value::LocatedContent(
+                IntrospectedContent::new(heading, None),
+                locator.next(),
+            ),
+        ] {
+            assert_eq!(
+                element_or_type_with_name(&value),
+                ("element", "heading".to_string())
+            );
+        }
+        for (value, name) in [
+            (Value::Bool(false), "boolean"),
+            (Value::Int(3), "integer"),
+            (Value::Str("x".into()), "string"),
+            (Value::None, "none"),
+            (Value::Auto, "auto"),
+            (Value::Float(1.5), "float"),
+            (Value::Array(vec![]), "array"),
+        ] {
+            assert_eq!(element_or_type_with_name(&value), ("type", name.to_string()));
         }
     }
 }

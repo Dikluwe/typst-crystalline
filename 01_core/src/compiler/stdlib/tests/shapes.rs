@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/tests/shapes.md
-//! @prompt-hash ef51269e
+//! @prompt-hash 4406bfef
 //! @layer L1
-//! @updated 2026-09-26
+//! @updated 2026-10-08
 
 use super::*;
 
@@ -60,7 +60,7 @@ fn p1221_rect_preserva_stroke_rico_com_fill() {
     let mut args = Args::positional(vec![]);
     args.named
         .insert("fill".into(), Value::Color(Color::rgb(255, 65, 54)));
-    args.named.insert("stroke".into(), Value::Stroke(expected.clone()));
+    args.named.insert("stroke".into(), Value::from(expected.clone()));
     let result = native_rect(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     let Value::Content(Content::Shape(shape)) = result else { panic!("esperado shape") };
     assert_eq!(shape.stroke, Some(expected));
@@ -207,7 +207,7 @@ fn p1221_line_preserva_stroke_rico() {
         ..Stroke::default()
     };
     let mut args = Args::positional(vec![]);
-    args.named.insert("stroke".into(), Value::Stroke(expected.clone()));
+    args.named.insert("stroke".into(), Value::from(expected.clone()));
     let result = native_line(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     let Value::Content(Content::Shape(shape)) = result else { panic!("esperado shape") };
     assert_eq!(shape.stroke, Some(expected));
@@ -312,7 +312,7 @@ fn polygon_sem_pontos_gera_erro() {
 
 #[test]
 fn polygon_com_um_ponto_gera_moveto_e_closepath() {
-    use crate::entities::geometry::{PathItem, ShapeKind};
+    use crate::entities::geometry::PathItem;
     use crate::entities::layout_types::Length;
     null_ctx!(ctx);
     // P734 — vértices são Length (paridade vanilla); números rejeitados.
@@ -338,7 +338,7 @@ fn polygon_com_um_ponto_gera_moveto_e_closepath() {
 
 #[test]
 fn polygon_triangulo_gera_moveto_lineto_lineto_closepath() {
-    use crate::entities::geometry::{PathItem, ShapeKind};
+    use crate::entities::geometry::PathItem;
     use crate::entities::layout_types::Length;
     null_ctx!(ctx);
     // P734 — vértices são Length (paridade vanilla); números rejeitados.
@@ -543,7 +543,7 @@ fn p734_curve_tuplos_com_numeros_sem_regressao() {
 fn p293_curve_move_line_basico() {
     // curve com move + line + close — equivalente a polygon mas via
     // sintaxe descritiva ("move"/"line"/"close").
-    use crate::entities::geometry::{PathItem, ShapeKind};
+    use crate::entities::geometry::PathItem;
     null_ctx!(ctx);
     let args = Args::positional(vec![
         Value::Array(vec![
@@ -576,7 +576,7 @@ fn p293_curve_cubic_activa_pathitem_cubicto() {
     // stdlib (H6 descoberta empírica A.0.0). Pré-P293, nenhuma
     // stdlib construía CubicTo (apenas P277 `path_bbox` consume +
     // emit já existia em export.rs).
-    use crate::entities::geometry::{PathItem, ShapeKind};
+    use crate::entities::geometry::PathItem;
     null_ctx!(ctx);
     let args = Args::positional(vec![
         Value::Array(vec![
@@ -611,7 +611,7 @@ fn p293_curve_cubic_activa_pathitem_cubicto() {
 fn p293_curve_cubic_preserva_control_points() {
     // Verificar literalmente que c1/c2/end são preservados na ordem
     // certa no PathItem::CubicTo construído.
-    use crate::entities::geometry::{PathItem, ShapeKind};
+    use crate::entities::geometry::PathItem;
     null_ctx!(ctx);
     let args = Args::positional(vec![Value::Array(vec![
         Value::Str("cubic".into()),
@@ -674,7 +674,7 @@ fn p294_curve_quadratic_aplica_formula_q2c_exacta() {
     // P0 = (0, 0), Q = (10, 20), P2 = (30, 40)
     // C1 = (P0 + 2Q) / 3 = (20/3, 40/3)
     // C2 = (P2 + 2Q) / 3 = (50/3, 80/3)
-    use crate::entities::geometry::{PathItem, ShapeKind};
+    use crate::entities::geometry::PathItem;
     null_ctx!(ctx);
     let args = Args::positional(vec![
         Value::Array(vec![
@@ -710,7 +710,7 @@ fn p294_curve_quadratic_aplica_formula_q2c_exacta() {
 fn p294_curve_quadratic_sem_move_anterior_usa_origem() {
     // Caso fronteira: quadratic antes de qualquer move.
     // last_point fallback (0,0); curva é válida.
-    use crate::entities::geometry::{PathItem, ShapeKind};
+    use crate::entities::geometry::PathItem;
     null_ctx!(ctx);
     let args = Args::positional(vec![Value::Array(vec![
         Value::Str("quadratic".into()),
@@ -748,7 +748,7 @@ fn p294_curve_quadratic_aridade_errada_retorna_err() {
 fn p294_curve_quadratic_encadeada_actualiza_last_point() {
     // Duas quadratics consecutivas: a segunda usa o end da primeira
     // como P0 (last_point).
-    use crate::entities::geometry::{PathItem, ShapeKind};
+    use crate::entities::geometry::PathItem;
     null_ctx!(ctx);
     let args = Args::positional(vec![
         Value::Array(vec![
@@ -786,7 +786,7 @@ fn p294_curve_quadratic_encadeada_actualiza_last_point() {
 
 #[test]
 fn p294_curve_quadratic_e_cubic_misturados() {
-    use crate::entities::geometry::{PathItem, ShapeKind};
+    use crate::entities::geometry::PathItem;
     null_ctx!(ctx);
     let args = Args::positional(vec![
         Value::Array(vec![
@@ -1175,5 +1175,105 @@ fn p1455_parse_color_nao_reintroduz_catalogo_string() {
         "ultraviolet",
     ] {
         assert_eq!(parse_color(&Value::Str(name.into())), None, "string {name}");
+    }
+}
+
+fn stroke_paint_shape_fixture() -> crate::entities::gradient::Gradient {
+    use crate::entities::gradient::{Gradient, GradientStop};
+    Gradient::linear(
+        vec![
+            GradientStop::unspaced(Color::rgb(255, 65, 54)),
+            GradientStop::unspaced(Color::rgb(0, 116, 217)),
+        ],
+        Angle::rad(0.0),
+    )
+}
+
+#[test]
+fn stroke_paint_shapes_direct_preserve_gradient_and_tiling() {
+    use crate::entities::{
+        paint::Paint,
+        tiling::{Tiling, TilingBody},
+    };
+    null_ctx!(ctx);
+    let g = stroke_paint_shape_fixture();
+    let t = Tiling::new(TilingBody::Color(Color::rgb(255, 65, 54)));
+    for (input, paint) in [
+        (Value::Gradient(g.clone()), Paint::Gradient(g)),
+        (Value::Tiling(Arc::new(t.clone())), Paint::Tiling(t)),
+    ] {
+        let args = pn(vec![], "stroke", input);
+        for result in [
+            native_rect(&mut ctx, &args, &null_world(), test_file_id()),
+            native_ellipse(&mut ctx, &args, &null_world(), test_file_id()),
+            native_circle(&mut ctx, &args, &null_world(), test_file_id()),
+        ] {
+            let Value::Content(Content::Shape(shape)) = result.unwrap() else {
+                panic!("shape")
+            };
+            let stroke = shape.stroke.as_ref().expect("explicit stroke");
+            assert_eq!(stroke.paint, paint);
+            assert_eq!(stroke.thickness, 1.0);
+            assert!(stroke.specified.paint);
+        }
+    }
+}
+
+#[test]
+fn stroke_paint_uniform_dictionary_preserves_rich_fields() {
+    use crate::entities::{geometry::LineCap, paint::Paint};
+    null_ctx!(ctx);
+    let gradient = stroke_paint_shape_fixture();
+    let mut dict = IndexMap::with_hasher(FxBuildHasher);
+    dict.insert("paint".into(), Value::Gradient(gradient.clone()));
+    dict.insert("thickness".into(), Value::Length(Length::pt(12.0)));
+    dict.insert("cap".into(), Value::Str("round".into()));
+    let mut args = pn(vec![], "stroke", Value::Dict(dict));
+    args.named.insert("width".into(), Value::Length(Length::pt(40.0)));
+    for result in [
+        native_rect(&mut ctx, &args, &null_world(), test_file_id()),
+        native_square(&mut ctx, &args, &null_world(), test_file_id()),
+    ] {
+        let Value::Content(Content::Shape(shape)) = result.unwrap() else {
+            panic!("shape")
+        };
+        let stroke = shape.stroke.as_ref().expect("explicit stroke");
+        assert_eq!(stroke.paint, Paint::Gradient(gradient.clone()));
+        assert_eq!(stroke.thickness, 12.0);
+        assert_eq!(stroke.cap, LineCap::Round);
+        assert!(
+            stroke.specified.paint && stroke.specified.thickness && stroke.specified.cap
+        );
+    }
+}
+
+#[test]
+fn stroke_paint_empty_dictionary_disables_rect_and_square_contour() {
+    null_ctx!(ctx);
+    let mut args =
+        pn(vec![], "stroke", Value::Dict(IndexMap::with_hasher(FxBuildHasher)));
+    args.named.insert("width".into(), Value::Length(Length::pt(40.0)));
+    for result in [
+        native_rect(&mut ctx, &args, &null_world(), test_file_id()),
+        native_square(&mut ctx, &args, &null_world(), test_file_id()),
+    ] {
+        let Value::Content(Content::Shape(shape)) = result.unwrap() else {
+            panic!("shape")
+        };
+        assert!(shape.stroke.is_none());
+        assert!(shape.fill.is_none());
+    }
+}
+
+#[test]
+fn stroke_paint_invalid_uniform_dictionary_is_not_discarded() {
+    null_ctx!(ctx);
+    for (key, value) in
+        [("paint", Value::Int(42)), ("wrong", Value::Length(Length::pt(2.0)))]
+    {
+        let mut dict = IndexMap::with_hasher(FxBuildHasher);
+        dict.insert(key.into(), value);
+        let args = pn(vec![], "stroke", Value::Dict(dict));
+        assert!(native_rect(&mut ctx, &args, &null_world(), test_file_id()).is_err());
     }
 }

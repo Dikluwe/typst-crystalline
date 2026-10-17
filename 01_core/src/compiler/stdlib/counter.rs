@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/counter.md
-//! @prompt-hash d045ed41
+//! @prompt-hash 0a0bc68f
 //! @layer L1
-//! @updated 2026-08-13
+//! @updated 2026-10-06
 //!
 //! `counter(selector)` como valor de primeira classe + métodos `.update()`,
 //! `.step()`, `.get()`, `.display()` e `.at()`. P506 — runtime state via
@@ -45,15 +45,33 @@ pub fn native_counter(
     use std::ptr::fn_addr_eq;
 
     super::expect_no_named(&args.named)?;
+    let value_span = args
+        .occurrences
+        .as_ref()
+        .and_then(|items| items.iter().find(|item| item.name.is_none()))
+        .map(|item| item.value_span)
+        .filter(|span| !span.is_detached())
+        .unwrap_or(args.span);
     match args.items.as_slice() {
         [Value::Str(key)] => {
             Ok(Value::Counter(Counter { key: CounterKey::Str(key.clone()) }))
         }
         [Value::Selector(selector)] => {
+            crate::compiler::eval::bindings::validate_element_locatability(
+                selector, value_span,
+            )?;
             let key = selector_to_key(selector)?;
             Ok(Value::Counter(Counter { key }))
         }
         [Value::Func(f)] => {
+            if f.native_fn_addr().is_some_and(|addr| {
+                fn_addr_eq(addr, super::native_table_cell as fn(_, _, _, _) -> _)
+            }) {
+                crate::compiler::eval::bindings::validate_element_locatability(
+                    &Selector::NativeElement(f.clone()),
+                    value_span,
+                )?;
+            }
             let key = if f.name() == Some("page") {
                 Some(CounterKey::Page)
             } else {
@@ -76,9 +94,7 @@ pub fn native_counter(
             };
             match key {
                 Some(k) => Ok(Value::Counter(Counter { key: k })),
-                None => err(format!(
-                    "counter() requer string, selector ou função de elemento, recebeu function"
-                )),
+                None => err("counter() requer string, selector ou função de elemento, recebeu function".to_string()),
             }
         }
         [other] => err(format!(
@@ -98,7 +114,7 @@ fn selector_to_key(selector: &Selector) -> SourceResult<CounterKey> {
         return Ok(CounterKey::Selector(selector.clone()));
     }
     match selector {
-        Selector::Element { .. } => {
+        Selector::NativeElement(_) | Selector::Element { .. } => {
             unreachable!("Element handled without reducing its key")
         }
         Selector::Kind(kind) => Ok(CounterKey::Selector(Selector::Kind(*kind))),
@@ -383,9 +399,21 @@ fn page_counter_value(
     if !matches!(counter.key, CounterKey::Page) {
         return None;
     }
+    if let Some(values) = ctx.introspector.page_counter_values.get(&location) {
+        return Some(values.clone());
+    }
     let physical = ctx.introspector.page(location)?;
     let logical = ctx.introspector.page_store.logical_number_for_page(physical)?;
     Some(vec![logical])
+}
+
+fn page_counter_final_value(counter: &Counter, ctx: &EvalContext) -> Option<Vec<usize>> {
+    if !matches!(counter.key, CounterKey::Page) {
+        return None;
+    }
+    ctx.current_location.and_then(|location| {
+        ctx.introspector.page_counter_final_values.get(&location).cloned()
+    })
 }
 
 pub fn counter_get(
@@ -447,20 +475,6 @@ pub fn counter_at(
     )
 }
 
-/// **P844** (achado #50 de P831) — Resolve `.at(location)` —
-/// paridade vanilla `Counter::at` com `Location` directa
-/// (`introspection/counter.rs:452`). Medido no vanilla 0.15.0
-/// (`temp/p844/a4_counter_at_location.typ`): após 3 headings com
-/// numbering, `counter(heading).at(here())` → `(3,)`; sem updates
-/// prévios → `(0,)` (fallback `[0]`, como `counter_get`).
-pub fn counter_at_location(
-    counter: &Counter,
-    location: crate::entities::location::Location,
-    ctx: &EvalContext,
-) -> SourceResult<Value> {
-    counter_at_location_recorded(counter, location, ctx, Span::detached())
-}
-
 fn counter_at_location_recorded(
     counter: &Counter,
     location: crate::entities::location::Location,
@@ -498,7 +512,11 @@ pub fn counter_final(
             "can only be used when context is known".to_string(),
         )]);
     }
-    let values = ctx.introspector.counter_final_values(&counter.key).unwrap_or(&[0]);
+    let page_values = page_counter_final_value(counter, ctx);
+    let values = page_values
+        .as_deref()
+        .or_else(|| ctx.introspector.counter_final_values(&counter.key))
+        .unwrap_or(&[0]);
     ctx.observe_context_read(
         crate::compiler::eval::ContextReadRequest::CounterFinal {
             key: counter.key.clone(),
@@ -508,12 +526,12 @@ pub fn counter_final(
     )
 }
 
-/// Aplica um pattern simples de numbering ao slice de counters.
-///
-/// **P844** — removido o stub "Pattern minimal" que aqui existia:
-/// `counter.display(pattern)` usa agora
-/// `super::numbering::format_pattern` (P793), partilhado com
-/// `numbering()`.
+// Aplica um pattern simples de numbering ao slice de counters.
+//
+// **P844** — removido o stub "Pattern minimal" que aqui existia:
+// `counter.display(pattern)` usa agora
+// `super::numbering::format_pattern` (P793), partilhado com
+// `numbering()`.
 
 // ── Nativas globais absorvidas de `foundations.rs` no Passo 1032 ────────────
 

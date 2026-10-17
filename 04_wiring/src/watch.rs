@@ -1,10 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/watch.md
-//! @prompt-hash c6e6a962
+//! @prompt-hash a31e4815
 //! @layer L4
-//! @updated 2026-09-26
+//! @updated 2026-10-08
 
-use super::{compile::run_compile_observed, eviction, Published};
+use super::{compile::run_compile_observed_with_sessions, eviction, Published};
 use std::path::Path;
 use std::process::ExitCode;
 use std::time::{Duration, Instant};
@@ -49,6 +49,8 @@ pub(super) fn run_watch(intent: WatchIntent) -> ExitCode {
         std::process::id()
     ));
 
+    let font_session = std::sync::Arc::new(typst_infra::world::FontCatalogSession::new());
+    let source_session = std::sync::Arc::new(typst_infra::world::SourceSession::new());
     loop {
         let mut compile = intent.compile.clone();
         compile.output = staging.clone();
@@ -59,8 +61,12 @@ pub(super) fn run_watch(intent: WatchIntent) -> ExitCode {
                 watch_status_for_outcome(exit_code, has_warnings, started.elapsed());
             emit_watch_block(&watch_block_now(&status));
         };
-        let (exit_code, dependencies, _, published) =
-            run_compile_observed(compile, &mut report_status);
+        let (exit_code, dependencies, _, published) = run_compile_observed_with_sessions(
+            compile,
+            &mut report_status,
+            Some(font_session.clone()),
+            Some(source_session.clone()),
+        );
         let dependencies = if dependencies.is_empty() {
             vec![intent.compile.input.clone()]
         } else {
@@ -85,12 +91,10 @@ pub(super) fn run_watch(intent: WatchIntent) -> ExitCode {
                     return ExitCode::from(2);
                 }
             }
+        } else if intent.compile.output_format == OutputFormat::Bundle {
+            armed.abandon_directory(&staging)
         } else {
-            if intent.compile.output_format == OutputFormat::Bundle {
-                armed.abandon_directory(&staging)
-            } else {
-                armed.abandon(&staging)
-            }
+            armed.abandon(&staging)
         };
 
         if exit_code == ExitCode::SUCCESS {

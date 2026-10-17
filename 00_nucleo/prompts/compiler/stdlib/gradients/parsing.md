@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/gradients/parsing
-Hash do Código: 6c17accb
+Hash do Código: 6183e132
 
 ## Ownership e medição
 

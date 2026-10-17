@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch/call_spans.md
-//! @prompt-hash 37faa43c
+//! @prompt-hash 455ad2d2
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -44,12 +44,12 @@ impl FloatIsNanCallSpans {
                 self.positional.first().copied().unwrap_or(args.span)
             }
         } else {
-            match args.items.len() {
-                0 => self.call,
-                1 if !self.has_spread => {
+            match args.items.as_slice() {
+                [] => self.call,
+                [_] if !self.has_spread => {
                     self.positional.first().copied().unwrap_or(args.span)
                 }
-                2.. if !self.has_spread => {
+                [_, _, ..] if !self.has_spread => {
                     self.positional.get(1).copied().unwrap_or(args.span)
                 }
                 _ => args.span,
@@ -156,10 +156,10 @@ impl P1293MathCallSpans {
 
         match identity {
             P1293MathNative::Attach => {
-                match args.items.len() {
-                    0 => return self.call,
-                    2.. => return self.positional(1, args.span),
-                    _ => {}
+                match args.items.as_slice() {
+                    [] => return self.call,
+                    [_, _, ..] => return self.positional(1, args.span),
+                    [_] => {}
                 }
                 if !Self::structural_content(&args.items[0]) {
                     return self.positional(0, args.span);
@@ -201,10 +201,10 @@ impl P1293MathCallSpans {
                 if let Some((name, _)) = args.named.first() {
                     return self.named_full(name, args.span);
                 }
-                match args.items.len() {
-                    0 => return self.call,
-                    2.. => return self.positional(1, args.span),
-                    _ => {}
+                match args.items.as_slice() {
+                    [] => return self.call,
+                    [_, _, ..] => return self.positional(1, args.span),
+                    [_] => {}
                 }
                 if !Self::style_content(&args.items[0]) {
                     return self.positional(0, args.span);
@@ -221,10 +221,10 @@ impl P1293MathCallSpans {
                         return self.named_value("cramped", args.span);
                     }
                 }
-                match args.items.len() {
-                    0 => return self.call,
-                    2.. => return self.positional(1, args.span),
-                    _ => {}
+                match args.items.as_slice() {
+                    [] => return self.call,
+                    [_, _, ..] => return self.positional(1, args.span),
+                    [_] => {}
                 }
                 if !Self::style_content(&args.items[0]) {
                     return self.positional(0, args.span);
@@ -329,6 +329,117 @@ impl P1293HtmlCallSpans {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn v18_float_anchors_cardinality_and_precedence() {
+        let capture = |has_spread| FloatIsNanCallSpans {
+            call: span(1),
+            positional: vec![span(2), span(3), span(4), span(5)],
+            named: IndexMap::default(),
+            has_spread,
+        };
+        for (count, bound, spread, expected) in [
+            (0, false, false, 1),
+            (0, false, true, 1),
+            (0, true, false, 9),
+            (0, true, true, 9),
+            (1, false, false, 2),
+            (1, false, true, 9),
+            (1, true, false, 2),
+            (1, true, true, 9),
+            (2, false, false, 3),
+            (2, false, true, 9),
+            (2, true, false, 2),
+            (2, true, true, 9),
+            (4, false, false, 3),
+            (4, false, true, 9),
+            (4, true, false, 2),
+            (4, true, true, 9),
+        ] {
+            let args = Args::from_parts(
+                vec![Value::Int(0); count],
+                IndexMap::default(),
+                span(9),
+            );
+            assert_eq!(capture(spread).anchor(&args, bound), span(expected));
+        }
+        for bound in [false, true] {
+            for spread in [false, true] {
+                let mut captured = capture(spread);
+                captured.named.insert("value".into(), span(6));
+                let mut named = IndexMap::default();
+                named.insert("value".into(), Value::Int(0));
+                let args = Args::from_parts(vec![], named, span(9));
+                assert_eq!(captured.anchor(&args, bound), span(6));
+            }
+        }
+        let mut missing = capture(false);
+        missing.positional.clear();
+        for count in [1, 2] {
+            let args = Args::from_parts(
+                vec![Value::Int(0); count],
+                IndexMap::default(),
+                span(9),
+            );
+            assert_eq!(missing.anchor(&args, false), span(9));
+        }
+    }
+
+    #[test]
+    fn v18_math_anchors_cardinality_and_precedence() {
+        let capture = |has_spread| P1293MathCallSpans {
+            call: span(1),
+            positional: vec![span(2), span(3), span(4), span(5)],
+            named: IndexMap::default(),
+            has_spread,
+        };
+        for identity in
+            [P1293MathNative::Attach, P1293MathNative::Mono, P1293MathNative::Script]
+        {
+            for (count, expected) in [(0, 1), (1, 9), (2, 3), (4, 3)] {
+                let args = Args::from_parts(
+                    vec![Value::Str("x".into()); count],
+                    IndexMap::default(),
+                    span(9),
+                );
+                assert_eq!(capture(false).anchor(identity, &args), span(expected));
+                assert_eq!(capture(true).anchor(identity, &args), span(9));
+            }
+            let args =
+                Args::from_parts(vec![Value::Int(1)], IndexMap::default(), span(9));
+            assert_eq!(capture(false).anchor(identity, &args), span(2));
+        }
+        for (identity, count, name, value, expected) in [
+            (P1293MathNative::Attach, 0, "unknown", Value::Int(1), 1),
+            (P1293MathNative::Attach, 2, "unknown", Value::Int(1), 3),
+            (P1293MathNative::Attach, 1, "unknown", Value::Int(1), 6),
+            (P1293MathNative::Attach, 1, "t", Value::Int(1), 7),
+            (P1293MathNative::Mono, 0, "unknown", Value::Int(1), 6),
+            (P1293MathNative::Mono, 2, "unknown", Value::Int(1), 6),
+            (P1293MathNative::Script, 0, "unknown", Value::Int(1), 6),
+            (P1293MathNative::Script, 2, "unknown", Value::Int(1), 6),
+            (P1293MathNative::Script, 0, "cramped", Value::Int(1), 7),
+            (P1293MathNative::Script, 2, "cramped", Value::Int(1), 7),
+            (P1293MathNative::Script, 0, "cramped", Value::Bool(true), 1),
+            (P1293MathNative::Script, 2, "cramped", Value::Bool(true), 3),
+        ] {
+            for spread in [false, true] {
+                let mut captured = capture(spread);
+                captured.named.insert(
+                    name.into(),
+                    P1293NamedSpan { full: span(6), value: span(7) },
+                );
+                let mut named = IndexMap::default();
+                named.insert(name.into(), value.clone());
+                let args =
+                    Args::from_parts(vec![Value::Str("x".into()); count], named, span(9));
+                assert_eq!(
+                    captured.anchor(identity, &args),
+                    span(if spread { 9 } else { expected })
+                );
+            }
+        }
+    }
+
     use super::*;
     use std::num::NonZeroU16;
 

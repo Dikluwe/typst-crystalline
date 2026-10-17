@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/sequence.md
-//! @prompt-hash 8f551d89
+//! @prompt-hash af67beef
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 //!
 //! Layout de `Content::Sequence` — iteração peekable com sticky
 //! lookahead e spacing collapse. Extraído de `layout/mod.rs` no P425
@@ -23,7 +23,6 @@ use self::fractional_preflight::fractional_region_remaining;
 use self::fractional_preflight::{
     fractional_block, fractional_preflight, fractional_share, FractionalRegionBasis,
 };
-use self::inline_prefix::InlinePrefixRuntime;
 #[cfg(test)]
 use self::inline_prefix::{
     p1380_inline_safe_styles, p1380_is_unwrapped, p1389_single_word,
@@ -41,7 +40,14 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
     parts: &[Content],
 ) {
-    if !layouter.paragraph_planning_suppressed
+    let needs_bidi = layouter.bidi_cursor.is_some()
+        || parts.split(|p| matches!(p, Content::Parbreak)).any(|p| {
+            super::paragraph::shared_direction(p, &layouter.chain)
+                .and_then(|d| super::bidi_origin::prepare(layouter, p, d))
+                .is_some()
+        });
+    if !needs_bidi
+        && !layouter.paragraph_planning_suppressed
         && super::paragraph_plan::try_parts(layouter, parts)
     {
         return;
@@ -59,6 +65,7 @@ pub(super) fn layout_segmented_region<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
     content: &Content,
 ) {
+    let content = content.source_body();
     if let Content::Styled(styled) = content {
         let body = &styled.body;
         let styles = &styled.styles;
@@ -78,7 +85,7 @@ fn layout_segmented_unstyled<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
     content: &Content,
 ) {
-    match content {
+    match content.source_body() {
         Content::Sequence(parts) => {
             layout_parts(layouter, parts, FractionalRegionBasis::CursorRemaining)
         }
@@ -98,18 +105,59 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
     parts: &[Content],
     basis: FractionalRegionBasis,
 ) {
+    let saved_text_segment = layouter.text_segment_chain.clone();
+    let saved_geometric_lines = layouter.geometric_text_lines;
+    if !super::html_frame::items_have_causal_line(&layouter.regions.current.current_line)
+    {
+        layouter.text_segment_chain = Some(layouter.chain.clone());
+    }
+    let enclosing_dir = layouter.active_paragraph_dir;
+    let enclosing_scope = layouter.bidi_scope_active;
+    layouter.bidi_scope_active = true;
     let saved_below = layouter.prev_block_below_pending;
     let saved_chain = layouter.block_chain_active;
     let saved_descent = layouter.prev_block_equation_descent;
     let saved_fractional_height = layouter.fractional_block_height;
     let distribution = fractional_preflight(layouter, parts, basis);
+    if let Some(prefix) =
+        distribution.and_then(|(_, _, prefix)| prefix).filter(|p| p.multiline)
+    {
+        layouter.geometric_text_lines = true;
+        layouter.text_segment_chain =
+            super::paragraph::shared_chain(&parts[..prefix.block_index], &layouter.chain);
+    }
     let terminal_flow_index = parts.iter().rposition(|part| {
         !matches!(part, Content::Space | Content::SpaceFromNewline | Content::Empty)
     });
 
     let mut iter = parts.iter().peekable();
     let mut part_index = 0usize;
+    let mut text_segment_start = 0usize;
+    let mut owns_text_segment = !super::html_frame::items_have_causal_line(
+        &layouter.regions.current.current_line,
+    );
     while let Some(part) = iter.next() {
+        if enclosing_dir.is_none()
+            && (part_index == 0
+                || matches!(
+                    parts[part_index - 1],
+                    Content::Parbreak | Content::SetPage(_)
+                ))
+        {
+            let end = parts[part_index..]
+                .iter()
+                .position(|p| matches!(p, Content::Parbreak | Content::SetPage(_)))
+                .map_or(parts.len(), |n| part_index + n);
+            layouter.active_paragraph_dir = super::paragraph::shared_direction(
+                &parts[part_index..end],
+                &layouter.chain,
+            );
+            if !enclosing_scope {
+                layouter.bidi_cursor = layouter.active_paragraph_dir.and_then(|d| {
+                    super::bidi_origin::prepare(layouter, &parts[part_index..end], d)
+                });
+            }
+        }
         // **P864** — detetar `Content::Parbreak` entre itens do mesmo grupo.
         // Se o item anterior (mesmo tipo) foi separado por um Parbreak,
         // aplica o espaçamento de parágrafo entre grupos e reinicia o estado
@@ -197,7 +245,27 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         ) {
             layouter.flush_wrapped_inline_prefix_line();
         }
-        if inline_prefix.is_some_and(|prefix| prefix.block_index == part_index) {
+        let geometric_prefix = inline_prefix
+            .is_some_and(|prefix| prefix.geometric && prefix.block_index == part_index);
+        let ordinary_boundary =
+            matches!(part.source_body(), Content::Block(_) | Content::Align(_))
+                && inline_prefix.is_none_or(|prefix| prefix.block_index != part_index);
+        if geometric_prefix || ordinary_boundary {
+            if owns_text_segment {
+                super::paragraph::close_segment(
+                    layouter,
+                    &parts[text_segment_start..part_index],
+                );
+            } else if let Some(chain) = layouter.text_segment_chain.clone() {
+                super::paragraph::close_in_chain(layouter, chain, true);
+            }
+            if inline_prefix.is_some_and(|p| p.multiline && p.block_index == part_index) {
+                layouter.geometric_text_lines = saved_geometric_lines;
+            }
+        }
+        if inline_prefix
+            .is_some_and(|prefix| !prefix.geometric && prefix.block_index == part_index)
+        {
             // P1388 — o whitespace terminal pode já ter fechado a linha.
             // A boundary pertence ao prefixo confirmado, não ao estado
             // incidental de `current_line`, e deve ser aplicada uma vez.
@@ -226,6 +294,20 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         };
         if distribution.is_some() && Some(part_index) == terminal_flow_index {
             layouter.fractional_flow_tail_pending = true;
+        }
+        if distribution.is_some() && part_index > 0 {
+            if let Some(previous) = fractional_block(&parts[part_index - 1]) {
+                if let Some(chain) =
+                    super::paragraph::shared_chain(&parts[part_index..], &layouter.chain)
+                {
+                    layouter.fractional_flow_tail_pending = true;
+                    if previous.below.is_none() && previous.spacing.is_none() {
+                        layouter.prev_block_below_pending = layouter
+                            .prev_block_below_pending
+                            .max(super::paragraph::spacing(&chain));
+                    }
+                }
+            }
         }
         let planning_guard = layouter.paragraph_planning_suppressed;
         let before_flow_break = parts[part_index + 1..]
@@ -279,8 +361,20 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         ) {
             layouter.enum_counter = None;
         }
+        if super::paragraph::shared_chain(std::slice::from_ref(part), &layouter.chain)
+            .is_none()
+        {
+            text_segment_start = part_index + 1;
+            layouter.text_segment_chain = Some(layouter.chain.clone());
+            owns_text_segment = !super::html_frame::items_have_causal_line(
+                &layouter.regions.current.current_line,
+            );
+        }
         part_index += 1;
     }
+
+    layouter.text_segment_chain = saved_text_segment;
+    layouter.geometric_text_lines = saved_geometric_lines;
 
     // Preservar estado da cadeia anterior se a sequência foi composta exclusivamente por nós transparentes/estilos
     let is_transparent = parts.iter().all(|p| {
@@ -304,11 +398,21 @@ fn layout_parts<M: FontMetrics, S: ImageSizer>(
         layouter.fractional_flow_tail_pending = true;
     }
     layouter.fractional_block_height = saved_fractional_height;
+    if super::html_frame::items_have_material(&layouter.regions.current.current_line) {
+        if let Some(dir) = layouter.active_paragraph_dir {
+            layouter.pending_line_dir = Some(dir);
+        }
+    }
+    layouter.active_paragraph_dir = enclosing_dir;
+    if !enclosing_scope {
+        layouter.bidi_cursor = None;
+    }
+    layouter.bidi_scope_active = enclosing_scope;
 }
 
 /// **P864** — devolve o grupo de item estrutural reconhecido, se aplicável.
 fn item_group(content: &Content) -> Option<ItemGroup> {
-    match content {
+    match content.source_body() {
         Content::ListItem(_) => Some(ItemGroup::List),
         Content::EnumItem(_) => Some(ItemGroup::Enum),
         Content::TermItem(_) => Some(ItemGroup::Terms),
@@ -421,10 +525,7 @@ mod p1376_tests {
 
 #[cfg(test)]
 mod p1380_tests {
-    use crate::entities::{
-        layout_types::Pt,
-        style::{Style, Styles},
-    };
+    use crate::entities::style::{Style, Styles};
 
     use super::{p1380_inline_safe_styles, p1380_is_unwrapped, p1389_single_word};
 
@@ -435,7 +536,9 @@ mod p1380_tests {
         assert!(!p1380_is_unwrapped(f64::INFINITY, 85.0));
 
         assert!(p1380_inline_safe_styles(&Styles::from_iter([Style::strong()])));
-        assert!(p1380_inline_safe_styles(&Styles::from_iter([Style::Size(Pt(8.0))])));
+        assert!(p1380_inline_safe_styles(&Styles::from_iter([Style::Size(
+            crate::entities::layout_types::Length::pt(8.0)
+        )])));
     }
 
     #[test]

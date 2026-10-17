@@ -1,5 +1,10 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1465-format-html.md
-//! @prompt-hash 0e3b3d35
+//! @prompt-hash b6a6a6d4
+
+#[path = "../../03_infra/tests/support/wiring/p1465_format_html.rs"]
+mod harness;
+
+use harness::{Checks, ProcessResult};
 
 use std::ffi::{OsStr, OsString};
 use std::io::Write;
@@ -153,55 +158,6 @@ const PROFILES: [Profile; 4] = [
         html: true,
     },
 ];
-
-#[derive(Debug)]
-struct ProcessResult {
-    code: Option<i32>,
-    stdout: String,
-    stderr: String,
-}
-
-impl ProcessResult {
-    fn success(&self) -> bool {
-        self.code == Some(0)
-    }
-}
-
-#[derive(Default)]
-struct Checks {
-    failures: Vec<String>,
-}
-
-impl Checks {
-    fn require(&mut self, condition: bool, message: impl Into<String>) {
-        if !condition {
-            self.failures.push(message.into());
-        }
-    }
-
-    fn expect_json(&mut self, label: &str, observed: &ProcessResult, expected: &str) {
-        self.require(
-            observed.success(),
-            format!("{label}: expected exit 0, got {observed:?}"),
-        );
-        self.require(
-            observed.stderr.is_empty(),
-            format!("{label}: expected empty stderr, got {:?}", observed.stderr),
-        );
-        self.require(
-            observed.stdout.trim_end() == expected,
-            format!("{label}: expected {expected:?}, got {:?}", observed.stdout),
-        );
-    }
-
-    fn finish(self) {
-        assert!(
-            self.failures.is_empty(),
-            "P1465 contract failures:\n- {}",
-            self.failures.join("\n- ")
-        );
-    }
-}
 
 fn typst_binary() -> &'static Path {
     Path::new(env!("CARGO_BIN_EXE_typst"))

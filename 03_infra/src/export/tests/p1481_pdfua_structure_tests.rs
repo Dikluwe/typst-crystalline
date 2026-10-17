@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/p1481_pdfua_structure_tests.md
-//! @prompt-hash b2e30f33
+//! @prompt-hash 54645be1
 //! @layer L3
 //! @updated 2026-09-23
 
@@ -68,6 +68,7 @@ fn p1481_fragmentos_formam_um_heading_e_um_paragrafo() {
         pos: Point::ZERO,
         text: value.into(),
         style,
+        bidi: None,
     };
     let boundary = || FrameItem::Semantic {
         kind: SemanticKind::ParbreakBoundary,

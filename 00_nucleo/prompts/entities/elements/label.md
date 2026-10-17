@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/label` — `LabelElem`
-Hash do Código: 00000000
+Hash do Código: 1cb1401a
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/label.rs`
 **Origem**: P460 (destino nomeado para referências cruzadas). Trait e glossário (§A.0): ver

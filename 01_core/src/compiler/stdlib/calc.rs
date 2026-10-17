@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/calc.md
-//! @prompt-hash 5a30603f
+//! @prompt-hash e8928cb1
 //! @layer L1
 //! @updated 2026-05-20
 //!
@@ -2715,8 +2715,7 @@ mod p1333_tests {
 #[cfg(test)]
 mod p1334_tests {
     use crate::compiler::eval::{
-        eval_expression_with_features, eval_with_full_error_target_and_features,
-        EvalContext, EvalTarget,
+        eval_with_full_error_target_and_features, EvalContext, EvalTarget,
     };
     use crate::contracts::world::World;
     use crate::entities::args::{ArgOccurrence, Args};
@@ -2726,10 +2725,10 @@ mod p1334_tests {
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
     use crate::entities::layout_types::Length;
-    use crate::entities::locator::Locator;
+
     use crate::entities::module::Module;
     use crate::entities::path::{RootedPath, VirtualPath, VirtualRoot};
-    use crate::entities::rel::Rel;
+
     use crate::entities::sink::Sink;
     use crate::entities::source::Source;
     use crate::entities::source_result::{
@@ -2832,15 +2831,6 @@ mod p1334_tests {
             features,
         );
         (world.source.clone(), result, sink.into_diagnostics())
-    }
-    fn bare_diagnostic(errors: &[SourceDiagnostic], message: &str, span: Span) {
-        assert_eq!(errors.len(), 1, "{errors:?}");
-        let d = &errors[0];
-        assert_eq!(d.message, message);
-        assert_eq!(d.severity, Severity::Error);
-        assert!(d.hints.is_empty(), "{d:?}");
-        assert!(d.trace.is_empty(), "{d:?}");
-        assert_eq!(d.span, span);
     }
     fn native(args: &Args, features: Features) -> SourceResult<Value> {
         let world = TestWorld::new("");

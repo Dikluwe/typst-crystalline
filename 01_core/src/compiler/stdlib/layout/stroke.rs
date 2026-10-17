@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/layout/stroke.md
-//! @prompt-hash 4b86ff75
+//! @prompt-hash c7d634cd
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-08
 //!
 //! Comportamento de `stdlib/layout::stroke`.
 
@@ -12,6 +12,28 @@ pub(crate) fn is_valid_miter_limit(value: f64) -> bool {
     value.is_finite() && value > 0.0
 }
 
+fn stroke_paint(
+    value: &Value,
+    span: Span,
+) -> SourceResult<Option<crate::entities::paint::Paint>> {
+    use crate::entities::paint::Paint;
+    match value {
+        Value::Auto => Ok(None),
+        Value::Color(color) => Ok(Some(Paint::Solid(color.clone()))),
+        Value::Gradient(gradient) => Ok(Some(Paint::Gradient(gradient.clone()))),
+        Value::Tiling(tiling) => Ok(Some(Paint::Tiling(tiling.as_ref().clone()))),
+        other => Err(vec![SourceDiagnostic::error(
+            span,
+            format!(
+                "expected color, gradient, tiling, or auto, found {}",
+                crate::compiler::eval::operators::error_formatting::vanilla_type_name(
+                    other
+                )
+            ),
+        )]),
+    }
+}
+
 /// `stroke(positional?, paint: ?, thickness: ?)` → `Value::Stroke` — Passos 227/1499
 /// (ADR-0079 PROPOSTO Categoria A.1 Fase 5 Layout candidata).
 ///
@@ -19,7 +41,7 @@ pub(crate) fn is_valid_miter_limit(value: f64) -> bool {
 /// ou um único posicional conversível em `Stroke` (ex.: `#stroke(2pt)`).
 ///
 /// **Defaults paridade vanilla**:
-/// - `paint: Color` (named opcional; default `Color::rgb(0, 0, 0)` BLACK).
+/// - `paint: Color/Gradient/Tiling/auto` (named opcional; auto mantém herança).
 /// - `thickness: Length` (named opcional; default 1.0 pt).
 ///
 /// **Validações**:
@@ -45,19 +67,17 @@ pub fn native_stroke(
                 "stroke(): argumento inesperado".to_string(),
             )]);
         }
-        return positional_stroke(value, args.span).map(Value::Stroke);
+        return positional_stroke(value, args.span).map(Value::from);
     }
 
-    let paint = match args.named.get("paint") {
-        Some(Value::Color(c)) => c.clone(),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("stroke(paint): espera Color, recebeu {}", other.type_name()),
-            )])
-        }
-        None => Color::rgb(0, 0, 0),
-    };
+    let paint = args
+        .named
+        .get("paint")
+        .map(|value| stroke_paint(value, args.span))
+        .transpose()?
+        .flatten();
+    let paint_specified = paint.is_some();
+    let paint = paint.unwrap_or(Paint::Solid(Color::rgb(0, 0, 0)));
 
     let thickness = match args.named.get("thickness") {
         Some(val) => {
@@ -213,15 +233,15 @@ pub fn native_stroke(
         }
     }
 
-    Ok(Value::Stroke(Stroke {
-        paint: Paint::Solid(paint),
+    Ok(Value::from(Stroke {
+        paint,
         thickness,
         cap,
         join,
         dash,
         miter_limit,
         specified: StrokeFields {
-            paint: args.named.contains_key("paint"),
+            paint: paint_specified,
             thickness: args.named.contains_key("thickness"),
             cap: args.named.contains_key("cap"),
             join: args.named.contains_key("join"),
@@ -328,7 +348,7 @@ pub(crate) fn positional_stroke(
     }
 
     if let Value::Stroke(stroke) = value {
-        return Ok(stroke.clone());
+        return Ok(stroke.as_ref().clone());
     }
 
     let mut stroke = Stroke { overhang: true, ..Stroke::default() };
@@ -360,21 +380,14 @@ pub(crate) fn positional_stroke(
                     )]);
                 }
             }
-            match dict.get("paint") {
-                None | Some(Value::Auto) => {}
-                Some(Value::Color(color)) => {
-                    stroke.paint = Paint::Solid(color.clone());
-                    stroke.specified.paint = true;
-                }
-                Some(Value::Gradient(gradient)) => {
-                    stroke.paint = Paint::Gradient(gradient.clone());
-                    stroke.specified.paint = true;
-                }
-                Some(Value::Tiling(tiling)) => {
-                    stroke.paint = Paint::Tiling(tiling.as_ref().clone());
-                    stroke.specified.paint = true;
-                }
-                Some(other) => return Err(invalid(span, "paint", other)),
+            if let Some(paint) = dict
+                .get("paint")
+                .map(|value| stroke_paint(value, span))
+                .transpose()?
+                .flatten()
+            {
+                stroke.paint = paint;
+                stroke.specified.paint = true;
             }
             match dict.get("thickness") {
                 None | Some(Value::Auto) => {}

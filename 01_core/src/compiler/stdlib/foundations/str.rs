@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/str.md
-//! @prompt-hash 2330c7e7
+//! @prompt-hash 046ac846
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -127,7 +127,7 @@ pub(crate) fn format_float(f: f64) -> String {
 
 /// Converte um inteiro para a representação textual numa base 2–36.
 /// P491: paridade vanilla `str(255, base: 16) == "ff"`.
-pub(crate) fn format_radix(mut n: i64, base: u32) -> String {
+pub(crate) fn format_radix(n: i64, base: u32) -> String {
     if n == 0 {
         return "0".to_string();
     }

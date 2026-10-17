@@ -1,5 +1,5 @@
 # L0 — paragraph_select_forward
-Hash do Código: 37a64a32
+Hash do Código: a80dc81f
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/paragraph_select_forward.rs`
@@ -40,3 +40,15 @@ Medição anterior à decisão: `00_nucleo/diagnosticos/microbench-paragraph-sel
 Partir da partição Simple prefixada. Percorrer pares de linhas vizinhas uma vez, da esquerda para a direita. Para cada par, testar apenas mover o corte uma palavra para a esquerda ou para a direita, conservando ambas as linhas não vazias. Usar a soma dos custos exatos das duas linhas e aceitar somente melhoria estrita e finita. A partição reparada fornece apenas um limite superior; nenhum candidato da DP é excluído por esta heurística. Preservar medida prefixada, fronteira ativa e desempate da busca. Testar diferencialmente as quebras contra o seletor exato.
 
 A escolha experimental `cfg(test)` seleciona exato para menos de 64 palavras; entre 64 e 256 seleciona forward prefixado quando cabem pelo menos sete avanços médios por linha; acima disso seleciona forward prefixado quando cabem pelo menos 24 avanços médios com justificação ou 32 sem ela. Nos demais casos de 257 a 1.200 palavras com pelo menos sete avanços médios, seleciona forward com reparação local; fora dessas faixas, seleciona exato. O avanço médio soma largura de palavra e gaps anteriores. Esses limiares não alteram o default de produção e exigem validação em corpus real antes de qualquer promoção.
+
+## Iteração e parâmetros internos — 2026-10-13
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/layout/paragraph_select_forward.rs` nas linhas 309 contém os avisos selecionados do Clippy. O snapshot anterior à decisão, spans conferidos contra a fonte, owners, referências, binário, UTC, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, status e diffstat estão em `00_nucleo/diagnosticos/iteracao-parametros-ci-2026-10-13/before.json.gz`. A inspeção mede mecânica interna e usos; não é nova prova bilateral de paridade ou ganho de desempenho.
+
+### Decisão e aceitação
+
+Na pré-computação cfg(test), enumerar as posições mutáveis de active_before a partir do índice um. Registrar o valor de active antes do mesmo while, manter n+1 slots e a posição zero intocada. Preservar chamadas de medição, ordem, limite, desempates e fallback. O experimento não se torna caminho produtivo e não muda seus limiares.
+
+Refatoração interna equivalente em fluxo contínuo ADR-0127, sem contrato público, default ou fase novos. Conservar as expectativas dos testes existentes; não criar testes que apenas espelhem estes loops. Validar suíte core (incluindo conflitos, spans, fixups, marcadores e seleção diferencial), todos os targets, build, documentação, Clippy e linhagem com resselo restrito. Nenhuma supressão adicional de lint é autorizada por este lote.

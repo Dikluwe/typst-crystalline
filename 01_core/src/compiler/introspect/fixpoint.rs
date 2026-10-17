@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/fixpoint.md
-//! @prompt-hash 8c95c362
+//! @prompt-hash 529aa4a7
 //! @layer L1
 //! @updated 2026-04-29
 //!
@@ -167,10 +167,6 @@ mod tests {
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
 
-    fn ck(s: &str) -> CounterKey {
-        CounterKey::Str(s.into())
-    }
-
     fn sel(kind: crate::entities::element_kind::ElementKind) -> CounterKey {
         CounterKey::Selector(crate::entities::selector::Selector::Kind(kind))
     }
@@ -288,7 +284,7 @@ mod tests {
                 Ok(Content::heading(1, Content::text("title")))
             })
         });
-        assert!(matches!(result, Ok(_)));
+        assert!(result.is_ok());
         let intr = result.unwrap();
         // Heading indexado.
         use crate::entities::element_kind::ElementKind;
@@ -409,7 +405,7 @@ mod tests {
                 Ok(Content::heading(1, Content::text("title")))
             })
         });
-        assert!(matches!(result, Ok(_)));
+        assert!(result.is_ok());
         // Doc estável → 2 iter. Iter 0: prev empty (0 headings).
         // Iter 1: prev populado (1 heading).
         assert!(
@@ -444,7 +440,7 @@ mod tests {
                 ))
             })
         });
-        assert!(matches!(result, Ok(_)));
+        assert!(result.is_ok());
         let intr = result.unwrap();
         // Selector::Kind(Heading) retorna ambas locations.
         let locs = intr.query(&Selector::Kind(ElementKind::Heading));
@@ -471,7 +467,7 @@ mod tests {
                 Ok(Content::heading(1, Content::text("h")))
             })
         });
-        assert!(matches!(result, Ok(_)));
+        assert!(result.is_ok());
         // Iter 0: introspector vazio → 0.
         // Iter 1: introspector populado por iter 0 → 1.
         // Convergência detectada (hash de tags igual entre iters).
@@ -523,7 +519,7 @@ mod tests {
                 ))
             })
         });
-        assert!(matches!(result, Ok(_)));
+        assert!(result.is_ok());
         let intr = result.unwrap();
         // Formatted counter retorna string não-vazia para heading.
         let formatted = intr.formatted_counter(&sel(ElementKind::Heading));
@@ -548,7 +544,7 @@ mod tests {
                 Ok(with_heading_numbering(Content::heading(1, Content::text("h"))))
             })
         });
-        assert!(matches!(result, Ok(_)));
+        assert!(result.is_ok());
         assert_eq!(observations.len(), 2);
         // Iter 0: vazio.
         assert!(observations[0].is_none());
@@ -567,7 +563,7 @@ mod tests {
                 Ok(Content::text("just text"))
             })
         });
-        assert!(matches!(result, Ok(_)));
+        assert!(result.is_ok());
         let intr = result.unwrap();
         assert_eq!(intr.formatted_counter(&sel(ElementKind::Heading)), None);
     }
@@ -612,7 +608,7 @@ mod tests {
                 ))
             })
         });
-        assert!(matches!(result, Ok(_)));
+        assert!(result.is_ok());
         let intr = result.unwrap();
 
         // Locations das labels.
@@ -649,7 +645,7 @@ mod tests {
                 Ok(Content::heading(1, Content::text("h")))
             })
         });
-        assert!(matches!(result, Ok(_)));
+        assert!(result.is_ok());
         let intr = result.unwrap();
         assert_eq!(intr.query_by_label(&Label("nonexistent".to_string())), None);
     }
@@ -669,7 +665,7 @@ mod tests {
                 Ok(Content::outline())
             })
         });
-        assert!(matches!(result, Ok(_)));
+        assert!(result.is_ok());
         let intr = result.unwrap();
         // Outline indexado.
         assert_eq!(intr.query_by_kind(ElementKind::Outline).len(), 1);
@@ -688,7 +684,7 @@ mod tests {
                 Ok(Content::heading(1, Content::text("h")))
             })
         });
-        assert!(matches!(result, Ok(_)));
+        assert!(result.is_ok());
         let intr = result.unwrap();
         assert_eq!(intr.query(&Selector::Kind(ElementKind::Outline)).len(), 0);
     }
@@ -713,7 +709,7 @@ mod tests {
                 ))
             })
         });
-        assert!(matches!(result, Ok(_)));
+        assert!(result.is_ok());
         let intr = result.unwrap();
         assert_eq!(intr.query(&Selector::Kind(ElementKind::Outline)).len(), 1);
     }
@@ -746,7 +742,7 @@ mod tests {
                 ))
             })
         });
-        assert!(matches!(result, Ok(_)));
+        assert!(result.is_ok());
         // Iter 0: introspector vazio → Array vazio.
         assert_eq!(observed[0], Value::Array(vec![]));
         // Iter 1: introspector populado → Array com 2 entries.

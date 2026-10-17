@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/query-helpers.md
-//! @prompt-hash 0d9cd936
+//! @prompt-hash 0790afc2
 //! @layer L3
-//! @updated 2026-05-08
+//! @updated 2026-10-07
 //!
 //! **P206C (Vanilla integration)** — helper L3 para
 //! comparação estrutural cristalino vs vanilla via JSON
@@ -273,6 +273,10 @@ fn count_enum_groups(content: &Content) -> usize {
 
 fn has_any_text(content: &Content) -> bool {
     match content {
+        Content::Source(e) => has_any_text(&e.body),
+        Content::ShowRecipe(e) => has_any_text(&e.body),
+        Content::Located(e) => has_any_text(&e.body),
+        Content::Realized(e) => has_any_text(&e.visual),
         Content::Text(_) => true,
         Content::Sequence(seq) => seq.iter().any(has_any_text),
         Content::ListItem(item) => has_any_text(&item.body),
@@ -297,18 +301,18 @@ fn has_any_text(content: &Content) -> bool {
         Content::Boxed(boxed) => has_any_text(&boxed.body),
         Content::Stack(stack) => stack.children.iter().any(has_any_text),
         Content::Grid(grid) => {
-            let header_text = grid.header.as_ref().map_or(false, has_any_text);
-            let footer_text = grid.footer.as_ref().map_or(false, has_any_text);
+            let header_text = grid.header.as_ref().is_some_and(has_any_text);
+            let footer_text = grid.footer.as_ref().is_some_and(has_any_text);
             header_text || grid.cells.iter().any(has_any_text) || footer_text
         }
         Content::GridCell(cell) => has_any_text(&cell.body),
         Content::Table(table) => {
-            let caption_text = table.caption.as_ref().map_or(false, |c| has_any_text(c));
-            caption_text || table.children.iter().any(has_any_text)
+            let caption_text = table.caption.as_ref().is_some_and(has_any_text);
+            caption_text || table.resolved.as_ref().map_or(&table.children,|r|&r.cells).iter().any(has_any_text)
         }
         Content::TableHeader(header) => has_any_text(&header.body),
         Content::TableFooter(footer) => has_any_text(&footer.body),
-        Content::TableCell(cell) => has_any_text(&cell.body),
+        Content::TableCell(cell) => has_any_text(cell.resolved.as_ref().map_or(&cell.body,|r|&r.visual)),
         Content::Terms(terms) => terms.items.iter().any(has_any_text),
         Content::TermItem(item) => has_any_text(&item.term) || has_any_text(&item.description),
         Content::Repeat(repeat) => has_any_text(&repeat.body),
@@ -321,7 +325,7 @@ fn has_any_text(content: &Content) -> bool {
         Content::SmallCaps { body } => has_any_text(body),
         Content::Figure(figure) => has_any_text(&figure.body),
         Content::Equation(equation) => has_any_text(&equation.body),
-        Content::Bibliography(bib) => bib.title.as_ref().map_or(false, has_any_text),
+        Content::Bibliography(bib) => bib.title.as_ref().is_some_and(has_any_text),
         Content::Label(label) => has_any_text(&label.body),
         Content::PdfArtifact(artifact) => has_any_text(&artifact.body),
         Content::HtmlFrame(frame) => has_any_text(&frame.body),
@@ -362,6 +366,10 @@ where
         return 1;
     }
     match content {
+        Content::Source(e) => count_variant(&e.body, predicate),
+        Content::ShowRecipe(e) => count_variant(&e.body, predicate),
+        Content::Located(e) => count_variant(&e.body, predicate),
+        Content::Realized(e) => count_variant(&e.visual, predicate),
         Content::Sequence(seq) => seq.iter().map(|c| count_variant(c, predicate)).sum(),
         Content::ListItem(item) => count_variant(&item.body, predicate),
         Content::EnumItem(item) => count_variant(&item.body, predicate),
@@ -390,11 +398,11 @@ where
         Content::GridCell(cell) => count_variant(&cell.body, predicate),
         Content::Table(table) => {
             table.caption.as_ref().map_or(0, |c| count_variant(c, predicate))
-                + table.children.iter().map(|c| count_variant(c, predicate)).sum::<usize>()
+                + table.resolved.as_ref().map_or(&table.children,|r|&r.cells).iter().map(|c| count_variant(c, predicate)).sum::<usize>()
         }
         Content::TableHeader(header) => count_variant(&header.body, predicate),
         Content::TableFooter(footer) => count_variant(&footer.body, predicate),
-        Content::TableCell(cell) => count_variant(&cell.body, predicate),
+        Content::TableCell(cell) => count_variant(cell.resolved.as_ref().map_or(&cell.body,|r|&r.visual), predicate),
         Content::Terms(terms) => terms.items.iter().map(|c| count_variant(c, predicate)).sum(),
         Content::TermItem(item) => {
             count_variant(&item.term, predicate) + count_variant(&item.description, predicate)
@@ -467,8 +475,112 @@ pub fn query_to_summary(
     // garantindo que elementos locatable consumidos por show-rules ainda
     // são visíveis a `query`.
     let intr_content = module.introspection_content().unwrap_or(content);
-    let intr = introspect(intr_content);
-    Ok(summarize_query(&intr, content, &parsed, selector))
+    let fallback;
+    let intr = match module.realization_introspector() {
+        Some(intr) => intr,
+        None => {
+            fallback = introspect(intr_content);
+            &fallback
+        }
+    };
+    Ok(summarize_query(intr, content, &parsed, selector))
+}
+
+/// Compilation diagnostics and retrieval failures have distinct CLI envelopes.
+#[derive(Debug)]
+pub enum CompiledQueryError {
+    Compilation(Vec<SourceDiagnostic>),
+    Retrieval(String),
+}
+
+/// Queries the complete paged context, preserving captured language values.
+pub fn query_compiled_elements(
+    world: &dyn World,
+    source: &Source,
+    selector: &str,
+) -> (Result<Vec<Value>, CompiledQueryError>, Vec<SourceDiagnostic>) {
+    let (compiled, warnings) = crate::pipeline::compile_query_context(world, source);
+    let introspector = match compiled {
+        Ok(introspector) => introspector,
+        Err(errors) => return (Err(CompiledQueryError::Compilation(errors)), warnings),
+    };
+    let expression = Source::new_with_parser(
+        source.id(),
+        selector.to_string(),
+        typst_core::compiler::parse::parse_code,
+    );
+    let (evaluated, _) =
+        typst_core::compiler::eval::eval_source_with_features_and_introspector(
+            world,
+            &expression,
+            typst_core::entities::compiler_features::Features::default(),
+            &TagIntrospector::empty(),
+        );
+    let messages = |errors: Vec<SourceDiagnostic>| {
+        errors
+            .into_iter()
+            .map(|error| error.message)
+            .collect::<Vec<_>>()
+            .join(", ")
+    };
+    let value = match evaluated {
+        Ok(value) => value,
+        Err(errors) => {
+            return (
+                Err(CompiledQueryError::Retrieval(format!(
+                    "failed to evaluate selector: {}",
+                    messages(errors),
+                ))),
+                warnings,
+            )
+        }
+    };
+    if matches!(&value, Value::Str(_) | Value::Regex(_)) {
+        return (
+            Err(CompiledQueryError::Retrieval("text is not locatable".into())),
+            warnings,
+        );
+    }
+    let mut context = typst_core::compiler::eval::EvalContext::new();
+    context.introspector = introspector;
+    let args = typst_core::entities::args::Args::positional(vec![value]);
+    let queried = typst_core::compiler::stdlib::native_query(
+        &mut context,
+        &args,
+        world,
+        source.id(),
+    );
+    let result = match queried {
+        Ok(Value::Array(mut values)) => {
+            let labelled = context.introspector.query_labelled();
+            for value in &mut values {
+                if let Value::LocatedContent(content, location) = value {
+                    if content.fields().is_none()
+                        && !matches!(content.content(), Content::Label(_))
+                    {
+                        if let Some((label, _)) =
+                            labelled.iter().find(|(_, found)| found == location)
+                        {
+                            *content =
+                                typst_core::entities::value::IntrospectedContent::new(
+                                    Content::label_auto(
+                                        label.0.as_str(),
+                                        content.content().clone(),
+                                    ),
+                                    None,
+                                );
+                        }
+                    }
+                }
+            }
+            Ok(values)
+        }
+        Ok(_) => {
+            Err(CompiledQueryError::Retrieval("query result is not an array".into()))
+        }
+        Err(errors) => Err(CompiledQueryError::Retrieval(messages(errors))),
+    };
+    (result, warnings)
 }
 
 /// Executa uma query locatável e devolve os elementos reais em ordem.
@@ -508,19 +620,15 @@ pub fn query_elements(
             intr.query_by_label(&Label(label.clone())).into_iter().collect()
         }
     };
-    let original_intr = introspect(module.introspection_content().unwrap_or(content));
-    let original_locations = locations_for(&original_intr);
-    let realized_intr = introspect(content);
-    let realized_locations = locations_for(&realized_intr);
-    // The pre-show tree keeps original locatable elements queryable (P498),
-    // while the realized tree may introduce new locatable elements from a
-    // show recipe. Prefer the realized index only when it carries additional
-    // matches; equal/fewer matches preserve the original-element contract.
-    let (intr, locations) = if realized_locations.len() > original_locations.len() {
-        (&realized_intr, realized_locations)
-    } else {
-        (&original_intr, original_locations)
+    let fallback;
+    let intr = match module.realization_introspector() {
+        Some(intr) => intr,
+        None => {
+            fallback = introspect(module.introspection_content().unwrap_or(content));
+            &fallback
+        }
     };
+    let locations = locations_for(intr);
     let labelled = intr.query_labelled();
     let mut elements = Vec::with_capacity(locations.len());
     for location in locations {
@@ -926,5 +1034,34 @@ mod tests {
                 2
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod compiled_query_tests {
+    use super::*;
+    use crate::world::SystemWorld;
+    #[test]
+    fn compiled_query_distinguishes_document_and_retrieval_and_retains_context_values() {
+        let root = std::env::current_dir().unwrap();
+        let world = SystemWorld::for_stdin(root.clone(), "#unknown".into());
+        let source = world.source(world.main()).unwrap();
+        let (result, _) = query_compiled_elements(&world, &source, "unknown_selector");
+        assert!(matches!(result, Err(CompiledQueryError::Compilation(_))));
+        let world =
+            SystemWorld::for_stdin(root.clone(), "#context metadata(\"x\")".into());
+        let source = world.source(world.main()).unwrap();
+        let (result, _) = query_compiled_elements(&world, &source, "metadata");
+        let values = result.unwrap();
+        assert_eq!(values.len(), 1);
+        assert!(matches!(&values[0], Value::LocatedContent(_, _)));
+        let (result, _) = query_compiled_elements(&world, &source, "unknown_selector");
+        assert!(
+            matches!(result, Err(CompiledQueryError::Retrieval(message)) if message == "failed to evaluate selector: unknown variable `unknown_selector`")
+        );
+        let (result, _) = query_compiled_elements(&world, &source, "\"x\"");
+        assert!(
+            matches!(result, Err(CompiledQueryError::Retrieval(message)) if message == "text is not locatable")
+        );
     }
 }

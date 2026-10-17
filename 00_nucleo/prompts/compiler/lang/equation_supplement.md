@@ -1,6 +1,6 @@
 # L0 — lang/equation_supplement
+Hash do Código: 5a7cb6f1
 
-Hash do Código: 00b0b7be
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/lang/defaults.toml sha256:c8f920865f8895a89d9c42659c15e773e9bb2603bd614e390805f620834babd9

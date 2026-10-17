@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings.md
-//! @prompt-hash da003bae
+//! @prompt-hash 7ffe66dd
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -24,15 +24,19 @@ pub(super) use access::unknown_variable;
 pub(super) use binding::{
     destructure_let, eval_assign, eval_destruct_assignment, eval_let,
 };
+#[cfg(test)]
+pub(crate) use field_access::eval_content_method_at;
+pub(super) use field_access::{
+    check_module_field_feature, eval_field_access, eval_field_access_with_target,
+    eval_value_field_access, field_callee_error, warn_deprecated_symbol_binding,
+};
 pub(crate) use field_access::{
-    eval_content_method, eval_content_method_at, eval_introspected_content_method_at,
+    eval_content_method, eval_introspected_content_method_at,
     eval_outline_entry_body_method,
 };
-pub(super) use field_access::{
-    eval_field_access, eval_value_field_access, field_callee_error,
-    warn_deprecated_symbol_binding,
+pub(super) use method_dispatch::{
+    is_mutating_method, try_eval_mutating_method, MutatingCall,
 };
-pub(super) use method_dispatch::{is_mutating_method, try_eval_mutating_method};
 pub(super) use value_methods::{
     eval_color_method, eval_counter_method_value, eval_counter_static_method_value,
     eval_selector_before_after, eval_selector_or_and, eval_selector_within,

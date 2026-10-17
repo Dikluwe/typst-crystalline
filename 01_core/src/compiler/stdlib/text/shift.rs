@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/text/shift.md
-//! @prompt-hash b6afb733
+//! @prompt-hash 9055902e
 //! @layer L1
 //! @updated 2026-08-13
 //!

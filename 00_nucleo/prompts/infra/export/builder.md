@@ -1,5 +1,9 @@
 # L0 — builder
-Hash do Código: 5dba4d6b
+Hash do Código: c1a5f9e0
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:96fe00a0c6071bb88ffc63806b3e42c23b78c398fa26d46866e0f099ab0d4e36
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/builder.rs`
@@ -55,3 +59,55 @@ Causa fonte: `space.rs:22-35` não transporta Literal inicial sem tracking; `pag
 Centralizar em helper privado de builder o mínimo físico de página PDF 3pt por eixo, como medido no vanilla pinado em convert.rs:108-118. Aplicar depois de somar bleed ao canvas nos caminhos Helvetica; sem mudar Page lógica, TrimBox, extensão acima do mínimo, seleção de páginas, versões/modes. Os caminhos de fontes usam o mesmo helper, sem copiar a constante. Este 3pt vem da regra do oráculo PDF pinado, não de compensação tipográfica ad hoc.
 
 Correção interna de paridade em fluxo contínuo ADR-0127, sem campo público, assinatura/flag/fase nova. Aceitação RED→GREEN para espaços 0/± e PDF mínimo, casos causais bilaterais, corpus anterior, build e lint sem erros, resselo estritamente no manifesto. Texto vazio explícito e newline final permanecem para rodada própria.
+
+
+## Face efetiva de TextShaped — materialização ratificada 2026-10-05
+
+Medição anterior à decisão: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `00_nucleo/diagnosticos/identidade-fonte-shaped-implementacao-2026-10-05/`.
+
+Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
+
+A associação é por bytes da face original e pedido de eixos; nomes e slots não bastam. A tabela local dura a exportação e conserva ordem dos recursos fornecidos, anexando faces faltantes. Para multifont, distribuir itens pelos bindings uma vez antes de coletores por fonte; não reutilizar GIDs/CMap globais em faces diferentes. Código deste owner continua 1:1 com seu L0; referências a outros owners não compartilham propriedade. Aceitação RED→GREEN e controles bilaterais incluindo miss/hit/VF, sem promessa de ganho de tempo.
+
+Claims compartilhadas desta migração pertencem ao núcleo shaped-face-identity pinado acima; este owner materializa somente as referências da sua unidade.
+
+
+## Fast path de face única certificada — 2026-10-05
+
+Medição anterior: first-benchmark.json registra regressão em casos de face única. Quando os bindings certificados contêm uma só fonte e não requerem instanciação VF, usar build_cidfont com essa fonte, preservando o mesmo domínio de GIDs. Pedidos VF de eixos continuam no multifont; sem carrier certificado manter dispatch anterior. Isto reutiliza um caminho existente na mesma fase/API, sem nome artificial nem seleção por estilo. Validar regressões de fonte única e mistura real.
+
+
+## Transporte preparado em Shape — T1c/T2 aprovado — 2026-10-14
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
+layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
+materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
+prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
+`tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
+comprovam que dense-open e stroke-open ainda divergem nos três targets.
+O contrato foi aprovado no manifesto
+`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
+recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+A preparação/contagem de objetos é mecânica de transporte; render, contornos,
+texto, geometria e diagnósticos são obrigações observáveis de linguagem.
+
+### Responsabilidade exclusiva desta unidade
+
+Integrar registro e emissão privada de tiling PatternType 1 no caminho Type1, antes da emissão final dos streams; reservar IDs após gradientes e antes dos demais recursos. Compartilhar fontes/imagens/spot e referências de patterns, mantendo seleção de páginas e tagging intactos.
+
+### Aceitação e continuidade
+
+Aplicar o núcleo pinado. A ratificação supersede cláusulas antigas que
+aguardavam aprovação ou exigiam Paint/Stroke declarativo dentro de Shape,
+somente no âmbito do contrato aprovado. Preservar os demais comportamentos
+vigentes desta unidade. L0 primeiro e testes RED→GREEN; migração explícita de
+fixtures e consumidores, sem conversão total From<Paint>, sem PartialEq nos
+carriers e sem fallback sólido para obter build verde. Não elevar o limite
+antigo nem transferir layout para L3. Validar transporte fill/stroke, recursos,
+clipping, Parent afim, alvos nativos, controles Solid/Gradient, semântica de
+página e toda a suíte/build/doc/fmt/linhagem. T1c, T2 e T3 só estão concluídos
+quando integrados e verificados; estado intermediário quebrado ou parcial
+não é certificação de produção. T4 e publicação continuam fora deste pacote.

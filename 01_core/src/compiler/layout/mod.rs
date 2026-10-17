@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash d8e8ee92
+//! @prompt-hash 939213de
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 
 mod checkpoint;
 mod convergence;
@@ -10,7 +10,10 @@ pub mod counters;
 pub mod figure;
 pub mod image;
 pub mod outline;
-use self::checkpoint::{FlowSuffixCheckpoint, RegionTailCheckpoint};
+mod position_marker;
+use self::checkpoint::FlowSuffixCheckpoint;
+#[cfg(test)]
+use self::checkpoint::RegionTailCheckpoint;
 mod finish;
 mod page_canvas;
 mod page_commit;
@@ -28,7 +31,7 @@ use crate::entities::{
     image_sizer::{ImageSizer, NullImageSizer},
     label::Label,
     layout_types::{
-        FrameItem, HAlign, Length, Page, PageConfig, PagedDocument, Point, Pt, TextStyle,
+        FrameItem, HAlign, Length, Page, PageConfig, PagedDocument, Pt, TextStyle,
     },
     location::Location,
     locator::{Locator, LocatorSeed},
@@ -65,6 +68,7 @@ pub use crate::compiler::layout::metrics::{
     needs_shaped_width, FixedMetrics, FontMetrics,
 };
 mod measurement;
+mod realized;
 pub use measurement::measure_content_real;
 pub(in crate::compiler) use measurement::measure_content_real_with_baseline;
 mod par_line_callbacks;
@@ -135,6 +139,7 @@ mod text;
 mod align;
 pub mod bib_csl;
 mod bibliography;
+mod bidi_origin;
 mod cite;
 mod context_block;
 mod counter_display;
@@ -145,6 +150,7 @@ mod footnote;
 mod hide;
 mod linebreak;
 mod link;
+mod link_capture;
 mod outline_entry;
 mod paragraph;
 mod paragraph_emit;
@@ -341,6 +347,21 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// o cursor_y já foi compensado pelo ascender pelo sub-frame (caso
     /// em que não deve voltar a subtrair ascender ao posicionar formas).
     pub(super) is_sub_frame: bool,
+    pub(super) relative_region_size: Option<(f64, f64)>,
+    /// Vertical origin expected when recomposing this sub-frame into its parent.
+    pub(super) sub_frame_origin_y: f64,
+    /// Physical flow end and the prepared cursor that certifies it.
+    pub(super) flow_placement_end: Option<(f64, f64)>,
+    /// Logical origin and occupied width of the active flow scope.
+    pub(super) flow_frame_extent: (f64, f64),
+    /// Causal width returned by the most recent isolated subframe.
+    pub(super) last_sub_frame_flow_width: f64,
+    /// Inner Block region; independent of the page and cell references.
+    pub(super) block_place_region: Option<crate::entities::layout_types::Rect>,
+    /// Available width is a constraint; the current Block allocation is intrinsic.
+    pub(super) block_auto_width: bool,
+    /// Deferred Y entry index and its local decoration segment range.
+    pub(super) block_place_decorations: Vec<(usize, usize, usize)>,
     // **P246 (cell layout migration)** — fields `cell_available_h` +
     // `cell_origin_w` migrados para `self.regions.cell: Option<Region>`
     // (entity-side; `Region.height` + `Region.width`). Reader pattern:
@@ -392,6 +413,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// a `layout_content` cujo content satisfaz `is_locatable`.
     /// Nenhum consumer ainda — fica para P187/P188.
     pub(super) locator: Locator,
+    locations_reserved: bool,
     /// **P185C** — `Location` do último content locatable processado.
     /// `None` antes de processar qualquer locatable. Consumers
     /// location-aware (`flat_counter_at`, P185B) consultam este campo
@@ -400,6 +422,8 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) current_location: Option<Location>,
     /// P1493 — emite carriers geométricos privados para ContextBlock nesta passagem.
     pub(super) capture_html_context_markers: bool,
+    position_captures: Vec<position_marker::Target>,
+    link_capture: link_capture::Capture,
     /// Callback state for this concrete layout attempt. It is borrowed from
     /// the entrypoint and never escapes L1.
     pub(super) math_callback_pass:
@@ -495,7 +519,8 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// **P1120** — ascent assumido quando a baseline da linha em curso foi
     /// fixada (aresta superior do texto). `flush_line` compara-o com
     /// `line_inline_ascent` para saber quanto a linha tem de descer.
-    pub(super) line_assumed_ascent: f64,
+    /// `None` ainda não instala ascent; `Some(0.0)` instala baseline na origem.
+    pub(super) line_assumed_ascent: Option<f64>,
     /// P1391 — arm one-shot para o flush automático de uma primeira palavra
     /// overlong certificada por Sequence.
     pub(super) wrapped_inline_prefix_line_armed: bool,
@@ -505,6 +530,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// servem para equações, cujo frame é medido pelas extensões da fórmula.
     pub(super) last_sub_frame_bottom: Option<f64>,
     pub(in crate::compiler) last_sub_frame_width: f64,
+    pub(super) last_sub_frame_inline_extents: (f64, f64),
 
     /// **P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial; cita
     /// ADR-0082 PROPOSTO N=2 segunda aplicação citante)** — buffer
@@ -535,14 +561,8 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// (zero overhead em todos os outros call-sites; backward-compat
     /// bit-exact preservado per regressão tests P285).
     pub(super) decoration_lines_collector: Option<Vec<DecoSegment>>,
-    /// **P287 (frente `P-smartquote`)** — estado de alternância open/close
-    /// para `Content::SmartQuote { double }` emitido pela função stdlib
-    /// `#smartquote(...)`. **Independente** do estado do markup parser
-    /// (`eval_markup` local var; P155) — diagnóstico P287 §A.3 opção
-    /// (γ′): markup e função têm estados próprios; bit-exact do markup
-    /// preservado. Per-document (reset em `Layouter::new`).
-    pub(super) smartquote_double_open: bool,
-    pub(super) smartquote_single_open: bool,
+    /// Contexto lógico das aspas após show, por fluxo, restaurado em checkpoint.
+    pub(super) smartquote_context: crate::compiler::lang::quotes::SmartQuoteContext,
     pub(super) attachments:
         Vec<std::sync::Arc<crate::entities::elements::pdf_attach::PdfAttachElem>>,
     pub(super) artifact_marker_id: u64,
@@ -552,6 +572,15 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// **P446** — smallcaps activo no corpo de um `#smallcaps[...]`.
     pub(super) smallcaps: bool,
     pub(super) paragraph_planning_suppressed: bool,
+    pub(super) bidi_scope_active: bool,
+    pub(super) cell_bidi_allowed: bool,
+    bidi_cursor: Option<bidi_origin::Cursor>,
+    pub(super) text_bidi: Option<crate::entities::bidi_context::BidiSpan>,
+    pub(super) text_segment_chain: Option<StyleChain>,
+    pub(super) geometric_text_lines: bool,
+    pub(super) active_paragraph_dir: Option<crate::entities::dir::Dir>,
+    pub(super) pending_line_dir: Option<crate::entities::dir::Dir>,
+    pub(super) explicit_line_alignment: Option<HAlign>,
     /// **P472** — chave da última citação renderizada. Usada para ibid:
     /// quando a mesma key é citada consecutivamente, emite "ibid." em vez
     /// do número. `None` antes da primeira citação.
@@ -689,7 +718,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) pending_align_v_centering: Vec<PendingAlignYEntry>,
     /// P1407 — peças de `repeat` inline aguardando a largura finita que só
     /// fica disponível ao resolver spacings fracionários/fechar a linha.
-    pub(super) pending_repeats: Vec<repeat::PendingRepeat>,
+    pending_repeats: Vec<repeat::PendingRepeat>,
     /// P1408 — largura natural já ocupada por cada fronteira `pending_fr`,
     /// na mesma ordem. `h(Nfr)` registra zero; `box(width: Nfr)` registra a
     /// largura exterior que será substituída pela parcela fracionária.
@@ -866,7 +895,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     pub fn new(
         metrics: M,
         sizer: S,
-        font_size: f64,
+        _font_size: f64,
         introspector: comemo::Tracked<
             'a,
             dyn crate::entities::introspector::Introspector + 'a,
@@ -915,6 +944,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             figure_progress: std::collections::HashMap::new(),
             is_height_unconstrained: false,
             is_sub_frame: false,
+            relative_region_size: None,
+            sub_frame_origin_y: 0.0,
+            flow_placement_end: None,
+            flow_frame_extent: (0.0, 0.0),
+            last_sub_frame_flow_width: 0.0,
+            block_place_region: None,
+            block_auto_width: false,
+            block_place_decorations: Vec::new(),
             // P246 — cell_available_h + cell_origin_w migrados a
             // regions.cell (entity-side). cell_origin_x/y preservados
             // como Layouter fields legacy.
@@ -924,7 +961,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             parent_bbox: None,
             cell_align: None, // P232
             capture_html_context_markers: false,
+            position_captures: Vec::new(),
+            link_capture: link_capture::Capture::default(),
             locator: Locator::new(),
+            locations_reserved: false,
             current_location: None,
             math_callback_pass: None,
             par_line_callback_pass: None,
@@ -956,10 +996,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P1120 — linha ainda vazia: sem contribuições inline.
             line_inline_ascent: 0.0,
             line_inline_descent: 0.0,
-            line_assumed_ascent: 0.0,
+            line_assumed_ascent: None,
             wrapped_inline_prefix_line_armed: false,
             last_sub_frame_bottom: None,
             last_sub_frame_width: 0.0,
+            last_sub_frame_inline_extents: (0.0, 0.0),
 
             // P251 — buffer cell tails inicializado vazio.
             pending_cell_tails: Vec::new(),
@@ -984,13 +1025,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // localmente antes de layout_content do body decorado.
             decoration_lines_collector: None,
             // P287 — estado smartquote per-document (true = próximo é open).
-            smartquote_double_open: true,
-            smartquote_single_open: true,
+            smartquote_context: Default::default(),
             attachments: Vec::new(),
             artifact_marker_id: 0,
             // P446 — smallcaps activo no corpo de um `#smallcaps[...]`.
             smallcaps: false,
             paragraph_planning_suppressed: false,
+            bidi_scope_active: false,
+            cell_bidi_allowed: false,
+            bidi_cursor: None,
+            text_bidi: None,
+            text_segment_chain: None,
+            geometric_text_lines: false,
+            active_paragraph_dir: None,
+            pending_line_dir: None,
+            explicit_line_alignment: None,
             // P418 — cache pré-renderizado de citações/bibliografia CSL.
             bib_render_cache: None,
             // P472 — última key citada para ibid.
@@ -1028,6 +1077,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// Largura disponível para conteúdo (exclui margens dos dois lados).
     /// **P867** — quando `width: auto`, o espaço é ilimitado.
     pub(super) fn available_width(&self) -> f64 {
+        if self.is_sub_frame {
+            return (self.regions.current.width
+                - self.regions.current.line_start_x.0
+                - self.page_config.margin.right)
+                .max(0.0);
+        }
         if self.page_config.width.is_infinite() {
             f64::INFINITY
         } else {
@@ -1041,6 +1096,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// Altura disponível para conteúdo (exclui margens topo e base).
     #[allow(dead_code)]
     pub(super) fn available_height(&self) -> f64 {
+        if self.is_sub_frame {
+            return self.regions.current.height.max(0.0);
+        }
         if self.page_config.height.is_infinite() {
             f64::INFINITY
         } else {
@@ -1057,6 +1115,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// inline — evita confundir com `available_height()` (que subtrai 2×margin).
     /// **P867** — quando `height: auto`, não há limite inferior.
     pub(super) fn page_bottom_limit(&self) -> f64 {
+        if self.is_sub_frame {
+            return self.regions.current.height;
+        }
         if self.page_config.height.is_infinite() {
             f64::INFINITY
         } else {
@@ -1085,6 +1146,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.regions.current.line_start_x = Pt(self.page_config.margin.left);
         self.regions.current.cursor_y = Pt(self.page_config.margin.top);
         self.initial_baseline_pending = true;
+        self.flow_placement_end = None;
+        self.block_place_region = None;
+        self.block_auto_width = false;
+        self.block_place_decorations.clear();
     }
 
     /// **P185C (mecanismo M3 da ADR-0068)** — avança `self.locator` e
@@ -1111,13 +1176,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 x: self.regions.current.cursor_x,
                 y: self.regions.current.cursor_y,
             };
-            self.runtime
-                .positions
-                .insert(loc, crate::entities::position::Position { page, point });
+            self.record_location_position(
+                loc,
+                crate::entities::position::Position { page, point },
+                false,
+            );
         }
     }
 
     pub fn layout_content(&mut self, content: &Content) {
+        let content = content.source_body();
         if self.flow_suffix_checkpoint_pending {
             self.flow_suffix_checkpoint_pending = false;
             self.flow_suffix_transaction_active = true;
@@ -1138,12 +1206,65 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// ocorrência; descendants continuam a chamar `layout_content` e, como a
     /// sentinela já foi consumida, integram a mesma unidade atómica.
     pub(super) fn layout_content_once(&mut self, content: &Content) {
+        if !self.locations_reserved {
+            crate::compiler::introspect::walk::reserve_locations(
+                content,
+                &mut self.locator,
+            );
+            self.locations_reserved = true;
+        }
+        match content {
+            Content::Source(e) => {
+                self.layout_content_once(&e.body);
+                return;
+            }
+            Content::Located(e) => {
+                self.locator.observe(e.location);
+                self.current_location = Some(e.location);
+                let page = std::num::NonZeroUsize::new(self.pages.len() + 1).unwrap();
+                let point = crate::entities::layout_types::Point {
+                    x: self.regions.current.cursor_x,
+                    y: self.regions.current.cursor_y,
+                };
+                self.record_location_position(
+                    e.location,
+                    crate::entities::position::Position { page, point },
+                    false,
+                );
+                self.layout_content_body(&e.body);
+                return;
+            }
+            Content::Realized(e) => {
+                realized::layout(self, &e.original, &e.visual);
+                return;
+            }
+            Content::ShowRecipe(e) => {
+                self.layout_content(&e.body);
+                return;
+            }
+            _ => {}
+        }
         // P185C: gating Locator atómico no topo, antes do match.
         // Avança em sincronia com walk de introspect; current_location
         // fica disponível para consumers location-aware (P187/P188).
         self.advance_locator_if_locatable(content);
+        self.layout_content_body(content);
+    }
 
+    fn layout_content_body(&mut self, content: &Content) {
+        // Observe the logical input once; leaf arms remain static adapters.
         match content {
+            Content::Text(text) => self.smartquote_context.observe_text(text),
+            Content::Space | Content::SpaceFromNewline => {
+                self.smartquote_context.observe_text(" ")
+            }
+            _ => {}
+        }
+        match content {
+            Content::Source(_)
+            | Content::Located(_)
+            | Content::Realized(_)
+            | Content::ShowRecipe(_) => self.layout_content_once(content),
             Content::Empty => {}
 
             // A unidade do parágrafo fecha suas fronteiras sob o estilo ativo.
@@ -1198,8 +1319,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Atomizado (ADR-0109, P381) → layout/text.rs (folha de render).
             Content::Text(text) => text::layout(self, text),
 
-            Content::Space => space::layout(self, crate::entities::layout_types::TextSeparatorOrigin::Markup),
-            Content::SpaceFromNewline => space::layout(self, crate::entities::layout_types::TextSeparatorOrigin::Newline),
+            Content::Space => space::layout(
+                self,
+                crate::entities::layout_types::TextSeparatorOrigin::Markup,
+            ),
+            Content::SpaceFromNewline => space::layout(
+                self,
+                crate::entities::layout_types::TextSeparatorOrigin::Newline,
+            ),
 
             // **P1057/P1061** — paridade vanilla `par.spacing` e margin collapsing parágrafo↔bloco:
             // O flush_line drena a linha e avança (top + bottom + leading); adicionamos
@@ -1605,6 +1732,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::ContextBlock(elem) => context_block::layout(self, elem),
             Content::HtmlElem(_) => {}
         }
+        if matches!(content, Content::Equation(_) | Content::Image(_) | Content::Boxed(_))
+        {
+            self.smartquote_context.observe_object();
+        }
     }
 }
 
@@ -1777,6 +1908,10 @@ pub fn layout_with_introspector_and_metrics_and_callbacks<
     )
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C017: Fachada pública seeded do layout; delega ao coordenador de convergência os oito inputs completos"
+)]
 pub fn layout_with_introspector_and_metrics_and_callbacks_from<
     M: FontMetrics + Clone,
     S: ImageSizer + Clone,
@@ -1792,7 +1927,16 @@ pub fn layout_with_introspector_and_metrics_and_callbacks_from<
     par_line_callback_store: Option<&SealedParLineCallbacks>,
     location_start: LocatorSeed,
 ) -> LayoutPassOutcome {
-    convergence::run(content, introspector, metrics, sizer, font_size, math_callback_store, par_line_callback_store, location_start)
+    convergence::run(
+        content,
+        introspector,
+        metrics,
+        sizer,
+        font_size,
+        math_callback_store,
+        par_line_callback_store,
+        location_start,
+    )
 }
 
 // ── Helpers P418 ───────────────────────────────────────────────────────────

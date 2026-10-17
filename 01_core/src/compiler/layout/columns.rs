@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/columns.md
-//! @prompt-hash e1a22474
+//! @prompt-hash 7a0196f8
 //! @layer L1
 //! @updated 2026-09-29
 //!
@@ -126,6 +126,7 @@ pub(super) fn realize_segmented_par_line_patterns<M: FontMetrics, S: ImageSizer>
                 pos: Point { x: Pt(slot_start + offset), y: baseline },
                 text: text.into(),
                 style: number_style.clone(),
+                bidi: None,
             }
         })
         .collect()
@@ -159,7 +160,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
     // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
     let usable_width = page_width - margins.horizontal();
-    let count = e.count.max(1) as usize;
+    layouter.record_flow_width_at(layouter.regions.current.line_start_x.0, usable_width);
+    let count = e.count.max(1);
     let count_f = count as f64;
 
     // 2. Resolver gutter (Length → f64 Pt; default ~4% page width).
@@ -252,7 +254,9 @@ mod p1378_tests {
         document
             .pages
             .iter()
-            .flat_map(|page| page.items.iter())
+            .flat_map(|page| {
+                super::super::tests::frame_items_recursive(&page.items).into_iter()
+            })
             .find_map(|item| match item {
                 #[allow(deprecated)]
                 FrameItem::Text { text, pos, .. }
@@ -362,7 +366,9 @@ mod p1379_tests {
         document
             .pages
             .iter()
-            .flat_map(|page| page.items.iter())
+            .flat_map(|page| {
+                super::super::tests::frame_items_recursive(&page.items).into_iter()
+            })
             .find_map(|item| match item {
                 #[allow(deprecated)]
                 FrameItem::Text { text, pos, .. }

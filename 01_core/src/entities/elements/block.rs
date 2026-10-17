@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/block.md
-//! @prompt-hash b23cdaf5
+//! @prompt-hash e2e5dc30
 //! @layer L1
-//! @updated 2026-06-12
+//! @updated 2026-10-10
 //!
 //! `BlockElem` — Lote 15 P330 (lote tardio da triagem DEBT-58; o ÚLTIMO lote).
 //! `block(body, …)` — container block denso (14 campos). Contentor: recurse no
@@ -66,10 +66,9 @@ impl Element for BlockElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::Block(Arc::new(BlockElem {
-            body: self.body.map_content(transform)?,
-            ..(*self).clone()
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::Block(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, transform: &mut F) -> Content
@@ -80,6 +79,26 @@ impl Element for BlockElem {
             body: self.body.map_text(transform),
             ..(*self).clone()
         }))
+    }
+}
+
+impl BlockElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        if body.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        Ok(Some(Content::Block(Arc::new(mapped))))
     }
 }
 

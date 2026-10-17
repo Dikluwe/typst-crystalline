@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/crystalline_lint.md
-//! @prompt-hash 7df4616f
+//! @prompt-hash dc90deba
 //! @layer L4
 //! @updated 2026-06-24
 //!
@@ -10,7 +10,7 @@
 //! enquanto tipos autorizados continuam a passar.
 
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// Path do binário `crystalline-lint` no PATH do sistema.
@@ -26,7 +26,7 @@ fn temp_project(name: &str) -> PathBuf {
 }
 
 /// Escreve `content` no ficheiro `rel` dentro de `dir`.
-fn write_file(dir: &PathBuf, rel: &str, content: &str) {
+fn write_file(dir: &Path, rel: &str, content: &str) {
     let path = dir.join(rel);
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).expect("criar parent");
@@ -35,7 +35,7 @@ fn write_file(dir: &PathBuf, rel: &str, content: &str) {
 }
 
 /// Cria a estrutura mínima de directórios que o walker de prompts espera.
-fn setup_project_dirs(dir: &PathBuf) {
+fn setup_project_dirs(dir: &Path) {
     fs::create_dir_all(dir.join("00_nucleo/prompts")).expect("criar prompts dir");
 }
 

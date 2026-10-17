@@ -4,8 +4,6 @@
 //! @layer L1
 //! @updated 2026-09-30
 
-use super::*;
-
 #[derive(Clone, Copy)]
 pub(super) enum AttrKind {
     Str,

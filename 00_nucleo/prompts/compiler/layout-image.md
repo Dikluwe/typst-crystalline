@@ -1,5 +1,10 @@
 # L0 — image
-Hash do Código: 6fd638b4
+Hash do Código: e6797eed
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:9d9d6c265a3840cc5a3b8e121f403bc9e3fe55b1e586ab9014948f0784de5c3e
+- 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:ff71dfc6648d6deb4b2b8054e3d58a93777d17837129f0f1b1e7e138ffb6943c
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/image.rs`
@@ -70,3 +75,63 @@ The five `place_regression_*` refutators in `03_infra/src/integration_tests.rs:5
 ### Owner responsibility
 
 A first image with an initial baseline pending and an empty line consumes a geometric origin in the dedicated root Place sublayout as well as in main flow. It must not request typography for that origin. Existing baseline-origin sublayouts still clear the pending flag before dispatch and retain their positions.
+
+## Posições no referencial composto — 2026-10-14
+
+### Medição anterior à decisão
+
+box-contexto-2026-10-14/probe.json.gz, fontes/binários/HEAD/working tree/UTC
+preservados: Box, inset2pt, prefixo e aninhamento publicam (0,0), mesmo
+quando a tinta se desloca. A diferença da baseline do context direto é
+uma questão separada: não copiar o vanilla apenas por diferir. mod.rs:
+1131-1148/1180-1200 escreve pontos locais em runtime.positions; Box agrupa
+o corpo em outro referencial; finish.rs:295-302 sela o mapa sem recompor
+esses pontos. Realized escreve com or_insert; labels têm mapa paralelo.
+HTML já transporta markers privados pelo frame em html_frame.rs:30-199.
+O registro single-pass e sealing por sub-store são preservados, ADR-0073/
+0074 §§posição/modelo híbrido; não se adota introspecção global vanilla.
+A inspeção do núcleo coordinates e seus owners mostrou usos absolutos
+em grid e explicitamente locais em Place/Box. A qualificação do núcleo
+conserva ambos e exige transformação até a página, sem dupla origem.
+Snapshot anterior: posicoes-compostas-2026-10-14/before.json.gz.
+Geometria/identidade são observáveis; o carrier e seu índice são mecânica.
+
+### Contrato deste owner
+
+No teste de início de bloco fresco, uma linha contendo apenas carriers posicionais diretos equivale à linha vazia. Conservar o significado de todos os demais itens e todas as regras de dimensão/fit/paginação.
+
+Correção interna ADR-0127: sem API/campo público, flag/default ou mudança
+de fase. L0 primeiro; RED→GREEN de coordenadas, ausência de tinta/altura
+fictícia, identidade, ordem, clones visuais e rollback; revalidar os
+controles HTML, geometria, contexto/queries e suíte completa.
+
+
+## Largura causal de Block Auto — 2026-10-14
+
+### Medição anterior à decisão
+
+block-auto-width-2026-10-14/before/results.json.gz conserva HEAD
+06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
+UTC/diffstat/status/fontes/binários/argv e pin 9f2b6e871. O extrator inicial
+procurou blue como #0000ff; blue-geometries-corrected.json lê a cor real
+#0074d9 dos mesmos SVGs, sem nova execução. Em shape, Empty, Place-only,
+Grid e Stack a largura do backing Tekt é160; pin54,14,14,68,68 respectivamente.
+block.rs:222,416,453 usa largura disponível; line_commit.rs:753 perde cursor
+no fechamento e sub_frame.rs:354 guarda apenas cursor terminal. Fonte pinada
+flow/block.rs:145–166,281–290,339–363 distingue Auto de expansão.
+É geometria da linguagem; estrutura da testemunha é mecânica interna.
+A hipótese é refutada se Place contaminar largura, escopos vazarem, texto
+literal perder avanço ou containers explícitos mudarem de dimensão.
+
+### Responsabilidade exclusiva
+
+Publicar largura do target usado para layout (ou dimensão natural quando não há target), na posição lógica; cover overflow não amplia a largura causal.
+
+### Aceitação e limites
+
+Correção interna/de paridade ADR-0127: nenhum contrato público, default ou
+fase novo; L0 primeiro, RED→GREEN, resselo restrito. A largura é uma parte
+da correção B2b/T1–T3 já em andamento: altura Auto/backing, alinhamento tardio,
+fracionários, fragmentação, outset e PDF Parent continuam com critérios próprios.
+Não declarar render aprovado por testar apenas o carrier. Preservar controles
+bilaterais completos e refutadores, suíte/build/doc/fmt/linhagem/inventários.

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/grid_placement.md
-//! @prompt-hash f277f8cc
+//! @prompt-hash 1b125a63
 //! @layer L1
-//! @updated 2026-05-13
+//! @updated 2026-10-07
 //!
 //! P224.C — Placement algorítmico Grid completo.
 //! **Fecha DEBT-34e** (colspan/rowspan placement); DEBT-34d (Auto track
@@ -61,211 +61,218 @@ pub struct PlacedCell {
 ///    em ordem linear procurando primeira posição livre.
 ///
 /// `num_cols` validação: cells com `colspan` excedendo `num_cols` rejeitadas.
+#[derive(Clone, Copy)]
+enum PlacementPolicy {
+    GridExplicitFirst,
+    TableDocumentOrder,
+}
+
 pub(crate) fn place_cells(
     cells: &[Content],
     num_cols: usize,
 ) -> SourceResult<Vec<PlacedCell>> {
+    place(cells, num_cols, 0, PlacementPolicy::GridExplicitFirst)
+}
+
+pub(crate) fn place_table_cells(
+    cells: &[Content],
+    num_cols: usize,
+    minimum_rows: usize,
+) -> SourceResult<Vec<PlacedCell>> {
+    place(cells, num_cols, minimum_rows, PlacementPolicy::TableDocumentOrder)
+}
+
+fn place(
+    cells: &[Content],
+    num_cols: usize,
+    minimum_rows: usize,
+    policy: PlacementPolicy,
+) -> SourceResult<Vec<PlacedCell>> {
     if num_cols == 0 {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            "grid_placement: num_cols deve ser >= 1".to_string(),
+            "grid_placement: num_cols deve ser >= 1",
         )]);
     }
-
-    // Occupancy grid: cresce dinamicamente. `occupied[row][col]` == true
-    // se ocupado. `num_cols` colunas fixas; rows expandem conforme placement.
-    let mut occupied: Vec<Vec<bool>> = Vec::new();
-    let mut placed: Vec<PlacedCell> = Vec::new();
-
-    // Separar cells em explicit (x ou y Some) vs auto (ambos None).
-    let mut explicit: Vec<(usize, &Content)> = Vec::new();
-    let mut auto: Vec<(usize, &Content)> = Vec::new();
-    for (idx, c) in cells.iter().enumerate() {
-        match c {
-            Content::GridCell(e) => {
-                if e.x.is_some() || e.y.is_some() {
-                    explicit.push((idx, c));
-                } else {
-                    auto.push((idx, c));
-                }
-            }
-            _ => auto.push((idx, c)),
+    let table = matches!(policy, PlacementPolicy::TableDocumentOrder);
+    let fields = |c: &Content| match c {
+        Content::TableCell(e) if table => {
+            let (x, y, c, r) = e.placement();
+            (x, y, c, r, e.source_span)
         }
+        Content::GridCell(e) if !table => {
+            (e.x, e.y, e.colspan, e.rowspan, Span::detached())
+        }
+        _ => (None, None, None, None, Span::detached()),
+    };
+    let mut ordered = cells.iter().collect::<Vec<_>>();
+    if !table {
+        ordered.sort_by_key(|c| {
+            let (x, y, _, _, _) = fields(c);
+            x.is_none() && y.is_none()
+        });
     }
-
-    // Pass 1 — explicit placement.
-    for (_idx, cell) in &explicit {
-        let (_body, x, y, cs, rs) = extract_cell_fields(cell);
+    let mut occupied: Vec<Vec<bool>> = Vec::new();
+    let mut placed = Vec::new();
+    let mut cursor = 0usize;
+    for cell in ordered {
+        let (x, y, cs, rs, span) = fields(cell);
         let colspan = cs.unwrap_or(1).max(1);
         let rowspan = rs.unwrap_or(1).max(1);
-
-        let col_start = x.unwrap_or(0);
-        // P822 — coluna explícita fora da grid é erro dedicado (paridade
-        // vanilla `resolve.rs:2221-2225`, sem hint), verificada ANTES da
-        // validação de colspan — o vanilla distingue "invalid column" de
-        // "colspan exceed" (o cristalino confundia os dois, achado #9(b)
-        // de P810).
-        if x.is_some() && col_start >= num_cols {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("cell could not be placed at invalid column {col_start}"),
-            )]);
+        let fail = |msg: &str| vec![SourceDiagnostic::error(span, msg)];
+        if x.is_some_and(|c| c >= num_cols) {
+            return Err(fail(&format!(
+                "cell could not be placed at invalid column {}",
+                x.unwrap()
+            )));
         }
-
-        // Validar colspan cabe (paridade vanilla `resolve.rs:1413-1419`
-        // — mensagem + hint verbatim, P822).
-        if col_start + colspan > num_cols {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                "cell's colspan would cause it to exceed the available column(s)"
-                    .to_string(),
+        let badspan = || {
+            vec![SourceDiagnostic::error(
+                span,
+                "cell's colspan would cause it to exceed the available column(s)",
             )
             .with_hint(
                 "try placing the cell in another position or reducing its colspan",
-            )]);
-        }
-
-        // Row: explicit se y Some; auto se y None (próxima linha livre nessa coluna).
-        let row_start = match y {
-            Some(r) => r,
-            None => find_next_free_row(&occupied, col_start, colspan),
+            )]
         };
-
-        // Expandir occupancy para rowspan.
-        ensure_rows(&mut occupied, row_start + rowspan, num_cols);
-
-        // Detectar conflito. P822 — mensagens em paridade verbatim com o
-        // vanilla: conflito na posição de origem da célula → "attempted to
-        // place a second cell" (resolve.rs:1500-1504); conflito numa
-        // posição spanned → "cell would span a previously placed cell"
-        // (resolve.rs:1522-1530). Hints incluídos (observável ao nível da
-        // língua — ADR-0107).
-        for r in row_start..row_start + rowspan {
-            for c in col_start..col_start + colspan {
-                if occupied[r][c] {
-                    let diag = if r == row_start && c == col_start {
+        if colspan > num_cols
+            || x.is_some_and(|c| c.checked_add(colspan).is_none_or(|end| end > num_cols))
+        {
+            return Err(badspan());
+        }
+        let (row, col) = match (x, y) {
+            (Some(c), Some(r)) => (r, c),
+            (Some(c), None) => {
+                (find_next_free_row(&occupied, c, if table { 1 } else { colspan }), c)
+            }
+            (None, Some(r)) => {
+                let c = if table {
+                    (0..num_cols).find(|&c| r >= occupied.len() || !occupied[r][c])
+                } else {
+                    Some(0)
+                };
+                let c = if table {
+                    c.ok_or_else(|| {
+                        vec![SourceDiagnostic::error(
+                            span,
+                            format!(
+                                "cell could not be placed in row {r} because it was full"
+                            ),
+                        )
+                        .with_hint("try specifying your cells in a different order")]
+                    })?
+                } else {
+                    c.unwrap_or(0)
+                };
+                if c + colspan > num_cols {
+                    return Err(badspan());
+                }
+                (r, c)
+            }
+            (None, None) => loop {
+                let r = cursor / num_cols;
+                let c = cursor % num_cols;
+                if table {
+                    if r >= occupied.len() || !occupied[r][c] {
+                        if c + colspan > num_cols {
+                            return Err(badspan());
+                        }
+                        break (r, c);
+                    }
+                    cursor = cursor
+                        .checked_add(1)
+                        .ok_or_else(|| fail("cell position too large"))?;
+                    continue;
+                }
+                if c + colspan > num_cols {
+                    cursor = cursor
+                        .checked_add(num_cols - c)
+                        .ok_or_else(|| fail("cell position too large"))?;
+                    continue;
+                }
+                let end = r
+                    .checked_add(rowspan)
+                    .ok_or_else(|| fail("cell position too large"))?;
+                let fits = (r..end).all(|rr| {
+                    (c..c + colspan).all(|cc| rr >= occupied.len() || !occupied[rr][cc])
+                });
+                if fits {
+                    break (r, c);
+                }
+                cursor = cursor
+                    .checked_add(1)
+                    .ok_or_else(|| fail("cell position too large"))?;
+            },
+        };
+        let end = row
+            .checked_add(rowspan)
+            .ok_or_else(|| fail("cell position too large"))?;
+        end.checked_mul(num_cols)
+            .ok_or_else(|| fail("cell position too large"))?;
+        occupied
+            .try_reserve(end.saturating_sub(occupied.len()))
+            .map_err(|_| fail("cell position too large"))?;
+        ensure_rows(&mut occupied, end, num_cols);
+        for (row_offset, slots) in occupied[row..end].iter().enumerate() {
+            let r = row + row_offset;
+            for (col_offset, &used) in slots[col..col + colspan].iter().enumerate() {
+                let c = col + col_offset;
+                if used {
+                    let diag = if r == row && c == col {
                         SourceDiagnostic::error(
-                            Span::detached(),
+                            span,
                             format!(
                                 "attempted to place a second cell at column {c}, row {r}"
                             ),
                         )
                         .with_hint("try specifying your cells in a different order")
                     } else {
-                        SourceDiagnostic::error(
-                            Span::detached(),
-                            format!(
-                                "cell would span a previously placed cell at column {c}, row {r}"
-                            ),
-                        )
-                        .with_hint(
-                            "try specifying your cells in a different order or reducing the cell's rowspan or colspan",
-                        )
+                        SourceDiagnostic::error(span,format!("cell would span a previously placed cell at column {c}, row {r}")).with_hint("try specifying your cells in a different order or reducing the cell's rowspan or colspan")
                     };
                     return Err(vec![diag]);
                 }
             }
         }
-
-        // Marcar ocupação.
-        for r in row_start..row_start + rowspan {
-            for c in col_start..col_start + colspan {
-                occupied[r][c] = true;
-            }
+        for slots in &mut occupied[row..end] {
+            slots[col..col + colspan].fill(true);
         }
-
-        // P234 — preserva outer cell (GridCell wrapper inteiro) em
-        // PlacedCell.body para consumer extrair per-cell stroke/fill
-        // via match preservando precedência P230.
-        placed.push(PlacedCell {
-            body: (*cell).clone(),
-            row: row_start,
-            col: col_start,
-            colspan,
-            rowspan,
-        });
+        placed.push(PlacedCell { body: cell.clone(), row, col, colspan, rowspan });
+        if x.is_none() && y.is_none() {
+            cursor = row
+                .checked_mul(num_cols)
+                .and_then(|n| {
+                    n.checked_add(if table && colspan == num_cols {
+                        colspan.checked_mul(rowspan)?
+                    } else {
+                        col + colspan
+                    })
+                })
+                .ok_or_else(|| fail("cell position too large"))?;
+        }
     }
-
-    // Pass 2 — auto placement linear.
-    let mut cursor_row: usize = 0;
-    let mut cursor_col: usize = 0;
-    for (_idx, cell) in &auto {
-        let (_body, _, _, cs, rs) = extract_cell_fields(cell);
-        let colspan = cs.unwrap_or(1).max(1);
-        let rowspan = rs.unwrap_or(1).max(1);
-
-        // Validar colspan cabe (paridade vanilla `resolve.rs:1413-1419`
-        // — mensagem + hint verbatim, P822).
-        if colspan > num_cols {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                "cell's colspan would cause it to exceed the available column(s)"
-                    .to_string(),
-            )
-            .with_hint(
-                "try placing the cell in another position or reducing its colspan",
-            )]);
-        }
-
-        // Avançar cursor até encontrar posição livre que acomoda colspan × rowspan.
-        loop {
-            // Wrap se colspan não cabe.
-            if cursor_col + colspan > num_cols {
-                cursor_col = 0;
-                cursor_row += 1;
-            }
-            ensure_rows(&mut occupied, cursor_row + rowspan, num_cols);
-
-            let mut fits = true;
-            'outer: for r in cursor_row..cursor_row + rowspan {
-                for c in cursor_col..cursor_col + colspan {
-                    if occupied[r][c] {
-                        fits = false;
-                        break 'outer;
-                    }
+    if table {
+        occupied
+            .try_reserve(minimum_rows.saturating_sub(occupied.len()))
+            .map_err(|_| {
+                vec![SourceDiagnostic::error(Span::detached(), "cell position too large")]
+            })?;
+        ensure_rows(&mut occupied, minimum_rows, num_cols);
+        for (row, line) in occupied.iter().enumerate() {
+            for (col, &used) in line.iter().enumerate() {
+                if !used {
+                    placed.push(PlacedCell {
+                        body: Content::Empty,
+                        row,
+                        col,
+                        colspan: 1,
+                        rowspan: 1,
+                    });
                 }
             }
-            if fits {
-                break;
-            }
-            // Avançar 1 coluna; cursor_col wrap em próxima iteração.
-            cursor_col += 1;
         }
-
-        // Marcar ocupação.
-        for r in cursor_row..cursor_row + rowspan {
-            for c in cursor_col..cursor_col + colspan {
-                occupied[r][c] = true;
-            }
-        }
-
-        // P234 — preserva outer cell (GridCell wrapper inteiro).
-        placed.push(PlacedCell {
-            body: (*cell).clone(),
-            row: cursor_row,
-            col: cursor_col,
-            colspan,
-            rowspan,
-        });
-
-        cursor_col += colspan;
+        placed.sort_by_key(|c| (c.row, c.col));
     }
-
     Ok(placed)
-}
-
-/// Extrai fields de `Content::GridCell` ou trata `Content` raw como
-/// (body=self, x=None, y=None, colspan=None, rowspan=None).
-/// P230 — stroke/fill GridCell ignorados aqui (consumidos pelo
-/// `layout_grid` consumer via `extract_cell_cosmetics`; placement
-/// algorítmico ortogonal a render cosmético).
-fn extract_cell_fields(
-    c: &Content,
-) -> (&Content, Option<usize>, Option<usize>, Option<usize>, Option<usize>) {
-    match c {
-        Content::GridCell(e) => (&e.body, e.x, e.y, e.colspan, e.rowspan),
-        other => (other, None, None, None, None),
-    }
 }
 
 /// Procura próxima linha livre na coluna `col_start` (com `colspan` colunas
@@ -295,6 +302,13 @@ fn ensure_rows(occupied: &mut Vec<Vec<bool>>, target_rows: usize, num_cols: usiz
     while occupied.len() < target_rows {
         occupied.push(vec![false; num_cols]);
     }
+}
+
+pub(crate) fn table_groups(
+    e: &crate::entities::elements::table::TableElem,
+    cols: usize,
+) -> SourceResult<(Vec<Content>, usize, usize)> {
+    super::grid::row_groups::table_groups(e, cols)
 }
 
 #[cfg(test)]

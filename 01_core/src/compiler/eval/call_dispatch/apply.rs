@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch/apply.md
-//! @prompt-hash 5f3ac21a
+//! @prompt-hash 4fa10e90
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -71,7 +71,7 @@ pub fn apply_func(
             let (inner, pre) = w.as_ref();
             apply_func(inner.clone(), merge_with_args(pre, args), scopes, ctx, engine)
         }
-        FuncRepr::Native(native) => {
+        FuncRepr::Native(native) | FuncRepr::Format(_, native) => {
             let world = engine.world;
             let current_file = engine.current_file;
             // F-5a de-bake (P365, `f_fronteira_e1.md` §3a.9): o dispatch não lê mais

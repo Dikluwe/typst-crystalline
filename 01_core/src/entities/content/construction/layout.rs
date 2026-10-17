@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content/construction/layout.md
-//! @prompt-hash bab2e22a
+//! @prompt-hash 37c801df
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-06
 
 use super::*;
 
@@ -174,6 +174,10 @@ impl Content {
     }
 
     /// Page-run lexical interno. O binding público será materializado em P1140.21.
+    #[expect(
+        clippy::too_many_arguments,
+        reason = "C023: Construtor público puro com argumentos correspondentes ao PageRun: ausência e numbering Option<Option<_>> têm significado próprio"
+    )]
     pub fn page_run_with_geometry(
         paper: Option<crate::entities::page_geometry::Paper>,
         flipped: Option<bool>,
@@ -361,7 +365,7 @@ impl Content {
     }
 
     /// `stack(dir, spacing, ..children)` — Passo 156I (ADR-0061 Fase 2
-    /// sub-passo 3). Atinge target 72% Layout. Aceita Vec<Content> que
+    /// sub-passo 3). Atinge target 72% Layout. Aceita `Vec<Content>` que
     /// converte para `Arc<[Content]>` (clone O(1) per ADR-0026 revisão).
     pub fn stack(children: Vec<Content>, dir: Dir, spacing: Option<Length>) -> Self {
         Self::Stack(Arc::new(StackElem { children: children.into(), dir, spacing }))
@@ -370,7 +374,8 @@ impl Content {
     /// **Lote 9 P324** — `Content::SmartQuote` (aspa lang-aware).
     pub fn smartquote(double: bool) -> Self {
         Self::SmartQuote(Arc::new(SmartQuoteElem {
-            double,
+            double: Some(double),
+            enabled: None,
             alternative: None,
             quotes: None,
         }))
@@ -386,7 +391,12 @@ impl Content {
 
     /// **Lote 9 P324** — `Content::Transform` (transformação afim 2D).
     pub fn transform(matrix: TransformMatrix, body: Content) -> Self {
-        Self::Transform(Arc::new(TransformElem { matrix, body }))
+        Self::Transform(Arc::new(TransformElem {
+            operation: crate::entities::elements::transform::TransformOperation::Matrix(
+                matrix,
+            ),
+            body,
+        }))
     }
 
     /// **Lote 9 P324** — `Content::Place` (posicionamento absoluto/flutuante).

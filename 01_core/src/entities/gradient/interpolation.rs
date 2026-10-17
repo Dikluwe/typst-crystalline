@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/gradient/interpolation.md
-//! @prompt-hash b48fd0a1
+//! @prompt-hash 300db4bc
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -57,7 +57,7 @@ pub fn color_to_oklab_with_alpha(c: Color) -> (f32, f32, f32, f32) {
 /// Gamma 2.2 inversa (sRGB → linear).
 pub(super) fn srgb_to_linear(c: f32) -> f32 {
     if c <= 0.04045 {
-        c / 12.92
+        (1.0_f64 / 12.92) as f32 * c
     } else {
         libm::powf(
             libm::fmaf(c, (1.0_f64 / 1.055) as f32, (0.055_f64 / 1.055) as f32),
@@ -73,17 +73,17 @@ pub(super) fn palette_cbrtf_p1253(x: f32) -> f32 {
 
 /// linear sRGB → Oklab (paridade ICC; constantes da publicação Björn Ottosson 2020).
 pub(super) fn linear_rgb_to_oklab(r: f32, g: f32, b: f32) -> (f32, f32, f32) {
-    let l = 0.412_221_470_8 * r + 0.536_332_536_3 * g + 0.051_445_992_9 * b;
-    let m = 0.211_903_498_2 * r + 0.680_699_545_1 * g + 0.107_396_956_6 * b;
-    let s = 0.088_302_461_9 * r + 0.281_718_837_6 * g + 0.629_978_700_5 * b;
+    let l = 0.412_221_46 * r + 0.536_332_55 * g + 0.051_445_995 * b;
+    let m = 0.211_903_5 * r + 0.680_699_5 * g + 0.107_396_96 * b;
+    let s = 0.088_302_46 * r + 0.281_718_85 * g + 0.629_978_7 * b;
 
     let l_ = palette_cbrtf_p1253(l);
     let m_ = palette_cbrtf_p1253(m);
     let s_ = palette_cbrtf_p1253(s);
 
-    let l_lab = 0.210_454_255_3 * l_ + 0.793_617_785_0 * m_ - 0.004_072_046_8 * s_;
-    let a_lab = 1.977_998_495_1 * l_ - 2.428_592_205_0 * m_ + 0.450_593_709_9 * s_;
-    let b_lab = 0.025_904_037_1 * l_ + 0.782_771_766_2 * m_ - 0.808_675_766_0 * s_;
+    let l_lab = 0.210_454_26 * l_ + 0.793_617_8 * m_ - 0.004_072_047 * s_;
+    let a_lab = 1.977_998_5 * l_ - 2.428_592_2 * m_ + 0.450_593_7 * s_;
+    let b_lab = 0.025_904_037 * l_ + 0.782_771_77 * m_ - 0.808_675_77 * s_;
 
     (l_lab, a_lab, b_lab)
 }
@@ -104,13 +104,21 @@ pub(super) fn interpolate_in_space(
     let t = t.clamp(0.0, 1.0);
     match space {
         ColorSpace::Spot(colorant) => match (c0, c1) {
-            (Color::Spot(a), Color::Spot(b))
-                if a.colorant == b.colorant && a.colorant.as_ref() == &colorant =>
-            {
-                Color::Spot(crate::entities::color::SpotColor {
-                    colorant: a.colorant,
-                    tint: Ratio(a.tint.get() + (b.tint.get() - a.tint.get()) * t as f64),
-                })
+            (Color::Spot(a), Color::Spot(b)) => {
+                if a.colorant == b.colorant && a.colorant.as_ref() == &colorant {
+                    Color::Spot(crate::entities::color::SpotColor {
+                        colorant: a.colorant,
+                        tint: Ratio(
+                            a.tint.get() + (b.tint.get() - a.tint.get()) * t as f64,
+                        ),
+                    })
+                } else {
+                    interpolate_oklab(
+                        Color::Spot(a).to_process(),
+                        Color::Spot(b).to_process(),
+                        t,
+                    )
+                }
             }
             (a, b) => interpolate_oklab(a.to_process(), b.to_process(), t),
         },
@@ -152,7 +160,7 @@ pub(super) fn lerp(a: f32, b: f32, t: f32) -> f32 {
 #[inline]
 pub(super) fn srgb_to_linear_local(c: f32) -> f32 {
     if c <= 0.04045 {
-        c / 12.92
+        (1.0_f64 / 12.92) as f32 * c
     } else {
         libm::powf(
             libm::fmaf(c, (1.0_f64 / 1.055) as f32, (0.055_f64 / 1.055) as f32),
@@ -197,7 +205,9 @@ pub(super) fn to_oklch_components(c: Color) -> (f32, f32, f32, f32) {
         _ => {
             let (l, a, b, alpha) = color_to_oklab_with_alpha(c);
             let chroma = (a * a + b * b).sqrt();
-            let h = b.atan2(a).to_degrees().rem_euclid(360.0);
+            let h = (std::f32::consts::PI + libm::atan2f(-b, -a))
+                .to_degrees()
+                .rem_euclid(360.0);
             (l, chroma, h, alpha)
         }
     }
@@ -345,4 +355,48 @@ pub(super) fn interpolate_cmyk(c0: Color, c1: Color, t: f32) -> Color {
     let (c0_, m0, y0, k0) = to_cmyk_components(c0);
     let (c1_, m1, y1, k1) = to_cmyk_components(c1);
     Color::cmyk(lerp(c0_, c1_, t), lerp(m0, m1, t), lerp(y0, y1, t), lerp(k0, k1, t))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn colors_ci_gradient_polar_quadrants() {
+        for (a, b, degrees) in [
+            (0.1, 0.1, 45.0),
+            (-0.1, 0.1, 135.0),
+            (-0.1, -0.1, 225.0),
+            (0.1, -0.1, 315.0),
+        ] {
+            let (l, c, h, alpha) = to_oklch_components(Color::oklab(0.5, a, b, 0.25));
+            assert!((l - 0.5).abs() < 1e-6);
+            assert!((c - 0.141_421_36).abs() < 1e-6);
+            assert!((h - degrees).abs() < 1e-4);
+            assert!((alpha - 0.25).abs() < 1e-6);
+        }
+    }
+
+    #[test]
+    fn colors_ci_gradient_shorter_hue_and_alpha() {
+        let result = interpolate_oklch(
+            Color::oklch(0.5, 0.1, 350.0, 0.2),
+            Color::oklch(0.5, 0.1, 10.0, 0.8),
+            0.5,
+        );
+        let Color::Oklch { l, c, h, alpha } = result else {
+            panic!("Oklch result required");
+        };
+        assert!((l - 0.5).abs() < 1e-6);
+        assert!((c - 0.1).abs() < 1e-6);
+        assert!(h.abs() < 1e-4 || (h - 360.0).abs() < 1e-4);
+        assert!((alpha - 0.5).abs() < 1e-6);
+    }
+
+    #[test]
+    fn bounds_ci_gradient_preserves_measured_hue() {
+        let (_, _, hue, _) =
+            to_oklch_components(Color::srgb_f32(1.0, 0.254902, 0.211765, 1.0));
+        assert!((hue - 28.442_533).abs() < 1e-6, "hue {hue}");
+    }
 }

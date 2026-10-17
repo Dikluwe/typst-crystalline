@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch/contextual_calls.md
-//! @prompt-hash a03f5420
+//! @prompt-hash 683c192e
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -12,6 +12,8 @@ pub(super) fn try_contextual_call(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
+    cached_receiver: &mut Option<Value>,
+    resolved_callee: &mut Option<Value>,
 ) -> SourceResult<Option<Value>> {
     // **P712** — `measure(body)` / `std.measure(body)`: precisa de
     // `engine.styles` (o tamanho medido depende do `#set text(size:)`
@@ -31,8 +33,15 @@ pub(super) fn try_contextual_call(
         _ => false,
     };
     if measure_name_matches {
-        let target = eval_expr(call.callee(), scopes, ctx, engine)?;
-        if let Value::Func(ref f) = target {
+        let target = super::call::resolve_callee(
+            call,
+            cached_receiver,
+            resolved_callee,
+            scopes,
+            ctx,
+            engine,
+        )?;
+        if let Value::Func(f) = target {
             if f.native_fn_addr().is_some_and(|addr| {
                 std::ptr::fn_addr_eq(addr, native_measure as fn(_, _, _, _) -> _)
             }) {
@@ -81,8 +90,15 @@ pub(super) fn try_contextual_call(
         _ => false,
     };
     if layout_name_matches {
-        let target = eval_expr(call.callee(), scopes, ctx, engine)?;
-        if let Value::Func(ref f) = target {
+        let target = super::call::resolve_callee(
+            call,
+            cached_receiver,
+            resolved_callee,
+            scopes,
+            ctx,
+            engine,
+        )?;
+        if let Value::Func(f) = target {
             if f.native_fn_addr().is_some_and(|addr| {
                 std::ptr::fn_addr_eq(addr, native_layout as fn(_, _, _, _) -> _)
             }) {

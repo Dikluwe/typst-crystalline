@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/shapes/line.md
-//! @prompt-hash 9caf3baf
+//! @prompt-hash b5526a58
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -10,7 +10,6 @@ use super::*;
 ///
 /// `dx`/`dy`: Float ou Length em pt. Omitidos → 0.0 (linha degenerada, válida).
 /// Stroke preta por omissão — linhas não têm fill.
-
 pub fn native_line(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -132,8 +131,8 @@ pub fn native_line(
                 }
                 None => 0.0,
             };
-            let dx = angle_rad.cos() * length;
-            let dy = angle_rad.sin() * length;
+            let dx = libm::cos(angle_rad) * length;
+            let dy = libm::sin(angle_rad) * length;
             (sx, sy, sx + dx, sy + dy, true)
         }
         None => {

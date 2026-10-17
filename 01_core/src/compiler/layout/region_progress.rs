@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/region_progress.md
-//! @prompt-hash ec733b98
+//! @prompt-hash 5d3236b7
 //! @layer L1
 //! @updated 2026-09-28
 
@@ -114,6 +114,7 @@ pub(super) fn post_line<M: FontMetrics, S: ImageSizer>(
     effective_line_committed: bool,
 ) {
     if had_items
+        && !layouter.is_sub_frame
         && layouter.regions.current.cursor_y.0 > layouter.page_bottom_limit()
         && !effective_line_committed
     {
@@ -129,7 +130,8 @@ pub(super) fn post_line<M: FontMetrics, S: ImageSizer>(
 pub(super) fn admit_next_text_line<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
 ) {
-    if layouter.page_config.height.is_finite()
+    if !layouter.is_sub_frame
+        && layouter.page_config.height.is_finite()
         && layouter.regions.current.cursor_y.0 > layouter.page_bottom_limit()
         && !super::html_frame::items_have_material(&layouter.regions.current.current_line)
         && !layouter.current_page_is_empty()
@@ -142,6 +144,9 @@ fn reset_closed_region_flow<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
 ) {
     layouter.last_flush_advance = 0.0;
+    layouter.flow_placement_end = None;
+    layouter.block_place_region = None;
+    layouter.block_place_decorations.clear();
     layouter.prev_block_equation_descent = 0.0;
     layouter.prev_block_below_pending = 0.0;
     layouter.block_chain_active = false;

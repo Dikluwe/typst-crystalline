@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/gradients/linear
-Hash do Código: 1dc2f671
+Hash do Código: 9f02afd3
 
 ## Ownership e medição
 

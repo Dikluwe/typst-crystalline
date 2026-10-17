@@ -1,5 +1,5 @@
 # Prompt L0 — `math_style` entity
-Hash do Código: 1f90ea0c
+Hash do Código: 8ad6abe5
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/math_style.rs`
@@ -44,7 +44,8 @@ mapping inline em ~120 LOC com lookup table compacta para excepções.
 ///   `DoubleStruck`.
 /// - **Variants size**: afectam `style.size` por factor multiplicativo
 ///   no `MathLayouter`. Não modificam codepoint (passa-through em
-///   `map_glyph`). `Script` (factor 0.7), `SScript` (factor 0.5).
+///   `map_glyph`). `Script` (factor 0.7), `SScript` (factor 0.5),
+///   `Display` e `Inline` (factor 1.0).
 ///
 /// `bold` e `italic` são flags ortogonais aplicadas sobre `MathStyleKind`,
 /// não fazem parte deste enum (vivem em `Content::MathStyled`).
@@ -54,13 +55,15 @@ pub enum MathStyleKind {
     Plain,          // serif default (alias vanilla `MathVariant::Plain`)
     SansSerif,
     Chancery,       // family `cal` (Chancery script)
-    Roundhand,      // family `scr` (Roundhand script — só Bold em Unicode)
+    Roundhand,      // family `scr`: codepoints de Chancery + VS2; bold ortogonal
     Fraktur,
     Monospace,
     DoubleStruck,   // family `bb` (blackboard bold)
     // Variants size (não modificam codepoint; factor `style.size`):
     Script,         // factor 0.7
     SScript,        // factor 0.5
+    Display,        // factor 1.0; não modifica glyph
+    Inline,         // factor 1.0; não modifica glyph
 }
 
 /// Mapeia um caractere ASCII para o seu codepoint Unicode variant.
@@ -69,7 +72,7 @@ pub enum MathStyleKind {
 /// retorna o char de entrada inalterado.
 ///
 /// Algoritmo:
-/// 1. Se `kind` é variant size (`Script`/`SScript`), retorna `c`
+/// 1. Se `kind` é variant size (`Script`/`SScript`/`Display`/`Inline`), retorna `c`
 ///    inalterado (size é tratado em `MathLayouter`, não modifica glyph).
 /// 2. Verifica tabela de excepções BMP (~21 entradas).
 /// 3. Calcula offset no plano `U+1D400-U+1D7FF` com base em
@@ -112,10 +115,10 @@ Documentado em §2.1 do diagnóstico P311a. Bloco contínuo
 | `(SansSerif, false, true)` | U+1D608 | Sans-Serif Italic |
 | `(SansSerif, true, true)` | U+1D63C | Sans-Serif Bold Italic |
 | `(Monospace, false, false)` | U+1D670 | Monospace |
-| `(Roundhand, true, false)` | U+1D4D0 | Roundhand = Bold Script (vanilla alias) |
+| `(Roundhand, true, false)` | U+1D4D0 | Roundhand com bold explícito usa bold-script |
 
-`Roundhand` partilha o bloco de `Bold Script` per convenção vanilla
-(`scr` é variante de `cal` com bold implícito).
+`Roundhand` usa os mesmos codepoints de `Chancery`, com o parâmetro bold
+preservado; `map_glyph_vs` distingue VS2 de VS1 (P812-C).
 
 ### Tabela de excepções BMP (~21 entradas)
 
@@ -174,13 +177,10 @@ Outros casos: passa-through (dígitos não têm variant cal/frak/etc.).
 - `map_glyph('a', Plain, false, true)` → `'\u{1D44E}'` (𝑎)
 
 **Sans-Serif x → U+1D5D1**
-- `map_glyph('x', SansSerif, false, false)` → `'\u{1D5D1}'` (𝗑) — wait, let me recompute: base U+1D5BA + (x - a) = 0x1D5BA + 23 = 0x1D5D1
-  Actually base é U+1D5A0 (upper); lower é U+1D5BA. 'x' - 'a' = 23. 0x1D5BA + 23 = 0x1D5D1. ✓
+- `map_glyph('x', SansSerif, false, false)` → `'\u{1D5D1}'` (𝗑).
 
-**Fraktur k → U+1D52E**
-- `map_glyph('k', Fraktur, false, false)` → `'\u{1D52E}'` (𝔮) — recompute:
-  base lower U+1D51E + (k - a) = U+1D51E + 10 = U+1D528. Hmm, isso é 𝔨. Correcto:
-  let me redo: 0x1D51E + 10 = 0x1D528 (𝔨). Yes, 𝔨.
+**Fraktur k → U+1D528**
+- `map_glyph('k', Fraktur, false, false)` → `'\u{1D528}'` (𝔨).
 
 **Monospace 3 → U+1D7F9**
 - `map_glyph('3', Monospace, false, false)` → `'\u{1D7F9}'` (𝟹) — base
@@ -206,8 +206,8 @@ Outros casos: passa-through (dígitos não têm variant cal/frak/etc.).
 - `map_glyph('+', Fraktur, false, false)` → `'+'` (passa-through)
 - `map_glyph(' ', DoubleStruck, false, false)` → `' '`
 - `map_glyph('α', Plain, false, true)` → `'\u{1D6FC}'` (𝛼 — Greek
-  coberto desde P809; formas `ϵ ϑ ϰ ϕ ϱ ϖ` e `∂`/`∇` continuam
-  passa-through — scope-out registado)
+  coberto desde P809; P964 inclui as sete formas de símbolo e ∂
+  indicadas na seção própria; ∇ conserva passa-through)
 
 **Variant size não modifica glyph**
 - `map_glyph('x', Script, false, false)` → `'x'` (size factor aplicado
@@ -222,10 +222,8 @@ Outros casos: passa-through (dígitos não têm variant cal/frak/etc.).
 **Sans-Serif Bold A → U+1D5D4**
 - `map_glyph('A', SansSerif, true, false)` → `'\u{1D5D4}'` (𝗔)
 
-**Sans-Serif Bold Italic x → U+1D66F**
-- `map_glyph('x', SansSerif, true, true)` → `'\u{1D66F}'` (𝙭) —
-  recompute: base lower U+1D656 + 23 = U+1D66D. Hmm, 'x' - 'a' = 23.
-  0x1D656 + 23 = 0x1D66D (𝙭). Verificar: U+1D66D é 𝙭. ✓
+**Sans-Serif Bold Italic x → U+1D66D**
+- `map_glyph('x', SansSerif, true, true)` → `'\u{1D66D}'` (𝙭).
 
 ### Propriedades de tipo
 
@@ -371,3 +369,24 @@ minúsculas α–ω + ∂ + variantes ϵϑϰϕϱϖ).
 plano itálico (tabela acima — os offsets contíguos não os cobrem). Sem
 mudança para bold/bold-italic (a família bold dos símbolos-variantes fica
 como estava — escopo já registado para variantes fora de Plain).
+
+
+## Exaustividade de representação e identidade — V16, 2026-10-16
+
+### Medição anterior à decisão
+
+01_core/src/entities/math_style.rs:128; 01_core/src/entities/math_style.rs:203; 01_core/src/entities/math_style.rs:214; 01_core/src/entities/math_style.rs:248. Fonte e owner vigentes lidos e conferidos por hash antes da decisão. `00_nucleo/diagnosticos/tekt-enums-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, status e git diff HEAD --stat. O SARIF anterior registra onze avisos e uma nota V16 nestes sete owners. Foram também medidos os fallbacks sem emissão; estes fazem parte do mesmo recorte. Classificação: padrão Rust e evolução do enum são mecânica; resultados/campos/identidade observáveis e erros devem permanecer. Não se infere intenção upstream ou ganho para IA.
+
+### Responsabilidade exclusiva
+
+map_glyph_vs: None nomeia Plain/SansSerif/Fraktur/Monospace/DoubleStruck/Script/SScript/Display/Inline. letter_base: None final nomeia Roundhand/Display/Inline, mantendo Script/SScript já explícitos e todos os outros braços/flags. O helper privado Roundhand continua None; map_glyph continua normalizando Roundhand para Chancery antes de chamar o helper. digit_base: None cobre (Plain,false) e (Chancery/Roundhand/Fraktur/Script/SScript/Display/Inline,_), preservando os demais braços. bmp_exception: None final nomeia as onze variantes no primeiro eixo e mantém _ para flags e char, preservando precedência das exceções. O eixo enum é fechado; o char permanece aberto e não recebe lista artificial. Os dois fallbacks de greek_plain, que selecionam char/booleans, ficam intactos. Adicionar controle dos três exemplos Unicode saneados e de Display/Inline/Script/SScript sem alteração de glyph/VS. Corrigir somente texto histórico ambíguo conforme fonte e testes existentes; não atualizar pin ou declarar nova paridade.
+
+O fragmento vigente tem onze variantes já existentes; P812-C e P964 prevalecem sobre notas históricas conflitantes. Os exemplos saneados são observáveis de codepoint, não mudança de gramática/default ou nova variante produtiva.
+
+### Aceitação e gate
+
+Manutenção interna ADR-0127 em fluxo contínuo: nenhuma definição de enum, campo, trait, assinatura pública, default, dependência, compatibilidade ou fase muda. Conservar cada corpo, ordem e guard; não mover lógica entre owners nem criar helper para esconder o catchall. Padrões nominais devem forçar erro de compilação ao surgir variante nova; comentários de neutralidade não servem como supressão.
+
+Antes do código, testes funcionais locais e gate V16 RED por escopo. Executar sonda de evolução em cópia descartável do workspace: acrescentar somente uma variante sentinela a Color, ColorSpace, MathStyleKind, FuncRepr e StateUpdate, sem alterar as definições produtivas. Usar cargo check --offline --locked -p typst-core com um job e cache de artefatos compartilhado; registrar fontes/hashes/argv/UTC/diagnósticos. Para cada um dos 21 matches selecionados, a baseline deve demonstrar a ausência de E0004 naquele match; GREEN exige E0004 ali, independentemente de erros de exaustividade já emitidos por outros matches na cópia. O controle de compilação sem sentinelas e os testes de comportamento aprovam o código real; não usar a sonda negativa como prova de paridade. Não editar source produtivo durante comandos.
+
+Resselo restrito, direto e reverso, sem reparo global da working tree. Revalidar build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, suíte workspace completa, Rustdoc -D warnings e quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF sem avisos novos e diff --check. Limite MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1, tarefas pesadas sequenciais. Nenhuma tolerância/fixture histórica é relaxada. As pendências V16 externas, inclusive T027/T158/T160 rastreadas sem emissão, continuam abertas.

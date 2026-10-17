@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/tests.md
-//! @prompt-hash e5b56bfa
+//! @prompt-hash c8da148d
 //! @layer L3
 //! @updated 2026-10-03
 
@@ -52,6 +52,15 @@ fn p1404_controles_de_formato_nao_pedem_glifo() {
     assert!(is_p1404_format_control('\u{202b}'));
     assert!(is_p1404_format_control('\u{202c}'));
     assert!(!is_p1404_format_control('\u{200b}'));
+    for c in [
+        '\u{61c}', '\u{200e}', '\u{200f}', '\u{202a}', '\u{202d}', '\u{202e}',
+        '\u{2066}', '\u{2067}', '\u{2068}', '\u{2069}',
+    ] {
+        assert!(is_p1404_format_control(c));
+    }
+    for c in ['\u{200c}', '\u{200d}', '\u{fe0f}'] {
+        assert!(!is_p1404_format_control(c));
+    }
     assert!(!is_p1404_format_control('a'));
 }
 
@@ -101,7 +110,6 @@ struct FontWorld {
 
 impl FontWorld {
     fn push_font(&mut self, path: &str) {
-        let slot = self.fonts.len();
         if let Ok(data) = std::fs::read(path) {
             if let Some(mut info) = crate::fonts::font_info_from_bytes(&data, 0) {
                 // P938 — font_info_from_bytes deixa coverage vazia; para
@@ -162,13 +170,16 @@ fn font_world_with(paths: &[&str]) -> FontWorld {
 }
 
 fn text_item_with_font(text: &str, family: &str) -> FrameItem {
-    let mut style = TextStyle::default();
-    style.font = Some(FontList::single(EcoString::from(family)));
-    style.size = Pt(12.0);
+    let style = TextStyle {
+        font: Some(FontList::single(EcoString::from(family))),
+        size: Pt(12.0),
+        ..TextStyle::default()
+    };
     FrameItem::Text {
         pos: Point { x: Pt(0.0), y: Pt(0.0) },
         text: EcoString::from(text),
         style,
+        bidi: None,
     }
 }
 
@@ -177,6 +188,7 @@ fn text_item(text: &str) -> FrameItem {
         pos: Point { x: Pt(72.0), y: Pt(72.0) },
         text: EcoString::from(text),
         style: TextStyle::default(),
+        bidi: None,
     }
 }
 
@@ -277,12 +289,15 @@ fn p483_text_com_font_helvetica_tenta_shape_mas_sem_fontes_preserva_text() {
     // MockWorld não tem fontes → resolve_slot retorna None → item preservado
     // como Text. O path de tentativa é exercitado (style.font.is_some() == true).
     use typst_core::entities::font_list::FontList;
-    let mut style = TextStyle::default();
-    style.font = Some(FontList::single(EcoString::from("Helvetica")));
+    let style = TextStyle {
+        font: Some(FontList::single(EcoString::from("Helvetica"))),
+        ..TextStyle::default()
+    };
     let item = FrameItem::Text {
         pos: Point { x: Pt(72.0), y: Pt(72.0) },
         text: EcoString::from("Ola"),
         style,
+        bidi: None,
     };
     let doc = doc_with(vec![item]);
     let shaped = shape_document(&empty_world(), doc);
@@ -352,6 +367,7 @@ fn p484_try_shape_rtl_sem_fonte_nao_panic() {
         pos: Point { x: Pt(0.0), y: Pt(0.0) },
         text: EcoString::from("مرحبا"),
         style: TextStyle::default(),
+        bidi: None,
     };
     // style.font = None → shaper guard (is_some() == false) → item inalterado
     let mut cache = ShapeCache::new();
@@ -438,9 +454,11 @@ fn p845_shaped_width_multilinha_max_das_linhas() {
         eprintln!("SKIP: DejaVu Sans não disponível");
         return;
     }
-    let mut style = TextStyle::default();
-    style.font = Some(FontList::single(EcoString::from("DejaVu Sans")));
-    style.size = Pt(12.0);
+    let style = TextStyle {
+        font: Some(FontList::single(EcoString::from("DejaVu Sans"))),
+        size: Pt(12.0),
+        ..TextStyle::default()
+    };
     let mut face_cache = FaceCache::new();
     let w_linha = shaped_width(&world, "bb", &style, &mut face_cache).unwrap();
     let w_multi = shaped_width(&world, "a\nbb", &style, &mut face_cache).unwrap();
@@ -504,9 +522,7 @@ fn p515_shape_document_real_font_produz_textshaped() {
         return; // skip em ambientes sem fontes
     }
 
-    let mut book = FontBook::new();
-    // O MockWorld precisa de um FontBook que corresponda aos slots.
-    // Para simplificar, usamos SystemWorld com with_system_fonts.
+    // O SystemWorld carrega o FontBook correspondente aos slots reais.
     let dir = tempfile_write("main.typ", "text");
     let world = SystemWorld::new(dir.path(), "main.typ").unwrap().with_system_fonts();
     if world.book().is_empty() {
@@ -523,6 +539,7 @@ fn p515_shape_document_real_font_produz_textshaped() {
         pos: Point { x: Pt(0.0), y: Pt(0.0) },
         text: EcoString::from("Hello"),
         style,
+        bidi: None,
     };
     let mut cache = ShapeCache::new();
     let result = shape_item(&world, item, &mut cache, &mut FaceCache::new());
@@ -556,6 +573,7 @@ fn p482_shape_document_group_children_passthrough() {
     use typst_core::entities::layout_types::TransformMatrix;
     let inner = text_item("inner");
     let group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(0.0), y: Pt(0.0) },
         matrix: TransformMatrix::default(),
         clip_mask: None,
@@ -611,14 +629,17 @@ fn p525_shape_document_mixed_weights_no_contamination() {
     }
 
     fn text_item_with_weight(text: &str, weight: u16) -> FrameItem {
-        let mut style = TextStyle::default();
-        style.font = Some(FontList::single(EcoString::from("Ubuntu Sans")));
-        style.weight = Some(weight);
-        style.size = Pt(40.0);
+        let style = TextStyle {
+            font: Some(FontList::single(EcoString::from("Ubuntu Sans"))),
+            weight: Some(weight),
+            size: Pt(40.0),
+            ..TextStyle::default()
+        };
         FrameItem::Text {
             pos: Point { x: Pt(0.0), y: Pt(0.0) },
             text: EcoString::from(text),
             style,
+            bidi: None,
         }
     }
 
@@ -879,6 +900,8 @@ fn make_textshaped(
         style: TextStyle { size: Pt(size), ..TextStyle::default() },
         text: ecow::EcoString::from(""),
         units_per_em: upem,
+        bidi: None,
+        font: None,
     }
 }
 
@@ -919,8 +942,10 @@ fn reconciliation_with_borrowed_metrics_matches_fresh_entry_point() {
     let fresh = fix_line_positions(&world, doc.clone());
     let borrowed = fix_line_positions_with_metrics(doc, &metrics);
     for (old, new) in fresh.pages[0].items.iter().zip(&borrowed.pages[0].items) {
-        let (FrameItem::TextShaped { pos: old, .. }, FrameItem::TextShaped { pos: new, .. }) =
-            (old, new)
+        let (
+            FrameItem::TextShaped { pos: old, .. },
+            FrameItem::TextShaped { pos: new, .. },
+        ) = (old, new)
         else {
             panic!("expected shaped text");
         };
@@ -1105,9 +1130,11 @@ fn p621_tracking_aumenta_x_advance() {
         return;
     }
 
-    let mut style_no_tracking = TextStyle::default();
-    style_no_tracking.font = Some(FontList::single(EcoString::from("DejaVu Sans")));
-    style_no_tracking.size = Pt(12.0);
+    let style_no_tracking = TextStyle {
+        font: Some(FontList::single(EcoString::from("DejaVu Sans"))),
+        size: Pt(12.0),
+        ..TextStyle::default()
+    };
 
     let mut style_tracking = style_no_tracking.clone();
     let tracking_pt = 5.0;
@@ -1118,11 +1145,13 @@ fn p621_tracking_aumenta_x_advance() {
         pos: Point { x: Pt(0.0), y: Pt(0.0) },
         text: EcoString::from(text),
         style: style_no_tracking,
+        bidi: None,
     };
     let item_yes = FrameItem::Text {
         pos: Point { x: Pt(0.0), y: Pt(0.0) },
         text: EcoString::from(text),
         style: style_tracking,
+        bidi: None,
     };
 
     let measure = |items: &[FrameItem]| -> (i32, usize) {
@@ -1323,6 +1352,7 @@ fn contract_fix_glyphs(
             pos: Point { x: Pt(0.0), y: Pt(0.0) },
             text: text.into(),
             style: style.clone(),
+            bidi: None,
         })
         .collect();
     shape_document(world, doc_with(items)).pages[0]
@@ -1336,8 +1366,8 @@ fn contract_fix_glyphs(
 }
 fn contract_fix_tracking_pair(a: TextStyle, b: TextStyle) {
     let world = contract_fix_world();
-    let fresh_a = contract_fix_glyphs(&world, "ab", &[a.clone()]);
-    let fresh_b = contract_fix_glyphs(&world, "ab", &[b.clone()]);
+    let fresh_a = contract_fix_glyphs(&world, "ab", std::slice::from_ref(&a));
+    let fresh_b = contract_fix_glyphs(&world, "ab", std::slice::from_ref(&b));
     assert_ne!(fresh_a, fresh_b, "tracking fixture must discriminate");
     assert_eq!(
         contract_fix_glyphs(&world, "ab", &[a.clone(), b.clone()]),
@@ -1472,8 +1502,8 @@ fn contract_fix_equal_effective_tracking_matches_fresh() {
     };
     let mut b = a.clone();
     b.size = Pt(24.0);
-    let fresh_a = contract_fix_glyphs(&world, "ab", &[a.clone()]);
-    let fresh_b = contract_fix_glyphs(&world, "ab", &[b.clone()]);
+    let fresh_a = contract_fix_glyphs(&world, "ab", std::slice::from_ref(&a));
+    let fresh_b = contract_fix_glyphs(&world, "ab", std::slice::from_ref(&b));
     assert_eq!(fresh_a, fresh_b);
     assert_eq!(
         contract_fix_glyphs(&world, "ab", &[a, b]),
@@ -1542,6 +1572,7 @@ fn language_emission_shared_cache_matches_fresh_in_both_orders() {
                 pos: Point::ZERO,
                 text: "б".into(),
                 style: language_style(code),
+                bidi: None,
             })
             .collect();
         shape_document(&world, doc_with(items)).pages[0]
@@ -1585,21 +1616,38 @@ fn language_emission_shared_cache_matches_fresh_in_both_orders() {
 #[allow(deprecated)]
 fn discretionary_identity_shaper_preserves_envelope_visual_glyph_and_fallback() {
     let world = language_fixture();
-    let visual = FrameItem::Text { pos: Point { x: Pt(10.0), y: Pt(20.0) },
-        text: "-".into(), style: language_style(Some("en")) };
+    let visual = FrameItem::Text {
+        pos: Point { x: Pt(10.0), y: Pt(20.0) },
+        text: "-".into(),
+        style: language_style(Some("en")),
+        bidi: None,
+    };
     let control = shape_document(&world, doc_with(vec![visual.clone()]));
-    let wrapper = FrameItem::TextReplacement { text: "\u{ad}".into(), items: vec![visual] };
+    let wrapper =
+        FrameItem::TextReplacement { text: "\u{ad}".into(), items: vec![visual] };
     let shaped = shape_document(&world, doc_with(vec![wrapper.clone()]));
-    let FrameItem::TextReplacement { text, items } = &shaped.pages[0].items[0] else { panic!("identity lost") };
+    let FrameItem::TextReplacement { text, items } = &shaped.pages[0].items[0] else {
+        panic!("identity lost")
+    };
     assert_eq!(text.as_str(), "\u{ad}");
-    let FrameItem::TextShaped { text: visual_text, glyphs, units_per_em, .. } = &items[0] else { panic!("visual unshaped") };
-    let FrameItem::TextShaped { glyphs: control_glyphs, units_per_em: control_upem, .. } = &control.pages[0].items[0] else { panic!("control unshaped") };
+    let FrameItem::TextShaped { text: visual_text, glyphs, units_per_em, .. } = &items[0]
+    else {
+        panic!("visual unshaped")
+    };
+    let FrameItem::TextShaped {
+        glyphs: control_glyphs, units_per_em: control_upem, ..
+    } = &control.pages[0].items[0]
+    else {
+        panic!("control unshaped")
+    };
     assert_eq!(visual_text.as_str(), "-");
     assert_eq!(glyphs, control_glyphs);
     assert_eq!(units_per_em, control_upem);
     assert_eq!(shaped.pages[0].plain_text(), "\u{ad}");
     let fallback = shape_document(&empty_world(), doc_with(vec![wrapper]));
-    let FrameItem::TextReplacement { text, items } = &fallback.pages[0].items[0] else { panic!("fallback lost identity") };
+    let FrameItem::TextReplacement { text, items } = &fallback.pages[0].items[0] else {
+        panic!("fallback lost identity")
+    };
     assert_eq!(text.as_str(), "\u{ad}");
     assert!(matches!(&items[0], FrameItem::Text { text, .. } if text.as_str()=="-"));
 }
@@ -1609,14 +1657,37 @@ fn authored_shy_occurrence_identity_keeps_visuals_and_existing_envelope() {
     fn same_visual(actual: &[FrameItem], expected: &[FrameItem]) {
         assert_eq!(actual.len(), expected.len());
         for (a, b) in actual.iter().zip(expected) {
-            let (FrameItem::TextShaped { pos, text, glyphs, units_per_em, style },
-                 FrameItem::TextShaped { pos: bp, text: bt, glyphs: bg, units_per_em: bu, style: bs }) = (a, b)
-                 else { panic!("expected visual shaped children") };
+            let (
+                FrameItem::TextShaped { pos, text, glyphs, units_per_em, style, .. },
+                FrameItem::TextShaped {
+                    pos: bp,
+                    text: bt,
+                    glyphs: bg,
+                    units_per_em: bu,
+                    style: bs,
+                    ..
+                },
+            ) = (a, b)
+            else {
+                panic!("expected visual shaped children")
+            };
             assert_eq!((pos.x.0, pos.y.0), (bp.x.0, bp.y.0));
             assert_eq!(text, bt);
             assert_eq!(units_per_em, bu);
-            let glyph_data = |gs: &[ShapedGlyph]| gs.iter().map(|g|
-                (g.glyph_id, g.x_advance, g.x_offset, g.y_offset, g.cluster, g.char_code)).collect::<Vec<_>>();
+            let glyph_data = |gs: &[ShapedGlyph]| {
+                gs.iter()
+                    .map(|g| {
+                        (
+                            g.glyph_id,
+                            g.x_advance,
+                            g.x_offset,
+                            g.y_offset,
+                            g.cluster,
+                            g.char_code,
+                        )
+                    })
+                    .collect::<Vec<_>>()
+            };
             assert_eq!(glyph_data(glyphs), glyph_data(bg));
             assert_eq!(format!("{style:?}"), format!("{bs:?}"));
         }
@@ -1629,38 +1700,261 @@ fn authored_shy_occurrence_identity_keeps_visuals_and_existing_envelope() {
         style.tracking = tracking;
         for text in ["repre\u{ad}sentation", "a\u{ad}\u{ad}b", "f\u{ad}fi"] {
             let original = FrameItem::Text {
-                pos: Point { x: Pt(17.0), y: Pt(23.0) }, text: text.into(), style: style.clone(),
+                pos: Point { x: Pt(17.0), y: Pt(23.0) },
+                text: text.into(),
+                style: style.clone(),
+                bidi: None,
             };
-            let FrameItem::Text { pos, text: source, style } = &original else { unreachable!() };
-            let control = super::shaping::try_shape(&world, pos, source, style,
-                &mut ShapeCache::new(), &mut FaceCache::new()).unwrap();
+            let FrameItem::Text { pos, text: source, style, .. } = &original else {
+                unreachable!()
+            };
+            let control = super::shaping::try_shape(
+                &world,
+                pos,
+                source,
+                style,
+                &mut ShapeCache::new(),
+                &mut FaceCache::new(),
+            )
+            .unwrap();
             let mut buffer = rustybuzz::UnicodeBuffer::new();
             buffer.push_str(text);
             buffer.set_direction(rustybuzz::Direction::LeftToRight);
             buffer.set_language("en".parse().unwrap());
             buffer.set_flags(rustybuzz::BufferFlags::REMOVE_DEFAULT_IGNORABLES);
             let control_shape = rustybuzz::shape(&face, &[], buffer);
-            let FrameItem::TextShaped { glyphs, .. } = &control[0] else { panic!("shaping failed") };
-            assert_eq!(glyphs.iter().map(|g| g.glyph_id as u32).collect::<Vec<_>>(),
-                control_shape.glyph_infos().iter().map(|g| g.glyph_id).collect::<Vec<_>>(),
-                "invisible placeholders must not enlarge the extraction box");
-            let shaped = shape_item(&world, original.clone(), &mut ShapeCache::new(), &mut FaceCache::new());
+            let FrameItem::TextShaped { glyphs, .. } = &control[0] else {
+                panic!("shaping failed")
+            };
+            assert_eq!(
+                glyphs.iter().map(|g| g.glyph_id as u32).collect::<Vec<_>>(),
+                control_shape
+                    .glyph_infos()
+                    .iter()
+                    .map(|g| g.glyph_id)
+                    .collect::<Vec<_>>(),
+                "invisible placeholders must not enlarge the extraction box"
+            );
+            let shaped = shape_item(
+                &world,
+                original.clone(),
+                &mut ShapeCache::new(),
+                &mut FaceCache::new(),
+            );
             assert_eq!(shaped.len(), 1);
-            let FrameItem::TextReplacement { text: replacement, items } = &shaped[0] else {
+            let FrameItem::TextReplacement { text: replacement, items } = &shaped[0]
+            else {
                 panic!("authored SHY lacks occurrence identity: {shaped:?}");
             };
             assert_eq!(replacement, source);
             same_visual(items, &control);
-            let protected = FrameItem::TextReplacement { text: "external identity".into(), items: vec![original] };
-            let shaped = shape_item(&world, protected, &mut ShapeCache::new(), &mut FaceCache::new());
-            let FrameItem::TextReplacement { text, items } = &shaped[0] else { panic!("envelope lost") };
+            let protected = FrameItem::TextReplacement {
+                text: "external identity".into(),
+                items: vec![original],
+            };
+            let shaped = shape_item(
+                &world,
+                protected,
+                &mut ShapeCache::new(),
+                &mut FaceCache::new(),
+            );
+            let FrameItem::TextReplacement { text, items } = &shaped[0] else {
+                panic!("envelope lost")
+            };
             assert_eq!(text, "external identity");
             same_visual(items, &control);
         }
     }
-    let original = FrameItem::Text { pos: Point::ZERO, text: "a\u{ad}b".into(), style: language_style(None) };
-    let absent = shape_item(&empty_world(), original, &mut ShapeCache::new(), &mut FaceCache::new());
+    let original = FrameItem::Text {
+        pos: Point::ZERO,
+        text: "a\u{ad}b".into(),
+        style: language_style(None),
+        bidi: None,
+    };
+    let absent = shape_item(
+        &empty_world(),
+        original,
+        &mut ShapeCache::new(),
+        &mut FaceCache::new(),
+    );
     assert_eq!(absent.len(), 1);
-    let FrameItem::Text { text, .. } = &absent[0] else { panic!("unresolved text changed") };
+    let FrameItem::Text { text, .. } = &absent[0] else {
+        panic!("unresolved text changed")
+    };
     assert_eq!(text, "a\u{ad}b");
+}
+
+#[test]
+fn fonte_efetiva_sobrevive_fallback_e_cache_hit() {
+    let world = font_world_with(&[
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Oblique.ttf",
+    ]);
+    assert_eq!(world.book().len(), 2, "controle requer as duas faces DejaVu");
+    let mut item = text_item_with_font("مرحبا", "DejaVu Sans");
+    if let FrameItem::Text { style, .. } = &mut item {
+        style.italic = true;
+        style.semantic_emph = true;
+    }
+    let doc = shape_document(&world, doc_with(vec![item.clone(), item]));
+    assert_eq!(doc.pages[0].items.len(), 2);
+    for item in &doc.pages[0].items {
+        let FrameItem::TextShaped { font, style, glyphs, .. } = item else {
+            panic!("shaping esperado")
+        };
+        let actual =
+            font.as_ref().expect("fonte efetiva obrigatória também no cache hit");
+        assert_eq!(actual.as_slice(), world.font(0).unwrap().as_slice());
+        assert!(style.italic && style.semantic_emph);
+        assert!(glyphs.iter().all(|g| g.glyph_id != 0));
+    }
+}
+
+#[test]
+fn resultado_memoizado_nao_recarrega_fonte_para_emitir_carrier() {
+    struct CountWorld<'a> {
+        base: &'a FontWorld,
+        regular_loads: std::sync::atomic::AtomicUsize,
+    }
+    impl World for CountWorld<'_> {
+        fn library(&self) -> &Library {
+            self.base.library()
+        }
+        fn book(&self) -> &FontBook {
+            self.base.book()
+        }
+        fn main(&self) -> FileId {
+            self.base.main()
+        }
+        fn source(&self, id: FileId) -> FileResult<Source> {
+            self.base.source(id)
+        }
+        fn file(&self, id: FileId) -> FileResult<Bytes> {
+            self.base.file(id)
+        }
+        fn today(
+            &self,
+            offset: Option<typst_core::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            self.base.today(offset)
+        }
+        fn font(&self, index: usize) -> Option<Font> {
+            if index == 0 {
+                self.regular_loads.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            }
+            self.base.font(index)
+        }
+    }
+    let base = font_world_with(&[
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Oblique.ttf",
+    ]);
+    assert_eq!(base.book().len(), 2);
+    let world = CountWorld { base: &base, regular_loads: Default::default() };
+    let mut item = text_item_with_font("مرحبا", "DejaVu Sans");
+    if let FrameItem::Text { style, .. } = &mut item {
+        style.italic = true;
+    }
+    let doc = shape_document(&world, doc_with(vec![item.clone(), item]));
+    assert!(doc.pages[0]
+        .items
+        .iter()
+        .all(|item| matches!(item, FrameItem::TextShaped { font: Some(_), .. })));
+    assert!(
+        world.regular_loads.load(std::sync::atomic::Ordering::Relaxed) <= 2,
+        "face/shape frio bastam: foram {} consultas",
+        world.regular_loads.load(std::sync::atomic::Ordering::Relaxed)
+    );
+}
+
+#[test]
+fn authored_bidi_only_success_does_not_reenter_plain_text_fallback() {
+    let world = language_fixture();
+    let style = language_style(Some("en"));
+    let mut cache = ShapeCache::new();
+    let mut face_cache = FaceCache::new();
+    for _ in 0..2 {
+        for text in ["\u{200f}", "\u{202a}\u{202c}", "\u{2066}\u{2069}"] {
+            let original = FrameItem::Text {
+                pos: Point::ZERO,
+                text: text.into(),
+                style: style.clone(),
+                bidi: None,
+            };
+            assert!(shape_item(&world, original.clone(), &mut cache, &mut face_cache)
+                .is_empty());
+            assert!(!shape_item(
+                &empty_world(),
+                original,
+                &mut ShapeCache::new(),
+                &mut FaceCache::new()
+            )
+            .is_empty());
+        }
+        let visible = FrameItem::Text {
+            pos: Point::ZERO,
+            text: "A\u{200f} B".into(),
+            style: style.clone(),
+            bidi: None,
+        };
+        assert!(!shape_item(&world, visible, &mut cache, &mut face_cache).is_empty());
+    }
+}
+
+#[test]
+fn bidi_occurrence_preserves_real_shape_and_does_not_nest_on_cache_hit() {
+    let world = language_fixture();
+    let style = language_style(Some("en"));
+    let mut cache = ShapeCache::new();
+    let mut face_cache = FaceCache::new();
+    for _ in 0..2 {
+        for text in ["\u{200e}ABC", "\u{2069}ABC"] {
+            let original = FrameItem::Text {
+                pos: Point::ZERO,
+                text: text.into(),
+                style: style.clone(),
+                bidi: None,
+            };
+            let FrameItem::Text { pos, text: source, style, .. } = &original else {
+                unreachable!()
+            };
+            let raw = super::shaping::try_shape(
+                &world,
+                pos,
+                source,
+                style,
+                &mut ShapeCache::new(),
+                &mut FaceCache::new(),
+            )
+            .unwrap();
+            let actual =
+                shape_item(&world, original.clone(), &mut cache, &mut face_cache);
+            let FrameItem::TextReplacement { text: identity, items } = &actual[0] else {
+                panic!("missing actual text")
+            };
+            assert_eq!(identity.as_str(), text);
+            assert_eq!(format!("{items:?}"), format!("{raw:?}"));
+            let wrapped = FrameItem::TextReplacement {
+                text: "outer identity".into(),
+                items: vec![original],
+            };
+            let result = shape_item(&world, wrapped, &mut cache, &mut face_cache);
+            let FrameItem::TextReplacement { text, items } = &result[0] else {
+                panic!("lost envelope")
+            };
+            assert_eq!(text.as_str(), "outer identity");
+            assert!(items
+                .iter()
+                .all(|item| matches!(item, FrameItem::TextShaped { .. })));
+        }
+        let ordinary = FrameItem::Text {
+            pos: Point::ZERO,
+            text: "ABC".into(),
+            style: style.clone(),
+            bidi: None,
+        };
+        assert!(shape_item(&world, ordinary, &mut cache, &mut face_cache)
+            .iter()
+            .all(|item| matches!(item, FrameItem::TextShaped { .. })));
+    }
 }

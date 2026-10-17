@@ -1,5 +1,5 @@
 # L0 — compiler/eval/markup
-Hash do Código: 942969a5
+Hash do Código: 67efaad2
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -32,3 +32,7 @@ route resulting content through the applicable show interception owned by
 eval_raw preserves extraction of text/lang/block and passes the RawElem to
 intercept_content with current Scopes, EvalContext and Engine. Line synthesis,
 matching and recomposition belong to rules, not this syntax adapter.
+
+## Origem da recursão de heading de markup — 2026-10-06
+
+markup-span-red.json e span-red.log registram rejeição sem origem no Tekt para show heading: it => [= Z], enquanto o pin 9f2b6e871 ancora o erro em = Z. eval_heading em markup.rs:112-113 propaga a intercepção sem transportar heading.span. Ao propagar falhas dessa intercepção, preservar spans conhecidos e atribuir somente aos detached o span real do heading. Não inferir a origem pelo diagnóstico, corpo ou posição aproximada; não mudar os outros adapters nem o matching/limite de recursão.

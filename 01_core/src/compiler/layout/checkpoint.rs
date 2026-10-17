@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/checkpoint.md
-//! @prompt-hash 5ad41923
+//! @prompt-hash 82f99fa1
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-06
 
 use super::*;
 
@@ -23,6 +23,14 @@ pub(in crate::compiler) struct FlowSuffixCheckpoint {
     figure_progress: std::collections::HashMap<String, usize>,
     is_height_unconstrained: bool,
     is_sub_frame: bool,
+    relative_region_size: Option<(f64, f64)>,
+    sub_frame_origin_y: f64,
+    flow_placement_end: Option<(f64, f64)>,
+    flow_frame_extent: (f64, f64),
+    last_sub_frame_flow_width: f64,
+    block_place_region: Option<crate::entities::layout_types::Rect>,
+    block_auto_width: bool,
+    block_place_decorations: Vec<(usize, usize, usize)>,
     cell_origin_x: Option<f64>,
     cell_origin_y: Option<f64>,
     parent_bbox: Option<crate::entities::layout_types::Rect>,
@@ -51,20 +59,30 @@ pub(in crate::compiler) struct FlowSuffixCheckpoint {
     last_block_descent_y: Option<f64>,
     line_inline_ascent: f64,
     line_inline_descent: f64,
-    line_assumed_ascent: f64,
+    line_assumed_ascent: Option<f64>,
+    position_captures_len: usize,
+    link_capture_checkpoint: (usize, Vec<usize>),
     wrapped_inline_prefix_line_armed: bool,
     last_sub_frame_bottom: Option<f64>,
     last_sub_frame_width: f64,
+    last_sub_frame_inline_extents: (f64, f64),
     pending_cell_tails_len: usize,
     pending_footnote_bodies_len: usize,
     decoration_lines_len: Option<usize>,
-    smartquote_double_open: bool,
-    smartquote_single_open: bool,
+    smartquote_context: crate::compiler::lang::quotes::SmartQuoteContext,
     attachments_len: usize,
     artifact_marker_id: u64,
     bib_render_cache: Option<crate::compiler::layout::bib_csl::BibRenderCache>,
     smallcaps: bool,
     paragraph_planning_suppressed: bool,
+    bidi_scope_active: bool,
+    bidi_cursor: Option<super::bidi_origin::Cursor>,
+    text_bidi: Option<crate::entities::bidi_context::BidiSpan>,
+    text_segment_chain: Option<StyleChain>,
+    geometric_text_lines: bool,
+    active_paragraph_dir: Option<crate::entities::dir::Dir>,
+    pending_line_dir: Option<crate::entities::dir::Dir>,
+    explicit_line_alignment: Option<crate::entities::layout_types::HAlign>,
     last_cited_key: Option<String>,
     previously_cited_keys: std::collections::HashSet<String>,
     last_was_loose_item: bool,
@@ -162,6 +180,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             figure_progress: self.figure_progress.clone(),
             is_height_unconstrained: self.is_height_unconstrained,
             is_sub_frame: self.is_sub_frame,
+            relative_region_size: self.relative_region_size,
+            sub_frame_origin_y: self.sub_frame_origin_y,
+            flow_placement_end: self.flow_placement_end,
+            flow_frame_extent: self.flow_frame_extent,
+            last_sub_frame_flow_width: self.last_sub_frame_flow_width,
+            block_place_region: self.block_place_region,
+            block_auto_width: self.block_auto_width,
+            block_place_decorations: self.block_place_decorations.clone(),
             cell_origin_x: self.cell_origin_x,
             cell_origin_y: self.cell_origin_y,
             parent_bbox: self.parent_bbox,
@@ -191,19 +217,29 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             line_inline_ascent: self.line_inline_ascent,
             line_inline_descent: self.line_inline_descent,
             line_assumed_ascent: self.line_assumed_ascent,
+            position_captures_len: self.position_captures.len(),
+            link_capture_checkpoint: self.link_capture.checkpoint(),
             wrapped_inline_prefix_line_armed: self.wrapped_inline_prefix_line_armed,
             last_sub_frame_bottom: self.last_sub_frame_bottom,
             last_sub_frame_width: self.last_sub_frame_width,
+            last_sub_frame_inline_extents: self.last_sub_frame_inline_extents,
             pending_cell_tails_len: self.pending_cell_tails.len(),
             pending_footnote_bodies_len: self.pending_footnote_bodies.len(),
             decoration_lines_len: self.decoration_lines_collector.as_ref().map(Vec::len),
-            smartquote_double_open: self.smartquote_double_open,
-            smartquote_single_open: self.smartquote_single_open,
+            smartquote_context: self.smartquote_context.clone(),
             attachments_len: self.attachments.len(),
             artifact_marker_id: self.artifact_marker_id,
             bib_render_cache: self.bib_render_cache.clone(),
             smallcaps: self.smallcaps,
             paragraph_planning_suppressed: self.paragraph_planning_suppressed,
+            bidi_scope_active: self.bidi_scope_active,
+            bidi_cursor: self.bidi_cursor.clone(),
+            text_bidi: self.text_bidi.clone(),
+            text_segment_chain: self.text_segment_chain.clone(),
+            geometric_text_lines: self.geometric_text_lines,
+            active_paragraph_dir: self.active_paragraph_dir,
+            pending_line_dir: self.pending_line_dir,
+            explicit_line_alignment: self.explicit_line_alignment,
             last_cited_key: self.last_cited_key.clone(),
             previously_cited_keys: self.previously_cited_keys.clone(),
             last_was_loose_item: self.last_was_loose_item,
@@ -265,6 +301,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.figure_progress = checkpoint.figure_progress;
         self.is_height_unconstrained = checkpoint.is_height_unconstrained;
         self.is_sub_frame = checkpoint.is_sub_frame;
+        self.relative_region_size = checkpoint.relative_region_size;
+        self.sub_frame_origin_y = checkpoint.sub_frame_origin_y;
+        self.flow_placement_end = checkpoint.flow_placement_end;
+        self.flow_frame_extent = checkpoint.flow_frame_extent;
+        self.last_sub_frame_flow_width = checkpoint.last_sub_frame_flow_width;
+        self.block_place_region = checkpoint.block_place_region;
+        self.block_auto_width = checkpoint.block_auto_width;
+        self.block_place_decorations = checkpoint.block_place_decorations;
         self.cell_origin_x = checkpoint.cell_origin_x;
         self.cell_origin_y = checkpoint.cell_origin_y;
         self.parent_bbox = checkpoint.parent_bbox;
@@ -294,10 +338,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.line_inline_ascent = checkpoint.line_inline_ascent;
         self.line_inline_descent = checkpoint.line_inline_descent;
         self.line_assumed_ascent = checkpoint.line_assumed_ascent;
+        self.position_captures.truncate(checkpoint.position_captures_len);
+        self.link_capture.restore(checkpoint.link_capture_checkpoint);
         self.wrapped_inline_prefix_line_armed =
             checkpoint.wrapped_inline_prefix_line_armed;
         self.last_sub_frame_bottom = checkpoint.last_sub_frame_bottom;
         self.last_sub_frame_width = checkpoint.last_sub_frame_width;
+        self.last_sub_frame_inline_extents = checkpoint.last_sub_frame_inline_extents;
         self.pending_cell_tails.truncate(checkpoint.pending_cell_tails_len);
         self.pending_footnote_bodies
             .truncate(checkpoint.pending_footnote_bodies_len);
@@ -309,13 +356,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 debug_assert!(false, "collector saiu durante transação rejeitada");
             }
         }
-        self.smartquote_double_open = checkpoint.smartquote_double_open;
-        self.smartquote_single_open = checkpoint.smartquote_single_open;
+        self.smartquote_context = checkpoint.smartquote_context;
         self.attachments.truncate(checkpoint.attachments_len);
         self.artifact_marker_id = checkpoint.artifact_marker_id;
         self.bib_render_cache = checkpoint.bib_render_cache;
         self.smallcaps = checkpoint.smallcaps;
         self.paragraph_planning_suppressed = checkpoint.paragraph_planning_suppressed;
+        self.bidi_scope_active = checkpoint.bidi_scope_active;
+        self.bidi_cursor = checkpoint.bidi_cursor;
+        self.text_bidi = checkpoint.text_bidi;
+        self.text_segment_chain = checkpoint.text_segment_chain;
+        self.geometric_text_lines = checkpoint.geometric_text_lines;
+        self.active_paragraph_dir = checkpoint.active_paragraph_dir;
+        self.pending_line_dir = checkpoint.pending_line_dir;
+        self.explicit_line_alignment = checkpoint.explicit_line_alignment;
         self.last_cited_key = checkpoint.last_cited_key;
         self.previously_cited_keys = checkpoint.previously_cited_keys;
         self.last_was_loose_item = checkpoint.last_was_loose_item;

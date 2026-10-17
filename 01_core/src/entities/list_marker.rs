@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/list_marker.md
-//! @prompt-hash d2df1a6e
+//! @prompt-hash 6ba7fc11
 //! @layer L1
 //! @updated 2026-06-26
 
@@ -8,9 +8,10 @@ use ecow::EcoString;
 
 /// Marcador de item de lista não ordenada. Subset minimal P470:
 /// bullet padrão, string customizada ou array de marcadores por nível.
-#[derive(Debug, Clone, PartialEq, Hash)]
+#[derive(Debug, Clone, PartialEq, Hash, Default)]
 pub enum ListMarker {
     /// Bullet padrão (`•` U+2022).
+    #[default]
     Default,
     /// Marcador customizado (ex: `"→"`, `"-"`, `"*"`).
     Custom(EcoString),
@@ -18,12 +19,6 @@ pub enum ListMarker {
     /// Renderização usa o marcador do nível actual; para o nível raiz,
     /// usa o primeiro elemento.
     Array(Vec<ListMarker>),
-}
-
-impl Default for ListMarker {
-    fn default() -> Self {
-        Self::Default
-    }
 }
 
 impl ListMarker {

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/font_subset.md
-//! @prompt-hash e212cb16
+//! @prompt-hash 5bdf6435
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -40,6 +40,24 @@ pub fn subset_font_with_mapping(
     char_to_old_gid: &BTreeMap<char, u16>,
     additional_gids: &BTreeSet<u16>,
 ) -> Option<FontSubset> {
+    subset_font_inner(font_data, char_to_old_gid, additional_gids, None)
+}
+
+pub(super) fn subset_font_with_variations(
+    font_data: &[u8],
+    char_to_old_gid: &BTreeMap<char, u16>,
+    additional_gids: &BTreeSet<u16>,
+    variations: &[(ttf_parser::Tag, f32)],
+) -> Option<FontSubset> {
+    subset_font_inner(font_data, char_to_old_gid, additional_gids, Some(variations))
+}
+
+fn subset_font_inner(
+    font_data: &[u8],
+    char_to_old_gid: &BTreeMap<char, u16>,
+    additional_gids: &BTreeSet<u16>,
+    variations: Option<&[(ttf_parser::Tag, f32)]>,
+) -> Option<FontSubset> {
     let mut remapper = subsetter::GlyphRemapper::new();
 
     // Incluir .notdef (GID 0) e todos os glifos usados no documento.
@@ -53,11 +71,20 @@ pub fn subset_font_with_mapping(
         remapper.remap(old_gid);
     }
 
-    let subset_data = match subsetter::subset(font_data, 0, &remapper) {
+    let result = if let Some(variations) = variations {
+        let axes: Vec<_> = variations
+            .iter()
+            .map(|(tag, value)| (subsetter::Tag::new(&tag.to_bytes()), *value))
+            .collect();
+        subsetter::subset_with_variations(font_data, 0, &axes, &remapper)
+    } else {
+        subsetter::subset(font_data, 0, &remapper)
+    };
+    let subset_data = match result {
         Ok(data) => data,
-        Err(e) => {
+        Err(_error) => {
             #[cfg(test)]
-            eprintln!("subsetter::subset falhou: {:?}", e);
+            eprintln!("subsetter::subset falhou: {:?}", _error);
             return None;
         }
     };
@@ -77,20 +104,6 @@ pub fn subset_font_with_mapping(
     }
 
     Some(FontSubset { data: subset_data, mapping })
-}
-
-/// Wrapper compatível com a assinatura do Prompt L0 original.
-///
-/// Mantido para consumidores que apenas precisam dos bytes. O mapa de
-/// remapeamento pode ser obtido via [`subset_font_with_mapping`].
-pub fn subset_font(font_data: &[u8], used_glyphs: &BTreeSet<u16>) -> Option<Vec<u8>> {
-    let char_to_old_gid: BTreeMap<char, u16> = used_glyphs
-        .iter()
-        .filter(|&&gid| gid != 0)
-        .map(|&gid| (char::from_u32(gid as u32).unwrap_or('\u{FFFD}'), gid))
-        .collect();
-    subset_font_with_mapping(font_data, &char_to_old_gid, &BTreeSet::new())
-        .map(|s| s.data)
 }
 
 /// Aplica o mapa de remapeamento a um glyph ID original.
@@ -123,7 +136,9 @@ mod tests {
         let mut used = BTreeSet::new();
         used.insert(65);
         used.insert(66);
-        let subset = subset_font(&data, &used).expect("subset deve funcionar");
+        let subset = subset_font_with_mapping(&data, &BTreeMap::new(), &used)
+            .expect("subset deve funcionar")
+            .data;
         let face =
             ttf_parser::Face::parse(&subset, 0).expect("subset deve ser parseável");
         assert!(face.number_of_glyphs() >= 3); // notdef + A + B
@@ -133,7 +148,9 @@ mod tests {
     fn subset_font_empty_keeps_notdef() {
         let Some(data) = load_test_font() else { return };
         let used = BTreeSet::new();
-        let subset = subset_font(&data, &used).expect("subset vazio deve funcionar");
+        let subset = subset_font_with_mapping(&data, &BTreeMap::new(), &used)
+            .expect("subset vazio deve funcionar")
+            .data;
         let face =
             ttf_parser::Face::parse(&subset, 0).expect("subset deve ser parseável");
         assert_eq!(face.number_of_glyphs(), 1);

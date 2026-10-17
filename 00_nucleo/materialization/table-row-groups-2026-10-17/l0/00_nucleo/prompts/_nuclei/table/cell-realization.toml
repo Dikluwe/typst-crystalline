@@ -1,0 +1,34 @@
+tekt = 1
+kind = "nucleus"
+id = "table-cell-realization"
+title = "Resolução lógica da tabela antes da receita da célula"
+
+[[claims]]
+id = "phase-order"
+level = "must"
+statement = "A síntese estrutural e sua validação, com estilos declarativos aplicáveis, precedem a transformação da Table. A receita da Cell e a realização do corpo só ocorrem depois da receita da Table sobrevivente. Descartar a Table impede receitas ocultadas, mas não apaga erro estrutural que precede a transformação. Esta distinção não autoriza executar a Cell para validar a estrutura."
+
+[[claims]]
+id = "placement-owner"
+level = "must"
+statement = "O único algoritmo de ocupação pertence a compiler/layout/grid_placement; a política de tabela segue ordem documental e produz plano em ordem row-major, mantendo a política legada de Grid separada por parâmetro fechado."
+
+[[claims]]
+id = "known-fields"
+level = "must"
+statement = "Campos lexicais e plano resolvido são distintos; getters da célula preparada projetam propriedades conhecidas sem mutar variável/constructor cru, e none explícito vence herança."
+
+[[claims]]
+id = "no-cell-location"
+level = "must-not"
+statement = "A preparação não torna table.cell locatable, não lhe atribui Location falsa e não altera rejeições de query/counter."
+
+[[claims]]
+id = "geometry-boundary"
+level = "must"
+statement = "Fontes, medidas, tracks físicos, paginação e tinta pertencem ao layout; o plano lógico e as receitas pertencem à realização. Layout não executa Func/Engine; HTML consome plano sem layout paginado."
+
+[[claims]]
+id = "once-and-scope"
+level = "must"
+statement = "Receitas usam ambiente causal de inserção, conservam aliases/escopo/contexto e efeitos uma vez por inserção aceita. Repetição física e replay de contribuição válida não repetem receitas. Apenas planos completos são publicados como visual; um plano estrutural pending pode transportar coordenadas validadas antes de Table show sem emitir ou indexar suas células."

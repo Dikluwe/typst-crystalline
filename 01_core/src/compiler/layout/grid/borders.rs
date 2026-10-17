@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/grid/borders.md
-//! @prompt-hash 040618ef
+//! @prompt-hash 7c841fca
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 
 use super::*;
 
@@ -41,6 +41,9 @@ pub(super) fn cell_effective_stroke(
     grid_stroke: Option<&Stroke>,
 ) -> Option<Stroke> {
     let cell_stroke = match cell {
+        Content::TableCell(e) if e.resolved.is_some() => {
+            return e.resolved.as_ref().and_then(|r| r.stroke.clone())
+        }
         Content::TableCell(e) => e.stroke.as_ref(),
         Content::GridCell(e) => e.stroke.as_ref(),
         _ => None, // neutro: N16[β] — Content não-cell retorna None para stroke (sem override de célula)
@@ -68,21 +71,23 @@ pub(super) fn vline_x(
 
 /// P888 — emite um segmento horizontal (borda de topo/fundo de uma
 /// célula, ou run fundido de várias) se tiver comprimento > 0.
-pub(super) fn emit_hsegment(
-    items: &mut Vec<FrameItem>,
+pub(super) fn emit_hsegment<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut super::super::Layouter<M, S>,
     x0: f64,
     x1: f64,
     y: f64,
     stroke: Stroke,
 ) {
     if x1 > x0 {
-        items.push(FrameItem::Shape {
-            pos: Point { x: Pt(x0), y: Pt(y) },
-            kind: ShapeKind::Line { dx: x1 - x0, dy: 0.0 },
-            width: (x1 - x0).abs(),
+        let prepared_stroke =
+            super::super::tiling::resolve_stroke(layouter, Some(&stroke));
+        layouter.regions.current.current_items.push(FrameItem::Shape {
+            pos: Point { x: Pt(x0 - stroke.thickness / 2.0), y: Pt(y) },
+            kind: ShapeKind::Line { dx: x1 - x0 + stroke.thickness, dy: 0.0 },
+            width: x1 - x0 + stroke.thickness,
             height: 0.0,
             fill: None,
-            stroke: Some(stroke),
+            stroke: prepared_stroke,
             fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         });
@@ -91,21 +96,23 @@ pub(super) fn emit_hsegment(
 
 /// P888 — emite um segmento vertical (borda de coluna, possivelmente
 /// fundida ao longo de várias linhas) se tiver comprimento > 0.
-pub(super) fn emit_vsegment(
-    items: &mut Vec<FrameItem>,
+pub(super) fn emit_vsegment<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut super::super::Layouter<M, S>,
     x: f64,
     y0: f64,
     y1: f64,
     stroke: Stroke,
 ) {
     if y1 > y0 {
-        items.push(FrameItem::Shape {
-            pos: Point { x: Pt(x), y: Pt(y0) },
-            kind: ShapeKind::Line { dx: 0.0, dy: y1 - y0 },
+        let prepared_stroke =
+            super::super::tiling::resolve_stroke(layouter, Some(&stroke));
+        layouter.regions.current.current_items.push(FrameItem::Shape {
+            pos: Point { x: Pt(x), y: Pt(y0 - stroke.thickness / 2.0) },
+            kind: ShapeKind::Line { dx: 0.0, dy: y1 - y0 + stroke.thickness },
             width: 0.0,
-            height: (y1 - y0).abs(),
+            height: y1 - y0 + stroke.thickness,
             fill: None,
-            stroke: Some(stroke),
+            stroke: prepared_stroke,
             fill_rule: Default::default(),
             parent_bbox_at_emit: None,
         });
@@ -115,17 +122,17 @@ pub(super) fn emit_vsegment(
 /// P888 — descarrega (emite) todos os segmentos verticais abertos em
 /// `open`. Chamado antes de uma quebra de página (uma linha vertical não
 /// pode atravessar páginas) e no fim da emissão do grid/table.
-pub(super) fn flush_all_vsegments(
+pub(super) fn flush_all_vsegments<M: FontMetrics, S: ImageSizer>(
     open: &mut [Option<(f64, f64, Stroke)>],
     col_starts: &[f64],
     resolved_widths: &[f64],
     num_cols: usize,
-    items: &mut Vec<FrameItem>,
+    layouter: &mut super::super::Layouter<M, S>,
 ) {
     for (x_idx, slot) in open.iter_mut().enumerate() {
         if let Some((y0, y1, stroke)) = slot.take() {
             let x = vline_x(x_idx, col_starts, resolved_widths, num_cols);
-            emit_vsegment(items, x, y0, y1, stroke);
+            emit_vsegment(layouter, x, y0, y1, stroke);
         }
     }
 }
@@ -150,8 +157,8 @@ pub(super) fn flush_all_vsegments(
 /// correcção per ADR-0107), desenha os dois lados separadamente, tal como
 /// o comportamento anterior a este passo — sem risco de regressão visual.
 #[allow(clippy::too_many_arguments)]
-pub(super) fn emit_row_borders(
-    items: &mut Vec<FrameItem>,
+pub(super) fn emit_row_borders<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut super::super::Layouter<M, S>,
     row_idx: usize,
     row_start_y: f64,
     row_h: f64,
@@ -189,7 +196,7 @@ pub(super) fn emit_row_borders(
             }
             _ => {
                 if let Some((rx0, rx1, rs)) = top_run.take() {
-                    emit_hsegment(items, rx0, rx1, row_start_y, rs);
+                    emit_hsegment(layouter, rx0, rx1, row_start_y, rs);
                 }
                 top_run = stroke.clone().map(|s| (cx, cx + cw, s));
             }
@@ -200,17 +207,17 @@ pub(super) fn emit_row_borders(
             }
             _ => {
                 if let Some((rx0, rx1, rs)) = bottom_run.take() {
-                    emit_hsegment(items, rx0, rx1, row_start_y + row_h, rs);
+                    emit_hsegment(layouter, rx0, rx1, row_start_y + row_h, rs);
                 }
                 bottom_run = stroke.map(|s| (cx, cx + cw, s));
             }
         }
     }
     if let Some((rx0, rx1, rs)) = top_run {
-        emit_hsegment(items, rx0, rx1, row_start_y, rs);
+        emit_hsegment(layouter, rx0, rx1, row_start_y, rs);
     }
     if let Some((rx0, rx1, rs)) = bottom_run {
-        emit_hsegment(items, rx0, rx1, row_start_y + row_h, rs);
+        emit_hsegment(layouter, rx0, rx1, row_start_y + row_h, rs);
     }
 
     // ── Bordas verticais, fundidas entre linhas via `open_vsegments` ──
@@ -239,8 +246,8 @@ pub(super) fn emit_row_borders(
                     // os dois directamente para esta linha (comportamento
                     // seguro, idêntico ao pré-P888 nesta posição específica).
                     let x = vline_x(x_idx, col_starts, resolved_widths, num_cols);
-                    emit_vsegment(items, x, row_start_y, row_end_y, l);
-                    emit_vsegment(items, x, row_start_y, row_end_y, r);
+                    emit_vsegment(layouter, x, row_start_y, row_end_y, l);
+                    emit_vsegment(layouter, x, row_start_y, row_end_y, r);
                     None
                 }
                 (Some(l), None) => Some(l),
@@ -260,7 +267,7 @@ pub(super) fn emit_row_borders(
         } else {
             if let Some((y0, y1, s)) = open_vsegments[x_idx].take() {
                 let x = vline_x(x_idx, col_starts, resolved_widths, num_cols);
-                emit_vsegment(items, x, y0, y1, s);
+                emit_vsegment(layouter, x, y0, y1, s);
             }
             open_vsegments[x_idx] = resolved.map(|s| (row_start_y, row_end_y, s));
         }
@@ -269,8 +276,8 @@ pub(super) fn emit_row_borders(
 
 /// Ordena as células da linha por coluna antes de fundir bordas.
 #[allow(clippy::too_many_arguments)]
-pub(super) fn emit_placed_row_borders(
-    items: &mut Vec<FrameItem>,
+pub(super) fn emit_placed_row_borders<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut super::super::Layouter<M, S>,
     row_idx: usize,
     row_start_y: f64,
     row_h: f64,
@@ -286,7 +293,7 @@ pub(super) fn emit_placed_row_borders(
     let mut sorted = row_cells.to_vec();
     sorted.sort_by_key(|&idx| placed_cells[idx].col);
     emit_row_borders(
-        items,
+        layouter,
         row_idx,
         row_start_y,
         row_h,
@@ -299,4 +306,152 @@ pub(super) fn emit_placed_row_borders(
         num_cols,
         stroke,
     );
+}
+
+#[cfg(test)]
+mod corner_regression {
+    use super::*;
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::image_sizer::NullImageSizer;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use comemo::Track;
+
+    #[test]
+    fn border_segments_cover_half_thickness_at_both_ends() {
+        for thickness in [0.5, 1.0, 3.0] {
+            let stroke = Stroke { thickness, ..Stroke::default() };
+            let intr = TagIntrospector::empty();
+            let intr: &dyn Introspector = &intr;
+            let mut layouter =
+                Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr.track());
+            emit_hsegment(&mut layouter, 20.0, 60.0, 30.0, stroke.clone());
+            emit_vsegment(&mut layouter, 20.0, 30.0, 70.0, stroke.clone());
+            let items = &layouter.regions.current.current_items;
+            assert_eq!(items.len(), 2);
+            if let FrameItem::Shape {
+                pos,
+                kind: ShapeKind::Line { dx, dy },
+                width,
+                height,
+                stroke: emitted,
+                ..
+            } = &items[0]
+            {
+                assert_eq!(pos.x.0, 20.0 - thickness / 2.0);
+                assert_eq!(pos.y.0, 30.0);
+                assert_eq!(*dx, 40.0 + thickness);
+                assert_eq!(*dy, 0.0);
+                assert_eq!(*width, 40.0 + thickness);
+                assert_eq!(*height, 0.0);
+                let emitted = emitted.as_ref().unwrap();
+                assert_eq!(emitted.thickness, stroke.thickness);
+                assert_eq!(emitted.cap, stroke.cap);
+                assert_eq!(emitted.join, stroke.join);
+                assert_eq!(emitted.dash, stroke.dash);
+                assert_eq!(emitted.miter_limit, stroke.miter_limit);
+                assert_eq!(emitted.specified, stroke.specified);
+                assert_eq!(emitted.overhang, stroke.overhang);
+                let crate::entities::frame_paint::FramePaint::Solid(color) =
+                    &emitted.paint
+                else {
+                    panic!("solid stroke changed paint kind")
+                };
+                assert_eq!(color, &Color::rgb(0, 0, 0));
+            } else {
+                panic!("expected horizontal shape");
+            }
+            if let FrameItem::Shape {
+                pos,
+                kind: ShapeKind::Line { dx, dy },
+                width,
+                height,
+                stroke: emitted,
+                ..
+            } = &items[1]
+            {
+                assert_eq!(pos.x.0, 20.0);
+                assert_eq!(pos.y.0, 30.0 - thickness / 2.0);
+                assert_eq!(*dx, 0.0);
+                assert_eq!(*dy, 40.0 + thickness);
+                assert_eq!(*width, 0.0);
+                assert_eq!(*height, 40.0 + thickness);
+                let emitted = emitted.as_ref().unwrap();
+                assert_eq!(emitted.thickness, stroke.thickness);
+                assert_eq!(emitted.cap, stroke.cap);
+                assert_eq!(emitted.join, stroke.join);
+                assert_eq!(emitted.dash, stroke.dash);
+                assert_eq!(emitted.miter_limit, stroke.miter_limit);
+                assert_eq!(emitted.specified, stroke.specified);
+                assert_eq!(emitted.overhang, stroke.overhang);
+                let crate::entities::frame_paint::FramePaint::Solid(color) =
+                    &emitted.paint
+                else {
+                    panic!("solid stroke changed paint kind")
+                };
+                assert_eq!(color, &Color::rgb(0, 0, 0));
+            } else {
+                panic!("expected vertical shape");
+            }
+        }
+    }
+
+    #[test]
+    fn empty_segments_do_not_acquire_a_stroke_extent() {
+        let intr = TagIntrospector::empty();
+        let intr: &dyn Introspector = &intr;
+        let mut layouter =
+            Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr.track());
+        emit_hsegment(&mut layouter, 20.0, 20.0, 30.0, Stroke::default());
+        emit_vsegment(&mut layouter, 20.0, 30.0, 30.0, Stroke::default());
+        assert!(layouter.regions.current.current_items.is_empty());
+    }
+}
+
+#[cfg(test)]
+mod d08b3c_tests {
+    use super::*;
+    #[test]
+    fn d08b3c_border_reads_known_stroke_and_known_none() {
+        use crate::entities::elements::table_cell::{TableCellResolved, TableCellStage};
+        use std::sync::Arc;
+        for stroke in [
+            Some(Stroke {
+                paint: Color::rgb(255, 0, 0).into(),
+                thickness: 2.0,
+                ..Stroke::default()
+            }),
+            None,
+        ] {
+            let Content::TableCell(c) =
+                Content::table_cell(Content::text("a"), None, None, None, None)
+            else {
+                unreachable!()
+            };
+            let known = TableCellResolved {
+                x: 0,
+                y: 0,
+                colspan: 1,
+                rowspan: 1,
+                fill: None,
+                stroke: stroke.clone(),
+                align: None,
+                inset: Sides::uniform(Length::pt(5.0)),
+                breakable: true,
+                visual: c.body.clone(),
+                stage: TableCellStage::Complete,
+                guards: vec![],
+            };
+            let mut outer = c.as_ref().clone();
+            let mut plan = known;
+            plan.visual = Content::text("REPLACED");
+            outer.resolved = Some(Arc::new(plan));
+            assert_eq!(
+                cell_effective_stroke(
+                    &Content::TableCell(Arc::new(outer)),
+                    Some(&Stroke::default())
+                ),
+                stroke
+            );
+        }
+    }
 }

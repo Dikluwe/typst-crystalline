@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content/construction/tables.md
-//! @prompt-hash efa7679a
+//! @prompt-hash d1146a25
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 
 use super::*;
 
@@ -17,6 +17,9 @@ impl Content {
         children: Vec<Content>,
     ) -> Self {
         Self::Table(Arc::new(TableElem {
+            source_span: crate::entities::span::Span::detached(),
+            resolved: None,
+            rows_explicit: !rows.is_empty(),
             columns,
             rows,
             children,
@@ -44,6 +47,9 @@ impl Content {
         caption: Option<Content>,
     ) -> Self {
         Self::Table(Arc::new(TableElem {
+            source_span: crate::entities::span::Span::detached(),
+            resolved: None,
+            rows_explicit: !rows.is_empty(),
             columns,
             rows,
             children,
@@ -74,6 +80,24 @@ impl Content {
         rowspan: Option<usize>,
     ) -> Self {
         Self::TableCell(Arc::new(TableCellElem {
+            source_span: crate::entities::span::Span::detached(),
+            resolved: None,
+            standalone: None,
+            presence: crate::entities::elements::table_cell::TableCellPresence {
+                x: if x.is_some() {
+                    crate::entities::elements::table_cell::CellFieldPresence::Explicit
+                } else {
+                    crate::entities::elements::table_cell::CellFieldPresence::Omitted
+                },
+                y: if y.is_some() {
+                    crate::entities::elements::table_cell::CellFieldPresence::Explicit
+                } else {
+                    crate::entities::elements::table_cell::CellFieldPresence::Omitted
+                },
+                colspan: colspan.is_some(),
+                rowspan: rowspan.is_some(),
+                ..Default::default()
+            },
             body,
             x,
             y,

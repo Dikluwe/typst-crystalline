@@ -1,5 +1,8 @@
 # Prompt L0 — `stdlib/tiling` — constructor `tiling(...)`
-Hash do Código: e641265e
+Hash do Código: 4462a10d
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/tiling-placement.toml sha256:9c88c9c3bde8b005623fa70b5213400655a9a741b1a140b6b76c7225fc16edb4
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/visualize.rs`
@@ -132,6 +135,41 @@ layout. Esta superfície é linguagem pública (ADR-0107).
 ### Fronteira de fase
 
 A fase de layout existente é a única autoridade para materializar o Content da
-célula, derivar size auto, resolver percentuais e aplicar offset antes de angle.
+célula, derivar size auto, resolver percentuais e aplicar a geometria do núcleo
+tiling-placement, com rotação em torno do offset.
 Qualquer estrutura resolvida é privada dessa fase. Exporters recebem somente a
 saída normal do layout e não repetem avaliação ou layout do corpo.
+
+
+## Origem da rotação de tiling — 2026-10-14
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/tiling-transformacao-2026-10-14/before/results.json.gz`
+conserva fontes/owners, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
+working tree não commitado, diffstat, UTC e binários. Referência pinada
+9f2b6e8715237cb086899a42873660fe744622e8. Para angle90 e offset(3pt,5pt),
+o SVG vanilla emite matrix(0 1 -1 0 3 5); o Tekt emite (0 1 -1 0 -5 3).
+No pin, visualize/tiling.rs:173-174 descreve rotação em torno do offset;
+:375-377 concatena translate(offset) com rotate(angle), e
+layout/transform.rs:334-343 calcula T*R. O texto histórico "offset antes de
+angle" foi interpretado incorretamente como rotação do próprio offset.
+Semântica geométrica é obrigação de linguagem; ordem de chamadas Rust não é.
+
+before/render-comparison.json.gz discrimina targets: em quarter sem offset,
+Tekt PDF e SVG coincidem exatamente com vanilla SVG, enquanto vanilla PDF
+difere em 414 pixels >16. Não copiar essa diferença do PDF como requisito.
+Em quarter-offset, os SVGs diferem em 1764 pixels >16. Rasterizações usam
+canvas inteiro 240×192, branco, librsvg e Poppler, sem recortes/tolerâncias
+criadas para aprovar. A evidência não certifica parent composto nem todo PDF.
+
+### Responsabilidade deste owner
+
+O constructor conserva offset e angle declarativos, inclusive percentuais,
+sem os pré-compor ou materializar body. A fronteira de fase referencia o
+núcleo pinado: o layout aplica a rotação em torno do offset. Nenhum ramo,
+assinatura, erro, default ou decisão de validação do constructor é alterado.
+Retificar somente a formulação ambígua de P1245 e o selo do owner.
+
+Correção interna/de paridade ADR-0127 em fluxo contínuo: L0 primeiro,
+RED→GREEN e resselo restrito. Nenhuma mudança pública ou nova fase.

@@ -1,10 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/show.md
-//! @prompt-hash 173b47b5
+//! @prompt-hash 8a819a59
 //! @layer L1
 //! @updated 2026-04-19
 
 use ecow::EcoString;
+use std::sync::Arc;
 
 use crate::entities::content::Content;
 use crate::entities::func::Func;
@@ -112,7 +113,7 @@ pub enum Transformation {
     /// o nó casado embrulhando-o num `Content::Styled(elem, styles)` — o
     /// carregador `StyledElem`-scoped da fatia 1 (`f_fronteira_e1.md §3a.8`).
     /// **NÃO consome o passe** (espelha `map.apply; continue` do vanilla).
-    Style(Styles),
+    Style(Arc<Styles>),
 }
 
 /// Uma regra de transformação declarada com `#show selector: transform`.
@@ -121,4 +122,46 @@ pub struct ShowRule {
     pub id: RuleId,
     pub selector: Selector,
     pub transform: Transformation,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::entities::style::Style;
+    use std::sync::Arc;
+
+    #[test]
+    fn public_enum_budget_transformation_tracks_content() {
+        assert!(
+            std::mem::size_of::<Transformation>()
+                <= std::mem::size_of::<Content>()
+                    + std::mem::align_of::<Transformation>()
+        );
+    }
+
+    #[test]
+    fn shared_show_styles_clone_and_copy_on_write_preserve_values() {
+        let styles =
+            Styles::from_iter([Style::Weight(700)]).push_custom("probe", Value::Int(1));
+        let original = Transformation::Style(Arc::new(styles));
+        let mut copied = original.clone();
+        let (
+            Transformation::Style(original_styles),
+            Transformation::Style(copied_styles),
+        ) = (&original, &mut copied)
+        else {
+            unreachable!()
+        };
+        assert!(Arc::ptr_eq(original_styles, copied_styles));
+        Arc::make_mut(copied_styles).push(Style::Weight(400));
+        let changed = Arc::make_mut(copied_styles)
+            .clone()
+            .push_custom("probe", Value::Int(2));
+        *copied_styles = Arc::new(changed);
+        assert!(!Arc::ptr_eq(original_styles, copied_styles));
+        assert_eq!(original_styles.delta().weight, Some(700));
+        assert_eq!(copied_styles.delta().weight, Some(400));
+        assert_eq!(original_styles.delta().custom[0].1, Value::Int(1));
+        assert_eq!(copied_styles.delta().custom.last().unwrap().1, Value::Int(2));
+    }
 }

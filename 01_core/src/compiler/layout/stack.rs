@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/stack.md
-//! @prompt-hash 70d1db11
+//! @prompt-hash c910cbc8
 //! @layer L1
 //! @updated 2026-08-21
 //!
@@ -35,7 +35,7 @@ fn extract_frame_ascent_and_descent<M: FontMetrics>(
             return;
         }
         match item {
-            FrameItem::Text { pos, text, style } => {
+            FrameItem::Text { pos, text, style, .. } => {
                 *min_y = min_y.min(cur_y + pos.y.0);
                 *found_text = true;
                 let ib = metrics.text_ink_bounds_signed(text, style.size, style);
@@ -71,7 +71,8 @@ fn extract_frame_ascent_and_descent<M: FontMetrics>(
                     );
                 }
             }
-            FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
+            FrameItem::TextReplacement { items, .. }
+            | FrameItem::Semantic { items, .. } => {
                 for child in items {
                     walk(
                         child,
@@ -84,7 +85,11 @@ fn extract_frame_ascent_and_descent<M: FontMetrics>(
                     );
                 }
             }
-            _ => {
+            FrameItem::TextSeparator { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. }
+            | FrameItem::Link { .. } => {
                 let b = super::helpers::item_bottom_y(item);
                 *max_bottom = max_bottom.max(cur_y + b);
             }
@@ -172,6 +177,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 },
             );
 
+            layouter.record_flow_width_at(base_x, layouter.last_sub_frame_flow_width);
             let (item_ascent, max_descent, ink_ascent) =
                 extract_frame_ascent_and_descent(&items, top_edge.0, &layouter.metrics);
 
@@ -217,6 +223,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let base_x = layouter.regions.current.line_start_x.0;
         let mut base_y = layouter.regions.current.cursor_y.0;
         let mut cur_x = base_x;
+        let mut flow_width = 0.0;
         let mut max_descent = bottom_edge.0.abs();
         let mut common_top_offset = None;
 
@@ -235,13 +242,23 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 },
             );
 
+            if i > 0 && space_pt > 0.0 {
+                flow_width += space_pt;
+            }
+            flow_width += layouter.last_sub_frame_flow_width;
             fn first_baseline(items: &[FrameItem]) -> Option<f64> {
                 items.iter().find_map(|item| match item {
                     FrameItem::Text { pos, .. }
                     | FrameItem::TextShaped { pos, .. }
                     | FrameItem::Glyph { pos, .. } => Some(pos.y.0),
-                    FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => first_baseline(items),
-                    _ => None,
+                    FrameItem::TextReplacement { items, .. }
+                    | FrameItem::Semantic { items, .. } => first_baseline(items),
+                    FrameItem::TextSeparator { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. }
+                    | FrameItem::Group { .. }
+                    | FrameItem::Link { .. } => None,
                 })
             }
             let item_ascent = first_baseline(&items).unwrap_or(top_edge.0);
@@ -257,7 +274,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
             let mut child_w = 0.0_f64;
             for mut item in items {
-                if !super::html_frame::is_context_marker(&item) && !matches!(&item, crate::entities::layout_types::FrameItem::TextSeparator { .. }) {
+                if !super::html_frame::is_context_marker(&item)
+                    && !matches!(
+                        &item,
+                        crate::entities::layout_types::FrameItem::TextSeparator { .. }
+                    )
+                {
                     let (ix, _) = super::helpers::item_pos(&item);
                     let w = super::helpers::item_width(&item, &layouter.metrics);
                     child_w = child_w.max(ix - base_x + w);
@@ -272,6 +294,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
 
         layouter.regions.current.cursor_x = layouter.regions.current.line_start_x;
+        layouter.record_flow_width_at(base_x, flow_width);
         layouter.regions.current.cursor_y = Pt(base_y);
         layouter.prev_line_baseline = base_y;
         layouter.last_block_descent_y = Some(base_y + max_descent);

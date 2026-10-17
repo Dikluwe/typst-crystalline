@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "format-native-element-identity"
+title = "Identidade interna dos formatos nativos"
+
+[[claims]]
+id = "typed-witness"
+level = "must"
+statement = "Os cinco formatos svg/png/pdf/html/bundle preservam uma testemunha nominal privada, transportada pela Func efetiva e seus clones. O callback compartilhado, nome, namespace e igualdade Rust não autenticam essa identidade; reconstruir uma Native comum pelo mesmo ponteiro não copia a testemunha."
+
+[[claims]]
+id = "native-projections"
+level = "must"
+statement = "A Func de formato conserva os campos do NativeFunc, ABI estática de quatro argumentos, ponteiro retornado por native_fn_addr, nome, namespace, span diagnóstico, repr, clone e despacho. Eq/Hash conservam a compatibilidade anterior com Native de mesmo nome; isso não concede capacidade de elemento à Native comum. With conserva namespace/nome mas não é elemento bare. Nenhuma chamada de metadados executa callback."
+
+[[claims]]
+id = "closed-construction"
+level = "must-not"
+statement = "Identificar formatos não adiciona binding, muda gate/default, constrói formato manualmente, duplica factory ou cria wrapper de chamada. As factories existentes anexam identidade interna ao NativeFunc original e mantêm namespaces/membros efetivos e fases."
+
+[[claims]]
+id = "observation-witness"
+level = "must"
+statement = "A relação observacional de duas Func de formato compara testemunha nominal, callback, nome e namespace sem execução. Format e Native comum são representações observacionalmente diferentes, mesmo quando Eq público por nome permanece true, pois só a primeira transporta capacidade de seleção."

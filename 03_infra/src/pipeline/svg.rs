@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/svg.md
-//! @prompt-hash 6b42ebc5
+//! @prompt-hash 7456bab4
 //! @layer L3
 //! @updated 2026-09-28
 //!
@@ -97,7 +97,7 @@ pub fn compile_to_svg_string_with_timings_full_error_and_features_and_pretty_ove
     let result = match doc_result {
         Ok(doc) => {
             let pretty = resolve_svg_pretty(pretty_override, &doc);
-            let fonts = match resolve_and_instantiate_fonts(&doc, world) {
+            let fonts = match resolve_export_fonts(&doc, world) {
                 Ok(f) => f,
                 Err(diag) => {
                     timings.total_ms = timings.eval_ms
@@ -156,24 +156,6 @@ pub fn compile_to_svg_string_with_timings_full_error_and_features_and_pretty_ove
     (result, warnings, timings)
 }
 
-#[cfg(test)]
-mod p1462_tests {
-    use super::*;
-
-    #[test]
-    fn svg_pretty_precedence_is_override_then_document_then_false() {
-        let mut document = PagedDocument::new(vec![]);
-        assert!(!resolve_svg_pretty(None, &document));
-
-        document.format_options.svg.pretty = true;
-        assert!(resolve_svg_pretty(None, &document));
-        assert!(!resolve_svg_pretty(Some(false), &document));
-
-        document.format_options.svg.pretty = false;
-        assert!(resolve_svg_pretty(Some(true), &document));
-    }
-}
-
 pub(super) fn svg_destination_context_for_page(
     doc: &PagedDocument,
     selected_page_number: usize,
@@ -210,8 +192,14 @@ pub(super) fn svg_glyph_font_context_for_page(
                 }
                 FrameItem::Group { items, .. }
                 | FrameItem::Link { items, .. }
-                | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => collect(items, metrics, out),
-                _ => {}
+                | FrameItem::TextReplacement { items, .. }
+                | FrameItem::Semantic { items, .. } => collect(items, metrics, out),
+                FrameItem::TextSeparator { .. }
+                | FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. } => {}
             }
         }
     }
@@ -221,4 +209,22 @@ pub(super) fn svg_glyph_font_context_for_page(
     collect(&page.items, &metrics, &mut resolved);
     collect(&page.foreground, &metrics, &mut resolved);
     SvgGlyphFontContext::from_resolutions(resolved)
+}
+
+#[cfg(test)]
+mod p1462_tests {
+    use super::*;
+
+    #[test]
+    fn svg_pretty_precedence_is_override_then_document_then_false() {
+        let mut document = PagedDocument::new(vec![]);
+        assert!(!resolve_svg_pretty(None, &document));
+
+        document.format_options.svg.pretty = true;
+        assert!(resolve_svg_pretty(None, &document));
+        assert!(!resolve_svg_pretty(Some(false), &document));
+
+        document.format_options.svg.pretty = false;
+        assert!(resolve_svg_pretty(Some(true), &document));
+    }
 }

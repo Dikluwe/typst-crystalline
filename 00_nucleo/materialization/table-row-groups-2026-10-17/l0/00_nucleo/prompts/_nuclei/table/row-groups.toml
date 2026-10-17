@@ -1,0 +1,48 @@
+tekt = 1
+kind = "nucleus"
+id = "table-row-groups"
+title = "Fonte ordenada, intervalos e preparação de grupos Table"
+
+[[depends]]
+path = "00_nucleo/prompts/_nuclei/table/cell-realization.toml"
+sha256 = "16ae092d990d3d26f03232afcabf63f3b5c08ffb5b6297989368f0346d14f2ab"
+
+[[claims]]
+id = "ordered-source"
+level = "must"
+statement = "Table tem uma única fonte lexical ordenada de Cell, Header, Footer e linhas; campos derivados não duplicam ou substituem essa fonte."
+
+[[claims]]
+id = "group-metadata"
+level = "must"
+statement = "Nível e repeat pertencem ao grupo; kind/nível explícito da Cell é independente. Auto permanece na Cell crua e só é resolvido no contexto estrutural do grupo, sem defaults assados na origem. Header admite níveis positivos repetidos, presença de campos é preservada, e grupos vazios continuam grupos."
+
+[[claims]]
+id = "real-occupancy"
+level = "must"
+statement = "O único motor de ocupação calcula intervalos reais com x/y/spans, reserva faixas inteiras e cria só holes verdadeiros depois do placement documental; não preenche por tamanho de Vec."
+
+[[claims]]
+id = "phase-boundary"
+level = "must"
+statement = "Validar estrutura antes da receita Table com show-set efetivo; receitas Cell/body de conteúdo ocultado não executam. A leitura de children usa fonte lexical e não o plano."
+
+[[claims]]
+id = "line-order"
+level = "must"
+statement = "Linhas são itens documentais e não células; auto e índice explícito são distintos, sua posição depende de cursores/intervalos reais e sua fonte lexical não é sobrescrita."
+
+[[claims]]
+id = "visual-publication"
+level = "must"
+statement = "Planos pending não são visual/indexáveis; exportação/layout usam somente plano completo e não refazem ocupação ou receitas."
+
+[[claims]]
+id = "stroke-layers"
+level = "must"
+statement = "No caminho Table, stroke none de linha remove contribuições anteriores no intervalo, incluindo bordas de Cell; não significa pintar branco ou ignorar a instrução."
+
+[[claims]]
+id = "bounded-scope"
+level = "must-not"
+statement = "RG1 não certifica campos gerais/defaults de Table (RG2/table-root-fields), defaults settable próprios de Header/Footer/linhas, rich styles/functions/gutters, repetição multipágina ou PDF/UA; esses subconjuntos têm etapas próprias e não são fechados pelo transporte."

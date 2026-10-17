@@ -68,9 +68,9 @@ pub(super) fn certify<M: FontMetrics, S: ImageSizer>(
 fn group_size(index: usize, len: usize, widow: bool, orphan: bool) -> usize {
     if index == 0 && len == 3 && widow && orphan {
         3
-    } else if index == 0 && len >= 2 && orphan {
-        2
-    } else if index >= 2 && index + 2 == len && widow {
+    } else if (index == 0 && len >= 2 && orphan)
+        || (index >= 2 && index + 2 == len && widow)
+    {
         2
     } else {
         1

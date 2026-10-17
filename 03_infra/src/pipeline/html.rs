@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/html.md
-//! @prompt-hash f1b7b858
+//! @prompt-hash a781cb31
 //! @layer L3
-//! @updated 2026-09-26
+//! @updated 2026-10-05
 //!
 //! Orquestra o target semântico HTML e suas ilhas html.frame. Conserva o gate de features, a precedência de pretty, o target causal e a preparação contextual. Fornece posições intrínsecas à sessão seletiva sem criar paginação global HTML.
 
@@ -99,7 +99,10 @@ pub fn compile_to_html_string_with_features_and_serialization_and_pretty_overrid
         let content = module.content().cloned().unwrap_or(Content::Empty);
         let format_options = collect_document_format_options(&content)?;
         let pretty = resolve_html_pretty(pretty_override, &format_options);
-        let intr = introspect_with_introspector(&content);
+        let intr = module
+            .realization_introspector()
+            .cloned()
+            .unwrap_or_else(|| introspect_with_introspector(&content));
         let (prepared, contextual_warnings) = context_stabilization::prepare_html(
             content, &intr, world, source, false, features,
         );
@@ -129,7 +132,7 @@ pub fn compile_to_html_string_with_features_and_serialization_and_pretty_overrid
                 ImageSizeImageSizer,
             );
             let doc = PagedDocument::new(vec![page.clone()]);
-            let fonts = resolve_and_instantiate_fonts(&doc, world)?;
+            let fonts = resolve_export_fonts(&doc, world)?;
             let glyph_fonts = svg_glyph_font_context_for_page(&page, world);
             let options = crate::export::SvgOptions { pretty, ..Default::default() };
             Ok(options.export_html_frame_with_fonts(&page, &fonts, &glyph_fonts))
@@ -138,24 +141,6 @@ pub fn compile_to_html_string_with_features_and_serialization_and_pretty_overrid
             .map_err(|error| vec![error])
     });
     (html, warnings)
-}
-
-#[cfg(test)]
-mod p1465_tests {
-    use super::*;
-
-    #[test]
-    fn html_pretty_precedence_is_override_then_document_then_false() {
-        let mut options = DocumentFormatOptions::default();
-        assert!(!resolve_html_pretty(None, &options));
-
-        options.html.pretty = true;
-        assert!(resolve_html_pretty(None, &options));
-        assert!(!resolve_html_pretty(Some(false), &options));
-
-        options.html.pretty = false;
-        assert!(resolve_html_pretty(Some(true), &options));
-    }
 }
 
 /// P1493 — recolhe `html.frame` em ordem bottom-up e conserva a cadeia causal.
@@ -266,4 +251,22 @@ pub(super) fn html_frame_positions(
     }
 
     Ok(positions)
+}
+
+#[cfg(test)]
+mod p1465_tests {
+    use super::*;
+
+    #[test]
+    fn html_pretty_precedence_is_override_then_document_then_false() {
+        let mut options = DocumentFormatOptions::default();
+        assert!(!resolve_html_pretty(None, &options));
+
+        options.html.pretty = true;
+        assert!(resolve_html_pretty(None, &options));
+        assert!(!resolve_html_pretty(Some(false), &options));
+
+        options.html.pretty = false;
+        assert!(resolve_html_pretty(Some(true), &options));
+    }
 }

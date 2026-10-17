@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/set/text.md
-//! @prompt-hash 12fb180f
+//! @prompt-hash cc542d72
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -21,17 +21,54 @@ pub(super) fn eval_set_text(
     // layout pelo transporte aninhado (`eval_markup`). A validação/erro-hard de
     // `lang`/`font` permanece (paridade ADR-0033/0052/0053); só a **saída** muda
     // (typed → custom). O layout (merge arm) decodifica o Value de volta.
-    for arg in set.args().items() {
-        if let Arg::Named(named) = arg {
-            let key = named.name().as_str().to_owned();
-            let val = eval_expr(named.expr(), scopes, ctx, engine)?;
+    let args = call_dispatch::eval_args(set.args(), scopes, ctx, engine)?;
+    let mut remaining = args.clone();
+    for property in ["size", "fill"] {
+        if args.named.contains_key(property) {
+            continue;
+        }
+        let index = remaining.items.iter().position(|value| match property {
+            "size" => matches!(value, Value::Length(_)),
+            "fill" => matches!(value, Value::Color(_)),
+            _ => unreachable!(),
+        });
+        if let Some(index) = index {
+            let value = remaining.remove_positional(index).unwrap();
+            *engine.styles = engine.styles.push_custom(format!("text.{property}"), value);
+        }
+    }
+    let occurrences = args.occurrence_sequence();
+    let last_size = occurrences
+        .iter()
+        .rposition(|arg| arg.name.as_deref() == Some("size"));
+    for (index, occurrence) in occurrences.into_iter().enumerate() {
+        if let Some(name) = &occurrence.name {
+            let key = name.as_str().to_owned();
+            let val = occurrence.value;
+            let value_span = if occurrence.value_span.is_detached() {
+                args.span
+            } else {
+                occurrence.value_span
+            };
+            let name_span =
+                if occurrence.span.is_detached() { args.span } else { occurrence.span };
+            let source_expr = set.args().items().find_map(|arg| match arg {
+                Arg::Named(named) => {
+                    if named.name().as_str() == key && named.expr().span() == value_span {
+                        Some(named.expr())
+                    } else {
+                        None
+                    }
+                }
+                Arg::Pos(_) | Arg::Spread(_) => None,
+            });
             match key.as_str() {
                 // P665: `bold` e `italic` como argumentos nomeados de `#set text`
                 // não existem no vanilla; o vanilla usa `weight: "bold"` e
                 // `style: "italic"`. Rejeitar para manter a linguagem alinhada.
                 "bold" | "italic" => {
                     return Err(vec![SourceDiagnostic::error(
-                        named.name().to_untyped().span(),
+                        name_span,
                         format!("unexpected argument: {}", key),
                     )]);
                 }
@@ -40,27 +77,42 @@ pub(super) fn eval_set_text(
                     // ignorado em silêncio — erro hard `expected length,
                     // found {type}` (+ hint para Int), paridade vanilla
                     // (`foundations/cast.rs:325-343`).
-                    let span = named.expr().span();
+                    let span = value_span;
                     match val {
                         Value::Length(l) => {
-                            *engine.styles =
-                                engine.styles.push_custom("text.size", Value::Length(l));
+                            if last_size == Some(index) {
+                                *engine.styles = engine
+                                    .styles
+                                    .push_custom("text.size", Value::Length(l));
+                            }
                         }
                         other => {
                             return Err(vec![expected_length_error(&other, span)]);
                         }
                     }
                 }
-                "fill" => {
-                    if let Value::Color(c) = val {
+                "fill" => match val {
+                    Value::Color(c) => {
                         *engine.styles =
-                            engine.styles.push_custom("text.fill", Value::Color(c));
+                            engine.styles.push_custom("text.fill", Value::Color(c))
                     }
-                }
+                    Value::Gradient(_) | Value::Tiling(_) => {
+                        // Existing partial transport; Paint needs its own contract.
+                    }
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            value_span,
+                            format!(
+                                "expected color, gradient, or tiling, found {}",
+                                vanilla_type_name(&other)
+                            ),
+                        )])
+                    }
+                },
                 "weight" => {
                     // Int direto ou nome simbólico (FontWeight::from_name) → u16
                     // canónico em Value::Int. P636: rejeitar tipos inválidos.
-                    let span = named.expr().span();
+                    let span = value_span;
                     match &val {
                         Value::Int(n) => {
                             if let Ok(w) = u16::try_from(*n) {
@@ -100,7 +152,7 @@ pub(super) fn eval_set_text(
                 "style" => {
                     // P665: `style` é a forma canónica do vanilla para itálico.
                     // Aceita os três valores standard; guarda em `text.style`.
-                    let span = named.expr().span();
+                    let span = value_span;
                     if let Value::Str(s) = &val {
                         match s.as_str() {
                             "normal" | "italic" | "oblique" => {
@@ -124,7 +176,7 @@ pub(super) fn eval_set_text(
                     // settable no vanilla (`text/mod.rs:846-850`). Validação
                     // partilhada com o constructor — mensagens/hints verbatim
                     // do vanilla (`variations.rs:217-236`, `tag.rs:85-117`).
-                    let span = named.expr().span();
+                    let span = value_span;
                     crate::entities::font_variations::FontVariations::from_value(
                         &val, span,
                     )?;
@@ -133,7 +185,7 @@ pub(super) fn eval_set_text(
                 "tracking" => {
                     // P816: mesma validação de tipo de `size` (Length no
                     // vanilla, `text/mod.rs:333`).
-                    let span = named.expr().span();
+                    let span = value_span;
                     match val {
                         Value::Length(l) => {
                             *engine.styles = engine
@@ -158,7 +210,7 @@ pub(super) fn eval_set_text(
                             }
                             Err(msg) => {
                                 return Err(vec![SourceDiagnostic::error(
-                                    named.expr().span(),
+                                    value_span,
                                     msg.to_string(),
                                 )]);
                             }
@@ -174,41 +226,43 @@ pub(super) fn eval_set_text(
                     //   - `Value::Dict` com "name" (Str|Regex) + "variants" (Array[Str])
                     //     → dict form com regex keys.
                     // Zero tipo novo em `Value`: reusa Array/Dict/Str/Regex.
-                    let span = named.expr().span();
-                    let font_expr = named.expr();
-                    let arr: Vec<Value> = match font_expr {
-                        Expr::Str(node) => vec![Value::Str(EcoString::from(node.get()?))],
-                        Expr::Array(arr_node) => {
-                            let mut items = Vec::new();
-                            for item in arr_node.items() {
-                                if let ArrayItem::Pos(expr) = item {
-                                    if let Expr::Str(node) = expr {
-                                        items.push(Value::Str(EcoString::from(
-                                            node.get()?,
-                                        )));
-                                    } else {
-                                        return Err(vec![SourceDiagnostic::error(
-                                            span,
-                                            "font array must contain only strings"
-                                                .to_string(),
-                                        )]);
+                    let span = value_span;
+                    let arr: Vec<Value> = if let Some(font_expr) = source_expr {
+                        match font_expr {
+                            Expr::Str(node) => {
+                                vec![Value::Str(EcoString::from(node.get()?))]
+                            }
+                            Expr::Array(arr_node) => {
+                                let mut items = Vec::new();
+                                for item in arr_node.items() {
+                                    if let ArrayItem::Pos(expr) = item {
+                                        if let Expr::Str(node) = expr {
+                                            items.push(Value::Str(EcoString::from(
+                                                node.get()?,
+                                            )));
+                                        } else {
+                                            return Err(vec![SourceDiagnostic::error(
+                                                span,
+                                                "font array must contain only strings"
+                                                    .to_string(),
+                                            )]);
+                                        }
                                     }
                                 }
+                                if items.is_empty() {
+                                    return Err(vec![SourceDiagnostic::error(
+                                        span,
+                                        "font array must not be empty".to_string(),
+                                    )]);
+                                }
+                                items
                             }
-                            if items.is_empty() {
-                                return Err(vec![SourceDiagnostic::error(
-                                    span,
-                                    "font array must not be empty".to_string(),
-                                )]);
-                            }
-                            items
-                        }
-                        Expr::Dict(dict_node) => {
-                            // P414: detectar dict named fields (tem chave `family`)
-                            // vs formato legado P407 (chaves são nomes de fonte).
-                            const NAMED_FIELDS: &[&str] =
-                                &["family", "variant", "weight", "style", "fallback"];
-                            let is_named_fields = dict_node.items().any(|item| {
+                            Expr::Dict(dict_node) => {
+                                // P414: detectar dict named fields (tem chave `family`)
+                                // vs formato legado P407 (chaves são nomes de fonte).
+                                const NAMED_FIELDS: &[&str] =
+                                    &["family", "variant", "weight", "style", "fallback"];
+                                let is_named_fields = dict_node.items().any(|item| {
                                 matches!(
                                     item,
                                     DictItem::Named(named_item)
@@ -216,22 +270,46 @@ pub(super) fn eval_set_text(
                                 )
                             });
 
-                            if is_named_fields {
-                                font_dict::parse_font_dict_named_fields(
-                                    dict_node, span, scopes, ctx, engine,
-                                )?
-                            } else {
-                                font_dict::parse_font_dict_legacy(
-                                    dict_node, span, scopes, ctx, engine,
-                                )?
+                                if is_named_fields {
+                                    font_dict::parse_font_dict_named_fields(
+                                        dict_node, span, scopes, ctx, engine,
+                                    )?
+                                } else {
+                                    font_dict::parse_font_dict_legacy(
+                                        dict_node, span, scopes, ctx, engine,
+                                    )?
+                                }
+                            }
+                            _ => {
+                                return Err(vec![SourceDiagnostic::error(
+                                    span,
+                                    "font expects a string, array of strings, or dict"
+                                        .to_string(),
+                                )]);
                             }
                         }
-                        _ => {
-                            return Err(vec![SourceDiagnostic::error(
-                                span,
-                                "font expects a string, array of strings, or dict"
-                                    .to_string(),
-                            )]);
+                    } else {
+                        match &val {
+                            Value::Str(name) => vec![Value::Str(name.clone())],
+                            Value::Array(items) => {
+                                if items.is_empty()
+                                    || !items
+                                        .iter()
+                                        .all(|item| matches!(item, Value::Str(_)))
+                                {
+                                    return Err(vec![SourceDiagnostic::error(
+                                        span,
+                                        "font expects a string, array of strings, or dict",
+                                    )]);
+                                }
+                                items.clone()
+                            }
+                            _ => {
+                                return Err(vec![SourceDiagnostic::error(
+                                    span,
+                                    "font expects a string, array of strings, or dict",
+                                )])
+                            }
                         }
                     };
                     // P816 (achado #3b de P810): warning `unknown font
@@ -284,11 +362,7 @@ pub(super) fn eval_set_text(
                                 .push_custom("text.top-edge", Value::Length(l));
                         }
                         other => {
-                            return Err(vec![edge_cast_error(
-                                true,
-                                &other,
-                                named.expr().span(),
-                            )]);
+                            return Err(vec![edge_cast_error(true, &other, value_span)]);
                         }
                     }
                 }
@@ -306,17 +380,12 @@ pub(super) fn eval_set_text(
                                 .push_custom("text.bottom-edge", Value::Length(l));
                         }
                         other => {
-                            return Err(vec![edge_cast_error(
-                                false,
-                                &other,
-                                named.expr().span(),
-                            )]);
+                            return Err(vec![edge_cast_error(false, &other, value_span)]);
                         }
                     }
                 }
                 "costs" => {
-                    let entries =
-                        crate::compiler::text_costs::parse(&val, named.expr().span())?;
+                    let entries = crate::compiler::text_costs::parse(&val, value_span)?;
                     let pagination = entries.iter().any(|(key, _)| {
                         matches!(*key, "text.costs.widow" | "text.costs.orphan")
                     });
@@ -324,7 +393,7 @@ pub(super) fn eval_set_text(
                         *engine.styles = engine.styles.push_custom(key, value);
                     }
                     if pagination {
-                        engine.sink.warn_note(named.expr().span(),
+                        engine.sink.warn_note(value_span,
                         "text.costs: proteção de widow/orphan limitada a parágrafos preparados com métricas verticais uniformes",
                         "colunas, notas e conteúdo misto ainda não têm proteção regional certificada");
                     }
@@ -337,7 +406,7 @@ pub(super) fn eval_set_text(
                         return Err(vec![break_policy_error(
                             "expected boolean",
                             &other,
-                            named.expr().span(),
+                            value_span,
                         )])
                     }
                 },
@@ -349,7 +418,7 @@ pub(super) fn eval_set_text(
                         return Err(vec![break_policy_error(
                             "expected boolean or auto",
                             &other,
-                            named.expr().span(),
+                            value_span,
                         )])
                     }
                 },
@@ -357,7 +426,7 @@ pub(super) fn eval_set_text(
                     if let Value::Dir(dir) = val {
                         if dir.is_vertical() {
                             return Err(vec![SourceDiagnostic::error(
-                                named.expr().span(),
+                                value_span,
                                 "text direction must be horizontal".to_string(),
                             )]);
                         }
@@ -375,16 +444,22 @@ pub(super) fn eval_set_text(
                     // do Passo 107 (encerra DEBT-49, hint ADR-0040).
                     if !VANILLA_TEXT_SET_PROPS.contains(&key.as_str()) {
                         return Err(vec![SourceDiagnostic::error(
-                            named.name().to_untyped().span(),
+                            name_span,
                             format!("unexpected argument: {}", key),
                         )]);
                     }
                     let (msg, hint) =
                         unsupported_property_warn("text", &key, Some("0040"));
-                    engine.sink.warn_note(named.name().to_untyped().span(), &msg, &hint);
+                    engine.sink.warn_note(name_span, &msg, &hint);
                 }
             }
         }
+    }
+
+    if let Some(arg) =
+        remaining.occurrence_sequence().iter().find(|arg| arg.name.is_none())
+    {
+        return Err(vec![SourceDiagnostic::error(arg.span, "unexpected argument")]);
     }
 
     Ok(Value::None)

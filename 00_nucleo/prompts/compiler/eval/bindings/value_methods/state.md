@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/value_methods/state
-Hash do Código: cff3d847
+Hash do Código: 15e81324
 
 ## Ownership e medição
 

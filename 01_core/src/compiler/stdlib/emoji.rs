@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/emoji.md
-//! @prompt-hash cebde3f4
+//! @prompt-hash 452fb99e
 //! @layer L1
 //! @updated 2026-09-24
 //!

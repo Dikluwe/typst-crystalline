@@ -1,0 +1,66 @@
+{
+  "status": "awaiting-human-confirmation",
+  "utc": "2026-10-06T15:51:52.253885+00:00",
+  "head": "06848cdcb5450f2c555626bf116bc7acd82bd82b",
+  "before_sha256": {
+    "compiler/eval.md": "4e3016f7559eb34924a4c3e162160051f04750364f5720e0fa12e9787c0de234",
+    "infra/system-world.md": "f04603b369d6b35db6000718203353b16ec75e20fe9e1897247fa4c77b977c99",
+    "infra/system-world/cache.md": "add0b463784fba31902d4af209a3b64ddc989fcf5efbefec157ebc9aba171798",
+    "infra/pipeline.md": "f03600bf722a990282f319d1570a87f5a830ed6ee32504ebb4169f744d150e47",
+    "wiring/eval.md": "8e17fdf5f126346dba798ef28fc9917875316cf2bb34837c186f0817a33b27eb",
+    "compiler/eval/tests.md": "c42dd8f451c2c5281fda5ba26b398ecdc53a1212f5e4ff1ed210ec3cf568545d",
+    "infra/system-world/tests.md": "2c2704e692ec2e0a11598bba8a018ac3662074ddad464b8de108554f89216903",
+    "infra/pipeline/tests.md": "e5e5d4adc43aaf04d2dfad608cdbed01b7285da78e4d0c11a2ac3829b78d0ad8",
+    "wiring/tests/cli.md": "55e72adf5172eeea7970020877f6e1066c3c3171a5fd110df66e9bccfb4a9bfb"
+  },
+  "l0s": [
+    {
+      "path": "00_nucleo/prompts/compiler/eval.md",
+      "sha256": "03401d04ea4e14230693d147771053be82966642cedf5504b4f8d169646545a4"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/system-world.md",
+      "sha256": "37bebd5b42c104e3fd5f6c8232a938294723e22b1d02613af1c9e27f1c1b7361"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/system-world/cache.md",
+      "sha256": "e4afb04ecf1eedb82f963b0fe5270ab06b5288b80676585b1a7b95eed628cb72"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/pipeline.md",
+      "sha256": "35e030d557bcfe05b749ccbad72810245e85798cf0ec2b9605b5796e553729b0"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/eval.md",
+      "sha256": "527072007631dca08c3ab636e78e86c766732ba26941ddc64026927f21e14a93"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/tests.md",
+      "sha256": "9f8c8ba80d7baee7ca544a057cef9271696d4438f2c546429d49e5261b534f1c"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/system-world/tests.md",
+      "sha256": "b61998f31b6129230ae10619b4e952f80ebb189ff564d8a529b38f4376457937"
+    },
+    {
+      "path": "00_nucleo/prompts/infra/pipeline/tests.md",
+      "sha256": "c73c8b0b63800dba1363dd643ef0175061442ad400de6e9ac6ef3e70288a36e7"
+    },
+    {
+      "path": "00_nucleo/prompts/wiring/tests/cli.md",
+      "sha256": "00661d01b2fde50a708732e08a7d199c93657c060d20d5f0bab01c3754c9690b"
+    }
+  ],
+  "nucleus": {
+    "path": "00_nucleo/prompts/_nuclei/expression-source-identity.toml",
+    "sha256": "5b8316118aa4bec57e8a3e2b11a13090809b3b2443d61005c02921d283dfe94f",
+    "effective_sha256": "fb383f227b0bcd8b1e61899942fa0383a4cda66093da58bda2e87844e2895d2a"
+  },
+  "gate": "ADR-0127: additive public Source-based APIs and checked allocator exhaustion; no code implemented",
+  "validation": {
+    "checks": "V15,V26",
+    "errors": 0,
+    "log": "00_nucleo/diagnosticos/origem-fontes-expressao-2026-10-06/ownership-nuclei.sarif",
+    "utc": "2026-10-06T15:52:47.915274+00:00"
+  }
+}

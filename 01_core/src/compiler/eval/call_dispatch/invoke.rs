@@ -1,13 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch/invoke.md
-//! @prompt-hash 95c555ba
+//! @prompt-hash 7d052014
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 
 use super::*;
+use crate::entities::content::Content;
 
 pub(super) fn invoke_resolved_call(
     resolved_callee: Option<Value>,
+    resolved_args: Option<Args>,
     call: FuncCallNode<'_>,
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext,
@@ -18,113 +20,16 @@ pub(super) fn invoke_resolved_call(
         None => eval_expr(call.callee(), scopes, ctx, engine)?,
     };
 
-    let float_is_nan_spans = matches!(
-        &callee,
-        Value::Func(f)
-            if matches!(f.repr(), FuncRepr::Native(n) if n.name == "is-nan")
-    )
-    .then(|| FloatIsNanCallSpans::capture(call));
-
-    let p1293_math_spans = match &callee {
-        Value::Func(func) => P1293MathNative::from_func(func)
-            .map(|identity| (identity, P1293MathCallSpans::capture(call))),
-        _ => None,
-    };
-    let p1293_html_spans = match &callee {
-        Value::Func(func) => P1293HtmlNative::from_func(func)
-            .map(|kind| P1293HtmlCallSpans::capture(call, kind)),
-        _ => None,
-    };
-
-    // **P846 (#56)** — `eval`: ancorar os erros da re-avaliação ao span do
-    // **literal string** (primeiro argumento posicional), paridade com o
-    // `SpanMode::Uniform` do vanilla (`foundations/mod.rs:267,318` — medido:
-    // `span7.typ` van `4:2` vs cris `3:5`). Solução pontual só para `eval`
-    // (override de `args.span` no call site), sem o débito estrutural de
-    // span-por-argumento em `Args` (P772s). O cast error (`#eval(5)` →
-    // `1:6`) fica igualmente corrigido — o vanilla ancora erros de validação
-    // de argumento no span do argumento.
-    let eval_anchor = match &callee {
-        Value::Func(f) if matches!(f.repr(), FuncRepr::NativeWithEngine(n) if n.name == "eval") => {
-            call.args().items().find_map(|arg| match arg {
-                Arg::Pos(expr) => Some(expr.span()),
-                _ => None,
-            })
-        }
-        _ => None,
-    };
-
-    let is_mat_call = matches!(
-        &callee,
-        Value::Func(func)
-            if func
-                .name()
-                .is_some_and(|name| name == "mat" || name.ends_with(".mat"))
-    );
-    let isolate_mat_args = is_mat_call && !ctx.apply_show_rules;
-    let mut args = if isolate_mat_args {
-        let array_lengths = scopes
-            .iter_all()
-            .filter_map(|(name, value)| match value {
-                Value::Array(values) => Some((name.to_string(), values.len())),
-                _ => None,
-            })
-            .collect::<Vec<_>>();
-        let mut isolated = Scopes {
-            top: scopes.top.clone(),
-            scopes: scopes.scopes.clone(),
-            captured: scopes
-                .captured
-                .as_ref()
-                .map(|scope| std::sync::Arc::new((**scope).clone())),
-            captured_by: scopes.captured_by,
-            base: scopes.base,
-        };
-        let args = eval_args(call.args(), &mut isolated, ctx, engine)?;
-        for (name, length) in array_lengths {
-            if let Some(Value::Array(values)) = scopes.get_mut(&name) {
-                values.truncate(length);
-            }
-        }
-        args
-    } else {
-        let before = (is_mat_call && ctx.apply_show_rules).then(|| {
-            scopes
-                .iter_all()
-                .filter_map(|(name, value)| match value {
-                    Value::Array(values) => Some((name.to_string(), values.clone())),
-                    _ => None,
-                })
-                .collect::<Vec<_>>()
-        });
-        let args = eval_args(call.args(), scopes, ctx, engine)?;
-        if let Some(before) = before {
-            for (name, prefix) in before {
-                if prefix.is_empty() {
-                    continue;
-                }
-                if let Some(Value::Array(values)) = scopes.get_mut(&name) {
-                    if values.len() == prefix.len() * 2
-                        && values[..prefix.len()] == prefix
-                        && values[prefix.len()..] == prefix
-                    {
-                        values.truncate(prefix.len());
-                    }
-                }
-            }
-        }
-        args
-    };
-    if let Some(spans) = float_is_nan_spans {
-        args.span = spans.anchor(&args, false);
-    } else if let Some((identity, spans)) = p1293_math_spans {
-        args.span = spans.anchor(identity, &args);
-    } else if let Some(anchor) = eval_anchor {
-        args.span = anchor;
-    }
-
     match callee {
         Value::Func(func) => {
+            let (mut args, p1293_html_spans) = prepare_call_args(
+                &Value::Func(func.clone()),
+                resolved_args,
+                call,
+                scopes,
+                ctx,
+                engine,
+            )?;
             transport_native_call_span(&func, &mut args, call.span());
             let html_args = p1293_html_spans.as_ref().map(|_| args.clone());
             let mut result = apply_func(func.clone(), args, scopes, ctx, engine);
@@ -142,7 +47,41 @@ pub(super) fn invoke_resolved_call(
             let result = trace_call(result, func.name(), call.span(), engine)?;
             // Intercepção eager — show rules aplicadas após apply_func (Passo 68).
             if let Value::Content(c) = result {
-                Ok(Value::Content(rules::intercept_content(c, ctx, engine)?))
+                if matches!(
+                    c,
+                    Content::Table(_)
+                        | Content::TableCell(_)
+                        | Content::TableHeader(_)
+                        | Content::TableFooter(_)
+                ) {
+                    return Ok(Value::Content(c));
+                }
+                let captured_styles = if ctx.defer_show_rules
+                    && !engine.show_rules.is_empty()
+                    && crate::compiler::realize::bare_math::needs_preparation(&c)
+                {
+                    let previous = engine.styles.clone();
+                    *engine.styles = engine.styles.push_custom(
+                        "eval.math.origin",
+                        Value::Int(call.span().into_raw().get() as i64),
+                    );
+                    Some(previous)
+                } else {
+                    None
+                };
+                let intercepted = rules::intercept_content(c, ctx, engine);
+                if let Some(previous) = captured_styles {
+                    *engine.styles = previous;
+                }
+                let content = intercepted.map_err(|mut errors| {
+                    for error in &mut errors {
+                        if error.span.is_detached() {
+                            error.span = call.span();
+                        }
+                    }
+                    errors
+                })?;
+                Ok(Value::Content(content))
             } else {
                 Ok(result)
             }
@@ -152,6 +91,14 @@ pub(super) fn invoke_resolved_call(
         // não cobertos conservam o diagnóstico de construtor ausente.
         // P1339 acrescenta somente a conversão autorizada Array ← Bytes.
         Value::Type(t) => {
+            let (args, _) = prepare_call_args(
+                &Value::Type(t),
+                resolved_args,
+                call,
+                scopes,
+                ctx,
+                engine,
+            )?;
             let world = engine.world;
             let current_file = engine.current_file;
             match t {
@@ -198,9 +145,104 @@ pub(super) fn invoke_resolved_call(
                 )]),
             }
         }
-        other => Err(vec![SourceDiagnostic::error(
+        Value::None
+        | Value::Bool(..)
+        | Value::Int(..)
+        | Value::Float(..)
+        | Value::Str(..)
+        | Value::Array(..)
+        | Value::Dict(..)
+        | Value::Module(..)
+        | Value::Datetime(..)
+        | Value::Content(..)
+        | Value::LocatedContent(..)
+        | Value::Auto
+        | Value::Length(..)
+        | Value::Relative(..)
+        | Value::Ratio(..)
+        | Value::Angle(..)
+        | Value::Color(..)
+        | Value::Stroke(..)
+        | Value::Fraction(..)
+        | Value::Align(..)
+        | Value::Location(..)
+        | Value::Gradient(..)
+        | Value::Regex(..)
+        | Value::Tiling(..)
+        | Value::Bytes(..)
+        | Value::Decimal(..)
+        | Value::Duration(..)
+        | Value::Version(..)
+        | Value::Selector(..)
+        | Value::Symbol(..)
+        | Value::Args(..)
+        | Value::State(..)
+        | Value::Counter(..)
+        | Value::Label(..)
+        | Value::Dir(..)
+        | Value::Path(..)
+        | Value::SpotColorant(..) => Err(vec![SourceDiagnostic::error(
             call.callee().span(),
-            format!("não é possível chamar {}", other.type_name()),
+            format!("expected function, found {}", vanilla_type_name(&callee)),
         )]),
     }
+}
+
+fn prepare_call_args(
+    callee: &Value,
+    resolved_args: Option<Args>,
+    call: FuncCallNode<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<(Args, Option<P1293HtmlCallSpans>)> {
+    let float_is_nan_spans = matches!(
+        callee,
+        Value::Func(f)
+            if matches!(f.repr(), FuncRepr::Native(n) if n.name == "is-nan")
+    )
+    .then(|| FloatIsNanCallSpans::capture(call));
+
+    let p1293_math_spans = match callee {
+        Value::Func(func) => P1293MathNative::from_func(func)
+            .map(|identity| (identity, P1293MathCallSpans::capture(call))),
+        _ => None,
+    };
+    let p1293_html_spans = match callee {
+        Value::Func(func) => P1293HtmlNative::from_func(func)
+            .map(|kind| P1293HtmlCallSpans::capture(call, kind)),
+        _ => None,
+    };
+
+    // **P846 (#56)** — `eval`: ancorar os erros da re-avaliação ao span do
+    // **literal string** (primeiro argumento posicional), paridade com o
+    // `SpanMode::Uniform` do vanilla (`foundations/mod.rs:267,318` — medido:
+    // `span7.typ` van `4:2` vs cris `3:5`). Solução pontual só para `eval`
+    // (override de `args.span` no call site), sem o débito estrutural de
+    // span-por-argumento em `Args` (P772s). O cast error (`#eval(5)` →
+    // `1:6`) fica igualmente corrigido — o vanilla ancora erros de validação
+    // de argumento no span do argumento.
+    let eval_anchor = match callee {
+        Value::Func(f) if matches!(f.repr(), FuncRepr::NativeWithEngine(n) if n.name == "eval") => {
+            call.args().items().find_map(|arg| match arg {
+                Arg::Pos(expr) => Some(expr.span()),
+                _ => None,
+            })
+        }
+        _ => None,
+    };
+
+    let mut args = match resolved_args {
+        Some(args) => args,
+        None => eval_args(call.args(), scopes, ctx, engine)?,
+    };
+    if let Some(spans) = float_is_nan_spans {
+        args.span = spans.anchor(&args, false);
+    } else if let Some((identity, spans)) = p1293_math_spans {
+        args.span = spans.anchor(identity, &args);
+    } else if let Some(anchor) = eval_anchor {
+        args.span = anchor;
+    }
+
+    Ok((args, p1293_html_spans))
 }

@@ -93,9 +93,7 @@ fn parse_entry(src: &str, start: usize) -> Result<(BibEntry, usize), BibTeXError
     if pos == kind_start {
         return Err(BibTeXError::new("esperado tipo de entrada após '@'"));
     }
-    let kind = std::str::from_utf8(&src.as_bytes()[kind_start..pos])
-        .unwrap()
-        .to_lowercase();
+    let kind = src[kind_start..pos].to_lowercase();
 
     if !is_supported_type(&kind) {
         return Err(BibTeXError::new(format!(

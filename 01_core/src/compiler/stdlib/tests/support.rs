@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/tests/support.md
-//! @prompt-hash 18485231
+//! @prompt-hash 9d88262f
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -225,6 +225,10 @@ pub(super) fn make_bib_dict(key: &str, author: &str, title: &str, year: i64) -> 
     Value::Dict(d)
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C121: Factory cfg(test) constrói um único dicionário bibliográfico com os oito campos fornecidos, sem política de produção"
+)]
 pub(super) fn make_bib_dict_full(
     key: &str,
     author: &str,
@@ -269,6 +273,10 @@ pub(super) fn make_bib_dict_with_url_doi(
     Value::Dict(d)
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C122: Factory cfg(test) da extensão bibliográfica mantém dez campos explícitos e valores literais dos testes"
+)]
 pub(super) fn make_bib_dict_full_p159g(
     key: &str,
     author: &str,

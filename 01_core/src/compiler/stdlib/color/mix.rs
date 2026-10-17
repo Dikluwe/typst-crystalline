@@ -8,7 +8,6 @@ use super::*;
 
 /// `color.mix(col1, col2, weight: 0.5, space: auto)` — interpolação linear
 /// no espaço indicado (default Oklab; resultado no espaço indicado, P744).
-
 pub(crate) fn native_color_mix(
     _ctx: &mut EvalContext,
     args: &Args,

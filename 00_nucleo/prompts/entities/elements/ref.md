@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/ref` — `RefElem`
-Hash do Código: 8a6135c7
+Hash do Código: f69ae6d4
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/ref.rs`
 **Origem**: modelo D (ADR-0105), **P462**. Trait e glossário (§A.0): ver

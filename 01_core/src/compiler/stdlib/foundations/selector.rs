@@ -1,12 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/selector.md
-//! @prompt-hash b14520f2
+//! @prompt-hash a5932a13
 //! @layer L1
-//! @updated 2026-08-23
+//! @updated 2026-10-06
 
 use std::ptr::fn_addr_eq;
 
 use crate::compiler::eval::EvalContext;
+use crate::compiler::stdlib::structural::native_math_equation;
 use crate::compiler::stdlib::{
     expect_no_named, native_figure, native_heading,
     native_metadata as native_metadata_func, native_outline_entry, native_table,
@@ -27,7 +28,17 @@ pub fn native_selector(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
+    let value_span = args
+        .occurrences
+        .as_ref()
+        .and_then(|items| items.iter().find(|item| item.name.is_none()))
+        .map(|item| item.value_span)
+        .filter(|span| !span.is_detached())
+        .unwrap_or(args.span);
     match args.items.as_slice() {
+        [Value::Func(f)] if is_table_cell(f) => {
+            Ok(Value::Selector(Selector::NativeElement(f.clone())))
+        }
         [Value::Selector(selector)] => Ok(Value::Selector(selector.clone())),
         [Value::Regex(regex)] if regex.pattern().is_empty() => {
             Err(vec![SourceDiagnostic::error(
@@ -65,7 +76,7 @@ pub fn native_selector(
             .map(|kind| Value::Selector(Selector::Kind(kind)))
             .ok_or_else(|| {
                 vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    value_span,
                     "only element functions can be used as selectors",
                 )]
             }),
@@ -80,6 +91,71 @@ pub fn native_selector(
     }
 }
 
+fn is_table_cell(f: &crate::entities::func::Func) -> bool {
+    f.native_fn_addr().is_some_and(|addr| {
+        fn_addr_eq(
+            addr,
+            crate::compiler::stdlib::native_table_cell as fn(_, _, _, _) -> _,
+        )
+    })
+}
+
+fn element_kind_of_native_func(f: &crate::entities::func::Func) -> Option<ElementKind> {
+    let addr = f.native_fn_addr()?;
+    if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) {
+        Some(ElementKind::Heading)
+    } else if fn_addr_eq(addr, native_figure as fn(_, _, _, _) -> _) {
+        Some(ElementKind::Figure)
+    } else if fn_addr_eq(addr, native_table as fn(_, _, _, _) -> _) {
+        Some(ElementKind::Table)
+    } else if fn_addr_eq(addr, native_metadata_func as fn(_, _, _, _) -> _) {
+        Some(ElementKind::Metadata)
+    } else if fn_addr_eq(addr, native_outline_entry as fn(_, _, _, _) -> _) {
+        Some(ElementKind::OutlineEntry)
+    } else if fn_addr_eq(addr, native_math_equation as fn(_, _, _, _) -> _) {
+        Some(ElementKind::Equation)
+    } else {
+        None
+    }
+}
+
+pub(super) fn parse_selector_arg(
+    items: &[Value],
+    func_name: &str,
+) -> SourceResult<Selector> {
+    let msg = |s: String| Err(vec![SourceDiagnostic::error(Span::detached(), s)]);
+    match items {
+        [Value::Func(f)] if is_table_cell(f) => Ok(Selector::NativeElement(f.clone())),
+        [Value::Str(s)]
+            if matches!(
+                (s.len() >= 2, s.starts_with('<'), s.ends_with('>')),
+                (true, true, true)
+            ) =>
+        {
+            Ok(Selector::Label(Label(s[1..s.len() - 1].to_string())))
+        }
+        [Value::Str(kind_str)] => ElementKind::from_name(kind_str.as_str())
+            .map(Selector::Kind)
+            .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(), format!(
+                "{}(): kind '{}' não reconhecido (válidos: heading, figure, citation, metadata, state, state_update, outline, bibliography, equation, counter_update, table, list, enum, par, link, raw, quote, footnote). Para label, use `<nome>` syntax.",
+                func_name, kind_str
+            ))]),
+        [Value::Location(loc)] => Ok(Selector::Location(*loc)),
+        [Value::Selector(sel)] => Ok(sel.clone()),
+        [Value::Label(label)] => Ok(Selector::Label(label.clone())),
+        [Value::Func(f)] => element_kind_of_native_func(f)
+            .map(Selector::Kind)
+            .ok_or_else(|| vec![SourceDiagnostic::error(
+                Span::detached(), "only element functions can be used as selectors",
+            )]),
+        [other] => msg(format!(
+            "{}() requer string ou location, recebeu {}. Tipos suportados: \"kind\", \"<label>\", Value::Location. (Regex requer P209D; And/Or ainda só Rust API.)",
+            func_name, other.type_name()
+        )),
+        _ => msg(format!("{}() requer 1 argumento (selector), recebeu {}", func_name, items.len())),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -88,6 +164,87 @@ mod tests {
 
     fn ctx() -> EvalContext {
         EvalContext::new()
+    }
+
+    #[test]
+    fn table_cell_selector_partial_error_uses_value_span() {
+        let cell = crate::entities::func::Func::native(
+            "cell",
+            crate::compiler::stdlib::native_table_cell,
+        )
+        .with(Args::positional(vec![]));
+        let value_span = Span::from_range(tfid(), 9..30);
+        let args = Args::from_occurrences(
+            Span::from_range(tfid(), 8..31),
+            vec![crate::entities::args::ArgOccurrence {
+                name: None,
+                value: Value::Func(cell),
+                span: value_span,
+                value_span,
+            }],
+        );
+        let error = native_selector(&mut ctx(), &args, &NullWorld::default(), tfid())
+            .unwrap_err();
+        assert_eq!(error[0].span, value_span);
+        assert_eq!(error[0].message, "only element functions can be used as selectors");
+    }
+
+    #[test]
+    fn table_cell_selector_aliases_use_executable_identity() {
+        let cell = crate::entities::func::Func::native(
+            "cell",
+            crate::compiler::stdlib::native_table_cell,
+        );
+        let alias = crate::entities::func::Func::native(
+            "alias",
+            crate::compiler::stdlib::native_table_cell,
+        );
+        let fake = crate::entities::func::Func::native(
+            "cell",
+            crate::compiler::stdlib::native_heading,
+        );
+        let convert = |function| {
+            native_selector(
+                &mut ctx(),
+                &Args::positional(vec![Value::Func(function)]),
+                &NullWorld::default(),
+                tfid(),
+            )
+            .unwrap()
+        };
+        let bare = convert(cell);
+        let renamed = convert(alias);
+        assert_eq!(crate::compiler::eval::repr::repr_value(&renamed), "cell");
+        assert!(crate::compiler::eval::operators::equality::values_eq(&bare, &renamed));
+        assert!(!crate::compiler::eval::operators::equality::values_eq(
+            &bare,
+            &convert(fake)
+        ));
+    }
+
+    #[test]
+    fn table_cell_selector_bare_preserves_absent_group() {
+        let cell = crate::entities::func::Func::native(
+            "cell",
+            crate::compiler::stdlib::native_table_cell,
+        );
+        let bare = native_selector(
+            &mut ctx(),
+            &Args::positional(vec![Value::Func(cell.clone())]),
+            &NullWorld::default(),
+            tfid(),
+        )
+        .unwrap();
+        assert_eq!(crate::compiler::eval::repr::repr_value(&bare), "cell");
+        let empty = Value::Selector(
+            crate::compiler::eval::bindings::eval_element_where(
+                &cell,
+                &Args::positional(vec![]),
+            )
+            .unwrap(),
+        );
+        assert_eq!(crate::compiler::eval::repr::repr_value(&empty), "cell.where(:)");
+        assert!(!crate::compiler::eval::operators::equality::values_eq(&bare, &empty));
     }
 
     #[test]
@@ -264,57 +421,40 @@ mod tests {
             "regex matches empty text"
         );
     }
-}
-
-fn element_kind_of_native_func(f: &crate::entities::func::Func) -> Option<ElementKind> {
-    let addr = f.native_fn_addr()?;
-    if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) {
-        Some(ElementKind::Heading)
-    } else if fn_addr_eq(addr, native_figure as fn(_, _, _, _) -> _) {
-        Some(ElementKind::Figure)
-    } else if fn_addr_eq(addr, native_table as fn(_, _, _, _) -> _) {
-        Some(ElementKind::Table)
-    } else if fn_addr_eq(addr, native_metadata_func as fn(_, _, _, _) -> _) {
-        Some(ElementKind::Metadata)
-    } else if fn_addr_eq(addr, native_outline_entry as fn(_, _, _, _) -> _) {
-        Some(ElementKind::OutlineEntry)
-    } else {
-        None
-    }
-}
-
-pub(super) fn parse_selector_arg(
-    items: &[Value],
-    func_name: &str,
-) -> SourceResult<Selector> {
-    let msg = |s: String| Err(vec![SourceDiagnostic::error(Span::detached(), s)]);
-    match items {
-        [Value::Str(s)]
-            if matches!(
-                (s.len() >= 2, s.starts_with('<'), s.ends_with('>')),
-                (true, true, true)
-            ) =>
-        {
-            Ok(Selector::Label(Label(s[1..s.len() - 1].to_string())))
+    #[test]
+    fn equation_native_selector_preserves_identity_for_aliases() {
+        let Value::Module(math) = crate::compiler::stdlib::make_math_module() else {
+            panic!("math must be a module");
+        };
+        let Some(Value::Func(equation)) = math.scope().get("equation") else {
+            panic!("math.equation must be a function");
+        };
+        let alias = crate::entities::func::Func::native(
+            "alias",
+            equation.native_fn_addr().unwrap(),
+        );
+        for function in [equation.clone(), alias] {
+            let value = Value::Func(function);
+            assert_eq!(
+                parse_selector_arg(std::slice::from_ref(&value), "query").unwrap(),
+                Selector::Kind(ElementKind::Equation),
+            );
+            let selector = native_selector(
+                &mut ctx(),
+                &Args::positional(vec![value]),
+                &NullWorld::default(),
+                tfid(),
+            )
+            .unwrap();
+            assert_eq!(selector, Value::Selector(Selector::Kind(ElementKind::Equation)));
         }
-        [Value::Str(kind_str)] => ElementKind::from_name(kind_str.as_str())
-            .map(Selector::Kind)
-            .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(), format!(
-                "{}(): kind '{}' não reconhecido (válidos: heading, figure, citation, metadata, state, state_update, outline, bibliography, equation, counter_update, table, list, enum, par, link, raw, quote, footnote). Para label, use `<nome>` syntax.",
-                func_name, kind_str
-            ))]),
-        [Value::Location(loc)] => Ok(Selector::Location(*loc)),
-        [Value::Selector(sel)] => Ok(sel.clone()),
-        [Value::Label(label)] => Ok(Selector::Label(label.clone())),
-        [Value::Func(f)] => element_kind_of_native_func(f)
-            .map(Selector::Kind)
-            .ok_or_else(|| vec![SourceDiagnostic::error(
-                Span::detached(), "only element functions can be used as selectors",
-            )]),
-        [other] => msg(format!(
-            "{}() requer string ou location, recebeu {}. Tipos suportados: \"kind\", \"<label>\", Value::Location. (Regex requer P209D; And/Or ainda só Rust API.)",
-            func_name, other.type_name()
-        )),
-        _ => msg(format!("{}() requer 1 argumento (selector), recebeu {}", func_name, items.len())),
+        let same_name = Value::Func(crate::entities::func::Func::native(
+            "math.equation",
+            native_heading,
+        ));
+        assert_eq!(
+            parse_selector_arg(&[same_name], "query").unwrap(),
+            Selector::Kind(ElementKind::Heading),
+        );
     }
 }

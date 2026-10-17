@@ -1,6 +1,6 @@
 # L0 — math/layout/p1427-tests
-
 Hash do Código: 68b6cbfd
+
 
 **Layer:** L1 (tests)
 **Exclusive consumer:** `01_core/src/compiler/math/layout/p1427_tests.rs`

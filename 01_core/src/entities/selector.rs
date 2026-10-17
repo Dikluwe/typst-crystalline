@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/selector.md
-//! @prompt-hash 77643e89
+//! @prompt-hash c8f8e9fa
 //! @layer L1
-//! @updated 2026-05-12
+//! @updated 2026-10-06
 //!
 //! `Selector` — predicado para `Introspector::query` (P175 / M9
 //! sub-passo 5; estendido em P209B + P209C + P209D / M9c Bloco VI).
@@ -27,6 +27,8 @@ use crate::entities::value::Value;
 pub enum Selector {
     /// Selector de kind — matches todos os elementos de um tipo.
     Kind(ElementKind),
+    /// Native element identity with no explicitly supplied where group.
+    NativeElement(crate::entities::func::Func),
     /// P1339 — native element identity with an explicitly present, ordered filter.
     /// An empty group remains distinct from a bare Kind selector.
     Element { function: crate::entities::func::Func, fields: EcoVec<(EcoString, Value)> },

@@ -1,5 +1,5 @@
 # L0 — Relative quantity
-Hash do Código: ffffffff
+Hash do Código: 485e934f
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/rel.rs`

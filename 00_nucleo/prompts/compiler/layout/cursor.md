@@ -1,10 +1,16 @@
 # L0 — cursor
-Hash do Código: a875a21a
+Hash do Código: 52128372
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
+- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:7b8a61eaafc8a07df12218f8f0560c33fae5c36f621b822b7350ccefc9774711
+- 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:42175932c75f37ed19205d1d82526969999e18fba8fed16f1b1dcff6e418bc0f
+- 00_nucleo/prompts/_nuclei/layout/raw-block-boundary.toml sha256:c983fdb9884f90548e110fe7c1709632fc00b6e2a1387ad9e80444009c3602fd
+- 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml sha256:04f91fc931871165d4fef399ea9c2e21e8b75f7fd57031183a4e2aed0ed1b62a
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+- 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:0e7c32f877924fea773be54f9719b43bb72b4c3bb065f6ff44a842c56683ff78
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/cursor.rs`
@@ -114,3 +120,212 @@ Mudança interna ADR-0127 em fluxo contínuo, sem assinatura pública, default o
 ### Contrato interno
 
 No alinhamento RTL de linha com prefixo de TextSeparator Literal direto antes do primeiro item textual, derivar a extensão causal do prefixo por posição e advance dos carriers, incluindo os intervalos já aplicados. Reservar essa extensão na âncora direita da tinta e mover o prefixo à faixa direita correspondente; manter a ordem textual do Vec/PDF e não contar novamente tracking. Sem prefixo, o deslocamento permanece idêntico; linhas LTR, espaços finais, contexto marker, justificação e continuação preservam o contrato anterior. Nenhum offset numérico fixo. Correção interna ADR-0127, RED→GREEN e replay bilateral/401 regressões.
+
+## Direção de parágrafo distinta de direção de run — 2026-10-05
+
+Medição anterior à decisão: `00_nucleo/diagnosticos/direcao-alinhamento-2026-10-05/initial.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC, fontes, binários e treze sondas. rtl_lines põe ABC em x=20 no Tekt e x=152.949220 no vanilla pinado; rtl_inline_only e rtl_scope coincidem à esquerda. ltr_lines põe árabe em x=174.567870 no Tekt contra x=20 no vanilla. Em `cursor.rs:156–162` e `line_commit.rs:210–216`, a âncora depende do primeiro item da linha. Vanilla `flow/collect.rs:129–136` obtém trunk_from_pairs e `inline/mod.rs:189,232` resolve direção/alinhamento compartilhados antes das linhas. Semântica observável: direção dos trechos e âncora de todas as linhas do parágrafo. Estratégia de state/preflight é mecânica interna, não cópia do vanilla. Inferência: preservar direção compartilhada evita perder a âncora em linhas só com override; refutada por controles integralmente estilizados/parbreak/wrap.
+
+Correção interna/de paridade ADR-0127, fluxo contínuo L0 primeiro e RED→GREEN. Apenas campos privados de Layouter e helpers descendentes, nenhuma entidade ou assinatura pública/fase/default novo. Esta rodada certifica conteúdo textual estrutural (Text, Empty, Space/SpaceFromNewline, Linebreak, Sequence, Styled e Strong/Emph); unidades desconhecidas conservam fallback anterior. Não prometer ordem bidi mista, align explícito, HTML ou todas as formas de parágrafo. As equações existentes de largura/tracking permanecem.
+
+Responsabilidade deste owner: A âncora RTL usa a consulta interna do owner paragraph, em vez de primeiro Text diretamente. Demais fórmulas, literal prefix, terminal tracking e regiões auto permanecem. Não alterar run.dir.
+
+Aceitação: RED→GREEN em parágrafo RTL com linha LTR e inverso, escopo integral e reset por parbreak; checar checkpoints e subframes, texto/posições em CLI bilateral, build e lint sem novos findings. Slots e helper não transportam metadados ao L3; divergências de ordenação bidi ou align explícito ficam registradas separadamente.
+
+## Migração do carrier bidi ratificado (2026-10-05)
+
+Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+
+## Block/Align — correção interna 2026-10-06
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/block-align-2026-10-06/baseline-verification.json.gz` registra 14 controles completos, fontes, comandos, caixas e binários no HEAD/working tree/UTC de before.json. RTL Block automático põe ABC em x20 no Tekt contra x152.949220 no vanilla; Block(width:100pt) coincide em x100. #set dir:ltr no body não altera a âncora externa do Block automático no vanilla. Align(left/right) mistura bordas por direção do run e desloca Y por 8.35742pt. `placement.rs:35-46,176-177` renderiza no subframe com baseline pronta e subtrai ascender na recomposição; `cursor.rs:154-162` só aplica direção RTL; `block.rs:175-185` posiciona container externo apenas quando largura é explícita. Fonte vanilla pinada `flow/collect.rs:193` resolve Align por linhas e `flow/block.rs:145-166,285` distingue regiões expandidas de auto-size. Paridade de posições/forma, não cópia da mecânica (ADR-0107).
+
+### Responsabilidade exclusiva
+
+O slot explícito tem precedência sobre o alinhamento automático por direção. Left conserva origem; Center usa metade do espaço livre; Right usa a borda regional existente, conservando ajuste RTL/tracking existente quando a direção real for RTL. Texto e direção bidi não são reescritos. Ausência do slot conserva exatamente a rota anterior.
+
+Correção interna/de paridade ADR-0127 em fluxo contínuo. Nenhum contrato público, modo, fase, compatibilidade ou unsafe novo. O certificado é limite explícito desta rodada e deve ser refutado por nested Align, Block de largura explícita, scoping após Align, auto dimensions, texto regular e corpus anterior. RED→GREEN, revalidação bilateral, builds/lint e resselo somente do manifesto. Controles negativos não são redefinidos como aceitos. Sem promessa de ganho de tempo.
+
+### Refutação e revisão da primeira fórmula de margem
+
+after.json.gz/after-additional.json.gz (binário/snapshot/UTC completos)
+refutam o primeiro reparo: consecutivos têm gap extra2.64pt; Cell prefix
+continua5.49796pt acima; Cell isolada fica2.59598pt acima; margens explícitas
+não chegam à chain, pois set.rs:976–1006 não reconhece Native block.
+refuters-red.json.gz mostra Strong-cell perdendo altura (After83.27018
+contra89.95610); plain-cellAfter87.36012. Também identifica negativos
+preexistentes de parágrafo sizes-up/down, cada um comdelta10.8pt.
+
+A margem Raw default é fraca e usa Raw80%:10.56pt, não13.2pt. Um parágrafo
+exterior11pt contribui13.2pt, enquanto Raw consecutivo contribui10.56pt.
+Usar prev_margin_is_parbreak como protocolo já existente de margem fraca
+de parágrafo, incluindo Raw que herda essa margem: below explícito continua
+forte e não muda esse ramo. Cursor colapsa margem fraca com par.spacing
+actual, sem alterar o ramo de margens fortes, regiões/fracionárias/checkpoints.
+Parágrafo anterior já fechado em sub-frame ainda participa da margem acima.
+Primeiro Raw de sub-frame usa cursor inicial menos top-edge exterior, porque
+cell_body.rs:253–260 recompõe sub-frame legado com ascender-top-edge.
+Classificação terminal inclui Strong/Emph transparentes, sem wildcard
+descartando dados: é predicado de fronteira, não projeção de enum.
+
+Set proprietário aceita por identidade Native block e aliases somente
+o subconjunto spacing/above/below com Length ou Auto; avalia uma vez,
+publica delta apenas depois de validar o conjunto. Campos/tipos fora
+desse subconjunto conservam fallback/advertência anterior e não são
+certificados. Apply transporta essas propriedades e o tamanho como Length.
+A margem de render usa o tamanho Raw efetivo (default ou show-set); o
+parágrafo anterior contribui o exterior separado. Styles não mede glyphs.
+
+A hipótese é refutável por qualquer negativo que permaneça nas coletas.
+O parágrafo sizes-down já era negativo e não é declarado corrigido aqui;
+não ampliar para regra de tamanho de parágrafo anterior sem medição própria.
+
+### Refutadores finais de fronteira zero/auto e acesso a fontes
+
+edges-red.json.gz prova: below0 sobrepõe After (74.95612 contra82.19410);
+negativoAfter72.95612 contra77.19410; auto +spacing20 não sobrepõe auto
+corretamente (Raw98.10418 contra91.30420); primeiro below0 deve vencer
+above automático do Raw seguinte (def97.99011, não108.55011).
+A margem explícita tem prioridade nos dois sentidos; ambas explícitas ou
+ambas fracas colapsam por máximo. Auto de edge interrompe o shorthand
+spacing e retoma par.spacing/default fraco. Below explícito<=0 deixa cursor
+no fim real +below com baseline geométrica pendente; below fraco, inclusive
+zero, passa ao ramo fraco do Cursor, que adiciona top-edge do texto seguinte.
+
+suites-third.log refuta inicialização incondicional de FontMetrics: dois
+controles place nontext (image/shape) passaram a adquirir font book.
+Inicializar ascent regional somente no sub-frame legado cujo produto
+terminal é Raw block. Geometric/nontext conserva a rota sem consulta nova.
+Dados sem texto não dependem de fontes por esse reparo.
+
+## Isolamento de overflow local — 2026-10-13
+
+### Medição anterior à decisão
+
+As sondas em containers-clip-2026-10-13/before-renders.json registram
+block(shape maior que altura declarada) criando duas páginas vazias no
+Tekt contra uma região recortada no controle. Fonte e proveniência completas
+estão naquele lote. Para corrigir a composição é necessário que o helper
+isolado retenha o corpo, mas shape.rs:119, cursor.rs:125,
+line_commit.rs:438 e region_progress.rs:115,131 ainda permitem avanço
+externo por overflow com is_sub_frame ativo. sub_frame.rs:109-121,317-340
+salva buffers/cursor, mas não uma página já comitada por esses descendentes.
+Essa hipótese será testada diretamente antes de modificar as condições.
+Fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC estão
+em `00_nucleo/diagnosticos/subframe-isolamento-2026-10-13/before.json.gz`.
+
+### Responsabilidade exclusiva e aceitação
+
+Na admissão da baseline inicial/de bloco, não pedir nova região externa quando is_sub_frame. Manter avanço local de baseline e o restante da fórmula; new_page explícito e drains de floats não são alterados.
+
+Os invariantes compartilhados pertencem ao núcleo subframe-overflow pinado.
+Correção interna ADR-0127, sem campo/assinatura pública, fase ou novo default.
+Exigir RED→GREEN antes/depois das condições, preservação da paginação
+ordinária externa, suíte core, build, formato e linhagem. Não elevar a
+altura de teste para esconder overflow nem descartar itens do frame.
+A correção do helper não equivale a terminar a composição de block/box;
+a coleta, dimensões e recorte desses containers continuam nos seus owners.
+
+## Baseline inicial de caixa sem strut fictício — 2026-10-14
+
+### Medição anterior à decisão
+
+box-baseline-inicial-2026-10-14/before/results.json.gz registra doze fontes
+contra o vanilla pinado, binários, estado sujo, HEAD e UTC. Caixa 8×6pt
+sozinha começa em y pixel 22 contra 20 a 144dpi; com Q adjacente ambos
+começam em 22. Shift baseline 10pt sem texto revela a mesma contribuição
+fictícia. boxed.rs:21-38 instala fonte antes de conhecer a caixa;
+line_commit.rs:421-437 e sub_frame.rs:292-300 confundem zero com ausência
+e só consideram texto em condições parciais. Fonte pinada inline/line.rs:
+559-568 acumula top/bottom dos frames realmente presentes. A posição é
+observável; Option e buffers são mecânica. Snapshot fonte/L0: before.json.gz.
+Hipótese: diferir a baseline da primeira Box e combinar somente conteúdo
+real elimina o deslocamento. Refutar se controles de texto, transformações,
+Raw, HTML causal ou caixas aninhadas passarem a se deslocar.
+
+### Contrato deste owner
+
+Ao instalar baseline de texto ou de transição já definida, guardar Some(top_edge). Não alterar as fórmulas de baseline, traduções, wrapping ou emissão; este owner não decide a baseline natural de Box.
+
+Correção interna ADR-0127, sem API, default ou fase novos. L0 primeiro,
+RED→GREEN, controle de ascent zero, sondas de geometria e suíte completa.
+Não substituir esperados de regressão para conservar o defeito.
+
+
+## Margens automáticas de Block — 2026-10-14
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/transformacoes-2026-10-14/block-par-spacing-before/results.json.gz`
+registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
+UTC, diffstat, hashes de fontes/binários e pin vanilla 9f2b6e871. Com fonte10,
+top10 e bottom0, PRE seguido de Block20 produz página62 no Tekt contra50/55/70
+com par.spacing0/5/2em. Block20 below0 seguido de texto produz página40 contra50.
+block.rs:127–130,585–588 e sequence/fractional_preflight.rs:216–227 substituem
+par.spacing por 1.2em; cursor.rs:103–110 omite top quando below zero.
+Fonte pinada typst-layout/src/flow/collect.rs:253–258 resolve Auto por ParElem::spacing.
+`block-par-extra-before/results.json.gz` mede dois Blocks1fr numa região80:
+a baseline de B deve ser60/62.5/70 para spacing0/5/2em, contra66 em todos.
+São posições/paginação observáveis da língua. Não é obrigação de copiar o Rust.
+A inferência é refutada por overrides explícitos, troca de região, margens
+terminais, estilos e regressões de Raw/Place/Align. before-edit.json.gz no
+diretório block-par-spacing conserva os owners antes da edição.
+
+### Classificação e limites
+
+Correção interna ADR-0127, L0 primeiro, RED→GREEN e resselo restrito; sem
+API pública, fase, default novo ou compatibilidade alterada. A amostra
+scope19 refuta usar consenso de tamanhos dos runs como escopo de parágrafo:
+um wrapper18 e dois wrappers18 adjacentes têm margens distintas no pin.
+O escopo lexical continua pendente, assim como a cauda textual após Block1fr,
+valores negativos rejeitados pelo constructor e colapso entre margens de
+forças diferentes. Não marcar esses casos como corrigidos por esta fórmula.
+
+### Responsabilidade exclusiva
+
+Ao admitir texto depois de uma cadeia com margem zero, consultar a testemunha
+causal de fluxo válida. Se existir, usar fim causal + gap + top-edge para a
+baseline; zero de margem não significa baseline já instalada. Preservar a
+rota positiva/fraca existente, snap fracionário, progressão regional e fallback
+quando a testemunha é inválida. Não reconhecer tipos de Content nem inferir
+fim por tinta. A origem inicial geométrica já pendente continua no primeiro ramo.
+
+
+## Escopo textual e cauda fracionária — 2026-10-14
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/transformacoes-2026-10-14/scope-tail-before/results.json.gz`
+registra HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b, árvore não commitada,
+UTC/status/diffstat e hashes de fontes/binários contra vanilla pinado9f2b6e871.
+Os lotes block-par-spacing-after e block-par-extra-after anteriores já
+refutam escopo por consenso de runs: um wrapper18 em Lead More exige margem
+21.6pt, enquanto dois wrappers18 adjacentes mantêm o escopo exterior.
+sequence.rs:196–245 fecha prefixos na chain exterior; paragraph.rs:12–90 já
+resolve direção pelo ancestral lexical comum. Fonte vanilla flow/collect.rs:
+129–145 resolve estilos comuns antes de compor linhas e espaçamento.
+A cauda TAIL top10/bottom0 após Block1fr ocupa página2 contra página1 no pin:
+cursor.rs:127–135 rejeita igualdade com o limite embora a cauda esteja
+certificada. Cauda Styled18 fica10.52pt acima; fractional_preflight.rs:170–211
+mede nós individualmente e só corrige a altura de Text direto. Linebreak
+explícito também excede a região. A nova sonda inclui wraps, fonte8/18,
+Strong, wrappers irmãos, Align e colunas. Isso é geometria e paginação de
+linguagem; não exige estrutura ou bytes iguais. before-edit.json.gz em
+scope-tail conserva os consumers/owners anteriores.
+
+### Classificação
+
+Correção interna de paridade ADR-0127: L0 primeiro, RED→GREEN e revalidação.
+Sem API pública, nova entidade, fase eval/layout ou default novo. Refutar
+por wrappers irmãos, preservação da ordem, última linha, corpos opacos,
+colunas e ausência de efeitos/estado vazando da medição. Não copiar defeito
+upstream nem declarar paginação universal para cauda maior que a região.
+
+### Responsabilidade exclusiva
+
+Uma cauda fracionária já certificada cujo próximo baseline é exatamente
+o fundo admissível não provoca nova página. Incluir igualdade no gate de
+snap existente, conservando a tolerância superior e progressão ordinária.
+Não autorizar texto além da região por essa igualdade nem afrouxar outros
+casos sem certificado. Revalidar top-edge/bottom-edge e região seguinte.

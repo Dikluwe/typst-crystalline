@@ -1,0 +1,14 @@
+{
+  "recorded_utc": "2026-10-14T09:45:59.747450+00:00",
+  "questionItemId": "[\"request_user_input_async\",\"call_36d9df637d8749c9a6a300a439badc16\",0]",
+  "answer": "Aprovar a proposta",
+  "manifest_sha256": "b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45",
+  "candidates_verified": true,
+  "changed_since_proposal": [
+    "00_nucleo/prompts/compiler/stdlib/loading/encoding.md",
+    "01_core/src/compiler/stdlib/loading/encoding.rs",
+    "00_nucleo/prompts/shell/cli.md",
+    "02_shell/src/cli.rs"
+  ],
+  "scope": "RawElem.set_fields u8; RAW_SET_BLOCK=1; RAW_SET_LANG=2; presença/getters/observação/igualdade/serialização. RawLine/fase/render/casts legados fora do escopo."
+}

@@ -1,5 +1,5 @@
 # L0 — paragraph_pagination
-Hash do Código: 617253d7
+Hash do Código: e9cb7f2f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:70b72ac9efb2bf81aa4ef496c4e1c867264f696d454a9916e7e2e5f385b92020

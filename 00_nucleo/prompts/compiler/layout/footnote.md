@@ -1,5 +1,5 @@
 # L0 — footnote
-Hash do Código: a8cd810a
+Hash do Código: 38d79bdb
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/footnote.rs`

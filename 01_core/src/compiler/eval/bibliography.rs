@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bibliography.md
-//! @prompt-hash a6943ab4
+//! @prompt-hash 82dc31de
 //! @layer L1
 //! @updated 2026-06-23
 //!
@@ -31,6 +31,7 @@ use crate::entities::span::Span;
 /// - `world` / `current_file` são usados para `World::read_bytes`, que resolve
 ///   paths relativos ao ficheiro fonte.
 /// - Formato detectado pela extensão: `.bib`, `.yaml`/`.yml`.
+#[cfg(test)]
 pub fn load_bib_entries_from_path(
     world: &dyn World,
     current_file: FileId,
@@ -85,11 +86,11 @@ pub fn parse_bibliography(content: &str, path: &str) -> SourceResult<Vec<BibEntr
         }
     };
 
-    Ok(library
+    library
         .iter()
         .cloned()
         .map(hay_entry_to_bib_entry)
-        .collect::<Result<Vec<_>, _>>()?)
+        .collect::<Result<Vec<_>, _>>()
 }
 
 /// Resolve uma string `style` para um `IndependentStyle` (P420).

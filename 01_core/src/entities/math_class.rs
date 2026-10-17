@@ -11,7 +11,7 @@ use unicode_math_class;
 /// Define o comportamento tipográfico de cada símbolo em modo math:
 /// espaçamento automático, prioridade de operador, associatividade.
 ///
-/// Especificação: https://www.unicode.org/reports/tr25/
+/// Especificação: <https://www.unicode.org/reports/tr25/>
 ///
 /// Movido de `typst_utils::MathClass` — ADR-0009.
 /// Completado com delegação a `unicode_math_class` — ADR-0011.

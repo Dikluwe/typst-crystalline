@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/state_update`
-Hash do Código: 80cd95bb
+Hash do Código: ee95cbb3
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/state_update.rs`
@@ -111,3 +111,24 @@ Vanilla aceita função em `state("key").update(fn)`. Cristalino P171 adia para 
 | Data | Motivo | Arquivos afetados |
 |------|--------|-------------------|
 | 2026-04-30 | P171: enum minimal Set para suportar runtime mutable state | `state_update.rs`, `state_update.md` |
+
+
+## Exaustividade de representação e identidade — V16, 2026-10-16
+
+### Medição anterior à decisão
+
+01_core/src/entities/state_update.rs:58. Fonte e owner vigentes lidos e conferidos por hash antes da decisão. `00_nucleo/diagnosticos/tekt-enums-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, status e git diff HEAD --stat. O SARIF anterior registra onze avisos e uma nota V16 nestes sete owners. Foram também medidos os fallbacks sem emissão; estes fazem parte do mesmo recorte. Classificação: padrão Rust e evolução do enum são mecânica; resultados/campos/identidade observáveis e erros devem permanecer. Não se infere intenção upstream ou ganho para IA.
+
+### Responsabilidade exclusiva
+
+StateUpdate::eq: conservar os dois pares iguais Set/Set (Value) e Func/Func (Arc::ptr_eq); false passa a cobrir explicitamente (Set,Func)|(Func,Set). Não usar Func::eq no lugar de identidade de Arc, pois nativas de mesmo nome em Arcs distintos podem comparar iguais como Func e permanecer diferentes como StateUpdate. Hash, Eq marker, enum, fields e execução de callbacks permanecem. Adicionar controle dessa distinção e simetria dos pares cruzados antes do código. Qualificar o histórico de stub: este owner representa a operação; execução pertence a 00_nucleo/prompts/compiler/introspect/from_tags/state_updates.md e o caminho legacy sem Engine continua distinto. Não alterar nenhum desses consumers.
+
+A fonte `01_core/src/compiler/introspect/from_tags/state_updates.rs:9–47` possui pós-passe com Engine para Func; `01_core/src/compiler/introspect/entrypoints.rs:29–35` qualifica o caminho legacy. O stub descrito em P172 é histórico, não contrato global atual deste carrier.
+
+### Aceitação e gate
+
+Manutenção interna ADR-0127 em fluxo contínuo: nenhuma definição de enum, campo, trait, assinatura pública, default, dependência, compatibilidade ou fase muda. Conservar cada corpo, ordem e guard; não mover lógica entre owners nem criar helper para esconder o catchall. Padrões nominais devem forçar erro de compilação ao surgir variante nova; comentários de neutralidade não servem como supressão.
+
+Antes do código, testes funcionais locais e gate V16 RED por escopo. Executar sonda de evolução em cópia descartável do workspace: acrescentar somente uma variante sentinela a Color, ColorSpace, MathStyleKind, FuncRepr e StateUpdate, sem alterar as definições produtivas. Usar cargo check --offline --locked -p typst-core com um job e cache de artefatos compartilhado; registrar fontes/hashes/argv/UTC/diagnósticos. Para cada um dos 21 matches selecionados, a baseline deve demonstrar a ausência de E0004 naquele match; GREEN exige E0004 ali, independentemente de erros de exaustividade já emitidos por outros matches na cópia. O controle de compilação sem sentinelas e os testes de comportamento aprovam o código real; não usar a sonda negativa como prova de paridade. Não editar source produtivo durante comandos.
+
+Resselo restrito, direto e reverso, sem reparo global da working tree. Revalidar build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, suíte workspace completa, Rustdoc -D warnings e quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF sem avisos novos e diff --check. Limite MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1, tarefas pesadas sequenciais. Nenhuma tolerância/fixture histórica é relaxada. As pendências V16 externas, inclusive T027/T158/T160 rastreadas sem emissão, continuam abertas.

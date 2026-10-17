@@ -1,5 +1,5 @@
 # L0 — stdlib/structural/p1429-tests
-Hash do Código: 7c86dff7
+Hash do Código: 213b7df6
 
 Layer: L1 (test-only)
 Exclusive consumer: `01_core/src/compiler/stdlib/structural/p1429_tests.rs`

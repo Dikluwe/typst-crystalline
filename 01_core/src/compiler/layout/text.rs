@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/text.md
-//! @prompt-hash f4e9fd9a
+//! @prompt-hash 4467923a
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -27,6 +27,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     text: &str,
 ) {
+    let original = layouter.bidi_cursor.as_mut().and_then(|c| c.next());
+    let previous_span = layouter.text_bidi.take();
     if text.is_empty() {
         let effective = effective_style(layouter);
         let prev_style = std::mem::replace(&mut layouter.style, effective);
@@ -39,12 +41,15 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 },
                 text: "".into(),
                 style: layouter.style.clone(),
-            }
+                bidi: original,
+            },
         );
         layouter.style = prev_style;
+        layouter.text_bidi = previous_span;
         return;
     }
-    if !layouter.paragraph_planning_suppressed
+    if original.is_none()
+        && !layouter.paragraph_planning_suppressed
         && super::paragraph_plan::try_layout(
             layouter,
             &crate::entities::content::Content::text(text),
@@ -63,8 +68,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // removendo o espaço antes de pontuação. `split(' ')` mantém cada
     // posição de espaço como um segmento vazio; adicionamos `space_width()`
     // entre segmentos e para cada segmento vazio.
+    let mut offset = 0usize;
     let mut parts = text.split(' ').peekable();
     while let Some(part) = parts.next() {
+        layouter.text_bidi =
+            original.as_ref().and_then(|s| s.subspan(offset..offset + part.len()));
         if !part.is_empty() {
             if layouter.smallcaps {
                 const SCALE: f64 = 0.8;
@@ -92,7 +100,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 layouter.layout_word(part);
             }
         }
+        offset += part.len();
         if parts.peek().is_some() {
+            layouter.text_bidi =
+                original.as_ref().and_then(|s| s.subspan(offset..offset + 1));
+            offset += 1;
             super::space::advance(
                 layouter,
                 crate::entities::layout_types::TextSeparatorOrigin::Literal,
@@ -100,21 +112,30 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
     }
     layouter.style = prev_style;
+    layouter.text_bidi = previous_span;
 }
 
 #[cfg(test)]
 mod empty_text_geometry_tests {
-    use super::*;
     use super::super::{FixedMetrics, FontMetrics};
-    use crate::entities::{content::Content, image_sizer::NullImageSizer,
-        introspector::{Introspector, TagIntrospector}, layout_types::{PageMargins, Pt}};
+    use super::*;
+    use crate::entities::{
+        content::Content,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{PageMargins, Pt},
+    };
     use comemo::Track;
 
     #[test]
     fn explicit_empty_text_establishes_typographic_height_without_ink() {
         let intr = TagIntrospector::empty();
-        let mut l = Layouter::new(FixedMetrics, NullImageSizer, 12.0,
-            (&intr as &dyn Introspector).track());
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            12.0,
+            (&intr as &dyn Introspector).track(),
+        );
         l.page_config.width = f64::INFINITY;
         l.page_config.height = f64::INFINITY;
         l.page_config.margin = PageMargins::uniform(0.0);

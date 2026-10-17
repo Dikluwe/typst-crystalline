@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/labelled.md
-//! @prompt-hash b2276020
+//! @prompt-hash a2d9247f
 //! @layer L1
 //! @updated 2026-08-18
 //!
@@ -39,6 +39,7 @@ pub(super) fn compute_labelled<I: Introspector>(
     lang: Option<&crate::entities::lang::Lang>,
 ) -> (Option<String>, Option<usize>) {
     match target {
+        Content::Source(e) => compute_labelled(intr, location, &e.body, lang),
         Content::Heading(_) => {
             let heading_key = CounterKey::Selector(Selector::Kind(ElementKind::Heading));
             let supp = heading_supplement_for_lang(lang);
@@ -77,7 +78,123 @@ pub(super) fn compute_labelled<I: Introspector>(
                 (Some(String::new()), None)
             }
         }
-        _ => (None, None), // neutro: N16[γ] — Content sem suporte de labelling retorna (None, None) (conservador: novos nós rotuláveis exigirão arm)
+        Content::ShowRecipe(..)
+        | Content::Realized(..)
+        | Content::Located(..)
+        | Content::Empty
+        | Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(..)
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Styled(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::TableCell(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Table(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => (None, None), // neutro: N16[γ] — Content sem suporte de labelling retorna (None, None) (conservador: novos nós rotuláveis exigirão arm)
     }
 }
 
@@ -129,7 +246,7 @@ pub(super) fn walk_label(
                     figure_number,
                 });
                 populate_intr_from_tag_start(intr, &info, loc);
-                tags.push(Tag::Start(loc, info));
+                tags.push(Tag::Start(loc, Box::new(info)));
                 tags.push(Tag::End(loc, 0));
             }
         } else if target_loc.is_none() {
@@ -161,6 +278,73 @@ pub(super) fn walk_label(
         if !known_before && !known_after {
             let kind = classify_unreferencable_body(&e.body);
             intr.unreferencable_labels.insert(label, kind);
+        }
+    }
+}
+
+#[cfg(test)]
+mod carrier_regressions {
+    use super::*;
+    use crate::entities::{
+        content::SourceContent, counter_update::CounterUpdate,
+        elements::equation::EquationElem, file_id::FileId, span::Span, style::Styles,
+    };
+    use std::sync::Arc;
+    #[test]
+    fn introspection_carriers_source_keeps_label_projection_and_limits() {
+        let mut intr = TagIntrospector::empty();
+        let location = Locator::new().next();
+        intr.counters.apply_hierarchical_at(
+            CounterKey::Selector(Selector::Kind(ElementKind::Heading)),
+            1,
+            location,
+        );
+        intr.counters.apply_at(
+            CounterKey::Selector(Selector::Kind(ElementKind::Equation)),
+            CounterUpdate::step(),
+            location,
+        );
+        intr.counters.apply_at(
+            CounterKey::Str("figure:image".into()),
+            CounterUpdate::step(),
+            location,
+        );
+        let span = Span::from_range(
+            FileId::from_raw(std::num::NonZeroU16::new(7).unwrap()),
+            0..1,
+        );
+        let wrap = |body| Content::Source(Arc::new(SourceContent { body, span }));
+        let lang: Lang = "pt".parse().unwrap();
+        let targets = [
+            Content::heading(1, Content::text("H")),
+            Content::Equation(Arc::new(EquationElem::new(Content::text("x"), true))),
+            Content::figure(
+                Content::text("F"),
+                Some(Content::text("caption")),
+                None,
+                None,
+            ),
+        ];
+        let mut differences = Vec::new();
+        for target in targets {
+            let expected = compute_labelled(&intr, location, &target, Some(&lang));
+            assert!(expected.0.is_some(), "direct target should resolve: {target:?}");
+            let observed =
+                compute_labelled(&intr, location, &wrap(target.clone()), Some(&lang));
+            if observed != expected {
+                differences.push(format!("{target:?}: {expected:?} != {observed:?}"));
+            }
+        }
+        assert!(differences.is_empty(), "{}", differences.join("\n"));
+        for target in [
+            Content::text("x"),
+            Content::styled(Content::heading(1, Content::text("H")), Styles::new()),
+        ] {
+            assert_eq!(compute_labelled(&intr, location, &target, None), (None, None));
+            assert_eq!(
+                compute_labelled(&intr, location, &wrap(target), None),
+                (None, None)
+            );
         }
     }
 }

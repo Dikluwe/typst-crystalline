@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "ssty-math-size"
+title = "Projeção nominal do nível ssty"
+
+[[claims]]
+id = "levels"
+level = "must"
+statement = "Para entradas elegíveis em modo math fora de TextItem, MathSize::Script solicita ssty 1, ScriptScript solicita 2 e Display/Text não solicitam nível ssty (None)."
+
+[[claims]]
+id = "gates"
+level = "must"
+statement = "Fora de math, em math_text_item ou sem elegibilidade, conservar None antes da seleção por tamanho. Shaping usa o predicado canônico ssty_eligible_text; o owner de métricas recebe a elegibilidade já decidida."
+
+[[claims]]
+id = "nominal-complement"
+level = "must"
+statement = "O match sobre MathSize enumera nominalmente Display, Text, Script e ScriptScript, sem wildcard. Display e Text podem compartilhar None (V19 uniforme); ambos precisam de controles. Uma variante futura exige revisão explícita pelo compilador."
+
+[[claims]]
+id = "boundary"
+level = "must-not"
+statement = "Este reparo não altera MathSize, TextStyle, API, default, fases, elegibilidade, fallback, script OpenType, GSUB, features, caches ou seleção de fontes. Não criar predicado paralelo nem silenciar V16/V19."

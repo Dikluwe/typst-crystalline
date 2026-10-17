@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/_comum.md
-//! @prompt-hash 893481a8
+//! @prompt-hash 1269fad2
 //! @layer L1
-//! @updated 2026-09-19
+//! @updated 2026-10-06
 
 //! Stdlib nativa mínima — Passo 17.
 //!
@@ -116,15 +116,16 @@ pub use crate::compiler::stdlib::state::{
     native_state_update, native_state_update_with, state_display, state_get,
     state_update, value_to_content,
 };
+pub(in crate::compiler) use crate::compiler::stdlib::structural::native_math_equation;
 pub(crate) use crate::compiler::stdlib::structural::{
     apply_math_cases_option, apply_math_matrix_option, equation_alt, equation_content,
     equation_number_align, equation_supplement, math_abs_from_args, math_accent_content,
-    math_cases_delim, math_lr_from_args, math_matrix_augment, math_mid_from_args,
-    math_norm_from_args, math_overbrace_from_args, math_overbracket_from_args,
-    math_overline_from_args, math_overparen_from_args, math_overshell_from_args,
-    math_round_from_args, math_stretch_from_args, math_underbrace_from_args,
-    math_underbracket_from_args, math_underparen_from_args, math_undershell_from_args,
-    realize_outline_entry_page, sqrt_content, MathCasesOptions, MathMatrixOptions,
+    math_cases_delim, math_lr_from_args, math_mid_from_args, math_norm_from_args,
+    math_overbrace_from_args, math_overbracket_from_args, math_overline_from_args,
+    math_overparen_from_args, math_overshell_from_args, math_round_from_args,
+    math_stretch_from_args, math_underbrace_from_args, math_underbracket_from_args,
+    math_underparen_from_args, math_undershell_from_args, realize_outline_entry_page,
+    sqrt_content, MathCasesOptions, MathMatrixOptions,
 };
 pub use crate::compiler::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,
@@ -184,7 +185,8 @@ pub use crate::compiler::stdlib::primitives_constructors::{
 };
 // P466 — dispatcher de métodos de array/dict/str.
 pub(crate) use crate::compiler::stdlib::collections::{
-    collection_type_field, try_dispatch_collection_method, CollectionCallSpans,
+    collection_type_field, try_dispatch_collection_method,
+    try_dispatch_collection_method_with, CollectionCallSpans, CollectionDispatch,
 };
 // P471 — módulo sym.
 pub use crate::compiler::stdlib::sym::build_sym_module;
@@ -230,5 +232,20 @@ pub(super) fn expect_no_named(
     Ok(())
 }
 
+pub(in crate::compiler) use structural::{
+    native_math_attach, native_math_binom, native_math_cases,
+    native_math_class_for_metadata, native_math_frac, native_math_limits, native_math_lr,
+    native_math_mid, native_math_overbrace, native_math_overbracket,
+    native_math_overline, native_math_overparen, native_math_overshell,
+    native_math_primes, native_math_root, native_math_scripts, native_math_stretch,
+    native_math_underbrace, native_math_underbracket, native_math_underline,
+    native_math_underparen, native_math_undershell, native_math_vec,
+};
+
+pub(in crate::compiler) use html::native_html_frame;
+pub(in crate::compiler) use pdf::{native_pdf_artifact, native_pdf_attach};
+
 #[cfg(test)]
 mod tests;
+
+pub(in crate::compiler) use structural::native_math_mat;

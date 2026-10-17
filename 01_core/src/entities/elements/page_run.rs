@@ -40,7 +40,6 @@ pub struct PageRunElem {
 
 impl std::hash::Hash for PageRunElem {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        use std::hash::Hash;
         format!("{self:?}").hash(state);
     }
 }

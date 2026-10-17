@@ -1,0 +1,92 @@
+--- 00_nucleo/prompts/entities/decimal.md
++++ 00_nucleo/prompts/entities/decimal.md (proposto)
+@@ -151,3 +151,20 @@
+ Preservar from_str(&str) -> Option<Self> e delegação ao parser atual; nenhum FromStr/Err novo ou mudança de rejeições. O consumidor escolhe diagnóstico de linguagem; não fabricar um erro Rust só para cumprir um nome. from_str recebe expectativa nominal de should_implement_trait. A migração de to_string para Display é proposta pública separada e não está autorizada por este adendo.
+ 
+ Usar somente #[expect(clippy::should_implement_trait, reason="S003: parser de domínio Option preservado; FromStr exige Result e um contrato de erro distinto")] sobre o método nomeado. Não suprimir módulo/impl/crate, elevar limiar ou estender a exceção a Styles::from_iter. Implementar o trait proposto aqui exigiria contrato novo ou semântica diferente; a exceção preserva o contrato existente. Fluxo contínuo ADR-0127 para metadados/documentação, sem API, default ou fase novos. L0 primeiro e resselo restrito; RED do lint e GREEN incluindo unfulfilled_lint_expectations como erro; preservar corpos e usar os testes funcionais existentes sem alterar esperados. Validar workspace/build/Clippy/doc/fmt/linhagem sob 12 GiB, swap zero e um job.
++
++
++## Traits Rust de formatação/construção — proposta 2026-10-16
++
++### Medição anterior à decisão
++
++O inventário anterior tem should_implement_trait em Styles.from_iter e inherent_to_string nos três tipos. As quatro implementações e os L0 vigentes foram lidos; fontes/hashes/HEAD/working tree/UTC/diffstat estão no base.json.gz deste pacote. Os dois parsers Option e os dois next de domínio foram classificados separadamente; não são alvo de conversão para traits. A sonda duration-before-probe e a correção interna anterior documentam a faixa i128 sem copiar o defeito. É mudança de contrato Rust, não mudança de linguagem Typst ou nova paridade medida.
++
++### Contrato proposto
++
++Implementar std::fmt::Display para Decimal, delegando à implementação Display de InnerDecimal. Retirar somente o método inerente público to_string; chamadas usuais e UFCS ToString usam o blanket ToString. Preservar texto decimal, escala/zeros e sinais no formato padrão, sem notação científica nova. FromStr não é adicionado: from_str continua Option e sua expectativa nominal permanece. Nenhum método aritmético/round/cast/Default ou campo muda.
++
++O contrato só materializa após confirmação humana ADR-0127 §2.1/2.4: existem três novos impls Display, um FromIterator e migração de três métodos inerentes públicos para o blanket ToString. Código genérico pode passar a depender desses traits; rollback pode quebrar esse código. A implementação não deve adicionar FromStr, novas variantes/campos, flags, defaults, fase, dependências ou supressões. Os comentários/exemplos antigos de to_string passam a significar a interface ToString, somente após ratificação.
++
++### Aceitação
++
++T1: usos genéricos Display+ToString e collect::<Styles> devem falhar antes por trait ausente e passar depois. T2: Decimal exibe 1.2300 sem perder zeros, preserva negativo/zero e mantém rejeições Option; Version exibe vazio e 1.2.0 preservando componentes. T3: Duration mantém textos corrigidos de MIN/MAX/MIN+1, zero e limites negativos, via format! e ToString. T4: collect vazio é vazio e Weight(400),Weight(700) produz weight Some(700), com demais campos inalterados; adapter inerente mantém chamadas existentes. T5: suíte existente de linguagem/casts/repr/show/CLI, workspace completo, build, Clippy/expectativas, Rustdoc, formato e linhagem, sob 12 GiB, swap zero e um job, sem relaxar esperados. Sem publicar release.
+--- 00_nucleo/prompts/entities/duration.md
++++ 00_nucleo/prompts/entities/duration.md (proposto)
+@@ -50,3 +50,20 @@
+ Na formatação atual, usar unsigned_abs para obter magnitude u128, com divisores positivos das mesmas unidades convertidos a u128. Conservar decomposição, ordem das partes, zeros, remoção de zeros fracionários e prefixo de um único sinal. MIN deve produzir -1969226660422097589487121d13h41m55.884105728s; MAX produz a forma positiva terminada em 727s; MIN+1 é o negativo de MAX. Preservar -1ns, -1s, limites de unidades, zero e todos os exemplos anteriores. Não mudar constructors, campos, as_*, Neg, política de overflow aritmético ou repr de linguagem. Não copiar esse defeito de outro compilador.
+ 
+ Correção de fórmula interna em fluxo contínuo ADR-0127, sem API, default ou fase novos. L0 primeiro, teste de extremos RED real antes do código e GREEN depois; confirmar também sonda debug/release e controles existentes. Nenhuma supressão de inherent_to_string nesta etapa: Display é proposta pública separada. Resselo restrito, suíte workspace/build/Clippy/doc/fmt/linhagem e RAM máxima 12 GiB, swap zero e um job. Não afirmar ganho de performance ou paridade global a partir desta correção local.
++
++
++## Traits Rust de formatação/construção — proposta 2026-10-16
++
++### Medição anterior à decisão
++
++O inventário anterior tem should_implement_trait em Styles.from_iter e inherent_to_string nos três tipos. As quatro implementações e os L0 vigentes foram lidos; fontes/hashes/HEAD/working tree/UTC/diffstat estão no base.json.gz deste pacote. Os dois parsers Option e os dois next de domínio foram classificados separadamente; não são alvo de conversão para traits. A sonda duration-before-probe e a correção interna anterior documentam a faixa i128 sem copiar o defeito. É mudança de contrato Rust, não mudança de linguagem Typst ou nova paridade medida.
++
++### Contrato proposto
++
++Implementar std::fmt::Display para Duration e retirar o método inerente público to_string. Renomear sua implementação corrigida para helper privado canonical_string, preservando exatamente o algoritmo u128 e o corpo atual; Display escreve essa string com f.write_str. ToString vem do blanket padrão. Preservar MIN/MAX/zero, sinais, frações e unidades; não alterar repr Typst, Neg, overflow aritmético ou as_*. A precisão/largura de Formatter não redefine a string canônica deste tipo.
++
++O contrato só materializa após confirmação humana ADR-0127 §2.1/2.4: existem três novos impls Display, um FromIterator e migração de três métodos inerentes públicos para o blanket ToString. Código genérico pode passar a depender desses traits; rollback pode quebrar esse código. A implementação não deve adicionar FromStr, novas variantes/campos, flags, defaults, fase, dependências ou supressões. Os comentários/exemplos antigos de to_string passam a significar a interface ToString, somente após ratificação.
++
++### Aceitação
++
++T1: usos genéricos Display+ToString e collect::<Styles> devem falhar antes por trait ausente e passar depois. T2: Decimal exibe 1.2300 sem perder zeros, preserva negativo/zero e mantém rejeições Option; Version exibe vazio e 1.2.0 preservando componentes. T3: Duration mantém textos corrigidos de MIN/MAX/MIN+1, zero e limites negativos, via format! e ToString. T4: collect vazio é vazio e Weight(400),Weight(700) produz weight Some(700), com demais campos inalterados; adapter inerente mantém chamadas existentes. T5: suíte existente de linguagem/casts/repr/show/CLI, workspace completo, build, Clippy/expectativas, Rustdoc, formato e linhagem, sob 12 GiB, swap zero e um job, sem relaxar esperados. Sem publicar release.
+--- 00_nucleo/prompts/entities/version.md
++++ 00_nucleo/prompts/entities/version.md (proposto)
+@@ -327,3 +327,20 @@
+ Preservar from_str(&str) -> Option<Self>, trim/parse u64, rejeições e componentes explícitos. Nenhum FromStr/Err novo, normalização de zeros ou mudança de PARITY_VERSION. from_str recebe expectativa nominal de should_implement_trait. A migração de to_string para Display é proposta pública separada e não está autorizada por este adendo.
+ 
+ Usar somente #[expect(clippy::should_implement_trait, reason="S004: parser de componentes Option preservado; FromStr exige Result e um contrato de erro distinto")] sobre o método nomeado. Não suprimir módulo/impl/crate, elevar limiar ou estender a exceção a Styles::from_iter. Implementar o trait proposto aqui exigiria contrato novo ou semântica diferente; a exceção preserva o contrato existente. Fluxo contínuo ADR-0127 para metadados/documentação, sem API, default ou fase novos. L0 primeiro e resselo restrito; RED do lint e GREEN incluindo unfulfilled_lint_expectations como erro; preservar corpos e usar os testes funcionais existentes sem alterar esperados. Validar workspace/build/Clippy/doc/fmt/linhagem sob 12 GiB, swap zero e um job.
++
++
++## Traits Rust de formatação/construção — proposta 2026-10-16
++
++### Medição anterior à decisão
++
++O inventário anterior tem should_implement_trait em Styles.from_iter e inherent_to_string nos três tipos. As quatro implementações e os L0 vigentes foram lidos; fontes/hashes/HEAD/working tree/UTC/diffstat estão no base.json.gz deste pacote. Os dois parsers Option e os dois next de domínio foram classificados separadamente; não são alvo de conversão para traits. A sonda duration-before-probe e a correção interna anterior documentam a faixa i128 sem copiar o defeito. É mudança de contrato Rust, não mudança de linguagem Typst ou nova paridade medida.
++
++### Contrato proposto
++
++Implementar std::fmt::Display para Version e retirar o método inerente público to_string. Renomear o corpo atual para helper privado canonical_string, Display escreve essa string com f.write_str e ToString vem do blanket padrão. Preservar componentes explícitos, trailing zeros, vazio e ordem; não tocar em PARITY_VERSION, igualdade/hash/ordem, at, parsers, casts ou repr Typst. A precisão/largura de Formatter não redefine sua string canônica. FromStr não é adicionado.
++
++O contrato só materializa após confirmação humana ADR-0127 §2.1/2.4: existem três novos impls Display, um FromIterator e migração de três métodos inerentes públicos para o blanket ToString. Código genérico pode passar a depender desses traits; rollback pode quebrar esse código. A implementação não deve adicionar FromStr, novas variantes/campos, flags, defaults, fase, dependências ou supressões. Os comentários/exemplos antigos de to_string passam a significar a interface ToString, somente após ratificação.
++
++### Aceitação
++
++T1: usos genéricos Display+ToString e collect::<Styles> devem falhar antes por trait ausente e passar depois. T2: Decimal exibe 1.2300 sem perder zeros, preserva negativo/zero e mantém rejeições Option; Version exibe vazio e 1.2.0 preservando componentes. T3: Duration mantém textos corrigidos de MIN/MAX/MIN+1, zero e limites negativos, via format! e ToString. T4: collect vazio é vazio e Weight(400),Weight(700) produz weight Some(700), com demais campos inalterados; adapter inerente mantém chamadas existentes. T5: suíte existente de linguagem/casts/repr/show/CLI, workspace completo, build, Clippy/expectativas, Rustdoc, formato e linhagem, sob 12 GiB, swap zero e um job, sem relaxar esperados. Sem publicar release.
+--- 00_nucleo/prompts/entities/style.md
++++ 00_nucleo/prompts/entities/style.md (proposto)
+@@ -207,3 +207,20 @@
+ - Deteção de `#show` (`eval/rules.rs`) lê `styles.delta().bold/italic` — não
+   mais `iter()` sobre variantes.
+ - Pipeline futuro de `#set`/`#show` — activação fora do Passo 99.
++
++
++## Traits Rust de formatação/construção — proposta 2026-10-16
++
++### Medição anterior à decisão
++
++O inventário anterior tem should_implement_trait em Styles.from_iter e inherent_to_string nos três tipos. As quatro implementações e os L0 vigentes foram lidos; fontes/hashes/HEAD/working tree/UTC/diffstat estão no base.json.gz deste pacote. Os dois parsers Option e os dois next de domínio foram classificados separadamente; não são alvo de conversão para traits. A sonda duration-before-probe e a correção interna anterior documentam a faixa i128 sem copiar o defeito. É mudança de contrato Rust, não mudança de linguagem Typst ou nova paridade medida.
++
++### Contrato proposto
++
++Implementar std::iter::FromIterator<Style> para Styles. Mover o mesmo fold ordenado de Style para StyleDelta ao trait, sem segundo backing/clones/reordenação. Conservar o método inerente público from_iter<I: IntoIterator<Item=Style>>(iter)->Self como adapter para <Self as FromIterator<Style>>::from_iter(iter). Preservar last-write-wins por campo, vazio, canais custom e todas as outras APIs. A implementação do trait resolve a ambiguidade nominal sem expect neste método.
++
++O contrato só materializa após confirmação humana ADR-0127 §2.1/2.4: existem três novos impls Display, um FromIterator e migração de três métodos inerentes públicos para o blanket ToString. Código genérico pode passar a depender desses traits; rollback pode quebrar esse código. A implementação não deve adicionar FromStr, novas variantes/campos, flags, defaults, fase, dependências ou supressões. Os comentários/exemplos antigos de to_string passam a significar a interface ToString, somente após ratificação.
++
++### Aceitação
++
++T1: usos genéricos Display+ToString e collect::<Styles> devem falhar antes por trait ausente e passar depois. T2: Decimal exibe 1.2300 sem perder zeros, preserva negativo/zero e mantém rejeições Option; Version exibe vazio e 1.2.0 preservando componentes. T3: Duration mantém textos corrigidos de MIN/MAX/MIN+1, zero e limites negativos, via format! e ToString. T4: collect vazio é vazio e Weight(400),Weight(700) produz weight Some(700), com demais campos inalterados; adapter inerente mantém chamadas existentes. T5: suíte existente de linguagem/casts/repr/show/CLI, workspace completo, build, Clippy/expectativas, Rustdoc, formato e linhagem, sob 12 GiB, swap zero e um job, sem relaxar esperados. Sem publicar release.

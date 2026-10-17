@@ -1,6 +1,6 @@
 # L0 — scanner
+Hash do Código: a4b620f0
 
-Hash do Código: efc6fe5e
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/lexer/scanner.rs`

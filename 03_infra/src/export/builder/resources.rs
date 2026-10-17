@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder/resources.md
-//! @prompt-hash 791d36bd
+//! @prompt-hash ec07c292
 //! @layer L3
 //! @updated 2026-09-28
 
@@ -13,9 +13,7 @@ use crate::export::build_png_smask_xobject;
 use crate::export::compute_axial_coords;
 use crate::export::compute_radial_coords;
 use crate::export::detect_image_format;
-use crate::export::emit_conic_coons_stream_cmyk;
-use crate::export::emit_conic_coons_stream_rgb;
-use crate::export::emit_conic_coons_stream_spot;
+use crate::export::emit_conic_mesh;
 use crate::export::emit_function_dict;
 use crate::export::emit_function_dict_cmyk;
 use crate::export::emit_function_dict_spot;
@@ -86,7 +84,9 @@ fn pdf_spot_space(
             (space, "1 1 1".to_string(), format!("{r:.8} {g:.8} {b:.8}"), "0 1 0 1 0 1")
         }
     };
-    format!("[/Separation {name} {alternate} << /FunctionType 2 /Domain [0 1] /C0 [{c0}] /C1 [{c1}] /N 1 /Range [{range}] >>]")
+    format!(
+        "[/Separation {name} {alternate} << /FunctionType 2 /Domain [0 1] /C0 [{c0}] /C1 [{c1}] /N 1 /Range [{range}] >>]"
+    )
 }
 
 fn page_spot_colorants(
@@ -100,6 +100,16 @@ fn page_spot_colorants(
                 if !self.0.contains(&spot.colorant) {
                     self.0.push((*spot.colorant).clone());
                 }
+            }
+        }
+        fn prepared(&mut self, paint: &typst_core::entities::frame_paint::FramePaint) {
+            use typst_core::entities::frame_paint::FramePaint;
+            match paint {
+                FramePaint::Solid(c) => self.color(c),
+                FramePaint::Gradient(g) => {
+                    self.paint(&typst_core::entities::paint::Paint::Gradient(g.clone()))
+                }
+                FramePaint::Tiling(c) => walk_frame_items(self, &c.frame.items),
             }
         }
         fn paint(&mut self, paint: &typst_core::entities::paint::Paint) {
@@ -123,7 +133,9 @@ fn page_spot_colorants(
     }
     impl FrameVisitor for Collector {
         fn visit_text(&mut self, item: &FrameItem) {
-            if let FrameItem::TextSeparator { style, .. } | FrameItem::Text { style, .. } = item {
+            if let FrameItem::TextSeparator { style, .. }
+            | FrameItem::Text { style, .. } = item
+            {
                 if let Some(c) = &style.fill {
                     self.color(c);
                 }
@@ -151,10 +163,10 @@ fn page_spot_colorants(
         fn visit_shape(&mut self, item: &FrameItem) {
             if let FrameItem::Shape { fill, stroke, .. } = item {
                 if let Some(fill) = fill {
-                    self.paint(fill);
+                    self.prepared(fill);
                 }
                 if let Some(stroke) = stroke {
-                    self.paint(&stroke.paint);
+                    self.prepared(&stroke.paint);
                 }
             }
         }
@@ -167,6 +179,46 @@ fn page_spot_colorants(
         walk_frame_items(&mut collector, items);
     }
     collector.0
+}
+
+fn opacity_resources(page: &typst_core::entities::layout_types::Page) -> String {
+    use crate::export::stream::{opacity_name, solid_opacity};
+    struct Collector(std::collections::BTreeMap<String, (f32, f32)>);
+    impl Collector {
+        fn add(&mut self, fill: f32, stroke: f32) {
+            if fill != 1.0 || stroke != 1.0 {
+                self.0.insert(opacity_name(fill, stroke), (fill, stroke));
+            }
+        }
+    }
+    impl FrameVisitor for Collector {
+        fn visit_item(&mut self, item: &FrameItem) {
+            let (f, s) = solid_opacity(item);
+            self.add(f, s);
+        }
+        fn visit_shape(&mut self, item: &FrameItem) {
+            self.visit_item(item);
+        }
+    }
+    let mut collector = Collector(Default::default());
+    if let typst_core::entities::page_canvas::PageFill::Paint(
+        typst_core::entities::paint::Paint::Solid(c),
+    ) = &page.fill
+    {
+        collector.add(c.to_rgba_f32().3, 1.0);
+    }
+    for items in [&page.background, &page.items, &page.foreground] {
+        crate::export::tiling::walk_resources(&mut collector, items);
+    }
+    if collector.0.is_empty() {
+        return String::new();
+    }
+    let mut out = String::from(" /ExtGState << ");
+    for (name, (fill, stroke)) in collector.0 {
+        out.push_str(&format!("/{name} << /Type /ExtGState /ca {fill} /CA {stroke} >> "));
+    }
+    out.push_str(">>");
+    out
 }
 
 pub(super) fn colorspace_resource_entry(
@@ -185,10 +237,11 @@ pub(super) fn colorspace_resource_entry(
             pdf_spot_space(&colorant, icc_profile_id)
         ));
     }
+    let opacity = opacity_resources(page);
     if entries.is_empty() {
-        String::new()
+        opacity
     } else {
-        format!(" /ColorSpace << {} >>", entries.join(" "))
+        format!(" /ColorSpace << {} >>{opacity}", entries.join(" "))
     }
 }
 
@@ -206,7 +259,9 @@ pub(super) fn has_rgb_jpeg(doc: &PagedDocument) -> bool {
     }
     let mut detector = RgbJpegDetector(false);
     for p in &doc.pages {
-        walk_frame_items(&mut detector, &p.items);
+        for items in [&p.background, &p.items, &p.foreground] {
+            crate::export::tiling::walk_resources(&mut detector, items);
+        }
         if detector.0 {
             return true;
         }
@@ -269,6 +324,8 @@ impl PdfBuilder {
                 parent_bbox_at_emit,
                 paint_bbox_at_emit,
                 page_height_at_emit,
+                conic_matrix,
+                conic_domain,
             } = go;
             let spot_pdf_bbox = paint_bbox_at_emit.map(|rect| {
                 (rect.x.0, page_height_at_emit - rect.y.0 - rect.h.0, rect.w.0, rect.h.0)
@@ -503,41 +560,28 @@ impl PdfBuilder {
                 }
                 GradientObjectKind::Conic(conic) => {
                     use typst_core::entities::layout_types::ColorSpace;
-                    // P272 — dispatcher unificado /ShadingType 6 Coons para 8/8 spaces.
-                    // ADR-0090 REVOGADO (Type 4 Gouraud descontinuado);
-                    // ADR-0092 expandida cumulativamente (Cenário A revisado FINAL).
-                    let (stream, colorspace, decode_array, c0, c1) =
+                    let mesh = emit_conic_mesh(conic, conic_domain);
+                    let (colorspace, components, c0, c1) =
                         if let ColorSpace::Spot(colorant) = &conic.space {
-                            (
-                                emit_conic_coons_stream_spot(conic),
-                                pdf_spot_space(colorant, icc_profile_id),
-                                "[0 1 0 1 0 1]",
-                                "[0]",
-                                "[1]",
-                            )
+                            (pdf_spot_space(colorant, icc_profile_id), 1, "[0]", "[1]")
                         } else if conic.space == ColorSpace::Cmyk {
-                            // P270.4 — Type 6 Coons CMYK (preserved literal).
-                            (
-                                emit_conic_coons_stream_cmyk(conic),
-                                "/DeviceCMYK".to_string(),
-                                "[0 1 0 1 0 1 0 1 0 1 0 1]",
-                                "[0 0 0 0]",
-                                "[1 1 1 1]",
-                            )
+                            ("/DeviceCMYK".to_string(), 4, "[0 0 0 0]", "[1 1 1 1]")
                         } else {
-                            // P272 — Type 6 Coons RGB (N=stops*4 patches).
-                            (
-                                emit_conic_coons_stream_rgb(conic),
-                                "/DeviceRGB".to_string(),
-                                "[0 1 0 1 0 1 0 1 0 1]",
-                                "[0 0 0]",
-                                "[1 1 1]",
-                            )
+                            ("/DeviceRGB".to_string(), 3, "[0 0 0]", "[1 1 1]")
                         };
+                    let decode_array = format!(
+                        "[{:.12} {:.12} {:.12} {:.12}{}]",
+                        mesh.decode[0],
+                        mesh.decode[1],
+                        mesh.decode[2],
+                        mesh.decode[3],
+                        " 0 1".repeat(components)
+                    );
+                    let stream = mesh.bytes;
                     let len = stream.len();
                     let header = format!(
                         "<< /ShadingType 6 /ColorSpace {} \
-                           /BitsPerCoordinate 8 /BitsPerComponent 8 \
+                           /BitsPerCoordinate 16 /BitsPerComponent 8 \
                            /BitsPerFlag 8 \
                            /Decode {} \
                            /Length {} >>\nstream\n",
@@ -559,13 +603,15 @@ impl PdfBuilder {
                 }
             };
             // Emit Pattern dict.
-            let matrix = if matches!(&kind, GradientObjectKind::Conic(conic) if matches!(conic.space, typst_core::entities::layout_types::ColorSpace::Spot(_)))
-            {
-                spot_pdf_bbox
-                    .map(|(bx, by, bw, bh)| {
-                        format!("[{bw:.3} 0 0 {bh:.3} {bx:.3} {by:.3}]")
-                    })
-                    .unwrap_or_else(|| "[1 0 0 1 0 0]".to_string())
+            let matrix = if let Some(m) = conic_matrix {
+                if m.b == 0.0 && m.c == 0.0 {
+                    format!("[{:.3} 0 0 {:.3} {:.3} {:.3}]", m.a, m.d, m.tx, m.ty)
+                } else {
+                    format!(
+                        "[{:.6} {:.6} {:.6} {:.6} {:.6} {:.6}]",
+                        m.a, m.b, m.c, m.d, m.tx, m.ty
+                    )
+                }
             } else {
                 "[1 0 0 1 0 0]".to_string()
             };

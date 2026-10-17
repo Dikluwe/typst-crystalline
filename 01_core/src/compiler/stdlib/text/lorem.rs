@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/text/lorem.md
-//! @prompt-hash 5eea2f96
+//! @prompt-hash 495e919d
 //! @layer L1
 //! @updated 2026-08-13
 //!

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/counter.md
-//! @prompt-hash bb6d2ad1
+//! @prompt-hash 4f5b4691
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -60,6 +60,10 @@ mod tests {
     use crate::entities::element_kind::ElementKind;
 
     #[test]
+    #[expect(
+        clippy::mutable_key_type,
+        reason = "CounterKey deste teste usa apenas Str e Selector::Kind imutáveis; o HashMap verifica namespaces distintos"
+    )]
     fn counter_key_str_e_selector_sao_distintos() {
         // **P1018** — `counter("heading")` (manual) e `counter(heading)`
         // (automático) não podem colidir no registry.

@@ -1,6 +1,6 @@
 # L0 — lang/outline_title
+Hash do Código: f15a9ef3
 
-Hash do Código: 6a0bf427
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/lang/defaults.toml sha256:c8f920865f8895a89d9c42659c15e773e9bb2603bd614e390805f620834babd9

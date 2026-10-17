@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/delimited.md
-//! @prompt-hash 7505fba3
+//! @prompt-hash 93d24fb5
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -51,6 +51,7 @@ fn effective_lr_size(elem: &MathLrElem, cascaded: Option<Rel<Length>>) -> Rel<Le
     }
 }
 
+#[cfg(test)]
 fn lr_target_pt(body_height: f64, font_size: f64, size: Rel<Length>) -> f64 {
     (lr_requested_target_pt(body_height, font_size, size) - 0.1 * font_size).max(0.0)
 }

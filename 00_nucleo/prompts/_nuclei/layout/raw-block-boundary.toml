@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "raw-block-boundary"
+title = "Fronteira física de Raw bloco"
+
+[[claims]]
+id = "boundary-once"
+level = "must"
+statement = "Raw block e seu produto substituído por show preservam a fronteira física uma vez, sem executar receita no layout. Markers privados Styles transportam block, overrides de tamanho como Length e margens existentes; coordenadas permanecem no render."
+
+[[claims]]
+id = "local-and-pending"
+level = "must"
+statement = "O bloco começa na origem horizontal da região, usa margens colapsadas com a baseline anterior e mantém abaixo pendente para a próxima unidade. A margem final não aumenta a altura terminal do bloco. Medição e emissão usam a mesma fronteira."
+
+[[claims]]
+id = "font-and-overrides"
+level = "must"
+statement = "Margens default Raw usam seu tamanho efetivo e são fracas como par.spacing. O parágrafo vizinho contribui sua margem; blocos consecutivos colapsam suas próprias margens por máximo. Overrides block.above/below/spacing explícitos têm precedência sobre margem fraca de parágrafo. O Cursor consome a margem fraca em colapso com a margem do texto seguinte, conservando margens explícitas. Fontes/tokens continuam nos owners atuais."

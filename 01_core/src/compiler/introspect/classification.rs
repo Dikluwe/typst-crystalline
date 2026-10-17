@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/classification.md
-//! @prompt-hash bec68cfe
+//! @prompt-hash 18f203c3
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 
 use super::*;
 
@@ -18,6 +18,10 @@ use super::*;
 /// ou Sequence; tudo o resto é tratado como Text.
 pub(super) fn classify_unreferencable_body(content: &Content) -> UnreferencableKind {
     match content {
+        Content::Source(e) => classify_unreferencable_body(&e.body),
+        Content::ShowRecipe(e) => classify_unreferencable_body(&e.body),
+        Content::Located(e) => classify_unreferencable_body(&e.body),
+        Content::Realized(e) => classify_unreferencable_body(&e.original),
         Content::Raw(_) => UnreferencableKind::Raw,
         Content::Equation(_) => UnreferencableKind::EquationWithoutNumbering,
         Content::Styled(styled) => classify_unreferencable_body(&styled.body),

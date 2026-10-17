@@ -1,0 +1,12 @@
+{
+  "files": {
+    "base.json.gz": "13c41d5170d98a0774c2f10d966ced7a81abacfc9d4b91717bd2cb7477a07ba4",
+    "proposal.diff": "43309835596dbdf5a49d2b07b0de0ed746e3fec67341ab66c1701557498ed2a5",
+    "proposal.json": "d86c67afc1bc4a36552da50f2e31a8c4b42efcc93d656fbde0b65712a5768376",
+    "proposed/00_nucleo/prompts/compiler/eval/tests.md": "6ec761b40be713c59e6c391e187d68c34135491e6ece0600b03d09dd7f8c198e",
+    "proposed/00_nucleo/prompts/compiler/eval.md": "28a8625a8a1f3929bce643ad7168f1175a85869a500712a953ea0138fe570047",
+    "proposed/00_nucleo/prompts/infra/system-world/font_session.md": "c4d3f42d69dda90f1b3c633f65eb00dcacc83dee39e934bec13e4da16cec4532",
+    "proposed/00_nucleo/prompts/infra/system-world/source_session.md": "29b5aa29f450742d50a984c1df4cba7382e60e321cf98ec8a7d30327d4f2ace0",
+    "review.md": "c7c04084d45e10ab03391487494e98053784ac8221244a2c3068e5d11a9bccb7"
+  }
+}

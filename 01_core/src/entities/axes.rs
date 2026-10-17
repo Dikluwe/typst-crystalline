@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/axes.md
-//! @prompt-hash 98f3d7db
+//! @prompt-hash 7fc1cbd1
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -44,8 +44,14 @@ mod tests {
         let a = Axes::new(0.5f64, 0.7f64);
         let b = a;
         assert_eq!(a, b);
-        let c = a.clone();
-        assert_eq!(a, c);
+        let owned = Axes::new(String::from("horizontal"), String::from("vertical"));
+        let mut cloned = owned.clone();
+        assert_eq!(owned, cloned);
+        cloned.x.push('!');
+        assert_eq!(owned.x, "horizontal");
+        assert_eq!(owned.y, "vertical");
+        assert_eq!(cloned.x, "horizontal!");
+        assert_eq!(cloned.y, "vertical");
     }
 
     #[test]

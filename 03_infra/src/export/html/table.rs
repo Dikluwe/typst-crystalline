@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html/table.md
-//! @prompt-hash 8c69a414
+//! @prompt-hash ff7ea483
 //! @layer L3
-//! @updated 2026-09-26
+//! @updated 2026-10-07
 
 use super::inline::inline;
 use super::{HtmlFrameResolver, HtmlSerializationMode};
@@ -41,9 +41,14 @@ pub(super) fn html_table(
             out.push_str("<tr>");
             for content in chunk {
                 let (body, colspan, rowspan) = match content {
-                    Content::TableCell(cell) => {
-                        (&cell.body, cell.colspan.unwrap_or(1), cell.rowspan.unwrap_or(1))
-                    }
+                    Content::TableCell(cell) => match &cell.resolved {
+                        Some(r) => (&r.visual, r.colspan, r.rowspan),
+                        None => (
+                            cell.standalone.as_ref().map_or(&cell.body, |r| &r.visual),
+                            cell.colspan.unwrap_or(1),
+                            cell.rowspan.unwrap_or(1),
+                        ),
+                    },
                     other => (*other, 1, 1),
                 };
                 out.push('<');
@@ -65,6 +70,30 @@ pub(super) fn html_table(
         Ok(out)
     }
 
+    if let Some(plan) = &table.resolved {
+        let mut out = String::from("<table>");
+        for (start, end, section, tag) in [
+            (0, plan.header_rows, "thead", "th"),
+            (plan.header_rows, plan.footer_start, "tbody", "td"),
+            (plan.footer_start, plan.num_rows, "tfoot", "td"),
+        ] {
+            if start == end && section != "tbody" {
+                continue;
+            }
+            out.push_str(&format!("<{section}>"));
+            for row in start..end {
+                let cells=plan.cells.iter().filter(|c|matches!(c,Content::TableCell(c) if c.resolved.as_ref().is_some_and(|r|r.y==row))).collect::<Vec<_>>();
+                if cells.is_empty() {
+                    out.push_str("<tr></tr>");
+                } else {
+                    out.push_str(&rows(&cells, cells.len(), tag, mode, resolver, chain)?);
+                }
+            }
+            out.push_str(&format!("</{section}>"));
+        }
+        out.push_str("</table>");
+        return Ok(out);
+    }
     let columns = table.columns.len().max(1);
     let mut out = String::from("<table>");
     if let Some(header) = &table.header {

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html/tests.md
-//! @prompt-hash 4bc1e139
+//! @prompt-hash 258dd346
 //! @layer L3
-//! @updated 2026-09-26
+//! @updated 2026-10-07
 
 use super::document::PREFIX;
 use super::*;
@@ -409,6 +409,14 @@ fn semantic_table_preserves_header_spans_and_cell_escaping() {
     use typst_core::entities::layout_types::{Length, TrackSizing};
     use typst_core::entities::sides::Sides;
     let cell = Content::TableCell(Arc::new(TableCellElem {
+        source_span: typst_core::entities::span::Span::detached(),
+        resolved: None,
+        standalone: None,
+        presence: typst_core::entities::elements::table_cell::TableCellPresence {
+            colspan: true,
+            rowspan: true,
+            ..Default::default()
+        },
         body: Content::text("<&"),
         x: None,
         y: None,
@@ -422,6 +430,9 @@ fn semantic_table_preserves_header_spans_and_cell_escaping() {
         kind: TableCellKind::Auto,
     }));
     let table = Content::Table(Arc::new(TableElem {
+        source_span: typst_core::entities::span::Span::detached(),
+        resolved: None,
+        rows_explicit: false,
         columns: vec![TrackSizing::Auto, TrackSizing::Auto],
         rows: vec![],
         children: vec![cell],
@@ -513,4 +524,65 @@ fn p1494_espaco_com_newline_tem_projecao_html_local_identica() {
     }
 
     assert_eq!(render_cases(Content::Space), render_cases(Content::SpaceFromNewline));
+}
+
+#[test]
+fn smartquote_semantic_html_context_crosses_styles_and_resets_paragraph() {
+    use typst_core::entities::style::Styles;
+    let content = Content::sequence(vec![
+        Content::smartquote(true),
+        Content::styled(Box::new(Content::text("hello")), Styles::default()),
+        Content::smartquote(true),
+        Content::Parbreak,
+        Content::text("6"),
+        Content::smartquote(false),
+        Content::Space,
+        Content::text("2"),
+        Content::smartquote(true),
+    ]);
+    let html =
+        export_html_with_serialization(&content, HtmlSerializationMode::Vanilla).unwrap();
+    assert!(html.contains("<p>“hello”</p><p>6′ 2″</p>"), "{html}");
+}
+
+#[test]
+fn smartquote_semantic_html_title_custom_escape_and_raw_guard() {
+    use typst_core::entities::{html::HtmlBody, style::Styles, value::Value};
+    let quoted = Content::sequence(vec![
+        Content::smartquote(true),
+        Content::text("X&"),
+        Content::smartquote(true),
+    ]);
+    let body = Content::styled(
+        Box::new(quoted),
+        Styles::default().push_custom("smartquote.quotes", Value::Str("<>".into())),
+    );
+    let title = Content::HtmlElem(Arc::new(HtmlElem::new(
+        "title".into(),
+        None,
+        HtmlBody::Content(Box::new(body)),
+    )));
+    let html =
+        export_html_with_serialization(&title, HtmlSerializationMode::Vanilla).unwrap();
+    assert!(html.contains("<title>&lt;X&amp;></title>"), "{html}");
+    let script = Content::HtmlElem(Arc::new(HtmlElem::new(
+        "script".into(),
+        None,
+        HtmlBody::Content(Box::new(Content::smartquote(true))),
+    )));
+    assert_eq!(
+        export_html(&script).unwrap_err().message,
+        "HTML raw text element cannot have non-text children"
+    );
+}
+
+#[test]
+fn d08b3b_typc_atom_preserves_semantic_code_and_constant_style() {
+    for atom in ["auto", "true", "false"] {
+        let content = Content::raw(atom, Some("typc".into()), false);
+        let html =
+            export_html_with_serialization(&content, HtmlSerializationMode::Vanilla)
+                .unwrap();
+        assert!(html.contains(&format!("<code data-lang=\"typc\"><span style=\"color: #d73948\">{atom}</span></code>")),"{html}");
+    }
 }

@@ -1,0 +1,16 @@
+[package]
+name = "catalog-selective-probe"
+version = "0.1.0"
+edition = "2021"
+publish = false
+[workspace]
+[dependencies]
+typst-core = { path = "/repos/Antigravity/typst-crystalline/01_core" }
+typst-infra = { path = "/repos/Antigravity/typst-crystalline/03_infra" }
+fontdb = "=0.23.0"
+ttf-parser = "=0.25.1"
+serde_json = "1"
+[profile.release]
+opt-level = 3
+debug-assertions = false
+overflow-checks = false

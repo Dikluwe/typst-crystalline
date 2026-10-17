@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/p1483_pdf_spot_tests.md
-//! @prompt-hash 93cc6bfb
+//! @prompt-hash 56970598
 //! @layer L3
 //! @updated 2026-09-23
 
@@ -8,12 +8,13 @@ use super::*;
 use std::sync::Arc;
 use typst_core::entities::axes::Axes;
 use typst_core::entities::color::{SpotColor, SpotColorant};
-use typst_core::entities::geometry::{ShapeKind, Stroke};
+use typst_core::entities::frame_paint::FramePaint as Paint;
+use typst_core::entities::frame_paint::FrameStroke as Stroke;
+use typst_core::entities::geometry::ShapeKind;
 use typst_core::entities::gradient::{Gradient, GradientStop};
 use typst_core::entities::layout_types::{
     Angle, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
 };
-use typst_core::entities::paint::Paint;
 
 fn colorant(name: Option<&str>, fallback: Color) -> Arc<SpotColorant> {
     Arc::new(SpotColorant { name: name.map(Into::into), fallback })

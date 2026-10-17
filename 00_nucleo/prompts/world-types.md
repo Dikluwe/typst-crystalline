@@ -1,5 +1,5 @@
 # world_types — stubs opacos para contratos de World
-Hash do Código: 8f032246
+Hash do Código: 834cfb5b
 
 **Camada**: L1 — entities
 **Criado em**: 2026-03-22
@@ -195,3 +195,8 @@ sem precisar de nenhum campo `kind`/`BindingKind` em `Binding`.
 |------|--------|-------------------|
 | 2026-03-22 | Criação inicial — stubs para World trait (ADR-0005) | world_types.rs |
 | 2026-07-16 | P772n — `Library` materializada com `global: Scope` real (era `()` opaco desde a criação; "Passo 4" nunca completado, a stdlib era achatada em `Scopes.top` em vez de usar `Library`). Fecha a causa raiz de P772l §2.3 (`cannot_mutate_constant`). | world_types.rs |
+
+
+## Realização com avaliação única
+
+Canal tracked interno warn_diagnostic conserva SourceDiagnostic completo (hints, severidade, trace, span) ao encaminhar warnings de realização para o sink existente; dedup permanece em Sink::record.

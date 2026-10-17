@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/duration.md
-//! @prompt-hash 2fe31913
+//! @prompt-hash 5f8c64f3
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -94,21 +94,21 @@ impl Duration {
 
     /// Representação canónica: `"3d2h30m15.500s"`, `"-3d2h30m15.500s"` ou
     /// `"0s"`.
-    pub fn to_string(&self) -> String {
+    fn canonical_string(&self) -> String {
         if self.nanos == 0 {
             return "0s".to_string();
         }
 
         let negative = self.nanos < 0;
-        let mut rem = self.nanos.abs();
-        let days = rem / Self::DAY.nanos;
-        rem %= Self::DAY.nanos;
-        let hours = rem / Self::HOUR.nanos;
-        rem %= Self::HOUR.nanos;
-        let minutes = rem / Self::MINUTE.nanos;
-        rem %= Self::MINUTE.nanos;
-        let seconds = rem / NANOS_PER_SECOND;
-        let nanos_frac = rem % NANOS_PER_SECOND;
+        let mut rem = self.nanos.unsigned_abs();
+        let days = rem / Self::DAY.nanos as u128;
+        rem %= Self::DAY.nanos as u128;
+        let hours = rem / Self::HOUR.nanos as u128;
+        rem %= Self::HOUR.nanos as u128;
+        let minutes = rem / Self::MINUTE.nanos as u128;
+        rem %= Self::MINUTE.nanos as u128;
+        let seconds = rem / NANOS_PER_SECOND as u128;
+        let nanos_frac = rem % NANOS_PER_SECOND as u128;
 
         let mut parts = Vec::new();
         if days > 0 {
@@ -153,9 +153,65 @@ impl core::ops::Neg for Duration {
     }
 }
 
+impl std::fmt::Display for Duration {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.canonical_string())
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn approved_traits_duration_display_covers_signed_range() {
+        fn render<T: std::fmt::Display + ToString>(value: &T) -> (String, String) {
+            (format!("{value}"), ToString::to_string(value))
+        }
+        for (nanos, expected) in [
+            (i128::MIN, "-1969226660422097589487121d13h41m55.884105728s"),
+            (i128::MAX, "1969226660422097589487121d13h41m55.884105727s"),
+            (i128::MIN + 1, "-1969226660422097589487121d13h41m55.884105727s"),
+            (0, "0s"),
+            (-1, "-0.000000001s"),
+            (-1_500_000_000, "-1.5s"),
+            (-60_000_000_000, "-1m"),
+        ] {
+            assert_eq!(
+                render(&Duration::from_nanos(nanos)),
+                (expected.into(), expected.into())
+            );
+        }
+    }
+
     use super::*;
+
+    #[test]
+    fn duration_extreme_nanos_format_exactly() {
+        assert_eq!(
+            Duration::from_nanos(i128::MIN).to_string(),
+            "-1969226660422097589487121d13h41m55.884105728s",
+        );
+        assert_eq!(
+            Duration::from_nanos(i128::MAX).to_string(),
+            "1969226660422097589487121d13h41m55.884105727s",
+        );
+        assert_eq!(
+            Duration::from_nanos(i128::MIN + 1).to_string(),
+            "-1969226660422097589487121d13h41m55.884105727s",
+        );
+    }
+
+    #[test]
+    fn duration_negative_nanos_and_unit_boundaries_keep_canonical_text() {
+        for (nanos, expected) in [
+            (-1, "-0.000000001s"),
+            (-1_000_000_001, "-1.000000001s"),
+            (-60_000_000_001, "-1m0.000000001s"),
+            (-86_400_000_000_001, "-1d0.000000001s"),
+            (0, "0s"),
+        ] {
+            assert_eq!(Duration::from_nanos(nanos).to_string(), expected);
+        }
+    }
 
     #[test]
     fn duration_zero() {

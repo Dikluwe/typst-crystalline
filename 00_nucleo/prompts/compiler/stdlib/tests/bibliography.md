@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/bibliography
-Hash do Código: 25c2cb92
+Hash do Código: 97a388d5
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/bibliography.rs`

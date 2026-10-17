@@ -1,5 +1,5 @@
 # L0 — compiler/eval/operators/arithmetic
-Hash do Código: c3d2f28f
+Hash do Código: ab3d8d4e
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/operators/arithmetic.rs`
@@ -88,3 +88,30 @@ Int/Float/Decimal/Length/Angle/Ratio/Relative/Fraction domains; Not requires Boo
 Mismatch wording delegates to error_formatting. Tests distinguish checked
 overflow, zero precedence, IEEE behavior, repetition, grapheme preservation,
 component compatibility, paint construction and Args metadata conservation.
+
+## D08B3-C — marcas fornecidas de stroke Length + Color
+
+Medição anterior à decisão: table-cell-styles-d08b3c-2026-10-07/physical-complete.json.gz / stroke-with-body-recipe contém literal red+2pt, render black 1pt Tekt contra red 2pt vanilla, apesar da correção do consumer de bordas. Coleção identifica HEAD/working tree/fontes/binaries/UTC/argv/PDF/SVG. arithmetic.rs:336–344 usa ..Stroke::default() sem provided bits; realizer fold_stroke pode substituir esses componentes pelo default Table. Fonte pinada foundations/ops.rs produz Stroke::from_pair com os dois componentes Custom; geometry stroke model preserva ausência de outros componentes. É cor/espessura/getter da linguagem, não obrigação de igualdade Rust.
+
+Decisão interna contínua ADR-0127: nos braços existentes Length + Color e Color + Length marcar somente specified.paint e specified.thickness como true. Preservar valores, casts, espessura absoluta, overhang, assinatura, outros braços e componentes não fornecidos. Não ampliar Gradient/Relative ou resolução em neste recorte. Teste RED→GREEN de ambas as ordens antes do fallback Table, vetor físico com cor/espessura corretas e suíte geral; sem API/fase/modo/default ou compatibilidade nova. Rich strokes/relative/em já fora de certificação continuam incompletos.
+
+## Adaptação Memória 5 — proposta pendente ADR-0127
+
+Medição antes da decisão: 00_nucleo/diagnosticos/value-compacto-memoria5-2026-10-08/
+before.json.gz e inventory.json congelam este consumer e cada ocorrência
+file:line de Value::Stroke. sizes.json mede 272→144 bytes no modelo externo de
+Value, sem prova de RSS. O novo carrier público é definido exclusivamente por
+00_nucleo/prompts/entities/value.md; esta unidade apenas o consome e não
+compartilha ownership. Nenhuma implementação/adaptação antes da confirmação
+do manifesto deste pacote.
+
+Responsabilidade desta unidade: Os três braços já existentes que constroem Stroke usam a conversão From<Stroke> preservada. Não mudar operações, provided bits, casts ou defaults e não ampliar Gradient/Relative nesta adaptação.
+
+Após confirmação: conservar testes/oráculos vigentes, adicionar o RED→GREEN
+pertinente quando houver comportamento de isolamento novo, resselo só do owner
+e revalidação. Esta cláusula não amplia semântica, defaults ou fase.
+
+Ratificação Memória 5: o dono confirmou o manifesto SHA-256
+6badf07a4f58f08e7c60ad2e34dfb9a14a3a6ba55db90045afe046be8e988237
+com “confirmo” em 2026-10-08. O gate ADR-0127 deste pacote está satisfeito;
+suas cláusulas propostas passam a vigorar nesta materialização.

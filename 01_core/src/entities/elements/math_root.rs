@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_root.md
-//! @prompt-hash f576109f
+//! @prompt-hash 56d44e06
 //! @layer L1
-//! @updated 2026-06-11
+//! @updated 2026-10-10
 //!
 //! `MathRootElem` — Lote 2 P317 (família math). Raiz (`sqrt`/`root`).
 //! Comportamento idêntico ao braço anterior do hub (content-preserving).
@@ -36,11 +36,9 @@ impl Element for MathRootElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathRoot(Arc::new(MathRootElem {
-            index: self.index.as_ref().map(|c| c.map_content(transform)).transpose()?,
-            radicand: self.radicand.map_content(transform)?,
-            index_explicit: self.index_explicit,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathRoot(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -49,6 +47,35 @@ impl Element for MathRootElem {
     {
         // Terminal (math structural; não desce).
         Content::MathRoot(Arc::new(self.clone()))
+    }
+}
+
+impl MathRootElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let index = self
+            .index
+            .as_ref()
+            .map(|child| child.map_content_if_changed(transform))
+            .transpose()?
+            .flatten();
+        let radicand = self.radicand.map_content_if_changed(transform)?;
+        if index.is_none() && radicand.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = index {
+            mapped.index = Some(changed);
+        }
+        if let Some(changed) = radicand {
+            mapped.radicand = changed;
+        }
+        Ok(Some(Content::MathRoot(Arc::new(mapped))))
     }
 }
 

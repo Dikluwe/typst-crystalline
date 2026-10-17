@@ -1,0 +1,441 @@
+{
+  "status": "pending-human-approval",
+  "utc": "2026-10-14T17:45:24.452096+00:00",
+  "head": "06848cdcb5450f2c555626bf116bc7acd82bd82b",
+  "scope": "Typed Move/Rotate/Scale/Skew through constructors, language observation, styles and paged layout; Matrix Rust compatibility; no publication.",
+  "public_changes": [
+    "TransformElem.matrix removed; TransformElem.operation: TransformOperation added",
+    "New public TransformOperation and TransformScale enums as specified in entity candidate",
+    "Content::transform signature unchanged; produces Matrix variant"
+  ],
+  "phase_change": "Relative/font/body-dependent values retained during eval and resolved at layout use.",
+  "candidates": {
+    "candidates/00_nucleo/prompts/_nuclei/transform-semantics.toml": "9f80cc4fc09e4a2c47200958a16dcebd693729eb0d91f9b4faf370805f496117",
+    "candidates/00_nucleo/prompts/compiler/layout/transform.md": "82ea4d79473aa464d148dc1984dfd0226b0c0f3076ba160f6c7d47fc986db666",
+    "candidates/00_nucleo/prompts/compiler/stdlib/transforms.md": "631ce3abb2e4b31155ffc3d9f7c961b3019f25e456596b6208b0b41467ec9a9d",
+    "candidates/00_nucleo/prompts/entities/content/construction/layout.md": "c590f80a57956df9b0d7c16a54e6cfdedca3a8a8698d70c3dcd5561b864c8751",
+    "candidates/00_nucleo/prompts/entities/elements/transform.md": "d7b1c3afd219ef33f44425be9a7a59e4871b5f8d326fa43e594140dea43f9648"
+  },
+  "nucleus_pin": "cbd8b56af347a35e867b2c4695581721d5983ec24ee7bb022e9f9987500d40f3",
+  "base_files": {
+    "01_core/src/entities/content.rs": "d179da6e22edf6b79125e8b351f87a65aacab8a0950d8153c9622539c3b8b432",
+    "00_nucleo/prompts/entities/content.md": "cf08c97bcf444a1a041fd092420f45f0ba33727ba52bbc54614d0c5950c60960",
+    "01_core/src/compiler/eval/selector_matching.rs": "b0a946329dcf2c6c5cef89c4411a85cc369e770f6b1ebbcfc35d6e7147453dcb",
+    "00_nucleo/prompts/compiler/eval/selector_matching.md": "fe10976516844819ab8c62ce2180096ef1a0076d293c320bad25e554e657f391",
+    "01_core/src/compiler/introspect/locatable.rs": "3d03bb9dcfd8c287ec108ac9ae910e3a8d3ac13252903611bf5d44554042696e",
+    "00_nucleo/prompts/compiler/introspect/locatable.md": "d0a487a7e614ecd1a8976eb82e4d54034bc20f3ed91d45a709e6e1a909c3e910",
+    "01_core/src/compiler/introspect/materialize_time.rs": "1c94c46e069689e382efc49d7cf56fa3499dc6d6abc4d422f93cd987510b8dd9",
+    "00_nucleo/prompts/compiler/introspect/materialize_time.md": "aaebbe53347f57db2f2768391a94219f50bb87ca2b15dd1d6c2379c5b3a3e52a",
+    "01_core/src/compiler/introspect/classification.rs": "ba26cffae3fb692744d1d2351273c8fa3c8fb4c28009f89d7d64e436aad7bec8",
+    "00_nucleo/prompts/compiler/introspect/classification.md": "0a8db5749971d4da99af10b22551732bcab1fc0bf85b904dbdb57233dd5f2bf4",
+    "01_core/src/compiler/introspect/walk.rs": "4ba3ee8555fd9442b70980041b1fdc2140d5c2915ec14c25c255a79bdd68278b",
+    "00_nucleo/prompts/compiler/introspect/walk.md": "eaea1058d4bf004e8b493d98758c54df0eedb7ecf3b634af0da05371c5d091b6",
+    "01_core/src/compiler/layout/helpers.rs": "a600cb7e58896c642673cfd83685d70085e042bd09c34ed3d3ce50146fe8285e",
+    "00_nucleo/prompts/compiler/layout/helpers.md": "bbfdcee10e6759abe97548d5bc98ec56029978a2449adc85760b3209d19fd62d",
+    "01_core/src/compiler/layout/html_frame.rs": "f642e5850200caf11448097f5db79468298fb8823a34fb45500d308c2adf30b4",
+    "00_nucleo/prompts/compiler/layout/html_frame.md": "2b615ccb11fa306423db011c5afe61ad05cd0b39b3ea267776166b702e8df74d",
+    "01_core/src/compiler/layout/measurement.rs": "24b3adab8c48f0682135722a3c8870305ef38125dac3c0413a5dd48a75d9d4e2",
+    "00_nucleo/prompts/compiler/layout/measurement.md": "e42dd0b58420fc9fe80a530c71ef4e22eb180f86aabcc4548bdc948609940b14",
+    "01_core/src/compiler/layout/mod.rs": "ece6aa5d5b2795074d6396e76958bf0bf5f3d85f16e11d13f985d55bf0cbc157",
+    "00_nucleo/prompts/compiler/layout.md": "ca3effac07bec5f7af163922dfb2ecebe9cdd775473434b4c9124a2e428d447c",
+    "01_core/src/compiler/layout/placement.rs": "64d3aef8d4578e11d1fb5ad50730f6c9e436130f6ef395b30d627076bfff43a9",
+    "00_nucleo/prompts/compiler/layout/placement.md": "00b6dcdf8dc41dd90a9ba7c72640feff2f388548c09bcb58385e287c08942ef2",
+    "01_core/src/compiler/layout/tests.rs": "8522d571ac1008493d1bd0c91f5f073369f14842a43e89d469c81dda88bf8c2a",
+    "00_nucleo/prompts/compiler/layout/tests.md": "ceb68e81c6109bbbf97d7c94aa3fa3c5b6fd3a1fd803013fef361257e19594bb",
+    "01_core/src/compiler/layout/transform.rs": "3660ecec76b53d9e84568f5ef8533733865faa15a8733e767f37849e26ae758a",
+    "00_nucleo/prompts/compiler/layout/transform.md": "6180f78ba75865107966ad21d2c2f2720c3e03f3e585076b6f170032a09c8bd4",
+    "01_core/src/compiler/stdlib/transforms.rs": "2bcfe75e4d3bc3d06c18c8e4bb62dfc813f2f59d27a394143986b83d13c018a3",
+    "00_nucleo/prompts/compiler/stdlib/transforms.md": "7111f15c7f005e1313adaf7b5257b9a3a9b1e13322b6e80c6e180c5a1f9c6863",
+    "01_core/src/compiler/eval/observation/content.rs": "39ced5cfb274b61a7356356ea1b775f80166444a83582e8c2964b3cb7e8a19c1",
+    "00_nucleo/prompts/compiler/eval/observation/content.md": "922ab671065754b2a62266733217b3ff2bf6e44b86bb44e028a0f783f84efe46",
+    "01_core/src/compiler/eval/observation/elements.rs": "c176d6695fb2b16d97e324955213825d1f47a4d54fe2963d7e14dd2542e5b5a7",
+    "00_nucleo/prompts/compiler/eval/observation/elements.md": "c885171b7a3583eb13573e1270de2a415943031088d68bdeb5f512fe697f17d8",
+    "01_core/src/compiler/eval/rules/realize.rs": "24d202d4b0307525999bddfaf657c9df5f71c93fcf150a693d38250576f27e7b",
+    "00_nucleo/prompts/compiler/eval/rules/realize.md": "a161933591a2df19c02d2e90d9f713ec84c3ec74ccfee6f2431ab09c6d37ef12",
+    "01_core/src/compiler/eval/repr/content.rs": "6e62b3d1d78b239a916a31bbad81c15016aa6c8b70a73ceb665cbf91271a0702",
+    "00_nucleo/prompts/compiler/eval/repr/content.md": "018b35f2908bb98fbb32fc0945c7dc474aa90db0bc69d37dcc9f8c529d6959b1",
+    "01_core/src/compiler/eval/bindings/field_access/fields.rs": "e7a2487860242bacb6c67b51f0ebdba35c2200aa9d57106bc6cef370c8aead06",
+    "00_nucleo/prompts/compiler/eval/bindings/field_access/fields.md": "7951397068f53f411a2558b2c648d52adee648396617bf50bb2ca3685d3ab802",
+    "01_core/src/compiler/math/layout/spacing.rs": "9ecb5e15b3117404213b1444ab89ee954ff2826d33f17c245c47c6031ac82bd1",
+    "00_nucleo/prompts/compiler/math/layout/spacing.md": "fa9301a910150beef0fb6131fbafe0c5ece6e1d0984166a543e71f76949174ff",
+    "01_core/src/compiler/stdlib/tests/transforms.rs": "58abb81facfa6c07562503cf9b367c4fd420ea8966a3b889f5173fe27a3021bd",
+    "00_nucleo/prompts/compiler/stdlib/tests/transforms.md": "b6c09ea14809638304359012ea48bd40400b3312560f62aff530a075c884806d",
+    "01_core/src/entities/elements/transform.rs": "78d13b1d1df83a797317c2e7c9ef85636478f23d4710b2efe7a0c2b76cb97932",
+    "00_nucleo/prompts/entities/elements/transform.md": "399a894b983564b76a2f278e4dc4039a5959ce7a569039e332970c8713a3d63e",
+    "01_core/src/entities/content/identity.rs": "eca78ec6da17605809f7b02eb7597d842c3ec8c6f7f8f4b58692d63792772a86",
+    "00_nucleo/prompts/entities/content/identity.md": "f11c8a49d6d3bdefeae55d71e4e78f093d3e58620506207b66ac55e2f9e5fa1b",
+    "01_core/src/entities/content/page_structure.rs": "a5802ba9a4cf861e93830a86f3dd468ed68889ac4feba3bf22681456c7488362",
+    "00_nucleo/prompts/entities/content/page-structure.md": "a3530c5502b940379b595dda82bee0cb122608c473f729e31ab2779df44507c8",
+    "01_core/src/entities/content/traversal.rs": "0a556627aa6baa97e24f627ae7657b254cb7d844d6429b4f0fd259b295e7b5a1",
+    "00_nucleo/prompts/entities/content/traversal.md": "26c9e07ce22233cf3a52d250b164cb6718a60d66830f7603e9c72234e270cda4",
+    "01_core/src/entities/content/equality.rs": "1a2f851073c37831787d19c548838ab45d9288f016c0b4fd2ae9cc89a2b342b8",
+    "00_nucleo/prompts/entities/content/equality.md": "8300bcce515f5d7e08529280c93dd4c907b77570dd6f3016936c18cef759155a",
+    "01_core/src/entities/content/plain_text.rs": "9c57c6db1604f8b0de241440904950ba8e0491412cbb628b55fb114b62189e68",
+    "00_nucleo/prompts/entities/content/plain-text.md": "123438d1a8c741b8d62ff99556b86c0260bbfef50e267ddbbc7782dd2cdd8289",
+    "01_core/src/entities/content/construction/layout.rs": "bc07cab026a8e8610a47e564a6728ec550b691971f97432ea819e21fe96fbf34",
+    "00_nucleo/prompts/entities/content/construction/layout.md": "ee2988450ee50b7ae3e3e3a31551132aff745d8cc01606172a7d1934423c8628",
+    "03_infra/src/integration_tests.rs": "c378655152cc3e9300b9a606f7657fd8c5d5b98a0cf014723844692f5e0215c9",
+    "00_nucleo/prompts/infra/integration_tests.md": "733fde9d0bd9e7b0db9a6a42532eccd4fd36ade27f9fabdc82e35828e2babfda",
+    "03_infra/src/query_helpers.rs": "488cdd82ee7b26a2a5e72d4ba458b23f8f27ba08d12a7b3d98e9e119faaec614",
+    "00_nucleo/prompts/infra/query-helpers.md": "739d3cd49d9b2cc4592843de0b6bde61418b11c7fe238143d081750edae85568",
+    "03_infra/src/export/images/scan.rs": "14bd199d62dfaec2014e51fc332e912814bd6aec37e5a15a25e5f1b34e1a84ad",
+    "00_nucleo/prompts/infra/export/images/scan.md": "0bbe7667346e5ef0b8bc0829182bdf76680b29ca76e893ce158dbb780a877fc6",
+    "01_core/src/entities/content/fields.rs": "7e0bb640d1a00c52d96354533f04853e8ef61d1ac3a3b724036862984cec208d",
+    "00_nucleo/prompts/entities/content/fields.md": "fbebf3f5738a4378d18ea7851d8d3b020282dc5340ae90d35f1915ed3be6380a",
+    "01_core/src/compiler/eval/bindings/field_access/content_methods.rs": "857e4e63253f5aba4161916e51163d69481fe31efa264781581f3f70d500e8aa",
+    "00_nucleo/prompts/compiler/eval/bindings/field_access/content_methods.md": "d8b2f27d8e551233f895e98a322d9e334f87940c74ed063594a2a47e05c6d431",
+    "01_core/src/compiler/eval/bindings/value_methods/element_where.rs": "8026e2a3715abb98793f16d38c9d1785b79eb6fe270e8bf7373996db8edfe51b",
+    "00_nucleo/prompts/compiler/eval/bindings/value_methods/element_where.md": "c76f5390f9c7f6705334286da658a7ca9b69d16d719588a62c3af80d179f2f09",
+    "01_core/src/compiler/eval/rules/set.rs": "b6526fb6c38d6ced0e88e23568b0b752dcb4b74b46db7c41aa0cde2f85841f5b",
+    "00_nucleo/prompts/compiler/eval/rules/set.md": "0f47953aa5dc59526bfcbe65005a80d39303fe48792871abd8f22be35bc1773e",
+    "01_core/src/compiler/eval/rules/show.rs": "0847690309cfe47274ed03b33620e40ee1edea39efde5f7c8ad435d386ca423c",
+    "00_nucleo/prompts/compiler/eval/rules/show.md": "fb7a3517d1d4829dc59783bc761eaf352d730b9298875c3dbdf80d3b8a0648aa",
+    "01_core/src/compiler/stdlib/loading/encoding.rs": "f697c205535ec67ae164a9297d52ffb83a3113202b59f48725b2b092e6e3df0f",
+    "00_nucleo/prompts/compiler/stdlib/loading/encoding.md": "a824cca38e1a1014c762ab33c73bce1f649522df76c81053eddf7dbe19d9c3d5",
+    "02_shell/src/cli.rs": "36c3aaa159e4bb69d8dee8316fbd00907fc861c5b191cda1748a9b8cca1f3153",
+    "00_nucleo/prompts/shell/cli.md": "b0b3e730d9e64c23de2c5d66f3a36fafe8781a6f48546ed22cd2dca595b50743",
+    "03_infra/src/export/html/inline.rs": "91e2cea080b5d6670e1e61d0209a0ac0db0048166e4d1e279b3c0015ef4ffdb0",
+    "00_nucleo/prompts/infra/export/html/inline.md": "06ca75b42aefd6b2b70f69b89d86ca4739460fc4d6388eb3a49defcb5205b16e"
+  },
+  "inventory": [
+    {
+      "path": "01_core/src/entities/content.rs",
+      "owner": "00_nucleo/prompts/entities/content.md",
+      "lines": [
+        150,
+        612,
+        614
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/eval/selector_matching.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/selector_matching.md",
+      "lines": [
+        314
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/introspect/locatable.rs",
+      "owner": "00_nucleo/prompts/compiler/introspect/locatable.md",
+      "lines": [
+        168
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/introspect/materialize_time.rs",
+      "owner": "00_nucleo/prompts/compiler/introspect/materialize_time.md",
+      "lines": [
+        282
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/introspect/classification.rs",
+      "owner": "00_nucleo/prompts/compiler/introspect/classification.md",
+      "lines": [
+        99
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/introspect/walk.rs",
+      "owner": "00_nucleo/prompts/compiler/introspect/walk.md",
+      "lines": [
+        618
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/helpers.rs",
+      "owner": "00_nucleo/prompts/compiler/layout/helpers.md",
+      "lines": [
+        444
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/html_frame.rs",
+      "owner": "00_nucleo/prompts/compiler/layout/html_frame.md",
+      "lines": [
+        410,
+        455,
+        581,
+        596,
+        599,
+        601,
+        615,
+        618
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/measurement.rs",
+      "owner": "00_nucleo/prompts/compiler/layout/measurement.md",
+      "lines": [
+        437,
+        445
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/mod.rs",
+      "owner": "00_nucleo/prompts/compiler/layout.md",
+      "lines": [
+        1446
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/placement.rs",
+      "owner": "00_nucleo/prompts/compiler/layout/placement.md",
+      "lines": [
+        196
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/tests.rs",
+      "owner": "00_nucleo/prompts/compiler/layout/tests.md",
+      "lines": [
+        1075,
+        1102,
+        1131,
+        21220,
+        21579,
+        21591,
+        21648,
+        24485
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/layout/transform.rs",
+      "owner": "00_nucleo/prompts/compiler/layout/transform.md",
+      "lines": [
+        18,
+        28
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/transforms.rs",
+      "owner": "00_nucleo/prompts/compiler/stdlib/transforms.md",
+      "lines": [
+        18,
+        45,
+        48,
+        83,
+        86,
+        168,
+        173,
+        258
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/eval/observation/content.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/observation/content.md",
+      "lines": [
+        400,
+        401
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/eval/observation/elements.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/observation/elements.md",
+      "lines": [
+        706
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/eval/rules/realize.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/rules/realize.md",
+      "lines": [
+        144
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/eval/repr/content.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/repr/content.md",
+      "lines": [
+        521
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/eval/bindings/field_access/fields.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/bindings/field_access/fields.md",
+      "lines": [
+        601
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/math/layout/spacing.rs",
+      "owner": "00_nucleo/prompts/compiler/math/layout/spacing.md",
+      "lines": [
+        145
+      ]
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/tests/transforms.rs",
+      "owner": "00_nucleo/prompts/compiler/stdlib/tests/transforms.md",
+      "lines": [
+        22,
+        25,
+        36,
+        47,
+        58,
+        67,
+        79,
+        83,
+        95,
+        99,
+        150,
+        153,
+        164,
+        172,
+        183,
+        187,
+        197,
+        204,
+        218,
+        221,
+        226
+      ]
+    },
+    {
+      "path": "01_core/src/entities/elements/transform.rs",
+      "owner": "00_nucleo/prompts/entities/elements/transform.md",
+      "lines": [
+        7,
+        19,
+        26,
+        32,
+        44,
+        54,
+        67,
+        68,
+        82,
+        98,
+        106,
+        114
+      ]
+    },
+    {
+      "path": "01_core/src/entities/content/identity.rs",
+      "owner": "00_nucleo/prompts/entities/content/identity.md",
+      "lines": [
+        81,
+        235
+      ]
+    },
+    {
+      "path": "01_core/src/entities/content/page_structure.rs",
+      "owner": "00_nucleo/prompts/entities/content/page-structure.md",
+      "lines": [
+        113
+      ]
+    },
+    {
+      "path": "01_core/src/entities/content/traversal.rs",
+      "owner": "00_nucleo/prompts/entities/content/traversal.md",
+      "lines": [
+        263,
+        906,
+        1301
+      ]
+    },
+    {
+      "path": "01_core/src/entities/content/equality.rs",
+      "owner": "00_nucleo/prompts/entities/content/equality.md",
+      "lines": [
+        97
+      ]
+    },
+    {
+      "path": "01_core/src/entities/content/plain_text.rs",
+      "owner": "00_nucleo/prompts/entities/content/plain-text.md",
+      "lines": [
+        109
+      ]
+    },
+    {
+      "path": "01_core/src/entities/content/construction/layout.rs",
+      "owner": "00_nucleo/prompts/entities/content/construction/layout.md",
+      "lines": [
+        388,
+        390
+      ]
+    },
+    {
+      "path": "03_infra/src/integration_tests.rs",
+      "owner": "00_nucleo/prompts/infra/integration_tests.md",
+      "lines": [
+        2023
+      ]
+    },
+    {
+      "path": "03_infra/src/query_helpers.rs",
+      "owner": "00_nucleo/prompts/infra/query-helpers.md",
+      "lines": [
+        321,
+        413
+      ]
+    },
+    {
+      "path": "03_infra/src/export/images/scan.rs",
+      "owner": "00_nucleo/prompts/infra/export/images/scan.md",
+      "lines": [
+        103
+      ]
+    },
+    {
+      "path": "01_core/src/entities/content/fields.rs",
+      "owner": "00_nucleo/prompts/entities/content/fields.md",
+      "lines": [],
+      "role": "semantic boundary / validation; inspect before editing"
+    },
+    {
+      "path": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/bindings/field_access/content_methods.md",
+      "lines": [],
+      "role": "semantic boundary / validation; inspect before editing"
+    },
+    {
+      "path": "01_core/src/compiler/eval/bindings/value_methods/element_where.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/bindings/value_methods/element_where.md",
+      "lines": [],
+      "role": "semantic boundary / validation; inspect before editing"
+    },
+    {
+      "path": "01_core/src/compiler/eval/rules/set.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/rules/set.md",
+      "lines": [],
+      "role": "semantic boundary / validation; inspect before editing"
+    },
+    {
+      "path": "01_core/src/compiler/eval/rules/show.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/rules/show.md",
+      "lines": [],
+      "role": "semantic boundary / validation; inspect before editing"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/loading/encoding.rs",
+      "owner": "00_nucleo/prompts/compiler/stdlib/loading/encoding.md",
+      "lines": [],
+      "role": "semantic boundary / validation; inspect before editing"
+    },
+    {
+      "path": "02_shell/src/cli.rs",
+      "owner": "00_nucleo/prompts/shell/cli.md",
+      "lines": [],
+      "role": "semantic boundary / validation; inspect before editing"
+    },
+    {
+      "path": "03_infra/src/export/html/inline.rs",
+      "owner": "00_nucleo/prompts/infra/export/html/inline.md",
+      "lines": [],
+      "role": "semantic boundary / validation; inspect before editing"
+    }
+  ],
+  "evidence": {
+    "00_nucleo/diagnosticos/transformacoes-2026-10-14/before.json.gz": "45cebbddaa4f53acf1de843ac7ee135644e4bb129ee39bdd584c042cec0baf61",
+    "00_nucleo/diagnosticos/transformacoes-2026-10-14/results.json.gz": "55644e55607f6cf288867ae33d44370149c590e1f69501c9a05d2f2d21ee20c6",
+    "00_nucleo/diagnosticos/transformacoes-2026-10-14/controls/results.json": "20c23eb86ea67eb8c076955a5e62f74c4a057d71f2074e7ab5b0472e30cdf07c",
+    "00_nucleo/diagnosticos/transformacoes-2026-10-14/binding-controls/results.json": "5ff043ab2517ad15f7ef38abf764f0085ca1062aa26ea9a5cfc98e6504d609cc",
+    "00_nucleo/diagnosticos/transformacoes-2026-10-14/context-controls/results.json": "641a17bed43ac2427af016710bddec680aad31436053731471b35ffcf41e81be"
+  },
+  "graph_validation": {
+    "checks": "V15,V26",
+    "exit": 0,
+    "log_sha256": "91a6d3da4ea876cf1389727cd10abe41cf117fa0295b588912b258b93118f0ac"
+  }
+}

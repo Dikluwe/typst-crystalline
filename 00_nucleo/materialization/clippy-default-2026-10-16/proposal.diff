@@ -1,0 +1,78 @@
+--- 00_nucleo/prompts/compiler/eval.md
++++ proposed/00_nucleo/prompts/compiler/eval.md
+@@ -468,3 +468,20 @@
+ deve passar RED→GREEN, incluindo unfulfilled_lint_expectations como erro; revalidar
+ build, Clippy all-targets, suíte workspace, formato, Rustdoc e linhagem com resselo
+ restrito. Não criar testes que apenas espelhem aliases ou nomes de campos.
++
++
++## Default público — proposta sujeita à confirmação ADR-0127
++
++### Medição anterior à decisão
++
++`01_core/src/compiler/eval/mod.rs:397` declara pub fn new() -> Self sem argumentos. O inventário em `00_nucleo/diagnosticos/field-reassign-2026-10-15/clippy-inventory.json` registra new_without_default; fonte/L0/hashes atuais são preservados no pacote clippy-default-2026-10-16. EvalContext::new inicializa target Paged, features vazias, full_error false, apply_show_rules true, orçamento de loop 1_000_000 e estados privados novos. Derivar Default dos campos daria defaults incorretos para orçamento e recipes; a única implementação autorizada delega a Self::new(). Isto é contrato Rust de construção, sem nova medição de paridade da linguagem.
++
++### Contrato proposto
++
++Adicionar somente `impl std::default::Default for EvalContext` com `fn default() -> Self` que devolve `Self::new()`. Preservar integralmente new(), sua visibilidade, campos, seus valores, todos os demais métodos e semântica. Não criar outro trait, novo modo/flag, estado compartilhado global, I/O no construtor ou mudança de fase. Nenhum caller existente precisa migrar; novo código pode usar `<EvalContext as Default>::default()` e bounds `T: Default`.
++
++### Gate, testes e aceitação
++
++Nenhuma materialização antes da confirmação humana do manifesto deste pacote (ADR-0127 §2.1/§2.4). Os impls são acréscimos públicos: sua remoção futura quebraria consumidores do novo contrato. Após ratificação, a cláusula só supersede proibições genéricas de nova API para estes três impls expressos; os demais contratos permanecem. Testes de uso por bound Default devem falhar por ausência de implementação antes do código e passar após delegação. Verificar valores/isolamento de contextos e sessões novas, preguiça de recursos e conservação dos controles existentes; suíte workspace, Clippy all-targets, build, Rustdoc, formato e linhagem com resselo restrito. Não alterar valores/defaults nem suprimir new_without_default.
++
++Os novos testes de EvalContext pertencem exclusivamente a `00_nucleo/prompts/compiler/eval/tests.md`, sem inserir uma suíte paralela no módulo produtivo.
+--- 00_nucleo/prompts/infra/system-world/font_session.md
++++ proposed/00_nucleo/prompts/infra/system-world/font_session.md
+@@ -129,3 +129,18 @@
+ No teste de aquisição preguiçosa, usar !world.book().is_empty() em vez de len > 0, mantendo ordem das consultas/assertions e verificação de cache. Não alterar new(), Default, aquisição ou política de sessão.
+ 
+ Fluxo contínuo ADR-0127: sem API pública, default de produto, fase, dependência ou supressão novos. L0 precede código e resselo restrito. Preservar inputs e resultados dos controles existentes, sem relaxar tolerâncias. Gate dos lints selecionados RED→GREEN; executar suíte workspace, build, Clippy all-targets, formato, Rustdoc e linhagem. Não criar testes que apenas espelhem a sintaxe Rust.
++
++
++## Default público — proposta sujeita à confirmação ADR-0127
++
++### Medição anterior à decisão
++
++`03_infra/src/world/font_session.rs:23` declara pub fn new() -> Self sem argumentos. O inventário em `00_nucleo/diagnosticos/field-reassign-2026-10-15/clippy-inventory.json` registra new_without_default; fonte/L0/hashes atuais são preservados no pacote clippy-default-2026-10-16. FontCatalogSession::new cria Mutex::new(None) por instância, sem descoberta ou leitura de fontes. Default cria sessão independente, vazia e lazy, delegando a Self::new(); catálogo e política de reuso permanecem inalterados. Isto é contrato Rust de construção, sem nova medição de paridade da linguagem.
++
++### Contrato proposto
++
++Adicionar somente `impl std::default::Default for FontCatalogSession` com `fn default() -> Self` que devolve `Self::new()`. Preservar integralmente new(), sua visibilidade, campos, seus valores, todos os demais métodos e semântica. Não criar outro trait, novo modo/flag, estado compartilhado global, I/O no construtor ou mudança de fase. Nenhum caller existente precisa migrar; novo código pode usar `<FontCatalogSession as Default>::default()` e bounds `T: Default`.
++
++### Gate, testes e aceitação
++
++Nenhuma materialização antes da confirmação humana do manifesto deste pacote (ADR-0127 §2.1/§2.4). Os impls são acréscimos públicos: sua remoção futura quebraria consumidores do novo contrato. Após ratificação, a cláusula só supersede proibições genéricas de nova API para estes três impls expressos; os demais contratos permanecem. Testes de uso por bound Default devem falhar por ausência de implementação antes do código e passar após delegação. Verificar valores/isolamento de contextos e sessões novas, preguiça de recursos e conservação dos controles existentes; suíte workspace, Clippy all-targets, build, Rustdoc, formato e linhagem com resselo restrito. Não alterar valores/defaults nem suprimir new_without_default.
+--- 00_nucleo/prompts/infra/system-world/source_session.md
++++ proposed/00_nucleo/prompts/infra/system-world/source_session.md
+@@ -40,3 +40,18 @@
+ pareadas contra release P5, startup/RSS e controles de invalidação/identidade/
+ efeitos/Unicode/diagnóstico/assets/fontes/geométricas. Resselo apenas deste owner,
+ build/suítes pertinentes e lint zero erros; não fechar incrementalidade completa.
++
++
++## Default público — proposta sujeita à confirmação ADR-0127
++
++### Medição anterior à decisão
++
++`03_infra/src/world/source_session.rs:24` declara pub fn new() -> Self sem argumentos. O inventário em `00_nucleo/diagnosticos/field-reassign-2026-10-15/clippy-inventory.json` registra new_without_default; fonte/L0/hashes atuais são preservados no pacote clippy-default-2026-10-16. SourceSession::new cria Mutex<Vec<Entry>> vazio por instância, sem parsing ou I/O. Default delega a Self::new(); os limites 8 entradas, 1 MiB total e 512 KiB por entrada, validação e isolamento dos Worlds permanecem inalterados. Isto é contrato Rust de construção, sem nova medição de paridade da linguagem.
++
++### Contrato proposto
++
++Adicionar somente `impl std::default::Default for SourceSession` com `fn default() -> Self` que devolve `Self::new()`. Preservar integralmente new(), sua visibilidade, campos, seus valores, todos os demais métodos e semântica. Não criar outro trait, novo modo/flag, estado compartilhado global, I/O no construtor ou mudança de fase. Nenhum caller existente precisa migrar; novo código pode usar `<SourceSession as Default>::default()` e bounds `T: Default`.
++
++### Gate, testes e aceitação
++
++Nenhuma materialização antes da confirmação humana do manifesto deste pacote (ADR-0127 §2.1/§2.4). Os impls são acréscimos públicos: sua remoção futura quebraria consumidores do novo contrato. Após ratificação, a cláusula só supersede proibições genéricas de nova API para estes três impls expressos; os demais contratos permanecem. Testes de uso por bound Default devem falhar por ausência de implementação antes do código e passar após delegação. Verificar valores/isolamento de contextos e sessões novas, preguiça de recursos e conservação dos controles existentes; suíte workspace, Clippy all-targets, build, Rustdoc, formato e linhagem com resselo restrito. Não alterar valores/defaults nem suprimir new_without_default.
+--- 00_nucleo/prompts/compiler/eval/tests.md
++++ proposed/00_nucleo/prompts/compiler/eval/tests.md
+@@ -639,3 +639,10 @@
+ Testes RED→GREEN: campos omitidos/false/true, lang omitido/none/string, aliases, igualdade, at/has/fields, JSON/YAML e markup/apresentação; sem aparar saída.
+ 
+ Manifesto aprovado b799576490d06bb6fde27c32c78572b63e1279b599d4684629fe4484bc4e0a45, recibo em materialization/raw-presenca-2026-10-14/approval-receipt.json. Esta seção completa apenas a presença anteriormente incompleta de Raw e supersede as cláusulas de ausência de máscara. Preservar contratos alheios; sem fase/default/render novo. Validar testes RED→GREEN, suíte, build e linhagem.
++
++
++## Contrato Default de EvalContext — pacote clippy-default-2026-10-16
++
++Medição antes da decisão: compiler/eval/mod.rs:397–424 inicializa estados e limites explicitamente; o inventário registra ausência de Default. Fonte/owner atuais estão no snapshot deste pacote. A proposta pública está exclusivamente em `00_nucleo/prompts/compiler/eval.md`.
++
++Após a confirmação do manifesto, acrescentar neste consumer os controles de uso por bound Default e isolamento entre instâncias: Paged, features vazias, full_error false, recipes habilitadas e orçamento vigente, contadores/locação/fluxo independentes. Um contexto mutado não contamina o próximo Default nem um contexto new. Confirmar RED pela ausência do impl e GREEN após delegação, sem relaxar nenhum teste de linguagem/diagnóstico existente. Não alegar nova paridade upstream nem mudar fixtures existentes. O pacote não autoriza código antes da confirmação.

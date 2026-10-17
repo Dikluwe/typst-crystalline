@@ -1,5 +1,8 @@
 # Prompt L0 — `compiler/stdlib/structural/math` — nativas de matemática
-Hash do Código: e3cc8546
+Hash do Código: a1b07b65
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/selectors/math-native-bridges.toml sha256:19eb838b3e56711fa151d416bd24394a0a6f5c8286bb9ab2d0dd9bc542b4aee7
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/math.rs`
@@ -985,3 +988,102 @@ fallback bare. `math.registered` continua extensão separada.
 depreciado; a emissão é do owner
 `compiler/eval/bindings/field_access.md`, não deste montador.
 Este L0 não altera assinatura, carrier ou layout matemático.
+
+## Integração condicional dos módulos de teste — 2026-10-13
+
+Medição antes da decisão: HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
+working tree não commitado. A duplicação cfg(test) ocorre em `01_core/src/compiler/stdlib/structural/math/p1425_tests.rs:5` / pai :52; `01_core/src/compiler/stdlib/structural/math/p1426_tests.rs:5` / pai :55; `01_core/src/compiler/stdlib/structural/math/p1427_tests.rs:5` / pai :58.
+Fontes, L0, UTC, status e diffstat estão em
+`00_nucleo/diagnosticos/cfg-test-ci-2026-10-13/before.json.gz` e
+`refinement-before.json.gz`. O Clippy pinado reproduz os atributos duplicados.
+A tentativa de retirar a condição interna mantém os testes Rust, mas o linter
+arquitetural pinado não propaga a condição do pai e acusa V2 nos helpers.
+
+Neste owner, retirar apenas o atributo externo cfg(test) das declarações
+listadas acima. Manter os caminhos, nomes e visibilidades dos módulos e seus
+atributos path. A condição interna `#![cfg(test)]` de cada arquivo listado
+continua a excluir integralmente o módulo do build de produção, inclusive
+seus imports e helpers. Os consumers de teste e seus L0 permanecem intactos.
+Não acrescentar dependências, lógica, API, modo padrão ou fase. Validar a
+mesma lista de testes, suíte core, build sem cfg(test), Clippy e arquitetura.
+
+
+## Identidade matemática nativa — 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
+commitado; pin `9f2b6e8715237cb086899a42873660fe744622e8`.
+`00_nucleo/diagnosticos/native-math-catalogue-2026-10-17/` fixa o estado
+exato em before.json.gz: UTC, diff HEAD --stat e hashes de todos os consumers,
+L0 e configuração protegidos. before-measurement.json.gz é reutilização
+verificada da matriz final da etapa anterior: fontes e binário Tekt têm
+identidade de hash com o baseline atual (baseline-reuse.json), não uma nova
+execução. A matriz cobre os oito perfis de features e 3956 casos de funções;
+26 rotas math ainda são recusadas em where/kind pelo Tekt e aceitas pelo pin.
+before-batch.json.gz mede 227 casos detalhados de campos, exclusões, alias
+parcial e counter, com comandos/binários/saídas e seus hashes.
+
+batch-schema.json conserva blocos e SHA-256 das fontes primárias do pin,
+file:line e declarações de ABI do Tekt; typst-macros/src/elem.rs:410–421
+exclui internal/external de field_id. As anotações elem destas 26 funções
+contêm Mathy e não Locatable. Isto é semântica/forma pública da linguagem,
+não igualdade mecânica de Func nem inferência de intenção por render.
+
+### Responsabilidade exclusiva e decisão
+
+Este owner conserva a montagem estática existente e acrescenta somente
+reexports diretos, limitados a `pub(in crate::compiler)`, das nativas abaixo.
+Nenhum wrapper/algoritmo/schema é movido ao hub, nenhum binding é adicionado.
+O alias interno class_for_metadata evita tocar o reexport público condicional
+de teste já existente no parent. Os nomes completos efetivos são os da lista:
+
+- `attach::native_math_attach`
+- `binom::native_math_binom`
+- `cases::native_math_cases`
+- `class::native_math_class` como `native_math_class_for_metadata`
+- `frac::native_math_frac`
+- `limits::native_math_limits`
+- `lr::native_math_lr`
+- `mid::native_math_mid`
+- `annotations::native_math_overbrace`
+- `annotations::native_math_overbracket`
+- `overline::native_math_overline`
+- `annotations::native_math_overparen`
+- `annotations::native_math_overshell`
+- `primes::native_math_primes`
+- `root::native_math_root`
+- `limits::native_math_scripts`
+- `stretch::native_math_stretch`
+- `annotations::native_math_underbrace`
+- `annotations::native_math_underbracket`
+- `underline::native_math_underline`
+- `annotations::native_math_underparen`
+- `annotations::native_math_undershell`
+- `vector::native_math_vec`
+
+Accent/cancel e mat já têm pontes próprias e não são duplicados aqui.
+
+### Aceitação e limites
+
+Invariantes compartilhadas: consumir o Núcleo Tekt pinado
+`00_nucleo/prompts/_nuclei/selectors/math-native-bridges.toml`; as
+responsabilidades exclusivas acima definem o segmento de cada owner.
+
+Correção interna de tabela/composição em fluxo contínuo ADR-0127. Nenhum campo,
+trait, assinatura Rust externa, compatibilidade, default ou fase muda. L0
+antes dos testes/código; RED funcional por identidade ausente, GREEN dos 26
+casos com filtros e exclusões; controles de With, homônimo e helpers que não
+são elementos. Validar antes/depois toda a matriz, preservando observáveis
+fora das identidades autorizadas e aliases efetivos (accent/cancel globais
+cristalinos incluídos, sem crédito de paridade se não existem no pin).
+
+O sucesso de where/kind não certifica getters, síntese, indexação, show,
+layout ou counter. Os controles counter permanecem explícitos e a sua
+admissão separada não é alterada neste lote. As quinze rotas restantes de
+formatos/HTML/PDF têm investigação própria; a colisão de callback dos formatos
+não é resolvida por nomes. FG1/RM1/SY1/RG1 preservam escopos e gates.
+
+Verificar ownership/V26 antes do resselo restrito aos cinco pares; build,
+suíte completa, fmt, Clippy/Rustdoc estritos, linhagem e diagnóstico global
+sem nova violação, sob MemoryMax12GiB/High10GiB/swap0/jobs1 sequenciais.

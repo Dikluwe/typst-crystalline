@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/mod.md
-//! @prompt-hash a6c0be54
+//! @prompt-hash 2f9e2a86
 //! @layer L1
-//! @updated 2026-09-28
+//! @updated 2026-10-05
 
 pub mod eval;
 pub mod introspect;
@@ -11,6 +11,7 @@ pub mod layout;
 pub mod lexer;
 pub mod math;
 pub mod parse;
+pub mod realize;
 pub mod scopes;
 pub mod stdlib;
 

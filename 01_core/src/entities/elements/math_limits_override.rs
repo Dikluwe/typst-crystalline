@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_limits_override.md
-//! @prompt-hash bcfe9dd2
+//! @prompt-hash ebb4ad27
 //! @layer L1
-//! @updated 2026-08-10
+//! @updated 2026-10-10
 //!
 //! `MathLimitsOverrideElem` — Passo 992. `limits(body, inline:)`/
 //! `scripts(body)`. Força o posicionamento de scripts do `MathAttach` pai
@@ -40,12 +40,9 @@ impl Element for MathLimitsOverrideElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathLimitsOverride(Arc::new(MathLimitsOverrideElem {
-            body: self.body.map_content(transform)?,
-            limits: self.limits,
-            inline: self.inline,
-            inline_explicit: self.inline_explicit,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathLimitsOverride(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -54,6 +51,26 @@ impl Element for MathLimitsOverrideElem {
     {
         // Terminal (math structural; não desce).
         Content::MathLimitsOverride(Arc::new(self.clone()))
+    }
+}
+
+impl MathLimitsOverrideElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        if body.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        Ok(Some(Content::MathLimitsOverride(Arc::new(mapped))))
     }
 }
 

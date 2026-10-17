@@ -1,5 +1,5 @@
 # L0 — Page marginal domain
-Hash do Código: 2338b19e
+Hash do Código: 59ce63d3
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/page_running.rs`
@@ -40,3 +40,15 @@ transport to `00_nucleo/prompts/entities/content.md`, page-run data to
 No public page constructor is authorized here. Verify default alignment,
 offsets and marginal distinctions. Historical composition sequences and
 cross-owner obligations are retained in the diagnostic, not redefined here.
+
+## Default derivado com valor preservado — 2026-10-13
+
+### Medição anterior à decisão
+
+`01_core/src/entities/page_running.rs:41` contém a implementação manual de Default sinalizada pelo Clippy. O corpo existente retorna a mesma variante ou inicializa cada campo pelo seu default. O tipo não é genérico, portanto a derivação não acrescenta bounds a parâmetros públicos. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, spans, UTC, status e diffstat estão em `00_nucleo/diagnosticos/expressoes-defaults-ci-2026-10-13/before.json.gz`. É evidência de implementação, não nova medição de paridade ou desempenho.
+
+### Decisão e aceitação
+
+Substituir somente a implementação manual de Default por derive(Default), conservando o trait já implementado e seu valor. PageMarginal mantém Auto, anotada com #[default]. PageNumberAlign::default continua manual e center/bottom; não derivá-lo nem alterar offsets, presença ou marginais. Os exemplos anteriores de impl Default explicitam o valor exigido; a derivação equivalente passa a ser a forma desta implementação.
+
+Não alterar assinatura pública, campos, variantes, comportamento padrão do produto ou fase. Correção mecânica interna em fluxo contínuo ADR-0127. Preservar testes e expectativas; validar todos os targets do workspace, suíte core, registro de testes, build, rustdoc, Clippy e linhagem.

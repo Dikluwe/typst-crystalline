@@ -1,13 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/navigation.md
-//! @prompt-hash c166f6b0
+//! @prompt-hash fd974a13
 //! @layer L3
 //! @updated 2026-09-26
 
-use super::glyphs::GlyphDefs;
-use super::paints::PaintDefs;
 use super::serialization::fmt_num;
-use super::{render_item, FontKey, SvgGlyphFontContext};
+use super::{render_item, SvgRenderSession};
 use typst_core::entities::label::Label;
 use typst_core::entities::layout_types::{FrameItem, LinkTarget, Point, Size};
 use xmlwriter::XmlWriter;
@@ -86,13 +84,7 @@ pub(super) fn render_link(
     items: &[FrameItem],
     pos: &Point,
     size: &Size,
-    fonts: Option<&[FontKey]>,
-    glyph_defs: &mut GlyphDefs,
-    paint_defs: &mut PaintDefs,
-    clip_next_id: &mut usize,
-    destinations: &SvgDestinationContext,
-    glyph_fonts: &SvgGlyphFontContext,
-    html_frame: bool,
+    session: &mut SvgRenderSession<'_>,
 ) {
     xml.start_element("a");
     match target {
@@ -100,7 +92,7 @@ pub(super) fn render_link(
             xml.write_attribute("xlink:href", url.as_str());
         }
         LinkTarget::Destination(label) => {
-            if let Some(id) = destinations.id_for(label) {
+            if let Some(id) = session.destinations.id_for(label) {
                 xml.write_attribute("xlink:href", &format!("#{id}"));
             } else {
                 xml.write_attribute(
@@ -119,17 +111,7 @@ pub(super) fn render_link(
     xml.write_attribute("data-crystalline-link-hit-area", "true");
     xml.end_element();
     for item in items {
-        render_item(
-            xml,
-            item,
-            fonts,
-            glyph_defs,
-            paint_defs,
-            clip_next_id,
-            destinations,
-            glyph_fonts,
-            html_frame,
-        );
+        render_item(xml, item, session);
     }
     xml.end_element();
 }

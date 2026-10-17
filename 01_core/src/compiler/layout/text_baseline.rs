@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/text_baseline.md
-//! @prompt-hash 6b778297
+//! @prompt-hash 42d2aeda
 //! @layer L1
 //! @updated 2026-09-29
 
@@ -26,15 +26,24 @@ pub(super) fn admit<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>
 
 /// Fecha uma linha de espaços literais com o estilo que produziu os carriers,
 /// mesmo após o escopo textual restaurar o estilo exterior.
-pub(super) fn admit_literal_line<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>) {
-    let style = layouter.regions.current.current_line.iter().filter_map(|item| match item {
-        FrameItem::TextSeparator {
-            style,
-            origin: crate::entities::layout_types::TextSeparatorOrigin::Literal,
-            ..
-        } => Some(style),
-        _ => None,
-    }).max_by(|a,b| a.size.0.total_cmp(&b.size.0)).cloned();
+pub(super) fn admit_literal_line<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+) {
+    let style = layouter
+        .regions
+        .current
+        .current_line
+        .iter()
+        .filter_map(|item| match item {
+            FrameItem::TextSeparator {
+                style,
+                origin: crate::entities::layout_types::TextSeparatorOrigin::Literal,
+                ..
+            } => Some(style),
+            _ => None,
+        })
+        .max_by(|a, b| a.size.0.total_cmp(&b.size.0))
+        .cloned();
     if let Some(style) = style {
         let outer = std::mem::replace(&mut layouter.style, style);
         admit(layouter);
@@ -48,7 +57,7 @@ mod leading_tracking_tests {
     use crate::entities::{
         image_sizer::NullImageSizer,
         introspector::{Introspector, TagIntrospector},
-        layout_types::{Length, Pt, TextSeparatorOrigin},
+        layout_types::{Length, TextSeparatorOrigin},
     };
     use comemo::Track;
     #[test]

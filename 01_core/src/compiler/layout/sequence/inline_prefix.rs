@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/sequence/inline_prefix.md
-//! @prompt-hash 360a95e1
+//! @prompt-hash 02feff0c
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 //!
 //! Certificação de prefixos inline.
 
@@ -47,6 +47,8 @@ pub(super) struct InlinePrefix {
 
 #[derive(Clone, Copy)]
 pub(super) struct InlinePrefixRuntime {
+    pub(super) geometric: bool,
+    pub(super) multiline: bool,
     pub(super) block_index: usize,
     pub(super) block_boundary: f64,
     pub(super) wrap_before: Option<usize>,
@@ -168,7 +170,7 @@ pub(super) fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
     let mut first_fragment_overlong = false;
 
     for (part_index, part) in parts[..end].iter().enumerate() {
-        let (fragment, fragment_single_word) = match part {
+        let (fragment, fragment_single_word) = match part.source_body() {
             Content::Text(text) => {
                 if text_fragments == 0 {
                     first_fragment_direct = true;
@@ -177,7 +179,7 @@ pub(super) fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
                 }
                 (p1380_text_fragment(layouter, text, None), p1389_single_word(text))
             }
-            Content::Styled(styled) => match &styled.body {
+            Content::Styled(styled) => match styled.body.source_body() {
                 Content::Text(text) => {
                     if text_fragments == 0 && p1383_size_only_styles(&styled.styles) {
                         first_fragment_size_only = true;
@@ -192,7 +194,7 @@ pub(super) fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
                 }
                 _ => return None,
             },
-            Content::Strong(strong) => match &strong.body {
+            Content::Strong(strong) => match strong.body.source_body() {
                 Content::Text(text) => {
                     let styles = crate::entities::style::Styles::from_iter([
                         crate::entities::style::Style::strong(),
@@ -204,7 +206,7 @@ pub(super) fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
                 }
                 _ => return None,
             },
-            Content::Emph(emph) => match &emph.body {
+            Content::Emph(emph) => match emph.body.source_body() {
                 Content::Text(text) => {
                     let styles = crate::entities::style::Styles::from_iter([
                         crate::entities::style::Style::emph(),

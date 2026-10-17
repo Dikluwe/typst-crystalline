@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/grid.md
-//! @prompt-hash 726ac543
+//! @prompt-hash fffc4dcb
 //! @layer L1
-//! @updated 2026-07-24
+//! @updated 2026-10-07
 //!
 //! Braço `Content::Grid` do `layout_content`. Extraído de `layout/mod.rs`
 //! no Passo 96.7 conforme ADR-0037.
@@ -10,7 +10,8 @@
 mod borders;
 mod cell_body;
 mod cell_emission;
-mod row_groups;
+mod measurement_cache;
+pub(super) mod row_groups;
 mod row_pagination;
 mod rules;
 mod tracks;
@@ -128,6 +129,21 @@ impl LayoutVLine for TableVLineElem {
     }
 }
 
+pub(super) struct GridLayoutInput<'b, H: LayoutHLine, V: LayoutVLine> {
+    pub(super) columns: &'b [TrackSizing],
+    pub(super) rows: &'b [TrackSizing],
+    pub(super) cells: &'b [Content],
+    pub(super) hlines: &'b [H],
+    pub(super) vlines: &'b [V],
+    pub(super) gutter: Option<Length>,
+    pub(super) align: Option<Align2D>,
+    pub(super) inset: Sides<Length>,
+    pub(super) header: Option<&'b Content>,
+    pub(super) footer: Option<&'b Content>,
+    pub(super) stroke: Option<&'b Stroke>,
+    pub(super) fill: Option<&'b Color>,
+}
+
 /// Layout de `grid(...)` (atomização ADR-0109 P380): delega ao motor
 /// `layout_grid` (cluster Grid+Table). Content-preserving — era inline no
 /// `layout_content`.
@@ -135,20 +151,20 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut super::Layouter<M, S>,
     e: &GridElem,
 ) {
-    layouter.layout_grid(
-        &e.columns,
-        &e.rows,
-        &e.cells,
-        &e.hlines,
-        &e.vlines,
-        e.gutter,
-        e.align,
-        e.inset,
-        e.header.as_ref(),
-        e.footer.as_ref(),
-        e.stroke.as_ref(),
-        e.fill.as_ref(),
-    );
+    layouter.layout_grid(GridLayoutInput {
+        columns: &e.columns,
+        rows: &e.rows,
+        cells: &e.cells,
+        hlines: &e.hlines,
+        vlines: &e.vlines,
+        gutter: e.gutter,
+        align: e.align,
+        inset: e.inset,
+        header: e.header.as_ref(),
+        footer: e.footer.as_ref(),
+        stroke: e.stroke.as_ref(),
+        fill: e.fill.as_ref(),
+    });
 }
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
@@ -162,19 +178,22 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// horizontalmente como soma a col_starts (graded).
     pub(super) fn layout_grid<H: LayoutHLine, V: LayoutVLine>(
         &mut self,
-        columns: &[TrackSizing],
-        rows: &[TrackSizing],
-        cells: &[Content],
-        hlines: &[H],
-        vlines: &[V],
-        _gutter: Option<Length>,
-        align: Option<Align2D>, // P232 — Grid-level align disponível para Place herdar
-        inset: Sides<Length>,   // P235 — Grid-level inset (default per-cell)
-        header: Option<&Content>,
-        footer: Option<&Content>,
-        stroke: Option<&Stroke>, // P227 — borders cell render Opção β
-        fill: Option<&Color>,    // P228 — fill cell render Z-order correcto
+        input: GridLayoutInput<'_, H, V>,
     ) {
+        let GridLayoutInput {
+            columns,
+            rows,
+            cells,
+            hlines,
+            vlines,
+            gutter,
+            align,
+            inset,
+            header,
+            footer,
+            stroke,
+            fill,
+        } = input;
         // P232 — save/restore cell_align Grid-level para Place
         // herdar via `.or()` per eixo no arm Content::Place. Paridade
         // pattern cell_origin_* P84.6 mas com scope Grid-level (não
@@ -213,16 +232,22 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let row_tracks: Vec<TrackSizing> =
             if rows.is_empty() { vec![TrackSizing::Auto] } else { rows.to_vec() };
 
-        let (resolved_widths, col_starts) =
-            self.resolve_grid_columns(&cols, cells, inset, available_width);
-        let (mut row_heights, num_rows_produced) = self.resolve_grid_rows(
-            &row_tracks,
-            cells,
-            num_cols,
-            &resolved_widths,
-            &col_starts,
-            inset,
-        );
+        let gap = gutter.map_or(0.0, |value| value.resolve_pt(self.style.size.0));
+        let tracks_available = (available_width - (num_cols - 1) as f64 * gap).max(0.0);
+        let (resolved_widths, mut col_starts) =
+            self.resolve_grid_columns(&cols, cells, inset, tracks_available);
+        for (index, start) in col_starts.iter_mut().enumerate() {
+            *start += index as f64 * gap;
+        }
+        let (mut row_heights, num_rows_produced, mut measured_cells) = self
+            .resolve_grid_rows(
+                &row_tracks,
+                cells,
+                num_cols,
+                &resolved_widths,
+                &col_starts,
+                inset,
+            );
 
         // ── P234 — Placement algorítmico via place_cells (B.2). ───
         // `layout_grid` consumer geometric integration: itera
@@ -236,12 +261,32 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // explicit, colspan a exceder as colunas disponíveis ou coluna
         // inválida (mensagens vanilla, P822). P647: propagar como erro
         // de layout em vez de renderizar grid vazia em silêncio.
-        let placed_cells: Vec<PlacedCell> = match place_cells(cells, num_cols) {
-            Ok(placed) => placed,
-            Err(diagnostics) => {
-                self.layout_errors.extend(diagnostics);
-                self.cell_align = saved_cell_align;
-                return;
+        let prepared = cells
+            .iter()
+            .all(|c| matches!(c,Content::TableCell(c) if c.resolved.is_some()));
+        let placed_cells: Vec<PlacedCell> = if prepared {
+            cells
+                .iter()
+                .map(|c| {
+                    let Content::TableCell(c) = c else { unreachable!() };
+                    let r = c.resolved.as_ref().unwrap();
+                    PlacedCell {
+                        body: Content::TableCell(c.clone()),
+                        row: r.y,
+                        col: r.x,
+                        colspan: r.colspan,
+                        rowspan: r.rowspan,
+                    }
+                })
+                .collect()
+        } else {
+            match place_cells(cells, num_cols) {
+                Ok(placed) => placed,
+                Err(diagnostics) => {
+                    self.layout_errors.extend(diagnostics);
+                    self.cell_align = saved_cell_align;
+                    return;
+                }
             }
         };
 
@@ -277,6 +322,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         }
 
         let emitted_row_starts = self.emit_grid_cells(
+            &mut measured_cells,
             &placed_cells,
             &cells_per_row,
             num_rows_produced_final,
@@ -299,7 +345,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             &row_heights,
             &col_starts,
             &resolved_widths,
-            &mut self.regions.current.current_items,
+            self,
         );
 
         // P232 — restore cell_align ao sair de Grid context (paridade
@@ -317,7 +363,10 @@ mod smoke {
     }
 
     use super::*;
-    use crate::entities::layout_types::Length;
+    use crate::compiler::layout::{FixedMetrics, Layouter};
+    use crate::entities::image_sizer::NullImageSizer;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use comemo::Track;
 
     #[test]
     fn p1043_grid_stroke_top_coalesce_isolada() {
@@ -344,11 +393,14 @@ mod smoke {
                 rowspan: 1,
             },
         ];
-        let mut items = Vec::new();
+        let intr = TagIntrospector::empty();
+        let intr: &dyn Introspector = &intr;
+        let mut layouter =
+            Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr.track());
         let mut open_v = vec![None; 3];
         let grid_owner = vec![vec![Some(0), Some(1)]];
         emit_row_borders(
-            &mut items,
+            &mut layouter,
             0,
             0.0,
             20.0,
@@ -361,7 +413,10 @@ mod smoke {
             2,
             Some(&stroke),
         );
-        let h_lines: Vec<_> = items
+        let h_lines: Vec<_> = layouter
+            .regions
+            .current
+            .current_items
             .iter()
             .filter(|i| {
                 matches!(i, FrameItem::Shape { kind: ShapeKind::Line { .. }, .. })
@@ -395,12 +450,15 @@ mod smoke {
                 rowspan: 1,
             },
         ];
-        let mut items = Vec::new();
+        let intr = TagIntrospector::empty();
+        let intr: &dyn Introspector = &intr;
+        let mut layouter =
+            Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr.track());
         let mut open_v = vec![None; 3];
         let grid_owner = vec![vec![Some(0), Some(1)]];
         // Gap: col 0 ends at 50, col 1 starts at 60
         emit_row_borders(
-            &mut items,
+            &mut layouter,
             0,
             0.0,
             20.0,
@@ -413,7 +471,10 @@ mod smoke {
             2,
             Some(&stroke),
         );
-        let h_lines: Vec<_> = items
+        let h_lines: Vec<_> = layouter
+            .regions
+            .current
+            .current_items
             .iter()
             .filter(|i| {
                 matches!(i, FrameItem::Shape { kind: ShapeKind::Line { .. }, .. })
@@ -479,11 +540,14 @@ mod smoke {
                 rowspan: 1,
             },
         ];
-        let mut items = Vec::new();
+        let intr = TagIntrospector::empty();
+        let intr: &dyn Introspector = &intr;
+        let mut layouter =
+            Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr.track());
         let mut open_v = vec![None; 3];
         let grid_owner = vec![vec![Some(0), Some(1)]];
         emit_row_borders(
-            &mut items,
+            &mut layouter,
             0,
             0.0,
             20.0,
@@ -496,7 +560,10 @@ mod smoke {
             2,
             None,
         );
-        let h_lines: Vec<_> = items
+        let h_lines: Vec<_> = layouter
+            .regions
+            .current
+            .current_items
             .iter()
             .filter(|i| {
                 matches!(i, FrameItem::Shape { kind: ShapeKind::Line { .. }, .. })

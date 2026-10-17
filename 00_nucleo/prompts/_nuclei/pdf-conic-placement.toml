@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "pdf-conic-placement"
+title = "Posicionamento físico de padrões cônicos PDF"
+
+[[claims]]
+id = "initial-space"
+level = "must"
+statement = "O padrão cônico recebe a transformação da caixa de referência até o espaço inicial do stream PDF, incluindo posição, grupos afins aninhados, reflexão de página e bleed. O cm posterior de pintura não substitui essa transformação."
+
+[[claims]]
+id = "occurrence-binding"
+level = "must"
+statement = "Descoberta, recursos da página e pintura devem resolver o mesmo padrão por ocorrência de Shape e identidade do gradiente durante uma exportação do mesmo documento imutável. Reutilizar o mesmo Arc em outra ocorrência não perde posição, caixa, transformação ou altura de página; fill e stroke da mesma ocorrência podem compartilhar o padrão."
+
+[[claims]]
+id = "reference-box"
+level = "must"
+statement = "Conic self/auto usa a caixa do Shape; parent usa parent_bbox_at_emit no referencial do Shape quando presente, senão a caixa local do grupo imediato ou a página. Envelopes transparentes conservam o referencial."

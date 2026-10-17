@@ -1,0 +1,3 @@
+from pathlib import Path
+import json,subprocess
+out=Path(__file__).resolve().parents[1];r=json.load(open(out/'refinement.json'));assert r['L0_first'] and r['code_unchanged'];assert Path(r['owner']).read_text()==r['expected_l0'];p=Path(r['source']);assert p.read_text()==r['source_before'];assert p.read_text().count(r['old'])==1;p.write_text(p.read_text().replace(r['old'],r['new'],1));subprocess.run(['rustfmt','--edition','2021','--config-path',str(Path('rustfmt.toml').resolve()),'--config','skip_children=true',str(p)],check=True);(out/'refinement-applied.json').write_text(json.dumps({'expected_after':p.read_text(),'source':str(p)},ensure_ascii=False,indent=2)+'\n');subprocess.run(['python3',str(out/'workers/seal_owned.py'),str(p)],check=True)

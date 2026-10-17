@@ -1,10 +1,12 @@
 # L0 — paragraph_emit
-Hash do Código: c84fb749
+Hash do Código: 66106c5a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:70b72ac9efb2bf81aa4ef496c4e1c867264f696d454a9916e7e2e5f385b92020
 - 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:e9038b453bbb1971c9a75a76eced99c35db742f57bebbb09b03c4922b3862800
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/paragraph_emit.rs`
@@ -79,3 +81,7 @@ transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleç
 Medição anterior à decisão: `paragrafo-tracking-global-2026-09-29/focused-before/results.json` mostra páginas e caixas divergentes com tracking explícito; `no-tracking-baseline.json` coincide sem essa propriedade. `paragraph_emit.rs:5-75` emite gaps e palavras sem aplicar intervalos entre unidades; o percurso incremental os aplica em `space.rs:22-32` e `word_layout.rs:29-58`. A seleção ampliada só pode ser aceita se a emissão usar os mesmos intervalos fixos, sem duplicá-los no PDF.
 
 Antes de cada gap materializado com antecessor na mesma linha, e antes da palavra após gaps incluídos na linha, avançar exatamente um tracking assinado. O primeiro gap literal inicial não tem antecessor; gap anterior a uma palavra que abre nova linha pertence à linha precedente e não acrescenta intervalo antes da nova palavra. Ajustes de justificação alteram apenas a largura base dos espaços, nunca os intervalos de tracking. Conservar origem, texto, glyphs e carriers; medir e emitir a mesma extensão. Não mudar o helper público, fase do pipeline nem comportamento de conteúdo recusado.
+
+## Migração do carrier bidi ratificado (2026-10-05)
+
+Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.

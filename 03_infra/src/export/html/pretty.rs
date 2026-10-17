@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html/pretty.md
-//! @prompt-hash cf325930
+//! @prompt-hash 4f9fba5c
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -86,7 +86,7 @@ fn push_structural_newline(out: &mut String, depth: usize) {
     if !out.is_empty() && !out.ends_with('\n') {
         out.push('\n');
     }
-    out.extend(std::iter::repeat(' ').take(depth * 2));
+    out.extend(std::iter::repeat_n(' ', depth * 2));
 }
 
 fn is_protected_html_context(tag: &str) -> bool {

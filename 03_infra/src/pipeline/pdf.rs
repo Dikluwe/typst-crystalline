@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/pdf.md
-//! @prompt-hash 6d8230d2
+//! @prompt-hash fda85858
 //! @layer L3
-//! @updated 2026-09-30
+//! @updated 2026-10-10
 //!
 //! Possui todas as fachadas PDF, os resolvedores documentais e o dispatch font-aware. Conserva os wrappers de compatibilidade, DocumentID, StreamMode, tagged, pretty, pages, standard, diagnósticos UA-1, attachments e oráculo. Recebe o documento paginado pelo owner próprio.
 
@@ -118,6 +118,10 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_feature
 }
 
 #[doc(hidden)]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C101: Wrapper público converte PdfTags/serialization explícitos em overrides Some, preservando features, ID, modo e retorno de tempos"
+)]
 pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_serialization(
     world: &dyn World,
     source: &Source,
@@ -319,10 +323,16 @@ pub(super) fn require_ua1_image_alt(
                 kind: typst_core::entities::layout_types::SemanticKind::Artifact(_),
                 ..
             } => false,
-            FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. }
+            FrameItem::TextReplacement { items, .. }
+            | FrameItem::Semantic { items, .. }
             | FrameItem::Group { items, .. }
             | FrameItem::Link { items, .. } => missing(items),
-            _ => false,
+            FrameItem::TextSeparator { .. }
+            | FrameItem::Text { .. }
+            | FrameItem::TextShaped { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Shape { .. } => false,
         })
     }
     if doc.pages.iter().any(|page| missing(&page.items)) {
@@ -372,9 +382,7 @@ pub(super) fn resolve_pdf_pretty(
     }
 }
 
-fn compile_to_pdf_bytes_impl(
-    world: &dyn World,
-    source: &Source,
+struct PdfCompileRequest {
     full_error: bool,
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
@@ -384,8 +392,25 @@ fn compile_to_pdf_bytes_impl(
     pages_override: Option<PageRanges>,
     standard_override: Option<PdfStandards>,
     oracle: bool,
+}
+
+fn compile_to_pdf_bytes_impl(
+    world: &dyn World,
+    source: &Source,
+    request: PdfCompileRequest,
     timings: &mut Timings,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    let PdfCompileRequest {
+        full_error,
+        document_id,
+        stream_mode,
+        pdf_tagged_override,
+        features,
+        pretty_override,
+        pages_override,
+        standard_override,
+        oracle,
+    } = request;
     let (doc_result, mut warnings) = compile_to_paged_document_full_error_and_features(
         world, source, full_error, features, timings,
     );
@@ -434,7 +459,7 @@ fn compile_to_pdf_bytes_impl(
     // 1 font resolvido → preserva caminho single-font do 140B/141.
     // 2+ fonts resolvidos → multi-font (resource dict com /F1..N).
     let font_combos = collect_fonts_from_doc(&doc, world);
-    let resolved = resolve_fonts(&font_combos, world);
+    let resolved = bind_owned_pdf_fonts(&doc, resolve_fonts(&font_combos, world));
 
     // P667/P671/P836 — gate de instanciação de fontes variáveis.
     if let Some(diag) = super::resources::missing_font_instancer_diagnostic(
@@ -544,6 +569,10 @@ fn compile_to_pdf_bytes_impl(
 /// preservado. Usar a variante `..._and_standard_override` para
 /// `--pdf-standard`.
 #[doc(hidden)]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C103: Wrapper público com tempos conserva pages e fornece standard None ao mais completo"
+)]
 pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
     world: &dyn World,
     source: &Source,
@@ -574,6 +603,10 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_feature
 /// precedência CLI > documento > `PdfStandards::default()`, `infra/
 /// pipeline.md` P1469). Com instrumentação de tempos.
 #[doc(hidden)]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C104: Wrapper público completo com tempos fornece as opções ordinárias e oracle=false ao núcleo"
+)]
 pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override(
     world: &dyn World,
     source: &Source,
@@ -590,15 +623,17 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_feature
     let result = compile_to_pdf_bytes_impl(
         world,
         source,
-        full_error,
-        document_id,
-        stream_mode,
-        pdf_tagged_override,
-        features,
-        pretty_override,
-        pages_override,
-        standard_override,
-        false,
+        PdfCompileRequest {
+            full_error,
+            document_id,
+            stream_mode,
+            pdf_tagged_override,
+            features,
+            pretty_override,
+            pages_override,
+            standard_override,
+            oracle: false,
+        },
         &mut timings,
     );
     (result.0, result.1, timings)
@@ -610,6 +645,10 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_feature
 /// **P1468** — delega `None` para `pages`; comportamento byte-idêntico
 /// preservado. Usar a variante `..._and_pages_override` para `--pages`.
 #[doc(hidden)]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C105: Wrapper público com tempos e pretty sem pages delega pages None"
+)]
 pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
     world: &dyn World,
     source: &Source,
@@ -637,6 +676,10 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_feature
 /// **P1469** — delega `None` para `standard`; comportamento byte-idêntico
 /// preservado.
 #[doc(hidden)]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C106: Wrapper público sem tempos com pages delega standard None"
+)]
 pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override(
     world: &dyn World,
     source: &Source,
@@ -665,6 +708,10 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_
 /// **P1469** (escopo reduzido — contrato de linguagem) — mesma variante sem
 /// instrumentação de tempos, com `standard`.
 #[doc(hidden)]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C107: Wrapper público ordinário completo sem tempos cria Timings local e passa oracle=false"
+)]
 pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_and_standard_override(
     world: &dyn World,
     source: &Source,
@@ -681,15 +728,17 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_
     compile_to_pdf_bytes_impl(
         world,
         source,
-        full_error,
-        document_id,
-        stream_mode,
-        pdf_tagged_override,
-        features,
-        pretty_override,
-        pages_override,
-        standard_override,
-        false,
+        PdfCompileRequest {
+            full_error,
+            document_id,
+            stream_mode,
+            pdf_tagged_override,
+            features,
+            pretty_override,
+            pages_override,
+            standard_override,
+            oracle: false,
+        },
         &mut timings,
     )
 }
@@ -698,6 +747,10 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_
 /// **P1468** — delega `None` para `pages`; comportamento byte-idêntico
 /// preservado.
 #[doc(hidden)]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C108: Wrapper público sem tempos e sem pages fornece ausência de seleção"
+)]
 pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_and_pretty_override(
     world: &dyn World,
     source: &Source,
@@ -729,6 +782,10 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_tagged_
 /// **P1469** — delega `None` para `standard`; comportamento byte-idêntico
 /// preservado (o oráculo também não fia `standard` ao `PdfBuilder` — mesmo
 /// scope-out de `pages`).
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C109: Wrapper público oracle com pages fornece standard None; a rota diagnóstica é independente da comum"
+)]
 pub fn compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages_override(
     world: &dyn World,
     source: &Source,
@@ -756,6 +813,10 @@ pub fn compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages
 
 /// **P1469** (escopo reduzido — contrato de linguagem) — variante oráculo
 /// com `standard_override`.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C110: Wrapper público oracle completo fornece oracle=true e Timings local"
+)]
 pub fn compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages_and_standard_override(
     world: &dyn World,
     source: &Source,
@@ -772,15 +833,17 @@ pub fn compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages
     compile_to_pdf_bytes_impl(
         world,
         source,
-        full_error,
-        document_id,
-        stream_mode,
-        pdf_tagged_override,
-        features,
-        pretty_override,
-        pages_override,
-        standard_override,
-        true,
+        PdfCompileRequest {
+            full_error,
+            document_id,
+            stream_mode,
+            pdf_tagged_override,
+            features,
+            pretty_override,
+            pages_override,
+            standard_override,
+            oracle: true,
+        },
         &mut timings,
     )
 }
@@ -789,6 +852,10 @@ pub fn compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_and_pages
 /// de override de `tagged`/`pretty` até consultar `doc.format_options`.
 /// **P1468** — delega `None` para `pages`; comportamento byte-idêntico
 /// preservado.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C111: Wrapper público oracle sem pages fornece pages None"
+)]
 pub fn compile_to_pdf_bytes_oracle_with_features_and_tagged_and_pretty_override(
     world: &dyn World,
     source: &Source,
@@ -874,6 +941,10 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features(
 }
 
 #[doc(hidden)]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C112: Wrapper público sem tempos transforma tags/serialization explícitos em Some para o núcleo com precedência documental"
+)]
 pub fn compile_to_pdf_bytes_full_error_and_document_id_with_features_and_serialization(
     world: &dyn World,
     source: &Source,
@@ -941,6 +1012,10 @@ pub fn compile_to_pdf_bytes_oracle_with_features(
     )
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C113: Wrapper público oracle com serialization conserva as conversões explícitas e a seleção da rota diagnóstica, sem antecipar resolução documental"
+)]
 pub fn compile_to_pdf_bytes_oracle_with_features_and_serialization(
     world: &dyn World,
     source: &Source,
@@ -961,4 +1036,83 @@ pub fn compile_to_pdf_bytes_oracle_with_features_and_serialization(
         features,
         Some(matches!(serialization, PdfSerializationMode::Pretty)),
     )
+}
+
+// Transfer the complete font table at this PDF pipeline boundary.
+fn bind_owned_pdf_fonts(doc: &PagedDocument, supplied: Vec<FontKey>) -> Vec<FontKey> {
+    // Keep the established allocation pattern for the single-font path.
+    if supplied.len() <= 1 {
+        return crate::export::font_binding::bind_document(doc, &supplied).into_owned();
+    }
+    match crate::export::font_binding::bind_document(doc, &supplied) {
+        std::borrow::Cow::Borrowed(_) => supplied,
+        std::borrow::Cow::Owned(complete) => complete,
+    }
+}
+
+#[cfg(test)]
+mod font_buffer_transfer_tests {
+    use super::*;
+    use typst_core::entities::{
+        content::Content,
+        layout_types::{Page, Point, Pt, TextStyle},
+        world_types::Font,
+    };
+
+    fn key() -> (FontList, FontVariant, FontVariations) {
+        (
+            FontList::single("test".into()),
+            FontVariant::default(),
+            FontVariations::default(),
+        )
+    }
+
+    #[test]
+    fn complete_pdf_font_table_transfers_existing_buffer() {
+        let supplied = vec![(key(), vec![1, 2, 3, 4]), (key(), vec![5, 6, 7, 8])];
+        let pointer = supplied[0].1.as_ptr();
+        let second_pointer = supplied[1].1.as_ptr();
+        let doc = PagedDocument::new(vec![]);
+        let result = bind_owned_pdf_fonts(&doc, supplied);
+        assert_eq!(result[0].1, vec![1, 2, 3, 4]);
+        assert_eq!(
+            result[0].1.as_ptr(),
+            pointer,
+            "complete plural buffers must be transferred"
+        );
+        assert_eq!(result[1].1.as_ptr(), second_pointer);
+        assert!(bind_owned_pdf_fonts(&doc, vec![]).is_empty());
+    }
+
+    #[test]
+    fn missing_shaped_face_keeps_original_and_appends_actual_bytes() {
+        let style = TextStyle { font: Some(key().0), ..Default::default() };
+        let page = Page {
+            width: 150.,
+            height: 80.,
+            logical_number: 1,
+            numbering: None,
+            supplement: Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
+            items: vec![FrameItem::TextShaped {
+                pos: Point { x: Pt(20.), y: Pt(40.) },
+                glyphs: vec![],
+                style,
+                text: "face".into(),
+                units_per_em: 1000,
+                font: Some(Font::from_data(vec![5, 6, 7])),
+                bidi: None,
+            }],
+        };
+        let result = bind_owned_pdf_fonts(
+            &PagedDocument::new(vec![page]),
+            vec![(key(), vec![1, 2, 3])],
+        );
+        assert_eq!(result.len(), 2);
+        assert_eq!(result[0], (key(), vec![1, 2, 3]));
+        assert_eq!(result[1], (key(), vec![5, 6, 7]));
+    }
 }

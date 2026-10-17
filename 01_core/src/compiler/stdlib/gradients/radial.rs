@@ -15,7 +15,6 @@ use super::*;
 /// Named:
 /// - `center: Array [Ratio, Ratio]` (default `(50%, 50%)`).
 /// - `radius: Ratio` (default `50%`).
-
 pub fn native_gradient_radial(
     _ctx: &mut EvalContext,
     args: &Args,

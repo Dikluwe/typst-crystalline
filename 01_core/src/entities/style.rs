@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style.md
-//! @prompt-hash d96ffba2
+//! @prompt-hash f7046b9f
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -21,7 +21,7 @@
 
 use crate::entities::font_list::FontList;
 use crate::entities::lang::Lang;
-use crate::entities::layout_types::{Color, Length, Pt};
+use crate::entities::layout_types::{Color, Length};
 use crate::entities::style_chain::StyleDelta;
 
 /// Uma propriedade individual de estilo. Usado em `Styles` como delta.
@@ -39,8 +39,8 @@ pub enum Style {
     /// Activa ou desactiva itálico. `from_emph` distingue `_italic_` sintático
     /// (`true`) de `#set text(italic)` (`false`).
     Italic { value: bool, from_emph: bool },
-    /// Tamanho de fonte em pontos tipográficos.
-    Size(Pt),
+    /// Tamanho declarado da fonte, preservando a parte absoluta e em.
+    Size(Length),
     /// Cor de preenchimento do texto. Forward-compat (Passo 99).
     Fill(Color),
     /// Nível de heading (1..=6). Forward-compat (Passo 99).
@@ -118,7 +118,7 @@ pub enum Style {
     /// **Paradigma consumer "indirect resolution via FontBook"**:
     /// `cursor.rs` capture `style.font` em `FrameItem::Text`; emit
     /// (`export.rs:2169-2174` multifont path) consulta `style.font.as_ref()`
-    /// + `fonts.iter().position(|f| /* match name */)` → `/F{i+1} Tf`
+    /// \+ `fonts.iter().position(|f| /* match name */)` → `/F{i+1} Tf`
     /// (PDF font select). Paradigma adicional não presente em P288-P291:
     /// **2 layers** (resolução nome → index via lookup, depois emit).
     /// ADR-0098 vigente (paradigma `TextStyle` capture preservado;
@@ -159,7 +159,7 @@ impl Style {
                 delta.italic = Some(*value);
                 delta.italic_from_emph = Some(*from_emph);
             }
-            Style::Size(pt) => delta.size = Some(pt.val()),
+            Style::Size(length) => delta.size = Some(*length),
             Style::Fill(c) => delta.fill = Some(c.clone()),
             Style::HeadingLevel(l) => delta.heading_level = Some(*l),
             Style::Lang(l) => delta.lang = Some(*l),
@@ -267,12 +267,12 @@ impl Styles {
     }
 
     /// Constrói dobrando um iterador de `Style` no backing único.
+    #[expect(
+        clippy::should_implement_trait,
+        reason = "S005: adapter inerente de compatibilidade; FromIterator<Style> implementado e validado por collect"
+    )]
     pub fn from_iter<I: IntoIterator<Item = Style>>(iter: I) -> Self {
-        let mut delta = StyleDelta::empty();
-        for style in iter {
-            style.fold_into(&mut delta);
-        }
-        Self { delta }
+        <Self as FromIterator<Style>>::from_iter(iter)
     }
 
     /// Dobra um estilo no backing (last-write-wins por campo).
@@ -327,8 +327,33 @@ impl Styles {
     }
 }
 
+impl FromIterator<Style> for Styles {
+    fn from_iter<I: IntoIterator<Item = Style>>(iter: I) -> Self {
+        let mut delta = StyleDelta::empty();
+        for style in iter {
+            style.fold_into(&mut delta);
+        }
+        Self { delta }
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn approved_traits_collect_styles_preserves_order_and_other_fields() {
+        let empty: Styles = std::iter::empty::<Style>().collect();
+        assert!(empty.is_empty());
+        let collected: Styles =
+            [Style::Weight(400), Style::Weight(700)].into_iter().collect();
+        let mut expected = StyleDelta::empty();
+        expected.weight = Some(700);
+        assert_eq!(collected.delta(), &expected);
+        assert_eq!(
+            collected,
+            Styles::from_iter([Style::Weight(400), Style::Weight(700)])
+        );
+    }
+
     use super::*;
 
     #[test]
@@ -354,9 +379,12 @@ mod tests {
     #[test]
     fn styles_from_iter_dobra_no_delta() {
         // F-4: `from_iter` dobra cada variante no backing único.
-        let s = Styles::from_iter([Style::bold(true), Style::Size(Pt(18.0))]);
+        let s = Styles::from_iter([
+            Style::bold(true),
+            Style::Size(crate::entities::layout_types::Length::pt(18.0)),
+        ]);
         assert_eq!(s.delta().bold, Some(true));
-        assert_eq!(s.delta().size, Some(18.0));
+        assert_eq!(s.delta().size, Some(Length::pt(18.0)));
     }
 
     #[test]
@@ -400,7 +428,7 @@ mod tests {
         let s = Styles::from_iter([
             Style::bold(true),
             Style::italic(true),
-            Style::Size(Pt(18.0)),
+            Style::Size(crate::entities::layout_types::Length::pt(18.0)),
             Style::Fill(red.clone()),
             Style::HeadingLevel(3),
             Style::Lang(Lang::ENGLISH),
@@ -417,7 +445,7 @@ mod tests {
         let d = s.delta();
         assert_eq!(d.bold, Some(true));
         assert_eq!(d.italic, Some(true));
-        assert_eq!(d.size, Some(18.0));
+        assert_eq!(d.size, Some(Length::pt(18.0)));
         assert_eq!(d.fill, Some(red));
         assert_eq!(d.heading_level, Some(3));
         assert_eq!(d.lang, Some(Lang::ENGLISH));
@@ -466,7 +494,7 @@ mod tests {
         let variants = [
             Style::bold(true),
             Style::italic(false),
-            Style::Size(Pt(12.0)),
+            Style::Size(crate::entities::layout_types::Length::pt(12.0)),
             Style::Fill(Color::rgb(0, 0, 0)),
             Style::HeadingLevel(1),
             Style::Lang(Lang::ENGLISH),       // P288

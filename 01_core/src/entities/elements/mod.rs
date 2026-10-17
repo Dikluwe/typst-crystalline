@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/_comum.md
-//! @prompt-hash 66a59c3a
+//! @prompt-hash 39ec71ab
 //! @layer L1
 //! @updated 2026-06-10
 //!
@@ -43,12 +43,9 @@ pub mod math_stretch;
 pub mod math_underline;
 pub mod math_underover;
 pub mod math_vec;
-#[cfg(test)]
 mod p1429_math_accent_tests;
-#[cfg(test)]
 mod p1430_math_cases_tests;
 
-#[cfg(test)]
 mod p1431_math_matrix_tests;
 // Lote 3 P318 — família lista/termos (5 variantes element-shaped).
 pub mod enum_item;

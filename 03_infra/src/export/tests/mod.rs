@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/tests/mod.md
-//! @prompt-hash efb5549b
+//! @prompt-hash 1b4fcc04
 //! @layer L3
 //! @updated 2026-09-22
 //!
@@ -25,6 +25,7 @@
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use super::*;
+use crate::export::stream::FontScenario;
 use typst_core::compiler::layout::layout;
 use typst_core::entities::content::Content;
 use typst_core::entities::elements::math_attach::MathAttachSlot;
@@ -176,6 +177,7 @@ fn p424_link_com_group_interno_bbox_aproximada() {
         items: vec![FrameItem::Link {
             target: LinkTarget::Url("https://example.com".into()),
             items: vec![FrameItem::Group {
+                paint_root: false,
                 pos: Point { x: Pt(0.0), y: Pt(0.0) },
                 matrix: TransformMatrix::identity(),
                 clip_mask: None,
@@ -185,6 +187,7 @@ fn p424_link_com_group_interno_bbox_aproximada() {
                     pos: Point { x: Pt(0.0), y: Pt(0.0) },
                     text: "x".into(),
                     style: TextStyle::regular(Pt(12.0)),
+                    bidi: None,
                 }],
             }],
             pos: Point { x: Pt(10.0), y: Pt(20.0) },
@@ -269,6 +272,7 @@ fn inversao_eixo_y_texto_no_topo() {
             pos: Point { x: Pt(72.0), y: Pt(84.0) },
             text: "Top".into(),
             style: TextStyle::regular(Pt(12.0)),
+            bidi: None,
         }],
     };
     let doc = PagedDocument::new(vec![page]);
@@ -644,10 +648,11 @@ fn to_unicode_cmap_inclui_glifo_variante() {
 #[test]
 fn p280_collect_codepoints_atravessa_group() {
     use typst_core::entities::layout_types::{
-        Page, PagedDocument, Point, Pt, TextStyle, TransformMatrix,
+        Page, PagedDocument, Point, TextStyle, TransformMatrix,
     };
     let style = TextStyle::default();
     let group = FrameItem::Group {
+        paint_root: false,
         pos: Point::ZERO,
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -657,6 +662,7 @@ fn p280_collect_codepoints_atravessa_group() {
             pos: Point::ZERO,
             text: "Zφ".into(),
             style: style.clone(),
+            bidi: None,
         }],
     };
     let page = Page {
@@ -674,6 +680,7 @@ fn p280_collect_codepoints_atravessa_group() {
                 pos: Point::ZERO,
                 text: "A".into(),
                 style: style.clone(),
+                bidi: None,
             },
             group,
         ],
@@ -688,10 +695,11 @@ fn p280_collect_codepoints_atravessa_group() {
 #[test]
 fn p280_collect_codepoints_atravessa_groups_aninhados() {
     use typst_core::entities::layout_types::{
-        Page, PagedDocument, Point, Pt, TextStyle, TransformMatrix,
+        Page, PagedDocument, Point, TextStyle, TransformMatrix,
     };
     let style = TextStyle::default();
     let inner = FrameItem::Group {
+        paint_root: false,
         pos: Point::ZERO,
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -701,9 +709,11 @@ fn p280_collect_codepoints_atravessa_groups_aninhados() {
             pos: Point::ZERO,
             text: "Ω".into(),
             style: style.clone(),
+            bidi: None,
         }],
     };
     let outer = FrameItem::Group {
+        paint_root: false,
         pos: Point::ZERO,
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -734,6 +744,7 @@ fn p280_collect_glyph_ids_atravessa_group() {
         Page, PagedDocument, Point, Pt, TransformMatrix,
     };
     let group = FrameItem::Group {
+        paint_root: false,
         pos: Point::ZERO,
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -783,6 +794,7 @@ fn p280_collect_glyph_ids_atravessa_groups_aninhados() {
         Page, PagedDocument, Point, Pt, TransformMatrix,
     };
     let inner = FrameItem::Group {
+        paint_root: false,
         pos: Point::ZERO,
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -798,6 +810,7 @@ fn p280_collect_glyph_ids_atravessa_groups_aninhados() {
         }],
     };
     let outer = FrameItem::Group {
+        paint_root: false,
         pos: Point::ZERO,
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -1068,6 +1081,7 @@ fn p833_validate_imagem_dentro_de_group() {
         background: vec![],
         foreground: vec![],
         items: vec![FrameItem::Group {
+            paint_root: false,
             pos: Point { x: Pt(0.0), y: Pt(0.0) },
             matrix: TransformMatrix::identity(),
             clip_mask: None,
@@ -1294,7 +1308,9 @@ fn export_path_com_cubicto_emite_operador_c() {
             kind: ShapeKind::Path(path),
             width: 20.0,
             height: 20.0,
-            fill: Some(typst_core::entities::paint::Paint::Solid(Color::rgb(255, 0, 0))),
+            fill: Some(typst_core::entities::frame_paint::FramePaint::Solid(Color::rgb(
+                255, 0, 0,
+            ))),
             stroke: None,
             fill_rule: Default::default(),
             parent_bbox_at_emit: None,
@@ -1320,7 +1336,9 @@ fn export_group_com_clip_mask_emite_w_n_na_ordem_correcta() {
         kind: ShapeKind::Rect,
         width: 50.0,
         height: 50.0,
-        fill: Some(typst_core::entities::paint::Paint::Solid(Color::rgb(0, 0, 255))),
+        fill: Some(typst_core::entities::frame_paint::FramePaint::Solid(Color::rgb(
+            0, 0, 255,
+        ))),
         stroke: None,
         fill_rule: Default::default(),
         parent_bbox_at_emit: None,
@@ -1337,6 +1355,7 @@ fn export_group_com_clip_mask_emite_w_n_na_ordem_correcta() {
         background: vec![],
         foreground: vec![],
         items: vec![FrameItem::Group {
+            paint_root: false,
             pos: Point { x: Pt(100.0), y: Pt(100.0) },
             matrix: TransformMatrix { a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0 },
             clip_mask: Some(ShapeKind::Rect),
@@ -1458,12 +1477,13 @@ fn p263_emit_function_dict_4_stops_uses_type_3_stitching() {
 #[test]
 fn p263_export_pdf_gradient_in_stroke_emits_shading() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let linear = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
@@ -1497,7 +1517,7 @@ fn p263_export_pdf_gradient_in_stroke_emits_shading() {
             kind: ShapeKind::Rect,
             width: 50.0,
             height: 30.0,
-            fill: Some(typst_core::entities::paint::Paint::Solid(Color::rgb(
+            fill: Some(typst_core::entities::frame_paint::FramePaint::Solid(Color::rgb(
                 255, 255, 255,
             ))),
             stroke: Some(stroke),
@@ -1527,11 +1547,12 @@ fn p263_export_pdf_gradient_in_stroke_emits_shading() {
 #[test]
 fn p263_export_pdf_gradient_solid_preserva_rg_emit() {
     // Solid path preservado P261: emit `r g b RG` literal.
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::layout_types::{
         Color, FrameItem, Page, PagedDocument, Point, Pt,
     };
-    use typst_core::entities::paint::Paint;
 
     let stroke = Stroke {
         paint: Paint::Solid(Color::rgb(0, 128, 255)),
@@ -1575,12 +1596,13 @@ fn p263_export_pdf_gradient_solid_preserva_rg_emit() {
 fn p263_export_pdf_gradient_dedup_arc_ptr() {
     // 3 shapes com mesmo Arc<Linear> → 1 Pattern object (dedup).
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let linear_arc = Arc::new(Linear {
         stops: Arc::from(vec![
@@ -1715,12 +1737,13 @@ fn p265_multispace_sample_stops_radial_red_blue_endpoints() {
 fn p265_export_pdf_radial_emits_shading_type_3() {
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Radial};
     use typst_core::entities::layout_types::{
         Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let center = Axes::new(Ratio(0.5), Ratio(0.5));
     let radial = Gradient::Radial(Arc::new(Radial {
@@ -1758,7 +1781,7 @@ fn p265_export_pdf_radial_emits_shading_type_3() {
             kind: ShapeKind::Rect,
             width: 50.0,
             height: 30.0,
-            fill: Some(typst_core::entities::paint::Paint::Solid(Color::rgb(
+            fill: Some(typst_core::entities::frame_paint::FramePaint::Solid(Color::rgb(
                 255, 255, 255,
             ))),
             stroke: Some(stroke),
@@ -1799,12 +1822,13 @@ fn p265_export_pdf_radial_emits_shading_type_3() {
 fn p265_export_pdf_radial_dedup_arc_ptr() {
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Radial};
     use typst_core::entities::layout_types::{
         Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let center = Axes::new(Ratio(0.5), Ratio(0.5));
     let radial_arc = Arc::new(Radial {
@@ -1866,12 +1890,13 @@ fn p265_export_pdf_radial_dedup_arc_ptr() {
 fn p265_export_pdf_linear_e_radial_coexistem() {
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear, Radial};
     use typst_core::entities::layout_types::{
         Angle, Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let linear = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
@@ -1992,12 +2017,13 @@ fn mk_radial_focal_doc(
 ) -> typst_core::entities::layout_types::PagedDocument {
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Radial};
     use typst_core::entities::layout_types::{
         Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let radial = Gradient::Radial(Arc::new(Radial {
         stops: Arc::from(vec![
@@ -2068,12 +2094,13 @@ fn p269_export_pdf_radial_focal_default_preserva_p265() {
     // Defaults focal=(center, 0) → bytes /Coords idênticos P265.
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
-    use typst_core::entities::gradient::{Gradient, GradientStop, Radial};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
+    use typst_core::entities::gradient::{Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     // Construção via Gradient::radial(...) sem focal (P264 path).
     let radial = Gradient::radial(
@@ -2129,12 +2156,13 @@ fn p269_export_pdf_radial_focal_dedup_arc_ptr() {
     // 3 shapes com mesmo Arc<Radial> com focal → 1 shading dedup.
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Radial};
     use typst_core::entities::layout_types::{
         Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let radial_arc = Arc::new(Radial {
         stops: Arc::from(vec![
@@ -2222,12 +2250,13 @@ fn p269_export_pdf_regression_p265_cluster_3_variants_pos_focal() {
     // tendo focal_* explícito. Marco P265 preservado.
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop, Linear, Radial};
     use typst_core::entities::layout_types::{
         Angle, Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let linear = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
@@ -2337,12 +2366,13 @@ fn p269_pdf_bytes_radial_focal_default_reproduzivel() {
     // Snapshot determinístico: 2 chamadas com defaults focal → bytes idênticos.
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_doc = || {
         let radial = Gradient::radial(
@@ -2427,12 +2457,13 @@ fn p269_pdf_bytes_dedup_focal_reproduzivel() {
     // Snapshot dedup com focal — 3 shapes mesmo Arc.
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Radial};
     use typst_core::entities::layout_types::{
         Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_doc = || {
         let radial_arc = Arc::new(Radial {
@@ -2487,12 +2518,13 @@ fn p269_pdf_bytes_cluster_3_variants_pos_focal_reproduzivel() {
     // Snapshot cluster 3 com focal.
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop, Linear, Radial};
     use typst_core::entities::layout_types::{
         Angle, Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_doc = || {
         let linear = Gradient::Linear(Arc::new(Linear {
@@ -2869,13 +2901,14 @@ fn p270_1_export_pdf_linear_oklab_bytes_paridade_p263() {
     // export_pdf com linear Oklab default produz bytes idênticos
     // P263 baseline.
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::GradientStop;
     use typst_core::entities::gradient::{Gradient, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
@@ -2924,12 +2957,13 @@ fn p270_1_export_pdf_linear_hsl_bytes_differem_de_oklab() {
     // HSL produz bytes diferentes de Oklab para mesmo input
     // red↔blue (diferença esperada por hue-wrap shorter).
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_doc = |space: ColorSpace| {
         let g = Gradient::Linear(Arc::new(Linear {
@@ -2982,12 +3016,13 @@ fn p270_1_export_pdf_linear_hsl_bytes_differem_de_oklab() {
 fn p270_1_export_pdf_radial_hsv_renderiza() {
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Radial};
     use typst_core::entities::layout_types::{
         Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Radial(Arc::new(Radial {
         stops: Arc::from(vec![
@@ -3039,12 +3074,13 @@ fn p270_1_export_pdf_radial_hsv_renderiza() {
 fn p270_1_export_pdf_conic_oklch_renderiza() {
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Conic(Arc::new(Conic {
         stops: Arc::from(vec![
@@ -3098,12 +3134,13 @@ fn p270_1_export_pdf_cluster_3_variants_multispace_coexistem() {
     // coexistem no mesmo doc.
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop, Linear, Radial};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let linear = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
@@ -3178,13 +3215,13 @@ fn p270_1_export_pdf_cluster_3_variants_multispace_coexistem() {
 
 #[test]
 fn p270_1_pdf_bytes_oklab_default_reproduziveis() {
-    use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_doc = || {
         let g = Gradient::linear(
@@ -3229,13 +3266,13 @@ fn p270_1_pdf_bytes_oklab_default_reproduziveis() {
 
 #[test]
 fn p270_1_pdf_bytes_hsl_reproduziveis() {
-    use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_doc = || {
         let g = Gradient::linear_with_space(
@@ -3281,13 +3318,13 @@ fn p270_1_pdf_bytes_hsl_reproduziveis() {
 
 #[test]
 fn p270_1_pdf_bytes_oklch_hue_wrap_reproduziveis() {
-    use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_doc = || {
         let g = Gradient::linear_with_space(
@@ -3409,12 +3446,13 @@ fn p270_2_emit_function_dict_cmyk_4_component_range() {
 fn p270_2_export_pdf_linear_cmyk_shading_devicecmyk() {
     // Linear CMYK → /ColorSpace /DeviceCMYK no shading dict.
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
@@ -3470,12 +3508,13 @@ fn p270_2_export_pdf_linear_cmyk_shading_devicecmyk() {
 fn p270_2_export_pdf_radial_cmyk_shading_devicecmyk() {
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Radial};
     use typst_core::entities::layout_types::{
         Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Radial(Arc::new(Radial {
         stops: Arc::from(vec![
@@ -3529,12 +3568,13 @@ fn p270_2_export_pdf_radial_cmyk_shading_devicecmyk() {
 fn p270_2_export_pdf_linear_oklab_preserva_devicergb() {
     // Regressão P270.1: Linear Oklab default → /DeviceRGB preservado.
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::linear(
         vec![
@@ -3591,12 +3631,13 @@ fn p270_2_export_pdf_conic_cmyk_fallback_devicergb() {
     // + /DeviceCMYK via emit_conic_coons_stream_cmyk (1 patch per stop).
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Conic(Arc::new(Conic {
         stops: Arc::from(vec![
@@ -3655,12 +3696,13 @@ fn p270_2_export_pdf_cluster_3_variants_cmyk_coexistem() {
     // Cluster com Linear CMYK + Radial CMYK + Conic CMYK fallback.
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop, Linear, Radial};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let linear = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
@@ -3747,12 +3789,13 @@ fn p270_2_export_pdf_cluster_3_variants_cmyk_coexistem() {
 #[test]
 fn p270_2_pdf_bytes_linear_cmyk_reproduziveis() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_doc = || {
         let g = Gradient::linear_with_space(
@@ -3799,14 +3842,14 @@ fn p270_2_pdf_bytes_linear_cmyk_reproduziveis() {
 
 #[test]
 fn p270_2_pdf_bytes_radial_cmyk_reproduziveis() {
-    use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_doc = || {
         let g = Gradient::radial_with_space(
@@ -3906,8 +3949,9 @@ fn p270_3_bezier_control_points_for_arc_quarter_circle() {
     // cp2 ends at (0.5, 1.0) (rotated 90° from end), comes from right.
     let (cp1x, cp1y) = cps[0];
     let (cp2x, cp2y) = cps[1];
+    // Referência independente: tan(π/8) = √2 - 1.
     // Expected: cp1 ≈ (1.0, 0.5 + offset); cp2 ≈ (0.5 + offset, 1.0).
-    let offset_expected = 0.5 * (4.0 / 3.0) * (std::f32::consts::FRAC_PI_2 / 4.0).tan();
+    let offset_expected = 0.5 * (4.0 / 3.0) * (std::f32::consts::SQRT_2 - 1.0);
     assert!((cp1x - 1.0).abs() < 1e-3, "cp1.x ≈ 1.0; got {}", cp1x);
     assert!(
         (cp1y - (0.5 + offset_expected)).abs() < 1e-3,
@@ -3952,45 +3996,31 @@ fn p270_3_compute_coons_patches_n_stops_8_stops() {
 }
 
 #[test]
-fn p272_emit_conic_coons_rgb_stream_size_37n_bytes() {
-    // P272 strategy N=stops*4: stream size = 37 bytes × stops × 4 patches.
-    // 2 stops → 8 patches → 296 bytes.
-    let conic = p270_3_mk_conic_red_blue();
-    let stream = emit_conic_coons_stream_rgb(&conic);
-    assert_eq!(
-        stream.len(),
-        37 * 8,
-        "2 stops × 4 = 8 patches × 37 = 296; got {}",
-        stream.len()
-    );
-
-    // 4 stops → 16 patches → 592 bytes.
-    let conic_4 = p270_3_mk_conic_n_stops(4);
-    let stream_4 = emit_conic_coons_stream_rgb(&conic_4);
-    assert_eq!(
-        stream_4.len(),
-        37 * 16,
-        "4 stops × 4 = 16 patches × 37 = 592; got {}",
-        stream_4.len()
-    );
+fn p272_emit_conic_coons_rgb_stream_has_complete_16bit_records() {
+    for count in [2, 4] {
+        let conic = p270_3_mk_conic_n_stops(count);
+        let stream = emit_conic_coons_stream_rgb(&conic);
+        assert_eq!(stream.len() % 61, 0, "flag + 24 u16 coordinates + 12 RGB bytes");
+        assert!(stream.len() / 61 >= 128, "bounded angular intervals");
+    }
 }
 
 #[test]
-fn p272_emit_conic_coons_rgb_2_stops_8_patches() {
-    // P272 strategy N=stops*4: 2 stops → 8 patches.
-    let conic = p270_3_mk_conic_red_blue();
-    let stream = emit_conic_coons_stream_rgb(&conic);
-    let n_patches = stream.len() / 37;
-    assert_eq!(n_patches, 8, "2 stops → 8 patches (N=stops*4); got {}", n_patches);
+fn p272_emit_conic_coons_rgb_two_stop_endpoints() {
+    let stream = emit_conic_coons_stream_rgb(&p270_3_mk_conic_red_blue());
+    assert_eq!(stream.len() % 61, 0);
+    let first = &stream[49..61];
+    let last = &stream[stream.len() - 12..];
+    assert!(first[0] >= 253 && first[2] <= 1, "red first endpoint");
+    assert!(last[6] <= 1 && last[8] >= 253, "blue last endpoint");
 }
 
 #[test]
-fn p272_emit_conic_coons_rgb_5_stops_20_patches() {
-    // P272 strategy: 5 stops → 20 patches.
-    let conic = p270_3_mk_conic_n_stops(5);
-    let stream = emit_conic_coons_stream_rgb(&conic);
-    let n_patches = stream.len() / 37;
-    assert_eq!(n_patches, 20, "5 stops → 20 patches; got {}", n_patches);
+fn p272_emit_conic_coons_rgb_multiple_stop_records() {
+    let stream = emit_conic_coons_stream_rgb(&p270_3_mk_conic_n_stops(5));
+    assert_eq!(stream.len() % 61, 0);
+    assert!(stream.len() / 61 >= 128);
+    assert!(stream.chunks_exact(61).all(|p| p[0] == 0));
 }
 
 #[test]
@@ -4004,75 +4034,44 @@ fn p272_compute_coons_patches_n_stops_extended_stops_x_4() {
 
 #[test]
 fn p272_emit_conic_coons_rgb_corner_colors_first_patch_t_zero() {
-    // P272: corner colors via Conic::sample(t_start/t_end) dispatcher P270.
-    // Para 2 stops red→blue Oklab, t_start=0.0 do patch 0 = sample(0.0)
-    // ≈ stops[0] (red) com Oklab roundtrip (sRGB → linear → Oklab → ...).
-    // Roundtrip pode perder 1 bit (255 → 254); aceita tolerância.
-    let conic = p270_3_mk_conic_red_blue();
-    let stream = emit_conic_coons_stream_rgb(&conic);
-    // Per patch layout: byte 0 = flag; bytes 1..24 = 12 control points;
-    // bytes 25..36 = 4 corner colors RGB (3 bytes each).
-    assert!(
-        stream[25] >= 253,
-        "corner0.r ≈ red (sample(0.0) Oklab roundtrip); got {}",
-        stream[25]
-    );
-    assert_eq!(stream[26], 0, "corner0.g = 0");
-    assert_eq!(stream[27], 0, "corner0.b = 0");
-    // corner1 = mesmo color que corner0 (paridade P270.3 layout).
-    assert_eq!(stream[28], stream[25], "corner1.r = corner0.r (paridade layout)");
+    let stream = emit_conic_coons_stream_rgb(&p270_3_mk_conic_red_blue());
+    assert!(stream[49] >= 253, "red endpoint");
+    assert_eq!(stream[50], 0);
+    assert_eq!(stream[51], 0);
+    assert_eq!(&stream[49..52], &stream[52..55], "same start color on radial edge");
 }
 
 #[test]
-fn p272_emit_conic_coons_rgb_corner_colors_interpolated_quarter() {
-    // P272: corner colors em t=0.25/0.5/0.75 são interpolados via
-    // Conic::sample (dispatcher P270 interpolate_in_space per space).
-    // 2 stops red→blue Oklab; 8 patches; patch[1] cobre t ∈ [1/8, 2/8].
-    // corners[0..1] = sample(0.125); corners[2..3] = sample(0.25).
-    let conic = p270_3_mk_conic_red_blue();
-    let stream = emit_conic_coons_stream_rgb(&conic);
-    // Patch 1 (segundo patch) começa em offset 37.
-    let patch1_corners_start = 37 + 25; // 25 = flag(1) + control_points(24).
-    let c0_r = stream[patch1_corners_start];
-    let c0_b = stream[patch1_corners_start + 2];
-    // Interpolação Oklab em t=0.125: cor entre red (full) e blue (full);
-    // c0_r ainda dominante mas reduzido; c0_b crescendo.
-    assert!(c0_r < 255, "corner0.r interpolado < red puro; got {}", c0_r);
-    assert!(c0_b > 0, "corner0.b interpolado > 0 (blue crescendo); got {}", c0_b);
+fn p272_emit_conic_coons_rgb_corner_colors_first_nonzero_interval() {
+    let stream = emit_conic_coons_stream_rgb(&p270_3_mk_conic_red_blue());
+    let offset = 61 + 49;
+    assert!(stream[offset] < 255, "interpolated red channel");
+    assert!(stream[offset + 2] > 0, "interpolated blue channel");
 }
 
 #[test]
 fn p272_emit_conic_coons_rgb_flag_byte_per_patch() {
-    // Flag byte = 0 (new patch) per patch P272 (continuation optimization
-    // adiada paridade P270.3).
-    let conic = p270_3_mk_conic_n_stops(3);
-    let stream = emit_conic_coons_stream_rgb(&conic);
-    // N=stops*4 = 12 patches.
-    for i in 0..12 {
-        let flag = stream[i * 37];
-        assert_eq!(flag, 0, "patch {} flag = 0 (new patch); got {}", i, flag);
+    let stream = emit_conic_coons_stream_rgb(&p270_3_mk_conic_n_stops(3));
+    assert_eq!(stream.len() % 61, 0);
+    for patch in stream.chunks_exact(61) {
+        assert_eq!(patch[0], 0);
     }
 }
 
 #[test]
 fn p272_emit_conic_coons_rgb_4_corner_rgb_bytes() {
-    // Cada patch tem 4 corner colors × 3 RGB bytes = 12 bytes.
-    let conic = p270_3_mk_conic_red_blue();
-    let stream = emit_conic_coons_stream_rgb(&conic);
-    // Patch 0 corner colors em bytes 25..37.
-    let corner_bytes = &stream[25..37];
-    assert_eq!(corner_bytes.len(), 12, "4 corners × 3 RGB = 12 bytes");
+    let stream = emit_conic_coons_stream_rgb(&p270_3_mk_conic_red_blue());
+    let corners = &stream[49..61];
+    assert_eq!(corners.len(), 12);
+    assert_eq!(&corners[..3], &corners[3..6]);
+    assert_eq!(&corners[6..9], &corners[9..]);
 }
 
 #[test]
-fn p272_emit_conic_coons_rgb_paridade_p270_3_structural() {
-    // Paridade estrutural com P270.3 RGB (1 flag + 12 control points + 4
-    // corner colors × 3 RGB = 37 bytes/patch). Strategy N mudou (stops*4)
-    // mas estrutura per-patch é literal.
-    let conic = p270_3_mk_conic_red_blue();
-    let stream = emit_conic_coons_stream_rgb(&conic);
-    // 8 patches × 37 bytes (paridade estrutural P270.3 layout).
-    assert_eq!(stream.len() % 37, 0, "stream múltiplo de 37 bytes/patch");
+fn p272_emit_conic_coons_rgb_type6_structural() {
+    let stream = emit_conic_coons_stream_rgb(&p270_3_mk_conic_red_blue());
+    assert!(!stream.is_empty());
+    assert_eq!(stream.len() % 61, 0, "Type 6: 1 flag + 48 coord + 12 component bytes");
 }
 
 // ── E2E PDF dispatcher opt-in flag (4 tests) ──
@@ -4083,12 +4082,13 @@ fn p272_export_pdf_conic_rgb_shading_type_6_unified() {
     // (ADR-0090 REVOGADO; Type 4 Gouraud descontinuado).
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Conic(Arc::new(Conic {
         stops: Arc::from(vec![
@@ -4146,12 +4146,13 @@ fn p272_export_pdf_conic_oklab_devicergb() {
     // P272 — Conic Oklab → /ShadingType 6 + /DeviceRGB.
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Conic(Arc::new(Conic {
         stops: Arc::from(vec![
@@ -4227,12 +4228,13 @@ fn p272_export_pdf_cluster_3_variants_unified_strategy() {
     // Linear /ShadingType 2 + Radial /ShadingType 3 + Conic /ShadingType 6 (Coons).
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop, Linear, Radial};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let linear = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
@@ -4314,12 +4316,13 @@ fn p272_pdf_bytes_conic_rgb_unified_reproduziveis() {
     // P272 — PDF bytes determinísticos via dispatcher unificado Coons.
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_doc = || {
         let g = Gradient::conic(
@@ -4406,55 +4409,30 @@ fn p270_4_mk_conic_cmyk_red_blue() -> typst_core::entities::gradient::Conic {
 // ── Unit emit_conic_coons_stream_cmyk (4 tests) ──
 
 #[test]
-fn p270_4_emit_conic_coons_cmyk_stream_size_41n_bytes() {
-    // CMYK variant: 41 bytes per patch × N patches.
-    // 2 stops → 2 patches → 82 bytes.
-    let conic = p270_4_mk_conic_cmyk_red_blue();
-    let stream = emit_conic_coons_stream_cmyk(&conic);
-    assert_eq!(stream.len(), 41 * 2, "2 patches × 41 bytes = 82; got {}", stream.len());
+fn p270_4_emit_conic_coons_cmyk_complete_16bit_records() {
+    let stream = emit_conic_coons_stream_cmyk(&p270_4_mk_conic_cmyk_red_blue());
+    assert!(stream.len() / 65 >= 128);
+    assert_eq!(stream.len() % 65, 0, "flag + 24 u16 coordinates + 16 CMYK bytes");
 }
 
 #[test]
 fn p270_4_emit_conic_coons_cmyk_corner_colors_4_bytes() {
-    // Cada patch tem 4 corner colors × 4 bytes CMYK = 16 bytes corners.
-    // Stream layout: flag(1) + control_points(24) + corners(16) = 41.
-    let conic = p270_4_mk_conic_cmyk_red_blue();
-    let stream = emit_conic_coons_stream_cmyk(&conic);
-    // Patch 0 corner bytes em offset 25..41 (4 corners × 4 CMYK).
-    let corner_bytes = &stream[25..41];
-    assert_eq!(corner_bytes.len(), 16, "4 corners × 4 CMYK = 16 bytes");
+    let stream = emit_conic_coons_stream_cmyk(&p270_4_mk_conic_cmyk_red_blue());
+    let corners = &stream[49..65];
+    assert_eq!(corners.len(), 16);
+    assert_eq!(&corners[..4], &corners[4..8]);
+    assert_eq!(&corners[8..12], &corners[12..]);
 }
 
 #[test]
-fn p270_4_emit_conic_coons_cmyk_paridade_p270_3_rgb_structure() {
-    // Paridade estrutural: CMYK 41 bytes/patch vs RGB 37 bytes/patch.
-    // CMYK strategy: N=stops (P270.4 preserved).
-    // RGB strategy P272: N=stops*4 (4x mais patches).
-    // 2 stops: CMYK = 2 patches × 41 = 82; RGB = 8 patches × 37 = 296.
-    let conic_cmyk = p270_4_mk_conic_cmyk_red_blue();
-    let stream_cmyk = emit_conic_coons_stream_cmyk(&conic_cmyk);
-    use std::sync::Arc;
-    use typst_core::entities::axes::Axes;
-    use typst_core::entities::gradient::{Conic, GradientStop};
-    use typst_core::entities::layout_types::{Angle, Color, ColorSpace, Ratio};
-    let conic_rgb = Conic {
-        stops: Arc::from(vec![
-            GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
-            GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
-        ]),
-        center: Axes::new(Ratio(0.5), Ratio(0.5)),
-        angle: Angle::rad(0.0),
-        space: ColorSpace::Oklab,
-        relative: None,
-        anti_alias: true,
-    };
-    let stream_rgb = emit_conic_coons_stream_rgb(&conic_rgb);
-    assert_eq!(stream_cmyk.len(), 41 * 2, "CMYK 2 stops × 41 bytes/patch = 82");
-    assert_eq!(
-        stream_rgb.len(),
-        37 * 8,
-        "RGB 2 stops × 4 × 37 bytes/patch = 296 (P272 N=stops*4)"
-    );
+fn p270_4_emit_conic_coons_cmyk_and_rgb_component_widths() {
+    let cmyk = emit_conic_coons_stream_cmyk(&p270_4_mk_conic_cmyk_red_blue());
+    let rgb = emit_conic_coons_stream_rgb(&p270_3_mk_conic_red_blue());
+    assert!(!cmyk.is_empty() && !rgb.is_empty());
+    assert_eq!(cmyk.len() % 65, 0);
+    assert_eq!(rgb.len() % 61, 0);
+    assert!(cmyk.chunks_exact(65).all(|p| p[0] == 0));
+    assert!(rgb.chunks_exact(61).all(|p| p[0] == 0));
 }
 
 #[test]
@@ -4474,12 +4452,13 @@ fn p270_4_export_pdf_conic_cmyk_shading_devicecmyk() {
     // Conic CMYK → /ShadingType 6 + /ColorSpace /DeviceCMYK.
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Conic(Arc::new(Conic {
         stops: Arc::from(vec![
@@ -4538,12 +4517,13 @@ fn p270_4_export_pdf_conic_oklab_preserva_p268_gouraud() {
     // ADR-0090 REVOGADO; Type 4 Gouraud descontinuado.
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Conic(Arc::new(Conic {
         stops: Arc::from(vec![
@@ -4599,12 +4579,13 @@ fn p270_4_export_pdf_conic_cmyk_decode_array_6_pares() {
     // Conic CMYK Decode array: 6 pares (x, y, c, m, y, k).
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Conic(Arc::new(Conic {
         stops: Arc::from(vec![
@@ -4648,10 +4629,21 @@ fn p270_4_export_pdf_conic_cmyk_decode_array_6_pares() {
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     // Decode array com 12 values (6 pares: x, y, c, m, y, k).
-    assert!(
-        pdf_str.contains("/Decode [0 1 0 1 0 1 0 1 0 1 0 1]"),
-        "Conic CMYK Decode array deve ter 12 values (6 pares)"
-    );
+    let shading = pdf_str.split_once("/ShadingType 6").unwrap().1;
+    let values: Vec<f64> = shading
+        .split_once("/Decode [")
+        .unwrap()
+        .1
+        .split_once(']')
+        .unwrap()
+        .0
+        .split_whitespace()
+        .map(|n| n.parse().unwrap())
+        .collect();
+    assert_eq!(values.len(), 12);
+    assert!(values[0] <= 0.0 && values[1] >= 1.0 && values[2] <= 0.0 && values[3] >= 1.0);
+    assert_eq!(&values[4..], &[0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]);
+    assert!(shading.contains("/BitsPerCoordinate 16"));
 }
 
 #[test]
@@ -4660,12 +4652,13 @@ fn p270_4_export_pdf_cluster_24_24_absoluto() {
     // 3 variants × 8 spaces (CMYK em todos via dispatchers diferentes).
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop, Linear, Radial};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     // 3 variants × CMYK
     let linear_cmyk = Gradient::Linear(Arc::new(Linear {
@@ -4753,12 +4746,13 @@ fn p270_4_export_pdf_cluster_24_24_absoluto() {
 fn p270_4_pdf_bytes_conic_cmyk_reproduziveis() {
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_doc = || {
         let g = Gradient::Conic(Arc::new(Conic {
@@ -4810,12 +4804,13 @@ fn p270_4_pdf_bytes_default_oklab_preserved_p268() {
     // Default Oklab preserva bytes P268+P268.2 bit-exact.
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_doc = || {
         let g = Gradient::conic(
@@ -4878,12 +4873,13 @@ fn p270_4_export_pdf_conic_cmyk_resolve_bug_4422_dictionary() {
     // por construção via Coons P270.4.
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Conic(Arc::new(Conic {
         stops: Arc::from(vec![
@@ -5083,13 +5079,14 @@ fn p273_l3_apply_parent_transform_reproduzivel() {
 #[test]
 fn p273_export_pdf_linear_relative_none_preserva_p272() {
     // Defaults (relative=None=Auto=Self_) → bytes P272 preserved.
-    use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_doc = || {
         let g = Gradient::linear(
@@ -5140,12 +5137,13 @@ fn p273_export_pdf_conic_relative_none_preserva_p272_coons() {
     // (P272 unified preserved).
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
     let g = Gradient::Conic(Arc::new(Conic {
         stops: Arc::from(vec![
             GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
@@ -5195,12 +5193,13 @@ fn p273_export_pdf_cluster_3_variants_relative_coexistem() {
     // coexistem; bytes determinísticos.
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop, Linear, Radial};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let linear = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
@@ -5490,12 +5489,13 @@ fn p274_adaptive_n_independent_of_space() {
 #[test]
 fn p274_export_pdf_linear_low_contrast_reproduzivel() {
     // E2E PDF Linear pastel: determinístico (adaptive N=16 baseline).
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_doc = || {
         let g = Gradient::linear(
@@ -5543,12 +5543,13 @@ fn p274_export_pdf_linear_high_contrast_uses_higher_n() {
     // E2E PDF Linear high contrast → adaptive N=64.
     // Verifica que stream contém Function Type 3 stitching (que
     // empacotaria N-1 sub-functions = 63 sub-functions para N=64).
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
     let g = Gradient::linear(
         vec![
             GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
@@ -5598,12 +5599,13 @@ fn p274_cmyk_preserved_p270_2() {
     // Linear CMYK preserved P270.2 — sem pré-amostragem adaptive.
     // Bytes determinísticos (mesma fórmula CMYK independente P274).
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_doc = || {
         let g = Gradient::Linear(Arc::new(Linear {
@@ -5673,12 +5675,13 @@ fn p273_5_linear_relative_parent_top_level_emit_works() {
     // exercita apply_parent_transform via callsite L3 dispatcher
     // (3γ.1 page_bbox fallback).
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
     let g = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
             GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
@@ -5729,12 +5732,13 @@ fn p273_5_radial_relative_parent_emit_works() {
     // E2E Radial top-level com relative=Parent (paridade Linear).
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Radial};
     use typst_core::entities::layout_types::{
         Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
     let g = Gradient::Radial(Arc::new(Radial {
         stops: Arc::from(vec![
             GradientStop::new(Color::rgb(0, 255, 0), Ratio(0.0)),
@@ -5788,12 +5792,13 @@ fn p273_5_relative_self_preserva_p272_p273_bit_exact() {
     // relative=Self_ continua a usar pipeline P272+P273 literal
     // (apply_parent_transform NÃO chamado quando relative != Parent).
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
     let mk_doc = |relative: Option<RelativeTo>| {
         let g = Gradient::Linear(Arc::new(Linear {
             stops: Arc::from(vec![
@@ -5849,12 +5854,13 @@ fn p273_5_relative_parent_identity_3_gamma_1() {
     // PDF com relative=Parent produz bytes equivalentes a None/Self_
     // (mathematically identity).
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
     let mk_doc = |relative: Option<RelativeTo>| {
         let g = Gradient::Linear(Arc::new(Linear {
             stops: Arc::from(vec![
@@ -5907,12 +5913,13 @@ fn p273_5_relative_parent_identity_3_gamma_1() {
 fn p273_5_linear_relative_parent_reproduzivel() {
     // Determinismo: mesmo input relative=Parent → bytes idênticos.
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
     let mk_doc = || {
         let g = Gradient::Linear(Arc::new(Linear {
             stops: Arc::from(vec![
@@ -5979,16 +5986,17 @@ fn p273_5_apply_parent_transform_offset_bbox() {
 }
 
 #[test]
-fn p274_conic_preserved_p272_unchanged() {
-    // Conic preserved P272 Coons literal — sem adaptive.
+fn p274_conic_preserves_type6_strategy() {
+    // Coons Type 6 remains the rendering strategy.
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Conic, Gradient, GradientStop};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
     let g = Gradient::Conic(Arc::new(Conic {
         stops: Arc::from(vec![
             GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
@@ -6030,10 +6038,7 @@ fn p274_conic_preserved_p272_unchanged() {
     let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     // P272 Coons preserved.
-    assert!(
-        pdf_str.contains("/ShadingType 6"),
-        "Conic preserved P272 /ShadingType 6 Coons (sem adaptive)"
-    );
+    assert!(pdf_str.contains("/ShadingType 6"), "Conic preserves /ShadingType 6 Coons");
 }
 
 // ── P273.6 — Parent bbox real save/restore (fecho 3γ.2) ──
@@ -6068,15 +6073,70 @@ fn p273_6_frame_item_shape_has_parent_bbox_at_emit_field() {
 
 #[test]
 fn p273_6_layouter_parent_bbox_consumed_by_block_arm() {
-    // Layouter `parent_bbox` field is now consumed by Block arm
-    // save/restore + emit shape sites. P273.6 ativa o consumer.
-    // Smoke test: verify Rect struct + Option<Rect> compose como
-    // esperado para a integração L1 Layouter ↔ L3 emit.
-    use typst_core::entities::layout_types::{Pt, Rect};
-    let bbox: Option<Rect> =
-        Some(Rect { x: Pt(0.0), y: Pt(0.0), w: Pt(200.0), h: Pt(100.0) });
-    assert!(bbox.is_some());
-    assert_eq!(bbox.unwrap().w, Pt(200.0));
+    use std::sync::Arc;
+    use typst_core::entities::geometry::ShapeKind;
+    use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
+    use typst_core::entities::layout_types::{
+        Angle, ColorSpace, FrameItem, Length, Pt, Ratio, Rect,
+    };
+    use typst_core::entities::paint::Paint;
+    use typst_core::entities::sides::Sides;
+    use typst_core::entities::value::Value;
+
+    fn emitted_bbox(items: &[FrameItem]) -> Option<Rect> {
+        items.iter().find_map(|item| match item {
+            FrameItem::Shape { parent_bbox_at_emit, .. } => *parent_bbox_at_emit,
+            FrameItem::Group { items, .. }
+            | FrameItem::Link { items, .. }
+            | FrameItem::Semantic { items, .. }
+            | FrameItem::TextReplacement { items, .. } => emitted_bbox(items),
+            FrameItem::TextSeparator { .. }
+            | FrameItem::Text { .. }
+            | FrameItem::TextShaped { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. } => None,
+        })
+    }
+    let gradient = Gradient::Linear(Arc::new(Linear {
+        stops: Arc::from(vec![
+            GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
+            GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
+        ]),
+        angle: Angle::rad(0.0),
+        space: ColorSpace::Oklab,
+        relative: Some(RelativeTo::Parent),
+        anti_alias: true,
+    }));
+    let shape = Content::shape(
+        ShapeKind::Rect,
+        Some(Box::new(Value::Length(Length::pt(50.0)))),
+        Some(Box::new(Value::Length(Length::pt(30.0)))),
+        Some(Paint::Gradient(gradient)),
+        None,
+    );
+    let block = Content::block(
+        shape.clone(),
+        Some(Length::pt(200.0)),
+        Some(Length::pt(100.0)),
+        Sides::uniform(Length::ZERO),
+        false,
+    );
+    let document = layout(&block);
+    assert_eq!(document.pages.len(), 1);
+    let bbox = emitted_bbox(&document.pages[0].items)
+        .expect("Block must emit the parent bbox for its Shape");
+    assert_eq!(bbox.w, Pt(200.0));
+    assert_eq!(bbox.h, Pt(100.0));
+    let coords = parent_test_linear_coords(&export_pdf(&document, StreamMode::Verbose));
+    assert!(
+        (coords[2] - coords[0] - 200.0).abs() < 1e-6,
+        "Parent gradient must span the Block width: {coords:?}"
+    );
+    assert_ne!(
+        coords,
+        parent_test_linear_coords(&export_pdf(&layout(&shape), StreamMode::Verbose))
+    );
 }
 
 #[test]
@@ -6084,12 +6144,13 @@ fn p273_6_gradient_object_carries_parent_bbox() {
     // GradientObject struct ganha parent_bbox_at_emit field.
     // Verify via export of FrameItem::Shape with gradient + parent_bbox.
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio, Rect,
     };
-    use typst_core::entities::paint::Paint;
     let g = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
             GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
@@ -6144,12 +6205,13 @@ fn p273_6_shape_outside_block_no_parent_bbox() {
     // Shape top-level (sem Block) → parent_bbox_at_emit = None.
     // Cobre fallback page_bbox L3 P273.5.
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
     let g = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
             GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
@@ -6192,18 +6254,32 @@ fn p273_6_shape_outside_block_no_parent_bbox() {
     assert!(pdf_str.contains("/ShadingType 2"));
 }
 
+fn parent_test_linear_coords(pdf: &[u8]) -> [f64; 4] {
+    let pdf = String::from_utf8_lossy(pdf);
+    assert_eq!(pdf.matches("/ShadingType 2").count(), 1);
+    assert_eq!(pdf.matches("/Coords [").count(), 1);
+    let coords = pdf.split_once("/Coords [").unwrap().1.split_once(']').unwrap().0;
+    coords
+        .split_whitespace()
+        .map(|v| v.parse::<f64>().unwrap())
+        .collect::<Vec<_>>()
+        .try_into()
+        .expect("four linear coordinates")
+}
+
 #[test]
 fn p273_6_shape_inside_block_carries_parent_bbox_observable_diff() {
-    // E2E: comparar bytes PDF de Shape com parent_bbox_at_emit Some vs None.
-    // Bytes DEVEM diferir quando bbox real difere do page (P273.6 produz
+    // E2E: comparar coordenadas PDF de Shape com parent_bbox_at_emit Some vs None.
+    // Coordenadas devem diferir quando bbox real difere do page (P273.6 produz
     // output observable diferente vs P273.5 3γ.1 identity).
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio, Rect,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_g = || {
         Gradient::Linear(Arc::new(Linear {
@@ -6254,11 +6330,14 @@ fn p273_6_shape_inside_block_carries_parent_bbox_observable_diff() {
         StreamMode::Verbose,
     );
     assert_eq!(
-        pdf_none, pdf_page_bbox,
-        "P273.5 3γ.1 identity: page_bbox = page → mesmos bytes"
+        parent_test_linear_coords(&pdf_none),
+        parent_test_linear_coords(&pdf_page_bbox),
+        "P273.5 3γ.1 identity: page_bbox = page → mesmas coordenadas"
     );
 
-    // Bbox real menor que page (e.g. Block 200x100) → bytes DIFEREM.
+    assert_eq!(parent_test_linear_coords(&pdf_none), [0.0, 421.0, 595.0, 421.0]);
+
+    // Bbox real menor que page (e.g. Block 200x100) → coordenadas DIFEREM.
     let pdf_block_bbox = export_pdf(
         &mk_doc(Some(Rect {
             x: Pt(10.0),
@@ -6268,8 +6347,10 @@ fn p273_6_shape_inside_block_carries_parent_bbox_observable_diff() {
         })),
         StreamMode::Verbose,
     );
-    assert_ne!(pdf_none, pdf_block_bbox,
-            "P273.6 observable diff: bbox real (200x100 a +10,+20) produz coords diferentes de page");
+    assert_ne!(
+        parent_test_linear_coords(&pdf_none), parent_test_linear_coords(&pdf_block_bbox),
+        "P273.6 observable diff: bbox real (200x100 a +10,+20) produz coords diferentes de page"
+    );
 }
 
 #[test]
@@ -6277,12 +6358,13 @@ fn p273_6_relative_self_preserved_with_parent_bbox() {
     // relative=Self_ continua a usar pipeline P272+P273 literal —
     // parent_bbox_at_emit não é consultado quando relative != Parent.
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio, Rect,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_g = || {
         Gradient::Linear(Arc::new(Linear {
@@ -6326,7 +6408,7 @@ fn p273_6_relative_self_preserved_with_parent_bbox() {
         };
         PagedDocument::new(vec![page])
     };
-    // Self_ ignora parent_bbox_at_emit: bytes idênticos com bbox vs sem.
+    // Self_ ignora parent_bbox_at_emit: coordenadas idênticas com bbox vs sem.
     let pdf_none = export_pdf(&mk_doc(None), StreamMode::Verbose);
     let pdf_with_bbox = export_pdf(
         &mk_doc(Some(Rect {
@@ -6338,23 +6420,9 @@ fn p273_6_relative_self_preserved_with_parent_bbox() {
         StreamMode::Verbose,
     );
     assert_eq!(
-        pdf_none, pdf_with_bbox,
+        parent_test_linear_coords(&pdf_none),
+        parent_test_linear_coords(&pdf_with_bbox),
         "Self_ ignora parent_bbox_at_emit (P272/P273 preserved literal)"
-    );
-}
-
-#[test]
-fn p273_6_pattern_debt37_replicado_n3() {
-    // Sub-padrão emergente: "Pattern DEBT-37 cell_origin_* replicado"
-    // N=3 cumulativo (atinge limiar formalização N=3-4):
-    // - N=1: P84.6 (DEBT-37 cell_origin_x/y/w)
-    // - N=2: P273.5 (parent_bbox estrutural)
-    // - N=3: P273.6 (parent_bbox save/restore real + consumer real)
-    // Smoke test: Layouter parent_bbox compiles (field exists pub(super)).
-    // Real consumer verification via p273_6_shape_inside_block_carries_parent_bbox_observable_diff.
-    assert!(
-        true,
-        "P273.6 fecha 3γ.2 — pattern DEBT-37 replicado N=3 cumulativo atinge limiar"
     );
 }
 
@@ -6373,12 +6441,13 @@ fn p273_6_pattern_debt37_replicado_n3() {
 #[test]
 fn p273_7_shape_inside_boxed_carries_parent_bbox_observable_diff() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio, Rect,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_g = || {
         Gradient::Linear(Arc::new(Linear {
@@ -6435,8 +6504,10 @@ fn p273_7_shape_inside_boxed_carries_parent_bbox_observable_diff() {
         })),
         StreamMode::Verbose,
     );
+    assert_eq!(parent_test_linear_coords(&pdf_none), [0.0, 421.0, 595.0, 421.0]);
     assert_ne!(
-        pdf_none, pdf_boxed_bbox,
+        parent_test_linear_coords(&pdf_none),
+        parent_test_linear_coords(&pdf_boxed_bbox),
         "P273.7 observable diff: Boxed bbox (200×100 @ baseline y=100) \
              produz coords PDF distintas de page fallback"
     );
@@ -6447,12 +6518,13 @@ fn p273_7_shape_inside_boxed_carries_parent_bbox_observable_diff() {
 #[test]
 fn p273_7_relative_self_preserved_with_parent_bbox_boxed() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio, Rect,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_g = || {
         Gradient::Linear(Arc::new(Linear {
@@ -6496,7 +6568,7 @@ fn p273_7_relative_self_preserved_with_parent_bbox_boxed() {
         };
         PagedDocument::new(vec![page])
     };
-    // Self_ ignora parent_bbox_at_emit — bytes idênticos com bbox vs sem.
+    // Self_ ignora parent_bbox_at_emit — coordenadas idênticas com bbox vs sem.
     let pdf_none = export_pdf(&mk_doc(None), StreamMode::Verbose);
     let pdf_with_boxed_bbox = export_pdf(
         &mk_doc(Some(Rect {
@@ -6508,25 +6580,9 @@ fn p273_7_relative_self_preserved_with_parent_bbox_boxed() {
         StreamMode::Verbose,
     );
     assert_eq!(
-        pdf_none, pdf_with_boxed_bbox,
+        parent_test_linear_coords(&pdf_none),
+        parent_test_linear_coords(&pdf_with_boxed_bbox),
         "Self_ ignora parent_bbox_at_emit derivado de Boxed (P272/P273 preserved)"
-    );
-}
-
-/// Smoke test: template-passo replicado literal. P273.7 aplica
-/// save/restore P273.6 a outro arm (Content::Boxed) com diferença
-/// mínima (bbox.y semantic baseline-relative vs topo). Sub-padrão
-/// emergente "Template-passo replicado literal" N=0 → N=1.
-#[test]
-fn p273_7_template_passo_replicado_literal_n1() {
-    // Verificação simbólica que P273.7 estende escopo {Block} de
-    // P273.6 para {Block, Boxed} aplicando template literal.
-    // Real consumer verification via
-    // p273_7_shape_inside_boxed_carries_parent_bbox_observable_diff.
-    assert!(
-        true,
-        "P273.7 inaugura sub-padrão 'Template-passo replicado literal' N=1; \
-             escopo Decisão 3 P273.6 estendido para {{Block, Boxed}}"
     );
 }
 
@@ -6540,20 +6596,21 @@ fn p273_7_template_passo_replicado_literal_n1() {
 // gradients dentro de Groups não eram registados).
 
 /// 1) Gradient dentro de Group com `parent_bbox_at_emit=None` no Shape
-/// recebe override `group_bbox` — PDF emit usa coords transform do Group.
-/// Pre-P273.10: scan_all_gradients não recurse → gradient sequer registado;
-/// emit PDF não contém /ShadingType. Pós-P273.10: gradient registado E
-/// effective_parent_bbox = group_bbox.
+///    recebe override `group_bbox` — PDF emit usa coords transform do Group.
+///    Pre-P273.10: scan_all_gradients não recurse → gradient sequer registado;
+///    emit PDF não contém /ShadingType. Pós-P273.10: gradient registado E
+///    effective_parent_bbox = group_bbox.
 #[test]
 fn p273_10_gradient_inside_group_registered_and_uses_group_bbox() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
         TransformMatrix,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
@@ -6582,6 +6639,7 @@ fn p273_10_gradient_inside_group_registered_and_uses_group_bbox() {
         parent_bbox_at_emit: None,
     };
     let group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(100.0), y: Pt(50.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -6613,18 +6671,19 @@ fn p273_10_gradient_inside_group_registered_and_uses_group_bbox() {
 }
 
 /// 2) Inner-wins: Shape com `parent_bbox_at_emit: Some(rect)` dentro de
-/// Group mantém o próprio campo; override Group ignorado.
-/// Bytes PDF idênticos a Shape sem Group wrapper (com mesma bbox).
+///    Group mantém o próprio campo; override Group ignorado.
+///    Bytes PDF idênticos a Shape sem Group wrapper (com mesma bbox).
 #[test]
 fn p273_10_shape_with_populated_bbox_inside_group_inner_wins() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio, Rect,
         TransformMatrix,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_g = || {
         Gradient::Linear(Arc::new(Linear {
@@ -6693,6 +6752,7 @@ fn p273_10_shape_with_populated_bbox_inside_group_inner_wins() {
         parent_bbox_at_emit: Some(block_bbox),
     };
     let group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(0.0), y: Pt(0.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -6748,17 +6808,18 @@ fn p273_10_shape_with_populated_bbox_inside_group_inner_wins() {
 }
 
 /// 3) Nested Groups: gradient no Group inner recebe bbox do INNER Group
-/// (não do outer). LIFO automático via parameter threading.
+///    (não do outer). LIFO automático via parameter threading.
 #[test]
 fn p273_10_nested_groups_innermost_wins() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
         TransformMatrix,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
@@ -6787,6 +6848,7 @@ fn p273_10_nested_groups_innermost_wins() {
         parent_bbox_at_emit: None,
     };
     let inner_group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(20.0), y: Pt(30.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -6795,6 +6857,7 @@ fn p273_10_nested_groups_innermost_wins() {
         items: vec![inner_shape],
     };
     let outer_group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(100.0), y: Pt(100.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -6830,13 +6893,14 @@ fn p273_10_nested_groups_innermost_wins() {
 #[test]
 fn p273_10_gradient_relative_self_inside_group_unchanged() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
         TransformMatrix,
     };
-    use typst_core::entities::paint::Paint;
 
     let mk_g = || {
         Gradient::Linear(Arc::new(Linear {
@@ -6867,6 +6931,7 @@ fn p273_10_gradient_relative_self_inside_group_unchanged() {
         parent_bbox_at_emit: None,
     };
     let group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(100.0), y: Pt(50.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -6899,12 +6964,13 @@ fn p273_10_gradient_relative_self_inside_group_unchanged() {
 #[test]
 fn p273_10_shape_outside_group_unchanged() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio, Rect,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
@@ -6959,13 +7025,14 @@ fn p273_10_shape_outside_group_unchanged() {
 fn p273_10_radial_inside_group_mirrors_linear() {
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Radial};
     use typst_core::entities::layout_types::{
         Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
         TransformMatrix,
     };
-    use typst_core::entities::paint::Paint;
 
     let r = Gradient::Radial(Arc::new(Radial {
         stops: Arc::from(vec![
@@ -6997,6 +7064,7 @@ fn p273_10_radial_inside_group_mirrors_linear() {
         parent_bbox_at_emit: None,
     };
     let group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(100.0), y: Pt(50.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -7024,19 +7092,6 @@ fn p273_10_radial_inside_group_mirrors_linear() {
     );
 }
 
-/// 7) Sub-padrão inaugural smoke test.
-#[test]
-fn p273_10_l3_only_parent_bbox_inaugural_n1() {
-    // P273.10 inaugura sub-padrão "L3-only parent_bbox" N=1.
-    // Distingue de Pattern DEBT-37 (L1 save/restore N=4) e
-    // Layout duplo arquitectural aceite (L1 measure N=1).
-    assert!(
-        true,
-        "P273.10 inaugura sub-padrão 'L3-only parent_bbox' N=1; \
-             mecanismo L3 dispatcher override via parameter threading"
-    );
-}
-
 // ── P273.12 — Dedup bbox-aware (refino arquitectural pós-P273.10) ──
 //
 // Chave de dedup expandida: (Arc::as_ptr, parent_bbox_effective) em
@@ -7054,12 +7109,13 @@ fn count_linear_shadings(pdf_str: &str) -> usize {
 #[test]
 fn p273_12_same_arc_same_bbox_dedup_to_single_pattern() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio, Rect,
     };
-    use typst_core::entities::paint::Paint;
 
     let g_arc = Arc::new(Linear {
         stops: Arc::from(vec![
@@ -7115,16 +7171,17 @@ fn p273_12_same_arc_same_bbox_dedup_to_single_pattern() {
 }
 
 /// 2) Mesmo Arc + bboxes effective DIFERENTES → 2 patterns distintos
-/// (bug arquitectural P273.6 §9 corrigido).
+///    (bug arquitectural P273.6 §9 corrigido).
 #[test]
 fn p273_12_same_arc_different_bbox_creates_two_patterns() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio, Rect,
     };
-    use typst_core::entities::paint::Paint;
 
     let g_arc = Arc::new(Linear {
         stops: Arc::from(vec![
@@ -7187,16 +7244,17 @@ fn p273_12_same_arc_different_bbox_creates_two_patterns() {
 }
 
 /// 3) Mesmo Arc + bbox=None (Self_/None relative) → 1 pattern
-/// (preserved P262 — Self_ não consome parent_bbox).
+///    (preserved P262 — Self_ não consome parent_bbox).
 #[test]
 fn p273_12_arc_with_bbox_none_unchanged() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
     };
-    use typst_core::entities::paint::Paint;
 
     let g_arc = Arc::new(Linear {
         stops: Arc::from(vec![
@@ -7248,12 +7306,13 @@ fn p273_12_arc_with_bbox_none_unchanged() {
 #[test]
 fn p273_12_three_contexts_three_patterns() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio, Rect,
     };
-    use typst_core::entities::paint::Paint;
 
     let g_arc = Arc::new(Linear {
         stops: Arc::from(vec![
@@ -7305,16 +7364,17 @@ fn p273_12_three_contexts_three_patterns() {
 }
 
 /// 5) Observable diff: bytes do segundo pattern são distintos do primeiro
-/// (Coords diferentes).
+///    (Coords diferentes).
 #[test]
 fn p273_12_observable_diff_pdf_bytes() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio, Rect,
     };
-    use typst_core::entities::paint::Paint;
 
     let g_arc = Arc::new(Linear {
         stops: Arc::from(vec![
@@ -7389,18 +7449,6 @@ fn p273_12_observable_diff_pdf_bytes() {
     );
 }
 
-/// 6) Sub-padrão "Dedup Arc::as_ptr resources" N=3 smoke test.
-#[test]
-fn p273_12_dedup_arc_as_ptr_resources_n3_smoke() {
-    // P73 image + P263 pattern + P273.12 pattern bbox-aware =
-    // N=3 cumulativo crossing limiar formalização N=3-4.
-    assert!(
-        true,
-        "P273.12 atinge limiar N=3 do sub-padrão 'Dedup Arc::as_ptr resources'; \
-             candidato meta-ADR formalização NÃO reservado"
-    );
-}
-
 // ── P273.13 — Fix draw_item_local Group gradient (caminho emit real) ──
 //
 // P273.10 corrigiu o caminho de registo; P273.12 expandiu chave dedup.
@@ -7416,17 +7464,18 @@ fn pdf_contains_pattern_cs(pdf_str: &str) -> bool {
 }
 
 /// 1) Gradient Linear dentro de Group emit usa pattern real
-/// (`/Pattern CS /P1 SCN`) em vez de solid fallback.
+///    (`/Pattern CS /P1 SCN`) em vez de solid fallback.
 #[test]
 fn p273_13_gradient_inside_group_emits_real_pattern() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
         TransformMatrix,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
@@ -7455,6 +7504,7 @@ fn p273_13_gradient_inside_group_emits_real_pattern() {
         parent_bbox_at_emit: None,
     };
     let group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(100.0), y: Pt(50.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -7486,18 +7536,19 @@ fn p273_13_gradient_inside_group_emits_real_pattern() {
 }
 
 /// 2) Gradient `relative=parent` dentro de Group: emit usa pattern
-/// com bbox de Group (paridade P273.10 + P273.12 dedup). Verificado
-/// via /ShadingType + /Coords (gradient com bbox específica).
+///    com bbox de Group (paridade P273.10 + P273.12 dedup). Verificado
+///    via /ShadingType + /Coords (gradient com bbox específica).
 #[test]
 fn p273_13_gradient_relative_parent_inside_group_uses_group_bbox() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
         TransformMatrix,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
@@ -7526,6 +7577,7 @@ fn p273_13_gradient_relative_parent_inside_group_uses_group_bbox() {
         parent_bbox_at_emit: None,
     };
     let group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(100.0), y: Pt(50.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -7561,13 +7613,14 @@ fn p273_13_gradient_relative_parent_inside_group_uses_group_bbox() {
 fn p273_13_radial_inside_group_mirrors_linear() {
     use std::sync::Arc;
     use typst_core::entities::axes::Axes;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Radial};
     use typst_core::entities::layout_types::{
         Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
         TransformMatrix,
     };
-    use typst_core::entities::paint::Paint;
 
     let r = Gradient::Radial(Arc::new(Radial {
         stops: Arc::from(vec![
@@ -7599,6 +7652,7 @@ fn p273_13_radial_inside_group_mirrors_linear() {
         parent_bbox_at_emit: None,
     };
     let group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(100.0), y: Pt(50.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -7629,19 +7683,20 @@ fn p273_13_radial_inside_group_mirrors_linear() {
 }
 
 /// 4) Nested Groups: gradient no INNER Group recebe inner group_bbox
-/// (paridade Inner-wins via parameter threading LIFO).
-/// Pré-P273.13 nested Groups silenciosamente descartados;
-/// pós-P273.13 arm Group novo recurse.
+///    (paridade Inner-wins via parameter threading LIFO).
+///    Pré-P273.13 nested Groups silenciosamente descartados;
+///    pós-P273.13 arm Group novo recurse.
 #[test]
 fn p273_13_nested_groups_inner_group_bbox_wins() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
         TransformMatrix,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
@@ -7670,6 +7725,7 @@ fn p273_13_nested_groups_inner_group_bbox_wins() {
         parent_bbox_at_emit: None,
     };
     let inner_group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(20.0), y: Pt(30.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -7678,6 +7734,7 @@ fn p273_13_nested_groups_inner_group_bbox_wins() {
         items: vec![inner_shape],
     };
     let outer_group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(100.0), y: Pt(100.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -7713,12 +7770,13 @@ fn p273_13_nested_groups_inner_group_bbox_wins() {
 #[test]
 fn p273_13_shape_outside_group_unchanged() {
     use std::sync::Arc;
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::frame_paint::FramePaint as Paint;
+    use typst_core::entities::frame_paint::FrameStroke as Stroke;
+    use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
     use typst_core::entities::layout_types::{
         Angle, Color, ColorSpace, FrameItem, Page, PagedDocument, Point, Pt, Ratio, Rect,
     };
-    use typst_core::entities::paint::Paint;
 
     let g = Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(vec![
@@ -7770,19 +7828,6 @@ fn p273_13_shape_outside_group_unchanged() {
     assert!(pdf_contains_pattern_cs(&pdf_str));
 }
 
-/// 6) Sub-padrão "L3-only parent_bbox" N=2 smoke test.
-#[test]
-fn p273_13_l3_only_parent_bbox_n2_smoke() {
-    // P273.10 inaugural (scan_all_gradients.walk) + P273.13
-    // reaplicação (draw_item_local) = N=2 cumulativo.
-    // Sub-padrão consolidado mas longe limiar formalização N=3-4.
-    assert!(
-        true,
-        "P273.13 reaplica sub-padrão 'L3-only parent_bbox' N=2; \
-             mecanismo parameter threading L3 walkers recursivos"
-    );
-}
-
 // ── P279 — Bug fix funcional Image em Group (narrow scope Opção α) ─────
 //
 // P279 estende `draw_item_local` com Image arm real (Opção α-narrow:
@@ -7813,6 +7858,7 @@ fn p279_mk_doc_image_em_group(
         orientation: 1,
     };
     let group = FrameItem::Group {
+        paint_root: false,
         pos: group_pos,
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -7835,7 +7881,7 @@ fn p279_mk_doc_image_em_group(
 }
 
 /// 1) Image dentro de Group emite XObject reference (não silencioso).
-/// Pré-P279: stub no-op → PDF stream sem `/Im1 Do`. Pós-P279: emit local.
+///    Pré-P279: stub no-op → PDF stream sem `/Im1 Do`. Pós-P279: emit local.
 #[test]
 fn p279_image_em_group_emite_xobject_ref() {
     use typst_core::entities::layout_types::{Point, Pt};
@@ -7862,7 +7908,7 @@ fn p279_image_em_group_emite_xobject_ref() {
 }
 
 /// 2) Image em Group preserva XObject dedup (mesma imagem em 2 Groups
-/// → 1 XObject partilhado, não duplicação).
+///    → 1 XObject partilhado, não duplicação).
 #[test]
 fn p279_image_em_group_preserva_xobject_dedup() {
     use std::sync::Arc;
@@ -7883,6 +7929,7 @@ fn p279_image_em_group_preserva_xobject_dedup() {
             orientation: 1,
         };
         FrameItem::Group {
+            paint_root: false,
             pos: Point { x: Pt(gx), y: Pt(gy) },
             matrix: TransformMatrix::identity(),
             clip_mask: None,
@@ -7938,6 +7985,7 @@ fn p279_image_em_nested_groups() {
         orientation: 1,
     };
     let inner_group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(20.0), y: Pt(20.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -7946,6 +7994,7 @@ fn p279_image_em_nested_groups() {
         items: vec![inner_image],
     };
     let outer_group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(100.0), y: Pt(100.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -8012,70 +8061,6 @@ fn p279_image_top_level_preserved() {
     assert!(pdf_str.contains("/DCTDecode"));
 }
 
-/// 5) **Histórico P279**: Text em Group descartado pelo stub P278/P279.
-/// **P281 fechou** a pendência P280.X-bis-text-emit-em-group-3-font-scenarios
-/// via unificação `PageContext`. Este teste fica como sentinel
-/// histórico — Group cm continua presente (pré e pós-P281); content
-/// (hello) só passou a aparecer pós-P281. Testes P281 abaixo cobrem
-/// positivamente o novo comportamento.
-#[test]
-fn p279_text_em_group_continua_stub_documentado() {
-    use ecow::EcoString;
-    use typst_core::entities::layout_types::{
-        FrameItem, Page, PagedDocument, Point, Pt, TextStyle, TransformMatrix,
-    };
-    let inner_text = FrameItem::Text {
-        pos: Point { x: Pt(10.0), y: Pt(10.0) },
-        text: EcoString::from("hello"),
-        style: TextStyle::default(),
-    };
-    let group = FrameItem::Group {
-        pos: Point { x: Pt(50.0), y: Pt(50.0) },
-        matrix: TransformMatrix::identity(),
-        clip_mask: None,
-        inner_width: 100.0,
-        inner_height: 50.0,
-        items: vec![inner_text],
-    };
-    let doc = PagedDocument::new(vec![Page {
-        width: 595.0,
-        height: 842.0,
-        numbering: None,
-        logical_number: 1,
-        supplement: typst_core::entities::content::Content::Empty,
-        bleed: Default::default(),
-        fill: Default::default(),
-        background: vec![],
-        foreground: vec![],
-        items: vec![group],
-    }]);
-    let pdf = export_pdf(&doc, StreamMode::Verbose);
-    let content = extract_page_content_streams_text(&pdf);
-    // Text dentro de Group continua descartado (stub P278 preserved).
-    // Esta confirmação documenta o scope decisão P279 narrow.
-    // PDF não contém "hello" no content stream (mas pode aparecer em
-    // metadata; verificar literal a presença do Tj operator).
-    // Cm está presente (Group emit) mas Tj para hello ausente.
-    assert!(content.contains("cm"), "Group cm transform sempre emitido");
-    // Note: depending on implementation, Tj/TJ may not appear at all
-    // since draw_item_local Text arm is stub. We accept this state as
-    // documented limitation; P280+ fixará.
-}
-
-/// 6) Smoke test sub-padrão "Render real Groups" N=2 cumulativo.
-#[test]
-fn p279_render_real_groups_n2_smoke() {
-    // P273.13 inaugurou Shape em Group emit local; P279 estende para
-    // Image em Group. Sub-padrão "Render real Groups" N=2 cumulativo.
-    // Aguarda reaplicação cross-variant (Text/Glyph/Line em P280+)
-    // para considerar formalização N≥3-4.
-    assert!(
-        true,
-        "P279 reaplica sub-padrão 'Render real Groups' N=2 cumulativo \
-             (P273.13 Shape + P279 Image)"
-    );
-}
-
 // ── P281 — Text/Glyph/Line em Group via unificação PageContext ─────
 //
 // P281 unifica os 3 stream-builders (Type1/CIDFont/Multifont) em
@@ -8095,8 +8080,10 @@ fn p281_mk_text_in_group(text: &str) -> PagedDocument {
         pos: Point { x: Pt(10.0), y: Pt(15.0) },
         text: EcoString::from(text),
         style: TextStyle::default(),
+        bidi: None,
     };
     let group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(50.0), y: Pt(60.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -8145,8 +8132,10 @@ fn p281_text_em_group_cidfont() {
         pos: Point { x: Pt(10.0), y: Pt(15.0) },
         text: EcoString::from("AB"),
         style: TextStyle::default(),
+        bidi: None,
     };
     let group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(50.0), y: Pt(60.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -8175,15 +8164,17 @@ fn p281_text_em_group_cidfont() {
     let pat_refs: Vec<PatternRef> = Vec::new();
     let glyph_mapping = std::collections::HashMap::new();
     let glyph_to_nominal = std::collections::HashMap::new();
-    let ctx = PageContext::cidfont(
+    let ctx = PageContext::with_font_scenario(
         &ptr_to_idx,
         &img_refs,
         &pat_ptr_to_idx,
         &pat_refs,
-        &char_to_gid,
-        &glyph_mapping,
-        &glyph_to_nominal,
-        None,
+        FontScenario::Cidfont {
+            char_to_gid: &char_to_gid,
+            glyph_mapping: &glyph_mapping,
+            glyph_to_nominal: &glyph_to_nominal,
+            bitmap: None,
+        },
         StreamMode::Verbose,
     );
     let bytes = build_page_stream(&page, &ctx);
@@ -8211,6 +8202,7 @@ fn p281_glyph_em_group_cidfont() {
         base_char: 'x',
     };
     let group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(50.0), y: Pt(60.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -8237,15 +8229,17 @@ fn p281_glyph_em_group_cidfont() {
     let pat_refs: Vec<PatternRef> = Vec::new();
     let glyph_mapping = std::collections::HashMap::new();
     let glyph_to_nominal = std::collections::HashMap::new();
-    let ctx = PageContext::cidfont(
+    let ctx = PageContext::with_font_scenario(
         &ptr_to_idx,
         &img_refs,
         &pat_ptr_to_idx,
         &pat_refs,
-        &char_to_gid,
-        &glyph_mapping,
-        &glyph_to_nominal,
-        None,
+        FontScenario::Cidfont {
+            char_to_gid: &char_to_gid,
+            glyph_mapping: &glyph_mapping,
+            glyph_to_nominal: &glyph_to_nominal,
+            bitmap: None,
+        },
         StreamMode::Verbose,
     );
     let bytes = build_page_stream(&page, &ctx);
@@ -8267,14 +8261,15 @@ fn p281_text_em_group_multifont() {
     // Multifont: Text com style.font="FontB" selecciona /F2; default /F1.
     let font_a = FontList::single(ecow::EcoString::from("FontA"));
     let font_b = FontList::single(ecow::EcoString::from("FontB"));
-    let mut style_b = TextStyle::default();
-    style_b.font = Some(font_b.clone());
+    let style_b = TextStyle { font: Some(font_b.clone()), ..TextStyle::default() };
     let inner = FrameItem::Text {
         pos: Point { x: Pt(10.0), y: Pt(15.0) },
         text: EcoString::from("X"),
         style: style_b,
+        bidi: None,
     };
     let group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(50.0), y: Pt(60.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -8316,17 +8311,20 @@ fn p281_text_em_group_multifont() {
             std::collections::HashMap<u16, crate::export::bitmap_glyphs::BitmapGlyphRef>,
         >,
     > = (0..fonts.len()).map(|_| None).collect();
-    let ctx = PageContext::multifont(
+    let ctx = PageContext::with_font_scenario(
         &ptr_to_idx,
         &img_refs,
         &pat_ptr_to_idx,
         &pat_refs,
-        &fonts,
-        &per_font_char_to_gid,
-        &per_font_glyph_mapping,
-        &per_font_glyph_to_nominal,
-        &per_font_glyph_reverse,
-        &per_font_bitmap,
+        FontScenario::Multifont {
+            fonts: &fonts,
+            per_font_char_to_gid: &per_font_char_to_gid,
+            per_font_glyph_mapping: &per_font_glyph_mapping,
+            per_font_glyph_to_nominal: &per_font_glyph_to_nominal,
+            per_font_glyph_reverse: &per_font_glyph_reverse,
+            per_font_bitmap: &per_font_bitmap,
+            bindings: Some(crate::export::font_binding::LookupCache::default()),
+        },
         StreamMode::Verbose,
     );
     let bytes = build_page_stream(&page, &ctx);
@@ -8359,6 +8357,7 @@ fn p281_glyph_em_group_helvetica_continua_ignorado() {
         base_char: 'x',
     };
     let group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(50.0), y: Pt(60.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -8401,6 +8400,7 @@ fn p281_line_em_group_emite_path_ops() {
         cap: typst_core::entities::geometry::LineCap::Butt,
     };
     let group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(50.0), y: Pt(60.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -8443,8 +8443,10 @@ fn p281_text_em_group_aninhado_helvetica() {
         pos: Point { x: Pt(5.0), y: Pt(5.0) },
         text: EcoString::from("nested"),
         style: TextStyle::default(),
+        bidi: None,
     };
     let inner_group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(10.0), y: Pt(10.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -8453,6 +8455,7 @@ fn p281_text_em_group_aninhado_helvetica() {
         items: vec![text],
     };
     let outer_group = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(100.0), y: Pt(100.0) },
         matrix: TransformMatrix::identity(),
         clip_mask: None,
@@ -8477,23 +8480,6 @@ fn p281_text_em_group_aninhado_helvetica() {
     assert!(
         content.contains("(nested) Tj"),
         "P281 nested: Text em Group dentro de Group emite Tj (recursão N=2)"
-    );
-}
-
-#[test]
-fn p281_render_real_groups_n3_smoke() {
-    // Sub-padrão "Render real Groups" N=3 cumulativo:
-    // - P273.13: Shape em Group → emit real path ops.
-    // - P279: Image em Group → emit real `/Im{n} Do`.
-    // - P281: Text/Glyph/Line em Group → emit real (via PageContext).
-    //
-    // Limiar formalização N≥3-4 atingido factualmente; decisão
-    // mantém Opção A (sem ADR) per anti-padrão over-formalização
-    // P273.17 §0 — L0 `infra/export.md` secção "Pipeline unificado
-    // (P281)" documenta arquitectura.
-    assert!(
-        true,
-        "P281 reaplica 'Render real Groups' N=3 cumulativo (Shape+Image+Text/Glyph/Line)"
     );
 }
 
@@ -8553,8 +8539,10 @@ fn p285_line_sem_stroke_preserva_bit_exact() {
     // Pesquisa por padrão: nenhum `RG ` antes do `w` (na mesma linha).
     // Heurística forte: contar ocorrências.
     let rg_count = s.matches(" RG ").count();
-    assert_eq!(rg_count, 0,
-            "Line sem stroke nem fill herdado NÃO deve emitir RG; encontrei {rg_count} no PDF");
+    assert_eq!(
+        rg_count, 0,
+        "Line sem stroke nem fill herdado NÃO deve emitir RG; encontrei {rg_count} no PDF"
+    );
 }
 
 /// P285 — `stroke: Some(red)` injecta `1.000 0.000 0.000 RG ` antes
@@ -8620,8 +8608,10 @@ fn p285_underline_herda_fill_do_texto_quando_stroke_none() {
     use typst_core::entities::style::{Style, Styles};
     // Construir: Styled([Fill(red)], Underline { stroke: None, ... })
     let inner = Content::underline(Content::text("h"), None, None, None);
-    let mut style = TextStyle::default();
-    style.fill = Some(Color::rgb(255, 0, 0));
+    let style = TextStyle {
+        fill: Some(Color::rgb(255, 0, 0)),
+        ..TextStyle::default()
+    };
     let styled = Content::styled(
         Box::new(inner),
         Styles::from_iter([Style::Fill(Color::rgb(255, 0, 0))]),
@@ -8650,8 +8640,11 @@ fn p285_math_frac_preserva_ausencia_de_rg() {
     let doc = layout(&frac);
     let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
-    assert_eq!(s.matches(" RG ").count(), 0,
-            "math frac NÃO deve emitir RG (color: None hardcoded); preserva bit-exact pré-P285");
+    assert_eq!(
+        s.matches(" RG ").count(),
+        0,
+        "math frac NÃO deve emitir RG (color: None hardcoded); preserva bit-exact pré-P285"
+    );
 }
 
 // ── Passo 286 — wrap-aware text decoration (PDF integration) ───────
@@ -9137,7 +9130,7 @@ fn p427_pdf_rect_fill_emite_operador_re_e_fill() {
         ShapeKind::Rect,
         Some(Box::new(Value::Length(Length { abs: Abs(50.0), em: 0.0 }))),
         Some(Box::new(Value::Length(Length { abs: Abs(30.0), em: 0.0 }))),
-        Some(Paint::solid(Color::rgb(255, 0, 0))),
+        Some(Paint::Solid(Color::rgb(255, 0, 0))),
         None,
     ));
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -9149,7 +9142,8 @@ fn p427_pdf_rect_fill_emite_operador_re_e_fill() {
 
 #[test]
 fn p427_pdf_rect_stroke_emite_rg_e_s() {
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::geometry::ShapeKind;
+    use typst_core::entities::geometry::Stroke;
     use typst_core::entities::layout_types::{Abs, Length};
     use typst_core::entities::paint::Paint;
     use typst_core::entities::value::Value;
@@ -9160,7 +9154,7 @@ fn p427_pdf_rect_stroke_emite_rg_e_s() {
         Some(Box::new(Value::Length(Length { abs: Abs(30.0), em: 0.0 }))),
         None,
         Some(Stroke {
-            paint: Paint::solid(Color::rgb(0, 0, 255)),
+            paint: Paint::Solid(Color::rgb(0, 0, 255)),
             thickness: 2.0,
             overhang: false,
             ..Stroke::default()
@@ -9175,7 +9169,8 @@ fn p427_pdf_rect_stroke_emite_rg_e_s() {
 
 #[test]
 fn p427_pdf_rect_fill_stroke_emite_b() {
-    use typst_core::entities::geometry::{ShapeKind, Stroke};
+    use typst_core::entities::geometry::ShapeKind;
+    use typst_core::entities::geometry::Stroke;
     use typst_core::entities::layout_types::{Abs, Length};
     use typst_core::entities::paint::Paint;
     use typst_core::entities::value::Value;
@@ -9184,9 +9179,9 @@ fn p427_pdf_rect_fill_stroke_emite_b() {
         ShapeKind::Rect,
         Some(Box::new(Value::Length(Length { abs: Abs(40.0), em: 0.0 }))),
         Some(Box::new(Value::Length(Length { abs: Abs(25.0), em: 0.0 }))),
-        Some(Paint::solid(Color::rgb(0, 255, 0))),
+        Some(Paint::Solid(Color::rgb(0, 255, 0))),
         Some(Stroke {
-            paint: Paint::solid(Color::rgb(0, 0, 0)),
+            paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: false,
             ..Stroke::default()
@@ -9212,7 +9207,7 @@ fn p427_pdf_ellipse_emite_bezier_e_fill() {
         ShapeKind::Ellipse,
         Some(Box::new(Value::Length(Length { abs: Abs(60.0), em: 0.0 }))),
         Some(Box::new(Value::Length(Length { abs: Abs(40.0), em: 0.0 }))),
-        Some(Paint::solid(Color::rgb(255, 255, 0))),
+        Some(Paint::Solid(Color::rgb(255, 255, 0))),
         None,
     ));
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -9240,7 +9235,7 @@ fn p427_pdf_line_emite_m_l_s() {
         None,
         None,
         Some(Stroke {
-            paint: Paint::solid(Color::rgb(0, 0, 0)),
+            paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: false,
             ..Stroke::default()
@@ -9258,7 +9253,8 @@ fn p427_pdf_line_emite_m_l_s() {
 
 #[test]
 fn p427_pdf_polygon_path_emite_m_l_h_b() {
-    use typst_core::entities::geometry::{PathItem, ShapeKind, Stroke};
+    use typst_core::entities::geometry::Stroke;
+    use typst_core::entities::geometry::{PathItem, ShapeKind};
     use typst_core::entities::layout_types::{Abs, Length, Point, Pt};
     use typst_core::entities::paint::Paint;
     use typst_core::entities::value::Value;
@@ -9274,9 +9270,9 @@ fn p427_pdf_polygon_path_emite_m_l_h_b() {
         ShapeKind::Path(path),
         Some(Box::new(Value::Length(Length { abs: Abs(50.0), em: 0.0 }))),
         Some(Box::new(Value::Length(Length { abs: Abs(40.0), em: 0.0 }))),
-        Some(Paint::solid(Color::rgb(128, 0, 128))),
+        Some(Paint::Solid(Color::rgb(128, 0, 128))),
         Some(Stroke {
-            paint: Paint::solid(Color::rgb(0, 0, 0)),
+            paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: false,
             ..Stroke::default()
@@ -9300,7 +9296,10 @@ fn pdf_label_emite_named_dests() {
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("/Names"), "catalog deve ter /Names");
     assert!(s.contains("/Dests"), "deve haver dicionário /Dests");
-    assert!(s.contains("/sec1"), "deve haver destino /sec1");
+    assert!(
+        s.contains("/Names [<FEFF0073006500630031> [3 0 R /XYZ"),
+        "deve haver a chave sec1 e seu destino na árvore"
+    );
     assert!(s.contains("/XYZ"), "destino deve usar /XYZ");
 }
 
@@ -9316,10 +9315,10 @@ fn pdf_label_posicao_y_up_no_dests() {
         .expect("layout deve registar posição");
     let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
-    // Procurar array /XYZ no destino /fig1: [page_ref /XYZ x y null]
+    // Procurar o array /XYZ associado à string fig1 na árvore.
     let expected_y = doc.pages[0].height - pos.y.val();
-    let needle = format!("/fig1 [3 0 R /XYZ");
-    let idx = s.find(&needle).expect("deve encontrar destino /fig1");
+    let needle = "/Names [<FEFF0066006900670031> [3 0 R /XYZ";
+    let idx = s.find(needle).expect("deve encontrar a string fig1 e seu destino");
     let rest = &s[idx..];
     let close = rest.find(']').expect("array deve fechar");
     let array = &rest[..close + 1];
@@ -9352,8 +9351,14 @@ fn pdf_label_auto_e_user_geram_dests() {
     let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("/Dests"), "deve haver dicionário /Dests");
-    assert!(s.contains("/auto-fig"), "label auto-gerada deve aparecer em /Dests");
-    assert!(s.contains("/user-sec"), "label user-created deve aparecer em /Dests");
+    assert!(
+        s.contains("<FEFF006100750074006F002D006600690067> [3 0 R /XYZ"),
+        "label auto-gerada deve aparecer na árvore de destinos"
+    );
+    assert!(
+        s.contains("<FEFF0075007300650072002D007300650063> [3 0 R /XYZ"),
+        "label user-created deve aparecer na árvore de destinos"
+    );
 }
 
 // ── P463 — /GoTo annotations para ref interno ───────────────────────────
@@ -9367,7 +9372,10 @@ fn pdf_ref_emite_goto_annotation() {
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("/Subtype /Link"), "deve haver annotation de Link");
     assert!(s.contains("/S /GoTo"), "annotation deve ser acção /GoTo");
-    assert!(s.contains("/D /sec1"), "destino deve ser /sec1");
+    assert!(
+        s.contains("/D <FEFF0073006500630031>"),
+        "ação deve referir a mesma string sec1 da árvore"
+    );
 }
 
 #[test]
@@ -9518,7 +9526,9 @@ fn p772u_fonte_cff2_usa_cidfont_type0_opentype() {
     let font_data = match std::fs::read(fixture_path) {
         Ok(d) => d,
         Err(e) => {
-            eprintln!("SKIP p772u_fonte_cff2_usa_cidfont_type0_opentype: fixture não encontrada: {e}");
+            eprintln!(
+                "SKIP p772u_fonte_cff2_usa_cidfont_type0_opentype: fixture não encontrada: {e}"
+            );
             return;
         }
     };
@@ -9558,7 +9568,9 @@ fn p772u_multifont_delta_tj_consistente_com_variacao_de_peso() {
     let font_data = match std::fs::read(fixture_path) {
         Ok(d) => d,
         Err(e) => {
-            eprintln!("SKIP p772u_multifont_delta_tj_consistente_com_variacao_de_peso: fixture não encontrada: {e}");
+            eprintln!(
+                "SKIP p772u_multifont_delta_tj_consistente_com_variacao_de_peso: fixture não encontrada: {e}"
+            );
             return;
         }
     };
@@ -9591,6 +9603,8 @@ fn p772u_multifont_delta_tj_consistente_com_variacao_de_peso() {
         style: style.clone(),
         text: ecow::EcoString::from("W"),
         units_per_em: 1000,
+        bidi: None,
+        font: None,
     };
     let doc = typst_core::entities::layout_types::PagedDocument::new(vec![
         typst_core::entities::layout_types::Page {
@@ -9619,11 +9633,18 @@ fn p772u_multifont_delta_tj_consistente_com_variacao_de_peso() {
     );
     let s = String::from_utf8_lossy(&pdf);
 
-    // Extrair a largura declarada em /W para o GID 223.
-    let w_marker = format!("{GID_W} [");
+    // Read the emitted CID: variable CFF2 subsetting can remap original GIDs.
+    let content = extract_page_content_streams_text(&pdf);
+    let tj_pos = content.find("] TJ").expect("stream deve ter operador TJ");
+    let tj_start = content[..tj_pos].rfind('[').expect("TJ array deve abrir com [");
+    let tj_array = content[tj_start + 1..tj_pos].trim();
+    let hex_end = tj_array.find('>').expect("glifo deve estar entre < >");
+    let cid =
+        u16::from_str_radix(tj_array[1..hex_end].trim(), 16).expect("CID hexadecimal");
+    let w_marker = format!("{cid} [");
     let w_pos = s
         .find(&w_marker)
-        .unwrap_or_else(|| panic!("GID {GID_W} deve aparecer em /W: {s}"));
+        .unwrap_or_else(|| panic!("CID emitido {cid} deve aparecer em /W: {s}"));
     let after_w = &s[w_pos + w_marker.len()..];
     let w_end = after_w.find(']').expect("/W entry deve fechar com ]");
     let nominal: i32 = after_w[..w_end]
@@ -9635,10 +9656,7 @@ fn p772u_multifont_delta_tj_consistente_com_variacao_de_peso() {
     // P956 — o envelope verbose torna o content stream comprimível (P884);
     // ler o stream descomprimido (o /W acima está no dicionário da fonte,
     // não comprimido).
-    let content = extract_page_content_streams_text(&pdf);
-    let tj_pos = content.find("] TJ").expect("stream deve ter operador TJ");
-    let tj_start = content[..tj_pos].rfind('[').expect("TJ array deve abrir com [");
-    let tj_array = content[tj_start + 1..tj_pos].trim();
+
     // Formato: "<GID_HEX> DELTA " — extrair o número após o glyph hex.
     let delta_start = tj_array.find('>').expect("glifo deve estar entre < >") + 1;
     let delta: i32 = tj_array[delta_start..]
@@ -9726,6 +9744,8 @@ mod p979_tests {
             style: style.clone(),
             text: EcoString::from("a"),
             units_per_em: 1000,
+            bidi: None,
+            font: None,
         }
     }
 
@@ -9738,15 +9758,17 @@ mod p979_tests {
         let img_refs: Vec<ImageRef> = Vec::new();
         let pat_ptr_to_idx = HashMap::new();
         let pat_refs: Vec<PatternRef> = Vec::new();
-        PageContext::cidfont(
+        PageContext::with_font_scenario(
             Box::leak(Box::new(ptr_to_idx)),
             Box::leak(Box::new(img_refs)),
             Box::leak(Box::new(pat_ptr_to_idx)),
             Box::leak(Box::new(pat_refs)),
-            char_to_gid,
-            glyph_mapping,
-            glyph_to_nominal,
-            None,
+            FontScenario::Cidfont {
+                char_to_gid,
+                glyph_mapping,
+                glyph_to_nominal,
+                bitmap: None,
+            },
             StreamMode::Verbose,
         )
     }
@@ -9895,6 +9917,8 @@ mod p983_tests {
             style: TextStyle { math: true, ..TextStyle::regular(Pt(12.0)) },
             text: EcoString::from("a"),
             units_per_em: 1000,
+            bidi: None,
+            font: None,
         }
     }
 
@@ -9905,6 +9929,8 @@ mod p983_tests {
             style: TextStyle::regular(Pt(12.0)),
             text: EcoString::from("a"),
             units_per_em: 1000,
+            bidi: None,
+            font: None,
         }
     }
 
@@ -9928,15 +9954,17 @@ mod p983_tests {
         let img_refs: &'static [ImageRef] = Box::leak(Box::new(Vec::new()));
         let pat_ptr_to_idx = Box::leak(Box::new(HashMap::new()));
         let pat_refs: &'static [PatternRef] = Box::leak(Box::new(Vec::new()));
-        let ctx = PageContext::cidfont(
+        let ctx = PageContext::with_font_scenario(
             ptr_to_idx,
             img_refs,
             pat_ptr_to_idx,
             pat_refs,
-            &char_to_gid,
-            &glyph_mapping,
-            &glyph_to_nominal,
-            None,
+            FontScenario::Cidfont {
+                char_to_gid: &char_to_gid,
+                glyph_mapping: &glyph_mapping,
+                glyph_to_nominal: &glyph_to_nominal,
+                bitmap: None,
+            },
             StreamMode::Verbose,
         )
         .with_oracle(oracle);
@@ -10003,6 +10031,7 @@ mod p1140_6_tagged_pdf {
                 pos: Point { x: Pt(x), y: Pt(40.0) },
                 text: EcoString::from("x"),
                 style: TextStyle::regular(Pt(11.0)),
+                bidi: None,
             }],
         }
     }

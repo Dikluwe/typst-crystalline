@@ -18,16 +18,16 @@ critério de escolha e protocolo de regeneração vive no L0
 | Source | Output (bytes) | md5 (8 prefix) | Cluster exercitado |
 |---|---:|---|---|
 | `01-markup-plain.typ` | 2277 | `0c88172f` | API + Helvetica + escape_pdf_string |
-| `02-markup-heading.typ` | 2709 | `75c05666` | Helvetica + emit_text |
+| `02-markup-heading.typ` | 2754 | `1f3960b2` | Helvetica + emit_text |
 | `03-text-styling.typ` | 2464 | `d6f74d6c` | Bold/italic via Styled → /F2/F3 |
-| `04-shapes.typ` | 2325 | `9d5654cd` | Shape kinds (rect, circle) + paint solid |
+| `04-shapes.typ` | 2326 | `62f7c824` | Shape kinds (rect, circle) + paint solid |
 | `05-gradient-linear.typ` | 14129 | `28eb4d9c` | Linear fill Pattern (P1483) |
-| `06-gradient-conic.typ` | 5327 | `0bcb38c3` | Conic fill Pattern + Coons (P1483) |
-| `07-multi-feature.typ` | 15032 | `6c1d05b6` | Integração (heading + gradient + multi-página) |
-| `08-image-jpeg.typ` | 3557 | `e8c26077` | JPEG XObject + dedup + zlib |
-| `09-cidfont.typ` | 6759 | `59d0461d` | CIDFont + Type0 + Identity-H + ToUnicode CMap (subset da fonte versionada) |
+| `06-gradient-conic.typ` | 13477 | `cb26a495` | Conic fill Pattern + Coons (geometria 2026-10-14) |
+| `07-multi-feature.typ` | 15115 | `413771c4` | Integração (heading + gradient + multi-página) |
+| `08-image-jpeg.typ` | 3541 | `b605897f` | JPEG XObject + dedup + zlib |
+| `09-cidfont.typ` | 6768 | `388eb3c5` | CIDFont + Type0 + Identity-H + ToUnicode CMap (subset da fonte versionada) |
 
-**Total**: 54.579 bytes de referência distribuídos por 9 fixtures.
+**Total**: 62.851 bytes de referência distribuídos por 9 fixtures.
 
 ## Cobertura por cluster
 
@@ -142,3 +142,79 @@ gerações produziram bytes idênticos. Referência anterior 6759B,
 SHA-256 4754801d459118860b642267b636375ae983008d65ea51dba06489861ff2a865; atual 6768B,
 SHA-256 29a600be50a6655b49cce33d3d01826dc8e6ccf0aea81928293159498fb59b91. Fonte e entrada não mudaram.
 Provas em `00_nucleo/diagnosticos/tracking-pdf-2026-09-28/snapshot-receipt.json`.
+
+### Clip efetivo de imagem — 2026-10-08
+
+Somente 08-image-jpeg foi regenerado após a remoção de um clip redundante:
+3557 para 3541 bytes, SHA-256 anterior
+`dea16265f7c0892b00e6437d7996a66f915185aef9811722438dc172dd2fccdc`,
+atual `2866e3708b0685f1f7b998881f7f118673643170a8584289a901b2b0ca42a0c3`.
+As duas gerações pelo harness foram idênticas, `qpdf --check` passou e os
+outros oito arquivos mantiveram os seus SHA-256. A tabela operacional também
+foi reconciliada com o fixture 09 já regenerado em 2026-09-29; esse PDF
+não foi alterado nesta manutenção.
+
+### Destinos nomeados resolvíveis — 2026-10-14
+
+Somente 02-markup-heading e 07-multi-feature foram regenerados pelo harness
+Compact/Disabled/epoch fixo. Duas gerações produziram bytes idênticos.
+qpdf aprovou os arquivos; texto, renderização e todos os objetos fora da
+árvore de destinos ficaram idênticos. Os outros sete PDFs mantiveram seus
+hashes. A árvore /Names agora associa strings a destinos, em lugar do
+dicionário inválido de nomes.
+
+- 02-markup-heading: 2754 bytes, SHA-256 41fc030a22a521d9844b4a9d7a1be614666e67311cc604feeca4bdf50ec2e8f6.
+- 07-multi-feature: 15112 bytes, SHA-256 86adcb5d45bd9edc9bc362d1a524dd426202bf7e6b85526d73cb75fbfa41b27a.
+
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
+Receitas, UTC, estado, referências anteriores e comparações estão em
+00_nucleo/diagnosticos/destinos-pdf-2026-10-14/evidence.json.gz, entradas
+snapshots/before.json.gz, update-results.json e comparison.json.
+
+### Posicionamento cônico — 2026-10-14
+
+Somente 06-gradient-conic foi regenerado pelo harness Compact/Disabled/epoch
+fixo. Duas gerações idênticas, qpdf sem erros e os outros oito PDFs intactos.
+A comparação independente de objetos aponta somente /Matrix do Pattern 110:
+identidade passa a escala 100×100 e posição (70.866,671.024). Payload Coons,
+stream de pintura e demais objetos são idênticos. A referência anterior
+rasterizava em branco; agora o círculo aparece. Centro autoral, cobertura de
+retângulos e amostragem CMYK ainda são pendências distintas.
+
+Antes: 5327 bytes, SHA-256 36eb907d155610097ebf31f34c0d37451a36bde9b1c909df3cd5419bb9b96e04.
+Depois: 5350 bytes, SHA-256 0642c3080532dc128310fa327e56b58d9fda3673825923fc504c3b2c11de9af5.
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
+UTC, diffstat, fontes, PDFs e resultados em
+00_nucleo/diagnosticos/conic-posicionamento-2026-10-14/evidence.json.gz,
+entradas snapshot-before.json.gz e snapshot-comparison.json.
+
+### Geometria cônica (2026-10-14)
+
+Somente 06 foi regenerado, duas vezes com bytes idênticos. A comparação qpdf
+mostrou alteração apenas do Shading 109 (malha, Decode e precisão de coordenadas);
+Matrix e stream de pintura ficaram iguais. Outros oito PDFs e fontes intactos.
+Diagnóstico conic-geometria-amostragem-2026-10-14 conserva hashes, UTC, HEAD e
+working tree, raster e teste funcional. Não é equivalência binária com vanilla.
+
+
+### Fronteira física de formas — 2026-10-14
+
+Somente 04/07 foram regenerados pelo harness Compact/Disabled/epoch fixo.
+Duas gerações idênticas, qpdf sem erros e nove testes sem UPDATE aprovados.
+Os outros sete PDFs, fontes, harness e L0 ficaram intactos. A comparação de
+objetos decodificados mostra mudança somente na stream 4 de cada PDF:
+04 desloca o círculo 7.7pt para baixo, removendo cap-height do gap; 07
+desloca o título e texto posteriores 43.2pt, incorporando o fim da forma
+(30pt) e sua margem de bloco (13.2pt). Palavras, fontes, recursos, gradiente
+e destinos não mudaram. O raster foi inspecionado; a referência antiga de
+07 sobrepunha o conteúdo seguinte ao bloco da forma. Não é igualdade
+binária com vanilla nem certificado de todas as formas/contêineres.
+
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
+Provas e bytes anteriores em
+`00_nucleo/diagnosticos/transformacoes-2026-10-14/shape-flow/snapshots/`,
+com UTC/status/diffstat/hashes na captura anterior e gerações registradas.
+
+- 04-shapes: 2326 bytes, SHA-256 `5f61fb7580ff1c2af97c099083470b5b8ed9cb274e6c2310e02c2c72ef1cda80`.
+
+- 07-multi-feature: 15115 bytes, SHA-256 `4c3634884134e213f4048c9a904b966989c478c81c93b1c867b93d1f07b6d56d`.

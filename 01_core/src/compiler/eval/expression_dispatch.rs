@@ -1,10 +1,37 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/expression_dispatch.md
-//! @prompt-hash 298fcb0a
+//! @prompt-hash 7e877e12
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 
 use super::*;
+
+struct CodeSetTail {
+    prefix: Value,
+    styles: crate::entities::style::Styles,
+    span: Span,
+    carrier: Option<Content>,
+    recipe: crate::entities::content::ShowRecipeContent,
+}
+
+fn style_code_tail(content: Content, styles: crate::entities::style::Styles) -> Content {
+    match content {
+        Content::Source(source) => {
+            style_code_tail(source.body.clone(), styles).with_source_span(source.span)
+        }
+        Content::Styled(inner) => {
+            let styles = StyleChain::empty()
+                .push_styles(&styles)
+                .push_styles(&inner.styles)
+                .collapse();
+            Content::styled(
+                inner.body.clone(),
+                crate::entities::style::Styles::from_delta(styles),
+            )
+        }
+        other => Content::styled(other, styles),
+    }
+}
 
 pub(crate) fn eval_expr(
     expr: Expr<'_>,
@@ -21,6 +48,11 @@ pub(crate) fn eval_expr(
     );
     let result = eval_expr_inner(expr, scopes, ctx, engine).map(|value| match value {
         Value::Func(func) => Value::Func(func.with_diagnostic_span(span)),
+        Value::Content(content)
+            if matches!(expr, Expr::ContentBlock(_) | Expr::CodeBlock(_)) =>
+        {
+            Value::Content(content.with_source_span(span))
+        }
         other => other,
     });
     ctx.replace_context_read_styles(previous);
@@ -89,9 +121,14 @@ fn eval_expr_inner(
             // cópias locais mas não afectam o chamador. Engine
             // reconstruído localmente (ADR-0044, Passo 109).
             let mut local_styles = engine.styles.clone();
+            let insertion_styles = local_styles.clone();
+            let insertion_rules = engine.show_rules.clone();
             let mut local_show_rules = Arc::clone(engine.show_rules);
             let mut local_sink = TrackedMut::reborrow_mut(&mut *engine.sink);
             let mut output = Value::None;
+            let mut set_tails: Vec<CodeSetTail> = Vec::new();
+            let mut styled_set_tail = false;
+            let mut set_tail_rules = Arc::clone(engine.show_rules);
             // **P772l** — paridade vanilla `ast::CodeBlock::eval`
             // (`typst-eval/src/code.rs:317-323`): o bloco introduz um
             // âmbito léxico próprio via `scopes.enter()`/`exit()`. Sem isto,
@@ -99,7 +136,7 @@ fn eval_expr_inner(
             // medido: `#let x = 1; #{ let x = 2; x }; #x` devolvia `2, 2`
             // em vez de `2, 1` (shadowing vazava para fora do bloco).
             scopes.enter();
-            {
+            let result = (|| {
                 let mut local_engine = Engine {
                     world: engine.world,
                     font_metrics: engine.font_metrics,
@@ -116,12 +153,165 @@ fn eval_expr_inner(
                     // `typst-eval/src/code.rs:57` + `ops::join`), não só o
                     // da última. Medido: `{ (1,); (2,) }` → `(1, 2)`.
                     let span = expr.span();
-                    let value = eval_expr(expr, scopes, ctx, &mut local_engine)?;
+                    if matches!(expr, Expr::SetRule(_)) {
+                        let before = local_engine.styles.clone();
+                        let carrier = eval_expr(expr, scopes, ctx, &mut local_engine)?;
+                        if ctx.flow.is_some() {
+                            break;
+                        }
+                        let styles = crate::entities::style::Styles::from_delta(
+                            local_engine
+                                .styles
+                                .local_delta_since(&before)
+                                .expect("set styles must descend from their entry"),
+                        );
+                        styled_set_tail |= !styles.is_empty();
+                        set_tail_rules = Arc::clone(local_engine.show_rules);
+                        set_tails.push(CodeSetTail {
+                            prefix: std::mem::replace(&mut output, Value::None),
+                            styles,
+                            span,
+                            carrier: value_to_display_content(carrier),
+                            recipe: crate::entities::content::ShowRecipeContent {
+                                body: Content::Empty,
+                                textual: false,
+                                context_id_floor: ctx.next_context_id,
+                                rules: local_engine
+                                    .show_rules
+                                    .iter()
+                                    .filter(|r| {
+                                        !insertion_rules
+                                            .iter()
+                                            .any(|base| base.id == r.id)
+                                    })
+                                    .cloned()
+                                    .collect::<Vec<_>>()
+                                    .into(),
+                                styles: local_engine.styles.clone(),
+                                guards: local_engine.active_guards.clone(),
+                                file: local_engine.current_file,
+                            },
+                        });
+                        continue;
+                    }
+                    let mut value = eval_expr(expr, scopes, ctx, &mut local_engine)?;
+                    if let Value::Content(content) = &mut value {
+                        let local_delta = if styled_set_tail {
+                            StyleChain::empty().collapse()
+                        } else {
+                            local_engine
+                                .styles
+                                .local_delta_since(&insertion_styles)
+                                .expect("local styles must descend from CodeBlock entry")
+                        };
+                        let local_tail = !local_delta.is_empty()
+                            || !Arc::ptr_eq(
+                                local_engine.show_rules,
+                                if styled_set_tail {
+                                    &set_tail_rules
+                                } else {
+                                    &insertion_rules
+                                },
+                            );
+                        if styled_set_tail
+                            && !local_tail
+                            && crate::compiler::realize::table_cells_needed(content)
+                        {
+                            // A fronteira lexical transportará a receita da cauda.
+                        } else if local_tail
+                            && crate::compiler::realize::table_cells_needed(content)
+                        {
+                            let recipe = Content::ShowRecipe(Arc::new(
+                                crate::entities::content::ShowRecipeContent {
+                                    body: content.clone(),
+                                    textual: false,
+                                    context_id_floor: ctx.next_context_id,
+                                    rules: local_engine
+                                        .show_rules
+                                        .iter()
+                                        .filter(|r| {
+                                            !insertion_rules
+                                                .iter()
+                                                .any(|base| base.id == r.id)
+                                        })
+                                        .cloned()
+                                        .collect::<Vec<_>>()
+                                        .into(),
+                                    styles: local_engine.styles.clone(),
+                                    guards: local_engine.active_guards.clone(),
+                                    file: local_engine.current_file,
+                                },
+                            ));
+                            let mut styles =
+                                crate::entities::style::Styles::from_delta(local_delta);
+                            styles = styles
+                                .push_custom(
+                                    "eval.table.local.recipe",
+                                    Value::Content(recipe),
+                                )
+                                .push_custom("eval.table.local", Value::Bool(true));
+                            *content = Content::styled(content.clone(), styles);
+                        } else {
+                            *content = crate::compiler::realize::capture_table_insertion(
+                                content.clone(),
+                                ctx,
+                                &mut local_engine,
+                            )?;
+                            if !styled_set_tail
+                                && local_engine.styles.collapse()
+                                    != insertion_styles.collapse()
+                                && crate::compiler::realize::bare_math::needs_preparation(
+                                    content,
+                                )
+                            {
+                                *content = Content::styled(
+                                    content.clone(),
+                                    crate::entities::style::Styles::from_delta(
+                                        local_engine.styles.collapse(),
+                                    ),
+                                );
+                            }
+                        }
+                    }
                     output = operators::join(output, value)
                         .map_err(|msg| vec![SourceDiagnostic::error(span, msg)])?;
                     if ctx.flow.is_some() {
                         break;
                     }
+                }
+                for mut tail in set_tails.into_iter().rev() {
+                    let raw_display = matches!(output, Value::Bool(_) | Value::Auto);
+                    let mut content =
+                        value_to_display_content(output).unwrap_or(Content::Empty);
+                    if raw_display {
+                        content =
+                            rules::intercept_content(content, ctx, &mut local_engine)?;
+                    }
+                    if let Some(carrier) = tail.carrier {
+                        content = Content::sequence(vec![carrier, content]);
+                    }
+                    if !tail.styles.is_empty() {
+                        if crate::compiler::realize::table_cells_needed(&content) {
+                            tail.recipe.body = content.clone();
+                            tail.styles = tail
+                                .styles
+                                .push_custom(
+                                    "eval.table.local.recipe",
+                                    Value::Content(Content::ShowRecipe(Arc::new(
+                                        tail.recipe,
+                                    ))),
+                                )
+                                .push_custom("eval.table.local", Value::Bool(true));
+                        }
+                        content = style_code_tail(
+                            content,
+                            tail.styles.push_custom("eval.flow.scope", Value::Bool(true)),
+                        );
+                    }
+                    output = operators::join(tail.prefix, Value::Content(content))
+                        .map_err(|message| {
+                            vec![SourceDiagnostic::error(tail.span, message)]
+                        })?;
                 }
                 // **P740A** — paridade vanilla `warn_for_discarded_content`
                 // (`typst-eval/src/code.rs:413-430`): `return` incondicional
@@ -148,9 +338,10 @@ fn eval_expr_inner(
                         );
                     }
                 }
-            }
+                Ok(output)
+            })();
             scopes.exit();
-            Ok(output)
+            result
         }
 
         // **P715** — `Assign`/`AddAssign`/`SubAssign`/`MulAssign`/`DivAssign`
@@ -277,7 +468,7 @@ fn eval_expr_inner(
             // numbering` (só equações de bloco numeram, paridade vanilla). Fonte
             // única.
             let content = crate::compiler::stdlib::equation_content(body, block);
-            Ok(Value::Content(content))
+            rules::intercept_content(content, ctx, engine).map(Value::Content)
         }
 
         Expr::Math(math) => {
@@ -488,10 +679,11 @@ fn eval_expr_inner(
             })
             .with_diagnostic_span(body_span);
             let id = ctx.next_context_id();
-            Ok(Value::Content(Content::ContextBlock(Arc::new(ContextBlockElem {
-                id,
-                closure,
-            }))))
+            Ok(Value::Content(crate::compiler::realize::capture_context_recipe(
+                Content::ContextBlock(Arc::new(ContextBlockElem { id, closure })),
+                ctx,
+                engine,
+            )))
         }
 
         Expr::Escape(v) => Ok(Value::Str(EcoString::from(v.get()))),

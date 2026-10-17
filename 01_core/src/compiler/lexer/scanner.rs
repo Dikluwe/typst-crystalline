@@ -1,12 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/scanner.md
-//! @prompt-hash c04b131c
+//! @prompt-hash 0e1591e5
 //! @layer L1
 //! @updated 2026-04-22
 //!
 //! String scanner para o lexer do Typst.
 //! Inlinado de `unscanny` (Apache-2.0) — ADR-0014.
-//! Origem: https://github.com/typst/unscanny
+//! Origem: <https://github.com/typst/unscanny>
 
 use std::fmt::{self, Debug, Formatter, Write};
 use std::ops::Range;

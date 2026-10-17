@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/frac.md
-//! @prompt-hash 5c6c6606
+//! @prompt-hash 117da7b5
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -98,6 +98,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         MathBox { width, ascent, descent, items }
     }
 
+    #[cfg(test)]
     pub(super) fn layout_frac(
         &self,
         num: &Content,

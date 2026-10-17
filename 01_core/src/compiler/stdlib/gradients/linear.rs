@@ -7,7 +7,6 @@
 use super::*;
 
 /// `gradient.linear(stops..., angle: ?)` → `Value::Gradient(Gradient::Linear)`.
-
 pub fn native_gradient_linear(
     _ctx: &mut EvalContext,
     args: &Args,

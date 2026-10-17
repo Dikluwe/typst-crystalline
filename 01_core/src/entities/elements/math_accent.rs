@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_accent.md
-//! @prompt-hash 33eb4d8c
+//! @prompt-hash 73e22c04
 //! @layer L1
-//! @updated 2026-06-11
+//! @updated 2026-10-10
 //!
 //! `MathAccentElem` — Lote 2 P317 (família math). Acento matemático (P296).
 //! Comportamento idêntico ao braço anterior do hub (content-preserving).
@@ -71,13 +71,9 @@ impl Element for MathAccentElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathAccent(Arc::new(MathAccentElem {
-            base: self.base.map_content(transform)?,
-            accent: self.accent,
-            size: self.size,
-            dotless: self.dotless,
-            explicit: self.explicit,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathAccent(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -86,6 +82,26 @@ impl Element for MathAccentElem {
     {
         // Terminal (math structural; não desce).
         Content::MathAccent(Arc::new(self.clone()))
+    }
+}
+
+impl MathAccentElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let base = self.base.map_content_if_changed(transform)?;
+        if base.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = base {
+            mapped.base = changed;
+        }
+        Ok(Some(Content::MathAccent(Arc::new(mapped))))
     }
 }
 

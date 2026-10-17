@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/embedded_fonts.md
-//! @prompt-hash 41338f56
+//! @prompt-hash 6f80ee9b
 //! @layer L3
-//! @updated 2026-07-14
+//! @updated 2026-10-08
 //!
 //! **P753/P754** — fontes embutidas do vanilla via `typst-assets`.
 //! Garante que `Libertinus Serif` e as fontes de math/code do vanilla
@@ -89,11 +89,9 @@ pub fn load_embedded_fonts() -> EmbeddedFontSets {
     let mut math_code_book = FontBook::new();
 
     for data in typst_assets::fonts() {
-        let data: Vec<u8> = data.to_vec();
-        let path = PathBuf::from("<embedded>");
-        let slot = FontSlot::new_embedded(path, data.clone());
-
-        if let Some(info) = font_info_from_bytes(&data, 0) {
+        if let Some(info) = font_info_from_bytes(data, 0) {
+            let path = PathBuf::from("<embedded>");
+            let slot = FontSlot::new_embedded_static(path, data);
             match embedded_font_group(&info.family) {
                 "text" => {
                     text_book.push(info);
@@ -129,21 +127,6 @@ mod tests {
                 .any(|info| { info.family.eq_ignore_ascii_case("Libertinus Serif") }),
             "fontes de texto embutidas devem incluir Libertinus Serif"
         );
-    }
-
-    #[test]
-    fn p797_probe_list_all_embedded_families() {
-        // Sonda P797: lista todas as famílias embutidas com peso e estilo para
-        // confirmar se Bold/Italic do Libertinus Serif estão disponíveis.
-        let sets = load_embedded_fonts();
-        for info in sets
-            .text_book
-            .infos()
-            .iter()
-            .chain(sets.math_code_book.infos().iter())
-        {
-            eprintln!("FONT: family={:?} variant={:?}", info.family, info.variant);
-        }
     }
 
     #[test]
@@ -191,6 +174,7 @@ mod tests {
         assert_ne!(idx_bold, idx_ital, "Bold e Italic devem ser faces diferentes (P797)");
     }
 
+    #[test]
     fn p754_newcm_math_is_not_in_text_group() {
         let sets = load_embedded_fonts();
         // P784 — o ID1 cru (sem espaços) é "NewComputerModernMath".
@@ -245,6 +229,13 @@ mod tests {
         assert!(
             !dejavu_mono_in_text,
             "DejaVu Sans Mono não deve estar no grupo texto (P754)"
+        );
+        assert!(
+            sets.math_code_book
+                .infos()
+                .iter()
+                .any(|info| info.family.to_lowercase().starts_with("dejavu sans mono")),
+            "DejaVu Sans Mono deve estar presente no grupo math/code"
         );
     }
 

@@ -1,5 +1,8 @@
 # Prompt L0 — `entities/tiling` — padrão de azulejos (Tiling)
-Hash do Código: c6559d7a
+Hash do Código: 42d13202
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/tiling-placement.toml sha256:9c88c9c3bde8b005623fa70b5213400655a9a741b1a140b6b76c7225fc16edb4
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/tiling.rs`
@@ -133,8 +136,8 @@ somente corpo fechado Image/Gradient/Color, size, spacing e relative
 self/parent. O vanilla ratificado `a51e02804`, em
 `crates/typst-library/src/visualize/tiling.rs:59-76,99-185,278-376`, aceita
 conteúdo arbitrário, materializa-o em frame na fase de layout, resolve
-`size:auto`, conserva spacing/offset/angle/relative e aplica offset antes de
-angle. A obrigação é a semântica e morfologia da linguagem, não armazenar um
+`size:auto`, conserva spacing/offset/angle/relative e gira a grade em torno
+do ponto offset (ordem esclarecida no núcleo tiling-placement). A obrigação é a semântica e morfologia da linguagem, não armazenar um
 `Frame` vanilla nem copiar sua mecânica Rust (ADR-0107).
 
 ### Contrato público proposto
@@ -162,3 +165,38 @@ Construções antigas de Color/Image continuam representáveis. Os defaults
 anteriores só são preservados quando equivalentes ao observável vanilla; em
 particular, `relative:auto` não pode ser colapsado fisicamente em `self` antes
 de conhecer o contexto de layout.
+
+
+## Origem da rotação de tiling — 2026-10-14
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/tiling-transformacao-2026-10-14/before/results.json.gz`
+conserva fontes/owners, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
+working tree não commitado, diffstat, UTC e binários. Referência pinada
+9f2b6e8715237cb086899a42873660fe744622e8. Para angle90 e offset(3pt,5pt),
+o SVG vanilla emite matrix(0 1 -1 0 3 5); o Tekt emite (0 1 -1 0 -5 3).
+No pin, visualize/tiling.rs:173-174 descreve rotação em torno do offset;
+:375-377 concatena translate(offset) com rotate(angle), e
+layout/transform.rs:334-343 calcula T*R. O texto histórico "offset antes de
+angle" foi interpretado incorretamente como rotação do próprio offset.
+Semântica geométrica é obrigação de linguagem; ordem de chamadas Rust não é.
+
+before/render-comparison.json.gz discrimina targets: em quarter sem offset,
+Tekt PDF e SVG coincidem exatamente com vanilla SVG, enquanto vanilla PDF
+difere em 414 pixels >16. Não copiar essa diferença do PDF como requisito.
+Em quarter-offset, os SVGs diferem em 1764 pixels >16. Rasterizações usam
+canvas inteiro 240×192, branco, librsvg e Poppler, sem recortes/tolerâncias
+criadas para aprovar. A evidência não certifica parent composto nem todo PDF.
+
+### Responsabilidade deste owner
+
+Preservar todos os campos, tipos, valores, constructor e defaults da entidade
+Tiling. A documentação de angle declara rotação horária em torno do offset,
+sem implicar que o vetor offset é girado. O núcleo pinado contém a obrigação
+compartilhada. Não introduzir frame resolvido ou novo tipo público; nenhum
+método ganha comportamento de layout. A ambiguidade do texto de P1245 fica
+retificada, sem alteração de contrato Rust ou fase.
+
+Correção interna/de paridade ADR-0127 em fluxo contínuo: L0 primeiro,
+RED→GREEN e resselo restrito. Nenhuma mudança pública ou nova fase.

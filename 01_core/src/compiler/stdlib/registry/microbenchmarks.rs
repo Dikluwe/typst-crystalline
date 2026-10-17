@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/registry/microbenchmarks.md
-//! @prompt-hash 1ce4e40f
+//! @prompt-hash 6e01ff52
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -203,7 +203,13 @@ mod benchmarks {
     #[test]
     #[ignore = "Criterion microbenchmarks: execute explicitly in release"]
     fn stdlib_microbenchmarks() {
-        assert!(!cfg!(debug_assertions), "run with cargo test --release");
+        #[expect(
+            clippy::assertions_on_constants,
+            reason = "The ignored runner must reject explicit invocation in debug builds"
+        )]
+        {
+            assert!(!cfg!(debug_assertions), "run with cargo test --release");
+        }
         microbenchmark_profiles_cover_all_feature_combinations();
         let mut criterion = Criterion::default()
             .without_plots()

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/grid_cell` — `GridCellElem`
-Hash do Código: 0eaa1d3e
+Hash do Código: 3b7768f0
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/grid_cell.rs`
 **Origem**: modelo D (ADR-0105), **Lote 12 P327** (bloco grid/table cell).

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/outline` — `outline`, `lof`, `lot`
-Hash do Código: 2a486b2f
+Hash do Código: 8f2eec97
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/outline.rs`
@@ -358,3 +358,71 @@ uma set rule não pode respeitar precedência.
 argumento named `indent`. O parsing, os tipos aceitos e a assinatura pública
 Typst permanecem inalterados. Aliases `lof`/`lot` mantêm seus defaults próprios
 e não participam da regra `#set outline` deste passo.
+
+
+## Aridade das fronteiras — `clippy::too_many_arguments`
+
+### Evidência anterior à decisão
+
+A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
+capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
+hashes, UTC, status e `git diff HEAD --stat` estão em
+`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/before.json.gz`.
+A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
+`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/classification.json`.
+Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
+É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
+
+- `C021`: `01_core/src/compiler/stdlib/structural/outline.rs:340`, `compose_outline_entry_indented`, 9 argumentos contados pelo Clippy (limiar 7).
+
+### Prescrição exclusiva por função
+
+As correções abaixo são alvos internos de manutenção, ainda não materializados nesta auditoria.
+Preservar as assinaturas públicas vigentes e as decisões de linguagem deste owner.
+A necessidade de corrigir estrutura é julgamento de manutenção apoiado nos dados
+explicitados; o aviso de aridade, sozinho, não demonstra um defeito funcional.
+
+#### `C021` — `compose_outline_entry_indented`: Correção interna prescrita
+
+O chamador já calcula um plano de indentação (base/hanging/auto/chave/nível/direção) antes de compor o conteúdo. Sete valores desse plano são transportados como posicionais separados; nomear o plano privado preserva presença de prefixo e torna a operação verificável.
+
+Plano privado de indentação com prefix_width_pt, base, hanging_pt, auto, parent_key, level e rtl; compositor recebe prefix, inner e o plano. Preservar exatamente as combinações Option e fallback atuais.
+
+Aceitação: Sem prefixo, auto/fixo/callback, múltiplos níveis, parent_key e RTL mantêm conteúdo, padding e markers; não reexecutar callback nem recalcular métricas.
+
+### Fronteira de materialização
+
+Nesta auditoria, somente o L0 e seu selo de linhagem são atualizados; atributos de
+supressão e mudanças de assinatura/corpo ficam pendentes da etapa de materialização.
+As entradas com correção exigem testes de linguagem/integração do owner e controle
+de chamadas antes/depois, sem relaxar fixtures ou tolerâncias. Manter as camadas,
+a fase, os defaults, o despacho estático e a ausência de estado global mutável.
+Correções de assinatura privada devem migrar também os chamadores e seus L0 antes
+do código. Qualquer necessidade nova de contrato público ou compatibilidade externa
+exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
+
+
+## Aridade final — materialização interna, 2026-10-16
+
+### Medição anterior à decisão
+
+Fontes e L0 vigentes conferidos antes do código; snapshot 00_nucleo/diagnosticos/clippy-aridade-final-2026-10-16/before.json.gz conserva HEAD, working tree não commitado, UTC, status, diffstat e hashes globais. callers.txt registra busca no workspace, incluindo fixtures; as chamadas homônimas do math::MathLayouter são outro motor e permanecem intactas. Inventário anterior tem 22 avisos, cinco destas aridades. Trata-se de estrutura privada Rust, sem nova afirmação de paridade ou intenção upstream.
+
+### Responsabilidade exclusiva e aceitação
+
+Concretizar C021 com OutlineIndentPlan privado: prefix_width_pt Option<f64>, base Length, hanging_pt Option<f64>, auto bool, parent_key i64, level usize e rtl bool. Compositor recebe prefix, inner e plano, desempacota uma vez e mantém o corpo. Migrar chamada produtiva e duas fixtures pelos mesmos valores nomeados, sem alterar asserts, None/Some, callback, métricas ou markers.
+
+Este adendo materializa somente o escopo nominal e supersede seu estado pendente da auditoria. Fluxo contínuo ADR-0127: sem contrato externo, default, fase ou compatibilidade novos. L0 primeiro e resselo restrito. RED de too_many_arguments antes do código, GREEN sem novas supressões ou alteração de limiar; expectativas anteriores devem continuar satisfeitas. Conferir corpos e transporte de valores, preservar fixtures/esperados, sem testes que espelhem carriers. Executar controles existentes de Grid/Table/outline e SVG/tiling antes/depois, suíte workspace completa, build, Clippy all-targets, Rustdoc, formato, linhagem estrita/reversa e Tekt sem novos avisos, sob 12 GiB, swap zero e um job. Resultados não certificam paridade global ou conformidade PDF/UA.
+
+
+## Tamanho dos enums — decisão medida 2026-10-16
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/clippy-enums-2026-10-16/before.json.gz conserva fontes/L0, hashes globais, HEAD, working tree não commitado, UTC e diffstat; callers.txt registra usos no workspace. probe-details.json e measurements.json guardam rustc 1.92/x86_64, comandos/binário/rlib e tamanhos/alocações de candidatos isolados antes de código. O enum privado é espelhado fielmente da fonte; os tipos públicos são medidos diretamente do rlib. O observador unsafe existe somente no executável diagnóstico, nunca na camada produtiva. É medição de representação Rust, não igualdade de linguagem, intenção upstream ou prova de ganho global.
+
+### Responsabilidade exclusiva e aceitação
+
+Migrar somente a captura ao final de native_outline_entry_indented para ContextReadRequest::outline_entry_indented, mantendo os quatro argumentos na mesma ordem/expressões: Content::OutlineEntry(Arc::new(entry)), args.items[1] clonado ou None, args.items[2] clonado ou None e gap. Não calcular medidas, prefixos, callback ou resultado novamente; span/Ok(result)/observe_context_read continuam. Constructor privado do request é definido por 00_nucleo/prompts/compiler/eval/context_reads.md, com mesma posse dos valores e sem nova API externa. Todo o parsing, cálculo de base/hanging/RTL, observação, erros e output anterior fica igual.
+
+Fluxo contínuo ADR-0127: esta etapa altera somente representação/constructor privados ao crate e metadados nominais; os contratos externos dos outcomes e entidades permanecem. L0 antes do código, resselo restrito. Gate de tamanho privado RED→GREEN e Clippy large_enum_variant deve confirmar três spans selecionados antes e resolver um com código e dois com expectativas satisfeitas. Não elevar limiar ou silenciar módulo/impl/crate; não estender expectativas a Tag/Transformation ou ao request privado. Preservar fixtures/esperados e testar os controles existentes de outline (incluindo oito casos P1405), contexto/replay, callbacks e pipeline. Validar workspace completo/build/Clippy/expectativas/Rustdoc/fmt/linhagem, sem avisos Tekt novos, sob 12 GiB, swap zero e um job. Tag/Transformation continuam medidos, sem alteração pública autorizada neste pacote.

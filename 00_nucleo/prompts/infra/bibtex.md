@@ -1,5 +1,5 @@
 # L0 — Pure BibTeX parser
-Hash do Código: c6c40963
+Hash do Código: 2cb557b0
 
 **Layer:** L1 (the owner remains here; filesystem loading belongs to L3)
 **Exclusive consumer:** `01_core/src/compiler/eval/bibtex.rs`

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/html.md
-//! @prompt-hash 54372d33
+//! @prompt-hash 847c6f1f
 //! @layer L1
 
 use std::sync::Arc;
@@ -22,11 +22,9 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 
-#[cfg(test)]
 #[path = "html/p1423_tests.rs"]
 mod p1423_tests;
 
-#[cfg(test)]
 #[path = "html/p1424_tests.rs"]
 mod p1424_tests;
 
@@ -42,10 +40,11 @@ mod typed_element;
 mod typed_tags;
 
 pub use self::elem::native_html_elem;
+pub(in crate::compiler) use self::frame::native_html_frame;
 pub use self::namespace::make_html_module;
 use self::{
-    attr_cast::*, attr_specs::*, attr_values::*, elem::*, frame::*, global_attrs::*,
-    namespace::*, tag_attrs::*, typed_element::*, typed_tags::*,
+    attr_cast::*, attr_specs::*, attr_values::*, global_attrs::*, tag_attrs::*,
+    typed_element::*, typed_tags::*,
 };
 
 #[cfg(test)]

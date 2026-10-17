@@ -1560,7 +1560,7 @@ fn calc_erf_valores_conhecidos() {
     approx_float_erf(
         calc_erf(&mut ctx, &p(vec![Value::Float(1.0)]), &null_world(), test_file_id())
             .unwrap(),
-        0.842_700_792_949_715_0,
+        0.842_700_792_949_715,
     );
     approx_float_erf(
         calc_erf(&mut ctx, &p(vec![Value::Float(2.0)]), &null_world(), test_file_id())

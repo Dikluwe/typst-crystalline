@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/primitives-constructors/decimal.md
-//! @prompt-hash b2bd7d10
+//! @prompt-hash ea6f41d8
 //! @layer L1
 //! @updated 2026-08-23
 
@@ -32,12 +32,6 @@ pub fn native_decimal(
         _ => err(format!("decimal(): requer 1 argumento, recebeu {}", args.items.len())),
     }
 }
-
-/// `duration(...)` → `Value::Duration`.
-///
-/// Duas formas suportadas:
-/// 1. Named args vanilla: `duration(days: 3, hours: 2, minutes: 30)`.
-/// 2. String posicional (compatibilidade P403): `duration("1h30m")`.
 
 #[cfg(test)]
 mod tests {

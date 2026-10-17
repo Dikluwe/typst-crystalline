@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization.md
-//! @prompt-hash 325d2d0f
+//! @prompt-hash 1c08244c
 //! @layer L3
-//! @updated 2026-09-10
+//! @updated 2026-10-09
 //!
 //! A compilation-local owner of contextual contributions and their lifetimes.
 
@@ -11,24 +11,24 @@ use typst_core::entities::compiler_features::Features;
 use typst_core::entities::introspector::TagIntrospector;
 use typst_core::entities::location::Location;
 
-pub(super) struct Prepared {
+pub(super) struct Prepared<'a> {
     pub content: Content,
-    pub settled: Option<(TagIntrospector, PagedDocument)>,
+    pub settled: Option<(TagIntrospector, PagedDocument, FallbackFontMetrics<'a>)>,
 }
 
 struct Execution {
     ctx: EvalContext,
-    input: TagIntrospector,
+    input: Arc<TagIntrospector>,
     result: SourceResult<Content>,
     sink: TypstSink,
     location: Location,
-    final_styles: StyleChain,
+    // Retains style-owned values until this execution record is dropped.
+    _retained_styles: StyleChain,
 }
 
 struct Producer {
     elem: Arc<ContextBlockElem>,
     chain: StyleChain,
-    parent: Option<usize>,
     children: Vec<usize>,
     current: Option<Box<Execution>>,
     selected: bool,
@@ -51,7 +51,7 @@ struct Session<'a> {
     nodes: Vec<Producer>,
     roots: Vec<usize>,
     // Retain causal objects, not fingerprints of newly recreated closures.
-    retired: Vec<Box<Execution>>,
+    retired: Vec<Execution>,
     next_id: u64,
     impossible: bool,
     bundle_html_targets: Option<Vec<bool>>,
@@ -76,11 +76,22 @@ fn ordered_blocks(
     chain: &StyleChain,
 ) -> Option<Vec<(Arc<ContextBlockElem>, StyleChain)>> {
     let by_id = collect_context_blocks(content, chain);
+    if by_id.is_empty() {
+        return Some(Vec::new());
+    }
     let mut seen = HashSet::new();
     let mut ordered = Vec::new();
     let mut unique = true;
     let _ = content.map_content(&mut |node| {
-        if let Content::ContextBlock(elem) = node {
+        let contextual = match node {
+            Content::ContextBlock(elem) => Some(elem),
+            Content::Located(e) => match &e.body {
+                Content::ContextBlock(elem) => Some(elem),
+                _ => None,
+            },
+            _ => None,
+        };
+        if let Some(elem) = contextual {
             if !seen.insert(elem.id) {
                 unique = false;
             }
@@ -91,6 +102,51 @@ fn ordered_blocks(
         Ok(None)
     });
     unique.then_some(ordered)
+}
+
+#[cfg(test)]
+mod ordered_blocks_tests {
+    use super::*;
+    use typst_core::entities::content::RealizedContent;
+    use typst_core::entities::func::Func;
+    use typst_core::entities::layout_types::TrackSizing;
+
+    fn block(id: u64) -> Content {
+        Content::ContextBlock(Arc::new(ContextBlockElem {
+            id,
+            closure: Func::native("dummy", |_ctx, _args, _world, _file| Ok(Value::None)),
+        }))
+    }
+
+    #[test]
+    fn empty_table_and_hidden_original_have_no_ordered_producers() {
+        let table = Content::table(
+            vec![TrackSizing::Auto],
+            vec![],
+            vec![Content::table_cell(Content::text("A"), None, None, None, None)],
+        );
+        let hidden = Content::Realized(Arc::new(RealizedContent {
+            original: block(9),
+            visual: Content::text("visible"),
+        }));
+        let content = Content::sequence(vec![table, hidden]);
+        assert!(ordered_blocks(&content, &StyleChain::default_chain())
+            .unwrap()
+            .is_empty());
+    }
+
+    #[test]
+    fn duplicate_ids_remain_impossible_and_distinct_ids_keep_order() {
+        let chain = StyleChain::default_chain();
+        let duplicate = Content::sequence(vec![block(7), block(7)]);
+        assert!(ordered_blocks(&duplicate, &chain).is_none());
+        let distinct = Content::sequence(vec![block(8), block(3)]);
+        let ordered = ordered_blocks(&distinct, &chain).unwrap();
+        assert_eq!(
+            ordered.iter().map(|(elem, _)| elem.id).collect::<Vec<_>>(),
+            vec![8, 3]
+        );
+    }
 }
 
 impl<'a> Session<'a> {
@@ -112,7 +168,15 @@ impl<'a> Session<'a> {
             let mut seen = HashSet::new();
             let mut blocks = Vec::new();
             let _ = origin.map_content(&mut |node| {
-                if let Content::ContextBlock(elem) = node {
+                let contextual = match node {
+                    Content::ContextBlock(elem) => Some(elem),
+                    Content::Located(e) => match &e.body {
+                        Content::ContextBlock(elem) => Some(elem),
+                        _ => None,
+                    },
+                    _ => None,
+                };
+                if let Some(elem) = contextual {
                     if seen.insert(elem.id) {
                         if let Some(pair) = by_id.get(&elem.id) {
                             blocks.push(pair.clone());
@@ -166,7 +230,6 @@ impl<'a> Session<'a> {
         self.nodes.push(Producer {
             elem,
             chain,
-            parent,
             children: Vec::new(),
             current: None,
             selected,
@@ -179,11 +242,16 @@ impl<'a> Session<'a> {
         index
     }
 
-    fn execute(&mut self, index: usize, input: &TagIntrospector, location: Location) {
+    fn execute(
+        &mut self,
+        index: usize,
+        input: &Arc<TagIntrospector>,
+        location: Location,
+    ) {
         let node = &self.nodes[index];
         let mut ctx = EvalContext::new();
         ctx.in_context = true;
-        ctx.introspector = input.clone();
+        ctx.introspector = input.as_ref().clone();
         ctx.current_location = Some(location);
         ctx.target = node.target;
         // Discovery and never-selected producers retain EvalContext::new's
@@ -220,19 +288,35 @@ impl<'a> Session<'a> {
                 &mut ctx,
                 &mut engine,
             )
-            .map(|v| value_to_content(&v))
+            .and_then(|v| {
+                typst_core::compiler::realize::realize_math_insertions(
+                    value_to_content(&v),
+                    &mut ctx,
+                    &mut engine,
+                )
+            })
+            .and_then(|content| {
+                typst_core::compiler::realize::realize_table_insertions(
+                    content,
+                    &mut ctx,
+                    &mut engine,
+                )
+            })
         };
         self.next_id = ctx.next_context_id;
         let selected_filtered_counter = ctx.has_filtered_counter_reads();
         let selected_html_position =
             ctx.target == EvalTarget::Html && ctx.has_location_position_reads();
+        // Replay uses the recorded reads and clones each candidate into a
+        // fresh context. This evaluation-only view has no later consumer.
+        ctx.introspector = TagIntrospector::empty();
         let execution = Box::new(Execution {
             ctx,
-            input: input.clone(),
+            input: Arc::clone(input),
             result,
             sink,
             location,
-            final_styles: styles,
+            _retained_styles: styles,
         });
         let node = &mut self.nodes[index];
         node.selected |= selected_filtered_counter || selected_html_position;
@@ -240,18 +324,18 @@ impl<'a> Session<'a> {
         node.selected_html_position |= selected_html_position;
         node.invalid = false;
         if let Some(previous) = node.current.replace(execution) {
-            self.retired.push(previous);
+            self.retired.push(*previous);
         }
     }
 
     fn discover(&mut self) -> bool {
-        let input = self.original_intr.clone();
+        let input = Arc::new(self.original_intr.clone());
         for index in self.roots.clone() {
             if let Some(location) =
                 input.context_block_locations.get(&self.nodes[index].elem.id).copied()
             {
                 self.execute(index, &input, location);
-                if self.nodes[index].target == EvalTarget::Html && !self.impossible {
+                if !self.impossible {
                     self.realize(index, &input);
                 }
             }
@@ -273,6 +357,9 @@ impl<'a> Session<'a> {
     }
 
     fn content(&self) -> Content {
+        if self.roots.is_empty() {
+            return self.origin.clone();
+        }
         let resolved = self
             .roots
             .iter()
@@ -317,7 +404,7 @@ impl<'a> Session<'a> {
             .collect()
     }
 
-    fn fail(&self, errors: Vec<SourceDiagnostic>) -> SourceResult<Prepared> {
+    fn fail(&self, errors: Vec<SourceDiagnostic>) -> SourceResult<Prepared<'a>> {
         let originals = self.errors();
         Err(if originals.is_empty() { errors } else { originals })
     }
@@ -328,12 +415,12 @@ impl<'a> Session<'a> {
             self.discard_descendants(child);
             self.nodes[child].active = false;
             if let Some(old) = self.nodes[child].current.take() {
-                self.retired.push(old);
+                self.retired.push(*old);
             }
         }
     }
 
-    fn realize(&mut self, index: usize, input: &TagIntrospector) {
+    fn realize(&mut self, index: usize, input: &Arc<TagIntrospector>) {
         if self.nodes[index].invalid {
             self.discard_descendants(index);
             // Locations come from the real provisional tree, never the local id.
@@ -414,11 +501,11 @@ impl<'a> Session<'a> {
     fn stabilize(
         &mut self,
         module: Option<&Module>,
-    ) -> (SourceResult<Prepared>, Vec<SourceDiagnostic>) {
+    ) -> (SourceResult<Prepared<'a>>, Vec<SourceDiagnostic>) {
         for index in self.order() {
             if self.nodes[index].selected {
                 if let Some(discovery) = self.nodes[index].current.take() {
-                    self.retired.push(discovery);
+                    self.retired.push(*discovery);
                 }
                 self.nodes[index].invalid = true;
             }
@@ -432,7 +519,8 @@ impl<'a> Session<'a> {
         seed.inject_html_positions(HashMap::new());
         let mut history = vec![seed];
         for attempt in 1..=5 {
-            let input = history.last().unwrap();
+            let snapshot = Arc::new(history.last().unwrap().clone());
+            let input = &snapshot;
             for root in self.roots.clone() {
                 self.realize(root, input);
                 if self.impossible {
@@ -521,30 +609,55 @@ impl<'a> Session<'a> {
                 for (key, style) in module.bibliography_styles() {
                     candidate.bib_store.add_style(*key, style.clone());
                 }
-                let logical_start = candidate
-                    .counter_final_values(
-                        &typst_core::entities::counter::CounterKey::Page,
-                    )
-                    .and_then(|v| v.first().copied())
-                    .unwrap_or(1);
                 candidate.inject_positions(input.positions.clone());
                 candidate.inject_pages(input.page_store.clone());
-                let (doc, callback_warnings) = match layout_with_realized_math_callbacks(
-                    &content,
-                    candidate.clone(),
+                let (doc, callback_warnings) =
+                    match super::paged::layout_with_realized_math_callbacks_with_metrics(
+                        &content,
+                        candidate.clone(),
+                        self.world,
+                        self.source,
+                        &self.metrics,
+                    ) {
+                        Ok(pair) => pair,
+                        Err(errors) => return (self.fail(errors), self.warnings()),
+                    };
+                phase_warnings.extend(callback_warnings);
+                candidate.inject_positions(doc.extracted_positions.clone());
+                let (snapshot, page_warnings) = realize_page_snapshot_for_pipeline(
+                    &[(Vec::new(), std::num::NonZeroUsize::new(doc.pages.len()))],
+                    &mut candidate,
                     self.world,
                     self.source,
-                ) {
-                    Ok(pair) => pair,
-                    Err(errors) => return (self.fail(errors), self.warnings()),
-                };
-                phase_warnings.extend(callback_warnings);
+                );
+                if let Err(errors) = snapshot {
+                    return (self.fail(errors), self.warnings());
+                }
+                phase_warnings.extend(page_warnings);
+                let logical_numbers = (1..=doc.pages.len())
+                    .map(|p| {
+                        candidate
+                            .page_store
+                            .logical_number_for_page(
+                                std::num::NonZeroUsize::new(p).unwrap(),
+                            )
+                            .unwrap_or(p)
+                    })
+                    .collect::<Vec<_>>();
+                let logical_final = candidate
+                    .page_counter_final_values
+                    .values()
+                    .next()
+                    .and_then(|v| v.first())
+                    .copied()
+                    .unwrap_or(0);
                 let references = page_reference_pages(&content, &doc);
                 let (pages, numbering_warnings) = match realize_page_numberings(
                     self.world,
                     self.source,
                     &doc,
-                    logical_start,
+                    &logical_numbers,
+                    logical_final,
                     &references,
                 ) {
                     Ok(pair) => pair,
@@ -554,6 +667,18 @@ impl<'a> Session<'a> {
                 candidate.inject_positions(doc.extracted_positions.clone());
                 candidate.inject_pages(pages);
                 document = Some(doc);
+            }
+            if self.target == EvalTarget::Html && self.bundle_html_targets.is_none() {
+                let (snapshot, page_warnings) = realize_page_snapshot_for_pipeline(
+                    &[(Vec::new(), None)],
+                    &mut candidate,
+                    self.world,
+                    self.source,
+                );
+                if let Err(errors) = snapshot {
+                    return (self.fail(errors), self.warnings());
+                }
+                phase_warnings.extend(page_warnings);
             }
             // P1159 participates in this same budget even when selected reads
             // are page-independent. The first D cannot consume its own newly
@@ -638,7 +763,8 @@ impl<'a> Session<'a> {
                 return (
                     Ok(Prepared {
                         content,
-                        settled: document.map(|doc| (candidate, doc)),
+                        settled: document
+                            .map(|doc| (candidate, doc, self.metrics.clone())),
                     }),
                     warnings,
                 );
@@ -648,15 +774,15 @@ impl<'a> Session<'a> {
     }
 }
 
-pub(super) fn prepare(
+pub(super) fn prepare<'a>(
     content: Content,
     intr: &TagIntrospector,
-    world: &dyn World,
-    source: &Source,
+    world: &'a dyn World,
+    source: &'a Source,
     full_error: bool,
     features: Features,
     module: Option<&Module>,
-) -> (SourceResult<Prepared>, Vec<SourceDiagnostic>) {
+) -> (SourceResult<Prepared<'a>>, Vec<SourceDiagnostic>) {
     let mut session = Session::new(
         content,
         intr,
@@ -695,9 +821,19 @@ pub(super) fn prepare_html(
     full_error: bool,
     features: Features,
 ) -> (SourceResult<Content>, Vec<SourceDiagnostic>) {
+    let mut seed = intr.clone();
+    let (snapshot, mut page_warnings) = realize_page_snapshot_for_pipeline(
+        &[(Vec::new(), None)],
+        &mut seed,
+        world,
+        source,
+    );
+    if let Err(errors) = snapshot {
+        return (Err(errors), page_warnings);
+    }
     let mut session = Session::new(
         content,
-        intr,
+        &seed,
         world,
         source,
         full_error,
@@ -717,7 +853,37 @@ pub(super) fn prepare_html(
         return (terminal(source, session.errors()), session.warnings());
     }
 
-    let (prepared_content, warnings) = if selected_html_position {
+    let body = session.content();
+    let mut page_probe = introspect_with_introspector(&body);
+    let (probe, _) = realize_page_snapshot_for_pipeline(
+        &[(Vec::new(), None)],
+        &mut page_probe,
+        world,
+        source,
+    );
+    if let Err(errors) = probe {
+        return (Err(errors), session.warnings());
+    }
+    let mut page_selected = false;
+    for index in session.order() {
+        let execution = session.nodes[index].current.as_ref().unwrap();
+        let mut candidate = execution.input.as_ref().clone();
+        candidate.page_counter_values = page_probe.page_counter_values.clone();
+        candidate.page_counter_final_values =
+            page_probe.page_counter_final_values.clone();
+        match session.with_replay_engine(index, |ctx, engine| {
+            ctx.context_reads_valid_for(&candidate, engine)
+        }) {
+            Ok(false) => {
+                session.nodes[index].selected = true;
+                session.nodes[index].invalid = true;
+                page_selected = true;
+            }
+            Ok(true) => {}
+            Err(errors) => return (Err(errors), session.warnings()),
+        }
+    }
+    let (prepared_content, mut warnings) = if selected_html_position || page_selected {
         let (prepared, warnings) = session.stabilize(None);
         let prepared = match prepared {
             Ok(prepared) => prepared,
@@ -739,9 +905,19 @@ pub(super) fn prepare_html(
         .filter(|node| node.active && node.current.is_some())
         .map(|node| node.elem.clone())
         .collect();
-    let prepared =
-        strip_executed_html_markers(prepared_content, &executed, source, false);
+    let prepared = strip_executed_html_markers(prepared_content, &executed, source, true);
+    if !page_selected {
+        page_warnings.append(&mut warnings);
+        warnings = page_warnings;
+    }
     (prepared, warnings)
+}
+
+/// Bodies e identidades pertencentes à mesma geração causal validada.
+pub(super) struct PreparedBundle {
+    pub(super) bodies: Vec<Content>,
+    pub(super) introspector: TagIntrospector,
+    pub(super) document_starts: Vec<typst_core::entities::locator::LocatorSeed>,
 }
 
 /// Prepara todos os bodies contra uma única geração causal antes de exportar.
@@ -753,14 +929,7 @@ pub(super) fn prepare_bundle(
     source: &Source,
     full_error: bool,
     features: Features,
-) -> (
-    SourceResult<(
-        Vec<Content>,
-        TagIntrospector,
-        Vec<typst_core::entities::locator::LocatorSeed>,
-    )>,
-    Vec<SourceDiagnostic>,
-) {
+) -> (SourceResult<PreparedBundle>, Vec<SourceDiagnostic>) {
     if bodies.len() != html_targets.len() {
         return (terminal(source, Vec::new()), Vec::new());
     }
@@ -890,7 +1059,14 @@ pub(super) fn prepare_bundle(
             final_bodies.push(body);
         }
     }
-    (Ok((final_bodies, runtime, starts)), warnings)
+    (
+        Ok(PreparedBundle {
+            bodies: final_bodies,
+            introspector: runtime,
+            document_starts: starts,
+        }),
+        warnings,
+    )
 }
 
 /// Compoe visoes paginadas dos bodies sem layout do target HTML.
@@ -903,20 +1079,17 @@ fn bundle_page_views(
     source: &Source,
 ) -> SourceResult<Vec<SourceDiagnostic>> {
     use std::num::NonZeroUsize;
-    use typst_core::entities::page_store::PageStore;
-    use typst_core::entities::sealed_positions::SealedPositions;
-
+    use typst_core::entities::{
+        page_store::PageStore, sealed_positions::SealedPositions,
+    };
     let Content::Sequence(parts) = content else {
         return terminal(source, Vec::new());
     };
     if parts.len() != html_targets.len() {
         return terminal(source, Vec::new());
     }
-    let bodies = parts.to_vec();
     let (pure, starts) =
-        typst_core::compiler::introspect::introspect_bundle_documents_with_starts(
-            &bodies,
-        );
+        typst_core::compiler::introspect::introspect_bundle_documents_with_starts(parts);
     if pure.elements.keys().collect::<HashSet<_>>()
         != candidate.elements.keys().collect::<HashSet<_>>()
         || pure.context_block_locations != candidate.context_block_locations
@@ -926,111 +1099,99 @@ fn bundle_page_views(
     }
     candidate.inject_positions(input.positions.clone());
     candidate.inject_pages(input.page_store.clone());
-
-    let locations: HashSet<Location> = candidate
-        .elements
-        .keys()
-        .copied()
-        .chain(candidate.kind_index.values().flatten().copied())
-        .chain(candidate.context_block_locations.values().copied())
-        .chain(candidate.parent_locations.keys().copied())
-        .chain(candidate.parent_locations.values().copied())
-        .collect();
+    let locations = snapshot_locations(candidate);
     let mut positions = HashMap::new();
-    let mut numberings = Vec::new();
-    let mut logical_numbers = Vec::new();
-    let mut numbering_spans = Vec::new();
-    let mut visible_numberings = Vec::new();
-    let mut reference_numberings = Vec::new();
-    let mut supplements = Vec::new();
+    let mut docs = Vec::new();
+    let mut descriptors = Vec::new();
     let mut warnings = Vec::new();
-    let mut offset = 0usize;
-    let starts_raw: Vec<_> = starts
-        .iter()
-        .map(|&seed| {
-            typst_core::entities::locator::Locator::from_seed(seed)
-                .next()
-                .as_u128()
-        })
-        .collect();
-    let counter_updates = candidate
-        .query_by_kind(typst_core::entities::element_kind::ElementKind::CounterUpdate);
-    for (index, ((body, &html), &start)) in
-        bodies.iter().zip(html_targets).zip(&starts).enumerate()
-    {
+    let mut offset = 0;
+    for ((body, &html), &start) in parts.iter().zip(html_targets).zip(&starts) {
+        let boundary = typst_core::entities::locator::Locator::from_seed(start).next();
         if html {
+            docs.push(None);
+            descriptors.push((vec![boundary], None));
             continue;
         }
-        let (doc, callback_warnings) = layout_with_realized_math_callbacks_from(
+        let (doc, found) = layout_with_realized_math_callbacks_from(
             body,
             candidate.clone(),
             world,
             source,
             start,
         )?;
-        warnings.extend(callback_warnings);
-        let references = page_reference_pages(body, &doc);
-        // O início lógico Paged é o valor Page após as ações deste body,
-        // já resolvidas pelo único snapshot runtime. A última ocorrência de
-        // CounterUpdate delimita uma leitura dentro da faixa [start, next).
-        // Sem ocorrência, a fronteira lógica no próprio start fornece 1.
-        let upper = starts_raw.get(index + 1).copied().unwrap_or(u128::MAX);
-        let observation = counter_updates
-            .iter()
-            .filter(|loc| {
-                let raw = loc.as_u128();
-                raw >= starts_raw[index] && raw < upper
-            })
-            .max_by_key(|loc| loc.as_u128())
-            .copied()
-            .unwrap_or_else(|| {
-                typst_core::entities::locator::Locator::from_seed(start).next()
-            });
-        let logical_start = candidate
-            .counter_values_at(
-                &typst_core::entities::counter::CounterKey::Page,
-                observation,
-            )
-            .and_then(|values| values.first().copied())
-            .unwrap_or(1);
-        let (pages, numbering_warnings) =
-            realize_page_numberings(world, source, &doc, logical_start, &references)?;
-        warnings.extend(numbering_warnings);
-        for &location in &locations {
-            if let Some(position) = doc.extracted_positions.position_of(location) {
-                let shifted = typst_core::entities::position::Position {
-                    page: NonZeroUsize::new(position.page.get() + offset)
-                        .expect("page number remains nonzero"),
-                    point: position.point,
+        warnings.extend(found);
+        for &loc in &locations {
+            if let Some(p) = doc.extracted_positions.position_of(loc) {
+                let p = typst_core::entities::position::Position {
+                    page: NonZeroUsize::new(p.page.get() + offset).unwrap(),
+                    point: p.point,
                 };
-                if positions.insert(location, shifted).is_some() {
+                if positions.insert(loc, p).is_some() {
                     return terminal(source, Vec::new());
                 }
             }
         }
-        for page in 1..=doc.pages.len() {
-            let page = NonZeroUsize::new(page).unwrap();
-            numberings.push(pages.numbering_for_page(page).cloned());
-            logical_numbers
-                .push(pages.logical_number_for_page(page).unwrap_or(page.get()));
-            numbering_spans
-                .push(pages.numbering_span_for_page(page).unwrap_or(Span::detached()));
-            visible_numberings.push(pages.visible_numbering_for_page(page).cloned());
-            reference_numberings.push(pages.reference_numbering_for_page(page).cloned());
+        descriptors.push((vec![boundary], NonZeroUsize::new(doc.pages.len())));
+        offset += doc.pages.len();
+        docs.push(Some(doc));
+    }
+    candidate.inject_positions(SealedPositions::from_runtime(positions));
+    let (snapshot, found) =
+        realize_page_snapshot_for_pipeline(&descriptors, candidate, world, source);
+    snapshot?;
+    warnings.extend(found);
+    let mut numberings = Vec::new();
+    let mut numbers = Vec::new();
+    let mut spans = Vec::new();
+    let mut visible = Vec::new();
+    let mut reference = Vec::new();
+    let mut supplements = Vec::new();
+    let mut offset = 0;
+    for (body, doc) in parts.iter().zip(docs) {
+        let Some(doc) = doc else { continue };
+        let logical = (1..=doc.pages.len())
+            .map(|p| {
+                candidate
+                    .page_store
+                    .logical_number_for_page(NonZeroUsize::new(p + offset).unwrap())
+                    .unwrap()
+            })
+            .collect::<Vec<_>>();
+        let final_value = locations
+            .iter()
+            .find_map(|loc| {
+                doc.extracted_positions
+                    .position_of(*loc)
+                    .and_then(|_| candidate.page_counter_final_values.get(loc))
+                    .and_then(|v| v.first())
+                    .copied()
+            })
+            .or_else(|| logical.last().copied())
+            .unwrap_or(0);
+        let refs = page_reference_pages(body, &doc);
+        let (pages, found) =
+            realize_page_numberings(world, source, &doc, &logical, final_value, &refs)?;
+        warnings.extend(found);
+        for p in 1..=doc.pages.len() {
+            let p = NonZeroUsize::new(p).unwrap();
+            numberings.push(pages.numbering_for_page(p).cloned());
+            numbers.push(pages.logical_number_for_page(p).unwrap());
+            spans.push(pages.numbering_span_for_page(p).unwrap_or(Span::detached()));
+            visible.push(pages.visible_numbering_for_page(p).cloned());
+            reference.push(pages.reference_numbering_for_page(p).cloned());
             supplements
-                .push(pages.supplement_for_page(page).cloned().unwrap_or(Content::Empty));
+                .push(pages.supplement_for_page(p).cloned().unwrap_or(Content::Empty));
         }
         offset += doc.pages.len();
     }
-    candidate.inject_positions(SealedPositions::from_runtime(positions));
     let store = if let Some(total) = NonZeroUsize::new(offset) {
         PageStore::from_realized(
             total,
             numberings,
-            logical_numbers,
-            numbering_spans,
-            visible_numberings,
-            reference_numberings,
+            numbers,
+            spans,
+            visible,
+            reference,
             supplements,
         )
     } else {
@@ -1047,6 +1208,20 @@ fn strip_executed_html_markers(
     strip_counter_updates: bool,
 ) -> SourceResult<Content> {
     content.map_content(&mut |node| {
+        if let Content::Located(e) = node {
+            if let Content::ContextBlock(elem) = &e.body {
+                if executed.iter().any(|known| Arc::ptr_eq(known, elem)) {
+                    return Ok(Some(Content::Empty));
+                }
+                return Err(vec![SourceDiagnostic::error(
+                    source.root().span(),
+                    "HTML contextual expansion left unresolved content",
+                )]);
+            }
+            if strip_counter_updates && matches!(e.body, Content::CounterUpdate(_)) {
+                return Ok(Some(Content::Empty));
+            }
+        }
         if let Content::ContextBlock(elem) = node {
             if executed.iter().any(|known| Arc::ptr_eq(known, elem)) {
                 return Ok(Some(Content::Empty));
@@ -1107,6 +1282,8 @@ fn pagination_stability(
     });
     let same = covered
         && before.page_store == after.page_store
+        && before.page_counter_values == after.page_counter_values
+        && before.page_counter_final_values == after.page_counter_final_values
         && before.positions.len() == after.positions.len()
         && keys.into_iter().all(|key| {
             before.positions.position_of(key) == after.positions.position_of(key)
@@ -1212,5 +1389,190 @@ mod p1494_tests {
             items.iter().any(|item| matches!(item, Content::SpaceFromNewline)),
             "a origem deve sobreviver ao strip enquanto há texto"
         );
+    }
+}
+
+/// Pure Page fold with the Engine already owned by this compilation.
+pub(super) fn realize_page_snapshot_for_pipeline(
+    documents: &[(Vec<Location>, Option<std::num::NonZeroUsize>)],
+    intr: &mut TagIntrospector,
+    world: &dyn World,
+    source: &Source,
+) -> (SourceResult<()>, Vec<SourceDiagnostic>) {
+    let metrics = FallbackFontMetrics::new(world);
+    let ctx = EvalContext::new();
+    let mut scopes_styles = StyleChain::default_chain();
+    let mut rules: Arc<[ShowRule]> = Arc::from([]);
+    let mut guards = Vec::new();
+    let mut sink = TypstSink::new();
+    let route = Route::root().with_id(source.id());
+    let result = {
+        let mut tracked = sink.track_mut();
+        let mut local = TrackedMut::reborrow_mut(&mut tracked);
+        let mut engine = Engine {
+            world,
+            font_metrics: &metrics,
+            route: route.track(),
+            styles: &mut scopes_styles,
+            show_rules: &mut rules,
+            active_guards: &mut guards,
+            current_file: source.id(),
+            sink: &mut local,
+        };
+        typst_core::compiler::introspect::from_tags::realize_page_counter_snapshot(
+            &[],
+            documents,
+            intr,
+            &mut engine,
+            &ctx,
+        )
+    };
+    (result, sink.into_diagnostics())
+}
+
+fn snapshot_locations(intr: &TagIntrospector) -> Vec<Location> {
+    intr.elements
+        .keys()
+        .copied()
+        .chain(intr.kind_index.values().flatten().copied())
+        .chain(intr.context_block_locations.values().copied())
+        .chain(intr.parent_locations.keys().copied())
+        .chain(intr.parent_locations.values().copied())
+        .collect::<HashSet<_>>()
+        .into_iter()
+        .collect()
+}
+
+#[cfg(test)]
+mod memory_snapshot_tests {
+    use super::*;
+
+    #[test]
+    fn execution_retains_style_values_through_retirement_and_vector_growth() {
+        use typst_core::entities::{func::Func, locator::Locator, version::Version};
+
+        let world = crate::world::SystemWorld::for_stdin(
+            std::path::PathBuf::from("/tmp"),
+            String::new(),
+        );
+        let source = world.source(world.main()).unwrap();
+        let input = Arc::new(TagIntrospector::empty());
+        let mut session = Session::new(
+            Content::Empty,
+            &input,
+            &world,
+            &source,
+            false,
+            Features::default(),
+            EvalTarget::Paged,
+        );
+        let value = Arc::new(Version::new(1, 2, 3));
+        let weak = Arc::downgrade(&value);
+        let chain = StyleChain::default_chain()
+            .push_custom("retention.witness", Value::Version(value));
+        let elem = Arc::new(ContextBlockElem {
+            id: 1,
+            closure: Func::native("retention-witness", |_ctx, _args, _world, _file| {
+                Ok(Value::None)
+            }),
+        });
+        let index = session.add(elem, chain, None);
+        let location = Locator::new().next();
+        session.execute(index, &input, location);
+        session.nodes[index].chain = StyleChain::default_chain();
+        assert!(weak.upgrade().is_some(), "current execution retains final styles");
+
+        session.execute(index, &input, location);
+        assert!(weak.upgrade().is_some(), "retired execution retains final styles");
+        let capacity = session.retired.capacity();
+        for _ in 0..=capacity {
+            session.execute(index, &input, location);
+        }
+        assert!(session.retired.capacity() > capacity);
+        assert!(weak.upgrade().is_some(), "vector growth preserves retained values");
+        assert!(Arc::ptr_eq(&session.retired[0].input, &input));
+        drop(session);
+        assert!(weak.upgrade().is_none(), "session drop releases retained styles");
+    }
+
+    #[test]
+    fn same_generation_shares_snapshot_and_mutable_context_stays_independent() {
+        let world = crate::world::SystemWorld::for_stdin(
+            std::path::PathBuf::from("/tmp"),
+            "#context [A]\n#context [B]".into(),
+        );
+        let source = world.source(world.main()).unwrap();
+        let module = eval_to_module_with_sink_target_features(
+            &world,
+            &source,
+            false,
+            EvalTarget::Paged,
+            Features::default(),
+        )
+        .0
+        .unwrap();
+        let content = module.content().unwrap().clone();
+        let intr = introspect_with_introspector(&content);
+        let mut session = Session::new(
+            content,
+            &intr,
+            &world,
+            &source,
+            false,
+            Features::default(),
+            EvalTarget::Paged,
+        );
+        session.discover();
+        assert_eq!(session.nodes.len(), 2);
+        assert_eq!(session.body(0).plain_text(), "A");
+        assert_eq!(session.body(1).plain_text(), "B");
+        let first: &TagIntrospector = &session.nodes[0].current.as_ref().unwrap().input;
+        let other: &TagIntrospector = &session.nodes[1].current.as_ref().unwrap().input;
+        assert!(
+            std::ptr::eq(first, other),
+            "one immutable snapshot per concrete generation"
+        );
+        assert!(
+            session.nodes[0]
+                .current
+                .as_ref()
+                .unwrap()
+                .ctx
+                .introspector
+                .context_block_locations
+                .is_empty(),
+            "completed execution must release its private introspector"
+        );
+        assert_eq!(
+            session.nodes[0]
+                .current
+                .as_ref()
+                .unwrap()
+                .input
+                .context_block_locations
+                .len(),
+            2
+        );
+        assert_eq!(
+            session.nodes[1]
+                .current
+                .as_ref()
+                .unwrap()
+                .input
+                .context_block_locations
+                .len(),
+            2
+        );
+        let next = Arc::new(session.original_intr.clone());
+        let location = next.context_block_locations[&session.nodes[0].elem.id];
+        session.execute(0, &next, location);
+        assert_eq!(session.retired.len(), 1);
+        let old: &TagIntrospector = &session.retired[0].input;
+        let retained: &TagIntrospector =
+            &session.nodes[1].current.as_ref().unwrap().input;
+        let fresh: &TagIntrospector = &session.nodes[0].current.as_ref().unwrap().input;
+        assert!(std::ptr::eq(old, retained));
+        assert!(!std::ptr::eq(old, fresh));
+        assert_eq!(old.context_block_locations, fresh.context_block_locations);
     }
 }

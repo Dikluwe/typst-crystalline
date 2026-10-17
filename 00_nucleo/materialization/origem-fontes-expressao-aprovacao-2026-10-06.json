@@ -1,0 +1,6 @@
+{
+  "utc": "2026-10-06T16:12:56.232982+00:00",
+  "answer": "confirmo",
+  "manifest_sha256": "193a235d0db42ebef4d26056d1afee4ac5687a456e941057fa6cff9118cbabc2",
+  "scope": "ADR-0127: additive public Source-based APIs and checked allocator exhaustion; no code implemented"
+}

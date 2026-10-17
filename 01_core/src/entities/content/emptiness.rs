@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content/emptiness.md
-//! @prompt-hash 460ec7be
+//! @prompt-hash 1f542697
 //! @layer L1
-//! @updated 2026-09-26
+//! @updated 2026-10-07
 
 use super::*;
 
@@ -10,6 +10,10 @@ impl Content {
     /// Return whether this content carries no visible information.
     pub fn is_empty(&self) -> bool {
         match self {
+            Self::Source(e) => e.body.is_empty(),
+            Self::ShowRecipe(e) => e.body.is_empty(),
+            Self::Located(e) => e.body.is_empty(),
+            Self::Realized(e) => e.visual.is_empty(),
             Self::Empty => true,
             // P622: Parbreak é marker estrutural — nunca vazio.
             Self::Parbreak => false,
@@ -118,7 +122,69 @@ impl Content {
             // P1425: o wrapper de limites é semanticamente transparente
             // para vacuidade, tal como já é para texto plano.
             Self::MathLimitsOverride(e) => e.is_empty(),
-            _ => false, // neutro: N16[β] — Content estrutural não-vazio (variantes sem arm dedicado) retorna false em is_empty
+            Self::Text(..)
+            | Self::Space
+            | Self::SpaceFromNewline
+            | Self::HtmlElem(..)
+            | Self::HtmlFrame(..)
+            | Self::Heading(..)
+            | Self::Title(..)
+            | Self::Raw(..)
+            | Self::ListItem(..)
+            | Self::EnumItem(..)
+            | Self::Link(..)
+            | Self::Equation(..)
+            | Self::MathSequence(..)
+            | Self::MathIdent(..)
+            | Self::MathText(..)
+            | Self::MathFrac(..)
+            | Self::MathAttach(..)
+            | Self::MathPrimes(..)
+            | Self::MathRoot(..)
+            | Self::MathStretch(..)
+            | Self::MathDelimited(..)
+            | Self::MathLr(..)
+            | Self::MathMid(..)
+            | Self::MathOverbrace(..)
+            | Self::MathUnderbrace(..)
+            | Self::MathUnderbracket(..)
+            | Self::MathUnderparen(..)
+            | Self::MathUndershell(..)
+            | Self::MathOverbracket(..)
+            | Self::MathOverparen(..)
+            | Self::MathOvershell(..)
+            | Self::MathAlignPoint(..)
+            | Self::Linebreak(..)
+            | Self::MathMatrix(..)
+            | Self::MathCases(..)
+            | Self::MathAccent(..)
+            | Self::MathCancel(..)
+            | Self::MathUnderline(..)
+            | Self::MathOverline(..)
+            | Self::MathVec(..)
+            | Self::MathClassOverride(..)
+            | Self::MathUnderover(..)
+            | Self::MathOp(..)
+            | Self::MathStyled(..)
+            | Self::Ref(..)
+            | Self::CounterDisplay(..)
+            | Self::CounterUpdate(..)
+            | Self::Outline(..)
+            | Self::OutlineEntry(..)
+            | Self::Image(..)
+            | Self::Shape(..)
+            | Self::Curve(..)
+            | Self::Transform(..)
+            | Self::SetPage(..)
+            | Self::Align(..)
+            | Self::Place(..)
+            | Self::Flush(..)
+            | Self::Metadata(..)
+            | Self::State(..)
+            | Self::StateUpdate(..)
+            | Self::StateDisplay(..)
+            | Self::CounterDisplayCallback(..)
+            | Self::ContextBlock(..) => false, // neutro: N16[β] — Content estrutural não-vazio (variantes sem arm dedicado) retorna false em is_empty
         }
     }
 }

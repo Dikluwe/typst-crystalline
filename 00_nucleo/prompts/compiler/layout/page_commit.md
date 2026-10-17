@@ -1,8 +1,11 @@
 # L0 — page commit
-Hash do Código: 7ba0eddd
+Hash do Código: fd96922a
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
+- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:7b8a61eaafc8a07df12218f8f0560c33fae5c36f621b822b7350ccefc9774711
+- 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:4e487a99ea1f1e82a67dfaced0958f98392fb26b1a7d292355230d6ffa7f2d0b
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/page_commit.rs`
@@ -25,3 +28,32 @@ When the selected marginal is Auto, format a unary pattern using the known logic
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
+
+## Migração do carrier bidi ratificado (2026-10-05)
+
+Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+
+## Captura de links através de fronteiras — 2026-10-14
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/links-paginacao-2026-10-14.md e os recibos
+posicoes-compostas-2026-10-14/automatic-boundary-probes registram fonte,
+HEAD/árvore suja/UTC, binários e pin vanilla. Página 160×40pt/margem 10pt:
+texto comum atravessa a quebra; Link URL, Ref e Ref Page abortam com índice
+antigo após esvaziamento dos buffers. references.rs:270 aparece na pilha;
+link.rs:22-32 usa o mesmo mecanismo. outline.rs:28-50 também guarda índices
+antes do corpo. Limitar o índice não prova preservação do prefixo, ordem,
+fragmentos, destino ou geometria. Snapshot anterior deste reparo:
+00_nucleo/diagnosticos/links-captura-2026-10-14/before.json.gz.
+Os observáveis são conteúdo, destino, regiões e bounds; limites privados
+são mecânica. Correção interna ADR-0127, sem API, default ou fase nova.
+
+### Contrato deste owner
+
+Fechar segmentos ativos do buffer comitado antes de retirá-lo para a página física; reabrir sua continuação no buffer novo. Não transportar conteúdo já comitado para outra página. Manter ordem de fixups e composição.
+
+Aceitação: RED→GREEN de quebras antes/dentro do corpo, preservação de
+prefixo/sufixo, regiões, destinos/bounds, corpo rico/aninhamento/colunas,
+conteúdo diferido, contexto/rollback e ausência de limites privados na saída.
+Revalidar os controles sem quebra e a suíte, build e linhagem.

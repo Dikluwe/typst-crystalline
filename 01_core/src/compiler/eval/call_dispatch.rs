@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 78a4e896
+//! @prompt-hash 31d9d9f6
 //! @layer L1
-//! @updated 2026-09-01
+//! @updated 2026-10-07
 //!
 //! Dispatch de chamadas de função: avaliação de args, intercepção de method
 //! calls especiais, aplicação de nativas/plugins/elementos. Extraído de
@@ -44,7 +44,7 @@ use crate::compiler::stdlib::{
     native_tiling,
     native_type,
     native_version,
-    try_dispatch_collection_method,
+    try_dispatch_collection_method_with,
     CollectionCallSpans,
 };
 use crate::entities::args::{ArgOccurrence, Args};
@@ -77,7 +77,7 @@ mod instance_methods;
 mod invoke;
 mod location;
 mod selector_intercepts;
-mod trace_plugin;
+pub(crate) mod trace_plugin;
 mod type_fields;
 mod value_methods;
 
@@ -117,7 +117,7 @@ mod tests {
     use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
     use std::sync::Arc;
 
-    use ecow::{EcoString, EcoVec};
+    use ecow::EcoString;
     use indexmap::IndexMap;
     use rustc_hash::FxBuildHasher;
 
@@ -375,15 +375,7 @@ mod tests {
 #[cfg(test)]
 mod p1334_dispatch_tests {
     use super::*;
-    use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
-    use std::sync::Arc;
 
-    use ecow::{EcoString, EcoVec};
-    use indexmap::IndexMap;
-    use rustc_hash::FxBuildHasher;
-
-    use crate::contracts::plugin_host::{PluginError, PluginHost, PluginModuleId};
-    use crate::entities::bytes::Bytes;
     use crate::entities::file_id::FileId;
 
     fn p1293_span(start: usize) -> Span {

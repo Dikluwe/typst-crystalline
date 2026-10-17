@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/place.md
-//! @prompt-hash 50278bbb
+//! @prompt-hash a3361c2d
 //! @layer L1
 //! @updated 2026-09-25
 //!
@@ -85,53 +85,32 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let _ = dy; // dy aplicado em flush via translate
         let _ = scope; // scope: Parent + float: true (DEBT-37 sentinela)
     } else {
-        // P1292 v12 — sem alinhamento vertical explícito, Place pertence à
-        // unidade de flow corrente. Se a linha ainda está pendente, fornecer
-        // sua baseline + top-edge semântico em vez do topo físico da página.
-        // Fora de sub-frame, `layout_place` consome `margin.top`; dentro dele,
-        // a origem interna é necessariamente zero, portanto traduzimos apenas
-        // a cauda desta ocorrência e os metadados que podem reposicioná-la.
-        // O ajuste local preserva dx/dy, alinhamento horizontal, rebase,
-        // decoração e fixups do owner existente.
-        let follows_pending_line =
-            matches!(effective_alignment.v, None | Some(VAlign::Top))
-                && super::html_frame::items_have_material(
-                    &layouter.regions.current.current_line,
-                );
-        let semantic_top_edge = follows_pending_line
-            .then(|| layouter.metrics.text_edges(layouter.style.size, &layouter.style).0);
-        let in_sub_frame = layouter.is_sub_frame;
-        let saved_margin_top = layouter.page_config.margin.top;
-        if !in_sub_frame {
-            if let Some(top_edge) = semantic_top_edge {
-                layouter.page_config.margin.top =
-                    layouter.regions.current.cursor_y.0 + top_edge.0;
+        // Pending lines own their baseline; a committed producer supplies a
+        // certified physical end, excluding the prepared next-line advance.
+        let flow_y = if effective_alignment.v.is_none() {
+            if super::html_frame::items_have_material(
+                &layouter.regions.current.current_line,
+            ) {
+                Some(layouter.regions.current.cursor_y.0)
+            } else {
+                layouter.flow_placement_y()
             }
-        }
+        } else {
+            None
+        };
+        layouter.layout_place(effective_alignment, *dx, *dy, *scope, body, flow_y);
+    }
+}
 
-        let item_start = layouter.regions.current.current_items.len();
-        let align_y_start = layouter.pending_align_v_centering.len();
-        let deco_start = layouter.decoration_lines_collector.as_ref().map_or(0, Vec::len);
-        layouter.layout_place(effective_alignment, *dx, *dy, *scope, body);
-        layouter.page_config.margin.top = saved_margin_top;
+impl<M: FontMetrics, S: ImageSizer> Layouter<'_, M, S> {
+    pub(super) fn record_flow_placement_end(&mut self, end: f64) {
+        self.flow_placement_end = Some((end, self.regions.current.cursor_y.0));
+    }
 
-        if in_sub_frame {
-            if let Some(top_edge) = semantic_top_edge {
-                let delta = top_edge.0;
-                for item in &mut layouter.regions.current.current_items[item_start..] {
-                    super::helpers::shift_frame_item_y(item, delta);
-                }
-                for entry in &mut layouter.pending_align_v_centering[align_y_start..] {
-                    entry.4 += delta;
-                    entry.6 += delta;
-                }
-                if let Some(segments) = layouter.decoration_lines_collector.as_mut() {
-                    for segment in &mut segments[deco_start..] {
-                        segment.baseline_y += Pt(delta);
-                    }
-                }
-            }
-        }
+    pub(super) fn flow_placement_y(&self) -> Option<f64> {
+        self.flow_placement_end
+            .filter(|&(_, prepared)| prepared == self.regions.current.cursor_y.0)
+            .map(|(end, _)| end)
     }
 }
 
@@ -266,6 +245,9 @@ fn realize_float_prefix<M: FontMetrics, S: ImageSizer>(
 /// não o ascender integral.
 fn deferred_frame_origin_y<M: FontMetrics>(items: &[FrameItem], metrics: &M) -> f64 {
     fn item_origin<M: FontMetrics>(item: &FrameItem, metrics: &M) -> Option<f64> {
+        if super::html_frame::is_context_marker(item) {
+            return None;
+        }
         match item {
             FrameItem::TextSeparator { .. } => None,
             FrameItem::Text { pos, style, .. }
@@ -283,7 +265,9 @@ fn deferred_frame_origin_y<M: FontMetrics>(items: &[FrameItem], metrics: &M) -> 
             FrameItem::Shape { pos, .. }
             | FrameItem::Group { pos, .. }
             | FrameItem::Image { pos, .. } => Some(pos.y.0),
-            FrameItem::Link { items, .. } | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items
+            FrameItem::Link { items, .. }
+            | FrameItem::TextReplacement { items, .. }
+            | FrameItem::Semantic { items, .. } => items
                 .iter()
                 .filter_map(|child| item_origin(child, metrics))
                 .reduce(f64::min),
@@ -337,6 +321,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // `apply_pending_align_fixups` na mesma `new_page()`/`finish()`
         // (ver `00_nucleo/prompts/compiler/layout.md` §P908), a entrada
         // resolve-se contra a página correcta sem sequenciamento novo.
+        let saved_link_scopes = self.pause_link_items();
         let insertion_base = self.regions.current.current_items.len();
         for (mut path, count, align, content_w, origin_x, applied_x) in
             f.orphaned_align_x.clone()
@@ -369,21 +354,38 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // Translate items: cada item ganha offset (target_x, target_y).
         for item in &f.body_items {
             let translated = match item.clone() {
-                FrameItem::TextSeparator { pos, advance, style, origin } => FrameItem::TextSeparator { pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) }, advance, style, origin },
-                FrameItem::Text { pos, text, style } => FrameItem::Text {
+                FrameItem::TextSeparator { pos, advance, style, origin, .. } => {
+                    FrameItem::TextSeparator {
+                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        advance,
+                        style,
+                        origin,
+                        bidi: None,
+                    }
+                }
+                FrameItem::Text { pos, text, style, .. } => FrameItem::Text {
                     pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                     text,
                     style,
+                    bidi: None,
                 },
-                FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
-                    FrameItem::TextShaped {
-                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
-                        glyphs,
-                        style,
-                        text,
-                        units_per_em,
-                    }
-                }
+                FrameItem::TextShaped {
+                    pos,
+                    glyphs,
+                    style,
+                    text,
+                    units_per_em,
+                    font,
+                    ..
+                } => FrameItem::TextShaped {
+                    pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                    glyphs,
+                    style,
+                    text,
+                    units_per_em,
+                    bidi: None,
+                    font,
+                },
                 FrameItem::Shape {
                     pos,
                     kind,
@@ -404,6 +406,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     parent_bbox_at_emit,
                 },
                 FrameItem::Group {
+                    paint_root,
                     pos,
                     matrix,
                     clip_mask,
@@ -411,6 +414,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     inner_height,
                     items,
                 } => FrameItem::Group {
+                    paint_root,
                     pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                     matrix,
                     clip_mask,
@@ -480,7 +484,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 },
                 FrameItem::TextReplacement { text, mut items } => {
                     for child in &mut items {
-                        crate::compiler::layout::helpers::offset_frame_item(child, target_x, target_y);
+                        crate::compiler::layout::helpers::offset_frame_item(
+                            child, target_x, target_y,
+                        );
                     }
                     FrameItem::TextReplacement { text, items }
                 }
@@ -511,6 +517,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 });
             }
         }
+        self.resume_link_items(saved_link_scopes);
     }
 }
 

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/apply.md
-//! @prompt-hash 0d654302
+//! @prompt-hash 695c9870
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 //!
 //! Comportamento de `eval/rules::apply`.
 
@@ -16,13 +16,66 @@ use super::*;
 ///
 /// Text rules: aplicadas separadamente via `map_text` após a travessia principal.
 pub(crate) fn apply_show_rules(
-    mut content: Content,
+    content: Content,
     rules: &[ShowRule],
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
+    apply_show_rules_inner(content, rules, ctx, engine, false, &mut false)
+}
+
+pub(crate) fn apply_show_rules_root(
+    content: Content,
+    rules: &[ShowRule],
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Content> {
+    apply_show_rules_inner(content, rules, ctx, engine, true, &mut false)
+}
+
+pub(crate) fn apply_cell_rules_root(
+    content: Content,
+    rules: &[ShowRule],
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<(Content, bool)> {
+    let mut applied = false;
+    let product =
+        apply_show_rules_inner(content, rules, ctx, engine, true, &mut applied)?;
+    Ok((product, applied))
+}
+
+fn apply_show_rules_inner(
+    mut content: Content,
+    rules: &[ShowRule],
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+    root_only: bool,
+    cell_applied: &mut bool,
+) -> SourceResult<Content> {
     if rules.is_empty() {
         return Ok(content);
+    }
+
+    if ctx.defer_show_rules {
+        ctx.has_deferred_show_rules = true;
+        return Ok(Content::ShowRecipe(Arc::new(
+            crate::entities::content::ShowRecipeContent {
+                body: content,
+                textual: false,
+                context_id_floor: ctx.next_context_id,
+                rules: Arc::from(rules),
+                styles: engine.styles.clone(),
+                guards: engine.active_guards.clone(),
+                file: engine.current_file,
+            },
+        )));
+    }
+
+    if ctx.realizing_show_rules {
+        for rule in rules {
+            ctx.next_rule_id = ctx.next_rule_id.max(rule.id.saturating_add(1));
+        }
     }
 
     // P394: scope vazio para apply_func; closures de show-rule usam captured
@@ -58,7 +111,29 @@ pub(crate) fn apply_show_rules(
             .cloned()
             .collect();
 
+        let completed_visuals = if ctx.realizing_show_rules {
+            completed_visual_locations(&content)
+        } else {
+            std::collections::HashSet::new()
+        };
         let mut apply_all = |node: &Content| -> SourceResult<Option<Content>> {
+            if !root_only
+                && matches!(node,Content::TableCell(c) if c.resolved.is_some() || c.standalone.is_some())
+            {
+                return Ok(None);
+            }
+            if ctx.realizing_show_rules {
+                if matches!(node, Content::Realized(_))
+                    || matches!(node, Content::Located(e) if completed_visuals.contains(&e.location))
+                {
+                    return Ok(None);
+                }
+                if crate::compiler::introspect::extract_payload::extract_payload(node)
+                    .is_some()
+                {
+                    return realize_occurrence(node, &node_rules, ctx, engine, root_only);
+                }
+            }
             // P348 (modelo α, ADR-0107): a element rule cujo output **re-casa** é
             // **revisitada** até **ponto-fixo morfológico** — o loop re-alimenta o
             // output no mesmo conjunto de regras e para quando a regra é um **no-op
@@ -75,6 +150,16 @@ pub(crate) fn apply_show_rules(
             // **revisitada** até **ponto-fixo morfológico**. O loop α vive agora em
             // `compiler/eval/show_rule_termination.rs` (Passo 1009), que acrescenta
             // detecção de ciclos por histórico de formas canónicas.
+            let owned;
+            let node = if ctx.realizing_show_rules
+                && crate::compiler::introspect::extract_payload::extract_payload(node)
+                    .is_some()
+            {
+                owned = crate::compiler::realize::locate(node.clone(), ctx);
+                &owned
+            } else {
+                node
+            };
             let full_error = ctx.full_error;
             let (mut work, applied) = show_rule_termination::run_show_rule_loop(
                 node.clone(),
@@ -82,7 +167,16 @@ pub(crate) fn apply_show_rules(
                     for rule in node_rules.iter().rev() {
                         // Saltar se esta regra está em execução (anti-recursão na criação
                         // aninhada — Lote F-3 inc-2; guard por `RuleId`, vale p/ DynKind).
-                        if engine.active_guards.contains(&rule.id) {
+                        let guarded = if let Content::TableCell(c) = work {
+                            if c.stage().is_some() {
+                                c.guards().contains(&rule.id)
+                            } else {
+                                engine.active_guards.contains(&rule.id)
+                            }
+                        } else {
+                            engine.active_guards.contains(&rule.id)
+                        };
+                        if guarded {
                             continue;
                         }
 
@@ -98,9 +192,13 @@ pub(crate) fn apply_show_rules(
 
                         match &rule.transform {
                             Transformation::Func(func) => {
-                                let args =
-                                    Args::positional(vec![Value::Content(work.clone())]);
+                                let argument=if let Content::TableCell(c)=work {
+                                    if c.stage().is_some() {Content::TableCell(Arc::new(c.guarded(rule.id)))} else {work.clone()}
+                                } else {work.clone()};
+                                let args = Args::positional(vec![Value::Content(argument)]);
                                 engine.active_guards.push(rule.id);
+                                let old_defer=ctx.defer_show_rules;
+                                if matches!(work,Content::TableCell(c) if c.stage().is_some()) {ctx.defer_show_rules=true;}
                                 let call_result = call_dispatch::apply_func(
                                     func.clone(),
                                     args,
@@ -108,6 +206,7 @@ pub(crate) fn apply_show_rules(
                                     ctx,
                                     engine,
                                 );
+                                ctx.defer_show_rules=old_defer;
                                 engine.active_guards.pop();
                                 let produced = match call_result? {
                                     Value::Content(c) => c,
@@ -149,6 +248,8 @@ pub(crate) fn apply_show_rules(
                 full_error,
             )?;
 
+            *cell_applied |= applied;
+
             // Show-set (P352/P356, S5): embrulha o output no `Styles` das regras
             // **show-set** que casam o **ELEMENTO** — o nó **original** que entrou na
             // realização (`node`), NÃO o `work` pós-func. **NÃO consome o passe** —
@@ -172,14 +273,32 @@ pub(crate) fn apply_show_rules(
                         continue;
                     }
                     if selector_matching::selector_matches(node, &rule.selector) {
-                        set_chain = set_chain.push(styles.delta().clone());
+                        set_chain = crate::entities::elements::table_cell::TableCellProperties::chain_styles(&set_chain, styles);
                         any_set = true;
                     }
                 }
             }
             let mut wrapped = false;
+            let mut raw_overrides = Styles::default();
             if any_set {
-                let delta = set_chain.collapse();
+                let mut delta = set_chain.collapse();
+                mark_heading_show_set(&mut delta, node, &work);
+                for (key, value) in &delta.custom {
+                    if key.as_str() == "text.size" {
+                        raw_overrides =
+                            raw_overrides.push_custom("raw.block.size", value.clone());
+                    } else if matches!(
+                        key.as_str(),
+                        "block.above" | "block.below" | "block.spacing"
+                    ) {
+                        raw_overrides =
+                            raw_overrides.push_custom(key.clone(), value.clone());
+                    }
+                }
+                if let Some(size) = delta.size {
+                    raw_overrides =
+                        raw_overrides.push_custom("raw.block.size", Value::Length(size));
+                }
                 if !delta.is_empty() {
                     work = Content::styled(Box::new(work), Styles::from_delta(delta));
                     wrapped = true;
@@ -187,13 +306,39 @@ pub(crate) fn apply_show_rules(
             }
 
             if applied || wrapped {
-                Ok(Some(work))
+                if let Content::Raw(raw) = node {
+                    let defaults = raw_overrides
+                        .push_custom("raw.defaults", Value::Bool(true))
+                        .push_custom("raw.block", Value::Bool(raw.block));
+                    work = Content::styled(Box::new(work), defaults);
+                }
+                if ctx.realizing_show_rules
+                    && crate::compiler::introspect::extract_payload::extract_payload(node)
+                        .is_some()
+                {
+                    Ok(Some(Content::Realized(Arc::new(
+                        crate::entities::content::RealizedContent {
+                            original: node.clone(),
+                            visual: work,
+                        },
+                    ))))
+                } else {
+                    Ok(Some(work))
+                }
             } else {
                 Ok(None)
             }
         };
 
-        content = content.map_content(&mut apply_all)?;
+        content = if root_only {
+            apply_all(&content)?.unwrap_or(content)
+        } else {
+            content.map_content(&mut apply_all)?
+        };
+    }
+
+    if root_only {
+        return Ok(content);
     }
 
     // Regex rules (P393) — aplicadas a nós de texto que casam.
@@ -344,4 +489,232 @@ pub(crate) fn apply_show_rules(
     }
 
     Ok(content)
+}
+
+/// Productive locatables retain their identity across aliases. The legacy
+/// morphology loop above remains available for its separate evaluation path.
+fn mark_heading_show_set(
+    delta: &mut crate::entities::style_chain::StyleDelta,
+    original: &Content,
+    visual: &Content,
+) {
+    fn is_heading(mut content: &Content) -> bool {
+        loop {
+            content = content.source_body();
+            if let Content::Located(located) = content {
+                content = &located.body;
+            } else {
+                return matches!(content, Content::Heading(_));
+            }
+        }
+    }
+    if is_heading(original)
+        && is_heading(visual)
+        && (delta.size.is_some()
+            || delta.custom.iter().any(|(key, value)| {
+                key.as_str() == "text.size" && matches!(value, Value::Length(_))
+            }))
+    {
+        delta.custom.push(("heading.show-set-size".into(), Value::Bool(true)));
+    }
+}
+
+fn realize_occurrence(
+    node: &Content,
+    rules: &[ShowRule],
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+    root_only: bool,
+) -> SourceResult<Option<Content>> {
+    let node = crate::compiler::realize::locate(node.clone(), ctx);
+    let Content::Located(located) = &node else { unreachable!() };
+    let location = located.location;
+    let mut set_chain = StyleChain::empty();
+    for rule in rules {
+        if let Transformation::Style(styles) = &rule.transform {
+            if selector_matching::selector_matches(&node, &rule.selector)
+                && !ctx.occurrence_show_results.contains_key(&(location, rule.id))
+            {
+                ctx.occurrence_show_results.insert((location, rule.id), None);
+                set_chain = crate::entities::elements::table_cell::TableCellProperties::chain_styles(&set_chain, styles);
+            }
+        }
+    }
+    let mut work = node.clone();
+    let mut applied = false;
+    for rule in rules.iter().rev() {
+        if matches!(rule.transform, Transformation::Style(_))
+            || !selector_matching::selector_matches(&node, &rule.selector)
+        {
+            continue;
+        }
+        let key = (location, rule.id);
+        if let Some(cached) = ctx.occurrence_show_results.get(&key) {
+            if let Some(product) = cached {
+                work = product.clone();
+                applied = true;
+                break;
+            }
+            continue;
+        }
+        if ctx.occurrence_show_depth
+            >= crate::entities::world_types::Route::MAX_SHOW_RULE_DEPTH
+        {
+            let mut error = SourceDiagnostic::error(
+                Span::detached(),
+                "maximum show rule depth exceeded",
+            )
+            .with_hint("maybe a show rule matches its own output")
+            .with_hint("maybe there are too deeply nested elements");
+            if ctx.full_error {
+                let canon = node.morph_canon();
+                error = error.with_hint(if ctx.occurrence_show_path.contains(&canon) {
+                    "erro completo: recursão CÍCLICA — uma forma de conteúdo repetiu-se no caminho de revisitação (a regra de #show reescreve para algo que reaparece)"
+                } else {
+                    "erro completo: recursão NÃO-CONVERGENTE — passou do limite sem repetir nem estabilizar (verifique se a regra termina, ou se é recursão legítima profunda)"
+                });
+            }
+            return Err(vec![error]);
+        }
+        ctx.occurrence_show_results.insert(key, None);
+        ctx.occurrence_show_depth += 1;
+        if ctx.full_error {
+            ctx.occurrence_show_path.push(node.morph_canon());
+        }
+        let result = (|| {
+            let produced = match &rule.transform {
+                Transformation::Func(func) => {
+                    let mut scopes = Scopes::new(None);
+                    match call_dispatch::apply_func(
+                        func.clone(),
+                        Args::positional(vec![Value::Content(node.clone())]),
+                        &mut scopes,
+                        ctx,
+                        engine,
+                    )? {
+                        Value::Content(content) => content,
+                        Value::Str(text) => Content::text(text.as_str()),
+                        other => {
+                            return Err(vec![SourceDiagnostic::error(
+                                Span::detached(),
+                                format!(
+                                    "show rule deve retornar Content ou String, recebeu {}",
+                                    other.type_name()
+                                ),
+                            )])
+                        }
+                    }
+                }
+                Transformation::Content(content) => content.clone(),
+                Transformation::Str(_) => {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        "show rule com selector de tipo requer função ou Content, recebeu str",
+                    )])
+                }
+                Transformation::Style(_) => unreachable!(),
+            };
+            if root_only {
+                Ok(produced)
+            } else {
+                realize_occurrences(&produced, rules, ctx, engine)
+            }
+        })();
+        ctx.occurrence_show_depth -= 1;
+        if ctx.full_error {
+            ctx.occurrence_show_path.pop();
+        }
+        match result {
+            Ok(product) => {
+                ctx.occurrence_show_results.insert(key, Some(product.clone()));
+                work = product;
+                applied = true;
+            }
+            Err(errors) => {
+                ctx.occurrence_show_results.remove(&key);
+                return Err(errors);
+            }
+        }
+        break;
+    }
+    let mut delta = set_chain.collapse();
+    mark_heading_show_set(&mut delta, &node, &work);
+    let wrapped = !delta.is_empty();
+    if wrapped {
+        work = Content::styled(Box::new(work), Styles::from_delta(delta));
+    }
+    if applied || wrapped {
+        Ok(Some(Content::Realized(Arc::new(crate::entities::content::RealizedContent {
+            original: node,
+            visual: work,
+        }))))
+    } else {
+        // Even an unmatched fresh product must keep its newly allocated identity.
+        Ok(Some(node))
+    }
+}
+
+/// A completed visual already carries its recipe result. Visiting its aliases
+/// again must not substitute that complete result into each emitted alias.
+/// Collect only visual locations: consumed originals remain query provenance.
+fn completed_visual_locations(
+    content: &Content,
+) -> std::collections::HashSet<crate::entities::location::Location> {
+    let mut locations = std::collections::HashSet::new();
+    let _ = content.map_content(&mut |node| {
+        if let Content::Realized(realized) = node {
+            let _ = realized.visual.map_content(&mut |visual| {
+                if let Content::Located(located) = visual {
+                    locations.insert(located.location);
+                }
+                Ok(None)
+            });
+        }
+        Ok(None)
+    });
+    locations
+}
+
+/// Preserve the lexical rule snapshot at insertion of an alias into markup.
+/// Text rules and paragraph preparation keep their separate coordinating path.
+pub(crate) fn realize_inserted_occurrences(
+    content: Content,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Content> {
+    let rules: Vec<ShowRule> = engine
+        .show_rules
+        .iter()
+        .filter(|rule| selector_matching::is_node_rule(&rule.selector))
+        .cloned()
+        .collect();
+    if rules.is_empty() {
+        Ok(content)
+    } else {
+        realize_occurrences(&content, &rules, ctx, engine)
+    }
+}
+
+fn realize_occurrences(
+    content: &Content,
+    rules: &[ShowRule],
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Content> {
+    let content =
+        crate::compiler::realize::realize_table_insertions(content.clone(), ctx, engine)?;
+    let content = crate::compiler::realize::bare_math::prepare(&content, engine.styles)?;
+    let completed_visuals = completed_visual_locations(&content);
+    content.map_content(&mut |child| {
+        if matches!(child, Content::Realized(_))
+            || matches!(child, Content::Located(e) if completed_visuals.contains(&e.location))
+        {
+            return Ok(None);
+        }
+        if crate::compiler::introspect::extract_payload::extract_payload(child).is_some() {
+            realize_occurrence(child, rules, ctx, engine, false)
+        } else {
+            Ok(None)
+        }
+    })
 }

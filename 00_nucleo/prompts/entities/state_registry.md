@@ -1,5 +1,8 @@
 # Prompt L0 — `entities/state_registry`
-Hash do Código: 3223be16
+Hash do Código: 801b998c
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/realization-order.toml sha256:8de2c32fbeeee7a30088b4ff3808e15a211f23a182673ef5cdebe54bd3eadad6
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/state_registry.rs`
@@ -192,3 +195,61 @@ Vanilla resolve o estado por **iterações de layout** repetidas até convergir.
 |------|--------|-------------------|
 | 2026-04-30 | P171: sub-store de runtime mutable state para Introspector M9 | `state_registry.rs`, `state_registry.md` |
 | 2026-04-29 | P173: removido `apply_update` — match Set/Func vive em `from_tags` onde `Engine` está disponível | `state_registry.rs`, `state_registry.md` |
+
+
+
+
+## Medição da ordem antes da decisão
+
+No HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, CounterRegistry::value_at e StateRegistry::value_at comparam Location.as_u128; queries before/after e eventos de contador fazem o mesmo. A realização prepara identidades antes de transformar, portanto o número deixa de ordenar origens e produtos. A sonda CLI e a sentinela single_evaluation_counter_follows_causal_order conservam a evidência no diagnóstico de implementação. Aplicar o núcleo realization-order; manter fallback histórico somente sem ordem registrada.
+
+
+## Realização com avaliação única
+
+Guardar ordem causal privada por Location, preenchida durante o walk, independente do contador numérico do identificador. Estado é por registry, não global.
+
+
+## Realização com avaliação única
+
+observe_location registra primeira ocorrência; order_key consulta ordinal e conserva fallback numérico somente para Location não observada em testes/consumers legados.
+
+
+## Realização com avaliação única
+
+Lookup temporal usa ordem causal registrada, preservando a semântica do prefixo quando IDs de origem e produto não são monotônicos.
+
+
+## Consulta temporal sem varredura excedente — 2026-10-13
+
+Medição anterior à decisão: `01_core/src/entities/state_registry.rs:80` usa
+iter/filter/last sobre o Vec de histórico. O predicado consulta somente
+`order_key`, sem mutação, I/O ou callbacks; compara a ordem causal registrada
+com fallback numérico para locais não observados. HEAD
+`06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado;
+fontes, L0, núcleo pinado, horário UTC, status e diffstat em
+`00_nucleo/diagnosticos/predicados-fixtures-ci-2026-10-13/before.json.gz`.
+
+Preservar exatamente a última entrada elegível na ordem do Vec e o resultado
+None quando não houver uma. A pesquisa pode partir do fim e terminar na
+primeira entrada cujo order_key seja <= ao alvo (`rfind`). Não reordenar o
+histórico, substituir ordem causal por IDs nem mudar updates ou init.
+A consulta permanece O(n) no pior caso; não inferir ganho medido de tempo.
+Esta é simplificação interna equivalente sob o núcleo realization-order,
+sem mudança de assinatura pública, default ou fase. Os exemplos históricos
+com comparação numérica direta não substituem a cláusula causal vigente.
+Preservar os testes temporais, incluindo origens com IDs não monotônicos.
+
+
+## Entradas diretas e ordem da síntese — 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; order-before.json.gz/before.json.gz preservam estado, UTC, hashes e diffstat. trace-runtime-result.json e trace-runtime.log mostram a entry direta no índice puro, runtime e L3 sob NativeElement; a linguagem bare converte outline.entry em Kind(OutlineEntry), conforme foundations/selector.rs:113. O walk terminal atual não preenche esse kind. measurement-order-before.json no pin 9f2b6e8715237cb086899a42873660fe744622e8 mede BARE [Heading] versus [Heading,Direct], FILTERED [Direct,Heading] versus [Heading,Direct], STATE 2 versus 1 e COUNTER ((2,),) versus ((1,),) na Location da entrada sintetizada. Esses são observáveis de linguagem; não se exige igualdade Rust/bytes. A síntese pós-walk aloca entradas depois dos updates, mas sua posição causal é dentro do outline anterior. O núcleo realization-order já proíbe tratar identidade numérica como ordem. A correção é refutada por ordem, prefixo temporal, duplicação ou dados de entry errados.
+
+### Responsabilidade exclusiva
+
+Adicionar somente pub(crate) fn observe_locations_after(&mut self, anchor: Location, locations: &[Location]), com semântica de dados: âncora não observada/lista vazia/já observada são no-op; deduplicar novas Locations em ordem por HashSet local puro, deslocar ordinais posteriores e registrar o bloco logo depois da âncora. Preservar densidade e ordem relativa dos antigos, idempotência, clones e append posterior. O compiler fornece a decisão de âncora, nunca inferir por número de Location. Não alterar init/update, histórico, lookup, valores, fases, I/O ou interface externa. Aplicar o núcleo realization-order já pinado, sem importar compiler.
+
+### Aceitação
+
+Testes funcionais antes da mudança: índice bare da entry própria e aliases; ordem de três entries (dois outlines com entry direta entre eles), where e ausência de heading fantasma; estado e contador lidos na Location sintetizada devem refletir o prefixo do outline. Depois, testes de contrato dos dois helpers internos antes da sua implementação, com âncora desconhecida, duplicatas/repetição, IDs não monotônicos e append denso. Repetir nove sondas CLI sem relaxar resultados (seis originais e order/state/counter). Suíte completa, build, fmt, Clippy estrito, Rustdoc estrito, V1/V5/V15/V26/reversa/diff e SARIF: seis V16 removidos, sete V19 previstos e três mensagens existentes atualizadas, nenhum V20 novo. 12 GiB, swap zero, um job e comandos pesados sequenciais. Esta é correção interna/paridade ADR-0127, com helpers crate-private e nove pares L0/consumer; nenhuma assinatura externa, default deliberado ou fase nova. Resselo restrito, sem commit/push/release. As demais pendências de V16 continuam abertas.

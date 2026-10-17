@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/outline_entry.md
-//! @prompt-hash ecdf19ae
+//! @prompt-hash eb353460
 //! @layer L1
-//! @updated 2026-09-14
+//! @updated 2026-10-16
 
 use std::sync::Arc;
 
@@ -60,10 +60,18 @@ impl OutlineEntryElem {
     }
 
     pub fn body(&self) -> Result<Content, String> {
-        match &self.element {
+        let mut element = self.element.source_body();
+        while let Content::Located(located) = element {
+            element = located.body.source_body();
+        }
+        match element {
             Content::Heading(heading) => Ok(heading.body.clone()),
             other => Err(format!("cannot outline {}", other.elem_name())),
         }
+    }
+
+    pub(crate) fn prefix_ref(&self) -> Option<&Content> {
+        self.prefix.as_ref()
     }
 
     pub fn prefix(&self) -> Option<Content> {
@@ -185,5 +193,76 @@ mod tests {
             OutlineEntryElem::new(1, Content::heading(1, Content::text("H")), None, true);
         assert_eq!(entry.prefix(), None);
         assert_eq!(entry.element_location(), None);
+    }
+    fn walk_source(body: Content) -> Content {
+        use crate::entities::{file_id::FileId, span::Span};
+        body.with_source_span(Span::from_range(
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+            2..5,
+        ))
+    }
+
+    #[test]
+    fn v16_walk_entry_body_preserves_source_heading_morphology() {
+        let body = Content::strong(Content::text("semantic"));
+        let element = walk_source(Content::heading(2, body.clone()));
+        let entry = OutlineEntryElem::new(2, element.clone(), None, false);
+        assert_eq!(entry.body().unwrap(), body);
+        assert_eq!(entry.element, element);
+        assert_eq!(entry.prefix(), None);
+        assert_eq!(entry.element_location(), None);
+    }
+
+    #[test]
+    fn v16_walk_entry_body_rejects_source_strong_without_unwrapping_it() {
+        let entry = OutlineEntryElem::new(
+            1,
+            walk_source(Content::strong(Content::text("invalid"))),
+            None,
+            false,
+        );
+        assert_eq!(entry.body().unwrap_err(), "cannot outline strong");
+    }
+    #[test]
+    fn v16_walk_entry_body_preserves_located_source_heading() {
+        use crate::entities::{content::LocatedContent, locator::Locator};
+        let body = Content::strong(Content::text("semantic"));
+        let heading = Content::heading(2, body.clone());
+        let located = |content| {
+            Content::Located(Arc::new(LocatedContent {
+                location: Locator::new().next(),
+                body: content,
+            }))
+        };
+        for element in
+            [located(walk_source(heading.clone())), walk_source(located(heading))]
+        {
+            let entry = OutlineEntryElem::new(2, element.clone(), None, false);
+            assert_eq!(entry.body().unwrap(), body);
+            assert_eq!(entry.element, element);
+        }
+    }
+}
+
+#[cfg(test)]
+mod static_prefix_ref_tests {
+    use super::*;
+    #[test]
+    fn bibliography_static_prefix_ref_borrows_stored_content() {
+        let direct = OutlineEntryElem::new(1, Content::text("H"), None, false);
+        assert!(direct.prefix_ref().is_none());
+        let entry = OutlineEntryElem::realized(
+            1,
+            Content::text("H"),
+            None,
+            false,
+            Some(Content::text("prefix")),
+            crate::entities::locator::Locator::new().next(),
+        );
+        assert!(std::ptr::eq(
+            entry.prefix_ref().unwrap(),
+            entry.prefix.as_ref().unwrap()
+        ));
+        assert_eq!(entry.prefix().unwrap().plain_text(), "prefix");
     }
 }

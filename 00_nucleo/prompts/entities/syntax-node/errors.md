@@ -1,5 +1,5 @@
 # L0 — entities/syntax-node/errors
-Hash do Código: 708859fd
+Hash do Código: 06113c86
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/syntax_node/errors.rs`

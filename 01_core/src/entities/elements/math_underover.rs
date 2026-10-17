@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_underover.md
-//! @prompt-hash 4d4fac90
+//! @prompt-hash ecd88f08
 //! @layer L1
-//! @updated 2026-06-11
+//! @updated 2026-10-10
 //!
 //! `MathUnderoverElem` — Lote 2 P317 (família math). Anotações verticais (P297).
 //! Comportamento idêntico ao braço anterior do hub (content-preserving).
@@ -106,15 +106,9 @@ impl Element for MathOvershellElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathOvershell(Arc::new(MathOvershellElem {
-            body: self.body.map_content(transform)?,
-            annotation: self
-                .annotation
-                .as_ref()
-                .map(|content| content.map_content(transform))
-                .transpose()?,
-            annotation_explicit: self.annotation_explicit,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathOvershell(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -136,15 +130,9 @@ impl Element for MathOverparenElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathOverparen(Arc::new(MathOverparenElem {
-            body: self.body.map_content(transform)?,
-            annotation: self
-                .annotation
-                .as_ref()
-                .map(|content| content.map_content(transform))
-                .transpose()?,
-            annotation_explicit: self.annotation_explicit,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathOverparen(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -166,15 +154,9 @@ impl Element for MathOverbracketElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathOverbracket(Arc::new(MathOverbracketElem {
-            body: self.body.map_content(transform)?,
-            annotation: self
-                .annotation
-                .as_ref()
-                .map(|content| content.map_content(transform))
-                .transpose()?,
-            annotation_explicit: self.annotation_explicit,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathOverbracket(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -196,15 +178,9 @@ impl Element for MathOverbraceElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathOverbrace(Arc::new(MathOverbraceElem {
-            body: self.body.map_content(transform)?,
-            annotation: self
-                .annotation
-                .as_ref()
-                .map(|content| content.map_content(transform))
-                .transpose()?,
-            annotation_explicit: self.annotation_explicit,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathOverbrace(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -226,15 +202,9 @@ impl Element for MathUnderbraceElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathUnderbrace(Arc::new(MathUnderbraceElem {
-            body: self.body.map_content(transform)?,
-            annotation: self
-                .annotation
-                .as_ref()
-                .map(|content| content.map_content(transform))
-                .transpose()?,
-            annotation_explicit: self.annotation_explicit,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathUnderbrace(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -266,15 +236,9 @@ impl Element for MathUnderbracketElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathUnderbracket(Arc::new(MathUnderbracketElem {
-            body: self.body.map_content(transform)?,
-            annotation: self
-                .annotation
-                .as_ref()
-                .map(|content| content.map_content(transform))
-                .transpose()?,
-            annotation_explicit: self.annotation_explicit,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathUnderbracket(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -306,15 +270,9 @@ impl Element for MathUnderparenElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathUnderparen(Arc::new(MathUnderparenElem {
-            body: self.body.map_content(transform)?,
-            annotation: self
-                .annotation
-                .as_ref()
-                .map(|content| content.map_content(transform))
-                .transpose()?,
-            annotation_explicit: self.annotation_explicit,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathUnderparen(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -346,15 +304,9 @@ impl Element for MathUndershellElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathUndershell(Arc::new(MathUndershellElem {
-            body: self.body.map_content(transform)?,
-            annotation: self
-                .annotation
-                .as_ref()
-                .map(|content| content.map_content(transform))
-                .transpose()?,
-            annotation_explicit: self.annotation_explicit,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathUndershell(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -387,11 +339,9 @@ impl Element for MathUnderoverElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathUnderover(Arc::new(MathUnderoverElem {
-            base: self.base.map_content(transform)?,
-            under: self.under.as_ref().map(|c| c.map_content(transform)).transpose()?,
-            over: self.over.as_ref().map(|c| c.map_content(transform)).transpose()?,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathUnderover(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -400,6 +350,276 @@ impl Element for MathUnderoverElem {
     {
         // Terminal (math structural; não desce).
         Content::MathUnderover(Arc::new(self.clone()))
+    }
+}
+
+impl MathOvershellElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        let annotation = self
+            .annotation
+            .as_ref()
+            .map(|child| child.map_content_if_changed(transform))
+            .transpose()?
+            .flatten();
+        if body.is_none() && annotation.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        if let Some(changed) = annotation {
+            mapped.annotation = Some(changed);
+        }
+        Ok(Some(Content::MathOvershell(Arc::new(mapped))))
+    }
+}
+
+impl MathOverparenElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        let annotation = self
+            .annotation
+            .as_ref()
+            .map(|child| child.map_content_if_changed(transform))
+            .transpose()?
+            .flatten();
+        if body.is_none() && annotation.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        if let Some(changed) = annotation {
+            mapped.annotation = Some(changed);
+        }
+        Ok(Some(Content::MathOverparen(Arc::new(mapped))))
+    }
+}
+
+impl MathOverbracketElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        let annotation = self
+            .annotation
+            .as_ref()
+            .map(|child| child.map_content_if_changed(transform))
+            .transpose()?
+            .flatten();
+        if body.is_none() && annotation.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        if let Some(changed) = annotation {
+            mapped.annotation = Some(changed);
+        }
+        Ok(Some(Content::MathOverbracket(Arc::new(mapped))))
+    }
+}
+
+impl MathOverbraceElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        let annotation = self
+            .annotation
+            .as_ref()
+            .map(|child| child.map_content_if_changed(transform))
+            .transpose()?
+            .flatten();
+        if body.is_none() && annotation.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        if let Some(changed) = annotation {
+            mapped.annotation = Some(changed);
+        }
+        Ok(Some(Content::MathOverbrace(Arc::new(mapped))))
+    }
+}
+
+impl MathUnderbraceElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        let annotation = self
+            .annotation
+            .as_ref()
+            .map(|child| child.map_content_if_changed(transform))
+            .transpose()?
+            .flatten();
+        if body.is_none() && annotation.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        if let Some(changed) = annotation {
+            mapped.annotation = Some(changed);
+        }
+        Ok(Some(Content::MathUnderbrace(Arc::new(mapped))))
+    }
+}
+
+impl MathUnderbracketElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        let annotation = self
+            .annotation
+            .as_ref()
+            .map(|child| child.map_content_if_changed(transform))
+            .transpose()?
+            .flatten();
+        if body.is_none() && annotation.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        if let Some(changed) = annotation {
+            mapped.annotation = Some(changed);
+        }
+        Ok(Some(Content::MathUnderbracket(Arc::new(mapped))))
+    }
+}
+
+impl MathUnderparenElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        let annotation = self
+            .annotation
+            .as_ref()
+            .map(|child| child.map_content_if_changed(transform))
+            .transpose()?
+            .flatten();
+        if body.is_none() && annotation.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        if let Some(changed) = annotation {
+            mapped.annotation = Some(changed);
+        }
+        Ok(Some(Content::MathUnderparen(Arc::new(mapped))))
+    }
+}
+
+impl MathUndershellElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        let annotation = self
+            .annotation
+            .as_ref()
+            .map(|child| child.map_content_if_changed(transform))
+            .transpose()?
+            .flatten();
+        if body.is_none() && annotation.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        if let Some(changed) = annotation {
+            mapped.annotation = Some(changed);
+        }
+        Ok(Some(Content::MathUndershell(Arc::new(mapped))))
+    }
+}
+
+impl MathUnderoverElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let base = self.base.map_content_if_changed(transform)?;
+        let under = self
+            .under
+            .as_ref()
+            .map(|child| child.map_content_if_changed(transform))
+            .transpose()?
+            .flatten();
+        let over = self
+            .over
+            .as_ref()
+            .map(|child| child.map_content_if_changed(transform))
+            .transpose()?
+            .flatten();
+        if base.is_none() && under.is_none() && over.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = base {
+            mapped.base = changed;
+        }
+        if let Some(changed) = under {
+            mapped.under = Some(changed);
+        }
+        if let Some(changed) = over {
+            mapped.over = Some(changed);
+        }
+        Ok(Some(Content::MathUnderover(Arc::new(mapped))))
     }
 }
 

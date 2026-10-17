@@ -1,5 +1,5 @@
 # L0 — infra/export/gradients/cmyk
-Hash do Código: 6de34698
+Hash do Código: 8418324e
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/gradients/cmyk.rs`
@@ -28,3 +28,15 @@ The conic emitter may reuse rgb_to_cmyk without this owner deciding shading topo
 Check black/white, native versus fallback CMYK, endpoints and bounded samples.
 Print component identity is observable; ICC-managed color fidelity or universal
 upstream conversion parity is not asserted.
+
+## Imports e documentação de CI — 2026-10-13
+
+### Medição anterior à decisão
+
+`03_infra/src/export/gradients/cmyk.rs` nas linhas 12, 13 contém os avisos selecionados. Fontes/owners, spans, saída original do compilador, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e diffstat estão em `00_nucleo/diagnosticos/infra-imports-docs-ci-2026-10-13/before.json.gz`. A pesquisa distingue referências produtivas, imports necessários somente à suíte descendente e menções em comentários; não constitui nova medição de paridade.
+
+### Decisão e aceitação
+
+Remover somente os imports privados comprovadamente sem uso neste consumer; manter os reexports públicos e os imports exigidos por chamadas ou contratos. A lista exata de spans anterior à edição está no diagnóstico citado.
+
+Manutenção interna sem mudança de assinatura pública, default, fase, fórmulas ou critérios de aceitação (fluxo contínuo ADR-0127). Não introduzir supressões de lint. Revalidar compilação de todos os targets, nomes e execução da suíte de infraestrutura, build, Clippy do workspace, Rustdoc e linhagem com resselo restrito. Não criar testes que apenas espelhem remoção de imports ou formatação de comentários.

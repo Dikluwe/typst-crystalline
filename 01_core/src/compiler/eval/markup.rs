@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/markup.md
-//! @prompt-hash 41ab43a5
+//! @prompt-hash 05a1c465
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-10-06
 //!
 //! Armos de markup (`Strong`, `Emph`, `Heading`, `Raw`, `Link`, `ListItem`,
 //! `EnumItem`) extraídos do dispatcher `eval_expr` no Passo 96.2 conforme
@@ -110,7 +110,16 @@ pub(super) fn eval_heading(
     // consumidor (layout/introspect) lê o gate da chain. Fonte única.
     // Intercepção eager — show rules aplicadas imediatamente após criação (Passo 68).
     let content = Content::heading(level, body);
-    Ok(Value::Content(rules::intercept_content(content, ctx, engine)?))
+    let content =
+        rules::intercept_content(content, ctx, engine).map_err(|mut errors| {
+            for error in &mut errors {
+                if error.span.is_detached() {
+                    error.span = heading.span();
+                }
+            }
+            errors
+        })?;
+    Ok(Value::Content(content))
 }
 
 pub(super) fn eval_raw(

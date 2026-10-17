@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/figure.md
-//! @prompt-hash 35beb352
+//! @prompt-hash b6013d2f
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -71,6 +71,17 @@ impl Element for FigureElem {
             caption: self.caption.as_ref().map(|c| c.map_text(transform)),
             kind: self.kind.clone(),
         }))
+    }
+
+    fn get_field(&self, field: &str) -> Option<crate::entities::value::Value> {
+        use crate::entities::value::Value;
+        match field {
+            "body" => Some(Value::Content(self.body.clone())),
+            "caption" => self.caption.as_ref().map(|body| {
+                Value::Content(Content::figure_caption(body.clone(), None, None))
+            }),
+            _ => None,
+        }
     }
 
     fn element_kind(&self) -> Option<ElementKind> {
@@ -186,5 +197,22 @@ mod tests {
         let mut v = ex();
         v.kind = Some("table".to_string());
         assert_ne!(h(&ex()), h(&v));
+    }
+    #[test]
+    fn figure_caption_projection_retains_body_and_omits_unresolved_defaults() {
+        use crate::entities::value::Value;
+        let element = ex();
+        let original_caption = element.caption.clone().unwrap();
+        let content = Content::Figure(Arc::new(element.clone()));
+        let Some(Value::Content(Content::FigureCaption(caption))) =
+            content.get_field("caption")
+        else {
+            panic!("present caption was lost")
+        };
+        assert_eq!(caption.body, original_caption);
+        assert!(caption.position.is_none());
+        assert!(caption.separator.is_none());
+        assert_eq!(content.get_field("body"), Some(Value::Content(element.body)));
+        assert!(content.get_field("nonexistent").is_none());
     }
 }

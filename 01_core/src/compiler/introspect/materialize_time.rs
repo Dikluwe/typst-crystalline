@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/materialize_time.md
-//! @prompt-hash 2b4c82f0
+//! @prompt-hash 46264b9a
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 
 use super::*;
 
@@ -28,6 +28,16 @@ pub(super) fn materialize_time(
     location: Location,
 ) -> Content {
     match content {
+        Content::Source(e) => materialize_time(&e.body, intr, location).with_source_span(e.span),
+        Content::ShowRecipe(e) => Content::ShowRecipe(Arc::new(crate::entities::content::ShowRecipeContent {
+            body: materialize_time(&e.body, intr, location), ..e.as_ref().clone()
+        })),
+        Content::Located(e) => Content::Located(Arc::new(crate::entities::content::LocatedContent {
+            body: materialize_time(&e.body, intr, e.location), location: e.location,
+        })),
+        Content::Realized(e) => Content::Realized(Arc::new(crate::entities::content::RealizedContent {
+            original: e.original.clone(), visual: materialize_time(&e.visual, intr, location),
+        })),
         // O caso crítico: substituir o nó dinâmico pelo valor actual do contador.
         Content::CounterDisplay(e) => {
             Content::text(
@@ -269,7 +279,7 @@ pub(super) fn materialize_time(
             e.count,
             e.gutter,
         ),
-        Content::Transform(e) => Content::transform(e.matrix, materialize_time(&e.body, intr, location)),
+        Content::Transform(e) => Content::Transform(std::sync::Arc::new(crate::entities::elements::transform::TransformElem { operation: e.operation, body: materialize_time(&e.body, intr, location) })),
         // Modelo D (Lote 12 P327): Grid — recurse cells+header+footer (struct-update).
         Content::Grid(e) => Content::Grid(std::sync::Arc::new(
             crate::entities::elements::grid::GridElem {
@@ -294,6 +304,19 @@ pub(super) fn materialize_time(
             },
         )),
         // Modelo D (Lote 12 P327): Table — recurse em caption + children.
+        Content::Table(e) if e.resolved.is_some() => {
+            let mut t=e.as_ref().clone();let mut r=t.resolved.as_ref().unwrap().as_ref().clone();
+            r.cells=r.cells.iter().map(|c|materialize_time(c,intr,location)).collect();t.resolved=Some(std::sync::Arc::new(r));
+            t.caption=t.caption.as_ref().map(|c|materialize_time(c,intr,location));Content::Table(std::sync::Arc::new(t))
+        },
+        Content::TableCell(e) if e.standalone.is_some() => {
+            let mut c=e.as_ref().clone();let mut r=c.standalone.as_ref().unwrap().as_ref().clone();
+            r.visual=materialize_time(&r.visual,intr,location);c.standalone=Some(std::sync::Arc::new(r));Content::TableCell(std::sync::Arc::new(c))
+        },
+        Content::TableCell(e) if e.resolved.is_some() => {
+            let mut c=e.as_ref().clone();let mut r=c.resolved.as_ref().unwrap().as_ref().clone();
+            r.visual=materialize_time(&r.visual,intr,location);c.resolved=Some(std::sync::Arc::new(r));Content::TableCell(std::sync::Arc::new(c))
+        },
         Content::Table(e) => Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
                 caption: e.caption.as_ref().map(|c| materialize_time(c, intr, location)),

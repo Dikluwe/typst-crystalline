@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content/page-structure.md
-//! @prompt-hash d3f7a9db
+//! @prompt-hash 93287ae3
 //! @layer L1
-//! @updated 2026-09-26
+//! @updated 2026-10-10
 
 use super::*;
 
@@ -10,6 +10,13 @@ impl Content {
     /// Divide page and column markers into ordered structural segments.
     fn page_column_segments(body: &Self) -> Vec<Self> {
         match body {
+            Self::Source(e) => Self::page_column_segments(&e.body)
+                .into_iter()
+                .map(|c| c.with_source_span(e.span))
+                .collect(),
+            Self::ShowRecipe(_) | Self::Located(_) | Self::Realized(_) => {
+                vec![body.clone()]
+            }
             Self::Pagebreak(_) => vec![body.clone()],
             Self::Sequence(seq) => {
                 let mut pieces: Vec<Self> = Vec::new();
@@ -248,10 +255,36 @@ impl Content {
 #[cfg(test)]
 mod page_structure_tests {
     use super::Content;
+    use std::sync::Arc;
 
     #[test]
     fn wrapping_plain_content_preserves_it() {
         let content = Content::text("body");
         assert_eq!(content.clone().wrap_page_columns(), content);
+    }
+
+    #[test]
+    fn page_columns_preserve_tables_and_transform_markers() {
+        let table = Content::table(
+            vec![],
+            vec![],
+            vec![Content::table_cell(Content::text("cell"), None, None, None, None)],
+        );
+        let wrapped = table.clone().wrap_page_columns();
+        assert_eq!(wrapped, table);
+        if let (Content::Table(before), Content::Table(after)) = (&table, &wrapped) {
+            assert!(Arc::ptr_eq(before, after));
+        } else {
+            panic!("expected table");
+        }
+
+        let marker = Content::SetPage(Arc::new(super::SetPageDelta {
+            columns: Some(2),
+            ..Default::default()
+        }));
+        let with_columns = Content::sequence(vec![marker, Content::text("body")]);
+        let wrapped = with_columns.wrap_page_columns();
+        let Content::Sequence(parts) = wrapped else { panic!("expected sequence") };
+        assert!(parts.iter().any(|part| matches!(part, Content::Columns(_))));
     }
 }

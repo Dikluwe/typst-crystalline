@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/reconciliation.md
-//! @prompt-hash f717c429
+//! @prompt-hash 16d1d494
 //! @layer L3
 //! @updated 2026-10-03
 
@@ -42,7 +42,9 @@ pub(crate) fn fix_line_positions_with_metrics(
 
 fn get_item_x(item: &FrameItem) -> Option<f64> {
     match item {
-        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.0),
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+            Some(pos.x.0)
+        }
         FrameItem::TextShaped { pos, .. } => Some(pos.x.0),
         FrameItem::Glyph { pos, .. } => Some(pos.x.0),
         FrameItem::Image { pos, .. } => Some(pos.x.0),
@@ -50,13 +52,17 @@ fn get_item_x(item: &FrameItem) -> Option<f64> {
         FrameItem::Group { pos, .. } => Some(pos.x.0),
         FrameItem::Link { pos, .. } => Some(pos.x.0),
         FrameItem::Line { start, .. } => Some(start.x.0),
-        FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items.first().and_then(get_item_x),
+        FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
+            items.first().and_then(get_item_x)
+        }
     }
 }
 
 fn set_item_x(item: &mut FrameItem, x: f64) {
     match item {
-        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => pos.x = Pt(x),
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+            pos.x = Pt(x)
+        }
         FrameItem::TextShaped { pos, .. } => pos.x = Pt(x),
         FrameItem::Glyph { pos, .. } => pos.x = Pt(x),
         FrameItem::Image { pos, .. } => pos.x = Pt(x),
@@ -83,7 +89,9 @@ fn set_item_x(item: &mut FrameItem, x: f64) {
 
 fn get_item_y(item: &FrameItem) -> Option<f64> {
     match item {
-        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.0),
+        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+            Some(pos.y.0)
+        }
         FrameItem::TextShaped { pos, .. } => Some(pos.y.0),
         FrameItem::Glyph { pos, .. } => Some(pos.y.0),
         FrameItem::Image { pos, .. } => Some(pos.y.0),
@@ -91,7 +99,9 @@ fn get_item_y(item: &FrameItem) -> Option<f64> {
         FrameItem::Group { pos, .. } => Some(pos.y.0),
         FrameItem::Link { pos, .. } => Some(pos.y.0),
         FrameItem::Line { start, .. } => Some(start.y.0),
-        FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items.first().and_then(get_item_y),
+        FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
+            items.first().and_then(get_item_y)
+        }
     }
 }
 
@@ -133,8 +143,7 @@ fn estimated_and_real_width(
         FrameItem::TextShaped { text, style, glyphs, units_per_em, .. } => {
             let estimated = estimate_width(metrics, text, style);
             let upem = (*units_per_em).max(1) as f64;
-            let real =
-                super::tracking::width(glyphs, style, upem);
+            let real = super::tracking::width(glyphs, style, upem);
             (estimated, real)
         }
         FrameItem::Text { text, style, .. } => {
@@ -150,7 +159,8 @@ fn estimated_and_real_width(
             let width = (end.x.0 - start.x.0).abs();
             (width, width)
         }
-        FrameItem::TextReplacement { items, .. } => items.iter()
+        FrameItem::TextReplacement { items, .. } => items
+            .iter()
             .map(|item| estimated_and_real_width(metrics, item))
             .fold((0.0, 0.0), |(e, r), (ce, cr)| (e + ce, r + cr)),
         FrameItem::Semantic { .. } => (0.0, 0.0),
@@ -197,17 +207,38 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
         let is_math_line = sorted.iter().any(|&idx| match &page.items[idx] {
             FrameItem::TextShaped { style, .. } => style.math,
             FrameItem::Glyph { .. } => true,
-            _ => false,
+            FrameItem::TextReplacement { .. }
+            | FrameItem::TextSeparator { .. }
+            | FrameItem::Semantic { .. }
+            | FrameItem::Text { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. }
+            | FrameItem::Group { .. }
+            | FrameItem::Link { .. } => false,
         });
         if is_math_line {
             continue;
         }
 
         // Verificar se a linha é RTL (se algum item tem direcção RTL)
-        let is_rtl_line = sorted.iter().any(|&idx| match &page.items[idx] {
-            FrameItem::TextShaped { style, .. } => style.dir == Some(Dir::RTL),
-            FrameItem::Text { style, .. } => style.dir == Some(Dir::RTL),
-            _other => false, // neutro: N16[β] — itens não-textuais não possuem direcção RTL,
+        let certified_dir = sorted.iter().find_map(|&i| {
+            crate::bidi_context::span(&page.items[i]).map(|s| s.input().base_dir())
+        });
+        let is_rtl_line = certified_dir.map(|d| d == Dir::RTL).unwrap_or_else(|| {
+            sorted.iter().any(|&idx| match &page.items[idx] {
+                FrameItem::TextShaped { style, .. } => style.dir == Some(Dir::RTL),
+                FrameItem::Text { style, .. } => style.dir == Some(Dir::RTL),
+                FrameItem::TextReplacement { .. }
+                | FrameItem::TextSeparator { .. }
+                | FrameItem::Semantic { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. }
+                | FrameItem::Group { .. }
+                | FrameItem::Link { .. } => false, // neutro: N16[β] — itens não-textuais não possuem direcção RTL,
+            })
         });
 
         if is_rtl_line {
@@ -237,12 +268,17 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
                 set_item_x(&mut page.items[idx], x_orig + shift);
 
                 let (w_est, w_real) = match &page.items[idx] {
-                    FrameItem::TextReplacement { .. } | FrameItem::TextShaped { .. } =>
-                        estimated_and_real_width(metrics, &page.items[idx]),
-                    FrameItem::TextSeparator { .. } | FrameItem::Text { .. }
-                    | FrameItem::Line { .. } | FrameItem::Glyph { .. }
-                    | FrameItem::Image { .. } | FrameItem::Shape { .. }
-                    | FrameItem::Group { .. } | FrameItem::Link { .. }
+                    FrameItem::TextReplacement { .. } | FrameItem::TextShaped { .. } => {
+                        estimated_and_real_width(metrics, &page.items[idx])
+                    }
+                    FrameItem::TextSeparator { .. }
+                    | FrameItem::Text { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. }
+                    | FrameItem::Group { .. }
+                    | FrameItem::Link { .. }
                     | FrameItem::Semantic { .. } => (0.0, 0.0),
                 };
                 shift += w_real - w_est;

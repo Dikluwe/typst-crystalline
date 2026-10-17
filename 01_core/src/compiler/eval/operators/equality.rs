@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/operators/equality.md
-//! @prompt-hash 1d993642
+//! @prompt-hash 8048a82d
 //! @layer L1
-//! @updated 2026-08-12
+//! @updated 2026-10-06
 //!
 //!
 //! Igualdade da linguagem (`==`/`!=`, com coerção Int↔Float recursiva e
@@ -10,6 +10,8 @@
 //! do nó `error_formatting`.
 
 use crate::entities::ast::expr::BinOp;
+use crate::entities::color::Color;
+use crate::entities::content::Content;
 use crate::entities::counter::CounterKey;
 use crate::entities::selector::Selector;
 use crate::entities::value::Value;
@@ -35,10 +37,10 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         // camada da linguagem. **Não** toca o `derive(PartialEq)` do Rust — dois
         // sistemas (ADR-0025): a forma canônica é comparada com o `==` estrutural.
         (BinOp::Eq, Value::Content(a), Value::Content(b)) => {
-            Ok(Value::Bool(a.morph_canon() == b.morph_canon()))
+            Ok(Value::Bool(content_language_eq(&a, &b)))
         }
         (BinOp::Neq, Value::Content(a), Value::Content(b)) => {
-            Ok(Value::Bool(a.morph_canon() != b.morph_canon()))
+            Ok(Value::Bool(!content_language_eq(&a, &b)))
         }
         // P684 — comparação Version directa sobre todos os componentes (zero-pad),
         // sem qualquer tratamento especial de `pre`/`build` (não existem no Typst).
@@ -105,6 +107,15 @@ pub(crate) fn values_eq(a: &Value, b: &Value) -> bool {
         (Value::Int(i), Value::Float(f)) | (Value::Float(f), Value::Int(i)) => {
             (*i as f64) == *f
         }
+        (
+            Value::Color(Color::Srgb { r: r0, g: g0, b: b0, a: a0 }),
+            Value::Color(Color::Srgb { r: r1, g: g1, b: b1, a: a1 }),
+        ) => {
+            // Language equality rounds half away from zero; to-hex instead
+            // uses ties-to-even. Preserve the stored components and Rust Eq.
+            let channel = |x: &f32| (*x * 255.0).round() as u8;
+            [r0, g0, b0, a0].map(channel) == [r1, g1, b1, a1].map(channel)
+        }
         (Value::Array(x), Value::Array(y)) => {
             x.len() == y.len() && x.iter().zip(y.iter()).all(|(u, v)| values_eq(u, v))
         }
@@ -118,7 +129,7 @@ pub(crate) fn values_eq(a: &Value, b: &Value) -> bool {
         | (Value::Relative(rel), Value::Ratio(rat)) => {
             rel.abs.is_zero() && (rel.rel - rat.0).abs() < 1e-9
         }
-        (Value::Content(x), Value::Content(y)) => x.morph_canon() == y.morph_canon(),
+        (Value::Content(x), Value::Content(y)) => content_language_eq(x, y),
         (Value::Content(x), Value::LocatedContent(y, _)) => {
             content_values_eq(x, None, y.content(), y.fields())
         }
@@ -134,10 +145,36 @@ pub(crate) fn values_eq(a: &Value, b: &Value) -> bool {
     }
 }
 
+/// Comparison-only projection: Styled identity is its child, not its map.
+/// Keep the public morphology projection and Rust equality untouched.
+fn content_language_eq(a: &Content, b: &Content) -> bool {
+    fn project(content: &Content) -> Content {
+        content
+            .morph_canon()
+            .map_content(&mut |node| {
+                Ok(Some(match node {
+                    Content::Styled(styled) => {
+                        let mut body = styled.body.clone();
+                        while let Content::Styled(inner) = &body {
+                            body = inner.body.clone();
+                        }
+                        Content::styled(
+                            Box::new(body),
+                            crate::entities::style::Styles::new(),
+                        )
+                    }
+                    other => other.clone(),
+                }))
+            })
+            .expect("content equality: comparison projection is total")
+    }
+    project(a) == project(b)
+}
+
 /// Whether the selector's composition tree uses the P1339 element carrier.
 pub(crate) fn selector_contains_element(selector: &Selector) -> bool {
     match selector {
-        Selector::Element { .. } => true,
+        Selector::NativeElement(_) | Selector::Element { .. } => true,
         Selector::And(items) | Selector::Or(items) => {
             items.iter().any(selector_contains_element)
         }
@@ -165,6 +202,12 @@ pub(crate) fn selectors_eq(a: &Selector, b: &Selector) -> bool {
         return a == b;
     }
     match (a, b) {
+        (Selector::NativeElement(a), Selector::NativeElement(b)) => {
+            match (a.native_fn_addr(), b.native_fn_addr()) {
+                (Some(a), Some(b)) => std::ptr::fn_addr_eq(a, b),
+                _ => false,
+            }
+        }
         (
             Selector::Element { function: a, fields: af },
             Selector::Element { function: b, fields: bf },
@@ -230,7 +273,7 @@ fn content_values_eq(
     b_fields: Option<&ContentFields>,
 ) -> bool {
     if a_fields.is_none() && b_fields.is_none() {
-        return a.morph_canon() == b.morph_canon();
+        return content_language_eq(a, b);
     }
     if a.elem_name() != b.elem_name() {
         return false;
@@ -316,5 +359,187 @@ mod p1339_tests {
             value: Box::new(value),
         };
         assert!(!selectors_eq(&legacy(Value::Int(1)), &legacy(Value::Float(1.0))));
+    }
+}
+
+#[cfg(test)]
+mod color_bounds_tests {
+    use super::*;
+    use crate::entities::color::Color;
+
+    #[test]
+    fn rgb_language_equality_preserves_precision_and_rounds_channels() {
+        let half = Value::Color(Color::srgb_f32(0.5, 0.0, 0.0, 1.0));
+        let byte = Value::Color(Color::rgb(128, 0, 0));
+        assert_ne!(half, byte, "structural equality remains exact");
+        assert!(values_eq(&half, &byte));
+        assert!(values_eq(
+            &Value::Color(Color::srgb_f32(0.0, 0.0, 0.0, 0.5)),
+            &Value::Color(Color::srgb_f32(0.0, 0.0, 0.0, 128.0 / 255.0)),
+        ));
+        let tie = Value::Color(Color::srgb_f32(90.5 / 255.0, 0.0, 0.0, 1.0));
+        assert!(values_eq(&tie, &Value::Color(Color::rgb(91, 0, 0))));
+        assert!(!values_eq(&tie, &Value::Color(Color::rgb(90, 0, 0))));
+        assert!(!values_eq(&Value::Color(Color::srgb_f32(0.49, 0.0, 0.0, 1.0)), &byte));
+        assert!(!values_eq(
+            &Value::Color(Color::srgb_f32(0.0, 0.0, 0.0, 0.49)),
+            &Value::Color(Color::srgb_f32(0.0, 0.0, 0.0, 128.0 / 255.0)),
+        ));
+        assert!(!values_eq(
+            &Value::Color(Color::linear_rgb(0.5, 0.0, 0.0, 1.0)),
+            &Value::Color(Color::linear_rgb(128.0 / 255.0, 0.0, 0.0, 1.0)),
+        ));
+        assert!(!values_eq(
+            &Value::Color(Color::rgb(0, 0, 0)),
+            &Value::Color(Color::luma(0.0))
+        ));
+    }
+
+    #[test]
+    fn rgb_language_equality_propagates_to_containers_and_membership() {
+        let a = Value::Color(Color::srgb_f32(0.5, 0.0, 0.0, 1.0));
+        let b = Value::Color(Color::rgb(128, 0, 0));
+        assert_eq!(apply_binary(BinOp::Eq, a.clone(), b.clone()), Ok(Value::Bool(true)));
+        assert_eq!(
+            apply_binary(BinOp::Neq, a.clone(), b.clone()),
+            Ok(Value::Bool(false))
+        );
+        assert_eq!(
+            apply_binary(BinOp::In, a.clone(), Value::Array(vec![b.clone()])),
+            Ok(Value::Bool(true))
+        );
+        assert_eq!(
+            apply_binary(BinOp::NotIn, a.clone(), Value::Array(vec![b.clone()])),
+            Ok(Value::Bool(false))
+        );
+        assert!(values_eq(
+            &Value::Array(vec![a.clone()]),
+            &Value::Array(vec![b.clone()])
+        ));
+        assert!(values_eq(
+            &Value::Dict([("color".into(), a)].into_iter().collect()),
+            &Value::Dict([("color".into(), b)].into_iter().collect()),
+        ));
+    }
+}
+
+#[cfg(test)]
+mod styled_language_tests {
+    use super::*;
+    use crate::entities::content::Content;
+    use crate::entities::layout_types::Length;
+    use crate::entities::style::{Style, Styles};
+
+    fn sized(text: &str, length: Length) -> Content {
+        Content::styled(
+            Box::new(Content::text(text)),
+            Styles::from_iter([Style::Size(length)]),
+        )
+    }
+
+    #[test]
+    fn styled_language_sizes_and_fill_do_not_change_child_equality() {
+        let a = sized("A", Length::em(2.0));
+        for b in [
+            sized("A", Length::ZERO),
+            sized("A", Length::pt(24.0)),
+            Content::styled(
+                Box::new(Content::text("A")),
+                Styles::from_iter([Style::Fill(Color::rgb(0, 0, 255))]),
+            ),
+        ] {
+            assert_ne!(a, b, "Rust equality must remain structural");
+            assert_ne!(
+                a.morph_canon(),
+                b.morph_canon(),
+                "Do not change the global morphology projection"
+            );
+            assert!(values_eq(&Value::Content(a.clone()), &Value::Content(b)));
+        }
+    }
+
+    #[test]
+    fn styled_language_nested_constructors_coalesce_without_erasing_presence() {
+        let inner = sized("A", Length::pt(3.0));
+        let nested = Content::styled(
+            Box::new(inner),
+            Styles::from_iter([Style::Size(Length::em(2.0))]),
+        );
+        let one = sized("A", Length::pt(24.0));
+        assert!(values_eq(&Value::Content(nested), &Value::Content(one)));
+    }
+
+    #[test]
+    fn styled_language_child_projection_applies_inside_nominal_nodes_and_sequences() {
+        let a = sized("A", Length::em(2.0));
+        let b = sized("A", Length::pt(24.0));
+        assert!(values_eq(
+            &Value::Content(Content::strong(a.clone())),
+            &Value::Content(Content::strong(b.clone()))
+        ));
+        let x = Content::sequence(vec![Content::text("X"), a]);
+        let y = Content::sequence(vec![Content::text("X"), b]);
+        assert!(values_eq(&Value::Content(x), &Value::Content(y)));
+    }
+
+    #[test]
+    fn styled_language_containers_membership_and_complement_share_the_relation() {
+        let a = Value::Content(sized("A", Length::em(2.0)));
+        let b = Value::Content(sized("A", Length::pt(24.0)));
+        assert_eq!(
+            apply_binary(BinOp::Eq, a.clone(), b.clone()).unwrap(),
+            Value::Bool(true)
+        );
+        assert_eq!(
+            apply_binary(BinOp::Neq, a.clone(), b.clone()).unwrap(),
+            Value::Bool(false)
+        );
+        assert!(values_eq(
+            &Value::Array(vec![a.clone()]),
+            &Value::Array(vec![b.clone()])
+        ));
+        let d1 = Value::Dict([("x".into(), a.clone())].into_iter().collect());
+        let d2 = Value::Dict([("x".into(), b.clone())].into_iter().collect());
+        assert!(values_eq(&d1, &d2));
+        assert_eq!(
+            apply_binary(BinOp::In, a.clone(), Value::Array(vec![b.clone()])).unwrap(),
+            Value::Bool(true)
+        );
+        assert_eq!(
+            apply_binary(BinOp::NotIn, a, Value::Array(vec![b])).unwrap(),
+            Value::Bool(false)
+        );
+    }
+
+    #[test]
+    fn styled_language_preserves_wrapper_kind_body_and_plain_negatives() {
+        let a = Value::Content(sized("A", Length::em(2.0)));
+        for b in [
+            Content::text("A"),
+            sized("B", Length::em(2.0)),
+            Content::strong(Content::text("A")),
+            Content::emph(Content::text("A")),
+        ] {
+            assert!(!values_eq(&a, &Value::Content(b)));
+        }
+        assert!(!values_eq(
+            &Value::Content(Content::strong(Content::text("A"))),
+            &Value::Content(Content::emph(Content::text("A")))
+        ));
+    }
+
+    #[test]
+    fn styled_language_ignores_style_nan_but_preserves_float_nan_and_sources() {
+        use crate::entities::{file_id::FileId, span::Span};
+        use std::num::NonZeroU16;
+        let origin =
+            Span::from_range(FileId::from_raw(NonZeroU16::new(7).unwrap()), 2..3);
+        let a = sized("A", Length::pt(f64::NAN)).with_source_span(origin);
+        let b = sized("A", Length::pt(12.0));
+        for _ in 0..2 {
+            assert!(values_eq(&Value::Content(a.clone()), &Value::Content(b.clone())));
+        }
+        assert_eq!(a.source_span(), origin);
+        assert!(!values_eq(&Value::Float(f64::NAN), &Value::Float(f64::NAN)));
     }
 }

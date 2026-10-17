@@ -1,13 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules.md
-//! @prompt-hash 97e7f623
+//! @prompt-hash a30c8fa8
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-05
 //!
 //! Diagnósticos compartilhados e hub estático de set/show rules.
 //! Os algoritmos residem nos módulos filhos por comportamento.
 
-pub(super) mod textual;
+pub(crate) mod textual;
 
 use std::sync::Arc;
 
@@ -40,7 +40,7 @@ use super::{
     EvalContext,
 };
 
-mod apply;
+pub(crate) mod apply;
 mod intercept;
 mod math_set;
 mod outline;
@@ -214,6 +214,17 @@ const MATH_SET_LIGADOS: &[(&str, &str)] = &[
     ("accent", "dotless"),
     ("stretch", "size"),
 ];
+
+/// Diagnostic vocabulary differs from the public short names of types.
+fn break_policy_error(expected: &str, found: &Value, span: Span) -> SourceDiagnostic {
+    let name = match found.type_name() {
+        "int" => "integer",
+        "str" => "string",
+        "bool" => "boolean",
+        other => other,
+    };
+    SourceDiagnostic::error(span, format!("{expected}, found {name}"))
+}
 
 // P1467 (RED — Agente B) — testes do braço `format.pdf` de `eval_set_rule`.
 //
@@ -1026,15 +1037,4 @@ mod tests {
             "{html_errors:?}"
         );
     }
-}
-
-/// Diagnostic vocabulary differs from the public short names of types.
-fn break_policy_error(expected: &str, found: &Value, span: Span) -> SourceDiagnostic {
-    let name = match found.type_name() {
-        "int" => "integer",
-        "str" => "string",
-        "bool" => "boolean",
-        other => other,
-    };
-    SourceDiagnostic::error(span, format!("{expected}, found {name}"))
 }

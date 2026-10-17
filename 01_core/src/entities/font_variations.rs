@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/font_variations.md
-//! @prompt-hash b4d6fcbb
+//! @prompt-hash 6e5734b1
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -193,7 +193,7 @@ mod tests {
     use super::*;
 
     fn dict(entries: &[(&str, Value)]) -> Value {
-        let mut d = IndexMap::with_hasher(FxBuildHasher::default());
+        let mut d = IndexMap::with_hasher(FxBuildHasher);
         for (k, v) in entries {
             d.insert(EcoString::from(*k), v.clone());
         }

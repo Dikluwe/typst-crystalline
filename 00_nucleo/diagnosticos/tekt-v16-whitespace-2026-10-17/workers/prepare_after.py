@@ -1,0 +1,4 @@
+from pathlib import Path
+out=Path(__file__).resolve().parents[1];s=(out/'workers/measure_family.py').read_text();s=s.replace("assert all(sha(p)==h for p,h in b['hashes'].items());source=", "b['hashes']={p:sha(p) for p in b['hashes']};source=");s=s.replace("'source-family-before.json.gz'","'source-family-after.json.gz'").replace("'measurement-family-before.log'","'measurement-family-after.log'").replace("'source-family-before-analysis.json'","'source-family-after-analysis.json'")
+s=s.replace("env=dict(os.environ,CARGO_TARGET_DIR=str(root/'target'),CARGO_BUILD_JOBS='1')", "measure_target=Path('/tmp/tekt-whitespace-measure-target');assert measure_target.is_dir() and measure_target.resolve()!=(root/'target').resolve();record['cargo_target_dir']=str(measure_target);env=dict(os.environ,CARGO_TARGET_DIR=str(measure_target),CARGO_BUILD_JOBS='1')")
+s+='\nassert all(p["same"] for p in pairs),pairs\n';(out/'workers/measure_after.py').write_text(s)

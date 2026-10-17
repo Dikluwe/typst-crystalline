@@ -359,3 +359,23 @@ ADR-0120 transita para `ACEITE` quando P482 for concluído com:
 - **`y_offset` scope-out**: nenhum corpus LTR com y_offset!=0; implementação requer saída do TJ para sequências `Td`. Scope-out documentado.
 - 4 novos testes verdes (1 shaper + 3 stream) + sentinela `p486_parity_73_73_mantido`.
 - `crystalline-lint`: 0 erros V1–V14. **Trilha 5 extensão final FECHADA.**
+
+
+## Retificação do metadado P483 — 2026-10-13
+
+A medição em `00_nucleo/diagnosticos/pre-shaping-ci-2026-10-13/before.json.gz`
+registra HEAD, árvore não commitada, UTC e fontes. O inventário Clippy da
+rodada cfg-test-ci-2026-10-13 identifica usos obrigatórios de Text em L1
+sinalizados como deprecated. P484, acima, já definiu esse carrier como
+permanente: L1 emite texto posicionado e L3 recebe bytes de fontes e shapeia.
+A anotação global de P483 não distingue essas fases e exige supressões nos
+usos que esta ADR obriga.
+
+Retificar essa anotação, sem mudar a decisão de pipeline: Text deixa de
+ser deprecated e sua documentação descreve pré-shaping/fallback permanente.
+A remoção da anotação não autoriza eliminar shaping, fabricar glifos em L1,
+remover TextShaped ou alterar fallbacks. Não muda campos, assinaturas, API
+funcional, defaults ou fase. O owner materializável desta correção é
+`00_nucleo/prompts/entities/layout_types.md`; esta ADR não legitima outro
+consumer. As contagens e alegações históricas de P483/P484 não são uma nova
+medição de cobertura ou paridade.

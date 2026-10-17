@@ -22,3 +22,4 @@ clap_complete_nushell = { workspace = true }
 codespan-reporting = { workspace = true }
 serde_json = { workspace = true }
 serde      = { workspace = true }
+shell-escape = "=0.1.5"

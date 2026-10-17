@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/calc
-Hash do Código: c0a7dcc1
+Hash do Código: 048d3367
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/calc.rs`

@@ -1,6 +1,6 @@
 # L0 — utils
-
 Hash do Código: b6143520
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/utils.rs`

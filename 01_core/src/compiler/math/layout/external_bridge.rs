@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/external_bridge.md
-//! @prompt-hash fe18c737
+//! @prompt-hash 8ac4c15a
 //! @layer L1
 //! @updated 2026-10-01
 
@@ -61,7 +61,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         //    propagam o show-set da equação (P944) — paridade vanilla, cujo
         //    `EquationElem::show_set` cobre o conteúdo embutido.
         let mut styles = vec![
-            Style::Size(style.size),
+            Style::Size(crate::entities::layout_types::Length::pt(style.size.val())),
             Style::bold(style.bold),
             Style::italic(style.italic),
         ];
@@ -217,7 +217,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         for item in items {
             match item {
                 FrameItem::TextSeparator { .. } => {}
-                FrameItem::Text { pos, text, style }
+                FrameItem::Text { pos, text, style, .. }
                 | FrameItem::TextShaped { pos, text, style, .. } => {
                     let y = offset_y + pos.y.val();
                     if first_baseline.is_none() {

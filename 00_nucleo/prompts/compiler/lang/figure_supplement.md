@@ -1,6 +1,6 @@
 # L0 — lang/figure_supplement
+Hash do Código: 8259caae
 
-Hash do Código: 6c8ac553
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/lang/defaults.toml sha256:c8f920865f8895a89d9c42659c15e773e9bb2603bd614e390805f620834babd9

@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/foundations
-Hash do Código: 6b4c6138
+Hash do Código: c0662062
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/foundations.rs`

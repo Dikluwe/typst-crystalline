@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/page_run` — `PageRunElem`
-Hash do Código: e77d675d
+Hash do Código: bdcd3f18
 
 ## P1140.20.2 — canvas lexical condicionado ao gate
 

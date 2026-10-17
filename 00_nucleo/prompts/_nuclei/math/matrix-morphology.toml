@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "math-matrix-morphology"
+title = "Morfologia pública de mat e presença dos campos"
+
+[[claims]]
+id = "rows"
+level = "must"
+statement = "rows conserva ordem de linhas e células, padding vazio e conteúdo morfológico; render não substitui esses dados."
+
+[[claims]]
+id = "presence"
+level = "must"
+statement = "delim, align, augment, row-gap e column-gap são conhecidos apenas quando seus bits explicit são verdadeiros; rows é sempre conhecido. gap é shorthand, não campo."
+
+[[claims]]
+id = "native-identity"
+level = "must"
+statement = "O elemento público chama-se mat e func projeta a nativa real por identidade estática, sem invocar constructor ou usar nome como identidade."

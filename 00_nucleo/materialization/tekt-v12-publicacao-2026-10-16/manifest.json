@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-16T21:59:30.713243+00:00",
+  "files": {
+    "l0/00_nucleo/prompts/shell/watch.md": "4803d626ca78f4a797ff520a15b692892742e6142d423067948b705d5d7cfba5",
+    "l0/00_nucleo/prompts/wiring/compile.md": "cd3fc452cdff33bcf310f51b469779a605b18f54b01a98d8ac718566801666ad",
+    "l0/00_nucleo/prompts/wiring/watch.md": "6959203237f675cb51b80692106fa5130f697438f0ebdd4aab52d3da0461b322",
+    "l0/00_nucleo/prompts/wiring.md": "6ce861af001f8bfcd62b9e4b105782659f357fc1aafde63dfa84d6cfa3b02cef",
+    "review.md": "a15ce0a53525b661d37a801fa455d5c69ed21293a27b7cb236ff1cffcfb2b311"
+  }
+}

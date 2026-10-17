@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash c3b39f51
+//! @prompt-hash c6cd6744
 //! @layer L1
-//! @updated 2026-06-27
+//! @updated 2026-10-05
 //!
 //! P162 sub-passos .E + .F: walk passa a aceitar `&mut Locator` e
 //! `&mut Vec<Tag>`; emite `Tag::Start` antes da mutação de estado e
@@ -34,7 +34,7 @@ mod outline_entries;
 mod parent_index;
 mod populate;
 mod queries;
-mod walk;
+pub(crate) mod walk;
 
 pub mod convergence;
 pub mod extract_payload;
@@ -575,7 +575,7 @@ mod tests {
                 .map(|(_, v)| v.clone());
             assert_eq!(pat, Some(Value::Str("1".into())));
             assert!(
-                matches!(&*body, Content::Figure(e) if e.kind.as_deref() == Some("image"))
+                matches!(body, Content::Figure(e) if e.kind.as_deref() == Some("image"))
             );
         } else {
             panic!("esperado Styled (transporte de numbering)");
@@ -1338,7 +1338,7 @@ mod tests {
         // **P170 (M9 sub-passo 2)**: paridade extendida — Introspector
         // agora também produz "1.2.1" via formatted_counter (resolve
         // lacuna #5).
-        let levels = vec![1u8, 2, 2, 3];
+        let levels = [1u8, 2, 2, 3];
         // P1019: cada heading precisa de numbering activo para o counter avançar.
         let content = Content::Sequence(
             levels
@@ -1578,7 +1578,6 @@ mod tests {
     // ── P173 (M9 sub-passo 5) — E2E cascade Engine através da API pública ─
 
     use crate::compiler::eval::EvalContext;
-    use crate::contracts::world::World as _;
     use crate::entities::args::Args;
     use crate::entities::engine::Engine;
     use crate::entities::file_id::FileId;
@@ -1910,7 +1909,6 @@ mod tests {
         // sejam visíveis a outros consumers).
         use crate::entities::bib_entry::BibEntry;
         use crate::entities::content::Content;
-        use crate::entities::label::Label;
 
         let titulo = Content::label_auto(
             "bib-title".to_string(),
@@ -2348,17 +2346,14 @@ mod tests {
         match extract_payload(fig_inner(&caso1)) {
             Some(ElementPayload::Figure { kind, is_counted, .. }) => {
                 assert_eq!(kind, None, "caso1 kind preservado None literal");
-                assert_eq!(is_counted, false, "caso1 sem caption → is_counted=false");
+                assert!(!is_counted, "caso1 sem caption → is_counted=false");
             }
             other => panic!("caso1: esperado Some(Figure), obtido {other:?}"),
         }
         match extract_payload(fig_inner(&caso2)) {
             Some(ElementPayload::Figure { kind, is_counted, .. }) => {
                 assert_eq!(kind, None, "caso2 kind preservado None literal");
-                assert_eq!(
-                    is_counted, true,
-                    "caso2 com caption+numbering → is_counted=true"
-                );
+                assert!(is_counted, "caso2 com caption+numbering → is_counted=true");
             }
             other => panic!("caso2: esperado Some(Figure), obtido {other:?}"),
         }
@@ -2369,10 +2364,7 @@ mod tests {
                     Some("table".to_string()),
                     "caso3 kind literal Some(\"table\")"
                 );
-                assert_eq!(
-                    is_counted, true,
-                    "caso3 com caption+numbering → is_counted=true"
-                );
+                assert!(is_counted, "caso3 com caption+numbering → is_counted=true");
             }
             other => panic!("caso3: esperado Some(Figure), obtido {other:?}"),
         }
@@ -2383,7 +2375,7 @@ mod tests {
                     Some("table".to_string()),
                     "caso4 kind literal Some(\"table\")"
                 );
-                assert_eq!(is_counted, false, "caso4 sem caption → is_counted=false");
+                assert!(!is_counted, "caso4 sem caption → is_counted=false");
             }
             other => panic!("caso4: esperado Some(Figure), obtido {other:?}"),
         }

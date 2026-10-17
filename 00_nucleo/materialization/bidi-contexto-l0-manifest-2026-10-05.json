@@ -1,0 +1,29 @@
+{
+  "kind": "l0-public-contract-proposal",
+  "status": "awaiting-human-confirmation",
+  "date": "2026-10-05",
+  "head": "06848cdcb5450f2c555626bf116bc7acd82bd82b",
+  "public_changes": [
+    "module entities::bidi_context and its immutable input/span API",
+    "optional bidi field on FrameItem::Text/TextSeparator/TextShaped"
+  ],
+  "phase_change": false,
+  "prompts": [
+    {
+      "path": "00_nucleo/prompts/entities/bidi_context.md",
+      "sha256": "53088af0c7a43d23cde054c2faa442c80ba88c2927ce6a9d3dd9c8d4005b5e91"
+    },
+    {
+      "path": "00_nucleo/prompts/entities/layout_types.md",
+      "sha256": "650f4c51098f4edf26d25262719ce5d9873efe4d394f49520ac3369c4bcfff43"
+    },
+    {
+      "path": "00_nucleo/prompts/entities/mod.md",
+      "sha256": "ef34045ea10015c15fb2de868efcf0795a2bfc3bcf5c41be05d3c9dbc32c8335"
+    }
+  ],
+  "evidence": [
+    "00_nucleo/diagnosticos/bidi-contexto-2026-10-05/initial.json.gz",
+    "00_nucleo/diagnosticos/bidi-contexto-2026-10-05/probe.json.gz"
+  ]
+}

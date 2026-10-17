@@ -1,0 +1,4 @@
+# Protocolo memória5 — pacote confirmado
+Manifesto aprovado 6badf07a4f58f08e7c60ad2e34dfb9a14a3a6ba55db90045afe046be8e988237. Baseline564b1fe69f92880736485e882e2e1409a7a9df59712632783e6eae5f74470784 em /tmp/typst-before-value-memory5; atual SHA conferido no candidato.
+15 fixtures (11 anteriores + numeric-array/dictionary/unique-strokes/cloned-strokes), 3 blocos x4 pares, ordem alternada e warm1/motor/caso/bloco. CLI fresco, filesystem aquecido, CPUfixo/Rayon1/epoch0/fonts/locale comuns. %M processo, wall com wrapper comum. Monitor exclui testes/build/lint/GDB concorrentes; fingerprints antes/depois fonte/config/fonts/fixtures/binaries.
+Ganho de sizeof não fecha RSS. Comparar também strokes únicos que ganham alocação própria. Preservar linguagem/geom/estilos/raster/erros e cobertura SVG/PNG/HTML nas suites; conservar/rejeitar com ganhos/tradeoffs explicitados sem selecionar só caso favorável. Sem nova comparação vanilla nem soma com percentuais antigos.

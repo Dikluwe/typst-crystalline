@@ -1,5 +1,5 @@
 # L0 — Effective inline text style
-Hash do Código: 702707c4
+Hash do Código: be4fb0c6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
@@ -24,3 +24,38 @@ fonts, or emit text. Text invokes once before its temporary style scope. Markup
 and Newline separators invoke once at their current chain. Literal separators
 already inside the resolved scope reuse that style to avoid scaling twice.
 This internal descendant function introduces no public data or trait contract.
+
+
+## TS1 — tamanho completo de texto (ratificado pelo humano, 2026-10-17)
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
+`morph-before-measurement.json.gz` e `audit.json` conservam HEAD
+06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
+fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
+Em named-em, A mede0pt contra24pt; em affine,3pt contra27pt; nested sobre18pt
+mede0pt contra36pt. As seis permutações Size/Color/body são aceitas pelo pin
+mas rejeitadas pelo Tekt. Set posicional18pt é ignorado (12 contra18pt).
+Fonte pinada text/mod.rs:290,303,924–930,1136–1142 e args.rs:178–247
+estabelece busca tipada, preferência nomeada, body restante e composição.
+style_chain.rs:513–517 e constructor.rs:123 descartam em; collapse em
+style_chain.rs:394–395,419–422 aplica top-wins onde tamanho precisa fold.
+É tamanho/escopo observável da linguagem; a representação Rust é escolha
+interna. Não inferir intenção histórica. Refutar por restauração, Raw,
+heading, math, capture/show, dupes/spans, zero/negativos ou métricas divergentes.
+A sonda de igualdade refutou a hipótese de comparar os valores declarados:
+no pin, text(size:2em)[A] == text(size:24pt)[A] é true. StyledElem::eq no pin
+content/mod.rs:779–782 compara child. Esse defeito de igualdade requer sua
+própria correção; o tipo completo não é prova de fechamento desse eixo.
+
+### Ratificação
+
+O humano aprovou TS1 e os dois contratos públicos da proposta de manifesto
+771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba.
+Implementação e testes S1–S16 sob 12 GiB/swap zero; sem release/merge/push.
+Resselo somente após implementação e grafo válido. RG1 continua independente.
+
+### Responsabilidade exclusiva adicional
+
+Usar tamanho Pt já resolvido no estilo ativo; retirar a projeção morta abs-only de custom text.size sem substituir tamanhos deliberados de heading/math/script por estilo externo. Não alterar os demais folds, métricas ou emissões.

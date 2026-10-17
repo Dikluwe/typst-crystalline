@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/loading.md
-//! @prompt-hash 9405ff16
+//! @prompt-hash 250c2dac
 //! @layer L1
 //! @updated 2026-06-21
 //!
@@ -39,8 +39,12 @@ mod yaml_encode;
 
 type Dict = IndexMap<EcoString, Value, FxBuildHasher>;
 
-pub use self::cbor::{decode_cbor, native_cbor, native_cbor_encode};
-pub use self::csv::{decode_csv, native_csv, RowType};
+#[cfg(test)]
+pub use self::cbor::decode_cbor;
+pub use self::cbor::{native_cbor, native_cbor_encode};
+pub use self::csv::native_csv;
+#[cfg(test)]
+pub use self::csv::{decode_csv, RowType};
 pub use self::json::decode_json;
 pub use self::json_encode::native_json_encode;
 pub use self::read::native_read;

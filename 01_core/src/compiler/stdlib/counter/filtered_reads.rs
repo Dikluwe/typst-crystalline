@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/counter/filtered_reads.md
-//! @prompt-hash 14b070f5
+//! @prompt-hash 1b47a74e
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-05
 
 use super::*;
 
@@ -144,7 +144,10 @@ pub(crate) fn counter_at_location_owned(
             history
                 .iter()
                 .rev()
-                .find(|(at, _)| at.as_u128() <= location.as_u128())
+                .find(|(at, _)| {
+                    ctx.introspector.counters.order_key(*at)
+                        <= ctx.introspector.counters.order_key(location)
+                })
                 .map(|(_, values)| values.as_slice())
                 .unwrap_or(&[0]),
         )
@@ -289,8 +292,9 @@ pub(crate) fn replay_context_read(
                 })
             } else {
                 Ok(Value::Int(
-                    ctx.introspector
-                        .counter_final_values(key)
+                    page_counter_final_value(&Counter { key: key.clone() }, ctx)
+                        .as_deref()
+                        .or_else(|| ctx.introspector.counter_final_values(key))
                         .and_then(|values| values.first())
                         .copied()
                         .unwrap_or(0) as i64,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/sink.md
-//! @prompt-hash 6901b3a6
+//! @prompt-hash b7f6506a
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -31,7 +31,7 @@ use crate::entities::span::Span;
 /// interno para rollback de chamadas tracked. Clone é O(n) no número
 /// de diagnósticos acumulados; aceitável porque o número total por
 /// eval é baixo (dedup garante).
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Sink {
     diagnostics: Vec<SourceDiagnostic>,
     seen: FxHashSet<(Span, String)>,
@@ -67,15 +67,6 @@ impl Sink {
     /// Consome o Sink e devolve os diagnósticos na ordem de inserção.
     pub fn into_diagnostics(self) -> Vec<SourceDiagnostic> {
         self.diagnostics
-    }
-}
-
-impl Default for Sink {
-    fn default() -> Self {
-        Self {
-            diagnostics: Vec::new(),
-            seen: FxHashSet::default(),
-        }
     }
 }
 

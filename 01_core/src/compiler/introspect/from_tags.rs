@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/from_tags.md
-//! @prompt-hash 99768b3b
+//! @prompt-hash 040046e7
 //! @layer L1
 //! @updated 2026-05-05
 //!
@@ -37,8 +37,8 @@ mod displays;
 mod equations;
 mod state_updates;
 
-pub use counter_updates::apply_counter_funcs;
 pub(crate) use counter_updates::{apply_bundle_counter_funcs, resolve_filtered_counter};
+pub use counter_updates::{apply_counter_funcs, realize_page_counter_snapshot};
 pub use displays::{apply_counter_displays, apply_state_displays};
 pub use equations::{
     apply_equation_numberings, apply_equation_supplements, realize_equation_elements,
@@ -196,10 +196,10 @@ mod tests {
         let tags = vec![
             Tag::Start(
                 loc(20),
-                ElementInfo::new(ElementPayload::StateUpdate {
+                Box::new(ElementInfo::new(ElementPayload::StateUpdate {
                     key: "c".to_string(),
                     update: StateUpdate::Func(f),
-                }),
+                })),
             ),
             Tag::End(loc(20), 0),
         ];
@@ -219,10 +219,10 @@ mod tests {
         let tags = vec![
             Tag::Start(
                 loc(20),
-                ElementInfo::new(ElementPayload::StateUpdate {
+                Box::new(ElementInfo::new(ElementPayload::StateUpdate {
                     key: "c".to_string(),
                     update: StateUpdate::Func(f),
-                }),
+                })),
             ),
             Tag::End(loc(20), 0),
         ];
@@ -246,18 +246,18 @@ mod tests {
         let tags = vec![
             Tag::Start(
                 loc(20),
-                ElementInfo::new(ElementPayload::StateUpdate {
+                Box::new(ElementInfo::new(ElementPayload::StateUpdate {
                     key: "c".to_string(),
                     update: StateUpdate::Func(f1),
-                }),
+                })),
             ),
             Tag::End(loc(20), 0),
             Tag::Start(
                 loc(30),
-                ElementInfo::new(ElementPayload::StateUpdate {
+                Box::new(ElementInfo::new(ElementPayload::StateUpdate {
                     key: "c".to_string(),
                     update: StateUpdate::Func(f2),
-                }),
+                })),
             ),
             Tag::End(loc(30), 0),
         ];
@@ -291,10 +291,10 @@ mod tests {
         let tags = vec![
             Tag::Start(
                 loc(20),
-                ElementInfo::new(ElementPayload::StateUpdate {
+                Box::new(ElementInfo::new(ElementPayload::StateUpdate {
                     key: "c".to_string(),
                     update: StateUpdate::Func(f),
-                }),
+                })),
             ),
             Tag::End(loc(20), 0),
         ];
@@ -325,10 +325,10 @@ mod tests {
         let tags = vec![
             Tag::Start(
                 loc(20),
-                ElementInfo::new(ElementPayload::StateDisplay {
+                Box::new(ElementInfo::new(ElementPayload::StateDisplay {
                     key: "k".to_string(),
                     callback: None,
-                }),
+                })),
             ),
             Tag::End(loc(20), 0),
         ];
@@ -367,10 +367,10 @@ mod tests {
         let tags = vec![
             Tag::Start(
                 loc(20),
-                ElementInfo::new(ElementPayload::StateDisplay {
+                Box::new(ElementInfo::new(ElementPayload::StateDisplay {
                     key: "k".to_string(),
                     callback: Some(f),
-                }),
+                })),
             ),
             Tag::End(loc(20), 0),
         ];
@@ -406,10 +406,10 @@ mod tests {
         let tags = vec![
             Tag::Start(
                 loc(20),
-                ElementInfo::new(ElementPayload::StateDisplay {
+                Box::new(ElementInfo::new(ElementPayload::StateDisplay {
                     key: "k".to_string(),
                     callback: Some(f),
-                }),
+                })),
             ),
             Tag::End(loc(20), 0),
         ];
@@ -436,26 +436,26 @@ mod tests {
         let tags = vec![
             Tag::Start(
                 loc(12),
-                ElementInfo::new(ElementPayload::StateDisplay {
+                Box::new(ElementInfo::new(ElementPayload::StateDisplay {
                     key: "k".to_string(),
                     callback: None,
-                }),
+                })),
             ),
             Tag::End(loc(12), 0),
             Tag::Start(
                 loc(20),
-                ElementInfo::new(ElementPayload::StateDisplay {
+                Box::new(ElementInfo::new(ElementPayload::StateDisplay {
                     key: "k".to_string(),
                     callback: None,
-                }),
+                })),
             ),
             Tag::End(loc(20), 0),
             Tag::Start(
                 loc(30),
-                ElementInfo::new(ElementPayload::StateDisplay {
+                Box::new(ElementInfo::new(ElementPayload::StateDisplay {
                     key: "k".to_string(),
                     callback: None,
-                }),
+                })),
             ),
             Tag::End(loc(30), 0),
         ];
@@ -498,10 +498,10 @@ mod tests {
         let tags = vec![
             Tag::Start(
                 loc(20),
-                ElementInfo::new(ElementPayload::StateDisplay {
+                Box::new(ElementInfo::new(ElementPayload::StateDisplay {
                     key: "inexistente".to_string(),
                     callback: None,
-                }),
+                })),
             ),
             Tag::End(loc(20), 0),
         ];
@@ -531,10 +531,10 @@ mod tests {
         let tags = vec![
             Tag::Start(
                 loc(20),
-                ElementInfo::new(ElementPayload::CounterDisplay {
+                Box::new(ElementInfo::new(ElementPayload::CounterDisplay {
                     key: ck("heading"),
                     callback: None,
-                }),
+                })),
             ),
             Tag::End(loc(20), 0),
         ];
@@ -587,10 +587,10 @@ mod tests {
         let tags = vec![
             Tag::Start(
                 loc(20),
-                ElementInfo::new(ElementPayload::CounterDisplay {
+                Box::new(ElementInfo::new(ElementPayload::CounterDisplay {
                     key: ck("heading"),
                     callback: Some(f),
-                }),
+                })),
             ),
             Tag::End(loc(20), 0),
         ];
@@ -627,10 +627,10 @@ mod tests {
         let tags = vec![
             Tag::Start(
                 loc(20),
-                ElementInfo::new(ElementPayload::CounterDisplay {
+                Box::new(ElementInfo::new(ElementPayload::CounterDisplay {
                     key: ck("heading"),
                     callback: Some(f),
-                }),
+                })),
             ),
             Tag::End(loc(20), 0),
         ];
@@ -657,28 +657,28 @@ mod tests {
             // loc 15 → ver snapshot loc 10 = [1].
             Tag::Start(
                 loc(15),
-                ElementInfo::new(ElementPayload::CounterDisplay {
+                Box::new(ElementInfo::new(ElementPayload::CounterDisplay {
                     key: ck("heading"),
                     callback: None,
-                }),
+                })),
             ),
             Tag::End(loc(15), 0),
             // loc 25 → ver snapshot loc 20 = [2] (2º depth-1 step).
             Tag::Start(
                 loc(25),
-                ElementInfo::new(ElementPayload::CounterDisplay {
+                Box::new(ElementInfo::new(ElementPayload::CounterDisplay {
                     key: ck("heading"),
                     callback: None,
-                }),
+                })),
             ),
             Tag::End(loc(25), 0),
             // loc 35 → ver snapshot loc 30 = [3].
             Tag::Start(
                 loc(35),
-                ElementInfo::new(ElementPayload::CounterDisplay {
+                Box::new(ElementInfo::new(ElementPayload::CounterDisplay {
                     key: ck("heading"),
                     callback: None,
-                }),
+                })),
             ),
             Tag::End(loc(35), 0),
         ];
@@ -732,10 +732,10 @@ mod tests {
         let tags = vec![
             Tag::Start(
                 loc(20),
-                ElementInfo::new(ElementPayload::CounterDisplay {
+                Box::new(ElementInfo::new(ElementPayload::CounterDisplay {
                     key: ck("inexistente"),
                     callback: Some(f),
-                }),
+                })),
             ),
             Tag::End(loc(20), 0),
         ];

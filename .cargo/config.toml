@@ -1,5 +1,5 @@
 [alias]
-testit = "run --quiet --package=test-wrapper --"
+testit = "test --workspace --locked"
 
 [env]
 # P487: evaluador recursivo em debug mode usa ~100KB/frame × 80 frames = 8MB.

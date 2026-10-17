@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics/math.md
-//! @prompt-hash 6120b2b8
+//! @prompt-hash abfeb4ac
 //! @layer L3
-//! @updated 2026-09-26
+//! @updated 2026-10-10
 
 use std::collections::HashMap;
 use ttf_parser::Face;
@@ -205,6 +205,11 @@ pub(super) fn extract_assembly_horizontal(face: &Face<'_>, c: char) -> GlyphAsse
 /// Usa `or_insert` para não sobrescrever se a fonte partilhar a peça
 /// entre múltiplos caracteres base.
 pub(crate) fn build_math_glyph_reverse_map(face: &Face<'_>) -> HashMap<u16, char> {
+    // No construction can contribute glyphs without MATH variants.
+    // Avoid building the intermediate reverse cmap that would be discarded.
+    if face.tables().math.and_then(|math| math.variants).is_none() {
+        return HashMap::new();
+    }
     const STRETCHY_BASES: &[char] = &[
         '(', ')', '[', ']', '{', '}', '|', '‖', '∥', '⌊', '⌋', '⌈', '⌉', '⟨', '⟩', '〈',
         '〉', '√', '/', '\\', '↑', '↓', '↕', '⇑', '⇓', '⇕',
@@ -329,7 +334,7 @@ pub(super) fn ssty_level_of(style: &TextStyle, ssty_eligible: bool) -> Option<u8
     match style.math_size {
         MathSize::Script => Some(1),
         MathSize::ScriptScript => Some(2),
-        _ => None, // neutro: N16[β] — MathSize não-Script/ScriptScript retorna None para ssty level
+        MathSize::Display | MathSize::Text => None,
     }
 }
 
@@ -539,6 +544,43 @@ pub(super) fn math_kern_from_face(face: &Face<'_>, c: char) -> MathGlyphKern {
 mod tests {
     use super::*;
     use typst_core::entities::layout_types::{Pt, TextStyle};
+
+    #[test]
+    fn reverse_map_without_math_is_empty() {
+        let mut checked = 0;
+        for data in typst_assets::fonts() {
+            let face = Face::parse(data, 0).unwrap();
+            if face.tables().math.is_none() {
+                assert!(build_math_glyph_reverse_map(&face).is_empty());
+                checked += 1;
+            }
+        }
+        assert!(checked > 0, "embedded non-MATH coverage is required");
+    }
+
+    #[test]
+    fn reverse_map_without_math_variants_is_empty() {
+        let data = typst_assets::fonts()
+            .find(|data| {
+                Face::parse(data, 0)
+                    .unwrap()
+                    .tables()
+                    .math
+                    .and_then(|m| m.variants)
+                    .is_some()
+            })
+            .expect("embedded MATH variants font is required");
+        let face = Face::parse(data, 0).unwrap();
+        let math = face.raw_face().table(ttf_parser::Tag::from_bytes(b"MATH")).unwrap();
+        let offset = math.as_ptr() as usize - data.as_ptr() as usize;
+        let mut bytes = data.to_vec();
+        // OpenType MATH header: variants Offset16 follows constants and glyph info.
+        bytes[offset + 8..offset + 10].copy_from_slice(&[0, 0]);
+        let face = Face::parse(&bytes, 0).unwrap();
+        assert!(face.tables().math.is_some());
+        assert!(face.tables().math.unwrap().variants.is_none());
+        assert!(build_math_glyph_reverse_map(&face).is_empty());
+    }
 
     /// **P946** — `build_math_glyph_reverse_map` prefere o **codepoint real**
     /// da cmap da face para peças de assembly (ex.: `⎩`/`⎪`/`⎨`/`⎧` para a

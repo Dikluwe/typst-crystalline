@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/table_grid.md
-//! @prompt-hash f4d50af8
+//! @prompt-hash aafc57aa
 //! @layer L1
-//! @updated 2026-08-12
+//! @updated 2026-10-17
 //!
 //! Nativas de tabela e grelha — a estrutura: `table`/`grid` e as suas
 //! células, cabeçalhos e rodapés, com os extractores de argumento partilhados.
@@ -98,7 +98,11 @@ pub fn native_table(
     let mut row = 0usize;
     let mut col = 0usize;
     for v in args.items.iter() {
-        match v {
+        let classified = match v {
+            Value::Content(c) => Value::Content(c.source_body().clone()),
+            other => other.clone(),
+        };
+        match &classified {
             Value::Content(Content::TableHLine(e)) => {
                 let mut h = (**e).clone();
                 if h.position == "auto" {
@@ -166,7 +170,11 @@ pub fn native_table(
                         "footer must end at the last row".to_string(),
                     )]);
                 }
-                children.push(c.clone());
+                children.push(if let Value::Content(original) = v {
+                    original.clone()
+                } else {
+                    c.clone()
+                });
                 col += 1;
                 if col >= num_cols {
                     col = 0;
@@ -212,7 +220,57 @@ pub fn native_table(
     let stroke = match args.named.get("stroke") {
         Some(Value::None) => None,
         None => Some(default_hline_stroke()),
-        Some(val) => Some(extract_stroke(val, "table", "stroke")?),
+        Some(val) => {
+            let mut s = extract_stroke(val, "table", "stroke")?;
+            match val {
+                Value::Length(_) => {
+                    s.specified = Default::default();
+                    s.specified.thickness = true;
+                }
+                Value::Color(_) => {
+                    s.specified = Default::default();
+                    s.specified.paint = true;
+                }
+                Value::None
+                | Value::Bool(_)
+                | Value::Int(_)
+                | Value::Float(_)
+                | Value::Str(_)
+                | Value::Array(_)
+                | Value::Dict(_)
+                | Value::Module(_)
+                | Value::Datetime(_)
+                | Value::Func(_)
+                | Value::Content(_)
+                | Value::LocatedContent(_, _)
+                | Value::Auto
+                | Value::Relative(_)
+                | Value::Ratio(_)
+                | Value::Angle(_)
+                | Value::Stroke(_)
+                | Value::Fraction(_)
+                | Value::Align(_)
+                | Value::Location(_)
+                | Value::Gradient(_)
+                | Value::Regex(_)
+                | Value::Tiling(_)
+                | Value::Bytes(_)
+                | Value::Decimal(_)
+                | Value::Duration(_)
+                | Value::Version(_)
+                | Value::Selector(_)
+                | Value::Symbol(_)
+                | Value::Args(_)
+                | Value::State(_)
+                | Value::Counter(_)
+                | Value::Label(_)
+                | Value::Dir(_)
+                | Value::Path(_)
+                | Value::Type(_)
+                | Value::SpotColorant(_) => {}
+            }
+            Some(s)
+        }
     };
     // P228 — extract fill (Opção α: apenas Value::Color).
     // P726 — `fill: none` aceite (= sem preenchimento, paridade vanilla).
@@ -271,6 +329,9 @@ pub fn native_table(
     };
     Ok(Value::Content(Content::Table(std::sync::Arc::new(
         crate::entities::elements::table::TableElem {
+            source_span: args.span,
+            resolved: None,
+            rows_explicit: args.named.contains_key("rows"),
             columns,
             rows,
             children,
@@ -378,34 +439,10 @@ fn extract_inset_value(
     }
 }
 
-/// `table_cell(body, x: none, y: none, colspan: none, rowspan: none)` →
-/// `Content::TableCell`.
-///
-/// **Segundo sub-passo Model Fase 2** (ADR-0060). Subset minimal
-/// per diagnóstico P157B §1.
-///
-/// **Naming `table_cell` flat** (não `table.cell` vanilla) per
-/// diagnóstico P157B §8: FieldAccess actual em cristalino não
-/// suporta namespacing de funcs (`Value::Func.subname` não existe).
-/// Divergência intencional documentada per ADR-0033.
-///
-/// **Atributos**:
-/// - `body` posicional obrigatório (Content ou Str).
-/// - `x: usize`/`auto`/`none` (named); ADR-0064 Caso A; `None` ↔
-///   Auto auto-placement.
-/// - `y` análogo.
-/// - `colspan: usize`/`auto`/`none` (named); ADR-0064 Caso C;
-///   `None` ↔ default 1; zero rejeitado (paridade `NonZeroUsize`).
-/// - `rowspan` análogo.
-///
-/// **Atributos vanilla scope-out** (6 fields): `align`/`stroke`/
-/// `fill`/`inset`/`breakable` per cell + internals (`kind`,
-/// `is_repeated`).
-///
-/// **Limitação per ADR-0054 graded**: `x`/`y`/`colspan`/`rowspan`
-/// armazenados mas **ignorados em layout** — algoritmo de placement
-/// diferido em **DEBT-34e**. Layouter renderiza `body` no contexto
-/// actual.
+/// Constrói a célula lexical, preservando presença de campos explícitos.
+/// Posições/estilos herdados e padding permanecem com os owners de realização.
+/// X/y aceitam inteiro não negativo ou auto; spans exigem inteiro positivo.
+/// Auto e none explícitos não são confundidos com omissão.
 pub fn native_table_cell(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -438,48 +475,110 @@ pub fn native_table_cell(
         crate::entities::sides::Sides<crate::entities::layout_types::Length>,
     > = None;
     let mut breakable: Option<bool> = None;
+    use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
+    use crate::entities::elements::table_cell::{CellFieldPresence, TableCellPresence};
+    let mut presence = TableCellPresence::default();
     for (key, value) in args.named.iter() {
+        let span = args
+            .occurrences
+            .as_ref()
+            .and_then(|items| {
+                items
+                    .iter()
+                    .rev()
+                    .find(|item| item.name.as_deref() == Some(key.as_str()))
+            })
+            .map(|item| item.value_span)
+            .unwrap_or(args.span);
+        let expected = |types: &str| {
+            vec![SourceDiagnostic::error(
+                span,
+                format!("expected {types}, found {}", vanilla_type_name(value)),
+            )]
+        };
+        let state = if matches!(value, Value::Auto) {
+            CellFieldPresence::Auto
+        } else {
+            CellFieldPresence::Explicit
+        };
         match key.as_str() {
-            // ADR-0064 Caso A — auto-placement; min=0.
-            "x" => x = extract_usize_or_none_min(value, "table_cell", "x", 0)?,
-            "y" => y = extract_usize_or_none_min(value, "table_cell", "y", 0)?,
-            // ADR-0064 Caso C — span >= 1; min=1 (paridade NonZeroUsize).
-            "colspan" => colspan = extract_usize_or_none_min(value, "table_cell", "colspan", 1)?,
-            "rowspan" => rowspan = extract_usize_or_none_min(value, "table_cell", "rowspan", 1)?,
-            // P230 — stroke/fill per-cell paridade GridCell (refino paralelo).
-            // P726 — `stroke: none` / `fill: none` aceites (= omitido, paridade vanilla).
-            "stroke" => stroke = if matches!(value, Value::None) {
-                None
-            } else {
-                Some(crate::compiler::stdlib::layout::extract_stroke(value, "table_cell", "stroke")?)
-            },
-            "fill" => match value {
-                Value::Color(c) => fill = Some(c.clone()),
-                Value::None => fill = None,
-                other => return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!("table_cell(fill): espera Color, recebeu {}", other.type_name()),
-                )]),
-            },
-            // P235 — algorítmicos per-cell paralelo GridCell.
-            "align" => align = Some(extract_align_value(value, "table_cell", "align")?),
-            "inset" => inset = Some(extract_inset_value(value, "table_cell", "inset")?),
-            "breakable" => match value {
-                Value::Bool(b) => breakable = Some(*b),
-                other => return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!("table_cell(breakable): espera Bool, recebeu {}", other.type_name()),
-                )]),
-            },
-            other => return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("table_cell(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", other),
-            )]),
+            "x" | "y" | "colspan" | "rowspan" => {
+                let smart = matches!(key.as_str(), "x" | "y");
+                let cast = match value {
+                    Value::Auto if smart => None,
+                    Value::Int(n) if *n >= if smart { 0 } else { 1 } => Some(*n as usize),
+                    Value::Int(_) => return Err(vec![SourceDiagnostic::error(span,
+                        if smart { "number must be at least zero" } else { "number must be positive" })]),
+                    _ => return Err(expected(if smart { "integer or auto" } else { "integer" })),
+                };
+                match key.as_str() {
+                    "x" => { x = cast; presence.x = state; }
+                    "y" => { y = cast; presence.y = state; }
+                    "colspan" => { colspan = cast; presence.colspan = true; }
+                    "rowspan" => { rowspan = cast; presence.rowspan = true; }
+                    _ => unreachable!("validated position field"),
+                }
+            }
+            "stroke" => {
+                presence.stroke = true;
+                stroke = if matches!(value, Value::None) { None }
+                else {
+                    if matches!(value, Value::Auto) {
+                        return Err(expected("length, color, gradient, tiling, dictionary, stroke, or none"));
+                    }
+                    let mut parsed = crate::compiler::stdlib::layout::extract_stroke(value, "table_cell", "stroke")
+                        .map_err(|mut errors| { for error in &mut errors { error.span = span; } errors })?;
+                    match value {
+                        Value::Length(_) => parsed.specified.thickness = true,
+                        Value::Color(_) => parsed.specified.paint = true,
+                        Value::None | Value::Bool(_) | Value::Int(_) | Value::Float(_) | Value::Str(_) | Value::Array(_) | Value::Dict(_) | Value::Module(_) | Value::Datetime(_) | Value::Func(_) | Value::Content(_) | Value::LocatedContent(_, _) | Value::Auto | Value::Relative(_) | Value::Ratio(_) | Value::Angle(_) | Value::Stroke(_) | Value::Fraction(_) | Value::Align(_) | Value::Location(_) | Value::Gradient(_) | Value::Regex(_) | Value::Tiling(_) | Value::Bytes(_) | Value::Decimal(_) | Value::Duration(_) | Value::Version(_) | Value::Selector(_) | Value::Symbol(_) | Value::Args(_) | Value::State(_) | Value::Counter(_) | Value::Label(_) | Value::Dir(_) | Value::Path(_) | Value::Type(_) | Value::SpotColorant(_) => {}
+                    }
+                    Some(parsed)
+                };
+            }
+            "fill" => {
+                presence.fill = state;
+                fill = match value {
+                    Value::Auto | Value::None => None,
+                    Value::Color(c) => Some(c.clone()),
+                    _ => return Err(expected("color, gradient, tiling, none, or auto")),
+                };
+            }
+            "align" => {
+                presence.align = state;
+                align = match value {
+                    Value::Auto => None,
+                    Value::None => return Err(expected("alignment or auto")),
+                    Value::Bool(_) | Value::Int(_) | Value::Float(_) | Value::Str(_) | Value::Array(_) | Value::Dict(_) | Value::Module(_) | Value::Datetime(_) | Value::Func(_) | Value::Content(_) | Value::LocatedContent(_, _) | Value::Length(_) | Value::Relative(_) | Value::Ratio(_) | Value::Angle(_) | Value::Color(_) | Value::Stroke(_) | Value::Fraction(_) | Value::Align(_) | Value::Location(_) | Value::Gradient(_) | Value::Regex(_) | Value::Tiling(_) | Value::Bytes(_) | Value::Decimal(_) | Value::Duration(_) | Value::Version(_) | Value::Selector(_) | Value::Symbol(_) | Value::Args(_) | Value::State(_) | Value::Counter(_) | Value::Label(_) | Value::Dir(_) | Value::Path(_) | Value::Type(_) | Value::SpotColorant(_) => Some(extract_align_value(value, "table_cell", "align").map_err(|mut errors| { for error in &mut errors { error.span = span; } errors })?),
+                };
+            }
+            "inset" => {
+                presence.inset = state;
+                inset = match value {
+                    Value::Auto => None,
+                    Value::None => return Err(expected("relative length, dictionary, or auto")),
+                    Value::Bool(_) | Value::Int(_) | Value::Float(_) | Value::Str(_) | Value::Array(_) | Value::Dict(_) | Value::Module(_) | Value::Datetime(_) | Value::Func(_) | Value::Content(_) | Value::LocatedContent(_, _) | Value::Length(_) | Value::Relative(_) | Value::Ratio(_) | Value::Angle(_) | Value::Color(_) | Value::Stroke(_) | Value::Fraction(_) | Value::Align(_) | Value::Location(_) | Value::Gradient(_) | Value::Regex(_) | Value::Tiling(_) | Value::Bytes(_) | Value::Decimal(_) | Value::Duration(_) | Value::Version(_) | Value::Selector(_) | Value::Symbol(_) | Value::Args(_) | Value::State(_) | Value::Counter(_) | Value::Label(_) | Value::Dir(_) | Value::Path(_) | Value::Type(_) | Value::SpotColorant(_) => Some(extract_inset_value(value, "table_cell", "inset").map_err(|_| expected("relative length, dictionary, or auto"))?),
+                };
+            }
+            "breakable" => {
+                presence.breakable = state;
+                breakable = match value {
+                    Value::Auto => None,
+                    Value::Bool(b) => Some(*b),
+                    _ => return Err(expected("boolean or auto")),
+                };
+            }
+            other => return Err(vec![SourceDiagnostic::error(span,
+                format!("table_cell(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", other))]),
         }
     }
 
     Ok(Value::Content(Content::TableCell(std::sync::Arc::new(
         crate::entities::elements::table_cell::TableCellElem {
+            source_span: args.span,
+            resolved: None,
+            standalone: None,
+            presence,
             body,
             x,
             y,
@@ -566,14 +665,15 @@ pub fn native_table_header(
     // (mesmo bug de `native_grid_header`, ver comentário lá).
     let level = match args.named.get("level") {
         None => 1,
-        Some(Value::Int(value)) if *value > 0 && *value <= u32::MAX as i64 => {
-            *value as u32
-        }
-        Some(Value::Int(_)) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                "number must be positive",
-            )])
+        Some(Value::Int(value)) => {
+            if *value > 0 && *value <= u32::MAX as i64 {
+                *value as u32
+            } else {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "number must be positive",
+                )]);
+            }
         }
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
@@ -592,29 +692,168 @@ pub fn native_table_header(
                 format!("table_header() espera content ou string como argumento posicional, recebeu {}", other.type_name()),
             )]),
         };
-        let mut cell = match content {
-            Content::TableCell(cell) => (*cell).clone(),
-            body => crate::entities::elements::table_cell::TableCellElem {
-                body,
-                x: None,
-                y: None,
-                colspan: None,
-                rowspan: None,
-                stroke: None,
-                fill: None,
-                align: None,
-                inset: None,
-                breakable: None,
-                kind: crate::entities::elements::table_cell::TableCellKind::Auto,
-            },
+        let origin = content.source_span();
+        let source_wrapped = matches!(&content, Content::Source(_));
+        let mut cell = match content.source_body() {
+            Content::TableCell(cell) => cell.as_ref().clone(),
+            Content::Source(_)
+            | Content::ShowRecipe(_)
+            | Content::Realized(_)
+            | Content::Located(_)
+            | Content::Empty
+            | Content::Text(_)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::Sequence(_)
+            | Content::HtmlElem(_)
+            | Content::HtmlFrame(_)
+            | Content::Par { .. }
+            | Content::Heading(_)
+            | Content::Title(_)
+            | Content::Strong(_)
+            | Content::Emph(_)
+            | Content::Raw(_)
+            | Content::ListItem(_)
+            | Content::EnumItem(_)
+            | Content::Link(_)
+            | Content::Equation(_)
+            | Content::MathSequence(_)
+            | Content::MathIdent(_)
+            | Content::MathText(_)
+            | Content::MathFrac(_)
+            | Content::MathAttach(_)
+            | Content::MathPrimes(_)
+            | Content::MathRoot(_)
+            | Content::MathStretch(_)
+            | Content::MathDelimited(_)
+            | Content::MathLr(_)
+            | Content::MathMid(_)
+            | Content::MathOverbrace(_)
+            | Content::MathUnderbrace(_)
+            | Content::MathUnderbracket(_)
+            | Content::MathUnderparen(_)
+            | Content::MathUndershell(_)
+            | Content::MathOverbracket(_)
+            | Content::MathOverparen(_)
+            | Content::MathOvershell(_)
+            | Content::MathAlignPoint(_)
+            | Content::Linebreak(_)
+            | Content::MathMatrix(_)
+            | Content::MathCases(_)
+            | Content::MathAccent(_)
+            | Content::MathCancel(_)
+            | Content::MathUnderline(_)
+            | Content::MathOverline(_)
+            | Content::MathVec(_)
+            | Content::MathClassOverride(_)
+            | Content::MathLimitsOverride(_)
+            | Content::MathUnderover(_)
+            | Content::MathOp(_)
+            | Content::MathStyled(_)
+            | Content::Label(_)
+            | Content::Ref(_)
+            | Content::CounterDisplay(_)
+            | Content::CounterUpdate(_)
+            | Content::Outline(_)
+            | Content::OutlineEntry(_)
+            | Content::Figure(_)
+            | Content::FigureCaption(_)
+            | Content::Image(_)
+            | Content::Shape(_)
+            | Content::Curve(_)
+            | Content::Transform(_)
+            | Content::Grid(_)
+            | Content::GridHeader(_)
+            | Content::GridFooter(_)
+            | Content::GridCell(_)
+            | Content::SetPage(_)
+            | Content::PageRun(_)
+            | Content::Align(_)
+            | Content::Place(_)
+            | Content::Flush(_)
+            | Content::Styled(_)
+            | Content::Divider(_)
+            | Content::Terms(_)
+            | Content::TermItem(_)
+            | Content::Quote(_)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(_)
+            | Content::PdfAttach(_)
+            | Content::PdfArtifact(_)
+            | Content::Underline(_)
+            | Content::Strike(_)
+            | Content::Overline(_)
+            | Content::SmallCaps { .. }
+            | Content::Pad(_)
+            | Content::Hide(_)
+            | Content::HSpace(_)
+            | Content::VSpace(_)
+            | Content::Pagebreak(_)
+            | Content::Colbreak(_)
+            | Content::Stack(_)
+            | Content::Boxed(_)
+            | Content::Block(_)
+            | Content::Bibliography(_)
+            | Content::Cite(_)
+            | Content::Footnote(_)
+            | Content::FootnoteEntry(_)
+            | Content::TableHeader(_)
+            | Content::TableFooter(_)
+            | Content::GridHLine(_)
+            | Content::GridVLine(_)
+            | Content::TableHLine(_)
+            | Content::TableVLine(_)
+            | Content::Table(_)
+            | Content::Repeat(_)
+            | Content::Columns(_)
+            | Content::Metadata(_)
+            | Content::State(_)
+            | Content::StateUpdate(_)
+            | Content::StateDisplay(_)
+            | Content::CounterDisplayCallback(_)
+            | Content::ContextBlock(_)
+            | Content::Dynamic(_) => {
+                crate::entities::elements::table_cell::TableCellElem {
+                    source_span: if origin.is_detached() { args.span } else { origin },
+                    resolved: None,
+                    standalone: None,
+                    presence: Default::default(),
+                    body: content.clone(),
+                    x: None,
+                    y: None,
+                    colspan: None,
+                    rowspan: None,
+                    stroke: None,
+                    fill: None,
+                    align: None,
+                    inset: None,
+                    breakable: None,
+                    kind: crate::entities::elements::table_cell::TableCellKind::Auto,
+                }
+            }
         };
-        if cell.kind == crate::entities::elements::table_cell::TableCellKind::Auto {
-            cell.kind = crate::entities::elements::table_cell::TableCellKind::Header {
+        if cell.source_span.is_detached() && !origin.is_detached() {
+            cell.source_span = origin;
+        }
+        use crate::entities::elements::table_cell::TableCellKind;
+        cell.kind = match cell.kind {
+            TableCellKind::Auto => TableCellKind::Header {
                 level,
                 scope: crate::entities::elements::table_cell::TableHeaderScope::Column,
-            };
-        }
-        cell_values.push(Content::TableCell(std::sync::Arc::new(cell)));
+            },
+            TableCellKind::Header { .. } | TableCellKind::Data => cell.kind,
+        };
+        let product = Content::TableCell(std::sync::Arc::new(cell));
+        let product = if source_wrapped {
+            Content::Source(std::sync::Arc::new(
+                crate::entities::content::SourceContent { body: product, span: origin },
+            ))
+        } else {
+            product
+        };
+        cell_values.push(product);
     }
     if cell_values.is_empty() {
         return Err(vec![SourceDiagnostic::error(
@@ -641,7 +880,7 @@ pub fn native_table_header(
 
 fn table_header_levels(content: &Content) -> std::collections::BTreeSet<u32> {
     fn collect(content: &Content, levels: &mut std::collections::BTreeSet<u32>) {
-        match content {
+        match content.source_body() {
             Content::TableHeader(header) => collect(&header.body, levels),
             Content::Sequence(items) => {
                 for item in items.iter() {
@@ -649,15 +888,131 @@ fn table_header_levels(content: &Content) -> std::collections::BTreeSet<u32> {
                 }
             }
             Content::TableCell(cell) => {
-                if let crate::entities::elements::table_cell::TableCellKind::Header {
-                    level,
-                    ..
-                } = cell.kind
-                {
-                    levels.insert(level);
+                use crate::entities::elements::table_cell::TableCellKind;
+                match cell.kind {
+                    TableCellKind::Header { level, .. } => {
+                        levels.insert(level);
+                    }
+                    TableCellKind::Auto | TableCellKind::Data => {}
                 }
             }
-            _ => {
+            Content::Source(_)
+            | Content::ShowRecipe(_)
+            | Content::Realized(_)
+            | Content::Located(_)
+            | Content::Empty
+            | Content::Text(_)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::HtmlElem(_)
+            | Content::HtmlFrame(_)
+            | Content::Par { .. }
+            | Content::Heading(_)
+            | Content::Title(_)
+            | Content::Strong(_)
+            | Content::Emph(_)
+            | Content::Raw(_)
+            | Content::ListItem(_)
+            | Content::EnumItem(_)
+            | Content::Link(_)
+            | Content::Equation(_)
+            | Content::MathSequence(_)
+            | Content::MathIdent(_)
+            | Content::MathText(_)
+            | Content::MathFrac(_)
+            | Content::MathAttach(_)
+            | Content::MathPrimes(_)
+            | Content::MathRoot(_)
+            | Content::MathStretch(_)
+            | Content::MathDelimited(_)
+            | Content::MathLr(_)
+            | Content::MathMid(_)
+            | Content::MathOverbrace(_)
+            | Content::MathUnderbrace(_)
+            | Content::MathUnderbracket(_)
+            | Content::MathUnderparen(_)
+            | Content::MathUndershell(_)
+            | Content::MathOverbracket(_)
+            | Content::MathOverparen(_)
+            | Content::MathOvershell(_)
+            | Content::MathAlignPoint(_)
+            | Content::Linebreak(_)
+            | Content::MathMatrix(_)
+            | Content::MathCases(_)
+            | Content::MathAccent(_)
+            | Content::MathCancel(_)
+            | Content::MathUnderline(_)
+            | Content::MathOverline(_)
+            | Content::MathVec(_)
+            | Content::MathClassOverride(_)
+            | Content::MathLimitsOverride(_)
+            | Content::MathUnderover(_)
+            | Content::MathOp(_)
+            | Content::MathStyled(_)
+            | Content::Label(_)
+            | Content::Ref(_)
+            | Content::CounterDisplay(_)
+            | Content::CounterUpdate(_)
+            | Content::Outline(_)
+            | Content::OutlineEntry(_)
+            | Content::Figure(_)
+            | Content::FigureCaption(_)
+            | Content::Image(_)
+            | Content::Shape(_)
+            | Content::Curve(_)
+            | Content::Transform(_)
+            | Content::Grid(_)
+            | Content::GridHeader(_)
+            | Content::GridFooter(_)
+            | Content::GridCell(_)
+            | Content::SetPage(_)
+            | Content::PageRun(_)
+            | Content::Align(_)
+            | Content::Place(_)
+            | Content::Flush(_)
+            | Content::Styled(_)
+            | Content::Divider(_)
+            | Content::Terms(_)
+            | Content::TermItem(_)
+            | Content::Quote(_)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(_)
+            | Content::PdfAttach(_)
+            | Content::PdfArtifact(_)
+            | Content::Underline(_)
+            | Content::Strike(_)
+            | Content::Overline(_)
+            | Content::SmallCaps { .. }
+            | Content::Pad(_)
+            | Content::Hide(_)
+            | Content::HSpace(_)
+            | Content::VSpace(_)
+            | Content::Pagebreak(_)
+            | Content::Colbreak(_)
+            | Content::Stack(_)
+            | Content::Boxed(_)
+            | Content::Block(_)
+            | Content::Bibliography(_)
+            | Content::Cite(_)
+            | Content::Footnote(_)
+            | Content::FootnoteEntry(_)
+            | Content::TableFooter(_)
+            | Content::GridHLine(_)
+            | Content::GridVLine(_)
+            | Content::TableHLine(_)
+            | Content::TableVLine(_)
+            | Content::Table(_)
+            | Content::Repeat(_)
+            | Content::Columns(_)
+            | Content::Metadata(_)
+            | Content::State(_)
+            | Content::StateUpdate(_)
+            | Content::StateDisplay(_)
+            | Content::CounterDisplayCallback(_)
+            | Content::ContextBlock(_)
+            | Content::Dynamic(_) => {
                 levels.insert(1);
             }
         }
@@ -670,9 +1025,8 @@ fn table_header_levels(content: &Content) -> std::collections::BTreeSet<u32> {
 
 /// `table_footer(body, repeat: true)` → `Content::TableFooter`.
 ///
-/// Par simétrico com `native_table_header` (P157C). Mesma decisão
-/// arquitectural Caso D + DEBT-56 + naming flat. Implementação
-/// idêntica linha-a-linha excepto naming `header → footer`.
+/// Converte cada argumento em uma célula crua; preserva Cell explícita e
+/// sua origem. Ao contrário do header, não promove o kind Auto.
 pub fn native_table_footer(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -683,13 +1037,38 @@ pub fn native_table_footer(
     // (mesmo bug de `native_grid_header`, ver comentário lá).
     let mut cell_values: Vec<Content> = Vec::with_capacity(args.items.len());
     for v in args.items.iter() {
-        match v {
-            Value::Content(c) => cell_values.push(c.clone()),
-            Value::Str(s)     => cell_values.push(Content::text(s.as_str())),
+        let content = match v {
+            Value::Content(c) => c.clone(),
+            Value::Str(s) => Content::text(s.as_str()),
             other => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("table_footer() espera content ou string como argumento posicional, recebeu {}", other.type_name()),
             )]),
+        };
+        let origin = content.source_span();
+        let source_wrapped = matches!(&content, Content::Source(_));
+        if matches!(content.source_body(), Content::TableCell(_)) {
+            cell_values.push(content);
+        } else {
+            let Content::TableCell(mut cell) =
+                Content::table_cell(content, None, None, None, None)
+            else {
+                unreachable!()
+            };
+            std::sync::Arc::make_mut(&mut cell).source_span =
+                if origin.is_detached() { args.span } else { origin };
+            let product = Content::TableCell(cell);
+            let product = if source_wrapped {
+                Content::Source(std::sync::Arc::new(
+                    crate::entities::content::SourceContent {
+                        body: product,
+                        span: origin,
+                    },
+                ))
+            } else {
+                product
+            };
+            cell_values.push(product);
         }
     }
     if cell_values.is_empty() {
@@ -842,7 +1221,11 @@ pub fn native_grid_header(
     // 00_nucleo/diagnosticos/paridade-producao-p772i.md.
     let mut cell_values: Vec<Content> = Vec::with_capacity(args.items.len());
     for v in args.items.iter() {
-        match v {
+        let classified = match v {
+            Value::Content(c) => Value::Content(c.source_body().clone()),
+            other => other.clone(),
+        };
+        match &classified {
             Value::Content(c) => cell_values.push(c.clone()),
             Value::Str(s)     => cell_values.push(Content::text(s.as_str())),
             other => return Err(vec![SourceDiagnostic::error(
@@ -888,7 +1271,11 @@ pub fn native_grid_footer(
     // (mesmo bug de `native_grid_header`, ver comentário lá).
     let mut cell_values: Vec<Content> = Vec::with_capacity(args.items.len());
     for v in args.items.iter() {
-        match v {
+        let classified = match v {
+            Value::Content(c) => Value::Content(c.source_body().clone()),
+            other => other.clone(),
+        };
+        match &classified {
             Value::Content(c) => cell_values.push(c.clone()),
             Value::Str(s)     => cell_values.push(Content::text(s.as_str())),
             other => return Err(vec![SourceDiagnostic::error(
@@ -921,3 +1308,367 @@ pub fn native_grid_footer(
 }
 
 // ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ────────
+
+#[cfg(test)]
+mod cell_presence_tests {
+    use super::*;
+    use crate::contracts::world::World;
+    use crate::entities::{
+        args::ArgOccurrence,
+        font_book::FontBook,
+        source::Source,
+        world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+    };
+    #[derive(Default)]
+    struct NullWorld {
+        library: Library,
+        book: FontBook,
+    }
+    impl World for NullWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+    fn cell(field: &str, value: Value) -> SourceResult<Value> {
+        let world = NullWorld::default();
+        let args = Args::from_occurrences(
+            Span::detached(),
+            vec![
+                ArgOccurrence {
+                    name: None,
+                    value: Value::Content(Content::text("a")),
+                    span: Span::detached(),
+                    value_span: Span::detached(),
+                },
+                ArgOccurrence {
+                    name: Some(field.into()),
+                    value,
+                    span: Span::detached(),
+                    value_span: Span::from_range(world.main(), 7..11),
+                },
+            ],
+        );
+        native_table_cell(&mut EvalContext::new(), &args, &world, world.main())
+    }
+    #[test]
+    fn cell_presence_explicit_none_remains_known() {
+        for name in ["fill", "stroke"] {
+            let Value::Content(c) = cell(name, Value::None).unwrap() else {
+                panic!("cell content")
+            };
+            assert_eq!(c.get_field(name), Some(Value::None));
+            assert_eq!(
+                Content::table_cell(Content::text("a"), None, None, None, None)
+                    .get_field(name),
+                None
+            );
+        }
+    }
+    #[test]
+    fn cell_presence_auto_survives_body_transformation() {
+        for name in ["x", "y", "fill", "align", "inset", "breakable"] {
+            let Value::Content(c) = cell(name, Value::Auto).unwrap() else {
+                panic!("cell content")
+            };
+            assert_eq!(c.get_field(name), Some(Value::Auto));
+            assert_eq!(
+                c.map_text(&mut |s| s.to_uppercase()).get_field(name),
+                Some(Value::Auto)
+            );
+            let mapped = c
+                .map_content(&mut |c| {
+                    if matches!(c, Content::Text(_)) {
+                        Ok(Some(Content::text("b")))
+                    } else {
+                        Ok(None)
+                    }
+                })
+                .unwrap();
+            assert_eq!(mapped.get_field(name), Some(Value::Auto));
+            let pre = c.map_content_pre(&mut |_| Ok(None)).unwrap();
+            assert_eq!(pre.get_field(name), Some(Value::Auto));
+            let normalized = crate::compiler::eval::table::normalize_table_cell(
+                &Value::Content(c.clone()),
+            )
+            .unwrap();
+            assert_eq!(
+                normalized.presence,
+                match &c {
+                    Content::TableCell(e) => e.presence,
+                    _ => unreachable!(),
+                }
+            );
+            assert_eq!(
+                mapped.get_field("body"),
+                Some(Value::Content(Content::text("b")))
+            );
+        }
+    }
+    #[test]
+    fn cell_presence_invalid_null_and_auto_use_value_span() {
+        for (name, value, message) in [
+            ("x", Value::None, "expected integer or auto, found none"),
+            ("colspan", Value::Auto, "expected integer, found auto"),
+            ("breakable", Value::None, "expected boolean or auto, found none"),
+        ] {
+            let error = cell(name, value).unwrap_err();
+            assert_eq!(error[0].message, message);
+            assert_eq!(
+                error[0].span,
+                Span::from_range(NullWorld::default().main(), 7..11)
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod v16_table_tests {
+
+    use crate::contracts::world::World;
+    use crate::entities::{
+        file_id::FileId,
+        font_book::FontBook,
+        source::Source,
+        world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+    };
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+    impl TestWorld {
+        fn new(text: &str) -> Self {
+            Self {
+                library: Library::new(),
+                book: FontBook::new(),
+                source: Source::new(
+                    FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+                    text.into(),
+                ),
+            }
+        }
+    }
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    use super::*;
+    use crate::entities::elements::table_cell::{
+        TableCellElem, TableCellKind, TableCellStage, TableCellStandaloneResolved,
+        TableHeaderScope,
+    };
+    use std::sync::Arc;
+    fn span(at: usize) -> Span {
+        Span::from_range(TestWorld::new("").main(), at..at + 1)
+    }
+    fn sourced(c: Content) -> Content {
+        Content::Source(Arc::new(crate::entities::content::SourceContent {
+            body: c,
+            span: span(1),
+        }))
+    }
+    fn unwrap_value(v: Value) -> Content {
+        let Value::Content(c) = v else { panic!("content") };
+        c
+    }
+    fn raw(kind: TableCellKind) -> Content {
+        let world = TestWorld::new("");
+        let mut args = Args::positional(vec![Value::Content(Content::text("H"))]);
+        args.span = span(3);
+        for (name, n) in [("x", 0), ("colspan", 2), ("rowspan", 3)] {
+            args.named.insert(name.into(), Value::Int(n));
+        }
+        let mut c = unwrap_value(
+            native_table_cell(&mut EvalContext::new(), &args, &world, world.main())
+                .unwrap(),
+        );
+        let Content::TableCell(cell) = &mut c else { panic!("cell") };
+        Arc::make_mut(cell).kind = kind;
+        c
+    }
+    fn header(c: Content) -> Content {
+        let world = TestWorld::new("");
+        let mut args = Args::positional(vec![Value::Content(c)]);
+        args.span = span(9);
+        args.named.insert("level".into(), Value::Int(2));
+        unwrap_value(
+            native_table_header(&mut EvalContext::new(), &args, &world, world.main())
+                .unwrap(),
+        )
+    }
+    fn header_cell(h: &Content) -> &TableCellElem {
+        let Content::TableHeader(h) = h.source_body() else { panic!("header") };
+        let Content::TableCell(c) = h.body.source_body() else { panic!("cell") };
+        c
+    }
+    fn footer(c: Vec<Content>) -> Content {
+        let world = TestWorld::new("");
+        let mut args = Args::positional(c.into_iter().map(Value::Content).collect());
+        args.span = span(9);
+        unwrap_value(
+            native_table_footer(&mut EvalContext::new(), &args, &world, world.main())
+                .unwrap(),
+        )
+    }
+    fn footer_body(c: &Content) -> &Content {
+        let Content::TableFooter(f) = c.source_body() else { panic!("footer") };
+        &f.body
+    }
+    fn assert_header(kind: TableCellKind, expected: TableCellKind) {
+        let h = header(sourced(raw(kind)));
+        let c = header_cell(&h);
+        assert_eq!((c.x, c.colspan, c.rowspan), (Some(0), Some(2), Some(3)));
+        assert_eq!(c.kind, expected);
+        assert_eq!(c.source_span, span(3));
+        assert!(c.presence.colspan && c.presence.rowspan);
+        let Content::TableHeader(h) = h.source_body() else { panic!("header") };
+        assert_eq!(h.body.source_span(), span(1));
+        assert!(!matches!(c.body.source_body(), Content::TableCell(_)));
+    }
+    #[test]
+    fn v16_table_header_source_auto() {
+        assert_header(
+            TableCellKind::Auto,
+            TableCellKind::Header { level: 2, scope: TableHeaderScope::Column },
+        );
+    }
+    #[test]
+    fn v16_table_header_source_data() {
+        assert_header(TableCellKind::Data, TableCellKind::Data);
+    }
+    #[test]
+    fn v16_table_header_source_explicit_header() {
+        let k = TableCellKind::Header { level: 7, scope: TableHeaderScope::Row };
+        assert_header(k, k);
+    }
+    #[test]
+    fn v16_table_header_raw_uses_value_origin() {
+        let h = header(sourced(Content::text("raw")));
+        let c = header_cell(&h);
+        assert_eq!(c.source_span, span(1));
+        assert!(c.stage().is_none());
+        assert_eq!(c.body.plain_text(), "raw");
+    }
+    #[test]
+    fn v16_table_header_preserves_prepared_occurrence() {
+        let mut c = raw(TableCellKind::Data);
+        let Content::TableCell(e) = &mut c else { panic!("cell") };
+        let e = Arc::make_mut(e);
+        e.standalone = Some(Arc::new(TableCellStandaloneResolved {
+            visual: Content::text("shown"),
+            stage: TableCellStage::Complete,
+            guards: vec![41],
+            properties: None,
+        }));
+        let h = header(sourced(c));
+        let c = header_cell(&h);
+        assert_eq!(c.stage(), Some(TableCellStage::Complete));
+        assert_eq!(c.guards(), &[41]);
+        assert_eq!(c.kind, TableCellKind::Data);
+    }
+    #[test]
+    fn v16_table_footer_one_sequence_argument_is_one_raw_cell() {
+        let arg = Content::Sequence(vec![Content::text("a"), Content::text("b")].into());
+        let f = footer(vec![sourced(arg)]);
+        let Content::TableCell(c) = footer_body(&f).source_body() else {
+            panic!("one raw cell per argument")
+        };
+        assert_eq!(c.body.plain_text(), "ab");
+        assert!(c.stage().is_none());
+        assert!(c.resolved.is_none());
+        assert_eq!(c.source_span, span(1));
+        assert_eq!(footer_body(&f).source_span(), span(1));
+    }
+    #[test]
+    fn v16_table_footer_explicit_cell_keeps_origin_and_properties() {
+        let f = footer(vec![sourced(raw(TableCellKind::Data))]);
+        assert_eq!(footer_body(&f).source_span(), span(1));
+        let Content::TableCell(c) = footer_body(&f).source_body() else { panic!("cell") };
+        assert_eq!((c.colspan, c.rowspan), (Some(2), Some(3)));
+        assert_eq!(c.kind, TableCellKind::Data);
+        assert_eq!(c.source_span, span(3));
+    }
+    #[test]
+    fn v16_table_footer_two_arguments_are_two_raw_cells() {
+        let f = footer(vec![Content::text("a"), Content::text("b")]);
+        let Content::Sequence(items) = footer_body(&f).source_body() else {
+            panic!("two cells")
+        };
+        assert_eq!(items.len(), 2);
+        for c in items.iter() {
+            let Content::TableCell(e) = c.source_body() else { panic!("raw cell") };
+            assert!(e.stage().is_none());
+        }
+    }
+    fn headers(a: u32, b: u32) -> SourceResult<Value> {
+        let h = |level| {
+            Content::table_header(
+                sourced(raw(TableCellKind::Header {
+                    level,
+                    scope: TableHeaderScope::Column,
+                })),
+                true,
+            )
+        };
+        let world = TestWorld::new("");
+        native_table(
+            &mut EvalContext::new(),
+            &Args::positional(vec![Value::Content(h(a)), Value::Content(h(b))]),
+            &world,
+            world.main(),
+        )
+    }
+    #[test]
+    fn v16_table_header_source_levels_remain_distinct() {
+        assert!(headers(2, 3).is_ok());
+    }
+    #[test]
+    fn v16_table_header_source_duplicate_level_still_errors() {
+        let e = headers(2, 2).unwrap_err();
+        assert!(e[0].message.contains("mais do que um header"));
+    }
+}

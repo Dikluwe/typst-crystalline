@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/outline` — `OutlineElem`
-Hash do Código: 485357aa
+Hash do Código: b2f965b9
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/outline.rs`
 **Origem**: modelo D (ADR-0105), **Lote 8 P323** (por largura) + **P457** (campos settable).

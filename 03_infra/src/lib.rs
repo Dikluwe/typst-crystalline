@@ -1,11 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra.md
-//! @prompt-hash c67bc701
+//! @prompt-hash eb6e244e
 //! @layer L3
 //! @updated 2026-03-26
 
 // `diagnostic_format` migrado para L2 (`typst_shell::diagnostic`)
 // no Passo 119 (ADR-0050). L3 já não conhece formatação user-facing.
+mod bidi_context;
 pub mod embedded_fonts;
 pub mod export;
 pub mod fallback_fonts;

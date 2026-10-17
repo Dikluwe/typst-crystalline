@@ -129,9 +129,11 @@ mod p488_tests {
 
     #[test]
     fn p488_known_figure_page_numbers_injectado_e_lido() {
-        let mut state = LayouterRuntimeState::default();
-        state.known_figure_page_numbers = vec![2, 5];
-        assert_eq!(state.known_figure_page_numbers.get(0).copied(), Some(2));
+        let state = LayouterRuntimeState {
+            known_figure_page_numbers: vec![2, 5],
+            ..LayouterRuntimeState::default()
+        };
+        assert_eq!(state.known_figure_page_numbers.first().copied(), Some(2));
         assert_eq!(state.known_figure_page_numbers.get(1).copied(), Some(5));
         assert_eq!(state.known_figure_page_numbers.get(2).copied(), None);
     }

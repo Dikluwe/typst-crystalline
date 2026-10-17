@@ -1,0 +1,7 @@
+{
+  "status": "confirmed-by-human",
+  "utc_recorded": "2026-10-06T01:41:37.921093+00:00",
+  "l0": "00_nucleo/prompts/entities/layout_types.md",
+  "approved_sha256": "f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409",
+  "answer": "Confirmo o L0; prossiga com implementação e medição"
+}

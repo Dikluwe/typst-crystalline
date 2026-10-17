@@ -1,0 +1,14 @@
+tekt = 1
+kind = "nucleus"
+id = "shapes-optional-stroke"
+title = "Ausência explícita de contorno nas formas fechadas"
+
+[[claims]]
+id = "explicit-none"
+level = "must"
+statement = "Nos construtores consumidores, stroke:none é ausência explícita de contorno, aceita com ou sem fill e sem reativar fallback de stroke."
+
+[[claims]]
+id = "omission"
+level = "must"
+statement = "A omissão do argumento stroke conserva seu fallback existente: fill ausente não torna stroke:none equivalente à omissão. Dimensões, fill e propriedades não relacionadas conservam seu significado."

@@ -1,5 +1,5 @@
 # Prompt L0 — geometry
-Hash do Código: 9475ace5
+Hash do Código: a2fc408e
 
 ## Módulo
 `01_core/src/entities/geometry.rs`
@@ -165,10 +165,11 @@ futuro).
   + raízes em `t ∈ (0, 1)`. `B'(t) = 3·[a·t² + b·t + c]` onde
   `a = -P₀ + 3P₁ - 3P₂ + P₃`, `b = 2P₀ - 4P₁ + 2P₂`, `c = -P₀ + P₁`.
 
-**Razão**: curva real de `CubicTo` pode exceder a bounding box dos
-pontos de controlo. Cálculo analítico via raízes da derivada produz
-AABB exacto (não conservador). Corrige vazamento visual subtil em
-curvas que excedem control points.
+**Razão**: a curva de `CubicTo` está contida na bounding box dos pontos
+de controlo, que em geral não é justa. Em t ∈ [0,1], os pesos da base
+Bernstein são não negativos e somam um. O cálculo pelos extremos da
+derivada encontra a AABB justa, reduzindo o espaço excedente dessa caixa
+conservadora; não corrige um suposto escape da curva dos pontos de controlo.
 
 **Complexidade**: O(1) por segmento CubicTo (≤6 candidatos a comparar).
 **Pureza**: matemática `f64` pura; zero deps externas (ADR-0029
@@ -444,3 +445,28 @@ cristalino aceita a chamada, mas emite `nonzero`. A geometria deve possuir o
 enum público fechado `FillRule { NonZero, EvenOdd }`, com `NonZero` por
 defeito. O valor é semântico: determina a região preenchida em paths com
 subpaths sobrepostos. Não inferir a regra a partir de winding ou do SVG.
+
+
+## Operações numéricas puras — 2026-10-13
+
+### Medição anterior à decisão
+
+`01_core/src/entities/geometry.rs` nas linhas 191, 192, 193, 194 contém as chamadas sinalizadas como disallowed_methods pelo Clippy vigente. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. `00_nucleo/diagnosticos/geometria-numerica-ci-2026-10-13/before.json.gz` conserva fonte, owner, configuração, libm, compilador, UTC, status e diffstat. A sonda host-math compara os backends antes da escolha: 4968 casos, 69 diferenças de até 1 ULP em trigonometria/atan2, sem mudança de classe numérica ou sinal de zero; potências e hypot coincidem na amostra. É medição deste host, não prova universal nem nova paridade contra vanilla.
+
+### Decisão e aceitação
+
+Avaliar os fatores quadráticos e cúbicos da base Bernstein com multiplicações f64 explícitas: armazenar t² e (1-t)², obter os cubos multiplicando pelo respectivo fator. Conservar os fatores 3, ordem dos quatro termos, coordenadas e seleção de raízes para a AABB. Não introduzir libm nesta unidade, alterar o algoritmo de raízes ou reassociar coeficientes.
+
+Mudança interna em fluxo contínuo ADR-0127, sem contrato público novo, default ou fase. Preservar testes de geometria/linguagem existentes e comparar os exemplos SVG medidos antes/depois, declarando diferenças. A comparação geométrica não certifica todos os casos ou plataformas. Validar build, todos os targets, core, Clippy e linhagem. Não suprimir o lint nem substituir aceitação por identidade de bytes do compilador.
+
+
+### Retificação da justificativa da AABB — 2026-10-13
+
+A leitura da seção P277 deste L0 afirmava que a curva excederia a caixa dos
+pontos de controle. A fórmula Bernstein de `01_core/src/entities/geometry.rs:189`
+e a invariante documentada na linha 212 mostram o contrário: é uma combinação
+convexa no domínio [0,1]. Corrigir somente essa justificativa. O teste local
+com controles y=10 e máximo da curva em y=7.5 já discrimina caixa justa de
+caixa conservadora; o algoritmo de raízes e sua aceitação não mudam. A fonte
+anterior e o estado exato estão em before.json.gz e pre-validation.json.gz
+do diagnóstico geometria-numerica-ci-2026-10-13.

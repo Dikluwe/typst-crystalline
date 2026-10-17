@@ -1,6 +1,6 @@
 # L0 — math/layout/assembly
+Hash do Código: 5fe060aa
 
-Hash do Código: a60208f0
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/layout/assembly.rs`

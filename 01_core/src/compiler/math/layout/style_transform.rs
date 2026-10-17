@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/style_transform.md
-//! @prompt-hash 836ee16d
+//! @prompt-hash ffe3c8d0
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 
 use super::*;
 
@@ -34,6 +34,7 @@ fn map_attach_slot(
 
 pub(super) fn apply_math_default(body: &Content) -> Content {
     match body {
+        Content::Source(e) => apply_math_default(&e.body).with_source_span(e.span),
         // Wrapper explícito: não tocar — o handler dedicado trata-o.
         Content::MathStyled(_) => body.clone(),
         // Folhas: default de itálico por codepoint (P809).
@@ -267,6 +268,9 @@ pub(super) fn apply_math_style(
     italic: Option<bool>,
 ) -> Content {
     match body {
+        Content::Source(e) => {
+            apply_math_style(&e.body, kind, bold, italic).with_source_span(e.span)
+        }
         // P1291 — setters internos vencem no mesmo eixo. Tamanho e cramped
         // não pertencem à transformação de glifo: preserva-se um wrapper
         // mínimo para o handler aplicar esses eixos no subtree correcto.

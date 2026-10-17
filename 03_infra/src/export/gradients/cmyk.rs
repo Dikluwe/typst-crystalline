@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/gradients/cmyk.md
-//! @prompt-hash abd2848b
+//! @prompt-hash 4364dd63
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -8,9 +8,6 @@
 //!
 //! Extraído de `gradients.rs` em P307b.2 (ADR-0100 / diagnóstico
 //! P307a §5). Conteúdo bit-exact pré e pós migração.
-
-use typst_core::entities::gradient::{Linear, Radial};
-use typst_core::entities::layout_types::Color;
 
 // ── P270.2 — CMYK helpers L3 (Cenário B: Linear+Radial; Conic preserved) ──
 

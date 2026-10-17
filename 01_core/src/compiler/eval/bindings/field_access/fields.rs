@@ -1,48 +1,39 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access/fields.md
-//! @prompt-hash 5bf71ab6
+//! @prompt-hash 6a6a54a9
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 
 use super::*;
 
-pub(in crate::compiler::eval) fn eval_field_access(
-    access: crate::entities::ast::expr::FieldAccess<'_>,
-    scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext,
-    engine: &mut Engine<'_>,
-) -> SourceResult<Value> {
-    use crate::entities::ast::AstNode;
-
-    let target = eval_expr(access.target(), scopes, ctx, engine)?;
-    let field = access.field().as_str();
-
+pub(in crate::compiler::eval) fn check_module_field_feature(
+    target: &Value,
+    field: &str,
+    span: Span,
+    features: crate::entities::compiler_features::Features,
+) -> SourceResult<()> {
     // P1484 — gate apenas no std efetivo; módulos e dicts homônimos não são gated.
     if field == "asset"
-        && matches!(&target, Value::Module(module) if is_effective_std_module(module))
-        && !ctx
-            .features
-            .contains(crate::entities::compiler_features::Feature::Bundle)
+        && matches!(target, Value::Module(module) if is_effective_std_module(module))
+        && !features.contains(crate::entities::compiler_features::Feature::Bundle)
     {
         return Err(vec![SourceDiagnostic::error(
-            access.field().span(),
+            span,
             "cannot access field `asset` because the `bundle` feature is not enabled",
         )
         .with_hint("try enabling the `bundle` feature")
         .with_hint("see https://typst.app/help/compiler-features for more details")]);
     }
 
-    // P1465 — `format.html` existe no módulo efetivo em todos os perfis, mas
+    // `std.html` e `format.html` existem internamente em todos os perfis, mas
     // o acesso público é feature-gated. A checagem ocorre antes do lookup e,
     // portanto, antes de qualquer avaliação dos argumentos de uma set rule.
     if field == "html"
-        && matches!(&target, Value::Module(module) if is_effective_format_module(module))
-        && !ctx
-            .features
-            .contains(crate::entities::compiler_features::Feature::Html)
+        && matches!(target, Value::Module(module) if is_effective_std_module(module) || is_effective_format_module(module))
+        && !features.contains(crate::entities::compiler_features::Feature::Html)
     {
         return Err(vec![SourceDiagnostic::error(
-            access.field().span(),
+            span,
             "cannot access field `html` because the `html` feature is not enabled",
         )
         .with_hint("try enabling the `html` feature")
@@ -50,18 +41,41 @@ pub(in crate::compiler::eval) fn eval_field_access(
     }
 
     if field == "bundle"
-        && matches!(&target, Value::Module(module) if is_effective_format_module(module))
-        && !ctx
-            .features
-            .contains(crate::entities::compiler_features::Feature::Bundle)
+        && matches!(target, Value::Module(module) if is_effective_format_module(module))
+        && !features.contains(crate::entities::compiler_features::Feature::Bundle)
     {
         return Err(vec![SourceDiagnostic::error(
-            access.field().span(),
+            span,
             "cannot access field `bundle` because the `bundle` feature is not enabled",
         )
         .with_hint("try enabling the `bundle` feature")
         .with_hint("see https://typst.app/help/compiler-features for more details")]);
     }
+
+    Ok(())
+}
+
+pub(in crate::compiler::eval) fn eval_field_access(
+    access: crate::entities::ast::expr::FieldAccess<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    let target = eval_expr(access.target(), scopes, ctx, engine)?;
+    eval_field_access_with_target(access, target, scopes, ctx, engine)
+}
+
+pub(in crate::compiler::eval) fn eval_field_access_with_target(
+    access: crate::entities::ast::expr::FieldAccess<'_>,
+    target: Value,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    use crate::entities::ast::AstNode;
+    let field = access.field().as_str();
+
+    check_module_field_feature(&target, field, access.field().span(), ctx.features)?;
 
     // P509 — field access em coleções despacha para métodos de instância.
     if let Some(result) = crate::compiler::stdlib::try_dispatch_collection_method(
@@ -74,6 +88,64 @@ pub(in crate::compiler::eval) fn eval_field_access(
         engine,
     ) {
         return result;
+    }
+
+    if let Value::Func(f) = &target {
+        if let Some(call) = f.native_fn_addr() {
+            use crate::compiler::stdlib::{
+                native_move, native_rotate, native_scale, native_skew,
+            };
+            let family = [
+                (native_move as fn(_, _, _, _) -> _, "move"),
+                (native_rotate as fn(_, _, _, _) -> _, "rotate"),
+                (native_scale as fn(_, _, _, _) -> _, "scale"),
+                (native_skew as fn(_, _, _, _) -> _, "skew"),
+            ]
+            .into_iter()
+            .find(|(candidate, _)| std::ptr::fn_addr_eq(call, *candidate));
+            if let Some((_, name)) = family {
+                use crate::entities::layout_types::{
+                    Align2D, Angle, HAlign, Length, Ratio, VAlign,
+                };
+                let default = match (name, field) {
+                    ("move", "dx" | "dy") => {
+                        Some(Value::Relative(crate::entities::rel::Rel {
+                            rel: 0.0,
+                            abs: Length::ZERO,
+                        }))
+                    }
+                    ("rotate", "angle") | ("skew", "ax" | "ay") => {
+                        Some(Value::Angle(Angle::deg(0.0)))
+                    }
+                    ("scale", "x" | "y") => Some(Value::Ratio(Ratio(1.0))),
+                    ("rotate" | "scale" | "skew", "origin") => {
+                        Some(Value::Align(Align2D {
+                            h: Some(HAlign::Center),
+                            v: Some(VAlign::Horizon),
+                        }))
+                    }
+                    ("rotate" | "scale" | "skew", "reflow") => Some(Value::Bool(false)),
+                    _ => None,
+                };
+                if let Some(default) = default {
+                    if !ctx.in_context {
+                        return Err(vec![SourceDiagnostic::error(
+                            access.span(),
+                            "can only be used when context is known",
+                        )
+                        .with_hint("try wrapping this in a `context` expression")]);
+                    }
+                    let value = engine.styles.custom(&format!("{name}.{field}")).cloned();
+                    return Ok(match (value, default) {
+                        (Some(Value::Align(a)), Value::Align(d)) => {
+                            Value::Align(Align2D { h: a.h.or(d.h), v: a.v.or(d.v) })
+                        }
+                        (Some(value), _) => value,
+                        (None, default) => default,
+                    });
+                }
+            }
+        }
     }
 
     // P792 — `text.<campo>`: quando o target é Value::Func("text") e o field é
@@ -127,6 +199,7 @@ pub(in crate::compiler::eval) fn eval_field_access(
     let span = if matches!(
         &target,
         Value::Module(_)
+            | Value::Type(_)
             | Value::Dict(_)
             | Value::Content(_)
             | Value::Float(_)
@@ -173,8 +246,31 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
         Value::LocatedContent(c, _) => {
             let value = match c.fields() {
                 Some(fields) => fields.get(field).cloned(),
-                None => c.content().get_field(field),
+                None => {
+                    if is_presence_content(c.content())
+                        || is_matrix_or_cell_content(c.content())
+                    {
+                        return declared_content_field_access(c.content(), field, span);
+                    }
+                    c.content().get_field(field)
+                }
             };
+            if value.is_none()
+                && (is_presence_content(c.content())
+                    || is_matrix_or_cell_content(c.content()))
+                && matches!(
+                    content_field(c.content(), field),
+                    ContentField::Set(_) | ContentField::Unset
+                )
+            {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    format!(
+                        "field \"{field}\" in {} is not known at this point",
+                        c.content().elem_name()
+                    ),
+                )]);
+            }
             value.ok_or_else(|| {
                 vec![SourceDiagnostic::error(
                     span,
@@ -185,12 +281,18 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
                 )]
             })
         }
-        Value::Content(c) => c.get_field(field).ok_or_else(|| {
-            vec![SourceDiagnostic::error(
-                span,
-                format!("{} does not have field \"{field}\"", c.elem_name()),
-            )]
-        }),
+        Value::Content(c) => {
+            if is_presence_content(&c) || is_matrix_or_cell_content(&c) {
+                declared_content_field_access(&c, field, span)
+            } else {
+                c.get_field(field).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        span,
+                        format!("{} does not have field \"{field}\"", c.elem_name()),
+                    )]
+                })
+            }
+        }
         // P785b — Field access em Value::Relative (RelativeLength / Rel)
         Value::Relative(rel) => match field {
             "ratio" => Ok(Value::Ratio(crate::entities::layout_types::Ratio(rel.rel))),
@@ -356,7 +458,7 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
                     .ok_or_else(|| {
                         vec![SourceDiagnostic::error(
                             span,
-                            format!("type array does not contain field \"{field}\""),
+                            format!("type array does not contain field `{field}`"),
                         )]
                     })
             }
@@ -498,5 +600,359 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
             span,
             format!("cannot access fields on type {}", other.type_name()),
         )]),
+    }
+}
+
+fn is_presence_content(content: &crate::entities::content::Content) -> bool {
+    use crate::entities::content::Content;
+    match content {
+        Content::SmartQuote(_) => true,
+        Content::Transform(e) => !matches!(
+            e.operation,
+            crate::entities::elements::transform::TransformOperation::Matrix(_)
+        ),
+        Content::Located(e) => is_presence_content(&e.body),
+        Content::Realized(e) => is_presence_content(&e.visual),
+        Content::Source(e) => is_presence_content(&e.body),
+        Content::ShowRecipe(e) => is_presence_content(&e.body),
+        Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Empty
+        | Content::Sequence(..)
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Styled(..)
+        | Content::PageRun(..)
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::SetPage(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Columns(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::Table(..)
+        | Content::TableCell(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::Dynamic(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::ContextBlock(..)
+        | Content::Colbreak(..)
+        | Content::HSpace(..)
+        | Content::Hide(..)
+        | Content::Pagebreak(..)
+        | Content::Parbreak
+        | Content::Repeat(..)
+        | Content::Stack(..)
+        | Content::VSpace(..) => false,
+    }
+}
+
+fn declared_content_field_access(
+    content: &crate::entities::content::Content,
+    field: &str,
+    span: Span,
+) -> SourceResult<Value> {
+    match content_field(content, field) {
+        ContentField::Set(value) => Ok(value),
+        ContentField::Unset => Err(vec![SourceDiagnostic::error(
+            span,
+            format!(
+                "field \"{field}\" in {} is not known at this point",
+                content.elem_name()
+            ),
+        )]),
+        ContentField::Undeclared => Err(vec![SourceDiagnostic::error(
+            span,
+            format!("{} does not have field \"{field}\"", content.elem_name()),
+        )]),
+    }
+}
+
+fn is_matrix_or_cell_content(content: &crate::entities::content::Content) -> bool {
+    use crate::entities::content::Content;
+    match content {
+        Content::MathMatrix(_) | Content::TableCell(_) => true,
+        Content::Located(e) => is_matrix_or_cell_content(&e.body),
+        Content::Source(e) => is_matrix_or_cell_content(&e.body),
+        Content::ShowRecipe(e) => is_matrix_or_cell_content(&e.body),
+        Content::Realized(e) => is_matrix_or_cell_content(&e.visual),
+        _ => false,
+    }
+}
+
+#[cfg(test)]
+mod smartquote_presence_tests {
+    use super::*;
+    use crate::entities::{content::Content, elements::smartquote::SmartQuoteElem};
+    #[test]
+    fn smartquote_semantic_direct_field_access_distinguishes_unknown_and_absent() {
+        let omitted = Content::SmartQuote(std::sync::Arc::new(SmartQuoteElem {
+            double: None,
+            enabled: None,
+            alternative: None,
+            quotes: None,
+        }));
+        let span = Span::detached();
+        let error =
+            eval_value_field_access(Value::Content(omitted.clone()), "double", span)
+                .unwrap_err();
+        assert_eq!(
+            error[0].message,
+            "field \"double\" in smartquote is not known at this point"
+        );
+        assert_eq!(error[0].span, span);
+        let error =
+            eval_value_field_access(Value::Content(omitted), "other", span).unwrap_err();
+        assert_eq!(error[0].message, "smartquote does not have field \"other\"");
+        assert_eq!(
+            eval_value_field_access(
+                Value::Content(Content::smartquote(false)),
+                "double",
+                span
+            )
+            .unwrap(),
+            Value::Bool(false)
+        );
+    }
+}
+
+#[cfg(test)]
+mod builtin_module_identity_tests {
+    use crate::compiler::eval::{
+        eval_expression_with_features, eval_with_full_error_target_and_features,
+        EvalTarget,
+    };
+    use crate::contracts::world::World;
+    use crate::entities::compiler_features::{Feature, Features};
+    use crate::entities::element_registry::ElementRegistry;
+    use crate::entities::file_id::FileId;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::sink::Sink;
+    use crate::entities::source::Source;
+    use crate::entities::value::Value;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library, Route, Routines, Traced,
+    };
+    use comemo::Track;
+    struct TestWorld {
+        source: Source,
+        library: Library,
+        book: FontBook,
+    }
+
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    fn features(mask: u8) -> Features {
+        let mut features = Features::empty();
+        for (bit, feature) in
+            [(1, Feature::Html), (2, Feature::A11yExtras), (4, Feature::Bundle)]
+        {
+            if mask & bit != 0 {
+                features.enable(feature);
+            }
+        }
+        features
+    }
+    fn world(text: &str) -> TestWorld {
+        TestWorld {
+            source: Source::detached(text),
+            library: Library::new(),
+            book: FontBook::new(),
+        }
+    }
+
+    #[test]
+    fn builtin_module_identity_aliases_closures_and_independent_feature_profiles() {
+        let world = world("");
+        for mask in 0..8 {
+            for (root, field, bit, feature) in [
+                ("std", "html", 1, "html"),
+                ("std.format", "html", 1, "html"),
+                ("format", "html", 1, "html"),
+                ("std", "asset", 4, "bundle"),
+                ("std.format", "bundle", 4, "bundle"),
+                ("format", "bundle", 4, "bundle"),
+            ] {
+                for expr in [format!("{root}.{field}"), format!("{{ let s = {root}; s.{field} }}"),
+                    format!("{{ let s = {root}; let get() = s.{field}; let std = \"shadow\"; get() }}")] {
+                    let (result, _) = eval_expression_with_features(&world, &expr, features(mask));
+                    if mask & bit == 0 {
+                        let errors = result.expect_err(&expr);
+                        assert_eq!(errors.len(), 1);
+                        assert_eq!(errors[0].message, format!("cannot access field `{field}` because the `{feature}` feature is not enabled"), "{expr}/{mask}");
+                        assert_eq!(errors[0].hints, [format!("try enabling the `{feature}` feature"), "see https://typst.app/help/compiler-features for more details".into()]);
+                    } else {
+                        assert!(matches!(result, Ok(Value::Func(_))), "{expr}/{mask}: {result:?}");
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn builtin_module_identity_dictionaries_keep_user_fields_in_all_profiles() {
+        let world = world("");
+        for mask in 0..8 {
+            for field in ["html", "asset", "bundle"] {
+                let expr = format!("{{ let std = ({field}: 42); std.{field} }}");
+                let (result, _) =
+                    eval_expression_with_features(&world, &expr, features(mask));
+                assert_eq!(result.unwrap(), Value::Int(42));
+            }
+        }
+    }
+
+    #[test]
+    fn builtin_module_identity_document_gate_anchors_before_call_or_set_arguments() {
+        for text in [
+            "#std.html",
+            "#let s = std\n#s.html",
+            "#std.html(panic(\"argument executed\"))",
+            "#set std.html(pretty: panic(\"argument executed\"))",
+        ] {
+            for target in [EvalTarget::Paged, EvalTarget::Html, EvalTarget::Bundle] {
+                let world = world(text);
+                let mut sink = Sink::new();
+                let result = eval_with_full_error_target_and_features(
+                    &Routines::new(),
+                    &world,
+                    Traced::default().track(),
+                    sink.track_mut(),
+                    Route::root().track(),
+                    &world.source,
+                    &ElementRegistry::new(),
+                    false,
+                    target,
+                    Features::empty(),
+                );
+                let errors = result.expect_err(text);
+                assert_eq!(errors.len(), 1, "{text}: {errors:?}");
+                assert_eq!(errors[0].message, "cannot access field `html` because the `html` feature is not enabled", "{text}");
+                let start = text.find("html").unwrap();
+                assert_eq!(
+                    world.source.span_byte_range(errors[0].span),
+                    Some(start..start + 4),
+                    "{text}"
+                );
+                assert_eq!(
+                    errors[0].hints,
+                    [
+                        "try enabling the `html` feature",
+                        "see https://typst.app/help/compiler-features for more details"
+                    ]
+                );
+                assert!(errors[0].trace.is_empty());
+            }
+        }
     }
 }

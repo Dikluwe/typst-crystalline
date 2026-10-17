@@ -1,5 +1,8 @@
 # Prompt L0 — `entities/func` — funções e aplicação parcial
-Hash do Código: a54b14b9
+Hash do Código: 6d667dd1
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml sha256:32890de1247262b54fa39d7ae1d640a068774a28cf1fa1c8890d0508d999af51
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/func.rs`
@@ -462,3 +465,148 @@ As projeções owner-local dessas duas entidades pertencem respectivamente a
 terceiro campo privado P1342, clone/alias, Eq, Hash, Debug, repr, name,
 namespace, dispatch, API normal ou comportamento sem o cfg. Não usar trait de
 extensão, macro, impl não local ou helper genérico para contornar ownership.
+
+
+## Tipos explícitos e leitura local — type_complexity (2026-10-15)
+
+### Medição anterior à decisão
+
+01_core/src/entities/func.rs:317 (C024).
+O snapshot before.json.gz em 00_nucleo/diagnosticos/type-complexity-2026-10-15
+conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
+O gate red-clippy.log falha com este lint promovido a erro antes da edição.
+A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos
+estáticos já explícitos. É manutenção de representação Rust; não medição de
+benefício da IA, bug funcional ou paridade nova.
+
+### Responsabilidade e aceitação
+
+Manter literalmente o contrato público de native_fn_addr e o ponteiro nativo estático que ele retorna. Autorizar #[expect(clippy::type_complexity, reason = "native_fn_addr: ABI nativa explícita preservada")], somente no método. Não criar trait object, alias público novo, wrapper de chamada ou alterar ABI, identidade, None e variantes.
+
+Correção interna em fluxo contínuo ADR-0127: nenhuma entidade, assinatura pública
+resolvida, default ou fase é alterada. Uma abreviação de tipo só é permitida com
+expansão comprovadamente idêntica; incompatibilidade ou tipo público novo exige
+outro gate. As exceções são nominais apenas para type_complexity; não autorizar
+supressão em módulo/impl/crate nem elevar limiar. Esta permissão pontual supera
+proibições genéricas anteriores somente para os três itens justificados neste lote;
+continuam proibidas supressões dos demais casos destinados à correção.
+Usar os controles funcionais existentes sem mudar seus esperados. O gate selecionado
+deve passar RED→GREEN, incluindo unfulfilled_lint_expectations como erro; revalidar
+build, Clippy all-targets, suíte workspace, formato, Rustdoc e linhagem com resselo
+restrito. Não criar testes que apenas espelhem aliases ou nomes de campos.
+
+
+## Exaustividade de representação e identidade — V16, 2026-10-16
+
+### Medição anterior à decisão
+
+01_core/src/entities/func.rs:398. Fonte e owner vigentes lidos e conferidos por hash antes da decisão. `00_nucleo/diagnosticos/tekt-enums-2026-10-16/before.json.gz` conserva HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, fontes/L0/configuração, status e git diff HEAD --stat. O SARIF anterior registra onze avisos e uma nota V16 nestes sete owners. Foram também medidos os fallbacks sem emissão; estes fazem parte do mesmo recorte. Classificação: padrão Rust e evolução do enum são mecânica; resultados/campos/identidade observáveis e erros devem permanecer. Não se infere intenção upstream ou ganho para IA.
+
+### Responsabilidade exclusiva
+
+element_name: None nomeia Closure/Native/NativeWithEngine/Plugin/With; Element permanece Some. namespace: None nomeia Closure/Element/Plugin; Native/NativeWithEngine/With permanecem. PartialEq: depois do atalho Arc e dos dois pares nativos, false cobre primeiro eixo nominal das seis variantes e segundo eixo _. Hash: fallback por ponteiro nomeia Closure/Element/Plugin/With e preserva discriminante e Arc::as_ptr. Nenhum nome/namespace é nova identidade; span continua excluído; não chamar funções, ctor ou host. Adicionar matriz das seis representações com clone/hash, nomes nativos iguais no mesmo kind e rejeição entre kinds, Element e With/Plugin; host/ctor não podem ser executados pelo teste nem pelas projeções.
+
+### Aceitação e gate
+
+Manutenção interna ADR-0127 em fluxo contínuo: nenhuma definição de enum, campo, trait, assinatura pública, default, dependência, compatibilidade ou fase muda. Conservar cada corpo, ordem e guard; não mover lógica entre owners nem criar helper para esconder o catchall. Padrões nominais devem forçar erro de compilação ao surgir variante nova; comentários de neutralidade não servem como supressão.
+
+Antes do código, testes funcionais locais e gate V16 RED por escopo. Executar sonda de evolução em cópia descartável do workspace: acrescentar somente uma variante sentinela a Color, ColorSpace, MathStyleKind, FuncRepr e StateUpdate, sem alterar as definições produtivas. Usar cargo check --offline --locked -p typst-core com um job e cache de artefatos compartilhado; registrar fontes/hashes/argv/UTC/diagnósticos. Para cada um dos 21 matches selecionados, a baseline deve demonstrar a ausência de E0004 naquele match; GREEN exige E0004 ali, independentemente de erros de exaustividade já emitidos por outros matches na cópia. O controle de compilação sem sentinelas e os testes de comportamento aprovam o código real; não usar a sonda negativa como prova de paridade. Não editar source produtivo durante comandos.
+
+Resselo restrito, direto e reverso, sem reparo global da working tree. Revalidar build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, suíte workspace completa, Rustdoc -D warnings e quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF sem avisos novos e diff --check. Limite MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1, tarefas pesadas sequenciais. Nenhuma tolerância/fixture histórica é relaxada. As pendências V16 externas, inclusive T027/T158/T160 rastreadas sem emissão, continuam abertas.
+
+
+## Formatos como funções de elemento — 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
+commitado. `00_nucleo/diagnosticos/native-format-catalogue-2026-10-17/`
+conserva before.json.gz com UTC, status, diff HEAD --stat e hashes exatos;
+baseline-reuse.json prova igualdade de fontes/configuração/binário com a
+matriz final anterior de 3956 casos em oito perfis. before-batch.json.gz
+mede 144 casos detalhados; before-compat.json.gz mede 456 controles de
+nomes, aliases e namespace. Cada sonda conserva argv, binários e saídas.
+O pin é `9f2b6e8715237cb086899a42873660fe744622e8`, executável SHA-256
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+
+As quinze rotas restantes são rejeitadas por where/kind no Tekt e aceitas
+no pin. format.rs:17–27/96–146 compartilha native_format entre os cinco
+formatos, logo só ponteiro não distingue schemas. pinned-schema.json.gz
+conserva nove declarações upstream com blobs/hash/linhas e atributos elem.
+FuncRepr é pub(crate) em entities/func.md:21 e entities/func.rs:24; a nota
+anterior de que o L0 o mostrava público foi refutada em retificacao-func-repr.md.
+public-contract-before.json fixa assinaturas, reexports e structs públicos
+antes da mudança; a classificação é representação interna e paridade, não
+novo contrato público ou inferência de intenção por render.
+
+### Responsabilidade exclusiva
+
+Adicionar `pub(crate) enum FormatElementKind { Svg, Png, Pdf, Html, Bundle }`
+fechado e Copy/Eq, e `FuncRepr::Format(FormatElementKind, NativeFunc)` à enum
+privada. Func, NativeFunc, NativeFuncWithEngine, ElementFunc, ClosureRepr e
+ClosureParam conservam literalmente campos e contratos externos atuais.
+Apenas o constructor interno `pub(crate) fn native_format(kind: FormatElementKind,
+native: NativeFunc) -> Self` inicializa a nova variante com span detached.
+Não criar nova interface pública, alias público de ABI, closure de wrapper,
+side table ou alocação compartilhada global.
+
+Nome/namespace/native_fn_addr tratam Format como Native de quatro argumentos:
+retornam os mesmos dados do payload original. element_name continua None para
+ambos, reservado ao construtor dinâmico Element. set_name continua só Closure.
+Clone continua Arc O(1); With conserva nome/namespace/span e native_fn_addr None.
+Eq público agrupa Native e Format em ambos os eixos e compara nomes como antes;
+Hash usa o mesmo prefixo 0/nome. Engine mantém prefixo1 e variantes restantes
+prefixo2/Arc; span e kind não entram no Eq/Hash público.
+
+A tabela de reconhecimento, em seu owner, usa a testemunha para os formatos.
+A obrigação anterior de native_fn_addr não mudar None/ponteiro é preservada
+para todos os valores existentes: factories antes Native e depois Format
+continuam Some do mesmo ponteiro; os outros seis tipos mantêm os casos antigos.
+Testes de layout imprimem sizeof Func/FuncRepr/NativeFunc/NativeFuncWithEngine
+no RED e no GREEN para medir o custo, sem fazer layout Rust virar paridade.
+
+### Aceitação e fronteiras
+
+Consumir as invariantes compartilhadas do Núcleo Tekt pinado
+`00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml`. As novas
+alternativas Native/Format são agrupáveis porque usam o mesmo payload/ABI
+para projeção e execução; cada uma deve ser exercitada nos testes de nome,
+namespace, ponteiro, Eq/Hash, clone/With e despacho. V19 novo nessas uniões
+deve ser inventariado e ligado aos testes; não adicionar suppressions.
+A nova variante deve ser explicitamente nomeada nos matches fechados.
+
+Fluxo contínuo ADR-0127: nenhuma definição, assinatura, campo ou trait
+externo novo, compatibilidade, default ou fase muda. Antes do código, RED
+funcional dos quinze casos por factories atuais e controle de observação
+real contra Native não marcada. GREEN exige corpus completo, 144 casos de
+campos/chamadas e 456 controles de compatibilidade preservados fora de
+where/kind. Comparar public-contract-before/after e sizeof antes/depois.
+
+L0 antes do código; ownership/V26 antes de resselo restrito aos onze pares.
+Build, suíte workspace, Clippy/Rustdoc estritos, fmt, V1/V5/V15/V26, reverse
+e diferencial global sem novo erro/aviso. Comandos pesados sequenciais sob
+MemoryMax12GiB/High10GiB/swap0/jobs1. Rastrear notas V19 legítimas com cobertura.
+
+Esta etapa fecha admissão where/kind, não todas as operações de seleção,
+show/query, síntese, morfologia dos carriers ou counter. As frentes FG1, RM1,
+SY1, RG1 e V16 anteriores preservam seus escopos/gates; não aplicar candidatos
+antigos por cópia nem publicar.
+
+
+### Cobertura direta das alternativas V19 — 2026-10-17
+
+Medição anterior à decisão: candidate-1/state.json.gz e
+differential-review.json em
+00_nucleo/diagnosticos/native-format-catalogue-2026-10-17 registram oito
+notas V19 novas e quatro atualizadas. Estas últimas apenas incluem Format
+no padrão e elevam a contagem; não são violações removidas. O primeiro
+comparador exigia mensagem idêntica e por isso recusou a atualização.
+
+Este owner recebe testes diretos complementares; não mudar o comportamento
+produtivo, suprimir notas ou usar somente um caminho como prova do grupo.
+Estender a matriz preexistente das seis representações para sete, incluindo
+Format de mesmo nome/namespace, Eq/Hash compatível com Native e rejeição
+contra Engine/Closure/Element/Plugin/With; conferir native_fn_addr e namespace
+para cada alternativa. Acrescentar prova de que os cinco kinds, com mesmo
+nome/callback que panica se chamado, têm schemas distintos pela testemunha,
+enquanto Native comum e With não adquirem essa capacidade.

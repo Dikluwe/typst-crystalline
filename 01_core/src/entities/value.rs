@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/value.md
-//! @prompt-hash cb4697f2
+//! @prompt-hash f972f17d
 //! @layer L1
-//! @updated 2026-03-28
+//! @updated 2026-10-08
 
 use std::sync::Arc;
 
@@ -70,17 +70,17 @@ pub enum Value {
     Str(EcoString),
 
     // ── Variantes fáceis (Passo 15) ──────────────────────────────────────
-    /// Lista de valores. Vec<Value> — clone O(n); ver DEBT.md.
+    /// Lista de valores. `Vec<Value>` — clone O(n); ver DEBT.md.
     Array(Vec<Value>),
     /// Mapa string → Value preservando ordem de inserção (IndexMap, ADR-0023).
     Dict(IndexMap<EcoString, Value, FxBuildHasher>),
-    /// Módulo importado. Arc<ModuleInner> internamente — clone O(1).
+    /// Módulo importado. `Arc<ModuleInner>` internamente — clone O(1).
     Module(crate::entities::module::Module),
     /// Data/hora Typst.
     Datetime(crate::entities::world_types::Datetime),
 
     // ── Variantes Passo 16 ────────────────────────────────────────────────
-    /// Função Typst (closure). Arc<FuncRepr> internamente — clone O(1).
+    /// Função Typst (closure). `Arc<FuncRepr>` internamente — clone O(1).
     Func(crate::entities::func::Func),
 
     // ── Variantes Passo 18 ────────────────────────────────────────────────
@@ -106,9 +106,9 @@ pub enum Value {
     Color(crate::entities::layout_types::Color),
     /// P227 — Stroke parametriza borders Grid/Table e refinos
     /// cosméticos Fase 5 candidata Layout per ADR-0079 PROPOSTO
-    /// + ADR-0080 PROPOSTO (Opção γ literal — L0 não tocado;
+    /// \+ ADR-0080 PROPOSTO (Opção γ literal — L0 não tocado;
     /// pattern "L0 minimal para refactors" N=7 → 8).
-    Stroke(crate::entities::geometry::Stroke),
+    Stroke(Arc<crate::entities::geometry::Stroke>),
     /// Fracção para dimensionamento relativo (ex: 1fr, 2.5fr). Passo 80.
     Fraction(f64),
 
@@ -447,7 +447,47 @@ impl Value {
 
     /// Retorna true se o valor é `none`.
     pub fn is_none(&self) -> bool {
-        matches!(self, Self::None)
+        match self {
+            Self::None => true,
+            Self::Bool(_)
+            | Self::Int(_)
+            | Self::Float(_)
+            | Self::Str(_)
+            | Self::Array(_)
+            | Self::Dict(_)
+            | Self::Module(_)
+            | Self::Datetime(_)
+            | Self::Func(_)
+            | Self::Content(_)
+            | Self::LocatedContent(_, _)
+            | Self::Auto
+            | Self::Length(_)
+            | Self::Relative(_)
+            | Self::Ratio(_)
+            | Self::Angle(_)
+            | Self::Color(_)
+            | Self::Stroke(_)
+            | Self::Fraction(_)
+            | Self::Align(_)
+            | Self::Location(_)
+            | Self::Gradient(_)
+            | Self::Regex(_)
+            | Self::Tiling(_)
+            | Self::Bytes(_)
+            | Self::Decimal(_)
+            | Self::Duration(_)
+            | Self::Version(_)
+            | Self::Selector(_)
+            | Self::Symbol(_)
+            | Self::Args(_)
+            | Self::State(_)
+            | Self::Counter(_)
+            | Self::Label(_)
+            | Self::Dir(_)
+            | Self::Path(_)
+            | Self::Type(_)
+            | Self::SpotColorant(_) => false,
+        }
     }
 
     /// Retorna true se o valor é "truthy" (semântica Typst minimal).
@@ -462,7 +502,39 @@ impl Value {
             Self::Float(f) => *f != 0.0,
             Self::Str(s) => !s.is_empty(),
             Self::Array(a) => !a.is_empty(),
-            _other => true, // neutro: N16[β] — tipos de valor sem conceito de vazio avaliam como truthy por padrão
+            Self::Dict(_)
+            | Self::Module(_)
+            | Self::Datetime(_)
+            | Self::Func(_)
+            | Self::Content(_)
+            | Self::LocatedContent(_, _)
+            | Self::Auto
+            | Self::Length(_)
+            | Self::Relative(_)
+            | Self::Ratio(_)
+            | Self::Angle(_)
+            | Self::Color(_)
+            | Self::Stroke(_)
+            | Self::Fraction(_)
+            | Self::Align(_)
+            | Self::Location(_)
+            | Self::Gradient(_)
+            | Self::Regex(_)
+            | Self::Tiling(_)
+            | Self::Bytes(_)
+            | Self::Decimal(_)
+            | Self::Duration(_)
+            | Self::Version(_)
+            | Self::Selector(_)
+            | Self::Symbol(_)
+            | Self::Args(_)
+            | Self::State(_)
+            | Self::Counter(_)
+            | Self::Label(_)
+            | Self::Dir(_)
+            | Self::Path(_)
+            | Self::Type(_)
+            | Self::SpotColorant(_) => true, // neutro: N16[β] — tipos de valor sem conceito de vazio avaliam como truthy por padrão
         }
     }
 
@@ -470,7 +542,44 @@ impl Value {
     pub fn cast_bool(&self) -> Option<bool> {
         match self {
             Self::Bool(b) => Some(*b),
-            _other => None, // neutro: N16[β] — variantes que não são Bool retornam None
+            Self::None
+            | Self::Int(_)
+            | Self::Float(_)
+            | Self::Str(_)
+            | Self::Array(_)
+            | Self::Dict(_)
+            | Self::Module(_)
+            | Self::Datetime(_)
+            | Self::Func(_)
+            | Self::Content(_)
+            | Self::LocatedContent(_, _)
+            | Self::Auto
+            | Self::Length(_)
+            | Self::Relative(_)
+            | Self::Ratio(_)
+            | Self::Angle(_)
+            | Self::Color(_)
+            | Self::Stroke(_)
+            | Self::Fraction(_)
+            | Self::Align(_)
+            | Self::Location(_)
+            | Self::Gradient(_)
+            | Self::Regex(_)
+            | Self::Tiling(_)
+            | Self::Bytes(_)
+            | Self::Decimal(_)
+            | Self::Duration(_)
+            | Self::Version(_)
+            | Self::Selector(_)
+            | Self::Symbol(_)
+            | Self::Args(_)
+            | Self::State(_)
+            | Self::Counter(_)
+            | Self::Label(_)
+            | Self::Dir(_)
+            | Self::Path(_)
+            | Self::Type(_)
+            | Self::SpotColorant(_) => None, // neutro: N16[β] — variantes que não são Bool retornam None
         }
     }
 
@@ -478,7 +587,44 @@ impl Value {
     pub fn cast_int(&self) -> Option<i64> {
         match self {
             Self::Int(i) => Some(*i),
-            _ => None,
+            Self::None
+            | Self::Bool(_)
+            | Self::Float(_)
+            | Self::Str(_)
+            | Self::Array(_)
+            | Self::Dict(_)
+            | Self::Module(_)
+            | Self::Datetime(_)
+            | Self::Func(_)
+            | Self::Content(_)
+            | Self::LocatedContent(_, _)
+            | Self::Auto
+            | Self::Length(_)
+            | Self::Relative(_)
+            | Self::Ratio(_)
+            | Self::Angle(_)
+            | Self::Color(_)
+            | Self::Stroke(_)
+            | Self::Fraction(_)
+            | Self::Align(_)
+            | Self::Location(_)
+            | Self::Gradient(_)
+            | Self::Regex(_)
+            | Self::Tiling(_)
+            | Self::Bytes(_)
+            | Self::Decimal(_)
+            | Self::Duration(_)
+            | Self::Version(_)
+            | Self::Selector(_)
+            | Self::Symbol(_)
+            | Self::Args(_)
+            | Self::State(_)
+            | Self::Counter(_)
+            | Self::Label(_)
+            | Self::Dir(_)
+            | Self::Path(_)
+            | Self::Type(_)
+            | Self::SpotColorant(_) => None,
         }
     }
 
@@ -487,7 +633,43 @@ impl Value {
         match self {
             Self::Float(f) => Some(*f),
             Self::Int(i) => Some(*i as f64),
-            _ => None, // neutro: N16[β] — Value não-numérico retorna None em cast_float
+            Self::None
+            | Self::Bool(_)
+            | Self::Str(_)
+            | Self::Array(_)
+            | Self::Dict(_)
+            | Self::Module(_)
+            | Self::Datetime(_)
+            | Self::Func(_)
+            | Self::Content(_)
+            | Self::LocatedContent(_, _)
+            | Self::Auto
+            | Self::Length(_)
+            | Self::Relative(_)
+            | Self::Ratio(_)
+            | Self::Angle(_)
+            | Self::Color(_)
+            | Self::Stroke(_)
+            | Self::Fraction(_)
+            | Self::Align(_)
+            | Self::Location(_)
+            | Self::Gradient(_)
+            | Self::Regex(_)
+            | Self::Tiling(_)
+            | Self::Bytes(_)
+            | Self::Decimal(_)
+            | Self::Duration(_)
+            | Self::Version(_)
+            | Self::Selector(_)
+            | Self::Symbol(_)
+            | Self::Args(_)
+            | Self::State(_)
+            | Self::Counter(_)
+            | Self::Label(_)
+            | Self::Dir(_)
+            | Self::Path(_)
+            | Self::Type(_)
+            | Self::SpotColorant(_) => None, // neutro: N16[β] — Value não-numérico retorna None em cast_float
         }
     }
 
@@ -495,7 +677,44 @@ impl Value {
     pub fn cast_str(&self) -> Option<&str> {
         match self {
             Self::Str(s) => Some(s.as_str()),
-            _ => None,
+            Self::None
+            | Self::Bool(_)
+            | Self::Int(_)
+            | Self::Float(_)
+            | Self::Array(_)
+            | Self::Dict(_)
+            | Self::Module(_)
+            | Self::Datetime(_)
+            | Self::Func(_)
+            | Self::Content(_)
+            | Self::LocatedContent(_, _)
+            | Self::Auto
+            | Self::Length(_)
+            | Self::Relative(_)
+            | Self::Ratio(_)
+            | Self::Angle(_)
+            | Self::Color(_)
+            | Self::Stroke(_)
+            | Self::Fraction(_)
+            | Self::Align(_)
+            | Self::Location(_)
+            | Self::Gradient(_)
+            | Self::Regex(_)
+            | Self::Tiling(_)
+            | Self::Bytes(_)
+            | Self::Decimal(_)
+            | Self::Duration(_)
+            | Self::Version(_)
+            | Self::Selector(_)
+            | Self::Symbol(_)
+            | Self::Args(_)
+            | Self::State(_)
+            | Self::Counter(_)
+            | Self::Label(_)
+            | Self::Dir(_)
+            | Self::Path(_)
+            | Self::Type(_)
+            | Self::SpotColorant(_) => None,
         }
     }
 
@@ -503,7 +722,44 @@ impl Value {
     pub fn cast_array(&self) -> Option<&[Value]> {
         match self {
             Self::Array(a) => Some(a),
-            _ => None,
+            Self::None
+            | Self::Bool(_)
+            | Self::Int(_)
+            | Self::Float(_)
+            | Self::Str(_)
+            | Self::Dict(_)
+            | Self::Module(_)
+            | Self::Datetime(_)
+            | Self::Func(_)
+            | Self::Content(_)
+            | Self::LocatedContent(_, _)
+            | Self::Auto
+            | Self::Length(_)
+            | Self::Relative(_)
+            | Self::Ratio(_)
+            | Self::Angle(_)
+            | Self::Color(_)
+            | Self::Stroke(_)
+            | Self::Fraction(_)
+            | Self::Align(_)
+            | Self::Location(_)
+            | Self::Gradient(_)
+            | Self::Regex(_)
+            | Self::Tiling(_)
+            | Self::Bytes(_)
+            | Self::Decimal(_)
+            | Self::Duration(_)
+            | Self::Version(_)
+            | Self::Selector(_)
+            | Self::Symbol(_)
+            | Self::Args(_)
+            | Self::State(_)
+            | Self::Counter(_)
+            | Self::Label(_)
+            | Self::Dir(_)
+            | Self::Path(_)
+            | Self::Type(_)
+            | Self::SpotColorant(_) => None,
         }
     }
 
@@ -511,7 +767,44 @@ impl Value {
     pub fn cast_dict(&self) -> Option<&IndexMap<EcoString, Value, FxBuildHasher>> {
         match self {
             Self::Dict(d) => Some(d),
-            _ => None,
+            Self::None
+            | Self::Bool(_)
+            | Self::Int(_)
+            | Self::Float(_)
+            | Self::Str(_)
+            | Self::Array(_)
+            | Self::Module(_)
+            | Self::Datetime(_)
+            | Self::Func(_)
+            | Self::Content(_)
+            | Self::LocatedContent(_, _)
+            | Self::Auto
+            | Self::Length(_)
+            | Self::Relative(_)
+            | Self::Ratio(_)
+            | Self::Angle(_)
+            | Self::Color(_)
+            | Self::Stroke(_)
+            | Self::Fraction(_)
+            | Self::Align(_)
+            | Self::Location(_)
+            | Self::Gradient(_)
+            | Self::Regex(_)
+            | Self::Tiling(_)
+            | Self::Bytes(_)
+            | Self::Decimal(_)
+            | Self::Duration(_)
+            | Self::Version(_)
+            | Self::Selector(_)
+            | Self::Symbol(_)
+            | Self::Args(_)
+            | Self::State(_)
+            | Self::Counter(_)
+            | Self::Label(_)
+            | Self::Dir(_)
+            | Self::Path(_)
+            | Self::Type(_)
+            | Self::SpotColorant(_) => None,
         }
     }
 
@@ -519,7 +812,44 @@ impl Value {
     pub fn cast_align(&self) -> Option<crate::entities::layout_types::Align2D> {
         match self {
             Self::Align(a) => Some(*a),
-            _ => None,
+            Self::None
+            | Self::Bool(_)
+            | Self::Int(_)
+            | Self::Float(_)
+            | Self::Str(_)
+            | Self::Array(_)
+            | Self::Dict(_)
+            | Self::Module(_)
+            | Self::Datetime(_)
+            | Self::Func(_)
+            | Self::Content(_)
+            | Self::LocatedContent(_, _)
+            | Self::Auto
+            | Self::Length(_)
+            | Self::Relative(_)
+            | Self::Ratio(_)
+            | Self::Angle(_)
+            | Self::Color(_)
+            | Self::Stroke(_)
+            | Self::Fraction(_)
+            | Self::Location(_)
+            | Self::Gradient(_)
+            | Self::Regex(_)
+            | Self::Tiling(_)
+            | Self::Bytes(_)
+            | Self::Decimal(_)
+            | Self::Duration(_)
+            | Self::Version(_)
+            | Self::Selector(_)
+            | Self::Symbol(_)
+            | Self::Args(_)
+            | Self::State(_)
+            | Self::Counter(_)
+            | Self::Label(_)
+            | Self::Dir(_)
+            | Self::Path(_)
+            | Self::Type(_)
+            | Self::SpotColorant(_) => None,
         }
     }
 
@@ -527,7 +857,44 @@ impl Value {
     pub fn cast_bytes(&self) -> Option<&Bytes> {
         match self {
             Self::Bytes(b) => Some(b),
-            _ => None,
+            Self::None
+            | Self::Bool(_)
+            | Self::Int(_)
+            | Self::Float(_)
+            | Self::Str(_)
+            | Self::Array(_)
+            | Self::Dict(_)
+            | Self::Module(_)
+            | Self::Datetime(_)
+            | Self::Func(_)
+            | Self::Content(_)
+            | Self::LocatedContent(_, _)
+            | Self::Auto
+            | Self::Length(_)
+            | Self::Relative(_)
+            | Self::Ratio(_)
+            | Self::Angle(_)
+            | Self::Color(_)
+            | Self::Stroke(_)
+            | Self::Fraction(_)
+            | Self::Align(_)
+            | Self::Location(_)
+            | Self::Gradient(_)
+            | Self::Regex(_)
+            | Self::Tiling(_)
+            | Self::Decimal(_)
+            | Self::Duration(_)
+            | Self::Version(_)
+            | Self::Selector(_)
+            | Self::Symbol(_)
+            | Self::Args(_)
+            | Self::State(_)
+            | Self::Counter(_)
+            | Self::Label(_)
+            | Self::Dir(_)
+            | Self::Path(_)
+            | Self::Type(_)
+            | Self::SpotColorant(_) => None,
         }
     }
 
@@ -541,7 +908,41 @@ impl Value {
             Self::Int(i) => Some(Decimal::from_i64(*i)),
             Self::Float(f) => Decimal::from_f64(*f),
             Self::Str(s) => Decimal::from_str(s),
-            _other => None, // neutro: N16[β] — variantes incompatíveis com Decimal retornam None
+            Self::None
+            | Self::Bool(_)
+            | Self::Array(_)
+            | Self::Dict(_)
+            | Self::Module(_)
+            | Self::Datetime(_)
+            | Self::Func(_)
+            | Self::Content(_)
+            | Self::LocatedContent(_, _)
+            | Self::Auto
+            | Self::Length(_)
+            | Self::Relative(_)
+            | Self::Ratio(_)
+            | Self::Angle(_)
+            | Self::Color(_)
+            | Self::Stroke(_)
+            | Self::Fraction(_)
+            | Self::Align(_)
+            | Self::Location(_)
+            | Self::Gradient(_)
+            | Self::Regex(_)
+            | Self::Tiling(_)
+            | Self::Bytes(_)
+            | Self::Duration(_)
+            | Self::Version(_)
+            | Self::Selector(_)
+            | Self::Symbol(_)
+            | Self::Args(_)
+            | Self::State(_)
+            | Self::Counter(_)
+            | Self::Label(_)
+            | Self::Dir(_)
+            | Self::Path(_)
+            | Self::Type(_)
+            | Self::SpotColorant(_) => None, // neutro: N16[β] — variantes incompatíveis com Decimal retornam None
         }
     }
 
@@ -562,7 +963,42 @@ impl Value {
                 }
                 Some(Duration::from_nanos((*f * 1e9) as i128))
             }
-            _other => None, // neutro: N16[β] — variantes incompatíveis com Duration retornam None
+            Self::None
+            | Self::Bool(_)
+            | Self::Str(_)
+            | Self::Array(_)
+            | Self::Dict(_)
+            | Self::Module(_)
+            | Self::Datetime(_)
+            | Self::Func(_)
+            | Self::Content(_)
+            | Self::LocatedContent(_, _)
+            | Self::Auto
+            | Self::Length(_)
+            | Self::Relative(_)
+            | Self::Ratio(_)
+            | Self::Angle(_)
+            | Self::Color(_)
+            | Self::Stroke(_)
+            | Self::Fraction(_)
+            | Self::Align(_)
+            | Self::Location(_)
+            | Self::Gradient(_)
+            | Self::Regex(_)
+            | Self::Tiling(_)
+            | Self::Bytes(_)
+            | Self::Decimal(_)
+            | Self::Version(_)
+            | Self::Selector(_)
+            | Self::Symbol(_)
+            | Self::Args(_)
+            | Self::State(_)
+            | Self::Counter(_)
+            | Self::Label(_)
+            | Self::Dir(_)
+            | Self::Path(_)
+            | Self::Type(_)
+            | Self::SpotColorant(_) => None, // neutro: N16[β] — variantes incompatíveis com Duration retornam None
         }
     }
 
@@ -573,7 +1009,43 @@ impl Value {
         match self {
             Self::Version(v) => Some(Arc::clone(v)),
             Self::Str(s) => Version::from_str(s).map(Arc::new),
-            _other => None, // neutro: N16[β] — variantes incompatíveis com Version retornam None
+            Self::None
+            | Self::Bool(_)
+            | Self::Int(_)
+            | Self::Float(_)
+            | Self::Array(_)
+            | Self::Dict(_)
+            | Self::Module(_)
+            | Self::Datetime(_)
+            | Self::Func(_)
+            | Self::Content(_)
+            | Self::LocatedContent(_, _)
+            | Self::Auto
+            | Self::Length(_)
+            | Self::Relative(_)
+            | Self::Ratio(_)
+            | Self::Angle(_)
+            | Self::Color(_)
+            | Self::Stroke(_)
+            | Self::Fraction(_)
+            | Self::Align(_)
+            | Self::Location(_)
+            | Self::Gradient(_)
+            | Self::Regex(_)
+            | Self::Tiling(_)
+            | Self::Bytes(_)
+            | Self::Decimal(_)
+            | Self::Duration(_)
+            | Self::Selector(_)
+            | Self::Symbol(_)
+            | Self::Args(_)
+            | Self::State(_)
+            | Self::Counter(_)
+            | Self::Label(_)
+            | Self::Dir(_)
+            | Self::Path(_)
+            | Self::Type(_)
+            | Self::SpotColorant(_) => None, // neutro: N16[β] — variantes incompatíveis com Version retornam None
         }
     }
 
@@ -584,7 +1056,43 @@ impl Value {
         match self {
             Self::Regex(r) => Some(r.clone()),
             Self::Str(s) => Regex::new(s).ok(),
-            _other => None, // neutro: N16[β] — variantes incompatíveis com Regex retornam None
+            Self::None
+            | Self::Bool(_)
+            | Self::Int(_)
+            | Self::Float(_)
+            | Self::Array(_)
+            | Self::Dict(_)
+            | Self::Module(_)
+            | Self::Datetime(_)
+            | Self::Func(_)
+            | Self::Content(_)
+            | Self::LocatedContent(_, _)
+            | Self::Auto
+            | Self::Length(_)
+            | Self::Relative(_)
+            | Self::Ratio(_)
+            | Self::Angle(_)
+            | Self::Color(_)
+            | Self::Stroke(_)
+            | Self::Fraction(_)
+            | Self::Align(_)
+            | Self::Location(_)
+            | Self::Gradient(_)
+            | Self::Tiling(_)
+            | Self::Bytes(_)
+            | Self::Decimal(_)
+            | Self::Duration(_)
+            | Self::Version(_)
+            | Self::Selector(_)
+            | Self::Symbol(_)
+            | Self::Args(_)
+            | Self::State(_)
+            | Self::Counter(_)
+            | Self::Label(_)
+            | Self::Dir(_)
+            | Self::Path(_)
+            | Self::Type(_)
+            | Self::SpotColorant(_) => None, // neutro: N16[β] — variantes incompatíveis com Regex retornam None
         }
     }
 }
@@ -687,7 +1195,7 @@ impl From<crate::entities::layout_types::Color> for Value {
 }
 impl From<crate::entities::geometry::Stroke> for Value {
     fn from(v: crate::entities::geometry::Stroke) -> Self {
-        Self::Stroke(v)
+        Self::Stroke(Arc::new(v))
     }
 }
 impl From<crate::entities::tiling::Tiling> for Value {
@@ -1231,5 +1739,194 @@ mod tests {
         let s = Symbol::new('→', "arrow");
         let v: Value = s.into();
         assert!(matches!(v, Value::Symbol(_)));
+    }
+}
+
+#[cfg(test)]
+mod memory5_tests {
+    use super::*;
+    use crate::entities::geometry::{DashLength, DashPattern, LineCap, LineJoin, Stroke};
+    fn payload(value: &Value) -> &Stroke {
+        match value {
+            Value::Stroke(s) => s,
+            _ => panic!("stroke expected"),
+        }
+    }
+    #[test]
+    fn memory5_clone_shares_stroke_payload_and_rebuild_is_independent() {
+        let original = Stroke {
+            thickness: 2.5,
+            cap: LineCap::Round,
+            join: LineJoin::Bevel,
+            dash: Some(DashPattern { array: vec![DashLength::Length(3.)], phase: 1. }),
+            ..Stroke::default()
+        };
+        let value = Value::from(original.clone());
+        let cloned = value.clone();
+        assert_eq!(value.type_name(), "stroke");
+        assert_eq!(payload(&value), &original);
+        assert_eq!(value, cloned);
+        assert_eq!(format!("{:?}", value), format!("{:?}", cloned));
+        let mut independent = payload(&cloned).clone();
+        independent.thickness = 9.;
+        independent.dash.as_mut().unwrap().array[0] = DashLength::Length(7.);
+        let rebuilt = Value::from(independent);
+        assert_eq!(payload(&value).thickness, 2.5);
+        assert_eq!(
+            payload(&cloned).dash.as_ref().unwrap().array,
+            vec![DashLength::Length(3.)]
+        );
+        assert_eq!(payload(&rebuilt).thickness, 9.);
+        assert!(
+            std::ptr::eq(payload(&value), payload(&cloned)),
+            "clone shares immutable payload"
+        );
+    }
+    #[test]
+    #[cfg(target_pointer_width = "64")]
+    fn memory5_value_and_binding_footprint_reduced() {
+        assert!(
+            std::mem::size_of::<Value>() <= 160,
+            "Value footprint should lose inline Stroke"
+        );
+        assert!(std::mem::size_of::<crate::entities::scope::Binding>() <= 160);
+    }
+}
+
+#[cfg(test)]
+mod v16_projection_tests {
+    use super::*;
+    use crate::entities::content::Content;
+    use crate::entities::layout_types::{Align2D, HAlign, Length};
+
+    #[test]
+    fn v16_value_projection_truth_and_none_keep_existing_empty_rules() {
+        for value in [
+            Value::None,
+            Value::Bool(false),
+            Value::Int(0),
+            Value::Float(-0.0),
+            Value::Str("".into()),
+            Value::Array(vec![]),
+        ] {
+            assert!(!value.truthy(), "{value:?}");
+        }
+        for value in [
+            Value::Auto,
+            Value::Bool(true),
+            Value::Int(-1),
+            Value::Float(-0.5),
+            Value::Str("x".into()),
+            Value::Array(vec![Value::None]),
+            Value::Dict(Default::default()),
+            Value::Content(Content::Empty),
+        ] {
+            assert!(value.truthy(), "{value:?}");
+            assert!(!value.is_none());
+        }
+        assert!(Value::None.is_none());
+        assert!(!Value::Bool(false).is_none());
+        assert!(!Value::Int(0).is_none());
+    }
+
+    #[test]
+    fn v16_value_projection_strict_casts_preserve_borrowed_data() {
+        assert_eq!(Value::Bool(true).cast_bool(), Some(true));
+        assert_eq!(Value::Int(1).cast_bool(), None);
+        assert_eq!(Value::Int(-2).cast_int(), Some(-2));
+        assert_eq!(Value::Float(2.0).cast_int(), None);
+        let string = Value::Str("é".into());
+        let Value::Str(original) = &string else { unreachable!() };
+        assert_eq!(string.cast_str(), Some("é"));
+        assert_eq!(string.cast_str().unwrap().as_ptr(), original.as_ptr());
+        let array = Value::Array(vec![Value::Int(7)]);
+        let Value::Array(original) = &array else { unreachable!() };
+        assert_eq!(array.cast_array().unwrap(), &[Value::Int(7)]);
+        assert_eq!(array.cast_array().unwrap().as_ptr(), original.as_ptr());
+        let dict = Value::Dict([("key".into(), Value::Int(7))].into_iter().collect());
+        let Value::Dict(original) = &dict else { unreachable!() };
+        assert!(std::ptr::eq(dict.cast_dict().unwrap(), original));
+        assert_eq!(dict.cast_dict().unwrap().get("key"), Some(&Value::Int(7)));
+        let bytes = Value::Bytes(Bytes::new(vec![0, 255]));
+        let Value::Bytes(original) = &bytes else { unreachable!() };
+        assert!(std::ptr::eq(bytes.cast_bytes().unwrap(), original));
+        assert_eq!(bytes.cast_bytes().unwrap().as_slice(), &[0, 255]);
+        let align = Align2D { h: Some(HAlign::Left), v: None };
+        assert_eq!(Value::Align(align).cast_align(), Some(align));
+        for value in [
+            Value::None,
+            Value::Auto,
+            Value::Length(Length::pt(3.0)),
+            Value::Content(Content::Empty),
+        ] {
+            assert!(value.cast_bool().is_none());
+            assert!(value.cast_int().is_none());
+            assert!(value.cast_str().is_none());
+            assert!(value.cast_array().is_none());
+            assert!(value.cast_dict().is_none());
+            assert!(value.cast_align().is_none());
+            assert!(value.cast_bytes().is_none());
+        }
+    }
+
+    #[test]
+    fn v16_value_projection_numeric_coercions_preserve_units_sign_and_limits() {
+        assert_eq!(Value::Int(3).cast_float(), Some(3.0));
+        assert_eq!(Value::Float(-1.5).cast_float(), Some(-1.5));
+        let decimal = Decimal::from_str("-1.25").unwrap();
+        assert_eq!(Value::Decimal(decimal).cast_decimal(), Some(decimal));
+        assert_eq!(Value::Int(-7).cast_decimal(), Some(Decimal::from_i64(-7)));
+        assert_eq!(Value::Float(-1.25).cast_decimal(), Some(decimal));
+        assert_eq!(Value::Str("-1.25".into()).cast_decimal(), Some(decimal));
+        assert!(Value::Str("invalid".into()).cast_decimal().is_none());
+        assert!(Value::Float(f64::NAN).cast_decimal().is_none());
+        assert!(Value::Float(f64::INFINITY).cast_decimal().is_none());
+        let duration = Duration::from_nanos(-7);
+        assert_eq!(Value::Duration(duration).cast_duration(), Some(duration));
+        assert_eq!(Value::Int(-7).cast_duration(), Some(duration));
+        assert_eq!(
+            Value::Float(-1.25).cast_duration(),
+            Some(Duration::from_nanos(-1_250_000_000))
+        );
+        assert_eq!(
+            Value::Float(1.25).cast_duration(),
+            Some(Duration::from_nanos(1_250_000_000))
+        );
+        for number in
+            [f64::INFINITY, f64::NEG_INFINITY, 20_000_000_000.0, -20_000_000_000.0]
+        {
+            assert!(Value::Float(number).cast_duration().is_none());
+        }
+    }
+
+    #[test]
+    fn v16_value_projection_version_regex_and_rejection_preserve_payloads() {
+        let version = Arc::new(Version::from_components(vec![1, 2, 3, 4, 5]));
+        let copied = Value::Version(version.clone()).cast_version().unwrap();
+        assert!(Arc::ptr_eq(&version, &copied));
+        assert_eq!(*Value::Str("1.2.3.4.5".into()).cast_version().unwrap(), *version);
+        assert!(Value::Str("1.invalid".into()).cast_version().is_none());
+        let regex = Regex::new("é+").unwrap();
+        let copied = Value::Regex(regex).cast_regex().unwrap();
+        assert_eq!(copied.pattern(), "é+");
+        assert!(copied.is_match("éé"));
+        assert!(Value::Str("é+".into()).cast_regex().unwrap().is_match("éé"));
+        assert!(Value::Str("[".into()).cast_regex().is_none());
+        for value in [
+            Value::None,
+            Value::Auto,
+            Value::Bool(false),
+            Value::Array(vec![]),
+            Value::Dict(Default::default()),
+            Value::Content(Content::Empty),
+            Value::Length(Length::pt(3.0)),
+            Value::Type(Type::Int),
+        ] {
+            assert!(value.cast_float().is_none());
+            assert!(value.cast_decimal().is_none());
+            assert!(value.cast_duration().is_none());
+            assert!(value.cast_version().is_none());
+            assert!(value.cast_regex().is_none());
+        }
     }
 }

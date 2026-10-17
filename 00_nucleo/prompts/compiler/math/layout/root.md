@@ -1,6 +1,6 @@
 # L0 — math/layout/root
+Hash do Código: 774e2094
 
-Hash do Código: d151b46e
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/layout/root.rs`

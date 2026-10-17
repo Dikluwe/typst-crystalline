@@ -1,5 +1,5 @@
 # testing/math_oracle — oráculo de fórmulas de posição do vanilla (P969)
-Hash do Código: 65c64f45
+Hash do Código: 05b0ab93
 
 **Data:** 2026-08-05 · **Passo:** 969 · **Camada:** L1 (`#[cfg(test)]`)
 

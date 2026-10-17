@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash d62f5cdf
+//! @prompt-hash 915f19b9
 //! @layer L1
-//! @updated 2026-09-26
+//! @updated 2026-10-07
 //!
 //! Closed domain model for document content. This file owns the data
 //! representation; behavior is organized by responsibility in child modules.
@@ -17,6 +17,7 @@ mod page_structure;
 mod plain_text;
 mod rust_hash;
 mod sequence;
+mod source;
 mod traversal;
 
 use std::sync::Arc;
@@ -196,8 +197,44 @@ pub struct StyledContent {
     pub styles: crate::entities::style::Styles,
 }
 
+/// Captured lexical environment for deferred show application.
+#[derive(Debug, Clone)]
+pub struct ShowRecipeContent {
+    pub body: Content,
+    pub textual: bool,
+    pub context_id_floor: u64,
+    pub rules: Arc<[crate::entities::show::ShowRule]>,
+    pub styles: crate::entities::style_chain::StyleChain,
+    pub guards: Vec<crate::entities::show::RuleId>,
+    pub file: crate::entities::file_id::FileId,
+}
+
+/// A semantic occurrence and the content emitted by its transformation.
+#[derive(Debug, Clone)]
+pub struct RealizedContent {
+    pub original: Content,
+    pub visual: Content,
+}
+
+/// Identity of an occurrence, independent of its visual replacement.
+#[derive(Debug, Clone)]
+pub struct LocatedContent {
+    pub location: crate::entities::location::Location,
+    pub body: Content,
+}
+
+#[derive(Debug, Clone)]
+pub struct SourceContent {
+    pub body: Content,
+    pub span: crate::entities::span::Span,
+}
+
 #[derive(Clone)]
 pub enum Content {
+    Source(Arc<SourceContent>),
+    ShowRecipe(Arc<ShowRecipeContent>),
+    Realized(Arc<RealizedContent>),
+    Located(Arc<LocatedContent>),
     /// Conteúdo vazio.
     Empty,
     /// Texto simples. **F-5b fatia 2 (P372/P373, §3a.13/§3a.14)**: perdeu o
@@ -426,7 +463,7 @@ pub enum Content {
     /// ADR-0054 graded. Vanilla typst fragmenta em 12 elementos
     /// separados (cada com `body` + `annotation: Option<Content>`);
     /// cristalino agrega num único variant com `base` + `under: Option`
-    /// + `over: Option`. Layouter empilha verticalmente conforme
+    /// \+ `over: Option`. Layouter empilha verticalmente conforme
     /// presença de cada.
     ///
     /// **A.0.0 N=5 refuta spec P297** que assumia `UnderoverElem`
@@ -986,7 +1023,7 @@ pub enum Content {
     /// (hayagriva, CSL) NÃO reservados per política P158.
     ///
     /// `title: Option<Box<Content>>` per ADR-0064 **Caso A**
-    /// (Smart<Option<Content>> vanilla → Option<Box<Content>>
+    /// (`Smart<Option<Content>>` vanilla → `Option<Box<Content>>`
     /// cristalino). Patamar Caso A cresce N=4 → 5 com P159A.
     ///
     /// Layouter renderiza title (se Some) seguido de lista de
@@ -1017,6 +1054,7 @@ pub enum Content {
     /// - `Normal`/None: `[key]` placeholder.
     /// - `Prose`: `Author (Year)` quando key existe; fallback `[key]`.
     /// - `Author`/`Year`: campo correspondente; fallback `[key]`.
+    ///
     /// **Sem validação cross-reference** `key ∈ Bibliography.keys`
     /// — fallback `[key]` é silencioso; ADR-0017 Introspection
     /// runtime adiada (cite cross-document ficaria como TODO).
@@ -1048,6 +1086,7 @@ pub enum Content {
     ///   subsequentes se rodapé não chega).
     /// - **P295.X** — footnote reference via `#footnote(<label>)`
     ///   bloqueado por scope methods em stdlib.
+    ///
     /// **Modelo D (Lote 11 P326)**: `entities::elements::footnote::FootnoteElem`
     /// (não-locatável P295 Fase 1; contentor — recurse body).
     Footnote(Arc<FootnoteElem>),
@@ -1148,6 +1187,7 @@ pub enum Content {
     ///   (padrão Smart→Option N=6 da série P156D-I).
     /// - `justify: bool`: default `true` (paridade vanilla;
     ///   distribuição de espaço residual diferida per ADR-0054).
+    ///
     /// **Modelo D (Lote 7 P322)**: `entities::elements::repeat::RepeatElem`.
     Repeat(Arc<RepeatElem>),
 
@@ -1169,7 +1209,7 @@ pub enum Content {
     /// - `gutter`: espaço entre colunas (`Option<Length>`). `None`
     ///   ↔ default vanilla (~4% width) — **ADR-0064 Caso C** (cumulativo
     ///   N=cresce; precedentes P156I Stack.spacing, P156L
-    ///   Sides<Option<Length>>).
+    ///   `Sides<Option<Length>>`).
     /// - `body`: conteúdo a fluir entre N colunas.
     ///
     /// Stdlib `native_columns` em P218 (atomização ADR-0036).

@@ -1,0 +1,34 @@
+{
+  "public_default_implementations": [
+    {
+      "type": "EvalContext",
+      "source": "01_core/src/compiler/eval/mod.rs",
+      "owner": "00_nucleo/prompts/compiler/eval.md",
+      "proposed": "proposed/00_nucleo/prompts/compiler/eval.md",
+      "base_owner_sha256": "8edd42d360b9a4aecb1310741e08931bf92b07872140039329d716ec67d659be",
+      "base_source_sha256": "094886b73aea2ffea96f2c22edf1281729d45ff432687349c69a2a8cc2008f9a",
+      "proposed_sha256": "28a8625a8a1f3929bce643ad7168f1175a85869a500712a953ea0138fe570047"
+    },
+    {
+      "type": "FontCatalogSession",
+      "source": "03_infra/src/world/font_session.rs",
+      "owner": "00_nucleo/prompts/infra/system-world/font_session.md",
+      "proposed": "proposed/00_nucleo/prompts/infra/system-world/font_session.md",
+      "base_owner_sha256": "63478beba207e36264cf73ce4abb87dc1a06d4ea3dc3f018cff47b474a3f3f2e",
+      "base_source_sha256": "b90c44eaa0f567059502f499e523677b90a2646e76459995973c4aba7bf1f455",
+      "proposed_sha256": "c4d3f42d69dda90f1b3c633f65eb00dcacc83dee39e934bec13e4da16cec4532"
+    },
+    {
+      "type": "SourceSession",
+      "source": "03_infra/src/world/source_session.rs",
+      "owner": "00_nucleo/prompts/infra/system-world/source_session.md",
+      "proposed": "proposed/00_nucleo/prompts/infra/system-world/source_session.md",
+      "base_owner_sha256": "0d01906af5d89ddffe66b0093334eafc4d2ba816aa93bae5d734cbd4592d7a9c",
+      "base_source_sha256": "8dd7b9e19082bcec31a17d91d0ba2506a2035db1cd68575b6d6256b2731848f5",
+      "proposed_sha256": "29b5aa29f450742d50a984c1df4cba7382e60e321cf98ec8a7d30327d4f2ace0"
+    }
+  ],
+  "test_owner": "00_nucleo/prompts/compiler/eval/tests.md",
+  "test_proposed_sha256": "6ec761b40be713c59e6c391e187d68c34135491e6ece0600b03d09dd7f8c198e",
+  "release": false
+}

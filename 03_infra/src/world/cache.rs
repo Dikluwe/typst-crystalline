@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/system-world/cache.md
-//! @prompt-hash 0a20ef73
+//! @prompt-hash 9b756126
 //! @layer L3
-//! @updated 2026-09-27
+//! @updated 2026-10-08
 
 use super::SystemWorld;
 use std::num::NonZeroU16;
@@ -21,18 +21,34 @@ pub(super) struct SourceSlot {
     id: FileId,
     pub(super) path: PathBuf,
     source: OnceLock<FileResult<Source>>,
+    session: Option<Arc<super::SourceSession>>,
 }
 
 impl SourceSlot {
     pub(super) fn new(id: FileId, path: PathBuf) -> Self {
-        Self { id, path, source: OnceLock::new() }
+        Self { id, path, source: OnceLock::new(), session: None }
+    }
+
+    pub(super) fn with_session(
+        id: FileId,
+        path: PathBuf,
+        session: Option<Arc<super::SourceSession>>,
+    ) -> Self {
+        let mut slot = Self::new(id, path);
+        slot.session = session;
+        slot
     }
 
     pub(super) fn synthetic(id: FileId, path: PathBuf, text: String) -> Self {
+        Self::from_source(path, Source::new(id, text))
+    }
+
+    fn from_source(path: PathBuf, source: Source) -> Self {
         Self {
-            id,
+            id: source.id(),
             path,
-            source: OnceLock::from(Ok(Source::new(id, text))),
+            source: OnceLock::from(Ok(source)),
+            session: None,
         }
     }
 
@@ -47,6 +63,11 @@ impl SourceSlot {
                         FileError::Other(e.to_string())
                     }
                 })?;
+                if let Some(session) = &self.session {
+                    if let Ok(path) = self.path.canonicalize() {
+                        return Ok(session.get_or_parse(path, self.id, text));
+                    }
+                }
                 Ok(Source::new(self.id, text))
             })
             .clone()
@@ -68,20 +89,47 @@ impl SystemWorld {
         if let Some(&id) = identities.get(&canon) {
             return id;
         }
-        let raw = *next;
-        *next = next.wrapping_add(1);
-        if *next == 0 {
-            *next = 1;
-        }
-        let id =
-            FileId::from_raw(NonZeroU16::new(raw).expect("FileId counter exhausted"));
+        let Some(raw) = u16::try_from(*next).ok().and_then(NonZeroU16::new) else {
+            drop(identities);
+            drop(next);
+            panic!("FileId counter exhausted");
+        };
+        *next += 1;
+        let id = FileId::from_raw(raw);
 
         identities.insert(canon.clone(), id);
-        self.slots
-            .lock()
-            .unwrap()
-            .insert(id, Arc::new(SourceSlot::new(id, canon)));
+        self.slots.lock().unwrap().insert(
+            id,
+            Arc::new(SourceSlot::with_session(id, canon, self.source_session.clone())),
+        );
         id
+    }
+
+    /// Registra uma expressão code sem criar uma dependência física.
+    pub fn source_for_expression(&self, text: String) -> FileResult<Source> {
+        let mut next = self.next_id.lock().unwrap();
+        let raw = u16::try_from(*next)
+            .ok()
+            .and_then(NonZeroU16::new)
+            .ok_or_else(|| FileError::Other("FileId counter exhausted".into()))?;
+        let id = FileId::from_raw(raw);
+        let bytes = Arc::new(text.as_bytes().to_vec());
+        let source =
+            Source::new_with_parser(id, text, typst_core::compiler::parse::parse_code);
+        // Byte reads acquire read_cache before slots. Keep the same order,
+        // publishing both entries before any reader can observe the new id.
+        let mut bytes_cache = self.read_cache.lock().unwrap();
+        let mut slots = self.slots.lock().unwrap();
+        bytes_cache.insert(id, bytes);
+        slots.insert(
+            id,
+            Arc::new(SourceSlot::from_source(
+                self.root.join("<input-expression>"),
+                source.clone(),
+            )),
+        );
+        *next += 1;
+        Ok(source)
     }
 
     /// Returns the filesystem dependencies registered while compiling.

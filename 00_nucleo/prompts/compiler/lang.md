@@ -1,6 +1,6 @@
 # L0 — lang
-
 Hash do Código: 23aa74d0
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/lang/mod.rs`

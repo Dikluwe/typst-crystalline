@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/color
-Hash do Código: d1263437
+Hash do Código: 120fa780
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/color.rs`

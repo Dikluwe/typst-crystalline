@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/registry/mod.md
-//! @prompt-hash 58b0f413
+//! @prompt-hash a7adfea8
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -45,8 +45,6 @@ pub(crate) fn make_stdlib_with_features(inputs: &SysInputs, features: Features) 
     scope
 }
 
-#[cfg(test)]
 mod tests;
 
-#[cfg(test)]
 mod microbenchmarks;

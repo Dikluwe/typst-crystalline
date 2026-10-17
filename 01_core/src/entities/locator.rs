@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/locator.md
-//! @prompt-hash 18690a35
+//! @prompt-hash 5d8b4311
 //! @layer L1
-//! @updated 2026-04-30
+//! @updated 2026-10-05
 //!
 //! `Locator` — gerador determinístico de `Location`s usado durante
 //! o walk de introspecção. P161 sub-passo .4.
@@ -45,11 +45,24 @@ impl Locator {
         Self { counter: seed.0 }
     }
 
+    /// Keep future ordinary occurrences disjoint from an explicit location.
+    pub(crate) fn observe(&mut self, location: Location) {
+        let after = u64::try_from(location.as_u128())
+            .expect("Location outside Locator range")
+            .checked_add(1)
+            .expect("Locator overflow");
+        self.counter = self.counter.max(after);
+    }
+
     /// Produz a próxima `Location` e avança o contador interno.
     ///
     /// O `u128` interno da `Location` é o counter directo
     /// (zero-extended de `u64`). Garantia de unicidade dentro de
     /// uma instância e de igualdade entre instâncias paralelas.
+    #[expect(
+        clippy::should_implement_trait,
+        reason = "S002: alocador causal de Location com overflow explícito; não é Iterator de itens opcionais"
+    )]
     pub fn next(&mut self) -> Location {
         let raw = self.counter as u128;
         self.counter = self

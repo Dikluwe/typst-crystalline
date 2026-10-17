@@ -1,10 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/shapes/rect.md
-//! @prompt-hash 6e3e8492
+//! @prompt-hash 969bb96d
 //! @layer L1
 //! @updated 2026-09-30
 
 use super::*;
+
+fn absent_stroke(value: &Value) -> bool {
+    matches!(value, Value::None) || matches!(value, Value::Dict(dict) if dict.is_empty())
+}
 
 /// `rect(width?, height?, fill?, stroke?, radius?)` → `Content::Shape`.
 ///
@@ -35,16 +39,29 @@ pub fn native_rect(
         .transpose()?
         .flatten();
 
-    // A forma por-lado é aceita pela superfície existente, mas a entidade
-    // uniforme ainda não a representa; preserva o scope-out anterior.
+    // Somente a forma por-lado fica na lacuna preexistente da entidade uniforme.
+    // Dicionários uniformes devem passar pelo conversor de Stroke.
     let parsed_stroke = match args.named.get("stroke") {
-        Some(Value::Dict(_)) => None,
+        Some(value) if absent_stroke(value) => None,
+        Some(Value::Dict(dict))
+            if dict.keys().any(|key| {
+                matches!(
+                    key.as_str(),
+                    "left" | "top" | "right" | "bottom" | "x" | "y" | "rest"
+                )
+            }) =>
+        {
+            None
+        }
         Some(value) => Some(parse_shape_stroke(value, "rect")?),
         None => None,
     };
 
     // Fallback determinístico: sem fill nem stroke → stroke preta de 1pt.
-    let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
+    let final_stroke = if fill.is_none()
+        && parsed_stroke.is_none()
+        && !args.named.get("stroke").is_some_and(absent_stroke)
+    {
         Some(Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
@@ -123,11 +140,15 @@ pub fn native_square(
     let parsed_stroke = args
         .named
         .get("stroke")
+        .filter(|value| !absent_stroke(value))
         .map(|value| parse_shape_stroke(value, "square"))
         .transpose()?;
 
     // Fallback determinístico: sem fill nem stroke → stroke preta de 1pt.
-    let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
+    let final_stroke = if fill.is_none()
+        && parsed_stroke.is_none()
+        && !args.named.get("stroke").is_some_and(absent_stroke)
+    {
         Some(Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
@@ -171,5 +192,53 @@ mod tests {
                 .unwrap(),
             Value::Content(Content::Shape(_))
         ));
+    }
+}
+
+#[cfg(test)]
+mod optional_stroke_regressions {
+    use super::super::atomization_test_support::call;
+    use super::*;
+
+    #[test]
+    fn explicit_none_stays_absent_with_and_without_fill() {
+        for fill in [None, Some(Value::Color(Color::rgb(0, 0, 0)))] {
+            let mut args = Args::positional(vec![]);
+            args.named.insert("stroke".into(), Value::None);
+            if let Some(fill) = fill {
+                args.named.insert("fill".into(), fill);
+            }
+            let Value::Content(Content::Shape(shape)) = call(native_rect, args).unwrap()
+            else {
+                panic!("expected shape");
+            };
+            assert!(shape.stroke.is_none());
+        }
+        let Value::Content(Content::Shape(shape)) =
+            call(native_rect, Args::positional(vec![])).unwrap()
+        else {
+            panic!("expected shape");
+        };
+        assert!(shape.stroke.is_some(), "omission keeps the unfilled default");
+        for fill in [None, Some(Value::Color(Color::rgb(0, 0, 0)))] {
+            let mut args = Args::positional(vec![Value::Length(Length::pt(20.0))]);
+            args.named.insert("stroke".into(), Value::None);
+            if let Some(fill) = fill {
+                args.named.insert("fill".into(), fill);
+            }
+            let Value::Content(Content::Shape(shape)) =
+                call(native_square, args).unwrap()
+            else {
+                panic!("expected shape");
+            };
+            assert!(shape.stroke.is_none());
+        }
+        let Value::Content(Content::Shape(shape)) =
+            call(native_square, Args::positional(vec![Value::Length(Length::pt(20.0))]))
+                .unwrap()
+        else {
+            panic!("expected shape");
+        };
+        assert!(shape.stroke.is_some(), "omission keeps the unfilled default");
     }
 }

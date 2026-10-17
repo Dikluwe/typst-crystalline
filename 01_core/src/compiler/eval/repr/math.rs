@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr/math.md
-//! @prompt-hash 1bb8170c
+//! @prompt-hash b53be985
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -164,22 +164,24 @@ pub(super) fn repr_math_matrix(
     if matrix.explicit.augment {
         let value = match &matrix.augment {
             None => "none".to_string(),
-            Some(augment)
+            Some(augment) => {
                 if augment.hline.is_empty()
                     && augment.vline.len() == 1
-                    && augment.stroke.is_none() =>
-            {
-                augment.vline[0].to_string()
+                    && augment.stroke.is_none()
+                {
+                    augment.vline[0].to_string()
+                } else {
+                    format!(
+                        "(hline: {}, vline: {}, stroke: {})",
+                        offsets(&augment.hline),
+                        offsets(&augment.vline),
+                        augment
+                            .stroke
+                            .as_ref()
+                            .map_or_else(|| "auto".to_string(), repr_stroke)
+                    )
+                }
             }
-            Some(augment) => format!(
-                "(hline: {}, vline: {}, stroke: {})",
-                offsets(&augment.hline),
-                offsets(&augment.vline),
-                augment
-                    .stroke
-                    .as_ref()
-                    .map_or_else(|| "auto".to_string(), repr_stroke)
-            ),
         };
         fields.push(format!("augment: {value}"));
     }

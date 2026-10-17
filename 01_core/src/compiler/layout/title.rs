@@ -7,7 +7,6 @@
 //! Atomização (ADR-0109): layout de `Title` no arquivo da feature.
 //! P765a — paridade com vanilla CLI 0.15.0: tamanho 1.7em, negrito.
 
-use crate::entities::content::Content;
 use crate::entities::elements::title::TitleElem;
 use crate::entities::layout_types::TextStyle;
 

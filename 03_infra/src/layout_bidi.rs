@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/layout_bidi.md
-//! @prompt-hash e5b89109
+//! @prompt-hash 17961e2c
 //! @layer L3
 //! @updated 2026-09-28
 //!
@@ -37,16 +37,35 @@ const Y_TOLERANCE_PT: f64 = 0.01;
 /// adjacentes quando isso corrigir quebras de linha provocadas pelo
 /// layout LTR.
 pub fn reorder_bidi_document(
-    mut doc: PagedDocument,
+    doc: PagedDocument,
     metrics: &dyn FontMetrics,
 ) -> PagedDocument {
+    let registry = crate::bidi_context::Registry::new(&doc);
+    let resolved = registry.resolve();
+    reorder_bidi_document_with_context(doc, metrics, &resolved)
+}
+pub(crate) fn reorder_bidi_document_with_context(
+    mut doc: PagedDocument,
+    metrics: &dyn FontMetrics,
+    resolved: &crate::bidi_context::Resolved<'_>,
+) -> PagedDocument {
     for page in &mut doc.pages {
-        reorder_bidi_page(page, metrics);
+        reorder_page_with_context(page, metrics, resolved);
     }
     doc
 }
-
+#[cfg(test)]
 fn reorder_bidi_page(page: &mut Page, metrics: &dyn FontMetrics) {
+    let doc = PagedDocument::new(vec![page.clone()]);
+    let registry = crate::bidi_context::Registry::new(&doc);
+    let resolved = registry.resolve();
+    reorder_page_with_context(page, metrics, &resolved);
+}
+fn reorder_page_with_context(
+    page: &mut Page,
+    metrics: &dyn FontMetrics,
+    resolved: &crate::bidi_context::Resolved<'_>,
+) {
     if page.items.is_empty() {
         return;
     }
@@ -75,19 +94,151 @@ fn reorder_bidi_page(page: &mut Page, metrics: &dyn FontMetrics) {
         .map(|(_, line)| detect_rtl_line(&page.items, line))
         .collect();
 
-    // P1140.14 — a quebra de linha decidida por L1 é soberana. L3 não possui
-    // oportunidades de quebra, separadores nem limites completos de região
-    // para reexecutá-la sem alterar morfologia.
-    for (i, (_, line)) in lines.iter().enumerate() {
-        if line_is_rtl[i] {
+    let mut replacements = std::collections::BTreeMap::new();
+    let mut removed = std::collections::BTreeSet::new();
+    let mut fallback_rtl_baselines = Vec::new();
+    for (i, (y, line)) in lines.iter().enumerate() {
+        if let Some((indices, visual)) =
+            context_line(&page.items, line, metrics, resolved)
+        {
+            let first = *indices.first().expect("certified nonempty line");
+            replacements.insert(first, visual);
+            removed.extend(indices.into_iter().skip(1));
+        } else if line_is_rtl[i] {
+            // A partial certificate must not be rewritten by a heuristic.
+            if line
+                .iter()
+                .any(|&i| crate::bidi_context::span(&page.items[i]).is_some())
+            {
+                continue;
+            }
             reorder_bidi_line(&mut page.items, line, metrics);
+            fallback_rtl_baselines.push(*y);
         }
     }
+    if !replacements.is_empty() {
+        let mut output = Vec::new();
+        for (index, item) in std::mem::take(&mut page.items).into_iter().enumerate() {
+            if let Some(visual) = replacements.remove(&index) {
+                output.extend(visual);
+            } else if !removed.contains(&index) {
+                output.push(item);
+            }
+        }
+        page.items = output;
+    }
+    let suffix_indices: Vec<_> = page
+        .items
+        .iter()
+        .enumerate()
+        .filter(|(_, item)| {
+            crate::bidi_context::span(item).is_none()
+                && fallback_rtl_baselines
+                    .iter()
+                    .any(|y| (item_baseline_y(item).0 - y).abs() <= Y_TOLERANCE_PT)
+        })
+        .map(|(i, _)| i)
+        .collect();
+    split_ltr_suffixes_line(&mut page.items, &suffix_indices, metrics);
+}
 
-    // P569 — separar sufixos LTR (pontuação, dígitos) do final de items
-    // RTL. Esta passagem insere novos items no vector da página, pelo que
-    // é feita no fim, depois de todas as reordenações e reflows.
-    split_ltr_suffixes_page(page, &mut lines, &line_is_rtl, metrics);
+fn context_line(
+    items: &[FrameItem],
+    line: &[usize],
+    metrics: &dyn FontMetrics,
+    resolved: &crate::bidi_context::Resolved<'_>,
+) -> Option<(Vec<usize>, Vec<FrameItem>)> {
+    use std::sync::Arc;
+    let indices: Vec<_> = line
+        .iter()
+        .copied()
+        .filter(|&i| {
+            if let FrameItem::Text { text, .. } = &items[i] {
+                return !text.is_empty();
+            }
+            matches!(items[i], FrameItem::TextSeparator { .. })
+        })
+        .collect();
+    let first = crate::bidi_context::span(&items[*indices.first()?])?;
+    let mut sources = Vec::new();
+    for &index in &indices {
+        let item = &items[index];
+        let span = crate::bidi_context::span(item)?;
+        if !Arc::ptr_eq(first.input(), span.input()) {
+            return None;
+        }
+        let text = if let FrameItem::Text { text, .. } = item {
+            text.as_str()
+        } else if matches!(item, FrameItem::TextSeparator { .. }) {
+            " "
+        } else {
+            return None;
+        };
+        if !resolved.matches(span, text) {
+            return None;
+        }
+        sources.push((index, resolved.mapped(span)?));
+    }
+    let start = sources.iter().map(|(_, r)| r.start).min()?;
+    let end = sources.iter().map(|(_, r)| r.end).max()?;
+    let mut visual = Vec::new();
+    let mut widths = Vec::new();
+    for (range, rtl) in resolved.line_runs(first, start..end)? {
+        let mut pieces = Vec::new();
+        for (index, mapped) in &sources {
+            let a = range.start.max(mapped.start);
+            let b = range.end.min(mapped.end);
+            if a >= b {
+                continue;
+            }
+            let item = &items[*index];
+            let mut piece = item.clone();
+            let width = if let FrameItem::Text { text, style, bidi, .. } = &mut piece {
+                let relative = a - mapped.start..b - mapped.start;
+                *text = text.get(relative.clone())?.into();
+                *bidi = bidi.as_ref()?.subspan(relative);
+                text_width_for_bidi(metrics, text, style)
+            } else if let FrameItem::TextSeparator { advance, .. } = &piece {
+                if a != mapped.start || b != mapped.end {
+                    return None;
+                }
+                advance.0
+            } else {
+                return None;
+            };
+            pieces.push((a, piece, width));
+        }
+        pieces.sort_by_key(|p| p.0);
+        if rtl {
+            pieces.reverse();
+        }
+        for (_, piece, width) in pieces {
+            visual.push(piece);
+            widths.push(width);
+        }
+    }
+    if visual.is_empty() {
+        return None;
+    }
+    let mut x = if first.input().base_dir() == typst_core::entities::dir::Dir::RTL {
+        let refs: Vec<_> = indices.iter().map(|&i| &items[i]).collect();
+        metrics.line_content_right(&refs) - widths.iter().sum::<f64>()
+    } else {
+        indices
+            .iter()
+            .map(|&i| item_x(&items[i]))
+            .fold(f64::INFINITY, f64::min)
+    };
+    for (item, width) in visual.iter_mut().zip(widths) {
+        match item {
+            FrameItem::Text { pos, .. } | FrameItem::TextSeparator { pos, .. } => {
+                pos.x = Pt(x)
+            }
+            _ => return None,
+        }
+        x += width;
+    }
+    Some((indices, visual))
 }
 
 /// Devolve a baseline y de um item para efeitos de agrupamento por linha.
@@ -118,7 +269,9 @@ fn item_x(item: &FrameItem) -> f64 {
         FrameItem::Shape { pos, .. } => pos.x.0,
         FrameItem::Group { pos, .. } => pos.x.0,
         FrameItem::Link { pos, .. } => pos.x.0,
-        FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items.first().map(item_x).unwrap_or(0.0),
+        FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
+            items.first().map(item_x).unwrap_or(0.0)
+        }
     }
 }
 
@@ -166,7 +319,7 @@ fn reorder_bidi_line(items: &mut [FrameItem], line: &[usize], metrics: &dyn Font
     let mut end = None;
     for &idx in line {
         match &mut items[idx] {
-            FrameItem::Text { pos, text, style } => {
+            FrameItem::Text { pos, text, style, .. } => {
                 end = Some(pos.x.0 + text_width_for_bidi(metrics, text, style));
             }
             FrameItem::TextSeparator { pos, advance, .. } => {
@@ -175,10 +328,17 @@ fn reorder_bidi_line(items: &mut [FrameItem], line: &[usize], metrics: &dyn Font
                     end = Some(x + advance.0);
                 }
             }
-            FrameItem::TextShaped { .. } | FrameItem::Line { .. } | FrameItem::Glyph { .. } | FrameItem::Image { .. } | FrameItem::Shape { .. } | FrameItem::Group { .. } | FrameItem::Link { .. } | FrameItem::Semantic { .. } | FrameItem::TextReplacement { .. } => {}
+            FrameItem::TextShaped { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. }
+            | FrameItem::Group { .. }
+            | FrameItem::Link { .. }
+            | FrameItem::Semantic { .. }
+            | FrameItem::TextReplacement { .. } => {}
         }
     }
-
 
     // P569 — depois de reposicionar visualmente, ordenar os items no vector
     // da página por x crescente (ordem visual esquerda→direita). Extratores
@@ -253,7 +413,7 @@ fn reorder_indices(
         pairs.reverse();
         let mut current_x = x_min;
         for (&idx, (text, style)) in indices.iter().zip(pairs.into_iter()) {
-            if let FrameItem::Text { text: t, style: s, pos } = &mut items[idx] {
+            if let FrameItem::Text { text: t, style: s, pos, .. } = &mut items[idx] {
                 *t = text;
                 *s = style;
                 pos.x = Pt(current_x);
@@ -305,7 +465,7 @@ fn reorder_indices(
     // 6. Posicionar os itens em ordem visual nas posições originais da linha
     let mut current_x = x_min;
     for (&idx, (text, style)) in indices.iter().zip(pairs.into_iter()) {
-        if let FrameItem::Text { text: t, style: s, pos } = &mut items[idx] {
+        if let FrameItem::Text { text: t, style: s, pos, .. } = &mut items[idx] {
             *t = text;
             *s = style;
             pos.x = Pt(current_x);
@@ -334,6 +494,7 @@ fn sort_line_items(items: &mut [FrameItem], line: &[usize]) {
         pos: Point::ZERO,
         text: ecow::EcoString::default(),
         style: TextStyle::default(),
+        bidi: None,
     };
 
     let mut extracted: Vec<FrameItem> = Vec::with_capacity(line.len());
@@ -408,42 +569,39 @@ fn is_space_item(item: &FrameItem) -> bool {
 /// O sufixo é colocado num item independente imediatamente à esquerda
 /// do item original na ordem visual, evitando que o espaço neutro entre
 /// palavras seja capturado pelo ponto na extracção sequencial.
+#[cfg(test)]
 fn split_ltr_suffixes_page(
     page: &mut Page,
     lines: &mut [(f64, Vec<usize>)],
     line_is_rtl: &[bool],
     metrics: &dyn FontMetrics,
 ) {
-    for (i, (_, line)) in lines.iter_mut().enumerate() {
-        if !line_is_rtl[i] {
-            continue;
-        }
-        split_ltr_suffixes_line(&mut page.items, line, metrics);
-    }
+    // Freeze original references across the whole page before any insertion.
+    let indices: Vec<usize> = lines
+        .iter()
+        .zip(line_is_rtl)
+        .filter(|(_, rtl)| **rtl)
+        .flat_map(|((_, line), _)| line.iter().copied())
+        .collect();
+    split_ltr_suffixes_line(&mut page.items, &indices, metrics);
 }
 
 fn split_ltr_suffixes_line(
     items: &mut Vec<FrameItem>,
-    line: &mut Vec<usize>,
+    line: &[usize],
     metrics: &dyn FontMetrics,
 ) {
     if line.is_empty() {
         return;
     }
 
-    // Processar da direita para a esquerda (maior x primeiro). Cada
-    // inserção acontece *antes* do índice do item base, pelo que não
-    // afecta os índices dos items já processados (que têm x maior).
-    let mut sorted: Vec<usize> = line.clone();
-    sorted.sort_by(|&a, &b| {
-        item_x(&items[b])
-            .partial_cmp(&item_x(&items[a]))
-            .unwrap_or(std::cmp::Ordering::Equal)
-    });
-
+    // Descending original indices keep every pending reference valid, even
+    // when baselines or physical x do not follow vector order.
+    let mut sorted = line.to_vec();
+    sorted.sort_unstable_by(|a, b| b.cmp(a));
     for &idx in &sorted {
         let (text, style, x, y) = match &items[idx] {
-            FrameItem::Text { text, style, pos } => {
+            FrameItem::Text { text, style, pos, .. } => {
                 (text.clone(), style.clone(), pos.x.0, pos.y.0)
             }
             _ => continue,
@@ -461,33 +619,17 @@ fn split_ltr_suffixes_line(
         base_text.push_str(trailing);
 
         let suffix_item = FrameItem::Text {
-            pos: Point { x: Pt(x - suffix_width), y: Pt(y) },
+            pos: Point { x: Pt(x), y: Pt(y) },
             text: suffix.into(),
             style: style.clone(),
+            bidi: None,
         };
 
         items.insert(idx, suffix_item);
 
-        // Ajustar todos os índices da linha que se deslocaram com a inserção.
-        for n in line.iter_mut() {
-            if *n >= idx {
-                *n += 1;
-            }
-        }
-
-        // O índice original agora aponta para o sufixo; a base passou
-        // para idx + 1. Substituímos a referência no vector da linha para
-        // apontar à base e adicionamos o sufixo como item próprio.
-        for n in line.iter_mut() {
-            if *n == idx {
-                *n = idx + 1;
-                break;
-            }
-        }
-        line.push(idx);
-
-        if let FrameItem::Text { text, .. } = &mut items[idx + 1] {
+        if let FrameItem::Text { text, pos, .. } = &mut items[idx + 1] {
             *text = base_text;
+            pos.x = Pt(x + suffix_width);
         }
     }
 }
@@ -577,6 +719,89 @@ mod tests {
         SemanticPlacement, TextStyle,
     };
 
+    #[test]
+    fn rtl_suffixes_preserve_text_and_style_on_each_baseline() {
+        let mut page = page_with(vec![
+            text_item_with_size(140.0, 100.0, "مرحبا0", Pt(11.0)),
+            text_item(100.0, 120.0, "ABC"),
+            text_item_with_size(100.0, 140.0, "كلمة1", Pt(13.0)),
+            text_item_with_size(180.0, 160.0, "عالم2", Pt(15.0)),
+        ]);
+        let mut lines =
+            vec![(100.0, vec![0]), (120.0, vec![1]), (140.0, vec![2]), (160.0, vec![3])];
+        split_ltr_suffixes_page(
+            &mut page,
+            &mut lines,
+            &[true, false, true, true],
+            &FixedMetrics,
+        );
+        for (y, base, suffix, size) in [
+            (100.0, "مرحبا", "0", 11.0),
+            (140.0, "كلمة", "1", 13.0),
+            (160.0, "عالم", "2", 15.0),
+        ] {
+            let texts: Vec<_> = page
+                .items
+                .iter()
+                .filter_map(|item| match item {
+                    FrameItem::Text { pos, text, style, .. } if pos.y.0 == y => {
+                        assert_eq!(style.size.0, size);
+                        Some(text.as_str())
+                    }
+                    _ => None,
+                })
+                .collect();
+            assert_eq!(
+                texts,
+                vec![suffix, base],
+                "text must remain on its original baseline"
+            );
+        }
+        assert!(page.items.iter().any(|item| matches!(item, FrameItem::Text { pos, text, .. } if pos.y.0 == 120.0 && text == "ABC")));
+    }
+
+    #[test]
+    fn rtl_suffixes_do_not_depend_on_cluster_or_x_order() {
+        let mut page = page_with(vec![
+            text_item(180.0, 140.0, "مرحبا0"),
+            text_item(100.0, 100.0, "عالم1"),
+        ]);
+        let mut lines = vec![(100.0, vec![1]), (140.0, vec![0])];
+        split_ltr_suffixes_page(&mut page, &mut lines, &[true, true], &FixedMetrics);
+        for (y, base, suffix) in [(140.0, "مرحبا", "0"), (100.0, "عالم", "1")] {
+            let texts: Vec<_> = page
+                .items
+                .iter()
+                .filter_map(|item| match item {
+                    FrameItem::Text { pos, text, .. } if pos.y.0 == y => {
+                        Some(text.as_str())
+                    }
+                    _ => None,
+                })
+                .collect();
+            assert_eq!(texts, vec![suffix, base]);
+        }
+    }
+
+    #[test]
+    fn rtl_suffix_split_preserves_the_reserved_word_slot() {
+        let mut page = page_with(vec![text_item(100.0, 140.0, "كلمة10")]);
+        let mut lines = vec![(140.0, vec![0])];
+        split_ltr_suffixes_page(&mut page, &mut lines, &[true], &FixedMetrics);
+        let width =
+            text_width_for_bidi(&FixedMetrics, "10", &TextStyle::regular(Pt(12.0)));
+        for item in &page.items {
+            if let FrameItem::Text { pos, text, .. } = item {
+                let expected = if text == "10" { 100.0 } else { 100.0 + width };
+                assert_eq!(
+                    pos.x.0, expected,
+                    "suffix and base must occupy the original word slot"
+                );
+                assert_eq!(pos.y.0, 140.0);
+            }
+        }
+    }
+
     fn text_item(x: f64, y: f64, text: &str) -> FrameItem {
         text_item_with_size(x, y, text, Pt(12.0))
     }
@@ -586,10 +811,11 @@ mod tests {
             pos: Point { x: Pt(x), y: Pt(y) },
             text: text.into(),
             style: TextStyle::regular(size),
+            bidi: None,
         }
     }
 
-    fn page_with(items: Vec<FrameItem>) -> Page {
+    pub(super) fn page_with(items: Vec<FrameItem>) -> Page {
         Page {
             width: 595.0,
             height: 842.0,
@@ -672,7 +898,9 @@ mod tests {
             .items
             .iter()
             .filter_map(|item| match item {
-                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.0),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+                    Some(pos.y.0)
+                }
                 _ => None,
             })
             .collect();
@@ -773,9 +1001,9 @@ mod tests {
                 kind: ShapeKind::Rect,
                 width: 10.0,
                 height: 10.0,
-                fill: Some(typst_core::entities::paint::Paint::Solid(Color::rgb(
-                    0, 0, 0,
-                ))),
+                fill: Some(typst_core::entities::frame_paint::FramePaint::Solid(
+                    Color::rgb(0, 0, 0),
+                )),
                 stroke: None,
                 fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
@@ -813,7 +1041,9 @@ mod tests {
         let mut ys: Vec<f64> = items
             .iter()
             .filter_map(|item| match item {
-                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.0),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+                    Some(pos.y.0)
+                }
                 _ => None,
             })
             .collect();
@@ -840,7 +1070,9 @@ mod tests {
         let mut y_values: Vec<f64> = items
             .iter()
             .filter_map(|item| {
-                if let FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } = item {
+                if let FrameItem::TextSeparator { pos, .. }
+                | FrameItem::Text { pos, .. } = item
+                {
                     Some((pos.y.0 * 100.0).round() / 100.0)
                 } else {
                     None
@@ -866,8 +1098,8 @@ mod tests {
         assert_eq!(items.len(), 2);
         assert_eq!(extract_text(&items[0]), ".");
         assert_eq!(extract_text(&items[1]), "قيمة");
-        assert!((item_x(&items[0]) - 92.8).abs() < 0.001);
-        assert!((item_x(&items[1]) - 100.0).abs() < 0.001);
+        assert!((item_x(&items[0]) - 100.0).abs() < 0.001);
+        assert!((item_x(&items[1]) - 107.2).abs() < 0.001);
     }
 
     #[test]
@@ -919,9 +1151,9 @@ mod tests {
         // widths_before_last = 50.4 + 7.2 = 57.6.
         // gap = (208 - 100 - 57.6) / 2 = 25.2.
         // "قيمة." começa em x=100, largura 36.0; após split o ponto fica
-        // em 100 - 7.2 = 92.8 e o base "قيمة " permanece em 100.
-        assert!((item_x(&items[0]) - 92.8).abs() < 0.001);
-        assert!((item_x(&items[1]) - 100.0).abs() < 0.001);
+        // em 100 e o base "قيمة " começa em 107.2, dentro do slot reservado.
+        assert!((item_x(&items[0]) - 100.0).abs() < 0.001);
+        assert!((item_x(&items[1]) - 107.2).abs() < 0.001);
         assert!((item_x(&items[3]) - 193.6).abs() < 0.001);
     }
 
@@ -930,5 +1162,114 @@ mod tests {
             FrameItem::Text { text, .. } => text.to_string(),
             _ => panic!("expected Text"),
         }
+    }
+}
+
+#[cfg(test)]
+mod context_tests {
+    use super::*;
+    use std::sync::Arc;
+    use typst_core::{
+        compiler::layout::FixedMetrics,
+        entities::{
+            bidi_context::{BidiSpan, ParagraphBidiInput, ParagraphBidiSegment},
+            dir::Dir,
+            layout_types::{TextSeparatorOrigin, TextStyle},
+        },
+    };
+    #[test]
+    fn certified_rtl_base_survives_first_latin_run_and_keeps_occurrences() {
+        let input = Arc::new(
+            ParagraphBidiInput::new(
+                Dir::RTL,
+                vec![ParagraphBidiSegment::Text {
+                    text: "ABC مرحبا".into(),
+                    dir: Dir::RTL,
+                }],
+            )
+            .unwrap(),
+        );
+        let style = TextStyle::regular(Pt(12.));
+        let items = vec![
+            FrameItem::Text {
+                pos: Point { x: Pt(20.), y: Pt(40.) },
+                text: "ABC".into(),
+                style: style.clone(),
+                bidi: BidiSpan::new(input.clone(), 0, 0..3),
+            },
+            FrameItem::TextSeparator {
+                pos: Point { x: Pt(38.), y: Pt(40.) },
+                advance: Pt(6.),
+                style: style.clone(),
+                origin: TextSeparatorOrigin::Literal,
+                bidi: BidiSpan::new(input.clone(), 0, 3..4),
+            },
+            FrameItem::Text {
+                pos: Point { x: Pt(44.), y: Pt(40.) },
+                text: "مرحبا".into(),
+                style,
+                bidi: BidiSpan::new(input, 0, 4..14),
+            },
+        ];
+        let mut page = tests::page_with(items);
+        reorder_bidi_page(&mut page, &FixedMetrics);
+        let texts: Vec<_> = page
+            .items
+            .iter()
+            .filter_map(|i| {
+                if let FrameItem::Text { text, bidi, .. } = i {
+                    assert!(bidi.is_some());
+                    Some(text.as_str())
+                } else {
+                    None
+                }
+            })
+            .collect();
+        assert_eq!(texts, vec!["مرحبا", "ABC"]);
+    }
+    #[test]
+    fn empty_text_occurrence_survives_contextual_reordering() {
+        let input = Arc::new(
+            ParagraphBidiInput::new(
+                Dir::RTL,
+                vec![
+                    ParagraphBidiSegment::Text { text: "".into(), dir: Dir::RTL },
+                    ParagraphBidiSegment::Text {
+                        text: "ABC مرحبا".into(),
+                        dir: Dir::RTL,
+                    },
+                ],
+            )
+            .unwrap(),
+        );
+        let style = TextStyle::regular(Pt(12.));
+        let items = vec![
+            FrameItem::Text {
+                pos: Point { x: Pt(20.), y: Pt(40.) },
+                text: "".into(),
+                style: TextStyle::regular(Pt(24.)),
+                bidi: BidiSpan::new(input.clone(), 0, 0..0),
+            },
+            FrameItem::Text {
+                pos: Point { x: Pt(20.), y: Pt(40.) },
+                text: "ABC مرحبا".into(),
+                style,
+                bidi: BidiSpan::new(input.clone(), 1, 0..14),
+            },
+        ];
+        let mut page = tests::page_with(items);
+        reorder_bidi_page(&mut page, &FixedMetrics);
+        assert!(page.items.iter().any(|item| {
+            if let FrameItem::Text { text, style, bidi: Some(span), pos } = item {
+                text.is_empty()
+                    && style.size == Pt(24.)
+                    && span.segment() == 0
+                    && span.range() == (0..0)
+                    && Arc::ptr_eq(span.input(), &input)
+                    && pos.x == Pt(20.)
+            } else {
+                false
+            }
+        }));
     }
 }

@@ -1,0 +1,10 @@
+from pathlib import Path
+import json,gzip,hashlib,subprocess,re,shutil,datetime
+root=Path.cwd();out=root/'00_nucleo/diagnosticos/tekt-v16-whitespace-2026-10-17';out.mkdir();(out/'workers').mkdir();prev=root/'00_nucleo/diagnosticos/tekt-v16-math-layout-2026-10-17';last=json.load(gzip.open(prev/'final-state.json.gz'));sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest();assert all(sha(p)==h for p,h in last['source_hashes'].items());sources=['01_core/src/compiler/eval/rules/textual/space.rs','01_core/src/compiler/eval/rules/textual/matching.rs','03_infra/src/export/html/whitespace.rs'];owners=[re.search(r'^//! @prompt (.+)$',Path(p).read_text(),re.M).group(1) for p in sources];b={'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'status':subprocess.check_output(['git','status','--porcelain=v1'],text=True),'diffstat':subprocess.check_output(['git','diff','HEAD','--stat'],text=True),'hashes':last['source_hashes'],'files':{p:Path(p).read_text() for p in sources+owners},'linter':last['linter'],'sources':sources,'owners':owners}
+with gzip.open(out/'before.json.gz','wt') as f:json.dump(b,f)
+shutil.copyfile(prev/'validation-architecture.log',out/'baseline-architecture.log')
+for name in ['run.py','seal_owned.py','strict.py','suite.py']:
+ s=(prev/'workers'/name).read_text().replace(prev.name,out.name).replace('TEKT_MATH_LAYOUT_MEMORY_LIMIT','TEKT_WHITESPACE_MEMORY_LIMIT');(out/'workers'/name).write_text(s)
+for name in ['latent.rs','audit.rs']:shutil.copyfile(prev/'workers'/name,out/'workers'/name)
+rows=[r for r in json.load(open(out/'baseline-architecture.log'))['runs'][0]['results'] if r['ruleId']=='V16' and r['locations'][0]['physicalLocation']['artifactLocation']['uri'].removeprefix('./') in sources];assert len(rows)==11
+(out/'input.sarif.json').write_text(json.dumps({'runs':[{'results':rows}]}));shutil.copyfile('/tmp/tekt-whitespace-bootstrap.py',out/'workers/bootstrap.py');print({'sources':sources,'V16':len(rows)})

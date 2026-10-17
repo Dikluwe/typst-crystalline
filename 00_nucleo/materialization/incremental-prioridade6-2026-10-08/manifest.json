@@ -1,0 +1,59 @@
+{
+  "state": "awaiting_concrete_ratification",
+  "utc": "2026-10-08T03:24:00.722173+00:00",
+  "base_release_sha256": "897aa1261a069ef1dc601a0e5cb256380e901ac6a0324d1a288b405d5f6d0ff0",
+  "gate": "ADR-0127 §2.1: SourceSession/new e SystemWorld::new_with_source_session públicos",
+  "scope": "Lote A sintático somente; B avaliação e C layout fora do pacote",
+  "contract": {
+    "path": "00_nucleo/materialization/incremental-prioridade6-2026-10-08/contract.md",
+    "sha256": "b142baa73d1a4cb79c67451f6e00b920836589768e40ffae50ad8e5e3554e2e3"
+  },
+  "owners": [
+    {
+      "consumer": "03_infra/src/world.rs",
+      "owner": "00_nucleo/prompts/infra/system-world.md",
+      "candidate": "00_nucleo/materialization/incremental-prioridade6-2026-10-08/candidates/00_nucleo/prompts/infra/system-world.md",
+      "candidate_sha256": "dbaee6c7549a71bd8cdec88e9fda48279b414e41f260cf930d054655c04d2a5d",
+      "base_l0_sha256": "ba67665658e520ec54039e7c966191495bf33627425c19021ecaaae81ce44759",
+      "base_consumer_sha256": "ff941fb9916ad6b5e72e30ebeb3f6f7b1d7292c80ac6336d1a7fb0685951d431"
+    },
+    {
+      "consumer": "03_infra/src/world/cache.rs",
+      "owner": "00_nucleo/prompts/infra/system-world/cache.md",
+      "candidate": "00_nucleo/materialization/incremental-prioridade6-2026-10-08/candidates/00_nucleo/prompts/infra/system-world/cache.md",
+      "candidate_sha256": "faa1e1f76a80fe6f7e11e932edcaebd160dbc2528550753dde57071c7129eadc",
+      "base_l0_sha256": "deb702a10c2b8512d2786406d35bd090d46d9c3617a3b1c7f431d657ec1f57e7",
+      "base_consumer_sha256": "1e10aa61f0d8afef309966bad2f7a94ad15668cc1bb0cebaad0ef2df463dac82"
+    },
+    {
+      "consumer": "03_infra/src/world/source_session.rs",
+      "owner": "00_nucleo/prompts/infra/system-world/source_session.md",
+      "candidate": "00_nucleo/materialization/incremental-prioridade6-2026-10-08/candidates/00_nucleo/prompts/infra/system-world/source_session.md",
+      "candidate_sha256": "afe0c71b3f9fc3eae4899bc41d24dfa5586a039ecf83b1834b938cf16f6e39b1",
+      "base_l0_sha256": null,
+      "base_consumer_sha256": null
+    },
+    {
+      "consumer": "04_wiring/src/compile.rs",
+      "owner": "00_nucleo/prompts/wiring/compile.md",
+      "candidate": "00_nucleo/materialization/incremental-prioridade6-2026-10-08/candidates/00_nucleo/prompts/wiring/compile.md",
+      "candidate_sha256": "c3a7dee8b29b55b11a71699686bde1e9eaedc6702a6cd48c20daebfb9d4a6569",
+      "base_l0_sha256": "e79dc674cfee7eb98e1f960a5846683bd8f3e01ad071ea109741a0e3fd38296a",
+      "base_consumer_sha256": "e6498be10abf20fe616fc28c1c20c7caf25ce4bb934e892c2377109d9cde8617"
+    },
+    {
+      "consumer": "04_wiring/src/watch.rs",
+      "owner": "00_nucleo/prompts/wiring/watch.md",
+      "candidate": "00_nucleo/materialization/incremental-prioridade6-2026-10-08/candidates/00_nucleo/prompts/wiring/watch.md",
+      "candidate_sha256": "33291cca8e1553ee8af81bb2102320ca1b06b3943a7087c987b184d7d6931b3c",
+      "base_l0_sha256": "bda281e6877507ba3086be553f7f88d7fd75c025afc96565a537865d3e2a07a2",
+      "base_consumer_sha256": "6b098a4db7c3fa3c71c88a0be817d63dd568b84f7d5412e3fabb25fbdd7b8dd5"
+    }
+  ],
+  "nucleus": {
+    "target": "00_nucleo/prompts/_nuclei/watch-source-generation.toml",
+    "candidate": "00_nucleo/materialization/incremental-prioridade6-2026-10-08/candidates/00_nucleo/prompts/_nuclei/watch-source-generation.toml",
+    "raw_sha256": "1fe31c90e4dace3144214435ff0c2627302c10c8c5e8d60ec0b62c0484023363",
+    "effective_sha256": "7ec137b6996e0ea442e3cdda52ce723fd32cb67338ab363b7ff2d733458ef8fa"
+  }
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/callbacks.md
-//! @prompt-hash 4ddea0d4
+//! @prompt-hash 9f12481f
 //! @layer L1
 //! @updated 2026-08-31
 //!
@@ -53,6 +53,10 @@ impl SealedMathCallbacks {
     }
 }
 
+#[expect(
+    clippy::large_enum_variant,
+    reason = "E003: resultado único de math layout por valor; Box adiciona alocação ao Complete, sem reduzir o documento"
+)]
 pub enum MathLayoutPassOutcome {
     Pending(Vec<MathCancelRequest>),
     Complete(PagedDocument),
@@ -131,7 +135,7 @@ pub(super) fn snapshot_styles(chain: &StyleChain, style: &TextStyle) -> StyleCha
         bold_from_strong: None,
         italic: Some(style.italic),
         italic_from_emph: None,
-        size: Some(style.size.val()),
+        size: Some(crate::entities::layout_types::Length::pt(style.size.val())),
         fill: style.fill.clone(),
         heading_level: style.heading_level,
         weight: style.weight,

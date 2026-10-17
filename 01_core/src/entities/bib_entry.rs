@@ -25,6 +25,7 @@
 //!   P159E).
 //! - 6 fields opcionais restantes (editor/series/note/isbn/
 //!   location/organization — P159G).
+//!
 //! Total **16 fields** (cobertura ~70-75% hayagriva universais).
 //! Restantes vanilla (booktitle/address/chapter/type/institution/
 //! etc.) **diferidos** para refinos futuros NÃO reservados.

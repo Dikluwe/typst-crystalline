@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/observation/content.md
-//! @prompt-hash 931e980a
+//! @prompt-hash cfc9831b
 //! @layer L1
-//! @updated 2026-09-26
+//! @updated 2026-10-07
 //!
 //! Relação observacional causal — família `content`.
 
@@ -12,6 +12,31 @@ use super::*;
 impl ObservationEq for crate::entities::content::Content {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         match self {
+            Self::Source(a) => match other {
+                Self::Source(b) if a.span == b.span => {
+                    a.body.observation_relation(&b.body)
+                }
+                _ => ObservationRelation::Different,
+            },
+            Self::Located(a) => match other {
+                Self::Located(b) => {
+                    if a.location == b.location {
+                        a.body.observation_relation(&b.body)
+                    } else {
+                        ObservationRelation::Different
+                    }
+                }
+                _ => ObservationRelation::Different,
+            },
+            Self::Realized(a) => match other {
+                Self::Realized(b) => a
+                    .original
+                    .observation_relation(&b.original)
+                    .and(a.visual.observation_relation(&b.visual)),
+                _ => ObservationRelation::Different,
+            },
+            Self::ShowRecipe(_) => ObservationRelation::Unproven,
+
             Self::Empty => match other {
                 Self::Empty => ObservationRelation::Same,
                 _ => ObservationRelation::Different,

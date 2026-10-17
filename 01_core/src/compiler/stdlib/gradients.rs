@@ -45,10 +45,7 @@ pub use self::linear::native_gradient_linear;
 pub(crate) use self::modifiers::{native_gradient_repeat, native_gradient_sharp};
 pub use self::radial::native_gradient_radial;
 pub(crate) use self::sampling::{native_gradient_sample, native_gradient_samples};
-use self::{
-    accessors::*, conic::*, dispatch::*, linear::*, modifiers::*, parsing::*, radial::*,
-    sampling::*,
-};
+use self::{accessors::*, parsing::*, sampling::*};
 
 #[cfg(test)]
 mod atomization_tests {

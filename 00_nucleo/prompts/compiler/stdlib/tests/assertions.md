@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/assertions
-Hash do Código: f2a47d77
+Hash do Código: d3826f8e
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/assertions.rs`

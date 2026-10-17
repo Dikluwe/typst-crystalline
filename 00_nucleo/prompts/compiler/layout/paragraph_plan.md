@@ -1,9 +1,11 @@
 # L0 — paragraph_plan
-Hash do Código: ad8f8ccf
+Hash do Código: c8f5093f
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:70b72ac9efb2bf81aa4ef496c4e1c867264f696d454a9916e7e2e5f385b92020
 - 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:e9038b453bbb1971c9a75a76eced99c35db742f57bebbb09b03c4922b3862800
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/paragraph_plan.rs`
@@ -133,3 +135,21 @@ A evidência bilateral em `paragrafo-tracking-global-2026-09-29/focused-before/r
 ### Decisão
 
 Supersede a exclusão conjunta anterior apenas para tracking resolvido exatamente zero sob a certificação uniforme existente. O planejador continua a usar o seletor estático de hifenização sem novo modo ou fase; tracking não nulo e misto conservam fallback integral, sem emissão parcial.
+
+## Transporte lógico textual — contrato ratificado em 2026-10-05
+
+Medição anterior à decisão: `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/probe.json.gz` refuta resolver 456 789 isoladamente; a medição de fonte e os locais afetados estão no inventário e initial.json.gz daquele diagnóstico. A API imutável e os três campos opcionais foram ratificados pelo humano (manifesto 1ae7513e). Correção interna de paridade sem mudar fase.
+
+Esta unidade participa do transporte por Cursor privado, input Arc e spans exatos. Preparar antes de emitir o parágrafo textual inteiro, base lexical já certificada; conservar offsets por ordem de visita, não matching de strings. Sequence/Par criam escopo, nested Sequence herda; checkpoint conserva cursor e span corrente; subframe isola e restaura. Text fornece subspans para palavras e espaços literais; Space consome seu segmento mesmo quando fraco; Linebreak consome fronteira. Word emite span somente se texto exato não foi transformado.
+
+Escopo inicial: incremental simple, fora de células/colunas/subframes, sem tracking/hifenização/justificação/smallcaps, Text sem newline/tab/segmentação linguística. Região recusada tem None. Preparação global anterior permanece para parágrafos que não precisam do contexto bidi; para o subconjunto certificado com base RTL ou caracteres RTL/override oposto, encaminhar pelo incremental sem mudar os breaks permitidos. Não interferir em optimized explicitamente escolhido. O owner privado bidi_origin prepara/valida; esta unidade só coordena o seu papel. Testes de origem por ocorrências, UTF8, restauração e parbreak; validação bilateral de wraps.
+
+## Palavra contígua overlong — 2026-10-08
+
+### Medição anterior à decisão
+
+`plain300.typ` produz uma palavra composta por centenas de fragmentos `Text` adjacentes: `paragraph_prepare.rs:130-157` junta-os sem gap, mas `paragraph_plan.rs` devolve a seleção de linha única ao fallback por `regional_only && lines.len() < 2`. O fallback `word_layout.rs:27-47` decide quebras por fragmento, enquanto o coletor vanilla `inline/collect.rs:275-298` agrega texto adjacente antes de selecionar. A sonda bilateral com string única conserva uma linha em ambos os motores; com `for` e `[#i]`, somente o Tekt quebra. Proveniência e resultados em `00_nucleo/diagnosticos/fluxo-numerico-contextual-2026-10-08/`. Esta observação não demonstra intenção histórica.
+
+### Decisão
+
+Correção interna de paridade pelo ADR-0127. Se o preparo global certificado contém exatamente uma palavra sem gap inicial ou interno, cuja largura excede a largura disponível e cuja seleção resulta em uma linha, emitir essa linha pelo caminho preparado também sob a guarda `regional_only`. Um separador terminal não cria ponto de quebra dentro da palavra e conserva a emissão já definida. Conservar o fallback de linha única para os demais casos. Não introduzir quebra em fronteira entre fragmentos, alterar a regra de hifenização ou afetar escopos recusados. Aceitação RED→GREEN: fluxo `for` contíguo overlong coincide em linha e texto com o vanilla, com controles de palavra curta e espaços.

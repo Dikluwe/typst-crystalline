@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/columns/transitions.md
-//! @prompt-hash a70670cc
+//! @prompt-hash 2fc6ae5f
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -61,6 +61,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // Transladar items da coluna actual de coordenadas locais (origem
         // na margem) para coordenadas absolutas na página.
         let dx = self.column_origin_x - self.page_config.margin.left;
+        self.close_link_items();
         let mut items = std::mem::take(&mut self.regions.current.current_items);
         self.apply_pending_par_line_fixups(&mut items);
         let translated = items
@@ -84,6 +85,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // A coluna actual já foi fechada e está em column_page_items;
         // limpar current_items por segurança e repor merged.
         self.regions.current.current_items = merged;
+        self.open_link_items();
     }
 
     /// **P538c** — fecha a coluna actual, funde as colunas da página e
@@ -133,6 +135,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Pt(self.page_config.margin.top) + top
         };
         self.regions.current.current_line.clear();
+        self.open_link_line();
+        if self.regions.current.current_items.is_empty() {
+            self.open_link_items();
+        }
     }
 }
 

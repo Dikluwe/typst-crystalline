@@ -6,7 +6,7 @@
 
 use super::*;
 
-pub(super) fn require_str<'a>(value: &'a Value, span: Span) -> SourceResult<&'a str> {
+pub(super) fn require_str(value: &Value, span: Span) -> SourceResult<&str> {
     match value {
         Value::Str(value) => Ok(value),
         other => type_error(span, "string", other),

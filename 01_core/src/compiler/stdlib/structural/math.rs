@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash 8af0ac5b
+//! @prompt-hash 9e2638df
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -10,14 +10,20 @@
 //! Extraído de `stdlib/structural.rs` no Passo 1014 conforme ADR-0109
 //! (atomização — forma B, free function no arquivo da unidade).
 
+#[cfg(test)]
 use crate::compiler::eval::EvalContext;
 #[cfg(test)]
 use crate::entities::args::ArgOccurrence;
+#[cfg(test)]
 use crate::entities::args::Args;
 use crate::entities::content::Content;
+#[cfg(test)]
 use crate::entities::elements::math_attach::MathAttachSlot;
+#[cfg(test)]
 use crate::entities::file_id::FileId;
+#[cfg(test)]
 use crate::entities::source_result::SourceResult;
+#[cfg(test)]
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 
@@ -49,13 +55,30 @@ mod vector;
 
 use casts::vanilla_type_name_class;
 
-#[cfg(test)]
+pub(in crate::compiler) use annotations::{
+    native_math_overbrace, native_math_overbracket, native_math_overparen,
+    native_math_overshell, native_math_underbrace, native_math_underbracket,
+    native_math_underparen, native_math_undershell,
+};
+pub(in crate::compiler) use attach::native_math_attach;
+pub(in crate::compiler) use binom::native_math_binom;
+pub(in crate::compiler) use cases::native_math_cases;
+pub(in crate::compiler) use class::native_math_class as native_math_class_for_metadata;
+pub(in crate::compiler) use frac::native_math_frac;
+pub(in crate::compiler) use limits::{native_math_limits, native_math_scripts};
+pub(in crate::compiler) use lr::native_math_lr;
+pub(in crate::compiler) use mid::native_math_mid;
+pub(in crate::compiler) use overline::native_math_overline;
+pub(in crate::compiler) use primes::native_math_primes;
+pub(in crate::compiler) use root::native_math_root;
+pub(in crate::compiler) use stretch::native_math_stretch;
+pub(in crate::compiler) use underline::native_math_underline;
+pub(in crate::compiler) use vector::native_math_vec;
+
 mod p1425_tests;
 
-#[cfg(test)]
 mod p1426_tests;
 
-#[cfg(test)]
 mod p1427_tests;
 
 /// Constrói o módulo `math` como `Value::Module` com 41 operadores

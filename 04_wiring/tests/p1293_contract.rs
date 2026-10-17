@@ -1,16 +1,21 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/p1293_contract.md
-//! @prompt-hash ac28f2fa
+//! @prompt-hash 97b051d9
 //! @layer L4
 //! @updated 2026-09-01
 //!
 //! Testes black-box de linguagem, diagnósticos, geometria semântica e DOM.
 
+#[path = "../../03_infra/tests/support/wiring/p1293_contract.rs"]
+mod harness;
+
+use harness::{parse_dom, visit_elements, ParsedDom, Scratch, Transcript};
+
 use std::collections::BTreeMap;
 use std::env;
 use std::fs;
 use std::path::PathBuf;
-use std::process::{Command, Output};
+use std::process::Command;
 
 use typst_core::entities::content::Content;
 use typst_infra::export::{
@@ -18,33 +23,10 @@ use typst_infra::export::{
 };
 
 const BIN: &str = env!("CARGO_BIN_EXE_typst");
-const VANILLA: &str = "/usr/local/bin/typst";
-
-#[derive(Clone, Debug, Eq, PartialEq)]
-struct Transcript {
-    code: Option<i32>,
-    stdout: String,
-    stderr: String,
-}
-
-impl Transcript {
-    fn from_output(output: Output) -> Self {
-        Self {
-            code: output.status.code(),
-            stdout: trim_transport(&output.stdout),
-            stderr: trim_transport(&output.stderr),
-        }
-    }
-
-    fn success(&self) -> bool {
-        self.code == Some(0)
-    }
-}
-
-fn trim_transport(bytes: &[u8]) -> String {
-    String::from_utf8_lossy(bytes)
-        .trim_end_matches(['\r', '\n'])
-        .to_owned()
+fn vanilla() -> String {
+    env::var("TYPST_VANILLA").expect(
+        "set TYPST_VANILLA to the independently verified oracle for pin 9f2b6e8715237cb086899a42873660fe744622e8",
+    )
 }
 
 fn run(program: &str, args: &[&str]) -> Transcript {
@@ -88,7 +70,7 @@ fn collect_eval(
 }
 
 fn assert_eval_parity(cases: &[EvalCase], html: bool) {
-    let vanilla = collect_eval(VANILLA, cases, html);
+    let vanilla = collect_eval(&vanilla(), cases, html);
     let candidate = collect_eval(BIN, cases, html);
 
     let polarity_violations = cases
@@ -117,27 +99,6 @@ fn assert_eval_parity(cases: &[EvalCase], html: bool) {
         }
     }
     assert!(violations.is_empty(), "{}", violations.join("\n\n"));
-}
-
-struct Scratch(PathBuf);
-
-impl Scratch {
-    fn new(label: &str) -> Self {
-        let path = env::temp_dir().join(format!(
-            "typst-p1293-{label}-{}-{:?}",
-            std::process::id(),
-            std::thread::current().id(),
-        ));
-        let _ = fs::remove_dir_all(&path);
-        fs::create_dir_all(&path).expect("create P1293 scratch directory");
-        Self(path)
-    }
-}
-
-impl Drop for Scratch {
-    fn drop(&mut self) {
-        let _ = fs::remove_dir_all(&self.0);
-    }
 }
 
 fn compile(
@@ -359,7 +320,7 @@ fn p1293_b_semantic_layout_vectors_none_and_no_fraction_rule() {
 
     let mut violations = Vec::new();
     for (name, source, expected) in &vectors {
-        for (side, program) in [("vanilla", VANILLA), ("candidate", BIN)] {
+        for (side, program) in [("vanilla", vanilla().as_str()), ("candidate", BIN)] {
             let (_scratch, path, transcript) =
                 compile(program, &format!("b-{side}-{name}"), source, "svg", false);
             if !transcript.success() {
@@ -368,11 +329,11 @@ fn p1293_b_semantic_layout_vectors_none_and_no_fraction_rule() {
             }
             let svg = fs::read_to_string(path).expect("read P1293 SVG");
             let summary = svg_semantic_summary(&svg);
-            for index in 0..4 {
-                if (summary.0[index] - expected[index]).abs() > 0.01 {
+            for (index, expected_value) in expected.iter().enumerate() {
+                if (summary.0[index] - *expected_value).abs() > 0.01 {
                     violations.push(format!(
                         "B-P07 {side}/{name} viewBox[{index}] expected {} +/- 0.01, got {}",
-                        expected[index], summary.0[index]
+                        expected_value, summary.0[index]
                     ));
                 }
             }
@@ -386,7 +347,7 @@ fn p1293_b_semantic_layout_vectors_none_and_no_fraction_rule() {
         ("omitted", "#set page(width:auto,height:auto,margin:0pt)\n#math.equation(math.attach([x]),block:false)"),
         ("explicit-none", "#set page(width:auto,height:auto,margin:0pt)\n#math.equation(math.attach([x],t:none),block:false)"),
     ];
-    for (side, program) in [("vanilla", VANILLA), ("candidate", BIN)] {
+    for (side, program) in [("vanilla", vanilla().as_str()), ("candidate", BIN)] {
         let mut pair = Vec::new();
         for (name, source) in none_sources {
             let (_scratch, path, transcript) =
@@ -511,150 +472,6 @@ fn p1293_c_surface_all_specific_casts_and_closed_errors() {
     assert_eval_parity(&cases, true);
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
-enum DomNode {
-    Element { tag: String, attrs: Vec<(String, String)>, children: Vec<DomNode> },
-    Text(String),
-}
-
-#[derive(Clone, Debug, Eq, PartialEq)]
-struct ParsedDom {
-    roots: Vec<DomNode>,
-    closing_tags: Vec<String>,
-}
-
-fn decode_entities(value: &str) -> String {
-    value
-        .replace("&quot;", "\"")
-        .replace("&lt;", "<")
-        .replace("&gt;", ">")
-        .replace("&amp;", "&")
-}
-
-fn tag_end(html: &str, start: usize) -> usize {
-    let mut quote = false;
-    for (offset, ch) in html[start..].char_indices() {
-        match ch {
-            '"' => quote = !quote,
-            '>' if !quote => return start + offset,
-            _ => {}
-        }
-    }
-    panic!("unterminated HTML tag")
-}
-
-fn parse_open_tag(raw: &str) -> (String, Vec<(String, String)>, bool) {
-    let mut input = raw.trim();
-    let self_closing = input.ends_with('/');
-    if self_closing {
-        input = input[..input.len() - 1].trim_end();
-    }
-    let name_end = input.find(char::is_whitespace).unwrap_or(input.len());
-    let name = input[..name_end].to_owned();
-    let mut rest = input[name_end..].trim_start();
-    let mut attrs = Vec::new();
-    while !rest.is_empty() {
-        let key_end = rest
-            .find(|ch: char| ch.is_whitespace() || ch == '=')
-            .unwrap_or(rest.len());
-        let key = rest[..key_end].to_owned();
-        rest = rest[key_end..].trim_start();
-        if !rest.starts_with('=') {
-            attrs.push((key, String::new()));
-            continue;
-        }
-        rest = rest[1..].trim_start();
-        assert!(rest.starts_with('"'), "quoted HTML attribute expected: {raw}");
-        rest = &rest[1..];
-        let value_end = rest.find('"').expect("attribute closing quote");
-        attrs.push((key, decode_entities(&rest[..value_end])));
-        rest = rest[value_end + 1..].trim_start();
-    }
-    (name, attrs, self_closing)
-}
-
-fn push_dom_node(roots: &mut Vec<DomNode>, stack: &mut Vec<DomNode>, node: DomNode) {
-    if let Some(DomNode::Element { children, .. }) = stack.last_mut() {
-        children.push(node);
-    } else {
-        roots.push(node);
-    }
-}
-
-fn parse_dom(html: &str) -> ParsedDom {
-    let void = [
-        "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta",
-        "source", "track", "wbr",
-    ];
-    let mut roots = Vec::new();
-    let mut stack = Vec::new();
-    let mut closing_tags = Vec::new();
-    let mut at = 0;
-    while at < html.len() {
-        let Some(relative) = html[at..].find('<') else {
-            let text = &html[at..];
-            if !text.is_empty() {
-                push_dom_node(
-                    &mut roots,
-                    &mut stack,
-                    DomNode::Text(decode_entities(text)),
-                );
-            }
-            break;
-        };
-        let open = at + relative;
-        if open > at {
-            let text = &html[at..open];
-            if !text.is_empty() {
-                push_dom_node(
-                    &mut roots,
-                    &mut stack,
-                    DomNode::Text(decode_entities(text)),
-                );
-            }
-        }
-        let end = tag_end(html, open + 1);
-        let raw = &html[open + 1..end];
-        if raw.starts_with('!') || raw.starts_with('?') {
-            at = end + 1;
-            continue;
-        }
-        if let Some(name) = raw.strip_prefix('/') {
-            let name = name.trim().to_owned();
-            closing_tags.push(name.clone());
-            let node =
-                stack.pop().unwrap_or_else(|| panic!("closing {name} without opener"));
-            let DomNode::Element { tag, .. } = &node else { unreachable!() };
-            assert_eq!(tag, &name, "mismatched HTML closing tag");
-            push_dom_node(&mut roots, &mut stack, node);
-        } else {
-            let (tag, attrs, self_closing) = parse_open_tag(raw);
-            let is_void = void.contains(&tag.as_str());
-            let node = DomNode::Element { tag, attrs, children: Vec::new() };
-            if self_closing || is_void {
-                push_dom_node(&mut roots, &mut stack, node);
-            } else {
-                stack.push(node);
-            }
-        }
-        at = end + 1;
-    }
-    assert!(stack.is_empty(), "unclosed HTML nodes: {stack:#?}");
-    ParsedDom { roots, closing_tags }
-}
-
-fn visit_elements<'a>(
-    nodes: &'a [DomNode],
-    output: &mut Vec<(&'a str, &'a [(String, String)])>,
-) {
-    for node in nodes {
-        if let DomNode::Element { tag, attrs, children } = node {
-            output.push((tag, attrs));
-            visit_elements(children, output);
-        }
-    }
-}
-
 #[test]
 fn p1293_c_dom_order_void_escaping_and_nesting() {
     let fixtures = [
@@ -673,7 +490,7 @@ fn p1293_c_dom_order_void_escaping_and_nesting() {
     let mut observed: BTreeMap<String, (ParsedDom, String)> = BTreeMap::new();
     let mut violations = Vec::new();
     for (name, source) in &fixtures {
-        for (side, program) in [("vanilla", VANILLA), ("candidate", BIN)] {
+        for (side, program) in [("vanilla", vanilla().as_str()), ("candidate", BIN)] {
             let serialization = (side == "candidate").then_some("vanilla");
             let (_scratch, path, transcript) = compile_with_serialization(
                 program,
@@ -899,7 +716,7 @@ fn p1293_c_feature_and_target_are_independent_axes() {
     let on_paged = eval(BIN, "(type(html.button),repr(html.button))", true);
     assert_eq!(
         on_paged,
-        eval(VANILLA, "(type(html.button),repr(html.button))", true),
+        eval(&vanilla(), "(type(html.button),repr(html.button))", true),
         "C-P07 feature-on paged evaluation is not Preserved"
     );
 

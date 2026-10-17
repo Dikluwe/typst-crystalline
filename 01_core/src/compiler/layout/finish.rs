@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/finish.md
-//! @prompt-hash 560cf254
+//! @prompt-hash 93f09429
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -184,6 +184,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                             ),
                             text: text.into(),
                             style,
+                            bidi: None,
                         });
                     }
                 }
@@ -276,11 +277,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                         ),
                         text: text.into(),
                         style,
+                        bidi: None,
                     });
                 }
             }
         }
 
+        self.resolve_links();
+        self.resolve_position_markers();
         let mut doc = PagedDocument::new(self.pages);
         doc.document_language = self.document_language;
         doc.attachments = self.attachments;

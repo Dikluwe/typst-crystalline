@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/word_segment.md
-//! @prompt-hash 0e57e918
+//! @prompt-hash 691459aa
 //! @layer L1
 //! @updated 2026-09-25
 //!
@@ -47,7 +47,7 @@ fn needs_cjk_quote_tailoring(
     word: &str,
     lang: Option<&crate::entities::lang::Lang>,
 ) -> bool {
-    let is_cjk_lang = lang.map_or(false, |l| {
+    let is_cjk_lang = lang.is_some_and(|l| {
         let s = l.as_str();
         s == "zh" || s == "ja"
     });

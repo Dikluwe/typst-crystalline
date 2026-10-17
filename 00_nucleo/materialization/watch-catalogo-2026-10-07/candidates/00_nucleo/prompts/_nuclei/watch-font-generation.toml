@@ -1,0 +1,29 @@
+tekt = 1
+kind = "nucleus"
+id = "watch-font-generation"
+title = "Recursos de fontes por geração no watch"
+
+[[claims]]
+id = "fresh-files"
+level = "must"
+statement = "Cada recompilação watch possui novo SystemWorld para Sources, bytes, FileIds e dependências; uma sessão de fontes não conserva esses dados nem erros de leitura de arquivos."
+
+[[claims]]
+id = "paired-generation"
+level = "must"
+statement = "Book, slots e cobertura materializada no book pertencem à mesma geração. Reuso exige descoberta atual equivalente em ordem e identidade dos recursos; geração modificada não recebe caches indexados pela geração anterior."
+
+[[claims]]
+id = "fresh-on-uncertainty"
+level = "must"
+statement = "Recusa, erro, mudança ou instabilidade na validação não reutilizam a geração anterior. O caminho fresco preserva descoberta, ordem, fallback e recursos observados na próxima recompilação."
+
+[[claims]]
+id = "bounded-session"
+level = "must"
+statement = "A sessão conserva no máximo uma geração para reuso futuro; Worlds em uso podem conservar seu próprio Arc. Não existe cache global ou persistente. Configurar o builder não descobre fontes; a demanda do catálogo continua na fase atual."
+
+[[claims]]
+id = "exclude-unproven-caches"
+level = "must-not"
+statement = "Retenção de fontes não amplia a duração de métricas, shaping, eval, layout, contextos, plugins, pacotes ou observações de relógio; não altera assinatura de World nem introduz unsafe."

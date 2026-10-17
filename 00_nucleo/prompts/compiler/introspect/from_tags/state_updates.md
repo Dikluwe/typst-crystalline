@@ -1,5 +1,5 @@
 # L0 — compiler/introspect/from_tags/state_updates
-Hash do Código: 00e9f59f
+Hash do Código: 227689b6
 
 ## Ownership e medição
 

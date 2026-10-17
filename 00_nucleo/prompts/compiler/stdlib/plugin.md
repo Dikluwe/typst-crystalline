@@ -1,5 +1,5 @@
 # `rules/stdlib/plugin` — builtins de plugin WASM (linguagem Typst)
-Hash do Código: 789b8631
+Hash do Código: 749b3a00
 
 Módulo de **linguagem** (P329, ADR-0107): regista a função standard
 `plugin` e expõe a sua semântica. A mecânica WASM (wasmi, encoders, linker,
@@ -537,3 +537,15 @@ os `@prompt-hash` dos ficheiros de código afectados
 demais tocados na implementação) serão recalculados **pelo humano** via
 `crystalline-lint --fix-hashes .` após confirmação deste L0 — não correr
 `--fix-hashes` antes disso.
+
+## Default derivado com valor preservado — 2026-10-13
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/stdlib/plugin.rs:179` contém a implementação manual de Default sinalizada pelo Clippy. O corpo existente retorna a mesma variante ou inicializa cada campo pelo seu default. O tipo não é genérico, portanto a derivação não acrescenta bounds a parâmetros públicos. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, spans, UTC, status e diffstat estão em `00_nucleo/diagnosticos/expressoes-defaults-ci-2026-10-13/before.json.gz`. É evidência de implementação, não nova medição de paridade ou desempenho.
+
+### Decisão e aceitação
+
+Substituir somente a implementação manual de Default por derive(Default), conservando o trait já implementado e seu valor. Somente o MockWorld privado do módulo de testes passa a derivar Default: files vazio, library e book por seus Defaults existentes e na mesma ordem. Nenhum binding, execução Wasm, cache ou trait público muda. Os exemplos anteriores de impl Default explicitam o valor exigido; a derivação equivalente passa a ser a forma desta implementação.
+
+Não alterar assinatura pública, campos, variantes, comportamento padrão do produto ou fase. Correção mecânica interna em fluxo contínuo ADR-0127. Preservar testes e expectativas; validar todos os targets do workspace, suíte core, registro de testes, build, rustdoc, Clippy e linhagem.

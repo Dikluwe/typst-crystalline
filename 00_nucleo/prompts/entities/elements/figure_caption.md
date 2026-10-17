@@ -1,5 +1,8 @@
 # Prompt L0 — `entities/elements/figure_caption` — `FigureCaptionElem`
-Hash do Código: 3ad4663a
+Hash do Código: b5aa27a8
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:923f1c9e4c2fd5934316ae2eef3dbb461c3bef3009de1d8931d951e793dda342
 
 **Estado**: MATERIALIZADO (confirmação humana 2026-09-21, posterior ao commit
 causal somente-L0 `3ac60a578`; execução segregada A/B/C — ver
@@ -77,3 +80,32 @@ módulo do núcleo; acrescentados 5 testes locais (`plain_text`/`is_empty`,
 preservação de `position`/`separator`, `map_text`, `map_content`,
 `eq`/`Hash`), cobrindo o mesmo padrão já usado por `list_item.rs`. Suíte:
 GREEN.
+
+## Completar projeção da caption existente — 2026-10-17
+
+Medição anterior à decisão: caption-shape-before.json e caption-after.json em
+00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17 fixam fontes, UTC,
+binários, HEAD/working tree de validation-result.json e pin
+9f2b6e8715237cb086899a42873660fe744622e8. Projeção de caption já produz o
+carrier, mas sua CLI imprime só func:figure.caption; body/getters/fields estão
+ausentes. json.encode tem o mesmo defeito. Metadata de kind rejeita a função
+de caption válida. O pin em model/figure.rs:510 declara caption Locatable e
+em :511-594 declara position,separator,body e kind/supplement/numbering/counter
+sintetizados públicos, com figure_location interno. Não sintetizar esses dados
+nesta correção; a função de elemento já existe desde a aprovação P1473.
+
+Responsabilidade exclusiva e aceitação:
+
+Sobrescrever apenas Element::get_field existente: body sempre conhecido;
+position Some Top/Bottom retorna alinhamento vertical, separator Some retorna
+Content original; Option None continua desconhecido, sem default assado. Não
+mudar struct, métodos do trait, construtor, síntese ou phase; não reabrir os
+não-objetivos de síntese/location desta entidade. É completar a reflexão dos
+campos que o contrato aprovado já conserva. Content delega ao owner.
+
+Correção interna/paridade em fluxo contínuo ADR-0127. Não há novo campo/trait/
+assinatura Rust pública, fase, modo ou default. L0 antes de testes/código, RED
+real de getters/metadados/encoder/CLI, GREEN e corpus externo sem relaxar
+expectativas de corpo/nome. Revalidar todos os gates da etapa sob 12 GiB, swap
+zero, jobs1. Resselo só dos owners após V15/V26. FG1/SY1 permanecem incompletos
+conforme follow-ups.md; nenhuma API pendente está autorizada por esta seção.

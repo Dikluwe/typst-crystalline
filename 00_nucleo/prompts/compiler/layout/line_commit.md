@@ -1,11 +1,19 @@
 # L0 — line commit
-Hash do Código: 852ad07f
+Hash do Código: ca0abfc8
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
+- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:7b8a61eaafc8a07df12218f8f0560c33fae5c36f621b822b7350ccefc9774711
+- 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:9d9d6c265a3840cc5a3b8e121f403bc9e3fe55b1e586ab9014948f0784de5c3e
+- 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:42175932c75f37ed19205d1d82526969999e18fba8fed16f1b1dcff6e418bc0f
+- 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:4e487a99ea1f1e82a67dfaced0958f98392fb26b1a7d292355230d6ffa7f2d0b
+- 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml sha256:04f91fc931871165d4fef399ea9c2e21e8b75f7fd57031183a4e2aed0ed1b62a
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
+- 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml sha256:77528cd6193277b9f776b29da06327d974f5cea26fb89abf821879b363185b0a
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
 - 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:6eec17984449d21b626379651b9b0a511a2dfe8e1a1f0a0af230cce52a47b827
+- 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:0e7c32f877924fea773be54f9719b43bb72b4c3bb065f6ff44a842c56683ff78
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/line_commit.rs`
@@ -45,6 +53,33 @@ Drain the line in order into emitted items, clear justification opportunities, r
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
+
+## Máximo efetivo da linha — correção de paridade 2026-10-08
+
+Medição bilateral após a equivalência de fluxo: `context` tem baseline PDF
+15.238 pt no Tekt e 14.580 pt no vanilla; `text-dense` desloca apenas os
+dez termos da última linha em 0.658 pt. Sondas `#set text(size: 10pt)` com
+texto direto e contextual repetem o delta, enquanto `#par[Page 1]` coincide.
+GDB em `line_commit.rs:476` mostrou `first_text_size=10`, `max_font_size=11`
+e `max_style` exterior 11 pt, `assumed_ascent=6.58`, `current_text_top=7.238`
+e `line_extra_ascent=0.658`. `line_commit.rs:300-328` inicia o fold no
+estilo exterior, de modo que nenhum item de 10 pt o substitui. A intenção
+histórica do vanilla não é inferida; a posição do texto é observável da
+linguagem. Refutar a correção se baselines de estilos mistos, páginas ou
+texto mudarem indevidamente.
+
+Para linha com itens textuais fora do modo de colunas, obter `max_font_size`
+e `max_style` dos itens reais, começando pelo primeiro. Sem itens textuais,
+conservar o fallback do estilo exterior. No modo de colunas, preservar o
+máximo com o estilo exterior: o controle P1381 de prefixo 8 pt e fallback
+exterior exige a diferença de leading entre as linhas; retirar esse máximo
+altera `One` de 34.4 para 17.7 pt. O teste de mistura com o estilo exterior
+e a seleção do próximo ascent/leading permanecem independentes;
+`force_outer_singleton`, extensões inline, custos de região e callbacks
+mantêm o contrato anterior.
+Nenhum campo público, modo, fase ou default muda. Exigir RED→GREEN para
+dois fragmentos menores que o exterior, equivalência bilateral de `context`
+e última linha de `text-dense`, mais controles de mistura/linhas ordinárias.
 
 When the expanded pending line has no material items, use neutral local text-edge
 values without consulting FontMetrics. Continue normal drain/reset and marker
@@ -146,3 +181,304 @@ Aceitação: testes RED→GREEN e matriz bilateral, regressões anteriores, buil
 ### Refinamento medido antes da decisão
 
 `00_nucleo/diagnosticos/correcao-auto-proximas-2026-09-29/after-legacy33/results.json` mostrou regressão de altura em `#text("  ")`: Tekt 9.898pt versus vanilla 8.568pt após reconhecer a linha literal, porque `text_baseline::admit` só era chamado por Word/Chunk e o fechamento usava cursor sem baseline admitida. Ao fechar uma linha formada apenas por TextSeparator Literal, chamar o helper existente de admissão antes das métricas; ele reposiciona os carriers na baseline e a linha conserva o mesmo contrato de altura de uma linha textual.
+
+## Direção de parágrafo distinta de direção de run — 2026-10-05
+
+Medição anterior à decisão: `00_nucleo/diagnosticos/direcao-alinhamento-2026-10-05/initial.json.gz` preserva HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC, fontes, binários e treze sondas. rtl_lines põe ABC em x=20 no Tekt e x=152.949220 no vanilla pinado; rtl_inline_only e rtl_scope coincidem à esquerda. ltr_lines põe árabe em x=174.567870 no Tekt contra x=20 no vanilla. Em `cursor.rs:156–162` e `line_commit.rs:210–216`, a âncora depende do primeiro item da linha. Vanilla `flow/collect.rs:129–136` obtém trunk_from_pairs e `inline/mod.rs:189,232` resolve direção/alinhamento compartilhados antes das linhas. Semântica observável: direção dos trechos e âncora de todas as linhas do parágrafo. Estratégia de state/preflight é mecânica interna, não cópia do vanilla. Inferência: preservar direção compartilhada evita perder a âncora em linhas só com override; refutada por controles integralmente estilizados/parbreak/wrap.
+
+Correção interna/de paridade ADR-0127, fluxo contínuo L0 primeiro e RED→GREEN. Apenas campos privados de Layouter e helpers descendentes, nenhuma entidade ou assinatura pública/fase/default novo. Esta rodada certifica conteúdo textual estrutural (Text, Empty, Space/SpaceFromNewline, Linebreak, Sequence, Styled e Strong/Emph); unidades desconhecidas conservam fallback anterior. Não prometer ordem bidi mista, align explícito, HTML ou todas as formas de parágrafo. As equações existentes de largura/tracking permanecem.
+
+Responsabilidade deste owner: Justificação usa a mesma consulta interna paragraph que o alinhamento. Ao drenar linha, limpar somente a direção da cauda; manter escopo ativo para a próxima linha de wrap. Não alterar equações de oportunidades/tracking ou altura.
+
+Aceitação: RED→GREEN em parágrafo RTL com linha LTR e inverso, escopo integral e reset por parbreak; checar checkpoints e subframes, texto/posições em CLI bilateral, build e lint sem novos findings. Slots e helper não transportam metadados ao L3; divergências de ordenação bidi ou align explícito ficam registradas separadamente.
+
+## Migração do carrier bidi ratificado (2026-10-05)
+
+Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+
+## Isolamento de overflow local — 2026-10-13
+
+### Medição anterior à decisão
+
+As sondas em containers-clip-2026-10-13/before-renders.json registram
+block(shape maior que altura declarada) criando duas páginas vazias no
+Tekt contra uma região recortada no controle. Fonte e proveniência completas
+estão naquele lote. Para corrigir a composição é necessário que o helper
+isolado retenha o corpo, mas shape.rs:119, cursor.rs:125,
+line_commit.rs:438 e region_progress.rs:115,131 ainda permitem avanço
+externo por overflow com is_sub_frame ativo. sub_frame.rs:109-121,317-340
+salva buffers/cursor, mas não uma página já comitada por esses descendentes.
+Essa hipótese será testada diretamente antes de modificar as condições.
+Fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC estão
+em `00_nucleo/diagnosticos/subframe-isolamento-2026-10-13/before.json.gz`.
+
+### Responsabilidade exclusiva e aceitação
+
+A migração/rejeição da linha por altura regional reduzida aplica-se somente fora de is_sub_frame. Drenar a linha local normalmente e conservar conteúdo, posições, extensões e decoração.
+
+Os invariantes compartilhados pertencem ao núcleo subframe-overflow pinado.
+Correção interna ADR-0127, sem campo/assinatura pública, fase ou novo default.
+Exigir RED→GREEN antes/depois das condições, preservação da paginação
+ordinária externa, suíte core, build, formato e linhagem. Não elevar a
+altura de teste para esconder overflow nem descartar itens do frame.
+A correção do helper não equivale a terminar a composição de block/box;
+a coleta, dimensões e recorte desses containers continuam nos seus owners.
+
+## Baseline inicial de caixa sem strut fictício — 2026-10-14
+
+### Medição anterior à decisão
+
+box-baseline-inicial-2026-10-14/before/results.json.gz registra doze fontes
+contra o vanilla pinado, binários, estado sujo, HEAD e UTC. Caixa 8×6pt
+sozinha começa em y pixel 22 contra 20 a 144dpi; com Q adjacente ambos
+começam em 22. Shift baseline 10pt sem texto revela a mesma contribuição
+fictícia. boxed.rs:21-38 instala fonte antes de conhecer a caixa;
+line_commit.rs:421-437 e sub_frame.rs:292-300 confundem zero com ausência
+e só consideram texto em condições parciais. Fonte pinada inline/line.rs:
+559-568 acumula top/bottom dos frames realmente presentes. A posição é
+observável; Option e buffers são mecânica. Snapshot fonte/L0: before.json.gz.
+Hipótese: diferir a baseline da primeira Box e combinar somente conteúdo
+real elimina o deslocamento. Refutar se controles de texto, transformações,
+Raw, HTML causal ou caixas aninhadas passarem a se deslocar.
+
+### Contrato deste owner
+
+Usar o ascent instalado quando Some, inclusive zero; só ausência permite o fallback histórico. O ascent efetivo de uma linha com texto direto é max(ascent inline, aresta superior real desse texto); linha sem texto direto usa apenas ascent inline para a correção positiva da baseline. Não alterar o avanço/leading já especificado. A presença de texto vale também quando todos os itens textuais têm o mesmo tamanho: Box pode ter instalado uma baseline menor antes deles. Guardar Some(next_text_top) ao preparar a linha seguinte.
+
+Correção interna ADR-0127, sem API, default ou fase novos. L0 primeiro,
+RED→GREEN, controle de ascent zero, sondas de geometria e suíte completa.
+Não substituir esperados de regressão para conservar o defeito.
+
+### Separar ascent emitido do fallback de avanço
+
+A primeira suíte completa deste lote refutou o candidato nos controles
+p1381_prefixo_8pt_preserva_fallback_exterior_e_leading_final e
+p1392_wrap_abaixo_e_acima_do_exterior_distribui_nas_duas_ordens, preservados
+sem alteração. line_commit.rs:342-350 seleciona estilo exterior para
+certos avanços em colunas; usar essa seleção para corrigir a baseline de
+texto uniforme menor o desloca indevidamente. Snapshot integral anterior
+ao reparo: box-baseline-inicial-2026-10-14/first-candidate.json.gz.
+
+Capturar a aresta do máximo textual efetivamente emitido antes da seleção
+do fallback de avanço. Em linha uniforme, combinar esse ascent efetivo
+com o inline para a correção positiva; manter a regra pré-existente de
+linha mista e todas as fórmulas de avanço/leading. Os dois controles devem
+voltar a passar com as mesmas posições e páginas; preservar os novos
+controles de Box inicial, inclusive zero e texto pequeno.
+
+## Captura de links através de fronteiras — 2026-10-14
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/links-paginacao-2026-10-14.md e os recibos
+posicoes-compostas-2026-10-14/automatic-boundary-probes registram fonte,
+HEAD/árvore suja/UTC, binários e pin vanilla. Página 160×40pt/margem 10pt:
+texto comum atravessa a quebra; Link URL, Ref e Ref Page abortam com índice
+antigo após esvaziamento dos buffers. references.rs:270 aparece na pilha;
+link.rs:22-32 usa o mesmo mecanismo. outline.rs:28-50 também guarda índices
+antes do corpo. Limitar o índice não prova preservação do prefixo, ordem,
+fragmentos, destino ou geometria. Snapshot anterior deste reparo:
+00_nucleo/diagnosticos/links-captura-2026-10-14/before.json.gz.
+Os observáveis são conteúdo, destino, regiões e bounds; limites privados
+são mecânica. Correção interna ADR-0127, sem API, default ou fase nova.
+
+### Contrato deste owner
+
+Após geometria/alinhamento e antes de transferir a linha, fechar segmentos de escopos ativos no buffer comitado e na linha separadamente. Após a transferência, reabrir continuações em ambos. Isso exclui o prefixo externo já presente na linha; os limites são neutros para avanço/materialidade.
+
+Aceitação: RED→GREEN de quebras antes/dentro do corpo, preservação de
+prefixo/sufixo, regiões, destinos/bounds, corpo rico/aninhamento/colunas,
+conteúdo diferido, contexto/rollback e ausência de limites privados na saída.
+Revalidar os controles sem quebra e a suíte, build e linhagem.
+
+## Place após fluxo comitado — etapa B1 — 2026-10-14
+
+### Medição antes da decisão
+
+`00_nucleo/diagnosticos/place-fluxo-2026-10-14/before/results.json.gz` registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, diffstat/UTC/fontes/binários/argv e pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8. Nos 24 pares root/Box após 12 prefixos, o marcador diverge em todos; Linebreak/Parbreak precisam y22.25pt, Shape y27pt, Block/Grid/VSpace20pt precisam y35pt, mas Tekt usa15pt. Em Rotate há também sobreposição visual, defeito independente. line_commit.rs:721–733 prepara próxima baseline; shape.rs:196–206 agrega below/cap; block.rs:465 conserva fronteira e margem separadas; place.rs:91–99 só reconhece linha ainda pendente. Fonte pinada flow/distribute.rs:703–715 usa offset físico de flow para Place sem eixo explícito. Isso é geometria de linguagem, não exigência de estrutura Rust. A hipótese é refutada por margem fraca, sobreposição, página nova, rollback ou vazamento entre subframes.
+
+### Responsabilidade exclusiva
+
+Após estabilizar e drenar linha causal, registrar baseline_y + line_descent junto do cursor já preparado para a próxima linha. Flush sem linha causal não cria fronteira.
+
+### Aceitação e extensão pendente
+
+Correção interna ADR-0127: L0 primeiro, RED→GREEN e resselo; sem campo público, flag/default ou fase nova. Este adendo autoriza somente o estado privado necessário a esse contrato, supersedendo proibições de novo estado limitadas a extrações anteriores. Guardar/restaurar em LIFO é obrigatório. Revalidar suíte completa, HTML/contexto, PDF/SVG, build/doc/fmt/check, linhagem e inventário de avisos.
+B1 completa a âncora após produtores certificados (linha, forma, Block, Align, Grid, Raw, VSpace), sem substituir o objetivo de corrigir todo o sistema. B2 completa região de Block/inset; B3 resolve assentamento tardio de linha pendente com inline Box/Transform, e audita demais produtores (Heading/List/Stack/Equation/Columns) antes de certificar Place universal. Testemunha inválida conserva a rota legada e é pendência, não crédito de paridade. O gate público de tiling continua pendente.
+
+
+## Largura causal de Block Auto — 2026-10-14
+
+### Medição anterior à decisão
+
+block-auto-width-2026-10-14/before/results.json.gz conserva HEAD
+06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
+UTC/diffstat/status/fontes/binários/argv e pin 9f2b6e871. O extrator inicial
+procurou blue como #0000ff; blue-geometries-corrected.json lê a cor real
+#0074d9 dos mesmos SVGs, sem nova execução. Em shape, Empty, Place-only,
+Grid e Stack a largura do backing Tekt é160; pin54,14,14,68,68 respectivamente.
+block.rs:222,416,453 usa largura disponível; line_commit.rs:753 perde cursor
+no fechamento e sub_frame.rs:354 guarda apenas cursor terminal. Fonte pinada
+flow/block.rs:145–166,281–290,339–363 distingue Auto de expansão.
+É geometria da linguagem; estrutura da testemunha é mecânica interna.
+A hipótese é refutada se Place contaminar largura, escopos vazarem, texto
+literal perder avanço ou containers explícitos mudarem de dimensão.
+
+### Responsabilidade exclusiva
+
+Antes do alinhamento/numeração visual, acumular extensão da linha emitida: limite visual e TextSeparator Literal, excluindo terminais Markup/Newline. Não usar cursor global como largura textual nem contar números na margem. Fracionários e caixas usam os carriers já expandidos.
+
+### Aceitação e limites
+
+Correção interna/de paridade ADR-0127: nenhum contrato público, default ou
+fase novo; L0 primeiro, RED→GREEN, resselo restrito. A largura é uma parte
+da correção B2b/T1–T3 já em andamento: altura Auto/backing, alinhamento tardio,
+fracionários, fragmentação, outset e PDF Parent continuam com critérios próprios.
+Não declarar render aprovado por testar apenas o carrier. Preservar controles
+bilaterais completos e refutadores, suíte/build/doc/fmt/linhagem/inventários.
+
+
+O RED green-second do lote registra Stack horizontal com largura18 em vez68:
+sub_frame.rs:246 drena a linha terminal sem flush_line. Capturar também essa
+linha após expandir fr/repeat e antes de alinhamento RTL, usando o mesmo
+helper privado do owner line_commit. Não acrescentar flush vertical nem
+medir o body outra vez. O helper verifica linha causal e registra sua
+extensão intrínseca; sub_frame apenas o chama no ponto de fechamento local.
+
+
+O linter completo do lote (pre-exhaustive/followup-architecture.log) aponta
+V16 no curinga neutro do projetor de espaços literais. Enumerar as variantes
+sem esse avanço explicitamente, com retorno zero individual, para que nova
+variante de FrameItem exija decisão na compilação. Preservar a mesma projeção
+e a recursão dos wrappers sem criar novo observável.
+
+## Largura na quebra automática — correção causal
+
+Medição anterior: logical-before-complete/results.json.gz, absolute-markup e
+absolute-literal; a escala usa 51.678 pt em vez de 48.928 pt porque a linha
+quebrada registra o espaço literal após TWO. Fonte pinada inline/linebreak.rs:78–113
+distingue quebra Normal (espaço sem avanço de layout) de Mandatory (literal
+terminal conservado). line_commit.rs:105 registra ambos indistintamente.
+É geometria da linguagem; o carrier textual não deve desaparecer.
+
+Na linha continuada sem justificação, registrar a extensão material sem
+ampliá-la por separadores literais terminais. Na linha final ou fechamento
+explícito, conservar o avanço literal existente. A linha justificada conserva
+a ocupação expandida; o limite regional do consumer transformado continua
+independente. Não alterar bytes textuais, ordem, baseline, efeito de estilos,
+justificação nem critérios de quebra. Regressão: escala absoluta de texto
+quebrado, mais controles de espaço literal terminal e Block Auto.
+
+### Refutador de espaçamento fracionário terminal
+
+`logical-spacing-after/results.json.gz` registra a divergência de
+terminal-fraction após a adoção da largura causal; expand_fr_spacings:249–251
+apenas avança o cursor, sem publicar a ocupação já distribuída. Registrar
+no acumulador causal o extremo material anterior mais o delta total alocado
+quando há frações pendentes, inclusive sem item material após h(fr). Não
+contar duas vezes: o acumulador usa máximo de extremos, não soma. Conservar
+a distribuição, tratamento de pesos zero/negativos e infinito, suffixes,
+repeat e cursor. Refutar por h(1fr)/h(2fr) terminal sob escala absoluta e
+controle h(0fr); preservar espaços literais e quebra automática.
+
+
+## Prefixo multiline e aninhamento parcial — 2026-10-14
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/transformacoes-2026-10-14/prefix-nesting-before/results.json.gz`
+registra HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
+commitado, status/stat/UTC, fontes e binários contra o pin vanilla
+9f2b6e8715237cb086899a42873660fe744622e8. Multiword21 gera duas páginas
+contra uma; Long/More estão 6.5/13pt abaixo. O prefixo40/8 com fill gera duas
+páginas; More está39.906pt abaixo. Nested OUTER18/INNER8 tem BODY12pt acima
+e página auto12pt menor. sequence/fractional_preflight.rs:151–171 recusa
+multiline; word_layout.rs:49 fecha dentro do estilo local; line_commit.rs:
+398–480 usa esse estilo para floor/leading/top previsto. sequence.rs:239
+recusa fechar segmento parcial; Block sem cadeia anterior usa spacing8pt.
+Vanilla flow/collect.rs:129–145,179–214 resolve trunk dos filhos, spacing e
+leading comuns; cada frame contribui sua geometria. Esses são observáveis
+textuais, geométricos e de paginação da linguagem (ADR-0107), não obrigação
+de copiar buffers, algoritmos ou bytes. A intenção histórica não é inferida.
+
+### Decisão e limite
+
+Correção interna de paridade ADR-0127 em fluxo contínuo: sem entidade,
+trait/assinatura pública, nova flag/default ou fase. O núcleo text-segment-scope
+pinado define as invariantes compartilhadas. Aceitação RED→GREEN dos três
+casos, controles de fontes, cores, margens, colunas, restauração, checkpoint
+e subframes, mais suíte completa e linhagem. A nova rota só amplia prefixos
+multiline textuais positivamente certificados; não declara paginação universal,
+bidi/floats nem conteúdo opaco. Preservar os certificados escalares anteriores.
+
+### Responsabilidade exclusiva
+
+Somente sob geometric_text_lines, usar top/bottom reais dos carriers materiais sem floor de fonte exterior da coluna; leading e top previsto derivam da text_segment_chain. Reconciliar baseline prevista com ascent real inclusive delta negativo. Preservar toda a lógica ordinária/legacy, decoração, causalidade, overflow e commit.
+
+## Fronteira Par/Box e região finita — 2026-10-17
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/par-box-fronteira-2026-10-17/before.json.gz`,
+`before-measurement.json.gz`, `before-analysis.json`,
+`supplement-before-measurement.json.gz` e `finite-before-measurement.json.gz`
+guardam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não
+commitado, status/diffstat, UTC, fontes, argv, hashes de binários e o pin
+vanilla 9f2b6e8715237cb086899a42873660fe744622e8.
+Em EmptyPar→Box8×7→AFTER, Tekt yMin31.108413 contra22.400001pt;
+em BEFORE→EmptyPar→Box→AFTER,54.625613 contra45.917187pt.
+Espaçamento30pt inverte o erro:70.225613 contra77.117188pt.
+Block8 abaixo0 seguido só de Box tem altura33.1172 contra31pt.
+Em alturas finitas60–63pt, AFTER desaparece no Tekt e fica visível na página2
+no pin;64–70pt deixam tinta na página1 mas página terminal extra no Tekt.
+Box alto45pt na primeira região30pt cria duas páginas contra uma no pin.
+boxed.rs:22–42 usa constantes normalizadas e ensure_initial_baseline;
+line_commit.rs:501–539 só admite antes do commit em altura reduzida;
+region_progress.rs:118–133 pode avançar após tinta já comitada fora da página.
+Fonte pinada inline/box.rs:35–68 publica a baseline do frame;
+flow/distribute.rs:321–373 admite frames pela geometria real.
+São posições, dimensões e páginas da linguagem, não exigência de copiar
+buffers/algoritmos Rust ou bytes PDF. A intenção histórica não é inferida.
+A hipótese de fronteira geométrica é refutada por controles inline,
+margens fortes, fontes, baseline deslocada, assentamento tardio, posições,
+primeiro frame alto, subframes ou reservas/rollback alterados.
+
+### Decisão e limites
+
+Correção interna/de paridade ADR-0127: L0 primeiro, RED→GREEN e resselo
+restrito, sem API pública, novo modo/default, dependência ou fase.
+A composição fracionária de Box permanece incompleta na etapa B anterior:
+a testemunha width:1fr tem largura0 contra145.849609pt. Sua rota de
+calibração é conservada neste reparo e não recebe crédito de paridade.
+A admissão nova certifica somente página raiz finita ordinária, sem colunas,
+reservas/floats, transação/checkpoint pendente ou collector externo de
+decoração. Esses mecanismos conservam os protocolos próprios, não são
+silenciados nem declarados corrigidos. Aceitação inclui matriz bilateral,
+controles sem fronteira, finite60–70, fonte maior posterior, primeira caixa
+alta e rebase de origem/contexto; suíte completa, build, Clippy, rustdoc,
+linhagem bidirecional e inventário SARIF diferencial sob12GiB e swap zero.
+
+### Responsabilidade exclusiva deste owner
+
+Na página raiz ordinária certificada acima, antes de numeração/commit,
+considerar o fundo real de toda a linha já expandida e o ajuste de ascent
+que ainda será instalado. Não usar descida tipográfica fictícia quando
+não há texto. Se não cabe e existe unidade causal anterior na página
+(tinta ou fundo causal de Par vazio), fechar a região anterior e transportar
+junta a linha ainda não comitada e seus wrappers/posições internos.
+Instalar baseline nova pelo ascent real da linha no topo útil da nova
+página, uma só vez, preservando avanço horizontal e indentação relativamente
+às margens resolvidas para essa página. Número/collector nascem só depois
+da migração. Não migrar collectors externos já comitados nem ignorar
+transações de suffix: os caminhos reservados existentes ficam intactos.
+Se a primeira unidade da região é mais alta que a região, comitá-la uma
+vez para garantir progresso, sem fabricar página vazia terminal.
+Linhas que cabem não criam página por uma baseline seguinte hipotética.
+
+Refinamento de evidência regional: region_progress.rs:144–151 limpa
+flow_placement_end ao fechar a região, mas last_block_descent_y é evidência
+de altura automática que pode atravessar páginas. O critério de unidade
+anterior deve usar tinta comitada e a evidência causal da região vigente,
+excluindo a própria current_line e o fundo herdado de página anterior.
+Refutar com Par vazio→pagebreak explícito→primeiro Box alto: exatamente as
+duas páginas causais, sem uma terceira página vazia de origem.

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/paint`
-Hash do Código: 3f2bcdae
+Hash do Código: fc689046
 
 ## Módulo
 `01_core/src/entities/paint.rs`

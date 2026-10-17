@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/equation.md
-//! @prompt-hash b85a95a9
+//! @prompt-hash c7823793
 //! @layer L1
-//! @updated 2026-06-11
+//! @updated 2026-10-10
 //!
 //! `EquationElem` — Lote 10 P325 (por largura). `equation(body, block)`.
 //! **Locatável** (P186B) — absorve `extract_payload`. Contentor **assimétrico**:
@@ -59,10 +59,9 @@ impl Element for EquationElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::Equation(Arc::new(EquationElem {
-            body: self.body.map_content(transform)?,
-            block: self.block,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::Equation(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -97,6 +96,26 @@ impl Element for EquationElem {
             },
             alt: crate::entities::value::Value::None,
         })
+    }
+}
+
+impl EquationElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        if body.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        Ok(Some(Content::Equation(Arc::new(mapped))))
     }
 }
 

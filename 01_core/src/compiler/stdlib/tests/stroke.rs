@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/tests/stroke.md
-//! @prompt-hash abe27a1e
+//! @prompt-hash 70eee8b5
 //! @layer L1
-//! @updated 2026-09-26
+//! @updated 2026-10-08
 
 use super::*;
 
@@ -17,9 +17,9 @@ fn p227_value_stroke_type_name_e_eq() {
         overhang: false,
         ..Stroke::default()
     };
-    let v = Value::Stroke(s.clone());
+    let v = Value::from(s.clone());
     assert_eq!(v.type_name(), "stroke");
-    let v2 = Value::Stroke(s);
+    let v2 = Value::from(s);
     assert_eq!(v, v2);
 }
 
@@ -59,7 +59,7 @@ fn p1224_native_stroke_preserva_campos_complexos() {
     assert_eq!(stroke.cap, LineCap::Round);
     assert_eq!(stroke.join, LineJoin::Bevel);
     assert_eq!(stroke.miter_limit, 2.0);
-    let dash = stroke.dash.unwrap();
+    let dash = stroke.dash.as_ref().unwrap();
     assert_eq!(dash.array, vec![DashLength::Length(2.0), DashLength::LineWidth]);
     assert_eq!(dash.phase, -0.5);
 }
@@ -370,7 +370,7 @@ fn p227_native_grid_stroke_value_stroke_passa() {
         ..Stroke::default()
     };
     let mut args = p(vec![Value::Content(Content::text("a"))]);
-    args.named.insert("stroke".into(), Value::Stroke(s.clone()));
+    args.named.insert("stroke".into(), Value::from(s.clone()));
     let r = native_grid(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Grid(e)) = r {
         assert_eq!(e.stroke, Some(s));
@@ -400,4 +400,83 @@ fn p1250a_stroke_miter_limit_distingue_finito_positivo() {
         assert!(!super::layout::is_valid_miter_limit(invalid));
     }
     assert!(super::layout::is_valid_miter_limit(2.5));
+}
+
+fn stroke_paint_test_gradient() -> crate::entities::gradient::Gradient {
+    use crate::entities::gradient::{Gradient, GradientStop};
+    Gradient::linear(
+        vec![
+            GradientStop::unspaced(Color::rgb(255, 65, 54)),
+            GradientStop::unspaced(Color::rgb(0, 116, 217)),
+        ],
+        Angle::rad(0.0),
+    )
+}
+
+#[test]
+fn stroke_paint_named_gradient_preserves_paint_and_slots() {
+    use crate::entities::paint::Paint;
+    null_ctx!(ctx);
+    let gradient = stroke_paint_test_gradient();
+    let mut args = pn(vec![], "paint", Value::Gradient(gradient.clone()));
+    args.named.insert("thickness".into(), Value::Length(Length::pt(12.0)));
+    args.named.insert("overhang".into(), Value::Bool(false));
+    let Value::Stroke(stroke) =
+        native_stroke(&mut ctx, &args, &null_world(), test_file_id()).unwrap()
+    else {
+        panic!("stroke")
+    };
+    assert_eq!(stroke.paint, Paint::Gradient(gradient));
+    assert_eq!(stroke.thickness, 12.0);
+    assert!(stroke.specified.paint && stroke.specified.thickness);
+    assert!(!stroke.overhang);
+}
+
+#[test]
+fn stroke_paint_named_tiling_preserves_body() {
+    use crate::entities::{
+        paint::Paint,
+        tiling::{Tiling, TilingBody},
+    };
+    null_ctx!(ctx);
+    let tiling = Tiling::new(TilingBody::Color(Color::rgb(255, 65, 54)));
+    let args = pn(vec![], "paint", Value::Tiling(Arc::new(tiling.clone())));
+    let Value::Stroke(stroke) =
+        native_stroke(&mut ctx, &args, &null_world(), test_file_id()).unwrap()
+    else {
+        panic!("stroke")
+    };
+    assert_eq!(stroke.paint, Paint::Tiling(tiling));
+    assert!(stroke.specified.paint);
+    assert!(!stroke.specified.thickness);
+    assert!(stroke.overhang);
+}
+
+#[test]
+fn stroke_paint_named_auto_is_unspecified() {
+    use crate::entities::paint::Paint;
+    null_ctx!(ctx);
+    let mut args = pn(vec![], "paint", Value::Auto);
+    args.named.insert("thickness".into(), Value::Length(Length::pt(2.0)));
+    let value = native_stroke(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+    let Value::Stroke(stroke) = &value else { panic!("stroke") };
+    assert_eq!(stroke.paint, Paint::Solid(Color::rgb(0, 0, 0)));
+    assert!(!stroke.specified.paint);
+    assert!(stroke.specified.thickness);
+    assert_eq!(crate::compiler::eval::repr::repr_value(&value), "2pt");
+}
+
+#[test]
+fn stroke_paint_invalid_named_uses_measured_diagnostics() {
+    null_ctx!(ctx);
+    for (value, name) in [(Value::None, "none"), (Value::Int(42), "integer")] {
+        let args = pn(vec![], "paint", value);
+        let errors =
+            native_stroke(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
+        assert_eq!(
+            errors[0].message,
+            format!("expected color, gradient, tiling, or auto, found {name}")
+        );
+        assert_eq!(errors[0].span, args.span);
+    }
 }

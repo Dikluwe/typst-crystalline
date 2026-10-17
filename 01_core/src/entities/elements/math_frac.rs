@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_frac.md
-//! @prompt-hash 4cd1a64a
+//! @prompt-hash 46c2ae1d
 //! @layer L1
-//! @updated 2026-06-11
+//! @updated 2026-10-10
 //!
 //! `MathFracElem` — Lote 2 P317 (família math). Fracção (`a/b`, `frac(a, b)`).
 //! Comportamento idêntico ao braço anterior do hub (content-preserving).
@@ -40,14 +40,9 @@ impl Element for MathFracElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathFrac(Arc::new(MathFracElem {
-            num: self.num.map_content(transform)?,
-            den: self.den.map_content(transform)?,
-            style: self.style,
-            num_deparenthesized: self.num_deparenthesized,
-            denom_deparenthesized: self.denom_deparenthesized,
-            line: self.line,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathFrac(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -56,6 +51,30 @@ impl Element for MathFracElem {
     {
         // Terminal (math structural; não desce).
         Content::MathFrac(Arc::new(self.clone()))
+    }
+}
+
+impl MathFracElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let num = self.num.map_content_if_changed(transform)?;
+        let den = self.den.map_content_if_changed(transform)?;
+        if num.is_none() && den.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = num {
+            mapped.num = changed;
+        }
+        if let Some(changed) = den {
+            mapped.den = changed;
+        }
+        Ok(Some(Content::MathFrac(Arc::new(mapped))))
     }
 }
 

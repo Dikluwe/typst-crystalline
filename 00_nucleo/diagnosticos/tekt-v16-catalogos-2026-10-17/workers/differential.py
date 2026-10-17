@@ -1,0 +1,7 @@
+from pathlib import Path
+import collections,gzip,json
+out=Path(__file__).resolve().parents[1];scope=json.load(open(out/'scope.json'));old=json.load(open('00_nucleo/diagnosticos/text-styled-equality-2026-10-17/validation-architecture.log'))['runs'][0]['results'];new=json.load(open(out/'validation-architecture.log'))['runs'][0]['results'];uri=lambda r:r['locations'][0]['physicalLocation']['artifactLocation']['uri'].removeprefix('./');key=lambda r:json.dumps(r,sort_keys=True,ensure_ascii=False);count=lambda rs:dict(collections.Counter(r['ruleId']+':'+r['level'] for r in rs));affected=set(scope['sources']);a=[x for x in old if uri(x) not in affected];z=[x for x in new if uri(x) not in affected];assert collections.Counter(map(key,a))==collections.Counter(map(key,z)),'Unrelated diagnostics changed'
+assert not [r for r in new if r['level'] in ['error','warning'] and r['ruleId']!='V16']
+a=[r for r in old if uri(r) in affected];z=[r for r in new if uri(r) in affected];assert collections.Counter(x['ruleId'] for x in a)['V16']==4
+assert not [x for x in z if x['ruleId']=='V16'];assert len([x for x in old if x['ruleId']=='V16'])-len([x for x in new if x['ruleId']=='V16'])==4
+r=dict(before=count(old),after=count(new),unrelated_diagnostics_identical=True,no_new_errors_or_warnings=True,selected_before=a,selected_after=z,scope=scope['sources']);(out/'architecture-delta.json').write_text(json.dumps(r,indent=2)+'\n');print(r['after'])

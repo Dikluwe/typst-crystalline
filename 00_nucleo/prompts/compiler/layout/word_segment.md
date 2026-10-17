@@ -1,8 +1,8 @@
 # L0 — word segment
-Hash do Código: e0221ae7
+Hash do Código: 12e7fc76
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
+- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:7b8a61eaafc8a07df12218f8f0560c33fae5c36f621b822b7350ccefc9774711
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/word_segment.rs`

@@ -1,14 +1,16 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper/cache.md
-//! @prompt-hash 47a8c990
+//! @prompt-hash 11f01656
 //! @layer L3
-//! @updated 2026-09-27
+//! @updated 2026-10-10
 
+use super::font_selection::FontCandidate;
 use std::collections::HashMap;
 use std::sync::Arc;
 use typst_core::contracts::world::World;
 use typst_core::entities::layout_types::ShapedGlyph;
 use typst_core::entities::world_types::Font;
+use typst_core::entities::{font_book::FontVariant, font_list::FontList};
 
 /// Cache de resultados de shaping por documento.
 ///
@@ -24,6 +26,7 @@ pub(super) struct ShapeCache {
 pub(super) struct CachedRun {
     pub(super) glyphs: Vec<ShapedGlyph>,
     pub(super) width: i32,
+    pub(super) font: Font,
 }
 
 impl ShapeCache {
@@ -53,6 +56,14 @@ impl ShapeCache {
     }
 }
 
+/// Last complete ordered primary chain, scoped with the parsed faces.
+pub(super) struct PrimaryResolution {
+    pub(super) font_list: FontList,
+    pub(super) variant: FontVariant,
+    pub(super) math: bool,
+    pub(super) candidates: Vec<FontCandidate>,
+}
+
 /// Cache de faces `ttf-parser` por `slot_idx` dentro de um documento.
 ///
 /// Evita re-parsear a mesma fonte milhares de vezes durante a fase de
@@ -61,11 +72,12 @@ impl ShapeCache {
 /// seja válido enquanto a face existir.
 pub(crate) struct FaceCache {
     pub(super) map: HashMap<usize, Option<Arc<CachedFace>>>,
+    pub(super) primary_resolution: Option<PrimaryResolution>,
 }
 
 impl FaceCache {
     pub(crate) fn new() -> Self {
-        Self { map: HashMap::new() }
+        Self { map: HashMap::new(), primary_resolution: None }
     }
 
     pub(crate) fn get(
@@ -73,14 +85,10 @@ impl FaceCache {
         world: &dyn World,
         slot_idx: usize,
     ) -> Option<&CachedFace> {
-        if !self.map.contains_key(&slot_idx) {
-            let cached = world.font(slot_idx).and_then(CachedFace::new);
-            self.map.insert(slot_idx, cached);
-        }
         self.map
-            .get(&slot_idx)
-            .and_then(|o| o.as_ref())
-            .map(|arc| arc.as_ref())
+            .entry(slot_idx)
+            .or_insert_with(|| world.font(slot_idx).and_then(CachedFace::new))
+            .as_deref()
     }
 }
 
@@ -163,6 +171,7 @@ mod axis_key_regressions {
                     variations: Some(FontVariations(vec![(*b"wght", value)])),
                     ..Default::default()
                 },
+                bidi: None,
             })
             .collect();
         let doc = PagedDocument::new(vec![Page {

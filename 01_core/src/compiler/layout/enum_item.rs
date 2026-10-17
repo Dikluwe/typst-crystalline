@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/enum_item.md
-//! @prompt-hash 74d08bc3
+//! @prompt-hash 6c84f06a
 //! @layer L1
 //! @updated 2026-07-23
 //!
@@ -82,6 +82,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         pos: Point { x: label_x, y: layouter.regions.current.cursor_y },
         text: label,
         style: layouter.style.clone(),
+        bidi: None,
     });
 
     // Prepara o cursor para o corpo e força quebras de linha subsequentes a

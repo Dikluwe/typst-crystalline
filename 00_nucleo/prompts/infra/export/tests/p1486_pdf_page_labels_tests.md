@@ -1,5 +1,5 @@
 # L0 — infra/export/tests/p1486_pdf_page_labels_tests
-Hash do Código: c8423432
+Hash do Código: ea4dfcd2
 
 **Layer:** L3 (test-only)
 **Exclusive consumer:** `03_infra/src/export/tests/p1486_pdf_page_labels_tests.rs`
@@ -28,3 +28,16 @@ IDs or whole-PDF byte comparison.
 
 Preserve the fixture matrix and per-retained-page labels. Independent qpdf/pypdf
 and original bilateral fixture evidence remain separate from local regression tests.
+
+
+## Expressões locais verificadas — Clippy 2026-10-16
+
+### Medição anterior à decisão
+
+03_infra/src/export/tests/p1486_pdf_page_labels_tests.rs:111 (clippy::regex_creation_in_loops); 03_infra/src/export/tests/p1486_pdf_page_labels_tests.rs:116 (clippy::regex_creation_in_loops). O snapshot `00_nucleo/diagnosticos/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
+
+### Responsabilidade exclusiva e aceitação
+
+Compilar as duas Regex constantes de St e S uma vez por invocação do observador, antes do loop de entries. Manter padrões idênticos, capturas, defaults 1/None, interpretação de prefixos e todos os controles por página. Sem estado global ou regex compartilhada entre invocações.
+
+Fluxo contínuo ADR-0127: sem API pública, default de produto, fase, dependência ou supressão novos. L0 precede código e resselo restrito. Preservar inputs e resultados dos controles existentes, sem relaxar tolerâncias. Gate dos lints selecionados RED→GREEN; executar suíte workspace, build, Clippy all-targets, formato, Rustdoc e linhagem. Não criar testes que apenas espelhem a sintaxe Rust.

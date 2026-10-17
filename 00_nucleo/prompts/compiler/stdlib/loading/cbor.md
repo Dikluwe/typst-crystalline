@@ -1,5 +1,5 @@
 # L0 — stdlib/loading/cbor
-Hash do Código: d85d2d20
+Hash do Código: 69bc995f
 
 ## Ownership e medição
 
@@ -15,3 +15,15 @@ As regras detalhadas e evidências históricas do comportamento permanecem em `0
 ## Aceitação
 
 Preservar o resultado linguístico e os diagnósticos existentes. Compilar, passar a suíte L1 e `crystalline-lint .` com ownership e hashes válidos.
+
+## Helpers e armazenamento sem uso — 2026-10-13
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/stdlib/loading/cbor.rs` nas linhas 13 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `00_nucleo/diagnosticos/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
+
+### Decisão e aceitação
+
+Compilar o helper interno `decode_cbor` somente sob `#[cfg(test)]`, conservando assinatura e corpo para os testes existentes. O módulo cbor é privado e sua reexportação já é cfg(test). Preservar decode_cbor_with_source, native_cbor e native_cbor_encode produtivos, com os mesmos diagnósticos por origem.
+
+Preservar as rotas produtivas, nomes e corpos dos testes existentes, APIs externas, defaults e fase. Alteração interna em fluxo contínuo ADR-0127. Revalidar build e check de todos os targets do workspace, suíte core, inventário de testes, Clippy e linhagem; não eliminar expectativas para passar o gate.

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/emph.md
-//! @prompt-hash f70b73a5
+//! @prompt-hash 056c6cf9
 //! @layer L1
-//! @updated 2026-06-18
+//! @updated 2026-10-10
 //!
 //! **F-5b fatia 1 (P371, `f_fronteira_e1.md` §3a.12)** — `emph` (`_italic_`) como
 //! **variante própria** (modelo D, ADR-0105), par simétrico do `strong`. Devolve a
@@ -15,6 +15,7 @@ use super::Element;
 use crate::entities::content::Content;
 use crate::entities::source_result::SourceResult;
 use crate::entities::value::Value;
+use std::sync::Arc;
 
 /// `emph` — ênfase (`_italic_`). Container transparente ao `plain_text` (só o
 /// body); o italic é estilo de render aplicado no layout.
@@ -46,7 +47,9 @@ impl Element for EmphElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::emph(self.body.map_content(transform)?))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::Emph(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, transform: &mut F) -> Content
@@ -61,6 +64,26 @@ impl Element for EmphElem {
             "body" => Some(Value::Content(self.body.clone())),
             _ => None,
         }
+    }
+}
+
+impl EmphElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        if body.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        Ok(Some(Content::Emph(Arc::new(mapped))))
     }
 }
 

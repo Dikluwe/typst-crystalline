@@ -1,0 +1,5 @@
+from pathlib import Path
+import subprocess,json,sys,datetime
+out=Path('00_nucleo/diagnosticos/tekt-enums-2026-10-16');scope=json.loads((out/'scope.json').read_text());cmd=['/tmp/tekt-linter-ci-target/debug/crystalline-lint','.','--checks','v16','--format','sarif','--fail-on','warning']
+with (out/'scope-gate-sarif.json').open('w') as f:r=subprocess.run(cmd,stdout=f,stderr=subprocess.STDOUT)
+results=json.loads((out/'scope-gate-sarif.json').read_text())['runs'][0]['results'];selected=[x for x in results if x['level'] in ['error','warning'] and x['locations'][0]['physicalLocation']['artifactLocation']['uri'].removeprefix('./') in scope['sources']];outside=[x for x in results if x['level']=='warning' and x not in selected];record=dict(utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),command=cmd,global_exit=r.returncode,selected_warnings_or_errors=len(selected),outside_warnings=len(outside),exit=int(bool(selected)));(out/'scope-gate-result.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps(record));assert not any(x['level']=='error' for x in results);assert len(outside)==312;sys.exit(record['exit'])

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/p1431-line-cap-tests.md
-//! @prompt-hash bb786fe1
+//! @prompt-hash b43c865c
 //! @layer L1
 #![cfg(test)]
 
@@ -15,7 +15,13 @@ fn line_debugs(items: &[FrameItem], out: &mut Vec<String>) {
             FrameItem::Group { items, .. }
             | FrameItem::Link { items, .. }
             | FrameItem::Semantic { items, .. } => line_debugs(items, out),
-            _ => {}
+            FrameItem::TextReplacement { .. }
+            | FrameItem::TextSeparator { .. }
+            | FrameItem::Text { .. }
+            | FrameItem::TextShaped { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. } => {}
         }
     }
 }

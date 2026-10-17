@@ -1,6 +1,6 @@
 # L0 — scopes
+Hash do Código: 86a24557
 
-Hash do Código: 85a36a45
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/scopes.rs`
@@ -51,3 +51,55 @@ or error construction. Missing names are not constants.
 Acceptance covers lexical shadowing, enter/exit, captured sharing, base access,
 snapshot precedence, local-only lookup and mutation classifications without
 requiring the upstream Binding representation.
+
+
+## Snapshot com cópia inicial do primeiro prefixo — prioridade 7
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/snapshot-scopes-prioridade7-2026-10-08/before.json.gz`
+guarda HEAD/árvore/UTC/textos e release 17e72149. scopes.rs:84–103 reinsere por
+nome todos os bindings do prefixo e dos overlays. closures.rs:196 e
+expression_dispatch.rs:505 capturam na definição, não em cada chamada.
+`probes.json.gz`/`probe-summary.json` medem 100 capturas em closures100: 20.300
+bindings de entrada, dos quais 20.100 da base, sempre de tamanho 201. Uma closure
+chamada 1.000 vezes captura só uma vez. context100 captura 100 vezes; nested
+mostra base e captured em chamadas diferentes. Contagem debug e chamadas release
+coincidem nos controles comuns. Tempos sob GDB são intrusivos e não são prova de
+fração de tempo na CLI normal.
+`prototype.json` usa Scope/Scopes reais e dados inteiros sintéticos; o helper
+externo inicia pelo clone completo da base (ou captured sem base). Cinco pares
+por configuração, 2.000 snapshots por amostra: base201 34,09→18,94 ms,
+captured201 37,47→20,79 ms, ambos201 37,50→20,93 ms. A ordem/valores foram
+comparados antes do cronômetro. Não medir esses inteiros como stdlib completa.
+A cópia/reinserção é mecânica; os valores, precedência, ordem e isolamento são
+semântica/morfologia do contrato existente (ADR-0107/0108).
+
+### Decisão e responsabilidade exclusiva
+
+Começar snapshot pelo clone de base.global, se base existe; caso contrário,
+pelo clone de captured, se existe; senão Scope::new. Overlay captured ocorre
+somente quando ainda não foi usado como prefixo. Depois aplicar previous scopes
+em ordem antiga→nova e top como antes. Isso conserva primeira posição dos nomes,
+substituição pelos mais próximos, stdlib disponível na chamada e isolamento da
+captura. Não filtrar nomes usados/livres; não compartilhar mudanças, omitir
+stdlib ou transformar captura em lookup do estado posterior à definição.
+
+Não mudar representação de Scope, sua new/define/get/get_mut/clone, Capturer,
+campos/assinaturas públicos de Scopes, fases, defaults ou diagnósticos. Loops sem
+captura não ganham Arc/alocação extra. Um helper privado pode receber FnOnce
+estático para clonar o prefixo, executado no máximo uma vez; é construção pura
+de RAM, nunca callback da linguagem. Sem I/O, unsafe, globais ou novo crate.
+Correção interna reversível, fluxo contínuo ADR-0127; owner continua 1:1.
+
+### Aceitação e refutação
+
+RED→GREEN: testemunho privado conta uma cópia inicial do prefixo, em vez de sua
+reinserção individual; cobre base+captured e captured sem base. Controle funcional
+conserva overlays, primeira posição, mutação isolada e fallback sem prefixo.
+O testemunho é de mecânica interna, não igualdade de ponteiros da linguagem.
+Comparar release congelado e atual em CLI: criação repetida, chamada repetida,
+contextos, loops sem captura e caso mínimo; preservar texto/caixas/diagnósticos,
+com vanilla pinado qualificado antes de declarar paridade. Só manter com ganho
+repetido nos workloads de captura e sem regressão relevante nos controles.
+Builds dev/release, suíte core/infra pertinente, lint e resselo só deste owner.

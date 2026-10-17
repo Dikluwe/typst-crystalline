@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/system-world/tests.md
-//! @prompt-hash 167357f3
+//! @prompt-hash 0e9937b3
 //! @layer L3
-//! @updated 2026-09-27
+//! @updated 2026-10-07
 
 use super::*;
 use std::num::NonZeroU16;
@@ -203,7 +203,7 @@ fn system_world_with_fonts_and_system_inclui_projecto() {
         .with_fonts_and_system(&[font_dir.path().to_path_buf()]);
 
     // Sistema pode ou não ter fontes; projecto adiciona 1 slot.
-    assert!(world.font_catalog().0.len() >= 1);
+    assert!(!world.font_catalog().0.is_empty());
 }
 
 #[test]
@@ -490,13 +490,9 @@ fn precomputed_coverage_needs_no_font_bytes() {
     let mut info = crate::fonts::font_info_from_bytes(&data, 0).unwrap();
     info.coverage = Coverage::from_codepoints(vec!['A' as u32]);
     let mut world = SystemWorld::for_eval(dir.path());
-    world.font_catalog.get_mut().unwrap().1.push(info);
-    world
-        .font_catalog
-        .get_mut()
-        .unwrap()
-        .0
-        .push(FontSlot::new(dir.path().join("absent.otf"), 0));
+    let catalog = Arc::get_mut(world.font_catalog.get_mut().unwrap()).unwrap();
+    catalog.1.push(info);
+    catalog.0.push(FontSlot::new(dir.path().join("absent.otf"), 0));
     assert_eq!(world.candidates_for_char('A'), vec![0]);
     assert!(world.candidates_for_char('你').is_empty());
     assert!(world.coverage_cache.lock().unwrap().is_empty());
@@ -613,4 +609,88 @@ fn infra_review_concurrent_registration_has_one_identity() {
         );
         assert!(world.slots.lock().unwrap().contains_key(&ids[0]));
     }
+}
+
+#[test]
+fn expression_source_identity_registered_sources_and_physical_names() {
+    let dir = tempdir();
+    let world = SystemWorld::for_stdin(dir.path(), "= Açúcar".into());
+    let a = world.source_for_expression("1 + 2".into()).unwrap();
+    let b = world.source_for_expression("1 + 2".into()).unwrap();
+    assert_ne!(a.id(), b.id());
+    assert_ne!(a.id(), world.main());
+    assert_eq!(world.source(a.id()).unwrap().text(), "1 + 2");
+    assert_eq!(world.file(a.id()).unwrap().as_slice(), b"1 + 2");
+    assert_eq!(world.file(world.main()).unwrap().as_slice(), "= Açúcar".as_bytes());
+    assert!(world.dependencies().is_empty());
+    for name in ["<stdin>", "<input-expression>"] {
+        let path = dir.path().join(name);
+        std::fs::write(&path, "physical").unwrap();
+        let id = world.register_file(path);
+        assert_ne!(id, a.id());
+        assert_ne!(id, world.main());
+        assert_eq!(world.source(id).unwrap().text(), "physical");
+    }
+    assert_eq!(world.dependencies().len(), 2);
+    assert_eq!(world.source(world.main()).unwrap().text(), "= Açúcar");
+    let empty = SystemWorld::for_eval(dir.path());
+    assert!(empty.dependencies().is_empty());
+    assert!(empty.file(empty.main()).unwrap().as_slice().is_empty());
+}
+
+#[test]
+fn expression_source_identity_exhaustion_never_overwrites_or_poisons() {
+    let dir = tempdir();
+    let world = SystemWorld::for_eval(dir.path());
+    *world.next_id.lock().unwrap() = u16::MAX.into();
+    let last = world.source_for_expression("42".into()).unwrap();
+    assert_eq!(last.id().into_raw().get(), u16::MAX);
+    assert!(
+        matches!(world.source_for_expression("0".into()), Err(FileError::Other(message)) if message == "FileId counter exhausted")
+    );
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        world.register_file(dir.path().join("new.typ"))
+    }));
+    assert!(result.is_err());
+    assert_eq!(world.source(last.id()).unwrap().text(), "42");
+    assert_eq!(world.file(last.id()).unwrap().as_slice(), b"42");
+    assert_eq!(world.source(world.main()).unwrap().text(), "");
+    assert!(world.dependencies().is_empty());
+}
+
+#[test]
+fn expression_source_identity_concurrent_publication_and_reads() {
+    let dir = tempdir();
+    let physical = dir.path().join("shared.typ");
+    std::fs::write(&physical, "physical").unwrap();
+    let world = SystemWorld::for_eval(dir.path());
+    let all = std::thread::scope(|scope| {
+        let handles = (0..12)
+            .map(|_| {
+                let world = &world;
+                let physical = &physical;
+                scope.spawn(move || {
+                    let physical_id = world.register_file(physical.clone());
+                    for _ in 0..8 {
+                        assert_eq!(
+                            world.file(physical_id).unwrap().as_slice(),
+                            b"physical"
+                        );
+                    }
+                    let source = world.source_for_expression("42".into()).unwrap();
+                    assert_eq!(world.file(source.id()).unwrap().as_slice(), b"42");
+                    (physical_id, source.id())
+                })
+            })
+            .collect::<Vec<_>>();
+        handles.into_iter().map(|h| h.join().unwrap()).collect::<Vec<_>>()
+    });
+    let physical_id = all[0].0;
+    let unique = all
+        .iter()
+        .map(|pair| pair.1)
+        .collect::<std::collections::HashSet<_>>();
+    assert_eq!(unique.len(), 12);
+    assert!(all.iter().all(|pair| pair.0 == physical_id && pair.1 != physical_id));
+    assert_eq!(world.dependencies(), vec![physical]);
 }

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr/selector.md
-//! @prompt-hash 11d3dab0
+//! @prompt-hash 63215069
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-06
 
 use super::*;
 
@@ -10,6 +10,11 @@ use super::*;
 pub fn repr_selector(sel: &Selector) -> String {
     match sel {
         Selector::Kind(kind) => kind.as_str().to_string(),
+        Selector::NativeElement(function) => {
+            crate::compiler::eval::bindings::native_element_fields(function)
+                .map(|(name, _, _)| name.to_string())
+                .unwrap_or_else(|| "selector(..)".to_string())
+        }
         Selector::Element { function, fields } => {
             let group = if fields.is_empty() {
                 "(:)".to_string()

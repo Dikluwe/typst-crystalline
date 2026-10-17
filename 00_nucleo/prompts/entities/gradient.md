@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/gradient`
-Hash do Código: ab1e42a7
+Hash do Código: 084d1747
 
 ## Módulo
 `01_core/src/entities/gradient.rs`
@@ -146,7 +146,7 @@ constantes completas de `palette 0.7.6::oklab::linear_srgb_to_oklab` pinadas no
 L0 `entities/color`. A duplicação privada neste consumer deve permanecer
 numericamente idêntica, inclusive na ordem `mul_add` da curva sRGB e na raiz
 cúbica bit-compatível com `libm::cbrtf`;
-constantes abreviadas e operações de gamma decompostas são proibidas. Endpoints e
+constantes abreviadas que mudem o valor f32 e alterações da ordem própria de cada direção de gamma são proibidas. Endpoints e
 intermediários públicos devem coincidir com o vanilla antes de qualquer tuning
 do helper adaptativo L3.
 Na interpolação Oklab, os pesos são materializados separadamente como `f32` e
@@ -1057,3 +1057,51 @@ interpelações de processo e seus controles não mudam.
 
 `GradientStop` perde `Copy` porque contém `Color`, sem alterar o seu
 constructor, offset ou semântica; clones necessários são mecânica Rust.
+
+## Correção medida em 2026-10-13
+
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado.
+Fontes, hashes, UTC, status e diffstat: `00_nucleo/diagnosticos/cores-ci-2026-10-13/before.json.gz`
+e `constructors-before.json.gz`. Sondas e prova numérica em `evidence.json.gz`.
+Vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`, SHA-256 ratificado
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+
+Medição: as 18 grafias propostas no owner interpolation foram compiladas como
+f32 e preservam exatamente os bits (literals.rs/literals.json no receipt).
+Decisão: P1253 proíbe perda de precisão, não grafias equivalentes demonstradas.
+Permitir somente essas grafias sem alterar coeficientes ou ordem. A fachada
+produtiva recebe apenas resselo; não muda sua API, comportamento ou testes.
+
+## Limites e precisão de cor — 2026-10-13
+
+Medição anterior à decisão, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`,
+working tree não commitado: fontes, SHA-256, UTC, status e diffstat em
+`00_nucleo/diagnosticos/limites-cor-2026-10-13/before.json.gz` e
+`parents-before.json.gz`; sondas em `evidence.json.gz`. Oráculo pinado
+`9f2b6e8715237cb086899a42873660fe744622e8`, binário SHA-256
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+
+`red.rotate(45deg)` expõe blue negativo no cristalino; o vanilla limita a zero.
+`rgb(10%,20%,30%,40%)` expõe 10.2%/30.2% em vez de 10%/30%. Linear RGB aceita
+256 e alpha -1%, que o vanilla rejeita. Chroma Oklch negativo converte para
+cor cromática no cristalino e cinza no vanilla. As saídas completas ficam
+conservadas, inclusive dígitos adicionais dos componentes públicos.
+
+Fonte: upstream `visualize/color.rs:1825-1895` distingue FromColor limitado,
+identidade e from_linear; palette 0.7.6 `convert/from_into_color.rs:53-59`
+chama clamp após converter. `encoding/srgb.rs:100-120` usa multiplicação pelo
+recíproco na parte linear do decode e mul_sub no encode; `num.rs:718-722`
+implementa mul_sub SEM fusão. A antiga cláusula P1253 de encode com fmaf era
+incorreta para esta fonte. `oklab.rs:355-368` limita chroma a zero antes da
+conversão polar; `hues.rs:155-157` usa sincosf via o trait libm.
+
+Correção interna contínua ADR-0127: nenhum campo/assinatura pública, binding,
+modo padrão, compatibilidade externa ou fase muda. L0 primeiro, testes RED
+para observáveis, implementação e revalidação. Diferenças restantes das
+sondas não são normalizadas nem recebem certificado genérico de paridade.
+
+Retificar a proibição genérica de decompor gamma: preservar a operação real
+do baseline em cada direção. Decode exponencial continua fused; encode do
+owner color/conversion tem mul_sub sem fusão, e decode linear usa recíproco.
+A fachada recebe somente resselo; não muda sampling/offsets/contratos públicos.
+Os owners permanecem 1:1.

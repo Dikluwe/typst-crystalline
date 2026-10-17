@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg.md
-//! @prompt-hash aef9223a
+//! @prompt-hash da81756b
 //! @layer L3
 //! @updated 2026-09-28
 //! SVG facade and exhaustive renderer dispatcher.
@@ -20,7 +20,7 @@ use serialization::{color_to_css, fmt_num};
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::font_variations::FontVariations;
-use typst_core::entities::layout_types::{FrameItem, Page};
+use typst_core::entities::layout_types::{FrameItem, Page, Pt, Size, TransformMatrix};
 use xmlwriter::XmlWriter;
 
 mod geometry;
@@ -36,18 +36,12 @@ mod serialization;
 mod tests;
 
 /// Opções de exportação SVG.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct SvgOptions {
     /// Se true, formata o SVG com indentação.
     pub pretty: bool,
     /// Se true, inclui o canvas físico; false recorta ao TrimBox.
     pub render_bleed: bool,
-}
-
-impl Default for SvgOptions {
-    fn default() -> Self {
-        Self { pretty: false, render_bleed: false }
-    }
 }
 
 /// Tipo da chave de fontes usada pelas variantes `_with_fonts`.
@@ -147,6 +141,8 @@ fn export_svg_with_fonts_inner(
     glyph_fonts: &SvgGlyphFontContext,
     html_frame: bool,
 ) -> String {
+    let prepared = fonts.map(|f| super::font_binding::PreparedFonts::new(page, f));
+    let fonts = prepared.as_ref();
     let mut xml = XmlWriter::new(xmlwriter::Options {
         use_single_quote: false,
         indent: if opts.pretty {
@@ -191,6 +187,15 @@ fn export_svg_with_fonts_inner(
     let mut glyph_defs = GlyphDefs::default();
     let mut paint_defs = PaintDefs::default();
     let mut clip_next_id = 0usize;
+    let mut session = SvgRenderSession {
+        fonts,
+        glyph_defs: &mut glyph_defs,
+        paint_defs: &mut paint_defs,
+        clip_next_id: &mut clip_next_id,
+        destinations,
+        glyph_fonts,
+        html_frame,
+    };
     if opts.render_bleed {
         xml.start_element("g");
         xml.write_attribute(
@@ -204,61 +209,67 @@ fn export_svg_with_fonts_inner(
         .chain(page.items.iter())
         .chain(page.foreground.iter())
     {
-        render_item(
-            &mut xml,
-            item,
-            fonts,
-            &mut glyph_defs,
-            &mut paint_defs,
-            &mut clip_next_id,
-            destinations,
-            glyph_fonts,
-            html_frame,
-        );
+        render_item(&mut xml, item, &mut session);
     }
     if opts.render_bleed {
         xml.end_element();
     }
 
     // Emite as definições de glifos antes de fechar o SVG.
-    paint_defs.write(&mut xml);
-    glyph_defs.write(&mut xml);
+    session.paint_defs.write(
+        &mut xml,
+        session.fonts,
+        session.glyph_defs,
+        session.clip_next_id,
+        session.glyph_fonts,
+    );
+    session.glyph_defs.write(&mut xml);
 
     xml.end_element();
     xml.end_document()
 }
 
+struct SvgRenderSession<'a> {
+    fonts: Option<&'a super::font_binding::PreparedFonts>,
+    glyph_defs: &'a mut GlyphDefs,
+    paint_defs: &'a mut PaintDefs,
+    clip_next_id: &'a mut usize,
+    destinations: &'a SvgDestinationContext,
+    glyph_fonts: &'a SvgGlyphFontContext,
+    html_frame: bool,
+}
+
 fn render_item(
     xml: &mut XmlWriter,
     item: &FrameItem,
-    fonts: Option<&[FontKey]>,
-    glyph_defs: &mut GlyphDefs,
-    paint_defs: &mut PaintDefs,
-    clip_next_id: &mut usize,
-    destinations: &SvgDestinationContext,
-    glyph_fonts: &SvgGlyphFontContext,
-    html_frame: bool,
+    session: &mut SvgRenderSession<'_>,
 ) {
     match item {
-        FrameItem::TextSeparator { pos, style, .. } => { if html_frame { render_html_text(xml, pos, &ecow::EcoString::from(" "), style); } },
-        FrameItem::Text { pos, text, style } => {
-            if html_frame {
+        FrameItem::TextSeparator { pos, style, .. } => {
+            if session.html_frame {
+                render_html_text(xml, pos, &ecow::EcoString::from(" "), style);
+            }
+        }
+        FrameItem::Text { pos, text, style, .. } => {
+            if session.html_frame {
                 render_html_text(xml, pos, text, style);
             }
         }
-        FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
-            if html_frame {
+        FrameItem::TextShaped {
+            pos, glyphs, style, text, units_per_em, font, ..
+        } => {
+            if session.html_frame {
                 render_html_text(xml, pos, text, style);
-            } else if let Some(fonts) = fonts {
+            } else if let Some(fonts) = session.fonts {
                 render_text_shaped(
                     xml,
                     pos,
                     glyphs,
                     style,
-                    text,
                     *units_per_em,
                     fonts,
-                    glyph_defs,
+                    session.glyph_defs,
+                    font.as_ref(),
                 );
             }
         }
@@ -266,7 +277,7 @@ fn render_item(
             render_line(xml, start, end, *thickness, color.clone());
         }
         FrameItem::Glyph { pos, glyph_id, size, style, base_char, .. } => {
-            if let Some(fonts) = fonts {
+            if let Some(fonts) = session.fonts {
                 render_direct_glyph(
                     xml,
                     pos,
@@ -274,9 +285,9 @@ fn render_item(
                     *size,
                     style,
                     *base_char,
-                    fonts,
-                    glyph_fonts,
-                    glyph_defs,
+                    fonts.fonts(),
+                    session.glyph_fonts,
+                    session.glyph_defs,
                 );
             } else {
                 write_glyph_fallback(xml, pos, "fontless-wrapper");
@@ -293,7 +304,7 @@ fn render_item(
                 *height,
                 clip_rect.as_ref(),
                 *orientation,
-                clip_next_id,
+                session.clip_next_id,
             );
         }
         FrameItem::Shape {
@@ -308,10 +319,11 @@ fn render_item(
                 fill.as_ref(),
                 stroke.as_ref(),
                 *fill_rule,
-                paint_defs,
+                session.paint_defs,
             );
         }
         FrameItem::Group {
+            paint_root,
             pos,
             matrix,
             clip_mask,
@@ -319,52 +331,39 @@ fn render_item(
             inner_height,
             items,
         } => {
+            let previous_root = session.paint_defs.local_to_root;
+            session.paint_defs.local_to_root = if *paint_root {
+                TransformMatrix::identity()
+            } else {
+                previous_root
+                    .concat(&TransformMatrix::translate(pos.x.0, pos.y.0))
+                    .concat(matrix)
+            };
             render_group(
                 xml,
                 pos,
                 matrix,
                 clip_mask.as_ref(),
-                *inner_width,
-                *inner_height,
+                Size { width: Pt(*inner_width), height: Pt(*inner_height) },
                 items,
-                fonts,
-                glyph_defs,
-                paint_defs,
-                clip_next_id,
-                destinations,
-                glyph_fonts,
-                html_frame,
+                session,
             );
+            session.paint_defs.local_to_root = previous_root;
+        }
+        FrameItem::Link { items, .. } if session.paint_defs.decorative => {
+            let previous_html_frame = session.html_frame;
+            session.html_frame = false;
+            for item in items {
+                render_item(xml, item, session);
+            }
+            session.html_frame = previous_html_frame;
         }
         FrameItem::Link { target, items, pos, size } => {
-            render_link(
-                xml,
-                target,
-                items,
-                pos,
-                size,
-                fonts,
-                glyph_defs,
-                paint_defs,
-                clip_next_id,
-                destinations,
-                glyph_fonts,
-                html_frame,
-            );
+            render_link(xml, target, items, pos, size, session);
         }
         FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
             for item in items {
-                render_item(
-                    xml,
-                    item,
-                    fonts,
-                    glyph_defs,
-                    paint_defs,
-                    clip_next_id,
-                    destinations,
-                    glyph_fonts,
-                    html_frame,
-                );
+                render_item(xml, item, session);
             }
         }
     }

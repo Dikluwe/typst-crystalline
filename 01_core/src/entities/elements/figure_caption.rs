@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/figure_caption.md
-//! @prompt-hash 934dfb89
+//! @prompt-hash f77a87da
 //! @layer L1
 //! @updated 2026-09-21
 //!
@@ -42,6 +42,27 @@ pub struct FigureCaptionElem {
 }
 
 impl Element for FigureCaptionElem {
+    fn get_field(&self, field: &str) -> Option<crate::entities::value::Value> {
+        use crate::entities::layout_types::{Align2D, VAlign};
+        use crate::entities::value::Value;
+        match field {
+            "body" => Some(Value::Content(self.body.clone())),
+            "separator" => {
+                self.separator.as_ref().map(|body| Value::Content(body.clone()))
+            }
+            "position" => self.position.map(|position| {
+                Value::Align(Align2D {
+                    h: None,
+                    v: Some(match position {
+                        CaptionPosition::Top => VAlign::Top,
+                        CaptionPosition::Bottom => VAlign::Bottom,
+                    }),
+                })
+            }),
+            _ => None,
+        }
+    }
+
     fn plain_text(&self) -> String {
         self.body.plain_text()
     }
@@ -168,5 +189,29 @@ mod tests {
             h.finish()
         };
         assert_ne!(hash_of(&a), hash_of(&b));
+    }
+}
+
+#[cfg(test)]
+mod caption_shape_tests {
+    use super::*;
+    use crate::entities::layout_types::{Align2D, VAlign};
+    use crate::entities::value::Value;
+    #[test]
+    fn caption_shape_getters_keep_only_explicit_fields() {
+        let c = FigureCaptionElem {
+            body: Content::text("C"),
+            position: Some(CaptionPosition::Top),
+            separator: Some(Content::text("S")),
+        };
+        assert_eq!(c.get_field("body"), Some(Value::Content(Content::text("C"))));
+        assert_eq!(
+            c.get_field("position"),
+            Some(Value::Align(Align2D { h: None, v: Some(VAlign::Top) }))
+        );
+        assert_eq!(c.get_field("separator"), Some(Value::Content(Content::text("S"))));
+        let unset = FigureCaptionElem { position: None, separator: None, ..c };
+        assert!(unset.get_field("position").is_none());
+        assert!(unset.get_field("kind").is_none());
     }
 }

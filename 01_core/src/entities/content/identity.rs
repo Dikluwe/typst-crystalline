@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content/identity.md
-//! @prompt-hash 006ca527
+//! @prompt-hash 3703e54b
 //! @layer L1
-//! @updated 2026-09-26
+//! @updated 2026-10-07
 
 use std::fmt;
 
@@ -12,6 +12,10 @@ impl Content {
     /// Return the stable element name used by diagnostics and field errors.
     pub fn elem_name(&self) -> &'static str {
         match self {
+            Self::Source(e) => e.body.elem_name(),
+            Self::ShowRecipe(e) => e.body.elem_name(),
+            Self::Located(e) => e.body.elem_name(),
+            Self::Realized(e) => e.visual.elem_name(),
             Self::Text(_) => "text",
             Self::Space | Self::SpaceFromNewline => "space",
             Self::Empty => "empty",
@@ -51,7 +55,7 @@ impl Content {
             Self::MathOvershell(_) => "overshell",
             Self::MathAlignPoint(_) => "math.align.point",
             Self::Linebreak(_) => "linebreak",
-            Self::MathMatrix(_) => "math.matrix",
+            Self::MathMatrix(_) => "mat",
             Self::MathCases(_) => "math.cases",
             Self::MathAccent(_) => "math.accent",
             Self::MathCancel(_) => "math.cancel",
@@ -74,7 +78,23 @@ impl Content {
             Self::Image(_) => "image",
             Self::Shape(_) => "shape",
             Self::Curve(_) => "curve",
-            Self::Transform(_) => "transform",
+            Self::Transform(e) => match e.operation {
+                crate::entities::elements::transform::TransformOperation::Matrix(_) => {
+                    "transform"
+                }
+                crate::entities::elements::transform::TransformOperation::Move {
+                    ..
+                } => "move",
+                crate::entities::elements::transform::TransformOperation::Rotate {
+                    ..
+                } => "rotate",
+                crate::entities::elements::transform::TransformOperation::Scale {
+                    ..
+                } => "scale",
+                crate::entities::elements::transform::TransformOperation::Skew {
+                    ..
+                } => "skew",
+            },
             Self::Grid(_) => "grid",
             Self::GridHeader(_) => "grid.header",
             Self::GridFooter(_) => "grid.footer",
@@ -89,7 +109,7 @@ impl Content {
             Self::Terms(_) => "terms",
             Self::TermItem(_) => "term.item",
             Self::Quote(_) => "quote",
-            Self::SmartQuote(_) => "smart.quote",
+            Self::SmartQuote(_) => "smartquote",
             Self::PdfAttach(_) => "pdf.attach",
             Self::PdfArtifact(_) => "pdf.artifact",
             Self::Underline(_) => "underline",
@@ -101,7 +121,7 @@ impl Content {
             Self::Boxed(_) => "box",
             Self::Block(_) => "block",
             Self::Table(_) => "table",
-            Self::TableCell(_) => "table.cell",
+            Self::TableCell(_) => "cell",
             Self::TableHeader(_) => "table.header",
             Self::TableFooter(_) => "table.footer",
             Self::TableHLine(_) => "table.hline",
@@ -151,6 +171,10 @@ impl fmt::Debug for Content {
 
 fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match c {
+        Content::Source(e) => write!(f, "{:?}", e.body),
+        Content::ShowRecipe(e) => write!(f, "{:?}", e.body),
+        Content::Located(e) => write!(f, "{:?}", e.body),
+        Content::Realized(e) => write!(f, "{:?}", e.visual),
         Content::Empty => write!(f, "empty"),
         Content::Text(t) => write!(f, "text({:?})", t),
         Content::Space | Content::SpaceFromNewline => write!(f, "space"),

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/query.md
-//! @prompt-hash 18315d30
+//! @prompt-hash efb7dce3
 //! @layer L1
-//! @updated 2026-08-13
+//! @updated 2026-10-06
 //!
 //! Query, localização, metadados e selectors: metadata, query, locate, here,
 //! target, selector. Fatiado de `foundations.rs` no Passo 1032.
@@ -16,6 +16,15 @@ use crate::entities::value::Value;
 
 use super::selector::parse_selector_arg;
 use crate::compiler::stdlib::{err, expect_no_named};
+
+fn selector_value_span(args: &Args) -> crate::entities::span::Span {
+    args.occurrences
+        .as_ref()
+        .and_then(|items| items.iter().find(|item| item.name.is_none()))
+        .map(|item| item.value_span)
+        .filter(|span| !span.is_detached())
+        .unwrap_or(args.span)
+}
 
 /// `metadata(value)` — embeber valor opaco no documento para query
 /// via `Introspector::query_metadata`. P169 (M9 sub-passo 1).
@@ -50,7 +59,10 @@ pub fn native_query(
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let selector = parse_selector_arg(&args.items, "query")?;
-    crate::compiler::eval::bindings::validate_element_locatability(&selector, args.span)?;
+    crate::compiler::eval::bindings::validate_element_locatability(
+        &selector,
+        selector_value_span(args),
+    )?;
     let locations = ctx.introspector.query(&selector);
     // **P844** — devolve o `Content` do elemento encontrado (paridade
     // vanilla `query() -> array<content>`). Fallback para `Value::Location`
@@ -79,7 +91,10 @@ pub fn native_locate(
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let selector = parse_selector_arg(&args.items, "locate")?;
-    crate::compiler::eval::bindings::validate_element_locatability(&selector, args.span)?;
+    crate::compiler::eval::bindings::validate_element_locatability(
+        &selector,
+        selector_value_span(args),
+    )?;
     let first = ctx.introspector.query(&selector).first().copied();
     let result = Ok(match first {
         Some(loc) => Value::Location(loc),

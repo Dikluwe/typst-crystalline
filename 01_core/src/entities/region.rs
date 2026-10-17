@@ -14,7 +14,7 @@
 //! - Dimensões (width/height) — duplicadas de `PageConfig` por
 //!   redundância controlada per Caminho B1 (P216A C4).
 //!
-//! Single-region por design em P216A — `Regions` (Vec<Region>)
+//! Single-region por design em P216A — `Regions` (`Vec<Region>`)
 //! introduzido em P216B; consumer multi-column em P219.
 //!
 //! Paridade vanilla simplificada per ADR-0078 PROPOSTO:
@@ -143,7 +143,7 @@ pub struct Regions {
     /// arquiteturalmente)** — cell region transient. `Some(r)` quando
     /// Layouter está dentro de célula Grid/TableCell; `None` em flow
     /// regular da página. Substitui campos Layouter `cell_available_h`
-    /// + `cell_origin_w` (geometria) — `cell_origin_x` + `cell_origin_y`
+    /// \+ `cell_origin_w` (geometria) — `cell_origin_x` + `cell_origin_y`
     /// preservados como Layouter fields legacy (Region sem
     /// `origin: Point`; refactor futuro per DEBT opcional).
     ///
@@ -211,7 +211,7 @@ impl Regions {
     /// `Option<Region>` (saved) que caller passa a `exit_cell` ao
     /// sair da célula. Suporta aninhamento Grid-in-Grid.
     pub fn enter_cell(&mut self, cell: Region) -> Option<Region> {
-        std::mem::replace(&mut self.cell, Some(cell))
+        self.cell.replace(cell)
     }
 
     /// **P246 (cell layout migration)** — sai célula restaurando o

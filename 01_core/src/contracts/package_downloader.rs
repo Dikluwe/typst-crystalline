@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/contracts/package_downloader.md
-//! @prompt-hash 0bb930fe
+//! @prompt-hash 72019fd7
 //! @layer L1
 //! @updated 2026-07-15
 //!
@@ -89,14 +89,6 @@ impl std::error::Error for PackageDownloadError {}
 mod tests {
     use super::*;
     use crate::entities::package_spec::{PackageSpec, PackageVersion};
-
-    struct DummyDownloader;
-
-    impl PackageDownloader for DummyDownloader {
-        fn download(&self, spec: &PackageSpec) -> Result<PathBuf, PackageDownloadError> {
-            Err(PackageDownloadError::NotFound(spec.clone()))
-        }
-    }
 
     #[test]
     fn package_download_error_display_not_found() {

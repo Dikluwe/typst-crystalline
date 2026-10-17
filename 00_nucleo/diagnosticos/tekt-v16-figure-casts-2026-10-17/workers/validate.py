@@ -1,0 +1,62 @@
+from pathlib import Path
+import datetime,gzip,hashlib,json,os,subprocess,sys
+out=Path(__file__).resolve().parents[1]
+b=json.load(gzip.open(out/'before.json.gz'))
+sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
+now=lambda:datetime.datetime.now(datetime.timezone.utc).isoformat()
+hashes={p:sha(p) for p in b['hashes']}
+scope=json.load(open(out/'scope.json'))
+for p in scope.get('nuclei',[]):hashes[p]=sha(p)
+assert sha(b['linter']['path'])==b['linter']['sha256']
+assert os.environ.get('TEKT_FIGURE_CAST_MEMORY_LIMIT')!='12G'
+w=lambda name:['python3',str(out/'workers'/name)]
+commands=[
+ ('graph',[b['linter']['path'],'.','--checks','v15,v26','--fail-on','warning'],0),
+ ('build',['cargo','build','--offline','--locked','--workspace'],0),
+ ('integrity',w('cast_integrity.py'),0),
+ ('green-probe',w('probe.py')+['green'],0),
+ ('controls-after',['cargo','test','--offline','--locked','--workspace','figure_domain_','--','--test-threads=1'],0),
+ ('cast-controls-after',['cargo','test','--offline','--locked','--workspace','measure_domain_','--','--test-threads=1'],0),
+ ('caption-controls',['cargo','test','--offline','--locked','--workspace','figure_caption_projection_','--','--test-threads=1'],0),
+ ('caption-shape-controls',['cargo','test','--offline','--locked','--workspace','caption_shape_','--','--test-threads=1'],0),
+ ('caption-shape-after',w('caption_shape_probe.py')+['after'],0),
+ ('caption-shape-observables',w('caption_shape_observables.py'),0),
+ ('caption-after',w('caption_probe.py')+['after'],0),
+ ('caption-observables',w('caption_observables.py'),0),
+ ('symbols-after',['cargo','test','--offline','--locked','--workspace','figure_symbol_','--','--test-threads=1'],0),
+ ('more-cast-after',w('more_cast_probe.py')+['after'],0),
+ ('more-observables',w('more_observables.py'),0),
+ ('measure-after',w('measure.py')+['after'],0),
+ ('observables',w('observables.py'),0),
+ ('fmt',['cargo','fmt','--all','--check'],0),
+ ('clippy',w('strict.py'),0),
+ ('lineage',[b['linter']['path'],'.','--checks','v1,v5,v15,v26','--fail-on','warning'],0),
+ ('reverse',['python3','tools/ci/check_reverse_lineage.py'],0),
+ ('architecture',[b['linter']['path'],'.','--format','sarif'],1),
+ ('differential',w('differential.py'),0),
+ ('workspace',w('suite.py'),0),
+ ('rustdoc',w('rustdoc.py'),0),
+ ('diff',['git','diff','--check'],0),
+]
+record=dict(start=now(),head=b['head'],source_hashes=hashes,status=subprocess.check_output(['git','status','--porcelain=v1'],text=True),diffstat=subprocess.check_output(['git','diff','HEAD','--stat'],text=True),commands=[],resource_policy='Sequential cgroups: MemoryMax12GiB High10GiB Swap0 Cargo jobs1')
+if len(sys.argv)>1:
+ old=json.load(open(out/'validation-result.json'))
+ assert old['source_hashes']==hashes
+ cut=[x[0] for x in commands].index(sys.argv[1])
+ assert all(x['exit']==commands[i][2] for i,x in enumerate(old['commands'][:cut]))
+ record=old;record['commands']=record['commands'][:cut];commands=commands[cut:]
+for label,cmd,expected in commands:
+ item=dict(label=label,command=cmd,start=now())
+ print(json.dumps(item),flush=True)
+ with (out/f'validation-{label}.log').open('w') as f:
+  r=subprocess.run(['python3',str(out/'workers/run.py'),label]+cmd,stdout=f,stderr=subprocess.STDOUT)
+ if label=='seal' and r.returncode==0:
+  hashes={p:sha(p) for p in hashes};record['source_hashes']=hashes
+ item.update(exit=r.returncode,end=now());record['commands'].append(item)
+ record.update(end=now(),sources_unchanged=all(sha(p)==h for p,h in hashes.items()))
+ (out/'validation-result.json').write_text(json.dumps(record,indent=2)+'\n')
+ print(json.dumps(item),flush=True)
+ assert record['sources_unchanged'] and r.returncode==expected,item
+record['complete']=True
+(out/'validation-result.json').write_text(json.dumps(record,indent=2)+'\n')
+print('VALIDATION PASS',flush=True)

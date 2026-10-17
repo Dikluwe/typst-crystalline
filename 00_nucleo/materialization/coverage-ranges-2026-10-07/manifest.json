@@ -1,0 +1,38 @@
+{
+  "utc": "2026-10-07T22:56:49.502010+00:00",
+  "head": "06848cdcb5450f2c555626bf116bc7acd82bd82b",
+  "working_tree": "não commitado",
+  "contract": "00_nucleo/materialization/coverage-ranges-2026-10-07/contract.md",
+  "contract_sha256": "5ed62e1fdc5057a70522a1968b1d8113370f4595491378706de0b0b8899d6b7c",
+  "audit": "00_nucleo/diagnosticos/coverage-ranges-preparacao-2026-10-07/audit.json",
+  "audit_sha256": "715432fbd1a5a2ed6f52f64a8c0b5055c5591fc3db47ac6b4bd6f70d53dd2c8d",
+  "snapshot": "00_nucleo/diagnosticos/coverage-ranges-preparacao-2026-10-07/before.json.gz",
+  "snapshot_sha256": "1a019d50012567a5a141f7d18fac62c6fac75ef11c26ca50213a7710d93e0297",
+  "candidates": [
+    {
+      "consumer": "01_core/src/entities/font_book.rs",
+      "owner": "00_nucleo/prompts/entities/font_book.md",
+      "base_code_sha256": "5c9b0f75161aac11419fd00508398c44b2d7fcf0ca1e5cb43b53cd71fa741e69",
+      "base_l0_sha256": "1ef2d9719a79f848d473e074ecee3fea8f79c2bcd56e87c957f70bf8abcd5e9d",
+      "candidate": "00_nucleo/materialization/coverage-ranges-2026-10-07/candidates/00_nucleo/prompts/entities/font_book.md",
+      "candidate_sha256": "17447d6f1ac73b9d53ac5ce34f2e9dbd9a6382d54b12f516f0f661a8993867bb"
+    },
+    {
+      "consumer": "03_infra/src/fonts.rs",
+      "owner": "00_nucleo/prompts/infra/fonts.md",
+      "base_code_sha256": "2a053c14d89a66b3e2aec554f7fac1fcf12e1b796f064987cb865439b3d1d301",
+      "base_l0_sha256": "78fa68197c22294ec6ba3effa78b4d4131c25c1de4a95a5bd564e0cec5e2bb05",
+      "candidate": "00_nucleo/materialization/coverage-ranges-2026-10-07/candidates/00_nucleo/prompts/infra/fonts.md",
+      "candidate_sha256": "80fc4a30efc9339ae5e78e7814d0d403476714edd9f0142b42100a1797fddbec"
+    },
+    {
+      "consumer": "03_infra/src/fonts/coverage.rs",
+      "owner": "00_nucleo/prompts/infra/fonts/coverage.md",
+      "base_code_sha256": null,
+      "base_l0_sha256": null,
+      "candidate": "00_nucleo/materialization/coverage-ranges-2026-10-07/candidates/00_nucleo/prompts/infra/fonts/coverage.md",
+      "candidate_sha256": "68efa01c75659597bbae88ba01cdb4afe2009e366e46ee1f2600ab2bc9c9c3be"
+    }
+  ],
+  "state": "awaiting_public_contract_ratification"
+}

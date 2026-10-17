@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_op.md
-//! @prompt-hash 9d335b1c
+//! @prompt-hash 2e170329
 //! @layer L1
-//! @updated 2026-06-11
+//! @updated 2026-10-10
 //!
 //! `MathOpElem` — Lote 2 P317 (família math). Operador textual (P298).
 //! Comportamento idêntico ao braço anterior do hub (content-preserving).
@@ -31,10 +31,9 @@ impl Element for MathOpElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathOp(Arc::new(MathOpElem {
-            text: self.text.map_content(transform)?,
-            limits: self.limits,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathOp(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -43,6 +42,26 @@ impl Element for MathOpElem {
     {
         // Terminal (math structural; não desce).
         Content::MathOp(Arc::new(self.clone()))
+    }
+}
+
+impl MathOpElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let text = self.text.map_content_if_changed(transform)?;
+        if text.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = text {
+            mapped.text = changed;
+        }
+        Ok(Some(Content::MathOp(Arc::new(mapped))))
     }
 }
 

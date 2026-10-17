@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/layout/casting.md
-//! @prompt-hash 60d6a33b
+//! @prompt-hash 5d05e211
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-08
 //!
 //! Comportamento de `stdlib/layout::casting`.
 
@@ -34,7 +34,40 @@ pub(crate) fn extract_length(val: &Value) -> Option<Length> {
         // não regredir `h(50%)`/`pad(50%)` etc. face ao comportamento
         // pré-P842 (que truncava `Relative.rel`).
         Value::Ratio(_) => Some(Length::ZERO),
-        _ => None, // neutro: N16[β] — Value não-dimensionável retorna None no fallback de largura
+        Value::None
+        | Value::Bool(..)
+        | Value::Str(..)
+        | Value::Array(..)
+        | Value::Dict(..)
+        | Value::Module(..)
+        | Value::Datetime(..)
+        | Value::Func(..)
+        | Value::Content(..)
+        | Value::LocatedContent(..)
+        | Value::Auto
+        | Value::Angle(..)
+        | Value::Color(..)
+        | Value::Stroke(..)
+        | Value::Fraction(..)
+        | Value::Align(..)
+        | Value::Location(..)
+        | Value::Gradient(..)
+        | Value::Regex(..)
+        | Value::Tiling(..)
+        | Value::Bytes(..)
+        | Value::Decimal(..)
+        | Value::Duration(..)
+        | Value::Version(..)
+        | Value::Selector(..)
+        | Value::Symbol(..)
+        | Value::Args(..)
+        | Value::State(..)
+        | Value::Counter(..)
+        | Value::Label(..)
+        | Value::Dir(..)
+        | Value::Path(..)
+        | Value::Type(..)
+        | Value::SpotColorant(..) => None,
     }
 }
 
@@ -49,7 +82,40 @@ pub(crate) fn extract_block_width(
         Value::Length(value) => Some(Rel { rel: 0.0, abs: *value }),
         Value::Float(value) => Some(Rel { rel: 0.0, abs: Length::pt(*value) }),
         Value::Int(value) => Some(Rel { rel: 0.0, abs: Length::pt(*value as f64) }),
-        _ => None,
+        Value::None
+        | Value::Bool(..)
+        | Value::Str(..)
+        | Value::Array(..)
+        | Value::Dict(..)
+        | Value::Module(..)
+        | Value::Datetime(..)
+        | Value::Func(..)
+        | Value::Content(..)
+        | Value::LocatedContent(..)
+        | Value::Auto
+        | Value::Angle(..)
+        | Value::Color(..)
+        | Value::Stroke(..)
+        | Value::Fraction(..)
+        | Value::Align(..)
+        | Value::Location(..)
+        | Value::Gradient(..)
+        | Value::Regex(..)
+        | Value::Tiling(..)
+        | Value::Bytes(..)
+        | Value::Decimal(..)
+        | Value::Duration(..)
+        | Value::Version(..)
+        | Value::Selector(..)
+        | Value::Symbol(..)
+        | Value::Args(..)
+        | Value::State(..)
+        | Value::Counter(..)
+        | Value::Label(..)
+        | Value::Dir(..)
+        | Value::Path(..)
+        | Value::Type(..)
+        | Value::SpotColorant(..) => None,
     }
 }
 
@@ -163,7 +229,7 @@ pub(crate) fn extract_sides_from_value(
 /// ADR-0054 divergência consciente):
 /// - `Value::Length(l)` → `Stroke { paint: Color::BLACK, thickness: l.to_pt(), overhang: true }`.
 /// - `Value::Color(c)` → `Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: true }` (default 1pt).
-/// - `Value::Stroke(s)` → `s.clone()` (preserva overhang do user).
+/// - `Value::from(s)` → `s.clone()` (preserva overhang do user).
 /// - Outros tipos: erro hard.
 ///
 /// `thickness <= 0` rejeitado (paridade vanilla).
@@ -193,7 +259,7 @@ pub(crate) fn extract_stroke(
             overhang: true,
             ..Stroke::default()
         },
-        Value::Stroke(s) => s.clone(),
+        Value::Stroke(s) => s.as_ref().clone(),
         other => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
@@ -398,4 +464,19 @@ pub(crate) fn extract_corners_length_value(
             value.type_name()
         ),
     )])
+}
+
+#[cfg(test)]
+mod domain_tests {
+    use super::*;
+    #[test]
+    fn measure_domain_keeps_affine_and_block_relative_controls() {
+        use crate::entities::rel::Rel;
+        let length = Length { abs: Abs(3.0), em: 2.0 };
+        assert_eq!(extract_length(&Value::Length(length)), Some(length));
+        let relative = Rel { rel: 0.5, abs: length };
+        assert_eq!(extract_block_width(&Value::Relative(relative)), Some(relative));
+        assert!(extract_length(&Value::Bool(false)).is_none());
+        assert!(extract_block_width(&Value::Fraction(1.0)).is_none());
+    }
 }

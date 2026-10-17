@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/source-result.md
-//! @prompt-hash b564887f
+//! @prompt-hash 2d65ed7b
 //! @layer L1
-//! @updated 2026-03-26
+//! @updated 2026-10-05
 
 use crate::entities::span::{Span, Spanned};
 
@@ -36,7 +36,7 @@ pub enum Tracepoint {
 /// - `EcoString` → `String` (ADR-0015)
 /// - `EcoVec` → `Vec` (ADR-0015)
 /// - Hints simplificados para `Vec<String>` sem Spanned (span adicionado quando eval() migrar)
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SourceDiagnostic {
     /// Severidade do diagnóstico.
     pub severity: Severity,

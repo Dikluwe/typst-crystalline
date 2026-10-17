@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/watch.md
-//! @prompt-hash f0f05d2e
+//! @prompt-hash 08d81473
 //! @layer L3
 //! @updated 2026-08-23
 
@@ -22,6 +22,12 @@ use std::io;
 use std::path::{Path, PathBuf};
 use std::thread;
 use std::time::{Duration, SystemTime};
+
+/// Successful output prepared for publication by the preview server.
+pub enum Published {
+    Html(String),
+    Bundle(Vec<BundleFile>),
+}
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct Fingerprint {
@@ -167,7 +173,6 @@ pub struct BundleHttpServer {
     state: Arc<Mutex<ServerState>>,
     stop: Arc<AtomicBool>,
     thread: Option<thread::JoinHandle<()>>,
-    live: bool,
 }
 
 impl BundleHttpServer {
@@ -213,7 +218,7 @@ impl BundleHttpServer {
                 }
             }
         });
-        Ok(Self { addr, state, stop, thread: Some(thread), live })
+        Ok(Self { addr, state, stop, thread: Some(thread) })
     }
 
     pub fn addr(&self) -> SocketAddr {
@@ -284,11 +289,8 @@ fn decode_url_path(raw: &str) -> Option<String> {
         if bytes[index] == b'%' {
             let hi = (bytes.get(index + 1)? as &u8).to_ascii_lowercase();
             let lo = (bytes.get(index + 2)? as &u8).to_ascii_lowercase();
-            let digit = |value: u8| match value {
-                b'0'..=b'9' => Some(value - b'0'),
-                b'a'..=b'f' => Some(value - b'a' + 10),
-                _ => None,
-            };
+            let digit =
+                |value: u8| char::from(value).to_digit(16).map(|digit| digit as u8);
             decoded.push(digit(hi)? * 16 + digit(lo)?);
             index += 3;
         } else {
@@ -401,6 +403,47 @@ fn respond(
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn v18_percent_octets_preserve_ascii_and_utf8_rejection() {
+        for octet in 0..=255u8 {
+            let upper = format!("/left%{octet:02X}right");
+            let lower = format!("/left%{octet:02x}right");
+            let expected = if octet.is_ascii() && !matches!(octet, 0 | b'\\') {
+                Some(format!("/left{}right", char::from(octet)))
+            } else {
+                None
+            };
+            assert_eq!(decode_url_path(&upper), expected, "octet={octet}");
+            assert_eq!(decode_url_path(&lower), expected, "octet={octet}");
+        }
+    }
+
+    #[test]
+    fn v18_percent_routes_preserve_normalization_and_rejection() {
+        for (input, expected) in [
+            ("/", Some("/")),
+            ("/caf%C3%A9", Some("/café")),
+            ("/a%2Fb", Some("/a/b")),
+            ("/a/b/../c?d=1", Some("/a/c")),
+            ("/%2e%2e/private", None),
+            ("/x/%2E%2e/y", Some("/y")),
+            ("/%", None),
+            ("/%A", None),
+            ("/%GG", None),
+            ("/%00", None),
+            ("/%5c", None),
+            ("/%C0%AF", None),
+            ("/%FF", None),
+            ("/a/", Some("/a/")),
+            ("", None),
+            ("relative", None),
+            ("/a?next=../..", Some("/a")),
+            ("/%252e%252e/file", Some("/%2e%2e/file")),
+        ] {
+            assert_eq!(decode_url_path(input).as_deref(), expected, "input={input:?}");
+        }
+    }
+
     use super::*;
 
     #[test]

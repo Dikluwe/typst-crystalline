@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_vec.md
-//! @prompt-hash 39c79e1c
+//! @prompt-hash d996a0bd
 //! @layer L1
-//! @updated 2026-09-01
+//! @updated 2026-10-10
 //!
 //! `MathVecElem` — vetor matemático com identidade e named preservados.
 
@@ -61,18 +61,9 @@ impl Element for MathVecElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        let children = self
-            .children
-            .iter()
-            .map(|child| child.map_content(transform))
-            .collect::<SourceResult<Vec<_>>>()?;
-        Ok(Content::MathVec(Arc::new(Self {
-            children,
-            delim: self.delim,
-            align: self.align,
-            gap: self.gap,
-            explicit: self.explicit,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathVec(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -80,6 +71,26 @@ impl Element for MathVecElem {
         F: FnMut(&str) -> String,
     {
         Content::MathVec(Arc::new(self.clone()))
+    }
+}
+
+impl MathVecElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        Ok(Content::map_children_if_changed(&self.children, transform)?.map(|children| {
+            Content::MathVec(Arc::new(Self {
+                children,
+                delim: self.delim,
+                align: self.align,
+                gap: self.gap,
+                explicit: self.explicit,
+            }))
+        }))
     }
 }
 

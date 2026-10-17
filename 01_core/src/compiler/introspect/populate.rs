@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/populate.md
-//! @prompt-hash 9fbf78c2
+//! @prompt-hash 5ff286a4
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -41,7 +41,23 @@ pub(super) fn populate_intr_from_tag_start(
         ElementPayload::Equation { block: true, numbering_active: true, .. } => {
             Some(CounterUpdate::step())
         }
-        _ => None,
+        ElementPayload::Metadata { .. }
+        | ElementPayload::State { .. }
+        | ElementPayload::StateUpdate { .. }
+        | ElementPayload::StateDisplay { .. }
+        | ElementPayload::CounterDisplay { .. }
+        | ElementPayload::Outline
+        | ElementPayload::Bibliography { .. }
+        | ElementPayload::Labelled { .. }
+        | ElementPayload::CounterUpdate { .. }
+        | ElementPayload::HeadingForToc { .. }
+        | ElementPayload::HeadingForBookmarks { .. }
+        | ElementPayload::ContextBlock { .. }
+        | ElementPayload::Heading { numbering_active: false, .. }
+        | ElementPayload::Figure { is_counted: false, .. }
+        | ElementPayload::Table { is_counted: false, .. }
+        | ElementPayload::Equation { block: false, .. }
+        | ElementPayload::Equation { block: true, numbering_active: false, .. } => None,
     };
     if let Some(action) = automatic {
         intr.counters.record_action(loc, None, action);

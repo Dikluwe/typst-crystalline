@@ -1,0 +1,192 @@
+{
+  "status": "proposed-not-ratified",
+  "utc": "2026-10-07T14:50:42.619006+00:00",
+  "scope": "D08B3-B: intrinsic standalone defaults, effects once, per-occurrence Cell recipes including earlier rules and fresh reconstruction; cell-set is D08B3-C",
+  "public_fields": {
+    "TableCellElem": [
+      "standalone: Option<Arc<TableCellStandaloneResolved>>"
+    ]
+  },
+  "public_types": [
+    "TableCellStandaloneResolved"
+  ],
+  "private_fields": {
+    "TableCellStandaloneResolved": [
+      "stage: TableCellStage",
+      "guards: Vec<RuleId>"
+    ],
+    "TableCellResolved": [
+      "guards: Vec<RuleId>"
+    ]
+  },
+  "public_signature_changes": [],
+  "nucleus": {
+    "path": "00_nucleo/prompts/_nuclei/table/cell-occurrence.toml",
+    "pin": "d207e8a3a934b2eff2b67c4bfc7f15b9af0c0f3abc83acdfaf774326e7b242eb",
+    "candidate_sha256": "2b49dc08c35410fdd4169d71163a36e437cde4c5384b9011e85dbeeb9310fd00"
+  },
+  "owners": [
+    {
+      "consumer": "01_core/src/compiler/eval/observation/elements.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/observation/elements.md",
+      "base_source_sha256": "0e750f03d9c057fced15751ae0509437e363e4c35af158d65526d1ec40f68c79",
+      "base_l0_sha256": "bee2d2056def00e0e7f5d2f01f93fb5f80fa04265cf62a43efe06f83f7e6493a",
+      "candidate_sha256": "d45e242987f72c36ed347f77d86680ee4e46428fa756a370879e46a069eaef8a",
+      "candidate_prompt_hash": "48aec6a5"
+    },
+    {
+      "consumer": "01_core/src/compiler/eval/rules/apply.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/rules/apply.md",
+      "base_source_sha256": "f3848325ef8de1239b164628a2c84e3c99a6a7403cfdf3a26c1c8715f608b29f",
+      "base_l0_sha256": "ef06601f746aa6d8f577511afaff7e311e253c1dd1c3a2b23bac7524814fff0b",
+      "candidate_sha256": "c578f80b0d027b0e3ca3175ec3e323b0404cf5551d387328ce7641d2e3ea7f1b",
+      "candidate_prompt_hash": "a23f6ce1"
+    },
+    {
+      "consumer": "01_core/src/compiler/eval/show_rule_termination.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/show_rule_termination.md",
+      "base_source_sha256": "ec4b665201a0f709d6d704dd07061faff32864420eb61e9c26986df00b5735ab",
+      "base_l0_sha256": "464bcce8fb9d2421c361d03419813d41448758b64ac631fb825d07ab2a0406c6",
+      "candidate_sha256": "c031b10c58a61367b3733dc98b4691fff3493fd6cbd3402fab65ea3d708e3491",
+      "candidate_prompt_hash": "f8594f9a"
+    },
+    {
+      "consumer": "01_core/src/compiler/eval/table.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/table.md",
+      "base_source_sha256": "cdcb77d6eaeb00b140f374e7e4abc3b4c063331ff10db5ca55eb2f5782c47640",
+      "base_l0_sha256": "71a4dadf3470bb35135f8b03dc92a0eabb823c8b324eec78fdc4ae3130a60a7b",
+      "candidate_sha256": "d8547446702e49066878fbdf6dd1279ce5604521eb9eb984362dcef984ecc984",
+      "candidate_prompt_hash": "7fd85ee9"
+    },
+    {
+      "consumer": "01_core/src/compiler/eval/tests.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/tests.md",
+      "base_source_sha256": "9c5babb55401c6117d97a4c726472ee7a37fe504c7369c1340935c72eb259597",
+      "base_l0_sha256": "7ced58005800db81060e66effa4a4087c274f2c481a8ad9a209a2859df5315ef",
+      "candidate_sha256": "fc70cc56c4c11c5431c37534e3b7d6509d7da94a9c211b3d12647cca1e8ea93e",
+      "candidate_prompt_hash": "51547641"
+    },
+    {
+      "consumer": "01_core/src/compiler/introspect/materialize_time.rs",
+      "owner": "00_nucleo/prompts/compiler/introspect/materialize_time.md",
+      "base_source_sha256": "ce12d91b22bb79122e15b167baeed9ff617caacdd1c04b367de11385a47d98be",
+      "base_l0_sha256": "18eedb431c2c2dc66d12e13f51ddab5817bfc4663f82b8162a5e3d39c18b8a4f",
+      "candidate_sha256": "8667eff86abbb1dc08c10d74ed9dc0951891a8352c6a74d168c0099c177ec18c",
+      "candidate_prompt_hash": "1e5495ea"
+    },
+    {
+      "consumer": "01_core/src/compiler/introspect/walk.rs",
+      "owner": "00_nucleo/prompts/compiler/introspect/walk.md",
+      "base_source_sha256": "0730c2a5f63dc0be7ca0fdb2245a36cac5b7999db5950051b662a13f7798a0e7",
+      "base_l0_sha256": "2c1ffa0a774a74eb89241b3aa0b685c8560d68a03fde82af6b5346aaf715d69a",
+      "candidate_sha256": "31535c49a61331d8a336778285c9f767f298aff1e00b7cd320ea37f4c7b2fd40",
+      "candidate_prompt_hash": "a09cc02c"
+    },
+    {
+      "consumer": "01_core/src/compiler/layout/raw.rs",
+      "owner": "00_nucleo/prompts/compiler/layout/raw_highlight.md",
+      "base_source_sha256": "8b06083a7bc53a3288558cb13d805929f26aaf7765a657b84d6b9f1b8b00f839",
+      "base_l0_sha256": "61dcc763ae9e6167dabc966c36b82ffe3799a0003733602144f85a3e064ada30",
+      "candidate_sha256": "06f6c8c8400becfd028d0010da265af9b399ea273f27e13c9c0396266bb6718e",
+      "candidate_prompt_hash": "db03073d"
+    },
+    {
+      "consumer": "01_core/src/compiler/layout/table_cell.rs",
+      "owner": "00_nucleo/prompts/compiler/layout/table_cell.md",
+      "base_source_sha256": "382477f93a276e59ab689324292df99a67fac9b8dfef4712a8e56780cd0d81c5",
+      "base_l0_sha256": "49ff764f072b8d6405b3eab4988410da58665033e8da55515bd79ae516232f84",
+      "candidate_sha256": "ccf139c0b7928f87b4fb8f529a7d826e38a9e278d0b87cdd7b84671df7d23e57",
+      "candidate_prompt_hash": "d474d753"
+    },
+    {
+      "consumer": "01_core/src/compiler/layout/tests.rs",
+      "owner": "00_nucleo/prompts/compiler/layout/tests.md",
+      "base_source_sha256": "c63420856f034bcd00011b8a569e86ba36c9c142b1763ea0df68eb6c5e7e2efd",
+      "base_l0_sha256": "f42b3b4c45175605748439dd26c2f18586c3b6ce21163ff1ed94e4c8c7507a1f",
+      "candidate_sha256": "10403aec4395df156598ac9ad375c7cb1c126b1d60aff1f6c9489ec3a882f101",
+      "candidate_prompt_hash": "71c8f01b"
+    },
+    {
+      "consumer": "01_core/src/compiler/realize/table_cells.rs",
+      "owner": "00_nucleo/prompts/compiler/realize/table_cells.md",
+      "base_source_sha256": "bdc5ead80bab3c6ea738ff2c8f8240fc5abf9f73880a382a032fc3d77da05269",
+      "base_l0_sha256": "de8683234f8ed59716bc765c1a2b1c36a0e8ac068d4995be0040cc508340bfc7",
+      "candidate_sha256": "2c2a73ff783ce5d60edebe864c5dc24c0664abdd1b277cf26398461b76e35e1d",
+      "candidate_prompt_hash": "e6f5c822"
+    },
+    {
+      "consumer": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+      "owner": "00_nucleo/prompts/compiler/stdlib/structural/table_grid.md",
+      "base_source_sha256": "cacdaf48d948c1537f5b1c00cd2b7c19475c792a8ca76b9a0615eb3cc40299df",
+      "base_l0_sha256": "9646743c02d77251690fbfb9a4ab7c5342980f3f024f05d296e10b6c1392438f",
+      "candidate_sha256": "2809db28710cb4b5dcf5e19a9cec09ccca7e2734b64d3524a672aeb35aad6301",
+      "candidate_prompt_hash": "9a151c68"
+    },
+    {
+      "consumer": "01_core/src/entities/content/construction/tables.rs",
+      "owner": "00_nucleo/prompts/entities/content/construction/tables.md",
+      "base_source_sha256": "07b67fa68175170eeb94ea7d196cce13d91dd1b644c3c47ef1d9d0a955dde83d",
+      "base_l0_sha256": "162e82f1ae2745de63aa8f155f3d31f6a6c7081fffcc49740825cb63e8646731",
+      "candidate_sha256": "d13c01b69bd226f109a178ad1b2de359271e1ea7f807fbaca71c120c350fc439",
+      "candidate_prompt_hash": "d1146a25"
+    },
+    {
+      "consumer": "01_core/src/entities/content/morphology.rs",
+      "owner": "00_nucleo/prompts/entities/content/morphology.md",
+      "base_source_sha256": "958ccd3aff94cafabb7dd3b4f8121e313745eed5a4d88c31e9de42b8dc4543fe",
+      "base_l0_sha256": "69936aee26de0bc723bd2de65c4f50b67faccdcd2a83c79f6987e991ff09e7ed",
+      "candidate_sha256": "ddf69444ffc20e4fd052cd784cf054905cdc9b6be580c4c40f247aa34d4eae4a",
+      "candidate_prompt_hash": "e1ec1a60"
+    },
+    {
+      "consumer": "01_core/src/entities/content/tests/representation.rs",
+      "owner": "00_nucleo/prompts/entities/content/tests/representation.md",
+      "base_source_sha256": "3a38999192eaa9932dc338b44ce40790f2ed1fead12b91470cfcfbe9bbb70032",
+      "base_l0_sha256": "ef9682486bc53c6587b6b9f066ad30263d610b5e530f511227b339c170a5eed5",
+      "candidate_sha256": "0890bb9275b9172b5dd348f219e1c5213b089b555308a1a664d029c6cb328c72",
+      "candidate_prompt_hash": "5e9dfe49"
+    },
+    {
+      "consumer": "01_core/src/entities/content/traversal.rs",
+      "owner": "00_nucleo/prompts/entities/content/traversal.md",
+      "base_source_sha256": "70f69485fdd728f5264f51eb4bd97a5632523929e57c4f04ae104603b9f4c92c",
+      "base_l0_sha256": "388fc5b1367d3119158e883d70fa533616a9ec7e1116f8e7cebeb2f1bf18c9aa",
+      "candidate_sha256": "a5a5f6d53398c9707265f516fb9fbc982a0007e0c4c1a7dfa9fca9dd87fa2e25",
+      "candidate_prompt_hash": "48647524"
+    },
+    {
+      "consumer": "01_core/src/entities/elements/table_cell.rs",
+      "owner": "00_nucleo/prompts/entities/elements/table_cell.md",
+      "base_source_sha256": "7eefb6c004c4b73332bb89ac1f1e4de6cb64a4aa47f254bb0ae6e3e4d0f3aab7",
+      "base_l0_sha256": "a1155ca8b304f6b0b55613c4a875ac6257aac81c72d17ad891b58269da8c75ff",
+      "candidate_sha256": "28b8ea8670dc6fe97ca72c9657749964864f7b4438a43fd81edb8a88ec44af7f",
+      "candidate_prompt_hash": "1eef83b8"
+    },
+    {
+      "consumer": "03_infra/src/export/html/inline.rs",
+      "owner": "00_nucleo/prompts/infra/export/html/inline.md",
+      "base_source_sha256": "189587a694980ed709ad7e672541a9043bed3301d8f4b692dc06445b85dc9f55",
+      "base_l0_sha256": "e736e21714e8f5d3ae248cbeadadcb0fb1554e0a772cddd0e77caf45745083e7",
+      "candidate_sha256": "fa8b1091e01751c1db80fafc58b0472dccef39237715b2b801275eafe73dd22d",
+      "candidate_prompt_hash": "9bef6c26"
+    },
+    {
+      "consumer": "03_infra/src/export/html/table.rs",
+      "owner": "00_nucleo/prompts/infra/export/html/table.md",
+      "base_source_sha256": "990cd9f8212448216fb09afa938f262ed9235a88cb42ee01217a4f9bfcfdb388",
+      "base_l0_sha256": "462fda48d60ae673a177bf2eae86d0b2895c998a51ad799b11f85320c1587694",
+      "candidate_sha256": "c2692ded04c1de6e611a3dfff141c93b9185a8d3135b27c7a4e9a4803b4767ea",
+      "candidate_prompt_hash": "ff7ea483"
+    },
+    {
+      "consumer": "03_infra/src/export/html/tests.rs",
+      "owner": "00_nucleo/prompts/infra/export/html/tests.md",
+      "base_source_sha256": "1f72b769d2872a8bd5252a7a82100f8c49a92d37dbf152be4086842fd2920fdf",
+      "base_l0_sha256": "298be230131ab94e233598138b3f2564fbe1a4dbe1379766cf0cb34204281679",
+      "candidate_sha256": "59f488b12eb806416996c031ec2ca4d2dd6dbbc5b2b92c6917f0f08f68488186",
+      "candidate_prompt_hash": "6a0a2657"
+    }
+  ],
+  "measurement": "00_nucleo/diagnosticos/table-cell-isolada-d08b3b-2026-10-07/complete.json.gz",
+  "measurement_sha256": "c5b6eaed3a40f51b650d80e2962f399e61f62dd753f85bd4a1c23d1d787cde72"
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/color/adjustments.md
-//! @prompt-hash 16aaff9e
+//! @prompt-hash 1506ab19
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -71,7 +71,13 @@ impl Color {
                 let f = |u: f32| (u + (1.0 - u) * factor).clamp(0.0, 1.0);
                 Color::cmyk(f(c), f(m), f(y), f(k))
             }
-            _ => self.lighten(-factor),
+            Color::Srgb { .. }
+            | Color::Luma { .. }
+            | Color::LinearRgb { .. }
+            | Color::Oklab { .. }
+            | Color::Oklch { .. }
+            | Color::Hsl { .. }
+            | Color::Hsv { .. } => self.lighten(-factor),
         }
     }
 
@@ -119,7 +125,14 @@ impl Color {
             Color::Oklch { l, c, h, alpha } => Color::oklch(l, c, h + angle_deg, alpha),
             Color::Hsl { h, s, l, a } => Color::hsl(h + angle_deg, s, l, a),
             Color::Hsv { h, s, v, a } => Color::hsv(h + angle_deg, s, v, a),
-            _ => unreachable!("to_space(hue-space) devolve sempre o espaço hue"),
+            Color::Srgb { .. }
+            | Color::Luma { .. }
+            | Color::LinearRgb { .. }
+            | Color::Oklab { .. }
+            | Color::Cmyk { .. }
+            | Color::Spot(_) => {
+                unreachable!("to_space(hue-space) devolve sempre o espaço hue")
+            }
         };
         rotated.to_space(original).ok()
     }
@@ -138,7 +151,11 @@ impl Color {
             Color::Hsv { h, s, v, a } => {
                 Some(Color::hsv(h, increase_p742(s, factor), v, a))
             }
-            _ => {
+            Color::Srgb { .. }
+            | Color::LinearRgb { .. }
+            | Color::Oklab { .. }
+            | Color::Oklch { .. }
+            | Color::Cmyk { .. } => {
                 let original = self.space();
                 let Color::Hsv { h, s, v, a } = self.to_space(ColorSpace::Hsv).ok()?
                 else {

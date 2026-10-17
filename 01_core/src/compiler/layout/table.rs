@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/table.md
-//! @prompt-hash 4567b6bf
+//! @prompt-hash 6a7bce68
 //! @layer L1
-//! @updated 2026-06-25
+//! @updated 2026-10-07
 //!
 //! Atomização (ADR-0109, P380): o layout de `Table` movido do monólito
 //! `layout_content` para o arquivo da feature (forma B). Content-preserving.
@@ -28,6 +28,28 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &TableElem,
 ) {
+    if e.resolved.is_some()
+        && e.caption.is_none()
+        && layouter.is_sub_frame
+        && layouter
+            .regions
+            .current
+            .current_line
+            .iter()
+            .any(|item| !super::html_frame::is_context_marker(item))
+    {
+        layouter.flush_line();
+        {
+            let above =
+                layouter.style.size.val() * super::vanilla_defaults::BLOCK_SPACING;
+            let gap = layouter.prev_block_below_pending.max(above);
+            layouter.regions.current.cursor_y = crate::entities::layout_types::Pt(
+                layouter.prev_line_baseline + layouter.prev_block_equation_descent + gap,
+            );
+            layouter.initial_baseline_pending = true;
+            layouter.prev_block_below_pending = 0.0;
+        }
+    }
     // P459 — ler `table.numbering` da chain e computar prefixo se houver caption.
     let numbering_pattern =
         layouter.chain.custom("table.numbering").and_then(|v| match v {
@@ -74,23 +96,28 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // P772v — header/footer como row-group real, mesmo mecanismo de P772i.
     // P1050 — passa e.align e e.inset (default 5pt) para layout_grid.
     let completed_pages_before = layouter.pages.len();
-    let visual_children = e.children.iter().map(visual_content).collect::<Vec<_>>();
-    let visual_header = e.header.as_ref().map(visual_content);
-    let visual_footer = e.footer.as_ref().map(visual_content);
-    layouter.layout_grid(
-        &e.columns,
-        &e.rows,
-        &visual_children,
-        &e.hlines,
-        &e.vlines,
-        None,
-        e.align,
-        e.inset,
-        visual_header.as_ref(),
-        visual_footer.as_ref(),
-        e.stroke.as_ref(),
-        e.fill.as_ref(),
+    let visual_children = e.resolved.as_ref().map_or_else(
+        || e.children.iter().map(visual_content).collect::<Vec<_>>(),
+        |r| r.cells.clone(),
     );
+    let visual_header =
+        if e.resolved.is_some() { None } else { e.header.as_ref().map(visual_content) };
+    let visual_footer =
+        if e.resolved.is_some() { None } else { e.footer.as_ref().map(visual_content) };
+    layouter.layout_grid(super::grid::GridLayoutInput {
+        columns: &e.columns,
+        rows: &e.rows,
+        cells: &visual_children,
+        hlines: &e.hlines,
+        vlines: &e.vlines,
+        gutter: None,
+        align: e.align,
+        inset: e.inset,
+        header: visual_header.as_ref(),
+        footer: visual_footer.as_ref(),
+        stroke: e.stroke.as_ref(),
+        fill: e.fill.as_ref(),
+    });
 
     // P1288 — a árvore semântica é paralela e visualmente vazia. O grid
     // continua dono do desenho; estes carriers apenas preservam a identidade
@@ -126,8 +153,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
 fn visual_content(content: &Content) -> Content {
     match content {
-        Content::TableCell(cell)
-            if cell.x.is_none()
+        Content::TableCell(cell) => {
+            if cell.resolved.is_some() {
+                content.clone()
+            } else if cell.x.is_none()
                 && cell.y.is_none()
                 && cell.colspan.is_none()
                 && cell.rowspan.is_none()
@@ -135,9 +164,12 @@ fn visual_content(content: &Content) -> Content {
                 && cell.fill.is_none()
                 && cell.align.is_none()
                 && cell.inset.is_none()
-                && cell.breakable.is_none() =>
-        {
-            visual_content(&cell.body)
+                && cell.breakable.is_none()
+            {
+                visual_content(&cell.body)
+            } else {
+                content.clone()
+            }
         }
         Content::Sequence(items) => {
             Content::sequence(items.iter().map(visual_content).collect())
@@ -226,7 +258,7 @@ fn rows_from_cells(
     rows
 }
 
-fn partition_rows<'a>(rows: &'a [LogicalRow], pages: usize) -> Vec<&'a [LogicalRow]> {
+fn partition_rows(rows: &[LogicalRow], pages: usize) -> Vec<&[LogicalRow]> {
     let mut chunks = Vec::with_capacity(pages);
     let mut start = 0usize;
     for page in 0..pages {

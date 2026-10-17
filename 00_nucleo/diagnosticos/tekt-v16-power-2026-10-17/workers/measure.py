@@ -1,0 +1,11 @@
+from pathlib import Path
+import datetime,gzip,hashlib,json,subprocess
+root=Path.cwd();out=Path(__file__).resolve().parents[1];b=json.load(gzip.open(out/'before.json.gz'));sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest();assert all(sha(p)==h for p,h in b['hashes'].items());cases={
+'int-positive':'calc.pow(2,3)','int-negative':'calc.pow(2,-1)','float-base':'calc.pow(2.0,3)','float-exp':'calc.pow(2,3.0)','decimal-base':'calc.pow(decimal("2.5"),3)','decimal-float':'calc.pow(decimal("2"),2.0)','zero-zero':'calc.pow(0,0)','float-zero-zero':'calc.pow(0.0,0.0)','decimal-zero-zero':'calc.pow(decimal("0"),0)','invalid-base':'calc.pow(none,2)','invalid-exp':'calc.pow(2,none)','invalid-both':'calc.pow("x",none)','huge-exp-invalid-base':'calc.pow(none,2147483648)','huge-exp-zero':'calc.pow(0,2147483648)','int-overflow':'calc.pow(2,63)','decimal-exp':'calc.pow(2,decimal("0"))','decimal-both':'calc.pow(decimal("2"),decimal("0"))','sqrt':'calc.sqrt(4)','root-negative':'calc.root(-8,3)','root-zero-index':'calc.root(1,0)'};bins={'tekt':root/'target/debug/typst','vanilla':root/'lab/typst-original/target/release/typst'};assert sha(bins['vanilla'])=='7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea';r=dict(start=datetime.datetime.now(datetime.timezone.utc).isoformat(),head=b['head'],source_hashes=b['hashes'],binaries={k:dict(path=str(p),sha256=sha(p)) for k,p in bins.items()},cases=[])
+for name,expr in cases.items():
+ for kind,binary in bins.items():
+  cmd=[str(binary),'eval',expr,'--in',str(out/'empty.typ'),'--format','json'];p=subprocess.run(cmd,capture_output=True,text=True,timeout=30);r['cases'].append(dict(name=name,binary=kind,utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),expression=expr,argv=cmd,exit=p.returncode,stdout=p.stdout,stderr=p.stderr))
+assert all(x['exit'] in [0,1] for x in r['cases']), 'CLI/setup failure is not a functional measurement'
+r.update(end=datetime.datetime.now(datetime.timezone.utc).isoformat(),sources_unchanged=all(sha(p)==h for p,h in b['hashes'].items()));assert r['sources_unchanged']
+with gzip.open(out/'before-measurement.json.gz','wt') as f:json.dump(r,f)
+print(json.dumps(dict(cases=len(cases),runs=len(r['cases']),source_changes=0)),flush=True)

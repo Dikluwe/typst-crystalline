@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/shape_block_behaviour.md
-//! @prompt-hash 999f4c0d
+//! @prompt-hash 83f4b039
 //! @layer L1
 //! @updated 2026-09-27
 //!
@@ -15,6 +15,8 @@
 use crate::entities::elements::shape::ShapeElem;
 use crate::entities::geometry::ShapeKind;
 use crate::entities::layout_types::{FrameItem, Length, Point, Pt};
+
+#[cfg(test)]
 use crate::entities::paint::Paint;
 
 use super::helpers::resolve_pt;
@@ -23,6 +25,118 @@ use super::{resolve_shape_kind, FontMetrics, ImageSizer, Layouter};
 /// **P767a** — espaçamento por defeito de um bloco de forma, equivalente ao
 /// `BlockElem::spacing` por defeito do vanilla (`BLOCK_SPACING`).
 const SHAPE_BLOCK_SPACING_EM: f64 = super::vanilla_defaults::BLOCK_SPACING;
+
+fn resolve_dimension(
+    value: Option<&crate::entities::value::Value>,
+    reference: f64,
+    font: f64,
+    fallback: f64,
+) -> f64 {
+    use crate::entities::value::Value;
+    let relative = |ratio: f64| {
+        let value = ratio * reference;
+        if value.is_finite() {
+            value
+        } else {
+            0.0
+        }
+    };
+    if let Some(Value::Length(length)) = value {
+        return length.resolve_pt(font);
+    }
+    if let Some(Value::Ratio(ratio)) = value {
+        return relative(ratio.0);
+    }
+    if let Some(Value::Relative(length)) = value {
+        return relative(length.rel) + length.abs.resolve_pt(font);
+    }
+    resolve_pt(value, fallback)
+}
+
+#[cfg(test)]
+mod prepared_paint_regressions {
+    use super::*;
+    use crate::compiler::layout::FixedMetrics;
+    use crate::entities::elements::image::ImageElem;
+    use crate::entities::geometry::Stroke;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use crate::entities::layout_types::Size;
+    use crate::entities::ptr_eq_arc::PtrEqArc;
+    use crate::entities::tiling::{Tiling, TilingBody};
+    use crate::entities::value::Value;
+    use comemo::Track;
+    use std::sync::Arc;
+
+    struct CountImage(std::cell::Cell<usize>);
+    impl ImageSizer for CountImage {
+        fn size(&self, _: &[u8]) -> Option<(u32, u32)> {
+            self.0.set(self.0.get() + 1);
+            Some((8, 6))
+        }
+        fn dpi(&self, _: &[u8]) -> Option<f64> {
+            Some(72.0)
+        }
+        fn orientation(&self, _: &[u8]) -> Option<u32> {
+            Some(1)
+        }
+    }
+
+    #[test]
+    fn prepared_shape_transports_fill_and_stroke_without_a_repetition_grid() {
+        let intr = TagIntrospector::empty();
+        let intr: &dyn Introspector = &intr;
+        for width in [40.0, 200_000.0] {
+            let mut layouter = Layouter::new(
+                FixedMetrics,
+                CountImage(std::cell::Cell::new(0)),
+                12.0,
+                intr.track(),
+            );
+            layouter.is_sub_frame = true;
+            let mut tile = Tiling::new(TilingBody::Image(ImageElem {
+                path: "cell.png".into(),
+                alt: None,
+                data: PtrEqArc(Arc::new(vec![1, 2, 3])),
+                width: None,
+                height: None,
+                fit: "cover".into(),
+            }));
+            tile.size = Some(Size { width: Pt(8.0), height: Pt(6.0) });
+            let paint = Paint::Tiling(tile);
+            let elem = ShapeElem {
+                kind: ShapeKind::Rect,
+                width: Some(Box::new(Value::Length(Length::pt(width)))),
+                height: Some(Box::new(Value::Length(Length::pt(20.0)))),
+                fill: Some(paint.clone()),
+                stroke: Some(Stroke { paint, thickness: 3.0, ..Default::default() }),
+                fill_rule: crate::entities::geometry::FillRule::EvenOdd,
+            };
+            layout(&mut layouter, &elem);
+            assert_eq!(
+                layouter.sizer.0.get(),
+                2,
+                "each paint occurrence must prepare its cell exactly once"
+            );
+            assert!(layouter.layout_errors.is_empty());
+            assert_eq!(layouter.regions.current.current_items.len(), 1);
+            let FrameItem::Shape {
+                width: actual_width,
+                height,
+                fill,
+                stroke,
+                fill_rule,
+                ..
+            } = &layouter.regions.current.current_items[0]
+            else {
+                panic!("shape paint must not expand into Group copies");
+            };
+            assert_eq!((*actual_width, *height), (width, 20.0));
+            assert!(fill.is_some());
+            assert_eq!(stroke.as_ref().unwrap().thickness, 3.0);
+            assert_eq!(*fill_rule, crate::entities::geometry::FillRule::EvenOdd);
+        }
+    }
+}
 
 /// Layout de uma forma (`rect`/`circle`/`line`/…): resolve dimensões, emite
 /// um `FrameItem::Shape` na página actual e avança o cursor vertical.
@@ -39,7 +153,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // A fresh block starts at a geometric top, including root Place.
     // Legacy baseline-origin subframes arrive with the pending flag cleared.
     let fresh_block = layouter.initial_baseline_pending
-        && layouter.regions.current.current_line.is_empty();
+        && layouter
+            .regions
+            .current
+            .current_line
+            .iter()
+            .all(super::html_frame::is_context_marker);
     if fresh_block {
         layouter.initial_baseline_pending = false;
     } else if layouter.initial_baseline_pending {
@@ -50,14 +169,23 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let (kind, width, height, fill, stroke) =
         (&e.kind, &e.width, &e.height, &e.fill, &e.stroke);
     let available_w = layouter.available_width();
+    let relative_width = layouter.block_place_region.map_or(available_w, |r| r.w.0);
+    let font = layouter.style.size.val();
+    let relative_height = layouter
+        .block_place_region
+        .filter(|r| r.h.0.is_finite())
+        .map(|r| r.h.0)
+        .or(layouter.relative_region_size.map(|size| size.1))
+        .unwrap_or_else(|| layouter.available_height());
     let (resolved_w, resolved_h) = match kind {
         // P242 — RoundedRect partilha dimensões com Rect.
         ShapeKind::Rect
         | ShapeKind::RoundedRect { .. }
         | ShapeKind::Ellipse
         | ShapeKind::Path(_) => {
-            let w = resolve_pt(width.as_deref(), available_w);
-            let h = resolve_pt(height.as_deref(), 0.0);
+            let w =
+                resolve_dimension(width.as_deref(), relative_width, font, available_w);
+            let h = resolve_dimension(height.as_deref(), relative_height, font, 0.0);
             (w, h)
         }
         ShapeKind::Line { dx, dy } => (dx.abs(), dy.abs()),
@@ -74,131 +202,83 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     // **P767a** — protocolo de bloco no fluxo principal.
     let in_main_flow = !layouter.is_sub_frame;
-    let font = layouter.style.size.val();
     let above_pt = Length::em(SHAPE_BLOCK_SPACING_EM).resolve_pt(font);
     let below_pt = Length::em(SHAPE_BLOCK_SPACING_EM).resolve_pt(font);
-    let cap_height = if fresh_block || !in_main_flow {
-        Pt(0.0)
-    } else {
-        layouter.metrics.cap_height(layouter.style.size, &layouter.style)
-    };
+    let cap_height =
+        if fresh_block || !in_main_flow || layouter.block_chain_active || had_text_line {
+            Pt(0.0)
+        } else {
+            layouter.metrics.cap_height(layouter.style.size, &layouter.style)
+        };
 
     if in_main_flow {
-        // Colapso de margem com o bloco anterior (P250):
-        // `max(prev.below, curr.above)`; o primeiro bloco de uma Sequence
-        // não leva above (`block_chain_active == false`).
-        let gap = if layouter.block_chain_active {
-            layouter.prev_block_below_pending.max(above_pt)
-        } else {
-            0.0
-        };
-        let advance = (gap - layouter.prev_block_below_pending).max(0.0);
-        layouter.regions.current.cursor_y += Pt(advance);
-        layouter.prev_block_below_pending = 0.0;
-
         // A forma de bloco alinha-se à margem esquerda do contentor.
         layouter.regions.current.cursor_x = layouter.regions.current.line_start_x;
     }
 
-    // P748/P750 — no fluxo principal o cursor_y representa a baseline do
-    // texto. O `pos.y` de `FrameItem::Shape` é a base da forma em
-    // coordenadas do Layouter (Y crescente para cima a partir da base da
-    // página); a forma estende-se para cima pela sua altura.
-    //
-    // **P767c** — quando a forma é a primeira depois de texto não-bloco,
-    // o vanilla ancora a *base* da forma em `baseline + above`; o topo da
-    // forma fica em `baseline + above + height`. Quando a forma sucede
-    // outro bloco, ou quando é a primeira de uma Sequence sem texto antes,
-    // mantém-se o modelo P767a: base da forma em `baseline − cap_height`
-    // (topo da linha anterior, estendendo-se para cima).
+    // A shape occupies a geometric frame. A preceding text line supplies its
+    // baseline; a preceding block supplies its physical end and pending gap.
+    // Only the legacy fresh-region cursor still carries an assumed text top.
     let candidate_shape_base = if !in_main_flow {
         layouter.regions.current.cursor_y
-    } else if layouter.block_chain_active {
-        layouter.regions.current.cursor_y - cap_height
     } else if had_text_line {
         baseline_before_flush + Pt(above_pt)
+    } else if layouter.block_chain_active {
+        Pt(layouter.prev_line_baseline
+            + layouter.prev_block_equation_descent
+            + layouter.prev_block_below_pending.max(above_pt))
     } else {
         layouter.regions.current.cursor_y - cap_height
     };
     let page_bottom =
         layouter.regions.current.height - layouter.page_config.margin.bottom;
-    let shape_base = if candidate_shape_base.0 + resolved_h > page_bottom {
-        // A subframe needs cap-height only for this actual page transition.
-        let page_cap_height = if in_main_flow {
-            cap_height
+    let shape_base =
+        if !layouter.is_sub_frame && candidate_shape_base.0 + resolved_h > page_bottom {
+            layouter.new_page();
+            // The new region may prepare a text baseline. Recover its physical
+            // top so an exact-fitting shape does not inherit that text offset.
+            let page_top = if layouter.initial_baseline_pending {
+                Pt(0.0)
+            } else {
+                layouter.metrics.text_edges(layouter.style.size, &layouter.style).0
+            };
+            layouter.regions.current.cursor_y - page_top
         } else {
-            layouter.metrics.cap_height(layouter.style.size, &layouter.style)
+            candidate_shape_base
         };
-        layouter.new_page();
-        // A quebra descarta a baseline e o espaçamento do fluxo anterior. Na
-        // página fresca, a forma começa no topo da área útil, tal como uma
-        // forma isolada; isto também permite o exact-fit altura útil == forma.
-        layouter.regions.current.cursor_y - page_cap_height
-    } else {
-        candidate_shape_base
-    };
     let pos = Point {
         x: layouter.regions.current.cursor_x,
         y: shape_base,
     };
     let resolved_kind = resolve_shape_kind(kind, layouter.style.size);
-    let materialized_tiling = match fill {
-        Some(Paint::Tiling(tiling)) => super::tiling::materialize_fill(
-            layouter,
-            tiling,
-            pos,
-            resolved_kind.clone(),
-            resolved_w,
-            resolved_h,
-        ),
-        _ => None,
-    };
-    if let Some(group) = materialized_tiling {
-        layouter.regions.current.current_items.push(group);
-        if stroke.is_some() {
-            layouter.regions.current.current_items.push(FrameItem::Shape {
-                pos,
-                kind: resolved_kind,
-                width: resolved_w,
-                height: resolved_h,
-                fill: None,
-                stroke: stroke.clone(),
-                fill_rule: e.fill_rule,
-                parent_bbox_at_emit: layouter.parent_bbox,
-            });
-        }
-    } else {
-        layouter.regions.current.current_items.push(FrameItem::Shape {
-            pos,
-            kind: resolved_kind,
-            width: resolved_w,
-            height: resolved_h,
-            fill: fill.clone(),
-            stroke: stroke.clone(),
-            // P273.6 — populated by Layouter.parent_bbox (Block save/restore).
-            fill_rule: e.fill_rule,
-            parent_bbox_at_emit: layouter.parent_bbox,
-        });
-    }
+    let fill = super::tiling::resolve_paint(layouter, fill.as_ref());
+    let stroke = super::tiling::resolve_stroke(layouter, stroke.as_ref());
+    layouter.regions.current.current_items.push(FrameItem::Shape {
+        pos,
+        kind: resolved_kind,
+        width: resolved_w,
+        height: resolved_h,
+        fill,
+        stroke,
+        fill_rule: e.fill_rule,
+        parent_bbox_at_emit: layouter.parent_bbox,
+    });
 
-    // **P767c** — avanço do cursor conforme o tipo de ancoragem. Após
-    // forma-a-seguir-a-texto, a próxima baseline fica no topo da forma +
-    // `below + cap_height`; após forma-a-seguir-a-bloco, ou forma isolada,
-    // mantém-se o comportamento P767a (base da forma + `below`).
+    // The frame end is causal; below remains pending for the next block.
     if in_main_flow {
-        if layouter.block_chain_active {
-            layouter.regions.current.cursor_y = shape_base + Pt(resolved_h + below_pt);
-        } else if had_text_line {
-            layouter.regions.current.cursor_y =
-                shape_base + Pt(resolved_h + below_pt + cap_height.0);
-        } else {
-            layouter.regions.current.cursor_y = shape_base + Pt(resolved_h + below_pt);
-        }
+        let end = shape_base.0 + resolved_h;
+        layouter.regions.current.cursor_y = Pt(end + below_pt);
+        layouter.prev_line_baseline = end;
+        layouter.last_block_descent_y = Some(end);
+        layouter.prev_block_equation_descent = 0.0;
         layouter.prev_block_below_pending = below_pt;
+        layouter.prev_margin_is_parbreak = false;
         layouter.block_chain_active = true;
     } else {
         layouter.regions.current.cursor_y += Pt(resolved_h);
     }
+    layouter.record_flow_placement_end(shape_base.0 + resolved_h);
+    layouter.record_flow_width_at(pos.x.0, resolved_w);
 }
 
 #[cfg(test)]
@@ -270,5 +350,4 @@ mod initial_nontext_block_regressions {
     fn ordinary_subframe_block_does_not_query_unused_typography() {
         check(NoTypography, None, true);
     }
-
 }

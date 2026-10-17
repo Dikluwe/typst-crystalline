@@ -1,5 +1,5 @@
 # L0 — stdlib/text/deco
-Hash do Código: d88e131b
+Hash do Código: 19f869cc
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/text/deco.rs`

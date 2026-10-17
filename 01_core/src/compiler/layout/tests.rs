@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/tests.md
-//! @prompt-hash 76cbe750
+//! @prompt-hash 66d0f557
 //! @layer L1
-//! @updated 2026-10-03
+//! @updated 2026-10-07
 //!
 //! Testes de layout — extraídos de `layout/mod.rs` no Passo 96.7
 //! conforme ADR-0037.
@@ -27,6 +27,556 @@ use crate::entities::{
     style::Styles,
     value::Value,
 };
+
+fn solid_frame_color(
+    paint: &crate::entities::frame_paint::FramePaint,
+) -> crate::entities::layout_types::Color {
+    let crate::entities::frame_paint::FramePaint::Solid(color) = paint else {
+        panic!("solid-color fixture changed paint kind: {paint:?}");
+    };
+    color.clone()
+}
+
+mod prefix_nesting_regressions {
+    use super::*;
+    #[test]
+    fn prefix_nesting_checkpoint_and_subframe_restore_lexical_context() {
+        use comemo::Track;
+        let intr = crate::entities::introspector::TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            crate::entities::image_sizer::NullImageSizer,
+            11.0,
+            (&intr as &dyn crate::entities::introspector::Introspector).track(),
+        );
+        let chain = l.chain.push_custom(
+            "par.spacing",
+            Value::Length(crate::entities::layout_types::Length::pt(99.0)),
+        );
+        let chain = chain.push_custom(
+            "par.leading",
+            Value::Length(crate::entities::layout_types::Length::pt(99.0)),
+        );
+        l.text_segment_chain = Some(chain);
+        l.geometric_text_lines = true;
+        let checkpoint = l.capture_flow_suffix_checkpoint();
+        l.text_segment_chain = None;
+        l.geometric_text_lines = false;
+        l.restore_flow_suffix_checkpoint(checkpoint);
+        assert!(l.geometric_text_lines);
+        assert!(
+            (super::super::paragraph::spacing(l.text_segment_chain.as_ref().unwrap())
+                - 99.0)
+                .abs()
+                < 1e-8
+        );
+        let body = Content::text("AAA BBB CCC");
+        let region = || super::super::sub_frame::SubLayoutRegion {
+            origin_x: 0.0,
+            width: 25.0,
+            height: None,
+            align_rtl: false,
+            unconstrained_height: true,
+        };
+        let height = l.layout_sub_frame_at_geometric_origin(&body, region()).0;
+        assert!(l.geometric_text_lines);
+        assert!(
+            (super::super::paragraph::spacing(l.text_segment_chain.as_ref().unwrap())
+                - 99.0)
+                .abs()
+                < 1e-8
+        );
+        l.geometric_text_lines = false;
+        l.text_segment_chain = None;
+        let control = l.layout_sub_frame_at_geometric_origin(&body, region()).0;
+        assert!((height - control).abs() < 1e-8);
+    }
+
+    #[test]
+    fn prefix_nesting_suffix_collapses_only_automatic_block_margin() {
+        for (below, expected) in [("", 98.4), (",below:0pt", 76.8), (",below:5pt", 81.8)]
+        {
+            let doc = layout_test(&format!("#set page(width:200pt,height:auto,margin:10pt)\n#set text(size:18pt)\nOUTER #text(size:8pt)[INNER\n#block(height:20pt{below})[BODY]]\nAFTER"));
+            let after = frame_items_recursive(&doc.pages[0].items)
+                .into_iter()
+                .find_map(|i| match i {
+                    FrameItem::Text { pos, text, .. } if text.as_str() == "AFTER" => {
+                        Some(pos.y.0)
+                    }
+                    _ => None,
+                })
+                .unwrap();
+            assert!(
+                (after - expected).abs() < 0.001,
+                "{below}: AFTER={after}, expected={expected}"
+            );
+        }
+    }
+
+    #[test]
+    fn prefix_nesting_partial_scope_closes_under_outer_paragraph() {
+        let doc = layout_test("#set page(width:200pt,height:auto,margin:10pt)\n#set text(size:18pt)\nOUTER #text(size:8pt)[INNER\n#block(height:20pt)[BODY]]");
+        let y = |needle: &str| {
+            frame_items_recursive(&doc.pages[0].items)
+                .into_iter()
+                .find_map(|item| match item {
+                    FrameItem::Text { pos, text, .. } if text.as_str() == needle => {
+                        Some(pos.y.0)
+                    }
+                    _ => None,
+                })
+                .unwrap()
+        };
+        assert_eq!(doc.pages.len(), 1);
+        assert!((y("BODY") - 49.8).abs() < 0.001, "BODY={}", y("BODY"));
+        assert!((y("OUTER") - y("INNER")).abs() < 0.001);
+    }
+}
+
+mod scope_tail_regressions {
+    use super::*;
+    fn document(body: &str) -> PagedDocument {
+        layout_test(&format!("#set page(width:200pt,height:auto,margin:10pt)\n#set text(size:10pt,top-edge:10pt,bottom-edge:0pt)\n{body}"))
+    }
+    fn y(doc: &PagedDocument, text: &str) -> f64 {
+        frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, text: t, .. } if t.as_str() == text => {
+                    Some(pos.y.0)
+                }
+                _ => None,
+            })
+            .expect("required text on first page")
+    }
+    #[test]
+    fn scope_tail_lexical_wrapper_differs_from_equal_sibling_runs() {
+        for (prefix, gap) in [
+            ("#text(size:18pt)[Lead More]", 21.6),
+            ("#text(size:18pt)[*Lead More*]", 21.6),
+            ("#text(size:18pt)[Lead]#text(size:18pt)[More]", 12.0),
+            ("#text(size:18pt)[Lead] #text(size:18pt)[More]", 12.0),
+            ("#text(size:8pt)[Lead]", 12.0),
+        ] {
+            for block in ["#block(height:20pt)[BODY]", "#align(top)[BODY]"] {
+                let doc = document(&format!("{prefix}\n{block}"));
+                assert_eq!(doc.pages.len(), 1);
+                assert!(
+                    (y(&doc, "BODY") - (30.0 + gap)).abs() < 1e-8,
+                    "{prefix} {block}: {} != {}",
+                    y(&doc, "BODY"),
+                    30.0 + gap
+                );
+            }
+        }
+    }
+    #[test]
+    fn scope_tail_fractional_tail_at_exact_bottom_stays_on_page() {
+        for spacing in ["0pt", "5pt", "2em"] {
+            for tail in ["TAIL", "#text(size:18pt)[TAIL]"] {
+                let doc = document(&format!("#set page(height:100pt)\n#set par(spacing:{spacing})\n#block(height:1fr)[A]\n{tail}"));
+                assert_eq!(doc.pages.len(), 1, "{spacing}: {tail}");
+                assert!(
+                    (y(&doc, "TAIL") - 90.0).abs() < 1e-8,
+                    "{spacing} {tail}: {}",
+                    y(&doc, "TAIL")
+                );
+            }
+        }
+    }
+    #[test]
+    fn scope_tail_fractional_multiline_tail_reserves_whole_segment() {
+        let doc = document("#set page(height:100pt)\n#block(height:1fr)[A]\nTAIL\\\nEND");
+        assert_eq!(doc.pages.len(), 1);
+        assert!((y(&doc, "TAIL") - 73.5).abs() < 1e-8, "{}", y(&doc, "TAIL"));
+        assert!((y(&doc, "END") - 90.0).abs() < 1e-8, "{}", y(&doc, "END"));
+    }
+    #[test]
+    fn scope_tail_overflow_reserves_first_fragment_with_widow_protection() {
+        for spacing in ["5pt", "20pt"] {
+            let doc = document(&format!("#set page(width:60pt,height:100pt)\n#set par(spacing:{spacing})\n#block(height:1fr)[FR]\nAAAAAA BBBBBB CCCCCC DDDDDD EEEEEE"));
+            assert_eq!(doc.pages.len(), 2);
+            assert!(
+                (y(&doc, "AAAAAA") - 57.0).abs() < 1e-8,
+                "{spacing}: {}",
+                y(&doc, "AAAAAA")
+            );
+            assert!((y(&doc, "CCCCCC") - 90.0).abs() < 1e-8);
+            assert!(!doc.pages[0].plain_text().contains("DDDDDD"));
+            assert!(doc.pages[1].plain_text().contains("DDDDDD"));
+            assert!(doc.pages[1].plain_text().contains("EEEEEE"));
+        }
+    }
+}
+
+mod block_par_spacing_regressions {
+    use super::*;
+
+    fn document(spacing: &str, body: &str) -> PagedDocument {
+        layout_test(&format!("#set page(width:200pt,height:auto,margin:10pt)\n#set text(size:10pt,top-edge:10pt,bottom-edge:0pt)\n#set par(spacing:{spacing})\n{body}"))
+    }
+
+    fn baseline(doc: &PagedDocument, text: &str) -> f64 {
+        frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, text: found, .. } if found.as_str() == text => {
+                    Some(pos.y.0)
+                }
+                _ => None,
+            })
+            .expect("text must survive")
+    }
+
+    #[test]
+    fn block_par_spacing_resolves_before_after_and_between_blocks() {
+        for (spacing, gap) in [("0pt", 0.0), ("5pt", 5.0), ("2em", 20.0)] {
+            for (body, height) in [
+                ("PRE\n#block(height:20pt)[BODY]", 50.0 + gap),
+                ("PRE\n#block(height:20pt)[BODY]\nPOST", 60.0 + 2.0 * gap),
+                ("#block(height:20pt)[BODY]\nPOST", 50.0 + gap),
+                ("#block(height:20pt)[A]\n#block(height:20pt)[B]", 60.0 + gap),
+            ] {
+                let doc = document(spacing, body);
+                assert_eq!(doc.pages.len(), 1, "{spacing}: {body}");
+                assert!(
+                    (doc.pages[0].height - height).abs() < 1e-8,
+                    "{spacing}: {body}: {} != {height}",
+                    doc.pages[0].height
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn block_par_spacing_explicit_zero_keeps_following_text_top_edge() {
+        for spacing in ["0pt", "5pt", "2em"] {
+            for body in [
+                "#block(height:20pt,below:0pt)[A]\nB",
+                "A\n#block(height:20pt,above:0pt)[B]",
+            ] {
+                let doc = document(spacing, body);
+                assert_eq!(doc.pages.len(), 1);
+                assert_eq!(doc.pages[0].height, 50.0, "{spacing}: {body}");
+                assert_eq!(
+                    baseline(&doc, "B"),
+                    if body.starts_with('A') { 30.0 } else { 40.0 }
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn block_par_spacing_fractional_reservation_matches_emission() {
+        for (spacing, expected) in [("0pt", 60.0), ("5pt", 62.5), ("2em", 70.0)] {
+            let doc = document(
+                spacing,
+                "#set page(height:100pt)\n#block(height:1fr)[A]\n#block(height:1fr)[B]",
+            );
+            assert_eq!(doc.pages.len(), 1, "{spacing}");
+            assert_eq!(baseline(&doc, "A"), 20.0);
+            assert!(
+                (baseline(&doc, "B") - expected).abs() < 1e-8,
+                "{spacing}: {} != {expected}",
+                baseline(&doc, "B")
+            );
+        }
+    }
+}
+
+mod align_flow_frame_regressions {
+    use super::*;
+
+    fn document(body: &str) -> PagedDocument {
+        layout_test(&format!("#set page(width:150pt,height:auto,margin:10pt)\n#set text(size:10pt,top-edge:10pt,bottom-edge:0pt)\n{body}"))
+    }
+
+    #[test]
+    fn align_flow_frame_has_own_height_and_following_margin() {
+        for align in ["top", "horizon", "bottom"] {
+            for (prefix, height) in [("#block(height:20pt)[PRE]", 62.0), ("PRE", 52.0)] {
+                let body = format!("{prefix}\n#align({align})[X]");
+                let doc = document(&body);
+                assert_eq!(doc.pages[0].height, height, "{body}");
+                let tail = document(&format!("{body}\nPOST"));
+                assert_eq!(tail.pages[0].height, height + 22.0, "{body}");
+                assert!(tail.plain_text().contains("POST"));
+                let ys: Vec<_> = frame_items_recursive(&tail.pages[0].items)
+                    .into_iter()
+                    .filter_map(|item| match item {
+                        FrameItem::Text { pos, text, .. }
+                            if matches!(text.as_str(), "X" | "POST") =>
+                        {
+                            Some(pos.y.0)
+                        }
+                        _ => None,
+                    })
+                    .collect();
+                assert_eq!(ys, vec![height - 10.0, height + 12.0], "{body}");
+            }
+        }
+    }
+
+    #[test]
+    fn align_flow_frame_empty_body_and_empty_allocated_block_differ() {
+        for align in ["top", "horizon", "bottom"] {
+            for (body, height) in [("", 62.0), ("#block(height:20pt)[]", 94.0)] {
+                let doc = document(&format!(
+                    "#block(height:20pt)[PRE]\n#align({align})[{body}]\nPOST"
+                ));
+                assert_eq!(doc.pages[0].height, height, "{align} {body}");
+            }
+        }
+    }
+
+    #[test]
+    fn align_flow_frame_fixed_page_resolves_after_incoming_gap() {
+        for (align, baseline) in [("top", 52.0), ("horizon", 71.0), ("bottom", 90.0)] {
+            let doc = document(&format!(
+                "#set page(height:100pt)\n#block(height:20pt)[PRE]\n#align({align})[X]"
+            ));
+            let y = frame_items_recursive(&doc.pages[0].items)
+                .into_iter()
+                .find_map(|item| match item {
+                    FrameItem::Text { pos, text, .. } if text.as_str() == "X" => {
+                        Some(pos.y.0)
+                    }
+                    _ => None,
+                })
+                .unwrap();
+            assert_eq!(y, baseline, "{align}");
+        }
+    }
+
+    #[test]
+    fn align_flow_frame_pagebreak_recovers_geometric_origin() {
+        let doc = document("#set page(height:100pt)\nPRE#pagebreak()\n#align(top)[X]");
+        assert_eq!(doc.pages.len(), 2);
+        let y = frame_items_recursive(&doc.pages[1].items)
+            .into_iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "X" => {
+                    Some(pos.y.0)
+                }
+                _ => None,
+            })
+            .unwrap();
+        assert_eq!(y, 20.0);
+    }
+
+    #[test]
+    fn align_flow_frame_initial_space_and_previous_page_do_not_add_height() {
+        let spaced = document("#v(20pt)#align(top)[X]");
+        assert_eq!(spaced.pages[0].height, 50.0);
+        let broken = document("#block(height:40pt)[PRE]#pagebreak()\n#align(top)[X]");
+        assert_eq!(broken.pages.len(), 2);
+        assert_eq!(broken.pages[0].height, 60.0);
+        assert_eq!(broken.pages[1].height, 30.0);
+    }
+}
+
+mod block_height_frame_regressions {
+    use super::*;
+    const SHAPE: &str = "#rect(width:20pt,height:10pt,fill:red,stroke:none)";
+    fn document(body: &str) -> PagedDocument {
+        layout_test(&format!("#set page(width:100pt,height:auto,margin:10pt)\n#set text(size:10pt,top-edge:10pt,bottom-edge:0pt)\n{body}"))
+    }
+
+    #[test]
+    fn block_height_frame_pagebreak_starts_at_physical_origin() {
+        for body in ["X", SHAPE] {
+            let doc = document(&format!(
+                "#set page(height:100pt)\nA#pagebreak()\n#block(inset:5pt,fill:blue)[{body}]"
+            ));
+            assert_eq!(doc.pages.len(), 2);
+            let backing_y = doc.pages[1]
+                .items
+                .iter()
+                .find_map(|item| match item {
+                    FrameItem::Shape { pos, .. } => Some(pos.y.0),
+                    _ => None,
+                })
+                .unwrap();
+            assert_eq!(backing_y, 10.0, "{body}");
+        }
+    }
+
+    #[test]
+    fn block_height_frame_closed_line_and_strong_space_use_causal_end() {
+        for (separator, extra) in [("\\\n", 0.0), ("#v(5pt)\n", 5.0)] {
+            let reference = document("X\n#block(inset:5pt)[Y]");
+            let doc = document(&format!("X{separator}#block(inset:5pt)[Y]"));
+            assert!(
+                (doc.pages[0].height - reference.pages[0].height - extra).abs() < 1e-8
+            );
+        }
+    }
+
+    #[test]
+    fn block_height_frame_uses_allocation_including_insets() {
+        for (body, expected) in [
+            ("#block[]".to_owned(), 20.0),
+            (format!("#block[{SHAPE}]"), 30.0),
+            (format!("#block(inset:5pt)[{SHAPE}]"), 40.0),
+            (format!("#block(height:40pt,inset:5pt)[{SHAPE}]"), 60.0),
+            ("#block(inset:5pt)[X]".to_owned(), 40.0),
+            ("#block(inset:5pt)[]".to_owned(), 30.0),
+        ] {
+            let doc = document(&body);
+            assert_eq!(doc.pages.len(), 1, "{body}");
+            assert!(
+                (doc.pages[0].height - expected).abs() < 1e-8,
+                "{body}: {} != {expected}",
+                doc.pages[0].height
+            );
+        }
+    }
+
+    #[test]
+    fn block_height_frame_backing_matches_allocated_region() {
+        let doc = document(&format!("#block(inset:5pt,fill:blue)[{SHAPE}]"));
+        let backing = doc.pages[0]
+            .items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Shape { pos, width, height, .. } => {
+                    Some((pos.x.0, pos.y.0, *width, *height))
+                }
+                _ => None,
+            })
+            .unwrap();
+        assert_eq!(backing, (10.0, 10.0, 30.0, 20.0));
+        assert_eq!(doc.pages[0].height, 40.0);
+    }
+
+    #[test]
+    fn block_height_frame_nested_and_successor_use_outer_end() {
+        for (body,expected) in [
+            (format!("#block(inset:3pt)[#block(inset:5pt)[{SHAPE}]]"),46.0),
+            (format!("#block(height:60pt,inset:3pt)[#block(height:40pt,inset:5pt)[{SHAPE}]]"),80.0),
+            (format!("#block(height:40pt,inset:5pt)[{SHAPE}]\n{SHAPE}"),82.0),
+            (format!("#block(height:40pt,inset:5pt)[{SHAPE}]\nY"),82.0),
+            (format!("{SHAPE}\n#block(inset:5pt)[{SHAPE}]"),62.0),
+            (format!("X\n#block(inset:5pt)[{SHAPE}]"),62.0),
+        ] {
+            let doc=document(&body);
+            assert_eq!(doc.pages.len(),1,"{body}");
+            assert!((doc.pages[0].height-expected).abs()<1e-8,"{body}: {} != {expected}",doc.pages[0].height);
+        }
+    }
+
+    #[test]
+    fn block_height_frame_outset_is_visual_only() {
+        for clip in [false, true] {
+            let doc = document(&format!(
+                "#block(outset:5pt,fill:blue,clip:{clip})[{SHAPE}]\nY"
+            ));
+            assert_eq!(doc.pages[0].height, 52.0);
+            let backing = doc.pages[0]
+                .items
+                .iter()
+                .find_map(|item| match item {
+                    FrameItem::Shape { pos, width, height, .. } => {
+                        Some((pos.x.0, pos.y.0, *width, *height))
+                    }
+                    _ => None,
+                })
+                .unwrap();
+            assert_eq!(backing, (5.0, 5.0, 30.0, 20.0));
+        }
+        let doc=document(&format!("#set page(height:100pt)\n#v(40pt)#block(height:20pt,breakable:false,outset:30pt)[{SHAPE}]"));
+        assert_eq!(
+            doc.pages.len(),
+            1,
+            "paint overhang must not force a region transition"
+        );
+    }
+}
+
+mod shape_flow_boundary_regressions {
+    use super::*;
+
+    fn document(body: &str) -> PagedDocument {
+        layout_test(&format!(
+            "#set page(width:100pt,height:auto,margin:10pt)\n#set text(size:10pt)\n{body}"
+        ))
+    }
+
+    const SHAPE: &str = "#rect(width:20pt,height:10pt,fill:red,stroke:none)";
+
+    #[test]
+    fn shape_flow_terminal_height_excludes_weak_margin() {
+        for (body, height) in
+            [(SHAPE.to_owned(), 30.0), (format!("{SHAPE}\n{SHAPE}"), 52.0)]
+        {
+            let doc = document(&body);
+            assert_eq!(doc.pages.len(), 1);
+            assert!(
+                (doc.pages[0].height - height).abs() < 1e-8,
+                "{}",
+                doc.pages[0].height
+            );
+            let tops: Vec<_> = doc.pages[0]
+                .items
+                .iter()
+                .filter_map(|item| match item {
+                    FrameItem::Shape { pos, .. } => Some(pos.y.0),
+                    _ => None,
+                })
+                .collect();
+            assert_eq!(tops[0], 10.0);
+            if tops.len() == 2 {
+                assert!((tops[1] - 32.0).abs() < 1e-8);
+            }
+        }
+    }
+
+    #[test]
+    fn shape_flow_mixed_successors_use_latest_frame() {
+        let wrapped = format!("#rotate(0deg)[{SHAPE}]");
+        for (actual, reference) in [
+            (format!("{SHAPE}\nX"), format!("{wrapped}\nX")),
+            (format!("X\n{SHAPE}"), format!("X\n{wrapped}")),
+            (format!("{SHAPE}\n{wrapped}"), format!("{wrapped}\n{wrapped}")),
+            (format!("{wrapped}\n{SHAPE}"), format!("{wrapped}\n{wrapped}")),
+        ] {
+            let a = document(&actual);
+            let b = document(&reference);
+            assert_eq!(a.plain_text(), b.plain_text());
+            assert_eq!(a.pages.len(), b.pages.len());
+            assert!(
+                (a.pages[0].height - b.pages[0].height).abs() < 1e-8,
+                "{actual}: {} != {}",
+                a.pages[0].height,
+                b.pages[0].height
+            );
+        }
+    }
+
+    #[test]
+    fn shape_flow_explicit_space_survives_terminal_projection() {
+        for (suffix, height) in [("#v(7pt)", 37.0), ("#v(7pt,weak:true)", 30.0)] {
+            let doc = document(&format!("{SHAPE}\n{suffix}"));
+            assert!(
+                (doc.pages[0].height - height).abs() < 1e-8,
+                "{suffix}: {}",
+                doc.pages[0].height
+            );
+        }
+    }
+
+    #[test]
+    fn shape_flow_page_boundary_discards_old_margin() {
+        let doc = document(&format!("{SHAPE}#pagebreak()\n{SHAPE}"));
+        assert_eq!(doc.pages.len(), 2);
+        for page in &doc.pages {
+            assert!((page.height - 30.0).abs() < 1e-8, "{}", page.height);
+            assert!(page.items.iter().any(
+                |item| matches!(item, FrameItem::Shape { pos, .. } if pos.y.0 == 10.0)
+            ));
+        }
+    }
+}
 
 fn block_height_pt(value: f64) -> crate::entities::elements::block::BlockHeight {
     crate::entities::elements::block::BlockHeight::Relative(crate::entities::rel::Rel {
@@ -98,7 +648,7 @@ fn p1373_full_height_block_moves_following_line_without_losing_it() {
 /// Vista recursiva read-only usada por testes que inspecionam folhas visuais.
 /// `Semantic` é transparente; `Group` e `Link` também são percorridos, mas o
 /// próprio contentor permanece na vista para testes que procuram Shapes/Groups.
-fn frame_items_recursive(items: &[FrameItem]) -> Vec<&FrameItem> {
+pub(super) fn frame_items_recursive(items: &[FrameItem]) -> Vec<&FrameItem> {
     use crate::entities::layout_types::{Pt, TransformMatrix};
 
     fn project_point(transform: TransformMatrix, point: Point) -> Point {
@@ -106,17 +656,15 @@ fn frame_items_recursive(items: &[FrameItem]) -> Vec<&FrameItem> {
         Point { x: Pt(x), y: Pt(y) }
     }
 
-    fn project_item<'a>(
-        item: &'a FrameItem,
-        transform: TransformMatrix,
-    ) -> &'a FrameItem {
+    fn project_item(item: &FrameItem, transform: TransformMatrix) -> &FrameItem {
         if transform == TransformMatrix::identity() {
             return item;
         }
 
         let mut projected = item.clone();
         match &mut projected {
-            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
+            FrameItem::TextSeparator { pos, .. }
+            | FrameItem::Text { pos, .. }
             | FrameItem::TextShaped { pos, .. }
             | FrameItem::Glyph { pos, .. }
             | FrameItem::Image { pos, .. }
@@ -143,16 +691,22 @@ fn frame_items_recursive(items: &[FrameItem]) -> Vec<&FrameItem> {
         for item in items {
             out.push(project_item(item, transform));
             match item {
-                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
-                    walk(items, transform, out)
-                }
+                FrameItem::TextReplacement { items, .. }
+                | FrameItem::Semantic { items, .. }
+                | FrameItem::Link { items, .. } => walk(items, transform, out),
                 FrameItem::Group { pos, matrix, items, .. } => {
                     let group_transform = transform
                         .concat(&TransformMatrix::translate(pos.x.0, pos.y.0))
                         .concat(matrix);
                     walk(items, group_transform, out);
                 }
-                _ => {}
+                FrameItem::TextSeparator { .. }
+                | FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. } => {}
             }
         }
     }
@@ -173,6 +727,7 @@ fn p1293_final_frame_items_recursive_compoe_grupos_aninhados() {
         cap: crate::entities::geometry::LineCap::Butt,
     };
     let inner = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(4.0), y: Pt(5.0) },
         matrix: TransformMatrix::translate(1.0, 2.0),
         clip_mask: None,
@@ -181,6 +736,7 @@ fn p1293_final_frame_items_recursive_compoe_grupos_aninhados() {
         items: vec![line],
     };
     let outer = FrameItem::Group {
+        paint_root: false,
         pos: Point { x: Pt(10.0), y: Pt(20.0) },
         matrix: TransformMatrix::scale(2.0, 3.0),
         clip_mask: None,
@@ -394,10 +950,6 @@ fn document_frame_items(doc: &PagedDocument) -> Vec<&FrameItem> {
         .collect()
 }
 
-fn ck(s: &str) -> CounterKey {
-    CounterKey::Str(s.into())
-}
-
 fn sel(kind: crate::entities::element_kind::ElementKind) -> CounterKey {
     CounterKey::Selector(crate::entities::selector::Selector::Kind(kind))
 }
@@ -495,7 +1047,7 @@ fn p1140_11_textos(doc: &PagedDocument) -> Vec<(String, f64, f64)> {
     document_frame_items(doc)
         .into_iter()
         .filter_map(|item| match item {
-            FrameItem::Text { pos, text, style }
+            FrameItem::Text { pos, text, style, .. }
             | FrameItem::TextShaped { pos, text, style, .. } => Some((
                 text.to_string(),
                 pos.x.val(),
@@ -1061,7 +1613,16 @@ fn layout_transform_preserva_shape() {
         items.iter().any(|item| match item {
             FrameItem::Shape { kind: ShapeKind::Line { .. }, .. } => true,
             FrameItem::Group { items, .. } => has_shape(items),
-            _ => false,
+            FrameItem::TextReplacement { .. }
+            | FrameItem::TextSeparator { .. }
+            | FrameItem::Semantic { .. }
+            | FrameItem::Text { .. }
+            | FrameItem::TextShaped { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. }
+            | FrameItem::Link { .. } => false,
         })
     }
     let matrix = TransformMatrix::identity();
@@ -1084,10 +1645,16 @@ fn layout_transform_renderiza_texto() {
     fn has_text(items: &[FrameItem], needle: &str) -> bool {
         items.iter().any(|item| match item {
             FrameItem::Text { text, .. } => text.contains(needle),
-            #[allow(deprecated)]
             FrameItem::TextShaped { text, .. } => text.contains(needle),
             FrameItem::Group { items, .. } => has_text(items, needle),
-            _ => false,
+            FrameItem::TextReplacement { .. }
+            | FrameItem::TextSeparator { .. }
+            | FrameItem::Semantic { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. }
+            | FrameItem::Link { .. } => false,
         })
     }
     for (name, matrix) in [
@@ -1112,10 +1679,16 @@ fn layout_transform_renderiza_conteudo_aninhado() {
         for item in items {
             match item {
                 FrameItem::Text { text, .. } => out.push_str(text),
-                #[allow(deprecated)]
                 FrameItem::TextShaped { text, .. } => out.push_str(text),
                 FrameItem::Group { items, .. } => collect_text(items, out),
-                _ => {}
+                FrameItem::TextReplacement { .. }
+                | FrameItem::TextSeparator { .. }
+                | FrameItem::Semantic { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. }
+                | FrameItem::Link { .. } => {}
             }
         }
     }
@@ -1144,7 +1717,9 @@ fn layout_items_dentro_limites_da_pagina() {
 
     for page in &doc.pages {
         for item in &page.items {
-            if let FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } = item {
+            if let FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } =
+                item
+            {
                 assert!(
                     pos.x.val() >= 0.0 && pos.x.val() < 595.0,
                     "x={} fora dos limites da página",
@@ -1170,7 +1745,8 @@ fn layout_texto_longo_word_wrap() {
         .iter()
         .flat_map(|p| p.items.iter())
         .filter_map(|i| {
-            if let FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } = i {
+            if let FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } = i
+            {
                 Some(pos.y.val().to_bits())
             } else {
                 None
@@ -1367,7 +1943,7 @@ fn p448_subscript_desloca_baseline_para_baixo() {
         .iter()
         .flat_map(|p| p.items.iter())
         .filter_map(|i| {
-            if let FrameItem::Text { text, pos, style } = i {
+            if let FrameItem::Text { text, pos, style, .. } = i {
                 Some((text.to_string(), pos.y, style.size))
             } else {
                 None
@@ -1396,7 +1972,7 @@ fn p448_superscript_desloca_baseline_para_cima() {
         .iter()
         .flat_map(|p| p.items.iter())
         .filter_map(|i| {
-            if let FrameItem::Text { text, pos, style } = i {
+            if let FrameItem::Text { text, pos, style, .. } = i {
                 Some((text.to_string(), pos.y, style.size))
             } else {
                 None
@@ -1430,7 +2006,7 @@ fn p449_highlight_default_emite_shape_amarelo_antes_do_texto() {
             FrameItem::Text { text, .. },
         ) = (&window[0], &window[1])
         {
-            if fill.to_color() == yellow && text.as_str() == "x" {
+            if solid_frame_color(fill) == yellow && text.as_str() == "x" {
                 found = true;
                 break;
             }
@@ -1453,7 +2029,7 @@ fn p449_highlight_fill_custom_emite_shape_correspondente() {
                 kind: ShapeKind::Rect,
                 fill: Some(c),
                 ..
-            } if c.to_color() == Color::rgb(255, 0, 0)
+            } if solid_frame_color(c) == Color::rgb(255, 0, 0)
         )
     });
     assert!(found, "esperado rect vermelho de highlight");
@@ -1574,7 +2150,7 @@ fn pipeline_parse_eval_layout() {
     let src = World::source(&world, World::main(&world)).unwrap();
     let module = eval_for_test(&world, &src).unwrap();
     let content = module.content().expect("deve ter content");
-    let state = introspect(content);
+    let _state = introspect(content);
     let doc = layout(content);
     assert!(!doc.pages.is_empty());
     assert!(
@@ -1712,8 +2288,6 @@ fn layout_list_item_respeita_indentacao() {
 
 #[test]
 fn layout_list_tight_false_adiciona_espaco() {
-    use crate::entities::layout_types::Length;
-
     let items = Content::sequence(vec![
         Content::list_item_full(Content::text("A"), None, None, None, None, Some(false)),
         Content::list_item_full(Content::text("B"), None, None, None, None, Some(false)),
@@ -1791,22 +2365,28 @@ fn p837_text_edges_length_explicito() {
     let size = Pt(11.0);
 
     // top-edge: 18pt → top = +18pt (acima da baseline).
-    let mut style = TextStyle::default();
-    style.top_edge = Some(TextEdge::Length(Length::pt(18.0)));
+    let style = TextStyle {
+        top_edge: Some(TextEdge::Length(Length::pt(18.0))),
+        ..TextStyle::default()
+    };
     let (top, _) = FixedMetrics.text_edges(size, &style);
     assert!((top.val() - 18.0).abs() < 1e-9, "top={:?}", top);
 
     // bottom-edge: -4pt → bottom = -4pt (4pt abaixo da baseline;
     // convenção cristalina: bottom negativo = abaixo da baseline).
-    let mut style = TextStyle::default();
-    style.bottom_edge = Some(TextEdge::Length(Length::pt(-4.0)));
+    let style = TextStyle {
+        bottom_edge: Some(TextEdge::Length(Length::pt(-4.0))),
+        ..TextStyle::default()
+    };
     let (_, bottom) = FixedMetrics.text_edges(size, &style);
     assert!((bottom.val() + 4.0).abs() < 1e-9, "bottom={:?}", bottom);
 
     // top-edge: 1.5em a 11pt → top = 16.5pt (componente em resolve no
     // font-size, paridade `Length::at(font_size)` do vanilla).
-    let mut style = TextStyle::default();
-    style.top_edge = Some(TextEdge::Length(Length::em(1.5)));
+    let style = TextStyle {
+        top_edge: Some(TextEdge::Length(Length::em(1.5))),
+        ..TextStyle::default()
+    };
     let (top, _) = FixedMetrics.text_edges(size, &style);
     assert!((top.val() - 16.5).abs() < 1e-9, "top={:?}", top);
 }
@@ -1869,8 +2449,6 @@ fn layout_enum_item_respeita_indentacao() {
 
 #[test]
 fn layout_enum_tight_false_adiciona_espaco() {
-    use crate::entities::layout_types::Length;
-
     let items = Content::sequence(vec![
         Content::enum_item_full(
             Some(1),
@@ -1949,9 +2527,9 @@ fn layout_enum_tight_default_preserva_gap_natural() {
 }
 
 #[test]
-fn layout_raw_block_preserva_tamanho_paridade_vanilla() {
-    // **P1055** — paridade vanilla (lab/typst-original/crates/typst-library/src/text/raw.rs:360):
-    // raw preserva o tamanho de texto normal por defeito (100% de size).
+fn layout_raw_block_tamanho_pin_9f2b6e871() {
+    // A medição pinada de raw-defaults-2026-10-07 refuta P1055: 0.8em,
+    // lab/typst-original/crates/typst-library/src/text/raw.rs:663.
     let content = Content::sequence(vec![
         Content::text("normal"),
         Content::raw("code", None, true),
@@ -1968,8 +2546,8 @@ fn layout_raw_block_preserva_tamanho_paridade_vanilla() {
         .collect();
     assert_eq!(
         sizes.len(),
-        1,
-        "Raw deve preservar o tamanho de texto normal por defeito"
+        2,
+        "Raw tem tamanho 80% no pin atual, distinto do texto normal"
     );
 }
 
@@ -2296,7 +2874,7 @@ fn layout_test(src: &str) -> PagedDocument {
     let source = World::source(&world, World::main(&world)).unwrap();
     let module = eval_for_test(&world, &source).unwrap();
     let content = module.content().expect("deve ter content");
-    let state = introspect(content);
+    let _state = introspect(content);
     layout(content)
 }
 
@@ -2457,16 +3035,24 @@ mod tests_limits {
         // margin + cap_height do texto = 79.7 e y_sup ≈ 65.5 (< margin=72).
         // Agora: baseline ≈ 92.0, y_sup ≈ 76.3 (medido com FixedMetrics).
         let doc = layout_test("$ sum_(i=0)^n $");
-        let all_y: Vec<f64> = doc
-            .pages
-            .iter()
-            .flat_map(|p| frame_items_recursive(&p.items))
-            .filter_map(|i| match i {
-                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.val()),
-                FrameItem::Glyph { pos, .. } => Some(pos.y.val()),
-                _ => None,
-            })
-            .collect();
+        let all_y: Vec<f64> =
+            doc.pages
+                .iter()
+                .flat_map(|p| frame_items_recursive(&p.items))
+                .filter_map(|i| match i {
+                    FrameItem::TextSeparator { pos, .. }
+                    | FrameItem::Text { pos, .. } => Some(pos.y.val()),
+                    FrameItem::Glyph { pos, .. } => Some(pos.y.val()),
+                    FrameItem::TextReplacement { .. }
+                    | FrameItem::Semantic { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. }
+                    | FrameItem::Group { .. }
+                    | FrameItem::Link { .. } => None,
+                })
+                .collect();
         assert!(!all_y.is_empty(), "deve ter items");
         let min_y = all_y.iter().cloned().fold(f64::INFINITY, f64::min);
         let max_y = all_y.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
@@ -2502,16 +3088,24 @@ mod tests_limits_context {
         // Com right-scripts: sup_offset ≈ 4.34pt → item y ≈ 73.7 - 4.34 = 69.4 ≥ 68.0
         // Com vertical stacking (antes): min_y ≈ 61.4 < 70.0 (falha antes da implementação)
         let doc = layout_test("$sum_(i=0)^n$");
-        let all_y: Vec<f64> = doc
-            .pages
-            .iter()
-            .flat_map(|p| frame_items_recursive(&p.items))
-            .filter_map(|i| match i {
-                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.val()),
-                FrameItem::Glyph { pos, .. } => Some(pos.y.val()),
-                _ => None,
-            })
-            .collect();
+        let all_y: Vec<f64> =
+            doc.pages
+                .iter()
+                .flat_map(|p| frame_items_recursive(&p.items))
+                .filter_map(|i| match i {
+                    FrameItem::TextSeparator { pos, .. }
+                    | FrameItem::Text { pos, .. } => Some(pos.y.val()),
+                    FrameItem::Glyph { pos, .. } => Some(pos.y.val()),
+                    FrameItem::TextReplacement { .. }
+                    | FrameItem::Semantic { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. }
+                    | FrameItem::Group { .. }
+                    | FrameItem::Link { .. } => None,
+                })
+                .collect();
         assert!(!all_y.is_empty(), "deve ter items");
         let min_y = all_y.iter().cloned().fold(f64::INFINITY, f64::min);
         assert!(
@@ -2599,13 +3193,23 @@ mod tests_align {
         let mut ys: Vec<i64> = frame_items_recursive(&doc.pages[0].items)
             .into_iter()
             .filter_map(|item| match item {
-                crate::entities::layout_types::FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+                crate::entities::layout_types::FrameItem::TextSeparator {
+                    pos, ..
+                }
+                | FrameItem::Text { pos, .. } => {
                     Some((pos.y.val() * 100.0).round() as i64)
                 }
                 crate::entities::layout_types::FrameItem::Glyph { pos, .. } => {
                     Some((pos.y.val() * 100.0).round() as i64)
                 }
-                _ => None,
+                crate::entities::layout_types::FrameItem::TextReplacement { .. }
+                | crate::entities::layout_types::FrameItem::Semantic { .. }
+                | crate::entities::layout_types::FrameItem::TextShaped { .. }
+                | crate::entities::layout_types::FrameItem::Line { .. }
+                | crate::entities::layout_types::FrameItem::Image { .. }
+                | crate::entities::layout_types::FrameItem::Shape { .. }
+                | crate::entities::layout_types::FrameItem::Group { .. }
+                | crate::entities::layout_types::FrameItem::Link { .. } => None,
             })
             .collect();
         ys.sort_unstable();
@@ -2800,7 +3404,7 @@ fn p451_layout_heading_pattern_1_ponto() {
         Content::text("Intro"),
         Some("1.".into()),
     );
-    let text = layout(&content).plain_text();
+    let text = smartquote_rendered_text(&layout(&content));
     assert!(text.contains("1. Intro"), "esperado '1. Intro' em: {text}");
 }
 
@@ -2821,7 +3425,7 @@ fn p451_layout_heading_pattern_1_ponto_1() {
         ]
         .into(),
     );
-    let text = layout(&content).plain_text();
+    let text = smartquote_rendered_text(&layout(&content));
     assert!(text.contains("1. Cap"), "esperado '1. Cap' em: {text}");
     assert!(text.contains("1.1 Sec"), "esperado '1.1 Sec' em: {text}");
 }
@@ -2848,7 +3452,7 @@ fn p451_layout_heading_pattern_romano_reseta_inferior() {
         ]
         .into(),
     );
-    let text = layout(&content).plain_text();
+    let text = smartquote_rendered_text(&layout(&content));
     assert!(text.contains("I. A"), "esperado 'I. A' em: {text}");
     assert!(
         text.contains("I.I B"),
@@ -2978,7 +3582,6 @@ fn layout_ref_para_tras_resolve_secao() {
     // Passo 60: layout() usa duas passagens — backward ref resolve via introspect.
     // P788: heading passa a ter numbering (sem numbering o vanilla erra —
     // testado em p788_ref_heading_sem_numbering_erro). Doc en → "Section 1".
-    use crate::entities::label::Label;
 
     let content = Content::Sequence(
         vec![
@@ -3013,7 +3616,6 @@ fn layout_ref_para_tras_resolve_secao() {
 fn layout_ref_para_frente_resolve_com_duas_passagens() {
     // Passo 60: forward ref resolve via introspect — sem fallback.
     // P788: heading com numbering (ver nota no teste para_trás).
-    use crate::entities::label::Label;
 
     let content = Content::Sequence(
         vec![
@@ -3052,8 +3654,6 @@ fn layout_ref_para_frente_resolve_com_duas_passagens() {
 #[test]
 fn layout_resolved_labels_nao_interfere_entre_documentos() {
     // Estados de cada chamada a layout() são independentes.
-    use crate::compiler::introspect::introspect_with_introspector;
-    use crate::entities::label::Label;
 
     let content_a =
         Content::label_auto("sec".to_string(), Content::heading(1, Content::text("A")));
@@ -3079,10 +3679,7 @@ fn layout_resolved_labels_nao_interfere_entre_documentos() {
 
 #[test]
 fn pipeline_duas_passagens_resolve_forward_ref() {
-    use crate::compiler::{
-        introspect::{introspect, introspect_with_introspector},
-        layout::layout,
-    };
+    use crate::compiler::{introspect::introspect_with_introspector, layout::layout};
     use crate::entities::label::Label;
 
     let content = Content::Sequence(
@@ -3342,10 +3939,11 @@ fn layout_equation_bloco_com_width_auto_nao_produz_infinito() {
         page.height
     );
 
-    #[allow(deprecated)]
     let has_finite_text_pos =
         frame_items_recursive(&page.items).into_iter().any(|item| match item {
-            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
+            FrameItem::TextSeparator { pos, .. }
+            | FrameItem::Text { pos, .. }
+            | FrameItem::TextShaped { pos, .. } => {
                 pos.x.val().is_finite() && pos.y.val().is_finite()
             }
             _ => false,
@@ -3419,12 +4017,11 @@ fn p896_equacoes_de_bloco_centram_contra_a_largura_final_da_pagina() {
     let page = doc.pages.first().expect("deve produzir 1 página");
     assert!(page.width.is_finite());
 
-    #[allow(deprecated)]
     let text_items: Vec<(f64, TextStyle, ecow::EcoString)> =
         frame_items_recursive(&page.items)
             .into_iter()
             .filter_map(|item| match item {
-                FrameItem::Text { pos, text, style } => {
+                FrameItem::Text { pos, text, style, .. } => {
                     Some((pos.x.val(), style.clone(), text.clone()))
                 }
                 _ => None,
@@ -3526,9 +4123,10 @@ fn p897_align_center_sob_width_auto_nao_produz_infinito() {
         page.height
     );
 
-    #[allow(deprecated)]
     let has_finite_text_pos = page.items.iter().any(|item| match item {
-        FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
+        FrameItem::TextSeparator { pos, .. }
+        | FrameItem::Text { pos, .. }
+        | FrameItem::TextShaped { pos, .. } => {
             pos.x.val().is_finite() && pos.y.val().is_finite()
         }
         _ => false,
@@ -3589,12 +4187,11 @@ fn p897_align_center_centram_contra_a_largura_final_da_pagina() {
     let page = doc.pages.first().expect("deve produzir 1 página");
     assert!(page.width.is_finite());
 
-    #[allow(deprecated)]
     let text_items: Vec<(f64, TextStyle, ecow::EcoString)> = page
         .items
         .iter()
         .filter_map(|item| match item {
-            FrameItem::Text { pos, text, style } => {
+            FrameItem::Text { pos, text, style, .. } => {
                 Some((pos.x.val(), style.clone(), text.clone()))
             }
             _ => None,
@@ -3669,7 +4266,6 @@ fn p944_equacao_bloco_usa_new_computer_modern_math() {
     let doc = layout(&content);
     let page = doc.pages.first().expect("deve produzir 1 página");
 
-    #[allow(deprecated)]
     let text_styles: Vec<&TextStyle> = frame_items_recursive(&page.items)
         .into_iter()
         .filter_map(|item| match item {
@@ -3704,7 +4300,6 @@ fn p944_equacao_inline_usa_new_computer_modern_math() {
     let doc = layout(&content);
     let page = doc.pages.first().expect("deve produzir 1 página");
 
-    #[allow(deprecated)]
     let text_styles: Vec<&TextStyle> = frame_items_recursive(&page.items)
         .into_iter()
         .filter_map(|item| match item {
@@ -3746,7 +4341,6 @@ fn p944_fonte_do_documento_nao_se_aplica_a_equacao() {
     let doc = layout(&content);
     let page = doc.pages.first().expect("deve produzir 1 página");
 
-    #[allow(deprecated)]
     let text_styles: Vec<&TextStyle> = frame_items_recursive(&page.items)
         .into_iter()
         .filter_map(|item| match item {
@@ -3782,7 +4376,6 @@ fn p944_numero_de_equacao_numerada_usa_new_computer_modern_math() {
     let doc = layout(&content);
     let page = doc.pages.first().expect("deve produzir 1 página");
 
-    #[allow(deprecated)]
     let numero = page
         .items
         .iter()
@@ -3819,7 +4412,7 @@ fn layout_outline_gera_indice_com_titulos() {
     );
 
     // Passagem 1 — o teste orquestra explicitamente como o orquestrador L3 faz.
-    let state = introspect(&content);
+    let _state = introspect(&content);
     // Passagem 2 — layout recebe o estado pré-calculado.
     let doc = layout(&content);
     let text = doc.plain_text();
@@ -3869,7 +4462,7 @@ fn layout_outline_mostra_numero_sem_supplement_seccao() {
 #[test]
 fn layout_outline_sem_headings_gera_apenas_titulo_ou_vazio() {
     let content = Content::outline();
-    let state = introspect(&content);
+    let _state = introspect(&content);
     let doc = layout(&content);
     let text = doc.plain_text();
 
@@ -3891,7 +4484,7 @@ fn layout_outline_heading_nivel2_tem_indentacao() {
         .into(),
     );
 
-    let state = introspect(&content);
+    let _state = introspect(&content);
     let doc = layout(&content);
     let text = doc.plain_text();
 
@@ -4011,7 +4604,7 @@ fn layout_figure_com_caption_tem_prefixo() {
         Some("1".to_string()),
     );
 
-    let state = introspect(&content);
+    let _state = introspect(&content);
     let doc = layout(&content);
     let text = doc.plain_text();
 
@@ -4030,7 +4623,7 @@ fn layout_figure_sem_caption_sem_prefixo() {
         Some("1".to_string()),
     );
 
-    let state = introspect(&content);
+    let _state = introspect(&content);
     let doc = layout(&content);
     let text = doc.plain_text();
 
@@ -4150,7 +4743,7 @@ fn layout_ref_para_figura_resolve_corretamente() {
         .into(),
     );
 
-    let state = introspect(&content);
+    let _state = introspect(&content);
     let doc = layout(&content);
     let text = doc.plain_text();
 
@@ -4176,7 +4769,7 @@ fn layout_regista_pagina_de_label() {
         .into(),
     );
 
-    let state = introspect(&content);
+    let _state = introspect(&content);
     let doc = layout(&content);
 
     assert!(
@@ -4191,7 +4784,7 @@ fn layout_pagina_de_label_e_um_indexed() {
 
     let content = Content::label("top".to_string(), Content::text("No topo"));
 
-    let state = introspect(&content);
+    let _state = introspect(&content);
     let doc = layout(&content);
 
     let page = doc
@@ -4226,7 +4819,7 @@ fn layout_toc_com_readonly_nao_duplica_contadores() {
         .into(),
     );
 
-    let state = introspect(&content);
+    let _state = introspect(&content);
     let doc = layout(&content);
     let text = doc.plain_text();
 
@@ -4264,7 +4857,7 @@ fn layout_converge_sem_ciclo_infinito() {
         .into(),
     );
 
-    let state = introspect(&content);
+    let _state = introspect(&content);
     // Se o fixpoint tiver defeito, entra em loop até MAX_ITERATIONS.
     // Não deve panic.
     let doc = layout(&content);
@@ -4289,7 +4882,7 @@ fn layout_documento_sem_toc_usa_curto_circuito() {
         .into(),
     );
 
-    let state = introspect(&content);
+    let _state = introspect(&content);
     // P190D (M6 categoria Document metadata): assertion sobre
     // `state.has_outline` removida — field eliminado. Cobertura via
     // `intr.kind_index[Outline]` em tests Introspector + integração
@@ -4351,7 +4944,7 @@ fn layout_com_labels_produz_extracted_label_pages() {
         .into(),
     );
 
-    let state = introspect(&content);
+    let _state = introspect(&content);
     let doc = layout(&content);
 
     assert!(
@@ -4375,7 +4968,7 @@ fn layout_image_gera_frameitem() {
         "cover",
     );
 
-    let state = introspect(&content);
+    let _state = introspect(&content);
     let doc = layout(&content);
 
     assert!(!doc.pages.is_empty(), "documento deve ter pelo menos uma página");
@@ -4409,12 +5002,12 @@ fn grid_fr_distribution_quando_auto_e_pequeno() {
     // "hi" com FixedMetrics 12pt: 2 chars * 0.6 * 12 = 14.4pt.
     // Remaining: 451 - 50 - 14.4 = 386.6pt; total_fr = 3.
     // Col 2 (1fr): 386.6/3 ≈ 128.87pt; Col 3 (2fr): ≈ 257.73pt.
-    use crate::entities::geometry::ShapeKind;
+
     use crate::entities::layout_types::TrackSizing;
 
     let cfg = crate::entities::layout_types::PageConfig::default();
     let available = cfg.width - cfg.margin.horizontal();
-    let cols = vec![
+    let cols = [
         TrackSizing::Fixed(50.0),
         TrackSizing::Auto,
         TrackSizing::Fraction(1.0),
@@ -4432,7 +5025,7 @@ fn grid_fr_distribution_quando_auto_e_pequeno() {
         Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked);
 
     // Simular Fase 1.
-    let mut resolved = vec![0.0_f64; 4];
+    let mut resolved = [0.0_f64; 4];
     let mut total_fixed = 0.0_f64;
     let mut total_fr = 0.0_f64;
     let cols_cells: Vec<Vec<&Content>> = vec![vec![], vec![&cell_auto], vec![], vec![]];
@@ -4491,8 +5084,7 @@ fn grid_fr_recebe_zero_quando_auto_e_guloso() {
 
     let cfg = crate::entities::layout_types::PageConfig::default();
     let available = cfg.width - cfg.margin.horizontal();
-    let cols =
-        vec![TrackSizing::Fixed(50.0), TrackSizing::Auto, TrackSizing::Fraction(1.0)];
+    let cols = [TrackSizing::Fixed(50.0), TrackSizing::Auto, TrackSizing::Fraction(1.0)];
     // Palavra sem espaços — ocupa safe_available inteiro.
     let cell_auto = Content::text("PalavraLongaSemEspacos");
     // P204C (M8): Layouter ganha 'a + Tracked<dyn Introspector>.
@@ -4504,7 +5096,7 @@ fn grid_fr_recebe_zero_quando_auto_e_guloso() {
     let mut layouter =
         Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked);
 
-    let mut resolved = vec![0.0_f64; 3];
+    let mut resolved = [0.0_f64; 3];
     let mut total_fixed = 0.0_f64;
     let mut total_fr = 0.0_f64;
     let cols_cells: Vec<Vec<&Content>> = vec![vec![], vec![&cell_auto], vec![]];
@@ -4683,9 +5275,8 @@ fn p772g_place_dentro_de_align_dentro_de_grid_cell_bate_com_place_directo() {
          block(width: 3cm, height: 2cm, align(top, place(top+left, dx: 5pt, dy: 5pt, circle(radius: 10pt)))))";
 
     let shape_x = |doc: &PagedDocument| -> f64 {
-        doc.pages[0]
-            .items
-            .iter()
+        frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
             .find_map(|i| match i {
                 FrameItem::Shape { pos, kind: ShapeKind::Ellipse, .. } => {
                     Some(pos.x.val())
@@ -4721,9 +5312,8 @@ fn p772g_place_dentro_de_align_dentro_de_grid_de_duas_colunas_nao_sai_da_pagina(
          block(width: 3cm, height: 2cm, align(top, place(top+left, dx: 5pt, dy: 5pt, circle(radius: 10pt)))), \
          block(width: 3cm, height: 2cm, align(top, place(top+left, dx: 5pt, dy: 5pt, circle(radius: 10pt)))))",
     );
-    let xs: Vec<f64> = doc.pages[0]
-        .items
-        .iter()
+    let xs: Vec<f64> = frame_items_recursive(&doc.pages[0].items)
+        .into_iter()
         .filter_map(|i| match i {
             FrameItem::Shape { pos, kind: ShapeKind::Ellipse, .. } => Some(pos.x.val()),
             _ => None,
@@ -4766,7 +5356,7 @@ fn p772g_footnote_com_place_dentro_de_align_bate_com_vanilla_estrutura() {
     let x = doc
         .pages
         .iter()
-        .flat_map(|p| p.items.iter())
+        .flat_map(|p| frame_items_recursive(&p.items).into_iter())
         .find_map(|i| match i {
             FrameItem::Shape { pos, kind: ShapeKind::Ellipse, .. } => Some(pos.x.val()),
             _ => None,
@@ -4809,7 +5399,9 @@ fn p772j_grid_align_center_nao_diverge_uma_coluna_inteira_do_vanilla() {
         .items
         .iter()
         .filter_map(|i| match i {
-            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.val()),
+            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+                Some(pos.x.val())
+            }
             _ => None,
         })
         .collect();
@@ -4847,7 +5439,9 @@ fn p772j_grid_align_fold_por_eixo_preserva_eixo_do_grid() {
             .items
             .iter()
             .find_map(|i| match i {
-                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some((pos.x.val(), pos.y.val())),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+                    Some((pos.x.val(), pos.y.val()))
+                }
                 _ => None,
             })
             .expect("esperado FrameItem::Text")
@@ -4907,7 +5501,9 @@ fn p772i_grid_header_nao_desalinha_colunas_seguintes() {
         .items
         .iter()
         .filter_map(|i| match i {
-            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.val()),
+            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+                Some(pos.x.val())
+            }
             _ => None,
         })
         .collect();
@@ -4997,7 +5593,9 @@ fn p772v_table_header_nao_desalinha_colunas_seguintes() {
         .items
         .iter()
         .filter_map(|i| match i {
-            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.val()),
+            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+                Some(pos.x.val())
+            }
             _ => None,
         })
         .collect();
@@ -5082,9 +5680,27 @@ fn p772v_table_multiplos_headers_da_erro() {
 fn p789_table_cell_explicit_sobre_header_da_erro() {
     // Repro exacto de P786: header de 2 linhas (4 células / 2 colunas);
     // célula com y=0 rowspan=2 colide com a linha 0 do header.
-    let doc = layout_test(
-        "#table(columns: 2, table.header[H1][H2][H3][H4], table.cell(x: 0, y: 0, rowspan: 2)[X], [a], [b])",
-    );
+    // D08B3: language insertion now diagnoses before layout. This control
+    // retains coverage of the unprepared ergonomic fallback in the layout.
+    let Content::Table(t) = Content::table(
+        vec![crate::entities::layout_types::TrackSizing::Auto; 2],
+        vec![crate::entities::layout_types::TrackSizing::Auto],
+        vec![
+            Content::table_cell(Content::text("X"), Some(0), Some(0), None, Some(2)),
+            Content::text("a"),
+            Content::text("b"),
+        ],
+    ) else {
+        unreachable!()
+    };
+    let mut t = t.as_ref().clone();
+    t.header = Some(Content::table_header(
+        Content::sequence(
+            ["H1", "H2", "H3", "H4"].into_iter().map(Content::text).collect(),
+        ),
+        true,
+    ));
+    let doc = layout(&Content::Table(std::sync::Arc::new(t)));
     let diag = doc
         .layout_errors
         .iter()
@@ -5242,7 +5858,9 @@ fn p772f_grid_auto_colunas_com_align_nao_colidem() {
         .items
         .iter()
         .filter_map(|i| match i {
-            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.val()),
+            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+                Some(pos.x.val())
+            }
             _ => None,
         })
         .collect();
@@ -5304,7 +5922,7 @@ fn grid_altura_da_linha_e_o_maximo_das_celulas() {
             fill: None,
         }));
 
-    let state = introspect(&grid);
+    let _state = introspect(&grid);
     let doc = layout(&grid);
 
     assert_eq!(doc.pages.len(), 1, "Grid simples deve caber numa página");
@@ -5319,7 +5937,7 @@ fn grid_auto_respects_safe_available() {
 
     let cfg = crate::entities::layout_types::PageConfig::default();
     let available = cfg.width - cfg.margin.horizontal();
-    let cols = vec![TrackSizing::Auto];
+    let cols = [TrackSizing::Auto];
     let cell = Content::text(
         "Palavra muito longa que poderia exceder a página se nao houver limite",
     );
@@ -5332,23 +5950,20 @@ fn grid_auto_respects_safe_available() {
     let mut layouter =
         Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked);
 
-    let mut resolved = vec![0.0_f64; 1];
+    let mut resolved = [0.0_f64; 1];
     let mut total_fixed = 0.0_f64;
     let cols_cells: Vec<Vec<&Content>> = vec![vec![&cell]];
 
     for (i, sizing) in cols.iter().enumerate() {
-        match sizing {
-            TrackSizing::Auto => {
-                let safe = (available - total_fixed).max(0.0);
-                let mut max_w = 0.0_f64;
-                for c in &cols_cells[i] {
-                    let (w, _) = layouter.measure_content_constrained(c, safe);
-                    max_w = max_w.max(w);
-                }
-                resolved[i] = max_w;
-                total_fixed += max_w;
+        if let TrackSizing::Auto = sizing {
+            let safe = (available - total_fixed).max(0.0);
+            let mut max_w = 0.0_f64;
+            for c in &cols_cells[i] {
+                let (w, _) = layouter.measure_content_constrained(c, safe);
+                max_w = max_w.max(w);
             }
-            _ => {}
+            resolved[i] = max_w;
+            total_fixed += max_w;
         }
     }
 
@@ -5386,7 +6001,10 @@ mod tests_styled_integration {
         let hello = Content::text("hello");
         let styled = Content::styled(
             Box::new(hello),
-            Styles::from_iter([Style::bold(true), Style::Size(Pt(18.0))]),
+            Styles::from_iter([
+                Style::bold(true),
+                Style::Size(crate::entities::layout_types::Length::pt(18.0)),
+            ]),
         );
 
         let doc = layout(&styled);
@@ -5535,7 +6153,7 @@ mod tests_set_rule_integration {
         let src = World::source(&world, World::main(&world)).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("content");
-        let state = introspect(content);
+        let _state = introspect(content);
         layout(content)
     }
 
@@ -5692,7 +6310,7 @@ mod tests_set_rule_integration {
             .iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
-                FrameItem::Text { text, style, pos } => {
+                FrameItem::Text { text, style, pos, .. } => {
                     Some((text.to_string(), style.clone(), pos.x.val()))
                 }
                 _ => None,
@@ -5773,7 +6391,9 @@ mod tests_set_rule_integration {
         let before = text_items_with_pos(&base);
         let x0 = before.iter().find(|(t, _, _)| t == "B").unwrap().2;
         for tracking in [10.0, 0.2, -0.2] {
-            let doc = layout_typst(&format!("#set text(size: 12pt, tracking: {tracking}pt)\nA B"));
+            let doc = layout_typst(&format!(
+                "#set text(size: 12pt, tracking: {tracking}pt)\nA B"
+            ));
             let items = text_items_with_pos(&doc);
             let x = items.iter().find(|(t, _, _)| t == "B").unwrap().2;
             assert!((x - x0 - 2.0 * tracking).abs() < 1e-8, "{items:?}");
@@ -5790,7 +6410,7 @@ mod tests_set_rule_integration {
             .iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
-                FrameItem::Text { text, style, pos } => {
+                FrameItem::Text { text, style, pos, .. } => {
                     Some((text.to_string(), style.clone(), pos.x.val(), pos.y.val()))
                 }
                 _ => None,
@@ -5946,9 +6566,8 @@ mod tests_set_rule_integration {
     fn p1379_text_y(doc: &PagedDocument, needle: &str) -> f64 {
         doc.pages
             .iter()
-            .flat_map(|page| page.items.iter())
+            .flat_map(|page| frame_items_recursive(&page.items).into_iter())
             .find_map(|item| match item {
-                #[allow(deprecated)]
                 FrameItem::Text { text, pos, .. }
                 | FrameItem::TextShaped { text, pos, .. }
                     if text.as_str() == needle =>
@@ -5994,10 +6613,9 @@ Tail"#,
             .pages
             .iter()
             .map(|page| {
-                page.items
-                    .iter()
+                frame_items_recursive(&page.items)
+                    .into_iter()
                     .filter_map(|item| match item {
-                        #[allow(deprecated)]
                         FrameItem::Text { text, .. }
                         | FrameItem::TextShaped { text, .. } => Some(text.as_str()),
                         _ => None,
@@ -6023,7 +6641,6 @@ Tail"#,
                 page.items
                     .iter()
                     .filter_map(|item| match item {
-                        #[allow(deprecated)]
                         FrameItem::Text { text, .. }
                         | FrameItem::TextShaped { text, .. } => Some(text.as_str()),
                         _ => None,
@@ -6093,7 +6710,7 @@ Tail"#,
     }
 
     #[test]
-    fn p1381_primeiro_fragmento_maior_permanece_fail_closed() {
+    fn p1381_scope_tail_primeiro_fragmento_maior_preserva_escopo() {
         let doc = layout_typst(
             r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
 #columns(2, gutter: 10pt)[
@@ -6105,7 +6722,20 @@ Tail"#,
   Tail
 ]"#,
         );
-        assert_eq!(doc.pages.len(), 2);
+        assert_eq!(doc.pages.len(), 1);
+        for (text, expected) in [
+            ("Lead", 22.6),
+            ("One", 51.9),
+            ("After", 230.0),
+            ("Two", 17.7),
+            ("Tail", 230.0),
+        ] {
+            assert!(
+                (p1379_text_y(&doc, text) - expected).abs() < 1e-8,
+                "{text}: {} != {expected}",
+                p1379_text_y(&doc, text)
+            );
+        }
     }
 
     #[test]
@@ -6147,9 +6777,9 @@ Tail"#,
     }
 
     #[test]
-    fn p1383_tres_fragmentos_com_tamanho_permanecem_fail_closed() {
+    fn p1383_scope_tail_tres_fragmentos_preservam_posicoes() {
         let doc = layout_typst(
-            r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
+            r#"#set page(width: 240pt, height: 240pt, margin: 10pt)
 #columns(2, gutter: 10pt)[
   Lead #text(size: 18pt)[Peak] End
   #block(height: 1fr)[One]
@@ -6159,7 +6789,22 @@ Tail"#,
   Tail
 ]"#,
         );
-        assert_ne!(p1379_text_y(&doc, "After"), p1379_text_y(&doc, "Tail"));
+        assert_eq!(doc.pages.len(), 1);
+        for (text, expected) in [
+            ("Lead", 22.6),
+            ("Peak", 22.6),
+            ("End", 22.6),
+            ("One", 43.5),
+            ("After", 230.0),
+            ("Two", 17.7),
+            ("Tail", 230.0),
+        ] {
+            assert!(
+                (p1379_text_y(&doc, text) - expected).abs() < 1e-8,
+                "{text}: {} != {expected}",
+                p1379_text_y(&doc, text)
+            );
+        }
     }
 
     #[test]
@@ -6426,7 +7071,7 @@ Tail"#,
     }
 
     #[test]
-    fn p1392_wrap_com_delta_composto_permanece_opaco() {
+    fn prefix_nesting_compound_wrapped_prefix_preserves_scope_and_tail() {
         let doc = layout_typst(
             r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
 #columns(2, gutter: 10pt)[
@@ -6439,11 +7084,16 @@ Tail"#,
 ]"#,
         );
         assert_ne!(p1379_text_y(&doc, "Lead"), p1379_text_y(&doc, "More"));
-        assert_ne!(p1379_text_y(&doc, "After"), p1379_text_y(&doc, "Tail"));
+        assert_eq!(doc.pages.len(), 1);
+        assert!((p1379_text_y(&doc, "After") - 230.0).abs() < 0.001);
+        assert!((p1379_text_y(&doc, "Tail") - 230.0).abs() < 0.001);
+
+        // FixedMetrics: first40pt cap28, common leading7.15, next8pt cap5.6.
+        assert!((p1379_text_y(&doc, "More") - 50.75).abs() < 0.001);
     }
 
     #[test]
-    fn p1389_multiword_permanece_opaco() {
+    fn prefix_nesting_multiword_prefix_preserves_scope_and_tail() {
         let doc = layout_typst(
             r#"#set page(width: 200pt, height: 240pt, margin: 10pt)
 #columns(2, gutter: 10pt)[
@@ -6455,7 +7105,11 @@ Tail"#,
   Tail
 ]"#,
         );
-        assert_ne!(p1379_text_y(&doc, "After"), p1379_text_y(&doc, "Tail"));
+        assert_eq!(doc.pages.len(), 1);
+        assert!((p1379_text_y(&doc, "After") - 230.0).abs() < 0.001);
+        assert!((p1379_text_y(&doc, "Tail") - 230.0).abs() < 0.001);
+        assert!((p1379_text_y(&doc, "Long") - 46.55).abs() < 0.001);
+        assert!((p1379_text_y(&doc, "More") - 68.4).abs() < 0.001);
     }
 
     #[test]
@@ -6659,7 +7313,9 @@ Goodbye #footnote[Nota B] moon."#,
             .items
             .iter()
             .find_map(|item| match item {
-                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.0),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+                    Some(pos.x.0)
+                }
                 _ => None,
             })
             .expect("columns deve emitir texto");
@@ -6770,7 +7426,7 @@ Página três."#,
                     .join("")
             })
             .collect();
-        let expected = vec!["1 / 3", "2 / 3", "3 / 3"];
+        let expected = ["1 / 3", "2 / 3", "3 / 3"];
         for (idx, exp) in expected.iter().enumerate() {
             assert!(
                 texts[idx].contains(exp),
@@ -6819,7 +7475,9 @@ Página três."#,
             .items
             .iter()
             .find_map(|item| match item {
-                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.0),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+                    Some(pos.x.0)
+                }
                 _ => None,
             })
             .expect("deve haver pelo menos um Text item");
@@ -6842,7 +7500,9 @@ Página três."#,
             .items
             .iter()
             .find_map(|item| match item {
-                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.0),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+                    Some(pos.x.0)
+                }
                 _ => None,
             })
             .expect("deve haver pelo menos um Text item");
@@ -6872,6 +7532,70 @@ Página três."#,
                 .unwrap_or_else(|| panic!("{needle:?} não encontrado"))
         }
 
+        #[test]
+        fn ts1_heading_show_set_preserves_absolute_size_component() {
+            for (rule, expected) in [("2em+3pt", 36.6), ("18pt", 18.0), ("2em", 33.6)] {
+                let doc = layout_typst(&format!(
+                    "#set text(size:12pt)\n#show heading: set text(size:{rule})\n= A\nZ"
+                ));
+                assert!(
+                    (tamanho_de(&doc, "A") - expected).abs() < 1e-9,
+                    "{rule}: {}",
+                    tamanho_de(&doc, "A")
+                );
+                assert_eq!(tamanho_de(&doc, "Z"), 12.0);
+            }
+        }
+
+        #[test]
+        fn ts1_heading_composed_show_sets_and_outer_styles_restore() {
+            let doc=layout_typst("#set text(size:12pt)\n#show heading: set text(size:2em)\n#show heading: set text(size:0.5em+3pt)\n= A\nZ");
+            assert!(
+                (tamanho_de(&doc, "A") - 19.8).abs() < 1e-9,
+                "A={}",
+                tamanho_de(&doc, "A")
+            );
+            assert_eq!(tamanho_de(&doc, "Z"), 12.0);
+            let ordinary = layout_typst("#set text(size:18pt)\n= A\nZ");
+            assert!((tamanho_de(&ordinary, "A") - 25.2).abs() < 1e-9);
+            assert_eq!(tamanho_de(&ordinary, "Z"), 18.0);
+        }
+
+        #[test]
+        fn ts1_heading_relative_child_uses_resolved_heading_size() {
+            for (rule, a, b) in [
+                ("", 16.8, 33.6),
+                ("#show heading: set text(size:2em+3pt)\n", 36.6, 73.2),
+            ] {
+                let doc = layout_typst(&format!(
+                    "#set text(size:12pt)\n{rule}= A #text(size:2em)[B]\nZ"
+                ));
+                assert!(
+                    (tamanho_de(&doc, "A") - a).abs() < 1e-9,
+                    "A={} expected {a}; rule {rule:?}",
+                    tamanho_de(&doc, "A")
+                );
+                assert!(
+                    (tamanho_de(&doc, "B") - b).abs() < 1e-9,
+                    "B: {} expected {b}",
+                    tamanho_de(&doc, "B")
+                );
+                assert_eq!(tamanho_de(&doc, "Z"), 12.0);
+            }
+        }
+
+        #[test]
+        fn ts1_heading_levels_keep_affine_absolute_part() {
+            for (marks, expected) in [("==", 31.8), ("===", 27.0)] {
+                let doc=layout_typst(&format!("#set text(size:12pt)\n#show heading: set text(size:2em+3pt)\n{marks} A\nZ"));
+                assert!(
+                    (tamanho_de(&doc, "A") - expected).abs() < 1e-9,
+                    "A={} expected {expected}",
+                    tamanho_de(&doc, "A")
+                );
+                assert_eq!(tamanho_de(&doc, "Z"), 12.0);
+            }
+        }
         /// **Factores do vanilla** (sem `#set text`): corpo default 11pt →
         /// L1 15.4pt, L2 13.2pt, L3 11.0pt (igual ao corpo, só negrito).
         #[test]
@@ -6970,7 +7694,7 @@ mod tests_show_rule_integration {
         let src = World::source(&world, World::main(&world)).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("content");
-        let state = introspect(content);
+        let _state = introspect(content);
         layout(content)
     }
 
@@ -7172,7 +7896,9 @@ mod tests_show_rule_integration {
             .iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
-                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.val()),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+                    Some(pos.y.val())
+                }
                 _ => None,
             })
             .fold(0.0_f64, |acc, y| acc.max(y));
@@ -7189,7 +7915,9 @@ mod tests_show_rule_integration {
             .iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
-                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.val()),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+                    Some(pos.y.val())
+                }
                 _ => None,
             })
             .fold(0.0_f64, |acc, y| acc.max(y));
@@ -7530,7 +8258,7 @@ mod tests_show_rule_integration {
         let texts: Vec<_> = doc
             .pages
             .iter()
-            .flat_map(|p| p.items.iter())
+            .flat_map(|p| frame_items_recursive(&p.items).into_iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } => {
                     Some((pos.y.val(), text.to_string()))
@@ -7579,7 +8307,7 @@ mod tests_show_rule_integration {
         let texts: Vec<_> = doc
             .pages
             .iter()
-            .flat_map(|p| p.items.iter())
+            .flat_map(|p| frame_items_recursive(&p.items))
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } => {
                     Some((pos.y.val(), text.to_string()))
@@ -7620,7 +8348,7 @@ mod tests_show_rule_integration {
         let pos_m1: f64 = doc1
             .pages
             .iter()
-            .flat_map(|p| p.items.iter())
+            .flat_map(|p| frame_items_recursive(&p.items))
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "M" => {
                     Some(pos.x.val())
@@ -7644,7 +8372,7 @@ mod tests_show_rule_integration {
         let pos_m2: f64 = doc2
             .pages
             .iter()
-            .flat_map(|p| p.items.iter())
+            .flat_map(|p| frame_items_recursive(&p.items))
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "M" => {
                     Some(pos.x.val())
@@ -7708,7 +8436,15 @@ mod tests_show_rule_integration {
                 FrameItem::TextShaped { pos, text, .. } => {
                     Some((pos.x.val(), pos.y.val(), text.to_string()))
                 }
-                _ => None,
+                FrameItem::TextReplacement { .. }
+                | FrameItem::TextSeparator { .. }
+                | FrameItem::Semantic { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. }
+                | FrameItem::Group { .. }
+                | FrameItem::Link { .. } => None,
             })
             .collect();
         let (a_x, a_y) = texts
@@ -7755,7 +8491,17 @@ mod tests_show_rule_integration {
                 FrameItem::TextShaped { pos, text, .. } if text.as_str() == "B" => {
                     Some(pos.y.val())
                 }
-                _ => None,
+                FrameItem::TextReplacement { .. }
+                | FrameItem::TextSeparator { .. }
+                | FrameItem::Semantic { .. }
+                | FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. }
+                | FrameItem::Group { .. }
+                | FrameItem::Link { .. } => None,
             })
             .next()
             .unwrap();
@@ -7778,7 +8524,17 @@ mod tests_show_rule_integration {
                 FrameItem::TextShaped { pos, text, .. } if text.as_str() == "B" => {
                     Some(pos.y.val())
                 }
-                _ => None,
+                FrameItem::TextReplacement { .. }
+                | FrameItem::TextSeparator { .. }
+                | FrameItem::Semantic { .. }
+                | FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. }
+                | FrameItem::Group { .. }
+                | FrameItem::Link { .. } => None,
             })
             .next()
             .unwrap();
@@ -7823,7 +8579,17 @@ mod tests_show_rule_integration {
                 FrameItem::TextShaped { pos, text, .. } if text.as_str() == "B" => {
                     Some(pos.y.val())
                 }
-                _ => None,
+                FrameItem::TextReplacement { .. }
+                | FrameItem::TextSeparator { .. }
+                | FrameItem::Semantic { .. }
+                | FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. }
+                | FrameItem::Group { .. }
+                | FrameItem::Link { .. } => None,
             })
             .next()
             .unwrap();
@@ -7852,7 +8618,17 @@ mod tests_show_rule_integration {
                 FrameItem::TextShaped { pos, text, .. } if text.as_str() == "B" => {
                     Some(pos.y.val())
                 }
-                _ => None,
+                FrameItem::TextReplacement { .. }
+                | FrameItem::TextSeparator { .. }
+                | FrameItem::Semantic { .. }
+                | FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. }
+                | FrameItem::Group { .. }
+                | FrameItem::Link { .. } => None,
             })
             .next()
             .unwrap();
@@ -8235,7 +9011,7 @@ mod tests_show_rule_integration {
     #[test]
     fn p552_footnotes_set_page_columns_colbreak_posicionam_por_coluna() {
         use crate::entities::elements::columns::ColumnsElem;
-        use crate::entities::layout_types::Length;
+
         use std::sync::Arc;
         let body = Content::Sequence(Arc::from(vec![
             Content::text("Hello "),
@@ -8739,7 +9515,9 @@ mod tests_show_rule_integration {
                 {
                     if *dx == 0.0 && *dy != 0.0 {
                         let x_key = (pos.x.val() * 100.0).round() as i64;
-                        by_x.entry(x_key).or_default().push(s.paint.clone());
+                        by_x.entry(x_key)
+                            .or_default()
+                            .push(Paint::Solid(solid_frame_color(&s.paint)));
                     }
                 }
             }
@@ -8913,6 +9691,9 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, TrackSizing};
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                rows_explicit: false,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 children: vec![Content::text("X"), Content::text("Y")],
@@ -9168,6 +9949,9 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, TrackSizing};
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                rows_explicit: false,
                 columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
                 rows: vec![],
                 children: vec![Content::text("X"), Content::text("Y")],
@@ -9431,7 +10215,7 @@ mod tests_show_rule_integration {
         for p in &doc.pages {
             for item in &p.items {
                 if let FrameItem::Shape { fill: Some(c), .. } = item {
-                    if c.to_color() == Color::rgb(0, 255, 0) {
+                    if solid_frame_color(c) == Color::rgb(0, 255, 0) {
                         found_green = true;
                     }
                 }
@@ -9668,7 +10452,15 @@ mod tests_show_rule_integration {
                 match item {
                     FrameItem::Text { text, .. } => out.push_str(text.as_str()),
                     FrameItem::Group { items, .. } => extract_texts(items, out),
-                    _ => {}
+                    FrameItem::TextReplacement { .. }
+                    | FrameItem::TextSeparator { .. }
+                    | FrameItem::Semantic { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. }
+                    | FrameItem::Link { .. } => {}
                 }
             }
         }
@@ -9708,7 +10500,7 @@ mod tests_show_rule_integration {
         let texts: String = doc
             .pages
             .iter()
-            .flat_map(|p| p.items.iter())
+            .flat_map(|p| frame_items_recursive(&p.items))
             .filter_map(|item| match item {
                 FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
                 _ => None,
@@ -9751,13 +10543,14 @@ mod tests_show_rule_integration {
         // Procurar FrameItem::Group com clip_mask Some(RoundedRect).
         let mut found_rounded_clip = false;
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
-                if let FrameItem::Group { clip_mask: Some(shape), .. } = item {
-                    if let crate::entities::geometry::ShapeKind::RoundedRect { .. } =
-                        shape
-                    {
-                        found_rounded_clip = true;
-                    }
+            for item in frame_items_recursive(&page.items).into_iter() {
+                if let FrameItem::Group {
+                    clip_mask:
+                        Some(crate::entities::geometry::ShapeKind::RoundedRect { .. }),
+                    ..
+                } = item
+                {
+                    found_rounded_clip = true;
                 }
             }
         }
@@ -9793,7 +10586,7 @@ mod tests_show_rule_integration {
         let doc = layout(&b);
         let mut found_rect_clip = false;
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Group { clip_mask: Some(shape), .. } = item {
                     if matches!(shape, crate::entities::geometry::ShapeKind::Rect) {
                         found_rect_clip = true;
@@ -9908,7 +10701,7 @@ mod tests_show_rule_integration {
         let doc = layout(&block);
         let mut texts = String::new();
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Text { text, .. } = item {
                     texts.push_str(text.as_str());
                 }
@@ -9944,7 +10737,7 @@ mod tests_show_rule_integration {
         let doc = layout(&boxed);
         let mut texts = String::new();
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items) {
                 if let FrameItem::Text { text, .. } = item {
                     texts.push_str(text.as_str());
                 }
@@ -9987,22 +10780,18 @@ mod tests_show_rule_integration {
             },
         ));
         let doc = layout(&boxed);
-        let shapes: Vec<_> = doc
-            .pages
-            .first()
-            .unwrap()
-            .items
-            .iter()
+        let shapes: Vec<_> = frame_items_recursive(&doc.pages.first().unwrap().items)
+            .into_iter()
             .filter_map(|item| match item {
                 FrameItem::Shape { width, .. } => Some(*width),
                 _ => None,
             })
             .collect();
         assert_eq!(shapes.len(), 1, "P1028: Boxed com stroke deve emitir 1 Shape");
-        // shape width = inset_left (3) + width (40) + inset_right (3) = 46pt.
+        // Width explícita inclui inset: o fundo tem 40pt; interior tem 34pt.
         // Stroke com overhang=false não expande os bounds.
         assert!(
-            (shapes[0] - 46.0).abs() < 0.1,
+            (shapes[0] - 40.0).abs() < 0.1,
             "P1028: Boxed.width=40pt deve forçar largura exterior; obtido {}",
             shapes[0]
         );
@@ -10038,12 +10827,8 @@ mod tests_show_rule_integration {
             },
         ));
         let doc = layout(&boxed);
-        let shapes: Vec<_> = doc
-            .pages
-            .first()
-            .unwrap()
-            .items
-            .iter()
+        let shapes: Vec<_> = frame_items_recursive(&doc.pages.first().unwrap().items)
+            .into_iter()
             .filter_map(|item| match item {
                 FrameItem::Shape { width, .. } => Some(*width),
                 _ => None,
@@ -10095,7 +10880,7 @@ mod tests_show_rule_integration {
         let doc = layout(&block);
         let mut texts = String::new();
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Text { text, .. } = item {
                     texts.push_str(text.as_str());
                 }
@@ -10140,7 +10925,7 @@ mod tests_show_rule_integration {
         for page in doc.pages.iter() {
             for item in page.items.iter() {
                 if let FrameItem::Shape { fill: Some(c), .. } = item {
-                    if c.to_color() == Color::rgb(200, 50, 50) {
+                    if solid_frame_color(c) == Color::rgb(200, 50, 50) {
                         found_shape_with_fill = true;
                     }
                 }
@@ -10184,7 +10969,7 @@ mod tests_show_rule_integration {
         for page in doc.pages.iter() {
             for item in page.items.iter() {
                 if let FrameItem::Shape { stroke: Some(s), .. } = item {
-                    if s.paint == Paint::Solid(Color::rgb(10, 20, 30))
+                    if solid_frame_color(&s.paint) == Color::rgb(10, 20, 30)
                         && s.thickness == 1.5
                     {
                         found_shape_with_stroke = true;
@@ -10225,11 +11010,13 @@ mod tests_show_rule_integration {
         let mut found_rounded_fill = false;
         for page in doc.pages.iter() {
             for item in page.items.iter() {
-                if let FrameItem::Shape { kind, fill: Some(_), .. } = item {
-                    if let crate::entities::geometry::ShapeKind::RoundedRect { .. } = kind
-                    {
-                        found_rounded_fill = true;
-                    }
+                if let FrameItem::Shape {
+                    kind: crate::entities::geometry::ShapeKind::RoundedRect { .. },
+                    fill: Some(_),
+                    ..
+                } = item
+                {
+                    found_rounded_fill = true;
                 }
             }
         }
@@ -10277,13 +11064,13 @@ mod tests_show_rule_integration {
         // Block inner_w = width + inset_left = 50 + 0 = 50.
         // outset.left + outset.right = 20. Shape w = 70.
         assert!(
-            shape_w >= 65.0 && shape_w <= 75.0,
+            (65.0..=75.0).contains(&shape_w),
             "P247 — outset expande Shape width; esperado ~70pt, obtido {:.1}",
             shape_w
         );
         // Block inner_h = height = 20. outset.top + outset.bottom = 20. Shape h = 40.
         assert!(
-            shape_h >= 35.0 && shape_h <= 50.0,
+            (35.0..=50.0).contains(&shape_h),
             "P247 — outset expande Shape height; esperado ~40pt, obtido {:.1}",
             shape_h
         );
@@ -10353,9 +11140,9 @@ mod tests_show_rule_integration {
         let doc = layout(&b);
         let mut found_shape_with_fill = false;
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items) {
                 if let FrameItem::Shape { fill: Some(c), .. } = item {
-                    if c.to_color() == Color::rgb(70, 140, 210) {
+                    if solid_frame_color(c) == Color::rgb(70, 140, 210) {
                         found_shape_with_fill = true;
                     }
                 }
@@ -10408,7 +11195,7 @@ mod tests_show_rule_integration {
         assert_eq!(doc.pages.len(), 1, "breakable=true não causa break extra");
         let mut texts = String::new();
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Text { text, .. } = item {
                     texts.push_str(text.as_str());
                 }
@@ -10479,7 +11266,7 @@ mod tests_show_rule_integration {
         // Body renderiza; sem panic; o output pode ser várias páginas
         // por overflow natural (flush_line) mas não infinitas.
         assert!(
-            doc.pages.len() >= 1 && doc.pages.len() <= 50,
+            !doc.pages.is_empty() && doc.pages.len() <= 50,
             "breakable=false overlong não causa loop infinito; obteve {} páginas",
             doc.pages.len()
         );
@@ -10556,7 +11343,7 @@ mod tests_show_rule_integration {
         for page in doc.pages.iter() {
             for item in page.items.iter() {
                 if let FrameItem::Shape { fill: Some(c), .. } = item {
-                    if c.to_color() == Color::rgb(100, 200, 50) {
+                    if solid_frame_color(c) == Color::rgb(100, 200, 50) {
                         found_shape = true;
                     }
                 }
@@ -10570,7 +11357,7 @@ mod tests_show_rule_integration {
 
     #[test]
     fn p248_boxed_height_none_preserva_p156h() {
-        // height=None: preservado P156H literal (nenhum clip).
+        // Height auto conserva conteúdo e usa o tamanho natural para clip.
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
@@ -10584,24 +11371,22 @@ mod tests_show_rule_integration {
                 baseline: Length::pt(0.0),
                 outset: Sides::uniform(Length::pt(0.0)),
                 radius: Corners::uniform(Length::ZERO),
-                clip: true, // clip aceita mas height None → sem overflow handling
+                clip: true,
                 fill: None,
                 stroke: None,
             },
         ));
         let doc = layout(&b);
-        // Sem Group por height overflow (height None).
-        let mut found_overflow_group = false;
-        for page in doc.pages.iter() {
-            for item in page.items.iter() {
-                if let FrameItem::Group { clip_mask: Some(ShapeKind::Rect), .. } = item {
-                    found_overflow_group = true;
-                }
-            }
-        }
-        // Pode existir Group por outras razões (P242 clip) mas com height=None
-        // o handle P248 NÃO dispara.
-        let _ = found_overflow_group;
+        let items = frame_items_recursive(&doc.pages[0].items);
+        assert!(items.iter().any(|item| matches!(item, FrameItem::Group { clip_mask: Some(_), inner_width, inner_height, .. } if *inner_width > 0.0 && *inner_height > 0.0)));
+        let text: String = items
+            .iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str()),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(text, "p248bxnone");
     }
 
     #[test]
@@ -10630,7 +11415,7 @@ mod tests_show_rule_integration {
         let doc = layout(&b);
         let mut found_clip_group = false;
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items) {
                 if let FrameItem::Group {
                     clip_mask: Some(ShapeKind::Rect),
                     inner_height,
@@ -10674,7 +11459,7 @@ mod tests_show_rule_integration {
         // (clip=false não wrap).
         let mut found_overflow_group = false;
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items) {
                 if let FrameItem::Group {
                     clip_mask: Some(ShapeKind::Rect),
                     inner_height,
@@ -10695,7 +11480,7 @@ mod tests_show_rule_integration {
 
     #[test]
     fn p248_boxed_height_cabe_sem_clip() {
-        // Body cabe em height: preservado literal, sem Group overflow.
+        // Conteúdo que cabe continua dentro da máscara declarada.
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
@@ -10715,25 +11500,30 @@ mod tests_show_rule_integration {
             },
         ));
         let doc = layout(&b);
-        let mut found_overflow_group = false;
-        for page in doc.pages.iter() {
-            for item in page.items.iter() {
-                if let FrameItem::Group {
+        let items = frame_items_recursive(&doc.pages[0].items);
+        let (clip_pos, width, height) = items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Group {
+                    pos,
                     clip_mask: Some(ShapeKind::Rect),
+                    inner_width,
                     inner_height,
                     ..
-                } = item
-                {
-                    if (*inner_height - 100.0).abs() < 0.1 {
-                        found_overflow_group = true;
-                    }
-                }
-            }
-        }
-        assert!(
-            !found_overflow_group,
-            "P248 Boxed body cabe em height: sem Group overflow (preservado)"
-        );
+                } => Some((*pos, *inner_width, *inner_height)),
+                _ => None,
+            })
+            .expect("clip declarado permanece ativo mesmo sem overflow");
+        assert!((width - 50.0).abs() < 0.1 && (height - 100.0).abs() < 0.1);
+        let pos = items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { text, pos, .. } if text.as_str() == "x" => Some(*pos),
+                _ => None,
+            })
+            .expect("texto preservado");
+        assert!(pos.x.0 >= clip_pos.x.0 && pos.x.0 < clip_pos.x.0 + width);
+        assert!(pos.y.0 > clip_pos.y.0 && pos.y.0 < clip_pos.y.0 + height);
     }
 
     #[test]
@@ -10743,6 +11533,10 @@ mod tests_show_rule_integration {
         // Table 1×1 com cell pequeno; row Auto.
         let cell = Content::TableCell(std::sync::Arc::new(
             crate::entities::elements::table_cell::TableCellElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                standalone: None,
+                presence: Default::default(),
                 body: Content::text("x"),
                 x: None,
                 y: None,
@@ -10758,6 +11552,9 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                rows_explicit: false,
                 columns: vec![TrackSizing::Auto],
                 rows: vec![TrackSizing::Auto],
                 children: vec![cell],
@@ -10819,6 +11616,10 @@ mod tests_show_rule_integration {
         ));
         let cell = Content::TableCell(std::sync::Arc::new(
             crate::entities::elements::table_cell::TableCellElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                standalone: None,
+                presence: Default::default(),
                 body: inner_block,
                 x: None,
                 y: None,
@@ -10834,6 +11635,9 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                rows_explicit: false,
                 columns: vec![TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Fixed(10.0)],
                 children: vec![cell],
@@ -10897,6 +11701,14 @@ mod tests_show_rule_integration {
         ));
         let cell = Content::TableCell(std::sync::Arc::new(
             crate::entities::elements::table_cell::TableCellElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                standalone: None,
+                presence: crate::entities::elements::table_cell::TableCellPresence {
+                    fill:
+                        crate::entities::elements::table_cell::CellFieldPresence::Explicit,
+                    ..Default::default()
+                },
                 body: inner_block,
                 x: None,
                 y: None,
@@ -10912,6 +11724,9 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                rows_explicit: false,
                 columns: vec![TrackSizing::Fixed(30.0)],
                 rows: vec![TrackSizing::Fixed(10.0)],
                 children: vec![cell],
@@ -10936,14 +11751,24 @@ mod tests_show_rule_integration {
             for item in page.items.iter() {
                 match item {
                     FrameItem::Shape { fill: Some(c), .. }
-                        if c.to_color() == Color::rgb(220, 220, 50) =>
+                        if solid_frame_color(c) == Color::rgb(220, 220, 50) =>
                     {
                         found_fill = true
                     }
                     FrameItem::Group { clip_mask: Some(ShapeKind::Rect), .. } => {
                         found_clip = true
                     }
-                    _ => {}
+                    FrameItem::TextReplacement { .. }
+                    | FrameItem::TextSeparator { .. }
+                    | FrameItem::Semantic { .. }
+                    | FrameItem::Text { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. }
+                    | FrameItem::Group { .. }
+                    | FrameItem::Link { .. } => {}
                 }
             }
         }
@@ -10979,6 +11804,10 @@ mod tests_show_rule_integration {
         ));
         let cell = Content::TableCell(std::sync::Arc::new(
             crate::entities::elements::table_cell::TableCellElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                standalone: None,
+                presence: Default::default(),
                 body: inner_block,
                 x: None,
                 y: None,
@@ -10994,6 +11823,9 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                rows_explicit: false,
                 columns: vec![TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Fixed(15.0)],
                 children: vec![cell],
@@ -11061,7 +11893,7 @@ mod tests_show_rule_integration {
         );
         let mut texts = String::new();
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Text { text, .. } = item {
                     texts.push_str(text.as_str());
                 }
@@ -11096,10 +11928,10 @@ mod tests_show_rule_integration {
         let mut found_fill = false;
         let mut found_clip = false;
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items) {
                 match item {
                     FrameItem::Shape { fill: Some(c), .. }
-                        if c.to_color() == Color::rgb(150, 50, 200) =>
+                        if solid_frame_color(c) == Color::rgb(150, 50, 200) =>
                     {
                         found_fill = true
                     }
@@ -11108,7 +11940,17 @@ mod tests_show_rule_integration {
                         inner_height,
                         ..
                     } if (*inner_height - 8.0).abs() < 0.1 => found_clip = true,
-                    _ => {}
+                    FrameItem::TextReplacement { .. }
+                    | FrameItem::TextSeparator { .. }
+                    | FrameItem::Semantic { .. }
+                    | FrameItem::Text { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. }
+                    | FrameItem::Group { .. }
+                    | FrameItem::Link { .. } => {}
                 }
             }
         }
@@ -11165,7 +12007,7 @@ mod tests_show_rule_integration {
         ]));
         let doc = layout(&seq);
         // Layout não panica + at least 1 page; aninhamento estável.
-        assert!(doc.pages.len() >= 1);
+        assert!(!doc.pages.is_empty());
     }
 
     #[test]
@@ -11195,6 +12037,10 @@ mod tests_show_rule_integration {
         ));
         let cell = Content::TableCell(std::sync::Arc::new(
             crate::entities::elements::table_cell::TableCellElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                standalone: None,
+                presence: Default::default(),
                 body: inner_block,
                 x: None,
                 y: None,
@@ -11210,6 +12056,9 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                rows_explicit: false,
                 columns: vec![TrackSizing::Fixed(60.0)],
                 rows: vec![TrackSizing::Fixed(20.0)],
                 children: vec![cell],
@@ -11269,7 +12118,7 @@ mod tests_show_rule_integration {
         let doc = layout(&b);
         let mut found_clip = false;
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items) {
                 if let FrameItem::Group {
                     clip_mask: Some(ShapeKind::Rect),
                     inner_height,
@@ -11289,40 +12138,40 @@ mod tests_show_rule_integration {
     }
 
     #[test]
-    fn p248_block_breakable_false_com_outset_grande_medicao_inclui_outset() {
-        // breakable=false: medição antecipada inclui outset top+bottom.
-        // Test verifica que outset NÃO é ignorado no block_total_h.
+    fn p248_block_breakable_false_outset_preserva_limite_fisico() {
+        // Measured on the pinned reference: v620 leaves about 80.157pt.
+        // The allocation determines the break; visual outset does not.
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
         use crate::entities::sides::Sides;
-        // Cenário: cursor inicial baixo na página (VSpace push) +
-        // block height médio + outset grande → total deve causar break.
-        let seq = Content::Sequence(std::sync::Arc::from(vec![
-            Content::v_space(Length::pt(620.0), false),
-            Content::Block(std::sync::Arc::new(
-                crate::entities::elements::block::BlockElem {
-                    body: Content::text("p248outset"),
-                    width: None,
-                    height: Some(block_height_pt(80.0)),
-                    inset: Sides::uniform(Length::pt(0.0)),
-                    breakable: false,
-                    outset: Sides::uniform(Length::pt(30.0)), // +60pt total Y
-                    radius: Corners::uniform(Length::ZERO),
-                    clip: false,
-                    fill: None,
-                    stroke: None,
-                    spacing: None,
-                    above: None,
-                    below: None,
-                    sticky: false,
-                },
-            )),
-        ]));
-        let doc = layout(&seq);
-        // VSpace 620 cursor ~699; remaining ~72pt; block_total_h = 80+60=140 > 72 → break.
-        assert!(doc.pages.len() >= 2,
-            "P248 — outset incluído na medição; break antecipado quando outset+height excede remaining; obteve {} páginas",
-            doc.pages.len());
+        for outset in [0.0, 30.0] {
+            for (height, pages) in [(80.0, 1), (90.0, 2)] {
+                let seq = Content::Sequence(std::sync::Arc::from(vec![
+                    Content::v_space(Length::pt(620.0), false),
+                    Content::Block(std::sync::Arc::new(
+                        crate::entities::elements::block::BlockElem {
+                            body: Content::text("p248outset"),
+                            width: None,
+                            height: Some(block_height_pt(height)),
+                            inset: Sides::uniform(Length::pt(0.0)),
+                            breakable: false,
+                            outset: Sides::uniform(Length::pt(outset)),
+                            radius: Corners::uniform(Length::ZERO),
+                            clip: false,
+                            fill: None,
+                            stroke: None,
+                            spacing: None,
+                            above: None,
+                            below: None,
+                            sticky: false,
+                        },
+                    )),
+                ]));
+                let doc = layout(&seq);
+                assert_eq!(doc.pages.len(), pages, "height={height}, outset={outset}");
+                assert_eq!(doc.plain_text().matches("p248outset").count(), 1);
+            }
+        }
     }
 
     #[test]
@@ -11351,7 +12200,7 @@ mod tests_show_rule_integration {
         };
         let count_clip_groups = |c: Content| -> usize {
             let doc = layout(&c);
-            doc.pages.iter().flat_map(|p| p.items.iter())
+            doc.pages.iter().flat_map(|p| frame_items_recursive(&p.items))
                 .filter(|i| matches!(i, FrameItem::Group { clip_mask: Some(ShapeKind::Rect), inner_height, .. }
                                        if (*inner_height - 4.0).abs() < 0.1))
                 .count()
@@ -11425,7 +12274,7 @@ mod tests_show_rule_integration {
         let doc = layout(&b);
         let mut texts = String::new();
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Text { text, .. } = item {
                     texts.push_str(text.as_str());
                 }
@@ -11506,7 +12355,7 @@ mod tests_show_rule_integration {
         let doc = layout(&b);
         let mut texts = String::new();
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Text { text, .. } = item {
                     texts.push_str(text.as_str());
                 }
@@ -11535,7 +12384,7 @@ mod tests_show_rule_integration {
         // Smoke: layout passa sem panic; body emitido.
         let mut texts = String::new();
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Text { text, .. } = item {
                     texts.push_str(text.as_str());
                 }
@@ -11563,7 +12412,7 @@ mod tests_show_rule_integration {
         let mut y_b1 = None;
         let mut y_b2 = None;
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Text { text, pos, .. } = item {
                     if text.as_str() == "b1" {
                         y_b1 = Some(pos.y.0);
@@ -11607,7 +12456,7 @@ mod tests_show_rule_integration {
         let mut y_c1 = None;
         let mut y_c2 = None;
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Text { text, pos, .. } = item {
                     if text.as_str() == "c1" {
                         y_c1 = Some(pos.y.0);
@@ -11646,7 +12495,7 @@ mod tests_show_rule_integration {
         let mut y_s1 = None;
         let mut y_s2 = None;
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Text { text, pos, .. } = item {
                     if text.as_str() == "s1" {
                         y_s1 = Some(pos.y.0);
@@ -11682,7 +12531,7 @@ mod tests_show_rule_integration {
         let doc = layout(&seq);
         let mut y_o2 = None;
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Text { text, pos, .. } = item {
                     if text.as_str() == "o2" {
                         y_o2 = Some(pos.y.0);
@@ -11699,7 +12548,7 @@ mod tests_show_rule_integration {
     #[test]
     fn p250_block_sticky_true_next_cabe_sem_break() {
         // sticky=true + next pequeno + espaço suficiente → emit normal.
-        use crate::entities::layout_types::Length;
+
         let b1 = p250_mk_block_with(Content::text("st1"), None, None, None, true);
         let b2 = p250_mk_block(Content::text("st2"), None);
         let seq = Content::Sequence(std::sync::Arc::from(vec![b1, b2]));
@@ -11718,7 +12567,7 @@ mod tests_show_rule_integration {
         // b1.height=20 + b2.height=80 → combined=100 > remaining 42 →
         // sticky força new_page() ANTES de b1 (em vez de só antes de b2).
         use crate::entities::layout_types::Length;
-        let b1 = p250_mk_block_with(
+        let _b1 = p250_mk_block_with(
             p250_mk_block(Content::text("sk1"), Some(Length::pt(20.0))),
             None,
             None,
@@ -11761,12 +12610,12 @@ mod tests_show_rule_integration {
     #[test]
     fn p250_block_sticky_false_preserva_p248() {
         // sticky=false (default) → comportamento P248 preservado literal.
-        use crate::entities::layout_types::Length;
+
         let b = p250_mk_block_with(Content::text("nost"), None, None, None, false);
         let doc = layout(&b);
         let mut texts = String::new();
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Text { text, .. } = item {
                     texts.push_str(text.as_str());
                 }
@@ -11837,7 +12686,7 @@ mod tests_show_rule_integration {
         // Smoke: 3 blocks emitidos sem panic.
         let mut texts = String::new();
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Text { text, .. } = item {
                     texts.push_str(text.as_str());
                 }
@@ -11890,7 +12739,7 @@ mod tests_show_rule_integration {
         // Smoke: layout não panica + body emitido.
         let mut texts = String::new();
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Text { text, .. } = item {
                     texts.push_str(text.as_str());
                 }
@@ -11930,7 +12779,7 @@ mod tests_show_rule_integration {
         let doc = layout(&outer);
         let mut texts = String::new();
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Text { text, .. } = item {
                     texts.push_str(text.as_str());
                 }
@@ -11979,7 +12828,15 @@ mod tests_show_rule_integration {
                 match item {
                     FrameItem::Text { text, .. } => out.push_str(text.as_str()),
                     FrameItem::Group { items, .. } => extract_texts_rec(items, out),
-                    _ => {}
+                    FrameItem::TextReplacement { .. }
+                    | FrameItem::TextSeparator { .. }
+                    | FrameItem::Semantic { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. }
+                    | FrameItem::Link { .. } => {}
                 }
             }
         }
@@ -12027,6 +12884,10 @@ mod tests_show_rule_integration {
         ));
         let cell = Content::TableCell(std::sync::Arc::new(
             crate::entities::elements::table_cell::TableCellElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                standalone: None,
+                presence: Default::default(),
                 body: inner_block,
                 x: None,
                 y: None,
@@ -12042,6 +12903,9 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                rows_explicit: false,
                 columns: vec![TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Fixed(10.0)], // Fixed!
                 children: vec![cell],
@@ -12110,6 +12974,10 @@ mod tests_show_rule_integration {
         ));
         let cell = Content::TableCell(std::sync::Arc::new(
             crate::entities::elements::table_cell::TableCellElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                standalone: None,
+                presence: Default::default(),
                 body: inner_block,
                 x: None,
                 y: None,
@@ -12125,6 +12993,9 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                rows_explicit: false,
                 columns: vec![TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Auto], // Auto → P251 row break
                 children: vec![cell],
@@ -12147,7 +13018,7 @@ mod tests_show_rule_integration {
         // slice (NÃO há Group com clip_mask inner_height==row_h).
         let mut texts = String::new();
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Text { text, .. } = item {
                     texts.push_str(text.as_str());
                 }
@@ -12166,6 +13037,10 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::TrackSizing;
         let cell = Content::TableCell(std::sync::Arc::new(
             crate::entities::elements::table_cell::TableCellElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                standalone: None,
+                presence: Default::default(),
                 body: Content::text("ok"),
                 x: None,
                 y: None,
@@ -12181,6 +13056,9 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                rows_explicit: false,
                 columns: vec![TrackSizing::Auto],
                 rows: vec![TrackSizing::Auto],
                 children: vec![cell],
@@ -12258,6 +13136,10 @@ mod tests_show_rule_integration {
         ));
         let cell = Content::TableCell(std::sync::Arc::new(
             crate::entities::elements::table_cell::TableCellElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                standalone: None,
+                presence: Default::default(),
                 body: inner_block,
                 x: None,
                 y: None,
@@ -12273,6 +13155,9 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                rows_explicit: false,
                 columns: vec![TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Auto],
                 children: vec![cell],
@@ -12332,6 +13217,14 @@ mod tests_show_rule_integration {
         ));
         let cell = Content::TableCell(std::sync::Arc::new(
             crate::entities::elements::table_cell::TableCellElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                standalone: None,
+                presence: crate::entities::elements::table_cell::TableCellPresence {
+                    fill:
+                        crate::entities::elements::table_cell::CellFieldPresence::Explicit,
+                    ..Default::default()
+                },
                 body: inner_block,
                 x: None,
                 y: None,
@@ -12347,6 +13240,9 @@ mod tests_show_rule_integration {
         ));
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                rows_explicit: false,
                 columns: vec![TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Auto],
                 children: vec![cell],
@@ -12376,7 +13272,7 @@ mod tests_show_rule_integration {
         for page in doc.pages.iter() {
             for item in page.items.iter() {
                 if let FrameItem::Shape { fill: Some(c), .. } = item {
-                    if c.to_color() == Color::rgb(100, 100, 50) {
+                    if solid_frame_color(c) == Color::rgb(100, 100, 50) {
                         fill_shapes += 1;
                     }
                 }
@@ -12429,6 +13325,10 @@ mod tests_show_rule_integration {
             ));
             Content::TableCell(std::sync::Arc::new(
                 crate::entities::elements::table_cell::TableCellElem {
+                    source_span: crate::entities::span::Span::detached(),
+                    resolved: None,
+                    standalone: None,
+                    presence: Default::default(),
                     body: inner,
                     x: None,
                     y: None,
@@ -12445,6 +13345,9 @@ mod tests_show_rule_integration {
         };
         let t = Content::Table(std::sync::Arc::new(
             crate::entities::elements::table::TableElem {
+                source_span: crate::entities::span::Span::detached(),
+                resolved: None,
+                rows_explicit: false,
                 columns: vec![TrackSizing::Fixed(40.0)],
                 rows: vec![TrackSizing::Auto, TrackSizing::Auto],
                 children: vec![mk_cell("r1"), mk_cell("r2")],
@@ -12465,7 +13368,7 @@ mod tests_show_rule_integration {
         let doc = layout(&t);
         let mut texts = String::new();
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items).into_iter() {
                 if let FrameItem::Text { text, .. } = item {
                     texts.push_str(text.as_str());
                 }
@@ -12644,7 +13547,7 @@ mod tests_show_rule_integration {
         let doc = layout(&b);
         let mut shape_w = 0.0_f64;
         for page in doc.pages.iter() {
-            for item in page.items.iter() {
+            for item in frame_items_recursive(&page.items) {
                 if let FrameItem::Shape { width, stroke: Some(_), .. } = item {
                     shape_w = *width;
                 }
@@ -12805,7 +13708,8 @@ mod tests_show_rule_integration {
                         y_offset + pos.y.val(),
                         out,
                     ),
-                    FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
+                    FrameItem::TextReplacement { items, .. }
+                    | FrameItem::Semantic { items, .. } => {
                         text_fragments(items, x_offset, y_offset, out)
                     }
                     FrameItem::Link { pos, items, .. } => text_fragments(
@@ -12814,7 +13718,11 @@ mod tests_show_rule_integration {
                         y_offset + pos.y.val(),
                         out,
                     ),
-                    _ => {}
+                    FrameItem::TextSeparator { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. } => {}
                 }
             }
         }
@@ -13455,7 +14363,7 @@ mod tests_show_rule_integration {
                 } = item
                 {
                     if (*width - 100.0).abs() < 0.01
-                        && c.to_color() == Color::rgb(0, 200, 0)
+                        && solid_frame_color(c) == Color::rgb(0, 200, 0)
                     {
                         found_wide = true;
                     }
@@ -13511,7 +14419,7 @@ mod tests_show_rule_integration {
                 } = item
                 {
                     if (*height - 70.0).abs() < 0.01
-                        && c.to_color() == Color::rgb(0, 0, 200)
+                        && solid_frame_color(c) == Color::rgb(0, 0, 200)
                     {
                         found_tall = true;
                     }
@@ -13571,7 +14479,7 @@ mod tests_show_rule_integration {
                     ..
                 } = item
                 {
-                    if (*dx - 100.0).abs() < 0.01 && (s.thickness - 2.0).abs() < 0.01 {
+                    if (*dx - 102.0).abs() < 0.01 && (s.thickness - 2.0).abs() < 0.01 {
                         found_wide_edge = true;
                     }
                 }
@@ -13579,7 +14487,7 @@ mod tests_show_rule_integration {
         }
         assert!(
             found_wide_edge,
-            "Cell colspan=2 stroke deve emitir Line horizontal dx=100"
+            "Cell colspan=2 stroke deve cobrir 100pt mais 1pt em cada extremo"
         );
     }
 
@@ -13891,7 +14799,7 @@ mod tests_show_rule_integration {
                     ..
                 } = item
                 {
-                    if c.to_color() == Color::rgb(123, 45, 67)
+                    if solid_frame_color(c) == Color::rgb(123, 45, 67)
                         && (*width - 100.0).abs() < 0.01
                     {
                         found = true;
@@ -13952,7 +14860,7 @@ mod tests_show_rule_integration {
                     ..
                 } = item
                 {
-                    if c.to_color() == Color::rgb(11, 22, 33)
+                    if solid_frame_color(c) == Color::rgb(11, 22, 33)
                         && (*width - 50.0).abs() < 0.01
                         && (*height - 25.0).abs() < 0.01
                     {
@@ -14514,7 +15422,7 @@ mod tests_show_rule_integration {
     /// de layout. Mimica fluxo real eval → introspect → layout.
     fn layout_with_introspect(c: &Content) -> String {
         use crate::compiler::introspect::introspect;
-        let state = introspect(c);
+        let _state = introspect(c);
         let doc = layout(c);
         doc.plain_text()
     }
@@ -15057,7 +15965,9 @@ mod p622_parbreak {
             .items
             .iter()
             .filter_map(|item| match item {
-                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.0.round() as i64),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+                    Some(pos.y.0.round() as i64)
+                }
                 _ => None,
             })
             .collect();
@@ -15162,9 +16072,9 @@ mod p622_parbreak {
             .items
             .iter()
             .filter_map(|item| match item {
-                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
-                    Some(pos.y.0)
-                }
+                FrameItem::TextSeparator { pos, .. }
+                | FrameItem::Text { pos, .. }
+                | FrameItem::TextShaped { pos, .. } => Some(pos.y.0),
                 _ => None,
             })
             .collect();
@@ -15182,9 +16092,9 @@ mod p622_parbreak {
             .items
             .iter()
             .filter_map(|item| match item {
-                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
-                    Some(pos.y.0)
-                }
+                FrameItem::TextSeparator { pos, .. }
+                | FrameItem::Text { pos, .. }
+                | FrameItem::TextShaped { pos, .. } => Some(pos.y.0),
                 _ => None,
             })
             .collect();
@@ -15448,7 +16358,7 @@ mod p168_figure_ref_migration {
         // P168 .E.3: backward compat — legacy `layout()` ainda resolve
         // figure-ref via fallback a state.figure_label_numbers.
         let content = doc_figure_with_ref("fig1", Some("image".into()), true, true);
-        let state = introspect(&content);
+        let _state = introspect(&content);
         let doc = layout(&content);
         let txt = doc.plain_text();
         assert!(
@@ -15463,7 +16373,7 @@ mod p168_figure_ref_migration {
         // o mesmo plain_text para o mesmo documento (paridade).
         let content = doc_figure_with_ref("fig1", Some("image".into()), true, true);
 
-        let state_legacy = introspect(&content);
+        let _state_legacy = introspect(&content);
         let doc_legacy = layout(&content);
         let txt_legacy = doc_legacy.plain_text();
 
@@ -15578,7 +16488,7 @@ mod p181g_cite_arm_migration {
         ] {
             let content = doc_cite_with_bib(form);
 
-            let state_legacy = crate::compiler::introspect::introspect(&content);
+            let _state_legacy = crate::compiler::introspect::introspect(&content);
             let txt_legacy = layout(&content).plain_text();
 
             let txt_new = render_via_introspector(&content);
@@ -15648,7 +16558,7 @@ mod p181i_e2e_bib {
             Content::bibliography(vec![bib("intro"), bib("methods")], None),
         ]));
 
-        let state = crate::compiler::introspect::introspect(&content);
+        let _state = crate::compiler::introspect::introspect(&content);
         let txt = layout(&content).plain_text();
 
         assert!(
@@ -16008,8 +16918,8 @@ mod p172_func_callback {
 #[cfg(test)]
 mod p182e_e2e_heading_numbering {
     use super::*;
-    use crate::compiler::introspect::{introspect, introspect_with_introspector};
-    use crate::entities::introspector::Introspector;
+    use crate::compiler::introspect::introspect_with_introspector;
+
     use std::sync::Arc;
 
     /// Documento típico: `set heading(numbering: ...)` + 3 headings com nesting [1, 2, 1].
@@ -16185,7 +17095,7 @@ mod p184e_figure_per_kind {
         // ratificado em P184B/C/D); cai em `unwrap_or(idx + 1)` heurístico
         // final. Output observable é idêntico ao path Introspector real.
         let content = doc_tres_figuras_image();
-        let state_legacy = introspect(&content);
+        let _state_legacy = introspect(&content);
         let txt =
             layout_with_introspector(&content, TagIntrospector::empty()).plain_text();
 
@@ -16291,8 +17201,7 @@ mod p185d_locator_sync {
     use super::*;
     use crate::compiler::introspect::introspect_with_introspector;
     use crate::compiler::introspect::locatable::is_locatable;
-    use crate::entities::element_kind::ElementKind;
-    use crate::entities::introspector::Introspector;
+
     use crate::entities::location::Location;
     use std::sync::Arc;
 
@@ -16448,16 +17357,10 @@ mod p185d_locator_sync {
 mod p186f_equation_locatable {
     use super::*;
     use crate::compiler::introspect::introspect_with_introspector;
-    use crate::entities::counter::CounterKey;
     use crate::entities::element_kind::ElementKind;
     use crate::entities::introspector::Introspector;
-    use crate::entities::state_update::StateUpdate;
-    use crate::entities::value::Value;
-    use std::sync::Arc;
 
-    fn ck(s: &str) -> CounterKey {
-        CounterKey::Str(s.into())
-    }
+    use std::sync::Arc;
 
     fn equation_block() -> Content {
         // Lote F-2 S2 (P335): numeração assada (`equation_numbered`) — o gate do
@@ -16574,17 +17477,8 @@ mod p186f_equation_locatable {
 mod p187b_c1_heading_prefix {
     use super::*;
     use crate::compiler::introspect::introspect_with_introspector;
-    use crate::entities::counter::CounterKey;
-    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use crate::entities::introspector::Introspector;
     use std::sync::Arc;
-
-    fn ck(s: &str) -> CounterKey {
-        CounterKey::Str(s.into())
-    }
-
-    fn heading_with_text(level: u8, text: &str) -> Content {
-        Content::heading(level, Content::text(text))
-    }
 
     fn doc_3_headings() -> Content {
         // Lote F-2 S1 (P335): numeração assada para o prefixo; marcador mantido
@@ -16683,27 +17577,13 @@ mod p187b_c1_heading_prefix {
 mod p188b_c2_equation_counter {
     use super::*;
     use crate::compiler::introspect::introspect_with_introspector;
-    use crate::entities::counter::CounterKey;
     use crate::entities::introspector::Introspector;
-    use crate::entities::state_update::StateUpdate;
-    use crate::entities::value::Value;
-    use std::sync::Arc;
 
-    fn ck(s: &str) -> CounterKey {
-        CounterKey::Str(s.into())
-    }
+    use std::sync::Arc;
 
     fn equation_block(text: &str) -> Content {
         // Lote F-2 S2 (P335): numeração assada (gate via campo assado).
         Content::equation_numbered(Content::MathIdent(text.into()), true)
-    }
-
-    fn doc_3_equations() -> Content {
-        Content::Sequence(Arc::from(vec![
-            equation_block("a"),
-            equation_block("b"),
-            equation_block("c"),
-        ]))
     }
 
     #[test]
@@ -16777,7 +17657,7 @@ mod p189b_walk_puro_m5 {
             Content::heading(1, Content::text("Intro")),
             Content::outline(),
         ]));
-        let state_com = introspect(&doc_com_outline);
+        let _state_com = introspect(&doc_com_outline);
         // Layout funciona via Introspector path (re-walk em layout()).
         let txt_com = layout(&doc_com_outline).plain_text();
         assert!(txt_com.contains("Intro"), "doc com outline: {:?}", txt_com);
@@ -16786,7 +17666,7 @@ mod p189b_walk_puro_m5 {
             1,
             Content::text("Solo"),
         )]));
-        let state_sem = introspect(&doc_sem_outline);
+        let _state_sem = introspect(&doc_sem_outline);
         let txt_sem = layout(&doc_sem_outline).plain_text();
         assert!(txt_sem.contains("Solo"), "doc sem outline: {:?}", txt_sem);
     }
@@ -16945,7 +17825,7 @@ mod p194b_c4_resolved_label {
         // arm Labelled (P195D Tag pós-recursão). Caminho Introspector
         // é única fonte da verdade.
         let content = doc_heading_labelled_e_ref("intro");
-        let state = introspect(&content);
+        let _state = introspect(&content);
 
         // Pipeline completo via layout(); Introspector populated via
         // re-walk em layout(); Layouter consume via Introspector path
@@ -17202,7 +18082,15 @@ mod p273_7_boxed_parent_bbox {
                         out.push(*parent_bbox_at_emit);
                     }
                     FrameItem::Group { items, .. } => walk(items, out),
-                    _ => {}
+                    FrameItem::TextReplacement { .. }
+                    | FrameItem::TextSeparator { .. }
+                    | FrameItem::Semantic { .. }
+                    | FrameItem::Text { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Link { .. } => {}
                 }
             }
         }
@@ -17213,7 +18101,7 @@ mod p273_7_boxed_parent_bbox {
         out
     }
 
-    /// 1) Boxed com width+height literais → shape nested ganha
+    /// Caso 1: Boxed com width+height literais → shape nested ganha
     /// `parent_bbox_at_emit = Some(Rect)` com w/h iguais às dimensions
     /// do Boxed.
     #[test]
@@ -17237,7 +18125,7 @@ mod p273_7_boxed_parent_bbox {
         );
     }
 
-    /// 2) Boxed sem width/height → shape nested permanece com
+    /// Caso 2: Boxed sem width/height → shape nested permanece com
     /// `parent_bbox_at_emit = None` (Decisão 3γ.2.γ herdada).
     #[test]
     fn p273_7_shape_inside_boxed_dimensionless_no_parent_bbox() {
@@ -17253,7 +18141,7 @@ mod p273_7_boxed_parent_bbox {
         );
     }
 
-    /// 3) Save/restore LIFO — top-level shape APÓS Boxed ganha
+    /// Caso 3: Save/restore LIFO — top-level shape APÓS Boxed ganha
     /// `parent_bbox_at_emit = None` (parent_bbox restaurado).
     #[test]
     fn p273_7_boxed_save_restore_lifo() {
@@ -17283,7 +18171,7 @@ mod p273_7_boxed_parent_bbox {
         );
     }
 
-    /// 4) Nested Boxed (Boxed dentro de Boxed) — LIFO restore correcto.
+    /// Caso 4: Nested Boxed (Boxed dentro de Boxed) — LIFO restore correcto.
     /// Inner Boxed bbox visível para inner Shape; depois restore para
     /// outer Boxed bbox; depois restore para None.
     #[test]
@@ -17305,7 +18193,7 @@ mod p273_7_boxed_parent_bbox {
         );
     }
 
-    /// 5) Boxed.fill stroke próprio Shape — emit do PRÓPRIO Boxed
+    /// Caso 5: Boxed.fill stroke próprio Shape — emit do PRÓPRIO Boxed
     /// (linha 1485) deve ter `parent_bbox_at_emit` igual ao OUTER
     /// (i.e. None se top-level), paridade Block P273.6 §2.3 — restore
     /// acontece ANTES do shape emit do próprio container.
@@ -17383,7 +18271,15 @@ mod p273_9_containers_estendidos {
                         out.push(*parent_bbox_at_emit);
                     }
                     FrameItem::Group { items, .. } => walk(items, out),
-                    _ => {}
+                    FrameItem::TextReplacement { .. }
+                    | FrameItem::TextSeparator { .. }
+                    | FrameItem::Semantic { .. }
+                    | FrameItem::Text { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Link { .. } => {}
                 }
             }
         }
@@ -17396,7 +18292,7 @@ mod p273_9_containers_estendidos {
 
     // ── Grid cell ────────────────────────────────────────────────────────
 
-    /// 1) Grid cell save/restore — shape nested em cell Grid ganha
+    /// Caso 1: Grid cell save/restore — shape nested em cell Grid ganha
     /// `parent_bbox_at_emit = Some(Rect)` com bbox do body cell.
     #[test]
     fn p273_9_grid_cell_save_restore_parent_bbox() {
@@ -17430,7 +18326,7 @@ mod p273_9_containers_estendidos {
         );
     }
 
-    /// 2) Top-level shape após Grid → parent_bbox restaurado (LIFO).
+    /// Caso 2: Top-level shape após Grid → parent_bbox restaurado (LIFO).
     #[test]
     fn p273_9_grid_cell_lifo_restore() {
         let grid = Content::Grid(std::sync::Arc::new(
@@ -17472,7 +18368,7 @@ mod p273_9_containers_estendidos {
 
     // ── Stack ────────────────────────────────────────────────────────────
 
-    /// 3) Stack vertical TTB — shape nested ganha parent_bbox da Stack
+    /// Caso 3: Stack vertical TTB — shape nested ganha parent_bbox da Stack
     /// medida via measure_content_constrained (vertical: max_w × sum_h).
     #[test]
     fn p273_9_stack_vertical_save_restore_parent_bbox() {
@@ -17496,7 +18392,7 @@ mod p273_9_containers_estendidos {
         );
     }
 
-    /// 4) Stack vazio (n=0) não popula parent_bbox.
+    /// Caso 4: Stack vazio (n=0) não popula parent_bbox.
     #[test]
     fn p273_9_stack_empty_no_parent_bbox() {
         use crate::entities::dir::Dir;
@@ -17515,7 +18411,7 @@ mod p273_9_containers_estendidos {
 
     // ── Pad ──────────────────────────────────────────────────────────────
 
-    /// 5) Pad — shape nested ganha parent_bbox INNER (body sem insets).
+    /// Caso 5: Pad — shape nested ganha parent_bbox INNER (body sem insets).
     #[test]
     fn p273_9_pad_save_restore_parent_bbox_inner() {
         let pad = Content::pad(
@@ -17542,7 +18438,7 @@ mod p273_9_containers_estendidos {
         );
     }
 
-    /// 6) Pad LIFO — top-level shape após Pad vê parent_bbox=None.
+    /// Caso 6: Pad LIFO — top-level shape após Pad vê parent_bbox=None.
     #[test]
     fn p273_9_pad_lifo_restore() {
         let pad = Content::pad(
@@ -17571,7 +18467,7 @@ mod p273_9_containers_estendidos {
         );
     }
 
-    /// 7) Regressão DEBT-37: tests `cell_origin_*` consumption preserved.
+    /// Caso 7: Regressão DEBT-37: tests `cell_origin_*` consumption preserved.
     /// Verifica que Grid arm ainda emite cell layout correctamente após
     /// adicionar save/restore parent_bbox paralelo.
     #[test]
@@ -18080,8 +18976,8 @@ mod p287_smartquote_tests {
         let txt = collect_text(&layout(&styled));
         // Em fr a sequência open inclui NBSP (U+00A0) após `«` e antes de `»`.
         assert!(
-            txt.contains('\u{00AB}') && txt.contains('\u{00BB}'),
-            "lang=fr deve ter chevrons; got {txt:?}"
+            txt == "«\u{00A0}«\u{00A0}",
+            "lang=fr adjacent quotes reopen after NBSP (measured pinned oracle); got {txt:?}"
         );
         assert!(
             txt.contains('\u{00A0}'),
@@ -18165,7 +19061,6 @@ mod p288_style_lang_tests {
 
 #[cfg(test)]
 mod p289_style_weight_tests {
-    use super::*;
     use crate::entities::style::{Style, Styles};
     use crate::entities::style_chain::StyleChain;
 
@@ -18279,7 +19174,6 @@ mod p289_style_weight_tests {
 
 #[cfg(test)]
 mod p290_style_tracking_tests {
-    use super::*;
     use crate::entities::layout_types::Length;
     use crate::entities::style::{Style, Styles};
     use crate::entities::style_chain::StyleChain;
@@ -18410,7 +19304,6 @@ mod p290_style_tracking_tests {
 
 #[cfg(test)]
 mod p291_style_leading_tests {
-    use super::*;
     use crate::entities::layout_types::Length;
     use crate::entities::style::{Style, Styles};
     use crate::entities::style_chain::StyleChain;
@@ -19143,7 +20036,9 @@ Goodbye #footnote[Nota B] moon."#,
             .items
             .iter()
             .find_map(|item| match item {
-                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.x.0),
+                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+                    Some(pos.x.0)
+                }
                 _ => None,
             })
             .expect("deve haver texto");
@@ -19196,7 +20091,7 @@ Goodbye #footnote[Nota B] moon."#,
 #[cfg(test)]
 mod f_caracterizacao_estilo {
     use super::*;
-    use crate::entities::layout_types::{FrameItem, Pt, TextStyle};
+    use crate::entities::layout_types::FrameItem;
 
     fn doc_text(c: &Content) -> String {
         layout(c).plain_text()
@@ -19710,7 +20605,7 @@ mod p462_ref_numeric {
     use super::*;
     use crate::compiler::introspect::introspect_with_introspector;
     use crate::entities::introspector::TagIntrospector;
-    use crate::entities::label::Label;
+
     use crate::entities::layout_types::TrackSizing;
     use crate::entities::style::Styles;
     use crate::entities::value::Value;
@@ -19731,8 +20626,6 @@ mod p462_ref_numeric {
         assert!(!text.contains("@intro"), "não deve manter @intro: {text}");
     }
 
-    #[test]
-    #[test]
     #[test]
     fn p1073_ref_table_supplements_en_e_pt() {
         use crate::entities::lang::Lang;
@@ -20086,7 +20979,9 @@ fn p756_cjk_segmenta_sem_espacos() {
         .iter()
         .flat_map(|p| p.items.iter())
         .filter_map(|i| match i {
-            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.val().to_bits()),
+            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+                Some(pos.y.val().to_bits())
+            }
             _ => None,
         })
         .collect();
@@ -20135,7 +21030,9 @@ fn p756_thai_segmenta_sem_espacos() {
         .iter()
         .flat_map(|p| p.items.iter())
         .filter_map(|i| match i {
-            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.val().to_bits()),
+            FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. } => {
+                Some(pos.y.val().to_bits())
+            }
             _ => None,
         })
         .collect();
@@ -20439,12 +21336,7 @@ mod p813_equacao_bloco {
 mod p856_ref_unreferencable_labels {
     use super::*;
     use crate::entities::content::Content;
-    use crate::entities::label::Label;
     use std::sync::Arc;
-
-    fn lbl(s: &str) -> Label {
-        Label(s.to_string())
-    }
 
     fn layout_errors_for(content: Content) -> Vec<String> {
         layout(&content)
@@ -20611,12 +21503,11 @@ fn p898_align_bottom_sob_height_auto_nao_produz_infinito() {
         page.height
     );
 
-    #[allow(deprecated)]
     let text_item = page
         .items
         .iter()
         .find_map(|item| match item {
-            FrameItem::Text { pos, text, style } => {
+            FrameItem::Text { pos, text, style, .. } => {
                 Some((pos.x.val(), pos.y.val(), style.clone(), text.clone()))
             }
             _ => None,
@@ -20632,8 +21523,8 @@ fn p898_align_bottom_sob_height_auto_nao_produz_infinito() {
     // "usable == a largura/altura do próprio conteúdo, alinhamento degenera
     // a offset 0").
     assert!(
-        (y - margin).abs() < 0.01,
-        "único bloco bottom-aligned deve ficar na margem: y={:.4} margin={:.4}",
+        (y - margin - FixedMetrics.text_edges(style.size, &style).0 .0).abs() < 0.01,
+        "topo do texto bottom-aligned deve ficar na margem; y mede a baseline: y={:.4} margin={:.4}",
         y,
         margin
     );
@@ -20645,7 +21536,7 @@ fn p898_align_bottom_sob_height_auto_nao_produz_infinito() {
     // assumidas, mas derivada do style real do item produzido).
     let (top, bottom) = FixedMetrics.text_edges(style.size, &style);
     // rationale: FixedMetrics define o fallback de leading como 0.65em.
-    let leading = style
+    let _leading = style
         .leading
         .map(|l| l.resolve_pt(style.size.val()))
         // rationale: FixedMetrics define o fallback de leading como 0.65em.
@@ -20661,21 +21552,9 @@ fn p898_align_bottom_sob_height_auto_nao_produz_infinito() {
     );
 }
 
-/// **P898** — dois blocos de alturas diferentes na mesma página `height:
-/// auto`: um bloco alto (`height: 200pt` forçada) em fluxo normal, seguido
-/// de `#align(horizon)[...]` (bloco curto, o ÚLTIMO conteúdo do fluxo).
-///
-/// Mesmo padrão de
-/// `p896_equacoes_de_bloco_centram_contra_a_largura_final_da_pagina`, mas no
-/// eixo Y: o bloco alto define a maior parte da altura final da página
-/// (avanço do cursor determinístico, independente de métricas de fonte —
-/// `block.rs` força `consumed_inner >= h_pt`); o bloco curto, sendo o
-/// último conteúdo do fluxo, não tem "resto de página" a seguir — a altura
-/// disponível para `VAlign::Horizon` degenera para a sua própria altura
-/// (mesmo mecanismo de degenerescência do teste anterior, mas ancorado no
-/// cursor pós-bloco-alto em vez da margem do topo da página) e deve, por
-/// isso, ficar encostado logo a seguir ao bloco alto — não numa posição
-/// infinita.
+/// P898: vertical alignment under automatic page height preserves the
+/// preceding block's allocation and the paragraph gap, without treating
+/// following flow as free space for centering.
 #[test]
 fn p898_align_horizon_apos_bloco_alto_alinha_contra_altura_final_da_pagina() {
     use crate::entities::elements::align::AlignElem;
@@ -20745,17 +21624,16 @@ fn p898_align_horizon_apos_bloco_alto_alinha_contra_altura_final_da_pagina() {
         page.height
     );
 
-    #[allow(deprecated)]
-    let text_items: Vec<(f64, f64, TextStyle, ecow::EcoString)> = page
-        .items
-        .iter()
-        .filter_map(|item| match item {
-            FrameItem::Text { pos, text, style } => {
-                Some((pos.x.val(), pos.y.val(), style.clone(), text.clone()))
-            }
-            _ => None,
-        })
-        .collect();
+    let text_items: Vec<(f64, f64, TextStyle, ecow::EcoString)> =
+        frame_items_recursive(&page.items)
+            .into_iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, style, .. } => {
+                    Some((pos.x.val(), pos.y.val(), style.clone(), text.clone()))
+                }
+                _ => None,
+            })
+            .collect();
     assert_eq!(text_items.len(), 2, "1 (TALL) + 1 (short) = 2 items de texto");
 
     let (_tall_x, tall_y, _tall_style, tall_text) = &text_items[0];
@@ -20772,14 +21650,16 @@ fn p898_align_horizon_apos_bloco_alto_alinha_contra_altura_final_da_pagina() {
     // O bloco alto (height forçada a 200pt) avança o cursor
     // deterministicamente para margin + tall_height, independentemente de
     // métricas de fonte.
-    let cursor_after_tall = margin + tall_height;
+    let cursor_after_tall =
+        margin + tall_height + short_style.size.0 * super::vanilla_defaults::PAR_SPACING;
 
     // 'short' é o último conteúdo do fluxo — a altura disponível para
     // VAlign::Horizon degenera para a sua própria altura (nada sobra depois
-    // dele), ficando encostado exactamente onde o bloco alto termina.
+    // dele), ficando após o bloco alto e sua margem de parágrafo.
     assert!(
-        (short_y - cursor_after_tall).abs() < 0.01,
-        "'short' (horizon-aligned, último do fluxo) deve ficar logo após o bloco alto: y={:.4} esperado={:.4}",
+        (short_y - cursor_after_tall
+            - FixedMetrics.text_edges(short_style.size, short_style).0 .0).abs() < 0.01,
+        "topo de 'short' deve seguir o bloco; y mede a baseline: y={:.4} topo esperado={:.4}",
         short_y,
         cursor_after_tall
     );
@@ -20787,7 +21667,7 @@ fn p898_align_horizon_apos_bloco_alto_alinha_contra_altura_final_da_pagina() {
     // Altura final da página = margin + tall_height + altura('short') + margin.
     let (top, bottom) = FixedMetrics.text_edges(short_style.size, short_style);
     // rationale: FixedMetrics define o fallback de leading como 0.65em.
-    let leading = short_style
+    let _leading = short_style
         .leading
         .map(|l| l.resolve_pt(short_style.size.val()))
         // rationale: FixedMetrics define o fallback de leading como 0.65em.
@@ -20891,7 +21771,6 @@ fn p898_place_bottom_com_dy_sob_height_auto_aplica_dy_correctamente() {
     let page = doc.pages.first().expect("deve produzir 1 página");
     assert!(page.height.is_finite(), "page.height infinito: {}", page.height);
 
-    #[allow(deprecated)]
     let text_items: Vec<(f64, f64, ecow::EcoString)> = page
         .items
         .iter()
@@ -20919,7 +21798,7 @@ fn p898_place_bottom_com_dy_sob_height_auto_aplica_dy_correctamente() {
         .unwrap();
     let (top, bottom) = FixedMetrics.text_edges(placed_style.size, &placed_style);
     // rationale: FixedMetrics define o fallback de leading como 0.65em.
-    let leading = placed_style
+    let _leading = placed_style
         .leading
         .map(|l| l.resolve_pt(placed_style.size.val()))
         // rationale: FixedMetrics define o fallback de leading como 0.65em.
@@ -21182,7 +22061,6 @@ fn p904_place_right_mede_largura_real_do_texto_nao_zero() {
 
     let doc = layout(&content);
     let page = doc.pages.first().expect("deve produzir 1 página");
-    #[allow(deprecated)]
     let placed_x = page
         .items
         .iter()
@@ -21329,12 +22207,13 @@ fn p908_place_aninhado_em_align_sob_height_auto_posicao_bate_com_formula() {
     let page = doc.pages.first().expect("deve produzir 1 página");
     assert!(page.height.is_finite(), "page.height infinito: {}", page.height);
 
-    #[allow(deprecated)]
     let (y, style) = page
         .items
         .iter()
         .find_map(|item| match item {
-            FrameItem::Text { pos, text, style } if text.as_str() == "nestedplaced" => {
+            FrameItem::Text { pos, text, style, .. }
+                if text.as_str() == "nestedplaced" =>
+            {
                 Some((pos.y.val(), style.clone()))
             }
             _ => None,
@@ -21343,13 +22222,14 @@ fn p908_place_aninhado_em_align_sob_height_auto_posicao_bate_com_formula() {
 
     let (top, bottom) = FixedMetrics.text_edges(style.size, &style);
     // rationale: FixedMetrics define o fallback de leading como 0.65em.
-    let leading = style
+    let _leading = style
         .leading
         .map(|l| l.resolve_pt(style.size.val()))
         // rationale: FixedMetrics define o fallback de leading como 0.65em.
         .unwrap_or_else(|| style.size.val() * 0.65);
     let content_h = top.val() - bottom.val();
-    let expected_y = page.height - margin - content_h + dy;
+    // FrameItem::Text.pos is the baseline, not the aligned frame top.
+    let expected_y = page.height - margin - content_h + dy + top.val();
 
     assert!(
         (y - expected_y).abs() < 0.01,
@@ -21448,12 +22328,13 @@ fn p908_place_aninhado_em_align_duplo_sob_height_auto_posicao_bate_com_formula()
     let page = doc.pages.first().expect("deve produzir 1 página");
     assert!(page.height.is_finite(), "page.height infinito: {}", page.height);
 
-    #[allow(deprecated)]
     let (y, style) = page
         .items
         .iter()
         .find_map(|item| match item {
-            FrameItem::Text { pos, text, style } if text.as_str() == "doublenested" => {
+            FrameItem::Text { pos, text, style, .. }
+                if text.as_str() == "doublenested" =>
+            {
                 Some((pos.y.val(), style.clone()))
             }
             _ => None,
@@ -21462,13 +22343,14 @@ fn p908_place_aninhado_em_align_duplo_sob_height_auto_posicao_bate_com_formula()
 
     let (top, bottom) = FixedMetrics.text_edges(style.size, &style);
     // rationale: FixedMetrics define o fallback de leading como 0.65em.
-    let leading = style
+    let _leading = style
         .leading
         .map(|l| l.resolve_pt(style.size.val()))
         // rationale: FixedMetrics define o fallback de leading como 0.65em.
         .unwrap_or_else(|| style.size.val() * 0.65);
     let content_h = top.val() - bottom.val();
-    let expected_y = page.height - margin - content_h + dy;
+    // FrameItem::Text.pos is the baseline, not the aligned frame top.
+    let expected_y = page.height - margin - content_h + dy + top.val();
 
     assert!(
         (y - expected_y).abs() < 0.01,
@@ -21552,7 +22434,10 @@ fn p908_place_aninhado_em_transform_sob_height_auto_posicao_bate_com_formula() {
                 },
             )),
             Content::Transform(std::sync::Arc::new(TransformElem {
-                matrix: TransformMatrix::identity(),
+                operation:
+                    crate::entities::elements::transform::TransformOperation::Matrix(
+                        TransformMatrix::identity(),
+                    ),
                 body: Content::place(
                     Align2D::from_string("bottom"),
                     0.0,
@@ -21567,7 +22452,6 @@ fn p908_place_aninhado_em_transform_sob_height_auto_posicao_bate_com_formula() {
         .into(),
     );
 
-    #[allow(deprecated)]
     fn find_abs_y(
         items: &[FrameItem],
         needle: &str,
@@ -21575,7 +22459,7 @@ fn p908_place_aninhado_em_transform_sob_height_auto_posicao_bate_com_formula() {
     ) -> Option<(f64, crate::entities::layout_types::TextStyle)> {
         for item in items {
             match item {
-                FrameItem::Text { pos, text, style } if text.as_str() == needle => {
+                FrameItem::Text { pos, text, style, .. } if text.as_str() == needle => {
                     return Some((y_offset + pos.y.val(), style.clone()));
                 }
                 FrameItem::Group { pos, items, .. } => {
@@ -21584,7 +22468,16 @@ fn p908_place_aninhado_em_transform_sob_height_auto_posicao_bate_com_formula() {
                         return Some(found);
                     }
                 }
-                _ => {}
+                FrameItem::TextReplacement { .. }
+                | FrameItem::TextSeparator { .. }
+                | FrameItem::Semantic { .. }
+                | FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. }
+                | FrameItem::Link { .. } => {}
             }
         }
         None
@@ -21599,13 +22492,14 @@ fn p908_place_aninhado_em_transform_sob_height_auto_posicao_bate_com_formula() {
 
     let (top, bottom) = FixedMetrics.text_edges(style.size, &style);
     // rationale: FixedMetrics define o fallback de leading como 0.65em.
-    let leading = style
+    let _leading = style
         .leading
         .map(|l| l.resolve_pt(style.size.val()))
         // rationale: FixedMetrics define o fallback de leading como 0.65em.
         .unwrap_or_else(|| style.size.val() * 0.65);
     let content_h = top.val() - bottom.val();
-    let expected_y = page.height - margin - content_h + dy;
+    // FrameItem::Text.pos is the baseline, not the aligned frame top.
+    let expected_y = page.height - margin - content_h + dy + top.val();
 
     assert!(
         (y - expected_y).abs() < 0.01,
@@ -21883,10 +22777,9 @@ mod p945_tests {
     /// envolve, na convenção de tinta acima: (topo_tinta, fundo_tinta) do
     /// delimitador e (topo, fundo) da grelha (reconstruída das baselines
     /// das células + piso do `(` do stub: 0.75/0.25 × tamanho da célula).
-    fn geometria(
-        page_items: &[FrameItem],
-        n_cells: usize,
-    ) -> ((f64, f64), (f64, f64), Vec<(f64, u16)>) {
+    type DelimiterGeometry = ((f64, f64), (f64, f64), Vec<(f64, u16)>);
+
+    fn geometria(page_items: &[FrameItem], n_cells: usize) -> DelimiterGeometry {
         let scale = BASE_PT / 1000.0;
         let pieces = glyph_pieces(page_items, '(');
         assert!(!pieces.is_empty(), "delimitador '(' deve ter peças de assembly");
@@ -21930,7 +22823,6 @@ mod p945_tests {
         let doc = layout(&content);
         let page = doc.pages.first().expect("deve produzir 1 página");
 
-        #[allow(deprecated)]
         let is_single_ascii_digit =
             |text: &str| text.len() == 1 && text.chars().next().unwrap().is_ascii_digit();
         let cell_styles: Vec<&TextStyle> = frame_items_recursive(&page.items)
@@ -22125,9 +23017,7 @@ mod p967_equacao_inline {
             .into_iter()
             .find_map(|i| match i {
                 FrameItem::Text { pos, text, style, .. } if text.as_str() == needle => {
-                    let adv = match style.size.val() {
-                        s => 0.6 * s * needle.chars().count() as f64,
-                    };
+                    let adv = 0.6 * style.size.val() * needle.chars().count() as f64;
                     Some((pos.x.val(), pos.x.val() + adv))
                 }
                 _ => None,
@@ -22195,14 +23085,13 @@ mod p987_tests {
     const TOL: f64 = 0.05;
 
     /// (x, y, text, style) de cada `FrameItem::Text` da página.
-    #[allow(deprecated)]
     fn text_items(
         page: &crate::entities::layout_types::Page,
     ) -> Vec<(f64, f64, ecow::EcoString, TextStyle)> {
         frame_items_recursive(&page.items)
             .into_iter()
             .filter_map(|item| match item {
-                FrameItem::Text { pos, text, style } => {
+                FrameItem::Text { pos, text, style, .. } => {
                     Some((pos.x.val(), pos.y.val(), text.clone(), style.clone()))
                 }
                 _ => None,
@@ -22352,7 +23241,7 @@ mod p987_tests {
         assert!(page.width.is_finite());
         let items = text_items(page);
 
-        let &(_, _, ref num_text, ref num_style) = numero(&items, "(1)");
+        let (_, _, num_text, num_style) = numero(&items, "(1)");
         let number_width =
             FixedMetrics.advance(num_text, num_style.size, num_style).val();
         let gutter = 0.5 * num_style.size.val();
@@ -22472,23 +23361,27 @@ mod p994_tests {
     /// `(x, y, text, style)` de cada item de texto, recursivamente —
     /// pós-fix o conteúdo embutido chega dentro de `FrameItem::Group`
     /// (e `plain_text()` de `Page` não desce a grupos).
-    #[allow(deprecated)]
     fn collect_texts(
         items: &[FrameItem],
         out: &mut Vec<(f64, f64, ecow::EcoString, TextStyle)>,
     ) {
         for item in items {
             match item {
-                FrameItem::Text { pos, text, style }
+                FrameItem::Text { pos, text, style, .. }
                 | FrameItem::TextShaped { pos, text, style, .. } => {
                     out.push((pos.x.val(), pos.y.val(), text.clone(), style.clone()));
                 }
-                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. }
+                FrameItem::TextReplacement { items, .. }
+                | FrameItem::Semantic { items, .. }
                 | FrameItem::Group { items, .. }
                 | FrameItem::Link { items, .. } => {
                     collect_texts(items, out);
                 }
-                _ => {}
+                FrameItem::TextSeparator { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. } => {}
             }
         }
     }
@@ -22507,7 +23400,8 @@ mod p994_tests {
         for item in items {
             f(item);
             match item {
-                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. }
+                FrameItem::TextReplacement { items, .. }
+                | FrameItem::Semantic { items, .. }
                 | FrameItem::Group { items, .. }
                 | FrameItem::Link { items, .. } => {
                     walk(items, f);
@@ -22641,7 +23535,16 @@ mod p994_tests {
         walk(&page.items, &mut |item| match item {
             FrameItem::Group { .. } => tem_caixa = true,
             FrameItem::Shape { stroke: Some(_), .. } => tem_caixa = true,
-            _ => {}
+            FrameItem::TextReplacement { .. }
+            | FrameItem::TextSeparator { .. }
+            | FrameItem::Semantic { .. }
+            | FrameItem::Text { .. }
+            | FrameItem::TextShaped { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. }
+            | FrameItem::Link { .. } => {}
         });
         assert!(
             tem_caixa,
@@ -22881,7 +23784,6 @@ mod p997_tests {
     /// deixar sobreviver em `last_block_descent_y` o fundo de um bloco
     /// anterior.
     #[test]
-    #[allow(deprecated)]
     fn p1131_flush_linha_texto_substitui_estado_vertical_obsoleto() {
         use crate::entities::introspector::{Introspector, TagIntrospector};
         use comemo::Track;
@@ -22899,6 +23801,7 @@ mod p997_tests {
             },
             text: "texto final".into(),
             style: TextStyle::default(),
+            bidi: None,
         });
 
         layouter.flush_line();
@@ -23073,21 +23976,31 @@ mod p1254_tiling_layout {
         )
     }
 
-    fn repetition_signature(content: &Content) -> Vec<usize> {
+    fn repetition_signature(content: &Content) -> Vec<(u64, u64, u64, u64, usize)> {
         let doc = layout(content);
         let mut signature = frame_items_recursive(&doc.pages[0].items)
             .into_iter()
             .filter_map(|item| match item {
-                FrameItem::Group { items, .. } => Some(items.len()),
+                FrameItem::Shape {
+                    fill: Some(crate::entities::frame_paint::FramePaint::Tiling(cell)),
+                    ..
+                } => Some((
+                    cell.frame.size.width.0.to_bits(),
+                    cell.frame.size.height.0.to_bits(),
+                    cell.spacing.width.0.to_bits(),
+                    cell.spacing.height.0.to_bits(),
+                    cell.frame.items.len(),
+                )),
                 _ => None,
             })
             .collect::<Vec<_>>();
+        assert_eq!(signature.len(), 1, "one prepared paint occurrence");
         signature.sort_unstable();
         signature
     }
 
     #[test]
-    fn p1254_content_tiling_vira_grupos_repetidos_e_recortados() {
+    fn p1254_content_tiling_transports_one_cell_and_its_clip_bounds() {
         let body = Content::shape(
             ShapeKind::Rect,
             Some(Box::new(Value::Length(Length::pt(2.0)))),
@@ -23107,25 +24020,29 @@ mod p1254_tiling_layout {
         );
 
         let doc = layout(&content);
-        let outer = doc
-            .pages
-            .iter()
-            .flat_map(|page| &page.items)
+        let cell = frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
             .find_map(|item| match item {
-                FrameItem::Group { clip_mask: Some(ShapeKind::Rect), items, .. } => {
-                    Some(items)
-                }
+                FrameItem::Shape {
+                    fill: Some(crate::entities::frame_paint::FramePaint::Tiling(cell)),
+                    ..
+                } => Some(cell),
                 _ => None,
             })
-            .expect("tiling fill deve virar grupo recortado");
-        let FrameItem::Group { items: cells, .. } = &outer[0] else {
-            panic!("esperado grupo privado de placement")
+            .expect("tiling fill must carry one prepared cell");
+        assert_eq!(cell.frame.size, Size { width: Pt(4.0), height: Pt(5.0) });
+        assert_eq!(cell.spacing, Size { width: Pt(1.0), height: Pt(2.0) });
+        assert_eq!(cell.frame.items.len(), 1);
+        let FrameItem::Shape { pos, width, height, fill, .. } = &cell.frame.items[0]
+        else {
+            panic!("cell shape")
         };
-        assert!(cells.len() > 1, "pitch deve produzir repetição morfológica");
-        assert!(cells.iter().all(|cell| matches!(
-            cell,
-            FrameItem::Group { clip_mask: Some(ShapeKind::Rect), .. }
-        )));
+        assert_eq!(*pos, Point::ZERO);
+        assert_eq!((*width, *height), (2.0, 2.0));
+        assert_eq!(
+            solid_frame_color(fill.as_ref().unwrap()),
+            crate::entities::layout_types::Color::rgb(255, 0, 0)
+        );
     }
 
     #[test]
@@ -23151,7 +24068,11 @@ mod p1254_tiling_layout {
 #[test]
 fn atomized_remaining_behavior_arms_delegate_statically() {
     let source = include_str!("mod.rs");
-    let compact: String = source.chars().filter(|c| !c.is_whitespace()).collect();
+    let compact = source
+        .chars()
+        .filter(|c| !c.is_whitespace())
+        .collect::<String>()
+        .replace(",)", ")");
     for arm in [
         "Content::StateDisplay(e)=>state_display::layout(self,e),",
         "Content::CounterDisplayCallback(e)=>{counter_display_callback::layout(self,e)}",
@@ -23172,27 +24093,40 @@ fn atomized_remaining_behavior_arms_delegate_statically() {
 fn atomized_text_line_region_owners_keep_cursor_as_adapter() {
     let cursor = include_str!("cursor.rs");
     let hub = include_str!("mod.rs");
-    assert!(!cursor.contains("super::hyphenation::hyphenate"), "selection still lives in cursor");
-    assert!(!cursor.contains("self.metrics.text_width(word"), "word measurement still lives in cursor");
-    assert!(!cursor.contains("self.commit_page("), "regional transition still lives in cursor");
+    assert!(
+        !cursor.contains("super::hyphenation::hyphenate"),
+        "selection still lives in cursor"
+    );
+    assert!(
+        !cursor.contains("self.metrics.text_width(word"),
+        "word measurement still lives in cursor"
+    );
+    assert!(
+        !cursor.contains("self.commit_page("),
+        "regional transition still lives in cursor"
+    );
     for module in ["text_measure", "break_selection", "word_layout", "region_progress"] {
-        assert!(hub.contains(&format!("mod {module};")), "missing private owner {module}");
+        assert!(
+            hub.contains(&format!("mod {module};")),
+            "missing private owner {module}"
+        );
     }
 }
 
 mod regional_demand_regressions {
     use super::*;
-    use comemo::Track;
-    use crate::entities::introspector::{Introspector, TagIntrospector};
     use crate::entities::image_sizer::NullImageSizer;
-    use crate::entities::layout_types::PageMargins;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+
+    use comemo::Track;
 
     fn make(intr: &dyn Introspector) -> Layouter<'_, FixedMetrics, NullImageSizer> {
         let mut l = Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr.track());
         l.page_config.width = 140.0;
         l.page_config.height = 100.0;
         l.page_config.margin = crate::entities::layout_types::PageMargins::uniform(8.0);
-    l.page_config.margin_spec = crate::entities::layout_types::PageMarginSpec::uniform(8.0);
+        l.page_config.margin_spec =
+            crate::entities::layout_types::PageMarginSpec::uniform(8.0);
         l.regions.current.width = 140.0;
         l.regions.current.height = 100.0;
         l.regions.current.cursor_x = Pt(8.0);
@@ -23209,16 +24143,25 @@ mod regional_demand_regressions {
     }
 
     fn pagebreak(to: Option<crate::entities::parity::Parity>) -> Content {
-        Content::Pagebreak(std::sync::Arc::new(crate::entities::elements::pagebreak::PagebreakElem {
-            weak: false, weak_explicit: false, to,
-        }))
+        Content::Pagebreak(std::sync::Arc::new(
+            crate::entities::elements::pagebreak::PagebreakElem {
+                weak: false,
+                weak_explicit: false,
+                to,
+            },
+        ))
     }
 
     fn text_baseline(items: &[FrameItem], wanted: &str) -> f64 {
-        items.iter().find_map(|item| match item {
-            FrameItem::Text { pos, text, .. } if text.as_str() == wanted => Some(pos.y.0),
-            _ => None,
-        }).expect("text must remain on its causal page")
+        items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, text, .. } if text.as_str() == wanted => {
+                    Some(pos.y.0)
+                }
+                _ => None,
+            })
+            .expect("text must remain on its causal page")
     }
 
     #[test]
@@ -23268,7 +24211,11 @@ mod regional_demand_regressions {
             let mut l = make(&intr);
             last_line(&mut l);
             l.regions.current.cursor_x = Pt(131.0);
-            if chunk { l.layout_chunk("NEXT"); } else { l.layout_word("NEXT"); }
+            if chunk {
+                l.layout_chunk("NEXT");
+            } else {
+                l.layout_word("NEXT");
+            }
             let doc = l.finish();
             assert_eq!(doc.pages.len(), 2);
             assert_eq!(doc.pages[1].plain_text(), "NEXT");
@@ -23279,7 +24226,8 @@ mod regional_demand_regressions {
     #[test]
     fn explicit_pagebreaks_and_parity_preserve_intentional_empty_pages() {
         use crate::entities::parity::Parity;
-        for (to, expected) in [(None, 2), (Some(Parity::Even), 2), (Some(Parity::Odd), 3)] {
+        for (to, expected) in [(None, 2), (Some(Parity::Even), 2), (Some(Parity::Odd), 3)]
+        {
             let intr = TagIntrospector::empty();
             let mut l = make(&intr);
             last_line(&mut l);
@@ -23330,16 +24278,17 @@ mod regional_demand_regressions {
 
 #[test]
 fn regional_demand_column_transition_discards_old_paragraph_baseline() {
-    use comemo::Track;
-    use crate::entities::introspector::{Introspector, TagIntrospector};
     use crate::entities::image_sizer::NullImageSizer;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use comemo::Track;
     let intr = TagIntrospector::empty();
     let intr_dyn: &dyn Introspector = &intr;
     let mut l = Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_dyn.track());
     l.page_config.width = 140.0;
     l.page_config.height = 100.0;
     l.page_config.margin = crate::entities::layout_types::PageMargins::uniform(8.0);
-    l.page_config.margin_spec = crate::entities::layout_types::PageMarginSpec::uniform(8.0);
+    l.page_config.margin_spec =
+        crate::entities::layout_types::PageMarginSpec::uniform(8.0);
     l.regions.current.height = 100.0;
     l.page_columns = Some(2);
     l.column_width = 74.0;
@@ -23360,30 +24309,43 @@ fn regional_demand_column_transition_discards_old_paragraph_baseline() {
     l.finish_columns();
     let doc = l.finish();
     assert_eq!(doc.pages.len(), 1);
-    assert_eq!(doc.pages[0].plain_text().split_whitespace().collect::<Vec<_>>(),
-        vec!["TAIL", "NEXT", "A"]);
-    let positions: Vec<_> = frame_items_recursive(&doc.pages[0].items).iter().filter_map(|item|
-        match item { FrameItem::Text { pos, text, .. } if matches!(text.as_str(), "NEXT" | "A") => Some(*pos), _ => None }
-    ).collect();
+    assert_eq!(
+        doc.pages[0].plain_text().split_whitespace().collect::<Vec<_>>(),
+        vec!["TAIL", "NEXT", "A"]
+    );
+    let positions: Vec<_> = frame_items_recursive(&doc.pages[0].items)
+        .iter()
+        .filter_map(|item| match item {
+            FrameItem::Text { pos, text, .. }
+                if matches!(text.as_str(), "NEXT" | "A") =>
+            {
+                Some(*pos)
+            }
+            _ => None,
+        })
+        .collect();
     assert_eq!(positions.len(), 2);
     assert_eq!(positions[0].y, positions[1].y);
     assert!((positions[1].x.0 - positions[0].x.0 - 28.8).abs() < 1e-9);
-    assert!(frame_items_recursive(&doc.pages[0].items).iter().any(|item| matches!(item,
+    assert!(frame_items_recursive(&doc.pages[0].items)
+        .iter()
+        .any(|item| matches!(item,
         FrameItem::Text { pos, text, .. } if text.as_str() == "NEXT" && pos.y.0 < 30.0)));
 }
 
 #[test]
 fn regional_demand_terminal_note_keeps_conservative_clearance() {
-    use comemo::Track;
-    use crate::entities::introspector::{Introspector, TagIntrospector};
     use crate::entities::image_sizer::NullImageSizer;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use comemo::Track;
     let intr = TagIntrospector::empty();
     let intr_dyn: &dyn Introspector = &intr;
     let mut l = Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_dyn.track());
     l.page_config.width = 140.0;
     l.page_config.height = 100.0;
     l.page_config.margin = crate::entities::layout_types::PageMargins::uniform(8.0);
-    l.page_config.margin_spec = crate::entities::layout_types::PageMarginSpec::uniform(8.0);
+    l.page_config.margin_spec =
+        crate::entities::layout_types::PageMarginSpec::uniform(8.0);
     l.regions.current.width = 140.0;
     l.regions.current.height = 100.0;
     l.regions.current.cursor_x = Pt(8.0);
@@ -23397,4 +24359,1371 @@ fn regional_demand_terminal_note_keeps_conservative_clearance() {
     assert_eq!(doc.pages.len(), 2, "the note must not occupy the last line clearance");
     assert_eq!(doc.pages[0].plain_text(), "TAIL");
     assert!(doc.pages[1].plain_text().contains("NOTE"));
+}
+
+#[test]
+fn prepared_realized_origins_do_not_rebuild_introspection() {
+    use crate::compiler::introspect::introspect_chain_probe;
+    use crate::entities::content::{LocatedContent, RealizedContent};
+    use crate::entities::locator::Locator;
+    use comemo::Track;
+    use std::sync::Arc;
+    let location = Locator::new().next();
+    let original = Content::Located(Arc::new(LocatedContent {
+        location,
+        body: Content::heading(1, Content::text("Original")),
+    }));
+    let content = Content::Realized(Arc::new(RealizedContent {
+        original,
+        visual: Content::text("Product"),
+    }));
+    let intr = crate::compiler::introspect::introspect_with_introspector(&content);
+    let intr_dyn: &dyn crate::entities::introspector::Introspector = &intr;
+    let mut layouter =
+        Layouter::new(FixedMetrics, NullImageSizer, 10.0, intr_dyn.track());
+    introspect_chain_probe::reset();
+    layouter.layout_content(&content);
+    assert!(layouter.runtime.positions.contains_key(&location));
+    assert!(
+        introspect_chain_probe::captured().is_empty(),
+        "prepared origins must not rebuild their index"
+    );
+}
+
+#[test]
+fn prepared_realized_origins_keep_descendant_anchors() {
+    use crate::entities::content::{LocatedContent, RealizedContent};
+    use crate::entities::locator::Locator;
+    use comemo::Track;
+    use std::sync::Arc;
+    let mut locator = Locator::new();
+    let parent = locator.next();
+    let child = locator.next();
+    let descendant = Content::Located(Arc::new(LocatedContent {
+        location: child,
+        body: Content::heading(2, Content::text("Child")),
+    }));
+    let original = Content::Located(Arc::new(LocatedContent {
+        location: parent,
+        body: Content::heading(1, descendant),
+    }));
+    let content = Content::Realized(Arc::new(RealizedContent {
+        original,
+        visual: Content::text("Product"),
+    }));
+    let intr = crate::compiler::introspect::introspect_with_introspector(&content);
+    let intr_dyn: &dyn crate::entities::introspector::Introspector = &intr;
+    let mut layouter =
+        Layouter::new(FixedMetrics, NullImageSizer, 10.0, intr_dyn.track());
+    layouter.layout_content(&content);
+    assert!(layouter.runtime.positions.contains_key(&parent));
+    assert!(layouter.runtime.positions.contains_key(&child));
+}
+
+#[test]
+fn unprepared_realized_origins_keep_fresh_index_fallback() {
+    use crate::compiler::introspect::introspect_chain_probe;
+    use crate::entities::content::RealizedContent;
+    use comemo::Track;
+    use std::sync::Arc;
+    let content = Content::Realized(Arc::new(RealizedContent {
+        original: Content::heading(1, Content::text("Original")),
+        visual: Content::text("Product"),
+    }));
+    let intr = crate::compiler::introspect::introspect_with_introspector(&content);
+    let intr_dyn: &dyn crate::entities::introspector::Introspector = &intr;
+    let mut layouter =
+        Layouter::new(FixedMetrics, NullImageSizer, 10.0, intr_dyn.track());
+    introspect_chain_probe::reset();
+    layouter.layout_content(&content);
+    assert!(!introspect_chain_probe::captured().is_empty());
+    assert!(!layouter.runtime.positions.is_empty());
+}
+
+thread_local! {
+    static CELL_SUB_FRAME_CALLS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+pub(super) fn record_cell_sub_frame() {
+    CELL_SUB_FRAME_CALLS.with(|count| count.set(count.get() + 1));
+}
+
+#[test]
+fn plain_auto_cells_reuse_measurement_products() {
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use crate::entities::layout_types::TrackSizing;
+    use comemo::Track;
+    let intr = TagIntrospector::empty();
+    let mut l = Layouter::new(
+        FixedMetrics,
+        NullImageSizer,
+        12.0,
+        (&intr as &dyn Introspector).track(),
+    );
+    let table = Content::table(
+        vec![TrackSizing::Auto; 2],
+        vec![TrackSizing::Auto],
+        vec![Content::text("Alpha"), Content::text("Beta")],
+    );
+    CELL_SUB_FRAME_CALLS.with(|count| count.set(0));
+    l.layout_content(&table);
+    assert!(l.last_sub_frame_width > 0.0);
+    assert_eq!(l.last_sub_frame_bottom, None);
+    let doc = l.finish();
+    assert!(doc.plain_text().contains("Alpha") && doc.plain_text().contains("Beta"));
+    CELL_SUB_FRAME_CALLS.with(|count| {
+        assert_eq!(count.get(), 2, "each simple Auto cell must build its body only once")
+    });
+}
+
+#[test]
+fn special_cell_geometry_preserves_subframe_fallback() {
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use crate::entities::layout_types::{Align2D, TrackSizing};
+    use comemo::Track;
+    let intr = TagIntrospector::empty();
+    for kind in 0..3 {
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            12.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        let cells = if kind == 2 {
+            vec![
+                Content::table_cell(Content::text("Alpha"), Some(1), None, None, None),
+                Content::text("Beta"),
+            ]
+        } else {
+            vec![Content::text("Alpha"), Content::text("Beta")]
+        };
+        let mut table = Content::table(
+            vec![TrackSizing::Auto; 2],
+            vec![if kind == 0 { TrackSizing::Fixed(30.0) } else { TrackSizing::Auto }],
+            cells,
+        );
+        if kind == 1 {
+            if let Content::Table(elem) = &mut table {
+                Arc::make_mut(elem).align =
+                    Some(Align2D { h: Some(HAlign::Center), v: None });
+            }
+        }
+        CELL_SUB_FRAME_CALLS.with(|count| count.set(0));
+        l.layout_content(&table);
+        let doc = l.finish();
+        assert!(doc.plain_text().contains("Alpha") && doc.plain_text().contains("Beta"));
+        CELL_SUB_FRAME_CALLS.with(|count| {
+            assert_eq!(
+                count.get(),
+                if kind == 0 {
+                    2
+                } else if kind == 1 {
+                    6
+                } else {
+                    4
+                },
+                "fallback kind {kind}"
+            )
+        });
+    }
+}
+
+#[test]
+fn smartquote_semantic_render_uses_context_not_independent_toggles() {
+    let content = Content::sequence(vec![
+        Content::text("6"),
+        Content::smartquote(false),
+        Content::Space,
+        Content::text("2"),
+        Content::smartquote(true),
+        Content::Parbreak,
+        Content::smartquote(true),
+        Content::text("A"),
+        Content::smartquote(true),
+        Content::Space,
+        Content::text("B"),
+        Content::smartquote(false),
+        Content::text("C"),
+        Content::smartquote(false),
+    ]);
+    let text = smartquote_rendered_text(&layout(&content));
+    assert!(text.contains("6′ 2″"), "{text}");
+    assert!(text.contains("“A” B’C’"), "{text}");
+}
+
+#[test]
+fn smartquote_semantic_render_styles_disabled_custom_and_checkpoint() {
+    use crate::entities::value::Value;
+    let quote_body = || {
+        Content::sequence(vec![
+            Content::smartquote(true),
+            Content::text("test"),
+            Content::smartquote(true),
+            Content::Space,
+            Content::smartquote(false),
+            Content::text("single"),
+            Content::smartquote(false),
+        ])
+    };
+    for (styles, expected) in [
+        (Styles::default(), "“test” ‘single’"),
+        (
+            Styles::default().push_custom("text.lang", Value::Str("de".into())),
+            "„test“ ‚single‘",
+        ),
+        (
+            Styles::default().push_custom("smartquote.enabled", Value::Bool(false)),
+            "\"test\" 'single'",
+        ),
+        (
+            Styles::default().push_custom("smartquote.quotes", Value::Str("«»".into())),
+            "«test» ‘single’",
+        ),
+    ] {
+        let doc = layout(&Content::styled(Box::new(quote_body()), styles));
+        assert_eq!(smartquote_rendered_text(&doc).trim(), expected);
+    }
+    use comemo::Track;
+    let intr = crate::entities::introspector::TagIntrospector::empty();
+    let mut l = Layouter::new(
+        FixedMetrics,
+        crate::entities::image_sizer::NullImageSizer,
+        11.0,
+        (&intr as &dyn crate::entities::introspector::Introspector).track(),
+    );
+    l.layout_content(&Content::smartquote(true));
+    l.layout_content(&Content::text("A"));
+    let checkpoint = l.capture_flow_suffix_checkpoint();
+    l.layout_content(&Content::smartquote(true));
+    l.layout_content(&Content::text("discard"));
+    l.restore_flow_suffix_checkpoint(checkpoint);
+    l.layout_content(&Content::smartquote(true));
+    assert_eq!(smartquote_rendered_text(&l.finish()), "“A”");
+}
+
+fn smartquote_rendered_text(doc: &PagedDocument) -> String {
+    doc.pages
+        .iter()
+        .flat_map(|p| frame_items_recursive(&p.items))
+        .filter_map(|item| match item {
+            FrameItem::Text { text, .. } | FrameItem::TextShaped { text, .. } => {
+                Some(text.to_string())
+            }
+            FrameItem::TextSeparator { .. } => Some(" ".into()),
+            FrameItem::TextReplacement { .. }
+            | FrameItem::Semantic { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. }
+            | FrameItem::Group { .. }
+            | FrameItem::Link { .. } => None,
+        })
+        .collect()
+}
+
+#[test]
+fn equation_where_realized_text_keeps_original_block_boundary() {
+    use crate::entities::content::RealizedContent;
+    for block in [true, false] {
+        let replacement = Content::Realized(std::sync::Arc::new(RealizedContent {
+            original: Content::equation(Content::text("b"), block),
+            visual: Content::text("DISPLAY"),
+        }));
+        let doc = layout(&Content::sequence(vec![
+            Content::text("Before"),
+            Content::Space,
+            replacement,
+            Content::Space,
+            Content::text("After"),
+        ]));
+        let ys: Vec<_> = frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
+            .filter_map(|item| {
+                if let FrameItem::Text { text, pos, .. } = item {
+                    if matches!(text.as_str(), "Before" | "DISPLAY" | "After") {
+                        return Some(pos.y.0);
+                    }
+                }
+                None
+            })
+            .collect();
+        assert_eq!(ys.len(), 3);
+        if block {
+            assert!(ys[0] < ys[1] && ys[1] < ys[2], "{ys:?}");
+        } else {
+            assert_eq!(ys, vec![ys[0]; 3]);
+        }
+    }
+}
+
+#[test]
+fn d08b3_nested_table_spacing_keeps_measured_and_emitted_content() {
+    let doc = layout_test(
+        "#show table.cell: it=>[CELL #it.body]\n#table(columns:1,table(columns:1,[a]))",
+    );
+    assert_eq!(doc.pages.len(), 1);
+    let terms: Vec<_> = frame_items_recursive(&doc.pages[0].items)
+        .into_iter()
+        .filter_map(|item| match item {
+            FrameItem::Text { text, pos, .. }
+            | FrameItem::TextShaped { text, pos, .. }
+                if matches!(text.as_str(), "CELL" | "a") =>
+            {
+                Some((text.as_str(), pos.y.0))
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(
+        terms.iter().map(|(s, _)| *s).collect::<Vec<_>>(),
+        vec!["CELL", "CELL", "a"]
+    );
+    assert!(terms[0].1 < terms[1].1);
+    assert_eq!(terms[1].1, terms[2].1);
+}
+
+#[test]
+fn raw_defaults_font_size_fill_and_restore() {
+    let doc = layout_test("#set text(fill:red)\nBefore `abc` After");
+    let words: Vec<_> = frame_items_recursive(&doc.pages[0].items)
+        .into_iter()
+        .filter_map(|i| match i {
+            FrameItem::Text { text, style, .. }
+            | FrameItem::TextShaped { text, style, .. } => Some((text.as_str(), style)),
+            _ => None,
+        })
+        .collect();
+    let raw = words.iter().find(|(t, _)| *t == "abc").unwrap().1;
+    assert!((raw.size.val() - 8.8).abs() < 1e-9);
+    assert_eq!(
+        raw.font.as_ref().unwrap().as_slice()[0].name.as_str(),
+        Some("dejavu sans mono")
+    );
+    assert_eq!(raw.fill, words.iter().find(|(t, _)| *t == "Before").unwrap().1.fill);
+    assert_eq!(words.iter().find(|(t, _)| *t == "After").unwrap().1.size.val(), 11.0);
+}
+
+#[test]
+fn raw_defaults_show_set_and_replacement() {
+    for (source, word, size, font) in [
+        ("#show raw: set text(size:15pt)\n`abc`", "abc", 15.0, "dejavu sans mono"),
+        ("#show raw: set text(size:1em)\n`abc`", "abc", 8.8, "dejavu sans mono"),
+        ("#show raw: set text(font: \"DejaVu Sans\")\n`abc`", "abc", 8.8, "dejavu sans"),
+        ("#show raw: it=>[ABC]\n`abc`", "ABC", 8.8, "dejavu sans mono"),
+    ] {
+        let doc = layout_test(source);
+        let style = frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
+            .find_map(|i| match i {
+                FrameItem::Text { text, style, .. }
+                | FrameItem::TextShaped { text, style, .. }
+                    if text.as_str() == word =>
+                {
+                    Some(style)
+                }
+                _ => None,
+            })
+            .unwrap();
+        assert!((style.size.val() - size).abs() < 1e-9, "{source}: {}", style.size.val());
+        assert_eq!(style.font.as_ref().unwrap().as_slice()[0].name.as_str(), Some(font));
+    }
+}
+
+#[test]
+fn raw_block_replacement_keeps_own_line() {
+    let doc = layout_test("#show raw: it=>[ABC]\nBefore\n```txt\nabc\n```\nAfter");
+    let words: Vec<_> = frame_items_recursive(&doc.pages[0].items)
+        .into_iter()
+        .filter_map(|i| match i {
+            FrameItem::Text { text, pos, .. }
+            | FrameItem::TextShaped { text, pos, .. }
+                if matches!(text.as_str(), "Before" | "ABC" | "After") =>
+            {
+                Some((text.as_str(), pos.y.0))
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(
+        words.iter().map(|(t, _)| *t).collect::<Vec<_>>(),
+        vec!["Before", "ABC", "After"]
+    );
+    assert!(words[0].1 < words[1].1 && words[1].1 < words[2].1, "{words:?}");
+}
+#[test]
+fn raw_block_cell_uses_local_origin() {
+    let doc = layout_test("#table(columns:1,[Before\n```txt\nabc\n```\nAfter])");
+    let words: Vec<_> = frame_items_recursive(&doc.pages[0].items)
+        .into_iter()
+        .filter_map(|i| match i {
+            FrameItem::Text { text, pos, .. }
+            | FrameItem::TextShaped { text, pos, .. }
+                if matches!(text.as_str(), "Before" | "abc" | "After") =>
+            {
+                Some((text.as_str(), pos.x.0))
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(words.len(), 3);
+    assert_eq!(words[0].1, words[1].1);
+    assert_eq!(words[1].1, words[2].1);
+}
+#[test]
+fn raw_block_unknown_language_keeps_line_boundaries() {
+    let doc = layout_test("Before\n```unknown\nabc\ndef\n```\nAfter");
+    let words: Vec<_> = frame_items_recursive(&doc.pages[0].items)
+        .into_iter()
+        .filter_map(|i| match i {
+            FrameItem::Text { text, pos, .. }
+            | FrameItem::TextShaped { text, pos, .. }
+                if !text.is_empty() =>
+            {
+                Some((text.as_str(), pos.y.0))
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(
+        words.iter().map(|(t, _)| *t).collect::<Vec<_>>(),
+        vec!["Before", "abc", "def", "After"]
+    );
+    assert!(words.windows(2).all(|w| w[0].1 < w[1].1), "{words:?}");
+}
+
+#[test]
+fn raw_block_strong_cell_keeps_same_row_geometry() {
+    fn positions(source: &str) -> Vec<(String, f64)> {
+        let doc = layout_test(source);
+        frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { text, pos, .. }
+                | FrameItem::TextShaped { text, pos, .. }
+                    if !text.is_empty() =>
+                {
+                    Some((text.to_string(), pos.y.0))
+                }
+                _ => None,
+            })
+            .collect()
+    }
+    assert_eq!(
+        positions("#table(columns:1,strong[```txt\nabc\n```],[After])"),
+        positions("#table(columns:1,[```txt\nabc\n```],[After])")
+    );
+}
+
+#[cfg(test)]
+mod c2r1_local_cell_tests {
+    use super::*;
+
+    fn cells(local: &str) -> PagedDocument {
+        layout_test(&format!("#set page(width:400pt,height:600pt,margin:24pt)\n#set text(size:10pt)\n#let c={{{local};table.cell[Local]}}\n#table(columns:2,c,c)"))
+    }
+
+    #[test]
+    fn c2r1_local_cell_preserves_insertion_text_size() {
+        let doc = cells("set table.cell(fill:red)");
+        let texts: Vec<_> = document_frame_items(&doc)
+            .into_iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { text, style, .. } if text == "Local" => {
+                    Some(style.size.0)
+                }
+                _ => None,
+            })
+            .collect();
+        assert_eq!(
+            texts,
+            vec![10.0, 10.0],
+            "local fill must not freeze the eval default size"
+        );
+    }
+
+    #[test]
+    fn c2r1_local_cell_auto_columns_do_not_overlap() {
+        let doc = cells("set table.cell(fill:red)");
+        let texts: Vec<_> = document_frame_items(&doc)
+            .into_iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { text, pos, style, .. } if text == "Local" => {
+                    Some((pos.x.0, pos.y.0, style.clone()))
+                }
+                _ => None,
+            })
+            .collect();
+        assert_eq!(texts.len(), 2);
+        assert!((texts[0].1 - texts[1].1).abs() < 1e-6, "same logical row: {texts:?}");
+        let width = FixedMetrics.text_width("Local", texts[0].2.size, &texts[0].2).0;
+        assert!(
+            texts[1].0 >= texts[0].0 + width,
+            "Auto must include the full Cell visual: {texts:?}, width={width}"
+        );
+    }
+
+    #[test]
+    fn c2r1_local_explicit_default_sized_text_still_overrides_insertion() {
+        let doc = cells("set table.cell(fill:red);set text(size:11pt)");
+        let sizes: Vec<_> = document_frame_items(&doc)
+            .into_iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { text, style, .. } if text == "Local" => {
+                    Some(style.size.0)
+                }
+                _ => None,
+            })
+            .collect();
+        assert_eq!(sizes, vec![11.0, 11.0]);
+    }
+}
+
+#[cfg(test)]
+mod place_origin_regressions {
+    use super::*;
+    use crate::entities::layout_types::TransformMatrix;
+
+    fn blue_shape_positions(
+        items: &[FrameItem],
+        transform: TransformMatrix,
+        out: &mut Vec<(f64, f64)>,
+    ) {
+        for item in items {
+            if let FrameItem::Shape { pos, width: 12.0, height: 8.0, .. } = item {
+                out.push((
+                    transform.a * pos.x.0 + transform.c * pos.y.0 + transform.tx,
+                    transform.b * pos.x.0 + transform.d * pos.y.0 + transform.ty,
+                ));
+            } else if let FrameItem::Group { pos, matrix, items, .. } = item {
+                let local = TransformMatrix::translate(pos.x.0, pos.y.0).concat(matrix);
+                blue_shape_positions(items, transform.concat(&local), out);
+            } else if let FrameItem::Link { items, .. } = item {
+                blue_shape_positions(items, transform, out);
+            } else if let FrameItem::Semantic { items, .. } = item {
+                blue_shape_positions(items, transform, out);
+            } else if let FrameItem::TextReplacement { items, .. } = item {
+                blue_shape_positions(items, transform, out);
+            }
+        }
+    }
+
+    fn expect_position(body: &str, expected: (f64, f64)) {
+        let source = format!("#set page(width:120pt,height:100pt,margin:10pt)\n{body}");
+        let doc = layout_test(&source);
+        assert!(doc.layout_errors.is_empty(), "{source}: {:?}", doc.layout_errors);
+        let mut points = Vec::new();
+        for page in &doc.pages {
+            blue_shape_positions(&page.items, TransformMatrix::identity(), &mut points);
+        }
+        assert_eq!(points.len(), 1, "{source}: {points:?}");
+        assert!(
+            (points[0].0 - expected.0).abs() < 1e-6
+                && (points[0].1 - expected.1).abs() < 1e-6,
+            "{source}: actual {:?}, expected {expected:?}",
+            points[0]
+        );
+    }
+
+    const PLACED: &str =
+        "#place(dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))";
+
+    #[test]
+    fn place_origin_box_has_no_font_strut() {
+        for size in [11, 20, 30] {
+            for (wrapper, expected) in [
+                (format!("#box(width:60pt,height:40pt)[{PLACED}]"), (17.0,15.0)),
+                (format!("#box(width:60pt,height:40pt,inset:3pt)[{PLACED}]"), (20.0,18.0)),
+                (format!("#box()[{PLACED}]"), (17.0,15.0)),
+                (format!("#box(width:80pt,height:60pt,inset:4pt)[#box(width:60pt,height:40pt,inset:3pt)[{PLACED}]]"), (24.0,22.0)),
+                (format!("#place(dx:17pt,dy:13pt,box(width:60pt,height:40pt)[{PLACED}])"), (34.0,28.0)),
+            ] { expect_position(&format!("#set text(size:{size}pt)\n{wrapper}"),expected); }
+        }
+    }
+
+    #[test]
+    fn place_origin_vertical_alignment_uses_body_extent_once() {
+        for (align, expected) in
+            [("bottom+right", (65.0, 47.0)), ("center+horizon", (41.0, 31.0))]
+        {
+            expect_position(&format!("#box(width:60pt,height:40pt)[#place({align},dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]"),expected);
+        }
+    }
+
+    #[test]
+    fn place_origin_pending_line_and_explicit_top_are_distinct() {
+        let edge = FixedMetrics.text_edges(Pt(11.0), &TextStyle::default()).0 .0;
+        expect_position(&format!("A{PLACED}"), (17.0, 15.0 + edge));
+        expect_position(
+            &format!("#box(width:60pt,height:40pt)[A{PLACED}]"),
+            (17.0, 15.0 + edge),
+        );
+        for wrapper in ["A#place(top,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))",
+            "#box(width:60pt,height:40pt)[A#place(top,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]"] {
+            expect_position(wrapper,(17.0,15.0));
+        }
+    }
+
+    #[test]
+    fn place_origin_preserves_legacy_align_and_cell_controls() {
+        for source in [
+            format!("#align(left)[#box(width:60pt,height:40pt)[{PLACED}]]"),
+            format!("#box(width:60pt,height:40pt)[#align(left)[{PLACED}]]"),
+            format!("#grid(columns:(60pt,),rows:(40pt,))[{PLACED}]"),
+            format!(
+                "#table(columns:(60pt,),rows:(40pt,),inset:0pt,stroke:none)[{PLACED}]"
+            ),
+        ] {
+            expect_position(&source, (17.0, 15.0));
+        }
+    }
+    #[test]
+    fn place_origin_nested_frames_and_checkpoint_restore_parent_reference() {
+        use comemo::Track;
+        let intr = crate::entities::introspector::TagIntrospector::empty();
+        let mut layouter = Layouter::new(
+            FixedMetrics,
+            crate::entities::image_sizer::NullImageSizer,
+            11.0,
+            (&intr as &dyn crate::entities::introspector::Introspector).track(),
+        );
+        layouter.is_sub_frame = true;
+        layouter.sub_frame_origin_y = 13.0;
+        layouter.record_flow_placement_end(13.0);
+        let block_region = crate::entities::layout_types::Rect {
+            x: Pt(3.0),
+            y: Pt(4.0),
+            w: Pt(50.0),
+            h: Pt(30.0),
+        };
+        layouter.block_place_region = Some(block_region);
+        layouter.block_place_decorations.push((2, 3, 5));
+        let checkpoint = layouter.capture_flow_suffix_checkpoint();
+        let region = super::super::sub_frame::SubLayoutRegion {
+            origin_x: 0.0,
+            width: 60.0,
+            height: Some(40.0),
+            align_rtl: false,
+            unconstrained_height: false,
+        };
+        let (_, items, _, _, _) = layouter
+            .layout_sub_frame_at_geometric_origin(&Content::text("child"), region);
+        assert!(!items.is_empty());
+        assert_eq!(layouter.block_place_region, Some(block_region));
+        assert_eq!(layouter.block_place_decorations, vec![(2, 3, 5)]);
+        layouter.block_place_region = None;
+        layouter.block_place_decorations.clear();
+        assert_eq!(layouter.sub_frame_origin_y, 13.0);
+        assert_eq!(layouter.flow_placement_y(), Some(13.0));
+        layouter.regions.current.cursor_y += Pt(1.0);
+        assert_eq!(layouter.flow_placement_y(), None);
+        layouter.sub_frame_origin_y = 29.0;
+        layouter.restore_flow_suffix_checkpoint(checkpoint);
+        assert_eq!(layouter.sub_frame_origin_y, 13.0);
+        assert!(layouter.is_sub_frame);
+        assert_eq!(layouter.flow_placement_y(), Some(13.0));
+        assert_eq!(layouter.block_place_region, Some(block_region));
+        assert_eq!(layouter.block_place_decorations, vec![(2, 3, 5)]);
+    }
+    #[test]
+    fn place_origin_align_preserves_horizontal_region() {
+        expect_position(&format!("#align(left)[{PLACED}]"), (17.0, 15.0));
+        expect_position(&format!("#align(left)[#align(left)[{PLACED}]]"), (17.0, 15.0));
+    }
+    #[test]
+    fn place_flow_follows_committed_lines_without_future_leading() {
+        let edge = FixedMetrics.text_edges(Pt(11.0), &TextStyle::default()).0 .0;
+        for prefix in ["A#linebreak()", "A\n\n"] {
+            expect_position(&format!("{prefix}{PLACED}"), (17.0, 15.0 + edge));
+            expect_position(
+                &format!("#box(width:80pt,height:100pt)[{prefix}{PLACED}]"),
+                (17.0, 15.0 + edge),
+            );
+        }
+    }
+    #[test]
+    fn place_flow_follows_shape_without_weak_below() {
+        let prefix = "#rect(width:20pt,height:12pt,fill:red,stroke:none)";
+        expect_position(&format!("{prefix}{PLACED}"), (17.0, 27.0));
+        expect_position(
+            &format!("#box(width:80pt,height:100pt)[{prefix}{PLACED}]"),
+            (17.0, 27.0),
+        );
+    }
+    #[test]
+    fn place_flow_uses_allocated_block_grid_and_explicit_space() {
+        for prefix in [
+            "#block(width:60pt,height:20pt)[]",
+            "#block(width:60pt,height:20pt)[A]",
+            "#grid(columns:(60pt,),rows:(20pt,))[A]",
+            "#v(20pt)",
+        ] {
+            expect_position(&format!("{prefix}{PLACED}"), (17.0, 35.0));
+            expect_position(
+                &format!("#box(width:80pt,height:100pt)[{prefix}{PLACED}]"),
+                (17.0, 35.0),
+            );
+        }
+    }
+    #[test]
+    fn place_flow_auto_textual_blocks_keep_the_causal_end() {
+        let edge = FixedMetrics.text_edges(Pt(11.0), &TextStyle::default()).0 .0;
+        for prefix in ["#block[A]", "#align(left)[A]"] {
+            expect_position(&format!("{prefix}{PLACED}"), (17.0, 15.0 + edge));
+            expect_position(
+                &format!("#box(width:80pt,height:100pt)[{prefix}{PLACED}]"),
+                (17.0, 15.0 + edge),
+            );
+        }
+    }
+    #[test]
+    fn place_flow_explicit_top_overlay_and_page_reset() {
+        let edge = FixedMetrics.text_edges(Pt(11.0), &TextStyle::default()).0 .0;
+        expect_position("A#linebreak()#place(top,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))", (17.0,15.0));
+        expect_position(&format!("A#linebreak()#place(dy:50pt,rect(width:3pt,height:2pt,fill:red,stroke:none)){PLACED}"), (17.0,15.0+edge));
+        expect_position(&format!("A#linebreak()#pagebreak(){PLACED}"), (17.0, 15.0));
+    }
+
+    #[test]
+    fn block_region_place_respects_insets_and_explicit_alignment() {
+        for (args, align, expected) in [
+            ("inset:3pt", "", (20.0, 18.0)),
+            ("inset:3pt", "bottom+right,", (62.0, 44.0)),
+            ("inset:3pt", "center+horizon,", (41.0, 31.0)),
+            ("inset:(left:4pt,top:6pt,right:8pt,bottom:10pt)", "", (21.0, 21.0)),
+            (
+                "inset:(left:4pt,top:6pt,right:8pt,bottom:10pt)",
+                "bottom+right,",
+                (57.0, 37.0),
+            ),
+        ] {
+            let body = format!("#block(width:60pt,height:40pt,{args})[#place({align}dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]");
+            expect_position(&body, expected);
+            expect_position(&format!("#box(width:90pt,height:70pt)[{body}]"), expected);
+        }
+        expect_position(&format!("#block(width:80pt,height:60pt,inset:4pt)[#block(width:60pt,height:40pt,inset:3pt)[{PLACED}]]"),(24.0,22.0));
+    }
+
+    #[test]
+    fn block_region_place_auto_height_and_pending_text_are_local() {
+        let edge = FixedMetrics.text_edges(Pt(11.0), &TextStyle::default()).0 .0;
+        expect_position("#block(width:60pt,inset:3pt)[#place(bottom+right,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]",(62.0,10.0));
+        expect_position(
+            &format!("#block(width:60pt,height:40pt,inset:3pt)[A{PLACED}]"),
+            (20.0, 18.0 + edge),
+        );
+        expect_position("#block(width:60pt,height:40pt,inset:3pt)[A#place(top,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]",(20.0,18.0));
+        expect_position(
+            &format!("#block(width:60pt,height:20pt,inset:3pt)[]{PLACED}"),
+            (17.0, 35.0),
+        );
+    }
+
+    #[test]
+    fn block_region_clip_uses_allocated_frame_and_local_children() {
+        let src = format!("#set page(width:120pt,height:100pt,margin:10pt)\n#block(width:60pt,height:40pt,inset:3pt,clip:true)[{PLACED}]");
+        let doc = layout_test(&src);
+        let (pos, w, h, items) = frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
+            .find_map(|i| {
+                if let FrameItem::Group {
+                    pos,
+                    inner_width,
+                    inner_height,
+                    clip_mask: Some(_),
+                    items,
+                    ..
+                } = i
+                {
+                    Some((pos, *inner_width, *inner_height, items))
+                } else {
+                    None
+                }
+            })
+            .expect("clip group");
+        assert_eq!((pos.x.0, pos.y.0, w, h), (10.0, 10.0, 60.0, 40.0));
+        let mut positions = Vec::new();
+        blue_shape_positions(items, TransformMatrix::identity(), &mut positions);
+        assert_eq!(positions, vec![(10.0, 8.0)]);
+        expect_position("#block(width:60pt,height:40pt,inset:3pt,clip:true)[#place(bottom+right,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]",(62.0,44.0));
+    }
+    #[test]
+    fn block_region_nested_percentages_resolve_against_inner_area() {
+        let body = "#block(width:80pt,height:60pt,inset:4pt)[#block(width:50%,height:50%,inset:3pt)[#place(bottom+right,dx:7pt,dy:5pt,rect(width:12pt,height:8pt,fill:blue,stroke:none))]]";
+        expect_position(body, (42.0, 34.0));
+        expect_position(&format!("#box(width:90pt,height:70pt)[{body}]"), (42.0, 34.0));
+    }
+}
+
+#[cfg(test)]
+mod paint_root_transport {
+    use super::*;
+    use crate::entities::elements::shape::ShapeElem;
+    use crate::entities::layout_types::{Color, TransformMatrix};
+    use crate::entities::sides::Sides;
+    use std::sync::Arc;
+
+    #[derive(Debug)]
+    struct Observation {
+        color: Color,
+        root: Option<(f64, f64)>,
+        position: Point,
+    }
+    fn observe(
+        items: &[FrameItem],
+        matrix: TransformMatrix,
+        root: Option<(f64, f64)>,
+        out: &mut Vec<Observation>,
+    ) {
+        for item in items {
+            match item {
+                FrameItem::Group {
+                    pos,
+                    matrix: local,
+                    paint_root,
+                    inner_width,
+                    inner_height,
+                    items,
+                    ..
+                } => {
+                    let transform = matrix
+                        .concat(&TransformMatrix::translate(pos.x.0, pos.y.0))
+                        .concat(local);
+                    let root = if *paint_root {
+                        Some((*inner_width, *inner_height))
+                    } else {
+                        root
+                    };
+                    observe(items, transform, root, out);
+                }
+                FrameItem::Shape { pos, fill, .. } => {
+                    if let Some(crate::entities::frame_paint::FramePaint::Solid(color)) =
+                        fill
+                    {
+                        let (x, y) = matrix.apply(pos.x.0, pos.y.0);
+                        out.push(Observation {
+                            color: color.clone(),
+                            root,
+                            position: Point { x: Pt(x), y: Pt(y) },
+                        });
+                    }
+                }
+                FrameItem::Semantic { items, .. } => observe(items, matrix, root, out),
+                FrameItem::TextReplacement { items, .. } => {
+                    observe(items, matrix, root, out)
+                }
+                FrameItem::Link { items, .. } => observe(items, matrix, root, out),
+                FrameItem::TextSeparator { .. } => {}
+                FrameItem::Text { .. } => {}
+                FrameItem::TextShaped { .. } => {}
+                FrameItem::Line { .. } => {}
+                FrameItem::Glyph { .. } => {}
+                FrameItem::Image { .. } => {}
+            }
+        }
+    }
+    fn shape() -> Content {
+        Content::Shape(Arc::new(ShapeElem {
+            kind: ShapeKind::Rect,
+            width: Some(Box::new(Value::Length(Length::pt(8.0)))),
+            height: Some(Box::new(Value::Length(Length::pt(6.0)))),
+            fill: Some(Paint::Solid(Color::rgb(255, 0, 0))),
+            stroke: None,
+            fill_rule: Default::default(),
+        }))
+    }
+    fn container(boxed: bool, clip: bool, body: Content) -> Content {
+        let mut content = if boxed {
+            Content::boxed(
+                body,
+                Some(Length::pt(60.0)),
+                Some(Length::pt(40.0)),
+                Sides::uniform(Length::pt(3.0)),
+                Length::ZERO,
+            )
+        } else {
+            Content::block(
+                body,
+                Some(Length::pt(60.0)),
+                Some(Length::pt(40.0)),
+                Sides::uniform(Length::pt(3.0)),
+                true,
+            )
+        };
+        match &mut content {
+            Content::Block(e) => {
+                let e = Arc::make_mut(e);
+                e.clip = clip;
+                e.fill = Some(Color::rgb(0, 0, 255));
+            }
+            Content::Boxed(e) => {
+                let e = Arc::make_mut(e);
+                e.clip = clip;
+                e.fill = Some(Color::rgb(0, 0, 255));
+            }
+            _ => unreachable!(),
+        }
+        content
+    }
+    fn observations(content: Content) -> Vec<Observation> {
+        let doc = layout(&content);
+        assert_eq!(doc.pages.len(), 1, "root fixture pages: {:#?}", doc.pages);
+        let mut result = Vec::new();
+        observe(&doc.pages[0].items, TransformMatrix::identity(), None, &mut result);
+        result
+    }
+    #[test]
+    fn box_body_has_its_own_root_but_its_backing_uses_the_parent() {
+        for clip in [false, true] {
+            check_container(true, clip);
+        }
+    }
+    #[test]
+    fn block_body_has_its_own_root_but_its_backing_uses_the_parent() {
+        for clip in [false, true] {
+            check_container(false, clip);
+        }
+    }
+    fn check_container(boxed: bool, clip: bool) {
+        let rows = observations(container(boxed, clip, shape()));
+        let child = rows.iter().find(|x| x.color == Color::rgb(255, 0, 0)).unwrap();
+        let backing = rows.iter().find(|x| x.color == Color::rgb(0, 0, 255)).unwrap();
+        assert_eq!(
+            child.root,
+            Some((60.0, 40.0)),
+            "body root must include inset: {rows:?}"
+        );
+        assert_eq!(backing.root, None, "backing inherits the outer root");
+        assert!((child.position.x.0 - backing.position.x.0 - 3.0).abs() < 1e-8);
+        assert!((child.position.y.0 - backing.position.y.0 - 3.0).abs() < 1e-8);
+    }
+    #[test]
+    fn transform_inside_box_inherits_the_box_root() {
+        let rows = observations(container(
+            true,
+            false,
+            Content::transform(TransformMatrix::rotate(0.3), shape()),
+        ));
+        let child = rows.iter().find(|x| x.color == Color::rgb(255, 0, 0)).unwrap();
+        assert_eq!(child.root, Some((60.0, 40.0)), "Transform is a soft group");
+    }
+    #[test]
+    fn translations_and_slicing_keep_both_kinds_of_group() {
+        for paint_root in [false, true] {
+            let group = FrameItem::Group {
+                paint_root,
+                pos: Point { x: Pt(2.0), y: Pt(25.0) },
+                matrix: TransformMatrix::scale(2.0, 3.0),
+                clip_mask: Some(ShapeKind::Rect),
+                inner_width: 30.0,
+                inner_height: 40.0,
+                items: Vec::new(),
+            };
+            let translated = super::super::helpers::translate_frame_item(
+                group.clone(),
+                Pt(8.0),
+                Pt(35.0),
+            );
+            let (_, tail) = super::super::slicing::slice_frame_items_at_height(
+                vec![group.clone()],
+                20.0,
+            );
+            let mut shifted = group;
+            super::super::helpers::offset_frame_item(&mut shifted, 4.0, -2.0);
+            for item in [translated, tail.into_iter().next().unwrap(), shifted] {
+                let FrameItem::Group {
+                    paint_root: actual,
+                    matrix,
+                    inner_width,
+                    inner_height,
+                    clip_mask,
+                    ..
+                } = item
+                else {
+                    panic!("group lost");
+                };
+                assert_eq!(actual, paint_root);
+                assert_eq!(matrix, TransformMatrix::scale(2.0, 3.0));
+                assert_eq!((inner_width, inner_height), (30.0, 40.0));
+                assert!(matches!(clip_mask, Some(ShapeKind::Rect)));
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod block_auto_width_regressions {
+    use super::*;
+
+    fn root_width(items: &[FrameItem]) -> Option<f64> {
+        for item in items {
+            if let FrameItem::Group { paint_root, inner_width, items, .. } = item {
+                if *paint_root {
+                    return Some(*inner_width);
+                }
+                if let Some(width) = root_width(items) {
+                    return Some(width);
+                }
+            }
+        }
+        None
+    }
+    fn widths(body: &str, clip: bool) -> (f64, f64) {
+        let source = format!("#set page(width:160pt,height:120pt,margin:0pt)\n#set text(size:10pt)\n#place(dx:17pt,dy:13pt,block(fill:blue,inset:7pt,clip:{clip})[{body}])");
+        let doc = layout_test(&source);
+        assert_eq!(doc.pages.len(), 1, "{source}");
+        let root = root_width(&doc.pages[0].items).expect("Block paint root");
+        let backing = document_frame_items(&doc)
+            .into_iter()
+            .find_map(|item| {
+                if let FrameItem::Shape { width, fill, .. } = item {
+                    if fill.as_ref().is_some_and(|paint| {
+                        if let crate::entities::frame_paint::FramePaint::Solid(color) =
+                            paint
+                        {
+                            let (r, g, b, _) = color.to_srgb();
+                            b > r && b > g
+                        } else {
+                            false
+                        }
+                    }) {
+                        return Some(*width);
+                    }
+                }
+                None
+            })
+            .expect("blue backing");
+        (root, backing)
+    }
+    #[test]
+    fn block_auto_width_uses_allocated_flow_not_available_region_or_overlay() {
+        const SHAPE: &str = "#rect(width:40pt,height:24pt,fill:red,stroke:none)";
+        const PLACE: &str =
+            "#place(dx:90pt,dy:2pt,rect(width:8pt,height:6pt,fill:red,stroke:none))";
+        for (body, expected) in [
+            (SHAPE.to_string(), 54.0),
+            (String::new(), 14.0),
+            (PLACE.to_string(), 14.0),
+            (format!("{SHAPE}{PLACE}"), 54.0),
+            (format!("#block(inset:3pt)[{SHAPE}]"), 60.0),
+            (format!("#block(width:70pt,inset:3pt)[{SHAPE}]"), 84.0),
+            ("#box(width:40pt,height:24pt,fill:red)[]".into(), 54.0),
+            ("#grid(columns:(20pt,30pt),gutter:4pt)[A][B]".into(), 68.0),
+            ("#stack(dir:ltr,spacing:4pt,box(width:20pt,height:10pt,fill:red),box(width:30pt,height:10pt,fill:red))".into(), 68.0),
+        ] {
+            for clip in [false, true] {
+                let (root, backing) = widths(&body, clip);
+                assert!((root - expected).abs() < 1e-8, "root {body}, clip={clip}: {root} != {expected}");
+                assert!((backing - expected).abs() < 1e-8, "backing {body}, clip={clip}: {backing} != {expected}");
+            }
+        }
+    }
+    #[test]
+    fn block_auto_width_keeps_literal_terminal_advance_but_not_markup_space() {
+        let plain = widths("ABC", false).0;
+        let markup = widths("ABC ", false).0;
+        let literal = widths("#\"ABC \"", false).0;
+        let advance = FixedMetrics
+            .advance(" ", Pt(10.0), &TextStyle { size: Pt(10.0), ..TextStyle::default() })
+            .0;
+        assert!((plain - markup).abs() < 1e-8);
+        assert!(
+            (literal - plain - advance).abs() < 1e-8,
+            "{plain}, {literal}, {advance}"
+        );
+    }
+
+    #[test]
+    fn block_auto_width_state_isolated_by_subframes_and_restored_by_checkpoint() {
+        use crate::entities::introspector::{Introspector, TagIntrospector};
+        use comemo::Track;
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.flow_frame_extent = (17.0, 23.0);
+        l.block_auto_width = true;
+        l.last_sub_frame_flow_width = 31.0;
+        let checkpoint = l.capture_flow_suffix_checkpoint();
+        let region = super::super::sub_frame::SubLayoutRegion {
+            origin_x: 5.0,
+            width: 80.0,
+            height: None,
+            align_rtl: false,
+            unconstrained_height: true,
+        };
+        l.layout_sub_frame_at_geometric_origin(&Content::text("ABC"), region);
+        assert_eq!(l.flow_frame_extent, (17.0, 23.0));
+        assert!(l.block_auto_width);
+        assert!(l.last_sub_frame_flow_width > 0.0);
+        l.flow_frame_extent = (200.0, 400.0);
+        l.block_auto_width = false;
+        l.restore_flow_suffix_checkpoint(checkpoint);
+        assert_eq!(l.flow_frame_extent, (17.0, 23.0));
+        assert!(l.block_auto_width);
+        assert_eq!(l.last_sub_frame_flow_width, 31.0);
+    }
+}
+
+#[cfg(test)]
+mod block_auto_alignment_regressions {
+    use super::*;
+    use crate::entities::layout_types::TransformMatrix;
+
+    fn red_positions(
+        items: &[FrameItem],
+        transform: TransformMatrix,
+        out: &mut Vec<(f64, f64)>,
+    ) {
+        for item in items {
+            if let FrameItem::Shape { pos, width: 40.0, height: 24.0, .. } = item {
+                out.push(transform.apply(pos.x.0, pos.y.0));
+            } else if let FrameItem::Group { pos, matrix, items, .. } = item {
+                let local = TransformMatrix::translate(pos.x.0, pos.y.0).concat(matrix);
+                red_positions(items, transform.concat(&local), out);
+            } else if let FrameItem::Link { items, .. }
+            | FrameItem::Semantic { items, .. }
+            | FrameItem::TextReplacement { items, .. } = item
+            {
+                red_positions(items, transform, out);
+            }
+        }
+    }
+    const SHAPE: &str = "#rect(width:40pt,height:24pt,fill:red,stroke:none)";
+    fn position(body: &str, clip: bool) -> (f64, f64) {
+        let source = format!("#set page(width:160pt,height:120pt,margin:0pt)\n#set text(size:10pt)\n#place(dx:17pt,dy:13pt,block(fill:blue,inset:7pt,clip:{clip})[{body}])");
+        let doc = layout_test(&source);
+        assert!(doc.layout_errors.is_empty(), "{source}: {:?}", doc.layout_errors);
+        assert_eq!(doc.pages.len(), 1);
+        let mut points = Vec::new();
+        red_positions(&doc.pages[0].items, TransformMatrix::identity(), &mut points);
+        assert_eq!(points.len(), 1, "{source}: {points:?}");
+        points[0]
+    }
+    #[test]
+    fn block_auto_alignment_uses_final_width_and_preserves_clip_position() {
+        for clip in [false, true] {
+            for align in ["left", "center", "right"] {
+                let p = position(&format!("#align({align})[{SHAPE}]"), clip);
+                assert_eq!(p, (24.0, 20.0), "{align}, clip={clip}");
+            }
+            for (align, x) in [("left", 24.0), ("center", 39.0), ("right", 54.0)] {
+                let p = position(&format!("#align({align})[{SHAPE}]#rect(width:70pt,height:5pt,fill:green,stroke:none)"),clip);
+                assert_eq!(p, (x, 20.0), "{align}, wider sibling, clip={clip}");
+            }
+        }
+    }
+    #[test]
+    fn block_auto_alignment_keeps_nested_fixed_and_link_scopes() {
+        for clip in [false, true] {
+            assert_eq!(
+                position(&format!("#block(inset:3pt)[#align(right)[{SHAPE}]]"), clip).0,
+                27.0
+            );
+            assert_eq!(
+                position(
+                    &format!("#block(width:100pt,inset:3pt)[#align(right)[{SHAPE}]]"),
+                    clip
+                )
+                .0,
+                81.0
+            );
+            assert_eq!(
+                position(
+                    &format!("#align(right)[#link(\"https://example.com\")[{SHAPE}]]"),
+                    clip
+                ),
+                (24.0, 20.0)
+            );
+            assert_eq!(
+                position(&format!("#underline[#align(right)[{SHAPE}]]"), clip),
+                (24.0, 20.0)
+            );
+        }
+    }
+}
+
+mod typed_transform_reflow_regression {
+    use super::*;
+
+    fn words(source: &str) -> Vec<(String, f64, f64)> {
+        let doc = layout_test(source);
+        frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { text, pos, .. }
+                | FrameItem::TextShaped { text, pos, .. }
+                    if ["ONE", "TWO", "THREE", "FOUR"].contains(&text.as_str()) =>
+                {
+                    Some((text.to_string(), pos.x.0, pos.y.0))
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn native_transform_logical_width_limits_overflow_without_clipping() {
+        let source = "#set page(margin:70pt)\n#block(width:25pt)[#scale(x:-100%,y:100%,reflow:true)[THREE]]";
+        let actual = words(source);
+        assert_eq!(actual.len(), 1);
+        assert!((actual[0].1 - 95.0).abs() < 1e-6, "{actual:?}");
+    }
+
+    #[test]
+    fn native_transform_logical_width_distinguishes_terminal_spaces() {
+        let make = |body: &str| {
+            words(&format!(
+                "#set page(margin:70pt)\n#scale(x:100pt,y:100%,origin:left+top)[{body}]"
+            ))
+        };
+        let plain = make("ONE TWO");
+        let weak = make("ONE TWO ");
+        let literal = make("#text(\"ONE TWO \")");
+        assert_eq!(plain.len(), 2);
+        assert_eq!(weak.len(), 2);
+        assert_eq!(literal.len(), 2);
+        assert!((plain[1].1 - weak[1].1).abs() < 1e-6, "{plain:?}, {weak:?}");
+        assert!(literal[1].1 < plain[1].1, "{plain:?}, {literal:?}");
+    }
+
+    #[test]
+    fn native_transform_logical_width_ignores_space_at_automatic_break() {
+        let actual = words("#set page(margin:70pt)\n#block(width:50pt)[#scale(x:100pt,y:100%,origin:left+top)[ONE TWO THREE FOUR]]");
+        assert_eq!(actual.len(), 4);
+        assert!(
+            (actual[1].1 - actual[0].1 - 100.0 * 4.0 / 7.0).abs() < 1e-6,
+            "{actual:?}"
+        );
+    }
+
+    #[test]
+    fn native_transform_logical_width_keeps_explicit_terminal_spacing() {
+        let actual = words("#set page(margin:70pt)\n#scale(x:100pt,y:100%,origin:left+top)[ONE TWO#h(20pt)]");
+        assert_eq!(actual.len(), 2);
+        let expected = 26.4 * 100.0 / (46.2 + 20.0);
+        assert!((actual[1].1 - actual[0].1 - expected).abs() < 1e-6, "{actual:?}");
+    }
+
+    #[test]
+    fn native_transform_logical_width_keeps_terminal_fraction() {
+        for (fraction, logical_width) in [(1, 160.0), (2, 160.0), (0, 46.2)] {
+            let actual = words(&format!("#set page(width:300pt,height:300pt,margin:70pt)\n#scale(x:100pt,y:100%,origin:left+top)[ONE TWO#h({fraction}fr)]"));
+            assert_eq!(actual.len(), 2);
+            assert!(
+                (actual[1].1 - actual[0].1 - 26.4 * 100.0 / logical_width).abs() < 1e-6,
+                "fraction={fraction}: {actual:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn scale_reflow_wraps_in_inverse_region_and_preserves_control() {
+        for prefix in ["", "#let s=scale\n#set s(200%,reflow:true)\n"] {
+            let call = if prefix.is_empty() { "scale(200%,reflow:true)" } else { "s" };
+            let actual = words(&format!(
+                "{prefix}#block(width:50pt)[#{call}[ONE TWO THREE FOUR]]"
+            ));
+            assert_eq!(
+                actual.iter().map(|p| p.0.as_str()).collect::<Vec<_>>(),
+                ["ONE", "TWO", "THREE", "FOUR"]
+            );
+            assert!(actual.windows(2).all(|p| p[1].2 > p[0].2), "{actual:?}");
+        }
+        let control =
+            words("#block(width:50pt)[#scale(200%,reflow:false)[ONE TWO THREE FOUR]]");
+        assert!((control[0].2 - control[1].2).abs() < 1e-6, "{control:?}");
+    }
+
+    #[test]
+    fn rotate_reflow_wraps_in_rotated_region() {
+        let actual = words("#set page(width:160pt,height:180pt,margin:10pt)\n#block(width:50pt)[#rotate(23deg,reflow:true)[ONE TWO THREE FOUR]]");
+        assert_eq!(actual.len(), 4, "{actual:?}");
+        let a = 23.0_f64.to_radians();
+        let baseline = |p: &(String, f64, f64)| p.2 * libm::cos(a) - p.1 * libm::sin(a);
+        assert!((baseline(&actual[0]) - baseline(&actual[2])).abs() < 1e-6, "{actual:?}");
+        assert!(baseline(&actual[3]) > baseline(&actual[2]), "{actual:?}");
+    }
+}
+
+#[test]
+fn local_word_wrap_threshold_does_not_inherit_page_margin() {
+    let doc = layout_test("#set page(margin:70pt)\n#box(width:10pt)[LONG WORD]");
+    let words: Vec<_> = frame_items_recursive(&doc.pages[0].items)
+        .into_iter()
+        .filter_map(|item| match item {
+            FrameItem::Text { text, pos, .. }
+            | FrameItem::TextShaped { text, pos, .. }
+                if ["LONG", "WORD"].contains(&text.as_str()) =>
+            {
+                Some((text.to_string(), pos.y.0))
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(words.len(), 2);
+    assert!(words[1].1 > words[0].1, "{words:?}");
+    assert!(
+        (words[0].1 - (70.0 + 11.0 * 0.7)).abs() < 1e-6,
+        "first word must not create an empty line: {words:?}"
+    );
+}
+
+mod relative_shape_dimensions_regressions {
+    use super::*;
+
+    fn dimensions(body: &str) -> Vec<(f64, f64)> {
+        let doc = layout_test(&format!(
+            "#set page(width:300pt,height:300pt,margin:70pt)\n{body}"
+        ));
+        assert!(doc.layout_errors.is_empty(), "{:?}", doc.layout_errors);
+        doc.pages
+            .iter()
+            .flat_map(|p| frame_items_recursive(&p.items))
+            .filter_map(|item| match item {
+                FrameItem::Shape { width, height, .. } => Some((*width, *height)),
+                _ => None,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn shape_dimensions_resolve_font_and_region_at_use() {
+        for (body, expected) in [
+            ("#rect(width:50%,height:25%,fill:red,stroke:none)", (80.0,40.0)),
+            ("#rect(width:50%+2em,height:25%+1em,fill:red,stroke:none)", (102.0,51.0)),
+            ("#set text(size:15pt)\n#rect(width:2em,height:1em,fill:red,stroke:none)", (30.0,15.0)),
+            ("#let r=rect(width:2em,height:1em,fill:red,stroke:none)\n#text(size:20pt)[#r]", (40.0,20.0)),
+        ] {
+            assert_eq!(dimensions(body), vec![expected], "{body}");
+        }
+    }
+
+    #[test]
+    fn shape_dimensions_keep_real_region_across_containers() {
+        let shape = "#rect(width:50%,height:50%,fill:red,stroke:none)";
+        for (body, expected) in [
+            (format!("#box(width:80pt,height:60pt)[{shape}]"),(40.0,30.0)),
+            (format!("#box(width:80pt)[{shape}]"),(40.0,80.0)),
+            (format!("#block(width:80pt,height:60pt,inset:5pt)[{shape}]"),(35.0,25.0)),
+            (format!("#block(width:80pt,inset:5pt)[{shape}]"),(35.0,75.0)),
+            (format!("#block(width:80pt,inset:5pt)[#rotate(0deg)[{shape}]]"),(35.0,75.0)),
+            (format!("#box(width:120pt,height:100pt)[#box(width:80pt,height:60pt)[{shape}]]"),(40.0,30.0)),
+        ] {
+            assert_eq!(dimensions(&body), vec![expected], "{body}");
+        }
+    }
+
+    #[test]
+    fn shape_dimensions_restore_parent_region_after_block() {
+        assert_eq!(dimensions("#block(width:80pt,height:60pt,inset:5pt)[#rect(width:50%,height:50%,fill:red,stroke:none)]#rect(width:50%,height:10%,fill:red,stroke:none)"),vec![(35.0,25.0),(80.0,16.0)]);
+    }
+
+    #[test]
+    fn shape_dimensions_keep_absolute_part_in_unbounded_region() {
+        assert_eq!(dimensions("#set page(width:auto,height:auto)\n#rect(width:50%+10pt,height:50%+10pt,fill:red,stroke:none)"),vec![(10.0,10.0)]);
+    }
 }

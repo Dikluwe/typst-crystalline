@@ -1,8 +1,7 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/p1431-line-cap-tests.md
-//! @prompt-hash 2881a1e4
+//! @prompt-hash 97d43eba
 //! @layer L3
-#![cfg(test)]
 
 use super::*;
 use std::num::NonZeroU16;
@@ -75,12 +74,14 @@ fn matrix_document(cap: Option<LineCap>) -> PagedDocument {
     };
     augment.insert("vline".into(), Value::Int(1));
     if let Some(cap) = cap {
-        let mut stroke = Stroke::default();
-        stroke.thickness = AUTO_STROKE_EM * DEFAULT_TEXT_SIZE_PT;
-        stroke.cap = cap;
+        let mut stroke = Stroke {
+            thickness: AUTO_STROKE_EM * DEFAULT_TEXT_SIZE_PT,
+            cap,
+            ..Stroke::default()
+        };
         stroke.specified.thickness = true;
         stroke.specified.cap = true;
-        augment.insert("stroke".into(), Value::Stroke(stroke));
+        augment.insert("stroke".into(), Value::from(stroke));
     }
     let mut args = Args::positional(vec![
         Value::Array(vec![cv("a"), cv("b")]),
@@ -110,7 +111,13 @@ fn first_line(items: &[FrameItem]) -> Option<FrameItem> {
                     return Some(line);
                 }
             }
-            _ => {}
+            FrameItem::TextReplacement { .. }
+            | FrameItem::TextSeparator { .. }
+            | FrameItem::Text { .. }
+            | FrameItem::TextShaped { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. } => {}
         }
     }
     None
@@ -127,6 +134,7 @@ fn isolated_page(
     page.foreground.clear();
     page.items = if local {
         vec![FrameItem::Group {
+            paint_root: false,
             pos: Point { x: Pt(0.0), y: Pt(0.0) },
             matrix: TransformMatrix::identity(),
             clip_mask: None,
@@ -139,7 +147,9 @@ fn isolated_page(
     };
     page
 }
-fn raster_line_page(document: &PagedDocument) -> typst_core::entities::layout_types::Page {
+fn raster_line_page(
+    document: &PagedDocument,
+) -> typst_core::entities::layout_types::Page {
     let mut page = isolated_page(document, false);
     let FrameItem::Line { start, end, thickness, .. } = &mut page.items[0] else {
         panic!("isolated raster witness must be a line");

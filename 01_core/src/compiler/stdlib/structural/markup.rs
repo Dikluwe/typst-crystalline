@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/markup.md
-//! @prompt-hash 211339da
+//! @prompt-hash 03e09568
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -126,7 +126,20 @@ pub fn native_raw(
         }
     };
 
-    Ok(Value::Content(Content::raw(text, lang, block)))
+    use crate::entities::elements::raw::{RawElem, RAW_SET_BLOCK, RAW_SET_LANG};
+    let mut set_fields = 0;
+    if matches!(args.named.get("block"), Some(Value::Bool(_))) {
+        set_fields |= RAW_SET_BLOCK;
+    }
+    if args.named.contains_key("lang") {
+        set_fields |= RAW_SET_LANG;
+    }
+    Ok(Value::Content(Content::Raw(std::sync::Arc::new(RawElem {
+        text,
+        lang,
+        block,
+        set_fields,
+    }))))
 }
 
 // ── `heading()` — função nativa + selector para show rules (P451) ───────────

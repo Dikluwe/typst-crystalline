@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/context_reads.md
-//! @prompt-hash cd3eac09
+//! @prompt-hash 0cfbc2ae
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-06
 
 use super::*;
 
@@ -79,12 +79,31 @@ pub(crate) enum ContextReadRequest {
     OutlineEntryPage {
         location: crate::entities::location::Location,
     },
-    OutlineEntryIndented {
+    OutlineEntryIndented(Box<OutlineEntryIndentedRead>),
+}
+
+#[derive(Clone)]
+pub(crate) struct OutlineEntryIndentedRead {
+    entry: crate::entities::content::Content,
+    prefix: Value,
+    inner: Value,
+    gap: crate::entities::layout_types::Length,
+}
+
+impl ContextReadRequest {
+    pub(crate) fn outline_entry_indented(
         entry: crate::entities::content::Content,
         prefix: Value,
         inner: Value,
         gap: crate::entities::layout_types::Length,
-    },
+    ) -> Self {
+        Self::OutlineEntryIndented(Box::new(OutlineEntryIndentedRead {
+            entry,
+            prefix,
+            inner,
+            gap,
+        }))
+    }
 }
 
 #[derive(Clone)]
@@ -157,7 +176,7 @@ impl EvalContext {
         fn contains_element(selector: &crate::entities::selector::Selector) -> bool {
             use crate::entities::selector::Selector;
             match selector {
-                Selector::Element { .. } => true,
+                Selector::NativeElement(_) | Selector::Element { .. } => true,
                 Selector::And(items) | Selector::Or(items) => {
                     items.iter().any(contains_element)
                 }
@@ -329,7 +348,9 @@ impl EvalContext {
                     &mut transaction,
                 )
             }
-            OutlineEntryIndented { entry, prefix, inner, gap } => {
+            OutlineEntryIndented(payload) => {
+                let OutlineEntryIndentedRead { entry, prefix, inner, gap } =
+                    payload.as_ref();
                 let mut scopes = crate::compiler::scopes::Scopes::new(None);
                 let mut named = indexmap::IndexMap::default();
                 named.insert("gap".into(), Value::Length(*gap));
@@ -423,7 +444,7 @@ impl EvalContext {
                 | ContextReadRequest::LocationPosition { .. }
                 | ContextReadRequest::LocationPageNumbering { .. }
                 | ContextReadRequest::OutlineEntryPage { .. } => continue,
-                ContextReadRequest::OutlineEntryIndented { .. } => continue,
+                ContextReadRequest::OutlineEntryIndented(_) => continue,
             };
             let projections: Vec<_> = history
                 .iter()
@@ -471,4 +492,22 @@ impl EvalContext {
 mod smoke {
     #[test]
     fn modulo_compila_e_carrega() {}
+}
+
+#[cfg(test)]
+mod storage_budget_tests {
+    use super::*;
+
+    #[test]
+    fn context_read_request_fits_common_value_budget() {
+        let request_bytes = std::mem::size_of::<ContextReadRequest>();
+        let record_bytes = std::mem::size_of::<ContextRead>();
+        let budget =
+            std::mem::size_of::<Value>() + std::mem::align_of::<ContextReadRequest>();
+        eprintln!("context-read-size request={request_bytes} record={record_bytes} budget={budget}");
+        assert!(
+            request_bytes <= budget,
+            "request storage {request_bytes} exceeds common-value budget {budget}; record={record_bytes}",
+        );
+    }
 }

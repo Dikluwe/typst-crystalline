@@ -1,8 +1,10 @@
 # L0 — text_tracking
-Hash do Código: 71f46335
+Hash do Código: 9025bbc5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:3b0c535436048536ecd3133fcf8299e88c128a62c222661f36b7bcc6d98a598c
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/text_tracking.rs`
@@ -59,3 +61,20 @@ Correção interna de paridade ADR-0127 em fluxo contínuo: sem contrato públic
 Possuir helper privado de intervalo terminal para linha RTL continuada. Examinar a última unidade textual material, ignorando carrier TextSeparator final e marcador HTML direto, e respeitar objeto/barreira, math e direção. Devolver tracking resolvido do seu próprio estilo, assinado; TextReplacement consulta último filho. Não oferecer ajuste para hebraico cujo desvio em 0pt vem de outra causa nem para espaços literais iniciais.
 
 Mudança interna ADR-0127 em fluxo contínuo, sem assinatura pública, default ou fase. Teste RED→GREEN e controles bilaterais, preservação dos terminais e LTR, build/lint sem erros e resselo restrito.
+
+## Migração do carrier bidi ratificado (2026-10-05)
+
+Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+
+
+## Guards de domínio explícitos — V17, 2026-10-16
+
+### Medição anterior à decisão
+
+T192: 01_core/src/compiler/layout/text_tracking.rs:98. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+
+### Responsabilidade exclusiva e aceitação
+
+Unir braços Text/TextShaped de continued_rtl_end e decidir no corpo não vazio, não math e direção RTL. Preservar sinal e resolução de tracking, zero fora do domínio, recursão TextReplacement e barreiras dos demais itens; match continua exaustivo.
+
+Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default, compatibilidade ou fase novos. A responsabilidade permanece somente no consumer exclusivo deste L0. Não criar helper apenas para esconder a conjunção, não adicionar supressões nem mudar a configuração do linter. Executar controles funcionais existentes antes do código e preservar seus esperados; o RED real é o gate V17 com 28 avisos, GREEN exige zero V17. Conferir caminhos de sucesso/fallback/erro, curto-circuito e efeitos; resselo restrito por owner. Revalidar build, suíte workspace completa, Clippy all-targets com warnings e expectativas não cumpridas como erro, formato, Rustdoc com warnings como erro, linhagem V1/V5/V15/V26 estrita/reversa e SARIF sem novos avisos. Executar sob 12 GiB, swap zero e um job. Não alegar ganho de memória/desempenho ou paridade global sem medição separada.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content/construction.md
-//! @prompt-hash f8546118
+//! @prompt-hash 4f8337af
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -31,11 +31,6 @@ impl Content {
         Self::Styled(Arc::new(StyledContent { body: *body.into(), styles }))
     }
 
-    /// Cria uma sequência, normalizando casos degenerados.
-    ///
-    /// - 0 partes → `Empty`
-    /// - 1 parte → desembrulha (evita `Sequence([x])`)
-    /// - n > 1 → `Sequence(parts)`
     /// Negrito (`*bold*`) — **F-5b fatia 1 (P371, §3a.12)**: produz a **variante
     /// própria** `Content::Strong` (modelo D), distinta de `Styled` (era
     /// `Styled([Bold])` no colapso P101, agora **superado** pelo modelo de
@@ -169,7 +164,9 @@ impl Content {
         Self::Dynamic(Arc::new(elem))
     }
     pub fn raw(text: impl Into<EcoString>, lang: Option<EcoString>, block: bool) -> Self {
-        Self::Raw(Arc::new(RawElem { text: text.into(), lang, block }))
+        use crate::entities::elements::raw::{RAW_SET_BLOCK, RAW_SET_LANG};
+        let set_fields = RAW_SET_BLOCK | if lang.is_some() { RAW_SET_LANG } else { 0 };
+        Self::Raw(Arc::new(RawElem { text: text.into(), lang, block, set_fields }))
     }
     /// `align(alignment, body)` — Modelo D (Lote 7 P322).
     pub fn align(alignment: Align2D, body: Content) -> Self {

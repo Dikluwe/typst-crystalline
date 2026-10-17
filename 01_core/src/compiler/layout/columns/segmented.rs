@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/columns/segmented.md
-//! @prompt-hash 1cdfa57b
+//! @prompt-hash cced08cc
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 
 use super::*;
 
@@ -11,11 +11,11 @@ pub(super) fn split_by_colbreak(content: &Content, count: usize) -> (Vec<Content
     // P1379 — `#set page(...)` transporta as propriedades da página num
     // único Styled exterior. Inspecionar o body para encontrar colbreaks e
     // reaplicar o mesmo wrapper uma vez por região irmã.
-    let (content, outer_styles) = match content {
+    let (content, outer_styles) = match content.source_body() {
         Content::Styled(styled) => (&styled.body, Some(&styled.styles)),
         other => (other, None),
     };
-    let children = match content {
+    let children = match content.source_body() {
         Content::Sequence(seq) => seq.iter().collect::<Vec<_>>(),
         Content::Empty => Vec::new(),
         other => vec![other],
@@ -59,7 +59,7 @@ pub(super) fn split_by_colbreak(content: &Content, count: usize) -> (Vec<Content
 /// que defina a propriedade sobre conteúdo visível. Recursão limitada a
 /// `Sequence` e `Styled` — elementos estruturais transparentes são ignorados.
 pub(super) fn body_dir(content: &Content) -> Option<Dir> {
-    match content {
+    match content.source_body() {
         Content::Styled(styled) => {
             let body = &styled.body;
             let styles = &styled.styles;
@@ -103,7 +103,7 @@ fn styles_dir(styles: &Styles) -> Option<Dir> {
 /// `true` se o content tiver algum conteúdo visível (texto, imagem, etc.),
 /// excluindo separadores estruturais (`Space`, `Parbreak`, `Pagebreak`, `Empty`).
 pub(super) fn has_visible_content(content: &Content) -> bool {
-    match content {
+    match content.source_body() {
         Content::Text(_) => true,
         Content::Sequence(seq) => seq.iter().any(has_visible_content),
         Content::Styled(styled) => has_visible_content(&styled.body),
@@ -166,6 +166,7 @@ pub(super) fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         // intocados enquanto a coluna é renderizada num buffer isolado).
         let saved_items = std::mem::take(&mut layouter.regions.current.current_items);
         let saved_line = std::mem::take(&mut layouter.regions.current.current_line);
+        layouter.open_link_segments();
         let saved_tracking = layouter.text_tracking_state.clone();
         let saved_cursor_x = layouter.regions.current.cursor_x;
         let saved_width = layouter.regions.current.width;
@@ -272,6 +273,7 @@ pub(super) fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         }
 
         // Recolher items da coluna e restaurar estado.
+        layouter.close_link_items();
         let mut column_items =
             std::mem::take(&mut layouter.regions.current.current_items);
         layouter.apply_pending_par_line_fixups(&mut column_items);

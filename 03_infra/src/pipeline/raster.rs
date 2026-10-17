@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/raster.md
-//! @prompt-hash e5862819
+//! @prompt-hash c70e0694
 //! @layer L3
 //! @updated 2026-09-26
 //!
@@ -79,7 +79,7 @@ pub fn compile_to_png_bytes_with_timings_full_error_and_features_and_ppi_overrid
             let pixel_per_pt = (effective_ppi / 72.0) as f32;
             let render_options =
                 crate::export::RenderOptions { pixel_per_pt, render_bleed: false };
-            let fonts = match resolve_and_instantiate_fonts(&doc, world) {
+            let fonts = match resolve_export_fonts(&doc, world) {
                 Ok(f) => f,
                 Err(diag) => {
                     timings.total_ms = timings.eval_ms

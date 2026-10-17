@@ -1,16 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/groups.md
-//! @prompt-hash b8cbcd7a
+//! @prompt-hash 8af8b7a2
 //! @layer L3
 //! @updated 2026-09-26
 
 use super::geometry::{path_items_to_svg, rounded_rect_path_data};
-use super::glyphs::GlyphDefs;
-use super::paints::PaintDefs;
 use super::serialization::fmt_num;
-use super::{render_item, FontKey, SvgDestinationContext, SvgGlyphFontContext};
+use super::{render_item, SvgRenderSession};
 use typst_core::entities::geometry::{PathItem, ShapeKind};
-use typst_core::entities::layout_types::{FrameItem, Point, Pt, TransformMatrix};
+use typst_core::entities::layout_types::{FrameItem, Point, Pt, Size, TransformMatrix};
 use xmlwriter::XmlWriter;
 
 pub(super) fn render_group(
@@ -18,19 +16,14 @@ pub(super) fn render_group(
     pos: &Point,
     matrix: &TransformMatrix,
     clip_mask: Option<&ShapeKind<typst_core::entities::layout_types::Pt>>,
-    inner_width: f64,
-    inner_height: f64,
+    size: Size,
     items: &[FrameItem],
-    fonts: Option<&[FontKey]>,
-    glyph_defs: &mut GlyphDefs,
-    paint_defs: &mut PaintDefs,
-    clip_next_id: &mut usize,
-    destinations: &SvgDestinationContext,
-    glyph_fonts: &SvgGlyphFontContext,
-    html_frame: bool,
+    session: &mut SvgRenderSession<'_>,
 ) {
+    let inner_width = size.width.0;
+    let inner_height = size.height.0;
     let clip = clip_mask.map(|kind| {
-        write_clip_definition(xml, kind, inner_width, inner_height, clip_next_id)
+        write_clip_definition(xml, kind, inner_width, inner_height, session.clip_next_id)
     });
     xml.start_element("g");
     let transform = if is_identity(matrix) {
@@ -55,17 +48,7 @@ pub(super) fn render_group(
         xml.write_attribute("data-crystalline-clip-fallback", reason);
     }
     for item in items {
-        render_item(
-            xml,
-            item,
-            fonts,
-            glyph_defs,
-            paint_defs,
-            clip_next_id,
-            destinations,
-            glyph_fonts,
-            html_frame,
-        );
+        render_item(xml, item, session);
     }
     xml.end_element();
 }

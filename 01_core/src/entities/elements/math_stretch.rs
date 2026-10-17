@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_stretch.md
-//! @prompt-hash f69c436b
+//! @prompt-hash 56f21269
 //! @layer L1
 
 use std::sync::Arc;
@@ -45,11 +45,9 @@ impl Element for MathStretchElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::math_stretch(
-            self.body.map_content(transform)?,
-            self.size,
-            self.size_explicit,
-        ))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathStretch(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -65,6 +63,26 @@ impl Element for MathStretchElem {
             "size" if self.size_explicit => Some(Value::Relative(self.size)),
             _ => None,
         }
+    }
+}
+
+impl MathStretchElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        if body.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        Ok(Some(Content::MathStretch(Arc::new(mapped))))
     }
 }
 

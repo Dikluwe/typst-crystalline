@@ -1,0 +1,96 @@
+{
+  "status": "pending human gate; candidates not installed",
+  "utc": "2026-10-06T20:41:59.800438+00:00",
+  "head": "06848cdcb5450f2c555626bf116bc7acd82bd82b",
+  "phase": "Mathy insertion normalized before show/introspection instead of textual fallback in layout",
+  "public_facade": "realize_math_insertions(Content, &mut EvalContext, &mut Engine) -> SourceResult<Content>",
+  "owners": [
+    {
+      "owner": "00_nucleo/prompts/compiler/realize/mod.md",
+      "consumer": "01_core/src/compiler/realize/mod.rs",
+      "candidate": "00_nucleo/materialization/math-bare-2026-10-06/l0/compiler/realize/mod.md",
+      "baseline_sha256": "eb87c31a81cad17686ddcd56d0c87d884869a546d393d322b35bce47862adf99",
+      "consumer_baseline_sha256": "7fe7a2e9258ae9dc4bfc11f43ef1f44fa3c4b90cec4e11617db69ee507a7efdb",
+      "candidate_sha256": "36adca4bdf5b7fa43571795bd1af0476f01a4e683fde58113285f33d83077eab",
+      "candidate_effective_sha256": "be2b237d1a19f7e486668e43b7c0a8e265be882b48bd6607a2e20953cf8b2148"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/realize/bare_math.md",
+      "consumer": "01_core/src/compiler/realize/bare_math.rs",
+      "candidate": "00_nucleo/materialization/math-bare-2026-10-06/l0/compiler/realize/bare_math.md",
+      "baseline_sha256": null,
+      "consumer_baseline_sha256": null,
+      "candidate_sha256": "f48a7bbc311c552df0377f6e86d084b70d38136333010bfd0cf806e42f54f203",
+      "candidate_effective_sha256": "d914ef6512c651c5916686a5f042c879cb28734a6fbb7f139560663a5acbf7c2"
+    },
+    {
+      "owner": "00_nucleo/prompts/entities/content/traversal.md",
+      "consumer": "01_core/src/entities/content/traversal.rs",
+      "candidate": "00_nucleo/materialization/math-bare-2026-10-06/l0/entities/content/traversal.md",
+      "baseline_sha256": "9a2d964ce1b931b4c4ed522b7f543af541b81380af7ac4586b83b14aad02a684",
+      "consumer_baseline_sha256": "265b9d16e9e5709ed4a91953e03d8356c8335e1202d8d029c9f4a93f6d8ff226",
+      "candidate_sha256": "52fa05b17bef8faa23206ea48501758a42608190ea4cb9d7c7aaa92416640435",
+      "candidate_effective_sha256": "f1c1f7f4c786a8f65659c4c10dc5a0f8a8f05b210ac7d6041c2f6298e08fe468"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/eval/rules/apply.md",
+      "consumer": "01_core/src/compiler/eval/rules/apply.rs",
+      "candidate": "00_nucleo/materialization/math-bare-2026-10-06/l0/compiler/eval/rules/apply.md",
+      "baseline_sha256": "be910c77216965a4ce6051e3205c93485e6428746a5d8f80c5cfb9d6be2469cf",
+      "consumer_baseline_sha256": "89723da36412d9ae0320915f8811e3f762fcc8651b24229afeb82d9066b67ac9",
+      "candidate_sha256": "3a3d904c8023dfa175740255ac6e38ac34e632cc8a7ccc1ba814c4781cc07be0",
+      "candidate_effective_sha256": "aeba2fcd778edf42a99ab01f3910ba3cad6586536666588e9d34c2b7ff1af840"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/eval/rules/show.md",
+      "consumer": "01_core/src/compiler/eval/rules/show.rs",
+      "candidate": "00_nucleo/materialization/math-bare-2026-10-06/l0/compiler/eval/rules/show.md",
+      "baseline_sha256": "b65b67d0b0611ca7d44eca5f78438922412a7807dd046ea78a6896a0bf23876a",
+      "consumer_baseline_sha256": "b7d815e3e19f2e47b3fef8847d405c3c749a7e76ef1a1e9e448381e9fe2e9cc4",
+      "candidate_sha256": "723f42f97737ac73ba6e542a22c65603b14193fdd34ac9595b1fb0592f4f0f22",
+      "candidate_effective_sha256": "4d745a13b6371540a0a12a97237cb743c29aaf5aae34c57c6b405809055f6d9c"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/layout/equation.md",
+      "consumer": "01_core/src/compiler/layout/equation.rs",
+      "candidate": "00_nucleo/materialization/math-bare-2026-10-06/l0/compiler/layout/equation.md",
+      "baseline_sha256": "50e6e292bbab56001219ec972fdf924df8e8fa29cc4be8a61e1a7ee9edab2ff2",
+      "consumer_baseline_sha256": "491b0a8b1045093866e2b84b7cc38d1df8ca03c2a1e395ca39c04e5e79933f99",
+      "candidate_sha256": "05f7a808f549f1f10028ebafd0c08f0716b6d6379deeaef544e5e4bd8d15ca0c",
+      "candidate_effective_sha256": "cfe325a872c6a095305055c0d69eab3b059751bbdd6bc87d64434706e91c5543"
+    },
+    {
+      "owner": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+      "consumer": "03_infra/src/pipeline/context_stabilization.rs",
+      "candidate": "00_nucleo/materialization/math-bare-2026-10-06/l0/infra/pipeline/context_stabilization.md",
+      "baseline_sha256": "b0f0b2cf1c615f629005b79f00160a1a6d72906ba4601e9086b62ad20565a943",
+      "consumer_baseline_sha256": "1d1bed989c30b8547850c64fbbaf83b0f2dab1821e15c889b28c0c20c0b2c9dd",
+      "candidate_sha256": "70686b8ae76edd2aa8e4f6ad08e7f4e55cf327d8630a7b314a3ef3dde73333f3",
+      "candidate_effective_sha256": "38821e2c79e6c7dcf2f5e6ad9ee0bf448e5b2ea2f07e6701f967e3165a749476"
+    },
+    {
+      "owner": "00_nucleo/prompts/compiler/eval/tests.md",
+      "consumer": "01_core/src/compiler/eval/tests.rs",
+      "candidate": "00_nucleo/materialization/math-bare-2026-10-06/l0/compiler/eval/tests.md",
+      "baseline_sha256": "47d2d940cf75e0b178f31c15113ffc757f2a22bb3aae82a0907232cac2bae9d4",
+      "consumer_baseline_sha256": "54e25a278afa618320a88ee383e3389814668f31e912baf20b9656b89f3a3515",
+      "candidate_sha256": "6bf0bd5fd334d40d97275002aedc7f405c8dc7037b475372c69e23d4fd46b9d9",
+      "candidate_effective_sha256": "6bf85dd6ffc0697c7f16aca99d9a9f5bd681b29a97ff01b8cf4bbedd1c709787"
+    },
+    {
+      "owner": "00_nucleo/prompts/infra/integration_tests.md",
+      "consumer": "03_infra/src/integration_tests.rs",
+      "candidate": "00_nucleo/materialization/math-bare-2026-10-06/l0/infra/integration_tests.md",
+      "baseline_sha256": "fd5d7755c8d9d4f2c9d3c843cc689e9711adf436d53a4e5b2399286f4994716c",
+      "consumer_baseline_sha256": "7ee4512738a8850c576b36da2ccea1dbc49264864b83e39c8ae3a8b1e9a535c6",
+      "candidate_sha256": "9080605ec8e4debc6b4e98c197a64b20055ca45df8f0fe5fa10885279a4861cf",
+      "candidate_effective_sha256": "27dd62423f4cc137b83628e94e78543eac9f807d7c18bf6f5542544e16020ec9"
+    }
+  ],
+  "nucleus": {
+    "target": "00_nucleo/prompts/_nuclei/math/bare-insertion.toml",
+    "candidate": "00_nucleo/materialization/math-bare-2026-10-06/nuclei/math/bare-insertion.toml",
+    "sha256": "1409be00b9feb8505e4d9c9375d549508fee5e18ff9a325e66fe343d0f225351",
+    "effective_sha256": "5cfb723d50e9518cdcee2df348927d02330b6019df96acef8394c1429cc950ff"
+  }
+}

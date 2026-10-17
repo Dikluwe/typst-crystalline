@@ -1,0 +1,58 @@
+[
+  {
+    "owner": "00_nucleo/prompts/infra/system-world.md",
+    "consumer": "03_infra/src/world.rs",
+    "candidate": "00_nucleo/materialization/watch-catalogo-2026-10-07/candidates/00_nucleo/prompts/infra/system-world.md",
+    "candidate_sha256": "0b484173613ad907bf5778d43df8c9ba7c538e172ffcdd01ed6decf02309a796",
+    "base_l0_sha256": "71f861639f70391047e0fef284cc6eeac2ef71d23c98f57ec8c9e931db45dee0",
+    "base_consumer_sha256": "0c95c581f6cb89c0df27d2593fd93f056694638bf4bb29bd5233d706bd5f8492"
+  },
+  {
+    "owner": "00_nucleo/prompts/infra/system-world/fonts.md",
+    "consumer": "03_infra/src/world/fonts.rs",
+    "candidate": "00_nucleo/materialization/watch-catalogo-2026-10-07/candidates/00_nucleo/prompts/infra/system-world/fonts.md",
+    "candidate_sha256": "105127901c566a13827a205509f8681f70ddf9b1c9629f1413622e8f782dcae8",
+    "base_l0_sha256": "8ff3c9e8e18996d09d4db9e28dfb246bc15ca86d2bca5aebd71eafb8827ce959",
+    "base_consumer_sha256": "f8e3a086adae497f5d354ded8773c192f2978cfe33a624116c76721b5c9722df"
+  },
+  {
+    "owner": "00_nucleo/prompts/infra/system-world/font_session.md",
+    "consumer": "03_infra/src/world/font_session.rs",
+    "candidate": "00_nucleo/materialization/watch-catalogo-2026-10-07/candidates/00_nucleo/prompts/infra/system-world/font_session.md",
+    "candidate_sha256": "c8a5107768155ea6e39cc19bf89fb38402ac0361b18ebe44705a277b93db47b5",
+    "base_l0_sha256": null,
+    "base_consumer_sha256": null
+  },
+  {
+    "owner": "00_nucleo/prompts/infra/fontdb.md",
+    "consumer": "03_infra/src/fontdb.rs",
+    "candidate": "00_nucleo/materialization/watch-catalogo-2026-10-07/candidates/00_nucleo/prompts/infra/fontdb.md",
+    "candidate_sha256": "37a354efd2473fddd90b1aa9ca400d7203f911cbcdbb0409cb9a69360e22098c",
+    "base_l0_sha256": "e6d7ba22c41ba1c45f9a907152a20c4a940dc7b5ab408bb049786bda59066464",
+    "base_consumer_sha256": "ef746fb8535fcb77c22e2a8b4d840037579df7217a1bb5c3f52289a824a486cb"
+  },
+  {
+    "owner": "00_nucleo/prompts/infra/fontdb/generation.md",
+    "consumer": "03_infra/src/fontdb/generation.rs",
+    "candidate": "00_nucleo/materialization/watch-catalogo-2026-10-07/candidates/00_nucleo/prompts/infra/fontdb/generation.md",
+    "candidate_sha256": "ca70c948e475291e32bacb1ecfedc61ae56e5d402ad56d3587ae0de4bfd75411",
+    "base_l0_sha256": null,
+    "base_consumer_sha256": null
+  },
+  {
+    "owner": "00_nucleo/prompts/wiring/compile.md",
+    "consumer": "04_wiring/src/compile.rs",
+    "candidate": "00_nucleo/materialization/watch-catalogo-2026-10-07/candidates/00_nucleo/prompts/wiring/compile.md",
+    "candidate_sha256": "4143f41a811ea970d8d420468cf71eaf82c56f132e90dfbbb56e449a0ba4ab68",
+    "base_l0_sha256": "ca7f12cc81b1e7a83d47a960ca4bce608abdbec5beeb3742074c66f3816fda0f",
+    "base_consumer_sha256": "03c27e8e34cde9d23837f6974fa7402b1979ac34a6f0b54450ee8bfc88e7b997"
+  },
+  {
+    "owner": "00_nucleo/prompts/wiring/watch.md",
+    "consumer": "04_wiring/src/watch.rs",
+    "candidate": "00_nucleo/materialization/watch-catalogo-2026-10-07/candidates/00_nucleo/prompts/wiring/watch.md",
+    "candidate_sha256": "93eb372f7a5965ec06bebfc92f0f9f03e270992477101f1c9b6e5ecbd68533c8",
+    "base_l0_sha256": "ba05d9e5b72e774c812ecafacbdae377595680846cfe0892115ca3c58e81f567",
+    "base_consumer_sha256": "bda2ac7124634fa6679d4f14f8443131c90f8b4c63e181f24f712779cd3add0c"
+  }
+]

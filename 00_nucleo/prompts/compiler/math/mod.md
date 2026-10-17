@@ -1,6 +1,6 @@
 # L0 — math/mod
-
 Hash do Código: 6d1cc5aa
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/mod.rs`

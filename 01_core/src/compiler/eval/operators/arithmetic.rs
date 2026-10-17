@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/operators/arithmetic.md
-//! @prompt-hash d37a4875
+//! @prompt-hash ac467b80
 //! @layer L1
-//! @updated 2026-08-12
+//! @updated 2026-10-08
 //!
 //!
 //! Braços aritméticos (`+` `-` `*` `/`), lógica booleana (`and`/`or`),
@@ -335,10 +335,15 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         // P492 — Length + Color / Color + Length → Stroke (paridade vanilla stroke syntax).
         (BinOp::Add, Value::Length(l), Value::Color(c))
         | (BinOp::Add, Value::Color(c), Value::Length(l)) => {
-            Ok(Value::Stroke(crate::entities::geometry::Stroke {
+            Ok(Value::from(crate::entities::geometry::Stroke {
                 paint: crate::entities::paint::Paint::Solid(c),
                 thickness: l.abs.to_pt(),
                 overhang: false,
+                specified: crate::entities::geometry::StrokeFields {
+                    paint: true,
+                    thickness: true,
+                    ..Default::default()
+                },
                 ..crate::entities::geometry::Stroke::default()
             }))
         }
@@ -346,7 +351,7 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         // fatia fecha Gradient nas duas ordens sem colapsar para primeira cor.
         (BinOp::Add, Value::Length(l), Value::Gradient(g))
         | (BinOp::Add, Value::Gradient(g), Value::Length(l)) => {
-            Ok(Value::Stroke(crate::entities::geometry::Stroke {
+            Ok(Value::from(crate::entities::geometry::Stroke {
                 paint: crate::entities::paint::Paint::Gradient(g),
                 thickness: l.abs.to_pt(),
                 overhang: false,
@@ -428,7 +433,7 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         // P492 — Relative + Color / Color + Relative → Stroke (usa parte absoluta).
         (BinOp::Add, Value::Relative(r), Value::Color(c))
         | (BinOp::Add, Value::Color(c), Value::Relative(r)) => {
-            Ok(Value::Stroke(crate::entities::geometry::Stroke {
+            Ok(Value::from(crate::entities::geometry::Stroke {
                 paint: crate::entities::paint::Paint::Solid(c),
                 thickness: r.abs.abs.to_pt(),
                 overhang: false,

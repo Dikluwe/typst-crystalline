@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/document.md
-//! @prompt-hash ae6fb453
+//! @prompt-hash 14c212ef
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -146,7 +146,43 @@ fn diagnostic_type_name(value: &Value) -> &str {
     match value {
         Value::Int(_) => "integer",
         Value::Bool(_) => "boolean",
-        _ => value.type_name(),
+        Value::None
+        | Value::Float(_)
+        | Value::Str(_)
+        | Value::Array(_)
+        | Value::Dict(_)
+        | Value::Module(_)
+        | Value::Datetime(_)
+        | Value::Func(_)
+        | Value::Content(_)
+        | Value::LocatedContent(_, _)
+        | Value::Auto
+        | Value::Length(_)
+        | Value::Relative(_)
+        | Value::Ratio(_)
+        | Value::Angle(_)
+        | Value::Color(_)
+        | Value::Stroke(_)
+        | Value::Fraction(_)
+        | Value::Align(_)
+        | Value::Location(_)
+        | Value::Gradient(_)
+        | Value::Regex(_)
+        | Value::Tiling(_)
+        | Value::Bytes(_)
+        | Value::Decimal(_)
+        | Value::Duration(_)
+        | Value::Version(_)
+        | Value::Selector(_)
+        | Value::Symbol(_)
+        | Value::Args(_)
+        | Value::State(_)
+        | Value::Counter(_)
+        | Value::Label(_)
+        | Value::Dir(_)
+        | Value::Path(_)
+        | Value::Type(_)
+        | Value::SpotColorant(_) => value.type_name(),
     }
 }
 
@@ -198,8 +234,7 @@ fn extract_string_list(value: &Value, field: &str) -> SourceResult<Vec<EcoString
                     ),
                 )]),
             })
-            .collect::<Result<Vec<_>, _>>()
-            .map_err(|e| e),
+            .collect::<Result<Vec<_>, _>>(),
         other => Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!(
@@ -212,3 +247,26 @@ fn extract_string_list(value: &Value, field: &str) -> SourceResult<Vec<EcoString
 }
 
 // ── P470 — native_list / native_enum ────────────────────────────────────────
+
+#[cfg(test)]
+mod v16_projection_tests {
+    use super::*;
+    use crate::entities::bytes::Bytes;
+
+    #[test]
+    fn v16_value_projection_document_diagnostics_keep_short_string_name() {
+        for (value, name) in [
+            (Value::Int(3), "integer"),
+            (Value::Bool(false), "boolean"),
+            (Value::Str("x".into()), "str"),
+            (Value::None, "none"),
+            (Value::Auto, "auto"),
+            (Value::Float(1.5), "float"),
+            (Value::Array(vec![]), "array"),
+            (Value::Content(Content::Empty), "content"),
+            (Value::Bytes(Bytes::new(vec![0, 255])), "bytes"),
+        ] {
+            assert_eq!(diagnostic_type_name(&value), name);
+        }
+    }
+}

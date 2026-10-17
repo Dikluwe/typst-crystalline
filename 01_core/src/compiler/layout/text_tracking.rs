@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/text_tracking.md
-//! @prompt-hash b3327bc8
+//! @prompt-hash 6c4e18a4
 //! @layer L1
 //! @updated 2026-09-29
 
@@ -96,15 +96,15 @@ pub(super) fn continued_rtl_end(
         }
         return match item {
             FrameItem::Text { text, style, .. }
-            | FrameItem::TextShaped { text, style, .. }
-                if !text.is_empty() && !style.math && style.dir == Some(Dir::RTL) =>
-            {
-                Pt(style.tracking.map(|t| t.resolve_pt(style.size.0)).unwrap_or(0.0))
+            | FrameItem::TextShaped { text, style, .. } => {
+                if !text.is_empty() && !style.math && style.dir == Some(Dir::RTL) {
+                    Pt(style.tracking.map(|t| t.resolve_pt(style.size.0)).unwrap_or(0.0))
+                } else {
+                    Pt(0.0)
+                }
             }
             FrameItem::TextReplacement { items, .. } => continued_rtl_end(items),
-            FrameItem::Text { .. }
-            | FrameItem::TextShaped { .. }
-            | FrameItem::Glyph { .. }
+            FrameItem::Glyph { .. }
             | FrameItem::Image { .. }
             | FrameItem::Shape { .. }
             | FrameItem::Group { .. }
@@ -130,15 +130,17 @@ mod tracking_tests {
                 pos: Point { x: Pt(0.0), y: Pt(0.0) },
                 text: "a".into(),
                 style: style.clone(),
+                bidi: None,
             };
             let space = FrameItem::TextSeparator {
                 pos: Point { x: Pt(0.0), y: Pt(0.0) },
                 advance: Pt(3.0),
                 style: style.clone(),
                 origin: TextSeparatorOrigin::Literal,
+                bidi: None,
             };
             assert_eq!(boundary(&[], &style), Pt(0.0));
-            assert_eq!(boundary(&[text.clone()], &style), Pt(t));
+            assert_eq!(boundary(std::slice::from_ref(&text), &style), Pt(t));
             assert_eq!(boundary(&[text.clone(), space.clone(), space], &style), Pt(t));
             assert_eq!(
                 boundary(
@@ -156,6 +158,7 @@ mod tracking_tests {
             pos: Point { x: Pt(0.0), y: Pt(0.0) },
             text: "a".into(),
             style: style.clone(),
+            bidi: None,
         };
         style.size = Pt(20.0);
         assert_eq!(boundary(&[text], &style), Pt(0.0));
@@ -171,12 +174,14 @@ mod tracking_tests {
                 pos: Point { x: Pt(0.0), y: Pt(0.0) },
                 text: "abc".into(),
                 style: style.clone(),
+                bidi: None,
             };
             let separator = FrameItem::TextSeparator {
                 pos: Point { x: Pt(0.0), y: Pt(0.0) },
                 advance: Pt(3.0),
                 style: style.clone(),
                 origin: TextSeparatorOrigin::Markup,
+                bidi: None,
             };
             assert_eq!(boundary(&[], &style), Pt(0.0));
             assert_eq!(boundary(&[text], &style), Pt(t));

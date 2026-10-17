@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/calc/abs.md
-//! @prompt-hash fa0c6461
+//! @prompt-hash 13ee9da4
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-17
 
 use super::*;
 
@@ -65,7 +65,43 @@ pub(crate) fn calc_abs(
             let found = match other {
                 Value::Str(_) => "string",
                 Value::Bool(_) => "boolean",
-                _ => other.type_name(),
+                Value::None
+                | Value::Int(_)
+                | Value::Float(_)
+                | Value::Array(_)
+                | Value::Dict(_)
+                | Value::Module(_)
+                | Value::Datetime(_)
+                | Value::Func(_)
+                | Value::Content(_)
+                | Value::LocatedContent(_, _)
+                | Value::Auto
+                | Value::Length(_)
+                | Value::Relative(_)
+                | Value::Ratio(_)
+                | Value::Angle(_)
+                | Value::Color(_)
+                | Value::Stroke(_)
+                | Value::Fraction(_)
+                | Value::Align(_)
+                | Value::Location(_)
+                | Value::Gradient(_)
+                | Value::Regex(_)
+                | Value::Tiling(_)
+                | Value::Bytes(_)
+                | Value::Decimal(_)
+                | Value::Duration(_)
+                | Value::Version(_)
+                | Value::Selector(_)
+                | Value::Symbol(_)
+                | Value::Args(_)
+                | Value::State(_)
+                | Value::Counter(_)
+                | Value::Label(_)
+                | Value::Dir(_)
+                | Value::Path(_)
+                | Value::Type(_)
+                | Value::SpotColorant(_) => other.type_name(),
             };
             let span = args
                 .occurrences
@@ -137,5 +173,65 @@ mod tests {
     #[test]
     fn preserves_modeled_result() {
         assert_eq!(call(calc_abs, vec![Value::Int(-7)]).unwrap(), Value::Int(7));
+    }
+
+    #[test]
+    fn v16_abs_language_aliases_keep_complete_error_and_detached_origin() {
+        for (value, name) in
+            [(Value::Str("x".into()), "string"), (Value::Bool(false), "boolean")]
+        {
+            let errors = call(calc_abs, vec![value]).unwrap_err();
+            assert_eq!(errors.len(), 1);
+            assert_eq!(errors[0].message, format!("expected integer, float, length, angle, ratio, fraction, or decimal, found {name}"));
+            assert_eq!(errors[0].span, Span::detached());
+        }
+    }
+    #[test]
+    fn v16_abs_nominal_families_keep_canonical_error_names() {
+        for (value, name) in [
+            (Value::None, "none"),
+            (Value::Auto, "auto"),
+            (Value::Array(vec![]), "array"),
+            (Value::Dict(Default::default()), "dictionary"),
+            (Value::Color(crate::entities::layout_types::Color::rgb(255, 0, 0)), "color"),
+            (Value::Type(crate::entities::value::Type::Int), "type"),
+        ] {
+            let errors = call(calc_abs, vec![value]).unwrap_err();
+            assert_eq!(errors[0].message,format!("expected integer, float, length, angle, ratio, fraction, or decimal, found {name}"));
+        }
+    }
+    #[test]
+    fn v16_abs_invalid_value_and_overflow_precede_leftovers() {
+        for (value,message) in [
+            (Value::Bool(false),"expected integer, float, length, angle, ratio, fraction, or decimal, found boolean"),
+            (Value::Int(i64::MIN),"the result is too large"),
+        ] {
+            let errors=call(calc_abs,vec![value,Value::Int(2)]).unwrap_err();
+            assert_eq!(errors[0].message,message);
+        }
+    }
+    #[test]
+    fn v16_abs_kinds_zero_sign_and_length_domain_remain() {
+        use crate::entities::decimal::Decimal;
+        for (value, expected) in [
+            (Value::Int(-3), Value::Int(3)),
+            (
+                Value::Decimal(Decimal::from_str("-2.5").unwrap()),
+                Value::Decimal(Decimal::from_str("2.5").unwrap()),
+            ),
+            (Value::Length(Length::pt(-3.0)), Value::Length(Length::pt(3.0))),
+            (Value::Length(Length::em(-2.0)), Value::Length(Length::em(2.0))),
+        ] {
+            assert_eq!(call(calc_abs, vec![value]).unwrap(), expected);
+        }
+        let Value::Float(zero) = call(calc_abs, vec![Value::Float(-0.0)]).unwrap() else {
+            panic!("kind changed")
+        };
+        assert_eq!(zero, 0.0);
+        assert!(zero.is_sign_positive());
+        let errors =
+            call(calc_abs, vec![Value::Length(Length { abs: Abs::pt(-3.0), em: -2.0 })])
+                .unwrap_err();
+        assert_eq!(errors[0].message, "cannot take absolute value of this length");
     }
 }

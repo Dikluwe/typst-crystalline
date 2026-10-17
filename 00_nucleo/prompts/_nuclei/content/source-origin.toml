@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "content-source-origin"
+title = "Origem transparente do conteúdo lexical"
+
+[[claims]]
+id = "first-origin"
+level = "must"
+statement = "A origem Source assenta somente um span causal comprovado; clones, aliases e spreads conservam a primeira origem, sem buscar nomes, texto ou igualdade para fabricar spans. Constructors que já têm origem conservam-na."
+
+[[claims]]
+id = "language-transparency"
+level = "must"
+statement = "Source não é elemento novo da linguagem: identidade, campos, func, repr, serialização, igualdade e morfologia observam seu body. A origem é causal e pode distinguir observação conservadora de cache."
+
+[[claims]]
+id = "single-occurrence"
+level = "must"
+statement = "Source transporta uma ocorrência do body; travessia, realização, layout e introspecção não duplicam callbacks, efeitos, geometry ou contribuição por causa do wrapper. Clones preservam span e transformação preserva origem."
+
+[[claims]]
+id = "no-location"
+level = "must-not"
+statement = "Source não fabrica Location ou produtor introspectável independente, não move lógica entre eval e layout e não autoriza I/O em L1."

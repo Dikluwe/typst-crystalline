@@ -1,5 +1,5 @@
 # L0 — tracking
-Hash do Código: d1e7570e
+Hash do Código: 3dd060a6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:3b0c535436048536ecd3133fcf8299e88c128a62c222661f36b7bcc6d98a598c

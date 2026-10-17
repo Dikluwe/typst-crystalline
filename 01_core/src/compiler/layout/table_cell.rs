@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/table_cell.md
-//! @prompt-hash c9d8a481
+//! @prompt-hash c3c323e9
 //! @layer L1
-//! @updated 2026-06-19
+//! @updated 2026-10-07
 //!
 //! Atomização (ADR-0109, P380): o layout de `TableCellElem` movido do monólito
 //! `layout_content` para o arquivo da feature (forma B). Content-preserving.
@@ -16,5 +16,30 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &TableCellElem,
 ) {
-    layouter.layout_content(&e.body);
+    if let Some(resolved) = &e.resolved {
+        let nonzero = resolved.inset
+            != crate::entities::sides::Sides::uniform(
+                crate::entities::layout_types::Length::ZERO,
+            );
+        if nonzero
+            && super::html_frame::items_have_material(
+                &layouter.regions.current.current_line,
+            )
+        {
+            let mut visual = e.visual().clone();
+            if let Some(align) = resolved.align {
+                visual = crate::entities::content::Content::align(align, visual);
+            }
+            let body = crate::entities::content::Content::block(
+                visual,
+                None,
+                None,
+                resolved.inset,
+                resolved.breakable,
+            );
+            layouter.layout_content(&body);
+            return;
+        }
+    }
+    layouter.layout_content(e.visual());
 }

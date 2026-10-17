@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/font_book.md
-//! @prompt-hash 8d6189f1
+//! @prompt-hash 321eb599
 //! @layer L1
-//! @updated 2026-07-31
+//! @updated 2026-10-07
 
 use unicode_segmentation::UnicodeSegmentation;
 
@@ -171,21 +171,23 @@ impl Coverage {
     /// The vector API and canonical alternating gap/count encoding are retained.
     pub fn from_codepoints(codepoints: impl Into<Vec<u32>>) -> Self {
         let mut intervals: Vec<(u32, u32)> = Vec::new();
-        for codepoint in codepoints.into() {
-            if let Some((start, end)) = intervals.last_mut() {
-                if (*start..=*end).contains(&codepoint) {
-                    continue;
-                }
-                if end.checked_add(1) == Some(codepoint) {
-                    *end = codepoint;
-                    continue;
-                }
-                if codepoint.checked_add(1) == Some(*start) {
-                    *start = codepoint;
-                    continue;
+        let mut points = codepoints.into().into_iter();
+        if let Some(mut start) = points.next() {
+            let mut end = start;
+            for point in points {
+                if end.checked_add(1) == Some(point) {
+                    end = point;
+                } else if (start..=end).contains(&point) {
+                    // Already covered by the active interval.
+                } else if point.checked_add(1) == Some(start) {
+                    start = point;
+                } else {
+                    intervals.push((start, end));
+                    start = point;
+                    end = point;
                 }
             }
-            intervals.push((codepoint, codepoint));
+            intervals.push((start, end));
         }
         intervals.sort_unstable_by_key(|&(start, _)| start);
 
@@ -202,6 +204,43 @@ impl Coverage {
                 runs.extend([start - next, end - start]);
             }
             next = end;
+        }
+        Self(runs)
+    }
+
+    /// Build the exact union of half-open integer ranges.
+    /// Empty/reversed ranges contribute no members.
+    pub fn from_ranges(ranges: impl IntoIterator<Item = std::ops::Range<u32>>) -> Self {
+        let mut compact = Vec::new();
+        let mut input = ranges.into_iter().filter(|range| range.start < range.end);
+        if let Some(first) = input.next() {
+            let mut start = first.start;
+            let mut end = first.end;
+            for range in input {
+                if range.start <= end && start <= range.end {
+                    start = start.min(range.start);
+                    end = end.max(range.end);
+                } else {
+                    compact.push(start..end);
+                    start = range.start;
+                    end = range.end;
+                }
+            }
+            compact.push(start..end);
+        }
+        compact.sort_unstable_by_key(|range| range.start);
+        let mut runs = Vec::new();
+        let mut next = 0;
+        for range in compact {
+            if range.end <= next {
+                continue;
+            }
+            if range.start <= next && !runs.is_empty() {
+                *runs.last_mut().unwrap() += range.end - next;
+            } else {
+                runs.extend([range.start - next, range.end - range.start]);
+            }
+            next = range.end;
         }
         Self(runs)
     }
@@ -858,5 +897,81 @@ mod tests {
         });
         let found: Vec<usize> = book.candidates_for_char('α').collect();
         assert!(found.is_empty());
+    }
+}
+
+#[cfg(test)]
+mod range_constructor_tests {
+    use super::Coverage;
+    use std::{collections::BTreeSet, ops::Range};
+
+    #[test]
+    fn range_constructor_unions_unordered_overlapping_adjacent_and_empty_ranges() {
+        let cases: Vec<Vec<Range<u32>>> = vec![
+            vec![],
+            vec![0..1],
+            vec![12..16, 2..5, 4..12, 3..3, Range { start: 8, end: 2 }, 12..16],
+            vec![100..200, 0..20, 20..100],
+            vec![0x10ffff..0x110000, 1..2],
+        ];
+        for input in cases {
+            let expected: BTreeSet<u32> = input.iter().cloned().flatten().collect();
+            let coverage = Coverage::from_ranges(input.clone());
+            assert_eq!(
+                coverage.iter().collect::<BTreeSet<_>>(),
+                expected,
+                "input={input:?}"
+            );
+            assert_eq!(
+                coverage.iter().collect::<Vec<_>>(),
+                expected.iter().copied().collect::<Vec<_>>()
+            );
+            for point in [
+                0, 1, 2, 5, 11, 12, 19, 20, 99, 100, 199, 200, 0x10fffe, 0x10ffff,
+                0x110000,
+            ] {
+                assert_eq!(coverage.contains(point), expected.contains(&point));
+            }
+            assert_eq!(coverage.is_empty(), expected.is_empty());
+        }
+    }
+
+    #[test]
+    fn range_constructor_matches_point_api_and_hash_under_permutations() {
+        use std::hash::{Hash, Hasher};
+        let hash = |c: &Coverage| {
+            let mut h = std::collections::hash_map::DefaultHasher::new();
+            c.hash(&mut h);
+            h.finish()
+        };
+        for seed in 0..32u32 {
+            let mut ranges: Vec<_> = (0..20u32)
+                .map(|i| {
+                    let start = (i * 17 + seed * 11) % 97;
+                    start..start + (i % 9)
+                })
+                .collect();
+            let oracle = Coverage::from_codepoints(
+                ranges.iter().cloned().flatten().collect::<Vec<_>>(),
+            );
+            for _ in 0..3 {
+                let c = Coverage::from_ranges(ranges.clone());
+                assert_eq!(c, oracle);
+                assert_eq!(hash(&c), hash(&oracle));
+                ranges.rotate_left(3);
+                ranges.reverse();
+            }
+        }
+    }
+
+    #[test]
+    fn range_constructor_preserves_full_unicode_and_neutral_upper_endpoint() {
+        let c = Coverage::from_ranges(std::iter::once(0..0x110000));
+        assert_eq!(c.iter().count(), 0x110000);
+        assert!(c.contains(0) && c.contains(0x10ffff));
+        assert!(!c.contains(0x110000));
+        let c = Coverage::from_ranges(std::iter::once(u32::MAX - 2..u32::MAX));
+        assert_eq!(c.iter().collect::<Vec<_>>(), vec![u32::MAX - 2, u32::MAX - 1]);
+        assert!(!c.contains(u32::MAX));
     }
 }

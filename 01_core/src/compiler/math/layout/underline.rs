@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/underline.md
-//! @prompt-hash 25e1864a
+//! @prompt-hash 63cc65e7
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -54,7 +54,14 @@ pub(super) fn layout<M: FontMetrics>(
             FrameItem::Text { text, style, .. } => text.chars().last().map(|c| {
                 layouter.metrics.char_italics_correction(c, style.size, style).val()
             }),
-            _ => None,
+            FrameItem::TextReplacement { .. }
+            | FrameItem::TextSeparator { .. }
+            | FrameItem::Semantic { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. }
+            | FrameItem::Group { .. }
+            | FrameItem::Link { .. } => None,
         })
         .unwrap_or(0.0);
     let line_width = (body.width - italics_correction).max(0.0);

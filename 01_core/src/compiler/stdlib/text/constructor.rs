@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/text/constructor.md
-//! @prompt-hash a835d8d8
+//! @prompt-hash b5a5ed9d
 //! @layer L1
 //! @updated 2026-09-28
 //!
@@ -21,7 +21,7 @@ use crate::entities::file_id::FileId;
 use crate::entities::font_book::FontWeight;
 use crate::entities::font_list::{FontFamily, FontList};
 use crate::entities::lang::Lang;
-use crate::entities::layout_types::{Color, Length, Pt};
+use crate::entities::layout_types::Length;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::style::{Style, Styles};
@@ -31,73 +31,104 @@ use crate::entities::value::Value;
 
 /// `text(...)` — constructor de elemento de texto (parcial).
 ///
-/// P492: suporta `text(red, it)` (fill posicional inferido por tipo) e
-/// `text(fill: red, it)`. Aceita body como `Content` ou `Str`.
+/// Size e fill posicionais são encontrados por tipo, com preferência nomeada.
+/// O corpo restante aceita `Content`, `Str` ou `None`.
 pub fn native_text(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    // Determinar fill: named arg prevalece; senão, primeiro posicional Color.
-    let mut fill: Option<Color> = None;
-    let mut body_idx = 0usize;
+    let mut remaining = args.clone();
+    let mut styles = Styles::new();
 
-    if let Some(v) = args.named.get("fill") {
-        fill = match v {
-            Value::None => None,
-            Value::Color(c) => Some(c.clone()),
-            other => {
-                return Err(vec![SourceDiagnostic::error(
-                    args.span,
-                    format!("text(fill:) espera color, recebeu {}", other.type_name()),
-                )])
-            }
-        };
+    // Named declarations have priority; positional search is type-directed.
+    if args.named.contains_key("size") {
+        for arg in args
+            .occurrence_sequence()
+            .iter()
+            .filter(|arg| arg.name.as_deref() == Some("size"))
+        {
+            styles.push(Style::Size(require_length(
+                &arg.value,
+                argument_span(arg.value_span, args.span),
+            )?));
+        }
+        remaining.remove_named("size");
+    } else if let Some(index) = remaining
+        .items
+        .iter()
+        .position(|value| matches!(value, Value::Length(_)))
+    {
+        if let Some(Value::Length(length)) = remaining.remove_positional(index) {
+            styles.push(Style::Size(length));
+        }
     }
-
-    // Se o primeiro posicional for Color e fill ainda não definido, usá-lo como fill.
-    if fill.is_none() {
-        if let Some(Value::Color(c)) = args.items.first() {
-            fill = Some(c.clone());
-            body_idx = 1;
+    if args.named.contains_key("fill") {
+        for arg in args
+            .occurrence_sequence()
+            .iter()
+            .filter(|arg| arg.name.as_deref() == Some("fill"))
+        {
+            match &arg.value {
+                Value::Color(color) => styles.push(Style::Fill(color.clone())),
+                Value::Gradient(_) | Value::Tiling(_) => return Err(vec![SourceDiagnostic::error(args.span,
+                    format!("text(fill:) espera color, recebeu {}", arg.value.type_name()))]),
+                other => return Err(vec![SourceDiagnostic::error(argument_span(arg.value_span, args.span),
+                    format!("expected color, gradient, or tiling, found {}", crate::compiler::eval::operators::error_formatting::vanilla_type_name(other)))]),
+            }
+        }
+        remaining.remove_named("fill");
+    } else if let Some(index) = remaining
+        .items
+        .iter()
+        .position(|value| matches!(value, Value::Color(_)))
+    {
+        if let Some(Value::Color(color)) = remaining.remove_positional(index) {
+            styles.push(Style::Fill(color));
         }
     }
 
-    let body = match args.items.get(body_idx) {
-        Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s)) => Content::text(s.as_str()),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!(
-                    "text() espera content ou string como body, recebeu {}",
-                    other.type_name()
-                ),
-            )])
+    let body_arg = remaining
+        .occurrence_sequence()
+        .into_iter()
+        .find(|arg| arg.name.is_none());
+    let body = match body_arg {
+        Some(arg) => {
+            remaining.remove_positional(0);
+            match arg.value {
+                Value::Content(content) => content,
+                Value::Str(text) => Content::text(text.as_str()),
+                Value::None => Content::empty(),
+                other => return Err(vec![SourceDiagnostic::error(argument_span(arg.value_span, args.span),
+                    format!("expected content, found {}", crate::compiler::eval::operators::error_formatting::vanilla_type_name(&other)))]),
+            }
         }
         None => {
+            if let Some(arg) = remaining
+                .occurrence_sequence()
+                .iter()
+                .find(|arg| arg.name.as_deref() == Some("body"))
+            {
+                return Err(vec![SourceDiagnostic::error(
+                    argument_span(arg.span, args.span),
+                    "the argument `body` is positional",
+                )
+                .with_hint("try removing `body:`")]);
+            }
             return Err(vec![SourceDiagnostic::error(
                 args.span,
-                "text() requer body como argumento".to_string(),
-            )])
+                "missing argument: body",
+            )]);
         }
     };
-
-    // Validar que não há argumentos posicionais além do fill + body.
-    if args.items.len() > body_idx + 1 {
+    if let Some(arg) =
+        remaining.occurrence_sequence().iter().find(|arg| arg.name.is_none())
+    {
         return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!(
-                "text() recebeu {} argumentos posicionais (espera 1-2)",
-                args.items.len()
-            ),
+            argument_span(arg.span, args.span),
+            "unexpected argument",
         )]);
-    }
-
-    let mut styles = Styles::new();
-    if let Some(c) = fill {
-        styles.push(Style::Fill(c));
     }
 
     // P865 — argumentos nomeados válidos em `#set text(...)` também são
@@ -106,8 +137,8 @@ pub fn native_text(
     // (`Style` tipado ou canal custom `"text.<campo>"`).
     for (key, value) in args.named.iter() {
         let key_str = key.as_str();
-        if key_str == "fill" {
-            // Já processado acima; `fill: none` remove o fill previamente definido.
+        if key_str == "fill" || key_str == "size" {
+            // Processados acima por busca tipada e sequência causal.
             continue;
         }
         if key_str == "variations" {
@@ -118,10 +149,6 @@ pub fn native_text(
             continue;
         }
         match key_str {
-            "size" => {
-                let length = require_length(value, args.span)?;
-                styles.push(Style::Size(Pt(length.abs.to_pt())));
-            }
             "weight" => {
                 let w = parse_text_weight(value, args.span)?;
                 styles.push(Style::Weight(w));
@@ -151,20 +178,42 @@ pub fn native_text(
                 styles = styles.push_custom("text.bottom-edge", v);
             }
             "costs" => {
-                let span=args.occurrences.as_ref().and_then(|items| {
-                    items.iter().rev().find(|item|item.name.as_deref()==Some("costs"))
-                }).map_or(args.span,|item|item.value_span);
-                for (key,value) in crate::compiler::text_costs::parse(value,span)? {
-                    styles=styles.push_custom(key,value);
+                let span = args
+                    .occurrences
+                    .as_ref()
+                    .and_then(|items| {
+                        items
+                            .iter()
+                            .rev()
+                            .find(|item| item.name.as_deref() == Some("costs"))
+                    })
+                    .map_or(args.span, |item| item.value_span);
+                for (key, value) in crate::compiler::text_costs::parse(value, span)? {
+                    styles = styles.push_custom(key, value);
                 }
             }
             "overhang" => {
-                let span = args.occurrences.as_ref().and_then(|items| {
-                    items.iter().rev().find(|item| item.name.as_deref() == Some("overhang"))
-                }).map_or(args.span, |item| item.value_span);
+                let span = args
+                    .occurrences
+                    .as_ref()
+                    .and_then(|items| {
+                        items
+                            .iter()
+                            .rev()
+                            .find(|item| item.name.as_deref() == Some("overhang"))
+                    })
+                    .map_or(args.span, |item| item.value_span);
                 match value {
-                    Value::Bool(_) => styles = styles.push_custom("text.overhang", value.clone()),
-                    other => return Err(vec![break_policy_error("expected boolean", other, span)]),
+                    Value::Bool(_) => {
+                        styles = styles.push_custom("text.overhang", value.clone())
+                    }
+                    other => {
+                        return Err(vec![break_policy_error(
+                            "expected boolean",
+                            other,
+                            span,
+                        )])
+                    }
                 }
             }
             "hyphenate" => {
@@ -225,6 +274,14 @@ pub fn native_text(
     let styled =
         if styles.is_empty() { body } else { Content::styled(Box::new(body), styles) };
     Ok(Value::Content(styled))
+}
+
+fn argument_span(origin: Span, fallback: Span) -> Span {
+    if origin.is_detached() {
+        fallback
+    } else {
+        origin
+    }
 }
 
 /// **P865** — extrai um `Length` para `size:` / `tracking:`.
@@ -444,7 +501,6 @@ fn parse_text_edge(value: &Value, span: Span, is_top: bool) -> SourceResult<Valu
         _ => Err(vec![edge_cast_error(is_top, value, span)]),
     }
 }
-
 
 /// Diagnostic vocabulary differs from the public short names of types.
 fn break_policy_error(expected: &str, found: &Value, span: Span) -> SourceDiagnostic {

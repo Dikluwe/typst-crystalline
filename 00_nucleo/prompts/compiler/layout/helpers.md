@@ -1,10 +1,16 @@
 # L0 — helpers
-Hash do Código: 536df7e5
+Hash do Código: 153e1aff
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
+- 00_nucleo/prompts/_nuclei/fonts/shaped-face-identity.toml sha256:96fe00a0c6071bb88ffc63806b3e42c23b78c398fa26d46866e0f099ab0d4e36
+- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:7b8a61eaafc8a07df12218f8f0560c33fae5c36f621b822b7350ccefc9774711
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
+
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/helpers.rs`
@@ -76,3 +82,81 @@ Posição, largura, altura, shifts, offset e translate de TextReplacement descen
 O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
 possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
 transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.
+
+## Transportes de realização no medidor legado — 2026-10-05
+
+### Evidência anterior à decisão
+
+O dispatcher `measure_content` em `01_core/src/compiler/layout/helpers.rs:412` trata Shape e Sequence, com fallback zero para os demais conteúdos. A inspeção encontrou a mesma lacuna de projeção demonstrada pelo controle restrito `show_grid320` do ensaio em `00_nucleo/diagnosticos/dupla-avaliacao-auditoria-2026-10-05/geometry-measurement-red.json.gz`. A aplicação ao medidor legado é inferência estrutural, a refutar por teste de forma gerada sob transporte.
+
+### Decisão e aceitação
+
+Projetar `Realized` no visual e `Located`/`ShowRecipe` no corpo antes da medição legada. Não medir o original consumido, aplicar show nem modificar identidades. Preservar a aproximação vigente para os demais braços. Exigir RED→GREEN com forma de dimensões observáveis, sem novas assinaturas ou fases (ADR-0127).
+
+## Migração do carrier bidi ratificado (2026-10-05)
+
+Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+
+
+## Face efetiva de TextShaped — materialização ratificada 2026-10-05
+
+Medição anterior à decisão: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/{initial.json.gz,probe.txt,bilateral.json}` distingue GIDs da regular de seleção Oblique. O campo público `TextShaped.font: Option<Font>` do owner layout_types foi confirmado pelo humano (SHA f4a17206500baf5952f898135944d55f9fca905285eafc995315ead1121dd409). O snapshot e inventário desta rodada estão em `00_nucleo/diagnosticos/identidade-fonte-shaped-implementacao-2026-10-05/`.
+
+Este owner migra apenas suas referências: constructors legados usam None; transformações preservam a fonte; comparação/junção shaped discrimina face e eixos. Emissão do shaper fornece clone da fonte efetiva também após cache hit; não alterar semântica/estilo para induzir seleção. Collectors/subset/CMap e PDF usam binding da mesma face original com coordenadas do estilo. PNG/SVG preparam bindings locais e instanciam uma vez por face/pedido antes de render, mantendo índice de recursos original distinto dos bytes instanciados. None segue resolução legada. API pública e FontKey existentes permanecem. Não criar fontes artificiais, unsafe, globals ou fase nova. Funções privadas podem receber fonte/bindings explicitamente.
+
+A associação é por bytes da face original e pedido de eixos; nomes e slots não bastam. A tabela local dura a exportação e conserva ordem dos recursos fornecidos, anexando faces faltantes. Para multifont, distribuir itens pelos bindings uma vez antes de coletores por fonte; não reutilizar GIDs/CMap globais em faces diferentes. Código deste owner continua 1:1 com seu L0; referências a outros owners não compartilham propriedade. Aceitação RED→GREEN e controles bilaterais incluindo miss/hit/VF, sem promessa de ganho de tempo.
+
+Claims compartilhadas desta migração pertencem ao núcleo shaped-face-identity pinado acima; este owner materializa somente as referências da sua unidade.
+
+
+## D08B3-C2 — responsabilidade ratificada
+
+Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+
+A delegação transparente já owned de ShowRecipe.body também aceita Source.body, sem executar origem separada, publicar carrier ou atribuir Location. Preservar classificação/preparo/serialização conforme a operação desta unidade.
+
+Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
+
+## Helpers e armazenamento sem uso — 2026-10-13
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/layout/helpers.rs` nas linhas 119 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `00_nucleo/diagnosticos/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
+
+### Decisão e aceitação
+
+Compilar o helper interno `line_content_bottom` somente sob `#[cfg(test)]`, conservando assinatura e corpo para os testes existentes. A função recursiva é exercitada somente pelo teste de exclusão de separadores. Preservar corpo e recursão; os demais helpers de geometria continuam produtivos.
+
+Preservar as rotas produtivas, nomes e corpos dos testes existentes, APIs externas, defaults e fase. Alteração interna em fluxo contínuo ADR-0127. Revalidar build e check de todos os targets do workspace, suíte core, inventário de testes, Clippy e linhagem; não eliminar expectativas para passar o gate.
+
+## Referencial de pintura — transporte aprovado T1b — 2026-10-14
+
+### Medição anterior à decisão
+
+O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
+foi aprovado pelo humano para T1–T3; recibo em
+`00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+A evidência bilateral de Parent e controles Solid está no contrato aprovado;
+ela não é substituída por inspeção estrutural. A rodada
+`00_nucleo/diagnosticos/paint-root-2026-10-14/before/results.json.gz` conserva
+fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
+diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
+e Gradient Parent. O inventário before-source/syntax-nodes registra neste
+consumer as construções/desestruturações antes da edição: [260].
+layout_types.rs:531–539 não distingue raízes de grupos técnicos; helpers.rs:253–269
+reconstrói o Group e precisará preservar o campo. Box agrega fundo/corpo;
+Block mantém body plano exceto no clip. Preservação do referencial é requisito
+de linguagem; formato dos envelopes é mecânica. A aprovação não fecha as
+divergências gerais de geometria previamente medidas em Rotate/Box.
+
+### Responsabilidade exclusiva
+
+Ao reconstruir Group em translate_frame_item, transportar paint_root sem derivar o valor de clip/matrix. Shifts e offset preservam o metadado em grupos locais; dimensões e ordem ficam idênticas.
+
+### Aceitação e incompletude
+
+L0 primeiro, testes RED→GREEN, resselo restrito; conservar geometria e texto
+nos controles fonte→PDF/SVG e revalidar suíte/build/doc/check/fmt/linhagem.
+A migração deste metadado não substitui Shape.fill/stroke por FramePaint nem
+implementa patterns PDF/SVG/raster; T1c/T2/T3 continuam explicitamente abertos
+e já autorizados. Não alegar paridade de tiling ou produção a partir do build.

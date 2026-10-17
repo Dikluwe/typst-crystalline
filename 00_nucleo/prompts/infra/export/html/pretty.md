@@ -1,5 +1,5 @@
 # L0 — html/pretty
-Hash do Código: 8ee147b8
+Hash do Código: 2c7cbd45
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/export/html/pretty.rs`
@@ -25,3 +25,16 @@ script limitations; no parser rewrite or escaping belongs here.
 
 Compare ordered DOM/escapes and protected text before/after formatting; exercise
 quoted >, void elements, raw/title and phrasing spaces.
+
+
+## Expressões locais verificadas — Clippy 2026-10-16
+
+### Medição anterior à decisão
+
+03_infra/src/export/html/pretty.rs:89 (clippy::manual_repeat_n). O snapshot `00_nucleo/diagnosticos/clippy-expressions-2026-10-16/before.json.gz` conserva fontes/L0, HEAD, working tree não commitado, status, diffstat e UTC; initial-diagnostics.json conserva sugestões e spans. Os usos e tipos foram inspecionados antes da decisão. São representações Rust internas; nenhuma nova paridade upstream ou ganho de performance é alegado.
+
+### Responsabilidade exclusiva e aceitação
+
+Usar std::iter::repeat_n(' ', depth * 2) na mesma inserção de indentação. Preservar multiplicação, ordem, bytes e todos os contextos protegidos.
+
+Fluxo contínuo ADR-0127: sem API pública, default de produto, fase, dependência ou supressão novos. L0 precede código e resselo restrito. Preservar inputs e resultados dos controles existentes, sem relaxar tolerâncias. Gate dos lints selecionados RED→GREEN; executar suíte workspace, build, Clippy all-targets, formato, Rustdoc e linhagem. Não criar testes que apenas espelhem a sintaxe Rust.

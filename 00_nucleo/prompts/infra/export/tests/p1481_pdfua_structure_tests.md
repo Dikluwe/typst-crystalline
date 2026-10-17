@@ -1,5 +1,8 @@
 # L0 — infra/export/tests/p1481_pdfua_structure_tests
-Hash do Código: 47e5ad07
+Hash do Código: 7bde3900
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
 
 **Layer:** L3 (test-only)
 **Exclusive consumer:** `03_infra/src/export/tests/p1481_pdfua_structure_tests.rs`
@@ -29,3 +32,7 @@ Image-alt and profile compatibility diagnostics belong to the upstream pipeline.
 Check structural relationships and actual marked content, not IDs/compression/
 whole-file byte equality. Existing string assertions do not replace bilateral
 corpora or independent PDF/UA validation and do not establish full accessibility.
+
+## Migração do carrier bidi ratificado (2026-10-05)
+
+Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.

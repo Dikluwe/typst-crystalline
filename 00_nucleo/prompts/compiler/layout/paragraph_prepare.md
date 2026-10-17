@@ -1,10 +1,12 @@
 # L0 — paragraph_prepare
-Hash do Código: bb629703
+Hash do Código: 81ae3966
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:70b72ac9efb2bf81aa4ef496c4e1c867264f696d454a9916e7e2e5f385b92020
 - 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:e9038b453bbb1971c9a75a76eced99c35db742f57bebbb09b03c4922b3862800
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/paragraph_prepare.rs`
@@ -153,3 +155,57 @@ Admitir tracking resolvido finito em conteúdo textual LTR de estilo uniforme, s
 ### Decisão final deste passo
 
 Supersede a admissão ampla de hifenização com tracking escrita acima: quando houver candidato de hifenização, admitir tracking explícito somente se o valor resolvido for exatamente zero e o restante do subconjunto uniforme for certificado. Tracking não nulo conserva fallback integral, sem seleção/emissão parcial; nenhum valor de tracking é alterado. Não ampliar trait pública, fase ou modo padrão sem gate ADR-0127 próprio. O contrato de tracking uniforme sem hifenização permanece válido.
+
+
+## D08B3-C2 — responsabilidade ratificada
+
+Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/baseline.json.gz registra HEAD/working tree/UTC/fontes/argv e binários no pin 9f2b6e8715237cb086899a42873660fe744622e8. A fonte desta unidade tem a operação transparente correspondente nos ramos existentes de ShowRecipe/Located/Realized; Source não pode vazar como elemento observável. Aprovação humana `confirmo`, 2026-10-07, contrato em materialization/table-origens-d08b3c2-2026-10-07/contract.md.
+
+Source não altera aceitação/preparo de parágrafo simples/optimized: coletar body transparente, mantendo chain, tokens, spans bidi/hifenização e custos. Refutadores de prefixo/render C2 exigem não recusar preparação só pela origem.
+
+Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
+
+## Fluxo numérico contextual contíguo — 2026-10-08
+
+### Medição anterior à decisão
+
+Os fixtures `context100.typ`, `context300.typ` e `plain300.typ` em `snapshot-scopes-prioridade7-2026-10-08/fixtures/` emitem algarismos sem separadores. A comparação pinada em `atual-vanilla-memoria5-2026-10-08.md` mostra uma linha overlong vanilla e várias linhas Tekt. Sonda desta rodada: uma string única fica em uma linha nos dois motores; `for` com `[#i]` diverge. A inspeção do conteúdo realizado em `paragraph_plan.rs` encontra `sequence([context(ContextBlockElem), text(...)])` por iteração contextual; `context_block.rs:15-36` confirma que ContextBlock não emite material em layout paginado ordinário e só produz marcador quando `capture_html_context_markers` está ativo. Isto mede comportamento e fonte, não intenção histórica. O estado exato da sonda está no diagnóstico `fluxo-numerico-contextual-2026-10-08/`.
+
+### Decisão
+
+Correção interna de paridade, em fluxo contínuo pelo ADR-0127. Na preparação global, tratar `ContextBlock` como neutro somente quando a captura de marcadores estiver desligada. Quando ligada, recusar o preparo inteiro e conservar o caminho existente. Não executar a closure, perder marcador, criar espaço ou fronteira de palavra, nem alterar seleção ou fase. Aceitação: os três fixtures mantêm a sequência textual e a mesma linha overlong do vanilla; captura HTML continua no caminho próprio.
+
+
+## TS1 — tamanho completo de texto (ratificado pelo humano, 2026-10-17)
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
+`morph-before-measurement.json.gz` e `audit.json` conservam HEAD
+06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
+fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
+Em named-em, A mede0pt contra24pt; em affine,3pt contra27pt; nested sobre18pt
+mede0pt contra36pt. As seis permutações Size/Color/body são aceitas pelo pin
+mas rejeitadas pelo Tekt. Set posicional18pt é ignorado (12 contra18pt).
+Fonte pinada text/mod.rs:290,303,924–930,1136–1142 e args.rs:178–247
+estabelece busca tipada, preferência nomeada, body restante e composição.
+style_chain.rs:513–517 e constructor.rs:123 descartam em; collapse em
+style_chain.rs:394–395,419–422 aplica top-wins onde tamanho precisa fold.
+É tamanho/escopo observável da linguagem; a representação Rust é escolha
+interna. Não inferir intenção histórica. Refutar por restauração, Raw,
+heading, math, capture/show, dupes/spans, zero/negativos ou métricas divergentes.
+A sonda de igualdade refutou a hipótese de comparar os valores declarados:
+no pin, text(size:2em)[A] == text(size:24pt)[A] é true. StyledElem::eq no pin
+content/mod.rs:779–782 compara child. Esse defeito de igualdade requer sua
+própria correção; o tipo completo não é prova de fechamento desse eixo.
+
+### Ratificação
+
+O humano aprovou TS1 e os dois contratos públicos da proposta de manifesto
+771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba.
+Implementação e testes S1–S16 sob 12 GiB/swap zero; sem release/merge/push.
+Resselo somente após implementação e grafo válido. RG1 continua independente.
+
+### Responsabilidade exclusiva adicional
+
+Somente fixtures/adapters de testes: substituir Style::Size(Pt) por Size(Length absoluto), e expectativas de StyleDelta.size por Option<Length>. Conservar os observáveis linguísticos e os contratos funcionais existentes; não trocar geometria correta por snapshots da representação nova.

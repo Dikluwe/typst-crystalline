@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/entrypoints.md
-//! @prompt-hash d313c752
+//! @prompt-hash fe864862
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-05
 
 use super::*;
 
@@ -40,6 +40,7 @@ pub fn introspect_with_introspector(content: &Content) -> TagIntrospector {
     // `back_refs` fiquem correctos.
     let content = convert_bib_refs_to_cites(content.clone());
     let mut locator = Locator::new();
+    super::walk::reserve_locations(&content, &mut locator);
     let mut tags: Vec<Tag> = Vec::new();
     let mut intr = TagIntrospector::empty();
     let mut auto_label_counter: usize = 0;
@@ -76,6 +77,9 @@ pub fn introspect_bundle_documents_with_starts(
             keys
         });
     let mut locator = Locator::new();
+    for body in bodies {
+        super::walk::reserve_locations(body, &mut locator);
+    }
     let mut starts = Vec::with_capacity(bodies.len());
     let mut tags = Vec::new();
     let mut intr = TagIntrospector::empty();
@@ -87,8 +91,10 @@ pub fn introspect_bundle_documents_with_starts(
         let boundary = Locator::from_seed(seed).next();
         starts.push(seed);
         // Fronteira lógica: o próximo Location é observado, não consumido.
+        intr.counters.observe_location(boundary);
         intr.counters
             .apply_at(CounterKey::Page, CounterUpdate::Set(vec![1]), boundary);
+        let first_tag = tags.len();
         let converted = if keys.is_empty() {
             body.clone()
         } else {
@@ -103,6 +109,18 @@ pub fn introspect_bundle_documents_with_starts(
             root_lang.as_ref(),
             &root_chain,
             None,
+        );
+        intr.counters.record_document_locations(
+            tags[first_tag..]
+                .iter()
+                .filter_map(|tag| {
+                    if let Tag::Start(location, _) = tag {
+                        Some(*location)
+                    } else {
+                        None
+                    }
+                })
+                .collect(),
         );
     }
     materialize_outline_entries(&mut locator, &mut intr);
@@ -124,6 +142,9 @@ pub fn introspect_bundle_documents_with_runtime_and_starts(
             keys
         });
     let mut locator = Locator::new();
+    for body in bodies {
+        super::walk::reserve_locations(body, &mut locator);
+    }
     let mut starts = Vec::with_capacity(bodies.len());
     let mut body_tags = Vec::with_capacity(bodies.len());
     let mut tags = Vec::new();
@@ -135,6 +156,7 @@ pub fn introspect_bundle_documents_with_runtime_and_starts(
         let seed = locator.checkpoint();
         let boundary = Locator::from_seed(seed).next();
         starts.push(seed);
+        intr.counters.observe_location(boundary);
         intr.counters
             .apply_at(CounterKey::Page, CounterUpdate::Set(vec![1]), boundary);
         let first_tag = tags.len();
@@ -152,6 +174,18 @@ pub fn introspect_bundle_documents_with_runtime_and_starts(
             root_lang.as_ref(),
             &root_chain,
             None,
+        );
+        intr.counters.record_document_locations(
+            tags[first_tag..]
+                .iter()
+                .filter_map(|tag| {
+                    if let Tag::Start(location, _) = tag {
+                        Some(*location)
+                    } else {
+                        None
+                    }
+                })
+                .collect(),
         );
         body_tags.push((boundary, first_tag..tags.len()));
     }
@@ -176,6 +210,7 @@ pub fn introspect_with_runtime(
 ) -> crate::entities::source_result::SourceResult<TagIntrospector> {
     let content = convert_bib_refs_to_cites(content.clone());
     let mut locator = Locator::new();
+    super::walk::reserve_locations(&content, &mut locator);
     let mut tags: Vec<Tag> = Vec::new();
     let mut intr = TagIntrospector::empty();
     let mut auto_label_counter = 0usize;

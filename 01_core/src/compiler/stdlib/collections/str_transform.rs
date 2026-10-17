@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/collections/str_transform.md
-//! @prompt-hash 56bcdf80
+//! @prompt-hash 4f610521
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -66,11 +66,7 @@ pub(super) fn str_replace(s: EcoString, args: Args) -> SourceResult<Value> {
         Some(count) => s.replacen(old.as_str(), new.as_str(), count),
         None => s.replace(old.as_str(), new.as_str()),
     };
-    Ok(Value::Str(replaced.into()))
-}
-
-pub(super) fn str_trim(s: EcoString) -> Value {
-    Value::Str(s.trim().into())
+    Ok(Value::Str(replaced))
 }
 
 pub(super) fn str_trim_dispatch(s: EcoString, args: Args) -> SourceResult<Value> {
@@ -172,15 +168,15 @@ pub(super) fn str_repeat(s: EcoString, args: Args) -> SourceResult<Value> {
             "str.repeat() requer inteiro não-negativo".to_string(),
         )]);
     }
-    Ok(Value::Str(s.repeat(n as usize).into()))
+    Ok(Value::Str(s.repeat(n as usize)))
 }
 
 pub(super) fn str_to_upper(s: EcoString) -> Value {
-    Value::Str(s.to_uppercase().into())
+    Value::Str(s.to_uppercase())
 }
 
 pub(super) fn str_to_lower(s: EcoString) -> Value {
-    Value::Str(s.to_lowercase().into())
+    Value::Str(s.to_lowercase())
 }
 
 pub(super) fn str_to_unicode(s: EcoString) -> SourceResult<Value> {

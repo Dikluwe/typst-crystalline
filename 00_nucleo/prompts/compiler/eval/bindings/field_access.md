@@ -1,8 +1,10 @@
 # L0 — compiler/eval/bindings/field_access
-Hash do Código: c85f0de7
+Hash do Código: c6180563
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:2b8888460a1e6008abda0ff71603fe4dace79ff0a2a7aad598f8aabfab3e3776
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
+- 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:a922bbaa9c3b4c8435708af8e68b4557801f93ba09188768d48c711ba35a0c15
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
 
 **Layer:** L1
@@ -115,3 +117,116 @@ the legacy routes and repr parents, and do not recognize arbitrary named Symbols
 Keep messages, severities, hint order, traces and spans unchanged. Public field
 availability or generic method-value promotion requires a separate contract
 decision; this owner does not authorize it.
+
+## Reexportação usada somente nos testes — 2026-10-13
+
+Medição anterior à decisão: a compilação de todos os targets, após condicionar
+o alias no hub bindings, identifica o alias correspondente em
+`01_core/src/compiler/eval/bindings/field_access.rs:451` como sem uso produtivo.
+O consumidor externo ao módulo é o teste em
+`01_core/src/compiler/stdlib/tests/introspection.rs:163`; chamadas produtivas
+usam a função dentro de content_methods. HEAD
+06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes,
+UTC e diffstat em `00_nucleo/diagnosticos/imports-ci-2026-10-13/before.json.gz`
+e `first-check-state.json.gz`.
+
+Manter a reexportação de eval_content_method_at somente sob cfg(test),
+preservando sua visibilidade no build de testes, a definição produtiva e
+as demais reexportações. Composição interna ADR-0127, sem nova API pública,
+fase ou default. Revalidar os testes existentes, build e linhagem.
+
+
+## Continuação causal do gate — chamadas e set rules
+
+Medição anterior à decisão: candidate-1/validation-green.log registra quatro
+controles aprovados e falha real do teste de argumentos: std.html(panic(...))
+executa panic antes do gate. before-set-probe.json.gz registra UTC, hashes,
+fontes e saídas bilaterais no mesmo HEAD/árvore não commitada: std.html,
+format.html, std.asset e format.bundle chamados avaliam argumentos antes do
+gate; set std.html/std.format.html/alias apaga o erro do target e ignora os
+argumentos. Variável/field ausente em set também é aceito indevidamente;
+condition false conserva atalhamento. Html ativo em set por alias ignora panic
+no Tekt e o executa no pin. São ordem causal, diagnóstico e efeito da linguagem.
+collection_methods.rs:36 avalia argumentos antes de autenticar módulo; set.rs:
+44 usa ok() na resolução e :326 autentica HTML pela sintaxe literal.
+
+Somente reexportar check_module_field_feature do owner fields com visibilidade interna a eval.
+
+L0 precede esta continuação; correção interna/paridade em fluxo ADR-0127.
+O núcleo builtin-module-identity continua pinado e sem alteração. O contrato
+público e os campos externos permanecem iguais; nenhum fallback novo ou
+supressão. Os controles e a matriz dos oito perfis permanecem; acrescentar
+verificação bilateral dos efeitos e de set com/sem feature. A suite completa
+regressa após o source freeze novo, sem reaproveitar gates de fonte alterada.
+
+
+## Avaliação única em chamadas — 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
+00_nucleo/diagnosticos/call-once-2026-10-17/before.json.gz registra UTC,
+status, diff HEAD --stat, fontes/L0/config e hashes. Os 2124 hashes da etapa
+anterior foram verificados exatamente antes do baseline. before-probe.json.gz
+e before-math-probe.json.gz conservam binários/argv/fixtures/saídas bilaterais.
+Pin vanilla 9f2b6e8715237cb086899a42873660fe744622e8, SHA-256 do binário
+7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea.
+calc.abs/array.len/str.from-unicode medem receiver=3/args=2 contra 1/1;
+module.measure/layout/within/before/after/func/has/body chegam a receiver=4;
+fallback mutante mede args=3 contra 1. Métodos ausentes executam panic de
+argumento antes do erro causal. math.mat soma duas vezes; array prévio (1,)
+fica (1,1,1) contra (1,1). Array vazio mascara o defeito com truncate.
+call.rs:70–118 perde receiver; collection_methods.rs:43 avalia args antes de
+reconhecer operação; contextual/content/selector reavaliam AST no fallthrough;
+method_dispatch.rs:247 descarta args; invoke.rs:66–120 compensa por nome.
+O L0 call_dispatch.md já exige receiver/args uma vez. pinned-source.json.gz
+fixa call.rs/methods.rs upstream: interesse é ordem/efeito/diagnóstico da
+linguagem, não copiar Vm, storage ou igualdade Rust.
+
+A primeira fixture declarava palavra reservada or como função: é inválida e
+está arquivada em invalid-fixture-attempt, sem crédito para efeitos de chamada.
+Ela revelou panic 101 em import inválido; manter aberto para correção causal
+própria no owner de parsing/import. O baseline válido substitui só a fixture.
+
+### Decisão e responsabilidade exclusiva
+
+Reexportar somente eval_field_access_with_target com visibilidade interna a eval; não absorver lógica. APIs puras existentes permanecem.
+
+Consumir o núcleo eval/call-once.toml pinado. Mudança mecânica interna e
+correção de paridade ADR-0127 em fluxo contínuo. Assinaturas pub fn/pub use e
+structs públicos não mudam; os parâmetros novos/retornos/helpers acima têm
+visibilidade crate/eval, sem novo trait público, campo público, default ou
+fase. Esta cláusula supersede somente restrições históricas conflitantes de
+assinatura interna e compensação por nome; manter extensões Tekt existentes.
+
+### Aceitação e limites
+
+Testes funcionais co-localizados antes do código: efeitos de receiver/args,
+fallback mutante, erro antes de args, where/with/selector/coleções preservados
+e matriz sem truncar efeito legítimo. Confirmar RED funcional e GREEN.
+Comparar casos bilaterais válidos e controles; hits e misses de todos os
+métodos de coleção, erros, spans/occurrences e complementos de Value. Não
+mascarar dívida residual de diagnóstico como igualdade. Testar dispatch
+Unhandled sem perder receiver ou executar callback de args; contar avaliações
+pelo efeito observado, não por bytes de PDF, Rust Eq ou microbenchmark.
+
+Ownership/V26 antes de resselo só dos owners do lote. Build, suíte workspace,
+Clippy all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc estrito,
+fmt, V1/V5/V15/V26 e reverse, SARIF diferencial sem erro novo. V19 uniforme
+continua informativo, com matriz de alternativas e relação de comportamento;
+sem supressão nem mudança de configuração. Comandos pesados sequenciais com
+12 GiB/high10GiB/swap0/jobs1. Não publicar/commit/merge/release nem declarar o
+objetivo global fechado por esta etapa.
+
+
+### Atualização do controle Type::Array para o pin vigente
+
+candidate-5/workspace/workspace.log registra uma falha, no controle antigo
+p1338_preserve_other_categories_diagnostics: #array.nope ainda exige aspas
+duplas e a âncora array.nope inteira. O pin 9f2b6e871 na sonda missing/array
+emite type array does not contain field `__missing`, no field-only span, e a
+fonte code.rs:347–368 usa field.span. Os REDs de chamadas e a comparação
+bilateral integral fixaram esse contrato antes do código. Atualizar somente
+a linha #array.nope daquele teste para mensagem com backticks e âncora nope.
+Manter os casos length/boolean/none/auto/integer/string, sua severidade, spans,
+hints, traces e perfis anteriores, sem retirar assertivas ou ignorar o teste.

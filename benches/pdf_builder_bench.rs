@@ -37,6 +37,7 @@ fn document(pages: usize, rows: usize) -> PagedDocument {
                         pos: Point { x: Pt(36.0), y: Pt(48.0 + row as f64 * 12.0) },
                         text: "PDF builder: repeated text and resource reuse.".into(),
                         style: TextStyle { size: Pt(10.0), ..Default::default() },
+                        bidi: None,
                     })
                     .collect(),
             })

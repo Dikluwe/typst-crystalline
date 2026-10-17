@@ -1,5 +1,8 @@
 # L0 — heading
-Hash do Código: 2d297d4f
+Hash do Código: e463dfde
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:f10f7afaabd1b97f3048736842df89d0ba48d4daa0ae3cd453c9be317f32ef91
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/heading.rs`
@@ -20,3 +23,40 @@ Scale the active body size through the helper's level mapping and create a bold 
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
+
+
+## Caminhos residuais internos — 2026-10-13
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/layout/heading.rs` nas linhas 114 contém os itens sem consumo/visibilidade sinalizados pelo compilador. A pesquisa de usos e os dispatchers ativos estão registrados antes da edição em `00_nucleo/diagnosticos/caminhos-residuais-ci-2026-10-13/before.json.gz`, com fontes, L0, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status e diffstat. Isto não é nova medição bilateral de paridade.
+
+### Decisão e aceitação
+
+Eliminar a aquisição de text_edges e o valor heading_descent descartados depois do body. O cálculo não alimenta baseline, espaçamento nem geometria; preservar as consultas necessárias de métricas e o flush. Não inferir número de chamadas como observável de linguagem nem ganho de desempenho.
+
+Correção interna em fluxo contínuo ADR-0127, sem nova assinatura pública, default de produto ou fase. Preservar os resultados de linguagem e as expectativas dos testes. Revalidar todos os targets, suíte core, build, Clippy e linhagem; não suprimir warnings para substituir a correção.
+
+## TS1 — bridge do tamanho resolvido de Heading
+
+### Medição e refutação anterior à decisão
+
+TS1 after-extended.json.gz/analysis.json refuta o fechamento inicial de S4:
+Heading afim37.8 contra36.6. Inspeção deste consumer: heading_size Pt é
+instalado apenas em layouter.style, enquanto chain conserva base não escalada.
+Uma declaração relativa descendente lê chain em style_scope e resolve contra
+essa base antiga. A hipótese é verificável por A16.8/B33.6 sobre12pt, e por
+A36.6/B73.2 com show-set2em+3pt; testes devem falhar antes do bridge. Não se
+usa aparência ou nome da fonte para inferir tamanho. Baseline completa e hash
+deste owner/consumer preservados no before.json.gz TS1.
+
+### Correção interna
+
+Depois de resolver heading_size no layout existente, vincular esse Pt como
+Length absoluto em um delta de chain local, antes de despachar o corpo; restaurar
+a chain original juntamente com o estilo. Isso faz estilos relativos filhos
+lerem o tamanho efetivamente ativo sem multiplicar o em declarado novamente.
+Não mudar a escala, as demais propriedades, fontes, numeração ou fórmulas
+de espaçamento deste owner. Nenhum campo público/assinatura/fase novo; é
+o mesmo adapter TS1 para tamanho já resolvido, aplicado ao consumer adicional
+exigido pela validação S3/S4. Preservar geometria dos controles absolutos.

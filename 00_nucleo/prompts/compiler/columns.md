@@ -1,5 +1,10 @@
 # L0 — columns
-Hash do Código: 5d637fc9
+Hash do Código: 43fdd8e8
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:9d9d6c265a3840cc5a3b8e121f403bc9e3fe55b1e586ab9014948f0784de5c3e
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
 
 ```text
 ```
@@ -158,3 +163,53 @@ must be audited separately, as recorded in
 Na composição segmentada de cada coluna irmã, salvar State de tracking junto à linha exterior e restaurá-lo com essa linha. Não deixar proveniência textual da irmã contaminar o prefixo exterior; demais estados/counters/widths permanecem.
 
 Correção interna de paridade ADR-0127 em fluxo contínuo. Aceitação RED→GREEN, controles bilaterais de texto/posições/linhas e preservação dos controles de tracking uniforme; build e lint sem erros, resselo somente destes owners. Demais limites abertos mantidos.
+
+## Migração do carrier bidi ratificado (2026-10-05)
+
+Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+
+## Observação dos grupos de pintura — T1b — 2026-10-14
+
+Medição anterior à decisão: layout-first.log em paint-root-2026-10-14
+registra testes que procuram Text somente em page.items e não encontram
+as folhas dentro da nova raiz de Block. before-extra-test-owners conserva
+fonte/L0, HEAD/UTC/diffstat antes deste ajuste. O contrato de Group.paint_root
+foi aprovado no manifesto d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d.
+
+Neste consumer alterar somente o observador de teste afetado para percorrer
+a árvore e projetar as coordenadas por Group.pos/matrix, usando o helper
+de teste de layout. Conservar conteúdo, valores esperados e tolerâncias.
+Nenhum algoritmo produtivo deste owner muda. O owner do helper é
+00_nucleo/prompts/compiler/layout/tests.md; sua visibilidade interna para
+testes irmãos não é API do produto. Revalidar os testes e os renders do lote.
+
+
+## Largura causal de Block Auto — 2026-10-14
+
+### Medição anterior à decisão
+
+block-auto-width-2026-10-14/before/results.json.gz conserva HEAD
+06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
+UTC/diffstat/status/fontes/binários/argv e pin 9f2b6e871. O extrator inicial
+procurou blue como #0000ff; blue-geometries-corrected.json lê a cor real
+#0074d9 dos mesmos SVGs, sem nova execução. Em shape, Empty, Place-only,
+Grid e Stack a largura do backing Tekt é160; pin54,14,14,68,68 respectivamente.
+block.rs:222,416,453 usa largura disponível; line_commit.rs:753 perde cursor
+no fechamento e sub_frame.rs:354 guarda apenas cursor terminal. Fonte pinada
+flow/block.rs:145–166,281–290,339–363 distingue Auto de expansão.
+É geometria da linguagem; estrutura da testemunha é mecânica interna.
+A hipótese é refutada se Place contaminar largura, escopos vazarem, texto
+literal perder avanço ou containers explícitos mudarem de dimensão.
+
+### Responsabilidade exclusiva
+
+Publicar a largura útil da alocação de Columns; não derivar largura global da tinta em apenas uma coluna.
+
+### Aceitação e limites
+
+Correção interna/de paridade ADR-0127: nenhum contrato público, default ou
+fase novo; L0 primeiro, RED→GREEN, resselo restrito. A largura é uma parte
+da correção B2b/T1–T3 já em andamento: altura Auto/backing, alinhamento tardio,
+fracionários, fragmentação, outset e PDF Parent continuam com critérios próprios.
+Não declarar render aprovado por testar apenas o carrier. Preservar controles
+bilaterais completos e refutadores, suíte/build/doc/fmt/linhagem/inventários.

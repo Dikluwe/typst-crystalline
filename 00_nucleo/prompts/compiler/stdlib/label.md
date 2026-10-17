@@ -1,5 +1,5 @@
 # L0 — stdlib/label
-Hash do Código: 00000000
+Hash do Código: de3fed13
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/label.rs`

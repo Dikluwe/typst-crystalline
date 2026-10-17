@@ -1,17 +1,52 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/grid/cell_body.md
-//! @prompt-hash fb8383b4
+//! @prompt-hash 98dd36de
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 //!
 //! Composição e emissão de uma célula de grid.
 
 use super::*;
 
+/// A default Cell is emitted only when its prepared snapshot survives show.
+pub(super) fn prepared_default(
+    cell: &Content,
+) -> Option<&crate::entities::elements::table_cell::TableCellResolved> {
+    fn snapshot(
+        c: &Content,
+    ) -> Option<&crate::entities::elements::table_cell::TableCellResolved> {
+        match c.source_body() {
+            Content::TableCell(c) => c.resolved.as_deref(),
+            Content::Styled(s) => snapshot(&s.body),
+            Content::Located(s) => snapshot(&s.body),
+            Content::Realized(s) => snapshot(&s.visual),
+            Content::Sequence(parts) => {
+                fn zero(c: &Content) -> bool {
+                    match c.source_body() {
+                        Content::Empty | Content::Metadata(_) => true,
+                        Content::Located(c) => zero(&c.body),
+                        Content::Realized(c) => zero(&c.visual),
+                        _ => false,
+                    }
+                }
+                let mut material = parts.iter().filter(|c| !zero(c));
+                let r = snapshot(material.next()?)?;
+                material.next().is_none().then_some(r)
+            }
+            _ => None,
+        }
+    }
+    let Content::TableCell(c) = cell else {
+        return None;
+    };
+    snapshot(&c.resolved.as_ref()?.visual)
+}
+
 impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
     #[allow(clippy::too_many_arguments)]
     pub(super) fn emit_grid_cell_body(
         &mut self,
+        measured_cells: &mut measurement_cache::MeasuredCells,
         placed: &PlacedCell,
         row_start_y: f64,
         local_start_y: f64,
@@ -28,7 +63,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         // P234 — bounds reais usando placed.col/colspan ×
         // resolved_widths + placed.row/rowspan × row_heights.
         let (cell_x, cell_y, cell_w, cell_h) =
-            cell_bounds(placed, &col_starts, &resolved_widths, &row_heights, row_start_y);
+            cell_bounds(placed, col_starts, resolved_widths, row_heights, row_start_y);
 
         // P230 + P235 — extrair per-cell 5 fields (stroke + fill
         // cosméticos P230; align + inset + breakable algorítmicos
@@ -40,6 +75,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
             // dividido — TableCell já é `Arc<…Elem>`, GridCell ainda struct
             // (migra a seguir). Bindings com tipos distintos não partilham
             // or-pattern; split permanente.
+            Content::TableCell(e) if e.resolved.is_some() => {
+                let plan = e.resolved.as_ref().unwrap();
+                let defaults = prepared_default(cell);
+                (
+                    plan.stroke.as_ref(),
+                    plan.fill.as_ref(),
+                    defaults.and_then(|r| r.align),
+                    defaults.map(|r| &r.inset),
+                    Some(plan.breakable),
+                )
+            }
             Content::TableCell(e) => (
                 e.stroke.as_ref(),
                 e.fill.as_ref(),
@@ -58,8 +104,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         };
 
         // Precedência `.or()` uniforme P230 + P232 + P235.
-        let effective_stroke: Option<&Stroke> = cell_stroke.or(stroke);
-        let effective_fill: Option<&Color> = cell_fill.or(fill);
+        let prepared = matches!(cell,Content::TableCell(c) if c.resolved.is_some());
+        let effective_stroke: Option<&Stroke> =
+            if prepared { cell_stroke } else { cell_stroke.or(stroke) };
+        let effective_fill: Option<&Color> =
+            if prepared { cell_fill } else { cell_fill.or(fill) };
         // P772j — fold por eixo (não `.or()` do Align2D inteiro):
         // confirmado contra o vanilla (`show_cell`/`resolve_cell` em
         // rules.rs/resolve.rs) e por medição directa
@@ -70,14 +119,24 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         // eixo — divergência real, não só mecânica. Ver
         // 00_nucleo/prompts/compiler/layout.md §"Alinhamento efectivo
         // per-célula".
-        let effective_align = match (cell_align, self.cell_align) {
-            (None, None) => None,
-            (Some(c), None) => Some(c),
-            (None, Some(g)) => Some(g),
-            (Some(c), Some(g)) => Some(Align2D { h: c.h.or(g.h), v: c.v.or(g.v) }),
+        let effective_align = if prepared {
+            cell_align
+        } else {
+            match (cell_align, self.cell_align) {
+                (None, None) => None,
+                (Some(c), None) => Some(c),
+                (None, Some(g)) => Some(g),
+                (Some(c), Some(g)) => Some(Align2D { h: c.h.or(g.h), v: c.v.or(g.v) }),
+            }
         };
         // P235 — inset per-cell override Grid-level; default Grid inset.
-        let effective_inset: Sides<Length> = cell_inset.cloned().unwrap_or(inset);
+        let effective_inset: Sides<Length> = cell_inset.cloned().unwrap_or_else(|| {
+            if prepared {
+                Sides::uniform(Length::pt(0.0))
+            } else {
+                inset
+            }
+        });
         // P235 — breakable per-cell semantic adiada graded
         // (pattern "Field armazenado semantic adiada" N=7 → 8).
 
@@ -106,6 +165,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         // como Layouter fields legacy.
         let saved_cell_ox = self.cell_origin_x;
         let saved_cell_oy = self.cell_origin_y;
+        let measured_product = measured_cells.take(self, placed, body_x, body_w);
         let saved_cell_region = self
             .regions
             .enter_cell(crate::entities::region::Region::new(body_w, body_h));
@@ -146,21 +206,27 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
             None => cell.clone(),
         };
 
-        // P234 — sem cache; re-medir cell (custo perf ~2× aceitável).
+        // Use the measured product only under the cache owner's proof;
+        // otherwise retain the existing cell-region layout.
         // P235 — layout em body_x/body_w reduzidos por inset.
         let saved_cursor_x = self.regions.current.cursor_x;
         let saved_cursor_y = self.regions.current.cursor_y;
+        let saved_cell_bidi_allowed = self.cell_bidi_allowed;
+        self.cell_bidi_allowed = col_starts.len() == 1 && body_w.is_finite();
         let (cell_h_measured, cell_items, cell_deco, orphaned_align_x, orphaned_align_y) =
-            self.layout_sub_frame(
-                &cell_to_layout,
-                super::super::sub_frame::SubLayoutRegion {
-                    origin_x: body_x,
-                    width: body_w,
-                    height: None,
-                    align_rtl: true,
-                    unconstrained_height: true,
-                },
-            );
+            measured_product.unwrap_or_else(|| {
+                self.layout_sub_frame(
+                    &cell_to_layout,
+                    super::super::sub_frame::SubLayoutRegion {
+                        origin_x: body_x,
+                        width: body_w,
+                        height: None,
+                        align_rtl: true,
+                        unconstrained_height: true,
+                    },
+                )
+            });
+        self.cell_bidi_allowed = saved_cell_bidi_allowed;
         self.regions.current.cursor_x = saved_cursor_x;
         self.regions.current.cursor_y = saved_cursor_y;
         // **P772x** — traduzir segmentos de decoração da célula com a
@@ -203,7 +269,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                 kind: ShapeKind::Rect,
                 width: cell_w,
                 height: cell_h,
-                fill: Some(crate::entities::paint::Paint::Solid(c.clone())),
+                fill: Some(crate::entities::frame_paint::FramePaint::Solid(c.clone())),
                 stroke: None,
                 fill_rule: Default::default(),
                 parent_bbox_at_emit: None,
@@ -220,7 +286,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                 let (lx, ly) = item_pos(&item);
                 let is_text = matches!(
                     &item,
-                    FrameItem::Text { .. } | FrameItem::TextShaped { .. }
+                    FrameItem::Text { .. }
+                        | FrameItem::TextShaped { .. }
+                        | FrameItem::TextSeparator { .. }
                 );
                 let abs_pos = if is_text {
                     Point {
@@ -290,6 +358,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                 }
                 // P248 preservado para Fixed rows.
                 self.regions.current.current_items.push(FrameItem::Group {
+                    paint_root: false,
                     pos: Point { x: Pt(body_x), y: Pt(body_y) },
                     matrix: crate::entities::layout_types::TransformMatrix::identity(),
                     clip_mask: Some(ShapeKind::Rect),
@@ -459,6 +528,153 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
 
 #[cfg(test)]
 mod smoke {
+    #[test]
+    fn text_and_separator_share_a_certified_cell_baseline() {
+        use super::*;
+        use crate::entities::{
+            dir::Dir,
+            image_sizer::NullImageSizer,
+            introspector::{Introspector, TagIntrospector},
+            layout_types::TextStyle,
+            style::Styles,
+            value::Value,
+        };
+        use comemo::Track;
+        let intr = TagIntrospector::empty();
+        let mut l = super::super::super::Layouter::new(
+            super::super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.chain = l.chain.push_custom("text.dir", Value::Dir(Dir::RTL));
+        l.style = TextStyle::from(&l.chain);
+        let body = Content::sequence(vec![
+            Content::styled(
+                Content::text("ABC"),
+                Styles::new().push_custom("text.dir", Value::Dir(Dir::LTR)),
+            ),
+            Content::Space,
+            Content::text("مرحبا"),
+        ]);
+        let mut measured =
+            measurement_cache::MeasuredCells::new(&l, std::slice::from_ref(&body), 1);
+        let placed = PlacedCell { body, col: 0, row: 0, colspan: 1, rowspan: 1 };
+        let local_y = l.metrics.vertical_metrics(l.style.size, &l.style).0 .0;
+        l.emit_grid_cell_body(
+            &mut measured,
+            &placed,
+            20.0,
+            local_y,
+            &[10.0],
+            &[100.0],
+            &[40.0],
+            &[TrackSizing::Auto],
+            Sides::uniform(Length::ZERO),
+            None,
+            None,
+        );
+        let text_y = l
+            .regions
+            .current
+            .current_items
+            .iter()
+            .find_map(|it| {
+                if let FrameItem::Text { pos, .. } = it {
+                    Some(pos.y.0)
+                } else {
+                    None
+                }
+            })
+            .unwrap();
+        let space_y = l
+            .regions
+            .current
+            .current_items
+            .iter()
+            .find_map(|it| {
+                if let FrameItem::TextSeparator { pos, .. } = it {
+                    Some(pos.y.0)
+                } else {
+                    None
+                }
+            })
+            .unwrap();
+        assert!((text_y - space_y).abs() < 1e-6, "text={text_y} separator={space_y}");
+        assert!(l
+            .regions
+            .current
+            .current_items
+            .iter()
+            .filter(|it| matches!(
+                it,
+                FrameItem::Text { .. } | FrameItem::TextSeparator { .. }
+            ))
+            .all(|it| match it {
+                FrameItem::Text { bidi, .. } | FrameItem::TextSeparator { bidi, .. } =>
+                    bidi.is_some(),
+                _ => false,
+            }));
+        assert!(l.regions.cell.is_none());
+    }
+
+    #[test]
+    fn d08b3c_plan_fill_survives_replaced_cell_product() {
+        use super::*;
+        use crate::entities::{
+            elements::table_cell::{TableCellResolved, TableCellStage},
+            image_sizer::NullImageSizer,
+            introspector::{Introspector, TagIntrospector},
+        };
+        use comemo::Track;
+        use std::sync::Arc;
+        let intr = TagIntrospector::empty();
+        let mut l = super::super::super::Layouter::new(
+            super::super::super::FixedMetrics,
+            NullImageSizer,
+            11.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        let Content::TableCell(c) =
+            Content::table_cell(Content::text("OLD"), None, None, None, None)
+        else {
+            unreachable!()
+        };
+        let red = Color::rgb(255, 0, 0);
+        let mut c = c.as_ref().clone();
+        c.resolved = Some(Arc::new(TableCellResolved {
+            x: 0,
+            y: 0,
+            colspan: 1,
+            rowspan: 1,
+            fill: Some(red.clone()),
+            stroke: None,
+            align: None,
+            inset: Sides::uniform(Length::pt(5.0)),
+            breakable: true,
+            visual: Content::text("HIDDEN"),
+            stage: TableCellStage::Complete,
+            guards: vec![],
+        }));
+        let body = Content::TableCell(Arc::new(c));
+        let mut measured =
+            measurement_cache::MeasuredCells::new(&l, std::slice::from_ref(&body), 1);
+        let placed = PlacedCell { body, col: 0, row: 0, colspan: 1, rowspan: 1 };
+        l.emit_grid_cell_body(
+            &mut measured,
+            &placed,
+            20.0,
+            0.0,
+            &[10.0],
+            &[100.0],
+            &[40.0],
+            &[TrackSizing::Auto],
+            Sides::uniform(Length::ZERO),
+            None,
+            None,
+        );
+        assert!(l.regions.current.current_items.iter().any(|it|matches!(it,FrameItem::Shape {fill:Some(crate::entities::frame_paint::FramePaint::Solid(color)),..} if color==&red)));
+    }
     #[test]
     fn modulo_compila_e_carrega() {}
 }

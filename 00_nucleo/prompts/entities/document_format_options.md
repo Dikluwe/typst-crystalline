@@ -1,5 +1,5 @@
 # L0 — Document format option domain
-Hash do Código: dfcf8fbb
+Hash do Código: aa7faeb9
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/document_format_options.rs`

@@ -1,5 +1,5 @@
 # L0 — Page parity
-Hash do Código: a3ef6c07
+Hash do Código: f13f1ecb
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/parity.rs`

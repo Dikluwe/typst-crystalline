@@ -1,5 +1,5 @@
 # L0 — compiler/eval/repr
-Hash do Código: 655c3b75
+Hash do Código: 1b2eeb83
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/repr.rs`
@@ -176,3 +176,24 @@ fallback propagation against independently sourced expectations. Non-ASCII width
 general complex-Content parity and unavailable bindings are not presumed successes.
 No payload, hash, public equality, signature, eval/layout phase or export behavior
 is authorized to change to repair repr.
+
+## Adaptação Memória 5 — proposta pendente ADR-0127
+
+Medição antes da decisão: 00_nucleo/diagnosticos/value-compacto-memoria5-2026-10-08/
+before.json.gz e inventory.json congelam este consumer e cada ocorrência
+file:line de Value::Stroke. sizes.json mede 272→144 bytes no modelo externo de
+Value, sem prova de RSS. O novo carrier público é definido exclusivamente por
+00_nucleo/prompts/entities/value.md; esta unidade apenas o consome e não
+compartilha ownership. Nenhuma implementação/adaptação antes da confirmação
+do manifesto deste pacote.
+
+Responsabilidade desta unidade: Adaptar somente construção Value Stroke nos testes históricos pelo From existente; repr permanece igual e a fachada pública não muda. Não alterar formatter filho ou reescrever expectativas.
+
+Após confirmação: conservar testes/oráculos vigentes, adicionar o RED→GREEN
+pertinente quando houver comportamento de isolamento novo, resselo só do owner
+e revalidação. Esta cláusula não amplia semântica, defaults ou fase.
+
+Ratificação Memória 5: o dono confirmou o manifesto SHA-256
+6badf07a4f58f08e7c60ad2e34dfb9a14a3a6ba55db90045afe046be8e988237
+com “confirmo” em 2026-10-08. O gate ADR-0127 deste pacote está satisfeito;
+suas cláusulas propostas passam a vigorar nesta materialização.

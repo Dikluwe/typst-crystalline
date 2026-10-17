@@ -60,7 +60,7 @@ fn nth_alpha(n: u32, upper: bool) -> String {
 fn to_roman_lower(n: u32) -> String {
     const ROMAN: [&str; 12] =
         ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x", "xi", "xii"];
-    if n >= 1 && n <= 12 {
+    if (1..=12).contains(&n) {
         ROMAN[(n - 1) as usize].to_string()
     } else {
         n.to_string()

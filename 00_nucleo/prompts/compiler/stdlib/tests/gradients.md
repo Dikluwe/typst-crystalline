@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/gradients
-Hash do Código: 7198d06c
+Hash do Código: f609b428
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/gradients.rs`

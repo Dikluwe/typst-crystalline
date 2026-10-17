@@ -1,6 +1,6 @@
 # L0 — math/layout/vec
-
 Hash do Código: 210f5f92
+
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:42a441e59c53fdc5bf619005c0e018eb63251533fb6dc6c16c13d000e592e40c

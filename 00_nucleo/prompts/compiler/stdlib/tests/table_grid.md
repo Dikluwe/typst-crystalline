@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/table_grid
-Hash do Código: c5678090
+Hash do Código: f977c83c
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/table_grid.rs`

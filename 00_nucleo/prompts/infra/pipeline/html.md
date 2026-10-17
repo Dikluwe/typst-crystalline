@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/html
-Hash do Código: 2772de8b
+Hash do Código: e24ee592
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/pipeline/html.rs`
@@ -36,3 +36,31 @@ Reproduce discovery with `rg -n "fn |struct |enum |mod |pub use" 03_infra/src/pi
 Verify this unit through its existing family/CLI tests when validating behavior.
 Ownership is strictly prompt-to-consumer 1:1 (ADR-0129); referenced owners do not share this prompt.
 Preserve existing public contracts, defaults and pipeline phases. Referenced child owners govern their own implementations; dependencies do not create shared ownership.
+
+
+## Reaproveitamento do índice realizado — 2026-10-05
+
+A inspeção em `03_infra/src/pipeline/html.rs:102` revelou reconstrução do índice inicial já produzido pela realização. Consultar Module::realization_introspector segundo `00_nucleo/prompts/entities/module.md`, usando clone independente se disponível e o fallback vigente se ausente. Preservar feature/target, format options, preparação contextual e resolução de posições das ilhas html.frame. Não tratar o snapshot inicial como resultado dos contextos/posições finais. Revalidar HTML e frames por observáveis de linguagem.
+
+
+## Materialização do conjunto ratificado — 2026-10-05
+
+Preparar snapshots Page não paginados antes da descoberta, e selecionar/revalidar produtores cuja leitura efetivamente observada muda quando só as vistas Page são substituídas. Sem criar páginas físicas HTML, e sem permitir filtered-counter HTML antes proibido.
+
+
+## Preparação de bindings de exportação — 2026-10-05
+
+Medição: `00_nucleo/diagnosticos/identidade-fonte-shaped-2026-10-05/probe.txt`. Consumir helper privado resolve_export_fonts: fontes originais vinculadas, com gate de instanciação existente. Instanciação fica no consumidor exportador, na mesma fase de render/export, preservando diagnósticos/API/seleção de páginas. O nome antigo prometia bytes já instanciados e não descreve este contrato.
+
+
+## Manutenção local e observação de testes — 2026-10-16
+
+### Medição anterior à decisão
+
+`03_infra/src/pipeline/html.rs` nas linhas 147 contém os avisos registrados em `00_nucleo/diagnosticos/clippy-locais-2026-10-16/before.json.gz`. O snapshot conserva fontes/L0, hashes, HEAD, working tree não commitado, UTC e git diff HEAD --stat. A inspeção dos consumidores e usos precedeu esta decisão; o gate Clippy selecionado deve falhar antes do código. Manutenção de representação/observação Rust, sem nova medição de intenção upstream ou paridade.
+
+### Responsabilidade e aceitação
+
+Mover somente o módulo #[cfg(test)] p1465_tests para o fim do consumer, após os helpers produtivos. Manter nome, corpo, atributos, imports e todos os testes; nenhum helper muda de módulo/visibilidade. Ordem de declarações não muda o pipeline.
+
+Fluxo contínuo ADR-0127: sem contrato público, default de produto ou fase novos. L0 precede código e resselo restrito. Nenhuma supressão de lint nova. Conferir redução exata do inventário e ausência de avisos novos, gate Clippy RED→GREEN e unfulfilled_lint_expectations como erro; executar suíte workspace, build, formato, Rustdoc e linhagem sob 12 GiB, swap zero e um job. Não criar testes que apenas espelhem derive, Entry ou posicionamento de módulos. O caso de bbox exige observação real conforme especificado; os demais controles existentes mantêm fixtures e expectativas.

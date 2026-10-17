@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder/streams.md
-//! @prompt-hash ef9bc6e0
+//! @prompt-hash 256ceea8
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -81,9 +81,9 @@ mod p1360_ab_tests {
     use super::*;
     use crate::export::StreamMode;
     use typst_core::entities::color::Color;
+    use typst_core::entities::frame_paint::FramePaint as Paint;
     use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt};
-    use typst_core::entities::paint::Paint;
 
     fn page_stream_object(pdf: &[u8]) -> &[u8] {
         let text = String::from_utf8_lossy(pdf);
@@ -106,7 +106,7 @@ mod p1360_ab_tests {
                 kind: ShapeKind::Rect,
                 width: 90.0,
                 height: 0.5,
-                fill: Some(Paint::solid(Color::rgb(0, 0, 0))),
+                fill: Some(Paint::Solid(Color::rgb(0, 0, 0))),
                 stroke: None,
                 fill_rule: Default::default(),
                 parent_bbox_at_emit: None,

@@ -1,5 +1,5 @@
 # L0 — entities/content/sequence
-Hash do Código: c07ae498
+Hash do Código: 7bbb85ee
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/content/sequence.rs`

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/repr/content.md
-//! @prompt-hash de5b106d
+//! @prompt-hash 6b883e9b
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 
 use super::*;
 
@@ -16,6 +16,10 @@ use super::*;
 /// forma cristalina prévia (scope-out documentado no relatório do passo).
 pub fn repr_content(c: &Content) -> String {
     match c {
+        Content::Source(e) => repr_content(&e.body),
+        Content::ShowRecipe(e) => repr_content(&e.body),
+        Content::Located(e) => repr_content(&e.body),
+        Content::Realized(e) => repr_content(&e.visual),
         Content::Empty => "[]".to_string(),
         Content::Text(t) => format!("[{}]", t.as_str()),
         Content::Space | Content::SpaceFromNewline => "[ ]".to_string(),
@@ -514,7 +518,30 @@ pub fn repr_content(c: &Content) -> String {
         Content::Image(i) => format!("image(\"{}\")", i.path),
         Content::Shape(_) => "shape".to_string(),
         Content::Curve(_) => "curve".to_string(),
-        Content::Transform(t) => format!("transform[{}]", repr_content(&t.body)),
+        Content::Transform(t) => {
+            if matches!(
+                t.operation,
+                crate::entities::elements::transform::TransformOperation::Matrix(_)
+            ) {
+                format!("transform[{}]", repr_content(&t.body))
+            } else {
+                let names: &[&str] = match t.operation {
+                    crate::entities::elements::transform::TransformOperation::Move { .. } => &["dx", "dy", "body"],
+                    crate::entities::elements::transform::TransformOperation::Rotate { .. } => &["angle", "origin", "reflow", "body"],
+                    crate::entities::elements::transform::TransformOperation::Scale { .. } => &["x", "y", "origin", "reflow", "body"],
+                    crate::entities::elements::transform::TransformOperation::Skew { .. } => &["ax", "ay", "origin", "reflow", "body"],
+                    crate::entities::elements::transform::TransformOperation::Matrix(_) => &[],
+                };
+                let fields = names
+                    .iter()
+                    .filter_map(|name| {
+                        c.get_field(name)
+                            .map(|value| format!("{name}: {}", repr_value(&value)))
+                    })
+                    .collect::<Vec<_>>();
+                format!("{}{}", c.elem_name(), pretty_array_like(&fields, false))
+            }
+        }
         Content::Grid(_) => "grid".to_string(),
         Content::GridHeader(_) => "grid.header".to_string(),
         Content::GridFooter(_) => "grid.footer".to_string(),

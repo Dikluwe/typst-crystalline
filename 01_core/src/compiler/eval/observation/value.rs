@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/observation/value.md
-//! @prompt-hash 9a1228f7
+//! @prompt-hash 10e83b9f
 //! @layer L1
-//! @updated 2026-09-26
+//! @updated 2026-10-06
 //!
 //! Relação observacional causal — família `value`.
 
@@ -468,6 +468,10 @@ impl ObservationEq for crate::entities::show::ShowRule {
 impl ObservationEq for crate::entities::selector::Selector {
     fn observation_relation(&self, other: &Self) -> ObservationRelation {
         match self {
+            Self::NativeElement(a0) => match other {
+                Self::NativeElement(b0) => a0.observation_relation(b0),
+                _ => ObservationRelation::Different,
+            },
             Self::Kind(a0) => match other {
                 Self::Kind(b0) => {
                     ObservationRelation::Same.and(a0.observation_relation(b0))
@@ -1774,6 +1778,14 @@ impl ObservationEq for Func {
                     .and(a.name.observation_relation(b.name))
                     .and(a.namespace.observation_relation(&b.namespace))
             }
+            (FuncRepr::Format(ak, a), FuncRepr::Format(bk, b)) => {
+                let crate::entities::func::NativeFunc { name: _, call: _, namespace: _ } =
+                    a;
+                ObservationRelation::exact(ak == bk)
+                    .and(ObservationRelation::exact(std::ptr::fn_addr_eq(a.call, b.call)))
+                    .and(a.name.observation_relation(b.name))
+                    .and(a.namespace.observation_relation(&b.namespace))
+            }
             (FuncRepr::NativeWithEngine(a), FuncRepr::NativeWithEngine(b)) => {
                 let crate::entities::func::NativeFuncWithEngine {
                     name: _,
@@ -1790,6 +1802,7 @@ impl ObservationEq for Func {
             (
                 FuncRepr::Closure(_)
                 | FuncRepr::Native(_)
+                | FuncRepr::Format(_, _)
                 | FuncRepr::NativeWithEngine(_)
                 | FuncRepr::With(_)
                 | FuncRepr::Element(_)
@@ -1806,6 +1819,21 @@ mod tests {
     use crate::entities::value::Value;
 
     #[test]
+    fn native_bare_observation_distinguishes_variant_and_function_payload() {
+        use crate::entities::{func::Func, selector::Selector};
+        let cell = Func::native("cell", crate::compiler::stdlib::native_table_cell);
+        let bare = Selector::NativeElement(cell.clone());
+        assert_eq!(bare.observation_relation(&bare), ObservationRelation::Same);
+        let empty = Selector::Element { function: cell, fields: Default::default() };
+        assert_eq!(bare.observation_relation(&empty), ObservationRelation::Different);
+        let fake = Selector::NativeElement(Func::native(
+            "cell",
+            crate::compiler::stdlib::native_heading,
+        ));
+        assert_eq!(bare.observation_relation(&fake), ObservationRelation::Different);
+    }
+
+    #[test]
     fn distingue_valores_iguais_e_payload_diferente() {
         assert_eq!(
             Value::Int(7).observation_relation(&Value::Int(7)),
@@ -1819,5 +1847,118 @@ mod tests {
             Value::Int(7).observation_relation(&Value::Bool(true)),
             ObservationRelation::Different
         );
+    }
+}
+
+#[cfg(test)]
+mod native_format_catalogue_observation_tests {
+    use super::*;
+    #[test]
+    fn native_format_catalogue_observation_witness() {
+        let scope = crate::compiler::stdlib::make_stdlib_with_features(
+            &crate::contracts::world::SysInputs::default(),
+            crate::entities::compiler_features::Features::empty(),
+        );
+        let Value::Module(module) = scope.get("format").unwrap() else {
+            panic!("format module")
+        };
+        let Value::Func(svg) = module.scope().get("svg").unwrap() else { panic!("svg") };
+        assert_eq!(svg.observation_relation(&svg.clone()), ObservationRelation::Same);
+        let unmarked = crate::entities::func::Func::native_with_namespace(
+            "svg",
+            svg.native_fn_addr().unwrap(),
+            Arc::new(svg.namespace().unwrap().clone()),
+        );
+        assert_eq!(svg, &unmarked);
+        assert_eq!(svg.observation_relation(&unmarked), ObservationRelation::Different);
+    }
+}
+
+#[cfg(test)]
+mod native_format_catalogue_axis_tests {
+    use super::*;
+    use crate::entities::func::{FormatElementKind, Func, NativeFunc};
+    fn never_called(
+        _: &mut crate::compiler::eval::EvalContext,
+        _: &crate::entities::args::Args,
+        _: &dyn crate::contracts::world::World,
+        _: crate::entities::file_id::FileId,
+    ) -> crate::entities::source_result::SourceResult<Value> {
+        panic!("observation executed callback")
+    }
+    #[test]
+    fn native_format_catalogue_observation_kind_and_payload_axes() {
+        let kinds = [
+            FormatElementKind::Svg,
+            FormatElementKind::Png,
+            FormatElementKind::Pdf,
+            FormatElementKind::Html,
+            FormatElementKind::Bundle,
+        ];
+        let make = |kind| {
+            Func::native_format(
+                kind,
+                NativeFunc { name: "same", call: never_called, namespace: None },
+            )
+        };
+        for (i, left) in kinds.iter().enumerate() {
+            for (j, right) in kinds.iter().enumerate() {
+                let a = make(*left);
+                let b = make(*right);
+                assert_eq!(a, b);
+                assert_eq!(
+                    a.observation_relation(&b),
+                    if i == j {
+                        ObservationRelation::Same
+                    } else {
+                        ObservationRelation::Different
+                    }
+                );
+            }
+        }
+        let base = make(FormatElementKind::Svg);
+        let changed_call = Func::native_format(
+            FormatElementKind::Svg,
+            NativeFunc {
+                name: "same",
+                call: crate::compiler::stdlib::native_assert,
+                namespace: None,
+            },
+        );
+        let changed_name = Func::native_format(
+            FormatElementKind::Svg,
+            NativeFunc { name: "other", call: never_called, namespace: None },
+        );
+        let mut first = Scope::new();
+        first.define("x", Value::Int(1));
+        let mut second = Scope::new();
+        second.define("x", Value::Int(2));
+        let first = Func::native_format(
+            FormatElementKind::Svg,
+            NativeFunc {
+                name: "same",
+                call: never_called,
+                namespace: Some(Arc::new(first)),
+            },
+        );
+        let second = Func::native_format(
+            FormatElementKind::Svg,
+            NativeFunc {
+                name: "same",
+                call: never_called,
+                namespace: Some(Arc::new(second)),
+            },
+        );
+        assert_eq!(
+            base.observation_relation(&changed_call),
+            ObservationRelation::Different
+        );
+        assert_eq!(
+            base.observation_relation(&changed_name),
+            ObservationRelation::Different
+        );
+        assert_eq!(base.observation_relation(&first), ObservationRelation::Different);
+        assert_eq!(first.observation_relation(&second), ObservationRelation::Different);
+        assert_eq!(base.observation_relation(&base.clone()), ObservationRelation::Same);
     }
 }

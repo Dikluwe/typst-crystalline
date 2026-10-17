@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash a9fe9710
+//! @prompt-hash a533f573
 //! @layer L2
-//! @updated 2026-09-25
+//! @updated 2026-10-17
 //!
 //! CLI do compilador cristalino (Passo 117, ADR-0049).
 //!
@@ -776,6 +776,39 @@ pub struct QueryIntent {
     pub cert_path: Option<PathBuf>,
 }
 
+/// Specific, pure migration hint for the deprecated query command.
+pub fn query_deprecation_hint(intent: &QueryIntent) -> String {
+    let mut expression = format!("query({})", intent.selector);
+    let access = intent.field.as_deref().map(|field| {
+        if typst_core::compiler::lexer::is_ident(field) {
+            format!(".{field}")
+        } else {
+            let repr = typst_core::compiler::eval::repr_value_for_serialization(
+                &typst_core::entities::value::Value::Str(field.into()),
+            );
+            format!(".at({repr})")
+        }
+    });
+    if intent.one {
+        expression.push_str(".first()");
+        if let Some(access) = access {
+            expression.push_str(&access);
+        }
+    } else if let Some(access) = access {
+        expression.push_str(&format!(".map(it => it{access})"));
+    }
+    #[cfg(unix)]
+    let escaped = shell_escape::unix::escape(expression.into());
+    #[cfg(not(unix))]
+    let escaped = shell_escape::windows::escape(expression.into());
+    let input = if intent.input == std::path::Path::new("-") {
+        String::new()
+    } else {
+        format!(" --in {}", intent.input.display())
+    };
+    format!("use `typst eval {escaped}{input}` instead")
+}
+
 #[derive(Debug)]
 pub struct FontsIntent {
     pub font_paths: Vec<PathBuf>,
@@ -915,6 +948,20 @@ fn compile_intent(
             )
             .exit()
     });
+    if input == Path::new("-") && args.output.is_none() && args.output_flag.is_none() {
+        Args::command()
+            .find_subcommand_mut("compile")
+            .expect("compile belongs to the CLI command tree")
+            .clone()
+            .bin_name("typst compile")
+            .mut_arg("input", |arg| arg.required(true))
+            .mut_arg("output", |arg| arg.required(true))
+            .error(
+                clap::error::ErrorKind::MissingRequiredArgument,
+                "the following required arguments were not provided:\n  <OUTPUT>",
+            )
+            .exit();
+    }
     // P866 — resolver formato antes de validações dependentes de caminho.
     let output_format = resolve_output_format_with(
         args.format.as_ref(),
@@ -1106,6 +1153,13 @@ fn content_to_semantic(
     content: &typst_core::entities::content::Content,
 ) -> SemanticValue {
     use typst_core::entities::content::Content;
+    match content {
+        Content::Source(r) => return content_to_semantic(&r.body),
+        Content::ShowRecipe(r) => return content_to_semantic(&r.body),
+        Content::Located(r) => return content_to_semantic(&r.body),
+        Content::Realized(r) => return content_to_semantic(&r.visual),
+        _ => {}
+    }
     if let Content::Label(label) = content {
         let mut value = content_to_semantic(&label.body);
         if let SemanticValue::Object(fields) = &mut value {
@@ -1122,6 +1176,28 @@ fn content_to_semantic(
         SemanticValue::String(content_semantic_func_name(content).into()),
     )];
     match content {
+        Content::Empty => fields.push(("children".into(), SemanticValue::Array(vec![]))),
+        Content::FigureCaption(_) => {
+            for name in ["position", "separator", "body"] {
+                if let Some(value) = content.get_field(name) {
+                    fields.push((name.into(), value_to_semantic(&value)));
+                }
+            }
+        }
+        Content::Raw(_) => {
+            for name in ["text", "block", "lang"] {
+                if let Some(value) = content.get_field(name) {
+                    fields.push((name.into(), value_to_semantic(&value)));
+                }
+            }
+        }
+        Content::MathMatrix(_) => {
+            for name in ["delim", "align", "augment", "row-gap", "column-gap", "rows"] {
+                if let Some(value) = content.get_field(name) {
+                    fields.push((name.into(), value_to_semantic(&value)));
+                }
+            }
+        }
         Content::Text(text) => {
             fields.push(("text".into(), SemanticValue::String(text.to_string())))
         }
@@ -1156,6 +1232,18 @@ fn content_to_semantic(
                 ("body".into(), content_to_semantic(&heading.body)),
             ]);
         }
+        Content::OutlineEntry(entry) => {
+            fields.push(("level".into(), SemanticValue::Int(entry.level as i64)));
+            fields.push(("element".into(), content_to_semantic(&entry.element)));
+            fields.push((
+                "fill".into(),
+                entry
+                    .fill
+                    .as_ref()
+                    .map(content_to_semantic)
+                    .unwrap_or(SemanticValue::Null),
+            ));
+        }
         Content::Title(title) => {
             fields.push(("body".into(), content_to_semantic(&title.body)))
         }
@@ -1189,6 +1277,24 @@ fn content_to_semantic(
             fields.push(("gap".into(), SemanticValue::String("0.65em".into())));
             fields.push(("outlined".into(), SemanticValue::Bool(true)));
             fields.push(("counter".into(), SemanticValue::String(counter)));
+        }
+        Content::TableCell(_) => {
+            for name in [
+                "body",
+                "x",
+                "y",
+                "colspan",
+                "rowspan",
+                "inset",
+                "align",
+                "fill",
+                "stroke",
+                "breakable",
+            ] {
+                if let Some(value) = content.get_field(name) {
+                    fields.push((name.into(), value_to_semantic(&value)));
+                }
+            }
         }
         Content::Equation(equation) => fields.extend([
             ("block".into(), SemanticValue::Bool(equation.block)),
@@ -1262,12 +1368,29 @@ fn content_to_semantic(
             if let Some(stroke) = &shape.stroke {
                 fields.push((
                     "stroke".into(),
-                    value_to_semantic(&Value::Stroke(stroke.clone())),
+                    value_to_semantic(&Value::from(stroke.clone())),
                 ));
             }
         }
         Content::Metadata(metadata) => {
             fields.push(("value".into(), value_to_semantic(metadata.value.as_ref())))
+        }
+        Content::SmartQuote(e) => {
+            for (name, present) in [
+                ("double", e.double.is_some()),
+                ("enabled", e.enabled.is_some()),
+                ("alternative", e.alternative.is_some()),
+                ("quotes", e.quotes.is_some()),
+            ] {
+                if present {
+                    fields.push((
+                        name.into(),
+                        value_to_semantic(
+                            &content.get_field(name).expect("known quote field"),
+                        ),
+                    ));
+                }
+            }
         }
         Content::Quote(quote) => {
             fields.push(("block".into(), SemanticValue::Bool(quote.block)));
@@ -1283,7 +1406,8 @@ fn content_to_semantic(
             ));
         }
         Content::Styled(styled) => {
-            fields.push(("body".into(), content_to_semantic(&styled.body)))
+            fields.push(("child".into(), content_to_semantic(&styled.body)));
+            fields.push(("styles".into(), SemanticValue::String("styles(..)".into())))
         }
         _ => {
             if let Some(body) = content.get_field("body") {
@@ -1300,6 +1424,11 @@ fn content_semantic_func_name(
     use typst_core::entities::content::Content;
     use typst_core::entities::geometry::ShapeKind;
     match content {
+        Content::Source(source) => content_semantic_func_name(&source.body),
+        Content::ShowRecipe(recipe) => content_semantic_func_name(&recipe.body),
+        Content::Located(located) => content_semantic_func_name(&located.body),
+        Content::Realized(realized) => content_semantic_func_name(&realized.visual),
+        Content::Empty => "sequence",
         Content::Shape(shape) => match shape.kind {
             ShapeKind::Rect | ShapeKind::RoundedRect { .. } => "rect",
             ShapeKind::Ellipse => "ellipse",
@@ -1308,6 +1437,8 @@ fn content_semantic_func_name(
         },
         // Crystalline keeps math graphemes in a dedicated variant, while
         // their public content shape is still text-like.
+        Content::FigureCaption(_) => "caption",
+        Content::SmartQuote(_) => "smartquote",
         Content::MathAttach(_) => "attach",
         Content::MathText(_) => "text",
         Content::MathIdent(_) => "symbol",
@@ -1384,7 +1515,9 @@ fn value_to_semantic(value: &Value) -> SemanticValue {
             Some(fields) => {
                 let mut entries = vec![(
                     "func".to_string(),
-                    SemanticValue::String(content.content().elem_name().to_string()),
+                    SemanticValue::String(
+                        content_semantic_func_name(content.content()).to_string(),
+                    ),
                 )];
                 entries.extend(
                     fields
@@ -1755,40 +1888,40 @@ mod tests {
 
     #[test]
     fn resolve_colored_never_e_false() {
-        assert_eq!(resolve_colored_with(&ColorWhen::Never, false, false), false);
-        assert_eq!(resolve_colored_with(&ColorWhen::Never, true, false), false);
-        assert_eq!(resolve_colored_with(&ColorWhen::Never, false, true), false);
-        assert_eq!(resolve_colored_with(&ColorWhen::Never, true, true), false);
+        assert!(!resolve_colored_with(&ColorWhen::Never, false, false));
+        assert!(!resolve_colored_with(&ColorWhen::Never, true, false));
+        assert!(!resolve_colored_with(&ColorWhen::Never, false, true));
+        assert!(!resolve_colored_with(&ColorWhen::Never, true, true));
     }
 
     #[test]
     fn resolve_colored_always_e_true() {
-        assert_eq!(resolve_colored_with(&ColorWhen::Always, false, false), true);
-        assert_eq!(resolve_colored_with(&ColorWhen::Always, true, false), true);
-        assert_eq!(resolve_colored_with(&ColorWhen::Always, false, true), true);
-        assert_eq!(resolve_colored_with(&ColorWhen::Always, true, true), true);
+        assert!(resolve_colored_with(&ColorWhen::Always, false, false));
+        assert!(resolve_colored_with(&ColorWhen::Always, true, false));
+        assert!(resolve_colored_with(&ColorWhen::Always, false, true));
+        assert!(resolve_colored_with(&ColorWhen::Always, true, true));
     }
 
     #[test]
     fn resolve_colored_auto_sem_tty_e_false() {
-        assert_eq!(resolve_colored_with(&ColorWhen::Auto, false, false), false);
+        assert!(!resolve_colored_with(&ColorWhen::Auto, false, false));
     }
 
     #[test]
     fn resolve_colored_auto_com_tty_e_sem_no_color_e_true() {
-        assert_eq!(resolve_colored_with(&ColorWhen::Auto, false, true), true);
+        assert!(resolve_colored_with(&ColorWhen::Auto, false, true));
     }
 
     #[test]
     fn resolve_colored_auto_com_no_color_e_false() {
-        assert_eq!(resolve_colored_with(&ColorWhen::Auto, true, true), false);
-        assert_eq!(resolve_colored_with(&ColorWhen::Auto, true, false), false);
+        assert!(!resolve_colored_with(&ColorWhen::Auto, true, true));
+        assert!(!resolve_colored_with(&ColorWhen::Auto, true, false));
     }
 
     #[test]
     fn resolve_colored_always_vence_no_color() {
-        assert_eq!(resolve_colored_with(&ColorWhen::Always, true, false), true);
-        assert_eq!(resolve_colored_with(&ColorWhen::Always, true, true), true);
+        assert!(resolve_colored_with(&ColorWhen::Always, true, false));
+        assert!(resolve_colored_with(&ColorWhen::Always, true, true));
     }
 
     // ── resolve_output_with (pura — Passo 120, ADR-0051) ───────────────
@@ -2064,7 +2197,7 @@ mod tests {
         use typst_core::entities::geometry::{
             DashLength, DashPattern, LineCap, LineJoin, Stroke, StrokeFields,
         };
-        let value = Value::Stroke(Stroke {
+        let value = Value::from(Stroke {
             cap: LineCap::Round,
             join: LineJoin::Bevel,
             dash: Some(DashPattern {
@@ -2832,5 +2965,327 @@ mod tests {
             "unknown",
         ])
         .is_err());
+    }
+}
+
+#[cfg(all(test, unix))]
+mod warnings_cli_hint_tests {
+    use super::*;
+    fn intent() -> QueryIntent {
+        QueryIntent {
+            input: PathBuf::from("-"),
+            selector: "heading".into(),
+            field: None,
+            one: false,
+            pretty: false,
+            format: QueryFormat::Json,
+            colored: false,
+            cert_path: None,
+        }
+    }
+    #[test]
+    fn specific_hint_covers_cardinality_field_repr_and_shell_quotes() {
+        let mut query = intent();
+        assert_eq!(
+            query_deprecation_hint(&query),
+            "use `typst eval 'query(heading)'` instead"
+        );
+        query.one = true;
+        assert_eq!(
+            query_deprecation_hint(&query),
+            "use `typst eval 'query(heading).first()'` instead"
+        );
+        query.field = Some("body".into());
+        assert_eq!(
+            query_deprecation_hint(&query),
+            "use `typst eval 'query(heading).first().body'` instead"
+        );
+        query.one = false;
+        assert_eq!(
+            query_deprecation_hint(&query),
+            "use `typst eval 'query(heading).map(it => it.body)'` instead"
+        );
+        query.field = Some("a b".into());
+        assert_eq!(
+            query_deprecation_hint(&query),
+            "use `typst eval 'query(heading).map(it => it.at(\"a b\"))'` instead"
+        );
+        query.selector = "heading.where(body: [it's Ω])".into();
+        query.field = None;
+        query.input = PathBuf::from("pasta Ω/a b.typ");
+        assert_eq!(query_deprecation_hint(&query), "use `typst eval 'query(heading.where(body: [it'\\''s Ω]))' --in pasta Ω/a b.typ` instead");
+    }
+}
+
+#[cfg(test)]
+mod smartquote_public_name_tests {
+    use super::*;
+    #[test]
+    fn smartquote_public_name_is_canonical() {
+        let value =
+            Value::Content(typst_core::entities::content::Content::smartquote(false));
+        let encoded = serialize_eval(&value, EvalFormat::Json, false).unwrap();
+        let json: serde_json::Value = serde_json::from_slice(&encoded).unwrap();
+        assert_eq!(json["func"], "smartquote");
+    }
+}
+
+#[cfg(test)]
+mod matrix_morphology_tests {
+    use super::*;
+    #[test]
+    fn matrix_morphology_json_keeps_rows_cells_and_empty_padding() {
+        use typst_core::entities::content::Content;
+        let matrix = Content::math_matrix(
+            vec![
+                vec![Content::text("a"), Content::text("b")],
+                vec![Content::text("c"), Content::Empty],
+            ],
+            ('(', ')'),
+        );
+        let json = semantic_to_json(&content_to_semantic(&matrix));
+        assert_eq!(
+            json,
+            serde_json::json!({"func":"mat","delim":["(",")"],"rows":[[{"func":"text","text":"a"},{"func":"text","text":"b"}],[{"func":"text","text":"c"},{"func":"sequence","children":[]}]]})
+        );
+    }
+}
+
+#[cfg(test)]
+mod content_serialization_regressions {
+    use super::*;
+    use typst_core::entities::content::Content;
+    use typst_core::entities::file_id::FileId;
+    use typst_core::entities::span::Span;
+    use typst_core::entities::style::Styles;
+    use typst_core::entities::value::IntrospectedContent;
+
+    fn sourced(content: Content) -> Content {
+        let file = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        Content::Source(std::sync::Arc::new(
+            typst_core::entities::content::SourceContent {
+                body: content,
+                span: Span::from_range(file, 1..2),
+            },
+        ))
+    }
+
+    #[test]
+    fn content_serialization_empty_is_sequence_in_eval_and_query() {
+        for content in [Content::Empty, sourced(Content::Empty)] {
+            let value = Value::Content(content);
+            for pretty in [false, true] {
+                let bytes = serialize_eval(&value, EvalFormat::Json, pretty).unwrap();
+                assert_eq!(
+                    serde_json::from_slice::<serde_json::Value>(&bytes).unwrap(),
+                    serde_json::json!({"func":"sequence","children":[]})
+                );
+            }
+            let bytes = serialize_query(&[value], None, true, false).unwrap();
+            assert_eq!(
+                serde_json::from_slice::<serde_json::Value>(&bytes).unwrap(),
+                serde_json::json!({"func":"sequence","children":[]})
+            );
+        }
+    }
+
+    #[test]
+    fn content_serialization_nested_empty_keeps_structural_child() {
+        let value =
+            Value::Content(Content::styled(sourced(Content::Empty), Styles::new()));
+        let bytes = serialize_eval(&value, EvalFormat::Json, false).unwrap();
+        assert_eq!(
+            serde_json::from_slice::<serde_json::Value>(&bytes).unwrap(),
+            serde_json::json!({"func":"styled","child":{"func":"sequence","children":[]},"styles":"styles(..)"})
+        );
+        let yaml =
+            String::from_utf8(serialize_eval(&value, EvalFormat::Yaml, false).unwrap())
+                .unwrap();
+        assert!(yaml.contains("  func: sequence\n  children: []\n"));
+    }
+
+    #[test]
+    fn content_serialization_raw_keeps_available_text_and_language() {
+        let raw = Content::raw("é\n\"x\"", Some("typc".into()), false);
+        for content in [raw.clone(), sourced(raw)] {
+            let bytes = serialize_eval(&Value::Content(content), EvalFormat::Json, false)
+                .unwrap();
+            let json: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+            assert_eq!(json["func"], "raw");
+            assert_eq!(json["text"], "é\n\"x\"");
+            assert_eq!(json["lang"], "typc");
+        }
+    }
+
+    #[test]
+    fn content_serialization_snapshot_empty_remains_authoritative() {
+        let mut locator = typst_core::entities::locator::Locator::new();
+        for (content, name) in [
+            (sourced(Content::Empty), "sequence"),
+            (Content::raw("hidden", Some("typc".into()), false), "raw"),
+        ] {
+            let value = Value::LocatedContent(
+                IntrospectedContent::new(content, Some(Default::default())),
+                locator.next(),
+            );
+            let bytes = serialize_eval(&value, EvalFormat::Json, false).unwrap();
+            assert_eq!(
+                serde_json::from_slice::<serde_json::Value>(&bytes).unwrap(),
+                serde_json::json!({"func":name})
+            );
+        }
+    }
+
+    #[test]
+    fn raw_presence_cli_constructor_block_and_snapshot() {
+        for snapshot in [None, Some(Default::default())] {
+            let present = snapshot.is_some();
+            let raw = sourced(Content::raw("x", None, false));
+            let value = Value::LocatedContent(
+                IntrospectedContent::new(raw, snapshot),
+                typst_core::entities::locator::Locator::new().next(),
+            );
+            let bytes = serialize_eval(&value, EvalFormat::Json, false).unwrap();
+            let expected = if present {
+                serde_json::json!({"func":"raw"})
+            } else {
+                serde_json::json!({"func":"raw","text":"x","block":false})
+            };
+            assert_eq!(
+                serde_json::from_slice::<serde_json::Value>(&bytes).unwrap(),
+                expected
+            );
+            let bytes = serialize_query(&[value], None, true, false).unwrap();
+            assert_eq!(
+                serde_json::from_slice::<serde_json::Value>(&bytes).unwrap(),
+                expected
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod v16_walk_entry_serialization_tests {
+    use super::*;
+    use std::sync::Arc;
+    use typst_core::entities::{
+        content::{Content, LocatedContent, SourceContent},
+        file_id::FileId,
+        locator::Locator,
+        span::Span,
+        value::IntrospectedContent,
+    };
+
+    fn entry() -> Content {
+        Content::outline_entry(
+            2,
+            Content::heading(2, Content::strong(Content::text("semantic"))),
+            None,
+        )
+    }
+    fn located_value() -> Value {
+        Value::LocatedContent(
+            IntrospectedContent::new(Content::label_auto("direct", entry()), None),
+            Locator::new().next(),
+        )
+    }
+
+    #[test]
+    fn v16_walk_cli_entry_fields_survive_legacy_wrappers() {
+        let sourced = Content::Source(Arc::new(SourceContent {
+            body: entry(),
+            span: Span::from_range(
+                FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+                2..5,
+            ),
+        }));
+        let located = Content::Located(Arc::new(LocatedContent {
+            location: Locator::new().next(),
+            body: sourced,
+        }));
+        for content in [entry(), located, Content::label_auto("direct", entry())] {
+            let bytes = serialize_eval(&Value::Content(content), EvalFormat::Json, false)
+                .unwrap();
+            let json: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+            assert_eq!(json["func"], "entry");
+            assert_eq!(json["level"], 2);
+            assert_eq!(json["element"]["func"], "heading");
+            assert_eq!(json["element"]["body"]["func"], "strong");
+            assert_eq!(json["element"]["body"]["body"]["text"], "semantic");
+            assert!(json.get("fill").is_some());
+            assert!(json["fill"].is_null());
+        }
+    }
+
+    #[test]
+    fn v16_walk_cli_entry_query_field_none_snapshot_keeps_json_yaml_and_one() {
+        let value = located_value();
+        for (format, expected) in
+            [(QueryFormat::Json, "[2]\n"), (QueryFormat::Yaml, "- 2\n")]
+        {
+            let bytes = serialize_query_with_format(
+                std::slice::from_ref(&value),
+                Some("level"),
+                false,
+                false,
+                format,
+            )
+            .unwrap();
+            assert_eq!(String::from_utf8(bytes).unwrap(), expected);
+            let bytes = serialize_query_with_format(
+                std::slice::from_ref(&value),
+                Some("level"),
+                true,
+                false,
+                format,
+            )
+            .unwrap();
+            assert_eq!(String::from_utf8(bytes).unwrap(), "2\n");
+        }
+    }
+
+    #[test]
+    fn v16_walk_cli_entry_present_snapshots_remain_authoritative() {
+        let location = Locator::new().next();
+        let empty = Value::LocatedContent(
+            IntrospectedContent::new(entry(), Some(Default::default())),
+            location,
+        );
+        assert_eq!(
+            serialize_query(&[empty], Some("level"), false, false).unwrap(),
+            b"[]\n"
+        );
+        let value = Value::LocatedContent(
+            IntrospectedContent::new(
+                entry(),
+                Some([("level".into(), Value::Int(7))].into_iter().collect()),
+            ),
+            location,
+        );
+        assert_eq!(
+            serialize_query(&[value], Some("level"), false, false).unwrap(),
+            b"[7]\n"
+        );
+    }
+}
+
+#[cfg(test)]
+mod caption_shape_tests {
+    use super::*;
+    #[test]
+    fn caption_shape_cli_json_uses_public_name_and_known_payload() {
+        use typst_core::entities::content::Content;
+        use typst_core::entities::elements::figure_caption::CaptionPosition;
+        let value = Value::Content(Content::figure_caption(
+            Content::text("C"),
+            Some(CaptionPosition::Top),
+            Some(Content::text("S")),
+        ));
+        let encoded = serialize_eval(&value, EvalFormat::Json, false).unwrap();
+        let actual: serde_json::Value = serde_json::from_slice(&encoded).unwrap();
+        assert_eq!(
+            actual,
+            serde_json::json!({"func":"caption","position":"top","separator":{"func":"text","text":"S"},"body":{"func":"text","text":"C"}})
+        );
     }
 }

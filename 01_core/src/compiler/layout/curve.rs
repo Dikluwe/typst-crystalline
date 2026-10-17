@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/curve.md
-//! @prompt-hash a518d7c8
+//! @prompt-hash c956f14e
 //! @layer L1
 //! @updated 2026-06-30
 //!
@@ -9,9 +9,9 @@
 //! absoluto e emite um `FrameItem::Shape` equivalente.
 
 use crate::entities::elements::curve::{CloseMode, CurveElem, CurveSegment};
-use crate::entities::geometry::{PathItem, ShapeKind, Stroke};
+use crate::entities::frame_paint::{FramePaint as Paint, FrameStroke as Stroke};
+use crate::entities::geometry::{PathItem, ShapeKind};
 use crate::entities::layout_types::{Color, FrameItem, Point, Pt};
-use crate::entities::paint::Paint;
 
 use super::{FontMetrics, ImageSizer, Layouter};
 

@@ -1,8 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fonts.md
-//! @prompt-hash a8b435df
+//! @prompt-hash eaf75f4b
 //! @layer L3
-//! @updated 2026-09-27
+//! @updated 2026-10-08
+
+mod coverage;
 
 use std::borrow::Cow;
 use std::path::{Path, PathBuf};
@@ -27,11 +29,25 @@ pub struct FontSlot {
     pub index: u32,
     /// Bytes embutidos (ex: vinda de `typst-assets`). Quando presentes,
     /// `get()` usa estes bytes em vez de ler do disco.
-    embedded: Option<Vec<u8>>,
+    embedded: Option<EmbeddedBytes>,
     /// **P937** — mmap lazy do ficheiro de fonte. Criado em L3 na primeira vez
     /// que os bytes são necessários; partilhado entre `source_bytes()` e `get()`.
     mmap: OnceLock<Option<Arc<memmap2::Mmap>>>,
     font: OnceLock<Option<Font>>,
+}
+
+enum EmbeddedBytes {
+    Owned(Arc<Vec<u8>>),
+    Static(&'static [u8]),
+}
+
+impl EmbeddedBytes {
+    fn as_slice(&self) -> &[u8] {
+        match self {
+            Self::Owned(bytes) => bytes.as_slice(),
+            Self::Static(bytes) => bytes,
+        }
+    }
 }
 
 /// DTO L3 para listagem pública de fontes. Não expõe tipos das bibliotecas
@@ -114,7 +130,17 @@ impl FontSlot {
         Self {
             path,
             index: 0,
-            embedded: Some(data),
+            embedded: Some(EmbeddedBytes::Owned(Arc::new(data))),
+            mmap: OnceLock::new(),
+            font: OnceLock::new(),
+        }
+    }
+
+    pub(crate) fn new_embedded_static(path: PathBuf, data: &'static [u8]) -> Self {
+        Self {
+            path,
+            index: 0,
+            embedded: Some(EmbeddedBytes::Static(data)),
             mmap: OnceLock::new(),
             font: OnceLock::new(),
         }
@@ -137,7 +163,7 @@ impl FontSlot {
     /// durante a construção do FontBook e a extração lazy de coverage.
     pub(crate) fn source_bytes(&self) -> Option<Cow<'_, [u8]>> {
         if let Some(bytes) = &self.embedded {
-            return Some(Cow::Borrowed(bytes));
+            return Some(Cow::Borrowed(bytes.as_slice()));
         }
         self.mmap().map(|mmap| Cow::Borrowed(&mmap[..]))
     }
@@ -153,12 +179,18 @@ impl FontSlot {
     pub fn get(&self) -> Option<Font> {
         self.font
             .get_or_init(|| {
-                if let Some(bytes) = &self.embedded {
+                if let Some(source) = &self.embedded {
+                    let bytes = source.as_slice();
                     ttf_parser::Face::parse(bytes, self.index).ok()?;
-                    let data = bytes.clone();
-                    let data = extract_collection_face(&data, self.index).unwrap_or(data);
-                    ttf_parser::Face::parse(&data, 0).ok()?;
-                    return Some(Font::from_data(data));
+                    if let Some(data) = extract_collection_face(bytes, self.index) {
+                        ttf_parser::Face::parse(&data, 0).ok()?;
+                        return Some(Font::from_data(data));
+                    }
+                    ttf_parser::Face::parse(bytes, 0).ok()?;
+                    return Some(match source {
+                        EmbeddedBytes::Owned(data) => Font::Vec(Arc::clone(data)),
+                        EmbeddedBytes::Static(data) => Font::from_data(data.to_vec()),
+                    });
                 }
 
                 let mmap = self.mmap()?;
@@ -331,7 +363,8 @@ fn discover_in_dir(dir: &Path, slots: &mut Vec<FontSlot>) {
 /// - nomes em registos Macintosh (1,0,0) são decodificados via
 ///   `decode_mac_roman` (`info.rs:168-203`);
 /// - o estilo italic/oblique é inferido também do full name
-///   (`info.rs:80-103`), sem usar `is_italic()` (falsos positivos via
+///   (`info.rs:80-103`), sem usar `is_italic()`.
+///
 /// **P840** — tabela de exceções de metadados (`find_exception`, port
 /// integral do vanilla `text/font/exceptions.rs:46-342`) aplicada por
 /// PostScript name (`info.rs:60-61`): família/estilo/peso/stretch da
@@ -400,18 +433,9 @@ pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo> {
 }
 
 /// **P937/P938** — extrai cobertura Unicode exacta da tabela `cmap`.
-/// Percorre as subtables unicode e constrói `Coverage::from_codepoints`.
+/// Delega a união exata de intervalos ao adaptador privado de cmap.
 pub(crate) fn extract_coverage(face: &ttf_parser::Face) -> Coverage {
-    let mut codepoints = Vec::new();
-    let Some(cmap) = face.tables().cmap else { return Coverage::new() };
-    for subtable in cmap.subtables {
-        if subtable.is_unicode() {
-            subtable.codepoints(&mut |codepoint| {
-                codepoints.push(codepoint);
-            });
-        }
-    }
-    Coverage::from_codepoints(codepoints)
+    coverage::extract(face)
 }
 
 /// Procura e decodifica o nome com o id dado (port do vanilla
@@ -909,6 +933,35 @@ pub fn pair_slots_with_book(slots: Vec<FontSlot>) -> (Vec<FontSlot>, FontBook) {
 mod tests {
     use super::*;
 
+    #[test]
+    fn embedded_catalog_borrows_static_assets_until_selection() {
+        let sets = crate::embedded_fonts::load_embedded_fonts();
+        let assets: Vec<_> = typst_assets::fonts().collect();
+        let slots: Vec<_> =
+            sets.text_slots.iter().chain(sets.math_code_slots.iter()).collect();
+        assert_eq!(slots.len(), assets.len());
+        for slot in &slots {
+            assert!(slot.font.get().is_none(), "face validation must stay lazy");
+            let source = slot.source_bytes().expect("embedded bytes");
+            let asset = assets
+                .iter()
+                .find(|asset| **asset == source.as_ref())
+                .expect("matching asset");
+            assert_eq!(
+                source.as_ptr(),
+                asset.as_ptr(),
+                "catalog must borrow static bytes"
+            );
+        }
+        let slot = slots[0];
+        let original = slot.source_bytes().unwrap().to_vec();
+        let selected = slot.get().expect("valid selected face");
+        assert_eq!(selected.as_slice(), original);
+        drop(slots);
+        drop(sets);
+        assert_eq!(selected.as_slice(), original);
+    }
+
     struct TempDir(PathBuf);
     impl TempDir {
         fn path(&self) -> &Path {
@@ -933,6 +986,52 @@ mod tests {
         TempDir(path)
     }
 
+    #[test]
+    fn embedded_memory_simple_font_shares_source_and_survives_slot_drop() {
+        let original = typst_assets::fonts()
+            .find(|data| ttf_parser::fonts_in_collection(data).is_none())
+            .expect("embedded simple font");
+        let data = original.to_vec();
+        let address = data.as_ptr();
+        let slot = FontSlot::new_embedded(PathBuf::from("<no-disk>"), data);
+        assert!(slot.font.get().is_none(), "validation remains lazy");
+        assert_eq!(slot.source_bytes().unwrap().as_ptr(), address);
+        let loaded = slot.get().expect("valid embedded font");
+        assert_eq!(loaded.as_slice(), original);
+        let info = font_info_from_bytes(loaded.as_slice(), 0).unwrap();
+        let coverage =
+            extract_coverage(&ttf_parser::Face::parse(loaded.as_slice(), 0).unwrap());
+        assert_eq!(info, font_info_from_bytes(original, 0).unwrap());
+        assert_eq!(
+            coverage,
+            extract_coverage(&ttf_parser::Face::parse(original, 0).unwrap())
+        );
+        assert_eq!(loaded.as_slice().as_ptr(), address, "get must share source buffer");
+        assert_eq!(slot.get().unwrap().as_slice().as_ptr(), address);
+        drop(slot);
+        assert_eq!(loaded.as_slice(), original);
+        assert!(ttf_parser::Face::parse(loaded.as_slice(), 0).is_ok());
+    }
+    #[test]
+    fn embedded_memory_collection_preserves_source_and_extracts_selected_face() {
+        let original = include_bytes!("../fixtures/fonts/NimbusSans-Regular.otf");
+        let data = build_synthetic_ttc(original, 2);
+        let expected = extract_collection_face(&data, 1).unwrap();
+        let mut slot = FontSlot::new_embedded(PathBuf::from("<no-disk>"), data.clone());
+        slot.index = 1;
+        let loaded = slot.get().expect("selected embedded collection face");
+        assert_eq!(slot.source_bytes().unwrap().as_ref(), data.as_slice());
+        assert_eq!(loaded.as_slice(), expected);
+        assert_ne!(loaded.as_slice().as_ptr(), slot.source_bytes().unwrap().as_ptr());
+        assert!(ttf_parser::Face::parse(loaded.as_slice(), 0)
+            .unwrap()
+            .glyph_index('A')
+            .is_some());
+        let mut invalid = FontSlot::new_embedded(PathBuf::from("<no-disk>"), data);
+        invalid.index = 2;
+        assert!(invalid.get().is_none());
+        assert!(invalid.get().is_none());
+    }
     #[test]
     fn font_slot_path_inexistente_retorna_none() {
         let slot = FontSlot::new(PathBuf::from("/nao/existe.ttf"), 0);

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/collections/bytes.md
-//! @prompt-hash 3479e500
+//! @prompt-hash a4aad7ac
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -8,6 +8,7 @@
 
 use super::*;
 
+#[cfg(test)]
 pub(super) fn try_dispatch_bytes_method(
     bytes: Bytes,
     method: &str,

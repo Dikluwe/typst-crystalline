@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/lexer/mod.md
-//! @prompt-hash 56e8faf5
+//! @prompt-hash 71740bab
 //! @layer L1
 //! @updated 2026-03-23
 
@@ -27,7 +27,7 @@ mod code;
 mod markup;
 mod math;
 
-/// An iterator over a source code string which returns tokens.
+/// Stateful tokenizer with an explicit End token; the parser controls its mode.
 #[derive(Clone)]
 // Visibilidade `pub(super)` nos campos (Passo 96.9): os submódulos
 // `markup.rs`, `math.rs`, `code.rs` contêm impls do `Lexer<'_>` que
@@ -121,6 +121,10 @@ impl Lexer<'_> {
 impl Lexer<'_> {
     /// Return the next token in our text. Returns both the [`SyntaxNode`]
     /// and the raw [`SyntaxKind`] to make it more ergonomic to check the kind
+    #[expect(
+        clippy::should_implement_trait,
+        reason = "S001: tokenizer com token End explícito e modo/cursor controlados pelo parser; retorno não é Option"
+    )]
     pub fn next(&mut self) -> (SyntaxKind, SyntaxNode) {
         debug_assert!(self.error.is_none());
         let start = self.s.cursor();

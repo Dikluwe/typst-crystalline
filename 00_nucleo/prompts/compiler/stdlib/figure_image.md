@@ -1,5 +1,8 @@
 # Prompt L0 — `stdlib/figure_image` — imagens
-Hash do Código: cb68fc29
+Hash do Código: abe2d032
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:923f1c9e4c2fd5934316ae2eef3dbb461c3bef3009de1d8931d951e793dda342
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/figure_image.rs`
@@ -211,3 +214,160 @@ não vira texto pintado nem altera tamanho, fit, MIME ou I/O. `alt`
 ausente continua representável para que a pipeline PDF/UA emita o erro
 específico; outros targets preservam comportamento anterior. Mudança do
 campo público da entidade depende do gate ADR-0127.
+
+
+## Guards de domínio explícitos — V17, 2026-10-16
+
+### Medição anterior à decisão
+
+T241: 01_core/src/compiler/stdlib/figure_image.rs:174; T242: 01_core/src/compiler/stdlib/figure_image.rs:177. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+
+### Responsabilidade exclusiva e aceitação
+
+Usar padrão estrutural Align2D {h: None, v: Some(Top/Bottom)} para position da caption, mantendo aceitação exclusiva e mensagens/repr de alinhamento inválido. Importar o tipo já público sem criar API ou mudar separator/body.
+
+Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default, compatibilidade ou fase novos. A responsabilidade permanece somente no consumer exclusivo deste L0. Não criar helper apenas para esconder a conjunção, não adicionar supressões nem mudar a configuração do linter. Executar controles funcionais existentes antes do código e preservar seus esperados; o RED real é o gate V17 com 28 avisos, GREEN exige zero V17. Conferir caminhos de sucesso/fallback/erro, curto-circuito e efeitos; resselo restrito por owner. Revalidar build, suíte workspace completa, Clippy all-targets com warnings e expectativas não cumpridas como erro, formato, Rustdoc com warnings como erro, linhagem V1/V5/V15/V26 estrita/reversa e SARIF sem novos avisos. Executar sob 12 GiB, swap zero e um job. Não alegar ganho de memória/desempenho ou paridade global sem medição separada.
+
+## Domínio de figura e medidas — 2026-10-17
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17/before.json.gz e
+before-expanded-measurement.json.gz fixam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b,
+working tree não commitado, UTC, status/diffstat e fontes/L0/config/binários.
+São 130 pares CLI. O pin é 9f2b6e8715237cb086899a42873660fe744622e8,
+binário 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea.
+figure_image.rs:68-105 silencia body inválido como Empty, caption inválida como
+nome do tipo e kind inválido como inferência. O pin rejeita essas entradas;
+body precede caption, que precede kind, mesmo se a ordem nomeada for invertida.
+kind aceita string/auto/função de elemento, mas não função arbitrária/With.
+O pin valida FigureKind em model/figure.rs:666-681 como Element ou EcoString.
+
+casting.rs:24-53 conserva Rel na largura de block, mas extract_length reduz
+Relative à parte absoluta e Ratio a zero. h/box aceitam números onde o pin
+rejeita; .fields() também é incompleto. Isto mede dívida real, não prova
+intenção upstream nem autoriza trocar percentuais por erro. Os carriers
+públicos Spacing::Absolute(Length), BoxedElem.width:Option<Length> e
+FigureElem.kind:Option<String> não transportam todos os dados de linguagem.
+Essa evolução pública e eventual síntese de figure exigem proposta ADR-0127;
+não as simular com nomes, valores neutros ou deslocamento informal de fase.
+
+### Decisão exclusiva — rejeições de native_figure
+
+Corrigir body: Content/LocatedContent, Str e None são conteúdo (None vazio);
+outros valores erram expected content, found {vanilla_type_name}. Ausência
+continua erro, agora missing argument: body. Caption aceita None (ausência),
+Content/LocatedContent e Str; inválido erra expected content or none, found
+{tipo}. Preservar a extração existente de FigureCaption.body. Não mudar
+native_figure_caption, imagens nem o transporte de metadados de caption.
+
+Kind: Str preserva o nome; Auto conserva o estado automático histórico.
+Func é válida somente se reconhecida como elemento pela tabela já existente
+native_element_fields ou Func::element_name. Não comparar Func pelo nome.
+Função arbitrária/With erra expected element. Outros Value, incluindo None,
+erram expected function, string, or auto, found {tipo}; não caem em inferência.
+Funções de elemento válidas ainda conservam o caminho histórico de inferência
+até o contrato público próprio; não alegar kind:table equivalente a string
+ou identidade tipada correta nesta fatia. Essa dívida permanece aberta.
+
+Diagnósticos de tipo apontam para value_span da ocorrência correspondente:
+primeiro body posicional, último caption/kind nomeado conforme a view de Args.
+Fallback: span da ocorrência, depois args.span; não buscar origem por igualdade
+Value. Ordem de validação body→caption→kind, sem reavaliar expressões nem
+alterar Args/ocorrências. Ausência usa diagnóstico detached como as nativas
+existentes para o caller atribuir origem. Não expandir argumentos suportados
+nem mudar prioridade de extras/nomes desconhecidos nesta correção.
+
+Não encobrir infer_kind_from_body: seu V16 e suas limitações de recursão e
+fase ficam abertos para a proposta de síntese/identidade pública. Não listar
+containers como folhas neutras apenas para fazer o linter passar.
+
+### Aceitação
+
+Correção interna/paridade em fluxo contínuo ADR-0127, sem assinatura pública,
+default deliberado de produto, compatibilidade Rust ou fase novos. L0 primeiro,
+testes funcionais RED para rejeições reais e controles válidos; GREEN exige
+mensagens e âncoras causais e precedência sem avaliação repetida. Testes dos
+casts controlam comprimentos afins, block relativo e rejeições de famílias;
+não cristalizar truncagem como semântica final. Sondas estruturais extraem
+padrões produtivos para provar variante futura rejeitada nos dois matches;
+payloads stub/RHS apagado não constituem equivalência funcional.
+
+Repetir os 130 pares, distinguir correções intencionais, controles e dívidas
+remanescentes, sem declarar todo JSON/fields/reflexão equivalente. Inspecionar
+os consumers dos carriers e registrar inventário antes de propor API. V15/V26
+válido antes de resselo apenas destes dois owners. Build, suíte workspace,
+Clippy -D warnings/-D unfulfilled_lint_expectations, fmt, Rustdoc -D warnings
+com quatro índices, linhagem estrita/reversa, diff e SARIF diferencial.
+12 GiB rígido, high 10 GiB, swap zero, jobs=1; execução pesada sequencial.
+Sem release, merge ou commit/push do Typst. RG1 permanece independente.
+
+### Incompletude e passos de conclusão nomeados
+
+Esta correção não fecha a construção integral de figura nem medidas relativas.
+FG1 (00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17/follow-ups.md)
+completa identidade tipada de kind e decide síntese/recursão após auditoria dos
+owners e gate público; RM1 no mesmo documento completa o transporte de medidas
+relativas e a revisão de casts por consumer. São trabalhos pendentes, não L0
+materializável nem autorização de API. Não sobrescrever esta etapa/TS1/RG1 com
+candidatos antigos ao concluir os passos.
+
+## Complemento de casts de figure — Type e Symbol, 2026-10-17
+
+Medição anterior à decisão: type-kind-probe.json e more-cast-probe.json em
+00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17 registram o candidato
+que passou 5/6 testes mas falhou em kind:int. foundations/value.rs:647-658 do
+pin 9f2b6e8715237cb086899a42873660fe744622e8 mede Func aceitando Type.constructor
+ou Symbol.func; content/element.rs:210-214 exige to_element; symbol.rs:133-137,
+math/accent.rs:189-214 e math/lr.rs:144-198 classificam a conversão simbólica.
+Há 37 tipos exercitados no CLI; Location sem construtor foi conferido na
+fonte pinada. type-kind-classes.json guarda a classificação completa dos 38.
+Símbolo aceito como corpo/caption é convertido pelo pin a SymbolElem; o nosso
+Content não tem essa variante e o markup atual conserva o valor como Text.
+Esse carrier/morfologia exige evolução pública SY1, não pode ser declarado
+resolvido pela preservação do texto nesta etapa.
+
+Decisão exclusiva deste owner:
+
+Concluir o cast de kind: Value::Type com construtor erra expected element;
+sem construtor erra type {nome longo} does not have a constructor. Classificar
+Type exaustivamente conforme a medição, sem executar o construtor. Bool usa
+boolean; Relative usa relative length. Value::Symbol callable como acento
+conhecido ou delimitador LR erra expected element, pois wrappers não são
+funções de elemento; símbolo não callable erra symbol {valor} is not callable.
+Delegar a classificação de acentos/LR aos seus owners via bridges privados,
+sem duplicar tabelas nem criar função/trait público. Preservar as âncoras do
+kind. Body/caption Symbol conservam o grapheme efetivo como Content::Text,
+igual ao cast de markup vigente; não continuar a convertê-los em vazio/erro.
+SY1 no follow-ups.md completará SymbolElem, reflexão/morfologia após proposta
+e gate público; esta preservação textual é explicitamente incompleta.
+
+Aceitação: L0 primeiro, RED funcional de Type/Symbol/valor textual antes do código,
+GREEN e revalidação integral desta etapa; 12 GiB/swap zero/jobs1. Fluxo contínuo
+ADR-0127, sem contrato Rust público, fase ou default de produto novo. Resselo só
+dos owners após V15/V26; preservar testes de matemática e classificadores originais.
+
+## Completar casts de conteúdo de figure.caption — 2026-10-17
+
+Medição anterior: caption-shape-expanded-before.json fixa os sete casos novos
+junto aos oito controles anteriores, com fontes reais e fonte de build do
+binário separadas, UTC e SHA de binários. O pin aceita None/Str/Symbol como
+body e None/Str como separator; o Tekt os rejeita. foundations/value.rs:646-650
+mede o cast Content de None/Str/Symbol. A rota já aprovada de caption armazena
+Content e pode conservá-los sem contrato Rust novo. Localizados são Content,
+como medido/testado no constructor Figure desta etapa.
+
+Native_figure_caption deve usar cast puro de Content/LocatedContent/Str/None/
+Symbol para body e separator, preservando corpo/grapheme/origem. None vira
+Empty conhecido, inclusive separator None explícito; Str vira texto, Symbol
+usa o grapheme como Text provisório (SY1 permanece). Erro de cast conserva
+expected content, found {tipo} e value_span causal. Extrair o helper privado
+figure_argument_value_span da closure já testada de Figure e reutilizá-lo nas
+duas rotas, sem reavaliar args; os outros erros/ordem não mudam.
+
+Separator auto permanece incompleto no FG1: o carrier Option<Content> não
+separa auto explícito de omissão. Não introduzir sentinel nem campo público;
+preparar proposta de presença/tipo antes de implementá-lo. Isso não fecha o
+constructor inteiro. Posição, síntese, phase, assinatura e structs não mudam.
+L0 antes de teste RED de coerções/âncora e GREEN, seguido de todos os gates da
+etapa. Correção interna/paridade em fluxo ADR-0127 sob 12 GiB/swap zero/jobs1.

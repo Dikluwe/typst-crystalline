@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/selector_matching/textual.md
-//! @prompt-hash 3305646e
+//! @prompt-hash dd750c05
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -11,7 +11,16 @@ use super::*;
 /// O caminho textual dedicado aceita somente estes dois selectors; os de
 /// elemento e de parágrafo conservam os seus pontos de intercepção.
 pub(crate) fn is_text_rule(selector: &Selector) -> bool {
-    matches!(selector, Selector::Text(_) | Selector::Regex(_))
+    match selector {
+        Selector::Text(_) | Selector::Regex(_) => true,
+        Selector::NodeKind(_)
+        | Selector::NativeElement(_)
+        | Selector::DynKind(_)
+        | Selector::Where { .. }
+        | Selector::And(_)
+        | Selector::Or(_)
+        | Selector::Label(_) => false,
+    }
 }
 
 /// Testa a representação textual normalizada do grupo antes do splice.
@@ -23,7 +32,13 @@ pub(crate) fn textual_selector_matches(selector: &Selector, text: &str) -> bool 
             .captures_all(text)
             .iter()
             .any(|matched| matched.start < matched.end),
-        _ => false,
+        Selector::NodeKind(_)
+        | Selector::NativeElement(_)
+        | Selector::DynKind(_)
+        | Selector::Where { .. }
+        | Selector::And(_)
+        | Selector::Or(_)
+        | Selector::Label(_) => false,
     }
 }
 
@@ -51,7 +66,14 @@ pub(crate) fn textual_match_ranges(
             .filter(|matched| matched.start < matched.end)
             .map(|matched| (matched.start, matched.end))
             .collect(),
-        _ => Vec::new(),
+        Selector::Text(_)
+        | Selector::NodeKind(_)
+        | Selector::NativeElement(_)
+        | Selector::DynKind(_)
+        | Selector::Where { .. }
+        | Selector::And(_)
+        | Selector::Or(_)
+        | Selector::Label(_) => Vec::new(),
     }
 }
 /// **P790** — Fatia `text` nas ocorrências de `pattern` e emenda o
@@ -120,6 +142,52 @@ pub(crate) fn splice_regex_rule_matches(
 
 #[cfg(test)]
 mod smoke {
+    use super::*;
+
+    #[test]
+    fn v16_show_selector_text_routes_keep_utf8_empty_and_nontext_boundaries() {
+        use crate::entities::label::Label;
+        use crate::entities::regex::Regex;
+
+        let text = "éa éa";
+        for selector in
+            [Selector::Text("éa".into()), Selector::Regex(Regex::new("éa").unwrap())]
+        {
+            assert!(is_text_rule(&selector));
+            assert!(textual_selector_matches(&selector, text));
+            assert_eq!(textual_match_ranges(&selector, text), [(0, 3), (4, 7)]);
+            assert!(!textual_selector_matches(&selector, "miss"));
+            assert!(textual_match_ranges(&selector, "miss").is_empty());
+        }
+        for selector in
+            [Selector::Text(String::new()), Selector::Regex(Regex::new("").unwrap())]
+        {
+            assert!(is_text_rule(&selector));
+            assert!(!textual_selector_matches(&selector, text));
+            assert!(textual_match_ranges(&selector, text).is_empty());
+        }
+        for selector in [
+            Selector::NodeKind(NodeKind::Heading),
+            Selector::NativeElement(Func::native(
+                "text",
+                crate::compiler::stdlib::native_text,
+            )),
+            Selector::DynKind("text".into()),
+            Selector::Where {
+                base: Box::new(Selector::Text("éa".into())),
+                field: "body".into(),
+                value: Box::new(Value::None),
+            },
+            Selector::And(vec![Selector::Text("éa".into())]),
+            Selector::Or(vec![Selector::Regex(Regex::new("éa").unwrap())]),
+            Selector::Label(Label("éa".into())),
+        ] {
+            assert!(!is_text_rule(&selector), "{selector:?}");
+            assert!(!textual_selector_matches(&selector, text), "{selector:?}");
+            assert!(textual_match_ranges(&selector, text).is_empty(), "{selector:?}");
+        }
+    }
+
     #[test]
     fn modulo_compila_e_carrega() {}
 }

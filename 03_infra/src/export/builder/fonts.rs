@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder/fonts.md
-//! @prompt-hash 6d0083c4
+//! @prompt-hash 7fb528c6
 //! @layer L3
 //! @updated 2026-09-29
 
@@ -22,12 +22,15 @@ use crate::export::pattern_resources_for_page;
 use crate::export::scan_all_gradients;
 use crate::export::scan_all_images;
 use crate::export::srgb_icc_profile_for_version;
+use crate::export::stream::FontScenario;
 use crate::export::subset::remap_glyph_id;
 use crate::export::subset::subset_font_with_mapping;
 use crate::export::subset::FontSubset;
+use crate::export::tiling::walk_resources as walk_frame_items;
 use crate::export::to_unicode_cmap;
 use crate::export::widths_array;
 use crate::export::xobject_resources_for_page;
+use crate::export::FontKey;
 use crate::export::ImageXObject;
 use crate::export::PageContext;
 use crate::export::StreamMode;
@@ -40,10 +43,10 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use ttf_parser::Face;
 use typst_core::entities::document_format_options::PdfAccessibility;
-use typst_core::entities::font_book::FontVariant;
+#[cfg(test)]
 use typst_core::entities::font_list::FontList;
+#[cfg(test)]
 use typst_core::entities::font_variations::FontVariations;
-use typst_core::entities::frame_visitor::walk_frame_items;
 use typst_core::entities::frame_visitor::FrameVisitor;
 use typst_core::entities::layout_types::FrameItem;
 use typst_core::entities::layout_types::PagedDocument;
@@ -60,18 +63,21 @@ fn duration_ms(d: std::time::Duration) -> f64 {
 /// uma fonte é 100% bitmap (CBDT) e pode deixar de ser embutida.
 fn per_font_used_glyphs(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    fonts: &[FontKey],
     faces: &[Face<'_>],
 ) -> Vec<BTreeSet<u16>> {
     struct FontGlyphCollector<'a, 'f> {
-        fonts: &'a [((FontList, FontVariant, FontVariations), Vec<u8>)],
+        fonts: &'a [FontKey],
         faces: &'a [Face<'f>],
         sets: &'a mut [BTreeSet<u16>],
+        cache: crate::export::font_binding::LookupCache,
     }
     impl<'a, 'f> FrameVisitor for FontGlyphCollector<'a, 'f> {
         fn visit_text_shaped(&mut self, item: &FrameItem) {
-            if let FrameItem::TextShaped { glyphs, style, .. } = item {
-                let fi = crate::export::stream::font_index_for_style(self.fonts, style);
+            if let FrameItem::TextShaped { glyphs, style, font, .. } = item {
+                let Some(fi) = self.cache.index(self.fonts, style, font.as_ref()) else {
+                    return;
+                };
                 for g in glyphs {
                     self.sets[fi].insert(g.glyph_id);
                 }
@@ -80,7 +86,9 @@ fn per_font_used_glyphs(
         fn visit_text(&mut self, item: &FrameItem) {
             if let FrameItem::TextSeparator { style, .. } = item {
                 let fi = crate::export::stream::font_index_for_style(self.fonts, style);
-                if let Some(gid) = self.faces[fi].glyph_index(' ') { self.sets[fi].insert(gid.0); }
+                if let Some(gid) = self.faces[fi].glyph_index(' ') {
+                    self.sets[fi].insert(gid.0);
+                }
             }
             if let FrameItem::Text { text, style, .. } = item {
                 let fi = crate::export::stream::font_index_for_style(self.fonts, style);
@@ -100,9 +108,16 @@ fn per_font_used_glyphs(
         }
     }
     let mut sets: Vec<BTreeSet<u16>> = vec![BTreeSet::new(); fonts.len()];
-    let mut collector = FontGlyphCollector { fonts, faces, sets: &mut sets };
+    let mut collector = FontGlyphCollector {
+        fonts,
+        faces,
+        sets: &mut sets,
+        cache: Default::default(),
+    };
     for page in &doc.pages {
-        walk_frame_items(&mut collector, &page.items);
+        for items in [&page.background, &page.items, &page.foreground] {
+            walk_frame_items(&mut collector, items);
+        }
     }
     sets
 }
@@ -272,18 +287,15 @@ fn build_font_stream(stream_subtype: &str, font_stream_data: &[u8]) -> Vec<u8> {
     const MAX_COMPRESS_FONT_STREAM: usize = 256 * 1024;
 
     if font_stream_data.len() <= MAX_COMPRESS_FONT_STREAM {
-        match compress_zlib(font_stream_data) {
-            Ok(compressed) => {
-                let len = compressed.len();
-                let mut stream = format!(
-                    "<< /Length {len} /Filter /FlateDecode /Subtype /{stream_subtype} >>\nstream\n"
-                )
-                .into_bytes();
-                stream.extend_from_slice(&compressed);
-                stream.extend_from_slice(b"\nendstream");
-                return stream;
-            }
-            Err(_) => {}
+        if let Ok(compressed) = compress_zlib(font_stream_data) {
+            let len = compressed.len();
+            let mut stream = format!(
+                "<< /Length {len} /Filter /FlateDecode /Subtype /{stream_subtype} >>\nstream\n"
+            )
+            .into_bytes();
+            stream.extend_from_slice(&compressed);
+            stream.extend_from_slice(b"\nendstream");
+            return stream;
         }
     }
 
@@ -557,6 +569,7 @@ impl PdfBuilder {
             scan_all_gradients(doc, first_grad_id);
         let n_grads = grad_objs.len();
         let mut next_sub_id = first_grad_id + n_grads * 3;
+        let tilings = crate::export::pdf_tiling::Patterns::scan(doc, &mut next_sub_id);
 
         // **P941** — XObjects de glifos bitmap (dedup por glyph id), IDs na zona
         // livre depois dos gradientes. Em seguida, `next_sub_id` avança para
@@ -620,7 +633,10 @@ impl PdfBuilder {
                 xobject_resources_for_page(page, &ptr_to_idx, &img_refs),
                 &bitmap_res_entries,
             );
-            let pat_res = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
+            let pat_res = tilings.resources(
+                &pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs),
+                i,
+            );
             // **P956** — verbose: `/c0` (sRGB ICCBased) nos recursos da página.
             let cs_res = colorspace_resource_entry(verbose, icc_profile_id, page);
             let resources_str =
@@ -638,15 +654,17 @@ impl PdfBuilder {
                 ),
             );
 
-            let ctx = PageContext::cidfont(
+            let mut ctx = PageContext::with_font_scenario(
                 &ptr_to_idx,
                 &img_refs,
                 &pat_ptr_to_idx,
                 &pat_refs,
-                &char_to_gid,
-                &glyph_mapping,
-                &glyph_to_nominal,
-                if bitmap_only { Some(&bitmap_refs) } else { None },
+                FontScenario::Cidfont {
+                    char_to_gid: &char_to_gid,
+                    glyph_mapping: &glyph_mapping,
+                    glyph_to_nominal: &glyph_to_nominal,
+                    bitmap: if bitmap_only { Some(&bitmap_refs) } else { None },
+                },
                 self.stream_mode,
             )
             .with_pdf_tags(
@@ -655,6 +673,10 @@ impl PdfBuilder {
                 matches!(self.standard.accessibility, Some(PdfAccessibility::Ua1)),
             )
             .with_oracle(self.oracle);
+            ctx.tiling_names = Some(&tilings.names[i]);
+            for (id, bytes) in tilings.emit(i, &mut ctx, &resources_str) {
+                self.add_bytes(id, bytes);
+            }
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
             let stream_object = self.serialize_page_stream(&stream_bytes);
@@ -823,7 +845,7 @@ impl PdfBuilder {
     pub(in crate::export) fn build_multifont(
         mut self,
         doc: &PagedDocument,
-        fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+        fonts: &[FontKey],
         faces: &[Face<'_>],
     ) -> (Vec<u8>, f64) {
         // **P1468** — ver nota equivalente em `build_helvetica`.
@@ -847,16 +869,6 @@ impl PdfBuilder {
 
         // Codepoints + glyph mappings por font. Cada font tem o seu
         // mapping (chars partilhados; gids específicos da face).
-        let mut chars = collect_codepoints(doc);
-        let text_chars = collect_text_codepoints(doc);
-        chars.extend(text_chars.iter().copied());
-        let glyph_ids = collect_glyph_ids(doc);
-        // P520 — glifos reais do shaper (ligatures) mapeados para o primeiro
-        // caractere do cluster. Prioridade idêntica a build_cidfont.
-        let shaped_mappings = collect_shaped_glyph_mappings(doc);
-        // P675 — colectar textos shaped uma única vez e partilhar entre fontes,
-        // em vez de percorrer o documento N vezes (uma por fonte).
-        let shaped_cluster_texts = collect_shaped_cluster_texts(doc);
         let mut per_font_mappings: Vec<Vec<(u16, String)>> = Vec::with_capacity(n_fonts);
         let mut per_font_char_to_gid: Vec<HashMap<char, u16>> =
             Vec::with_capacity(n_fonts);
@@ -874,7 +886,15 @@ impl PdfBuilder {
         // `export/stream.md` §P906.
         let mut per_font_glyph_reverse: Vec<HashMap<u16, char>> =
             Vec::with_capacity(n_fonts);
+        let bound_views = crate::export::font_binding::partition(doc, fonts);
         for face in faces {
+            let view = &bound_views[per_font_mappings.len()];
+            let mut chars = collect_codepoints(view);
+            let text_chars = collect_text_codepoints(view);
+            chars.extend(text_chars.iter().copied());
+            let glyph_ids = collect_glyph_ids(view);
+            let shaped_mappings = collect_shaped_glyph_mappings(view);
+            let shaped_cluster_texts = collect_shaped_cluster_texts(view);
             let mut mappings = map_chars_to_glyphs(face, &chars);
 
             // P568 — incluir glyphs de FrameItem::Text para que espaços e outros
@@ -928,68 +948,52 @@ impl PdfBuilder {
             // documento. Filtrar para o range válido desta face antes de
             // subsetar, senão o subsetter rejeita a fonte como MalformedFont.
             let face_glyph_ids: BTreeSet<u16> =
-                glyph_ids.iter().copied().filter(|&gid| gid < n_glyphs).collect();
+                collect_glyph_ids(&bound_views[font_index])
+                    .into_iter()
+                    .filter(|&gid| gid < n_glyphs)
+                    .collect();
 
-            let (embed_data, glyph_mapping) = match self.measure_subset(
+            // The subsetter freezes variable data. Pass axes while the original
+            // face still carries them, rather than instancing its default subset.
+            let axis_tuples: Vec<_> =
+                axis_vars.iter().map(|v| (v.tag, v.value)).collect();
+            let t0 = std::time::Instant::now();
+            let subset = crate::export::subset::subset_font_with_variations(
                 font_bytes,
                 &char_to_old_gid,
                 &face_glyph_ids,
-            ) {
-                Some(FontSubset { data, mapping }) => {
-                    if Face::parse(&data, 0).is_ok() {
-                        (data, mapping)
-                    } else {
-                        (font_bytes.clone(), HashMap::new())
-                    }
+                &axis_tuples,
+            );
+            self.subset_ms += duration_ms(t0.elapsed());
+            let (embed_data, glyph_mapping, instancing_applied) = match subset {
+                Some(FontSubset { data, mapping }) if Face::parse(&data, 0).is_ok() => {
+                    (data, mapping, !axis_vars.is_empty())
                 }
-                None => (font_bytes.clone(), HashMap::new()),
-            };
-
-            // P530 — instanciar estaticamente a VF se a combinação usar um
-            // peso/estilo diferente do default. A instanciação é feita depois
-            // do subsetting para operar sobre uma fonte pequena (P529).
-            // `axis_vars` já calculado acima (P772u, usado também para
-            // `glyph_to_nominal`, abaixo).
-            let mut instancing_applied = false;
-            let embed_data = if !axis_vars.is_empty() {
-                let axis_tuples: Vec<(ttf_parser::Tag, f32)> =
-                    axis_vars.iter().map(|v| (v.tag, v.value)).collect();
-                match instantiate_variable_font(&embed_data, &axis_tuples) {
-                    Some(instanced) => {
-                        instancing_applied = true;
-                        instanced
-                    }
-                    None => {
-                        // Se o instancer falhar (ex.: Python/fontTools ausente),
-                        // mantém o subset default com aviso.
+                _ => {
+                    // Full embedding fallback must also use original variable bytes.
+                    let instance = if axis_vars.is_empty() {
+                        None
+                    } else {
+                        instantiate_variable_font(font_bytes, &axis_tuples)
+                    };
+                    let applied = instance.is_some();
+                    if !axis_vars.is_empty() && !applied {
                         eprintln!(
                             "Aviso: falha ao instanciar fonte variável para {:?}/{:?}; \
                              a usar instância default.",
-                            font_list, font_variant
+                            font_list, font_variant,
                         );
-                        embed_data
                     }
+                    (
+                        instance.unwrap_or_else(|| font_bytes.clone()),
+                        HashMap::new(),
+                        applied,
+                    )
                 }
-            } else {
-                embed_data
             };
 
-            // **P772u** — `glyph_to_nominal` (baseline do delta TJ, P520) tem de
-            // usar a MESMA face/instância que `/W` (`widths_array`, abaixo, que lê
-            // de `embed_data` pós-instanciação). Antes desta correcção,
-            // `glyph_to_nominal` lia sempre `face` sem variação (peso por
-            // omissão), enquanto `/W` já usava a face instanciada (peso correcto)
-            // quando a instanciação tinha sucesso — o delta TJ media a variação
-            // de peso como se fosse kerning, e o avanço real do renderer somava
-            // a variação **duas vezes** (confirmado por instrumentação: delta TJ
-            // bate exactamente com `nominal_default - x_advance_variado` para
-            // todos os glifos de "Weight" a wght=800 — causa real do colapso de
-            // espaço entre palavras em Cantarell-VF/CFF2/HVAR a pesos altos, ver
-            // `paridade-producao-p772u.md`). Só aplicar a variação aqui quando
-            // `instancing_applied` — se a instanciação falhou (fallback Python/
-            // fontTools ausente), `/W` fica na instância por omissão e
-            // `glyph_to_nominal` tem de ficar consistente com ela (mesma
-            // instância dos dois lados, mesmo que "errada").
+            // Original GIDs and nominal advances must agree with the effective
+            // instance used for /W, before applying the subset remapping.
             let mut glyph_to_nominal: HashMap<u16, i32> = HashMap::new();
             {
                 let mut nominal_face = face.clone();
@@ -1075,6 +1079,7 @@ impl PdfBuilder {
             scan_all_gradients(doc, first_grad_id);
         let n_grads = grad_objs.len();
         let mut next_sub_id = first_grad_id + n_grads * 3;
+        let tilings = crate::export::pdf_tiling::Patterns::scan(doc, &mut next_sub_id);
 
         // **P941** — XObjects de glifos bitmap (dedup por glyph id, por fonte),
         // IDs na zona livre depois dos gradientes.
@@ -1147,7 +1152,10 @@ impl PdfBuilder {
                 xobject_resources_for_page(page, &ptr_to_idx, &img_refs),
                 &bitmap_res_entries,
             );
-            let pat_res = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
+            let pat_res = tilings.resources(
+                &pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs),
+                i,
+            );
             let font_entries = (0..n_fonts)
                 .map(|fi| {
                     let type0_id = fonts_start + 5 * fi;
@@ -1172,17 +1180,20 @@ impl PdfBuilder {
                 ),
             );
 
-            let ctx = PageContext::multifont(
+            let mut ctx = PageContext::with_font_scenario(
                 &ptr_to_idx,
                 &img_refs,
                 &pat_ptr_to_idx,
                 &pat_refs,
-                fonts,
-                &per_font_char_to_gid,
-                &per_font_glyph_mapping,
-                &per_font_glyph_to_nominal,
-                &per_font_glyph_reverse,
-                &per_font_bitmap,
+                FontScenario::Multifont {
+                    fonts,
+                    per_font_char_to_gid: &per_font_char_to_gid,
+                    per_font_glyph_mapping: &per_font_glyph_mapping,
+                    per_font_glyph_to_nominal: &per_font_glyph_to_nominal,
+                    per_font_glyph_reverse: &per_font_glyph_reverse,
+                    per_font_bitmap: &per_font_bitmap,
+                    bindings: Some(crate::export::font_binding::LookupCache::default()),
+                },
                 self.stream_mode,
             )
             .with_pdf_tags(
@@ -1191,6 +1202,10 @@ impl PdfBuilder {
                 matches!(self.standard.accessibility, Some(PdfAccessibility::Ua1)),
             )
             .with_oracle(self.oracle);
+            ctx.tiling_names = Some(&tilings.names[i]);
+            for (id, bytes) in tilings.emit(i, &mut ctx, &resources_str) {
+                self.add_bytes(id, bytes);
+            }
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
             let stream_object = self.serialize_page_stream(&stream_bytes);
@@ -1340,7 +1355,10 @@ impl PdfBuilder {
                 glyph_mapping.values().copied().collect()
             } else {
                 let n_glyphs = faces[fi].number_of_glyphs();
-                glyph_ids.iter().copied().filter(|&gid| gid < n_glyphs).collect()
+                collect_glyph_ids(&bound_views[fi])
+                    .into_iter()
+                    .filter(|&gid| gid < n_glyphs)
+                    .collect()
             };
             let cidset_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
             self.add_bytes(cidset_id, build_cidset_stream(&cids));
@@ -1363,5 +1381,65 @@ impl PdfBuilder {
         self.emit_page_labels(doc);
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
+    }
+}
+
+#[cfg(test)]
+mod variable_instance_tests {
+    use super::*;
+    use crate::{fonts::FontSlot, world::SystemWorld};
+    use typst_core::entities::layout_types::{Page, Point, Pt, TextStyle};
+
+    #[test]
+    fn explicit_variable_axes_survive_pdf_subsetting() {
+        let path = std::path::PathBuf::from(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/UbuntuSans-Variable.ttf"
+        ));
+        let world = SystemWorld::new(env!("CARGO_MANIFEST_DIR"), "Cargo.toml")
+            .unwrap()
+            .with_fonts(vec![FontSlot::new(path, 0)]);
+        let mut items = Vec::new();
+        for (i, (weight, axis)) in [(700, 250.0), (400, 900.0)].into_iter().enumerate() {
+            let style = TextStyle {
+                font: Some(FontList::single("Ubuntu Sans".into())),
+                size: Pt(20.0),
+                weight: Some(weight),
+                variations: Some(FontVariations(vec![(*b"wght", axis)])),
+                ..Default::default()
+            };
+            items.push(FrameItem::Text {
+                pos: Point { x: Pt(20.0), y: Pt(30.0 + i as f64 * 30.0) },
+                text: "Hello".into(),
+                style,
+                bidi: None,
+            });
+        }
+        let page = Page {
+            width: 200.0,
+            height: 200.0,
+            logical_number: 1,
+            numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
+            items,
+        };
+        let doc = crate::shaper::shape_document(&world, PagedDocument::new(vec![page]));
+        for mode in [StreamMode::Compact, StreamMode::Verbose] {
+            let pdf = crate::export::export_pdf(&doc, mode);
+            let text = String::from_utf8_lossy(&pdf);
+            for widths in [
+                "/W [1 [689] 2 [547] 3 [247] 4 [580]]",
+                "/W [1 [734] 2 [584] 3 [316] 4 [607]]",
+            ] {
+                assert!(
+                    text.contains(widths),
+                    "PDF widths must describe the requested instance: {widths}"
+                );
+            }
+        }
     }
 }

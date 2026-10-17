@@ -407,7 +407,7 @@ fn p209c_query_and_vazio_devolve_empty() {
     use crate::entities::location::Location;
     use crate::entities::selector::Selector;
     use ecow::EcoVec;
-    null_ctx!(ctx);
+    let ctx = EvalContext::new();
     let r = ctx.introspector.query(&Selector::And(EcoVec::new()));
     assert_eq!(r, Vec::<Location>::new());
 }
@@ -418,7 +418,7 @@ fn p209c_query_or_vazio_devolve_empty() {
     use crate::entities::location::Location;
     use crate::entities::selector::Selector;
     use ecow::EcoVec;
-    null_ctx!(ctx);
+    let ctx = EvalContext::new();
     let r = ctx.introspector.query(&Selector::Or(EcoVec::new()));
     assert_eq!(r, Vec::<Location>::new());
 }
@@ -514,7 +514,7 @@ fn p209d_introspector_query_regex_devolve_empty_stub() {
     use crate::entities::location::Location;
     use crate::entities::regex::Regex;
     use crate::entities::selector::Selector;
-    null_ctx!(ctx);
+    let ctx = EvalContext::new();
     let r = ctx.introspector.query(&Selector::Regex(Regex::new("\\d+").unwrap()));
     assert_eq!(r, Vec::<Location>::new());
 }

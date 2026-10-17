@@ -1,5 +1,9 @@
 # Prompt L0 — `entities/elements/table` — `TableElem`
-Hash do Código: 4eb19477
+Hash do Código: 7bc97268
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:ec32b8f89dc95f1de7376ca91e6252eb61a5da2ac0326abb7474fe56fd27fd7a
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/table.rs`
 **Origem**: modelo D (ADR-0105), **Lote 12 P327** (bloco grid/table cell).
@@ -84,3 +88,73 @@ visual nem body. `pdf.table-summary` substitui só esse campo.
 O storage Rust exato é mecânica; o observável é a preservação do summary até
 a estrutura `/Table` no PDF tagueado sem alterar texto, páginas, boxes ou
 geometria.
+
+## D08B3-A — tabela resolvida na inserção; proposta pendente ADR-0127
+
+### Medição anterior à decisão
+
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado.
+00_nucleo/diagnosticos/table-cell-realizacao-d08b3-2026-10-07/
+{before,additional,order,aliases}.json.gz registra pin 9f2b6e8715237cb086899a42873660fe744622e8,
+UTC, diffstat/status, fontes/binários, argumentos e resultados. Oracle binário
+7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; Tekt
+7c0957f45fe40290aa809e3358c9a87979aa1e28058511ad0ee978feea6713a2.
+Vanilla lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:204–278 resolve campos, :1500–1530 rejeita
+conflitos na ordem, :1665–1703 cria vazios, :1945–1988 deriva breakable.
+Tekt grid_placement.rs:91–112 prioriza explícitas e :262–270 só conhece GridCell;
+realize/mod.rs:160–200 visita receitas bottom-up; table.rs:127–152 despeja
+wrappers sem atributos. order mede zero efeitos de células quando a tabela é
+substituída e zero efeitos de heading quando a célula o oculta; aliases mede
+LOCAL a, OUTER LOCAL a e NEW a. É linguagem, sem copiar mecânica/bytes/igualdade
+Rust. Hipótese refutada por campos desconhecidos, efeito oculto ou ordem errada
+após a mudança; cache/paginação não são inferidos como equivalentes.
+
+### Responsabilidade exclusiva proposta
+
+Adicionar em entities/elements/table o carrier exato:
+
+```rust
+#[derive(Debug, Clone, PartialEq)]
+pub struct TableGridResolved {
+    pub cells: Vec<Content>,
+    pub num_cols: usize, pub num_rows: usize,
+    pub header_rows: usize, pub footer_start: usize,
+    pub(crate) complete: bool,
+}
+```
+
+TableElem recebe `pub source_span: Span`, `pub rows_explicit: bool` e
+`pub resolved: Option<Arc<TableGridResolved>>`. Constructor cru tem resolved=None.
+Rows explícitas são distinguidas do fallback [Auto] omitido; sem children e sem
+rows explícitas não fabricar célula. Header/footer e children originais
+permanecem como fonte lexical. Plano contém somente origens de células reais ou
+vazias, não entries duplicadas dos spans; células são ordenadas row-major.
+header_rows é faixa [0,n); footer_start é num_rows quando não há footer.
+Getter/serialização não expõem esses carriers como campos novos da linguagem.
+Travessia visual/emptiness/plain_text com resolved Some consomem cells completas
+uma vez, não os children/header/footer crus em paralelo. Map/clone preservam
+fontes e transportam visual; não executar receita em entidades.
+
+
+### Gate, aceitação e divisão explícita
+
+Proposta não vigente até confirmação humana do manifesto: há cinco campos públicos,
+dois carriers públicos e uma fachada pública nova, além da fase lógica antes de Cell
+show. Após ratificação, RED→GREEN, suites/build/lint/preservação restrita e coletas
+D08A/B2, D05/D06/D07/query obrigatórios. Aceitação em linguagem/efeitos/geométricas
+reais, nunca igualdade de bytes ou normalização de whitespace para fechar render.
+Este primeiro pacote D08B3-A é incompleto no universo Cell: D08B3-B completa defaults
+de Cell isolada (raw-cell-no-placement/outside-fields) e decisão separada de geração
+fresca show-cell-reconstruct. Defaults/fields genéricos de Table (table-root-equality),
+styles funções/paint/strokes/insets ricos, linhas/gutters ricos, spans multipágina e
+conformidade PDF/UA continuam fora da certificação. Não mudar casts legados extras
+do D08B2, sintaxe, flags ou política não-localizável global neste pacote.
+
+## Reconstrução somente após mudança — 2026-10-10
+
+Medição anterior à decisão: `00_nucleo/diagnosticos/table-local-scaling-followup-2026-10-09/change-aware-red-gate.json.gz` registra HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado/status/diffstat, UTC, script/fixtures/interpositor/CPU/comandos e release SHA-256 `29745a9e80ca43160b34f4807949f00e803070392653df0fc5e214b2f42ac33a`: 483.823 pedidos glibc em local-set-1600, acima do gate pré-fixado de 470.000. `entities/content/traversal.rs:25-55,235-264` reconstrói sequências/carriers/estilos/Table/Cell mesmo se todos os callbacks retornam None; `entities/elements/table.rs:85-118` e `entities/elements/table_cell.rs:308-344` clonam metadados e contribuições visuais. O vanilla pinado visita referências e materializa apenas após mudança (`lab/typst-original/crates/typst-realize/src/lib.rs:242-291,353-410`). Isso é uma hipótese de custo, sem exigir sua vtable ou igualdade Rust (ADR-0107/0026/0109).
+
+Decisão interna (ADR-0127): o owner oferece helper crate-private de reconstrução dos filhos que retorna None somente quando todos ficaram inalterados. Raw visita children, header, footer, caption nesta ordem; preparada visita exclusivamente resolved.cells e caption, conservando raw e metadados. A descida chama a prova interna de `00_nucleo/prompts/entities/content/traversal.md`; materializar Table e plano apenas depois da primeira mudança. O método público existente de Element conserva assinatura e semântica e reutiliza essa mesma implementação, sem novo método de trait. Não comparar igualdade para detectar mudança nem processar efeitos duas vezes. Testes de filhos/preparo/caption/ordem e os gates pareados acima devem passar; não certificar variantes ainda fora do recorte.
+
+
+A prova compartilhada de ausência de mudança obedece às claims desse núcleo. O algoritmo, os campos transformados, sua ordem e a preservação específica permanecem owned por este prompt e seu único consumer.

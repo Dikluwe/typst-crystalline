@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/par` — `par` e `parbreak`
-Hash do Código: 79730d57
+Hash do Código: 44946fe9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-break-policy.toml sha256:7e41c96527dd5936bebe6916f2a9ea93477c057495845c7e8b52ce3c5917855a
@@ -181,3 +181,46 @@ O lote bilateral `00_nucleo/diagnosticos/correcao-seletores-paragrafo-2026-09-28
 Correção interna de paridade ADR-0127: sem novos contratos públicos, flags ou fase. Primeira preparação global certificada: parágrafo latino composto por Text, Space, SpaceFromNewline, Empty, Sequence, Styled tipográfico e Strong/Emph, com hifenização desligada, direção LTR, sem tracking/math/smallcaps, largura finita e constante, fora de colunas/células/floats. O conjunto completo deve ser certificado antes de emitir; uma unidade recusada preserva o caminho anterior. Hifenização, Unicode UAX14 completo, links/objetos/linebreaks, largura variável, limites customizados e seleção incremental restante continuam explicitamente incompletos; este lote não declara estado da arte nem otimização completa da língua.
 
 Transportar linebreaks válido em styles.push_custom("par.linebreaks", value.clone()), inclusive Auto. Mesmos casts/spans e Content::par; nenhuma seleção nesta unidade.
+
+
+## Transporte de spacing no constructor — 2026-10-17
+
+### Medição anterior à decisão
+
+No HEAD06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado,
+`01_core/src/compiler/stdlib/structural/par.rs:153-157` aceita e ignora spacing.
+`00_nucleo/diagnosticos/tekt-v16-paragraph-2026-10-17/extended-before.json.gz`
+conserva fonte/L0 e hashes globais/status/diffstat/UTC; supplement-before-
+measurement.json.gz mede BEFORE/par(spacing:30pt)[]/AFTER: AFTER em45.917213pt
+no Tekt contra77.117188pt no pin. Em terminal, altura39.5172 versus55.117188.
+spacing-types-before.json.gz mede dez valores nos dois binários: None/Auto/
+Bool/Int/Float/Str/Ratio são aceitos indevidamente no Tekt; Length em em, zero
+e negativo são aceitos no pin. `lab/typst-original/crates/typst-library/src/model/par.rs:212-225`
+confirma Length e default1.2em. Fonte conferida contra o objeto Git do pin
+9f2b6e8715237cb086899a42873660fe744622e8. É linguagem, sem inferir intenção.
+
+### Prescrição exclusiva
+
+Correção interna/de paridade ADR-0127 em fluxo contínuo, sem nova assinatura,
+entidade, trait, flag, default ou fase. Supersede o scope-out de spacing somente
+para validação/transporte no constructor; first-line-indent, hanging-indent e
+justification-limits continuam incompletos, conforme sua família própria.
+
+Aceitar somente Value::Length, inclusive zero/negativo/em; publicar em Styles
+custom par.spacing o Length lexical sem resolvê-lo no eval. A fonte/região é
+resolvida pelo layout proprietário vigente. Para demais tipos, reutilizar
+compiler/eval/rules expected_length_error com value_span da última ocorrência
+nomeada spacing, ou args.span sintético. Conservar hint para Int, vocabulário,
+body, ordem dos demais nomes, leading/justify/linebreaks e demais diagnósticos.
+O residual de três propriedades aceitas/ignoradas pode continuar num grupo V19
+justificado como dívida explícita; não mover lógica de layout ao constructor.
+
+### Aceitação
+
+RED→GREEN funcional de transporte para Length físico/em/zero/negativo, erro
+com hint e span causal para Int e rejeição dos demais tipos. Observar resultado
+do layout, não somente inspeção de Styles. Repetir as coletas com spacing30pt,
+2em e controles zero/negativo no diagnóstico deste lote; conservar a suíte e
+os gates completos já prescritos. Resselo limitado a este par e ao owner de
+parágrafo do mesmo lote. Não certificar raw fields genéricos, indentação,
+limites de justificação ou paridade universal de Par por esta correção.

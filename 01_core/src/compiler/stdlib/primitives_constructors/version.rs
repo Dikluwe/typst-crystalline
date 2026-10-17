@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/primitives-constructors/version.md
-//! @prompt-hash 99045d94
+//! @prompt-hash a316bf78
 //! @layer L1
 //! @updated 2026-08-23
 
@@ -109,6 +109,13 @@ pub(crate) fn dispatch_version_method(
 }
 
 /// Sem `pre`/`build` (não existem no Typst — ver P684); argumentos nomeados são erro.
+/// `version(...)` → `Value::Version`.
+///
+/// Formas suportadas:
+/// 1. String posicional (compatibilidade P403): `version("1.2.3")` — só inteiros.
+/// 2. Componentes posicionais, qualquer número: `version(1, 2, 3)`,
+///    `version(1, 2, 3, 4, 5)`.
+/// 3. Array de componentes (P682): `version((1, 2, 3))`, `version((1, 2, 3, 4, 5))`.
 pub fn native_version(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -186,15 +193,6 @@ pub fn native_version(
 
     Ok(Value::Version(Arc::new(Version::from_components(components))))
 }
-
-/// Parser canónico de duração.
-///
-/// Formatos aceites: `"0s"`, `"1h30m"`, `"3d2h30m15.5s"`, `"0.001s"`.
-/// Regras:
-/// - Sufixos `d`, `h`, `m`, `s` em qualquer combinação não vazia.
-/// - Ordem fixa d → h → m → s.
-/// - Cada sufixo no máximo uma vez.
-/// - `d`, `h`, `m` aceitam apenas inteiros decimais não negativos (`u64`).
 
 #[cfg(test)]
 mod tests {

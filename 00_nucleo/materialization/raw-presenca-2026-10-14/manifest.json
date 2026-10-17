@@ -1,0 +1,41 @@
+{
+  "status": "pending-human-approval",
+  "utc": "2026-10-14T06:56:28.292466+00:00",
+  "head": "06848cdcb5450f2c555626bf116bc7acd82bd82b",
+  "candidates": {
+    "candidates/00_nucleo/prompts/_nuclei/raw-field-presence.toml": "c0a8919f29b5cd8bba0cde774787066936f7e06e57a048321b58cad47341f5e4",
+    "candidates/00_nucleo/prompts/entities/elements/raw.md": "91a312919abd2412590d5f98d383ec9795d04a7d98f5875ac0ef1c904ae3ccf3"
+  },
+  "nucleus_pin": "f29e26ff07053f940cfe4ab5358fc9a6ac8d4d689528e169b5f8567492f52f46",
+  "base_files": {
+    "00_nucleo/prompts/entities/elements/raw.md": "2ba57c6f08ca4c5096e76bfda37169e39694f9b9b5ca3651362c9fdeb7e1cc4d",
+    "01_core/src/entities/elements/raw.rs": "9459163ea6b3588ffd946f88d442de3b8551261c1a9d656d30909243eb1187ab",
+    "00_nucleo/prompts/entities/content/construction.md": "17a5263a5e41f7c9548b9b26e8ba4a568484d2423f8c3cc15e8c3a6bd6466e73",
+    "01_core/src/entities/content/construction.rs": "a31b24c1cd1131b5278393e6be3fd50b3a970e5ece29447ba7c394ab9d40d7e6",
+    "00_nucleo/prompts/entities/content/fields.md": "050e5cec2d2318c685f4debffa1db934dad850bc7a1f84932ad5d5df675d6dab",
+    "01_core/src/entities/content/fields.rs": "9cfd7719f108209ef8d0be72b0af6d2d2b5180489e29096d2616c649b8225f65",
+    "00_nucleo/prompts/compiler/stdlib/structural/markup.md": "40b46086873a1bf95b04373743b12d440c3dff41b268c4f4c2deb95628a3a673",
+    "01_core/src/compiler/stdlib/structural/markup.rs": "ac8edbb5fab26ed4d19aa9d453a7d108cc9e4871b2069057d28a2cea93d9904e",
+    "00_nucleo/prompts/compiler/eval/observation/elements.md": "d3662c36a969af7d2b3f078b6c30cc8dd35491811e6bb064f8211c839f0c7379",
+    "01_core/src/compiler/eval/observation/elements.rs": "e61a1b01ece8fdc7f6785dafc091667103e9dc2b1358efef0bac830be50ed99d",
+    "00_nucleo/prompts/compiler/eval/bindings/field_access/content_methods.md": "faeddb399fd75ecdbf64473ffc9d4af350dca559150c57a85f3d00404aaa046c",
+    "01_core/src/compiler/eval/bindings/field_access/content_methods.rs": "08ca211d1e1b6b719f5e7eb9f6ac76110dd9efa7ccd7d4bf433acdb6ecbb0f04",
+    "00_nucleo/prompts/compiler/stdlib/loading/encoding.md": "643b1fbc4eb4135c08905212affccbbd48b473924b844a07c840e565bdf56221",
+    "01_core/src/compiler/stdlib/loading/encoding.rs": "93d8ace1ecf73c8356fb8ac1e78eb8dd73f4e6206d1c29a5d5f92c055c802c8f",
+    "00_nucleo/prompts/shell/cli.md": "e248e1e615ec1bc0c8dc951e830ae532fe21f45f0232edd400e1a53e6705865d",
+    "02_shell/src/cli.rs": "6b5ff1883b68b4108ee615593612b839734fc76b7d33a3242104716d967909fa",
+    "00_nucleo/prompts/compiler/eval/tests.md": "8e9bfe8e84b55fb505b072266b0401cb13c25fb4f41272a99c4b9f57d68c0424",
+    "01_core/src/compiler/eval/tests.rs": "96f6c3754f5f48f9608ae80bbfddbdd4be4516aa4179382a2ad70cbf0f985f0c"
+  },
+  "consumers": {
+    "00_nucleo/prompts/entities/elements/raw.md": "01_core/src/entities/elements/raw.rs",
+    "00_nucleo/prompts/entities/content/construction.md": "01_core/src/entities/content/construction.rs",
+    "00_nucleo/prompts/entities/content/fields.md": "01_core/src/entities/content/fields.rs",
+    "00_nucleo/prompts/compiler/stdlib/structural/markup.md": "01_core/src/compiler/stdlib/structural/markup.rs",
+    "00_nucleo/prompts/compiler/eval/observation/elements.md": "01_core/src/compiler/eval/observation/elements.rs",
+    "00_nucleo/prompts/compiler/eval/bindings/field_access/content_methods.md": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "00_nucleo/prompts/compiler/stdlib/loading/encoding.md": "01_core/src/compiler/stdlib/loading/encoding.rs",
+    "00_nucleo/prompts/shell/cli.md": "02_shell/src/cli.rs",
+    "00_nucleo/prompts/compiler/eval/tests.md": "01_core/src/compiler/eval/tests.rs"
+  }
+}

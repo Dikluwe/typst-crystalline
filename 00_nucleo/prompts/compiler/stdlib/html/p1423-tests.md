@@ -1,5 +1,5 @@
 # L0 — stdlib/html/p1423-tests
-Hash do Código: 73bb9243
+Hash do Código: 5162fcb9
 
 Layer: L1 (test-only)
 Exclusive consumer: `01_core/src/compiler/stdlib/html/p1423_tests.rs`

@@ -1,0 +1,5 @@
+from pathlib import Path
+import gzip,json,datetime,shutil,re
+out=Path('00_nucleo/diagnosticos/tekt-v16-table-cells-2026-10-17');shutil.copyfile(out/'before.json.gz',out/'initial-two-owners.json.gz');b=json.load(gzip.open(out/'before.json.gz'));source='01_core/src/compiler/layout/grid/row_groups.rs';owner=re.search(r'^//! @prompt (.+)$',Path(source).read_text(),re.M).group(1);b['sources'].append(source);b['owners'].append(owner);b['files'][source]=Path(source).read_text();b['files'][owner]=Path(owner).read_text();b['supplement_utc']=datetime.datetime.now(datetime.timezone.utc).isoformat()
+with gzip.open(out/'before.json.gz','wt') as f:json.dump(b,f)
+rows=[r for r in json.load(open(out/'baseline-architecture.log'))['runs'][0]['results'] if r['ruleId']=='V16' and r['locations'][0]['physicalLocation']['artifactLocation']['uri'].removeprefix('./') in b['sources']];assert len(rows)==10;(out/'input.sarif.json').write_text(json.dumps({'runs':[{'results':rows}]}));p=out/'workers/audit.py';s=p.read_text().replace("print({'emitted':9,","print({'emitted':10,");p.write_text(s);shutil.copyfile('/tmp/tekt-table-supplement.py',out/'workers/supplement.py')

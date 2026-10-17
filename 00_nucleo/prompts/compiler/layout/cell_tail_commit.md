@@ -1,10 +1,11 @@
 # L0 — cell tail commit
-Hash do Código: 70f0a08e
+Hash do Código: 2dee2900
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
+- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:7b8a61eaafc8a07df12218f8f0560c33fae5c36f621b822b7350ccefc9774711
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/cell_tail_commit.rs`
@@ -60,3 +61,39 @@ Tratar TextReplacement como envelope visual transparente nos percursos deste own
 O Núcleo text-replacement define apenas invariantes compartilhados; este prompt
 possui somente o consumer declarado. Aceitação: texto/caixas, testes causais,
 transporte recursivo e controle de hífen literal; não bytes PDF ou nova seleção.
+
+
+## Transporte preparado em Shape — T1c/T2 aprovado — 2026-10-14
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/tiling-nativo-2026-10-14/before.json.gz` registra
+HEAD, working tree, diffstat/UTC e fontes/owners antes desta migração.
+layout_types.rs:510–511 ainda transporta Paint/Stroke; shape.rs:151–191
+materializa só fill em grupos; tiling.rs:85 limita/clona a grade. O preparador
+prepare_cell já retorna TilingFrame uma vez por ocorrência. As sondas
+`tiling-preparacao-2026-10-14/{before,after}-renders/results.json.gz`
+comprovam que dense-open e stroke-open ainda divergem nos três targets.
+O contrato foi aprovado no manifesto
+`d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`;
+recibo em `00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+A preparação/contagem de objetos é mecânica de transporte; render, contornos,
+texto, geometria e diagnósticos são obrigações observáveis de linguagem.
+
+### Responsabilidade exclusiva desta unidade
+
+Converter fill Color para FramePaint::Solid e preparar o stroke da cauda no momento da emissão com o Layouter. Preservar ordem fill/body/stroke, geometria e paginação.
+
+### Aceitação e continuidade
+
+Aplicar o núcleo pinado. A ratificação supersede cláusulas antigas que
+aguardavam aprovação ou exigiam Paint/Stroke declarativo dentro de Shape,
+somente no âmbito do contrato aprovado. Preservar os demais comportamentos
+vigentes desta unidade. L0 primeiro e testes RED→GREEN; migração explícita de
+fixtures e consumidores, sem conversão total From<Paint>, sem PartialEq nos
+carriers e sem fallback sólido para obter build verde. Não elevar o limite
+antigo nem transferir layout para L3. Validar transporte fill/stroke, recursos,
+clipping, Parent afim, alvos nativos, controles Solid/Gradient, semântica de
+página e toda a suíte/build/doc/fmt/linhagem. T1c, T2 e T3 só estão concluídos
+quando integrados e verificados; estado intermediário quebrado ou parcial
+não é certificação de produção. T4 e publicação continuam fora deste pacote.

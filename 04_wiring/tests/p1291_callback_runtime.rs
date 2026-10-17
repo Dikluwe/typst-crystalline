@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/p1291_callback_runtime.md
-//! @prompt-hash 13a40cdd
+//! @prompt-hash 09d4c96c
 //! @layer L4
 //! @updated 2026-08-31
 //!
@@ -8,33 +8,16 @@
 //!
 //! Estes casos observam somente compilações finais e comportamento público.
 
-use std::env;
+#[path = "../../03_infra/tests/support/wiring/p1291_callback_runtime.rs"]
+mod harness;
+
+use harness::Scratch;
+
 use std::fs;
 use std::path::PathBuf;
 use std::process::{Command, Output};
 
 const BIN: &str = env!("CARGO_BIN_EXE_typst");
-
-struct Scratch(PathBuf);
-
-impl Scratch {
-    fn new(name: &str) -> Self {
-        let path = env::temp_dir().join(format!(
-            "typst-p1291-callback-{name}-{}-{:?}",
-            std::process::id(),
-            std::thread::current().id(),
-        ));
-        let _ = fs::remove_dir_all(&path);
-        fs::create_dir_all(&path).expect("create P1291 scratch directory");
-        Self(path)
-    }
-}
-
-impl Drop for Scratch {
-    fn drop(&mut self) {
-        let _ = fs::remove_dir_all(&self.0);
-    }
-}
 
 fn diagnostic(output: &Output) -> String {
     format!(

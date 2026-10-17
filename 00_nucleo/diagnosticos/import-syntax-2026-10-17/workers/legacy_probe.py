@@ -1,0 +1,11 @@
+from pathlib import Path
+import json,gzip,subprocess,hashlib,datetime
+out=Path(__file__).resolve().parents[1];f=out/'legacy-module-probe';(f/'ordinary').mkdir(parents=True,exist_ok=True);(f/'routes').mkdir(exist_ok=True)
+(f/'empty.typ').write_text('');(f/'ordinary/std.typ').write_text('#let x = 7\n#let twice(n) = n * 2\n');(f/'routes/error.typ').write_text('#import "../ordinary/std.typ" as inner\n#let result = inner.absent\n');sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest();scope=json.load(open(out/'scope.json'));b=json.load(gzip.open(out/'before.json.gz'));hashes={p:sha(p) for p in set(b['hashes'])|set(scope['sources'])|set(scope['owners'].values())|set(scope['nuclei'])};bins={'tekt':'target/debug/typst','vanilla':'lab/typst-original/target/release/typst'};assert sha(bins['vanilla'])=='7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea';rows=[]
+for features in [[],['html'],['a11y-extras'],['html','a11y-extras']]:
+ results={}
+ for name,bin in bins.items():
+  cmd=[bin,'eval','{ import "routes/error.typ" as route; route.result }','--in',str(f/'empty.typ'),'--format','json']+(['--features',','.join(features)] if features else []);r=subprocess.run(cmd,capture_output=True,text=True,timeout=30);results[name]=dict(command=cmd,exit=r.returncode,stdout=r.stdout,stderr=r.stderr)
+ t=results['tekt'];v=results['vanilla'];assert t['exit']==v['exit']==1 and t['stdout']==v['stdout']=='';assert t['stderr'].replace('warning: ficheiro vazio: sem conteúdo\n\n','',1)==v['stderr'];assert 'while importing `routes/error.typ` at <input-expression>:1:2\n    import "routes/error.typ" as route' in v['stderr'];assert 'module `std` does not contain `absent`' in v['stderr'];rows.append(dict(features=features,results=results))
+assert all(sha(p)==h for p,h in hashes.items());record=dict(utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),head=b['head'],source_hashes=hashes,fixtures={str(p):sha(p) for p in f.rglob('*.typ')},binaries={n:dict(path=p,sha256=sha(p)) for n,p in bins.items()},cases=rows,sources_unchanged=True)
+(out/'legacy-module-probe.json').write_text(json.dumps(record,indent=2)+'\n');print('Four pinned profiles match: error, hints, source range and import trace')

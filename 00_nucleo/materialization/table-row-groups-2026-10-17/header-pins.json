@@ -1,0 +1,267 @@
+{
+  "01_core/src/compiler/eval/call_dispatch/invoke.rs": {
+    "owner": "00_nucleo/prompts/compiler/eval/call_dispatch/invoke.md",
+    "old": "ac54e163",
+    "candidate": "5d58d5a1"
+  },
+  "01_core/src/compiler/eval/rules/show.rs": {
+    "owner": "00_nucleo/prompts/compiler/eval/rules/show.md",
+    "old": "5f4768cd",
+    "candidate": "da4c7ce7"
+  },
+  "01_core/src/compiler/eval/selector_matching.rs": {
+    "owner": "00_nucleo/prompts/compiler/eval/selector_matching.md",
+    "old": "a2ab5617",
+    "candidate": "3b6dfe88"
+  },
+  "01_core/src/entities/content/identity.rs": {
+    "owner": "00_nucleo/prompts/entities/content/identity.md",
+    "old": "3703e54b",
+    "candidate": "c728da02"
+  },
+  "01_core/src/compiler/eval/bindings/field_access/fields.rs": {
+    "owner": "00_nucleo/prompts/compiler/eval/bindings/field_access/fields.md",
+    "old": "9e54f477",
+    "candidate": "0552d40a"
+  },
+  "01_core/src/compiler/stdlib/structural/table_grid.rs": {
+    "owner": "00_nucleo/prompts/compiler/stdlib/structural/table_grid.md",
+    "old": "aafc57aa",
+    "candidate": "7d506345"
+  },
+  "01_core/src/compiler/introspect/materialize_time.rs": {
+    "owner": "00_nucleo/prompts/compiler/introspect/materialize_time.md",
+    "old": "46264b9a",
+    "candidate": "2b114728"
+  },
+  "01_core/src/compiler/layout/grid.rs": {
+    "owner": "00_nucleo/prompts/compiler/layout/grid.md",
+    "old": "fffc4dcb",
+    "candidate": "4cd5e48e"
+  },
+  "01_core/src/entities/content/fields.rs": {
+    "owner": "00_nucleo/prompts/entities/content/fields.md",
+    "old": "4e2c7a3f",
+    "candidate": "a5a8f9e9"
+  },
+  "01_core/src/compiler/eval/expression_dispatch.rs": {
+    "owner": "00_nucleo/prompts/compiler/eval/expression_dispatch.md",
+    "old": "7e877e12",
+    "candidate": "b0075204"
+  },
+  "01_core/src/entities/elements/table_vline.rs": {
+    "owner": "00_nucleo/prompts/entities/elements/table_vline.md",
+    "old": "872a2d94",
+    "candidate": "5a4c1928"
+  },
+  "02_shell/src/cli.rs": {
+    "owner": "00_nucleo/prompts/shell/cli.md",
+    "old": "29aef037",
+    "candidate": "9d84ca68"
+  },
+  "01_core/src/compiler/eval/rules/apply.rs": {
+    "owner": "00_nucleo/prompts/compiler/eval/rules/apply.md",
+    "old": "ec7ce2a5",
+    "candidate": "8c6fe5be"
+  },
+  "03_infra/src/export/html/tests.rs": {
+    "owner": "00_nucleo/prompts/infra/export/html/tests.md",
+    "old": "258dd346",
+    "candidate": "eee68c6b"
+  },
+  "03_infra/src/export/html/table.rs": {
+    "owner": "00_nucleo/prompts/infra/export/html/table.md",
+    "old": "ff7ea483",
+    "candidate": "d61f9828"
+  },
+  "01_core/src/compiler/eval/observation/elements.rs": {
+    "owner": "00_nucleo/prompts/compiler/eval/observation/elements.md",
+    "old": "116af5ac",
+    "candidate": "4f7b4690"
+  },
+  "01_core/src/compiler/realize/table_cells.rs": {
+    "owner": "00_nucleo/prompts/compiler/realize/table_cells.md",
+    "old": "b0a26d9d",
+    "candidate": "8584035d"
+  },
+  "01_core/src/compiler/stdlib/loading/encoding.rs": {
+    "owner": "00_nucleo/prompts/compiler/stdlib/loading/encoding.md",
+    "old": "d52354f8",
+    "candidate": "c39334be"
+  },
+  "01_core/src/entities/content/construction/tables.rs": {
+    "owner": "00_nucleo/prompts/entities/content/construction/tables.md",
+    "old": "d1146a25",
+    "candidate": "d04fee47"
+  },
+  "01_core/src/compiler/eval/table.rs": {
+    "owner": "00_nucleo/prompts/compiler/eval/table.md",
+    "old": "7fd85ee9",
+    "candidate": "9c45e0d5"
+  },
+  "01_core/src/compiler/layout/grid/measurement_cache.rs": {
+    "owner": "00_nucleo/prompts/compiler/layout/grid/measurement_cache.md",
+    "old": "27487d0a",
+    "candidate": "7e15f402"
+  },
+  "01_core/src/compiler/layout/grid/rules.rs": {
+    "owner": "00_nucleo/prompts/compiler/layout/grid/rules.md",
+    "old": "f978025b",
+    "candidate": "27829044"
+  },
+  "01_core/src/entities/elements/table_cell.rs": {
+    "owner": "00_nucleo/prompts/entities/elements/table_cell.md",
+    "old": "f589c3f8",
+    "candidate": "b815a830"
+  },
+  "01_core/src/compiler/layout/tests.rs": {
+    "owner": "00_nucleo/prompts/compiler/layout/tests.md",
+    "old": "9ee14093",
+    "candidate": "8e8eeee2"
+  },
+  "01_core/src/compiler/eval/rules/realize.rs": {
+    "owner": "00_nucleo/prompts/compiler/eval/rules/realize.md",
+    "old": "792e40a7",
+    "candidate": "dd54b9a3"
+  },
+  "01_core/src/entities/elements/table_footer.rs": {
+    "owner": "00_nucleo/prompts/entities/elements/table_footer.md",
+    "old": "e5b03e9e",
+    "candidate": "62391944"
+  },
+  "01_core/src/compiler/introspect/walk.rs": {
+    "owner": "00_nucleo/prompts/compiler/introspect/walk.md",
+    "old": "97dd2584",
+    "candidate": "16890997"
+  },
+  "01_core/src/entities/content/page_structure.rs": {
+    "owner": "00_nucleo/prompts/entities/content/page-structure.md",
+    "old": "93287ae3",
+    "candidate": "99815c31"
+  },
+  "01_core/src/compiler/layout/grid_placement.rs": {
+    "owner": "00_nucleo/prompts/compiler/layout/grid_placement.md",
+    "old": "1b125a63",
+    "candidate": "6695f213"
+  },
+  "01_core/src/compiler/layout/grid/cell_body.rs": {
+    "owner": "00_nucleo/prompts/compiler/layout/grid/cell_body.md",
+    "old": "98dd36de",
+    "candidate": "3dc77cc2"
+  },
+  "01_core/src/compiler/layout/grid/borders.rs": {
+    "owner": "00_nucleo/prompts/compiler/layout/grid/borders.md",
+    "old": "7c841fca",
+    "candidate": "c18893f8"
+  },
+  "03_infra/src/pipeline/context_stabilization.rs": {
+    "owner": "00_nucleo/prompts/infra/pipeline/context_stabilization.md",
+    "old": "1c08244c",
+    "candidate": "f87c5bc2"
+  },
+  "01_core/src/compiler/eval/markup_stream.rs": {
+    "owner": "00_nucleo/prompts/compiler/eval/markup_stream.md",
+    "old": "c46be27e",
+    "candidate": "e010b31c"
+  },
+  "01_core/src/compiler/layout/grid/row_groups.rs": {
+    "owner": "00_nucleo/prompts/compiler/layout/grid/row_groups.md",
+    "old": "c8a83d9a",
+    "candidate": "69883391"
+  },
+  "01_core/src/compiler/stdlib/structural/table_lines.rs": {
+    "owner": "00_nucleo/prompts/compiler/stdlib/structural/table_lines.md",
+    "old": "d2bbaa35",
+    "candidate": "83c72853"
+  },
+  "01_core/src/entities/content/morphology.rs": {
+    "owner": "00_nucleo/prompts/entities/content/morphology.md",
+    "old": "eaa4ec1a",
+    "candidate": "eb981c71"
+  },
+  "01_core/src/entities/content/traversal.rs": {
+    "owner": "00_nucleo/prompts/entities/content/traversal.md",
+    "old": "28dc8bd1",
+    "candidate": "728da7e7"
+  },
+  "01_core/src/compiler/eval/bindings/field_access/content_methods.rs": {
+    "owner": "00_nucleo/prompts/compiler/eval/bindings/field_access/content_methods.md",
+    "old": "f93d9b4f",
+    "candidate": "16ef1bc1"
+  },
+  "03_infra/src/pipeline/paged.rs": {
+    "owner": "00_nucleo/prompts/infra/pipeline/paged.md",
+    "old": "b2ac3091",
+    "candidate": "af2c1925"
+  },
+  "01_core/src/compiler/introspect/bibliography.rs": {
+    "owner": "00_nucleo/prompts/compiler/introspect/bibliography.md",
+    "old": "278c82c3",
+    "candidate": "02979a5b"
+  },
+  "01_core/src/compiler/eval/call_dispatch/arguments.rs": {
+    "owner": "00_nucleo/prompts/compiler/eval/call_dispatch/arguments.md",
+    "old": "c5fc8d82",
+    "candidate": "8419739e"
+  },
+  "01_core/src/compiler/layout/grid/cell_emission.rs": {
+    "owner": "00_nucleo/prompts/compiler/layout/grid/cell_emission.md",
+    "old": "55868472",
+    "candidate": "e7cbce61"
+  },
+  "01_core/src/compiler/layout/grid/tracks.rs": {
+    "owner": "00_nucleo/prompts/compiler/layout/grid/tracks.md",
+    "old": "2aa2dfcd",
+    "candidate": "39edd859"
+  },
+  "01_core/src/entities/elements/table_hline.rs": {
+    "owner": "00_nucleo/prompts/entities/elements/table_hline.md",
+    "old": "ab5afc83",
+    "candidate": "4c1fd835"
+  },
+  "01_core/src/compiler/eval/repr/content.rs": {
+    "owner": "00_nucleo/prompts/compiler/eval/repr/content.md",
+    "old": "6b883e9b",
+    "candidate": "0e85da2c"
+  },
+  "03_infra/src/query_helpers.rs": {
+    "owner": "00_nucleo/prompts/infra/query-helpers.md",
+    "old": "0790afc2",
+    "candidate": "629f45ce"
+  },
+  "01_core/src/compiler/realize/mod.rs": {
+    "owner": "00_nucleo/prompts/compiler/realize/mod.md",
+    "old": "b85c65bf",
+    "candidate": "3a0f3e5b"
+  },
+  "01_core/src/entities/elements/table_header.rs": {
+    "owner": "00_nucleo/prompts/entities/elements/table_header.md",
+    "old": "9e21d9fa",
+    "candidate": "1c754d92"
+  },
+  "01_core/src/compiler/layout/table.rs": {
+    "owner": "00_nucleo/prompts/compiler/layout/table.md",
+    "old": "6a7bce68",
+    "candidate": "3579fb92"
+  },
+  "01_core/src/entities/elements/table.rs": {
+    "owner": "00_nucleo/prompts/entities/elements/table.md",
+    "old": "70133aa4",
+    "candidate": "925e8637"
+  },
+  "01_core/src/compiler/eval/rules/intercept.rs": {
+    "owner": "00_nucleo/prompts/compiler/eval/rules/intercept.md",
+    "old": "a2ed1470",
+    "candidate": "c38d8013"
+  },
+  "01_core/src/entities/content/tests/representation.rs": {
+    "owner": "00_nucleo/prompts/entities/content/tests/representation.md",
+    "old": "5e9dfe49",
+    "candidate": "e19e1b75"
+  },
+  "01_core/src/compiler/layout/table_cell.rs": {
+    "owner": "00_nucleo/prompts/compiler/layout/table_cell.md",
+    "old": "c3c323e9",
+    "candidate": "459dfd17"
+  }
+}

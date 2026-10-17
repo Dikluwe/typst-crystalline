@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/math/arguments.md
-//! @prompt-hash a9a7e47f
+//! @prompt-hash e16d971a
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-06
 
 use super::*;
 
@@ -39,6 +39,11 @@ pub(super) fn eval_math_arg_value(
             if math.exprs().any(|expr| matches!(expr, Expr::MathAlignPoint(_))) {
                 return Ok(Value::Content(eval_math_content(scopes, ctx, engine, math)?));
             }
+            let mut children = math.exprs();
+            let first = children.next();
+            if matches!(first, Some(Expr::MathIdent(_))) && children.next().is_none() {
+                return eval_math_arg_value(scopes, ctx, engine, first.unwrap());
+            }
             let text = math.to_untyped().clone().into_text();
             let reparsed = crate::compiler::parse::parse_anchored(
                 text.as_str(),
@@ -58,6 +63,7 @@ pub(super) fn eval_math_arg_value(
                         | Expr::Bool(_)
                         | Expr::Numeric(_)
                         | Expr::None(_)
+                        | Expr::Auto(_)
                         | Expr::Parenthesized(_)
                         | Expr::CodeBlock(_)
                         | Expr::Array(_)
@@ -80,6 +86,7 @@ pub(super) fn eval_math_arg_value(
         | Expr::Bool(_)
         | Expr::Numeric(_)
         | Expr::None(_)
+        | Expr::Auto(_)
         | Expr::Parenthesized(_)
         | Expr::CodeBlock(_)
         | Expr::Array(_)
@@ -87,34 +94,16 @@ pub(super) fn eval_math_arg_value(
         | Expr::Closure(_)
         | Expr::Contextual(_) => eval_expr(expr, scopes, ctx, engine),
         other => {
-            // **P994** — um ident que resolve no scope para um valor
-            // NÃO-Content (ex.: `center` → `Alignment` em
-            // `$ #align(center)[$a+b$] $`) é avaliado pelo caminho de
-            // scope (`eval_math_callee`) em vez de empacotado como
-            // `Value::Content`. Sem isto, o ident virava
-            // `Content::Text("center")` via `value_to_display_content` e
-            // `native_align` escolhia-o como body (o primeiro `Content`
-            // posicional), descartando o corpo real — o nome do
-            // alinhamento "vazava" como texto e o corpo desaparecia.
-            // Cobre `Expr::Ident` (chamadas `#f(...)` embutidas — o
-            // parser entra em modo Code após `#`, `parse/code.rs:61`) e
-            // `Expr::MathIdent` (chamadas bare em math). Vanilla resolve
-            // `center` como `Alignment` no mesmo ponto (`ir/resolve.rs` —
-            // o arg de `align` não é Content).
-            //
-            // Regra final (documentada, medida contra a suíte):
-            // - bindings de utilizador (`get_local`) mantêm o caminho
-            //   actual — paridade `get_in_math` do vanilla
-            //   (`#let center = [x]` sombreia o alinhamento global);
-            // - valores `Content`/`Func`/`Module` mantêm o caminho actual
-            //   (já avaliam correctamente; `Module` bare em math é erro
-            //   deliberado de P825 — não contornar);
-            // - qualquer outro valor global (`Alignment`, `Auto`, `Int`,
-            //   `Color`, `None`, …) desvia para `eval_math_callee`, que
-            //   devolve o valor real do scope.
+            // Lexical math arguments retain their actual Value until the
+            // constructor cast. Only Code Ident may consult global values;
+            // an unresolved MathIdent keeps the mathematical namespace/hints.
+            if let Expr::MathIdent(ident) = &other {
+                if let Some(value) = scopes.get_local(ident.as_str()) {
+                    return Ok(value.clone());
+                }
+            }
             let ident_name = match &other {
                 Expr::Ident(i) => Some(i.as_str()),
-                Expr::MathIdent(i) => Some(i.as_str()),
                 _ => None,
             };
             if let Some(name) = ident_name {
@@ -338,4 +327,104 @@ pub(super) fn eval_p1431_mat_args(
         });
     }
     Ok(Args::from_occurrences(call_args.span(), occurrences))
+}
+
+#[cfg(test)]
+mod residue_tests {
+    use crate::compiler::eval::tests::eval_for_test;
+    use crate::contracts::world::World;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::source_result::SourceResult;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    use crate::entities::{file_id::FileId, module::Module, source::Source};
+    use std::num::NonZeroU16;
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+    impl TestWorld {
+        fn new(text: &str) -> Self {
+            Self {
+                library: Library::new(),
+                book: FontBook::new(),
+                source: Source::new(id(), text.into()),
+            }
+        }
+    }
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+    fn id() -> FileId {
+        FileId::from_raw(NonZeroU16::new(1431).unwrap())
+    }
+    fn evaluate(text: &str) -> SourceResult<Module> {
+        let world = TestWorld::new(text);
+        eval_for_test(&world, &world.source)
+    }
+
+    #[test]
+    fn math_argument_local_bindings_keep_value_type() {
+        assert!(evaluate(
+            "#let aa=left
+$mat(align:aa,a)$"
+        )
+        .is_ok());
+        assert!(evaluate(
+            "#let aa=none
+$mat(delim:aa,a)$"
+        )
+        .is_ok());
+        let errors = evaluate(
+            "#let aa=auto
+$mat(delim:aa,a)$",
+        )
+        .unwrap_err();
+        assert_eq!(
+            errors[0].message,
+            "expected array, none, symbol, or string, found auto"
+        );
+    }
+
+    #[test]
+    fn math_argument_bare_literals_and_globals_keep_math_resolution() {
+        for (source, name) in
+            [("$mat(delim:none,a)$", "none"), ("$mat(align:left,a)$", "left")]
+        {
+            let error = evaluate(source).expect_err("bare math identifier must fail");
+            assert_eq!(error[0].message, format!("unknown variable `{name}`"));
+            assert!(!error[0].hints.is_empty());
+        }
+        assert!(evaluate("$mat(delim:#none,align:#left,a)$").is_ok());
+        assert!(evaluate(
+            "#let left = [q]
+$mat(left)$"
+        )
+        .is_ok());
+    }
 }

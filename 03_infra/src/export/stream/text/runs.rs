@@ -1,14 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/text/runs.md
-//! @prompt-hash 284cc56e
+//! @prompt-hash 248508df
 //! @layer L3
 //! @updated 2026-09-29
 
 use super::super::{FontScenario, PageContext};
-use super::{
-    font_index_for_style, push_shaped_spacing, remap_glyph_id, verbose_block_prefix,
-    verbose_tr_ops,
-};
+use super::{push_shaped_spacing, remap_glyph_id, shaped_tr_ops, verbose_block_prefix};
 use std::collections::HashMap;
 use typst_core::entities::layout_types::FrameItem;
 
@@ -21,10 +18,20 @@ use typst_core::entities::layout_types::FrameItem;
 fn verbose_run_compatible(a: &FrameItem, b: &FrameItem) -> bool {
     let (
         FrameItem::TextShaped {
-            pos: pa, style: sa, units_per_em: ua, glyphs: ga, ..
+            pos: pa,
+            style: sa,
+            units_per_em: ua,
+            glyphs: ga,
+            font: fa,
+            ..
         },
         FrameItem::TextShaped {
-            pos: pb, style: sb, units_per_em: ub, glyphs: gb, ..
+            pos: pb,
+            style: sb,
+            units_per_em: ub,
+            glyphs: gb,
+            font: fb,
+            ..
         },
     ) = (a, b)
     else {
@@ -33,7 +40,7 @@ fn verbose_run_compatible(a: &FrameItem, b: &FrameItem) -> bool {
     if ga.is_empty() || gb.is_empty() {
         return false;
     }
-    if pa.y != pb.y || ua != ub {
+    if pa.y != pb.y || ua != ub || !crate::export::font_binding::same_font(fa, fb) {
         return false;
     }
     sa.size == sb.size
@@ -69,9 +76,16 @@ pub(in crate::export::stream) fn verbose_run_end(
     }
     let supported = match &ctx.font_scenario {
         FontScenario::Cidfont { bitmap, .. } => bitmap.is_none(),
-        FontScenario::Multifont { fonts, per_font_bitmap, .. } => {
-            if let FrameItem::TextShaped { style, .. } = &items[start] {
-                let fi = font_index_for_style(fonts, style);
+        FontScenario::Multifont { fonts, bindings, per_font_bitmap, .. } => {
+            if let FrameItem::TextShaped { style, font, .. } = &items[start] {
+                let Some(fi) = crate::export::font_binding::lookup(
+                    bindings.as_ref(),
+                    fonts,
+                    style,
+                    font.as_ref(),
+                ) else {
+                    return start + 1;
+                };
                 per_font_bitmap.get(fi).and_then(|b| b.as_ref()).is_none()
             } else {
                 false
@@ -99,10 +113,10 @@ pub(in crate::export::stream) fn emit_verbose_text_run(
     page_height: f64,
     ctx: &PageContext,
 ) {
-    let FrameItem::TextShaped { pos: pos0, style, .. } = &run[0] else { return };
+    let FrameItem::TextShaped { pos: pos0, style, font, .. } = &run[0] else { return };
     let base_y = page_height - pos0.y.val();
     verbose_block_prefix(ops, pos0.x.val(), base_y, &style.fill);
-    ops.push_str(&verbose_tr_ops(style));
+    ops.push_str(&shaped_tr_ops(style, font.as_ref()));
     push_shaped_spacing(ops);
     match &ctx.font_scenario {
         FontScenario::Cidfont { glyph_mapping, glyph_to_nominal, .. } => {
@@ -125,11 +139,19 @@ Q
         }
         FontScenario::Multifont {
             fonts,
+            bindings,
             per_font_glyph_mapping,
             per_font_glyph_to_nominal,
             ..
         } => {
-            let fi = font_index_for_style(fonts, style);
+            let Some(fi) = crate::export::font_binding::lookup(
+                bindings.as_ref(),
+                fonts,
+                style,
+                font.as_ref(),
+            ) else {
+                return;
+            };
             ops.push_str(&format!(
                 "/F{} {:.1} Tf
 ",
@@ -180,12 +202,17 @@ fn push_run_tj_entries(
         if let Some(cur) = cursor {
             // Número TJ = milésimos de em SUBTRAÍDOS da posição: para levar
             // o ponto de `cur` a `pos.x`, o número é (cur − pos.x)/size×1000.
-            let fractional = style.tracking.map(|t| t.resolve_pt(size) != 0.0).unwrap_or(false);
+            let fractional =
+                style.tracking.map(|t| t.resolve_pt(size) != 0.0).unwrap_or(false);
             let scale = if fractional { 100000.0 } else { 1.0 };
-            let boundary = (((cur - pos.x.val()) / size * 1000.0) * scale).round() / scale;
+            let boundary =
+                (((cur - pos.x.val()) / size * 1000.0) * scale).round() / scale;
             if boundary != 0.0 {
-                if fractional { ops.push_str(&format!("{boundary:.5} ")); }
-                else { ops.push_str(&format!("{boundary:.0} ")); }
+                if fractional {
+                    ops.push_str(&format!("{boundary:.5} "));
+                } else {
+                    ops.push_str(&format!("{boundary:.0} "));
+                }
                 cursor = Some(cur - boundary / 1000.0 * size);
             }
         } else {
@@ -199,17 +226,24 @@ fn push_run_tj_entries(
             let nominal =
                 glyph_to_nominal.get(&g.glyph_id).copied().unwrap_or(g.x_advance);
             let residual = crate::shaper::tracking::residual(glyphs, i, style, upm);
-            let residual_tu = if residual == 0.0 { 0.0 } else { residual / size * 1000.0 };
+            let residual_tu =
+                if residual == 0.0 { 0.0 } else { residual / size * 1000.0 };
             let integer_tu = ((nominal - g.x_advance) as f64 / upm * 1000.0).round();
-            let advance_tu = if residual_tu == 0.0 { integer_tu }
-                else { ((integer_tu - residual_tu) * 100000.0).round() / 100000.0 };
+            let advance_tu = if residual_tu == 0.0 {
+                integer_tu
+            } else {
+                ((integer_tu - residual_tu) * 100000.0).round() / 100000.0
+            };
             let new_gid = if glyph_mapping.is_empty() {
                 g.glyph_id
             } else {
                 remap_glyph_id(g.glyph_id, glyph_mapping)
             };
-            if residual_tu == 0.0 { ops.push_str(&format!("<{:04X}> {:.0} ", new_gid, advance_tu)); }
-            else { ops.push_str(&format!("<{:04X}> {:.5} ", new_gid, advance_tu)); }
+            if residual_tu == 0.0 {
+                ops.push_str(&format!("<{:04X}> {:.0} ", new_gid, advance_tu));
+            } else {
+                ops.push_str(&format!("<{:04X}> {:.5} ", new_gid, advance_tu));
+            }
             // Avanço tal como o renderer o aplica (com o ajuste arredondado).
             let applied = (nominal as f64 / upm - advance_tu / 1000.0) * size;
             cursor = cursor.map(|c| c + applied);

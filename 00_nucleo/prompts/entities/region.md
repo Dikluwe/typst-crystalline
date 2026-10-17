@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/region`
-Hash do Código: 7fa32049
+Hash do Código: 83162cf9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/region.rs`

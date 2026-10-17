@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/system-world.md
-//! @prompt-hash f6cb647f
+//! @prompt-hash 4738b971
 //! @layer L3
-//! @updated 2026-09-26
+//! @updated 2026-10-08
 //!
 //! Fachada e composição: estado e construtores de SystemWorld.
 //! Cache, paths, pacotes, fontes e adapter World vivem nos descendentes.
@@ -20,7 +20,11 @@ use typst_core::entities::font_book::{Coverage, FontBook};
 use typst_core::entities::world_types::Library;
 
 mod cache;
+mod font_session;
+mod source_session;
+pub use source_session::SourceSession;
 mod fonts;
+pub use font_session::FontCatalogSession;
 mod packages;
 mod paths;
 #[cfg(test)]
@@ -58,6 +62,7 @@ impl std::error::Error for SystemWorldError {}
 pub struct SystemWorld {
     /// Directório raiz do projecto.
     root: PathBuf,
+    source_session: Option<Arc<SourceSession>>,
     /// `FileId` do ficheiro principal.
     main: FileId,
     /// Slots de source por `FileId` (interior mutável via Mutex).
@@ -65,11 +70,11 @@ pub struct SystemWorld {
     /// Mapa de path canónico → `FileId`.
     path_to_id: Mutex<HashMap<PathBuf, FileId>>,
     /// Contador de IDs (não-global — sem V13).
-    next_id: Mutex<u16>,
+    next_id: Mutex<u32>,
     /// Paired font slots/book, initialized once on the first font demand.
-    font_catalog: OnceLock<(Vec<FontSlot>, FontBook)>,
+    font_catalog: OnceLock<Arc<(Vec<FontSlot>, FontBook)>>,
     /// Private acquisition policy; no font discovery occurs while configuring it.
-    font_loader: Box<dyn Fn() -> (Vec<FontSlot>, FontBook) + Send + Sync>,
+    font_loader: Box<dyn Fn() -> Arc<(Vec<FontSlot>, FontBook)> + Send + Sync>,
     /// Stub de biblioteca padrão.
     library: Library,
     /// **P694** — pares `--input chave=valor` para `sys.inputs`. Vazio por
@@ -95,32 +100,40 @@ pub struct SystemWorld {
 impl SystemWorld {
     /// Cria um world para avaliação de expressão sem exigir main físico.
     pub fn for_eval(root: impl Into<PathBuf>) -> Self {
-        let root = root.into();
+        Self::with_transient_main(root.into(), "<input-expression>", String::new())
+    }
+
+    /// Cria um documento stdin a partir do texto já adquirido pelo caller.
+    pub fn for_stdin(root: impl Into<PathBuf>, text: String) -> Self {
+        Self::with_transient_main(root.into(), "<stdin>", text)
+    }
+
+    fn with_transient_main(root: PathBuf, name: &str, text: String) -> Self {
         let main_id = FileId::from_raw(NonZeroU16::new(1).unwrap());
-        let main_path = root.join("<input-expression>");
-        let main_slot =
-            Arc::new(SourceSlot::synthetic(main_id, main_path.clone(), String::new()));
+        let bytes = Arc::new(text.as_bytes().to_vec());
+        let main_slot = Arc::new(SourceSlot::synthetic(main_id, root.join(name), text));
         let mut slots = HashMap::new();
         slots.insert(main_id, main_slot);
-        let mut path_to_id = HashMap::new();
-        path_to_id.insert(main_path, main_id);
+        let mut read_cache = HashMap::new();
+        read_cache.insert(main_id, bytes);
         let package_downloader = default_package_cache_dir().map(|cache_dir| {
             Box::new(crate::package_downloader::HttpPackageDownloader::new(cache_dir))
                 as Box<dyn PackageDownloader>
         });
         Self {
             root,
+            source_session: None,
             main: main_id,
             slots: Mutex::new(slots),
-            path_to_id: Mutex::new(path_to_id),
+            path_to_id: Mutex::new(HashMap::new()),
             next_id: Mutex::new(2),
-            font_catalog: OnceLock::from((Vec::new(), FontBook::new())),
-            font_loader: Box::new(|| (Vec::new(), FontBook::new())),
+            font_catalog: OnceLock::from(Arc::new((Vec::new(), FontBook::new()))),
+            font_loader: Box::new(|| Arc::new((Vec::new(), FontBook::new()))),
             library: Library::new(),
             inputs: SysInputs::default(),
             plugin_host: None,
             package_downloader,
-            read_cache: Mutex::new(HashMap::new()),
+            read_cache: Mutex::new(read_cache),
             coverage_cache: Mutex::new(HashMap::new()),
         }
     }
@@ -133,12 +146,25 @@ impl SystemWorld {
         root: impl Into<PathBuf>,
         main: impl AsRef<Path>,
     ) -> Result<Self, SystemWorldError> {
-        let root = root.into();
-        let main_path = if main.as_ref().is_absolute() {
-            main.as_ref().to_path_buf()
-        } else {
-            root.join(main.as_ref())
-        };
+        Self::new_configured(root.into(), main.as_ref(), None)
+    }
+
+    /// Build a fresh World with validated syntax retention from this watch session.
+    pub fn new_with_source_session(
+        root: impl Into<PathBuf>,
+        main_path: impl AsRef<Path>,
+        session: Arc<SourceSession>,
+    ) -> Result<Self, SystemWorldError> {
+        Self::new_configured(root.into(), main_path.as_ref(), Some(session))
+    }
+
+    fn new_configured(
+        root: PathBuf,
+        main: &Path,
+        source_session: Option<Arc<SourceSession>>,
+    ) -> Result<Self, SystemWorldError> {
+        let main_path =
+            if main.is_absolute() { main.to_path_buf() } else { root.join(main) };
 
         let main_path_canon = main_path.canonicalize().map_err(|e| {
             if e.kind() == std::io::ErrorKind::NotFound {
@@ -149,7 +175,11 @@ impl SystemWorld {
         })?;
 
         let main_id = FileId::from_raw(NonZeroU16::new(1).unwrap());
-        let main_slot = Arc::new(SourceSlot::new(main_id, main_path_canon.clone()));
+        let main_slot = Arc::new(SourceSlot::with_session(
+            main_id,
+            main_path_canon.clone(),
+            source_session.clone(),
+        ));
 
         // Carrega eagerly para falhar rápido se o ficheiro não existir.
         main_slot
@@ -169,12 +199,13 @@ impl SystemWorld {
 
         Ok(Self {
             root,
+            source_session,
             main: main_id,
             slots: Mutex::new(slots),
             path_to_id: Mutex::new(path_to_id),
             next_id: Mutex::new(2),
-            font_catalog: OnceLock::from((Vec::new(), FontBook::new())),
-            font_loader: Box::new(|| (Vec::new(), FontBook::new())),
+            font_catalog: OnceLock::from(Arc::new((Vec::new(), FontBook::new()))),
+            font_loader: Box::new(|| Arc::new((Vec::new(), FontBook::new()))),
             library: Library::new(),
             inputs: SysInputs::default(),
             plugin_host: None,

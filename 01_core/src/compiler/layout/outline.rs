@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout_outline.md
-//! @prompt-hash 7834a1d3
+//! @prompt-hash 635a42c2
 //! @layer L1
 //! @updated 2026-06-26
 //!
@@ -14,7 +14,7 @@ use crate::entities::content::Content;
 use crate::entities::elements::outline::{OutlineElem, OutlineTarget};
 use crate::entities::introspector::Introspector;
 use crate::entities::label::Label;
-use crate::entities::layout_types::{FrameItem, LinkTarget};
+use crate::entities::layout_types::LinkTarget;
 
 use super::{FontMetrics, ImageSizer, Layouter};
 
@@ -25,43 +25,7 @@ pub(super) fn layout_destination_link<M: FontMetrics, S: ImageSizer>(
     body: &Content,
     label: Label,
 ) {
-    let items_before = layouter.regions.current.current_items.len();
-    let line_before = layouter.regions.current.current_line.len();
-    layouter.layout_content(body);
-    // P1407 — o link deve capturar a morfologia já expandida. Depois do
-    // drain, os índices privados de `repeat` deixariam de apontar à linha.
-    layouter.expand_fr_spacings();
-    let new_line = if line_before <= layouter.regions.current.current_line.len() {
-        layouter
-            .regions
-            .current
-            .current_line
-            .drain(line_before..)
-            .collect::<Vec<_>>()
-    } else {
-        Vec::new()
-    };
-    let new_items = layouter
-        .regions
-        .current
-        .current_items
-        .drain(items_before..)
-        .collect::<Vec<_>>();
-    let block_flow = !new_items.is_empty();
-    let mut items = new_line;
-    items.extend(new_items);
-    let (pos, size) = super::link::link_bbox(&items, &layouter.metrics);
-    let link = FrameItem::Link {
-        target: LinkTarget::Destination(label),
-        items,
-        pos,
-        size,
-    };
-    if block_flow {
-        layouter.regions.current.current_items.push(link);
-    } else {
-        layouter.regions.current.current_line.push(link);
-    }
+    layouter.layout_link_capture(body, LinkTarget::Destination(label), true);
 }
 
 /// Gera a Tabela de Conteúdos visual.

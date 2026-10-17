@@ -1,5 +1,5 @@
 # L0 — math/layout/large_operator
-Hash do Código: a168fb88
+Hash do Código: 5efad293
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/layout/large_operator.rs`

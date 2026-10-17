@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/lang/quotes.md
-//! @prompt-hash f2faed18
+//! @prompt-hash 8bb2c74c
 //! @layer L1
-//! @updated 2026-04-25
+//! @updated 2026-10-06
 //!
 //! Smart-quotes lang-aware (Passo 155, ADR-0060 Fase 1, sub-passo 2).
 //!
@@ -190,6 +190,91 @@ pub fn resolve_smartquote_pair(
     }
 }
 
+/// Context of one logical flow after show realization, independent of frames.
+#[derive(Debug, Clone, Default)]
+pub struct SmartQuoteContext {
+    stack: Vec<bool>,
+    previous: Option<char>,
+}
+
+impl SmartQuoteContext {
+    pub fn observe_text(&mut self, text: &str) {
+        if let Some(last) = text.chars().last() {
+            self.previous = Some(last);
+        }
+    }
+    pub fn observe_object(&mut self) {
+        self.previous = Some('\u{FFFC}');
+    }
+    pub fn reset_paragraph(&mut self) {
+        self.stack.clear();
+        self.previous = None;
+    }
+}
+
+/// Resolve explicit fields over scoped styles, and retain causal nesting.
+pub fn resolve_smart_quote(
+    context: &mut SmartQuoteContext,
+    element: &crate::entities::elements::smartquote::SmartQuoteElem,
+    chain: &crate::entities::style_chain::StyleChain,
+    effective_lang: Option<&Lang>,
+) -> SourceResult<ecow::EcoString> {
+    let boolean = |key: &str, fallback: bool| match chain.custom(key) {
+        Some(Value::Bool(value)) => *value,
+        _ => fallback,
+    };
+    let double = element.double.unwrap_or_else(|| boolean("smartquote.double", true));
+    let enabled = element.enabled.unwrap_or_else(|| boolean("smartquote.enabled", true));
+    if !enabled {
+        let glyph = if double { "\"" } else { "'" };
+        context.observe_text(glyph);
+        return Ok(glyph.into());
+    }
+    let alternative = element
+        .alternative
+        .unwrap_or_else(|| boolean("smartquote.alternative", false));
+    let inherited = if element.quotes.is_none() {
+        chain
+            .custom("smartquote.quotes")
+            .map(|v| parse_smartquote_quotes(v, Span::detached()))
+            .transpose()?
+    } else {
+        None
+    };
+    let lang = chain.lang();
+    let pair = resolve_smartquote_pair(
+        effective_lang.or(lang.as_ref()),
+        alternative,
+        element.quotes.as_ref().or(inherited.as_ref()),
+        double,
+    );
+    let before = context.previous.unwrap_or(' ');
+    let top = context.stack.last().copied();
+    let glyph = if before.is_numeric() && top != Some(double) {
+        if double {
+            "″".into()
+        } else {
+            "′".into()
+        }
+    } else if !double
+        && top != Some(false)
+        && (before.is_alphabetic() || before == '\u{FFFC}')
+    {
+        "’".into()
+    } else if top == Some(double)
+        && !before.is_whitespace()
+        && !matches!(before, '(' | '[' | '{' | '<' | '⟨')
+    {
+        context.stack.pop();
+        pair.close
+    } else {
+        context.stack.push(double);
+        pair.open
+    };
+    context.observe_text(&glyph);
+    Ok(glyph)
+}
+
 /// Devolve par `(open, close)` de aspas primárias para o `Lang` dado.
 ///
 /// Lookup por exact match no código ISO. Línguas não cobertas devolvem
@@ -287,5 +372,61 @@ mod tests {
         let lang = Lang::from_str("pt").unwrap();
         assert_eq!(localize_single_quotes(&lang), DEFAULT_SINGLE_QUOTES);
         assert_eq!(DEFAULT_SINGLE_QUOTES, ("\u{2018}", "\u{2019}"));
+    }
+}
+
+#[cfg(test)]
+mod contextual_tests {
+    use super::*;
+    use crate::entities::{content::Content, style_chain::StyleChain};
+    fn emit(ctx: &mut SmartQuoteContext, double: bool, chain: &StyleChain) -> String {
+        let Content::SmartQuote(e) = Content::smartquote(double) else { unreachable!() };
+        resolve_smart_quote(ctx, &e, chain, None).unwrap().to_string()
+    }
+    #[test]
+    fn semantic_quote_context_observes_objects_numbers_nesting_and_boundaries() {
+        let chain = StyleChain::default_chain();
+        let mut ctx = SmartQuoteContext::default();
+        assert_eq!(emit(&mut ctx, true, &chain), "“");
+        ctx.observe_text("outer ");
+        assert_eq!(emit(&mut ctx, false, &chain), "‘");
+        ctx.observe_text("inner");
+        assert_eq!(emit(&mut ctx, false, &chain), "’");
+        ctx.observe_text(" tail");
+        assert_eq!(emit(&mut ctx, true, &chain), "”");
+        ctx.reset_paragraph();
+        ctx.observe_object();
+        assert_eq!(emit(&mut ctx, false, &chain), "’");
+        ctx.reset_paragraph();
+        ctx.observe_text("6");
+        assert_eq!(emit(&mut ctx, false, &chain), "′");
+        ctx.observe_text("2");
+        assert_eq!(emit(&mut ctx, true, &chain), "″");
+        ctx.reset_paragraph();
+        assert_eq!(emit(&mut ctx, true, &chain), "“");
+        ctx.observe_text("before\n");
+        assert_eq!(emit(&mut ctx, false, &chain), "‘");
+        ctx.observe_text("after");
+        assert_eq!(emit(&mut ctx, false, &chain), "’");
+        assert_eq!(emit(&mut ctx, true, &chain), "”");
+    }
+    #[test]
+    fn semantic_quote_explicit_fields_beat_styles_without_fabricating_presence() {
+        use crate::entities::elements::smartquote::SmartQuoteElem;
+        let chain = StyleChain::default_chain()
+            .push_custom("smartquote.enabled", Value::Bool(false));
+        let omitted = SmartQuoteElem {
+            double: None,
+            enabled: None,
+            alternative: None,
+            quotes: None,
+        };
+        let explicit = SmartQuoteElem { enabled: Some(true), ..omitted.clone() };
+        assert_ne!(omitted, explicit);
+        let mut ctx = SmartQuoteContext::default();
+        assert_eq!(resolve_smart_quote(&mut ctx, &omitted, &chain, None).unwrap(), "\"");
+        ctx.reset_paragraph();
+        assert_eq!(resolve_smart_quote(&mut ctx, &explicit, &chain, None).unwrap(), "“");
+        assert!(omitted.double.is_none() && omitted.enabled.is_none());
     }
 }

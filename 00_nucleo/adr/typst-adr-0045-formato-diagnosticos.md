@@ -243,8 +243,9 @@ diferenças públicas causadas pelo default curto.
 7. O formato curto não ganha flag nem API alternativa neste passo. A auditoria
    encontrou um consumidor interno de produção e nenhum parser interno. Uma
    futura opção `short` exige decisão própria de produto.
-8. A política `--color=auto|always|never` e a ordem warnings → errors não
-   mudam. A paleta passa a ser aplicada pelo writer do `codespan-reporting`.
+8. Na materialização P1139, a política `--color=auto|always|never` e a ordem
+   warnings → errors não mudaram. A ordem é substituída pelo adendo de
+   2026-10-06 abaixo; a política de cores permanece. A paleta passa a ser aplicada pelo writer do `codespan-reporting`.
 
 ### Relação com as decisões anteriores
 
@@ -260,3 +261,28 @@ diferenças públicas causadas pelo default curto.
 Este adendo e os L0 correspondentes devem ser confirmados pelo dono antes do
 RED. Só depois da confirmação os hashes de linhagem serão ressellados e o
 código será alterado.
+
+## Adendo 2026-10-06 — ordem medida no pin atual e hint específico
+
+Gate ADR-0127 confirmado pelo dono (resposta confirmo), registrado em
+00_nucleo/materialization/warnings-cli-aprovacao-2026-10-06.json.
+A decisão anterior permanece histórica e não é reclassificada como bug.
+
+Medição anterior à decisão: plano-debitos-2026-10-06/before.json.gz compara
+stdout/stderr/status de query e compile no pin 9f2b6e8715237cb086899a42873660fe744622e8.
+Upstream typst-cli/src/compile.rs:779 usa errors.iter().chain(warnings), e
+query.rs:43,51-64 acrescenta depreciação após compilar. O §8 P1139 conservava a
+ordem oposta local. A nova decisão substitui somente essa ordem nos comandos
+compile/query e sua apresentação compartilhada em watch: status continua
+primeiro, errors antecedem a coleção de warnings; avisos experimentais de
+formato conservam a posição anterior aos warnings do documento. A medição
+warnings-cli-2026-10-06/before.json.gz (HTML com/sem erro) refuta a inferência
+inicial de mover o aviso experimental para o fim. Erros operacionais conservam a posição contratada. Não alterar a
+ordem dentro das coleções, spans, cores, mensagens/hints/trace ou fases.
+
+L2 possui a função pública pura query_deprecation_hint(&QueryIntent) -> String
+que gera a sugestão específica de eval; L4 apenas compõe sua emissão.
+Query stdin usa for_stdin existente para manter a Source causal registrada.
+Falhas antes da compilação ou na seleção/serialização não ganham depreciação,
+conforme os controles upstream; suas demais obrigações permanecem próprias.
+Os L0s proprietários são os do pacote ratificado; cardinalidade 1:1 intacta.

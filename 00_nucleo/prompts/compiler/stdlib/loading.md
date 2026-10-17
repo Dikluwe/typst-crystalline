@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/loading` — módulo de carregamento de dados
-Hash do Código: c1305c0d
+Hash do Código: cfbb4204
 
 ## Ownership após atomização de 2026-09-30
 
@@ -1087,3 +1087,15 @@ Args. Caso de filho repr fora do escopo não pode ser omitido do oracle para
 declarar sucesso total. RED→GREEN, controles e ataques independentes são
 obrigatórios depois do gate; Unknown obrigatório bloqueia. Nenhum código
 fica autorizado pela simples redação deste L0.
+
+## Imports de produção e teste — 2026-10-13
+
+### Medição anterior à decisão
+
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/stdlib/loading.rs:42-43,477-480,1529 registra a composição e os usos existentes. O inventário Clippy distingue imports sem uso na compilação produtiva; os usos de teste foram conferidos separadamente. Fontes, L0, UTC, status e diffstat estão em `00_nucleo/diagnosticos/imports-ci-2026-10-13/before.json.gz`. Não é medição de paridade ou desempenho.
+
+### Decisão e aceitação
+
+Manter decode_cbor, decode_csv e RowType como reexportações somente de teste, sob cfg(test), neste módulo privado. Os decoders, seu comportamento e os caminhos públicos das funções nativas não mudam.
+
+Correção de composição interna, sem mudança de assinatura pública, defaults, fase ou comportamento da linguagem. Preservar cenários/assertivas, executar a suíte core, build, Clippy e linhagem. Não mascarar avisos com allow/expect.

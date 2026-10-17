@@ -1,5 +1,9 @@
 # Prompt L0 — `stdlib/transforms` — módulo `transforms`
-Hash do Código: 68c52ac8
+Hash do Código: 733c0ecb
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/transform-semantics.toml sha256:cbd8b56af347a35e867b2c4695581721d5983ec24ee7bb022e9f9987500d40f3
+
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/transforms.rs`
@@ -154,3 +158,79 @@ não for o body, = y) mantendo os nomeados `x:`/`y:` a funcionar, e aceita
 `Value::Ratio` (`r.0`) em ambos os canais. O layout/export já aplica a
 matriz do `Content::Transform` ao grupo (rotação provada no mesmo documento
 de teste) — a correcção é só no parsing do factor.
+
+## Transformações tipadas — contrato substitutivo
+
+## Medição anterior à decisão
+
+`00_nucleo/diagnosticos/transformacoes-2026-10-14/{before,results}.json.gz` e
+`controls/results.json`, `binding-controls/results.json`, `context-controls/results.json`
+preservam HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree, UTC,
+diffstat, fontes, comandos e hashes de binários. Pin 9f2b6e8715237cb086899a42873660fe744622e8.
+TransformElem em entities/elements/transform.rs:19 armazena apenas matrix/body;
+stdlib/transforms.rs:19/51/91/191 descarta argumentos e reduz valores à matriz;
+layout/transform.rs calcula pivô central e usa has_orphaned como desvio de layout.
+No pin, typst-library/src/layout/transform.rs conserva os quatro elementos e
+typst-layout/src/transforms.rs resolve estilos, região, corpo, origin e reflow.
+
+Sondas: fields vazio versus body/argumentos; func falso versus função nativa;
+rotate(0deg)[X] == scale(100%)[X] true versus false; defaults explícitos colapsam.
+Origin/reflow são ignorados ou rejeitados; scale(x:150%) escala também y no
+Tekt, enquanto y permanece100% no pin; move perde percentual/em. Campos ausentes
+devem continuar desconhecidos lexicalmente. set rotate(23deg) é válido, mas
+angle nomeado não é; getters contextuais refletem estilo no pin. Os primeiros
+controles contextuais rotularam o wrapper e são inválidos para medir value;
+context-controls corrige a posição da label. HTML pinado avisa e elimina o body;
+Tekt rejeita a operação, de acordo com seu contrato HTML estrito.
+
+Semântica, sintaxe, morfologia, posições/avanços e diagnósticos são linguagem;
+enum versus structs upstream e número de passos de medição são mecânica.
+A hipótese é refutável por campos/presença que ainda colapsem, estilo assado,
+origem incorreta, erro perdido, reflow falso alterando avanço ou body descartado.
+
+Esta seção substitui cláusulas anteriores conflitantes somente para a família
+Move/Rotate/Scale/Skew; demais responsabilidades permanecem.
+
+## Contrato completo de construção e estilo
+
+O carrier tipado de `00_nucleo/prompts/entities/elements/transform.md` substitui
+a redução prematura para matriz. Preservar assinaturas públicas native_*.
+Validar pela sequência de ocorrências de Args e spans; não procurar apenas
+valores numericamente convenientes e descartar os demais. Strings e none
+convertem para Content conforme casts vigentes; números não são body. Body é
+posicional obrigatório. Argumentos desconhecidos, sobras, tipos errados e
+body nomeado produzem os diagnósticos medidos, sem fallback identidade/zero.
+
+- move: dx/dy nomeados aceitam Rel<Length> (ratio, length, mistura). Defaults
+  não são inseridos lexicalmente. Int/float/string não viram pontos.
+- rotate: angle posicional opcional de tipo Angle, encontrado como no parse
+  tipado pinado, inclusive depois de body string. Angle nomeado é rejeitado.
+  Origin aceita Align2D preservando eixos ausentes; reflow aceita bool.
+- scale: no máximo um fator posicional Auto/Ratio/Length, que assenta ambos os
+  eixos; x/y nomeados sobrepõem somente o eixo correspondente. Sem fator, y
+  omitido não copia x. Ratio/Length/Auto são distintos; int/float e relative
+  length misto não são fatores válidos. Dois auto são construíveis e observáveis;
+  o erro de resolução ocorre em layout, não ao inspecionar fields.
+- skew: ax/ay apenas nomeados e Angle; origin/reflow como rotate. Não rejeitar
+  ângulos finitos por um limiar artificial de proximidade a90 graus. Validação
+  de geometria não finita cabe à resolução, sem converter erro em identidade.
+
+O default efetivo é move zero/zero, rotate zero, scale100%/100%, skew zero/zero,
+origin center+horizon e reflow false. São defaults de estilo/layout, separados
+da presença lexical. set usa os mesmos casts/bindings, sem body: angle de rotate
+continua posicional, fator de scale assenta x/y e sobreposições preservam eixos.
+Origin faz fold por eixo: um eixo explícito sobrepõe o herdado, os demais herdam.
+Set não inventa campos em fields do constructor. Aliases/with devem respeitar
+identidade nativa e avaliação única dos argumentos; getters contextuais usam o
+mesmo esquema. Atualizar os owners de set/field access antes de implementar.
+
+Não resolver em/fontes/percentuais/escala absoluta em eval. Não usar Styled
+artificial para esconder os argumentos autorais; o canal normal de estilos
+permanece com seus owners. Parsing, campos e diagnósticos são observáveis.
+
+## Aceitação
+
+Reproduzir todo o corpus de queries e bindings; estender para spans, ordem,
+duplicatas, aliases/with, set e leitura contextual. Fields, func, repr, equality,
+show/where e encoders devem concordar sobre presença e identidade. Sem promessa
+de paridade de Rust/mecânica de macros ou de número de passagens upstream.

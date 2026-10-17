@@ -1,5 +1,5 @@
 # L0 — stdlib/html/attr_values
-Hash do Código: 2ba6be40
+Hash do Código: 59362bce
 
 ## Ownership e medição
 

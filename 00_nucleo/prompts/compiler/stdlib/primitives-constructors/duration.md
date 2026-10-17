@@ -1,5 +1,5 @@
 # L0 — stdlib/primitives-constructors/duration
-Hash do Código: 19629e85
+Hash do Código: 62a5fdff
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml sha256:761d5adeca09f6a60ba2960f8492aa6c0d934798bbc826f341004cf993ba8736

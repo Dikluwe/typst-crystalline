@@ -1,0 +1,34 @@
+tekt = 1
+kind = "nucleus"
+id = "smartquote-semantics"
+title = "Identidade semântica e contexto de render das aspas"
+
+[[claims]]
+id = "presence"
+level = "must"
+statement = "Propriedade omitida da aspa permanece ausente; false explícito é presente e distinto de default ou herança."
+
+[[claims]]
+id = "semantic-leaf"
+level = "must"
+statement = "Aspa de markup e constructor preservam SmartQuote e campos conhecidos durante avaliação; disabled não apaga o elemento."
+
+[[claims]]
+id = "late-render"
+level = "must"
+statement = "Glyph é selecionado no render do target com propriedades explícitas acima da chain ativa e seus defaults; a captura anterior não assa idioma ou enabled."
+
+[[claims]]
+id = "causal-context"
+level = "must"
+statement = "Contexto de aspas acompanha o fluxo lógico após show e é restaurado integralmente em replay; não é global nem retido entre documentos."
+
+[[claims]]
+id = "target-boundary"
+level = "must-not"
+statement = "HTML não entra em layout paginado para resolver aspas; os targets usam o helper puro e conservam seus escaping e composição próprios."
+
+[[claims]]
+id = "linguistic-acceptance"
+level = "must"
+statement = "Aceitação mede identidade/campos, glyphs e estilos da linguagem; organização de stack, frames e bytes PDF não legitima copiar a mecânica upstream."

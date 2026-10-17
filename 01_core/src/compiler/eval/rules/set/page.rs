@@ -528,7 +528,7 @@ pub(super) fn eval_set_page(
             engine.styles.push_custom("page.margin-bottom", Value::Float(mb));
     }
 
-    return Ok(Value::Content(Content::SetPage(std::sync::Arc::new(
+    Ok(Value::Content(Content::SetPage(std::sync::Arc::new(
         crate::entities::content::SetPageDelta {
             paper,
             flipped,
@@ -549,5 +549,5 @@ pub(super) fn eval_set_page(
             background,
             foreground,
         },
-    ))));
+    ))))
 }

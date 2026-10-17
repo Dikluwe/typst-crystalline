@@ -1,5 +1,5 @@
 //! @prompt 00_nucleo/prompts/wiring/tests/p1467-format-pdf-tagged-pretty.md
-//! @prompt-hash 28add07b
+//! @prompt-hash 53dcfb7c
 //!
 //! P1467 (RED — Agente B) — integração de binário para
 //! `#set format.pdf(tagged: ..., pretty: ...)` e as flags `--pdf-tagged`,
@@ -13,6 +13,11 @@
 //! P1464, nem a matriz de perfis de feature — aqui o eixo é exclusivamente
 //! `tagged`/`pretty` e a precedência CLI > documento > default.
 
+#[path = "../../03_infra/tests/support/wiring/p1467_format_pdf_tagged_pretty.rs"]
+mod harness;
+
+use harness::ProcessResult;
+
 use std::ffi::{OsStr, OsString};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -22,19 +27,6 @@ use std::time::{Duration, Instant};
 
 const PROCESS_TIMEOUT: Duration = Duration::from_secs(60);
 static FIXTURE_ID: AtomicU64 = AtomicU64::new(0);
-
-#[derive(Debug)]
-struct ProcessResult {
-    code: Option<i32>,
-    stdout: String,
-    stderr: String,
-}
-
-impl ProcessResult {
-    fn success(&self) -> bool {
-        self.code == Some(0)
-    }
-}
 
 fn typst_binary() -> &'static Path {
     Path::new(env!("CARGO_BIN_EXE_typst"))
@@ -143,7 +135,7 @@ fn newline_count(pdf: &[u8]) -> usize {
 #[test]
 fn p1467_absence_of_set_rule_resolves_auto_to_tagged() {
     let (result, pdf) = compile_pdf("absence", "Hello", &[]);
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert!(
         has_tagged_pdf_morphology(&pdf),
         "auto sem seleção de páginas deve resolver tagueado por omissão"
@@ -154,7 +146,7 @@ fn p1467_absence_of_set_rule_resolves_auto_to_tagged() {
 fn p1467_document_tagged_false_untags_pdf() {
     let (result, pdf) =
         compile_pdf("doc-tagged-false", "#set format.pdf(tagged: false)\nHello", &[]);
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert!(
         !has_tagged_pdf_morphology(&pdf),
         "#set format.pdf(tagged: false) deve remover a struct tree"
@@ -165,7 +157,7 @@ fn p1467_document_tagged_false_untags_pdf() {
 fn p1467_document_tagged_true_tags_pdf() {
     let (result, pdf) =
         compile_pdf("doc-tagged-true", "#set format.pdf(tagged: true)\nHello", &[]);
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert!(has_tagged_pdf_morphology(&pdf));
 }
 
@@ -176,7 +168,7 @@ fn p1467_cli_pdf_tagged_false_wins_over_document_tagged_true() {
         "#set format.pdf(tagged: true)\nHello",
         &["--pdf-tagged=false"],
     );
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert!(
         !has_tagged_pdf_morphology(&pdf),
         "--pdf-tagged=false deve vencer o documento"
@@ -190,7 +182,7 @@ fn p1467_cli_pdf_tagged_true_wins_over_document_tagged_false() {
         "#set format.pdf(tagged: false)\nHello",
         &["--pdf-tagged=true"],
     );
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert!(has_tagged_pdf_morphology(&pdf), "--pdf-tagged=true deve vencer o documento");
 }
 
@@ -201,7 +193,7 @@ fn p1467_cli_no_pdf_tags_wins_over_document_tagged_true() {
         "#set format.pdf(tagged: true)\nHello",
         &["--no-pdf-tags"],
     );
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert!(
         !has_tagged_pdf_morphology(&pdf),
         "--no-pdf-tags (legado) deve vencer o documento"
@@ -211,11 +203,21 @@ fn p1467_cli_no_pdf_tags_wins_over_document_tagged_true() {
 #[test]
 fn p1467_document_pretty_true_without_cli_override() {
     let (baseline_result, baseline_pdf) = compile_pdf("pretty-baseline", "Hello", &[]);
-    assert!(baseline_result.success(), "stderr:\n{}", baseline_result.stderr);
+    assert!(
+        baseline_result.success(),
+        "stdout:\n{}\nstderr:\n{}",
+        baseline_result.stdout,
+        baseline_result.stderr
+    );
 
     let (doc_result, doc_pdf) =
         compile_pdf("doc-pretty-true", "#set format.pdf(pretty: true)\nHello", &[]);
-    assert!(doc_result.success(), "stderr:\n{}", doc_result.stderr);
+    assert!(
+        doc_result.success(),
+        "stdout:\n{}\nstderr:\n{}",
+        doc_result.stdout,
+        doc_result.stderr
+    );
 
     assert!(
         newline_count(&doc_pdf) > newline_count(&baseline_pdf),
@@ -231,14 +233,24 @@ fn p1467_cli_pretty_wins_over_document_pretty_false() {
         "#set format.pdf(pretty: false)\nHello",
         &[],
     );
-    assert!(compact_result.success(), "stderr:\n{}", compact_result.stderr);
+    assert!(
+        compact_result.success(),
+        "stdout:\n{}\nstderr:\n{}",
+        compact_result.stdout,
+        compact_result.stderr
+    );
 
     let (pretty_result, pretty_pdf) = compile_pdf(
         "pretty-cli-wins",
         "#set format.pdf(pretty: false)\nHello",
         &["--pretty"],
     );
-    assert!(pretty_result.success(), "stderr:\n{}", pretty_result.stderr);
+    assert!(
+        pretty_result.success(),
+        "stdout:\n{}\nstderr:\n{}",
+        pretty_result.stdout,
+        pretty_result.stderr
+    );
 
     assert!(
         newline_count(&pretty_pdf) > newline_count(&compact_pdf),
@@ -253,7 +265,7 @@ fn p1467_tagged_and_pretty_combine_independently() {
         "#set format.pdf(tagged: false)\n#set format.pdf(pretty: true)\nHello",
         &[],
     );
-    assert!(result.success(), "stderr:\n{}", result.stderr);
+    assert!(result.success(), "stdout:\n{}\nstderr:\n{}", result.stdout, result.stderr);
     assert!(
         !has_tagged_pdf_morphology(&pdf),
         "tagged:false deve permanecer em vigor mesmo com pretty:true"
@@ -264,7 +276,12 @@ fn p1467_tagged_and_pretty_combine_independently() {
         "#set format.pdf(tagged: false)\nHello",
         &[],
     );
-    assert!(compact_result.success(), "stderr:\n{}", compact_result.stderr);
+    assert!(
+        compact_result.success(),
+        "stdout:\n{}\nstderr:\n{}",
+        compact_result.stdout,
+        compact_result.stderr
+    );
     assert!(
         newline_count(&pdf) > newline_count(&compact_pdf),
         "pretty:true deve continuar a produzir mais newlines mesmo sem tagging"

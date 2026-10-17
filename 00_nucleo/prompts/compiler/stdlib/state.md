@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/state` — objeto `state` e métodos
-Hash do Código: cbb13196
+Hash do Código: 56c1b323
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/state/language-semantics.toml sha256:27acb21a5e0b2e0cb3b65de61bba5266158f3e9828392fe92a1a3b160e9d61a4

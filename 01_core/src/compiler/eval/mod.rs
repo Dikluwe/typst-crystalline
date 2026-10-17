@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 7a024574
+//! @prompt-hash 8133961c
 //! @layer L1
-//! @updated 2026-09-28
+//! @updated 2026-10-16
 //!
 //! Dispatcher central do eval: `EvalContext` struct + impl, `pub fn eval`
 //! entry point, `eval_markup` iterator, `eval_expr` dispatcher delegando
@@ -51,8 +51,10 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::style_chain::StyleChain;
 use crate::entities::syntax_kind::SyntaxKind;
-use crate::entities::syntax_node::{SyntaxErrorKind, SyntaxNode};
-use crate::entities::value::{Type, Value};
+use crate::entities::syntax_node::SyntaxNode;
+#[cfg(test)]
+use crate::entities::value::Type;
+use crate::entities::value::Value;
 use crate::entities::world_types::{
     Bytes, Datetime, FileResult, Font, Library, Route, Routines, Sink, Traced,
 };
@@ -75,6 +77,7 @@ pub(crate) mod bindings;
 mod markup;
 mod modules;
 pub(crate) mod repr;
+mod syntax_diagnostics;
 pub(crate) mod table;
 
 /// P1406 — entrypoint L1 para a fase pós-introspecção de outlines.
@@ -191,9 +194,9 @@ mod p1339_observer_local_tests {
         // ambient location/context flags.
         ctx.in_context = false;
         ctx.current_location = None;
-        assert_eq!(ctx.context_reads_valid_for(&candidate, &mut engine).unwrap(), true);
+        assert!(ctx.context_reads_valid_for(&candidate, &mut engine).unwrap());
         candidate.state.init("read".into(), Value::Int(2), location);
-        assert_eq!(ctx.context_reads_valid_for(&candidate, &mut engine).unwrap(), false);
+        assert!(!ctx.context_reads_valid_for(&candidate, &mut engine).unwrap());
         assert_eq!(ctx.context_reads.borrow().reads.len(), 1);
         assert_eq!(
             body.observation_relation(&Ok(Value::Int(1))),
@@ -349,9 +352,19 @@ pub struct EvalContext {
     /// **P498 — separação entre conteúdo original (para introspecção) e output
     /// de show-rules (para layout/render)**. Quando `false`, `intercept_content`
     /// não aplica show-rules, produzindo a árvore original de elementos locatable.
-    /// O entrypoint `eval` corre duas passagens: uma com `false` (captura original)
-    /// e outra com `true` (render real). Default `true`.
+    /// O entrypoint `eval` executa o programa comum uma vez e captura receitas
+    /// para realização posterior. Default `true`.
     pub apply_show_rules: bool,
+    pub(crate) defer_show_rules: bool,
+    pub(crate) has_deferred_show_rules: bool,
+    pub(crate) realizing_show_rules: bool,
+    pub(crate) occurrence_show_results: HashMap<
+        (crate::entities::location::Location, crate::entities::show::RuleId),
+        Option<Content>,
+    >,
+    pub(crate) occurrence_show_depth: usize,
+    pub(crate) occurrence_show_path: Vec<Content>,
+    pub(crate) realization_locator: crate::entities::locator::Locator,
 
     /// **P506 — indica que o eval está a correr dentro da expansão de um
     /// `context { ... }`. Quando `true`, métodos `.get()` e `.display()` de
@@ -381,6 +394,12 @@ pub struct EvalContext {
     pub flow: Option<FlowEvent>,
 }
 
+impl std::default::Default for EvalContext {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl EvalContext {
     pub fn new() -> Self {
         Self {
@@ -394,6 +413,13 @@ impl EvalContext {
             current_location: None,
             full_error: false,
             apply_show_rules: true,
+            defer_show_rules: false,
+            has_deferred_show_rules: false,
+            realizing_show_rules: false,
+            occurrence_show_results: HashMap::new(),
+            occurrence_show_depth: 0,
+            occurrence_show_path: Vec::new(),
+            realization_locator: crate::entities::locator::Locator::new(),
             in_context: false,
             next_context_id: 0,
             bibliography_styles: HashMap::new(),
@@ -567,10 +593,25 @@ pub fn eval_expression_with_features_and_introspector(
     features: crate::entities::compiler_features::Features,
     introspector: &crate::entities::introspector::TagIntrospector,
 ) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
+    let source = Source::new_with_parser(
+        world.main(),
+        expression.to_string(),
+        crate::compiler::parse::parse_code,
+    );
+    eval_source_with_features_and_introspector(world, &source, features, introspector)
+}
+
+/// Avalia uma Source code pronta, preservando sua identidade causal.
+pub fn eval_source_with_features_and_introspector(
+    world: &dyn World,
+    source: &Source,
+    features: crate::entities::compiler_features::Features,
+    introspector: &crate::entities::introspector::TagIntrospector,
+) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
     let inputs = world.inputs();
     let mut global = Scope::new();
     let stdlib = make_stdlib_with_features(&inputs, features);
-    global.define("std", Value::Module(Module::new("global", stdlib.clone())));
+    global.define("std", Value::Module(Module::stdlib(stdlib.clone())));
     for (name, binding) in stdlib.iter() {
         global.define(name, binding.value().clone());
     }
@@ -590,12 +631,7 @@ pub fn eval_expression_with_features_and_introspector(
     let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
     let mut active_guards = Vec::new();
     let current_file = world.main();
-    let source = Source::new_with_parser(
-        current_file,
-        expression.to_string(),
-        crate::compiler::parse::parse_code,
-    );
-    let expression_world = ExpressionWorld { inner: world, source: &source };
+    let expression_world = ExpressionWorld { inner: world, source };
     let route = Route::root().with_id(current_file);
     let fixed_metrics = FixedMetrics;
     let mut sink = Sink::new();
@@ -611,19 +647,12 @@ pub fn eval_expression_with_features_and_introspector(
             current_file,
             sink: &mut tracked_sink,
         };
-        if source.root().erroneous() {
-            Err(source
-                .root()
-                .errors()
-                .into_iter()
-                .map(|error| {
-                    let mut diagnostic =
-                        SourceDiagnostic::error(error.span, error.message.to_string());
-                    diagnostic.hints =
-                        error.hints.iter().map(|hint| hint.to_string()).collect();
-                    diagnostic
-                })
-                .collect())
+        if let Err(errors) =
+            syntax_diagnostics::validate_syntax(source.root(), |diagnostic| {
+                engine.sink.warn_diagnostic(diagnostic);
+            })
+        {
+            Err(errors)
         } else {
             (|| -> SourceResult<Value> {
                 let mut last = Value::None;
@@ -650,11 +679,15 @@ pub fn eval_expression_with_features_and_introspector(
 /// Travessia AST parcial: literais, Ident, Let, CodeBlock, Binary, Unary,
 /// Conditional, WhileLoop, ForLoop, Closure, FuncCall. **Invariante**: não importa
 /// nada de `03_infra`; acesso ao world sempre via `World` (L1).
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C003: Fachada pública de compatibilidade: registry e full_error são entradas explícitas; _routines/_traced/_route são transportados ao próximo wrapper, mas não consumidos na entrada completa atual"
+)]
 pub fn eval_with_full_error(
     _routines: &Routines,
     world: &dyn World,
     _traced: Tracked<Traced>,
-    mut sink: TrackedMut<Sink>,
+    sink: TrackedMut<Sink>,
     _route: Tracked<Route>,
     source: &Source,
     // Lote F-3 inc-2: o threading registry→escopo que o F-1 deferiu. Elementos
@@ -677,11 +710,15 @@ pub fn eval_with_full_error(
     )
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C004: Fachada pública que acrescenta target à anterior sem ativar features"
+)]
 pub fn eval_with_full_error_and_target(
     _routines: &Routines,
     world: &dyn World,
     _traced: Tracked<Traced>,
-    mut sink: TrackedMut<Sink>,
+    sink: TrackedMut<Sink>,
     _route: Tracked<Route>,
     source: &Source,
     registry: &crate::entities::element_registry::ElementRegistry,
@@ -702,6 +739,10 @@ pub fn eval_with_full_error_and_target(
     )
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C005: Entrada pública completa de avaliação: World/Source/registry/sink e configuração são utilizados; _routines/_traced/_route não são lidos pelo corpo atual"
+)]
 pub fn eval_with_full_error_target_and_features(
     _routines: &Routines,
     world: &dyn World,
@@ -727,29 +768,9 @@ pub fn eval_with_full_error_target_and_features(
     // para o sink como warning e **não abortam** (T1 — paridade vanilla:
     // `warning: no text within stars` + hint, exit 0). Hints dos
     // `SyntaxError` são propagados em ambos os caminhos.
-    let mut syntax_errors: Vec<SourceDiagnostic> = Vec::new();
-    for e in root.errors() {
-        let is_warning = matches!(
-            e.kind,
-            SyntaxErrorKind::NoTextWithinStars | SyntaxErrorKind::NoTextWithinUnderscores
-        );
-        if is_warning {
-            sink.warn_note(
-                e.span,
-                e.message.as_str(),
-                e.hints.first().map_or("", |h| h.as_str()),
-            );
-        } else {
-            let mut diag = SourceDiagnostic::error(e.span, e.message.to_string());
-            for h in &e.hints {
-                diag = diag.with_hint(h.as_str());
-            }
-            syntax_errors.push(diag);
-        }
-    }
-    if !syntax_errors.is_empty() {
-        return Err(syntax_errors);
-    }
+    syntax_diagnostics::validate_syntax(root, |diagnostic| {
+        sink.warn_diagnostic(diagnostic);
+    })?;
 
     // Passo 106 (ADR-0043): canal de warnings activo. Pilot: emitir nota
     // quando o ficheiro fonte está vazio. Prova de vida do canal — o
@@ -762,31 +783,25 @@ pub fn eval_with_full_error_target_and_features(
         );
     }
 
-    // P498 — passagem dupla do eval:
-    // 1. `apply_show_rules = false`: produz o conteúdo original (pré-show-rules)
-    //    para alimentar a introspecção. Espelha o modelo vanilla, onde o
-    //    Introspector vê os elementos antes da realização das show-rules.
-    // 2. `apply_show_rules = true`: produz o output renderizado para layout/PDF.
-    //
-    // O scope, as definições de stdlib e as show-rules registadas são idênticos
-    // nas duas passagens; só a aplicação das show-rules difere.
-    //
-    // P694 — `sys.inputs` vem do ambiente via `World::inputs()` (default vazio);
-    // lido uma vez e partilhado pelas duas passagens.
+    // Execute common code once; show recipes retain their lexical environment
+    // and are applied by the pure realization phase below.
     let inputs = world.inputs();
-    let mut run_pass = |apply_show_rules: bool,
-                        pass_sink: &mut TrackedMut<Sink>|
-     -> SourceResult<(
-        Value,
-        Scope,
-        HashMap<u64, Arc<IndependentStyle>>,
-        DocumentInfo,
-    )> {
+    struct EvaluatedPass {
+        value: Value,
+        scope: Scope,
+        bibliography_styles: HashMap<u64, Arc<IndependentStyle>>,
+        document_info: DocumentInfo,
+        has_recipes: bool,
+    }
+    let run_pass = |apply_show_rules: bool,
+                    pass_sink: &mut TrackedMut<Sink>|
+     -> SourceResult<EvaluatedPass> {
         let mut ctx = EvalContext::new();
         ctx.target = target;
         ctx.features = features;
         ctx.full_error = full_error; // P350c: flag resolvida (default false via `eval`)
-        ctx.apply_show_rules = apply_show_rules; // P498
+        ctx.apply_show_rules = apply_show_rules;
+        ctx.defer_show_rules = true;
 
         // Route raiz com o FileId do ficheiro principal — primeira aplicação da
         // ADR-0036 (Passo 92), agora campo do Engine (ADR-0044, Passo 109).
@@ -810,7 +825,7 @@ pub fn eval_with_full_error_target_and_features(
         // `Library::std = Binding::detached(global.clone())`). Sombreável
         // como qualquer outro nome (medido: `#let std = "oops"` funciona
         // no vanilla) — por isso um binding normal, sem mecanismo especial.
-        global.define("std", Value::Module(Module::new("global", stdlib.clone())));
+        global.define("std", Value::Module(Module::stdlib(stdlib.clone())));
         for (name, binding) in stdlib.iter() {
             global.define(name, binding.value().clone());
         }
@@ -863,30 +878,88 @@ pub fn eval_with_full_error_target_and_features(
             return Err(vec![flow.forbidden()]);
         }
         let module_scope = scopes.exit();
-        Ok((content_val, module_scope, ctx.bibliography_styles, ctx.document_info))
+        Ok(EvaluatedPass {
+            value: content_val,
+            scope: module_scope,
+            bibliography_styles: ctx.bibliography_styles,
+            document_info: ctx.document_info,
+            has_recipes: ctx.has_deferred_show_rules,
+        })
     };
 
-    // Passo 1: captura do conteúdo original (pré-show-rules).
-    // Usa o mesmo sink principal para que warnings emitidos antes de um erro
-    // cheguem ao caller (dedup por (span, message) previne duplicação com passo 2).
-    let (original_val, _, _, _) = run_pass(false, &mut sink)?;
-    let original_content = match original_val {
-        Value::Content(c) => Some(c),
-        _ => None,
+    let EvaluatedPass {
+        value,
+        scope: module_scope,
+        bibliography_styles,
+        document_info,
+        has_recipes,
+    } = run_pass(true, &mut sink)?;
+    let mut realization_introspector = None;
+    let content = match value {
+        Value::Content(content) => {
+            if has_recipes
+                || crate::compiler::realize::bare_math::needs_preparation(&content)
+            {
+                let previous = crate::entities::introspector::TagIntrospector::empty();
+                let (result, warnings) = crate::compiler::realize::realize_document(
+                    &content, world, source, registry, &previous, full_error, target,
+                    features,
+                );
+                for warning in warnings {
+                    sink.warn_diagnostic(warning);
+                }
+                let realized = result?;
+                realization_introspector = Some(realized.introspector);
+                Some(realized.visual)
+            } else {
+                Some(content.wrap_page_columns())
+            }
+        }
+        Value::None
+        | Value::Bool(_)
+        | Value::Int(_)
+        | Value::Float(_)
+        | Value::Str(_)
+        | Value::Array(_)
+        | Value::Dict(_)
+        | Value::Module(_)
+        | Value::Datetime(_)
+        | Value::Func(_)
+        | Value::LocatedContent(_, _)
+        | Value::Auto
+        | Value::Length(_)
+        | Value::Relative(_)
+        | Value::Ratio(_)
+        | Value::Angle(_)
+        | Value::Color(_)
+        | Value::Stroke(_)
+        | Value::Fraction(_)
+        | Value::Align(_)
+        | Value::Location(_)
+        | Value::Gradient(_)
+        | Value::Regex(_)
+        | Value::Tiling(_)
+        | Value::Bytes(_)
+        | Value::Decimal(_)
+        | Value::Duration(_)
+        | Value::Version(_)
+        | Value::Selector(_)
+        | Value::Symbol(_)
+        | Value::Args(_)
+        | Value::State(_)
+        | Value::Counter(_)
+        | Value::Label(_)
+        | Value::Dir(_)
+        | Value::Path(_)
+        | Value::Type(_)
+        | Value::SpotColorant(_) => None,
     };
-
-    // Passo 2: eval normal (com show-rules) — este é o resultado oficial.
-    let (rendered_val, module_scope, bibliography_styles, document_info) =
-        run_pass(true, &mut sink)?;
-    let rendered_content = match rendered_val {
-        // **P537b** — ligar `#set page(columns: N)` ao consumer `Content::Columns`.
-        Value::Content(c) => Some(c.wrap_page_columns()),
-        _ => None,
-    };
-
     let mut module = Module::new(source.id().into_raw().get().to_string(), module_scope);
-    module.set_content(rendered_content);
-    module.set_introspection_content(original_content);
+    module.set_introspection_content(content.clone());
+    module.set_content(content);
+    if let Some(introspector) = realization_introspector {
+        module.set_realization_introspector(introspector);
+    }
     // P429 (DEBT-63): transportar styles resolvidos do eval para o Module,
     // de onde o pipeline os injectará no BibStore do TagIntrospector.
     module.set_bibliography_styles(bibliography_styles);
@@ -907,6 +980,7 @@ pub fn eval_with_full_error_target_and_features(
 ///
 /// Passo 64 (DEBT-16): `native_figure` migrada do interceptador em eval.rs para cá.
 /// O avaliador deixa de conhecer o nome "figure" — desacoplamento total.
+#[cfg(test)]
 fn make_stdlib(inputs: &SysInputs) -> Scope {
     make_stdlib_with_features(
         inputs,
@@ -923,26 +997,20 @@ fn make_stdlib_with_features(
 
 // ── Auxiliares para intercepção de counter(...).method() ──────────────────
 
-#[cfg(test)]
 #[path = "p1425_tests.rs"]
 mod p1425_tests;
-#[cfg(test)]
 #[path = "p1426_tests.rs"]
 mod p1426_tests;
-#[cfg(test)]
 #[path = "p1427_tests.rs"]
 mod p1427_tests;
-#[cfg(test)]
 #[path = "p1429_observation_tests.rs"]
 mod p1429_observation_tests;
 
-#[cfg(test)]
 #[path = "p1430_tests.rs"]
 mod p1430_tests;
 
-#[cfg(test)]
 mod p1431_tests;
-/// Extrai o nome do contador de uma expressão `counter(key)`.
+// Extrai o nome do contador de uma expressão `counter(key)`.
 // extract_counter_key e eval_counter_method extraídos para eval/bindings.rs (Passo 96.1).
 
 #[cfg(test)]

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/strong.md
-//! @prompt-hash 23a4c5a6
+//! @prompt-hash a8bd2bf7
 //! @layer L1
-//! @updated 2026-06-18
+//! @updated 2026-10-10
 //!
 //! **F-5b fatia 1 (P371, `f_fronteira_e1.md` §3a.12)** — `strong` (`*bold*`) como
 //! **variante própria** (modelo D, ADR-0105), devolvendo a distinção semântica de
@@ -18,6 +18,7 @@ use super::Element;
 use crate::entities::content::Content;
 use crate::entities::source_result::SourceResult;
 use crate::entities::value::Value;
+use std::sync::Arc;
 
 /// `strong` — ênfase forte (`*bold*`). Container transparente ao `plain_text`
 /// (só o body); o bold é estilo de render aplicado no layout.
@@ -49,7 +50,9 @@ impl Element for StrongElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::strong(self.body.map_content(transform)?))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::Strong(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, transform: &mut F) -> Content
@@ -64,6 +67,26 @@ impl Element for StrongElem {
             "body" => Some(Value::Content(self.body.clone())),
             _ => None,
         }
+    }
+}
+
+impl StrongElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        if body.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        Ok(Some(Content::Strong(Arc::new(mapped))))
     }
 }
 

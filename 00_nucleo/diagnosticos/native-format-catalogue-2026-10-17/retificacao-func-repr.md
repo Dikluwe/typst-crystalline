@@ -1,0 +1,5 @@
+# Retificação da indicação sobre FuncRepr
+
+A nota em native-math-catalogue-2026-10-17/follow-ups.md afirmou que o L0 mostrava FuncRepr público. A leitura direta atual refuta essa indicação: `00_nucleo/prompts/entities/func.md:21` declara `pub(crate) enum FuncRepr`, assim como `01_core/src/entities/func.rs:24`. O cabeçalho Tipos públicos não altera a declaração explícita de visibilidade. A evidência bruta arquivada naquela etapa já contém pub(crate); a interpretação da nota estava errada.
+
+Os arquivos anteriores e seus manifestos permanecem como registro histórico. Esta retificação está vinculada aos textos e hashes em before.json.gz desta etapa. Func, NativeFunc e NativeFuncWithEngine continuam tipos públicos; campos/assinaturas desses tipos exigem os gates aplicáveis. A representação FuncRepr e uma identidade de formato restrita ao crate podem evoluir internamente em fluxo contínuo ADR-0127 se preservarem as interfaces públicas, observáveis, fase e compatibilidade. Essa classificação não autoriza nenhum campo/trait/método Rust público novo.

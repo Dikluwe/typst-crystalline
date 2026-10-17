@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/smartquote.md
-//! @prompt-hash 3aca74bf
+//! @prompt-hash f0b27d8b
 //! @layer L1
-//! @updated 2026-06-11
+//! @updated 2026-10-06
 //!
 //! `SmartQuoteElem` — Lote 9 P324 (por largura). `smartquote(double)` —
 //! aspa lang-aware. Leaf não-locatável; `map_*` terminais.
@@ -36,14 +36,15 @@ pub enum SmartQuoteQuotes {
 /// Aspa "smart" (programática). `double = true` → aspa dupla; `false` → simples.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SmartQuoteElem {
-    pub double: bool,
+    pub double: Option<bool>,
+    pub enabled: Option<bool>,
     pub alternative: Option<bool>,
     pub quotes: Option<SmartQuoteQuotes>,
 }
 
 impl Element for SmartQuoteElem {
     fn plain_text(&self) -> String {
-        if self.double {
+        if self.double.unwrap_or(true) {
             "\"".to_string()
         } else {
             "'".to_string()
@@ -96,6 +97,11 @@ mod tests {
     }
 
     fn elem(double: bool) -> SmartQuoteElem {
-        SmartQuoteElem { double, alternative: None, quotes: None }
+        SmartQuoteElem {
+            double: Some(double),
+            enabled: None,
+            alternative: None,
+            quotes: None,
+        }
     }
 }

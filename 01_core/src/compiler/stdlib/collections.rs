@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/collections.md
-//! @prompt-hash 360ca61b
+//! @prompt-hash 75015f2b
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -54,15 +54,15 @@ use self::array_aggregate::{array_fold, array_product, array_reduce, array_sum};
 #[cfg(test)]
 use self::array_predicate::array_dedup_values;
 use self::array_predicate::{
-    array_all, array_all_with_pred, array_any, array_dedup, array_filter, array_find,
-    array_map, array_position, array_sorted,
+    array_all, array_any, array_dedup, array_filter, array_find, array_map,
+    array_position, array_sorted,
 };
 use self::array_sequence::{
     array_chunks, array_enumerate, array_flatten, array_intersperse, array_join,
     array_rev, array_split, array_to_dict, array_windows, array_zip,
 };
-use self::bytes::try_dispatch_bytes_method;
 #[cfg(test)]
+use self::bytes::try_dispatch_bytes_method;
 use self::bytes::{bytes_at, bytes_len, bytes_slice};
 use self::dictionary::{
     dict_at, dict_filter, dict_insert, dict_keys, dict_len, dict_map, dict_pairs,
@@ -128,251 +128,421 @@ pub(crate) fn try_dispatch_collection_method(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> Option<SourceResult<Value>> {
-    match (target, method) {
-        // ── array ────────────────────────────────────────────────────────────
-        (Value::Array(arr), "len") => Some(array_len(arr, args)),
-        (Value::Array(arr), "first") => Some(array_first(arr, args)),
-        (Value::Array(arr), "last") => Some(array_last(arr, args)),
-        (Value::Array(arr), "at") => Some(array_at(arr, args)),
-        (Value::Array(arr), "slice") => Some(array_slice(arr, args)),
-        (Value::Array(arr), "rev") => Some(array_no_args(arr, args, array_rev)),
-        (Value::Array(arr), "sum") => Some(array_sum(arr, args)),
-        (Value::Array(arr), "product") => Some(array_product(arr, args)),
-        (Value::Array(arr), "contains") => Some(array_contains(arr, args)),
-        (Value::Array(arr), "sorted") => {
-            Some(array_sorted(arr, args, scopes, ctx, engine))
-        }
-        (Value::Array(arr), "filter") => {
-            Some(array_filter(arr, args, scopes, ctx, engine))
-        }
-        (Value::Array(arr), "map") => Some(array_map(arr, args, scopes, ctx, engine)),
-        (Value::Array(arr), "find") => Some(array_find(arr, args, scopes, ctx, engine)),
-        (Value::Array(arr), "position") => {
-            Some(array_position(arr, args, scopes, ctx, engine))
-        }
-        (Value::Array(arr), "any") => Some(array_any(arr, args, scopes, ctx, engine)),
-        (Value::Array(arr), "all") => Some(array_all(arr, args, scopes, ctx, engine)),
-        (Value::Array(arr), "zip") => Some(array_zip(arr, args)),
-        (Value::Array(arr), "enumerate") => Some(array_enumerate(arr, args)),
-        (Value::Array(arr), "dedup") => Some(array_dedup(arr, args, scopes, ctx, engine)),
-        (Value::Array(arr), "chunks") => Some(array_chunks(arr, args)),
-        (Value::Array(arr), "windows") => Some(array_windows(arr, args)),
-        (Value::Array(arr), "flatten") => Some(array_no_args(arr, args, array_flatten)),
-        (Value::Array(arr), "fold") => Some(array_fold(arr, args, scopes, ctx, engine)),
-        (Value::Array(arr), "reduce") => {
-            Some(array_reduce(arr, args, scopes, ctx, engine))
-        }
-        (Value::Array(arr), "intersperse") => Some(array_intersperse(arr, args)),
-        (Value::Array(arr), "split") => Some(array_split(arr, args)),
-        (Value::Array(arr), "to-dict") => Some(array_to_dict(arr, args)),
-        // P843 (#60) — `array.join(separator?, last:?, default:?)`.
-        (Value::Array(arr), "join") => Some(array_join(arr, args)),
+    match try_dispatch_collection_method_with(
+        target,
+        method,
+        |_, _, _| Ok(args),
+        call_spans,
+        scopes,
+        ctx,
+        engine,
+    ) {
+        CollectionDispatch::Handled(result) => Some(result),
+        CollectionDispatch::Unhandled(_) => None,
+    }
+}
 
-        // ── dict ─────────────────────────────────────────────────────────────
-        (Value::Dict(dict), "keys") => Some(dict_no_args(dict, args, dict_keys)),
-        (Value::Dict(dict), "values") => Some(dict_no_args(dict, args, dict_values)),
-        (Value::Dict(dict), "pairs") => Some(dict_no_args(dict, args, dict_pairs)),
-        (Value::Dict(dict), "remove") => Some(dict_remove(dict, args)),
-        (Value::Dict(dict), "update") => Some(dict_update(dict, args)),
-        (Value::Dict(dict), "insert") => Some(dict_insert(dict, args)),
-        (Value::Dict(dict), "at") => Some(dict_at(dict, args)),
-        (Value::Dict(dict), "len") => Some(dict_no_args(dict, args, dict_len)),
-        (Value::Dict(dict), "map") => Some(dict_map(dict, args, scopes, ctx, engine)),
-        (Value::Dict(dict), "filter") => {
-            Some(dict_filter(dict, args, scopes, ctx, engine))
-        }
+pub(crate) enum CollectionDispatch {
+    Handled(SourceResult<Value>),
+    Unhandled(Value),
+}
 
-        // ── str ──────────────────────────────────────────────────────────────
-        (Value::Str(s), "len") => Some(str_no_args(s, args, str_len)),
-        (Value::Str(s), "first") => Some(str_first(s, args)),
-        (Value::Str(s), "last") => Some(str_last(s, args)),
-        (Value::Str(s), "at") => Some(str_at(s, args)),
-        (Value::Str(s), "slice") => Some(str_slice(s, args)),
-        (Value::Str(s), "char-len") => Some(Ok(char_len(s))),
-        (Value::Str(s), "char-at") => Some(char_at(s, args)),
-        (Value::Str(s), "char-slice") => Some(char_slice(s, args)),
-        (Value::Str(s), "clusters") => Some(str_no_args(s, args, str_clusters)),
-        (Value::Str(s), "contains") => Some(str_contains(s, args)),
-        (Value::Str(s), "starts-with") => Some(str_starts_with(s, args)),
-        (Value::Str(s), "ends-with") => Some(str_ends_with(s, args)),
-        (Value::Str(s), "find") => Some(str_find(s, args)),
-        (Value::Str(s), "replace") => Some(str_replace(s, args)),
-        (Value::Str(s), "trim") => Some(str_trim_dispatch(s, args)),
-        (Value::Str(s), "split") => Some(str_split(s, args)),
-        (Value::Str(s), "repeat") => Some(str_repeat(s, args)),
-        (Value::Str(s), "to-upper") => Some(Ok(str_to_upper(s))),
-        (Value::Str(s), "to-lower") => Some(Ok(str_to_lower(s))),
-        (Value::Str(s), "to-unicode") => {
-            Some(ensure_no_args(&args).and_then(|_| str_to_unicode(s)))
-        }
-        (Value::Str(s), "rev") => Some(str_no_args(s, args, str_rev)),
-        (Value::Str(s), "codepoints") => Some(str_no_args(s, args, str_codepoints)),
-        (Value::Str(s), "normalize") => Some(str_normalize(s, args)),
-        (Value::Str(s), "position") => Some(str_position(s, args)),
-        (Value::Str(s), "match") => Some(str_match(s, args)),
-        (Value::Str(s), "matches") => Some(str_matches(s, args)),
-
-        // ── bytes (P1214) ───────────────────────────────────────────────────
-        (Value::Bytes(bytes), method) => {
-            try_dispatch_bytes_method(bytes, method, args, call_spans)
-        }
-
-        // ── arguments (P1284) ──────────────────────────────────────────────
-        (Value::Args(arguments), "len") => Some(arguments_len(arguments, args)),
-        (Value::Args(arguments), "at") => Some(arguments_at(arguments, args)),
-        (Value::Args(arguments), "pos") => Some(arguments_pos(arguments, args)),
-        (Value::Args(arguments), "named") => Some(arguments_named(arguments, args)),
-        (Value::Args(arguments), "filter") => {
-            Some(arguments_filter(arguments, args, scopes, ctx, engine))
-        }
-        (Value::Args(arguments), "map") => {
-            Some(arguments_map(arguments, args, scopes, ctx, engine))
-        }
-
-        _ => None, // neutro: N16[β] — Value não-indexável retorna None na projecção de colecção
+pub(crate) fn try_dispatch_collection_method_with(
+    target: Value,
+    method: &str,
+    evaluate_args: impl FnOnce(
+        &mut Scopes<'_>,
+        &mut EvalContext,
+        &mut Engine<'_>,
+    ) -> SourceResult<Args>,
+    call_spans: Option<&CollectionCallSpans>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> CollectionDispatch {
+    macro_rules! bind_args {
+        ($args:ident, $body:expr) => {{
+            let $args = match evaluate_args(scopes, ctx, engine) {
+                Ok(args) => args,
+                Err(errors) => return CollectionDispatch::Handled(Err(errors)),
+            };
+            CollectionDispatch::Handled($body)
+        }};
+    }
+    match target {
+        Value::Array(arr) => match method {
+            "len" => bind_args!(args, array_len(arr, args)),
+            "first" => bind_args!(args, array_first(arr, args)),
+            "last" => bind_args!(args, array_last(arr, args)),
+            "at" => bind_args!(args, array_at(arr, args)),
+            "slice" => bind_args!(args, array_slice(arr, args)),
+            "rev" => bind_args!(args, array_no_args(arr, args, array_rev)),
+            "sum" => bind_args!(args, array_sum(arr, args)),
+            "product" => bind_args!(args, array_product(arr, args)),
+            "contains" => bind_args!(args, array_contains(arr, args)),
+            "sorted" => bind_args!(args, array_sorted(arr, args, scopes, ctx, engine)),
+            "filter" => bind_args!(args, array_filter(arr, args, scopes, ctx, engine)),
+            "map" => bind_args!(args, array_map(arr, args, scopes, ctx, engine)),
+            "find" => bind_args!(args, array_find(arr, args, scopes, ctx, engine)),
+            "position" => {
+                bind_args!(args, array_position(arr, args, scopes, ctx, engine))
+            }
+            "any" => bind_args!(args, array_any(arr, args, scopes, ctx, engine)),
+            "all" => bind_args!(args, array_all(arr, args, scopes, ctx, engine)),
+            "zip" => bind_args!(args, array_zip(arr, args)),
+            "enumerate" => bind_args!(args, array_enumerate(arr, args)),
+            "dedup" => bind_args!(args, array_dedup(arr, args, scopes, ctx, engine)),
+            "chunks" => bind_args!(args, array_chunks(arr, args)),
+            "windows" => bind_args!(args, array_windows(arr, args)),
+            "flatten" => bind_args!(args, array_no_args(arr, args, array_flatten)),
+            "fold" => bind_args!(args, array_fold(arr, args, scopes, ctx, engine)),
+            "reduce" => bind_args!(args, array_reduce(arr, args, scopes, ctx, engine)),
+            "intersperse" => bind_args!(args, array_intersperse(arr, args)),
+            "split" => bind_args!(args, array_split(arr, args)),
+            "to-dict" => bind_args!(args, array_to_dict(arr, args)),
+            "join" => bind_args!(args, array_join(arr, args)),
+            _ => CollectionDispatch::Unhandled(Value::Array(arr)),
+        },
+        Value::Dict(dict) => match method {
+            "keys" => bind_args!(args, dict_no_args(dict, args, dict_keys)),
+            "values" => bind_args!(args, dict_no_args(dict, args, dict_values)),
+            "pairs" => bind_args!(args, dict_no_args(dict, args, dict_pairs)),
+            "remove" => bind_args!(args, dict_remove(dict, args)),
+            "update" => bind_args!(args, dict_update(dict, args)),
+            "insert" => bind_args!(args, dict_insert(dict, args)),
+            "at" => bind_args!(args, dict_at(dict, args)),
+            "len" => bind_args!(args, dict_no_args(dict, args, dict_len)),
+            "map" => bind_args!(args, dict_map(dict, args, scopes, ctx, engine)),
+            "filter" => bind_args!(args, dict_filter(dict, args, scopes, ctx, engine)),
+            _ => CollectionDispatch::Unhandled(Value::Dict(dict)),
+        },
+        Value::Str(s) => match method {
+            "len" => bind_args!(args, str_no_args(s, args, str_len)),
+            "first" => bind_args!(args, str_first(s, args)),
+            "last" => bind_args!(args, str_last(s, args)),
+            "at" => bind_args!(args, str_at(s, args)),
+            "slice" => bind_args!(args, str_slice(s, args)),
+            "char-len" => bind_args!(_args, Ok(char_len(s))),
+            "char-at" => bind_args!(args, char_at(s, args)),
+            "char-slice" => bind_args!(args, char_slice(s, args)),
+            "clusters" => bind_args!(args, str_no_args(s, args, str_clusters)),
+            "contains" => bind_args!(args, str_contains(s, args)),
+            "starts-with" => bind_args!(args, str_starts_with(s, args)),
+            "ends-with" => bind_args!(args, str_ends_with(s, args)),
+            "find" => bind_args!(args, str_find(s, args)),
+            "replace" => bind_args!(args, str_replace(s, args)),
+            "trim" => bind_args!(args, str_trim_dispatch(s, args)),
+            "split" => bind_args!(args, str_split(s, args)),
+            "repeat" => bind_args!(args, str_repeat(s, args)),
+            "to-upper" => bind_args!(_args, Ok(str_to_upper(s))),
+            "to-lower" => bind_args!(_args, Ok(str_to_lower(s))),
+            "to-unicode" => {
+                bind_args!(args, ensure_no_args(&args).and_then(|_| str_to_unicode(s)))
+            }
+            "rev" => bind_args!(args, str_no_args(s, args, str_rev)),
+            "codepoints" => bind_args!(args, str_no_args(s, args, str_codepoints)),
+            "normalize" => bind_args!(args, str_normalize(s, args)),
+            "position" => bind_args!(args, str_position(s, args)),
+            "match" => bind_args!(args, str_match(s, args)),
+            "matches" => bind_args!(args, str_matches(s, args)),
+            _ => CollectionDispatch::Unhandled(Value::Str(s)),
+        },
+        Value::Bytes(bytes) => match method {
+            "len" => bind_args!(args, bytes_len(bytes, args, call_spans)),
+            "at" => bind_args!(args, bytes_at(bytes, args, call_spans)),
+            "slice" => bind_args!(args, bytes_slice(bytes, args, call_spans)),
+            _ => CollectionDispatch::Unhandled(Value::Bytes(bytes)),
+        },
+        Value::Args(arguments) => match method {
+            "len" => bind_args!(args, arguments_len(arguments, args)),
+            "at" => bind_args!(args, arguments_at(arguments, args)),
+            "pos" => bind_args!(args, arguments_pos(arguments, args)),
+            "named" => bind_args!(args, arguments_named(arguments, args)),
+            "filter" => {
+                bind_args!(args, arguments_filter(arguments, args, scopes, ctx, engine))
+            }
+            "map" => {
+                bind_args!(args, arguments_map(arguments, args, scopes, ctx, engine))
+            }
+            _ => CollectionDispatch::Unhandled(Value::Args(arguments)),
+        },
+        // Values outside the collection receiver families continue in the caller.
+        Value::None
+        | Value::Bool(..)
+        | Value::Int(..)
+        | Value::Float(..)
+        | Value::Module(..)
+        | Value::Datetime(..)
+        | Value::Func(..)
+        | Value::Content(..)
+        | Value::LocatedContent(..)
+        | Value::Auto
+        | Value::Length(..)
+        | Value::Relative(..)
+        | Value::Ratio(..)
+        | Value::Angle(..)
+        | Value::Color(..)
+        | Value::Stroke(..)
+        | Value::Fraction(..)
+        | Value::Align(..)
+        | Value::Location(..)
+        | Value::Gradient(..)
+        | Value::Regex(..)
+        | Value::Tiling(..)
+        | Value::Decimal(..)
+        | Value::Duration(..)
+        | Value::Version(..)
+        | Value::Selector(..)
+        | Value::Symbol(..)
+        | Value::State(..)
+        | Value::Counter(..)
+        | Value::Label(..)
+        | Value::Dir(..)
+        | Value::Path(..)
+        | Value::Type(..)
+        | Value::SpotColorant(..) => CollectionDispatch::Unhandled(target),
     }
 }
 
 /// **P1142** — membros não ligados expostos nos valores-tipo `array` e `str`.
 /// As funções delegam aos mesmos helpers das formas de instância.
 pub(crate) fn collection_type_field(t: Type, field: &str) -> Option<Value> {
-    let function = match (t, field) {
-        (Type::Array, "range") => Func::native("range", native_range),
-        (Type::Array, "all") => Func::native_with_engine("all", array_all_static),
-        (Type::Array, "any") => Func::native_with_engine("any", array_any_static),
-        (Type::Array, "at") => Func::native_with_engine("at", array_at_static),
-        (Type::Array, "chunks") => {
-            Func::native_with_engine("chunks", array_chunks_static)
-        }
-        (Type::Array, "contains") => {
-            Func::native_with_engine("contains", array_contains_static)
-        }
-        (Type::Array, "dedup") => Func::native_with_engine("dedup", array_dedup_static),
-        (Type::Array, "enumerate") => {
-            Func::native_with_engine("enumerate", array_enumerate_static)
-        }
-        (Type::Array, "filter") => {
-            Func::native_with_engine("filter", array_filter_static)
-        }
-        (Type::Array, "find") => Func::native_with_engine("find", array_find_static),
-        (Type::Array, "first") => Func::native_with_engine("first", array_first_static),
-        (Type::Array, "flatten") => {
-            Func::native_with_engine("flatten", array_flatten_static)
-        }
-        (Type::Array, "fold") => Func::native_with_engine("fold", array_fold_static),
-        (Type::Array, "insert") => {
-            Func::native_with_engine("insert", array_insert_static)
-        }
-        (Type::Array, "intersperse") => {
-            Func::native_with_engine("intersperse", array_intersperse_static)
-        }
-        (Type::Array, "join") => Func::native_with_engine("join", array_join_static),
-        (Type::Array, "last") => Func::native_with_engine("last", array_last_static),
-        (Type::Array, "len") => Func::native_with_engine("len", array_len_static),
-        (Type::Array, "map") => Func::native_with_engine("map", array_map_static),
-        (Type::Array, "pop") => Func::native_with_engine("pop", array_pop_static),
-        (Type::Array, "position") => {
-            Func::native_with_engine("position", array_position_static)
-        }
-        (Type::Array, "product") => {
-            Func::native_with_engine("product", array_product_static)
-        }
-        (Type::Array, "push") => Func::native_with_engine("push", array_push_static),
-        (Type::Array, "reduce") => {
-            Func::native_with_engine("reduce", array_reduce_static)
-        }
-        (Type::Array, "remove") => {
-            Func::native_with_engine("remove", array_remove_static)
-        }
-        (Type::Array, "rev") => Func::native_with_engine("rev", array_rev_static),
-        (Type::Array, "slice") => Func::native_with_engine("slice", array_slice_static),
-        (Type::Array, "sorted") => {
-            Func::native_with_engine("sorted", array_sorted_static)
-        }
-        (Type::Array, "split") => Func::native_with_engine("split", array_split_static),
-        (Type::Array, "sum") => Func::native_with_engine("sum", array_sum_static),
-        (Type::Array, "to-dict") => {
-            Func::native_with_engine("to-dict", array_to_dict_static)
-        }
-        (Type::Array, "windows") => {
-            Func::native_with_engine("windows", array_windows_static)
-        }
-        (Type::Array, "zip") => Func::native_with_engine("zip", array_zip_static),
-
-        (Type::Dictionary, "at") => Func::native_with_engine("at", dict_at_static),
-        (Type::Dictionary, "filter") => {
-            Func::native_with_engine("filter", dict_filter_static)
-        }
-        (Type::Dictionary, "insert") => {
-            Func::native_with_engine("insert", dict_insert_static)
-        }
-        (Type::Dictionary, "keys") => Func::native_with_engine("keys", dict_keys_static),
-        (Type::Dictionary, "len") => Func::native_with_engine("len", dict_len_static),
-        (Type::Dictionary, "map") => Func::native_with_engine("map", dict_map_static),
-        (Type::Dictionary, "pairs") => {
-            Func::native_with_engine("pairs", dict_pairs_static)
-        }
-        (Type::Dictionary, "remove") => {
-            Func::native_with_engine("remove", dict_remove_static)
-        }
-        (Type::Dictionary, "values") => {
-            Func::native_with_engine("values", dict_values_static)
-        }
-
-        (Type::Str, "at") => Func::native_with_engine("at", str_at_static),
-        (Type::Str, "clusters") => {
-            Func::native_with_engine("clusters", str_clusters_static)
-        }
-        (Type::Str, "codepoints") => {
-            Func::native_with_engine("codepoints", str_codepoints_static)
-        }
-        (Type::Str, "contains") => {
-            Func::native_with_engine("contains", str_contains_static)
-        }
-        (Type::Str, "ends-with") => {
-            Func::native_with_engine("ends-with", str_ends_with_static)
-        }
-        (Type::Str, "find") => Func::native_with_engine("find", str_find_static),
-        (Type::Str, "first") => Func::native_with_engine("first", str_first_static),
-        (Type::Str, "last") => Func::native_with_engine("last", str_last_static),
-        (Type::Str, "len") => Func::native_with_engine("len", str_len_static),
-        (Type::Str, "match") => Func::native_with_engine("match", str_match_static),
-        (Type::Str, "matches") => Func::native_with_engine("matches", str_matches_static),
-        (Type::Str, "normalize") => {
-            Func::native_with_engine("normalize", str_normalize_static)
-        }
-        (Type::Str, "position") => {
-            Func::native_with_engine("position", str_position_static)
-        }
-        (Type::Str, "replace") => Func::native_with_engine("replace", str_replace_static),
-        (Type::Str, "rev") => Func::native_with_engine("rev", str_rev_static),
-        (Type::Str, "slice") => Func::native_with_engine("slice", str_slice_static),
-        (Type::Str, "split") => Func::native_with_engine("split", str_split_static),
-        (Type::Str, "starts-with") => {
-            Func::native_with_engine("starts-with", str_starts_with_static)
-        }
-        (Type::Str, "to-unicode") => {
-            Func::native_with_engine("to-unicode", str_to_unicode_static)
-        }
-        (Type::Str, "trim") => Func::native_with_engine("trim", str_trim_static),
-
-        (Type::Bytes, "at") => Func::native_with_engine("at", bytes_at_static),
-        (Type::Bytes, "len") => Func::native_with_engine("len", bytes_len_static),
-        (Type::Bytes, "slice") => Func::native_with_engine("slice", bytes_slice_static),
-
-        (Type::Arguments, "at") => Func::native_with_engine("at", args_at_static),
-        (Type::Arguments, "filter") => {
-            Func::native_with_engine("filter", args_filter_static)
-        }
-        (Type::Arguments, "len") => Func::native_with_engine("len", args_len_static),
-        (Type::Arguments, "map") => Func::native_with_engine("map", args_map_static),
-        (Type::Arguments, "named") => {
-            Func::native_with_engine("named", args_named_static)
-        }
-        (Type::Arguments, "pos") => Func::native_with_engine("pos", args_pos_static),
-        _ => return None,
-    };
-    Some(Value::Func(function))
+    match t {
+        Type::Array => match field {
+            "range" => Some(Value::Func(Func::native("range", native_range))),
+            "all" => Some(Value::Func(Func::native_with_engine("all", array_all_static))),
+            "any" => Some(Value::Func(Func::native_with_engine("any", array_any_static))),
+            "at" => Some(Value::Func(Func::native_with_engine("at", array_at_static))),
+            "chunks" => {
+                Some(Value::Func(Func::native_with_engine("chunks", array_chunks_static)))
+            }
+            "contains" => Some(Value::Func(Func::native_with_engine(
+                "contains",
+                array_contains_static,
+            ))),
+            "dedup" => {
+                Some(Value::Func(Func::native_with_engine("dedup", array_dedup_static)))
+            }
+            "enumerate" => Some(Value::Func(Func::native_with_engine(
+                "enumerate",
+                array_enumerate_static,
+            ))),
+            "filter" => {
+                Some(Value::Func(Func::native_with_engine("filter", array_filter_static)))
+            }
+            "find" => {
+                Some(Value::Func(Func::native_with_engine("find", array_find_static)))
+            }
+            "first" => {
+                Some(Value::Func(Func::native_with_engine("first", array_first_static)))
+            }
+            "flatten" => Some(Value::Func(Func::native_with_engine(
+                "flatten",
+                array_flatten_static,
+            ))),
+            "fold" => {
+                Some(Value::Func(Func::native_with_engine("fold", array_fold_static)))
+            }
+            "insert" => {
+                Some(Value::Func(Func::native_with_engine("insert", array_insert_static)))
+            }
+            "intersperse" => Some(Value::Func(Func::native_with_engine(
+                "intersperse",
+                array_intersperse_static,
+            ))),
+            "join" => {
+                Some(Value::Func(Func::native_with_engine("join", array_join_static)))
+            }
+            "last" => {
+                Some(Value::Func(Func::native_with_engine("last", array_last_static)))
+            }
+            "len" => Some(Value::Func(Func::native_with_engine("len", array_len_static))),
+            "map" => Some(Value::Func(Func::native_with_engine("map", array_map_static))),
+            "pop" => Some(Value::Func(Func::native_with_engine("pop", array_pop_static))),
+            "position" => Some(Value::Func(Func::native_with_engine(
+                "position",
+                array_position_static,
+            ))),
+            "product" => Some(Value::Func(Func::native_with_engine(
+                "product",
+                array_product_static,
+            ))),
+            "push" => {
+                Some(Value::Func(Func::native_with_engine("push", array_push_static)))
+            }
+            "reduce" => {
+                Some(Value::Func(Func::native_with_engine("reduce", array_reduce_static)))
+            }
+            "remove" => {
+                Some(Value::Func(Func::native_with_engine("remove", array_remove_static)))
+            }
+            "rev" => Some(Value::Func(Func::native_with_engine("rev", array_rev_static))),
+            "slice" => {
+                Some(Value::Func(Func::native_with_engine("slice", array_slice_static)))
+            }
+            "sorted" => {
+                Some(Value::Func(Func::native_with_engine("sorted", array_sorted_static)))
+            }
+            "split" => {
+                Some(Value::Func(Func::native_with_engine("split", array_split_static)))
+            }
+            "sum" => Some(Value::Func(Func::native_with_engine("sum", array_sum_static))),
+            "to-dict" => Some(Value::Func(Func::native_with_engine(
+                "to-dict",
+                array_to_dict_static,
+            ))),
+            "windows" => Some(Value::Func(Func::native_with_engine(
+                "windows",
+                array_windows_static,
+            ))),
+            "zip" => Some(Value::Func(Func::native_with_engine("zip", array_zip_static))),
+            _ => None,
+        },
+        Type::Dictionary => match field {
+            "at" => Some(Value::Func(Func::native_with_engine("at", dict_at_static))),
+            "filter" => {
+                Some(Value::Func(Func::native_with_engine("filter", dict_filter_static)))
+            }
+            "insert" => {
+                Some(Value::Func(Func::native_with_engine("insert", dict_insert_static)))
+            }
+            "keys" => {
+                Some(Value::Func(Func::native_with_engine("keys", dict_keys_static)))
+            }
+            "len" => Some(Value::Func(Func::native_with_engine("len", dict_len_static))),
+            "map" => Some(Value::Func(Func::native_with_engine("map", dict_map_static))),
+            "pairs" => {
+                Some(Value::Func(Func::native_with_engine("pairs", dict_pairs_static)))
+            }
+            "remove" => {
+                Some(Value::Func(Func::native_with_engine("remove", dict_remove_static)))
+            }
+            "values" => {
+                Some(Value::Func(Func::native_with_engine("values", dict_values_static)))
+            }
+            _ => None,
+        },
+        Type::Str => match field {
+            "at" => Some(Value::Func(Func::native_with_engine("at", str_at_static))),
+            "clusters" => Some(Value::Func(Func::native_with_engine(
+                "clusters",
+                str_clusters_static,
+            ))),
+            "codepoints" => Some(Value::Func(Func::native_with_engine(
+                "codepoints",
+                str_codepoints_static,
+            ))),
+            "contains" => Some(Value::Func(Func::native_with_engine(
+                "contains",
+                str_contains_static,
+            ))),
+            "ends-with" => Some(Value::Func(Func::native_with_engine(
+                "ends-with",
+                str_ends_with_static,
+            ))),
+            "find" => {
+                Some(Value::Func(Func::native_with_engine("find", str_find_static)))
+            }
+            "first" => {
+                Some(Value::Func(Func::native_with_engine("first", str_first_static)))
+            }
+            "last" => {
+                Some(Value::Func(Func::native_with_engine("last", str_last_static)))
+            }
+            "len" => Some(Value::Func(Func::native_with_engine("len", str_len_static))),
+            "match" => {
+                Some(Value::Func(Func::native_with_engine("match", str_match_static)))
+            }
+            "matches" => {
+                Some(Value::Func(Func::native_with_engine("matches", str_matches_static)))
+            }
+            "normalize" => Some(Value::Func(Func::native_with_engine(
+                "normalize",
+                str_normalize_static,
+            ))),
+            "position" => Some(Value::Func(Func::native_with_engine(
+                "position",
+                str_position_static,
+            ))),
+            "replace" => {
+                Some(Value::Func(Func::native_with_engine("replace", str_replace_static)))
+            }
+            "rev" => Some(Value::Func(Func::native_with_engine("rev", str_rev_static))),
+            "slice" => {
+                Some(Value::Func(Func::native_with_engine("slice", str_slice_static)))
+            }
+            "split" => {
+                Some(Value::Func(Func::native_with_engine("split", str_split_static)))
+            }
+            "starts-with" => Some(Value::Func(Func::native_with_engine(
+                "starts-with",
+                str_starts_with_static,
+            ))),
+            "to-unicode" => Some(Value::Func(Func::native_with_engine(
+                "to-unicode",
+                str_to_unicode_static,
+            ))),
+            "trim" => {
+                Some(Value::Func(Func::native_with_engine("trim", str_trim_static)))
+            }
+            _ => None,
+        },
+        Type::Bytes => match field {
+            "at" => Some(Value::Func(Func::native_with_engine("at", bytes_at_static))),
+            "len" => Some(Value::Func(Func::native_with_engine("len", bytes_len_static))),
+            "slice" => {
+                Some(Value::Func(Func::native_with_engine("slice", bytes_slice_static)))
+            }
+            _ => None,
+        },
+        Type::Arguments => match field {
+            "at" => Some(Value::Func(Func::native_with_engine("at", args_at_static))),
+            "filter" => {
+                Some(Value::Func(Func::native_with_engine("filter", args_filter_static)))
+            }
+            "len" => Some(Value::Func(Func::native_with_engine("len", args_len_static))),
+            "map" => Some(Value::Func(Func::native_with_engine("map", args_map_static))),
+            "named" => {
+                Some(Value::Func(Func::native_with_engine("named", args_named_static)))
+            }
+            "pos" => Some(Value::Func(Func::native_with_engine("pos", args_pos_static))),
+            _ => None,
+        },
+        // These types have no collection catalogue in this owner.
+        Type::None
+        | Type::Auto
+        | Type::Bool
+        | Type::Int
+        | Type::Float
+        | Type::Module
+        | Type::Datetime
+        | Type::Function
+        | Type::Content
+        | Type::Length
+        | Type::Ratio
+        | Type::Relative
+        | Type::Angle
+        | Type::Color
+        | Type::Stroke
+        | Type::Fraction
+        | Type::Alignment
+        | Type::Location
+        | Type::Gradient
+        | Type::Regex
+        | Type::Tiling
+        | Type::Decimal
+        | Type::Duration
+        | Type::Version
+        | Type::Selector
+        | Type::Symbol
+        | Type::State
+        | Type::Counter
+        | Type::Label
+        | Type::Direction
+        | Type::Path
+        | Type::Type
+        | Type::SpotColorant => None,
+    }
 }
 
 fn static_collection_call(
@@ -515,74 +685,6 @@ collection_static!(args_len_static, Type::Arguments, "len");
 collection_static!(args_map_static, Type::Arguments, "map");
 collection_static!(args_named_static, Type::Arguments, "named");
 collection_static!(args_pos_static, Type::Arguments, "pos");
-
-fn native_array_all_static(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: crate::entities::file_id::FileId,
-    scopes: &mut Scopes<'_>,
-    engine: &mut Engine<'_>,
-) -> SourceResult<Value> {
-    if !args.named.is_empty() {
-        return Err(vec![SourceDiagnostic::error(
-            args.span,
-            "the arguments `self` and `test` are positional".to_string(),
-        )]);
-    }
-    let [Value::Array(arr), pred] = args.items.as_slice() else {
-        return Err(vec![SourceDiagnostic::error(
-            args.span,
-            match args.items.as_slice() {
-                [] => "missing argument: self".to_string(),
-                [Value::Array(_)] => "missing argument: test".to_string(),
-                [other, ..] if !matches!(other, Value::Array(_)) => format!(
-                    "expected array, found {}",
-                    crate::compiler::eval::operators::error_formatting::vanilla_type_name(
-                        other
-                    )
-                ),
-                _ => "unexpected argument".to_string(),
-            },
-        )]);
-    };
-    let pred = expect_one_func(Args::positional(vec![pred.clone()]), "array.all()")?;
-    array_all_with_pred(arr.clone(), pred, scopes, _ctx, engine)
-}
-
-fn native_str_clusters_static(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: crate::entities::file_id::FileId,
-) -> SourceResult<Value> {
-    if !args.named.is_empty() {
-        return Err(vec![SourceDiagnostic::error(
-            args.span,
-            "the argument `self` is positional".to_string(),
-        )]);
-    }
-    match args.items.as_slice() {
-        [Value::Str(s)] => Ok(str_clusters(s.clone())),
-        [] => Err(vec![SourceDiagnostic::error(
-            args.span,
-            "missing argument: self".to_string(),
-        )]),
-        [other] => Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!(
-                "expected string, found {}",
-                crate::compiler::eval::operators::error_formatting::vanilla_type_name(
-                    other
-                )
-            ),
-        )]),
-        _ => Err(vec![SourceDiagnostic::error(
-            args.span,
-            "unexpected argument".to_string(),
-        )]),
-    }
-}
 
 // ── array helpers ───────────────────────────────────────────────────────────
 
@@ -1490,6 +1592,52 @@ mod tests {
         assert_eq!(
             str_trim_dispatch("xxabxx".into(), args).unwrap(),
             Value::Str("xabx".into())
+        );
+    }
+}
+
+#[cfg(test)]
+mod catalogue_tests {
+    use super::*;
+
+    #[test]
+    fn catalogue_same_named_collection_fields_keep_distinct_native_receivers() {
+        use crate::entities::func::FuncRepr;
+        for (kind, expected) in [
+            (Type::Array, Func::native_with_engine("len", array_len_static)),
+            (Type::Str, Func::native_with_engine("len", str_len_static)),
+            (Type::Dictionary, Func::native_with_engine("len", dict_len_static)),
+        ] {
+            let Some(Value::Func(found)) = collection_type_field(kind, "len") else {
+                panic!("missing catalogue member")
+            };
+            assert_eq!(found.name(), Some("len"));
+            let (FuncRepr::NativeWithEngine(found), FuncRepr::NativeWithEngine(expected)) =
+                (found.repr(), expected.repr())
+            else {
+                panic!("native ABI changed")
+            };
+            assert!(std::ptr::fn_addr_eq(found.call, expected.call));
+        }
+    }
+
+    #[test]
+    fn catalogue_absence_is_scoped_to_type_and_open_field_name() {
+        for (kind, field) in
+            [(Type::Bytes, "at"), (Type::Arguments, "named"), (Type::Array, "range")]
+        {
+            let Some(Value::Func(func)) = collection_type_field(kind, field) else {
+                panic!("missing {}.{field}", kind.name())
+            };
+            assert_eq!(func.name(), Some(field));
+            assert!(collection_type_field(kind, "nonexistent").is_none());
+        }
+        assert!(collection_type_field(Type::Bytes, "first").is_none());
+        assert!(collection_type_field(Type::Str, "range").is_none());
+        assert!(collection_type_field(Type::Int, "len").is_none());
+        assert!(
+            collection_type_field(Type::Function, "with").is_none(),
+            "not this owner"
         );
     }
 }

@@ -1,6 +1,6 @@
 # L0 — mod
+Hash do Código: fa84a49f
 
-Hash do Código: 0e94cabc
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/mod.rs`
@@ -55,3 +55,8 @@ canais validados são neutros para glyphs na whitelist Styled. Um wrapper integr
 permanece limitada. Não deduzir custo pelo glyph. Preservar todos os defaults.
 
 Declarar somente mod text_costs privado; manter fachada estática, sem lógica/reexports novos.
+
+
+## Realização com avaliação única
+
+Expor compiler::realize, fachada de domínio puro para realização após a execução comum.

@@ -1,11 +1,13 @@
 # L0 — space
-Hash do Código: 044b5479
+Hash do Código: f5ffaa92
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:2ccbb1e5daf5f6806e58cd48272b1463fbc9107300c0bce6ea1c3ccf7b0b8748
+- 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:7b8a61eaafc8a07df12218f8f0560c33fae5c36f621b822b7350ccefc9774711
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
 - 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:3b0c535436048536ecd3133fcf8299e88c128a62c222661f36b7bcc6d98a598c
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
 - 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:6eec17984449d21b626379651b9b0a511a2dfe8e1a1f0a0af230cce52a47b827
+
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/space.rs`
@@ -66,3 +68,21 @@ Causa fonte: `space.rs:22-35` não transporta Literal inicial sem tracking; `pag
 Transportar TextSeparator Literal desde o primeiro espaço mesmo com tracking zero, sem criar baseline ou tinta. O avanço/carrier continua nominal; tracking anterior é aplicado apenas quando existe unidade anterior elegível, sem duplicação. Markup/Newline iniciais continuam suprimidos. Preservar estilo literal resolvido para a projeção auto, sem introduzir estado global nem contagens codificadas.
 
 Correção interna de paridade em fluxo contínuo ADR-0127, sem campo público, assinatura/flag/fase nova. Aceitação RED→GREEN para espaços 0/± e PDF mínimo, casos causais bilaterais, corpus anterior, build e lint sem erros, resselo estritamente no manifesto. Texto vazio explícito e newline final permanecem para rodada própria.
+
+## Migração do carrier bidi ratificado (2026-10-05)
+
+Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+
+## Transporte lógico textual — contrato ratificado em 2026-10-05
+
+Medição anterior à decisão: `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/probe.json.gz` refuta resolver 456 789 isoladamente; a medição de fonte e os locais afetados estão no inventário e initial.json.gz daquele diagnóstico. A API imutável e os três campos opcionais foram ratificados pelo humano (manifesto 1ae7513e). Correção interna de paridade sem mudar fase.
+
+Esta unidade participa do transporte por Cursor privado, input Arc e spans exatos. Preparar antes de emitir o parágrafo textual inteiro, base lexical já certificada; conservar offsets por ordem de visita, não matching de strings. Sequence/Par criam escopo, nested Sequence herda; checkpoint conserva cursor e span corrente; subframe isola e restaura. Text fornece subspans para palavras e espaços literais; Space consome seu segmento mesmo quando fraco; Linebreak consome fronteira. Word emite span somente se texto exato não foi transformado.
+
+Escopo inicial: incremental simple, fora de células/colunas/subframes, sem tracking/hifenização/justificação/smallcaps, Text sem newline/tab/segmentação linguística. Região recusada tem None. Preparação global anterior permanece para parágrafos que não precisam do contexto bidi; para o subconjunto certificado com base RTL ou caracteres RTL/override oposto, encaminhar pelo incremental sem mudar os breaks permitidos. Não interferir em optimized explicitamente escolhido. O owner privado bidi_origin prepara/valida; esta unidade só coordena o seu papel. Testes de origem por ocorrências, UTF8, restauração e parbreak; validação bilateral de wraps.
+
+## Colapso de espaços fracos adjacentes entre escopos
+
+Medição anterior à decisão: verification.json.gz registra desvio de 3.4966pt na borda oposta de rtl_terminal_space/rtl_wrap e no DEF final de ltr_wrap. A árvore possui um Space fraco no fim do Styled e outro depois do envelope; space.rs:31 avança ambos. Correção interna de paridade: depois de consumir o segmento lógico, quando o último item já é TextSeparator Markup/Newline e o novo Space é fraco, não emitir/avançar a segunda ocorrência visual. Não colapsar Literal, não procurar igualdade de string, não fundir spans. Conservar o carrier sobrevivente e seu span; espaços fracos omitidos continuam no input lógico e não são reasignados. Aceitação RED→GREEN com Markup/Newline adjacentes e controle Literal, matriz fonte→PDF com mesmas larguras/fontes e escopos.
+
+Fonte primária complementar: vanilla `typst-realize/src/spaces.rs:25–31,68–99,128–132` conserva os estilos do primeiro espaço do grupo. A primeira suíte após a correção encontrou uma asserção mecânica antiga que esperava wrap provocado pelo segundo espaço fraco; a fixture passa a inserir um novo B antes de testar wrap, conservando a obrigação de quebra após material. O novo teste usa tolerância numérica de 1e-9pt para soma de floats; diferença medida foi ~1e-14pt, não de geometria.

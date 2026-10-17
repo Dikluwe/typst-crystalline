@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/method_dispatch.md
-//! @prompt-hash 25515a58
+//! @prompt-hash d9853b86
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -72,15 +72,15 @@ pub(super) fn finish_args(args: &Args, span: Span) -> SourceResult<()> {
 /// `first`/`last`/`at`; content tem `func`/`has`/`at`/`fields`/`location`
 /// (P829 — `foundations/content/mod.rs:510-590`); version e arguments têm `at`.
 fn has_readonly_method(value: &Value, method: &str) -> bool {
-    match (value, method) {
-        (Value::Str(_) | Value::Bytes(_), "first" | "last" | "at") => true,
-        (
-            Value::Content(_) | Value::LocatedContent(_, _),
-            "func" | "has" | "at" | "fields" | "location",
-        ) => true,
-        (Value::Version(_) | Value::Args(_), "at") => true,
-        _ => false,
-    }
+    matches!(
+        (value, method),
+        (Value::Str(_) | Value::Bytes(_), "first" | "last" | "at")
+            | (
+                Value::Content(_) | Value::LocatedContent(_, _),
+                "func" | "has" | "at" | "fields" | "location",
+            )
+            | (Value::Version(_) | Value::Args(_), "at")
+    )
 }
 
 /// **P716** — mirror de `call_method_access` do vanilla (`methods.rs:66-98`):
@@ -209,16 +209,13 @@ fn is_dict_mutating_method(method: &str) -> bool {
     matches!(method, "insert" | "remove")
 }
 
-/// **P717** — mirror de `maybe_resolve_mutating` (vanilla `call.rs:189-212`):
-/// avalia os **args primeiro** (`call.rs:196-198` — `access()` toma o
-/// empréstimo mutável de `scopes`), depois resolve o target como local via
-/// `access()` (P716; targets temporários erram `cannot mutate a temporary
-/// value` antes de qualquer resolução). Devolve `Ok(None)` = fall-through
-/// para a cadeia normal de `eval_func_call` — só para tipos cujos campos
-/// podem resolver para função (ex.: módulo com função `insert`).
-/// Divergência medida e aceite (ver `rules/eval.md` §P717): o fall-through
-/// re-avalia target e args (o vanilla passa os já avaliados) — dupla
-/// avaliação de efeitos só nesse caminho, sem consumidor em `cetz`.
+/// Result of mutable-place dispatch, preserving already evaluated fallback data.
+pub(in crate::compiler::eval) enum MutatingCall {
+    Handled(Value),
+    Fallback { target: Value, args: Args },
+}
+
+/// Arguments precede mutable-place resolution. Fallback transfers both values.
 pub(in crate::compiler::eval) fn try_eval_mutating_method(
     fa: crate::entities::ast::expr::FieldAccess<'_>,
     args_node: crate::entities::ast::expr::Args<'_>,
@@ -226,11 +223,12 @@ pub(in crate::compiler::eval) fn try_eval_mutating_method(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
-) -> SourceResult<Option<Value>> {
+) -> SourceResult<MutatingCall> {
     let method: EcoString = fa.field().as_str().into();
     let args =
         crate::compiler::eval::call_dispatch::eval_args(args_node, scopes, ctx, engine)?;
-    match access(fa.target(), scopes, ctx, engine)? {
+    let target = access(fa.target(), scopes, ctx, engine)?;
+    match target {
         // dict não tem push/pop, e dicts deliberadamente não resolvem campos
         // como métodos (vanilla `call.rs:233-238`) — mesma mensagem que o
         // fall-through do vanilla produz, sem a maquinaria.
@@ -241,13 +239,16 @@ pub(in crate::compiler::eval) fn try_eval_mutating_method(
             )])
         }
         target @ (Value::Array(_) | Value::Dict(_)) => {
-            call_method_mut(target, method.as_str(), args, span).map(Some)
+            call_method_mut(target, method.as_str(), args, span)
+                .map(MutatingCall::Handled)
         }
         Value::Module(_)
         | Value::Func(_)
         | Value::Type(_)
         | Value::Symbol(_)
-        | Value::Content(_) => Ok(None),
+        | Value::Content(_) => {
+            Ok(MutatingCall::Fallback { target: target.clone(), args })
+        }
         // Restantes tipos (escalares, str, bytes, …): nenhum caminho pode
         // resolver o método — erro verbatim do vanilla (medido para string).
         other => Err(vec![SourceDiagnostic::error(

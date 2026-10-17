@@ -1,24 +1,29 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/locatable.md
-//! @prompt-hash 3958d0b5
+//! @prompt-hash 0a146d85
 //! @layer L1
-//! @updated 2026-04-30
+//! @updated 2026-10-16
 //!
 //! `is_locatable` — função pura `&Content → bool`. P164 (M2 Introspection).
 //!
 //! Match exaustivo (sem `_ => false`): compilador força revisão quando
-//! variant novo é adicionado a `Content`. Invariante:
-//! `is_locatable(c) == extract_payload(c).is_some()` para todo c.
+//! variant novo é adicionado a `Content`. No domínio de produtores ordinários,
+//! `is_locatable(c) == extract_payload(c).is_some()`, incluindo OutlineEntry.
+//! A síntese pós-walk permanece separada; Dynamic delega ao elemento.
 
 use crate::entities::content::Content;
 
 /// Classifica se `content` é uma variante locatable (queryable pela
 /// introspecção). M1 cobre 3 kinds: `Heading`, `Figure`, `Cite`.
 ///
-/// Equivalente a `extract_payload(c).is_some()` mas mais barato — sem
-/// construção de payload nem cálculo de hash.
+/// No domínio ordinário, equivale a `extract_payload(c).is_some()` sem
+/// construir payload ou calcular hash. OutlineEntry tem delegação nativa;
+/// Dynamic depende do contrato de kind/payload do elemento.
 pub fn is_locatable(content: &Content) -> bool {
     match content {
+        Content::Source(e) => is_locatable(&e.body),
+        Content::Located(e) => is_locatable(&e.body),
+        Content::Realized(_) | Content::ShowRecipe(_) => false,
         Content::Strong(_) | Content::Emph(_) => true,
         // ── Locatable em M1 ──────────────────────────────────────────
         Content::Heading(_) => true,

@@ -1,0 +1,11 @@
+from pathlib import Path
+import json,gzip,hashlib,datetime,subprocess,collections
+R=Path.cwd();H=R/'00_nucleo/diagnosticos/bidi-contexto-implementacao-2026-10-05';T=Path('/tmp/tekt-bidi-materializacao');git=lambda *a:subprocess.check_output(['git',*a],text=True)
+files=sorted(set(git('diff','--name-only').splitlines()+git('ls-files','--others','--exclude-standard').splitlines()));files=[f for f in files if f.startswith(('01_core/','02_shell/','03_infra/','04_wiring/','00_nucleo/prompts/')) and f.endswith(('.rs','.md','.toml'))]
+r={'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'head':git('rev-parse','HEAD').strip(),'status':git('status','--short'),'diff_stat':git('diff','HEAD','--stat'),'sources':{f:(R/f).read_text() for f in files},'source_sha256':{f:hashlib.sha256((R/f).read_bytes()).hexdigest() for f in files},'binaries':{str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in [T/'typst-before',R/'target/release/typst',R/'lab/typst-original/target/release/typst']},'logs':{p.name:{'text':p.read_text(),'mtime_utc':datetime.datetime.fromtimestamp(p.stat().st_mtime,datetime.timezone.utc).isoformat()} for p in T.glob('*') if p.suffix in ['.log','.sarif']},'scope':json.loads((H/'scope.json').read_text()),'seals':json.loads((H/'seals.json').read_text())}
+old=json.loads(Path('/tmp/tekt-direcao-alinhamento/lint-final.sarif').read_text())['runs'][0]['results'];new=json.loads((T/'lint-final.sarif').read_text())['runs'][0]['results'];key=lambda x:(x['ruleId'],x['level'],x['locations'][0]['physicalLocation']['artifactLocation']['uri'],x['message']['text']);a=collections.Counter(map(key,old));b=collections.Counter(map(key,new));r['lint_comparison']={'before':dict(collections.Counter(x['level'] for x in old)),'after':dict(collections.Counter(x['level'] for x in new)),'added':[(list(k),v) for k,v in (b-a).items()],'removed':[(list(k),v) for k,v in (a-b).items()]}
+with gzip.open(H/'execution.json.gz','wt') as f:json.dump(r,f,ensure_ascii=False)
+for name in ['start-bidi','migrate-bidi','fix-migration','entity-green','prepare-origin','origin-green','l3-l0','integrate-l3','origin-tests','bidi-nucleus','seal-bidi','headers-bidi','fix-missing']:
+ p=Path('/tmp')/(name+'.py')
+ if p.exists():(H/(name+'.py')).write_text(p.read_text())
+(H/'receipts.py').write_text(Path(__file__).read_text());print('receipt',len(files),'sources')

@@ -1,8 +1,9 @@
 # Prompt L0 — `pdf` — módulo de funcionalidade específica de PDF
-Hash do Código: d4cf3233
+Hash do Código: f5318c57
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
+- 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml sha256:32890de1247262b54fa39d7ae1d640a068774a28cf1fa1c8890d0508d999af51
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/pdf.rs`
@@ -221,3 +222,76 @@ não relacionado — `p821_target_fora_de_contexto_erro_no_pipeline` —
 reconfirmado GREEN em reexecução isolada e em suíte completa). Clippy
 comparado por contagem `(ficheiro, mensagem)` contra o baseline `2ae054ab5`
 em worktree isolada: zero avisos novos.
+
+
+## Guards de domínio explícitos — V17, 2026-10-16
+
+### Medição anterior à decisão
+
+T254: 01_core/src/compiler/stdlib/pdf.rs:127. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+
+### Responsabilidade exclusiva e aceitação
+
+Unir Some(Int) do level: decidir no corpo 0 < value <= u32::MAX; cast somente no ramo válido. Preservar default 1, diagnóstico number must be positive inclusive excesso u32, erro de tipo e ordem de validação.
+
+Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default, compatibilidade ou fase novos. A responsabilidade permanece somente no consumer exclusivo deste L0. Não criar helper apenas para esconder a conjunção, não adicionar supressões nem mudar a configuração do linter. Executar controles funcionais existentes antes do código e preservar seus esperados; o RED real é o gate V17 com 28 avisos, GREEN exige zero V17. Conferir caminhos de sucesso/fallback/erro, curto-circuito e efeitos; resselo restrito por owner. Revalidar build, suíte workspace completa, Clippy all-targets com warnings e expectativas não cumpridas como erro, formato, Rustdoc com warnings como erro, linhagem V1/V5/V15/V26 estrita/reversa e SARIF sem novos avisos. Executar sob 12 GiB, swap zero e um job. Não alegar ganho de memória/desempenho ou paridade global sem medição separada.
+
+
+## Formatos como funções de elemento — 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não
+commitado. `00_nucleo/diagnosticos/native-format-catalogue-2026-10-17/`
+conserva before.json.gz com UTC, status, diff HEAD --stat e hashes exatos;
+baseline-reuse.json prova igualdade de fontes/configuração/binário com a
+matriz final anterior de 3956 casos em oito perfis. before-batch.json.gz
+mede 144 casos detalhados; before-compat.json.gz mede 456 controles de
+nomes, aliases e namespace. Cada sonda conserva argv, binários e saídas.
+O pin é `9f2b6e8715237cb086899a42873660fe744622e8`, executável SHA-256
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+
+As quinze rotas restantes são rejeitadas por where/kind no Tekt e aceitas
+no pin. format.rs:17–27/96–146 compartilha native_format entre os cinco
+formatos, logo só ponteiro não distingue schemas. pinned-schema.json.gz
+conserva nove declarações upstream com blobs/hash/linhas e atributos elem.
+FuncRepr é pub(crate) em entities/func.md:21 e entities/func.rs:24; a nota
+anterior de que o L0 o mostrava público foi refutada em retificacao-func-repr.md.
+public-contract-before.json fixa assinaturas, reexports e structs públicos
+antes da mudança; a classificação é representação interna e paridade, não
+novo contrato público ou inferência de intenção por render.
+
+### Responsabilidade exclusiva
+
+Somente a factory da raiz global pdf passa a produzir Format(Pdf,
+NativeFunc original), com o mesmo native_pdf_root e mesmo Scope. Membros
+attach/artifact e trio a11y permanecem Native, com seus corpos, namespaces,
+gates e ponteiros intactos. A projeção format.pdf continua recebendo e
+clonando esses valores efetivos. Nenhum attachment é lido para metadados.
+
+### Aceitação e fronteiras
+
+Consumir as invariantes compartilhadas do Núcleo Tekt pinado
+`00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml`. As novas
+alternativas Native/Format são agrupáveis porque usam o mesmo payload/ABI
+para projeção e execução; cada uma deve ser exercitada nos testes de nome,
+namespace, ponteiro, Eq/Hash, clone/With e despacho. V19 novo nessas uniões
+deve ser inventariado e ligado aos testes; não adicionar suppressions.
+A nova variante deve ser explicitamente nomeada nos matches fechados.
+
+Fluxo contínuo ADR-0127: nenhuma definição, assinatura, campo ou trait
+externo novo, compatibilidade, default ou fase muda. Antes do código, RED
+funcional dos quinze casos por factories atuais e controle de observação
+real contra Native não marcada. GREEN exige corpus completo, 144 casos de
+campos/chamadas e 456 controles de compatibilidade preservados fora de
+where/kind. Comparar public-contract-before/after e sizeof antes/depois.
+
+L0 antes do código; ownership/V26 antes de resselo restrito aos onze pares.
+Build, suíte workspace, Clippy/Rustdoc estritos, fmt, V1/V5/V15/V26, reverse
+e diferencial global sem novo erro/aviso. Comandos pesados sequenciais sob
+MemoryMax12GiB/High10GiB/swap0/jobs1. Rastrear notas V19 legítimas com cobertura.
+
+Esta etapa fecha admissão where/kind, não todas as operações de seleção,
+show/query, síntese, morfologia dos carriers ou counter. As frentes FG1, RM1,
+SY1, RG1 e V16 anteriores preservam seus escopos/gates; não aplicar candidatos
+antigos por cópia nem publicar.

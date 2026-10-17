@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/tests/p1428-tests.md
-//! @prompt-hash 7b30628c
+//! @prompt-hash ab94873a
 //! @layer L3
 //!
 //! Recalibração independente dos observadores públicos `math.frac` P1428.
@@ -97,7 +97,11 @@ fn decode_text_node(input: &str) -> Result<String, Unknown> {
             "gt" => '>',
             "quot" => '"',
             "apos" => '\'',
-            numeric if numeric.starts_with("#x") || numeric.starts_with("#X") => {
+            numeric
+                if numeric
+                    .get(..2)
+                    .is_some_and(|prefix| prefix.eq_ignore_ascii_case("#x")) =>
+            {
                 u32::from_str_radix(&numeric[2..], 16)
                     .ok()
                     .and_then(char::from_u32)
@@ -308,6 +312,27 @@ fn p1428_repr_compara_texto_html_decodificado() {
         });
         let expected = format!("style: \"{style}\"");
         assert!(text.contains(&expected), "{style}: {text}");
+    }
+}
+
+#[test]
+fn v17_numeric_html_entities_keep_unicode_validation_and_single_decode() {
+    assert_eq!(decode_text_node("&#X22;&#x1F600;&#128512;"), Ok("\"😀😀".into()));
+    assert_eq!(decode_text_node("&amp;#X22;"), Ok("&#X22;".into()));
+    for invalid in [
+        "&#x;",
+        "&#X;",
+        "&#;",
+        "&#xD800;",
+        "&#1114112;",
+        "&#x110000;",
+        "&éx22;",
+        "&#é22;",
+        "&＃x22;",
+        "&#x2g;",
+        "&#X22",
+    ] {
+        assert_eq!(decode_text_node(invalid), Err(Unknown::HtmlEntity), "{invalid}");
     }
 }
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/p1429-tests.md
-//! @prompt-hash aeef3d5e
+//! @prompt-hash c1c0c341
 //! @layer L1
 #![cfg(test)]
 
@@ -91,7 +91,14 @@ fn text_items(items: &[FrameItem]) -> Vec<(String, f64)> {
                     out.push((text.to_string(), pos.y.val()));
                 }
                 FrameItem::TextReplacement { items, .. } => visit(items, out),
-                _ => {}
+                FrameItem::TextSeparator { .. }
+                | FrameItem::Semantic { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. }
+                | FrameItem::Group { .. }
+                | FrameItem::Link { .. } => {}
             }
         }
     }
@@ -154,8 +161,7 @@ fn p1429_orientacao_superior_inferior_e_dotless() {
             &chain,
         ));
         let base_y = lower.iter().find(|(t, _)| t == "𝑖").unwrap().1;
-        let accent_y =
-            lower.iter().find(|(t, _)| t.chars().next() == Some(mark)).unwrap().1;
+        let accent_y = lower.iter().find(|(t, _)| t.starts_with(mark)).unwrap().1;
         assert!(accent_y > base_y, "lower accent {mark:?} not below base: {lower:?}");
     }
 }

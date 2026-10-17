@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch/instance_methods.md
-//! @prompt-hash aed95f19
+//! @prompt-hash a3278ea5
 //! @layer L1
 //! @updated 2026-10-01
 
@@ -12,13 +12,15 @@ pub(super) fn try_instance_method(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
+    cached_receiver: &mut Option<Value>,
 ) -> SourceResult<Option<Value>> {
     // **P506** — Métodos de instância para `state` e `counter`.
     if let Expr::FieldAccess(access) = call.callee() {
-        let target = eval_expr(access.target(), scopes, ctx, engine)?;
+        let target =
+            super::call::resolve_receiver(access, cached_receiver, scopes, ctx, engine)?;
         let method = access.field().as_str();
         match target {
-            Value::State(ref state) => {
+            Value::State(state) => {
                 return (super::bindings::eval_state_method(
                     state,
                     method,
@@ -29,7 +31,7 @@ pub(super) fn try_instance_method(
                 ))
                 .map(Some);
             }
-            Value::Counter(ref counter) => {
+            Value::Counter(counter) => {
                 return (super::bindings::eval_counter_method_value(
                     counter,
                     method,
@@ -55,7 +57,7 @@ pub(super) fn try_instance_method(
             // **P742** — Métodos de instância de `Value::Color` (9, padrão
             // P506). Só intercepta os métodos conhecidos; os restantes caem
             // no caminho genérico (erro de field access pré-P742).
-            Value::SpotColorant(ref colorant) if method == "tint" => {
+            Value::SpotColorant(colorant) if method == "tint" => {
                 let args = eval_args(call.args(), scopes, ctx, engine)?;
                 return (crate::compiler::stdlib::color::dispatch_spot_colorant_tint(
                     colorant,
@@ -66,7 +68,7 @@ pub(super) fn try_instance_method(
                 ))
                 .map(Some);
             }
-            Value::Color(ref color) => {
+            Value::Color(color) => {
                 if crate::compiler::stdlib::color::is_color_instance_method(method) {
                     return (super::bindings::eval_color_method(
                         color,
@@ -79,7 +81,7 @@ pub(super) fn try_instance_method(
                     .map(Some);
                 }
             }
-            Value::Gradient(ref gradient) => {
+            Value::Gradient(gradient) => {
                 if crate::compiler::stdlib::gradients::is_gradient_instance_method(method)
                 {
                     let args = eval_args(call.args(), scopes, ctx, engine)?;
@@ -97,7 +99,7 @@ pub(super) fn try_instance_method(
                 if crate::compiler::stdlib::is_int_instance_method(method) {
                     let args = eval_args(call.args(), scopes, ctx, engine)?;
                     return (crate::compiler::stdlib::dispatch_int_method(
-                        value,
+                        *value,
                         method,
                         args,
                         ctx,
@@ -119,7 +121,7 @@ pub(super) fn try_instance_method(
                         args.span = call.span();
                         let result =
                             crate::compiler::stdlib::dispatch_float_method_spanned(
-                                value,
+                                *value,
                                 access.target().span(),
                                 method,
                                 args,
@@ -131,7 +133,7 @@ pub(super) fn try_instance_method(
                             .map(Some);
                     }
                     return (crate::compiler::stdlib::dispatch_float_method(
-                        value,
+                        *value,
                         method,
                         args,
                         ctx,
@@ -148,7 +150,7 @@ pub(super) fn try_instance_method(
                     0,
                     ArgOccurrence {
                         name: None,
-                        value: Value::Angle(angle),
+                        value: Value::Angle(*angle),
                         span: access.target().span(),
                         value_span: access.target().span(),
                     },
@@ -159,23 +161,33 @@ pub(super) fn try_instance_method(
                 );
                 return (trace_call(result, Some(method), call.span(), engine)).map(Some);
             }
-            value @ Value::Dir(_)
+            Value::Dir(_)
                 if matches!(method, "axis" | "end" | "inv" | "sign" | "start") =>
             {
                 let args = eval_args(call.args(), scopes, ctx, engine)?;
                 return (dispatch_p1284_value_method(
-                    value, method, args, scopes, ctx, engine,
+                    target.clone(),
+                    method,
+                    args,
+                    scopes,
+                    ctx,
+                    engine,
                 ))
                 .map(Some);
             }
-            value @ Value::Align(_) if matches!(method, "axis" | "inv") => {
+            Value::Align(_) if matches!(method, "axis" | "inv") => {
                 let args = eval_args(call.args(), scopes, ctx, engine)?;
                 return (dispatch_p1284_value_method(
-                    value, method, args, scopes, ctx, engine,
+                    target.clone(),
+                    method,
+                    args,
+                    scopes,
+                    ctx,
+                    engine,
                 ))
                 .map(Some);
             }
-            value @ Value::Duration(_)
+            Value::Duration(_)
                 if matches!(
                     method,
                     "days" | "hours" | "minutes" | "seconds" | "weeks"
@@ -183,23 +195,33 @@ pub(super) fn try_instance_method(
             {
                 let args = eval_args(call.args(), scopes, ctx, engine)?;
                 return (dispatch_p1284_value_method(
-                    value, method, args, scopes, ctx, engine,
+                    target.clone(),
+                    method,
+                    args,
+                    scopes,
+                    ctx,
+                    engine,
                 ))
                 .map(Some);
             }
-            value @ Value::Length(_)
+            Value::Length(_)
                 if matches!(method, "cm" | "inches" | "mm" | "pt" | "to-absolute") =>
             {
                 let args = eval_args(call.args(), scopes, ctx, engine)?;
                 return (dispatch_p1284_value_method(
-                    value, method, args, scopes, ctx, engine,
+                    target.clone(),
+                    method,
+                    args,
+                    scopes,
+                    ctx,
+                    engine,
                 ))
                 .map(Some);
             }
             // **P796** — `.at(index)` em `Value::Version` (único método de
             // instância; ver `entities/version.md` §8a). Só intercepta
             // "at"; outros métodos caem no caminho genérico existente.
-            Value::Version(ref v) => {
+            Value::Version(v) => {
                 if method == "at" {
                     return (super::bindings::eval_version_method_value(
                         v,

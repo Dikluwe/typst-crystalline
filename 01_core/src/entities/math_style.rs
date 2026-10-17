@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/math_style.md
-//! @prompt-hash 7c871fd3
+//! @prompt-hash 995d847e
 //! @layer L1
 //! @updated 2026-05-20
 
@@ -125,7 +125,15 @@ pub fn map_glyph_vs(c: char, kind: MathStyleKind) -> Option<char> {
     match kind {
         MathStyleKind::Chancery => Some('\u{FE00}'),
         MathStyleKind::Roundhand => Some('\u{FE01}'),
-        _other => None, // neutro: N16[β] — sem selector de variação correspondente para o estilo pedido,
+        MathStyleKind::Plain
+        | MathStyleKind::SansSerif
+        | MathStyleKind::Fraktur
+        | MathStyleKind::Monospace
+        | MathStyleKind::DoubleStruck
+        | MathStyleKind::Script
+        | MathStyleKind::SScript
+        | MathStyleKind::Display
+        | MathStyleKind::Inline => None,
     }
 }
 
@@ -200,7 +208,11 @@ fn letter_base(kind: MathStyleKind, bold: bool, italic: bool) -> Option<u32> {
         (MathStyleKind::SansSerif, true, true) => Some(0x1D63C),
         (MathStyleKind::Monospace, _, _) => Some(0x1D670),
         (MathStyleKind::Script | MathStyleKind::SScript, _, _) => None,
-        _other => None, // neutro: N16[β] — sem base alfabética para o estilo de letra pedido,
+        (
+            MathStyleKind::Roundhand | MathStyleKind::Display | MathStyleKind::Inline,
+            _,
+            _,
+        ) => None,
     }
 }
 
@@ -211,7 +223,17 @@ fn digit_base(kind: MathStyleKind, bold: bool) -> Option<u32> {
         (MathStyleKind::SansSerif, false) => Some(0x1D7E2),
         (MathStyleKind::SansSerif, true) => Some(0x1D7EC),
         (MathStyleKind::Monospace, _) => Some(0x1D7F6),
-        _other => None, // neutro: N16[β] — sem base numérica para o estilo de dígito pedido,
+        (MathStyleKind::Plain, false)
+        | (
+            MathStyleKind::Chancery
+            | MathStyleKind::Roundhand
+            | MathStyleKind::Fraktur
+            | MathStyleKind::Script
+            | MathStyleKind::SScript
+            | MathStyleKind::Display
+            | MathStyleKind::Inline,
+            _,
+        ) => None,
     }
 }
 
@@ -245,13 +267,49 @@ fn bmp_exception(c: char, kind: MathStyleKind, bold: bool, italic: bool) -> Opti
         (MathStyleKind::DoubleStruck, false, _, 'R') => Some('\u{211D}'),
         (MathStyleKind::DoubleStruck, false, _, 'Z') => Some('\u{2124}'),
 
-        _other => None, // neutro: N16[β] — sem exceção BMP para a combinação de glifo e estilo,
+        (
+            MathStyleKind::Plain
+            | MathStyleKind::SansSerif
+            | MathStyleKind::Chancery
+            | MathStyleKind::Roundhand
+            | MathStyleKind::Fraktur
+            | MathStyleKind::Monospace
+            | MathStyleKind::DoubleStruck
+            | MathStyleKind::Script
+            | MathStyleKind::SScript
+            | MathStyleKind::Display
+            | MathStyleKind::Inline,
+            _,
+            _,
+            _,
+        ) => None,
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn v16_math_style_examples_and_size_variants_keep_morphology() {
+        assert_eq!(map_glyph('x', MathStyleKind::SansSerif, false, false), '\u{1D5D1}');
+        assert_eq!(map_glyph('k', MathStyleKind::Fraktur, false, false), '\u{1D528}');
+        assert_eq!(map_glyph('x', MathStyleKind::SansSerif, true, true), '\u{1D66D}');
+        for kind in [
+            MathStyleKind::Script,
+            MathStyleKind::SScript,
+            MathStyleKind::Display,
+            MathStyleKind::Inline,
+        ] {
+            for (bold, italic) in
+                [(false, false), (false, true), (true, false), (true, true)]
+            {
+                assert_eq!(map_glyph('A', kind, bold, italic), 'A');
+                assert_eq!(map_glyph('5', kind, bold, italic), '5');
+                assert_eq!(map_glyph_vs('A', kind), None);
+            }
+        }
+    }
 
     #[test]
     fn kind_is_size_variant() {

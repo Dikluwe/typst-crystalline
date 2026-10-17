@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/cancel.md
-//! @prompt-hash 260641b5
+//! @prompt-hash eb7c6732
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -10,14 +10,18 @@
 
 use crate::compiler::layout::FontMetrics;
 use crate::entities::{
-    elements::math_cancel::{MathCancelAngle, MathCancelElem, MathCancelExplicit},
+    elements::math_cancel::{MathCancelAngle, MathCancelElem},
     layout_types::{Angle, FrameItem, Point, Pt, TextStyle},
 };
+
+#[cfg(test)]
+use crate::entities::elements::math_cancel::MathCancelExplicit;
 
 use super::{callbacks, MathBox};
 
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     /// Compatibility surface for the pre-P1291 internal tests and callers.
+    #[cfg(test)]
     pub(super) fn layout_cancel(
         &self,
         body: &crate::entities::content::Content,
@@ -53,10 +57,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // The occurrence was reserved by the dispatcher before this descent.
         let body_box = self.layout_node(&elem.body, style);
         let height = body_box.ascent + body_box.descent;
-        let diagonal = body_box.width.hypot(height);
+        let diagonal = libm::hypot(body_box.width, height);
         let line_length =
             elem.length.rel * diagonal + elem.length.abs.resolve_pt(style.size.val());
-        let auto = Angle::rad(body_box.width.atan2(height));
+        let auto = Angle::rad(libm::atan2(body_box.width, height));
         let angle_for = |line: u8| {
             let requested_default = auto;
             match &elem.angle {
@@ -89,8 +93,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             if invert {
                 angle = Angle::rad(-angle.to_rad());
             }
-            let half_x = angle.to_rad().sin() * line_length / 2.0;
-            let half_y = angle.to_rad().cos() * line_length / 2.0;
+            let half_x = libm::sin(angle.to_rad()) * line_length / 2.0;
+            let half_y = libm::cos(angle.to_rad()) * line_length / 2.0;
             // rationale: the cancel stroke is centered on the body box, so the
             // horizontal midpoint is exactly half of its measured width.
             let center_x = body_box.width / 2.0;

@@ -1,0 +1,9 @@
+import datetime,gzip,hashlib,json,os,subprocess
+from pathlib import Path
+D=Path(__file__).resolve().parent;R=D.parents[2];O=Path('/tmp/p7-snapshot-probes');O.mkdir(exist_ok=True);cpu=min(os.sched_getaffinity(0));env=dict(os.environ,RAYON_NUM_THREADS='1',SOURCE_DATE_EPOCH='0',NO_COLOR='1');samples=[]
+rec={'started':datetime.datetime.now(datetime.timezone.utc).isoformat(),'source_state_sha256':hashlib.sha256((D/'before.json.gz').read_bytes()).hexdigest(),'cpu':cpu,'samples':samples}
+for mode,names in [('count',['hello','closures10','closures100','one_closure_many_calls','context100','nested']),('time',['hello','control1000','closures10','closures100','closures1000','one_closure_many_calls','context100','plain100'])]:
+ for name in names:
+  exe=R/'target'/('debug' if mode=='count' else 'release')/'typst';script=D/('count-debug.gdb' if mode=='count' else 'time-release.gdb');cmd=['gdb','-q','-nx','-batch','-x',str(script),'--args',str(exe),'compile',str(D/'fixtures'/(name+'.typ')),str(O/(mode+'-'+name+'.pdf')),'--pdf-tagged=false','--pretty=false'];p=subprocess.run(cmd,cwd=R,env=env,text=True,capture_output=True,timeout=180,preexec_fn=lambda:os.sched_setaffinity(0,{cpu}));(O/(mode+'-'+name+'.log')).write_text(p.stdout+p.stderr);assert p.returncode==0,(name,p.stderr,p.stdout[-2000:]);prefix='SNAPSHOT_COUNTS ' if mode=='count' else 'SNAPSHOT_SPANS ';lines=[x for x in p.stdout.splitlines() if x.startswith(prefix)];assert len(lines)==1,(name,p.stdout[-2000:]);data=json.loads(lines[0][len(prefix):]);assert mode!='time' or all('end_cpu_ns' in x for x in data);samples.append({'mode':mode,'fixture':name,'command':cmd,'binary_sha256':hashlib.sha256(exe.read_bytes()).hexdigest(),'rows':data,'stderr':p.stderr,'utc':datetime.datetime.now(datetime.timezone.utc).isoformat()});print(mode,name,len(data),flush=True)
+rec['finished']=datetime.datetime.now(datetime.timezone.utc).isoformat()
+with gzip.open(D/'probes.json.gz','wt') as f:json.dump(rec,f,indent=2)

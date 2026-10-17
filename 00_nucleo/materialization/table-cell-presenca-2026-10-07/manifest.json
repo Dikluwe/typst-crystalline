@@ -1,0 +1,118 @@
+{
+  "status": "proposed-not-ratified",
+  "utc": "2026-10-07T04:01:58.482535+00:00",
+  "scope": "D08B2 lexical presence only; no realization phase change",
+  "public_change": "Adicionar ao owner da entidade os tipos públicos fechados:\n\n```rust\n#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]\npub enum CellFieldPresence { #[default] Omitted, Auto, Explicit }\n#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]\npub struct TableCellPresence {\n    pub x: CellFieldPresence, pub y: CellFieldPresence,\n    pub colspan: bool, pub rowspan: bool,\n    pub fill: CellFieldPresence, pub stroke: bool,\n    pub align: CellFieldPresence, pub inset: CellFieldPresence,\n    pub breakable: CellFieldPresence,\n}\n```\n\nTableCellElem recebe `pub presence: TableCellPresence`; todos os campos\natuais conservam seus tipos. Body permanece sempre conhecido. Omitted não\nprojeta campo; Auto projeta Value::Auto; Explicit projeta o valor conservado.\nSomente fill/stroke explícitos podem ter Option None e projetam Value::None.\nX/y/align/inset/breakable Explicit exigem Some; Auto exige None. Colspan e\nrowspan presentes exigem Some positivo. Não codificar presença no kind,\nem strings, Value genérico, PropMap ou registry. map_content/map_text,\nclone/Hash preservam presence. Getter desconhecido continua None.\n",
+  "nucleus": {
+    "path": "00_nucleo/prompts/_nuclei/table/cell-presence.toml",
+    "pin": "afbe9da9643b22adaaaedbff55495488d3ceac311999a5cdec8a3d005f50ef7c",
+    "candidate_sha256": "b7f216c220b81c479998f27efaa8ddce4c63ab70e3f00c8e8111a38fdfa28ce0"
+  },
+  "owners": [
+    {
+      "consumer": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/bindings/field_access/content_methods.md",
+      "base_source_sha256": "d6c61107a8aed883ea8a47e69127935fcfb827a4ed4d1919910f0f8a0b5d37a7",
+      "base_l0_sha256": "b5ff25532c3d903591a5aeef2d515c7e4c39d76f8122fdd1a2ae6bd345864ba5",
+      "candidate_sha256": "ebfc61606e72277aa3f2a19e868677e33465d18b29726b69bdce1662a883e3ff"
+    },
+    {
+      "consumer": "01_core/src/compiler/eval/bindings/field_access/fields.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/bindings/field_access/fields.md",
+      "base_source_sha256": "17d4548be3f2f14e1b494db1ec7ab9959cad4e086a73ddd6e7e7f34dc9159266",
+      "base_l0_sha256": "b3d90fa446924ca7534278947dc765f7b8f73a6ebe4fc1d9594b8e9e43a92a26",
+      "candidate_sha256": "79e40f8d999a73beffc285d8bd63bcc621827f7bf050ea693f4875958cfc5e07"
+    },
+    {
+      "consumer": "01_core/src/compiler/eval/observation/elements.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/observation/elements.md",
+      "base_source_sha256": "baef1588bc00fbd155e0c3e5a85cd4398db91b79215a2767aad38198be8ef125",
+      "base_l0_sha256": "26a0fa46fa1d909b5ab055b63cc815a71afa852ed06ff79d59a644db1c8516c7",
+      "candidate_sha256": "3f11074365bd705eb8b7189b68257a190e6fd5b7964847a6efca6e9b0fa48769"
+    },
+    {
+      "consumer": "01_core/src/compiler/eval/table.rs",
+      "owner": "00_nucleo/prompts/compiler/eval/table.md",
+      "base_source_sha256": "924bba5270a34942c96d5fd725bbb22f25878b958bde9daf29f844565f1ec030",
+      "base_l0_sha256": "31561ec81dde6cc5b13df3e3efff479847e2cafdb6e5385f319e34571fb9bccc",
+      "candidate_sha256": "2deb6c43a020adf76f912981456a3988e6cfa3895077cd02bc6bf77536a04113"
+    },
+    {
+      "consumer": "01_core/src/compiler/introspect/materialize_time.rs",
+      "owner": "00_nucleo/prompts/compiler/introspect/materialize_time.md",
+      "base_source_sha256": "60691a051def67cab7677516707221f43cd65fbb9aaf817ded6ab646d87cf534",
+      "base_l0_sha256": "6e49f28349ce9fdd1320bf4d5cfe011adf3c0e8f35458060e1be141cbb835c7e",
+      "candidate_sha256": "b280783920ac04b90d93934393b6ff0c69b35b3c9a8a3fbd2943cd79060b573d"
+    },
+    {
+      "consumer": "01_core/src/compiler/layout/tests.rs",
+      "owner": "00_nucleo/prompts/compiler/layout/tests.md",
+      "base_source_sha256": "3a862ca40c057774ec32d1df92c584a66a60f35467cd86fd9551ffe5c7797e20",
+      "base_l0_sha256": "8b2f9e0b17e15ded682fc5e23ba331138879f257ad9bdc8d46449cdcd16d5004",
+      "candidate_sha256": "7cc21d836e44b6512ac9c36eab00e0e520bf8a2518bb396597b5ed2c3738e709"
+    },
+    {
+      "consumer": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+      "owner": "00_nucleo/prompts/compiler/stdlib/structural/table_grid.md",
+      "base_source_sha256": "ad2ac58eb4ba8db54d7e831fa67c9ce795e76e8ef00fe8c2e141dd0cc477793e",
+      "base_l0_sha256": "497f121402828368059ca79bc837bdb4cecec8e5a9cccb28a560aca01805fe14",
+      "candidate_sha256": "988feb14d24509e82e22b895bd4feb045d317a1c459550289f0aef1a539a2b5a"
+    },
+    {
+      "consumer": "01_core/src/entities/content/construction/tables.rs",
+      "owner": "00_nucleo/prompts/entities/content/construction/tables.md",
+      "base_source_sha256": "22db6b387aa3d51e51dcea484bbb614c2b37015e79f660ea0848111afee99769",
+      "base_l0_sha256": "941e0c3c650cb9e595362207314f1bdde74f2f408a63a9a4d8f97e090a07e5d6",
+      "candidate_sha256": "37592d925f2db437bcdb61ec9fedc4dc2628476711aaceac786257556cdacf61"
+    },
+    {
+      "consumer": "01_core/src/entities/content/fields.rs",
+      "owner": "00_nucleo/prompts/entities/content/fields.md",
+      "base_source_sha256": "bf72f04b4d5c01608f45bb2f2e7df569e80009ed7ba955db7fb2870a536f4b4c",
+      "base_l0_sha256": "df6f18649dfe0f6f337eebbf7749a7f039e94ee87c0044d368fdd412a7c37315",
+      "candidate_sha256": "a6e9aa0644268d05d3fbd2c1956779abd9d81d68173b3bd5e6463feb45ae0c11"
+    },
+    {
+      "consumer": "01_core/src/entities/content/identity.rs",
+      "owner": "00_nucleo/prompts/entities/content/identity.md",
+      "base_source_sha256": "e930773832886a3a2257834f96f724edfc4fbfec22e1e1f9f1b187dea407387e",
+      "base_l0_sha256": "2eb6d7c7701e6b3df63a83fd9e4b831e281e58b57ea864c7f9b521de25eea0d3",
+      "candidate_sha256": "71aac73e38e864ea72b22874bf51d4f75c5a9901200b18517200b66eac31e0aa"
+    },
+    {
+      "consumer": "01_core/src/entities/content/tests/representation.rs",
+      "owner": "00_nucleo/prompts/entities/content/tests/representation.md",
+      "base_source_sha256": "47122ce6c3e42abdd51ce3659f2ac1171992ede14fa39ff97d0e5e38638518e6",
+      "base_l0_sha256": "7d0ebf38f627d72b224a7c105fc92e25099e0e980a85cd471eacb44051df5a84",
+      "candidate_sha256": "d3637964353354b9182de41ea16ac9772c699d47748dedafb9e342a66738a625"
+    },
+    {
+      "consumer": "01_core/src/entities/content/traversal.rs",
+      "owner": "00_nucleo/prompts/entities/content/traversal.md",
+      "base_source_sha256": "edd0738adab6a650b83a67a797acbc51ba6b65ee3f28400e80b7228788df9747",
+      "base_l0_sha256": "154975ce58c76fff67b06e00fd0a31f18d37d14b641254ae309dae6355682cc9",
+      "candidate_sha256": "e70506fb052da8443d27bc2890efd8e675adda975951055c9d79df09e49580cb"
+    },
+    {
+      "consumer": "01_core/src/entities/elements/table_cell.rs",
+      "owner": "00_nucleo/prompts/entities/elements/table_cell.md",
+      "base_source_sha256": "1cf84c78ea959e502d05884194f236259789b1feac3172fa1cbb3753118868c0",
+      "base_l0_sha256": "c89effc02028ccf04bbb7f2cae8b27769ce4e9446878cab2e4b9b6dda20c02f6",
+      "candidate_sha256": "2241bf9836b841630066c318e320ac08cafe05acdc6b0885829eccd539999be7"
+    },
+    {
+      "consumer": "02_shell/src/cli.rs",
+      "owner": "00_nucleo/prompts/shell/cli.md",
+      "base_source_sha256": "b9b83e83274101ce71b57d733fcec7c7080b7ff5b82b6e078b138807695b71b6",
+      "base_l0_sha256": "0be078a3928c298988f7914a452b5ae7f65667513acd1bd3186d7a292d26afb7",
+      "candidate_sha256": "f142c06c5d45c64047d951509cbcca74f13b178b4843ac1db132c43a49243f04"
+    },
+    {
+      "consumer": "03_infra/src/export/html/tests.rs",
+      "owner": "00_nucleo/prompts/infra/export/html/tests.md",
+      "base_source_sha256": "63ff6a4d3057ccb03f691b53c72bc269c4132857cfaba40d5dbe646bd21d34cc",
+      "base_l0_sha256": "c78a3ec170627b8a66a8ba727a6f7477e654146631ba9e4f18096ec6e2148cc7",
+      "candidate_sha256": "c06b7533a7644d40de72eb1b0a619d74bca7ddaf2ba928796b608da0444ba99f"
+    }
+  ]
+}

@@ -4,8 +4,6 @@
 //! @layer L1
 //! @updated 2026-09-30
 
-use super::*;
-
 // ── P843 — `pretty_comma_list` / `pretty_array_like` do vanilla ────────────
 //
 // Porte literal de `foundations/repr.rs:170-223`: horizontal se a soma dos

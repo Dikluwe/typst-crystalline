@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/show.md
-//! @prompt-hash 83634261
+//! @prompt-hash 5f4768cd
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-17
 //!
 //! Comportamento de `eval/rules::show`.
 
@@ -158,6 +158,33 @@ pub(crate) fn eval_show_rule(
                             native_underline,
                         };
                         use std::ptr::fn_addr_eq;
+                        let mut base = f;
+                        while let crate::entities::func::FuncRepr::With(bound) =
+                            base.repr()
+                        {
+                            base = &bound.0;
+                        }
+                        if !std::ptr::eq(base, f)
+                            && base.native_fn_addr().is_some_and(|call| {
+                                [
+                                    crate::compiler::stdlib::native_move
+                                        as fn(_, _, _, _) -> _,
+                                    crate::compiler::stdlib::native_rotate
+                                        as fn(_, _, _, _) -> _,
+                                    crate::compiler::stdlib::native_scale
+                                        as fn(_, _, _, _) -> _,
+                                    crate::compiler::stdlib::native_skew
+                                        as fn(_, _, _, _) -> _,
+                                ]
+                                .into_iter()
+                                .any(|candidate| fn_addr_eq(call, candidate))
+                            })
+                        {
+                            return Err(vec![SourceDiagnostic::error(
+                                sel_expr.span(),
+                                "only element functions can be used as selectors",
+                            )]);
+                        }
                         match f.native_fn_addr() {
                             Some(addr)
                                 if fn_addr_eq(
@@ -305,6 +332,58 @@ pub(crate) fn eval_show_rule(
                             {
                                 Selector::NativeElement(f.clone())
                             }
+                            Some(addr)
+                                if fn_addr_eq(
+                                    addr,
+                                    crate::compiler::stdlib::native_smartquote
+                                        as fn(_, _, _, _) -> _,
+                                ) =>
+                            {
+                                Selector::NativeElement(f.clone())
+                            }
+                            Some(addr)
+                                if fn_addr_eq(
+                                    addr,
+                                    crate::compiler::stdlib::native_math_equation
+                                        as fn(_, _, _, _) -> _,
+                                ) =>
+                            {
+                                Selector::NativeElement(f.clone())
+                            }
+                            Some(addr)
+                                if fn_addr_eq(
+                                    addr,
+                                    crate::compiler::stdlib::native_table_cell
+                                        as fn(_, _, _, _) -> _,
+                                ) =>
+                            {
+                                Selector::NativeElement(f.clone())
+                            }
+                            Some(addr)
+                                if fn_addr_eq(
+                                    addr,
+                                    crate::compiler::stdlib::native_table
+                                        as fn(_, _, _, _) -> _,
+                                ) =>
+                            {
+                                Selector::NativeElement(f.clone())
+                            }
+                            Some(addr)
+                                if [
+                                    crate::compiler::stdlib::native_move
+                                        as fn(_, _, _, _) -> _,
+                                    crate::compiler::stdlib::native_rotate
+                                        as fn(_, _, _, _) -> _,
+                                    crate::compiler::stdlib::native_scale
+                                        as fn(_, _, _, _) -> _,
+                                    crate::compiler::stdlib::native_skew
+                                        as fn(_, _, _, _) -> _,
+                                ]
+                                .into_iter()
+                                .any(|call| fn_addr_eq(addr, call)) =>
+                            {
+                                Selector::NativeElement(f.clone())
+                            }
                             Some(_) => {
                                 return Err(vec![SourceDiagnostic::error(
                                     sel_expr.span(),
@@ -358,11 +437,12 @@ pub(crate) fn eval_show_rule(
                         .to_string(),
                 )]);
             }
-            Transformation::Style(capture_set_styles(set, scopes, ctx, engine)?)
+            Transformation::Style(Arc::new(capture_set_styles(set, scopes, ctx, engine)?))
         }
         expr => {
             let value = eval_expr(expr, scopes, ctx, engine)?;
             match value {
+                Value::None => Transformation::Content(Content::Empty),
                 Value::Func(f) => Transformation::Func(f),
                 Value::Content(c) => Transformation::Content(c),
                 Value::Str(s) => Transformation::Str(s),
@@ -387,4 +467,87 @@ pub(crate) fn eval_show_rule(
     rules.push(ShowRule { id, selector, transform });
     *engine.show_rules = Arc::from(rules);
     Ok(Value::None)
+}
+
+#[cfg(test)]
+mod v16_table_tests {
+
+    use crate::contracts::world::World;
+    use crate::entities::{
+        file_id::FileId,
+        font_book::FontBook,
+        source::Source,
+        world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+    };
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+    impl TestWorld {
+        fn new(text: &str) -> Self {
+            Self {
+                library: Library::new(),
+                book: FontBook::new(),
+                source: Source::new(
+                    FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+                    text.into(),
+                ),
+            }
+        }
+    }
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    fn run(
+        text: &str,
+    ) -> crate::entities::source_result::SourceResult<crate::entities::module::Module>
+    {
+        let w = TestWorld::new(text);
+        crate::compiler::eval::tests::eval_for_test(&w, &w.source)
+    }
+    #[test]
+    fn v16_table_show_none_literal_is_empty_content() {
+        let m = run("#show \"gone\": none\ngoneZ").unwrap();
+        let text = m.content().unwrap().plain_text();
+        assert!(!text.contains("gone"));
+        assert!(text.contains('Z'));
+    }
+    #[test]
+    fn v16_table_show_none_element_is_empty_content() {
+        let m = run("#show strong: none\n*gone* Z").unwrap();
+        let text = m.content().unwrap().plain_text();
+        assert!(!text.contains("gone"));
+        assert!(text.contains('Z'));
+    }
+    #[test]
+    fn v16_table_show_none_does_not_admit_other_scalars() {
+        for value in ["1", "auto"] {
+            assert!(run(&format!("#show strong: {value}\n*gone*")).is_err());
+        }
+    }
 }

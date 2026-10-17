@@ -1,0 +1,8 @@
+from pathlib import Path
+import json,gzip,hashlib,re,datetime,subprocess
+prior=Path('00_nucleo/diagnosticos/import-syntax-2026-10-17');out=Path('00_nucleo/diagnosticos/tekt-v16-ssty-2026-10-17');out.mkdir(exist_ok=False);(out/'workers').mkdir();sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest();old=json.load(gzip.open(prior/'final-state.json.gz'));assert all(sha(p)==h for p,h in old['source_hashes'].items());sources=['03_infra/src/font_metrics/math.rs','03_infra/src/shaper/shaping.rs'];owners={p:re.search(r'^//! @prompt (.+)$',Path(p).read_text(),re.M)[1] for p in sources};b=dict(utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),hashes=old['source_hashes'],files={p:Path(p).read_text() for p in sources+list(owners.values())},status=subprocess.check_output(['git','status','--porcelain=v1'],text=True),diffstat=subprocess.check_output(['git','diff','HEAD','--stat'],text=True),linter=dict(path='/tmp/tekt-linter-none-target/debug/crystalline-lint',sha256=sha('/tmp/tekt-linter-none-target/debug/crystalline-lint')))
+with gzip.open(out/'before.json.gz','wt') as f:json.dump(b,f)
+(out/'scope.json').write_text(json.dumps(dict(sources=sources,owners=owners,nuclei=['00_nucleo/prompts/_nuclei/fonts/ssty-math-size.toml'],new_sources=[]),indent=2)+'\n')
+for name in ['run.py','strict.py','suite.py','rustdoc.py','delivery_check.py']:
+ s=(prior/'workers'/name).read_text().replace('import-syntax-2026-10-17','tekt-v16-ssty-2026-10-17').replace('TEKT_IMPORT_SYNTAX_MEMORY_LIMIT','TEKT_SSTY_MEMORY_LIMIT');(out/'workers'/name).write_text(s)
+(out/'workers/bootstrap.py').write_text(Path('/tmp/bootstrap-ssty.py').read_text());print('Verified',len(b['hashes']),'prior hashes')

@@ -1,5 +1,5 @@
 # L0 — stdlib/calc/integer
-Hash do Código: 80b201cb
+Hash do Código: b4b154af
 
 ## Ownership e medição
 

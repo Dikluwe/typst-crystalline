@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/p1431-tests.md
-//! @prompt-hash 9319a8fe
+//! @prompt-hash 86b2eeb1
 //! @layer L1
 #![cfg(test)]
 
@@ -77,7 +77,120 @@ fn find_mat(content: &Content) -> Option<&Content> {
         Content::Sequence(items) | Content::MathSequence(items) => {
             items.iter().find_map(find_mat)
         }
-        _ => None,
+        Content::Source(_)
+        | Content::ShowRecipe(_)
+        | Content::Realized(_)
+        | Content::Located(_)
+        | Content::Empty
+        | Content::Text(_)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_)
+        | Content::Par { .. }
+        | Content::Heading(_)
+        | Content::Title(_)
+        | Content::Strong(_)
+        | Content::Emph(_)
+        | Content::Raw(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::Link(_)
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathPrimes(_)
+        | Content::MathRoot(_)
+        | Content::MathStretch(_)
+        | Content::MathLr(_)
+        | Content::MathMid(_)
+        | Content::MathOverbrace(_)
+        | Content::MathUnderbrace(_)
+        | Content::MathUnderbracket(_)
+        | Content::MathUnderparen(_)
+        | Content::MathUndershell(_)
+        | Content::MathOverbracket(_)
+        | Content::MathOverparen(_)
+        | Content::MathOvershell(_)
+        | Content::MathAlignPoint(_)
+        | Content::Linebreak(_)
+        | Content::MathCases(_)
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathOverline(_)
+        | Content::MathVec(_)
+        | Content::MathClassOverride(_)
+        | Content::MathLimitsOverride(_)
+        | Content::MathUnderover(_)
+        | Content::MathOp(_)
+        | Content::MathStyled(_)
+        | Content::Label(_)
+        | Content::Ref(_)
+        | Content::CounterDisplay(_)
+        | Content::CounterUpdate(_)
+        | Content::Outline(_)
+        | Content::OutlineEntry(_)
+        | Content::Figure(_)
+        | Content::FigureCaption(_)
+        | Content::Image(_)
+        | Content::Shape(_)
+        | Content::Curve(_)
+        | Content::Transform(_)
+        | Content::Grid(_)
+        | Content::GridHeader(_)
+        | Content::GridFooter(_)
+        | Content::GridCell(_)
+        | Content::SetPage(_)
+        | Content::PageRun(_)
+        | Content::Align(_)
+        | Content::Place(_)
+        | Content::Flush(_)
+        | Content::Divider(_)
+        | Content::Terms(_)
+        | Content::TermItem(_)
+        | Content::Quote(_)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(_)
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. }
+        | Content::Pad(_)
+        | Content::Hide(_)
+        | Content::HSpace(_)
+        | Content::VSpace(_)
+        | Content::Pagebreak(_)
+        | Content::Colbreak(_)
+        | Content::Stack(_)
+        | Content::Boxed(_)
+        | Content::Block(_)
+        | Content::TableCell(_)
+        | Content::Bibliography(_)
+        | Content::Cite(_)
+        | Content::Footnote(_)
+        | Content::FootnoteEntry(_)
+        | Content::TableHeader(_)
+        | Content::TableFooter(_)
+        | Content::GridHLine(_)
+        | Content::GridVLine(_)
+        | Content::TableHLine(_)
+        | Content::TableVLine(_)
+        | Content::Table(_)
+        | Content::Repeat(_)
+        | Content::Columns(_)
+        | Content::Metadata(_)
+        | Content::State(_)
+        | Content::StateUpdate(_)
+        | Content::StateDisplay(_)
+        | Content::CounterDisplayCallback(_)
+        | Content::ContextBlock(_)
+        | Content::Dynamic(_) => None,
     }
 }
 fn matrix(source: &str) -> Content {
@@ -112,7 +225,7 @@ fn augment_value(vline: i64, stroke: Option<Stroke>) -> Value {
     let mut dict = IndexMap::default();
     dict.insert("vline".into(), Value::Int(vline));
     if let Some(stroke) = stroke {
-        dict.insert("stroke".into(), Value::Stroke(stroke));
+        dict.insert("stroke".into(), Value::from(stroke));
     }
     Value::Dict(dict)
 }
@@ -125,7 +238,15 @@ fn texts(box_: &MathBox) -> Vec<(String, f64, f64, f64)> {
             | FrameItem::TextShaped { pos, text, style, .. } => {
                 Some((text.to_string(), pos.x.val(), pos.y.val(), style.size.val()))
             }
-            _ => None,
+            FrameItem::Semantic { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Group { .. }
+            | FrameItem::Link { .. }
+            | FrameItem::TextReplacement { .. }
+            | FrameItem::TextSeparator { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. } => None,
         })
         .collect()
 }
@@ -145,7 +266,16 @@ fn lines(box_: &MathBox) -> Vec<(f64, f64, f64, f64, f64)> {
             FrameItem::Line { start, end, thickness, .. } => {
                 Some((start.x.val(), start.y.val(), end.x.val(), end.y.val(), *thickness))
             }
-            _ => None,
+            FrameItem::Semantic { .. }
+            | FrameItem::Group { .. }
+            | FrameItem::Link { .. }
+            | FrameItem::TextReplacement { .. }
+            | FrameItem::TextSeparator { .. }
+            | FrameItem::Text { .. }
+            | FrameItem::TextShaped { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. } => None,
         })
         .collect()
 }
@@ -377,10 +507,12 @@ fn p1431_augment_stroke_custom_chega_a_todas_as_linhas() {
         .filter(|item| matches!(item, FrameItem::Line { .. }))
         .all(|item| { matches!(item, FrameItem::Line { color: Some(_), .. }) }));
 
-    let mut resolved = Stroke::default();
-    resolved.thickness = 3.0;
-    resolved.paint = Paint::Solid(Color::rgb(255, 0, 0));
-    resolved.cap = LineCap::Round;
+    let resolved = Stroke {
+        thickness: 3.0,
+        paint: Paint::Solid(Color::rgb(255, 0, 0)),
+        cap: LineCap::Round,
+        ..Stroke::default()
+    };
     let chain = StyleChain::default_chain()
         .push_custom("math.mat.augment", augment_value(1, Some(resolved)));
     let custom = project_with_chain(
@@ -402,9 +534,11 @@ fn p1431_augment_stroke_custom_chega_a_todas_as_linhas() {
     );
     assert!(debug.contains("Round"), "P29/P34 custom cap: {debug}");
 
-    let mut butt_stroke = Stroke::default();
-    butt_stroke.thickness = 3.0;
-    butt_stroke.cap = LineCap::Butt;
+    let butt_stroke = Stroke {
+        thickness: 3.0,
+        cap: LineCap::Butt,
+        ..Stroke::default()
+    };
     let butt_chain = StyleChain::default_chain()
         .push_custom("math.mat.augment", augment_value(1, Some(butt_stroke)));
     let butt = project_with_chain(
@@ -422,10 +556,12 @@ fn p1431_augment_stroke_custom_chega_a_todas_as_linhas() {
 
 #[test]
 fn p1431_augment_cascata_dobra_stroke_sem_substituir_offsets_e_none_limpa() {
-    let mut outer_stroke = Stroke::default();
-    outer_stroke.thickness = 2.0;
-    outer_stroke.paint = Paint::Solid(Color::rgb(255, 0, 0));
-    outer_stroke.cap = LineCap::Round;
+    let mut outer_stroke = Stroke {
+        thickness: 2.0,
+        paint: Paint::Solid(Color::rgb(255, 0, 0)),
+        cap: LineCap::Round,
+        ..Stroke::default()
+    };
     outer_stroke.specified.paint = true;
     outer_stroke.specified.thickness = true;
     outer_stroke.specified.cap = true;

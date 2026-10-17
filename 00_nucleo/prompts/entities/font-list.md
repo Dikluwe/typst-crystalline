@@ -1,5 +1,5 @@
 # Prompt L0 — entities/font-list
-Hash do Código: ddcbfc54
+Hash do Código: 6cb4fb14
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/font_list.rs`

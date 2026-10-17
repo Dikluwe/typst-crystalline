@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/html_frame.md
-//! @prompt-hash 835c9c4f
+//! @prompt-hash aeb84a9b
 //! @layer L1
 
 use crate::entities::elements::pdf_artifact::ArtifactKind;
@@ -63,6 +63,8 @@ fn context_marker_id(item: &FrameItem) -> Option<u64> {
 
 pub(super) fn is_context_marker(item: &FrameItem) -> bool {
     context_marker_id(item).is_some()
+        || super::position_marker::is_marker(item)
+        || super::link_capture::is_marker(item)
 }
 
 pub(super) fn is_context_marker_only_tree(item: &FrameItem) -> bool {
@@ -70,18 +72,25 @@ pub(super) fn is_context_marker_only_tree(item: &FrameItem) -> bool {
 }
 
 pub(super) fn items_have_material(items: &[FrameItem]) -> bool {
-    items.iter().any(|item| !is_context_marker_only_tree(item) && !matches!(item, FrameItem::TextSeparator { .. }))
+    items.iter().any(|item| {
+        !is_context_marker_only_tree(item)
+            && !matches!(item, FrameItem::TextSeparator { .. })
+    })
 }
 
 /// A linha pode existir semanticamente sem tinta: espaços literais pertencem
 /// à composição textual, mas continuam neutros para materialidade visual.
 pub(super) fn items_have_causal_line(items: &[FrameItem]) -> bool {
-    items_have_material(items) || items.iter().any(|item| matches!(item,
-        FrameItem::TextSeparator {
-            origin: crate::entities::layout_types::TextSeparatorOrigin::Literal,
-            ..
-        }
-    ))
+    items_have_material(items)
+        || items.iter().any(|item| {
+            matches!(
+                item,
+                FrameItem::TextSeparator {
+                    origin: crate::entities::layout_types::TextSeparatorOrigin::Literal,
+                    ..
+                }
+            )
+        })
 }
 
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
@@ -110,11 +119,13 @@ fn visible_top<M: FontMetrics>(item: &FrameItem, metrics: &M) -> Option<f64> {
         | FrameItem::Shape { pos, .. }
         | FrameItem::Group { pos, .. }
         | FrameItem::Link { pos, .. } => pos.y.0,
-        FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items
-            .iter()
-            .find(|item| !is_context_marker_only_tree(item))
-            .map(|item| super::helpers::item_pos(item).1)
-            .unwrap_or(0.0),
+        FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
+            items
+                .iter()
+                .find(|item| !is_context_marker_only_tree(item))
+                .map(|item| super::helpers::item_pos(item).1)
+                .unwrap_or(0.0)
+        }
     })
 }
 
@@ -126,7 +137,8 @@ fn collect_context_positions(
     for item in items {
         if let Some(id) = context_marker_id(item) {
             let Some(marker) = (match item {
-                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => items.first(),
+                FrameItem::TextReplacement { items, .. }
+                | FrameItem::Semantic { items, .. } => items.first(),
                 _ => None,
             }) else {
                 continue;
@@ -137,7 +149,9 @@ fn collect_context_positions(
             continue;
         }
         match item {
-            FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
+            FrameItem::TextReplacement { items, .. }
+            | FrameItem::Semantic { items, .. }
+            | FrameItem::Link { items, .. } => {
                 collect_context_positions(items, transform, positions);
             }
             FrameItem::Group { pos, matrix, items, .. } => {
@@ -146,38 +160,35 @@ fn collect_context_positions(
                     .concat(matrix);
                 collect_context_positions(items, nested, positions);
             }
-            _ => {}
+            FrameItem::TextSeparator { .. }
+            | FrameItem::Text { .. }
+            | FrameItem::TextShaped { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. } => {}
         }
     }
 }
-fn strip_context_marker<M: FontMetrics>(
-    item: FrameItem,
-    metrics: &M,
-) -> Option<FrameItem> {
+fn strip_context_marker(item: FrameItem) -> Option<FrameItem> {
     if is_context_marker(&item) {
         return None;
     }
     match item {
         FrameItem::TextReplacement { text, items } => {
-            let items = items.into_iter()
-                .filter_map(|item| strip_context_marker(item, metrics)).collect();
+            let items = items.into_iter().filter_map(strip_context_marker).collect();
             Some(FrameItem::TextReplacement { text, items })
         }
         FrameItem::Semantic { kind, placement, alt, items } => {
-            let items = items
-                .into_iter()
-                .filter_map(|item| strip_context_marker(item, metrics))
-                .collect();
+            let items = items.into_iter().filter_map(strip_context_marker).collect();
             Some(FrameItem::Semantic { kind, placement, alt, items })
         }
         FrameItem::Link { target, items, pos, size } => {
-            let items = items
-                .into_iter()
-                .filter_map(|item| strip_context_marker(item, metrics))
-                .collect();
+            let items = items.into_iter().filter_map(strip_context_marker).collect();
             Some(FrameItem::Link { target, items, pos, size })
         }
         FrameItem::Group {
+            paint_root,
             pos,
             matrix,
             clip_mask,
@@ -185,11 +196,9 @@ fn strip_context_marker<M: FontMetrics>(
             inner_height,
             items,
         } => {
-            let items = items
-                .into_iter()
-                .filter_map(|item| strip_context_marker(item, metrics))
-                .collect();
+            let items = items.into_iter().filter_map(strip_context_marker).collect();
             Some(FrameItem::Group {
+                paint_root,
                 pos,
                 matrix,
                 clip_mask,
@@ -215,7 +224,7 @@ fn layout_intrinsic_impl<M: FontMetrics, S: ImageSizer>(
     layouter.chain = chain.clone();
     layouter.style = TextStyle::from(chain);
     layouter.capture_html_context_markers = capture_positions;
-    let (height, mut items, _, _, _) = layouter.layout_sub_frame(
+    let (height, mut items, _, _, _) = layouter.layout_sub_frame_at_geometric_origin(
         &elem.body,
         super::sub_frame::SubLayoutRegion {
             origin_x: 0.0,
@@ -225,6 +234,7 @@ fn layout_intrinsic_impl<M: FontMetrics, S: ImageSizer>(
             unconstrained_height: true,
         },
     );
+    super::link_capture::resolve(&mut items, &layouter.link_capture, &layouter.metrics);
     let mut positions = Vec::new();
     if capture_positions {
         collect_context_positions(&items, TransformMatrix::identity(), &mut positions);
@@ -240,12 +250,7 @@ fn layout_intrinsic_impl<M: FontMetrics, S: ImageSizer>(
         }
     }
 
-    if capture_positions {
-        items = items
-            .into_iter()
-            .filter_map(|item| strip_context_marker(item, &layouter.metrics))
-            .collect();
-    }
+    items = items.into_iter().filter_map(strip_context_marker).collect();
 
     let refs: Vec<_> = items.iter().collect();
     let width = layouter.metrics.line_content_right(&refs);
@@ -312,7 +317,8 @@ mod p1493_tests {
                 "carrier privado sobreviveu na Page: {item:?}"
             );
             match item {
-                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. }
+                FrameItem::TextReplacement { items, .. }
+                | FrameItem::Semantic { items, .. }
                 | FrameItem::Link { items, .. }
                 | FrameItem::Group { items, .. } => assert_no_carrier(items),
                 _ => {}
@@ -475,10 +481,15 @@ mod p1493_tests {
         fn visible(mut page: crate::entities::layout_types::Page) -> String {
             fn strip(items: &mut Vec<FrameItem>) {
                 items.retain(|item| !matches!(item, FrameItem::TextSeparator { .. }));
-                for item in items { match item {
-                    FrameItem::Group { items, .. } | FrameItem::Link { items, .. } | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => strip(items),
-                    _ => {}
-                } }
+                for item in items {
+                    match item {
+                        FrameItem::Group { items, .. }
+                        | FrameItem::Link { items, .. }
+                        | FrameItem::TextReplacement { items, .. }
+                        | FrameItem::Semantic { items, .. } => strip(items),
+                        _ => {}
+                    }
+                }
             }
             strip(&mut page.items);
             format!("{page:#?}")

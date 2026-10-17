@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/grid/cell_emission.md
-//! @prompt-hash 09570062
+//! @prompt-hash 55868472
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 //!
 //! Emissão de células de grid, paginação e segmentos de borda por linha.
 
@@ -12,6 +12,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
     #[allow(clippy::too_many_arguments)]
     pub(super) fn emit_grid_cells(
         &mut self,
+        measured_cells: &mut measurement_cache::MeasuredCells,
         placed_cells: &[PlacedCell],
         cells_per_row: &[Vec<usize>],
         num_rows_produced_final: usize,
@@ -45,9 +46,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
         let mut grid_owner: Vec<Vec<Option<usize>>> =
             vec![vec![None; num_cols]; num_rows_produced_final];
         for (i, p) in placed_cells.iter().enumerate() {
-            for r in p.row..(p.row + p.rowspan).min(num_rows_produced_final) {
-                for c in p.col..(p.col + p.colspan).min(num_cols) {
-                    grid_owner[r][c] = Some(i);
+            for row in grid_owner
+                .iter_mut()
+                .take((p.row + p.rowspan).min(num_rows_produced_final))
+                .skip(p.row)
+            {
+                for owner in
+                    row.iter_mut().take((p.col + p.colspan).min(num_cols)).skip(p.col)
+                {
+                    *owner = Some(i);
                 }
             }
         }
@@ -78,6 +85,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
             for &placed_idx in &cells_per_row[row_idx] {
                 let placed = &placed_cells[placed_idx];
                 self.emit_grid_cell_body(
+                    measured_cells,
                     placed,
                     row_start_y,
                     local_start_y,
@@ -92,7 +100,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
             }
 
             emit_placed_row_borders(
-                &mut self.regions.current.current_items,
+                self,
                 row_idx,
                 row_start_y,
                 row_h,
@@ -108,16 +116,23 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
 
             // Avançar cursor para o fim da linha (altura conhecida).
             self.regions.current.cursor_y = Pt(row_start_y + row_h);
+            self.record_flow_placement_end(row_start_y + row_h);
+            let right = col_starts
+                .iter()
+                .zip(resolved_widths)
+                .map(|(start, width)| start + width)
+                .fold(self.flow_frame_extent.0, f64::max);
+            self.record_flow_width_at(right, 0.0);
         }
 
         // P888 — descarregar quaisquer segmentos verticais ainda abertos
         // no fim da última linha (nenhuma quebra de página os fechou).
         flush_all_vsegments(
             &mut open_vsegments,
-            &col_starts,
-            &resolved_widths,
+            col_starts,
+            resolved_widths,
             num_cols,
-            &mut self.regions.current.current_items,
+            self,
         );
 
         emitted_row_starts

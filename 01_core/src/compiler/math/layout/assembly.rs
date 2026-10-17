@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/assembly.md
-//! @prompt-hash c982b0d8
+//! @prompt-hash 6d969407
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -23,17 +23,17 @@ use crate::entities::glyph_variants::{GlyphAssembly, GlyphPart};
 /// da tabela MATH) do acumulador `growable` (vanilla `glyph.rs:610`:
 /// `growable += max(0, max_overlap − min_overlap)`); antes acumulava o
 /// `max_overlap` inteiro. Ver `assembly.md` §P945.
-fn resolve_assembly_repeat<'p>(
-    assembly: &'p GlyphAssembly,
+fn resolve_assembly_repeat(
+    assembly: &GlyphAssembly,
     scale: f64,
     target_pt: f64,
-) -> (Vec<&'p GlyphPart>, f64) {
+) -> (Vec<&GlyphPart>, f64) {
     const MAX_REPEATS: usize = 1024;
     // **P945** — `minConnectorOverlap` convertido para pt (design units ×
     // scale) — mesmo factor de escala dos conectores das peças.
     let min_overlap_pt = assembly.min_overlap as f64 * scale;
     let mut full_pt;
-    let mut ratio = 0.0_f64;
+    let mut ratio;
     let mut repeat = 0_usize;
 
     loop {

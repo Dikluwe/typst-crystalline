@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/shapes/ellipse.md
-//! @prompt-hash eab1577b
+//! @prompt-hash 29616cd7
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -9,7 +9,6 @@ use super::*;
 /// `ellipse(width?, height?, fill?, stroke?)` → `Content::Shape { kind: Ellipse, ... }`.
 ///
 /// Mesmo padrão de fallback que `native_rect`.
-
 pub fn native_ellipse(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -37,10 +36,14 @@ pub fn native_ellipse(
     let parsed_stroke = args
         .named
         .get("stroke")
+        .filter(|value| !matches!(value, Value::None))
         .map(|value| parse_shape_stroke(value, "ellipse"))
         .transpose()?;
 
-    let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
+    let final_stroke = if fill.is_none()
+        && parsed_stroke.is_none()
+        && !matches!(args.named.get("stroke"), Some(Value::None))
+    {
         Some(Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
@@ -105,10 +108,14 @@ pub fn native_circle(
     let parsed_stroke = args
         .named
         .get("stroke")
+        .filter(|value| !matches!(value, Value::None))
         .map(|value| parse_shape_stroke(value, "circle"))
         .transpose()?;
 
-    let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
+    let final_stroke = if fill.is_none()
+        && parsed_stroke.is_none()
+        && !matches!(args.named.get("stroke"), Some(Value::None))
+    {
         Some(Stroke {
             paint: Paint::Solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
@@ -143,5 +150,53 @@ mod tests {
             call(native_circle, Args::positional(vec![])).unwrap(),
             Value::Content(Content::Shape(_))
         ));
+    }
+}
+
+#[cfg(test)]
+mod optional_stroke_regressions {
+    use super::super::atomization_test_support::call;
+    use super::*;
+
+    #[test]
+    fn explicit_none_stays_absent_with_and_without_fill() {
+        for fill in [None, Some(Value::Color(Color::rgb(0, 0, 0)))] {
+            let mut args = Args::positional(vec![]);
+            args.named.insert("stroke".into(), Value::None);
+            if let Some(fill) = fill {
+                args.named.insert("fill".into(), fill);
+            }
+            let Value::Content(Content::Shape(shape)) =
+                call(native_ellipse, args).unwrap()
+            else {
+                panic!("expected shape");
+            };
+            assert!(shape.stroke.is_none());
+        }
+        let Value::Content(Content::Shape(shape)) =
+            call(native_ellipse, Args::positional(vec![])).unwrap()
+        else {
+            panic!("expected shape");
+        };
+        assert!(shape.stroke.is_some(), "omission keeps the unfilled default");
+        for fill in [None, Some(Value::Color(Color::rgb(0, 0, 0)))] {
+            let mut args = Args::positional(vec![]);
+            args.named.insert("stroke".into(), Value::None);
+            if let Some(fill) = fill {
+                args.named.insert("fill".into(), fill);
+            }
+            let Value::Content(Content::Shape(shape)) =
+                call(native_circle, args).unwrap()
+            else {
+                panic!("expected shape");
+            };
+            assert!(shape.stroke.is_none());
+        }
+        let Value::Content(Content::Shape(shape)) =
+            call(native_circle, Args::positional(vec![])).unwrap()
+        else {
+            panic!("expected shape");
+        };
+        assert!(shape.stroke.is_some(), "omission keeps the unfilled default");
     }
 }

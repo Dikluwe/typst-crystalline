@@ -1,0 +1,34 @@
+tekt = 1
+kind = "nucleus"
+id = "transform-semantics"
+title = "Identidade, presença e resolução das transformações"
+
+[[claims]]
+id = "operation-and-presence"
+level = "must"
+statement = "Move, Rotate, Scale e Skew conservam identidade nativa e presença lexical de cada argumento. Omissão, zero, false, auto e alinhamento parcial não colapsam. Matrix é uma operação Rust genérica distinta, nunca inferida como função nativa a partir dos coeficientes."
+
+[[claims]]
+id = "late-resolution"
+level = "must"
+statement = "Avaliação valida e transporta valores tipados, sem assar defaults de estilo ou resolver comprimentos dependentes de fonte/região/corpo. Layout resolve os valores no uso, produz matriz finita e preserva raiz de pintura; exporters consomem Frame e não repetem layout."
+
+[[claims]]
+id = "public-observation"
+level = "must"
+statement = "Campos, func, repr, encoders, seletores, igualdade da linguagem e observação conservadora preservam operação, valores e presença. Clone, mapas, wrappers, caches e realização não apagam essa distinção. Campos herdados de set não se tornam lexicalmente explícitos."
+
+[[claims]]
+id = "frame-geometry"
+level = "must"
+statement = "Origin resolve cada eixo sobre o frame lógico do corpo, com defaults center/horizon e alinhamentos direcionais resolvidos no estilo vigente. Reflow falso conserva tamanho/baseline/avanço lógicos; reflow verdadeiro transforma os limites e ajusta avanço/baseline segundo a operação. Move altera tinta sem alterar o frame lógico."
+
+[[claims]]
+id = "no-surrogate-transport"
+level = "must-not"
+statement = "Não codificar argumentos autorais em coeficientes sentinela, Styled artificial, metadata, strings, registry global, Location falsa ou matriz redundante. Não inferir kind pela matriz nem aplicar pivô ou origem duas vezes."
+
+[[claims]]
+id = "target-boundary"
+level = "must"
+statement = "Transformações não promovem o documento HTML a layout paginado. O diagnóstico estrito vigente para conteúdo não suportado permanece; não copiar a eliminação do body observada no pin HTML. Ilhas html.frame continuam com seu contrato próprio."

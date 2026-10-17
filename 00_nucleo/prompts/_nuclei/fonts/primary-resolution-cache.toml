@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "primary-resolution-cache"
+title = "Reuso limitado da cadeia primária de fontes"
+
+[[claims]]
+id = "bounded-lifetime"
+level = "must"
+statement = "Store at most the latest complete nonempty base primary-font resolution per metrics instance; new starts empty, Clone shares it and the same World, and a new instance never inherits another World cache."
+
+[[claims]]
+id = "exact-key"
+level = "must"
+statement = "Compare the full ordered optional FontList and effective FontVariant by equality, never hashes alone or pointer identity. Cache only slot indices and units per em; size, color, language and variations are applied elsewhere, and MATH additions remain outside this base cache."
+
+[[claims]]
+id = "failure-retry"
+level = "must-not"
+statement = "Do not cache empty or partial resolutions when a selected face cannot be read or parsed. Preserve retries and readable-face filtering without holding the resolution-cache lock while querying World or loading faces."
+
+[[claims]]
+id = "selection-preservation"
+level = "must"
+statement = "Preserve family and regex matching, variant ranking, declared-family order, class fallback, common fallback order and deduplication. Reuse does not change the FontKey identity or variation application."

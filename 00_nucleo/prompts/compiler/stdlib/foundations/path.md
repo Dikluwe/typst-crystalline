@@ -1,5 +1,5 @@
 # L0 — stdlib/foundations/path
-Hash do Código: 6d935eb3
+Hash do Código: ac197800
 
 **Vanilla ratificado:** `a51e02804`
 

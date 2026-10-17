@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cursor.md
-//! @prompt-hash 6f672c46
+//! @prompt-hash f14ecd25
 //! @layer L1
-//! @updated 2026-09-29
+//! @updated 2026-10-07
 //!
 //! Gestão do cursor do Layouter: palavras/wrap, paginação, colunas e floats.
 //! O fechamento de linha pertence ao módulo irmão `line_commit` (P1503).
@@ -11,7 +11,7 @@
 use crate::entities::{
     dir::Dir,
     image_sizer::ImageSizer,
-    layout_types::{FrameItem, Point, Pt},
+    layout_types::{FrameItem, HAlign, Pt},
 };
 
 use super::metrics::FontMetrics;
@@ -40,7 +40,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     pub(super) fn shift_current_line_y(&mut self, dy: f64) {
         for item in &mut self.regions.current.current_line {
             match item {
-                FrameItem::TextSeparator { pos, .. } | FrameItem::Text { pos, .. }
+                FrameItem::TextSeparator { pos, .. }
+                | FrameItem::Text { pos, .. }
                 | FrameItem::TextShaped { pos, .. }
                 | FrameItem::Glyph { pos, .. }
                 | FrameItem::Shape { pos, .. }
@@ -55,7 +56,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 FrameItem::Link { .. } => {
                     crate::compiler::layout::helpers::shift_frame_item_y(item, dy);
                 }
-                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } => {
+                FrameItem::TextReplacement { items, .. }
+                | FrameItem::Semantic { items, .. } => {
                     for child in items {
                         crate::compiler::layout::helpers::shift_frame_item_y(child, dy);
                     }
@@ -82,16 +84,29 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
             self.regions.current.cursor_y += top;
             // P1120 — ascent assumido ao fixar esta baseline.
-            self.line_assumed_ascent = top.0;
+            self.line_assumed_ascent = Some(top.0);
             self.initial_baseline_pending = false;
             self.prev_margin_is_parbreak = false;
         } else if self.block_chain_active {
             let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
-            let next_baseline = if self.prev_block_below_pending > 0.0 {
-                self.prev_line_baseline
-                    + self.prev_block_equation_descent
-                    + self.prev_block_below_pending
-                    + top.0
+            let gap = if self.prev_margin_is_parbreak {
+                let above = match self.chain.custom("par.spacing") {
+                    Some(crate::entities::value::Value::Length(v)) => {
+                        v.resolve_pt(self.style.size.val())
+                    }
+                    _ => self.style.size.val() * super::vanilla_defaults::PAR_SPACING,
+                };
+                self.prev_block_below_pending.max(above)
+            } else {
+                self.prev_block_below_pending
+            };
+            let flow_end = self.flow_placement_y();
+            let next_baseline = if self.prev_block_below_pending > 0.0
+                || self.prev_margin_is_parbreak
+            {
+                self.prev_line_baseline + self.prev_block_equation_descent + gap + top.0
+            } else if let Some(end) = flow_end {
+                end + gap + top.0
             } else {
                 self.regions.current.cursor_y.0
             };
@@ -109,9 +124,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 });
             let tail_boundary = (self.prev_block_below_pending - outer_leading).max(0.0);
             let snap_fractional_tail = self.fractional_flow_tail_pending
-                && next_baseline > page_bottom
+                && next_baseline >= page_bottom
                 && next_baseline <= page_bottom + tail_boundary + 0.001;
-            if self.page_config.height.is_finite()
+            if !self.is_sub_frame
+                && self.page_config.height.is_finite()
                 && next_baseline >= page_bottom
                 && !snap_fractional_tail
                 && !self.current_page_is_empty()
@@ -121,12 +137,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
 
             // **P1104** — Entrada pontual do primeiro texto de um parágrafo no protocolo de colapso
-            if self.prev_block_below_pending > 0.0 {
+            if self.prev_block_below_pending > 0.0
+                || self.prev_margin_is_parbreak
+                || flow_end.is_some()
+            {
                 self.regions.current.cursor_y =
                     Pt(if snap_fractional_tail { page_bottom } else { next_baseline });
             }
             // P1120 — ascent assumido ao fixar esta baseline.
-            self.line_assumed_ascent = top.0;
+            self.line_assumed_ascent = Some(top.0);
             self.prev_block_below_pending = 0.0;
             self.block_chain_active = false;
             self.prev_block_equation_descent = 0.0;
@@ -152,14 +171,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     }
 
     pub(super) fn align_current_line_rtl_with_continuation(&mut self, continued: bool) {
-        let is_rtl =
-            self.regions.current.current_line.iter().find_map(|item| match item {
-                FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
-                    style.dir
-                }
-                _ => None,
-            }) == Some(Dir::RTL);
-        if !is_rtl {
+        let is_rtl = super::paragraph::line_direction(self) == Some(Dir::RTL);
+        let explicit = self.explicit_line_alignment;
+        if explicit == Some(HAlign::Left) || (!is_rtl && explicit.is_none()) {
             return;
         }
         let right_margin = self.regions.current.width - self.page_config.margin.right;
@@ -181,10 +195,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let mut prefix_end = 0usize;
         let mut prefix_left = None;
         let mut prefix_right = None;
-        for (index, item) in self.regions.current.current_line.iter().enumerate() {
+        for (index, item) in
+            self.regions.current.current_line.iter().enumerate().take(if is_rtl {
+                usize::MAX
+            } else {
+                0
+            })
+        {
             match item {
                 FrameItem::TextSeparator {
-                    pos, advance,
+                    pos,
+                    advance,
                     origin: crate::entities::layout_types::TextSeparatorOrigin::Literal,
                     ..
                 } => {
@@ -198,16 +219,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 _ => break,
             }
         }
-        let prefix_span = prefix_left.zip(prefix_right)
+        let prefix_span = prefix_left
+            .zip(prefix_right)
             .map(|(left, right)| (right - left).max(0.0))
             .unwrap_or(0.0);
-        let prefix_relocation = prefix_left.map(|left| content_right - left).unwrap_or(0.0);
+        let prefix_relocation =
+            prefix_left.map(|left| content_right - left).unwrap_or(0.0);
         let interval = if continued {
             super::text_tracking::continued_rtl_end(&self.regions.current.current_line).0
         } else {
             0.0
         };
-        let offset = right_margin - content_right - interval - prefix_span;
+        let free = right_margin - content_right - interval - prefix_span;
+        let offset = if explicit == Some(HAlign::Center) { free / 2.0 } else { free };
         let translated: Vec<FrameItem> = self
             .regions
             .current
@@ -383,17 +407,24 @@ mod smoke {
 #[cfg(test)]
 mod rtl_literal_prefix_tests {
     use super::super::{FixedMetrics, FontMetrics, Layouter};
-    use crate::entities::{dir::Dir, image_sizer::NullImageSizer,
+    use crate::entities::{
+        dir::Dir,
+        image_sizer::NullImageSizer,
         introspector::{Introspector, TagIntrospector},
-        layout_types::{FrameItem, Length, PageMargins, Point, Pt, TextSeparatorOrigin}};
+        layout_types::{FrameItem, Length, PageMargins, Point, Pt, TextSeparatorOrigin},
+    };
     use comemo::Track;
 
     #[test]
     fn literal_prefix_reserves_the_visual_right_edge_in_rtl() {
         let intr = TagIntrospector::empty();
         for t in [0.0, 0.2, -0.2] {
-            let mut l = Layouter::new(FixedMetrics, NullImageSizer, 100.0,
-                (&intr as &dyn Introspector).track());
+            let mut l = Layouter::new(
+                FixedMetrics,
+                NullImageSizer,
+                100.0,
+                (&intr as &dyn Introspector).track(),
+            );
             l.page_config.margin = PageMargins::uniform(8.0);
             l.regions.current.width = 100.0;
             let mut style = l.style.clone();
@@ -405,20 +436,37 @@ mod rtl_literal_prefix_tests {
             for x in [left, left + space + t] {
                 l.regions.current.current_line.push(FrameItem::TextSeparator {
                     pos: Point { x: Pt(x), y: Pt(10.0) },
-                    advance: Pt(space), style: style.clone(),
+                    advance: Pt(space),
+                    style: style.clone(),
                     origin: TextSeparatorOrigin::Literal,
+                    bidi: None,
                 });
             }
             let word_x = left + prefix + t;
             l.regions.current.current_line.push(FrameItem::Text {
                 pos: Point { x: Pt(word_x), y: Pt(10.0) },
-                text: "abc".into(), style,
+                text: "abc".into(),
+                style,
+                bidi: None,
             });
-            let content_right = l.metrics.line_content_right(&l.regions.current.current_line.iter().collect::<Vec<_>>());
+            let content_right = l.metrics.line_content_right(
+                &l.regions.current.current_line.iter().collect::<Vec<_>>(),
+            );
             l.align_current_line_rtl();
-            let FrameItem::Text { pos: word, .. } = &l.regions.current.current_line[2] else { panic!() };
-            let FrameItem::TextSeparator { pos: first, .. } = &l.regions.current.current_line[0] else { panic!() };
-            let FrameItem::TextSeparator { pos: second, advance, .. } = &l.regions.current.current_line[1] else { panic!() };
+            let FrameItem::Text { pos: word, .. } = &l.regions.current.current_line[2]
+            else {
+                panic!()
+            };
+            let FrameItem::TextSeparator { pos: first, .. } =
+                &l.regions.current.current_line[0]
+            else {
+                panic!()
+            };
+            let FrameItem::TextSeparator { pos: second, advance, .. } =
+                &l.regions.current.current_line[1]
+            else {
+                panic!()
+            };
             assert!((word.x.0 - (word_x + 92.0 - content_right - prefix)).abs() < 1e-9);
             assert!((first.x.0 - (92.0 - prefix)).abs() < 1e-9);
             assert!((second.x.0 + advance.0 - 92.0).abs() < 1e-9);

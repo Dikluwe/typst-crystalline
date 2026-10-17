@@ -1,23 +1,18 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/page_supplement.md
-//! @prompt-hash 3a69694a
+//! @prompt-hash 1217ecaa
 //! @layer L1
 //! @updated 2026-08-24
 
 use crate::entities::{content::Content, lang::Lang};
 use std::sync::Arc;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub enum PageSupplement {
+    #[default]
     Auto,
     None,
     Content(Arc<Content>),
-}
-
-impl Default for PageSupplement {
-    fn default() -> Self {
-        Self::Auto
-    }
 }
 
 pub fn local_name(lang: Option<Lang>) -> &'static str {

@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/contextual
-Hash do Código: a3f90e6f
+Hash do Código: 5e8214eb
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/contextual.rs`

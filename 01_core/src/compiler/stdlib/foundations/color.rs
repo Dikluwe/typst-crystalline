@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/color.md
-//! @prompt-hash 6b57c538
+//! @prompt-hash 8b374168
 //! @layer L1
 //! @updated 2026-09-12
 //!
@@ -21,8 +21,8 @@ use crate::compiler::stdlib::{err, expect_no_named};
 ///
 /// **P740D** — paridade vanilla `Component` (`visualize/color.rs:2678-2692`):
 /// cada componente aceita Int [0, 255] ou Ratio [0%, 100%] (mesmo padrão
-/// aplicado a `linear-rgb` em P736). Ratio → u8 via `(fracção × 255).round()`
-/// — medido: `rgb(50%, 0%, 0%)` → `rgb("#800000")` (127.5 → 128 = 0x80).
+/// aplicado a `linear-rgb` em P736). Componentes são preservados em f32;
+/// a projeção para hex/bytes é posterior: `rgb(50%, 0%, 0%).to-hex()` → `#800000`.
 /// Erros verbatim do cast `Component`: Int fora de gama → "number must be
 /// between 0 and 255"; Ratio fora de gama → "ratio must be between 0% and
 /// 100%"; Float (e outros tipos) → "expected integer or ratio, found {type}".
@@ -35,14 +35,27 @@ pub fn native_rgb(
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Str(s)] => parse_hex_color(s.as_str()),
-        [Value::Color(color)] => {
+        [Value::Color(color @ Color::Cmyk { .. })] => {
             let (r, g, b, a) = rgb_constructor_bytes(color.clone());
             Ok(Value::Color(Color::rgba(r, g, b, a)))
         }
-        [r, g, b] => Ok(Value::Color(Color::rgb(as_u8(r)?, as_u8(g)?, as_u8(b)?))),
-        [r, g, b, a] => {
-            Ok(Value::Color(Color::rgba(as_u8(r)?, as_u8(g)?, as_u8(b)?, as_u8(a)?)))
+        [Value::Color(color)] => {
+            Ok(Value::Color(color.clone().to_space(ColorSpace::Srgb).map_err(|_| {
+                vec![SourceDiagnostic::error(args.span, "cannot convert color to rgb")]
+            })?))
         }
+        [r, g, b] => Ok(Value::Color(Color::srgb_f32(
+            luma_component(r, positional_span(args, 0))?,
+            luma_component(g, positional_span(args, 1))?,
+            luma_component(b, positional_span(args, 2))?,
+            1.0,
+        ))),
+        [r, g, b, a] => Ok(Value::Color(Color::srgb_f32(
+            luma_component(r, positional_span(args, 0))?,
+            luma_component(g, positional_span(args, 1))?,
+            luma_component(b, positional_span(args, 2))?,
+            luma_component(a, positional_span(args, 3))?,
+        ))),
         _ => err(format!(
             "rgb() requer 3 ou 4 componentes (Int/Ratio), recebeu {} args",
             args.items.len()
@@ -98,41 +111,6 @@ fn parse_hex_color(s: &str) -> SourceResult<Value> {
         *value = v;
     }
     Ok(Value::Color(Color::rgba(values[0], values[1], values[2], values[3])))
-}
-
-fn as_u8(v: &Value) -> SourceResult<u8> {
-    match v {
-        Value::Int(i) if (0..=255).contains(i) => Ok(*i as u8),
-        Value::Int(_) => Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "number must be between 0 and 255".to_string(),
-        )]),
-        Value::Relative(r)
-            if matches!(
-                (r.abs.is_zero(), (0.0..=1.0).contains(&r.rel)),
-                (true, true)
-            ) =>
-        {
-            Ok((r.rel * 255.0).round() as u8)
-        }
-        Value::Relative(r) if r.abs.is_zero() => Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "ratio must be between 0% and 100%".to_string(),
-        )]),
-        // P842 (#32) — o literal percentual é agora `Value::Ratio`
-        // (antes `Relative` com abs zero). Mesma validação do vanilla.
-        Value::Ratio(r) if (0.0..=1.0).contains(&r.get()) => {
-            Ok((r.get() * 255.0).round() as u8)
-        }
-        Value::Ratio(_) => Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            "ratio must be between 0% and 100%".to_string(),
-        )]),
-        other => Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("expected integer or ratio, found {}", other.type_name()),
-        )]),
-    }
 }
 
 /// `luma(lightness[, alpha])` ou `luma(color)` → Color::Luma.
@@ -250,6 +228,31 @@ fn luma_component(v: &Value, span: Span) -> SourceResult<f32> {
     }
 }
 
+/// Alternate Color argument shared by process-color constructors.
+/// Any remaining positional belongs to the error, even if it precedes the color.
+fn converted_color_argument(
+    args: &Args,
+    target: ColorSpace,
+) -> Option<SourceResult<Value>> {
+    let (index, color) =
+        args.items.iter().enumerate().find_map(|(index, value)| match value {
+            Value::Color(color) => Some((index, color)),
+            _ => None,
+        })?;
+    if args.items.len() != 1 {
+        let unexpected = usize::from(index == 0);
+        return Some(Err(vec![SourceDiagnostic::error(
+            positional_span(args, unexpected),
+            "unexpected argument",
+        )]));
+    }
+    Some(
+        color.clone().to_space(target).map(Value::Color).map_err(|_| {
+            vec![SourceDiagnostic::error(args.span, "cannot convert color")]
+        }),
+    )
+}
+
 /// **P257 (ADR-0083 PROPOSTO)** — `oklab(l, a, b[, alpha])` →
 /// `Color::Oklab`. Componentes f32 (Float ou Int).
 pub fn native_oklab(
@@ -259,6 +262,9 @@ pub fn native_oklab(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
+    if let Some(converted) = converted_color_argument(args, ColorSpace::Oklab) {
+        return converted;
+    }
     match args.items.as_slice() {
         [l, a, b] => Ok(Value::Color(Color::oklab(
             ratio_component(l)?,
@@ -288,6 +294,9 @@ pub fn native_oklch(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
+    if let Some(converted) = converted_color_argument(args, ColorSpace::Oklch) {
+        return converted;
+    }
     match args.items.as_slice() {
         [l, c, h] => Ok(Value::Color(Color::oklch(
             ratio_component(l)?,
@@ -317,33 +326,21 @@ pub fn native_linear_rgb(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
-    // **P736** — paridade vanilla medida: `linear-rgb` aceita Int [0, 255]
-    // (÷255) ou Ratio (percentagem); **rejeita Float** com a mensagem
-    // verbatim "expected integer or ratio, found float".
-    fn component(v: &Value) -> SourceResult<f32> {
-        match v {
-            Value::Int(i) => Ok(*i as f32 / 255.0),
-            Value::Relative(r) if r.abs.is_zero() => Ok(r.rel as f32),
-            // P842 (#32) — o literal percentual é agora `Value::Ratio`.
-            Value::Ratio(r) => Ok(r.get() as f32),
-            other => Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("expected integer or ratio, found {}", other.type_name()),
-            )]),
-        }
+    if let Some(converted) = converted_color_argument(args, ColorSpace::LinearRgb) {
+        return converted;
     }
     match args.items.as_slice() {
         [r, g, b] => Ok(Value::Color(Color::linear_rgb(
-            component(r)?,
-            component(g)?,
-            component(b)?,
+            luma_component(r, positional_span(args, 0))?,
+            luma_component(g, positional_span(args, 1))?,
+            luma_component(b, positional_span(args, 2))?,
             1.0,
         ))),
         [r, g, b, a] => Ok(Value::Color(Color::linear_rgb(
-            component(r)?,
-            component(g)?,
-            component(b)?,
-            component(a)?,
+            luma_component(r, positional_span(args, 0))?,
+            luma_component(g, positional_span(args, 1))?,
+            luma_component(b, positional_span(args, 2))?,
+            luma_component(a, positional_span(args, 3))?,
         ))),
         _ => err(format!(
             "linear_rgb() requer 3 ou 4 argumentos (Int/Ratio), recebeu {} args",
@@ -361,6 +358,9 @@ pub fn native_cmyk(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
+    if let Some(converted) = converted_color_argument(args, ColorSpace::Cmyk) {
+        return converted;
+    }
     let component = |value: &Value| -> SourceResult<f32> {
         match value {
             Value::Ratio(ratio) if (0.0..=1.0).contains(&ratio.get()) => {
@@ -372,16 +372,15 @@ pub fn native_cmyk(
             )]),
             // Compatibilidade com árvores anteriores à materialização de
             // `Value::Ratio`; a superfície atual produz o braço acima.
-            Value::Relative(relative)
-                if relative.abs.is_zero() && (0.0..=1.0).contains(&relative.rel) =>
-            {
-                Ok(relative.rel as f32)
-            }
             Value::Relative(relative) if relative.abs.is_zero() => {
-                Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    "ratio must be between 0% and 100%",
-                )])
+                if (0.0..=1.0).contains(&relative.rel) {
+                    Ok(relative.rel as f32)
+                } else {
+                    Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        "ratio must be between 0% and 100%",
+                    )])
+                }
             }
             other => Err(vec![SourceDiagnostic::error(
                 Span::detached(),
@@ -409,6 +408,9 @@ pub fn native_hsl(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
+    if let Some(converted) = converted_color_argument(args, ColorSpace::Hsl) {
+        return converted;
+    }
     match args.items.as_slice() {
         [h, s, l] => Ok(Value::Color(Color::hsl(
             angle_component(h)?,
@@ -438,6 +440,9 @@ pub fn native_hsv(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
+    if let Some(converted) = converted_color_argument(args, ColorSpace::Hsv) {
+        return converted;
+    }
     match args.items.as_slice() {
         [h, s, v] => Ok(Value::Color(Color::hsv(
             angle_component(h)?,
@@ -467,16 +472,15 @@ fn ratio_component(value: &Value) -> SourceResult<f32> {
             Span::detached(),
             "ratio must be between 0% and 100%",
         )]),
-        Value::Relative(relative)
-            if relative.abs.is_zero() && (0.0..=1.0).contains(&relative.rel) =>
-        {
-            Ok(relative.rel as f32)
-        }
         Value::Relative(relative) if relative.abs.is_zero() => {
-            Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                "ratio must be between 0% and 100%",
-            )])
+            if (0.0..=1.0).contains(&relative.rel) {
+                Ok(relative.rel as f32)
+            } else {
+                Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "ratio must be between 0% and 100%",
+                )])
+            }
         }
         other => Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -676,6 +680,183 @@ mod tests_p703_rgb_hex {
         .unwrap();
         assert_eq!(v, Value::Color(Color::rgb(255, 0, 128)));
     }
+
+    type ColorNative = fn(
+        &mut EvalContext,
+        &Args,
+        &dyn crate::contracts::world::World,
+        FileId,
+    ) -> SourceResult<Value>;
+
+    fn colors_ci_constructors() -> [(ColorNative, ColorSpace); 6] {
+        [
+            (native_oklab, ColorSpace::Oklab),
+            (native_oklch, ColorSpace::Oklch),
+            (native_linear_rgb, ColorSpace::LinearRgb),
+            (native_hsl, ColorSpace::Hsl),
+            (native_hsv, ColorSpace::Hsv),
+            (native_cmyk, ColorSpace::Cmyk),
+        ]
+    }
+
+    fn colors_ci_call(native: ColorNative, values: Vec<Value>) -> SourceResult<Value> {
+        native(
+            &mut EvalContext::new(),
+            &Args::positional(values),
+            &NullWorld::default(),
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+        )
+    }
+
+    #[test]
+    fn v17_relative_ratio_boundaries_preserve_values_and_diagnostics() {
+        use crate::entities::layout_types::{Length, Ratio};
+        use crate::entities::rel::Rel;
+        let relative = |rel, abs| Value::Relative(Rel { rel, abs });
+        for value in [0.0, 0.5, 1.0] {
+            let component = relative(value, Length::ZERO);
+            assert_eq!(ratio_component(&component).unwrap(), value as f32);
+            let color = colors_ci_call(native_cmyk, vec![component; 4]).unwrap();
+            assert_eq!(
+                color,
+                Value::Color(Color::Cmyk {
+                    c: value as f32,
+                    m: value as f32,
+                    y: value as f32,
+                    k: value as f32,
+                })
+            );
+        }
+        for component in [
+            relative(-0.01, Length::ZERO),
+            relative(1.01, Length::ZERO),
+            relative(f64::NAN, Length::ZERO),
+            relative(f64::INFINITY, Length::ZERO),
+            relative(0.5, Length::pt(1.0)),
+        ] {
+            let expected = if let Value::Relative(value) = &component {
+                if value.abs.is_zero() {
+                    "ratio must be between 0% and 100%"
+                } else {
+                    "expected ratio, found relative length"
+                }
+            } else {
+                unreachable!("fixture is a Relative")
+            };
+            assert_eq!(ratio_component(&component).unwrap_err()[0].message, expected);
+            let errors = colors_ci_call(
+                native_cmyk,
+                vec![
+                    component,
+                    Value::Ratio(Ratio(0.0)),
+                    Value::Ratio(Ratio(0.0)),
+                    Value::Ratio(Ratio(0.0)),
+                ],
+            )
+            .unwrap_err();
+            assert_eq!(errors[0].message, expected);
+        }
+    }
+
+    #[test]
+    fn colors_ci_single_color_targets_and_alpha() {
+        let mut failures = Vec::new();
+        for (native, target) in colors_ci_constructors() {
+            match colors_ci_call(native, vec![Value::Color(Color::rgba(0, 0, 0, 102))]) {
+                Ok(Value::Color(color)) => {
+                    assert_eq!(color.space(), target);
+                    let (r, g, b, alpha) = color.to_rgba_f32();
+                    assert!(r.abs() < 1e-6 && g.abs() < 1e-6 && b.abs() < 1e-6);
+                    let expected_alpha =
+                        if target == ColorSpace::Cmyk { 1.0 } else { 0.4 };
+                    assert!((alpha - expected_alpha).abs() < 1e-6);
+                }
+                other => failures.push(format!("{target:?}: {other:?}")),
+            }
+        }
+        assert!(failures.is_empty(), "Color conversion rejected: {failures:?}");
+    }
+
+    #[test]
+    fn colors_ci_same_space_preserves_components() {
+        let original = Color::oklch(0.5, 0.1, 30.0, 0.4);
+        let Value::Color(converted) =
+            colors_ci_call(native_oklch, vec![Value::Color(original.clone())]).unwrap()
+        else {
+            panic!("conversion must return Color");
+        };
+        assert_eq!(converted.components(true), original.components(true));
+    }
+
+    #[test]
+    fn colors_ci_conversion_rejects_excess_positionals() {
+        for (native, _) in colors_ci_constructors() {
+            for values in [
+                vec![Value::Color(Color::rgb(0, 0, 0)), Value::Int(0)],
+                vec![Value::Int(0), Value::Color(Color::rgb(0, 0, 0))],
+            ] {
+                let errors = colors_ci_call(native, values).unwrap_err();
+                assert_eq!(errors[0].message, "unexpected argument");
+            }
+        }
+    }
+
+    #[test]
+    fn bounds_ci_rgb_ratios_keep_float_precision() {
+        use crate::entities::layout_types::Ratio;
+        let values = [0.1, 0.2, 0.3, 0.4].map(|x| Value::Ratio(Ratio(x))).to_vec();
+        let Value::Color(color) = colors_ci_call(native_rgb, values).unwrap() else {
+            panic!("Color expected");
+        };
+        let (r, g, b, a) = color.to_rgba_f32();
+        for (actual, expected) in [(r, 0.1), (g, 0.2), (b, 0.3), (a, 0.4)] {
+            assert!((actual - expected).abs() < 1e-8);
+        }
+    }
+
+    #[test]
+    fn bounds_ci_rgb_color_keeps_existing_components() {
+        let source = Color::srgb_f32(0.123456, 0.234567, 0.345678, 0.456789);
+        let Value::Color(color) =
+            colors_ci_call(native_rgb, vec![Value::Color(source.clone())]).unwrap()
+        else {
+            panic!("Color expected");
+        };
+        assert_eq!(color.components(true), source.components(true));
+        let Value::Color(converted) = colors_ci_call(
+            native_rgb,
+            vec![Value::Color(Color::oklch(0.5, 0.1, 30.0, 1.0))],
+        )
+        .unwrap() else {
+            panic!("Color expected");
+        };
+        assert!((converted.to_rgba_f32().0 - 0.579_199_8).abs() < 1e-7);
+    }
+
+    #[test]
+    fn bounds_ci_linear_components_validate_ranges() {
+        use crate::entities::layout_types::Ratio;
+        for invalid in [
+            Value::Int(-1),
+            Value::Int(256),
+            Value::Ratio(Ratio(-0.01)),
+            Value::Ratio(Ratio(1.01)),
+        ] {
+            for index in 0..4 {
+                let mut values =
+                    vec![Value::Int(0), Value::Int(0), Value::Int(0), Value::Int(255)];
+                values[index] = invalid.clone();
+                let errors = colors_ci_call(native_linear_rgb, values)
+                    .expect_err("invalid Component accepted");
+                let expected = if matches!(invalid, Value::Int(_)) {
+                    "number must be between 0 and 255"
+                } else {
+                    "ratio must be between 0% and 100%"
+                };
+                assert_eq!(errors[0].message, expected);
+            }
+        }
+    }
 }
 #[cfg(test)]
 mod tests_p705_luma_ratio {
@@ -855,9 +1036,9 @@ mod tests_p705_luma_ratio {
     fn p1043_color_component_relative_valid_isolada() {
         use crate::entities::layout_types::Length;
         use crate::entities::rel::Rel;
-        // 87 - C1=T, C2=T: r.abs.is_zero() && (0.0..=1.0).contains(&r.rel) -> Ok(128)
+        // 87 - C1=T, C2=T: r.abs.is_zero() && (0.0..=1.0).contains(&r.rel) -> Ok(0.5), sem quantização
         let v = Value::Relative(Rel { rel: 0.5, abs: Length::ZERO });
-        assert_eq!(as_u8(&v).unwrap(), 128);
+        assert_eq!(luma_component(&v, Span::detached()).unwrap(), 0.5);
     }
 
     #[test]
@@ -866,7 +1047,7 @@ mod tests_p705_luma_ratio {
         use crate::entities::rel::Rel;
         // 87 - C1=T, C2=F: r.abs.is_zero() && !contains -> Err(ratio must be between...)
         let v = Value::Relative(Rel { rel: 1.5, abs: Length::ZERO });
-        let err = as_u8(&v).unwrap_err();
+        let err = luma_component(&v, Span::detached()).unwrap_err();
         assert!(err[0].message.contains("ratio must be between 0% and 100%"));
     }
 
@@ -876,7 +1057,7 @@ mod tests_p705_luma_ratio {
         use crate::entities::rel::Rel;
         // 87 - C1=F, C2=_: !r.abs.is_zero() -> Err(expected integer or ratio)
         let v = Value::Relative(Rel { rel: 0.5, abs: Length::pt(1.0) });
-        let err = as_u8(&v).unwrap_err();
+        let err = luma_component(&v, Span::detached()).unwrap_err();
         assert!(err[0].message.contains("expected integer or ratio"));
     }
 

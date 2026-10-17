@@ -1,8 +1,11 @@
 # L0 — stream/text replacement
-Hash do Código: 49f95a07
+Hash do Código: f036b3fa
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
+- 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
+- 00_nucleo/prompts/_nuclei/tiling-frame-transport.toml sha256:4d947acae2d9bf8baff2639b7c9c1bdebb7b260e7ca4ac282d4f9d0e7a7feaee
+
 
 Layer: L3. Exclusive consumer: `03_infra/src/export/stream/text_replacement.rs`.
 
@@ -57,3 +60,39 @@ text possui formatação/tail, draw possui despacho e marcações de folha, e
 text_replacement possui exclusivamente a codificação/BDC/EMC. Aceitação requer
 extração textual na posição original em top/local e ambos os modos, coexistência
 literal, scopes balanceados e raster preservado.
+
+## Migração do carrier bidi ratificado (2026-10-05)
+
+Medição anterior à decisão: o inventário `00_nucleo/diagnosticos/bidi-contexto-2026-10-05/inventory.json` identifica as referências desta unidade e os owners 1:1. O contrato do manifesto 1ae7513e foi confirmado; nesta unidade ajustar constructors não certificados com None e patterns de leitura com `..`, preservando os observáveis de linguagem existentes. Transformações obedecem ao núcleo pinado de origem; sem ampliar fase/API.
+
+## Referencial de pintura — transporte aprovado T1b — 2026-10-14
+
+### Medição anterior à decisão
+
+O manifesto `d0c1f0c189769ccb40eb538e09e251ce1fd56650cbb23b2b94c357a1341ba32d`
+foi aprovado pelo humano para T1–T3; recibo em
+`00_nucleo/materialization/tiling-transporte-2026-10-14/approval-receipt.json`.
+A evidência bilateral de Parent e controles Solid está no contrato aprovado;
+ela não é substituída por inspeção estrutural. A rodada
+`00_nucleo/diagnosticos/paint-root-2026-10-14/before/results.json.gz` conserva
+fontes, estado sujo, HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, UTC,
+diffstat e hashes dos binários; cobre contêineres, Place e Rotate com Solid
+e Gradient Parent. O inventário before-source/syntax-nodes registra neste
+consumer as construções/desestruturações antes da edição: [75].
+layout_types.rs:531–539 não distingue raízes de grupos técnicos; helpers.rs:253–269
+reconstrói o Group e precisará preservar o campo. Box agrega fundo/corpo;
+Block mantém body plano exceto no clip. Preservação do referencial é requisito
+de linguagem; formato dos envelopes é mecânica. A aprovação não fecha as
+divergências gerais de geometria previamente medidas em Rotate/Box.
+
+### Responsabilidade exclusiva
+
+Migrar construções e padrões de Group para o campo paint_root aprovado. Grupos técnicos novos e fixtures legadas são false; reconstruções transportam o valor recebido, sem inferir raiz a partir de dimensão, clipping ou transformação. Preservar os demais campos e o comportamento de desenho/recursos. Exportadores ainda não usam este metadado para patterns; essa integração é T2 e não está certificada aqui.
+
+### Aceitação e incompletude
+
+L0 primeiro, testes RED→GREEN, resselo restrito; conservar geometria e texto
+nos controles fonte→PDF/SVG e revalidar suíte/build/doc/check/fmt/linhagem.
+A migração deste metadado não substitui Shape.fill/stroke por FramePaint nem
+implementa patterns PDF/SVG/raster; T1c/T2/T3 continuam explicitamente abertos
+e já autorizados. Não alegar paridade de tiling ou produção a partir do build.

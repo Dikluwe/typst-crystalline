@@ -1,13 +1,18 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/text/style.md
-//! @prompt-hash 8f6c6c6b
+//! @prompt-hash 8780c5ee
 //! @layer L1
 //! @updated 2026-09-28
 
 use super::{FontMetrics, ImageSizer, Layouter};
-use crate::entities::{layout_types::{Pt, TextStyle, TextEdge, Length}, value::Value};
+use crate::entities::{
+    layout_types::{Length, Pt, TextEdge, TextStyle},
+    value::Value,
+};
 
-pub(super) fn effective_style<M: FontMetrics, S: ImageSizer>(layouter: &Layouter<M, S>) -> TextStyle {
+pub(super) fn effective_style<M: FontMetrics, S: ImageSizer>(
+    layouter: &Layouter<M, S>,
+) -> TextStyle {
     // **F-5b fatia 2 (P373, §3a.13/§3a.14)**: o render do `#set text`/
     // `#set par` não vem mais assado no node — vive na chain pelo canal
     // `custom` (`"text.<campo>"` / `"par.leading"`), levado até aqui pelo
@@ -18,10 +23,6 @@ pub(super) fn effective_style<M: FontMetrics, S: ImageSizer>(layouter: &Layouter
     let cs = |k: &str| layouter.chain.custom(k);
     let ns_bold = matches!(cs("text.bold"), Some(Value::Bool(true)));
     let ns_italic = matches!(cs("text.italic"), Some(Value::Bool(true)));
-    let ns_size = match cs("text.size") {
-        Some(Value::Length(l)) => Some(Pt(l.abs.to_pt())),
-        _ => None,
-    };
     let ns_fill = match cs("text.fill") {
         Some(Value::Color(c)) => Some(c.clone()),
         _ => None,
@@ -32,11 +33,11 @@ pub(super) fn effective_style<M: FontMetrics, S: ImageSizer>(layouter: &Layouter
     };
     let ns_style_italic = matches!(cs("text.style"), Some(Value::Str(s)) if s.as_str() == "italic" || s.as_str() == "oblique");
     let ns_tracking = match cs("text.tracking") {
-        Some(Value::Length(l)) => Some(l.clone()),
+        Some(Value::Length(l)) => Some(*l),
         _ => None,
     };
     let ns_leading = match cs("par.leading") {
-        Some(Value::Length(l)) => Some(l.clone()),
+        Some(Value::Length(l)) => Some(*l),
         _ => None,
     };
     // P836 — `variations` não usa `custom()` (top-wins de 1 nível): o campo
@@ -141,7 +142,6 @@ pub(super) fn effective_style<M: FontMetrics, S: ImageSizer>(layouter: &Layouter
     // (escala de heading, super/subscrito). `layouter.style.size` já
     // inclui o `#set` via sync da chain (verificado por instrumentação),
     // logo vence sempre — `heading.md` §P978.
-    let _ = ns_size;
     let mut effective = TextStyle {
         bold: ns_bold || layouter.style.bold,
         italic: ns_italic || ns_style_italic || layouter.style.italic,
@@ -152,11 +152,11 @@ pub(super) fn effective_style<M: FontMetrics, S: ImageSizer>(layouter: &Layouter
         heading_level: layouter.style.heading_level,
         // Top-wins: chain tipada (heading) vence; senão o ns (#set).
         weight: layouter.style.weight.or(ns_weight),
-        tracking: layouter.style.tracking.clone().or(ns_tracking),
-        leading: layouter.style.leading.clone().or(ns_leading),
+        tracking: layouter.style.tracking.or(ns_tracking),
+        leading: layouter.style.leading.or(ns_leading),
         top_edge: layouter.style.top_edge.clone().or(ns_top_edge),
         bottom_edge: layouter.style.bottom_edge.clone().or(ns_bottom_edge),
-        lang: layouter.style.lang.clone().or(ns_lang),
+        lang: layouter.style.lang.or(ns_lang),
         // P660 fix: `#set text(font: ...)` deve substituir a fonte default da
         // chain (Libertinus Serif). A chain tipada (heading) ainda vence porque
         // o eval show-rule já assa a fonte no `StyleDelta::font` da chain, e

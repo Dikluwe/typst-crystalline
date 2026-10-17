@@ -1,0 +1,7 @@
+# R1 — recoleta de tempo e memória preparada antes de medir
+
+Release corrigido SHA0a2410ec5b4a075417943d25a4d24ac860da6ff0adf4845707d4f18dc9cc7add, anterior C2 ac889581d6423d2fcfdd77d2f7e5cf57562dbf9adb40e73aebc25f959864c04f, vanilla pin9f2b6e871/bin7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea. Fontes integrais e receitas/snapshots nos receipts. Três fixtures sem alterar bytes da coleta anterior: Hello,100 aliases bare e100 Cells locais. Três rodadas/doze trios, seis permutações, dois warmups porengine/bloco, CPU4/Rayon1/vanillajobs1.
+
+Wall inclui fork/exec de GNU time/taskset e lifecycle completo CLI; helper idêntico nos três engines. RSS vem do filho GNU time após exec, sem pico do Python. CPU user/sys wait4 inclui wrapper; não usar como fase exclusiva. Não comparar valores absolutos com a população anterior sem wrapper como ganho causal. Comparar pares desta rodada, saídas corretas/fontes/páginas/palavras/bboxes, média-mediana e faixa entre rodadas, sem cortar amostras. Delta percentual contra binário anterior de saída incorreta é descritivo, não prova para trabalho equivalente. Hello e aliases são controles equivalentes; Cell local reparada deve coincidir com vanilla.
+
+Quiet gate30s e monitor de processos; fontes/L0/config/fonts/inputs/binários estáveis; nenhum build/test/coleta outro em paralelo. Fingerprints,HEAD/dirty inventory/diffstat/patches/consumer archive/horários/argv completos. Resultados com variação acima de3% são indicativos; não atribuir custo a função privada sem perfil. Sem cold-disk/watch/incremental.

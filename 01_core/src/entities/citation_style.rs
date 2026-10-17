@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/citation_style.md
-//! @prompt-hash e76ee955
+//! @prompt-hash 4464a6bb
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -9,20 +9,15 @@
 //! que controla a forma da citação dentro de um estilo.
 
 /// Estilo de citação bibliográfica — subset vanilla suportado no cristalino.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum CitationStyle {
     /// Estilo autor-data, ex.: `(Kirsch, 1973)`.
     AuthorDate,
     /// Estilo numérico, ex.: `[1]`, `[2]`.
+    #[default]
     Numeric,
     /// Estilo alfabético, ex.: `[Kir73]`.
     Alphabetic,
-}
-
-impl Default for CitationStyle {
-    fn default() -> Self {
-        Self::Numeric
-    }
 }
 
 impl CitationStyle {

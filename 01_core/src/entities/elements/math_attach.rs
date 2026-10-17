@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_attach.md
-//! @prompt-hash 31504e7c
+//! @prompt-hash 7182ec6b
 //! @layer L1
-//! @updated 2026-08-20
+//! @updated 2026-10-10
 //!
 //! `MathAttachElem` — Lote 2 P317 (família math). Base com scripts e limits (`attach`).
 
@@ -42,11 +42,13 @@ impl Element for MathPrimesElem {
         }
     }
 
-    fn map_content<F>(&self, _transform: &mut F) -> SourceResult<Content>
+    fn map_content<F>(&self, transform: &mut F) -> SourceResult<Content>
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathPrimes(Arc::new(self.clone())))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathPrimes(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -73,14 +75,15 @@ impl MathAttachSlot {
         }
     }
 
-    fn map_content<F>(&self, transform: &mut F) -> SourceResult<Self>
+    fn map_content_if_changed<F>(&self, transform: &mut F) -> SourceResult<Option<Self>>
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         match self {
-            Self::Omitted => Ok(Self::Omitted),
-            Self::ExplicitNone => Ok(Self::ExplicitNone),
-            Self::Present(content) => content.map_content(transform).map(Self::Present),
+            Self::Omitted | Self::ExplicitNone => Ok(None),
+            Self::Present(content) => {
+                Ok(content.map_content_if_changed(transform)?.map(Self::Present))
+            }
         }
     }
 }
@@ -137,15 +140,9 @@ impl Element for MathAttachElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathAttach(Arc::new(MathAttachElem {
-            base: self.base.map_content(transform)?,
-            t: self.t.map_content(transform)?,
-            b: self.b.map_content(transform)?,
-            tl: self.tl.map_content(transform)?,
-            bl: self.bl.map_content(transform)?,
-            tr: self.tr.map_content(transform)?,
-            br: self.br.map_content(transform)?,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathAttach(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -154,6 +151,69 @@ impl Element for MathAttachElem {
     {
         // Terminal (math structural; não desce).
         Content::MathAttach(Arc::new(self.clone()))
+    }
+}
+
+impl MathPrimesElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        _transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        Ok(None)
+    }
+}
+
+impl MathAttachElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let base = self.base.map_content_if_changed(transform)?;
+        let t = self.t.map_content_if_changed(transform)?;
+        let b = self.b.map_content_if_changed(transform)?;
+        let tl = self.tl.map_content_if_changed(transform)?;
+        let bl = self.bl.map_content_if_changed(transform)?;
+        let tr = self.tr.map_content_if_changed(transform)?;
+        let br = self.br.map_content_if_changed(transform)?;
+        if base.is_none()
+            && t.is_none()
+            && b.is_none()
+            && tl.is_none()
+            && bl.is_none()
+            && tr.is_none()
+            && br.is_none()
+        {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = base {
+            mapped.base = changed;
+        }
+        if let Some(changed) = t {
+            mapped.t = changed;
+        }
+        if let Some(changed) = b {
+            mapped.b = changed;
+        }
+        if let Some(changed) = tl {
+            mapped.tl = changed;
+        }
+        if let Some(changed) = bl {
+            mapped.bl = changed;
+        }
+        if let Some(changed) = tr {
+            mapped.tr = changed;
+        }
+        if let Some(changed) = br {
+            mapped.br = changed;
+        }
+        Ok(Some(Content::MathAttach(Arc::new(mapped))))
     }
 }
 

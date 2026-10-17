@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/gradients/linear.md
-//! @prompt-hash 3854d339
+//! @prompt-hash 76d08624
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -8,8 +8,6 @@
 //!
 //! Extraído de `gradients.rs` em P307b.2 (ADR-0100 / diagnóstico
 //! P307a §5). Conteúdo bit-exact pré e pós migração.
-
-use typst_core::entities::gradient::Linear;
 
 pub(crate) fn compute_axial_coords(
     angle_rad: f64,
@@ -20,8 +18,8 @@ pub(crate) fn compute_axial_coords(
 ) -> (f64, f64, f64, f64) {
     let cx = x0 + w / 2.0;
     let cy = y0 + h / 2.0;
-    let dx = angle_rad.cos();
-    let dy = angle_rad.sin();
+    let dx = libm::cos(angle_rad);
+    let dy = libm::sin(angle_rad);
     let hx = (w / 2.0) * dx;
     let hy = (h / 2.0) * dy;
     (cx - hx, cy - hy, cx + hx, cy + hy)

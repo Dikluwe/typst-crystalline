@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/textual
-Hash do Código: 5c56e125
+Hash do Código: 1d755b5f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -72,3 +72,23 @@ lexical snapshots and guard behavior. Build and
 `crystalline-lint .` have no new violations. Language content, diagnostics,
 ordering and public contract are unchanged. No performance gain is claimed
 without separate measurement. Header ownership remains 1:1.
+
+
+## Realização com avaliação única
+
+Com defer_show_rules, capturar grupos por snapshot lexical e fronteira de estilo antes de executar receitas textuais. Capturar também grupos cujo texto só surge da realização de elementos; não decidir match pela forma pré-show. Em realização, reutilizar matching/splice vigente, sem executar programa comum novamente.
+
+
+## Realização com avaliação única
+
+Fachada interna realize_captured_text realiza elementos já resolvidos no grupo, conserva a origem causal do grupo e delega matching/splice ao owner existente. Sem perda de origens por substituição textual.
+
+
+## Realização com avaliação única
+
+Normalização de espaço vigente é reutilizada internamente após realização de receitas; não duplicar regra Unicode de inserção.
+
+
+## Realização com avaliação única
+
+Snapshot de grupo textual conserva watermark contextual, incluindo conteúdo lexical capturado não inserido na árvore visual inicial.

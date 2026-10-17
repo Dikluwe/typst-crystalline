@@ -1,0 +1,7 @@
+{
+  "utc": "2026-10-06T22:36:30.591466+00:00",
+  "authorization": "Human user: confirmo, after the explicit D08A gate request",
+  "manifest_sha256": "f80f85c4ac3ab747d20d98ef3f5758c59727bcf5f5d762082660099aef4dcc9c",
+  "scope": "D08A only; D08B remains separately specified",
+  "promoted_owners": 10
+}

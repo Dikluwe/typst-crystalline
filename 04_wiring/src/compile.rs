@@ -1,10 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/compile.md
-//! @prompt-hash a5f60f16
+//! @prompt-hash 45e7486a
 //! @layer L4
-//! @updated 2026-09-26
+//! @updated 2026-10-08
 
 use super::{diagnostics::drain_to_stderr, Published};
+use std::io::{Read, Write};
 use std::path::{Component, Path, PathBuf};
 use std::process::ExitCode;
 use typst_core::compiler::eval::pdf_standards_conflict_diagnostic;
@@ -87,6 +88,15 @@ pub(super) fn run_compile_observed(
     intent: CompileIntent,
     report_status: &mut impl FnMut(ExitCode, bool),
 ) -> (ExitCode, Vec<PathBuf>, bool, Option<Published>) {
+    run_compile_observed_with_sessions(intent, report_status, None, None)
+}
+
+pub(super) fn run_compile_observed_with_sessions(
+    intent: CompileIntent,
+    report_status: &mut impl FnMut(ExitCode, bool),
+    font_session: Option<std::sync::Arc<typst_infra::world::FontCatalogSession>>,
+    source_session: Option<std::sync::Arc<typst_infra::world::SourceSession>>,
+) -> (ExitCode, Vec<PathBuf>, bool, Option<Published>) {
     // P428 (DEBT-59): `full_error` é fiado de RunIntent até L1 pelo caminho
     // interno de L3. O campo mantém default `false` quando a flag não é usada.
     let CompileIntent {
@@ -161,6 +171,10 @@ pub(super) fn run_compile_observed(
         };
 
         if tagged_resolved_cli_only == Some(false) {
+            #[expect(
+                clippy::type_complexity,
+                reason = "ACCESSIBLE: composição estática de standards e labels existentes"
+            )]
             const ACCESSIBLE: [(PdfStandard, fn() -> &'static str); 4] = [
                 (PdfStandard::A1a, || PdfArchival::A1a.label()),
                 (PdfStandard::A2a, || PdfArchival::A2a.label()),
@@ -223,42 +237,92 @@ pub(super) fn run_compile_observed(
         None
     };
 
-    let main_path = match input.file_name() {
-        Some(name) => PathBuf::from(name),
-        None => {
-            report_in_order(
-                || report_status(ExitCode::from(2), false),
-                || {
-                    eprintln!(
-                        "error: input path must have a file name: {}",
-                        input.display()
-                    )
-                },
-            );
-            return (ExitCode::from(2), vec![input], false, None);
+    let from_stdin = input == Path::new("-");
+    let world = if from_stdin {
+        let stdin_root = match root.canonicalize() {
+            Ok(root) => root,
+            Err(error) => {
+                report_in_order(
+                    || report_status(ExitCode::from(1), false),
+                    || {
+                        if error.kind() == std::io::ErrorKind::NotFound {
+                            eprintln!(
+                                "error: root directory not found (searched at {})",
+                                root.display()
+                            );
+                        } else {
+                            eprintln!("error: {error}");
+                        }
+                    },
+                );
+                return (ExitCode::from(1), vec![], false, None);
+            }
+        };
+        let mut bytes = Vec::new();
+        if let Err(error) = std::io::stdin().lock().read_to_end(&mut bytes) {
+            if error.kind() != std::io::ErrorKind::BrokenPipe {
+                report_in_order(
+                    || report_status(ExitCode::from(2), false),
+                    || eprintln!("error: failed to read source from stdin: {error}"),
+                );
+                return (ExitCode::from(2), vec![], false, None);
+            }
+        }
+        let text = match String::from_utf8(bytes) {
+            Ok(text) => text,
+            Err(_) => {
+                report_in_order(
+                    || report_status(ExitCode::from(1), false),
+                    || {
+                        eprintln!("error: file is not valid UTF-8\n = hint: a file without an extension is not usually a Typst file\n")
+                    },
+                );
+                return (ExitCode::from(1), vec![], false, None);
+            }
+        };
+        SystemWorld::for_stdin(stdin_root, text)
+    } else {
+        let main_path = match input.file_name() {
+            Some(name) => PathBuf::from(name),
+            None => {
+                report_in_order(
+                    || report_status(ExitCode::from(2), false),
+                    || {
+                        eprintln!(
+                            "error: input path must have a file name: {}",
+                            input.display()
+                        )
+                    },
+                );
+                return (ExitCode::from(2), vec![input], false, None);
+            }
+        };
+        let created = match source_session {
+            Some(session) => {
+                SystemWorld::new_with_source_session(&root, &main_path, session)
+            }
+            None => SystemWorld::new(&root, &main_path),
+        };
+        match created {
+            Ok(world) => world,
+            Err(error) => {
+                report_in_order(
+                    || report_status(ExitCode::from(2), false),
+                    || eprintln!("error: {error}"),
+                );
+                return (ExitCode::from(2), vec![input], false, None);
+            }
         }
     };
-
-    // P517 — fontes do sistema activas por defeito; `--font-path` adiciona
-    // fontes de projecto às fontes do sistema.
-    // P699 — instala o host de plugins WASM (L3) para que `plugin(...)` na
-    // linguagem devolva um `Module` real (em vez de "plugins não suportados").
-    let world = match SystemWorld::new(&root, &main_path) {
-        Ok(w) => w
-            .with_fonts_and_system(&font_paths)
-            .with_inputs(inputs)
-            .with_custom_ca(cert_path)
-            .with_plugin_host(std::sync::Arc::new(
-                typst_infra::plugin_host::WasmiPluginHost::new(),
-            )),
-        Err(e) => {
-            report_in_order(
-                || report_status(ExitCode::from(2), false),
-                || eprintln!("error: {}", e),
-            );
-            return (ExitCode::from(2), vec![input], false, None);
-        }
-    };
+    let world = match font_session {
+        Some(session) => world.with_font_catalog_session(session, &font_paths),
+        None => world.with_fonts_and_system(&font_paths),
+    }
+    .with_inputs(inputs)
+    .with_custom_ca(cert_path)
+    .with_plugin_host(std::sync::Arc::new(
+        typst_infra::plugin_host::WasmiPluginHost::new(),
+    ));
 
     let source = match world.source(world.main()) {
         Ok(s) => s,
@@ -451,6 +515,8 @@ pub(super) fn run_compile_observed(
         Ok(output_bytes) => {
             let write_result = if let Some(files) = bundle_files.as_ref() {
                 write_bundle_output(&output, files)
+            } else if output == Path::new("-") {
+                std::io::stdout().lock().write_all(&output_bytes)
             } else {
                 std::fs::write(&output, &output_bytes)
             };
@@ -458,7 +524,7 @@ pub(super) fn run_compile_observed(
                 operational_error =
                     Some(format!("error: failed to write {}: {}", output.display(), e));
             } else if let Some(path) = timings_json.as_ref() {
-                if let Err(e) = std::fs::write(&path, timings.to_json()) {
+                if let Err(e) = std::fs::write(path, timings.to_json()) {
                     operational_error = Some(format!(
                         "error: failed to write timings {}: {}",
                         path.display(),
@@ -482,7 +548,7 @@ pub(super) fn run_compile_observed(
         Err(compilation_errors) => {
             errors = Some(compilation_errors);
             if let Some(path) = timings_json.as_ref() {
-                if let Err(e) = std::fs::write(&path, timings.to_json()) {
+                if let Err(e) = std::fs::write(path, timings.to_json()) {
                     operational_error = Some(format!(
                         "error: failed to write timings {}: {}",
                         path.display(),
@@ -501,6 +567,9 @@ pub(super) fn run_compile_observed(
     report_in_order(
         || report_status(exit_code, has_warnings),
         || {
+            if let Some(errors) = errors.as_deref() {
+                drain_to_stderr(&world, errors, &input, colored);
+            }
             if emit_html_experimental_warning {
                 eprint!("{HTML_EXPERIMENTAL_WARNING}");
             }
@@ -508,9 +577,6 @@ pub(super) fn run_compile_observed(
                 eprint!("{BUNDLE_EXPERIMENTAL_WARNING}");
             }
             drain_to_stderr(&world, &warnings, &input, colored);
-            if let Some(errors) = errors.as_deref() {
-                drain_to_stderr(&world, errors, &input, colored);
-            }
             if let Some(error) = operational_error {
                 eprintln!("{error}");
             }

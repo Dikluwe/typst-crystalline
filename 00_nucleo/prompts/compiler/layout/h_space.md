@@ -1,8 +1,9 @@
 # L0 — h space
-Hash do Código: 6f7f6d72
+Hash do Código: 95e7d349
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
+- 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:9d9d6c265a3840cc5a3b8e121f403bc9e3fe55b1e586ab9014948f0784de5c3e
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/h_space.rs`
@@ -23,3 +24,15 @@ Resolve absolute spacing against the active font size and advance cursor_x. Frac
 ## Acceptance and limits
 
 Preserve the unit's current rendered content, morphology, causal positions/pages, styles and diagnostics, including the explicitly documented limits. Follow the existing static descendant interface without altering public signatures, defaults, compatibility or pipeline phase. This documentation does not authorize implementation of unresolved proposals.
+
+## Avanço explícito e largura causal
+
+A sonda spacing-only de logical-before-complete/results.json.gz conserva
+espaço explícito sob escala absoluta. h_space.rs:27–30 só atualiza o cursor,
+que não é a testemunha causal consumida por transform.rs. A troca para
+esta testemunha precisa preservar a contribuição de h absoluto, inclusive
+quando é o último item da linha. Registrar o extremo do cursor após o avanço
+no acumulador causal existente, sem novo item, execução repetida ou estado.
+Fracionários continuam alocados por line_commit, não por este módulo.
+Refutar com texto seguido de h explícito sob escala absoluta e controles
+sem transformação. É correção interna ADR-0127, sem contrato público novo.

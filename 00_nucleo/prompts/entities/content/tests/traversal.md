@@ -1,5 +1,5 @@
 # L0 — entities/content/tests/traversal
-Hash do Código: 4f658ae8
+Hash do Código: fba8f1b0
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/entities/content/tests/traversal.rs`

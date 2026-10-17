@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder/navigation.md
-//! @prompt-hash f6950a03
+//! @prompt-hash cdd719bd
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -70,29 +70,16 @@ fn af_relationship_variant_name(relationship: &AttachedFileRelationship) -> &'st
     }
 }
 
-/// Escapa caracteres problemáticos para uma string PDF dentro de `(...)`.
+/// Devolve o operando literal PDF completo, incluindo os delimitadores.
 /// Mantém a URI o mais intacta possível; escapa apenas `(`, `)`, `\` e
 /// caracteres de controlo (0x00–0x1f, 0x7f) por compatibilidade com leitores.
 fn escape_pdf_uri(uri: &str) -> String {
     escape_pdf_literal(uri)
 }
 
-/// Escapa o nome de um destino PDF. Se contiver caracteres fora do conjunto
-/// de nomes PDF, usa notação hexadecimal `<...>`; caso contrário usa `/name`.
-fn escape_pdf_dest_name(name: &str) -> String {
-    let needs_hex = name.is_empty()
-        || name.bytes().any(|b| {
-            !matches!(b,
-                b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' |
-                b'_' | b'-' | b'.' | b':' | b'/' | b'@' | b'*' | b'+'
-            )
-        });
-    if needs_hex {
-        let hex: String = name.bytes().map(|b| format!("{:02X}", b)).collect();
-        format!("<{}>", hex)
-    } else {
-        format!("/{}", name)
-    }
+/// A mesma string PDF identifica a chave da árvore e o operando GoTo.
+fn pdf_destination_string(name: &str) -> String {
+    utf16be_hex_string(name)
 }
 
 fn page_label_dict(page: &typst_core::entities::layout_types::Page) -> Option<String> {
@@ -271,10 +258,10 @@ impl PdfBuilder {
                 let action = match target {
                     LinkTarget::Url(url) => {
                         let escaped_url = escape_pdf_uri(url.as_str());
-                        format!("<< /Type /Action /S /URI /URI ({escaped_url}) >>")
+                        format!("<< /Type /Action /S /URI /URI {escaped_url} >>")
                     }
                     LinkTarget::Destination(label) => {
-                        let name = escape_pdf_dest_name(&label.0);
+                        let name = pdf_destination_string(&label.0);
                         format!("<< /Type /Action /S /GoTo /D {name} >>")
                     }
                 };
@@ -358,9 +345,9 @@ impl PdfBuilder {
                 .unwrap_or(Point::ZERO);
             entries.push((label.0.clone().into(), page, pos));
         }
-        // Ordenar por nome de label para garantir output PDF determinístico
-        // (os HashMaps subjacentes não preservam ordem de inserção).
-        entries.sort_by(|a, b| a.0.cmp(&b.0));
+        // UTF-16BE keys share a BOM. Code-unit order equals unsigned byte
+        // order and keeps prefix keys before their extensions.
+        entries.sort_by(|a, b| a.0.encode_utf16().cmp(b.0.encode_utf16()));
         if entries.is_empty() {
             return;
         }
@@ -370,8 +357,8 @@ impl PdfBuilder {
         next_id += 1;
         let dests_id = next_id;
 
-        // Construir o dicionário /Dests: /name [page_ref /XYZ x y null]
-        let mut dests_dict = String::from("<< ");
+        // Root leaf name tree: alternating string keys and destinations.
+        let mut dests_dict = String::from("<< /Names [");
         for (name, page, pos) in entries {
             let page_idx = page.saturating_sub(1);
             let page_ref = if page_idx >= doc.pages.len() {
@@ -393,7 +380,7 @@ impl PdfBuilder {
                 .map(|p| p.height)
                 .unwrap_or(pdf_defaults::A4_FALLBACK_HEIGHT_ROUNDED);
             let pdf_y = page_h - pos.y.val();
-            let escaped_name = escape_pdf_dest_name(&name);
+            let escaped_name = pdf_destination_string(&name);
             dests_dict.push_str(&format!(
                 "{} [{} /XYZ {:.2} {:.2} null] ",
                 escaped_name,
@@ -402,7 +389,7 @@ impl PdfBuilder {
                 pdf_y
             ));
         }
-        dests_dict.push_str(">>");
+        dests_dict.push_str("] >>");
 
         self.add(dests_id, dests_dict);
         self.add(names_id, format!("<< /Dests {dests_id} 0 R >>"));
@@ -593,10 +580,9 @@ impl PdfBuilder {
                     "{} 0 R",
                     FIRST_PAGE_ID + pic.exported_count().saturating_sub(1)
                 ))
-            } else if let Some(new_idx) = pic.new_index(page_idx) {
-                Some(format!("{} 0 R", FIRST_PAGE_ID + new_idx))
             } else {
-                None
+                pic.new_index(page_idx)
+                    .map(|new_idx| format!("{} 0 R", FIRST_PAGE_ID + new_idx))
             };
             // **P1468** — página validamente excluída: não criar nó para
             // este heading nem empilhar; a pilha (`stack`) fica inalterada,
@@ -759,5 +745,139 @@ impl PdfBuilder {
         if let Some((_, catalog)) = self.objects.iter_mut().find(|(id, _)| *id == 1) {
             insert_pdf_dict_entry(catalog, &format!(" /PageLabels {tree_id} 0 R"));
         }
+    }
+}
+
+#[cfg(test)]
+mod uri_tests {
+    use super::*;
+    use typst_core::{
+        compiler::layout::layout,
+        entities::{content::Content, elements::link::LinkElem},
+    };
+
+    fn emitted_action(url: &str) -> String {
+        let doc = layout(&Content::Link(
+            LinkElem { url: url.into(), body: Content::text("LINK") }.into(),
+        ));
+        let mut builder = PdfBuilder::new();
+        builder.emit_link_annotations(&doc);
+        builder
+            .objects
+            .iter()
+            .map(|(_, bytes)| String::from_utf8_lossy(bytes))
+            .find(|body| body.contains("/Subtype /Link"))
+            .expect("link annotation")
+            .into_owned()
+    }
+
+    #[test]
+    fn uri_annotation_has_one_literal_operand() {
+        let action = emitted_action("https://example.org");
+        assert!(action.contains("/URI (https://example.org) >>"), "{action}");
+    }
+
+    #[test]
+    fn uri_annotation_escapes_destination_without_extra_delimiters() {
+        let action = emitted_action("https://example.org/a(b)\\c\n");
+        assert!(
+            action.contains(r"/URI (https://example.org/a\(b\)\\c\012) >>"),
+            "{action}"
+        );
+    }
+}
+
+#[cfg(test)]
+mod destination_tests {
+    use super::*;
+    use std::num::NonZeroUsize;
+    use typst_core::{
+        compiler::layout::layout,
+        entities::{
+            content::Content, document_format_options::PageRange, label::Label,
+            layout_types::Pt,
+        },
+    };
+
+    fn document(labels: &[(&str, usize)]) -> PagedDocument {
+        let mut doc = layout(&Content::text("BODY"));
+        doc.pages = vec![doc.pages[0].clone(); 3];
+        for &(name, page) in labels {
+            doc.extracted_label_pages.insert(Label(name.into()), page);
+            doc.extracted_label_positions
+                .insert(Label(name.into()), Point { x: Pt(12.0), y: Pt(20.0) });
+        }
+        doc
+    }
+    fn builder() -> PdfBuilder {
+        let mut b = PdfBuilder::new();
+        b.add(1, "<< /Type /Catalog /Pages 2 0 R >>".into());
+        b.add(2, "<< /Type /Pages >>".into());
+        for id in 3..=5 {
+            b.add(id, "<< /Type /Page >>".into());
+        }
+        b
+    }
+    fn bodies(b: &PdfBuilder) -> Vec<String> {
+        b.objects
+            .iter()
+            .map(|(_, bytes)| String::from_utf8(bytes.clone()).unwrap())
+            .collect()
+    }
+
+    #[test]
+    fn named_destination_tree_uses_strings_sorted_by_encoded_bytes() {
+        let doc = document(&[("\u{e000}", 1), ("aa", 1), ("😀", 1), ("a", 1)]);
+        let mut b = builder();
+        b.emit_named_destinations(&doc);
+        let strings = bodies(&b);
+        let tree = strings
+            .iter()
+            .find(|body| body.starts_with("<< /Names ["))
+            .expect("root leaf name tree");
+        let keys = ["<FEFF0061>", "<FEFF00610061>", "<FEFFD83DDE00>", "<FEFFE000>"];
+        let mut previous = None;
+        for key in keys {
+            let at = tree
+                .find(&format!("{key} [3 0 R /XYZ 12.00 "))
+                .expect("encoded key and page destination");
+            if let Some(before) = previous {
+                assert!(before < at, "binary key order: {tree}");
+            }
+            previous = Some(at);
+            assert_eq!(tree.matches(key).count(), 1);
+        }
+        assert!(tree.ends_with("] >>"));
+    }
+
+    #[test]
+    fn named_destination_action_matches_unicode_and_delimiter_safe_key() {
+        let mut doc = document(&[("é/😀", 1)]);
+        doc.pages[0].items.push(FrameItem::Link {
+            target: LinkTarget::Destination(Label("é/😀".into())),
+            items: vec![],
+            pos: Point::ZERO,
+            size: Size { width: Pt(10.0), height: Pt(10.0) },
+        });
+        let mut b = builder();
+        b.emit_named_destinations(&doc);
+        b.emit_link_annotations(&doc);
+        let text = bodies(&b).join("\n");
+        assert!(text.contains("/Names [<FEFF00E9002FD83DDE00> [3 0 R /XYZ"), "{text}");
+        assert!(text.contains("/S /GoTo /D <FEFF00E9002FD83DDE00> >>"), "{text}");
+    }
+
+    #[test]
+    fn named_destination_selection_omits_removed_page_and_remaps_retained_page() {
+        let doc = document(&[("gone", 1), ("kept", 2)]);
+        let ranges = PageRanges::new(vec![PageRange::at(NonZeroUsize::new(2).unwrap())]);
+        let mut b = builder().with_pages(Some(ranges));
+        b.emit_named_destinations(&doc);
+        let text = bodies(&b).join("\n");
+        assert!(
+            text.contains("/Names [<FEFF006B006500700074> [3 0 R /XYZ 12.00 "),
+            "{text}"
+        );
+        assert!(!text.contains("0067006F006E0065"), "excluded target remains: {text}");
     }
 }

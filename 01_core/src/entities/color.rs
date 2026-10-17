@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/color.md
-//! @prompt-hash 35fdb512
+//! @prompt-hash aa9413e7
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -20,8 +20,9 @@
 
 mod adjustments;
 mod conversion;
-mod mixing;
+#[cfg(test)]
 use self::conversion::*;
+mod mixing;
 
 use crate::entities::layout_types::Ratio;
 /// Representa uma cor em um de 8 espaços de cor (paridade
@@ -74,18 +75,18 @@ pub enum Color {
 impl std::fmt::Debug for Color {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self.clone() {
-            Self::Srgb { r, g, b, a }
-                if r == 0.0 && g == 0.454902 && b == 0.85098 && a == 1.0 =>
-            {
-                f.write_str("blue")
+            Self::Srgb { r, g, b, a } => {
+                if r == 0.0 && g == 0.454902 && b == 0.85098 && a == 1.0 {
+                    f.write_str("blue")
+                } else {
+                    f.debug_struct("Srgb")
+                        .field("r", &r)
+                        .field("g", &g)
+                        .field("b", &b)
+                        .field("a", &a)
+                        .finish()
+                }
             }
-            Self::Srgb { r, g, b, a } => f
-                .debug_struct("Srgb")
-                .field("r", &r)
-                .field("g", &g)
-                .field("b", &b)
-                .field("a", &a)
-                .finish(),
             Self::Luma { l, a } => {
                 f.debug_struct("Luma").field("l", &l).field("a", &a).finish()
             }
@@ -210,7 +211,18 @@ impl PartialEq for Color {
                     && k1.to_bits() == k2.to_bits()
             }
             (Self::Spot(a), Self::Spot(b)) => a == b,
-            _other => false, // neutro: N16[β] — variantes de cores em espaços distintos são estritamente desiguais
+            (
+                Self::Srgb { .. }
+                | Self::Luma { .. }
+                | Self::LinearRgb { .. }
+                | Self::Oklab { .. }
+                | Self::Oklch { .. }
+                | Self::Hsl { .. }
+                | Self::Hsv { .. }
+                | Self::Cmyk { .. }
+                | Self::Spot(_),
+                _,
+            ) => false,
         }
     }
 }
@@ -422,6 +434,39 @@ impl std::hash::Hash for SpotColorant {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn v16_color_equality_keeps_spaces_bits_and_spot_identity() {
+        let colors = [
+            Color::srgb_f32(0.5, 0.5, 0.5, 1.0),
+            Color::luma(0.5),
+            Color::linear_rgb(0.5, 0.5, 0.5, 1.0),
+            Color::oklab(0.5, 0.0, 0.0, 1.0),
+            Color::oklch(0.5, 0.0, 0.0, 1.0),
+            Color::hsl(0.0, 0.0, 0.5, 1.0),
+            Color::hsv(0.0, 0.0, 0.5, 1.0),
+            Color::cmyk(0.0, 0.0, 0.0, 0.5),
+            Color::Spot(SpotColor {
+                colorant: Arc::new(SpotColorant {
+                    name: Some("ink".into()),
+                    fallback: Color::rgb(0, 0, 0),
+                }),
+                tint: Ratio(0.5),
+            }),
+        ];
+        for (i, left) in colors.iter().enumerate() {
+            for (j, right) in colors.iter().enumerate() {
+                assert_eq!(left == right, i == j, "spaces {i}/{j}");
+            }
+            assert_eq!(left, &left.clone());
+        }
+        assert_ne!(
+            Color::srgb_f32(0.0, 0.0, 0.0, 1.0),
+            Color::srgb_f32(-0.0, 0.0, 0.0, 1.0)
+        );
+        let nan = Color::srgb_f32(f32::NAN, 0.0, 0.0, 1.0);
+        assert_eq!(nan, nan.clone());
+    }
 
     // ── sRGB ──
 
@@ -856,8 +901,8 @@ mod tests {
     fn p1253_oklab_red_usa_constantes_completas_palette() {
         let (l, a, b, alpha) = to_oklab_p476(VANILLA_RED);
         assert!((l - 0.6595).abs() < 0.00005, "L público arredondado: {l}");
-        assert_eq!(a.to_bits(), 0.19973529875278473_f32.to_bits());
-        assert_eq!(b.to_bits(), 0.10818812251091003_f32.to_bits());
+        assert_eq!(a.to_bits(), 0.199_735_3_f32.to_bits());
+        assert_eq!(b.to_bits(), 0.108_188_12_f32.to_bits());
         assert_eq!(alpha.to_bits(), 1.0_f32.to_bits());
     }
 

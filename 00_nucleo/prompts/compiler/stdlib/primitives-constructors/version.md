@@ -1,5 +1,5 @@
 # L0 — stdlib/primitives-constructors/version
-Hash do Código: 70a81299
+Hash do Código: e4e1c91d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/stdlib/primitive-calls.toml sha256:761d5adeca09f6a60ba2960f8492aa6c0d934798bbc826f341004cf993ba8736

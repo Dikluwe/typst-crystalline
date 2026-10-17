@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/tiling.md
-//! @prompt-hash 34dc1e64
+//! @prompt-hash 2130421e
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -34,7 +34,7 @@ pub struct Tiling {
     pub spacing: Option<Size>,
     /// Deslocamento relativo/absoluto resolvido contra o pitch no layout.
     pub offset: Axes<Rel<Length>>,
-    /// Rotação horária aplicada depois do offset.
+    /// Rotação horária da grade em torno do ponto offset.
     pub angle: Angle,
 }
 

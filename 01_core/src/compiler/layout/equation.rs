@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/equation.md
-//! @prompt-hash e1d6b002
+//! @prompt-hash 2a709a71
 //! @layer L1
-//! @updated 2026-09-01
+//! @updated 2026-10-06
 //!
 //! Braço `Content::Equation` do `layout_content`. Extraído de `layout/mod.rs`
 //! no Passo 96.7 conforme ADR-0037. P456: numeração de bloco formatada pelo
@@ -135,12 +135,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let (math_items, extent) = {
             let (items, mut ext) =
                 math_layouter.layout_equation_measured(body, &math_style);
-            if block {
-                if numbering_active {
-                    let (top_edge, _) =
-                        self.metrics.text_edges(math_style.size, &math_style);
-                    ext.ascent = ext.ascent.max(top_edge.0);
-                }
+            if block && numbering_active {
+                let (top_edge, _) = self.metrics.text_edges(math_style.size, &math_style);
+                ext.ascent = ext.ascent.max(top_edge.0);
             }
             (items, Some(ext))
         };
@@ -315,17 +312,27 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     let envelope = FrameItem::TextReplacement { text, items };
                     let extent = super::helpers::item_pos(&envelope).0
                         + super::helpers::item_width(&envelope, &self.metrics);
-                    self.regions.current.cursor_x = Pt(self.regions.current.cursor_x.0.max(extent));
+                    self.regions.current.cursor_x =
+                        Pt(self.regions.current.cursor_x.0.max(extent));
                     self.regions.current.current_line.push(envelope);
                 }
-                FrameItem::TextSeparator { pos, advance, style, origin } => self.regions.current.current_line.push(FrameItem::TextSeparator { pos: Point { x: offset_x + pos.x, y: offset_y + pos.y }, advance, style, origin }),
-                FrameItem::Text { pos, text, style } => {
+                FrameItem::TextSeparator { pos, advance, style, origin, bidi } => {
+                    self.regions.current.current_line.push(FrameItem::TextSeparator {
+                        pos: Point { x: offset_x + pos.x, y: offset_y + pos.y },
+                        advance,
+                        style,
+                        origin,
+                        bidi,
+                    })
+                }
+                FrameItem::Text { pos, text, style, bidi } => {
                     let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
                     let advance = self.metrics.advance(&text, style.size, &style);
                     self.regions.current.current_line.push(FrameItem::Text {
                         pos: abs_pos,
                         text,
                         style,
+                        bidi,
                     });
                     // **P967** — o cursor acompanha o EXTENT real (pos.x +
                     // advance, que já inclui o espaçamento de classe
@@ -353,7 +360,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         cap,
                     });
                 }
-                FrameItem::TextShaped { pos, text, style, glyphs, units_per_em } => {
+                FrameItem::TextShaped {
+                    pos,
+                    text,
+                    style,
+                    glyphs,
+                    units_per_em,
+                    bidi,
+                    font,
+                } => {
                     let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
                     let advance = glyphs
                         .iter()
@@ -367,6 +382,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         style,
                         glyphs,
                         units_per_em,
+                        bidi,
+                        font,
                     });
                     let extent_x = abs_pos.x + Pt(advance);
                     if extent_x > self.regions.current.cursor_x {
@@ -421,6 +438,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     }
                 }
                 FrameItem::Group {
+                    paint_root,
                     pos,
                     matrix,
                     clip_mask,
@@ -431,6 +449,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
                     let extent_x = abs_pos.x + Pt(inner_width);
                     self.regions.current.current_line.push(FrameItem::Group {
+                        paint_root,
                         pos: abs_pos,
                         matrix,
                         clip_mask,
@@ -451,21 +470,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         items,
                     });
                 }
-                FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => {
-                    let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
-                    self.regions.current.current_line.push(FrameItem::Glyph {
-                        pos: abs_pos,
-                        glyph_id,
-                        x_advance,
-                        size,
-                        style,
-                        base_char,
-                    });
-                    let extent_x = abs_pos.x + x_advance;
-                    if extent_x > self.regions.current.cursor_x {
-                        self.regions.current.cursor_x = extent_x;
-                    }
-                }
             }
         }
 
@@ -480,6 +484,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             super::helpers::offset_frame_item(item, -frame_pos.x.0, -frame_pos.y.0);
         }
         let equation_frame = FrameItem::Group {
+            paint_root: false,
             pos: frame_pos,
             matrix: crate::entities::layout_types::TransformMatrix::identity(),
             clip_mask: None,
@@ -641,6 +646,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     pos: Point { x: number_x, y: number_baseline_y },
                     text: number_text,
                     style: math_style.clone(),
+                    bidi: None,
                 });
             } else {
                 // **P987** — registar também a largura da equação e o offset
@@ -689,6 +695,74 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     }
 }
 
+impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
+    /// **P896** — resolve a centragem/numeração de equação de bloco que
+    /// ficou adiada (`width: auto`, valor ainda infinito no momento em que
+    /// a equação foi posicionada — ver `equation.rs`). Chamado por
+    /// `finish()`/`new_page()`, depois de `page_width`/`page_height` já
+    /// estarem resolvidos para valores finitos, sobre o `items` local que
+    /// vai ser movido para a `Page` final.
+    ///
+    /// Centragem: desloca os items da equação (pelo índice/gama gravados)
+    /// pela diferença entre o offset correcto (agora que `page_width` é
+    /// finito) e o offset já aplicado (a margem, valor de fallback usado em
+    /// `equation.rs`). Numeração: constrói o `FrameItem::Text` do número
+    /// (posição à direita só era resolúvel agora) e acrescenta-o a `items`.
+    ///
+    /// Esvazia os dois `Vec` pendentes — são sempre resolvidos por completo
+    /// de uma vez (uma página não fecha parcialmente).
+    pub(super) fn apply_pending_equation_fixups(
+        &mut self,
+        items: &mut Vec<FrameItem>,
+        page_width: f64,
+    ) {
+        let usable = page_width - self.page_config.margin.horizontal();
+        for (start_idx, count, eq_width, applied_offset) in
+            std::mem::take(&mut self.pending_equation_centering)
+        {
+            // rationale: P1064 Classe 1A — centragem horizontal de equação ((usable - eq_width) / 2.0)
+            let correct_offset = self.page_config.margin.left + (usable - eq_width) / 2.0;
+            let delta = correct_offset - applied_offset;
+            if delta == 0.0 {
+                continue;
+            }
+            for item in items.iter_mut().skip(start_idx).take(count) {
+                super::helpers::shift_frame_item_x(item, delta);
+            }
+        }
+
+        for (baseline_y, text, style, number_width, eq_width, _applied_offset, align) in
+            std::mem::take(&mut self.pending_equation_numbering)
+        {
+            // **P987** — o número fica junto ao fim do conteúdo centrado da
+            // SUA equação (mesma fórmula do fixup de centragem acima) mais a
+            // calha `NUMBER_GUTTER = 0.5em` (invariante vanilla
+            // `number_x = content_end_x + gutter`), em vez da margem direita
+            // da largura computada da página inteira.
+            let gutter = 0.5 * style.size.val();
+            let number_x = match align {
+                HAlign::Left => self.page_config.margin.left,
+                HAlign::Right => {
+                    // rationale: P1064 Classe 1A — centragem de equação com número ((usable - eq_width) / 2.0)
+                    self.page_config.margin.left
+                        + (usable - eq_width) / 2.0
+                        + eq_width
+                        + gutter
+                }
+                HAlign::Center | HAlign::Start | HAlign::End => {
+                    page_width - self.page_config.margin.right - number_width
+                }
+            };
+            items.push(FrameItem::Text {
+                pos: Point { x: Pt(number_x), y: Pt(baseline_y) },
+                text,
+                style,
+                bidi: None,
+            });
+        }
+    }
+}
+
 #[cfg(test)]
 mod smoke {
     use super::*;
@@ -730,13 +804,20 @@ mod smoke {
                     return items.first();
                 }
                 FrameItem::Group { items, .. }
-                | FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. }
+                | FrameItem::TextReplacement { items, .. }
+                | FrameItem::Semantic { items, .. }
                 | FrameItem::Link { items, .. } => {
                     if let Some(found) = formula_group(items) {
                         return Some(found);
                     }
                 }
-                _ => {}
+                FrameItem::TextSeparator { .. }
+                | FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. } => {}
             }
         }
         None
@@ -756,12 +837,20 @@ mod smoke {
                         return Some(found);
                     }
                 }
-                FrameItem::TextReplacement { items, .. } | FrameItem::Semantic { items, .. } | FrameItem::Link { items, .. } => {
+                FrameItem::TextReplacement { items, .. }
+                | FrameItem::Semantic { items, .. }
+                | FrameItem::Link { items, .. } => {
                     if let Some(found) = text_x(items, target, origin_x) {
                         return Some(found);
                     }
                 }
-                _ => {}
+                FrameItem::TextSeparator { .. }
+                | FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. } => {}
             }
         }
         None
@@ -858,74 +947,7 @@ mod smoke {
         assert_eq!(finite.pages[0].height, 80.0);
         assert!(matches!(
             formula_group(&finite.pages[0].items),
-            Some(FrameItem::Group { .. })
+            Some(FrameItem::Group { paint_root: false, .. })
         ));
-    }
-}
-
-impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
-    /// **P896** — resolve a centragem/numeração de equação de bloco que
-    /// ficou adiada (`width: auto`, valor ainda infinito no momento em que
-    /// a equação foi posicionada — ver `equation.rs`). Chamado por
-    /// `finish()`/`new_page()`, depois de `page_width`/`page_height` já
-    /// estarem resolvidos para valores finitos, sobre o `items` local que
-    /// vai ser movido para a `Page` final.
-    ///
-    /// Centragem: desloca os items da equação (pelo índice/gama gravados)
-    /// pela diferença entre o offset correcto (agora que `page_width` é
-    /// finito) e o offset já aplicado (a margem, valor de fallback usado em
-    /// `equation.rs`). Numeração: constrói o `FrameItem::Text` do número
-    /// (posição à direita só era resolúvel agora) e acrescenta-o a `items`.
-    ///
-    /// Esvazia os dois `Vec` pendentes — são sempre resolvidos por completo
-    /// de uma vez (uma página não fecha parcialmente).
-    pub(super) fn apply_pending_equation_fixups(
-        &mut self,
-        items: &mut Vec<FrameItem>,
-        page_width: f64,
-    ) {
-        let usable = page_width - self.page_config.margin.horizontal();
-        for (start_idx, count, eq_width, applied_offset) in
-            std::mem::take(&mut self.pending_equation_centering)
-        {
-            // rationale: P1064 Classe 1A — centragem horizontal de equação ((usable - eq_width) / 2.0)
-            let correct_offset = self.page_config.margin.left + (usable - eq_width) / 2.0;
-            let delta = correct_offset - applied_offset;
-            if delta == 0.0 {
-                continue;
-            }
-            for item in items.iter_mut().skip(start_idx).take(count) {
-                super::helpers::shift_frame_item_x(item, delta);
-            }
-        }
-
-        for (baseline_y, text, style, number_width, eq_width, _applied_offset, align) in
-            std::mem::take(&mut self.pending_equation_numbering)
-        {
-            // **P987** — o número fica junto ao fim do conteúdo centrado da
-            // SUA equação (mesma fórmula do fixup de centragem acima) mais a
-            // calha `NUMBER_GUTTER = 0.5em` (invariante vanilla
-            // `number_x = content_end_x + gutter`), em vez da margem direita
-            // da largura computada da página inteira.
-            let gutter = 0.5 * style.size.val();
-            let number_x = match align {
-                HAlign::Left => self.page_config.margin.left,
-                HAlign::Right => {
-                    // rationale: P1064 Classe 1A — centragem de equação com número ((usable - eq_width) / 2.0)
-                    self.page_config.margin.left
-                        + (usable - eq_width) / 2.0
-                        + eq_width
-                        + gutter
-                }
-                HAlign::Center | HAlign::Start | HAlign::End => {
-                    page_width - self.page_config.margin.right - number_width
-                }
-            };
-            items.push(FrameItem::Text {
-                pos: Point { x: Pt(number_x), y: Pt(baseline_y) },
-                text,
-                style,
-            });
-        }
     }
 }

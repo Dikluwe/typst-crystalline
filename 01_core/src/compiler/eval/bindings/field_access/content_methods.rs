@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access/content_methods.md
-//! @prompt-hash 4d78f967
+//! @prompt-hash 9091b26d
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-07
 
 use super::*;
 
@@ -28,9 +28,9 @@ pub(super) enum ContentField {
 /// `Content::get_field` (field access de show rules, que devolve valores
 /// baked): aqui só conta o que foi assente no constructor, espelhando o
 /// `field.has()`/`get()` do vanilla. A máscara `set_fields` de `HeadingElem`
-/// (P829) é a única pista de "explicitamente assente" que o modelo cristalino
-/// retém; nos restantes elementos os campos expostos são sempre assentes
-/// (body/text), logo o fallback via `get_field` é exacto. `label` fica
+/// (P829), a máscara de Raw e os carriers de presença dos demais elementos
+/// preservam "explicitamente assente". O fallback via `get_field` só é usado
+/// nas famílias sem distinção adicional contratada. `label` fica
 /// scope-out: no cristalino a label é um nó irmão (`Content::Label`), não
 /// metadado do elemento — divergência registada no L0.
 pub(super) fn content_field(
@@ -42,6 +42,10 @@ pub(super) fn content_field(
         HEADING_SET_DEPTH, HEADING_SET_LEVEL, HEADING_SET_OUTLINED,
     };
     match c {
+        Content::Source(e) => content_field(&e.body, field),
+        Content::Located(e) => content_field(&e.body, field),
+        Content::ShowRecipe(e) => content_field(&e.body, field),
+        Content::Realized(e) => content_field(&e.visual, field),
         Content::Styled(styled) if equation_descendant(&styled.body).is_some() => {
             let styles = &styled.styles;
             let child = &styled.body;
@@ -64,6 +68,65 @@ pub(super) fn content_field(
                 ContentField::Set(value)
             } else {
                 content_field(child, field)
+            }
+        }
+        Content::Transform(e) => {
+            use crate::entities::elements::transform::TransformOperation;
+            let declared = match e.operation {
+                TransformOperation::Matrix(_) => false,
+                TransformOperation::Move { .. } => matches!(field, "dx" | "dy" | "body"),
+                TransformOperation::Rotate { .. } => {
+                    matches!(field, "angle" | "origin" | "reflow" | "body")
+                }
+                TransformOperation::Scale { .. } => {
+                    matches!(field, "x" | "y" | "origin" | "reflow" | "body")
+                }
+                TransformOperation::Skew { .. } => {
+                    matches!(field, "ax" | "ay" | "origin" | "reflow" | "body")
+                }
+            };
+            if declared {
+                c.get_field(field)
+                    .map(ContentField::Set)
+                    .unwrap_or(ContentField::Unset)
+            } else {
+                ContentField::Undeclared
+            }
+        }
+        Content::Raw(_) => match field {
+            "text" | "block" | "lang" => c
+                .get_field(field)
+                .map(ContentField::Set)
+                .unwrap_or(ContentField::Unset),
+            _ => ContentField::Undeclared,
+        },
+        Content::MathMatrix(_) => match field {
+            "rows" | "delim" | "align" | "augment" | "row-gap" | "column-gap" => c
+                .get_field(field)
+                .map(ContentField::Set)
+                .unwrap_or(ContentField::Unset),
+            _ => ContentField::Undeclared,
+        },
+        Content::TableCell(_) => match field {
+            "body" | "x" | "y" | "colspan" | "rowspan" | "inset" | "align" | "fill"
+            | "stroke" | "breakable" => c
+                .get_field(field)
+                .map(ContentField::Set)
+                .unwrap_or(ContentField::Unset),
+            _ => ContentField::Undeclared,
+        },
+        Content::SmartQuote(e) => {
+            let present = match field {
+                "double" => e.double.is_some(),
+                "enabled" => e.enabled.is_some(),
+                "alternative" => e.alternative.is_some(),
+                "quotes" => e.quotes.is_some(),
+                _ => return ContentField::Undeclared,
+            };
+            if present {
+                ContentField::Set(c.get_field(field).expect("declared quote field"))
+            } else {
+                ContentField::Unset
             }
         }
         Content::Strong(e) => match field {
@@ -138,7 +201,25 @@ pub(super) fn content_set_fields(
     c: &crate::entities::content::Content,
 ) -> Vec<(&'static str, Value)> {
     use crate::entities::content::Content;
+    let c = c.source_body();
     let candidates: &[&'static str] = match c {
+        Content::FigureCaption(_) => &["position", "separator", "body"],
+        Content::MathMatrix(_) => {
+            &["delim", "align", "augment", "row-gap", "column-gap", "rows"]
+        }
+        Content::TableCell(_) => &[
+            "body",
+            "x",
+            "y",
+            "colspan",
+            "rowspan",
+            "inset",
+            "align",
+            "fill",
+            "stroke",
+            "breakable",
+        ],
+        Content::SmartQuote(_) => &["double", "enabled", "alternative", "quotes"],
         Content::Heading(_) => &["level", "depth", "outlined", "bookmarked", "body"],
         Content::Equation(_) => &["block", "body"],
         Content::MathPrimes(_) => &["count"],
@@ -158,6 +239,22 @@ pub(super) fn content_set_fields(
             &["block", "numbering", "number-align", "supplement", "alt", "body"]
         }
         Content::Text(_) => &["text"],
+        Content::Raw(_) => &["text", "block", "lang"],
+        Content::Transform(e) => match e.operation {
+            crate::entities::elements::transform::TransformOperation::Matrix(_) => &[],
+            crate::entities::elements::transform::TransformOperation::Move { .. } => {
+                &["dx", "dy", "body"]
+            }
+            crate::entities::elements::transform::TransformOperation::Rotate {
+                ..
+            } => &["angle", "origin", "reflow", "body"],
+            crate::entities::elements::transform::TransformOperation::Scale {
+                ..
+            } => &["x", "y", "origin", "reflow", "body"],
+            crate::entities::elements::transform::TransformOperation::Skew { .. } => {
+                &["ax", "ay", "origin", "reflow", "body"]
+            }
+        },
         Content::Linebreak(_) => &["justify"],
         _ => &["body"],
     };
@@ -210,12 +307,33 @@ pub(super) fn content_elem_func(c: &crate::entities::content::Content) -> Value 
         crate::entities::file_id::FileId,
     ) -> SourceResult<Value> = match c {
         Content::Text(_) => crate::compiler::stdlib::native_text,
+        Content::MathMatrix(_) => crate::compiler::stdlib::native_math_mat,
+        Content::TableCell(_) => crate::compiler::stdlib::native_table_cell,
+        Content::Table(_) => crate::compiler::stdlib::native_table,
         Content::Strong(_) => crate::compiler::stdlib::native_strong,
         Content::Emph(_) => crate::compiler::stdlib::native_emph,
         Content::Heading(_) => crate::compiler::stdlib::native_heading,
         Content::Title(_) => crate::compiler::stdlib::native_title,
         Content::Raw(_) => crate::compiler::stdlib::native_raw,
+        Content::Transform(e) => match e.operation {
+            crate::entities::elements::transform::TransformOperation::Matrix(_) => {
+                content_func_not_callable
+            }
+            crate::entities::elements::transform::TransformOperation::Move { .. } => {
+                crate::compiler::stdlib::native_move
+            }
+            crate::entities::elements::transform::TransformOperation::Rotate {
+                ..
+            } => crate::compiler::stdlib::native_rotate,
+            crate::entities::elements::transform::TransformOperation::Scale {
+                ..
+            } => crate::compiler::stdlib::native_scale,
+            crate::entities::elements::transform::TransformOperation::Skew { .. } => {
+                crate::compiler::stdlib::native_skew
+            }
+        },
         Content::Figure(_) => crate::compiler::stdlib::native_figure,
+        Content::FigureCaption(_) => crate::compiler::stdlib::native_figure_caption,
         Content::Link(_) => crate::compiler::stdlib::native_link,
         Content::SmallCaps { .. } => crate::compiler::stdlib::native_smallcaps,
         Content::Linebreak(_) => crate::compiler::stdlib::native_linebreak,
@@ -295,6 +413,35 @@ pub(super) fn content_method_with_fields(
     mut args: Args,
     span: Span,
 ) -> SourceResult<Value> {
+    use crate::entities::content::Content;
+    match c {
+        Content::Source(e) => {
+            return content_method_with_fields(
+                &e.body, location, fields, method, args, span,
+            )
+        }
+        Content::Located(e) => {
+            return content_method_with_fields(
+                &e.body,
+                location.or(Some(e.location)),
+                fields,
+                method,
+                args,
+                span,
+            )
+        }
+        Content::ShowRecipe(e) => {
+            return content_method_with_fields(
+                &e.body, location, fields, method, args, span,
+            )
+        }
+        Content::Realized(e) => {
+            return content_method_with_fields(
+                &e.visual, location, fields, method, args, span,
+            )
+        }
+        _ => {}
+    }
     match method {
         "func" => {
             finish_args(&args, span)?;
@@ -440,3 +587,68 @@ static_content_native!(native_content_has_static, "content.has", "has");
 static_content_native!(native_content_at_static, "content.at", "at");
 static_content_native!(native_content_fields_static, "content.fields", "fields");
 static_content_native!(native_content_location_static, "content.location", "location");
+
+#[cfg(test)]
+mod matrix_morphology_tests {
+    use super::*;
+    #[test]
+    fn matrix_morphology_fields_presence_and_native_identity() {
+        let matrix = crate::entities::content::Content::math_matrix(
+            vec![vec![crate::entities::content::Content::text("a")]],
+            ('(', ')'),
+        );
+        assert_eq!(
+            content_set_fields(&matrix)
+                .iter()
+                .map(|(n, _)| *n)
+                .collect::<Vec<_>>(),
+            vec!["delim", "rows"]
+        );
+        assert!(matches!(content_field(&matrix, "align"), ContentField::Unset));
+        assert!(matches!(content_field(&matrix, "gap"), ContentField::Undeclared));
+        let Value::Func(projected) = content_elem_func(&matrix) else {
+            panic!("not function")
+        };
+        let Value::Module(math) = crate::compiler::stdlib::make_math_module() else {
+            panic!("not module")
+        };
+        let Some(Value::Func(native)) = math.scope().get("mat") else {
+            panic!("missing native")
+        };
+        assert!(std::ptr::fn_addr_eq(
+            projected.native_fn_addr().unwrap(),
+            native.native_fn_addr().unwrap()
+        ));
+    }
+}
+
+#[cfg(test)]
+mod caption_shape_tests {
+    use super::*;
+    #[test]
+    fn caption_shape_fields_and_function_use_native_identity() {
+        use crate::entities::content::Content;
+        use crate::entities::elements::figure_caption::CaptionPosition;
+        let c = Content::figure_caption(
+            Content::text("C"),
+            Some(CaptionPosition::Top),
+            Some(Content::text("S")),
+        );
+        let fields = content_set_fields(&c);
+        assert_eq!(
+            fields.iter().map(|(n, _)| *n).collect::<Vec<_>>(),
+            vec!["position", "separator", "body"]
+        );
+        let Value::Func(f) = content_elem_func(&c) else { panic!("expected function") };
+        assert!(std::ptr::fn_addr_eq(
+            f.native_fn_addr().unwrap(),
+            crate::compiler::stdlib::native_figure_caption as fn(_, _, _, _) -> _
+        ));
+        let (name, fields, locatable) =
+            crate::compiler::eval::bindings::native_element_fields(&f).unwrap();
+        assert_eq!(name, "caption");
+        assert!(fields.contains(&"body"));
+        assert!(fields.contains(&"kind"));
+        assert!(locatable);
+    }
+}

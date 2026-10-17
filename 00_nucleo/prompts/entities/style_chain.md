@@ -1,5 +1,8 @@
 # Prompt L0 — StyleChain
-Hash do Código: 05b5c3d6
+Hash do Código: 2c1f9762
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:f10f7afaabd1b97f3048736842df89d0ba48d4daa0ae3cd453c9be317f32ef91
 
 ## Módulo
 `01_core/src/entities/style_chain.rs`
@@ -19,7 +22,7 @@ com herança: um nó filho herda todas as propriedades não definidas do pai.
 pub struct StyleDelta {
     pub bold:   Option<bool>,
     pub italic: Option<bool>,
-    pub size:   Option<f64>,       // pontos tipográficos
+    pub size:   Option<Length>,    // tamanho declarado abs + em
     pub fill:   Option<Color>,     // Passo 99 (ADR-0038)
     pub heading_level: Option<u8>, // Passo 99 (ADR-0038) forward-compat
     pub weight:   Option<u16>,     // Passo 126 — inerte
@@ -251,3 +254,135 @@ top-wins da chain e valor falso por default. A resolução não altera
 bold/italic de render. Não criar semântica a partir do peso ou aparência.
 Os campos públicos são definidos pelo owner `entities/layout_types.md`
 e foram confirmados em 2026-09-23 sob ADR-0127.
+
+## Leitura direta da proveniência no bridge — 2026-10-09
+
+Medição antes da decisão: no release SHA-256
+`a01e3854b67abf7ec7902e14e0a695a3ea425a91ad13aab464247aade98b8491`,
+`stacks-after.json.gz` do diagnóstico `table-local-scaling-followup-2026-10-09`
+registra 801 amostras de alocação em `StyleChain::collapse` sob
+`layout_styled` no caso `local-set-1600`; cada amostra representa 64 pedidos.
+`01_core/src/entities/style_chain.rs:779-784` chama `collapse()` somente para
+ler `bold_from_strong` e `italic_from_emph`, mas `collapse()` copia também o
+canal custom e outras propriedades. O gate externo
+`semantic-red-gate.json.gz` registra 1.067.883 pedidos para esse caso no
+binário restaurado, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`,
+working tree não commitado e UTC da medição. Inferência refutável: resolver
+somente esses dois campos deve poupar clones sem mudar semântica; o gate de
+alocações, os testes de precedência e a comparação bilateral de saída e tempo
+podem refutá-la.
+
+Decisão interna: no bridge `From<&StyleChain> for TextStyle`, percorrer os nós
+do topo para a raiz e capturar a primeira definição de cada bit de origem.
+Parar quando ambos estiverem definidos ou acabar a cadeia; ausência equivale
+a `false`. Não chamar `collapse()` nesse bridge. O método público `collapse()`
+continua integral para captura de show-set. Não mudar representação, API,
+defaults, fase de pipeline ou interpretação de `bold`/`italic`. Aceitação:
+`semantic_strong` e `semantic_emph` mantêm top-wins, inclusive `Some(false)`
+interno sobre `Some(true)` externo; saída de linguagem/raster igual e redução
+mensurável de alocações e tempo no caso com escopos locais. Correção interna
+em fluxo contínuo conforme ADR-0127.
+
+
+## C2-R1 — correção interna de paridade
+
+Medição anterior à decisão: 00_nucleo/diagnosticos/performance-c2-2026-10-07/table-local-regression.json, três samples/r*-table-local/samples.json com fontes/argv/UTC/estado/hash do release ac889581 e vanilla pin9f2b6e871. Tamanho cresce10%, segunda coluna x60.880→38.999 com sobreposição. RED semântico em 00_nucleo/diagnosticos/table-local-c2r1-2026-10-07/red.log: tamanho10pt e separação Auto falham, tamanho local explícito11pt já passa.
+
+Fonte upstream typst-eval/src/code.rs:32–43 aplica somente styles da declaração set à cauda. Tekt expression_dispatch.rs:132 colapsa raiz/defaults e não só declarações locais; style_chain.rs:304–315 contém size11/boldfalse/italicfalse na raiz. tracks.rs:328 reconhece somente Cell com resolved, deixando a Cell standalone Complete na projeção; measurement.rs não mede TableCell. É semântica/estilo/posição observável, não obrigação de reproduzir árvore ou algoritmo upstream. A causa conjunta é inferência refutável por fonte/tamanho/posição ainda divergentes após isolar estilos locais e medir o visual completo.
+
+Classificação ADR-0127: reparo interno de paridade, sem API pública/trait/entidade/flag/fase nova. Fluxo contínuo autorizado por pedido de corrigir prioridade1; L0 primeiro, RED→GREEN, resselo restrito, builds/suítes/lint e recoleta física/temporal.
+
+Responsabilidade: adicionar helper crate-private local_delta_since que retorna somente o prefixo de nós empilhados após um ancestral compartilhado, ou None se o ancestral não pertence à cadeia. Usar identidade interna Arc exclusivamente para delimitar fronteira lexical comprovada, sem expor identidade a caller/telemetria e sem comparação dos valores como prova de declaração. Nó explicitamente size11/boldfalse deve sobreviver mesmo se igual ao valor herdado. Dobra top-wins existente dos deltas permanece; cadeia ancestral/defaults não são copiados ao resultado. Chain==ancestral retorna delta vazio. Pureza, representação pública, O(1) clone e APIs vigentes permanecem. Testar ancestral compartilhado, declaração igual ao default e não ancestral.
+
+## Capacidade exata na conversão de fontes custom — 2026-10-10
+
+### Medição antes da decisão
+
+`00_nucleo/diagnosticos/style-font-capacity-2026-10-10/before.json.gz`
+registra HEAD, working tree, arquivos/diffstat, fontes e o binário baseline
+bb138eb8d2f8a5762ed693bfe2dda526c092780a47e0dc4c5e8e4f7af35b81a8.
+O memo tentado em style-font-resolution-reuse-2026-10-10 foi descartado:
+menos pedidos não trouxeram aceleração consistente e o RSS dos alvos subiu.
+Não há cache desse experimento neste consumer.
+
+`00_nucleo/diagnosticos/style-scope-transfer-2026-10-10/stacks-current.json.gz`
+do mesmo binário inclui 400 amostras de pedidos480bytes no vetor sob
+StyleChain::font/local-set1600. `capacity-probe.json` desta rodada mede
+FontFamily=120bytes e reproduz filter_map/collect de uma família com
+capacidade4, len1 e buffer480bytes. A amostragem é periódica inclusiva,
+não custo exclusivo; a sonda sintética valida o tipo/iterator, não tempo.
+`entities/style_chain.rs:641–653` usa collect com limite inferior zero.
+Inferência: reservar apenas as strings efetivas evita capacidade excedente;
+bytes acumulados, RSS e tempo podem refutá-la. Não inferir intenção do
+vanilla nem impor igualdade de bytes PDF; capacidade é mecânica.
+
+### Decisão interna, fluxo contínuo ADR-0127
+
+Ao encontrar text.font como Array, contar somente Value::Str desse array
+e reservar esse número para o Vec<FontFamily>. Preencher na mesma ordem
+com FontFamily::new e normalização vigentes. Array sem strings não aloca
+buffer e continua retornando None, interrompendo a herança como antes.
+Typed delta.font continua antes do custom no mesmo nó; custom usa primeira
+ocorrência; tipo diferente de Array continua ignorado. Não alterar dict
+custom legado/regex, defaults, StyleDelta, public APIs, fase ou cache.
+A leitura faz duas travessias locais do array; push, nós e chain não mudam.
+
+### Aceitação e limites
+
+RED→GREEN do gate externo: bytes solicitados estritamente menores nos
+controles de fontes, sem crescimento da contagem de alocações. É gate
+mecânico, separado da linguagem. Testes de ordenação, mixed/empty/invalid,
+precedência, typed regex e declarações originais, controles de texto/
+markup/query/fontes/posição/páginas/raster e suites preservam os observáveis.
+Comparar tempo e RSS com argv equivalentes, rodadas pareadas sem
+interposer e controles curtos/sem declarações consumidas. Regressão
+persistente nesses custos ou mudança observável refuta o candidato e
+requer restauração exata do source e deste L0. Menos bytes acumulados não
+certifica memória residente menor.
+
+
+
+## TS1 — tamanho completo de texto (ratificado pelo humano, 2026-10-17)
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/text-argumentos-2026-10-17/before.json.gz`, `before-measurement.json.gz`,
+`morph-before-measurement.json.gz` e `audit.json` conservam HEAD
+06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado, UTC, status/diffstat,
+fontes/L0/binários/argv e o pin9f2b6e8715237cb086899a42873660fe744622e8.
+Em named-em, A mede0pt contra24pt; em affine,3pt contra27pt; nested sobre18pt
+mede0pt contra36pt. As seis permutações Size/Color/body são aceitas pelo pin
+mas rejeitadas pelo Tekt. Set posicional18pt é ignorado (12 contra18pt).
+Fonte pinada text/mod.rs:290,303,924–930,1136–1142 e args.rs:178–247
+estabelece busca tipada, preferência nomeada, body restante e composição.
+style_chain.rs:513–517 e constructor.rs:123 descartam em; collapse em
+style_chain.rs:394–395,419–422 aplica top-wins onde tamanho precisa fold.
+É tamanho/escopo observável da linguagem; a representação Rust é escolha
+interna. Não inferir intenção histórica. Refutar por restauração, Raw,
+heading, math, capture/show, dupes/spans, zero/negativos ou métricas divergentes.
+A sonda de igualdade refutou a hipótese de comparar os valores declarados:
+no pin, text(size:2em)[A] == text(size:24pt)[A] é true. StyledElem::eq no pin
+content/mod.rs:779–782 compara child. Esse defeito de igualdade requer sua
+própria correção; o tipo completo não é prova de fechamento desse eixo.
+
+### Ratificação
+
+O humano aprovou TS1 e os dois contratos públicos da proposta de manifesto
+771f5fd3d36545eb4b4fb7f0c0f2c91061470d1f010fc9a887b001a636d8feba.
+Implementação e testes S1–S16 sob 12 GiB/swap zero; sem release/merge/push.
+Resselo somente após implementação e grafo válido. RG1 continua independente.
+
+### Responsabilidade exclusiva adicional
+
+StyleDelta.size passa a Option<Length>. Default tipado11pt; size() continua f64 de pontos resolvidos. Dobrar contribuições typed/custom text.size na ordem lexical com precedência typed no mesmo nó. collapse e local_delta_since conservam a função afim, sem completar com default quando o ancestral foi excluído. Demais propriedades mantêm suas regras. Diff/bridge leem o comprimento completo; Pt existe só no render resolvido.
+
+### Presença de captura TS1
+
+A captura de prefixo composta só por custom text.size conserva esse canal custom,
+sem promover a declaração a campo semântico typed. Caso haja declaração Size tipada
+no trecho capturado, o tamanho composto permanece typed. Isso conserva a presença
+semântica do constructor e a transparência morfológica histórica do set; não muda
+PartialEq de Styled nem declara resolvido o achado de igualdade da linguagem.
+No mesmo nó typed prevalece sobre custom; em nós distintos as contribuições dobram
+na ordem lexical. Testar round trip com ancestral diferente, base excluída e Size
+explicitamente igual ao default. Demais propriedades conservam top-wins existente.

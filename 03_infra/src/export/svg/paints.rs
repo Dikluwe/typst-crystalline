@@ -1,15 +1,16 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/paints.md
-//! @prompt-hash 2633c8ab
+//! @prompt-hash c046c0c6
 //! @layer L3
 //! @updated 2026-09-26
 
 use super::super::gradients::svg_adaptive_stops;
 use super::serialization::{color_to_css, fmt_num};
+use std::sync::Arc;
+use typst_core::entities::frame_paint::FramePaint as Paint;
 use typst_core::entities::gradient::Gradient;
 use typst_core::entities::layout_types::Color;
-use typst_core::entities::paint::Paint;
-use typst_core::entities::tiling::{TilingBody, TilingRelative};
+use typst_core::entities::layout_types::{Point, Pt, TransformMatrix};
 use xmlwriter::XmlWriter;
 
 /// Paint servers referenced by shapes. The linear vector is intentional: Paint
@@ -18,9 +19,13 @@ use xmlwriter::XmlWriter;
 #[derive(Default)]
 pub(super) struct PaintDefs {
     paints: Vec<SvgPaintDef>,
+    pub(super) local_to_root: TransformMatrix,
+    pub(super) decorative: bool,
 }
 
+#[derive(Clone)]
 struct SvgPaintDef {
+    matrix: TransformMatrix,
     paint: Paint,
     x: f64,
     y: f64,
@@ -47,10 +52,30 @@ impl PaintDefs {
         }
         if !paint_is_svg_native(paint) {
             return PaintReference {
-                value: color_to_css(paint.to_color()),
+                value: color_to_css(match paint {
+                    Paint::Gradient(g) => {
+                        typst_core::entities::paint::Paint::Gradient(g.clone()).to_color()
+                    }
+                    _ => unreachable!(),
+                }),
                 fallback: Some(unsupported_paint_reason(paint)),
             };
         }
+        let matrix = if let Paint::Tiling(cell) = paint {
+            let Some(matrix) = crate::export::tiling::placement(
+                cell,
+                Point { x: Pt(x), y: Pt(y) },
+                self.local_to_root,
+            ) else {
+                return PaintReference {
+                    value: "none".into(),
+                    fallback: Some("noninvertible-tiling-transform"),
+                };
+            };
+            matrix
+        } else {
+            TransformMatrix::identity()
+        };
         let (paint_x, paint_y, paint_width, paint_height) =
             if matches!(paint, Paint::Gradient(Gradient::Conic(_)))
                 && width.is_finite()
@@ -66,7 +91,8 @@ impl PaintDefs {
             .paints
             .iter()
             .position(|candidate| {
-                candidate.paint == *paint
+                same_paint(&candidate.paint, paint)
+                    && candidate.matrix == matrix
                     && candidate.x.to_bits() == paint_x.to_bits()
                     && candidate.y.to_bits() == paint_y.to_bits()
                     && candidate.width.to_bits() == paint_width.to_bits()
@@ -75,6 +101,7 @@ impl PaintDefs {
             .unwrap_or_else(|| {
                 self.paints.push(SvgPaintDef {
                     paint: paint.clone(),
+                    matrix,
                     x: paint_x,
                     y: paint_y,
                     width: paint_width,
@@ -85,23 +112,121 @@ impl PaintDefs {
         PaintReference { value: format!("url(#p{index})"), fallback: None }
     }
 
-    pub(super) fn write(&self, xml: &mut XmlWriter) {
+    pub(super) fn write(
+        &mut self,
+        xml: &mut XmlWriter,
+        fonts: Option<&crate::export::font_binding::PreparedFonts>,
+        glyph_defs: &mut super::GlyphDefs,
+        clip_next_id: &mut usize,
+        glyph_fonts: &super::SvgGlyphFontContext,
+    ) {
         if self.paints.is_empty() {
             return;
         }
         xml.start_element("defs");
-        for (index, definition) in self.paints.iter().enumerate() {
-            write_paint_def(
-                xml,
-                &format!("p{index}"),
-                &definition.paint,
-                definition.x,
-                definition.y,
-                definition.width,
-                definition.height,
-            );
+        let mut index = 0;
+        while index < self.paints.len() {
+            let definition = self.paints[index].clone();
+            let id = format!("p{index}");
+            if let Paint::Tiling(cell) = &definition.paint {
+                let size = cell.frame.size;
+                let clip = format!("c{}", *clip_next_id);
+                *clip_next_id += 1;
+                xml.start_element("clipPath");
+                xml.write_attribute("id", &clip);
+                xml.write_attribute("clipPathUnits", "userSpaceOnUse");
+                xml.start_element("rect");
+                xml.write_attribute("width", &fmt_num(size.width.0));
+                xml.write_attribute("height", &fmt_num(size.height.0));
+                xml.end_element();
+                xml.end_element();
+                xml.start_element("g");
+                xml.write_attribute("id", &format!("{id}cell"));
+                xml.write_attribute("clip-path", &format!("url(#{clip})"));
+                let previous = (self.local_to_root, self.decorative);
+                self.local_to_root = TransformMatrix::identity();
+                self.decorative = true;
+                {
+                    let destinations = super::SvgDestinationContext::empty();
+                    let mut session = super::SvgRenderSession {
+                        fonts,
+                        glyph_defs: &mut *glyph_defs,
+                        paint_defs: &mut *self,
+                        clip_next_id: &mut *clip_next_id,
+                        destinations: &destinations,
+                        glyph_fonts,
+                        html_frame: false,
+                    };
+                    for item in &cell.frame.items {
+                        super::render_item(xml, item, &mut session);
+                    }
+                }
+                (self.local_to_root, self.decorative) = previous;
+                xml.end_element();
+                xml.start_element("pattern");
+                xml.write_attribute("id", &id);
+                xml.write_attribute("patternUnits", "userSpaceOnUse");
+                xml.write_attribute("patternContentUnits", "userSpaceOnUse");
+                xml.write_attribute(
+                    "width",
+                    &fmt_num(size.width.0 + cell.spacing.width.0),
+                );
+                xml.write_attribute(
+                    "height",
+                    &fmt_num(size.height.0 + cell.spacing.height.0),
+                );
+                xml.write_attribute("overflow", "hidden");
+                let m = definition.matrix;
+                xml.write_attribute(
+                    "patternTransform",
+                    &format!(
+                        "matrix({} {} {} {} {} {})",
+                        fmt_num(m.a),
+                        fmt_num(m.b),
+                        fmt_num(m.c),
+                        fmt_num(m.d),
+                        fmt_num(m.tx),
+                        fmt_num(m.ty)
+                    ),
+                );
+                for (x, y) in crate::export::tiling::contributions(cell)
+                    .expect("prepared tiling contribution range")
+                {
+                    xml.start_element("use");
+                    xml.write_attribute("href", &format!("#{id}cell"));
+                    xml.write_attribute("xlink:href", &format!("#{id}cell"));
+                    xml.write_attribute(
+                        "transform",
+                        &format!("translate({} {})", fmt_num(x), fmt_num(y)),
+                    );
+                    xml.end_element();
+                }
+                xml.end_element();
+            } else {
+                write_paint_def(
+                    xml,
+                    &id,
+                    &definition.paint,
+                    definition.x,
+                    definition.y,
+                    definition.width,
+                    definition.height,
+                );
+            }
+            index += 1;
         }
         xml.end_element();
+    }
+}
+
+fn same_paint(a: &Paint, b: &Paint) -> bool {
+    match (a, b) {
+        (Paint::Solid(a), Paint::Solid(b)) => a == b,
+        (Paint::Gradient(a), Paint::Gradient(b)) => a == b,
+        (Paint::Tiling(a), Paint::Tiling(b)) => Arc::ptr_eq(a, b),
+        (Paint::Solid(_), Paint::Gradient(_) | Paint::Tiling(_))
+        | (Paint::Gradient(_), Paint::Solid(_) | Paint::Tiling(_))
+        | (Paint::Tiling(_), Paint::Solid(_) | Paint::Gradient(_)) => false,
     }
 }
 
@@ -109,7 +234,7 @@ fn unsupported_paint_reason(paint: &Paint) -> &'static str {
     match paint {
         Paint::Gradient(Gradient::Conic(_)) => "conic-gradient",
         Paint::Gradient(_) => "gradient-color-space",
-        Paint::Tiling(_) => "tiling-content-or-size",
+        Paint::Tiling(_) => unreachable!("prepared tiling is native"),
         Paint::Solid(_) => "none",
     }
 }
@@ -144,9 +269,7 @@ pub(super) fn paint_is_svg_native(paint: &Paint) -> bool {
                 | ColorSpace::LinearRgb
                 | ColorSpace::Hsv
         ),
-        Paint::Tiling(tiling) => {
-            tiling.size.is_some() && matches!(tiling.body, TilingBody::Color(_))
-        }
+        Paint::Tiling(_) => true,
     }
 }
 
@@ -162,8 +285,8 @@ fn write_paint_def(
     match paint {
         Paint::Gradient(Gradient::Linear(value)) => {
             let angle = value.angle.to_rad();
-            let dx = angle.cos() / 2.0;
-            let dy = angle.sin() / 2.0;
+            let dx = libm::cos(angle) / 2.0;
+            let dy = libm::sin(angle) / 2.0;
             xml.start_element("linearGradient");
             xml.write_attribute("id", id);
             xml.write_attribute("gradientUnits", "objectBoundingBox");
@@ -200,32 +323,7 @@ fn write_paint_def(
         Paint::Gradient(Gradient::Conic(value)) => {
             write_conic_paint_def(xml, id, value, x, y, width, height);
         }
-        Paint::Tiling(tiling) => {
-            let size = tiling.size.expect("paint_is_svg_native checked size");
-            let (spacing_width, spacing_height) = tiling
-                .spacing
-                .map(|spacing| (spacing.width.0, spacing.height.0))
-                .unwrap_or((0.0, 0.0));
-            xml.start_element("pattern");
-            xml.write_attribute("id", id);
-            xml.write_attribute(
-                "patternUnits",
-                match tiling.relative {
-                    TilingRelative::Auto | TilingRelative::Itself => "objectBoundingBox",
-                    TilingRelative::Parent => "userSpaceOnUse",
-                },
-            );
-            xml.write_attribute("width", &fmt_num(size.width.0 + spacing_width));
-            xml.write_attribute("height", &fmt_num(size.height.0 + spacing_height));
-            if let TilingBody::Color(color) = &tiling.body {
-                xml.start_element("rect");
-                xml.write_attribute("width", &fmt_num(size.width.0));
-                xml.write_attribute("height", &fmt_num(size.height.0));
-                xml.write_attribute("fill", &color_to_css(color.clone()));
-                xml.end_element();
-            }
-            xml.end_element();
-        }
+        Paint::Tiling(_) => unreachable!("prepared cell emitted by PaintDefs"),
         Paint::Solid(_) => {}
     }
 }
@@ -256,8 +354,7 @@ fn write_conic_paint_def(
     let step = std::f64::consts::TAU / SEGMENTS as f64;
 
     let corrected = |angle: f64| {
-        -(angle.sin() / inverse_ratio.abs())
-            .atan2(angle.cos())
+        -libm::atan2(libm::sin(angle) / inverse_ratio.abs(), libm::cos(angle))
             .rem_euclid(std::f64::consts::TAU)
     };
     let sample = |t: f32| {
@@ -296,10 +393,10 @@ fn write_conic_paint_def(
         xml.start_element("linearGradient");
         xml.write_attribute("id", &format!("{id}s{index}"));
         xml.write_attribute("gradientUnits", "objectBoundingBox");
-        xml.write_attribute("x1", &fmt_num(2.0 - theta1.cos() + cx));
-        xml.write_attribute("y1", &fmt_num(theta1.sin() + cy));
-        xml.write_attribute("x2", &fmt_num(2.0 - theta2.cos() + cx));
-        xml.write_attribute("y2", &fmt_num(theta2.sin() + cy));
+        xml.write_attribute("x1", &fmt_num(2.0 - libm::cos(theta1) + cx));
+        xml.write_attribute("y1", &fmt_num(libm::sin(theta1) + cy));
+        xml.write_attribute("x2", &fmt_num(2.0 - libm::cos(theta2) + cx));
+        xml.write_attribute("y2", &fmt_num(libm::sin(theta2) + cy));
         write_gradient_stops(
             xml,
             &[
@@ -324,10 +421,10 @@ fn write_conic_paint_def(
         // O pattern ocupa a caixa unitária. Raio 1 cobre toda a caixa e
         // espelha `correct_tiling_pos`, que reduz o raio 2 do domínio Typst
         // pela metade ao escrevê-lo no viewBox do SVG.
-        let x1 = pattern_cx - theta1.cos();
-        let y1 = pattern_cy + theta1.sin();
-        let x2 = pattern_cx - theta2.cos();
-        let y2 = pattern_cy + theta2.sin();
+        let x1 = pattern_cx - libm::cos(theta1);
+        let y1 = pattern_cy + libm::sin(theta1);
+        let x2 = pattern_cx - libm::cos(theta2);
+        let y2 = pattern_cy + libm::sin(theta2);
         // O builder vanilla calcula mecanicamente os raios relativos ao
         // ponto corrente. Preservar essa geometria evita uma borda diferente
         // nos renderizadores SVG, embora a grafia do path seja livre.

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/extract_payload.md
-//! @prompt-hash f935b8d6
+//! @prompt-hash 8b148793
 //! @layer L1
-//! @updated 2026-04-30
+//! @updated 2026-10-16
 //!
 //! `extract_payload` — função pura `&Content → Option<ElementPayload>`.
 //! P162 sub-passo .D. Consumida pelo walk em P162 .E.
@@ -13,14 +13,18 @@ use crate::entities::counter_update::CounterUpdate;
 use crate::entities::element_payload::ElementPayload;
 use crate::entities::elements::Element; // Modelo D (P316): trait p/ to_payload()
 
-/// Extrai o `ElementPayload` correspondente a um `Content`, se for
-/// uma variante locatable (Heading/Figure/Cite em M1).
+/// Extrai o payload próprio do nó, normalizando a origem transparente Source.
+/// OutlineEntry delega ao elemento; a síntese pós-walk mantém sua responsabilidade.
 pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
+    let content = content.source_body();
     match content {
+        Content::Located(e) => extract_payload(&e.body),
+        Content::ShowRecipe(_) | Content::Realized(_) => None,
         Content::Strong(e) => e.to_payload(),
         Content::Emph(e) => e.to_payload(),
         // Modelo D (P316): absorção do locatável — o elemento fornece o payload.
         Content::Heading(h) => h.to_payload(),
+        Content::OutlineEntry(e) => e.to_payload(),
 
         // Modelo D (Lote 13 P328): Figure locatável delega ao elemento.
         Content::Figure(e) => e.to_payload(),
@@ -89,11 +93,106 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
         // expansão pós-introspecção. Delega ao elemento para o payload.
         Content::ContextBlock(e) => e.to_payload(),
 
-        // Todas as outras variantes não são locatable em M1.
-        // Adicionar uma variant locatable nova exige edição explícita
-        // deste match (compilador não força exaustividade aqui porque
-        // usamos catch-all `_`, mas o L0 mandata revisão).
-        _ => None, // neutro: N16[γ] — variantes não-locatable em M1 retornam None (fallback aberto sob evolução de AST)
+        // As demais variantes atuais não fornecem payload próprio aqui.
+        // Source já foi normalizado e não possui payload próprio.
+        Content::Source(_)
+        | Content::Empty
+        | Content::Text(_)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(_)
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_)
+        | Content::Par { .. }
+        | Content::Title(_)
+        | Content::Raw(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::Link(_)
+        | Content::MathSequence(_)
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathPrimes(_)
+        | Content::MathRoot(_)
+        | Content::MathStretch(_)
+        | Content::MathDelimited(_)
+        | Content::MathLr(_)
+        | Content::MathMid(_)
+        | Content::MathOverbrace(_)
+        | Content::MathUnderbrace(_)
+        | Content::MathUnderbracket(_)
+        | Content::MathUnderparen(_)
+        | Content::MathUndershell(_)
+        | Content::MathOverbracket(_)
+        | Content::MathOverparen(_)
+        | Content::MathOvershell(_)
+        | Content::MathAlignPoint(_)
+        | Content::Linebreak(_)
+        | Content::MathMatrix(_)
+        | Content::MathCases(_)
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathOverline(_)
+        | Content::MathVec(_)
+        | Content::MathClassOverride(_)
+        | Content::MathLimitsOverride(_)
+        | Content::MathUnderover(_)
+        | Content::MathOp(_)
+        | Content::MathStyled(_)
+        | Content::Label(_)
+        | Content::Ref(_)
+        | Content::CounterDisplay(_)
+        | Content::FigureCaption(_)
+        | Content::Image(_)
+        | Content::Shape(_)
+        | Content::Curve(_)
+        | Content::Transform(_)
+        | Content::Grid(_)
+        | Content::GridHeader(_)
+        | Content::GridFooter(_)
+        | Content::GridCell(_)
+        | Content::SetPage(_)
+        | Content::PageRun(_)
+        | Content::Align(_)
+        | Content::Place(_)
+        | Content::Flush(_)
+        | Content::Styled(_)
+        | Content::Divider(_)
+        | Content::Terms(_)
+        | Content::TermItem(_)
+        | Content::Quote(_)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(_)
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. }
+        | Content::Pad(_)
+        | Content::Hide(_)
+        | Content::HSpace(_)
+        | Content::VSpace(_)
+        | Content::Pagebreak(_)
+        | Content::Colbreak(_)
+        | Content::Stack(_)
+        | Content::Boxed(_)
+        | Content::Block(_)
+        | Content::TableCell(_)
+        | Content::FootnoteEntry(_)
+        | Content::TableHeader(_)
+        | Content::TableFooter(_)
+        | Content::GridHLine(_)
+        | Content::GridVLine(_)
+        | Content::TableHLine(_)
+        | Content::TableVLine(_)
+        | Content::Repeat(_)
+        | Content::Columns(_) => None,
     }
 }
 
@@ -282,5 +381,65 @@ mod tests {
         let c1 = Content::equation(Content::Empty, true);
         let c2 = Content::equation(Content::Text(EcoString::from("E=mc^2")), true);
         assert_eq!(extract_payload(&c1), extract_payload(&c2));
+    }
+}
+
+#[cfg(test)]
+mod v16_origins_tests {
+    use super::*;
+    use crate::entities::file_id::FileId;
+    use crate::entities::span::Span;
+    use crate::entities::value::Value;
+    use std::num::NonZeroU16;
+    use std::sync::Arc;
+
+    fn origin_span() -> Span {
+        Span::from_range(FileId::from_raw(NonZeroU16::new(1).unwrap()), 2..5)
+    }
+
+    #[test]
+    fn v16_origins_source_heading_keeps_body_payload() {
+        let body = Content::heading(2, Content::text("section"));
+        let expected = extract_payload(&body);
+        assert!(expected.is_some());
+        let sourced = body.with_source_span(origin_span());
+        assert_eq!(extract_payload(&sourced), expected);
+    }
+
+    #[test]
+    fn v16_origins_source_emphasis_and_metadata_keep_own_payloads() {
+        for body in [
+            Content::strong(Content::Empty),
+            Content::emph(Content::Empty),
+            Content::metadata(Value::Int(42)),
+        ] {
+            let expected = extract_payload(&body);
+            assert!(expected.is_some());
+            assert_eq!(extract_payload(&body.with_source_span(origin_span())), expected);
+        }
+    }
+
+    #[test]
+    fn v16_origins_source_non_producers_do_not_gain_payloads() {
+        for body in [
+            Content::Empty,
+            Content::Space,
+            Content::SpaceFromNewline,
+            Content::text("text"),
+            Content::Sequence(Arc::from(vec![Content::text("child")])),
+        ] {
+            assert!(extract_payload(&body.with_source_span(origin_span())).is_none());
+        }
+    }
+
+    #[test]
+    fn v16_walk_entry_payload_alignment_matches_native_delegate() {
+        let entry = Content::outline_entry(1, Content::heading(1, Content::Empty), None);
+        assert!(crate::compiler::introspect::locatable::is_locatable(&entry));
+        assert_eq!(extract_payload(&entry), Some(ElementPayload::NativeElement));
+        assert_eq!(
+            extract_payload(&entry.with_source_span(origin_span())),
+            Some(ElementPayload::NativeElement)
+        );
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/mod.md
-//! @prompt-hash b6d993df
+//! @prompt-hash 87e43393
 //! @layer L3
 //! @updated 2026-09-21
 
@@ -15,9 +15,8 @@ pub use typst_core::entities::document_format_options::PageRanges;
 /// sempre um valor efetivo, resolvido antes de chegar a este owner
 /// (`infra/pipeline.md` P1469).
 pub use typst_core::entities::document_format_options::PdfStandards;
-use typst_core::entities::font_book::FontVariant;
+#[cfg(test)]
 use typst_core::entities::font_list::FontList;
-use typst_core::entities::font_variations::FontVariations;
 use typst_core::entities::layout_types::{Page, PagedDocument};
 
 // Imports usados por `tests.rs` via `use super::*`.
@@ -37,13 +36,13 @@ pub(crate) mod oracle;
 #[cfg(test)]
 mod p1431_line_cap_tests;
 pub mod pdf_defaults;
+mod pdf_tiling;
 mod render;
 mod stream;
 mod subset;
 mod svg;
-use self::bitmap_glyphs::{
-    collect_bitmap_glyphs_for_ids, used_glyph_ids_for_face, BitmapGlyphRef,
-};
+mod tiling;
+
 use self::builder::PdfBuilder;
 use self::fonts::{
     char_to_utf16_hex, collect_codepoints, collect_glyph_ids,
@@ -52,29 +51,30 @@ use self::fonts::{
     widths_array,
 };
 use self::gradients::{
-    adaptive_n_for_stops, apply_parent_transform, bezier_control_points_for_arc,
-    compute_axial_coords, compute_coons_patches_n_stops,
-    compute_coons_patches_n_stops_extended, compute_radial_coords, dedup_key_for,
-    emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb,
-    emit_conic_coons_stream_spot, emit_function_dict, emit_function_dict_cmyk,
+    adaptive_n_for_stops, apply_parent_transform, compute_axial_coords,
+    compute_radial_coords, emit_conic_mesh, emit_function_dict, emit_function_dict_cmyk,
     emit_function_dict_spot, group_bbox_from_fields, multispace_sample_stops,
-    multispace_sample_stops_conic, multispace_sample_stops_linear_cmyk,
-    multispace_sample_stops_radial, multispace_sample_stops_radial_cmyk,
-    pattern_resources_for_page, perceptual_distance_in_space, resolve_relative,
-    rgb_to_cmyk, scan_all_gradients, spot_bbox_for_shape, DedupKey, GradientObject,
-    GradientObjectKind, PatternRef, RectKey,
+    multispace_sample_stops_linear_cmyk, multispace_sample_stops_radial,
+    multispace_sample_stops_radial_cmyk, pattern_resources_for_page, resolve_relative,
+    scan_all_gradients, spot_bbox_for_shape, DedupKey, GradientObject,
+    GradientObjectKind, PatternRef,
 };
+#[cfg(test)]
+use self::gradients::{
+    bezier_control_points_for_arc, compute_coons_patches_n_stops,
+    compute_coons_patches_n_stops_extended, emit_conic_coons_stream_cmyk,
+    emit_conic_coons_stream_rgb, multispace_sample_stops_conic,
+    perceptual_distance_in_space, rgb_to_cmyk,
+};
+#[cfg(test)]
+use self::images::process_png_for_pdf;
 use self::images::{
     build_icc_profile_stream, build_jpeg_xobject, build_png_rgb_xobject,
     build_png_smask_xobject, compress_zlib, detect_image_format, jpeg_color_space,
-    jpeg_is_rgb, process_png_for_pdf, scan_all_images, srgb_icc_profile_for_version,
-    xobject_resources_for_page, ImageFormat, ImageRef, ImageXObject, PdfImagePayload,
+    jpeg_is_rgb, scan_all_images, srgb_icc_profile_for_version,
+    xobject_resources_for_page, ImageFormat, ImageRef, ImageXObject,
 };
-use self::stream::{
-    build_page_stream, draw_item_local, emit_glyph_pdf, emit_rounded_rect_ops,
-    emit_shape_path_local, emit_stroke_paint, emit_text_pdf, line_rg_prefix,
-    FontScenario, PageContext,
-};
+use self::stream::{build_page_stream, PageContext};
 use self::subset::remap_glyph_id;
 
 /// **P833 (#18)** — re-export para o pipeline: validação de imagens com
@@ -192,16 +192,11 @@ pub(crate) mod test_helpers {
 /// `Compact` = formato Passo 20, preservado byte-inalterado atrás da flag
 /// `--compact`. Quebra de assinatura deliberada (precedente P113): cada
 /// caller declara o modo explicitamente.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum StreamMode {
+    #[default]
     Verbose,
     Compact,
-}
-
-impl Default for StreamMode {
-    fn default() -> Self {
-        StreamMode::Verbose
-    }
 }
 
 /// Serialização física dos content streams de página, independente da
@@ -215,16 +210,11 @@ pub enum PdfSerializationMode {
 }
 
 /// Presença da estrutura lógica PDF, independente de `StreamMode` (P1140.6).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum PdfTags {
+    #[default]
     Enabled,
     Disabled,
-}
-
-impl Default for PdfTags {
-    fn default() -> Self {
-        Self::Enabled
-    }
 }
 
 /// Serializa um `PagedDocument` para bytes PDF-1.7.
@@ -442,6 +432,10 @@ pub fn export_pdf_with_font_and_document_id_and_tags_and_serialization_and_pages
 
 /// **P1469** (escopo reduzido — contrato de linguagem) — variante explícita
 /// com o conjunto de standards PDF resolvido.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C074: Fachada pública single-font com oito eixos já publicados, incluindo tags, serialização, pages e standard independentes"
+)]
 pub fn export_pdf_with_font_and_document_id_and_tags_and_serialization_and_pages_and_standard(
     doc: &PagedDocument,
     font_data: &[u8],
@@ -551,6 +545,10 @@ pub fn export_pdf_with_font_and_timings_and_document_id_and_tags_and_serializati
 
 /// **P1469** (escopo reduzido — contrato de linguagem) — variante explícita
 /// instrumentada com o conjunto de standards PDF resolvido.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C075: Variante pública single-font com tempos conserva os mesmos oito inputs e devolve subset timing"
+)]
 pub fn export_pdf_with_font_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard(
     doc: &PagedDocument,
     font_data: &[u8],
@@ -585,7 +583,7 @@ pub fn export_pdf_with_font_and_timings_and_document_id_and_tags_and_serializati
 /// é caso particular válido.
 pub fn export_pdf_multifont(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    fonts: &[FontKey],
     stream_mode: StreamMode,
 ) -> Vec<u8> {
     export_pdf_multifont_with_document_id(doc, fonts, None, stream_mode)
@@ -594,7 +592,7 @@ pub fn export_pdf_multifont(
 /// **P617** — variant com `DocumentID` externo.
 pub fn export_pdf_multifont_with_document_id(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    fonts: &[FontKey],
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
 ) -> Vec<u8> {
@@ -609,7 +607,7 @@ pub fn export_pdf_multifont_with_document_id(
 
 pub fn export_pdf_multifont_with_document_id_and_tags(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    fonts: &[FontKey],
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
@@ -626,7 +624,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags(
 
 pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    fonts: &[FontKey],
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
@@ -647,7 +645,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization(
 /// **P1469** — delega `PdfStandards::default()` para `standard`.
 pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization_and_pages(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    fonts: &[FontKey],
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
@@ -668,9 +666,13 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization_and_page
 
 /// **P1469** (escopo reduzido — contrato de linguagem) — variante explícita
 /// com o conjunto de standards PDF resolvido.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C082: Fachada pública multifont preserva a coleção completa com variantes/eixos e opções PDF explícitas"
+)]
 pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization_and_pages_and_standard(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    fonts: &[FontKey],
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
@@ -678,6 +680,8 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization_and_page
     pages: Option<PageRanges>,
     standard: PdfStandards,
 ) -> Vec<u8> {
+    let bound_fonts = font_binding::bind_document(doc, fonts);
+    let fonts = bound_fonts.as_ref();
     if fonts.is_empty() {
         return PdfBuilder::new()
             .with_document_id(document_id)
@@ -721,7 +725,7 @@ pub fn export_pdf_multifont_with_document_id_and_tags_and_serialization_and_page
 /// gasto em `subset_font_with_mapping` para todas as fontes do documento.
 pub fn export_pdf_multifont_and_timings(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    fonts: &[FontKey],
     stream_mode: StreamMode,
 ) -> (Vec<u8>, f64) {
     export_pdf_multifont_and_timings_and_document_id(doc, fonts, None, stream_mode)
@@ -730,7 +734,7 @@ pub fn export_pdf_multifont_and_timings(
 /// **P617** — variant instrumentada com `DocumentID` externo.
 pub fn export_pdf_multifont_and_timings_and_document_id(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    fonts: &[FontKey],
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
 ) -> (Vec<u8>, f64) {
@@ -745,7 +749,7 @@ pub fn export_pdf_multifont_and_timings_and_document_id(
 
 pub fn export_pdf_multifont_and_timings_and_document_id_and_tags(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    fonts: &[FontKey],
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
@@ -762,7 +766,7 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags(
 
 pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    fonts: &[FontKey],
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
@@ -783,7 +787,7 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serializati
 /// **P1469** — delega `PdfStandards::default()` para `standard`.
 pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    fonts: &[FontKey],
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
@@ -804,9 +808,13 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serializati
 
 /// **P1469** (escopo reduzido — contrato de linguagem) — variante explícita
 /// instrumentada com o conjunto de standards PDF resolvido.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C089: Variante pública multifont com tempos preserva os mesmos eixos e o retorno de timing"
+)]
 pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serialization_and_pages_and_standard(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    fonts: &[FontKey],
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
@@ -814,6 +822,8 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serializati
     pages: Option<PageRanges>,
     standard: PdfStandards,
 ) -> (Vec<u8>, f64) {
+    let bound_fonts = font_binding::bind_document(doc, fonts);
+    let fonts = bound_fonts.as_ref();
     if fonts.is_empty() {
         let (pdf, _) = PdfBuilder::new()
             .with_document_id(document_id)
@@ -860,7 +870,7 @@ pub fn export_pdf_multifont_and_timings_and_document_id_and_tags_and_serializati
 /// entradas instrumentadas.
 pub fn export_pdf_oracle(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    fonts: &[FontKey],
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
@@ -877,12 +887,14 @@ pub fn export_pdf_oracle(
 
 pub fn export_pdf_oracle_and_serialization(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    fonts: &[FontKey],
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
     pdf_tags: PdfTags,
     serialization: PdfSerializationMode,
 ) -> (Vec<u8>, f64) {
+    let bound_fonts = font_binding::bind_document(doc, fonts);
+    let fonts = bound_fonts.as_ref();
     if fonts.is_empty() {
         return (
             PdfBuilder::new()
@@ -981,7 +993,7 @@ pub fn export_png(page: &Page, opts: &RenderOptions) -> Vec<u8> {
 pub fn export_png_with_fonts(
     page: &Page,
     opts: &RenderOptions,
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    fonts: &[FontKey],
 ) -> Vec<u8> {
     render_page_to_png_with_fonts(page, opts, fonts)
 }
@@ -994,3 +1006,5 @@ pub fn export_png_with_fonts(
 
 #[cfg(test)]
 mod tests;
+
+pub(crate) mod font_binding;

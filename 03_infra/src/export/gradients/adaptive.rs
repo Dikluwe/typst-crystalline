@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/gradients/adaptive.md
-//! @prompt-hash eb1def78
+//! @prompt-hash 323658d9
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -156,7 +156,7 @@ pub(crate) fn svg_adaptive_stops(gradient: &Gradient) -> Vec<GradientStop> {
                 } else if position >= subdivisions {
                     break;
                 } else {
-                    out.push(GradientStop::new(next.clone(), Ratio(f64::from(next_t))));
+                    out.push(GradientStop::new(next.clone(), Ratio(next_t)));
                     previous = next;
                     let shift = position.trailing_zeros();
                     subdivisions >>= shift;
@@ -385,9 +385,9 @@ mod p1257_tests {
                 let channel = |v: (f32, f32, f32, f32), i| [v.0, v.1, v.2][i] * v.3;
                 (0..3)
                     .map(|i| {
-                        (channel(x, i)
-                            - ((1.0 - u) * channel(y0, i) + u * channel(y1, i)))
-                        .powi(2)
+                        let delta = channel(x, i)
+                            - ((1.0 - u) * channel(y0, i) + u * channel(y1, i));
+                        delta * delta
                     })
                     .sum::<f32>()
                     .sqrt()

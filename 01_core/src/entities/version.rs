@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/version.md
-//! @prompt-hash 78b6944e
+//! @prompt-hash f01fd2af
 //! @layer L1
 //! @updated 2026-07-10
 //!
@@ -29,7 +29,7 @@ pub const PARITY_VERSION: (u64, u64, u64) = (0, 15, 1);
 /// `0` (zero-pad): `version(1, 2, 3) == version(1, 2, 3, 0)` e
 /// `version(1, 2, 3) < version(1, 2, 3, 4)`. Por isso `PartialEq`/`Eq`/`Hash`
 /// e `Ord` são implementados à mão (não derivados).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Version {
     /// Componentes inteiros (≥ 0), tal como fornecidos (zeros à direita
     /// preservados para `repr`).
@@ -69,7 +69,7 @@ impl Version {
     }
 
     /// Formato canónico `"c0.c1.c2…"` (string vazia para `version()`).
-    pub fn to_string(&self) -> String {
+    fn canonical_string(&self) -> String {
         self.components
             .iter()
             .map(|c| c.to_string())
@@ -80,6 +80,10 @@ impl Version {
     /// Parse de uma string de componentes inteiros separados por `.` (ex.:
     /// `"1.2.3"`, `"1.2.3.4"`). Rejeita string vazia, não-inteiros e negativos.
     /// Não aceita `pre`/`build` textuais (não existem no Typst).
+    #[expect(
+        clippy::should_implement_trait,
+        reason = "S004: parser de componentes Option preservado; FromStr exige Result e um contrato de erro distinto"
+    )]
     pub fn from_str(s: &str) -> Option<Self> {
         let s = s.trim();
         if s.is_empty() {
@@ -131,12 +135,6 @@ impl Version {
     }
 }
 
-impl Default for Version {
-    fn default() -> Self {
-        Self { components: Vec::new() }
-    }
-}
-
 impl PartialEq for Version {
     fn eq(&self, other: &Self) -> bool {
         let len = self.components.len().max(other.components.len());
@@ -179,8 +177,27 @@ impl Ord for Version {
     }
 }
 
+impl std::fmt::Display for Version {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.canonical_string())
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn approved_traits_version_display_preserves_components() {
+        fn render<T: std::fmt::Display + ToString>(value: &T) -> (String, String) {
+            (format!("{value}"), ToString::to_string(value))
+        }
+        for (components, expected) in [(vec![], ""), (vec![1, 2, 0], "1.2.0")] {
+            let value = Version::from_components(components.clone());
+            assert_eq!(render(&value), (expected.into(), expected.into()));
+            assert_eq!(value.components, components);
+        }
+        assert!(Version::from_str("1.invalid").is_none());
+    }
+
     use super::*;
 
     #[test]

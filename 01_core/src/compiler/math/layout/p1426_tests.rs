@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/p1426-tests.md
-//! @prompt-hash 52f506f9
+//! @prompt-hash 75596a40
 //! @layer L1
 #![cfg(test)]
 //!
@@ -62,7 +62,7 @@ fn p1426_apply_math_style_preserva_presenca() {
             None,
         );
         assert_eq!(presence(&output), explicit);
-        assert_eq!(output.plain_text().contains('𝕩'), true);
+        assert!(output.plain_text().contains('𝕩'));
     }
 }
 

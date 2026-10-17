@@ -1,5 +1,5 @@
 # Prompt L0 — entities/source_result
-Hash do Código: 18d26b33
+Hash do Código: 269e9649
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/source_result.rs`
@@ -73,3 +73,8 @@ Dado SourceResult::Ok(42u32)
 Quando unwrap() for chamado
 Então 42
 ```
+
+
+## Realização com avaliação única
+
+SourceDiagnostic possui igualdade/hash estruturais de seus campos para transporte no canal tracked interno de warnings; não altera mensagens, severidade, spans, hints, trace nem dedup por (span,message).

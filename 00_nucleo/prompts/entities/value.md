@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/value`
-Hash do Código: e96e6cc6
+Hash do Código: ef15b193
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -602,3 +602,79 @@ apagar nome, fallback e tint; cast de fallback do constructor spot
 continua a exigir processo. Igualdade de linguagem distingue spot da
 projeção `rgb(spot)`, mesmo quando a aparência coincide. JSON/YAML
 podem serializar pela repr canônica, não por `Debug` nem hex.
+
+## Memória 5 — proposta pendente ADR-0127; não vigente antes de confirmação
+
+### Medição anterior à decisão
+
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado
+congelado em 00_nucleo/diagnosticos/value-compacto-memoria5-2026-10-08/before.json.gz.
+A sonda isolada layout-probe.rs.txt, command/UTC/deps/executable hashes em sizes.json,
+mede Value/Binding=272 bytes (align16), Stroke=264 (align8), Paint/Tiling=200,
+Located carrier=128 e Content=120. Fontes: entities/value.rs:111 transporta
+Stroke inline; geometry.rs e paint.rs/tiling.rs explicam sua composição.
+Modelo externo com todos os payloads existentes e somente Stroke compartilhado
+mede 144 bytes (align16). É tamanho físico, não prova de RSS ou speedup.
+
+### Decisão proposta e fronteira pública
+
+Mudar exclusivamente o payload de Value::Stroke(Stroke) para
+Value::Stroke(Arc<Stroke>). Manter o nome da variante e From<Stroke> for Value,
+que transfere o Stroke para um novo Arc. As assinaturas existentes continuam;
+nenhum campo público de Stroke/Paint/Tiling, variante adicional, Array/Dict,
+API de eval/layout ou fase/default muda. O payload público Rust muda e clientes
+que constroem/mutam/desestruturam a variante diretamente precisam adaptar-se:
+isto exige confirmação humana do pacote, não fluxo contínuo.
+
+Somente este owner define o carrier. Clone compartilha o payload e não clona
+dash/body profundo; leituras usam Stroke por referência. Nunca usar identidade
+de Arc como igualdade/identidade de ocorrência da linguagem. type_name/type_of,
+repr, campos, specified, cores/pinturas, espessura, cap/join/dash/miter/overhang,
+semântica de igualdade/hash e snapshots preservam seus contratos proprietários.
+Consumers que precisam modificar Stroke criam resultado próprio e novo Arc;
+não modificar payload de outro Value/snapshot. Não introduzir global, unsafe,
+I/O, nova dependência ou mutabilidade pública.
+
+### Aceitação depois da confirmação
+
+Escrever testes no módulo antes da implementação. RED de compartilhamento: os
+Values obtidos pelo From existente e clone projetam o mesmo Stroke por referência
+na implementação nova; antes usam cópias inline. Provar isolamento de reconstrução
+de stroke/style/field e preservação dos originais. RED de footprint no alvo
+medido (sem transformar tamanho/ABI em linguagem), GREEN de type/repr/fields e
+componentes incluindo dash, gradiente/tiling e specified. Não relaxar expectativas
+para fazer variante Arc compilar.
+
+Adaptadores sob seus L0s canônicos próprios. Todas as suites core/infra/shell e
+controles PDF/SVG/PNG/HTML relevantes, erros e warnings; RED→GREEN, resselo local
+e build/lint. Medir CLI pareado contra baseline completo desta rodada, incluindo
+arrays de ints, bindings/capturas/context100/300, plain e população de strokes
+únicos/clonados. Alocar Arc para cada stroke único pode aumentar bytes totais;
+conservar somente com ganho medido e tradeoff explícito. Não prometer 47% menos
+RSS por ter 47% menor sizeof; não misturar percentuais históricos.
+
+A proposta substitui somente a forma inline de Stroke em Value. Array continua
+Vec<Value> e Clone O(n), Dict continua IndexMap próprio; compartilhar arrays é
+outro pacote, não legitimado aqui.
+
+Ratificação Memória 5: o dono confirmou o manifesto SHA-256
+6badf07a4f58f08e7c60ad2e34dfb9a14a3a6ba55db90045afe046be8e988237
+com “confirmo” em 2026-10-08. O gate ADR-0127 deste pacote está satisfeito;
+suas cláusulas propostas passam a vigorar nesta materialização.
+
+
+## Projeções de Value — exaustividade nominal, 2026-10-16
+
+### Medição anterior à decisão
+
+01_core/src/entities/value.rs:449 (is_none, latent-projection); 01_core/src/entities/value.rs:465 (truthy, emitted-v16); 01_core/src/entities/value.rs:470 (cast_bool, latent-projection); 01_core/src/entities/value.rs:478 (cast_int, latent-projection); 01_core/src/entities/value.rs:490 (cast_float, emitted-v16); 01_core/src/entities/value.rs:495 (cast_str, latent-projection); 01_core/src/entities/value.rs:503 (cast_array, latent-projection); 01_core/src/entities/value.rs:511 (cast_dict, latent-projection); 01_core/src/entities/value.rs:519 (cast_align, latent-projection); 01_core/src/entities/value.rs:527 (cast_bytes, latent-projection); 01_core/src/entities/value.rs:544 (cast_decimal, emitted-v16); 01_core/src/entities/value.rs:565 (cast_duration, emitted-v16); 01_core/src/entities/value.rs:576 (cast_version, emitted-v16); 01_core/src/entities/value.rs:587 (cast_regex, emitted-v16). O enum atual em 01_core/src/entities/value.rs:59–195 tem 39 variantes materializadas; o catálogo e forma de payload estão no inventário desta etapa, não na tabela histórica de variantes futuras. before.json.gz em 00_nucleo/diagnosticos/tekt-v16-value-projections-2026-10-16 conserva HEAD, working tree não commitado, UTC, status/diff HEAD --stat, hashes e os textos originais dos owners/consumers. contexts.json foi extraído do AST atual conferido com o SARIF pinado; classification.json distingue nove V16 emitidos e oito projeções latentes. Forma Rust/exaustividade é mecânica; nomes, conversões, empréstimos e observáveis de linguagem mantêm o contrato vigente. Não há nova medição de paridade ou desempenho.
+
+### Decisão interna
+
+Fechar is_none, truthy e os doze cast_* existentes por enumeração nominal das variantes Value. Cada fallback conserva seu resultado atual: is_none=false, truthy=true, casts=None. Manter a variante None explícita sem payload e LocatedContent com dois slots; demais variantes atuais têm um slot, Auto é unitária. Nas conversões, excluir do grupo somente as variantes já tratadas integralmente nos braços anteriores. Não tocar type_name, type_of, Type::is_callable, From, Hash, igualdade, memória compartilhada ou carriers. Nenhuma assinatura pública muda. is_none deixa matches! e torna a mesma classificação em match exaustivo. Preservar fórmulas, sinais, empréstimos e identidade de Arc em cast_version. Float em cast_duration continua segundos, Int continua nanossegundos; preservar literalmente limites e corpo, sem corrigir NaN/rounding nesta manutenção ou certificar essas bordas como paridade. Não alterar coerção de bool/str/bytes/array/dict/align; casts monovariantes seguem estritos. Não materializar propostas públicas históricas pendentes por este adendo. Testes C1–C4: verdade/vazio incluindo Dict vazio truthy; casts estritos positivos/negativos e empréstimos de str/array/dict/bytes; coerções numéricas, sinal e overflow ±infinito em Duration, inválidos Decimal; preservação de Arc Version, parse Version e Regex válidos/inválidos e categorias não conversíveis. Os testes são controles do comportamento vigente; não afirmam paridade universal nem cobertura de cada payload das 39 variantes.
+
+As variantes que compartilham resultado conservam um corpo comum. A lista nominal exige decisão se Value cresce; não duplicar corpos para remover V19. Notas V19 permanecem informativas e registram alternativas escritas, não testes executados, combinações alcançáveis ou déficit N×. Controles positivos/negativos e limites são escolhidos pelo comportamento, sem tratar a execução de um braço como prova de cada alternativa. Nenhum allow/expect ou relaxamento de severidade/exceção para ocultar V16.
+
+### Gate e aceitação
+
+Fluxo contínuo ADR-0127: nenhuma assinatura/trait/campo público, nova variante produtiva, default de produto, quebra de compatibilidade ou fase diferente. L0 antes de testes e implementação, resselo bilateral restrito e V1/V5/V15/V26 válidos. Escrever controles no módulo, confirmar comportamento antes e depois; RED estrutural é ausência de E0004 nos 17 pontos selecionados numa cópia do core com variante sentinela acrescentada somente ao Value copiado. GREEN exige E0004 em cada um dos 17 pontos, sem stubs, e remoção exata dos nove V16 selecionados com os demais diagnósticos preservados. Build, suíte workspace, Clippy estrito, formato, Rustdoc e linhagem sob 12 GiB, swap zero e um job Cargo. O gate global permanece aberto enquanto os V16 externos existirem. O falso positivo do parser sobre None explícito é investigação separada e não será escondido neste consumer.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/parity.md
-//! @prompt-hash 3a10c615
+//! @prompt-hash fa23412e
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -34,7 +34,7 @@ impl Parity {
     /// paridade. Página 1 é ímpar, 2 é par, etc.
     pub fn matches(self, page_number: usize) -> bool {
         match self {
-            Self::Even => page_number % 2 == 0,
+            Self::Even => page_number.is_multiple_of(2),
             Self::Odd => page_number % 2 == 1,
         }
     }

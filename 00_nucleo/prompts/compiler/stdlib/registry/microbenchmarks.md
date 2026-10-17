@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/registry/microbenchmarks
-Hash do Código: ec3fcf9e
+Hash do Código: 6d4173ad
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/registry/microbenchmarks.rs`
@@ -26,3 +26,15 @@ or improvements without a comparable repeated baseline.
 Verify the owned behavior through local tests and its existing integrations.
 Preserve public paths and observable results. Ownership, nucleus integrity and
 lineage checks must remain valid; no unrelated consumer is authorized by this prompt.
+
+## Fluxo de controle e verificações executáveis — 2026-10-13
+
+### Medição anterior à decisão
+
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/stdlib/registry/microbenchmarks.rs:203-206 contém o trecho medido. O inventário Clippy e a leitura dos owners distinguem código sem efeito, dados inválidos deliberados e verificações vazias. Fontes, L0, UTC, status, diffstat e comandos estão em `00_nucleo/diagnosticos/controle-fluxo-ci-2026-10-13/before.json.gz` e nas evidências do mesmo diretório. Não é nova medição de paridade nem inferência sobre intenção upstream.
+
+### Decisão e aceitação
+
+Conservar exatamente a guarda que rejeita a execução explícita do runner em debug. O assert de cfg!(debug_assertions) é uma pré-condição intencional de perfil, não um teste de comportamento do produto. Usar expect(clippy::assertions_on_constants) exclusivamente sobre essa guarda, com justificativa; não silenciar o módulo nem outros avisos. Confirmar por execução ignorada selecionada que debug falha com a mensagem run with cargo test --release antes de Criterion. As asserções semânticas de fixtures e as medições release permanecem intactas.
+
+Preservar APIs públicas, comportamento padrão, fase e expectativas de linguagem existentes. Revalidar a suíte apropriada, Clippy, build e linhagem. Correção interna em fluxo contínuo ADR-0127.

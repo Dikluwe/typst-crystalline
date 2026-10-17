@@ -1,12 +1,63 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/outline.md
-//! @prompt-hash 60632d9f
+//! @prompt-hash 96d82005
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-05
 //!
 //! Comportamento de `eval/rules::outline`.
 
 use super::*;
+
+fn contains_heading_outline(content: &Content) -> bool {
+    use crate::entities::elements::outline::OutlineTarget;
+    match content {
+        Content::Outline(e) => e.target == OutlineTarget::Headings,
+        Content::Source(e) => contains_heading_outline(&e.body),
+        Content::Located(e) => contains_heading_outline(&e.body),
+        Content::Realized(e) => contains_heading_outline(&e.visual),
+        Content::ShowRecipe(e) => contains_heading_outline(&e.body),
+        Content::Styled(e) => contains_heading_outline(&e.body),
+        Content::Sequence(parts) => parts.iter().any(contains_heading_outline),
+        Content::Table(e) => {
+            let children = if let Some(resolved) = &e.resolved {
+                &resolved.cells
+            } else {
+                &e.children
+            };
+            children.iter().any(contains_heading_outline)
+                || (e.resolved.is_none()
+                    && e.header.as_ref().is_some_and(contains_heading_outline))
+                || (e.resolved.is_none()
+                    && e.footer.as_ref().is_some_and(contains_heading_outline))
+                || e.caption.as_ref().is_some_and(contains_heading_outline)
+        }
+        Content::TableCell(e) => {
+            let visual = e
+                .standalone
+                .as_ref()
+                .map(|r| &r.visual)
+                .or_else(|| e.resolved.as_ref().map(|r| &r.visual))
+                .unwrap_or(&e.body);
+            contains_heading_outline(visual)
+        }
+        other => {
+            let mut found = false;
+            let traversal = other.map_content(&mut |node| {
+                if let Content::Outline(e) = node {
+                    found |= e.target == OutlineTarget::Headings;
+                } else if let Content::Located(e) = node {
+                    if let Content::Outline(outline) = &e.body {
+                        found |= outline.target == OutlineTarget::Headings;
+                    }
+                }
+                Ok(None)
+            });
+            // If the proof cannot traverse a carrier, retain the original
+            // transforming path so it can report its own error.
+            found || traversal.is_err()
+        }
+    }
+}
 
 /// P1406 — substitui cada outline de headings pela sua sequência realizada
 /// depois que a introspecção já conhece entries e páginas. A função permanece
@@ -17,16 +68,40 @@ pub fn realize_outlines(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
+    if !contains_heading_outline(&content) {
+        return Ok(content);
+    }
+    let mut changed = false;
     let mut realize = |node: &Content| -> SourceResult<Option<Content>> {
+        if let Content::Located(e) = node {
+            if let Content::Outline(outline) = &e.body {
+                if outline.target
+                    == crate::entities::elements::outline::OutlineTarget::Headings
+                {
+                    changed = true;
+                    let body =
+                        realize_heading_outline(outline, introspector, ctx, engine)?;
+                    return Ok(Some(Content::Located(Arc::new(
+                        crate::entities::content::LocatedContent {
+                            location: e.location,
+                            body,
+                        },
+                    ))));
+                }
+            }
+            return Ok(None);
+        }
         let Content::Outline(outline) = node else {
             return Ok(None);
         };
         if outline.target != crate::entities::elements::outline::OutlineTarget::Headings {
             return Ok(None);
         }
+        changed = true;
         realize_heading_outline(outline, introspector, ctx, engine).map(Some)
     };
-    content.map_content(&mut realize)
+    let transformed = content.map_content(&mut realize)?;
+    Ok(if changed { transformed } else { content })
 }
 
 pub(crate) fn realize_heading_outline(
@@ -184,4 +259,41 @@ pub(crate) fn realize_heading_outline(
     ctx.in_context = previous_context;
     ctx.introspector = previous_intr;
     result
+}
+
+#[cfg(test)]
+mod scan_tests {
+    use super::*;
+    use crate::entities::content::{LocatedContent, RealizedContent};
+    use crate::entities::elements::outline::OutlineTarget;
+    use crate::entities::location::Location;
+
+    #[test]
+    fn borrowed_scan_detects_only_visible_heading_outlines() {
+        let heading = Content::outline();
+        let Content::Outline(elem) = &heading else { unreachable!() };
+        let mut other = elem.as_ref().clone();
+        other.target = OutlineTarget::Figures;
+        let other = Content::Outline(Arc::new(other));
+        assert!(!contains_heading_outline(&Content::table(
+            vec![],
+            vec![],
+            vec![other.clone()]
+        )));
+        assert!(contains_heading_outline(&Content::table(
+            vec![],
+            vec![],
+            vec![heading.clone()]
+        )));
+        let located = Content::Located(Arc::new(LocatedContent {
+            location: Location::from_raw(17),
+            body: heading.clone(),
+        }));
+        assert!(contains_heading_outline(&located));
+        let hidden = Content::Realized(Arc::new(RealizedContent {
+            original: heading,
+            visual: other,
+        }));
+        assert!(!contains_heading_outline(&hidden));
+    }
 }

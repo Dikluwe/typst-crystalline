@@ -1,5 +1,5 @@
 # L0 — stdlib/color/mix
-Hash do Código: be6218e4
+Hash do Código: ac6252cb
 
 ## Ownership e medição
 

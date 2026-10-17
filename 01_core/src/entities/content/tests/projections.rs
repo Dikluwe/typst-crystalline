@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content/tests/projections.md
-//! @prompt-hash a07b9549
+//! @prompt-hash 11007a2f
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -129,7 +129,10 @@ fn content_math_root_cubica() {
 #[test]
 fn styled_plain_text_transparente() {
     let inner = Content::text("hello");
-    let styles = Styles::from_iter([Style::bold(true), Style::Size(Pt(18.0))]);
+    let styles = Styles::from_iter([
+        Style::bold(true),
+        Style::Size(crate::entities::layout_types::Length::pt(18.0)),
+    ]);
     let styled = Content::styled(Box::new(inner), styles);
     assert_eq!(styled.plain_text(), "hello");
 }
@@ -586,7 +589,7 @@ fn p224_gridheader_variant_aceita() {
     let h = Content::grid_header(Content::text("hdr"), true);
     if let Content::GridHeader(e) = &h {
         assert_eq!(e.body.plain_text(), "hdr");
-        assert_eq!(e.repeat, true);
+        assert!(e.repeat);
     } else {
         panic!("esperado GridHeader");
     }
@@ -597,7 +600,7 @@ fn p224_gridfooter_variant_aceita() {
     let f = Content::grid_footer(Content::text("ftr"), false);
     if let Content::GridFooter(e) = &f {
         assert_eq!(e.body.plain_text(), "ftr");
-        assert_eq!(e.repeat, false);
+        assert!(!e.repeat);
     } else {
         panic!("esperado GridFooter");
     }

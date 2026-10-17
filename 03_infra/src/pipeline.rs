@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash b7460350
+//! @prompt-hash 4837d697
 //! @layer L3
-//! @updated 2026-09-21
+//! @updated 2026-10-07
 //!
 //! Pipeline de compilação — orquestra eval → introspect → layout
 //! → export_pdf, gere o boilerplate `comemo` (Route, Sink, Traced,
@@ -36,13 +36,11 @@ use typst_core::entities::introspector::Introspector;
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
 
 use crate::font_variant::{
-    axis_variations_for_font_variant, instantiate_variable_font, is_variable_font,
-    merge_explicit_variations, text_style_to_font_variant,
-    variable_font_instancer_available,
+    axis_variations_for_font_variant, is_variable_font, merge_explicit_variations,
+    text_style_to_font_variant, variable_font_instancer_available,
 };
 use typst_core::compiler::eval::{
     apply_func, eval_expression, eval_expression_with_features,
-    eval_expression_with_features_and_introspector,
     eval_with_full_error_target_and_features, realize_outlines, EvalContext, EvalTarget,
 };
 use typst_core::compiler::introspect::{
@@ -82,13 +80,13 @@ use crate::image_sizer::ImageSizeImageSizer;
 mod context_stabilization;
 
 mod paged;
+#[cfg(test)]
+use paged::compile_to_paged_document_full_error;
 use paged::{
-    bind_logical_page_numbers, compile_to_paged_document_full_error,
-    compile_to_paged_document_full_error_and_features,
+    bind_logical_page_numbers, compile_to_paged_document_full_error_and_features,
     compile_to_paged_document_full_error_and_features_with_introspector,
-    introspect_with_runtime_for_pipeline, layout_with_realized_math_callbacks,
-    layout_with_realized_math_callbacks_from, page_reference_pages,
-    realize_page_numberings,
+    introspect_with_runtime_for_pipeline, layout_with_realized_math_callbacks_from,
+    page_reference_pages, realize_page_numberings,
 };
 mod html;
 pub use html::{
@@ -99,9 +97,9 @@ pub use html::{
 };
 use html::{html_frame_positions, resolve_html_pretty};
 mod bundle;
-use bundle::{
-    bundle_error, collect_bundle_entries, introspect_bundle_with_runtime_for_pipeline,
-};
+#[cfg(test)]
+use bundle::collect_bundle_entries;
+use bundle::{bundle_error, introspect_bundle_with_runtime_for_pipeline};
 pub use bundle::{compile_to_bundle_files, BundleCompileOptions, BundleFile};
 mod pdf;
 pub use pdf::{
@@ -125,10 +123,9 @@ pub use pdf::{
     compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_and_pages_override,
     compile_to_pdf_bytes_with_timings_full_error_and_document_id_with_features_and_tagged_and_pretty_override,
 };
-use pdf::{
-    require_ua1_image_alt, resolve_pdf_pages_and_tags,
-    resolve_pdf_pages_tags_and_standards, resolve_pdf_pretty,
-};
+#[cfg(test)]
+use pdf::{require_ua1_image_alt, resolve_pdf_pages_and_tags};
+use pdf::{resolve_pdf_pages_tags_and_standards, resolve_pdf_pretty};
 mod raster;
 pub use raster::{
     compile_to_png_bytes, compile_to_png_bytes_full_error,
@@ -146,13 +143,32 @@ pub use svg::{
 };
 use svg::{svg_destination_context_for_page, svg_glyph_font_context_for_page};
 mod resources;
-use resources::{
-    collect_fonts_from_doc, first_font_from_doc, resolve_and_instantiate_fonts,
-    resolve_font, resolve_fonts,
-};
+use resources::{collect_fonts_from_doc, resolve_export_fonts, resolve_fonts};
+#[cfg(test)]
+use resources::{first_font_from_doc, resolve_font};
 
 #[cfg(test)]
 mod tests;
+
+/// Compiles query context once and returns its final introspector without export.
+pub fn compile_query_context(
+    world: &dyn World,
+    source: &Source,
+) -> (
+    SourceResult<typst_core::entities::introspector::TagIntrospector>,
+    Vec<SourceDiagnostic>,
+) {
+    let mut timings = Timings::default();
+    let (compiled, warnings) =
+        compile_to_paged_document_full_error_and_features_with_introspector(
+            world,
+            source,
+            false,
+            typst_core::entities::compiler_features::Features::default(),
+            &mut timings,
+        );
+    (compiled.map(|compiled| compiled.introspector), warnings)
+}
 
 /// Avalia uma expressão code isolada e devolve o valor + warnings crus.
 pub fn eval_expression_with_sink(
@@ -170,6 +186,51 @@ pub fn eval_expression_with_sink_features(
     eval_expression_with_features(world, expression, features)
 }
 
+/// Avalia a expressão pronta com identidade independente do main.
+pub fn eval_source_with_sink_features(
+    world: &dyn World,
+    expression: &Source,
+    features: typst_core::entities::compiler_features::Features,
+) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
+    typst_core::compiler::eval::eval_source_with_features_and_introspector(
+        world,
+        expression,
+        features,
+        &typst_core::entities::introspector::TagIntrospector::empty(),
+    )
+}
+
+/// Compila o contexto uma vez e preserva as origens da Source de expressão.
+pub fn eval_source_with_document_features(
+    world: &dyn World,
+    document: &Source,
+    expression: &Source,
+    features: typst_core::entities::compiler_features::Features,
+) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
+    let mut timings = Timings::default();
+    let (compiled, mut warnings) =
+        compile_to_paged_document_full_error_and_features_with_introspector(
+            world,
+            document,
+            false,
+            features,
+            &mut timings,
+        );
+    let introspector = match compiled {
+        Ok(compiled) => compiled.introspector,
+        Err(errors) => return (Err(errors), warnings),
+    };
+    let (result, expression_warnings) =
+        typst_core::compiler::eval::eval_source_with_features_and_introspector(
+            world,
+            expression,
+            features,
+            &introspector,
+        );
+    warnings.extend(expression_warnings);
+    (result, warnings)
+}
+
 /// Compila um documento paginado e avalia uma expressão contra seu contexto.
 pub fn eval_expression_with_document_features(
     world: &dyn World,
@@ -177,27 +238,12 @@ pub fn eval_expression_with_document_features(
     expression: &str,
     features: typst_core::entities::compiler_features::Features,
 ) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
-    let mut timings = Timings::default();
-    let (compiled, mut warnings) =
-        compile_to_paged_document_full_error_and_features_with_introspector(
-            world,
-            source,
-            false,
-            features,
-            &mut timings,
-        );
-    let (_, introspector) = match compiled {
-        Ok(pair) => pair,
-        Err(errors) => return (Err(errors), warnings),
-    };
-    let (result, expression_warnings) = eval_expression_with_features_and_introspector(
-        world,
-        expression,
-        features,
-        &introspector,
+    let expression = Source::new_with_parser(
+        world.main(),
+        expression.to_string(),
+        typst_core::compiler::parse::parse_code,
     );
-    warnings.extend(expression_warnings);
-    (result, warnings)
+    eval_source_with_document_features(world, source, &expression, features)
 }
 
 /// Avalia `source` contra `world` e devolve `(Module, warnings)`.
@@ -358,6 +404,10 @@ fn collect_context_blocks_into(
     map: &mut HashMap<u64, (Arc<ContextBlockElem>, StyleChain)>,
 ) {
     match content {
+        Content::Located(e) => collect_context_blocks_into(&e.body, chain, map),
+        Content::Realized(e) => collect_context_blocks_into(&e.visual, chain, map),
+        Content::Source(e) => collect_context_blocks_into(&e.body, chain, map),
+        Content::ShowRecipe(e) => collect_context_blocks_into(&e.body, &e.styles, map),
         Content::ContextBlock(elem) => {
             map.insert(elem.id, (elem.clone(), chain.clone()));
         }
@@ -369,10 +419,44 @@ fn collect_context_blocks_into(
             let inner_chain = chain.push_styles(styles);
             collect_context_blocks_into(inner, &inner_chain, map);
         }
+        Content::Sequence(items) => {
+            for item in items.iter() {
+                collect_context_blocks_into(item, chain, map);
+            }
+        }
+        Content::Table(table) => {
+            if let Some(resolved) = &table.resolved {
+                for cell in &resolved.cells {
+                    collect_context_blocks_into(cell, chain, map);
+                }
+            } else {
+                for child in &table.children {
+                    collect_context_blocks_into(child, chain, map);
+                }
+                if let Some(header) = &table.header {
+                    collect_context_blocks_into(header, chain, map);
+                }
+                if let Some(footer) = &table.footer {
+                    collect_context_blocks_into(footer, chain, map);
+                }
+            }
+            if let Some(caption) = &table.caption {
+                collect_context_blocks_into(caption, chain, map);
+            }
+        }
+        Content::TableCell(cell) => {
+            let visual = cell
+                .standalone
+                .as_ref()
+                .map(|r| &r.visual)
+                .or_else(|| cell.resolved.as_ref().map(|r| &r.visual))
+                .unwrap_or(&cell.body);
+            collect_context_blocks_into(visual, chain, map);
+        }
         other => {
-            // Descida exaustiva delegada a L1. `map_content` é usado como
-            // **visitante**: o transform devolve sempre `None`, logo a árvore
-            // devolvida é descartada sem alteração.
+            // Fallback exaustivo delegado a L1 para os containers que não têm
+            // descida emprestada acima. `map_content` é usado como visitante:
+            // o transform devolve sempre `None` e o produto é descartado.
             //
             // `map_content` é bottom-up (filhos antes do nó), por isso um
             // `Styled` mais abaixo é visto **depois** dos seus descendentes:
@@ -382,6 +466,15 @@ fn collect_context_blocks_into(
             // resultado pretendido.
             let _ = other.map_content(&mut |node| {
                 match node {
+                    Content::Located(e) => {
+                        collect_context_blocks_into(&e.body, chain, map)
+                    }
+                    Content::Realized(e) => {
+                        collect_context_blocks_into(&e.visual, chain, map)
+                    }
+                    Content::ShowRecipe(e) => {
+                        collect_context_blocks_into(&e.body, &e.styles, map)
+                    }
                     Content::ContextBlock(e) => {
                         map.insert(e.id, (e.clone(), chain.clone()));
                     }
@@ -413,6 +506,15 @@ fn substitute_context_blocks(
     content
         .map_content(&mut |node| {
             Ok(match node {
+                Content::Located(e) => {
+                    if let Content::ContextBlock(elem) = &e.body {
+                        let result =
+                            resolved.get(&elem.id).cloned().unwrap_or(Content::Empty);
+                        Some(Content::Sequence(vec![node.clone(), result].into()))
+                    } else {
+                        None
+                    }
+                }
                 Content::ContextBlock(elem) => {
                     // Preserva um marcador locatable e zero-size antes do
                     // resultado. Assim o mesmo Location recebe Position no
@@ -438,7 +540,7 @@ fn substitute_context_blocks(
 pub struct Timings {
     /// Parse do `.typ` → `Source` (medido pelo caller, tipicamente L2/L4).
     pub parse_ms: f64,
-    /// Eval com passagem dupla (P498): introspection + layout.
+    /// Avaliação comum única seguida da realização pura de receitas.
     pub eval_ms: f64,
     /// Construção do `TagIntrospector` a partir do conteúdo original.
     pub introspect_ms: f64,

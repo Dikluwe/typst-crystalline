@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/page_running.md
-//! @prompt-hash c8eb2a49
+//! @prompt-hash ad15a3c8
 //! @layer L1
 //! @updated 2026-08-24
 
@@ -31,17 +31,12 @@ impl Default for PageNumberAlign {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub enum PageMarginal {
+    #[default]
     Auto,
     None,
     Content(Arc<Content>),
-}
-
-impl Default for PageMarginal {
-    fn default() -> Self {
-        Self::Auto
-    }
 }
 
 pub type PageMarginalOffset = Rel<Length>;

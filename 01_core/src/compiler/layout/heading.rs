@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/heading.md
-//! @prompt-hash 776b7071
+//! @prompt-hash 235ef8d4
 //! @layer L1
 //! @updated 2026-08-18
 //!
@@ -46,6 +46,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let below_pt = font_base * 0.75;
 
     let prev = layouter.style.clone();
+    let prev_chain = layouter.chain.clone();
     let heading_style = TextStyle {
         bold: true,
         size: heading_size,
@@ -75,6 +76,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter.prev_block_below_pending = 0.0;
     layouter.initial_baseline_pending = false;
 
+    layouter.chain = layouter.chain.push(crate::entities::style_chain::StyleDelta {
+        size: Some(crate::entities::layout_types::Length::pt(heading_size.val())),
+        ..crate::entities::style_chain::StyleDelta::empty()
+    });
     layouter.style = heading_style;
 
     // Prefixo numérico — apenas se numbering estiver activo.
@@ -110,8 +115,6 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     layouter.layout_content(body);
     let heading_baseline = layouter.regions.current.cursor_y.0;
-    let (_, bottom) = layouter.metrics.text_edges(heading_size, &layouter.style);
-    let heading_descent = bottom.0.abs();
     layouter.flush_line();
     layouter.prev_line_baseline = heading_baseline;
     layouter.prev_block_equation_descent = 0.0;
@@ -122,4 +125,5 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter.prev_margin_is_parbreak = false;
 
     layouter.style = prev;
+    layouter.chain = prev_chain;
 }

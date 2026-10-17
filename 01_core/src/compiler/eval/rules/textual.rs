@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/textual.md
-//! @prompt-hash 42e4d7c5
+//! @prompt-hash f3067e9d
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-05
 //!
 //! Coordenação da realização textual de regras show.
 
@@ -19,7 +19,7 @@ use super::super::{selector_matching, EvalContext};
 use super::apply_show_rules;
 
 mod matching;
-mod space;
+pub(crate) mod space;
 
 /// Snapshot causal de show e style no instante em que uma ocorrência de
 /// markup é avaliada. Não é exposto como valor da linguagem.
@@ -88,7 +88,63 @@ pub(crate) fn realize_textual_parts(
         return Ok(());
     }
 
-    matching::apply_textual_groups(parts, snapshots, style_boundaries, ctx, engine)
+    if ctx.defer_show_rules {
+        let mut start = 0;
+        while start < parts.len() {
+            let snapshot = &snapshots[start];
+            let mut end = start + 1;
+            while end < parts.len()
+                && snapshot.same_group(&snapshots[end])
+                && !style_boundaries.iter().any(|(index, _)| *index == end)
+            {
+                end += 1;
+            }
+            if snapshot
+                .rules
+                .iter()
+                .any(|rule| selector_matching::is_text_rule(&rule.selector))
+            {
+                let body = Content::sequence(parts[start..end].to_vec());
+                parts[start] = Content::ShowRecipe(Arc::new(
+                    crate::entities::content::ShowRecipeContent {
+                        body,
+                        textual: true,
+                        context_id_floor: ctx.next_context_id,
+                        rules: snapshot.rules.clone(),
+                        styles: snapshot.styles.clone(),
+                        guards: snapshot.guards.clone(),
+                        file: engine.current_file,
+                    },
+                ));
+                for part in &mut parts[start + 1..end] {
+                    *part = Content::Empty;
+                }
+                ctx.has_deferred_show_rules = true;
+            }
+            start = end;
+        }
+        Ok(())
+    } else {
+        matching::apply_textual_groups(parts, snapshots, style_boundaries, ctx, engine)
+    }
+}
+
+pub(crate) fn realize_captured_text(
+    content: Content,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Content> {
+    let original = content.clone();
+    let mut parts = match content {
+        Content::Sequence(parts) => parts.to_vec(),
+        other => vec![other],
+    };
+    let snapshots = vec![TextualSnapshot::capture(engine); parts.len()];
+    matching::apply_textual_groups(&mut parts, &snapshots, &[], ctx, engine)?;
+    Ok(Content::Realized(Arc::new(crate::entities::content::RealizedContent {
+        original,
+        visual: Content::sequence(parts),
+    })))
 }
 
 #[cfg(test)]

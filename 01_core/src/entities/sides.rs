@@ -7,8 +7,8 @@
 //! Tipo geométrico genérico `Sides<T>` (left/top/right/bottom).
 //! Adicionado no Passo 156C (Fase 1 Layout, ADR-0061) como suporte
 //! a `Content::Pad { padding: Sides<Length> }`. Reusable por outras
-//! features Layout futuras (e.g. PageConfig refino — Sides<Length>
-//! para margens; Stroke — Sides<Stroke>).
+//! features Layout futuras (e.g. PageConfig refino — `Sides<Length>`
+//! para margens; Stroke — `Sides<Stroke>`).
 //!
 //! Estilo paralelo ao vanilla
 //! `lab/typst-original/crates/typst-library/src/layout/sides.rs`,

@@ -1,12 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/html/frame.md
-//! @prompt-hash 289705b0
+//! @prompt-hash f83ee5d8
 //! @layer L1
 //! @updated 2026-09-30
 
 use super::*;
 
-pub(super) fn native_html_frame(
+pub(in crate::compiler) fn native_html_frame(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,

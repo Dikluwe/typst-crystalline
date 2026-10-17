@@ -1,5 +1,5 @@
 # L0 — paragraph_select
-Hash do Código: a9f57044
+Hash do Código: 90ee3677
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:70b72ac9efb2bf81aa4ef496c4e1c867264f696d454a9916e7e2e5f385b92020
@@ -138,3 +138,94 @@ A largura natural de uma linha não final conserva também o tracking entre o ú
 ## Protótipo de busca limitada — 2026-09-30
 
 Medição anterior à decisão: `paragraph_select.rs:101-176` é a única seleção de finais de palavra em produção; `paragraph_plan.rs` usa este módulo diretamente. A busca experimental pertence exclusivamente a `paragraph_select_bounded.md` e é ligada apenas em `cfg(test)` pelo hub. Este owner conserva a DP exata, o contrato privado e o default atuais; a equivalência de quebras é verificada diferencialmente, sem alegar ganho temporal.
+
+## Fluxo de controle e verificações executáveis — 2026-10-13
+
+### Medição anterior à decisão
+
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. 01_core/src/compiler/layout/paragraph_select.rs:181-193 contém o trecho medido. O inventário Clippy e a leitura dos owners distinguem código sem efeito, dados inválidos deliberados e verificações vazias. Fontes, L0, UTC, status, diffstat e comandos estão em `00_nucleo/diagnosticos/controle-fluxo-ci-2026-10-13/before.json.gz` e nas evidências do mesmo diretório. Não é nova medição de paridade nem inferência sobre intenção upstream.
+
+### Decisão e aceitação
+
+O descarte de prefixos atualiza active para finais seguintes, mas a faixa de candidatos da iteração atual usa o valor inicial. Dar nome a esse limite inicial antes do for; continuar avaliando o candidato que acaba de ser descartado, preservando custo, desempate e progresso overlong. Não substituir pelo reinício do range nem por um while que omita a tentativa atual.
+
+Preservar APIs públicas, comportamento padrão, fase e expectativas de linguagem existentes. Revalidar a suíte apropriada, Clippy, build e linhagem. Correção interna em fluxo contínuo ADR-0127.
+
+
+## Operações numéricas puras — 2026-10-13
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/layout/paragraph_select.rs` nas linhas 108, 113 contém as chamadas sinalizadas como disallowed_methods pelo Clippy vigente. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado. `00_nucleo/diagnosticos/geometria-numerica-ci-2026-10-13/before.json.gz` conserva fonte, owner, configuração, libm, compilador, UTC, status e diffstat. A sonda host-math compara os backends antes da escolha: 4968 casos, 69 diferenças de até 1 ULP em trigonometria/atan2, sem mudança de classe numérica ou sinal de zero; potências e hypot coincidem na amostra. É medição deste host, não prova universal nem nova paridade contra vanilla.
+
+### Decisão e aceitação
+
+Expressar abs(ratio)^3 como quadrado seguido de multiplicação pelo mesmo valor, e o quadrado da soma final por soma*soma. Conservar a multiplicação externa por 100, ordem dos termos, regras de último final/runt/penalty, limites e desempates; não reassociar fatores nem alterar a seleção de linhas.
+
+Mudança interna em fluxo contínuo ADR-0127, sem contrato público novo, default ou fase. Preservar testes de geometria/linguagem existentes e comparar os exemplos SVG medidos antes/depois, declarando diferenças. A comparação geométrica não certifica todos os casos ou plataformas. Validar build, todos os targets, core, Clippy e linhagem. Não suprimir o lint nem substituir aceitação por identidade de bytes do compilador.
+
+
+## Aridade das fronteiras — `clippy::too_many_arguments`
+
+### Evidência anterior à decisão
+
+A leitura estrutural abaixo usa HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado,
+capturado em 2026-10-15T16:39:18.873477+00:00. Fontes completas, L0 anteriores, assinaturas,
+hashes, UTC, status e `git diff HEAD --stat` estão em
+`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/before.json.gz`.
+A classificação individual e as cláusulas deste L0 lidas antes da decisão estão em
+`00_nucleo/diagnosticos/too-many-arguments-2026-10-15/classification.json`.
+Os spans Clippy foram reconfirmados contra as fontes do inventário anterior.
+É medição de estrutura Rust; não é nova prova de paridade ou de falha funcional.
+
+- `C015`: `01_core/src/compiler/layout/paragraph_select.rs:94`, `line_cost`, 8 argumentos contados pelo Clippy (limiar 7).
+
+### Prescrição exclusiva por função
+
+As correções abaixo são alvos internos de manutenção, ainda não materializados nesta auditoria.
+Preservar as assinaturas públicas vigentes e as decisões de linguagem deste owner.
+A necessidade de corrigir estrutura é julgamento de manutenção apoiado nos dados
+explicitados; o aviso de aridade, sozinho, não demonstra um defeito funcional.
+
+#### `C015` — `line_cost`: Exceção pontual justificada
+
+Função matemática pura de custo: Measure, largura, tamanho, justify, last, unbreakable, penalidade e LineCosts são os operandos efetivos da fórmula compartilhada com a hifenização. Já existe o domínio LineCosts; adicionar um contexto opaco só esconderia os demais operandos.
+
+Preservar assinatura, ordem e semântica. Na materialização, usar #[expect(clippy::too_many_arguments, reason="C015: Função matemática pura de custo: Measure, largura, tamanho, justify, last, unbreakable, penalidade e LineCosts são os operandos efetivos da fórmula compartilhada com a hifenização")], somente nesta função.
+
+Aceitação: Confirmar o aviso no Clippy workspace/all-targets e a ausência de unfulfilled_lint_expectations após a anotação; preservar chamadas e controles funcionais do owner. Não elevar limiar global nem silenciar outros lints.
+
+### Limite da exceção
+
+Autorizar somente `#[expect(clippy::too_many_arguments, reason = "...")]` no item
+nominal acima, com o motivo arquitetural indicado. Não aplicar no módulo, impl,
+crate ou configuração global; não elevar o limiar nem abranger outro lint.
+Nos casos com remoção de argumento morto, a exceção residual depende dessa correção.
+Se a função deixar de exceder o limiar, retirar/revisar a expectativa; não silenciar
+`unfulfilled_lint_expectations`. Esta permissão específica supera proibições
+genéricas de supressão em seções anteriores somente para este lint e os itens
+nominais justificados aqui. As demais obrigações de correção permanecem.
+
+### Fronteira de materialização
+
+Nesta auditoria, somente o L0 e seu selo de linhagem são atualizados; atributos de
+supressão e mudanças de assinatura/corpo ficam pendentes da etapa de materialização.
+As entradas com correção exigem testes de linguagem/integração do owner e controle
+de chamadas antes/depois, sem relaxar fixtures ou tolerâncias. Manter as camadas,
+a fase, os defaults, o despacho estático e a ausência de estado global mutável.
+Correções de assinatura privada devem migrar também os chamadores e seus L0 antes
+do código. Qualquer necessidade nova de contrato público ou compatibilidade externa
+exige proposta concreta e confirmação ADR-0127; esta seção não a antecipa.
+
+
+## Exceções nominais materializadas — 2026-10-16
+
+### Medição anterior à decisão
+
+O inventário validado em `00_nucleo/diagnosticos/clippy-locais-2026-10-16/clippy-inventory.json` conserva 79 avisos. A reconfirmação de fontes/spans, motivos vigentes, assinaturas e hashes deste lote está em `00_nucleo/diagnosticos/clippy-excecoes-2026-10-16/before.json.gz`, com HEAD, working tree não commitado, UTC e git diff HEAD --stat. As funções e os dados concretos foram lidos antes desta decisão. Aridade e heurísticas de tipos são mecânica Rust; não há nova prova de paridade ou benefício cognitivo medido.
+
+### Responsabilidade e aceitação
+
+Materializar somente as expectativas diretas nominais já justificadas neste owner: C015. Reconfirmadas contra os spans atuais e as cláusulas individuais. Usar exatamente #[expect(clippy::too_many_arguments, reason="ID: motivo prescrito")] na função, nunca módulo/impl/crate; preservar assinatura, corpo, chamadas, cfg e atributos alheios. As entradas classificadas corrigir, inclusive C047/C066 condicionais, continuam pendentes e não recebem anotação neste lote.
+
+Fluxo contínuo ADR-0127: este lote acrescenta apenas metadados de lint, não muda contratos públicos, corpo executável, cfg, defaults, fase, dependências ou arquitetura. A cláusula materializa somente as exceções nominais expressas e supersede proibições genéricas de supressão apenas para os itens/lints identificados; não autoriza silenciar as correções pendentes. L0 precede código, resselo restrito e prova de que remover os atributos acrescentados e o header de linhagem recupera a fonte anterior, normalizada pelo rustfmt. Medir RED antes; depois conferir inventário all-targets, exatamente 46 aridades e cinco avisos de testes satisfeitos por 49 expectativas, sem aviso novo e com unfulfilled_lint_expectations como erro. As 11 aridades destinadas a correção devem continuar visíveis. Validar build, formato, linhagens estrita/reversa, Tekt sem erros/avisos novos, testes existentes de Counter e cobertura sob 12 GiB, swap zero e um job. A suíte completa anterior permanece evidência do mesmo código executável; não criar testes que espelhem atributos de lint nem exigir nova comparação de performance para metadados.

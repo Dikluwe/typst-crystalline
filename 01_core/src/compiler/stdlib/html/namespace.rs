@@ -1,10 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/html/namespace.md
-//! @prompt-hash 80358491
+//! @prompt-hash 797b6b7c
 //! @layer L1
 //! @updated 2026-09-30
 
 use super::*;
+use crate::entities::func::{FormatElementKind, NativeFunc};
 
 /// Constrói o valor `html` como `Value::Func` com namespace fechado
 /// (`elem`, `frame`, as tags tipadas) — paridade com o vanilla ratificado,
@@ -18,7 +19,14 @@ pub fn make_html_module() -> Value {
     for (name, native) in TYPED_TAGS {
         scope.define(*name, Value::Func(Func::native(name, *native)));
     }
-    Value::Func(Func::native_with_namespace("html", native_html_root, Arc::new(scope)))
+    Value::Func(Func::native_format(
+        FormatElementKind::Html,
+        NativeFunc {
+            name: "html",
+            call: native_html_root,
+            namespace: Some(Arc::new(scope)),
+        },
+    ))
 }
 
 /// `html(...)` não pode ser construído manualmente — mesmo diagnóstico

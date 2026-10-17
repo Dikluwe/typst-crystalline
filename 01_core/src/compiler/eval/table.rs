@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/table.md
-//! @prompt-hash 71e69c65
+//! @prompt-hash 7fd85ee9
 //! @layer L1
 
 use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
@@ -16,6 +16,10 @@ pub(crate) fn normalize_table_cell(value: &Value) -> SourceResult<TableCellElem>
     match value {
         Value::Content(Content::TableCell(cell)) => Ok((**cell).clone()),
         Value::Content(body) => Ok(TableCellElem {
+            source_span: crate::entities::span::Span::detached(),
+            resolved: None,
+            standalone: None,
+            presence: Default::default(),
             body: body.clone(),
             x: None,
             y: None,

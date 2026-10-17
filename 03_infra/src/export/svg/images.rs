@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg/images.md
-//! @prompt-hash cfd6a3a3
+//! @prompt-hash 49c6ad6f
 //! @layer L3
 //! @updated 2026-09-26
 
@@ -11,6 +11,10 @@ use typst_core::entities::image_format::{detect_image_format, ImageFormat};
 use typst_core::entities::layout_types::{Point, Pt, TransformMatrix};
 use xmlwriter::XmlWriter;
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C068: Leaf de imagem recebe bytes, caixa física, orientação e clip já resolvidos, writer e contador de clip IDs"
+)]
 pub(super) fn render_image(
     xml: &mut XmlWriter,
     pos: &Point,

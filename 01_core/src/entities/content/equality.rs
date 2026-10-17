@@ -1,14 +1,22 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content/equality.md
-//! @prompt-hash 26cfd03b
+//! @prompt-hash 5dd5f8f2
 //! @layer L1
-//! @updated 2026-09-26
+//! @updated 2026-10-07
 
 use super::*;
 
 impl PartialEq for Content {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
+            (Self::Source(e), b) => e.body.eq(b),
+            (a, Self::Source(e)) => a.eq(&e.body),
+            (Self::ShowRecipe(e), b) => e.body.eq(b),
+            (Self::Located(e), b) => e.body.eq(b),
+            (Self::Realized(e), b) => e.visual.eq(b),
+            (a, Self::ShowRecipe(e)) => a.eq(&e.body),
+            (a, Self::Located(e)) => a.eq(&e.body),
+            (a, Self::Realized(e)) => a.eq(&e.visual),
             (Self::Empty, Self::Empty) => true,
             (Self::Text(a), Self::Text(b)) => a == b,
             (

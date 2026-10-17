@@ -1,5 +1,8 @@
 # Prompt L0 — `entities/elements/figure` — `FigureElem`
-Hash do Código: 2caa9204
+Hash do Código: fe388866
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:923f1c9e4c2fd5934316ae2eef3dbb461c3bef3009de1d8931d951e793dda342
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/figure.rs`
 **Origem**: modelo D (ADR-0105), **Lote 13 P328** (o último element-shaped).
@@ -22,13 +25,12 @@ pub struct FigureElem {
     pub body:      Content,             // era Box<Content>
     pub caption:   Option<Content>,     // era Option<Box<Content>>
     pub kind:      Option<String>,
-    pub numbering: Option<String>,
 }
 ```
 
-`Content::Figure { body, caption, kind, numbering }` →
-`Content::Figure(Arc<FigureElem>)`. Construtor ergonómico (cobre os 4 campos
-— logo o transformador usa `Content::figure(…)`, não Arc-wrap):
+O formato histórico `Content::Figure { body, caption, kind, numbering }` deu lugar a
+`Content::Figure(Arc<FigureElem>)`. Construtor ergonómico legado com quatro argumentos (numbering é adapter histórico;
+a entidade atual tem três campos e o gate de numeração vive na chain):
 `Content::figure(body, caption, kind, numbering)`. **Deriva `Hash`** (`Content`
 tem `impl Hash` manual; `Option<String>` deriva).
 
@@ -38,11 +40,11 @@ tem `impl Hash` manual; `Option<String>` deriva).
 |---|---|
 | `plain_text` | **custom** (`content.rs:1706`): junta `body.plain_text()` e `caption.plain_text()` com espaço; cada um omitido se vazio |
 | `is_empty` | **override**: `self.body.is_empty() && self.caption.as_ref().is_none_or(\|c\| c.is_empty())` (`content.rs:1573`) |
-| `map_content` | **recursivo** em `body` e `caption`, preserva `kind`/`numbering` (`content.rs:1996`) |
-| `map_text` | **recursivo** em `body` e `caption`, preserva `kind`/`numbering` (`content.rs:2206`) — **simétrico** com `map_content` |
-| `get_field` | default `None` |
+| `map_content` | **recursivo** em `body` e `caption`, preserva `kind` (`content.rs:1996`) |
+| `map_text` | **recursivo** em `body` e `caption`, preserva `kind` (`content.rs:2206`) — **simétrico** com `map_content` |
+| `get_field` | `body` e `caption` presente conforme a decisão de reflexão abaixo; outros campos desconhecidos |
 | `element_kind` | `Some(ElementKind::Figure)` |
-| `to_payload` | `Some(ElementPayload::Figure { kind: self.kind.clone(), counter_update: CounterUpdate::Step, is_counted: self.numbering.is_some() && self.caption.is_some() })` (absorve `extract_payload.rs:24`) |
+| `to_payload` | `Some(ElementPayload::Figure { kind: self.kind.clone(), counter_update: CounterUpdate::Step, is_counted: self.caption.is_some() })` (absorve `extract_payload.rs:24`) |
 
 > **Fonte de paridade e correcção de enquadramento (P1031).**
 >
@@ -89,7 +91,7 @@ tem `impl Hash` manual; `Option<String>` deriva).
 
 ## `eq`
 
-`#[derive(PartialEq)]` compara os 4 campos (paridade `content.rs:1837`).
+`#[derive(PartialEq)]` compara os 3 campos atuais (paridade `content.rs:1837`).
 
 ## Interação `figure_image.rs`
 
@@ -97,3 +99,32 @@ tem `impl Hash` manual; `Option<String>` deriva).
 `Content::Raw(_)`) — **inalterado** (matcheia o conteúdo, não `Figure`). Só a
 **construção** em `native_figure` (`figure_image.rs:92`) muda para
 `Content::figure(…)`.
+
+## Reflexão da legenda presente — 2026-10-17
+
+Medição antes da decisão: caption-before.json e more-cast-after.json em
+00_nucleo/diagnosticos/tekt-v16-figure-casts-2026-10-17 fixam UTC, fontes,
+binários e o pin 9f2b6e8715237cb086899a42873660fe744622e8. A construção
+conserva a caption, mas content/fields.rs:73 projeta só body de Figure;
+FigureElem mantém o getter default None. O pin retorna FigureCaption para
+caption presente (inclusive conteúdo vazio), null para none explícito e erro
+not known at this point para omissão. O carrier público Option<Content> não
+distingue none explícito de omissão; essa presença continua incompleta no FG1,
+exige proposta pública, e não deve ser simulada com Empty/strings.
+
+Responsabilidade exclusiva e aceitação:
+
+Implementar somente o override já existente Element::get_field para body e
+caption. body retorna o Content original clonado. caption Some(body) projeta
+Value::Content(Content::figure_caption(body.clone(),None,None)), conservando
+origem e sem resolver defaults, sintetizar kind/supplement/counter ou executar
+layout. caption None e campos desconhecidos continuam None do getter: não
+inventar presença de campo. O novo override não adiciona método ao trait nem
+muda assinatura pública; é correção interna de reflexão de linguagem em fluxo
+contínuo ADR-0127. O campo numbering já foi removido em P365; a entidade atual
+possui body/caption/kind, a numeração continua na chain.
+
+L0 antes do teste/código. RED real da projeção de caption, GREEN e replay das
+seis sondas mais os casos simbólicos. Body, Source e campos ausentes continuam
+preservados. Revalidar a etapa integral sob 12 GiB/swap zero/jobs1, resselo
+só dos owners após V15/V26 válido; sem API/fase/default novo nem release.

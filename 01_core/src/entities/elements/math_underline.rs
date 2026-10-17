@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_underline.md
-//! @prompt-hash 891a45a5
+//! @prompt-hash d35bad6e
 //! @layer L1
-//! @updated 2026-08-31
+//! @updated 2026-10-10
 //!
 //! `MathUnderlineElem` — underline matemático body-only, distinto da
 //! decoração textual `UnderlineElem`.
@@ -34,9 +34,9 @@ impl Element for MathUnderlineElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathUnderline(Arc::new(MathUnderlineElem {
-            body: self.body.map_content(transform)?,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathUnderline(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -56,9 +56,9 @@ impl Element for MathOverlineElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::MathOverline(Arc::new(MathOverlineElem {
-            body: self.body.map_content(transform)?,
-        })))
+        Ok(self
+            .map_content_if_changed(transform)?
+            .unwrap_or_else(|| Content::MathOverline(Arc::new(self.clone()))))
     }
 
     fn map_text<F>(&self, _transform: &mut F) -> Content
@@ -66,6 +66,46 @@ impl Element for MathOverlineElem {
         F: FnMut(&str) -> String,
     {
         Content::MathOverline(Arc::new(self.clone()))
+    }
+}
+
+impl MathUnderlineElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        if body.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        Ok(Some(Content::MathUnderline(Arc::new(mapped))))
+    }
+}
+
+impl MathOverlineElem {
+    pub(crate) fn map_content_if_changed<F>(
+        &self,
+        transform: &mut F,
+    ) -> SourceResult<Option<Content>>
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
+        let body = self.body.map_content_if_changed(transform)?;
+        if body.is_none() {
+            return Ok(None);
+        }
+        let mut mapped = self.clone();
+        if let Some(changed) = body {
+            mapped.body = changed;
+        }
+        Ok(Some(Content::MathOverline(Arc::new(mapped))))
     }
 }
 

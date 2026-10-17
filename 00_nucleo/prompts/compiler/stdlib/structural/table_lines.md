@@ -1,5 +1,5 @@
 # L0 — stdlib/structural/table_lines
-Hash do Código: ba8a5360
+Hash do Código: 9986290e
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/structural/table_lines.rs`

@@ -1,5 +1,5 @@
 # L0 — stdlib/foundations
-Hash do Código: c19e6bc9
+Hash do Código: 3e91f683
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/foundations/mod.rs`

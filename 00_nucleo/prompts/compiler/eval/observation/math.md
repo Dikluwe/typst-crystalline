@@ -1,5 +1,5 @@
 # L0 — compiler/eval/observation/math
-Hash do Código: 0dab3b94
+Hash do Código: 4d2453e3
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/observation-relation.toml sha256:c2062be931c790cf1de7f77349801100f3837e58e5ae2f933bf2b392a9fb6a0a

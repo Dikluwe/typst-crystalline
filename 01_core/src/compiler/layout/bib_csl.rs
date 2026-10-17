@@ -493,8 +493,10 @@ mod tests {
     #[test]
     fn formatted_italic_vai_para_emph() {
         use hayagriva::citationberg::FontStyle;
-        let mut formatting = Formatting::default();
-        formatting.font_style = FontStyle::Italic;
+        let formatting = Formatting {
+            font_style: FontStyle::Italic,
+            ..Formatting::default()
+        };
         let c = apply_formatting(Content::text("italico"), formatting);
         assert!(matches!(c, Content::Emph(_)));
         assert_eq!(c.plain_text(), "italico");
@@ -617,8 +619,10 @@ mod tests {
     #[test]
     fn formatted_strong_vai_para_strong() {
         use hayagriva::citationberg::FontWeight;
-        let mut formatting = Formatting::default();
-        formatting.font_weight = FontWeight::Bold;
+        let formatting = Formatting {
+            font_weight: FontWeight::Bold,
+            ..Formatting::default()
+        };
         let c = apply_formatting(Content::text("negrito"), formatting);
         assert!(matches!(c, Content::Strong(_)));
     }
@@ -626,8 +630,10 @@ mod tests {
     #[test]
     fn formatted_smallcaps_vai_para_smallcaps() {
         use hayagriva::citationberg::FontVariant;
-        let mut formatting = Formatting::default();
-        formatting.font_variant = FontVariant::SmallCaps;
+        let formatting = Formatting {
+            font_variant: FontVariant::SmallCaps,
+            ..Formatting::default()
+        };
         let c = apply_formatting(Content::text("smallcaps"), formatting);
         assert!(matches!(c, Content::SmallCaps { .. }));
     }
@@ -635,8 +641,10 @@ mod tests {
     #[test]
     fn formatted_underline_vai_para_underline() {
         use hayagriva::citationberg::TextDecoration;
-        let mut formatting = Formatting::default();
-        formatting.text_decoration = TextDecoration::Underline;
+        let formatting = Formatting {
+            text_decoration: TextDecoration::Underline,
+            ..Formatting::default()
+        };
         let c = apply_formatting(Content::text("sublinhado"), formatting);
         assert!(matches!(c, Content::Underline(_)));
     }

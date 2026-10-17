@@ -1,5 +1,5 @@
 # L0 — Explicit fallback font catalogs
-Hash do Código: 39371770
+Hash do Código: 0b381339
 
 **Layer:** L3
 **Exclusive consumer:** `03_infra/src/fallback_fonts.rs`

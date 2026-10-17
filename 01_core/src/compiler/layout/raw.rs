@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/raw_highlight.md
-//! @prompt-hash 56afa668
+//! @prompt-hash 9dc27b36
 //! @layer L1
-//! @updated 2026-07-20
+//! @updated 2026-10-07
 //!
 //! Highlighting em Blocos Raw (P785a): integração de syntect + two-face para
 //! tokenização e coloração de código-fonte no layouter de `raw`.
@@ -98,39 +98,234 @@ fn get_theme() -> &'static synt::Theme {
     &THEME
 }
 
-/// Layout de código `raw` (`` `...` ``): estilo a 90% sem bold/italic; em modo
-/// bloco força nova linha e indenta. Aplica syntax highlighting quando `lang` é fornecido.
+/// Defaults de render do pin 9f2b6e871, antes dos overrides show-set.
+pub(super) fn default_style(
+    outer: &TextStyle,
+    chain: &crate::entities::style_chain::StyleChain,
+) -> TextStyle {
+    TextStyle {
+        bold: false,
+        italic: false,
+        // ref: lab/typst-original/crates/typst-library/src/text/raw.rs:663
+        size: Pt(outer.size.val() * 0.8),
+        font: Some(crate::entities::font_list::FontList::single(
+            "DejaVu Sans Mono".into(),
+        )),
+        fill: match chain.custom("text.fill") {
+            Some(crate::entities::value::Value::Color(c)) => Some(c.clone()),
+            _ => outer.fill.clone(),
+        },
+        ..outer.clone()
+    }
+}
+
+fn block_margin<M: FontMetrics, S: ImageSizer>(
+    l: &Layouter<M, S>,
+    edge: &str,
+    font: f64,
+) -> (f64, bool) {
+    use crate::entities::value::Value;
+    for key in [edge, "block.spacing"] {
+        if let Some(Value::Length(v)) = l.chain.custom(key) {
+            return (v.resolve_pt(font), true);
+        }
+        if l.chain.custom(key) == Some(&Value::Auto) {
+            break;
+        }
+    }
+    if let Some(Value::Length(v)) = l.chain.custom("par.spacing") {
+        return (v.resolve_pt(font), false);
+    }
+    (font * super::vanilla_defaults::BLOCK_SPACING, false)
+}
+
+pub(super) fn begin_block<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+    font: f64,
+    outer: &TextStyle,
+) {
+    let prefix = super::html_frame::items_have_material(&l.regions.current.current_line);
+    let previous_paragraph = prefix
+        || (!l.block_chain_active
+            && super::html_frame::items_have_material(&l.regions.current.current_items));
+    if prefix {
+        l.flush_line();
+    }
+    let (above, explicit) = block_margin(l, "block.above", font);
+    if previous_paragraph || l.block_chain_active {
+        let preceding = if previous_paragraph {
+            match l.chain.custom("par.spacing") {
+                Some(crate::entities::value::Value::Length(v)) => {
+                    v.resolve_pt(outer.size.val())
+                }
+                _ => outer.size.val() * super::vanilla_defaults::PAR_SPACING,
+            }
+        } else {
+            l.prev_block_below_pending
+        };
+        let weak = previous_paragraph || l.prev_margin_is_parbreak;
+        let gap = if explicit && weak {
+            above
+        } else if !explicit && !weak {
+            preceding
+        } else {
+            preceding.max(above)
+        };
+        l.regions.current.cursor_y =
+            Pt(l.prev_line_baseline + l.prev_block_equation_descent + gap);
+        l.initial_baseline_pending = true;
+    } else if l.is_sub_frame
+        && l.regions
+            .current
+            .current_items
+            .iter()
+            .all(super::html_frame::is_context_marker)
+        && !l.initial_baseline_pending
+    {
+        l.regions.current.cursor_y =
+            Pt(l.regions.current.cursor_y.0 - l.line_assumed_ascent.unwrap_or(0.0));
+        l.initial_baseline_pending = true;
+    }
+    l.regions.current.cursor_x = l.regions.current.line_start_x;
+    l.prev_block_below_pending = 0.0;
+    l.block_chain_active = false;
+    l.prev_margin_is_parbreak = false;
+}
+
+pub(super) fn end_block<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+    font: f64,
+) {
+    let has_line =
+        super::html_frame::items_have_material(&l.regions.current.current_line);
+    let bottom = l
+        .regions
+        .current
+        .current_line
+        .iter()
+        .filter_map(|i| match i {
+            crate::entities::layout_types::FrameItem::Text { style, .. }
+            | crate::entities::layout_types::FrameItem::TextShaped { style, .. } => {
+                Some((-l.metrics.text_edges(style.size, style).1 .0).max(0.0))
+            }
+            _ => None,
+        })
+        .fold(0.0_f64, f64::max);
+    let empty_origin = l.initial_baseline_pending.then_some(l.regions.current.cursor_y.0);
+    if has_line {
+        l.flush_line();
+    }
+    let base = empty_origin.unwrap_or(l.prev_line_baseline);
+    let end = base + bottom;
+    l.prev_line_baseline = base;
+    l.prev_block_equation_descent = bottom;
+    l.last_block_descent_y = Some(end);
+    l.regions.current.cursor_y = Pt(end);
+    l.initial_baseline_pending = false;
+    let (below, explicit) = block_margin(l, "block.below", font);
+    l.prev_block_below_pending = below;
+    l.block_chain_active = true;
+    l.prev_margin_is_parbreak = !explicit;
+    if explicit && below <= 0.0 {
+        l.regions.current.cursor_y = Pt(end + below);
+        l.initial_baseline_pending = true;
+    }
+    l.record_flow_placement_end(end);
+}
+
+/// Terminal Raw block products use their real lower edge in sub-frame measurement.
+pub(super) fn terminal_block(c: &crate::entities::content::Content) -> bool {
+    use crate::entities::{content::Content, value::Value};
+    if let Content::Raw(r) = c {
+        return r.block;
+    }
+    if let Content::Styled(s) = c {
+        return s
+            .styles
+            .delta()
+            .custom
+            .iter()
+            .any(|(k, v)| k.as_str() == "raw.block" && v == &Value::Bool(true))
+            || terminal_block(&s.body);
+    }
+    if let Content::Located(s) = c {
+        return terminal_block(&s.body);
+    }
+    if let Content::Realized(s) = c {
+        return terminal_block(&s.visual);
+    }
+    if let Content::ShowRecipe(s) = c {
+        return terminal_block(&s.body);
+    }
+    if let Content::Strong(s) = c {
+        return terminal_block(&s.body);
+    }
+    if let Content::Emph(s) = c {
+        return terminal_block(&s.body);
+    }
+    if let Content::TableCell(s) = c {
+        return terminal_block(s.visual());
+    }
+    if let Content::Sequence(v) = c {
+        return v
+            .iter()
+            .rev()
+            .find(|c| {
+                !matches!(
+                    c,
+                    Content::Empty
+                        | Content::Space
+                        | Content::SpaceFromNewline
+                        | Content::Metadata(_)
+                )
+            })
+            .is_some_and(terminal_block);
+    }
+    false
+}
+
+/// Render Raw no escopo corrente, restaurando o estilo exterior.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &RawElem,
 ) {
     let prev = layouter.style.clone();
-    // ref: lab/typst-original/crates/typst-library/src/text/raw.rs:360
-    // **P1055** — paridade vanilla: raw preserva 100% de size, apenas aplicando monospace.
-    let base_style = TextStyle {
-        bold: false,
-        italic: false,
-        size: prev.size,
-        fill: None,
-        font: prev.font.clone(),
-        lang: prev.lang.clone(),
-        dir: prev.dir,
-        ..prev.clone()
+    let owns_block = e.block
+        && layouter.chain.custom("raw.block.active")
+            != Some(&crate::entities::value::Value::Bool(true));
+    let mut base_style = if layouter.chain.custom("raw.defaults.active")
+        == Some(&crate::entities::value::Value::Bool(true))
+    {
+        prev.clone()
+    } else {
+        default_style(&prev, &layouter.chain)
     };
+    let block_font = base_style.size.val();
+    if owns_block {
+        begin_block(layouter, block_font, &prev);
+    }
+    if let Some(crate::entities::value::Value::Color(c)) =
+        layouter.chain.custom("text.fill")
+    {
+        base_style.fill = Some(c.clone());
+    }
+    // A gramática typc não é disponibilizada por todas as bundles two-face.
+    // Átomos Auto/Bool conservam a cor constant.language da paleta Typst Light.
+    if e.lang.as_deref() == Some("typc")
+        && matches!(e.text.as_str(), "true" | "false" | "auto")
+    {
+        base_style.fill = Some(Color::Srgb {
+            r: 0xd7 as f32 / 255.0,
+            g: 0x39 as f32 / 255.0,
+            b: 0x48 as f32 / 255.0,
+            a: 1.0,
+        });
+    }
 
     let lang = e.lang.as_deref().unwrap_or("txt").to_lowercase();
     let syntaxes = get_syntaxes();
     let theme = get_theme();
     let syntax = syntaxes.find_syntax_by_token(&lang);
-
-    if e.block {
-        if layouter.regions.current.cursor_x.0 > layouter.page_config.margin.left {
-            layouter.flush_line();
-        }
-        // ref: lab/typst-original/crates/typst-library/src/text/raw.rs:400
-        // **P1055** — bloco raw sem inset explícito inicia na margem, sem indent 1em fixo.
-        layouter.regions.current.cursor_x = Pt(layouter.page_config.margin.left);
-    }
 
     if let Some(syntax) = syntax {
         let mut highlighter = syntect::easy::HighlightLines::new(syntax, theme);
@@ -139,7 +334,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         for (i, line) in lines.iter().enumerate() {
             if i > 0 && e.block {
                 layouter.flush_line();
-                layouter.regions.current.cursor_x = Pt(layouter.page_config.margin.left);
+                layouter.regions.current.cursor_x = layouter.regions.current.line_start_x;
             }
 
             if let Ok(ranges) = highlighter.highlight_line(line, syntaxes) {
@@ -178,13 +373,19 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
     } else {
         layouter.style = base_style;
-        for word in e.text.split_whitespace() {
-            layouter.layout_word(word);
+        for (i, line) in e.text.lines().enumerate() {
+            if i > 0 && e.block {
+                layouter.flush_line();
+                layouter.regions.current.cursor_x = layouter.regions.current.line_start_x;
+            }
+            for word in line.split_whitespace() {
+                layouter.layout_word(word);
+            }
         }
     }
 
-    if e.block {
-        layouter.flush_line();
+    if owns_block {
+        end_block(layouter, block_font);
     }
     layouter.style = prev;
 }

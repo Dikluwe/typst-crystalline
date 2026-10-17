@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/tests.md
-//! @prompt-hash 859b2d3d
+//! @prompt-hash 247bc424
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -469,7 +469,7 @@ fn p809_mathident_letra_unica_vira_math_italic() {
             }
         })
         .collect();
-    assert!(texts.iter().any(|t| *t == "\u{1D465}"), "esperado 𝑥 U+1D465: {texts:?}");
+    assert!(texts.contains(&"\u{1D465}"), "esperado 𝑥 U+1D465: {texts:?}");
 }
 
 #[test]
@@ -487,7 +487,7 @@ fn p809_mathtext_letra_unica_vira_math_italic() {
             }
         })
         .collect();
-    assert!(texts.iter().any(|t| *t == "\u{1D465}"), "esperado 𝑥 U+1D465: {texts:?}");
+    assert!(texts.contains(&"\u{1D465}"), "esperado 𝑥 U+1D465: {texts:?}");
 }
 
 #[test]
@@ -505,7 +505,7 @@ fn p809_mathtext_grego_minusculo_vira_math_italic() {
             }
         })
         .collect();
-    assert!(texts.iter().any(|t| *t == "\u{1D6FC}"), "esperado 𝛼 U+1D6FC: {texts:?}");
+    assert!(texts.contains(&"\u{1D6FC}"), "esperado 𝛼 U+1D6FC: {texts:?}");
 }
 
 #[test]
@@ -523,7 +523,7 @@ fn p809_mathtext_grego_maiusculo_fica_upright() {
             }
         })
         .collect();
-    assert!(texts.iter().any(|t| *t == "Γ"), "esperado Γ upright: {texts:?}");
+    assert!(texts.contains(&"Γ"), "esperado Γ upright: {texts:?}");
 }
 
 #[test]
@@ -543,10 +543,7 @@ fn p809_mathtext_digito_e_funcao_nao_mudam() {
                 }
             })
             .collect();
-        assert!(
-            texts.iter().any(|t| *t == esperado),
-            "esperado {esperado:?} inalterado: {texts:?}"
-        );
+        assert!(texts.contains(&esperado), "esperado {esperado:?} inalterado: {texts:?}");
     }
 }
 
@@ -633,7 +630,7 @@ fn p812b_italico_atravessa_wrapper_de_tamanho() {
         })
         .collect();
     assert!(
-        texts.iter().any(|t| *t == "\u{1D465}"),
+        texts.contains(&"\u{1D465}"),
         "script(x) deve manter o itálico por defeito (𝑥 U+1D465): {texts:?}"
     );
 }
@@ -1083,6 +1080,7 @@ fn offset_item_desloca_text() {
         pos: Point { x: Pt(1.0), y: Pt(2.0) },
         text: "a".into(),
         style: TextStyle::regular(Pt(12.0)),
+        bidi: None,
     };
     let shifted = offset_item(item, Pt(3.0), Pt(4.0));
     if let FrameItem::Text { pos, .. } = shifted {
@@ -1377,7 +1375,7 @@ fn p905_sqrt_de_fraccao_com_variaveis_nao_produz_saida_malformada() {
         // sqrt tem 2 linhas (overline do radical + linha da fracção) — a
         // linha da fracção é adicionada depois da overline (dentro do
         // layout_node do radicando), logo é a última.
-        .last()
+        .next_back()
         .expect("sqrt(x/y) deve ter pelo menos uma linha");
 
     let den_top_ink = den_y - leaf_ascent;
@@ -1597,15 +1595,15 @@ fn p311b5_bb_x_emite_double_struck_x() {
 }
 
 #[test]
-fn p311b5_cal_L_emite_script_L() {
-    let cal_L = Content::math_styled(
+fn p311b5_cal_l_emite_script_l() {
+    let cal_l = Content::math_styled(
         Some(MathStyleKind::Chancery),
         None,
         None,
         Content::MathIdent("L".into()),
         None,
     );
-    let items = layout_equation_items(&cal_L);
+    let items = layout_equation_items(&cal_l);
     // L Chancery = U+2112 (excepção BMP)
     assert!(
         items_contain_text(&items, '\u{2112}'),
@@ -1800,7 +1798,7 @@ fn p1088_debug_attach_shifts() {
         MathAttachSlot::Present(sub_i),
         MathAttachSlot::Present(sup_star),
     );
-    let (items, ext) = ml.layout_equation_measured(&attach, &default_style());
+    let (_items, ext) = ml.layout_equation_measured(&attach, &default_style());
     println!("ext: ascent={:.4}, descent={:.4}", ext.ascent, ext.descent);
 }
 
@@ -3360,7 +3358,15 @@ mod p906_tests {
             .find_map(|i| match i {
                 FrameItem::Glyph { pos, .. } => Some(pos.y.val()),
                 FrameItem::Text { pos, .. } => Some(pos.y.val()),
-                _ => None,
+                FrameItem::TextReplacement { .. }
+                | FrameItem::TextSeparator { .. }
+                | FrameItem::Semantic { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. }
+                | FrameItem::Group { .. }
+                | FrameItem::Link { .. } => None,
             })
             .expect("attach com só um script deve ter pelo menos 2 items posicionáveis")
     }
@@ -3635,11 +3641,15 @@ mod p906_tests {
         );
         let measure = MathLayouter::new(&FixedMetrics, false, &style);
         let body = measure.layout_node(&fraction, &style);
-        let axis = measure.constants.to_pt(measure.constants.axis_height, style.size).val();
+        let axis = measure
+            .constants
+            .to_pt(measure.constants.axis_height, style.size)
+            .val();
         let balanced = 2.0 * (body.ascent - axis).max(body.descent + axis);
         assert!(balanced > body.height(), "a fração precisa discriminar os dois alvos");
         let scale = measure.constants.upem / style.size.val();
-        let boundary = ((body.height() + balanced) / 2.0 - style.size.val() * 0.1) * scale;
+        let boundary =
+            ((body.height() + balanced) / 2.0 - style.size.val() * 0.1) * scale;
         let lower = GlyphVariant {
             glyph_id: 501,
             advance: boundary,
@@ -3671,10 +3681,13 @@ mod p906_tests {
                 &style,
             );
             let picked = |items: &[FrameItem]| {
-                items.iter().filter_map(|item| match item {
-                    FrameItem::Glyph { glyph_id, .. } => Some(*glyph_id),
-                    _ => None,
-                }).collect::<Vec<_>>()
+                items
+                    .iter()
+                    .filter_map(|item| match item {
+                        FrameItem::Glyph { glyph_id, .. } => Some(*glyph_id),
+                        _ => None,
+                    })
+                    .collect::<Vec<_>>()
             };
             assert_eq!(picked(&implicit.items), vec![502, 502]);
             assert_eq!(picked(&explicit.items), picked(&implicit.items),
@@ -4218,21 +4231,43 @@ fn find_text_y(items: &[FrameItem], s: &str) -> f64 {
         items.iter().find_map(|item| match item {
             FrameItem::Text { pos, text, .. } if text.as_str() == s => Some(pos.y.val()),
             FrameItem::TextReplacement { items, .. } => visit(items, s),
-            _ => None,
+            FrameItem::TextSeparator { .. }
+            | FrameItem::Semantic { .. }
+            | FrameItem::Text { .. }
+            | FrameItem::TextShaped { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. }
+            | FrameItem::Group { .. }
+            | FrameItem::Link { .. } => None,
         })
     }
-    visit(items, s).unwrap_or_else(|| panic!("texto {:?} não encontrado em {:?}", s, items))
+    visit(items, s)
+        .unwrap_or_else(|| panic!("texto {:?} não encontrado em {:?}", s, items))
 }
 
 fn find_glyph_y(items: &[FrameItem], wanted: u16) -> f64 {
     fn visit(items: &[FrameItem], wanted: u16) -> Option<f64> {
         items.iter().find_map(|item| match item {
-            FrameItem::Glyph { pos, glyph_id, .. } if *glyph_id == wanted => Some(pos.y.val()),
+            FrameItem::Glyph { pos, glyph_id, .. } if *glyph_id == wanted => {
+                Some(pos.y.val())
+            }
             FrameItem::TextReplacement { items, .. } => visit(items, wanted),
-            _ => None,
+            FrameItem::TextSeparator { .. }
+            | FrameItem::Semantic { .. }
+            | FrameItem::Text { .. }
+            | FrameItem::TextShaped { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. }
+            | FrameItem::Group { .. }
+            | FrameItem::Link { .. } => None,
         })
     }
-    visit(items, wanted).unwrap_or_else(|| panic!("glyph {wanted} não encontrado em {items:?}"))
+    visit(items, wanted)
+        .unwrap_or_else(|| panic!("glyph {wanted} não encontrado em {items:?}"))
 }
 
 fn find_line_start_y(items: &[FrameItem]) -> f64 {
@@ -4943,9 +4978,24 @@ mod p922_tests {
         fn collect_dot_ys(items: &[FrameItem], dot: char, out: &mut Vec<f64>) {
             for item in items {
                 match item {
-                    FrameItem::Text { pos, text, .. } if text.as_str().chars().next() == Some(dot) => out.push(pos.y.val()),
-                    FrameItem::TextReplacement { items, .. } => collect_dot_ys(items, dot, out),
-                    _ => {}
+                    FrameItem::Text { pos, text, .. }
+                        if text.as_str().starts_with(dot) =>
+                    {
+                        out.push(pos.y.val())
+                    }
+                    FrameItem::TextReplacement { items, .. } => {
+                        collect_dot_ys(items, dot, out)
+                    }
+                    FrameItem::TextSeparator { .. }
+                    | FrameItem::Semantic { .. }
+                    | FrameItem::Text { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. }
+                    | FrameItem::Group { .. }
+                    | FrameItem::Link { .. } => {}
                 }
             }
         }
@@ -5752,7 +5802,9 @@ mod p952_tests {
 // `DisplayOperatorMinHeight` = 1300du.
 mod p952op_tests {
     use super::*;
-    use crate::entities::glyph_variants::{GlyphAssembly, GlyphPart, GlyphVariant, GlyphVariants};
+    use crate::entities::glyph_variants::{
+        GlyphAssembly, GlyphPart, GlyphVariant, GlyphVariants,
+    };
     use crate::entities::math_constants::MathConstants;
 
     // Glyph IDs sintéticos do stub (distintos do caminho de glifo base,
@@ -6034,7 +6086,17 @@ mod p952op_tests {
                 {
                     Some(pos.y.val())
                 }
-                _ => None,
+                FrameItem::TextReplacement { .. }
+                | FrameItem::TextSeparator { .. }
+                | FrameItem::Semantic { .. }
+                | FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. }
+                | FrameItem::Group { .. }
+                | FrameItem::Link { .. } => None,
             })
             .unwrap_or_else(|| panic!("{needle:?} não encontrado em {items:?}"))
     }
@@ -6373,7 +6435,10 @@ mod p952op_tests {
         let b = ml.layout_node(&Content::MathIdent("∑".into()), &style);
         assert_eq!(b.items.len(), 1);
         let FrameItem::TextReplacement { text, items } = &b.items[0] else {
-            panic!("Large montado perdeu a identidade textual por ocorrência: {:?}", b.items);
+            panic!(
+                "Large montado perdeu a identidade textual por ocorrência: {:?}",
+                b.items
+            );
         };
         assert_eq!(text.as_str(), "∑");
         assert_eq!(items.len(), 1);
@@ -6412,6 +6477,7 @@ mod p952op_tests {
                 pos: Point::ZERO,
                 text: ch.into(),
                 style: default_style(),
+                bidi: None,
             }],
         };
 
@@ -6486,12 +6552,23 @@ mod p952op_tests {
                 {
                     Some(pos.x.val())
                 }
-                FrameItem::TextReplacement { text, items } if text.as_str() == needle =>
+                FrameItem::TextReplacement { text, items } if text.as_str() == needle => {
                     items.iter().find_map(|visual| match visual {
                         FrameItem::Glyph { pos, .. } => Some(pos.x.val()),
                         _ => None,
-                    }),
-                _ => None,
+                    })
+                }
+                FrameItem::TextReplacement { .. }
+                | FrameItem::TextSeparator { .. }
+                | FrameItem::Semantic { .. }
+                | FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. }
+                | FrameItem::Group { .. }
+                | FrameItem::Link { .. } => None,
             })
             .unwrap_or_else(|| panic!("{needle:?} não encontrado em {items:?}"))
     }
@@ -6564,10 +6641,12 @@ mod p952op_tests {
         let items = ml.layout_equation(&content, &style);
         let x_base = p971_x(&items, "∫");
         let x_sub = p971_x(&items, "0");
-        let expected = x_base + 18.0
-            + crate::testing::math_oracle::post_subscript_kern(0.0, 5.4);
-        assert!((x_sub - expected).abs() < 1e-9,
-            "sub de integral montado deve usar IC visual: {x_sub} vs {expected}");
+        let expected =
+            x_base + 18.0 + crate::testing::math_oracle::post_subscript_kern(0.0, 5.4);
+        assert!(
+            (x_sub - expected).abs() < 1e-9,
+            "sub de integral montado deve usar IC visual: {x_sub} vs {expected}"
+        );
     }
 
     /// **Guarda** — base sem IC na tabela (ou sem `FrameItem::Glyph`):
@@ -6616,10 +6695,20 @@ mod p961_tests {
         fn visit(items: &[FrameItem], needle: &str, out: &mut Vec<(f64, bool, bool)>) {
             for item in items {
                 match item {
-                    FrameItem::Text { text, style, .. } if text.as_str() == needle =>
-                        out.push((style.size.val(), style.math_script, style.cramped)),
+                    FrameItem::Text { text, style, .. } if text.as_str() == needle => {
+                        out.push((style.size.val(), style.math_script, style.cramped))
+                    }
                     FrameItem::TextReplacement { items, .. } => visit(items, needle, out),
-                    _ => {}
+                    FrameItem::TextSeparator { .. }
+                    | FrameItem::Semantic { .. }
+                    | FrameItem::Text { .. }
+                    | FrameItem::TextShaped { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. }
+                    | FrameItem::Group { .. }
+                    | FrameItem::Link { .. } => {}
                 }
             }
         }
@@ -6705,13 +6794,10 @@ mod p961_tests {
             })
             .collect();
         assert!(
-            textos.iter().any(|t| *t == "\u{1D465}"),
+            textos.contains(&"\u{1D465}"),
             "base de hat(x) deve ser 𝑥 (U+1D465); textos: {textos:?}"
         );
-        assert!(
-            !textos.iter().any(|t| *t == "x"),
-            "base não deve ficar em x latino: {textos:?}"
-        );
+        assert!(!textos.contains(&"x"), "base não deve ficar em x latino: {textos:?}");
     }
 
     /// **Parte B (underover)** — base e legenda de 1 letra recebem itálico
@@ -6733,11 +6819,11 @@ mod p961_tests {
             })
             .collect();
         assert!(
-            textos.iter().any(|t| *t == "\u{1D465}"),
+            textos.contains(&"\u{1D465}"),
             "base x deve ser 𝑥 (U+1D465); textos: {textos:?}"
         );
         assert!(
-            textos.iter().any(|t| *t == "\u{1D45B}"),
+            textos.contains(&"\u{1D45B}"),
             "label n deve ser 𝑛 (U+1D45B); textos: {textos:?}"
         );
     }
@@ -7237,11 +7323,11 @@ mod p962_tests {
             })
             .collect();
         assert!(
-            textos.iter().any(|t| *t == "d"),
+            textos.contains(&"d"),
             "dif deve produzir 'd' reto (U+0064); textos: {textos:?}"
         );
         assert!(
-            !textos.iter().any(|t| *t == "\u{1D451}"),
+            !textos.contains(&"\u{1D451}"),
             "dif NÃO deve ser italicado para 𝑑 (U+1D451): {textos:?}"
         );
     }
@@ -7260,7 +7346,7 @@ mod p962_tests {
             })
             .collect();
         assert!(
-            textos.iter().any(|t| *t == "\u{1D451}"),
+            textos.contains(&"\u{1D451}"),
             "identificador d deve ser 𝑑 itálico (U+1D451); textos: {textos:?}"
         );
     }
@@ -8207,7 +8293,7 @@ mod p986_tests {
             .expect("layout_cancel deve emitir um FrameItem::Line");
 
         let h = body_box.ascent + body_box.descent;
-        let diagonal = body_box.width.hypot(h);
+        let diagonal = (body_box.width * body_box.width + h * h).sqrt();
         let extra = 0.3 * style.size.val();
         let half_x = extra * body_box.width / diagonal / 2.0;
         let half_y = extra * h / diagonal / 2.0;
@@ -9327,7 +9413,7 @@ fn p1291_store_mesmo_id_mas_func_default_ou_style_diferente_e_stale() {
     use crate::entities::style_chain::StyleChain;
     use crate::entities::value::Value;
 
-    let base = p1291_request(0x1291_20, 3, 0, 35.0);
+    let base = p1291_request(0x0012_9120, 3, 0, 35.0);
     let mut different_func = base.clone();
     different_func.func = Func::native("p1291-angle-ninety", p1291_angle_ninety_native);
 
@@ -9380,13 +9466,13 @@ fn p1291_cross_reusa_default_positivo_e_ignora_inverted_na_chamada() {
             &FixedMetrics,
             true,
             &style,
-            Location::from_raw(0x1291_21),
+            Location::from_raw(0x0012_9121),
             Pt(240.0),
             &chain,
             &pass,
         );
         let _ = ml.layout_node(&content, &style);
-        drop(ml);
+
         match pass.finish(PagedDocument::new(vec![])) {
             MathLayoutPassOutcome::Pending(requests) => requests,
             MathLayoutPassOutcome::Complete(_) => {
@@ -9442,7 +9528,7 @@ fn p1291_identity_preorder_e_cross_duas_chamadas() {
         &pass,
     );
     let _ = ml.layout_node(&nested, &style);
-    drop(ml);
+
     let requests = match pass.finish(PagedDocument::new(vec![])) {
         MathLayoutPassOutcome::Pending(requests) => requests,
         MathLayoutPassOutcome::Complete(_) => {
@@ -9475,7 +9561,7 @@ fn p1291_identity_preorder_e_cross_duas_chamadas() {
         &cross_pass,
     );
     let _ = cross_ml.layout_node(&cross, &style);
-    drop(cross_ml);
+
     let cross_requests = match cross_pass.finish(PagedDocument::new(vec![])) {
         MathLayoutPassOutcome::Pending(requests) => requests,
         MathLayoutPassOutcome::Complete(_) => panic!("cross callback deve ficar Pending"),
@@ -9515,7 +9601,7 @@ fn p1291_request_preserva_chain_lexical_e_style_math_efetivo() {
         &pass,
     );
     let _ = ml.layout_node(&content, &style);
-    drop(ml);
+
     let request = match pass.finish(PagedDocument::new(vec![])) {
         MathLayoutPassOutcome::Pending(mut requests) => {
             assert_eq!(requests.len(), 1);
@@ -9526,7 +9612,7 @@ fn p1291_request_preserva_chain_lexical_e_style_math_efetivo() {
         }
     };
     let collapsed = request.styles.collapse();
-    assert_eq!(collapsed.size, Some(19.0));
+    assert_eq!(collapsed.size, Some(crate::entities::layout_types::Length::pt(19.0)));
     assert_eq!(collapsed.weight, Some(700));
     assert!(collapsed.custom.iter().any(|(key, value)| {
         key.as_str() == "p1291.probe" && value == &Value::Str("lexical".into())
@@ -9652,7 +9738,12 @@ fn ptyps_identity_cases_delimiter_is_one_source_character() {
     let style = default_style();
     let ml = MathLayouter::new(&FixedMetrics, true, &style);
     let box_ = ml.layout_node(
-        &Content::math_cases(vec![vec![Content::MathText("1".into())]], ('{', '}'), false, None),
+        &Content::math_cases(
+            vec![vec![Content::MathText("1".into())]],
+            ('{', '}'),
+            false,
+            None,
+        ),
         &style,
     );
     assert!(box_.items.iter().any(|item| matches!(item,
@@ -9693,7 +9784,10 @@ fn ptyps_identity_hat_mu_uses_math_italic_default_inside_accent() {
     let ml = MathLayouter::new(&FixedMetrics, true, &style);
     let item = Content::math_accent(Content::MathText("μ".into()), '\u{0302}');
     let frame = ml.layout_equation(&item, &style);
-    assert!(frame.iter().any(|item| matches!(item,
-        FrameItem::TextReplacement { text, .. } if text.as_str() == "𝜇\u{0302}"
-    )), "hat(mu) deve conservar 𝜇 e o acento como uma ocorrência");
+    assert!(
+        frame.iter().any(|item| matches!(item,
+            FrameItem::TextReplacement { text, .. } if text.as_str() == "𝜇\u{0302}"
+        )),
+        "hat(mu) deve conservar 𝜇 e o acento como uma ocorrência"
+    );
 }

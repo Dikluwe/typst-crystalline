@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/collections/validation.md
-//! @prompt-hash 5e14b654
+//! @prompt-hash cb6d99cb
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -134,20 +134,6 @@ pub(super) fn expect_one_func(args: Args, context: &str) -> SourceResult<Func> {
             format!("missing argument: {parameter}"),
         )]),
         _ => Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]),
-    }
-}
-
-pub(super) fn expect_one_array(args: Args, context: &str) -> SourceResult<Vec<Value>> {
-    match args.items.as_slice() {
-        [Value::Array(a)] => Ok(a.clone()),
-        [other] => Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("{} espera array, recebeu {}", context, other.type_name()),
-        )]),
-        _ => Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("{} requer 1 argumento posicional", context),
-        )]),
     }
 }
 

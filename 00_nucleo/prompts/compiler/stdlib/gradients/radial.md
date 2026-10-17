@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/gradients/radial
-Hash do Código: b0641104
+Hash do Código: 7d3386f2
 
 ## Ownership e medição
 

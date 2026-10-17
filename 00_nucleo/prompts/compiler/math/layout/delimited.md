@@ -1,6 +1,6 @@
 # L0 — math/layout/delimited
+Hash do Código: 572cc7c0
 
-Hash do Código: 37b841ba
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/math/layout/delimited.rs`
@@ -49,3 +49,15 @@ Acceptance discriminates natural/balanced/binomial targets, same neighboring
 baseline, 100%/150%/absolute/mixed/cascaded sizes, nested lr, mid scope and
 normal/inverted fence variants. Current implementation breadth alone does
 not demonstrate full language parity or retroactively prove a historical gate.
+
+## Helpers e armazenamento sem uso — 2026-10-13
+
+### Medição anterior à decisão
+
+`01_core/src/compiler/math/layout/delimited.rs` nas linhas 54 contém os itens sinalizados no inventário Clippy. HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado; fontes, owners, referências, UTC, status e diffstat em `00_nucleo/diagnosticos/helpers-testes-ci-2026-10-13/before.json.gz`. A pesquisa de chamadas e os caminhos produtivos precedem esta classificação; não é nova medição de paridade nem prova de desempenho.
+
+### Decisão e aceitação
+
+Compilar o helper interno `lr_target_pt` somente sob `#[cfg(test)]`, conservando assinatura e corpo para os testes existentes. Somente os helpers de teste p1436_target_pt e p1437_mid_target_pt usam este cálculo de shortfall. lr_requested_target_pt e a seleção produtiva permanecem intactos.
+
+Preservar as rotas produtivas, nomes e corpos dos testes existentes, APIs externas, defaults e fase. Alteração interna em fluxo contínuo ADR-0127. Revalidar build e check de todos os targets do workspace, suíte core, inventário de testes, Clippy e linhagem; não eliminar expectativas para passar o gate.

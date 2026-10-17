@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/gradient.md
-//! @prompt-hash 2a97b0a5
+//! @prompt-hash 114e0b18
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -15,7 +15,7 @@
 //! vanilla default). Interpolação em Oklab via `Color::oklab`;
 //! conversão final PDF via `Color::to_rgba_f32()`.
 //!
-//! **ADR-0039 preservado**: TextStyle.fill: Option<Color>
+//! **ADR-0039 preservado**: TextStyle.fill: `Option<Color>`
 //! inalterado.
 //!
 //! Cross-references:
@@ -994,8 +994,8 @@ mod tests {
             panic!("sample Oklab deve devolver Color::Oklab");
         };
         assert!((l - 0.6595).abs() < 0.00005, "L público arredondado: {l}");
-        assert_eq!(a.to_bits(), 0.19973529875278473_f32.to_bits());
-        assert_eq!(b.to_bits(), 0.10818812251091003_f32.to_bits());
+        assert_eq!(a.to_bits(), 0.199_735_3_f32.to_bits());
+        assert_eq!(b.to_bits(), 0.108_188_12_f32.to_bits());
         assert_eq!(alpha.to_bits(), 1.0_f32.to_bits());
     }
 

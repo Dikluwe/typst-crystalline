@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/color` — construtores de cor
-Hash do Código: c0380bdb
+Hash do Código: c59f6b59
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/color.rs`
@@ -234,3 +234,94 @@ que já aceitam Color tratam Spot pela projeção explícita
 spot. Não antecipar essa projeção no Value, no style ou em cast de
 fill/stroke. Preservar diagnósticos e fórmulas existentes dos inputs
 processuais.
+
+## Correção medida em 2026-10-13
+
+HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado.
+Fontes, hashes, UTC, status e diffstat: `00_nucleo/diagnosticos/cores-ci-2026-10-13/before.json.gz`
+e `constructors-before.json.gz`. Sondas e prova numérica em `evidence.json.gz`.
+Vanilla pin `9f2b6e8715237cb086899a42873660fe744622e8`, SHA-256 ratificado
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+
+Medição anterior à decisão: native_oklab/oklch/linear_rgb/cmyk/hsl/hsv só têm
+ramos de componentes; as seis sondas com rgb(0,0,0,40%) falham por cardinalidade.
+O vanilla visualize/color.rs:393-809 usa args.find<Color>() nessas seis funções.
+Oklab/Oklch/LinearRgb/Hsl/Hsv preservam alpha; Cmyk tem quatro componentes sem
+alpha. Oklch de Oklch preserva componentes. Color mais positional excedente
+produz unexpected argument; named e Colorant inválidos também são rejeitados,
+com diferenças preexistentes de diagnóstico registradas.
+
+Decisão: completar a alternativa Color nas seis nativas existentes, superando
+o scope-out das alternativas de P1284-v5/v6. Usar conversão canônica to_space
+para o target correspondente, preservando mesmo espaço e projeção Spot já
+contratada; não inventar ICC CMYK nem corrigir fórmulas de outras entidades
+no parser. Nenhum binding, assinatura pública Rust, flag, default ou fase muda:
+é correção interna de paridade/cast, ADR-0127 contínuo.
+
+Uma única Color positional é convertida; ao haver Color e positionais
+excedentes, rejeitar o primeiro positional não consumido com unexpected
+argument e seu span. Named args continuam rejeitados pela política existente;
+não apresentar seus diagnósticos ainda divergentes como paridade integral.
+As formas por componentes, seus casts/ranges e rejeições permanecem.
+Não transformar SpotColorant em Color implicitamente. Testar antes do reparo:
+seis targets, alpha onde suportado, identidade de mesmo espaço, excessos e
+aliases via sondas do produto. Confirmar RED de aceitação Color e GREEN após
+reparo. Testes e sondas não certificam ICC/CMYK geral nem eliminam a diferença
+já medida de gradient.sample(25%). Esta permanece pendente de correção própria.
+
+## Limites e precisão de cor — 2026-10-13
+
+Medição anterior à decisão, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`,
+working tree não commitado: fontes, SHA-256, UTC, status e diffstat em
+`00_nucleo/diagnosticos/limites-cor-2026-10-13/before.json.gz` e
+`parents-before.json.gz`; sondas em `evidence.json.gz`. Oráculo pinado
+`9f2b6e8715237cb086899a42873660fe744622e8`, binário SHA-256
+`7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea`.
+
+`red.rotate(45deg)` expõe blue negativo no cristalino; o vanilla limita a zero.
+`rgb(10%,20%,30%,40%)` expõe 10.2%/30.2% em vez de 10%/30%. Linear RGB aceita
+256 e alpha -1%, que o vanilla rejeita. Chroma Oklch negativo converte para
+cor cromática no cristalino e cinza no vanilla. As saídas completas ficam
+conservadas, inclusive dígitos adicionais dos componentes públicos.
+
+Fonte: upstream `visualize/color.rs:1825-1895` distingue FromColor limitado,
+identidade e from_linear; palette 0.7.6 `convert/from_into_color.rs:53-59`
+chama clamp após converter. `encoding/srgb.rs:100-120` usa multiplicação pelo
+recíproco na parte linear do decode e mul_sub no encode; `num.rs:718-722`
+implementa mul_sub SEM fusão. A antiga cláusula P1253 de encode com fmaf era
+incorreta para esta fonte. `oklab.rs:355-368` limita chroma a zero antes da
+conversão polar; `hues.rs:155-157` usa sincosf via o trait libm.
+
+Correção interna contínua ADR-0127: nenhum campo/assinatura pública, binding,
+modo padrão, compatibilidade externa ou fase muda. L0 primeiro, testes RED
+para observáveis, implementação e revalidação. Diferenças restantes das
+sondas não são normalizadas nem recebem certificado genérico de paridade.
+
+Neste owner: rgb numérico deve conservar Component como f32: Int validado
+0..255 dividido por 255 e Ratio 0..1 sem quantização. O arredondamento para
+bytes é da projeção hex/export, não da construção. A cláusula antiga que
+inferia armazenamento u8 de rgb(50%).to-hex() é superada pela medição de
+components. rgb(Color) usa a conversão Srgb canônica sem ida a bytes, salvo
+o bridge CMYK calibrado já normatizado em P1286, que permanece explícito e
+incompleto quanto a ICC geral. String hex preserva o caminho em bytes.
+
+Linear RGB usa o mesmo cast Component validado por índice, incluindo alpha,
+para rejeitar Int/Ratio fora do domínio com mensagem e span causais. Reutilizar
+o caster privado existente, não duplicar sua lógica. Eliminar as_u8 privado
+sem consumer produtivo após o reparo e migrar seus controles Relative para o
+caster ativo, mantendo fixtures de tipo/range e medindo 50% como 0.5.
+Testar RED de precisão RGB numérica e Color→RGB, identidade e ranges de Linear.
+Preservar o vetor CMYK já medido e formas válidas hex/Int/Ratio/conversão.
+
+
+## Guards de domínio explícitos — V17, 2026-10-16
+
+### Medição anterior à decisão
+
+T243: 01_core/src/compiler/stdlib/foundations/color.rs:375; T244: 01_core/src/compiler/stdlib/foundations/color.rs:476. Fontes e L0 vigentes lidos antes da prescrição; SHA-256, HEAD `06848cdcb5450f2c555626bf116bc7acd82bd82b`, working tree não commitado, UTC, status e git diff HEAD --stat em `00_nucleo/diagnosticos/tekt-guards-2026-10-16/before.json.gz`. O inventário anterior, reconfirmado por hash, registra 28 guards em 21 owners; a regra CI pinada manda desdobrar ou mover a condição para o corpo. A medição é estrutura Rust, não prova de defeito funcional ou de melhor leitura por IA. Nenhuma intenção upstream é inferida.
+
+### Responsabilidade exclusiva e aceitação
+
+Nos dois casters de Relative, manter guard simples de abs.is_zero; decidir range inclusivo 0..=1 no corpo. Preservar ordem abs antes de range, casts f32, rejeição de NaN/infinito/out-of-range, erro de ratio quando abs zero e erro de tipo quando abs não zero. Adicionar controle funcional de Relative em 0/1/interior, NaN/infinito e parte absoluta não zero para os dois casters antes da mudança.
+
+Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default, compatibilidade ou fase novos. A responsabilidade permanece somente no consumer exclusivo deste L0. Não criar helper apenas para esconder a conjunção, não adicionar supressões nem mudar a configuração do linter. Executar controles funcionais existentes antes do código e preservar seus esperados; o RED real é o gate V17 com 28 avisos, GREEN exige zero V17. Conferir caminhos de sucesso/fallback/erro, curto-circuito e efeitos; resselo restrito por owner. Revalidar build, suíte workspace completa, Clippy all-targets com warnings e expectativas não cumpridas como erro, formato, Rustdoc com warnings como erro, linhagem V1/V5/V15/V26 estrita/reversa e SARIF sem novos avisos. Executar sob 12 GiB, swap zero e um job. Não alegar ganho de memória/desempenho ou paridade global sem medição separada.

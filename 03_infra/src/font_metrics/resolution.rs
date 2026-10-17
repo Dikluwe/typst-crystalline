@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics/resolution.md
-//! @prompt-hash bed56cb0
+//! @prompt-hash 174e4158
 //! @layer L3
-//! @updated 2026-09-29
+//! @updated 2026-10-10
 
 use super::FallbackFontMetrics;
 use crate::fallback_fonts::{fallback_font_list_for, text_fallback_font_list};
@@ -19,14 +19,30 @@ pub(super) struct FontCandidate {
     pub(super) units_per_em: u16,
 }
 
+/// Latest complete base chain; bounded to one entry and shared by metrics clones.
+pub(super) struct PrimaryResolution {
+    font: Option<FontList>,
+    variant: FontVariant,
+    candidates: Vec<FontCandidate>,
+}
+
 impl FallbackFontMetrics<'_> {
     /// Resolve as fontes primárias declaradas no estilo. Se o estilo não
     /// declarar fonte (ou nenhuma resolver), replica o fallback padrão do
     /// shaper (`DEFAULT_FALLBACK_FONTS`) para manter as métricas alinhadas
     /// com a face que será efectivamente usada no shaping/PDF.
     pub(super) fn resolve_primary(&self, style: &TextStyle) -> Vec<FontCandidate> {
-        let mut primary = Vec::new();
         let variant = text_style_to_font_variant(style);
+        {
+            let cache = self.primary_resolution.lock().unwrap();
+            if let Some(entry) = cache.as_ref() {
+                if entry.font == style.font && entry.variant == variant {
+                    return entry.candidates.clone();
+                }
+            }
+        }
+        let mut primary = Vec::new();
+        let mut complete = true;
 
         // Nome da primeira família para decidir a classe de fallback (P555).
         let first_family: Option<&str> = style
@@ -41,10 +57,13 @@ impl FallbackFontMetrics<'_> {
                 else {
                     continue;
                 };
-                let Some(cached) = self.cached_face(idx) else { continue };
+                let Some(cached) = self.cached_face(idx) else {
+                    complete = false;
+                    continue;
+                };
                 primary.push(FontCandidate {
                     slot_idx: idx,
-                    units_per_em: cached.face().units_per_em().max(1) as u16,
+                    units_per_em: cached.face().units_per_em().max(1),
                 });
             }
         }
@@ -57,10 +76,13 @@ impl FallbackFontMetrics<'_> {
                 else {
                     continue;
                 };
-                let Some(cached) = self.cached_face(idx) else { continue };
+                let Some(cached) = self.cached_face(idx) else {
+                    complete = false;
+                    continue;
+                };
                 primary.push(FontCandidate {
                     slot_idx: idx,
-                    units_per_em: cached.face().units_per_em().max(1) as u16,
+                    units_per_em: cached.face().units_per_em().max(1),
                 });
                 break;
             }
@@ -76,13 +98,23 @@ impl FallbackFontMetrics<'_> {
             if primary.iter().any(|candidate| candidate.slot_idx == idx) {
                 continue;
             }
-            let Some(cached) = self.cached_face(idx) else { continue };
+            let Some(cached) = self.cached_face(idx) else {
+                complete = false;
+                continue;
+            };
             primary.push(FontCandidate {
                 slot_idx: idx,
-                units_per_em: cached.face().units_per_em().max(1) as u16,
+                units_per_em: cached.face().units_per_em().max(1),
             });
         }
 
+        if complete && !primary.is_empty() {
+            *self.primary_resolution.lock().unwrap() = Some(PrimaryResolution {
+                font: style.font.clone(),
+                variant,
+                candidates: primary.clone(),
+            });
+        }
         primary
     }
 
@@ -119,7 +151,7 @@ impl FallbackFontMetrics<'_> {
                 let Some(cached) = self.cached_face(idx) else { continue };
                 primary.push(FontCandidate {
                     slot_idx: idx,
-                    units_per_em: cached.face().units_per_em().max(1) as u16,
+                    units_per_em: cached.face().units_per_em().max(1),
                 });
             }
         }
@@ -185,7 +217,7 @@ impl FallbackFontMetrics<'_> {
         let cached = self.cached_face(best)?;
         Some(FontCandidate {
             slot_idx: best,
-            units_per_em: cached.face().units_per_em().max(1) as u16,
+            units_per_em: cached.face().units_per_em().max(1),
         })
     }
 
@@ -266,10 +298,12 @@ mod tests {
         }
 
         let metrics = FallbackFontMetrics::new(&world);
-        let mut style = TextStyle::default();
-        style.font = Some(typst_core::entities::font_list::FontList::single(
-            ecow::EcoString::from("DejaVu Sans"),
-        ));
+        let style = TextStyle {
+            font: Some(typst_core::entities::font_list::FontList::single(
+                ecow::EcoString::from("DejaVu Sans"),
+            )),
+            ..TextStyle::default()
+        };
         let primary = metrics.resolve_primary(&style);
         assert!(!primary.is_empty(), "DejaVu Sans resolve como primária");
 
@@ -390,10 +424,12 @@ mod tests {
         };
 
         let metrics = FallbackFontMetrics::new(&world);
-        let mut style = TextStyle::default();
-        style.font = Some(typst_core::entities::font_list::FontList::single(
-            ecow::EcoString::from("Nimbus Sans"),
-        ));
+        let style = TextStyle {
+            font: Some(typst_core::entities::font_list::FontList::single(
+                ecow::EcoString::from("Nimbus Sans"),
+            )),
+            ..TextStyle::default()
+        };
         let primary = metrics.resolve_primary(&style);
         assert!(!primary.is_empty(), "Nimbus Sans deve resolver como primária");
 
@@ -519,11 +555,13 @@ mod tests {
         };
 
         let metrics = FallbackFontMetrics::new(&world);
-        let mut style = TextStyle::default();
-        style.font = Some(typst_core::entities::font_list::FontList::single(
-            ecow::EcoString::from("Nimbus Sans"),
-        ));
-        style.math = true;
+        let style = TextStyle {
+            font: Some(typst_core::entities::font_list::FontList::single(
+                ecow::EcoString::from("Nimbus Sans"),
+            )),
+            math: true,
+            ..TextStyle::default()
+        };
 
         let _ = metrics.advance("\u{018F}", Pt(11.0), &style);
 
@@ -562,11 +600,13 @@ mod tests {
         }
 
         let metrics = FallbackFontMetrics::new(&world);
-        let mut style = TextStyle::default();
-        style.font = Some(typst_core::entities::font_list::FontList::single(
-            ecow::EcoString::from("DejaVu Sans"),
-        ));
-        style.math = true;
+        let style = TextStyle {
+            font: Some(typst_core::entities::font_list::FontList::single(
+                ecow::EcoString::from("DejaVu Sans"),
+            )),
+            math: true,
+            ..TextStyle::default()
+        };
 
         let variant = text_style_to_font_variant(&style);
         let primary = metrics.resolve_primary_with_math_fallback(&style, &variant);
@@ -579,5 +619,244 @@ mod tests {
             chosen.face().tables().math.is_some(),
             "covering('(') com style.math=true deve escolher uma face com tabela OpenType MATH"
         );
+    }
+}
+
+#[cfg(test)]
+mod primary_reuse_tests {
+    use super::*;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use typst_core::{
+        compiler::layout::FontMetrics,
+        contracts::world::World,
+        entities::{
+            duration::Duration,
+            file_id::FileId,
+            font_book::{Coverage, FontBook, FontFlags, FontInfo, FontStyle, FontWeight},
+            font_list::FontFamily,
+            layout_types::Pt,
+            regex::Regex,
+            source::Source,
+            world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+        },
+    };
+
+    struct ProbeWorld {
+        library: Library,
+        book: FontBook,
+        fonts: Vec<Font>,
+        book_reads: AtomicUsize,
+        blocked_slot: AtomicUsize,
+    }
+    impl World for ProbeWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            self.book_reads.fetch_add(1, Ordering::Relaxed);
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, id: usize) -> Option<Font> {
+            if self.blocked_slot.load(Ordering::Relaxed) == id {
+                None
+            } else {
+                self.fonts.get(id).cloned()
+            }
+        }
+        fn today(&self, _: Option<Duration>) -> Option<Datetime> {
+            None
+        }
+    }
+    fn world(reverse: bool) -> ProbeWorld {
+        let load = |name: &str| {
+            Font::from_data(
+                std::fs::read(
+                    std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                        .join("fixtures/fonts")
+                        .join(name),
+                )
+                .unwrap(),
+            )
+        };
+        let regular = load("NimbusSans-Regular.otf");
+        let mut entries = vec![
+            ("Alpha", FontVariant::default(), regular.clone()),
+            (
+                "Alpha",
+                FontVariant { weight: FontWeight::BOLD, ..Default::default() },
+                regular.clone(),
+            ),
+            (
+                "Alpha",
+                FontVariant { style: FontStyle::Italic, ..Default::default() },
+                regular.clone(),
+            ),
+            ("Beta", FontVariant::default(), regular),
+            (
+                "New Computer Modern Math",
+                FontVariant::default(),
+                load("NewCMMath-Book.otf"),
+            ),
+            ("Noto Sans", FontVariant::default(), load("NotoSans-Regular.ttf")),
+        ];
+        if reverse {
+            entries.reverse();
+        }
+        let mut book = FontBook::new();
+        let mut fonts = Vec::new();
+        for (family, variant, font) in entries {
+            book.push(FontInfo {
+                family: family.into(),
+                variant,
+                flags: FontFlags::default(),
+                coverage: Coverage::default(),
+            });
+            fonts.push(font);
+        }
+        ProbeWorld {
+            library: Library::new(),
+            book,
+            fonts,
+            book_reads: AtomicUsize::new(0),
+            blocked_slot: AtomicUsize::new(usize::MAX),
+        }
+    }
+    fn style(names: &[&str]) -> TextStyle {
+        TextStyle {
+            font: Some(
+                FontList::new(
+                    names
+                        .iter()
+                        .map(|s| FontFamily::new(ecow::EcoString::from(*s)))
+                        .collect(),
+                )
+                .unwrap(),
+            ),
+            ..TextStyle::regular(Pt(10.0))
+        }
+    }
+    fn slots(candidates: Vec<FontCandidate>) -> Vec<(usize, u16)> {
+        candidates.into_iter().map(|c| (c.slot_idx, c.units_per_em)).collect()
+    }
+
+    #[test]
+    fn primary_reuse_repeated_metrics_share_resolution_across_clones() {
+        let world = world(false);
+        let metrics = FallbackFontMetrics::new(&world);
+        let style = style(&["Alpha"]);
+        let expected = slots(metrics.resolve_primary(&style));
+        let book_reads = world.book_reads.load(Ordering::Relaxed);
+        assert!(book_reads > 0);
+        let clone = metrics.clone();
+        assert_eq!(slots(clone.resolve_primary(&style)), expected);
+        let edge = metrics.text_edges(Pt(10.0), &style);
+        assert_eq!(clone.text_edges(Pt(10.0), &style), edge);
+        let vertical = metrics.vertical_metrics(Pt(10.0), &style);
+        assert_eq!(clone.vertical_metrics(Pt(10.0), &style), vertical);
+        assert_eq!(
+            world.book_reads.load(Ordering::Relaxed),
+            book_reads,
+            "unchanged metrics should reuse catalog resolution"
+        );
+    }
+
+    #[test]
+    fn primary_reuse_selection_changes_match_fresh_metrics_in_both_orders() {
+        let world = world(false);
+        let cached = FallbackFontMetrics::new(&world);
+        let regular = style(&["Alpha"]);
+        let bold = TextStyle { bold: true, ..regular.clone() };
+        let italic = TextStyle { italic: true, ..regular.clone() };
+        let explicit_weight = TextStyle { weight: Some(400), ..bold.clone() };
+        let regex = TextStyle {
+            font: Some(
+                FontList::new(vec![FontFamily::new_regex(
+                    Regex::new("^Beta$").unwrap(),
+                    vec![],
+                )])
+                .unwrap(),
+            ),
+            ..regular.clone()
+        };
+        let cases = vec![
+            regular,
+            bold,
+            italic,
+            explicit_weight,
+            regex,
+            style(&["Beta", "Alpha"]),
+            style(&["Alpha", "Beta"]),
+            style(&["Missing"]),
+        ];
+        for styles in [cases.clone(), cases.into_iter().rev().collect()] {
+            for style in styles {
+                let fresh = FallbackFontMetrics::new(&world);
+                let expected = slots(fresh.resolve_primary(&style));
+                assert_eq!(slots(cached.resolve_primary(&style)), expected);
+                assert_eq!(slots(cached.resolve_primary(&style)), expected);
+                assert_eq!(
+                    cached.text_edges(Pt(17.0), &style),
+                    fresh.text_edges(Pt(17.0), &style)
+                );
+            }
+        }
+        assert_eq!(slots(cached.resolve_primary(&style(&["Alpha"])))[0].0, 0);
+    }
+
+    #[test]
+    fn primary_reuse_failed_face_is_retried_and_worlds_are_independent() {
+        let world = world(false);
+        world.blocked_slot.store(0, Ordering::Relaxed);
+        let metrics = FallbackFontMetrics::new(&world);
+        let style = style(&["Alpha"]);
+        assert_eq!(slots(metrics.resolve_primary(&style))[0].0, 5);
+        world.blocked_slot.store(usize::MAX, Ordering::Relaxed);
+        assert_eq!(
+            slots(metrics.resolve_primary(&style))[0].0,
+            0,
+            "partial fallback resolution must not hide newly readable primary"
+        );
+        let other = super::primary_reuse_tests::world(true);
+        assert_eq!(
+            slots(FallbackFontMetrics::new(&other).resolve_primary(&style))[0].0,
+            5
+        );
+    }
+
+    #[test]
+    fn primary_reuse_math_and_variations_are_applied_after_base_reuse() {
+        let world = world(false);
+        let metrics = FallbackFontMetrics::new(&world);
+        let text = style(&["Alpha"]);
+        assert!(!slots(metrics.resolve_primary(&text)).iter().any(|c| c.0 == 4));
+        let math = TextStyle {
+            math: true,
+            variations: Some(FontVariations(vec![(*b"wght", 550.0)])),
+            ..text.clone()
+        };
+        for style in [&math, &text, &math] {
+            let variant = text_style_to_font_variant(style);
+            let fresh = FallbackFontMetrics::new(&world);
+            let actual =
+                slots(metrics.resolve_primary_with_math_fallback(style, &variant));
+            assert_eq!(
+                actual,
+                slots(fresh.resolve_primary_with_math_fallback(style, &variant))
+            );
+            assert_eq!(actual.iter().any(|c| c.0 == 4), style.math);
+            assert_eq!(
+                metrics.resolve_font_combo('a', style),
+                fresh.resolve_font_combo('a', style)
+            );
+        }
     }
 }

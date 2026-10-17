@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content/plain-text.md
-//! @prompt-hash 8262c2aa
+//! @prompt-hash 22257396
 //! @layer L1
-//! @updated 2026-09-26
+//! @updated 2026-10-07
 
 use super::*;
 
@@ -10,6 +10,10 @@ impl Content {
     /// Extrai texto plano recursivamente — para verificação em testes.
     pub fn plain_text(&self) -> String {
         match self {
+            Self::Source(e) => e.body.plain_text(),
+            Self::ShowRecipe(e) => e.body.plain_text(),
+            Self::Located(e) => e.body.plain_text(),
+            Self::Realized(e) => e.visual.plain_text(),
             Self::Empty => String::new(),
             Self::Text(s) => s.to_string(),
             Self::Space | Self::SpaceFromNewline => " ".to_string(),

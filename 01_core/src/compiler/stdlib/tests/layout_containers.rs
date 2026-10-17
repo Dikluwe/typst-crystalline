@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/tests/layout_containers.md
-//! @prompt-hash 51514555
+//! @prompt-hash b5105ac0
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -268,7 +268,7 @@ fn p247_native_block_combina_fill_stroke_radius_clip_outset() {
         assert_eq!(e.fill, Some(Color::rgb(50, 100, 150)));
         assert_eq!(e.stroke.clone().unwrap().thickness, 1.5);
         assert_eq!(e.radius.top_left, Length::pt(3.0));
-        assert_eq!(e.clip, true);
+        assert!(e.clip);
         assert_eq!(e.outset.left, Length::pt(2.0));
     } else {
         panic!("esperado Content::Block");
@@ -292,8 +292,8 @@ fn p248_native_block_breakable_false_propagado_a_variant() {
     args.named.insert("breakable".into(), Value::Bool(false));
     let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Block(e)) = r {
-        assert_eq!(
-            e.breakable, false,
+        assert!(
+            !e.breakable,
             "P248 — native_block(breakable: false) propaga literal para variant"
         );
     } else {
@@ -312,7 +312,7 @@ fn p248_native_block_breakable_default_true_p156g() {
     )
     .unwrap();
     if let Value::Content(Content::Block(e)) = r {
-        assert_eq!(e.breakable, true, "P248 — default preservado P156G");
+        assert!(e.breakable, "P248 — default preservado P156G");
     } else {
         panic!("esperado Content::Block");
     }
@@ -328,7 +328,7 @@ fn p248_native_box_height_some_propagado_a_variant() {
     let r = native_box(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Boxed(e)) = r {
         assert_eq!(e.height, Some(Length::pt(50.0)));
-        assert_eq!(e.clip, true);
+        assert!(e.clip);
     } else {
         panic!("esperado Content::Boxed");
     }
@@ -346,7 +346,7 @@ fn p248_native_box_height_default_none_p156h() {
     .unwrap();
     if let Value::Content(Content::Boxed(e)) = r {
         assert_eq!(e.height, None);
-        assert_eq!(e.clip, false, "P248 — defaults preservados P156H");
+        assert!(!e.clip, "P248 — defaults preservados P156H");
     } else {
         panic!("esperado Content::Boxed");
     }
@@ -366,7 +366,7 @@ fn p250_native_block_aceita_spacing_above_below_sticky() {
         assert_eq!(e.spacing, Some(Length::pt(12.0)));
         assert_eq!(e.above, Some(Length::pt(20.0)));
         assert_eq!(e.below, Some(Length::pt(8.0)));
-        assert_eq!(e.sticky, true);
+        assert!(e.sticky);
     } else {
         panic!("esperado Content::Block");
     }
@@ -386,7 +386,7 @@ fn p250_native_block_defaults_4_fields() {
         assert_eq!(e.spacing, None);
         assert_eq!(e.above, None);
         assert_eq!(e.below, None);
-        assert_eq!(e.sticky, false, "P250 defaults preservam pre-P250");
+        assert!(!e.sticky, "P250 defaults preservam pre-P250");
     } else {
         panic!("esperado Content::Block");
     }
@@ -430,8 +430,8 @@ fn p252_native_block_stroke_length_atalho_overhang_default_true() {
     if let Value::Content(Content::Block(e)) = r {
         let s = e.stroke.clone().expect("stroke deveria ser Some");
         assert_eq!(s.thickness, 2.5);
-        assert_eq!(
-            s.overhang, true,
+        assert!(
+            s.overhang,
             "P252 — Length atalho default overhang=true (paridade vanilla)"
         );
     } else {
@@ -452,8 +452,8 @@ fn p252_native_block_stroke_color_atalho_overhang_default_true() {
         let s = e.stroke.clone().expect("stroke deveria ser Some");
         assert_eq!(s.paint, Paint::Solid(Color::rgb(255, 0, 0)));
         assert_eq!(s.thickness, 1.0);
-        assert_eq!(
-            s.overhang, true,
+        assert!(
+            s.overhang,
             "P252 — Color atalho default overhang=true (paridade vanilla)"
         );
     } else {
@@ -473,7 +473,7 @@ fn p252_native_stroke_overhang_explicit_false() {
     let r = native_stroke(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Stroke(s) = r {
         assert_eq!(s.thickness, 2.0);
-        assert_eq!(s.overhang, false);
+        assert!(!s.overhang);
     } else {
         panic!("esperado Value::Stroke");
     }
@@ -485,10 +485,7 @@ fn p252_native_stroke_overhang_default_true_paridade_vanilla() {
     // stroke() sem args → Stroke { BLACK, 1.0pt, overhang: true }.
     let r = native_stroke(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
     if let Value::Stroke(s) = r {
-        assert_eq!(
-            s.overhang, true,
-            "P252 — native_stroke default vanilla overhang=true"
-        );
+        assert!(s.overhang, "P252 — native_stroke default vanilla overhang=true");
     } else {
         panic!("esperado Value::Stroke");
     }
@@ -531,7 +528,7 @@ fn native_pad_e_hide_continuam_a_funcionar_apos_p156g() {
     args.named.insert("rest".into(), Value::Length(Length::pt(5.0)));
     let r = native_pad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     assert!(
-        matches!(r, Value::Content(Content::Pad(e))),
+        matches!(r, Value::Content(Content::Pad(_e))),
         "regressão: native_pad deveria produzir Content::Pad"
     );
     // Hide regression
@@ -878,7 +875,7 @@ fn native_block_pad_hide_continuam_a_funcionar_apos_p156h() {
     args.named.insert("inset".into(), Value::Length(Length::pt(3.0)));
     let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     assert!(
-        matches!(r, Value::Content(Content::Block(e))),
+        matches!(r, Value::Content(Content::Block(_e))),
         "regressão: native_block deveria produzir Content::Block"
     );
     // Pad regression
@@ -886,7 +883,7 @@ fn native_block_pad_hide_continuam_a_funcionar_apos_p156h() {
     args.named.insert("rest".into(), Value::Length(Length::pt(5.0)));
     let r = native_pad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     assert!(
-        matches!(r, Value::Content(Content::Pad(e))),
+        matches!(r, Value::Content(Content::Pad(_e))),
         "regressão: native_pad deveria produzir Content::Pad"
     );
     // Hide regression
@@ -911,17 +908,17 @@ fn native_block_box_pad_hide_continuam_a_funcionar_apos_p156i() {
     let mut args = p(vec![Value::Content(Content::text("x"))]);
     args.named.insert("width".into(), Value::Length(Length::pt(50.0)));
     let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
-    assert!(matches!(r, Value::Content(Content::Block(e))));
+    assert!(matches!(r, Value::Content(Content::Block(_e))));
     // Box (Boxed)
     let mut args = p(vec![Value::Content(Content::text("x"))]);
     args.named.insert("baseline".into(), Value::Length(Length::pt(2.0)));
     let r = native_box(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
-    assert!(matches!(r, Value::Content(Content::Boxed(e))));
+    assert!(matches!(r, Value::Content(Content::Boxed(_e))));
     // Pad
     let mut args = p(vec![Value::Content(Content::text("x"))]);
     args.named.insert("rest".into(), Value::Length(Length::pt(2.0)));
     let r = native_pad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
-    assert!(matches!(r, Value::Content(Content::Pad(e))));
+    assert!(matches!(r, Value::Content(Content::Pad(_e))));
     // Hide
     let r = native_hide(
         &mut ctx,
@@ -1072,22 +1069,22 @@ fn native_stack_block_box_pad_hide_continuam_a_funcionar_apos_p156j() {
     // Stack
     let args = p(vec![Value::Content(Content::text("a"))]);
     let r = native_stack(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
-    assert!(matches!(r, Value::Content(Content::Stack(e))));
+    assert!(matches!(r, Value::Content(Content::Stack(_e))));
     // Block
     let mut args = p(vec![Value::Content(Content::text("x"))]);
     args.named.insert("width".into(), Value::Length(Length::pt(50.0)));
     let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
-    assert!(matches!(r, Value::Content(Content::Block(e))));
+    assert!(matches!(r, Value::Content(Content::Block(_e))));
     // Box
     let mut args = p(vec![Value::Content(Content::text("x"))]);
     args.named.insert("baseline".into(), Value::Length(Length::pt(2.0)));
     let r = native_box(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
-    assert!(matches!(r, Value::Content(Content::Boxed(e))));
+    assert!(matches!(r, Value::Content(Content::Boxed(_e))));
     // Pad
     let mut args = p(vec![Value::Content(Content::text("x"))]);
     args.named.insert("rest".into(), Value::Length(Length::pt(2.0)));
     let r = native_pad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
-    assert!(matches!(r, Value::Content(Content::Pad(e))));
+    assert!(matches!(r, Value::Content(Content::Pad(_e))));
     // Hide
     let r = native_hide(
         &mut ctx,
@@ -1159,7 +1156,7 @@ fn p231_native_block_clip_bool_aceita() {
     args.named.insert("clip".into(), Value::Bool(true));
     let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
     if let Value::Content(Content::Block(e)) = r {
-        assert_eq!(e.clip, true);
+        assert!(e.clip);
     } else {
         panic!("esperado Block");
     }
@@ -1188,7 +1185,7 @@ fn p231_native_box_paridade_block() {
         assert_eq!(e.outset.top, Length::pt(2.0));
         // P242 adapta: e.radius `Corners<Length>` via uniform.
         assert_eq!(e.radius.top_left, Length::pt(1.0));
-        assert_eq!(e.clip, true);
+        assert!(e.clip);
     } else {
         panic!("esperado Boxed");
     }
@@ -1209,8 +1206,8 @@ fn p231_native_block_3_fields_simultaneos() {
         assert_eq!(e.outset.left, Length::pt(1.0));
         // P242 adapta: e.radius `Corners<Length>` via uniform.
         assert_eq!(e.radius.top_left, Length::pt(2.0));
-        assert_eq!(e.clip, true);
-        assert_eq!(e.breakable, false);
+        assert!(e.clip);
+        assert!(!e.breakable);
     } else {
         panic!("esperado Block");
     }
@@ -1234,7 +1231,7 @@ fn p231_native_block_outset_radius_clip_defaults() {
         assert_eq!(e.radius.top_right, crate::entities::layout_types::Length::ZERO);
         assert_eq!(e.radius.bottom_right, crate::entities::layout_types::Length::ZERO);
         assert_eq!(e.radius.bottom_left, crate::entities::layout_types::Length::ZERO);
-        assert_eq!(e.clip, false);
+        assert!(!e.clip);
     } else {
         panic!("esperado Block");
     }

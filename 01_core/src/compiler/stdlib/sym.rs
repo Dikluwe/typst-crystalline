@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/sym.md
-//! @prompt-hash c23c7f41
+//! @prompt-hash 9f326f60
 //! @layer L1
 //! @updated 2026-08-30
 //!
@@ -525,6 +525,10 @@ pub fn sym_deprecation(name: &str) -> Option<&'static str> {
 }
 
 /// Lista de grupos com variantes: (nome, caractere base, função de variantes).
+#[expect(
+    clippy::type_complexity,
+    reason = "SYM_GROUPS: tabela estática nome/base/factory com contrato explícito"
+)]
 pub(crate) static SYM_GROUPS: &[(&str, &str, fn() -> Vec<SymbolVariant>)] = &[
     ("arrow", "→", arrow_variants),
     ("plus", "+", plus_variants),

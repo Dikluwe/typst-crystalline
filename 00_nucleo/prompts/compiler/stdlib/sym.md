@@ -1,5 +1,5 @@
 # Prompt L0 — `sym` — módulo de símbolos Unicode
-Hash do Código: c30f83ef
+Hash do Código: a45d3cc4
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/sym.rs`
@@ -205,3 +205,32 @@ Testar 43 paths por namespace, 12 famílias com valor/modifiers/`repr`,
 cinco `tack`, `not.inv`, `spacebar`, aliases legados nos três acessos
 e controles `registered`, `sqrt`, `emoji`. Remover qualquer alias
 público no futuro exige novo L0 e confirmação ADR-0127.
+
+
+## Tipos explícitos e leitura local — type_complexity (2026-10-15)
+
+### Medição anterior à decisão
+
+01_core/src/compiler/stdlib/sym.rs:528 (C022).
+O snapshot before.json.gz em 00_nucleo/diagnosticos/type-complexity-2026-10-15
+conserva HEAD, working tree não commitado, UTC, diffstat, fontes/owners e hashes.
+O gate red-clippy.log falha com este lint promovido a erro antes da edição.
+A inspeção distingue tuplas posicionais, repetição do alias FontKey e contratos
+estáticos já explícitos. É manutenção de representação Rust; não medição de
+benefício da IA, bug funcional ou paridade nova.
+
+### Responsabilidade e aceitação
+
+Manter a tabela estática SYM_GROUPS com três componentes documentados: nome, base e factory fn() de variantes. Autorizar #[expect(clippy::type_complexity, reason = "SYM_GROUPS: tabela estática nome/base/factory com contrato explícito")], somente na static. Não alterar dados, factories, catálogo, visibilidade ou seleção de variantes.
+
+Correção interna em fluxo contínuo ADR-0127: nenhuma entidade, assinatura pública
+resolvida, default ou fase é alterada. Uma abreviação de tipo só é permitida com
+expansão comprovadamente idêntica; incompatibilidade ou tipo público novo exige
+outro gate. As exceções são nominais apenas para type_complexity; não autorizar
+supressão em módulo/impl/crate nem elevar limiar. Esta permissão pontual supera
+proibições genéricas anteriores somente para os três itens justificados neste lote;
+continuam proibidas supressões dos demais casos destinados à correção.
+Usar os controles funcionais existentes sem mudar seus esperados. O gate selecionado
+deve passar RED→GREEN, incluindo unfulfilled_lint_expectations como erro; revalidar
+build, Clippy all-targets, suíte workspace, formato, Rustdoc e linhagem com resselo
+restrito. Não criar testes que apenas espelhem aliases ou nomes de campos.

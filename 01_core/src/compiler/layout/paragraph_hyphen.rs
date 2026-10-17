@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/paragraph_hyphen.md
-//! @prompt-hash c52cf32d
+//! @prompt-hash 68b582eb
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -10,8 +10,8 @@ use super::{
     paragraph_select::{line_cost, ratio, Measure, Strategy},
     text_measure, FontMetrics,
 };
-use crate::entities::lang::Lang;
 use crate::compiler::text_costs::LineCosts;
+use crate::entities::lang::Lang;
 // Pinned vanilla inline/linebreak.rs:29,663-666 and inline/line.rs:708-709.
 // Edge and optical constants; effective penalties come from text_costs.
 const HYPHEN_EDGE_DISTANCE: usize = 5;
@@ -178,9 +178,10 @@ fn penalty(p: &Prepared, b: Point, previous: Point, costs: LineCosts) -> f64 {
     let h = p.words[b.word].hyphenation.as_ref().unwrap();
     let (l, r) = h.lengths[b.cut];
     costs.hyphenation
-        * (1.0 + HYPHEN_EDGE_COST_STEP
-            * (HYPHEN_EDGE_DISTANCE.saturating_sub(l)
-                + HYPHEN_EDGE_DISTANCE.saturating_sub(r)) as f64)
+        * (1.0
+            + HYPHEN_EDGE_COST_STEP
+                * (HYPHEN_EDGE_DISTANCE.saturating_sub(l)
+                    + HYPHEN_EDGE_DISTANCE.saturating_sub(r)) as f64)
         + if previous.cut > 0 { costs.hyphenation } else { 0.0 }
 }
 fn materialize(p: &Prepared, a: Point, b: Point) -> Prepared {
@@ -280,7 +281,9 @@ pub(super) fn select(
         let mut pred = vec![0; n];
         let mut active = 0;
         for end in 1..n {
-            for start in active..end {
+            // Keep this candidate range fixed while pruning future prefixes.
+            let first_active = active;
+            for start in first_active..end {
                 let m = measurements.measure(p, points[start], points[end]);
                 if start == active
                     && ratio(m, width, font) < if justify { -1.0 } else { 0.0 }
@@ -398,9 +401,19 @@ mod tests {
                             as f64)
         );
         assert_eq!(penalty(&p, end, end, LineCosts::default()) - first, 135.0);
-        assert_eq!(penalty(&p,end,end,LineCosts{hyphenation:270.0,..LineCosts::default()}),
-            2.0*penalty(&p,end,end,LineCosts::default()));
-        assert_eq!(penalty(&p, Point { word: 1, cut: 0 }, end, LineCosts::default()), 0.0);
+        assert_eq!(
+            penalty(
+                &p,
+                end,
+                end,
+                LineCosts { hyphenation: 270.0, ..LineCosts::default() }
+            ),
+            2.0 * penalty(&p, end, end, LineCosts::default())
+        );
+        assert_eq!(
+            penalty(&p, Point { word: 1, cut: 0 }, end, LineCosts::default()),
+            0.0
+        );
     }
     #[test]
     fn hyphenation_terminal_punctuation_does_not_change_word_penalty_lengths() {
@@ -411,7 +424,8 @@ mod tests {
     struct NonAdditive;
     impl FontMetrics for NonAdditive {
         fn advance(&self, text: &str, _: Pt, _: &TextStyle) -> Pt {
-            Pt((text.chars().count() as f64).powi(2))
+            let count = text.chars().count() as f64;
+            Pt(count * count)
         }
         fn vertical_metrics(&self, _: Pt, _: &TextStyle) -> (Pt, Pt) {
             panic!("preparation cannot request vertical metrics")

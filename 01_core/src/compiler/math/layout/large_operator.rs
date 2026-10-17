@@ -35,7 +35,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             } else {
                 let assembly = self.metrics.vertical_glyph_assembly(c, style);
                 if !assembly.is_empty() {
-                    let mut composed = self.layout_assembly(c, assembly, target_du, style);
+                    let mut composed =
+                        self.layout_assembly(c, assembly, target_du, style);
                     // The parts paint one Large operator. Preserve its causal
                     // textual identity before export while keeping all visual
                     // glyph positions and the MathBox geometry unchanged.

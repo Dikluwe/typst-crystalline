@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/introspection
-Hash do Código: 6bf7ccec
+Hash do Código: 86df1556
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/introspection.rs`

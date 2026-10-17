@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/underover.md
-//! @prompt-hash 831e4132
+//! @prompt-hash 57c14707
 //! @layer L1
-//! @updated 2026-07-25
+//! @updated 2026-10-17
 //!
 //! Método `layout_underover` de `MathLayouter`. Extraído de `math/layout/mod.rs`
 //! no Passo 909 (completa o padrão de fatiamento de P314/ADR-0104, deixado
@@ -32,9 +32,128 @@ fn support_visual_items(
 }
 
 fn piece_char(content: &Content) -> Option<char> {
-    match content {
+    match content.source_body() {
         Content::MathText(text) if text.chars().count() == 1 => text.chars().next(),
-        _ => None,
+        Content::Source(_)
+        | Content::ShowRecipe(_)
+        | Content::Realized(_)
+        | Content::Located(_)
+        | Content::Empty
+        | Content::Text(_)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(_)
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_)
+        | Content::Par { .. }
+        | Content::Heading(_)
+        | Content::Title(_)
+        | Content::Strong(_)
+        | Content::Emph(_)
+        | Content::Raw(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::Link(_)
+        | Content::Equation(_)
+        | Content::MathSequence(_)
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathPrimes(_)
+        | Content::MathRoot(_)
+        | Content::MathStretch(_)
+        | Content::MathDelimited(_)
+        | Content::MathLr(_)
+        | Content::MathMid(_)
+        | Content::MathOverbrace(_)
+        | Content::MathUnderbrace(_)
+        | Content::MathUnderbracket(_)
+        | Content::MathUnderparen(_)
+        | Content::MathUndershell(_)
+        | Content::MathOverbracket(_)
+        | Content::MathOverparen(_)
+        | Content::MathOvershell(_)
+        | Content::MathAlignPoint(_)
+        | Content::Linebreak(_)
+        | Content::MathMatrix(_)
+        | Content::MathCases(_)
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathOverline(_)
+        | Content::MathVec(_)
+        | Content::MathClassOverride(_)
+        | Content::MathLimitsOverride(_)
+        | Content::MathUnderover(_)
+        | Content::MathOp(_)
+        | Content::MathStyled(_)
+        | Content::Label(_)
+        | Content::Ref(_)
+        | Content::CounterDisplay(_)
+        | Content::CounterUpdate(_)
+        | Content::Outline(_)
+        | Content::OutlineEntry(_)
+        | Content::Figure(_)
+        | Content::FigureCaption(_)
+        | Content::Image(_)
+        | Content::Shape(_)
+        | Content::Curve(_)
+        | Content::Transform(_)
+        | Content::Grid(_)
+        | Content::GridHeader(_)
+        | Content::GridFooter(_)
+        | Content::GridCell(_)
+        | Content::SetPage(_)
+        | Content::PageRun(_)
+        | Content::Align(_)
+        | Content::Place(_)
+        | Content::Flush(_)
+        | Content::Styled(_)
+        | Content::Divider(_)
+        | Content::Terms(_)
+        | Content::TermItem(_)
+        | Content::Quote(_)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(_)
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. }
+        | Content::Pad(_)
+        | Content::Hide(_)
+        | Content::HSpace(_)
+        | Content::VSpace(_)
+        | Content::Pagebreak(_)
+        | Content::Colbreak(_)
+        | Content::Stack(_)
+        | Content::Boxed(_)
+        | Content::Block(_)
+        | Content::TableCell(_)
+        | Content::Bibliography(_)
+        | Content::Cite(_)
+        | Content::Footnote(_)
+        | Content::FootnoteEntry(_)
+        | Content::TableHeader(_)
+        | Content::TableFooter(_)
+        | Content::GridHLine(_)
+        | Content::GridVLine(_)
+        | Content::TableHLine(_)
+        | Content::TableVLine(_)
+        | Content::Table(_)
+        | Content::Repeat(_)
+        | Content::Columns(_)
+        | Content::Metadata(_)
+        | Content::State(_)
+        | Content::StateUpdate(_)
+        | Content::StateDisplay(_)
+        | Content::CounterDisplayCallback(_)
+        | Content::ContextBlock(_)
+        | Content::Dynamic(_) => None,
     }
 }
 
@@ -43,22 +162,258 @@ fn is_single_char_piece(content: &Content) -> bool {
 }
 
 fn nested_spreader(content: &Content) -> Option<char> {
-    match content {
+    match content.source_body() {
         Content::MathUnderover(elem) => elem
             .under
             .as_ref()
             .or(elem.over.as_ref())
             .and_then(|piece| piece_char(piece).or_else(|| nested_spreader(&elem.base)))
             .or_else(|| nested_spreader(&elem.base)),
-        _ => None,
+        Content::Source(_)
+        | Content::ShowRecipe(_)
+        | Content::Realized(_)
+        | Content::Located(_)
+        | Content::Empty
+        | Content::Text(_)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(_)
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_)
+        | Content::Par { .. }
+        | Content::Heading(_)
+        | Content::Title(_)
+        | Content::Strong(_)
+        | Content::Emph(_)
+        | Content::Raw(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::Link(_)
+        | Content::Equation(_)
+        | Content::MathSequence(_)
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathPrimes(_)
+        | Content::MathRoot(_)
+        | Content::MathStretch(_)
+        | Content::MathDelimited(_)
+        | Content::MathLr(_)
+        | Content::MathMid(_)
+        | Content::MathOverbrace(_)
+        | Content::MathUnderbrace(_)
+        | Content::MathUnderbracket(_)
+        | Content::MathUnderparen(_)
+        | Content::MathUndershell(_)
+        | Content::MathOverbracket(_)
+        | Content::MathOverparen(_)
+        | Content::MathOvershell(_)
+        | Content::MathAlignPoint(_)
+        | Content::Linebreak(_)
+        | Content::MathMatrix(_)
+        | Content::MathCases(_)
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathOverline(_)
+        | Content::MathVec(_)
+        | Content::MathClassOverride(_)
+        | Content::MathLimitsOverride(_)
+        | Content::MathOp(_)
+        | Content::MathStyled(_)
+        | Content::Label(_)
+        | Content::Ref(_)
+        | Content::CounterDisplay(_)
+        | Content::CounterUpdate(_)
+        | Content::Outline(_)
+        | Content::OutlineEntry(_)
+        | Content::Figure(_)
+        | Content::FigureCaption(_)
+        | Content::Image(_)
+        | Content::Shape(_)
+        | Content::Curve(_)
+        | Content::Transform(_)
+        | Content::Grid(_)
+        | Content::GridHeader(_)
+        | Content::GridFooter(_)
+        | Content::GridCell(_)
+        | Content::SetPage(_)
+        | Content::PageRun(_)
+        | Content::Align(_)
+        | Content::Place(_)
+        | Content::Flush(_)
+        | Content::Styled(_)
+        | Content::Divider(_)
+        | Content::Terms(_)
+        | Content::TermItem(_)
+        | Content::Quote(_)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(_)
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. }
+        | Content::Pad(_)
+        | Content::Hide(_)
+        | Content::HSpace(_)
+        | Content::VSpace(_)
+        | Content::Pagebreak(_)
+        | Content::Colbreak(_)
+        | Content::Stack(_)
+        | Content::Boxed(_)
+        | Content::Block(_)
+        | Content::TableCell(_)
+        | Content::Bibliography(_)
+        | Content::Cite(_)
+        | Content::Footnote(_)
+        | Content::FootnoteEntry(_)
+        | Content::TableHeader(_)
+        | Content::TableFooter(_)
+        | Content::GridHLine(_)
+        | Content::GridVLine(_)
+        | Content::TableHLine(_)
+        | Content::TableVLine(_)
+        | Content::Table(_)
+        | Content::Repeat(_)
+        | Content::Columns(_)
+        | Content::Metadata(_)
+        | Content::State(_)
+        | Content::StateUpdate(_)
+        | Content::StateDisplay(_)
+        | Content::CounterDisplayCallback(_)
+        | Content::ContextBlock(_)
+        | Content::Dynamic(_) => None,
     }
 }
 
 fn base_char_for_attachment(content: &Content) -> Option<char> {
-    match content {
+    match content.source_body() {
         Content::MathText(text) if text.chars().count() == 1 => text.chars().next(),
         Content::MathAccent(elem) => base_char_for_attachment(&elem.base),
-        _ => None,
+        Content::Source(_)
+        | Content::ShowRecipe(_)
+        | Content::Realized(_)
+        | Content::Located(_)
+        | Content::Empty
+        | Content::Text(_)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(_)
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_)
+        | Content::Par { .. }
+        | Content::Heading(_)
+        | Content::Title(_)
+        | Content::Strong(_)
+        | Content::Emph(_)
+        | Content::Raw(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::Link(_)
+        | Content::Equation(_)
+        | Content::MathSequence(_)
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathPrimes(_)
+        | Content::MathRoot(_)
+        | Content::MathStretch(_)
+        | Content::MathDelimited(_)
+        | Content::MathLr(_)
+        | Content::MathMid(_)
+        | Content::MathOverbrace(_)
+        | Content::MathUnderbrace(_)
+        | Content::MathUnderbracket(_)
+        | Content::MathUnderparen(_)
+        | Content::MathUndershell(_)
+        | Content::MathOverbracket(_)
+        | Content::MathOverparen(_)
+        | Content::MathOvershell(_)
+        | Content::MathAlignPoint(_)
+        | Content::Linebreak(_)
+        | Content::MathMatrix(_)
+        | Content::MathCases(_)
+        | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathOverline(_)
+        | Content::MathVec(_)
+        | Content::MathClassOverride(_)
+        | Content::MathLimitsOverride(_)
+        | Content::MathUnderover(_)
+        | Content::MathOp(_)
+        | Content::MathStyled(_)
+        | Content::Label(_)
+        | Content::Ref(_)
+        | Content::CounterDisplay(_)
+        | Content::CounterUpdate(_)
+        | Content::Outline(_)
+        | Content::OutlineEntry(_)
+        | Content::Figure(_)
+        | Content::FigureCaption(_)
+        | Content::Image(_)
+        | Content::Shape(_)
+        | Content::Curve(_)
+        | Content::Transform(_)
+        | Content::Grid(_)
+        | Content::GridHeader(_)
+        | Content::GridFooter(_)
+        | Content::GridCell(_)
+        | Content::SetPage(_)
+        | Content::PageRun(_)
+        | Content::Align(_)
+        | Content::Place(_)
+        | Content::Flush(_)
+        | Content::Styled(_)
+        | Content::Divider(_)
+        | Content::Terms(_)
+        | Content::TermItem(_)
+        | Content::Quote(_)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(_)
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. }
+        | Content::Pad(_)
+        | Content::Hide(_)
+        | Content::HSpace(_)
+        | Content::VSpace(_)
+        | Content::Pagebreak(_)
+        | Content::Colbreak(_)
+        | Content::Stack(_)
+        | Content::Boxed(_)
+        | Content::Block(_)
+        | Content::TableCell(_)
+        | Content::Bibliography(_)
+        | Content::Cite(_)
+        | Content::Footnote(_)
+        | Content::FootnoteEntry(_)
+        | Content::TableHeader(_)
+        | Content::TableFooter(_)
+        | Content::GridHLine(_)
+        | Content::GridVLine(_)
+        | Content::TableHLine(_)
+        | Content::TableVLine(_)
+        | Content::Table(_)
+        | Content::Repeat(_)
+        | Content::Columns(_)
+        | Content::Metadata(_)
+        | Content::State(_)
+        | Content::StateUpdate(_)
+        | Content::StateDisplay(_)
+        | Content::CounterDisplayCallback(_)
+        | Content::ContextBlock(_)
+        | Content::Dynamic(_) => None,
     }
 }
 
@@ -163,7 +518,16 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             .flat_map(|b| &b.items)
             .filter_map(|item| match item {
                 FrameItem::Glyph { glyph_id, .. } => Some(*glyph_id),
-                _ => None,
+                FrameItem::Semantic { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Group { .. }
+                | FrameItem::Link { .. }
+                | FrameItem::TextReplacement { .. }
+                | FrameItem::TextSeparator { .. }
+                | FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. } => None,
             })
             .collect();
         if glyphs.len() > 1 {
@@ -214,7 +578,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         over: Option<&Content>,
         style: &TextStyle,
     ) -> (MathBox, f64) {
-        let (base_box, inherited_attach) = match base {
+        let (base_box, inherited_attach) = match base.source_body() {
             Content::MathUnderover(e) => {
                 let (box_, attach) = self.layout_underover_with_attach(
                     &e.base,
@@ -224,7 +588,125 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 );
                 (box_, Some(attach))
             }
-            _ => (self.layout_node(base, style), None),
+            Content::Source(_)
+            | Content::ShowRecipe(_)
+            | Content::Realized(_)
+            | Content::Located(_)
+            | Content::Empty
+            | Content::Text(_)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::Sequence(_)
+            | Content::HtmlElem(_)
+            | Content::HtmlFrame(_)
+            | Content::Par { .. }
+            | Content::Heading(_)
+            | Content::Title(_)
+            | Content::Strong(_)
+            | Content::Emph(_)
+            | Content::Raw(_)
+            | Content::ListItem(_)
+            | Content::EnumItem(_)
+            | Content::Link(_)
+            | Content::Equation(_)
+            | Content::MathSequence(_)
+            | Content::MathIdent(_)
+            | Content::MathText(_)
+            | Content::MathFrac(_)
+            | Content::MathAttach(_)
+            | Content::MathPrimes(_)
+            | Content::MathRoot(_)
+            | Content::MathStretch(_)
+            | Content::MathDelimited(_)
+            | Content::MathLr(_)
+            | Content::MathMid(_)
+            | Content::MathOverbrace(_)
+            | Content::MathUnderbrace(_)
+            | Content::MathUnderbracket(_)
+            | Content::MathUnderparen(_)
+            | Content::MathUndershell(_)
+            | Content::MathOverbracket(_)
+            | Content::MathOverparen(_)
+            | Content::MathOvershell(_)
+            | Content::MathAlignPoint(_)
+            | Content::Linebreak(_)
+            | Content::MathMatrix(_)
+            | Content::MathCases(_)
+            | Content::MathAccent(_)
+            | Content::MathCancel(_)
+            | Content::MathUnderline(_)
+            | Content::MathOverline(_)
+            | Content::MathVec(_)
+            | Content::MathClassOverride(_)
+            | Content::MathLimitsOverride(_)
+            | Content::MathOp(_)
+            | Content::MathStyled(_)
+            | Content::Label(_)
+            | Content::Ref(_)
+            | Content::CounterDisplay(_)
+            | Content::CounterUpdate(_)
+            | Content::Outline(_)
+            | Content::OutlineEntry(_)
+            | Content::Figure(_)
+            | Content::FigureCaption(_)
+            | Content::Image(_)
+            | Content::Shape(_)
+            | Content::Curve(_)
+            | Content::Transform(_)
+            | Content::Grid(_)
+            | Content::GridHeader(_)
+            | Content::GridFooter(_)
+            | Content::GridCell(_)
+            | Content::SetPage(_)
+            | Content::PageRun(_)
+            | Content::Align(_)
+            | Content::Place(_)
+            | Content::Flush(_)
+            | Content::Styled(_)
+            | Content::Divider(_)
+            | Content::Terms(_)
+            | Content::TermItem(_)
+            | Content::Quote(_)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(_)
+            | Content::PdfAttach(_)
+            | Content::PdfArtifact(_)
+            | Content::Underline(_)
+            | Content::Strike(_)
+            | Content::Overline(_)
+            | Content::SmallCaps { .. }
+            | Content::Pad(_)
+            | Content::Hide(_)
+            | Content::HSpace(_)
+            | Content::VSpace(_)
+            | Content::Pagebreak(_)
+            | Content::Colbreak(_)
+            | Content::Stack(_)
+            | Content::Boxed(_)
+            | Content::Block(_)
+            | Content::TableCell(_)
+            | Content::Bibliography(_)
+            | Content::Cite(_)
+            | Content::Footnote(_)
+            | Content::FootnoteEntry(_)
+            | Content::TableHeader(_)
+            | Content::TableFooter(_)
+            | Content::GridHLine(_)
+            | Content::GridVLine(_)
+            | Content::TableHLine(_)
+            | Content::TableVLine(_)
+            | Content::Table(_)
+            | Content::Repeat(_)
+            | Content::Columns(_)
+            | Content::Metadata(_)
+            | Content::State(_)
+            | Content::StateUpdate(_)
+            | Content::StateDisplay(_)
+            | Content::CounterDisplayCallback(_)
+            | Content::ContextBlock(_)
+            | Content::Dynamic(_) => (self.layout_node(base, style), None),
         };
         // **P906** — over/under de 1 carácter esticam para cobrir
         // `base_box.width` (ver `math/layout/underover.md` §P906). Anotação

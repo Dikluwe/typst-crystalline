@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style_chain.md
-//! @prompt-hash 0dd666aa
+//! @prompt-hash c45e0f50
 //! @layer L1
-//! @updated 2026-07-03
+//! @updated 2026-10-10
 //!
 //! Passo 99 (ADR-0038): `StyleChain` aceita uma colecção `Styles` via
 //! `push_styles`. **Lote F-4 (P338): a dualidade de backing colapsou** —
@@ -27,7 +27,7 @@ use ecow::EcoString;
 
 use crate::entities::font_list::FontList;
 use crate::entities::lang::Lang;
-use crate::entities::layout_types::{Pt, TextStyle};
+use crate::entities::layout_types::{Length, Pt, TextStyle};
 use crate::entities::style::{Style, Styles};
 use crate::entities::value::Value;
 
@@ -50,7 +50,7 @@ pub struct StyleDelta {
     /// Origem do itálico: `Some(true)` para `_italic_` / `Content::Emph`;
     /// `Some(false)` para `#set text(italic)`.
     pub italic_from_emph: Option<bool>,
-    pub size: Option<f64>, // em pontos tipográficos
+    pub size: Option<Length>, // tamanho declarado abs + em
     /// Cor de preenchimento do texto (Passo 99, ADR-0038, forward-compat).
     pub fill: Option<crate::entities::layout_types::Color>,
     /// Nível de heading quando aplicado via `#set heading(level: N)` futuro
@@ -189,7 +189,7 @@ impl StyleDelta {
             });
         }
         if self.size != other.size {
-            styles.push(Style::Size(Pt(self.size.unwrap_or(0.0))));
+            styles.push(Style::Size(self.size.unwrap_or(Length::ZERO)));
         }
         if self.fill != other.fill {
             if let Some(c) = self.fill.clone() {
@@ -207,17 +207,17 @@ impl StyleDelta {
             }
         }
         if self.tracking != other.tracking {
-            if let Some(l) = self.tracking.clone() {
+            if let Some(l) = self.tracking {
                 styles.push(Style::Tracking(l));
             }
         }
         if self.leading != other.leading {
-            if let Some(l) = self.leading.clone() {
+            if let Some(l) = self.leading {
                 styles.push(Style::Leading(l));
             }
         }
         if self.lang != other.lang {
-            if let Some(l) = self.lang.clone() {
+            if let Some(l) = self.lang {
                 styles.push(Style::Lang(l));
             }
         }
@@ -306,7 +306,7 @@ impl StyleChain {
             delta: StyleDelta {
                 bold: Some(false),
                 italic: Some(false),
-                size: Some(11.0),
+                size: Some(Length::pt(11.0)),
                 ..StyleDelta::empty()
             },
             parent: None,
@@ -343,9 +343,32 @@ impl StyleChain {
         })
     }
 
+    /// Captura declarações posteriores a um ancestral lexical compartilhado.
+    pub(crate) fn local_delta_since(&self, ancestor: &Self) -> Option<StyleDelta> {
+        let mut node = self.0.clone();
+        let mut deltas = Vec::new();
+        loop {
+            let at_boundary = match (&node, &ancestor.0) {
+                (Some(node), Some(base)) => Arc::ptr_eq(node, base),
+                (None, None) => true,
+                _ => false,
+            };
+            if at_boundary {
+                let prefix = deltas
+                    .into_iter()
+                    .rev()
+                    .fold(Self::empty(), |chain, delta| chain.push(delta));
+                return Some(prefix.collapse());
+            }
+            let current = node?;
+            deltas.push(current.delta.clone());
+            node = current.parent.clone();
+        }
+    }
+
     /// **Show-set (P352)** — dobra **todos** os nós da cadeia num único
-    /// `StyleDelta`, preservando a semântica `Option` (top-wins por campo; o
-    /// `custom` mantém a primeira ocorrência por chave). Read-only.
+    /// `StyleDelta`, preservando a semântica `Option`. Tamanho dobra as
+    /// declarações afins; os demais campos e chaves custom são top-wins.
     ///
     /// Usado pela captura do show-set (`#show k: set …`): a cadeia é construída
     /// sobre `StyleChain::empty()` (não `default_chain()`), logo o resultado é
@@ -353,6 +376,8 @@ impl StyleChain {
     /// consumidores (`Content::Styled`) recebem o efeito exato do `set`.
     pub fn collapse(&self) -> StyleDelta {
         let mut out = StyleDelta::empty();
+        let mut size = None;
+        let mut typed_size = false;
         let mut node = self.0.as_deref();
         while let Some(n) = node {
             let d = &n.delta;
@@ -368,8 +393,9 @@ impl StyleChain {
             if out.italic_from_emph.is_none() {
                 out.italic_from_emph = d.italic_from_emph;
             }
-            if out.size.is_none() {
-                out.size = d.size;
+            if let Some(outer) = declared_size(d) {
+                size = Some(size.map_or(outer, |inner| compose_size(inner, outer)));
+                typed_size |= d.size.is_some();
             }
             if out.fill.is_none() {
                 out.fill = d.fill.clone();
@@ -387,17 +413,26 @@ impl StyleChain {
                 out.leading = d.leading;
             }
             if out.lang.is_none() {
-                out.lang = d.lang.clone();
+                out.lang = d.lang;
             }
             if out.font.is_none() {
                 out.font = d.font.clone();
             }
             for (k, v) in &d.custom {
+                // Valid sizes were folded into the typed carrier above.
+                if k.as_str() == "text.size" && matches!(v, Value::Length(_)) {
+                    continue;
+                }
                 if !out.custom.iter().any(|(ek, _)| ek == k) {
                     out.custom.push((k.clone(), v.clone()));
                 }
             }
             node = n.parent.as_deref();
+        }
+        if typed_size {
+            out.size = size;
+        } else if let Some(size) = size {
+            out.custom.insert(0, ("text.size".into(), Value::Length(size)));
         }
         out
     }
@@ -486,16 +521,14 @@ impl StyleChain {
     /// Resolve `size` em pontos tipográficos.
     pub fn size(&self) -> f64 {
         let mut node = self.0.as_deref();
+        let mut size = Length::em(1.0);
         while let Some(n) = node {
-            if let Some(v) = n.delta.size {
-                return v;
-            }
-            if let Some(Value::Length(l)) = delta_custom(&n.delta, "text.size") {
-                return l.abs.to_pt();
+            if let Some(outer) = declared_size(&n.delta) {
+                size = compose_size(size, outer);
             }
             node = n.parent.as_deref();
         }
-        11.0
+        size.resolve_pt(11.0)
     }
 
     /// Resolve `weight` percorrendo a cadeia.
@@ -617,16 +650,15 @@ impl StyleChain {
                 return Some(v.clone());
             }
             if let Some(Value::Array(arr)) = delta_custom(&n.delta, "text.font") {
-                let fams: Vec<_> = arr
-                    .iter()
-                    .filter_map(|v| {
-                        if let Value::Str(s) = v {
-                            Some(crate::entities::font_list::FontFamily::new(s.clone()))
-                        } else {
-                            None
-                        }
-                    })
-                    .collect();
+                let count = arr.iter().filter(|v| matches!(v, Value::Str(_))).count();
+                let mut fams = Vec::with_capacity(count);
+                for value in arr {
+                    if let Value::Str(name) = value {
+                        fams.push(crate::entities::font_list::FontFamily::new(
+                            name.clone(),
+                        ));
+                    }
+                }
                 return crate::entities::font_list::FontList::new(fams);
             }
             node = n.parent.as_deref();
@@ -746,6 +778,20 @@ impl StyleChain {
 
 /// **F-5b fatia 2 (P373)** — lê o valor do canal `custom` para `key` no delta
 /// deste nó (sem subir a cadeia; o walk de cada resolver trata a herança).
+// Typed and custom declarations represent the same property at a node.
+fn declared_size(delta: &StyleDelta) -> Option<Length> {
+    delta.size.or_else(|| match delta_custom(delta, "text.size") {
+        Some(Value::Length(length)) => Some(*length),
+        _ => None,
+    })
+}
+
+// Apply the inner affine declaration to the outer declaration without a base.
+fn compose_size(inner: Length, outer: Length) -> Length {
+    Length::pt(inner.abs.to_pt() + inner.em * outer.abs.to_pt())
+        + Length::em(inner.em * outer.em)
+}
+
 fn delta_custom<'a>(delta: &'a StyleDelta, key: &str) -> Option<&'a Value> {
     delta.custom.iter().find(|(k, _)| k == key).map(|(_, v)| v)
 }
@@ -756,12 +802,22 @@ fn delta_custom<'a>(delta: &'a StyleDelta, key: &str) -> Option<&'a Value> {
 /// emite um `FrameItem::Text`.
 impl From<&StyleChain> for TextStyle {
     fn from(chain: &StyleChain) -> Self {
-        let semantic = chain.collapse();
+        let mut strong = None;
+        let mut emph = None;
+        let mut node = chain.0.as_deref();
+        while let Some(current) = node {
+            strong = strong.or(current.delta.bold_from_strong);
+            emph = emph.or(current.delta.italic_from_emph);
+            if strong.is_some() && emph.is_some() {
+                break;
+            }
+            node = current.parent.as_deref();
+        }
         TextStyle {
             bold: chain.bold(),
             italic: chain.italic(),
-            semantic_strong: semantic.bold_from_strong == Some(true),
-            semantic_emph: semantic.italic_from_emph == Some(true),
+            semantic_strong: strong == Some(true),
+            semantic_emph: emph == Some(true),
             size: Pt(chain.size()),
             fill: chain.fill(),
             heading_level: chain.heading_level(),
@@ -828,6 +884,90 @@ mod tests {
     use super::*;
     use crate::entities::style::Style;
 
+    #[test]
+    fn custom_font_resolution_preserves_precedence_empty_and_original_declarations() {
+        let outer = StyleChain::empty().push_custom(
+            "text.font",
+            Value::Array(vec![
+                Value::Str("OUTER".into()),
+                Value::Int(7),
+                Value::Str("SECOND".into()),
+            ]),
+        );
+        let expected = outer.font().unwrap();
+        assert_eq!(
+            expected
+                .as_slice()
+                .iter()
+                .map(|f| f.name.as_str().unwrap())
+                .collect::<Vec<_>>(),
+            ["outer", "second"]
+        );
+        let before = outer.collapse();
+        let invalid = outer.push_custom("text.font", Value::Array(vec![Value::Int(9)]));
+        let empty = outer.push_custom("text.font", Value::Array(vec![]));
+        for _ in 0..2 {
+            assert_eq!(outer.font(), Some(expected.clone()));
+            assert_eq!(
+                outer.push_custom("text.font", Value::Int(8)).font(),
+                Some(expected.clone())
+            );
+            assert!(invalid.font().is_none());
+            assert!(empty.font().is_none());
+        }
+        assert_eq!(outer.collapse(), before);
+        let typed = FontList::single("Typed".into());
+        let both = outer.push(StyleDelta {
+            font: Some(typed.clone()),
+            custom: vec![(
+                "text.font".into(),
+                Value::Array(vec![Value::Str("CUSTOM".into())]),
+            )],
+            ..StyleDelta::empty()
+        });
+        assert_eq!(both.font(), Some(typed));
+        let duplicates = outer.push(StyleDelta {
+            custom: vec![
+                ("text.font".into(), Value::Array(vec![Value::Str("FIRST".into())])),
+                ("text.font".into(), Value::Array(vec![Value::Str("LAST".into())])),
+            ],
+            ..StyleDelta::empty()
+        });
+        assert_eq!(duplicates.font().unwrap().as_slice()[0].name.as_str(), Some("first"));
+        let own =
+            outer.push_custom("text.font", Value::Array(vec![Value::Str("OWN".into())]));
+        let declaration = own.local_delta_since(&outer).unwrap();
+        assert_eq!(own.font().unwrap().as_slice()[0].name.as_str(), Some("own"));
+        assert_eq!(own.local_delta_since(&outer), Some(declaration));
+        assert_eq!(outer.font(), Some(expected));
+    }
+
+    #[test]
+    fn font_resolution_preserves_typed_regex_variants_and_custom_dict_filtering() {
+        use crate::entities::font_list::FontFamily;
+        use crate::entities::regex::Regex;
+        let family = FontFamily::new_regex(
+            Regex::new("^Libertinus.*").unwrap(),
+            vec!["Bold".into()],
+        );
+        let typed = FontList::new(vec![family]).unwrap();
+        let outer = StyleChain::empty()
+            .push(StyleDelta { font: Some(typed.clone()), ..StyleDelta::empty() });
+        let inherited =
+            outer.push(StyleDelta { italic: Some(true), ..StyleDelta::empty() });
+        let dict_only = outer.push_custom(
+            "text.font",
+            Value::Array(vec![Value::Dict(Default::default())]),
+        );
+        for _ in 0..2 {
+            assert_eq!(inherited.font(), Some(typed.clone()));
+            assert!(
+                dict_only.font().is_none(),
+                "preserve the existing custom dict limitation"
+            );
+        }
+    }
+
     // ── Lote F-2 S5 (P335) — trava do canal aberto (teste-varre-tabela) ──────
     // A trava da ADR-0105 cláusula 3, lado estilo: onde o canal aberto perde a
     // exaustividade do compilador (chave dinâmica → `Value`), este teste enumera
@@ -861,7 +1001,6 @@ mod tests {
 
     #[test]
     fn style_chain_defaults() {
-        use crate::entities::lang::Lang;
         let chain = StyleChain::default_chain();
         assert!(!chain.bold());
         assert!(!chain.italic());
@@ -897,7 +1036,7 @@ mod tests {
         let child = mid.push(StyleDelta {
             bold: None,
             italic: None,
-            size: Some(14.0),
+            size: Some(Length::pt(14.0)),
             ..StyleDelta::empty()
         });
         // bold herdado de mid, size de child, italic do root
@@ -925,7 +1064,7 @@ mod tests {
         let chain = StyleChain::default_chain().push(StyleDelta {
             bold: Some(true),
             italic: None,
-            size: Some(14.0),
+            size: Some(Length::pt(14.0)),
             ..StyleDelta::empty()
         });
         let ts = TextStyle::from(&chain);
@@ -988,10 +1127,31 @@ mod tests {
         assert_eq!(ts.font, Some(fl));
     }
 
+    #[test]
+    fn text_style_semantic_origin_uses_first_defined_bit() {
+        let outer = StyleChain::default_chain().push(StyleDelta {
+            bold_from_strong: Some(true),
+            italic_from_emph: Some(false),
+            custom: vec![("text.fill".into(), Value::Int(7))],
+            ..StyleDelta::empty()
+        });
+        let inner = outer.push(StyleDelta {
+            bold_from_strong: Some(false),
+            italic_from_emph: Some(true),
+            ..StyleDelta::empty()
+        });
+        let style = TextStyle::from(&inner);
+        assert!(!style.semantic_strong);
+        assert!(style.semantic_emph);
+        let inherited = TextStyle::from(&outer);
+        assert!(inherited.semantic_strong);
+        assert!(!inherited.semantic_emph);
+    }
+
     // ── P836 — resolver `variations()` (fold por tag entre níveis) ─────────
 
     fn p836_dict(entries: &[(&str, i64)]) -> Value {
-        let mut d = indexmap::IndexMap::with_hasher(rustc_hash::FxBuildHasher::default());
+        let mut d = indexmap::IndexMap::with_hasher(rustc_hash::FxBuildHasher);
         for (k, v) in entries {
             d.insert(ecow::EcoString::from(*k), Value::Int(*v));
         }
@@ -1028,7 +1188,6 @@ mod tests {
 
     #[test]
     fn empty_chain_usa_defaults() {
-        use crate::entities::lang::Lang;
         let chain = StyleChain::empty();
         assert!(!chain.bold());
         assert!(!chain.italic());
@@ -1085,7 +1244,7 @@ mod tests {
         let styles = Styles::from_iter([
             Style::bold(true),
             Style::italic(true),
-            Style::Size(Pt(18.0)),
+            Style::Size(crate::entities::layout_types::Length::pt(18.0)),
         ]);
         let child = base.push_styles(&styles);
         assert!(child.bold());
@@ -1154,7 +1313,10 @@ mod tests {
     #[test]
     fn integracao_content_styled_resolve_via_style_chain() {
         let body = Content::text("hello");
-        let styles = Styles::from_iter([Style::bold(true), Style::Size(Pt(18.0))]);
+        let styles = Styles::from_iter([
+            Style::bold(true),
+            Style::Size(crate::entities::layout_types::Length::pt(18.0)),
+        ]);
         let styled = Content::styled(Box::new(body), styles);
 
         // O consumidor futuro (`eval_markup`) faria:
@@ -1208,5 +1370,120 @@ mod tests {
         // italic=true — inner está mais perto do texto e define Italic(true),
         // sobrepondo o Italic(false) do outer. Top-wins (paridade vanilla).
         assert!(chain.italic());
+    }
+}
+
+#[cfg(test)]
+mod c2r1_local_style_tests {
+    use super::*;
+    #[test]
+    fn c2r1_local_style_prefix_excludes_ancestor_and_preserves_explicit_default() {
+        let base = StyleChain::default_chain();
+        let child = base.push(StyleDelta {
+            size: Some(Length::pt(11.0)),
+            ..StyleDelta::empty()
+        });
+        let delta = child.local_delta_since(&base.clone()).unwrap();
+        assert_eq!(delta.size, Some(Length::pt(11.0)));
+        assert_eq!(delta.bold, None);
+        assert_eq!(delta.italic, None);
+        assert!(base.local_delta_since(&base).unwrap().is_empty());
+        assert!(child.local_delta_since(&StyleChain::default_chain()).is_none());
+    }
+}
+
+#[cfg(test)]
+mod ts1_tests {
+    use super::*;
+
+    #[test]
+    fn ts1_custom_relative_sizes_compose_in_lexical_order() {
+        use crate::entities::layout_types::Length;
+        let outer =
+            StyleChain::empty().push_custom("text.size", Value::Length(Length::pt(18.0)));
+        let inner = outer.push_custom("text.size", Value::Length(Length::em(2.0)));
+        assert_eq!(inner.size(), 36.0);
+        let affine = inner
+            .push_custom("text.size", Value::Length(Length::pt(3.0) + Length::em(0.5)));
+        assert_eq!(affine.size(), 21.0);
+        assert_eq!(outer.size(), 18.0);
+        assert_eq!(StyleChain::empty().size(), 11.0);
+    }
+
+    #[test]
+    fn ts1_prefix_capture_preserves_affine_without_default() {
+        use crate::entities::layout_types::Length;
+        let base =
+            StyleChain::empty().push_custom("text.size", Value::Length(Length::pt(18.0)));
+        let child = base
+            .push_custom("text.size", Value::Length(Length::em(2.0)))
+            .push_custom("text.size", Value::Length(Length::pt(3.0) + Length::em(0.5)));
+        let prefix = child.local_delta_since(&base).unwrap();
+        let replay = StyleChain::empty()
+            .push_custom("text.size", Value::Length(Length::pt(20.0)))
+            .push(prefix.clone());
+        assert_eq!(replay.size(), 23.0);
+        assert_eq!(base.push(prefix).size(), child.size());
+        assert_eq!(StyleChain::empty().push(child.collapse()).size(), child.size());
+    }
+
+    #[test]
+    fn ts1_explicit_default_sized_prefix_remains_a_declaration() {
+        use crate::entities::layout_types::Length;
+        let base = StyleChain::default_chain();
+        let child = base.push_custom("text.size", Value::Length(Length::em(1.0)));
+        let prefix = child.local_delta_since(&base).unwrap();
+        assert!(!prefix.is_empty());
+        let other =
+            StyleChain::empty().push_custom("text.size", Value::Length(Length::pt(30.0)));
+        assert_eq!(other.push(prefix).size(), 30.0);
+    }
+    #[test]
+    fn ts1_typed_custom_precedence_and_captured_morphology() {
+        let outer = StyleChain::empty().push(StyleDelta {
+            size: Some(Length::pt(18.0)),
+            ..StyleDelta::empty()
+        });
+        let mixed = outer.push(StyleDelta {
+            size: Some(Length::em(2.0)),
+            custom: vec![("text.size".into(), Value::Length(Length::em(10.0)))],
+            ..StyleDelta::empty()
+        });
+        assert_eq!(mixed.size(), 36.0);
+        assert_eq!(outer.size(), 18.0);
+        assert_eq!(StyleChain::empty().push(mixed.collapse()).size(), 36.0);
+        let set_only =
+            StyleChain::empty().push_custom("text.size", Value::Length(Length::em(2.0)));
+        let captured = Styles::from_delta(set_only.collapse());
+        assert!(captured.is_semantically_empty());
+        assert!(captured.delta().size.is_none());
+        assert!(
+            !Styles::from_iter([Style::Size(Length::em(2.0))]).is_semantically_empty()
+        );
+    }
+
+    #[test]
+    fn ts1_affine_api_diff_and_bridge_keep_declared_and_resolved_sizes_separate() {
+        let declared = Length::pt(3.0) + Length::em(2.0);
+        let styles = Styles::from_iter([Style::Size(declared)]);
+        assert_eq!(styles.delta().size, Some(declared));
+        let delta = styles.delta().clone();
+        let replay = delta.diff_styles(&StyleDelta::empty());
+        assert_eq!(replay.delta().size, Some(declared));
+        let chain = StyleChain::empty()
+            .push(StyleDelta {
+                size: Some(Length::pt(18.0)),
+                ..StyleDelta::empty()
+            })
+            .push_styles(&replay);
+        assert_eq!(chain.size(), 39.0);
+        let resolved = TextStyle::from(&chain);
+        let _: Pt = resolved.size;
+        assert_eq!(resolved.size.val(), 39.0);
+        let snapshot = StyleChain::empty().push(StyleDelta {
+            size: Some(Length::pt(resolved.size.val())),
+            ..StyleDelta::empty()
+        });
+        assert_eq!(snapshot.size(), 39.0);
     }
 }

@@ -335,7 +335,7 @@ fn p223_place_map_content_preserva_atributos() {
     );
     let mapped = p.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
     if let Content::Place(e) = &mapped {
-        assert_eq!(e.float, true, "map_content preserva float");
+        assert!(e.float, "map_content preserva float");
         assert_eq!(e.clearance, Some(Length::pt(8.0)), "map_content preserva clearance");
     } else {
         panic!("esperado Content::Place após map_content");
@@ -533,7 +533,7 @@ fn p231_block_map_content_preserva_3_fields() {
     if let Content::Block(e) = &mapped {
         assert_eq!(e.outset, outset_orig);
         assert_eq!(e.radius, radius_orig);
-        assert_eq!(e.clip, true);
+        assert!(e.clip);
     } else {
         panic!("esperado Block após map_content");
     }

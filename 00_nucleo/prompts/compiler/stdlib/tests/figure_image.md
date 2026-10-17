@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/tests/figure_image
-Hash do Código: 6091cb22
+Hash do Código: 51480d68
 
 **Layer:** L1 test-only
 **Exclusive consumer:** `01_core/src/compiler/stdlib/tests/figure_image.rs`

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 9bf1754e
+//! @prompt-hash ad16ddb4
 //! @layer L3
-//! @updated 2026-09-26
+//! @updated 2026-10-10
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -48,6 +48,7 @@ impl<'a> FontBookMetrics<'a> {
 
 pub struct FallbackFontMetrics<'a> {
     world: &'a dyn World,
+    primary_resolution: Arc<Mutex<Option<resolution::PrimaryResolution>>>,
     cache: Arc<Mutex<HashMap<usize, Arc<CachedFace>>>>,
     shaped_width_cache: Arc<Mutex<HashMap<ShapedWidthKey, Pt>>>,
     /// P673 — cache de faces ttf-parser para `shaped_width`, partilhada entre
@@ -68,6 +69,7 @@ impl<'a> FallbackFontMetrics<'a> {
     pub fn new(world: &'a dyn World) -> Self {
         Self {
             world,
+            primary_resolution: Arc::new(Mutex::new(None)),
             cache: Arc::new(Mutex::new(HashMap::new())),
             shaped_width_cache: Arc::new(Mutex::new(HashMap::new())),
             shaper_face_cache: Arc::new(Mutex::new(crate::shaper::FaceCache::new())),
@@ -80,6 +82,7 @@ impl Clone for FallbackFontMetrics<'_> {
     fn clone(&self) -> Self {
         Self {
             world: self.world,
+            primary_resolution: self.primary_resolution.clone(),
             cache: self.cache.clone(),
             shaped_width_cache: self.shaped_width_cache.clone(),
             shaper_face_cache: self.shaper_face_cache.clone(),

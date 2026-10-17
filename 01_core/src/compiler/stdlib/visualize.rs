@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/tiling-stdlib.md
-//! @prompt-hash 80dbdcab
+//! @prompt-hash c8116285
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -16,6 +16,7 @@ use crate::compiler::eval::EvalContext;
 use crate::contracts::world::World;
 use crate::entities::args::Args;
 use crate::entities::axes::Axes;
+#[cfg(test)]
 use crate::entities::content::Content;
 use crate::entities::file_id::FileId;
 use crate::entities::layout_types::{Angle, Length, Pt, Size};
@@ -283,7 +284,7 @@ mod tests {
     }
 
     fn null_world() -> NullWorld {
-        NullWorld::default()
+        NullWorld
     }
 
     fn test_file_id() -> FileId {

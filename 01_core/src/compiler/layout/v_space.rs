@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/v_space.md
-//! @prompt-hash e6f82d78
+//! @prompt-hash 858574a2
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -24,5 +24,18 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     if layouter.regions.current.cursor_x.0 > layouter.regions.current.line_start_x.0 {
         layouter.flush_line();
     }
+    let end = layouter
+        .flow_placement_y()
+        .unwrap_or(layouter.regions.current.cursor_y.0)
+        + pt;
     layouter.regions.current.cursor_y += Pt(pt);
+    if !e.weak {
+        if layouter.last_block_descent_y.is_some() {
+            layouter.last_block_descent_y = Some(end);
+        }
+        if layouter.block_chain_active {
+            layouter.prev_line_baseline += pt;
+        }
+    }
+    layouter.record_flow_placement_end(end);
 }

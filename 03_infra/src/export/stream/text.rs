@@ -1,18 +1,18 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream/text.md
-//! @prompt-hash 9b8efbfd
+//! @prompt-hash 09dd9dbc
 //! @layer L3
 //! @updated 2026-09-29
 
+#[cfg(test)]
+use super::PageContext;
 use super::{
     escape_pdf_string, fill_rg_prefix, pdf_defaults, remap_glyph_id, spot_fill_operator,
-    text_to_hex_string, FontScenario, PageContext,
+    text_to_hex_string, FontScenario,
 };
+use crate::export::FontKey;
 use crate::font_variant::text_style_to_font_variant;
 use std::collections::HashMap;
-use typst_core::entities::font_book::FontVariant;
-use typst_core::entities::font_list::FontList;
-use typst_core::entities::font_variations::FontVariations;
 mod runs;
 
 pub(super) use runs::{emit_verbose_text_run, verbose_run_end};
@@ -20,7 +20,7 @@ pub(super) use runs::{emit_verbose_text_run, verbose_run_end};
 /// P530 — devolve o índice da fonte embutida que corresponde ao
 /// `(FontList, FontVariant)` derivado do `TextStyle`.
 pub(crate) fn font_index_for_style(
-    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    fonts: &[FontKey],
     style: &typst_core::entities::layout_types::TextStyle,
 ) -> usize {
     let variant = text_style_to_font_variant(style);
@@ -101,7 +101,11 @@ fn emit_text_pdf_inner(
             let stroke_pt = style.faux_bold_stroke_pt(pdf_defaults::FAUX_BOLD_K);
             deferred = stroke_pt > f64::EPSILON && !restore;
             let (q_open, q_close, bold_ops) = if stroke_pt > f64::EPSILON {
-                ("q\n", if restore { "Q\n" } else { "" }, format!("2 Tr\n{:.3} w\n", stroke_pt))
+                (
+                    "q\n",
+                    if restore { "Q\n" } else { "" },
+                    format!("2 Tr\n{:.3} w\n", stroke_pt),
+                )
             } else {
                 ("", "", String::new())
             };
@@ -222,14 +226,24 @@ pub(super) fn push_tj_glyph_entries(
         } else {
             remap_glyph_id(g.glyph_id, glyph_mapping)
         };
-        let residual_tu = style.map(|style| {
-            let residual = crate::shaper::tracking::residual(glyphs, i, style, upm);
-            if residual == 0.0 { 0.0 } else { residual / style.size.0 * 1000.0 }
-        }).unwrap_or(0.0);
+        let residual_tu = style
+            .map(|style| {
+                let residual = crate::shaper::tracking::residual(glyphs, i, style, upm);
+                if residual == 0.0 {
+                    0.0
+                } else {
+                    residual / style.size.0 * 1000.0
+                }
+            })
+            .unwrap_or(0.0);
         if residual_tu == 0.0 {
             ops.push_str(&format!("<{:04X}> {:.0} ", new_gid, advance_tu));
         } else {
-            ops.push_str(&format!("<{:04X}> {:.5} ", new_gid, advance_tu.round() - residual_tu));
+            ops.push_str(&format!(
+                "<{:04X}> {:.5} ",
+                new_gid,
+                advance_tu.round() - residual_tu
+            ));
         }
     }
 }
@@ -250,8 +264,12 @@ pub(super) fn verbose_block_prefix(
     base_y: f64,
     fill: &Option<typst_core::entities::layout_types::Color>,
 ) {
+    let alpha = fill.as_ref().map(|c| c.to_rgba_f32().3).unwrap_or(1.0);
+    let opacity = super::opacity_operator(alpha, alpha);
     if let Some(op) = fill.as_ref().and_then(spot_fill_operator) {
-        ops.push_str(&format!("q\n1 0 0 -1 {pos_x:.5} {base_y:.5} cm\n{op}BT\n"));
+        ops.push_str(&format!(
+            "q\n1 0 0 -1 {pos_x:.5} {base_y:.5} cm\n{opacity}{op}BT\n"
+        ));
         return;
     }
     let (r, g, b) = match fill {
@@ -262,7 +280,7 @@ pub(super) fn verbose_block_prefix(
         None => (0.0, 0.0, 0.0),
     };
     ops.push_str(&format!(
-        "q\n1 0 0 -1 {pos_x:.5} {base_y:.5} cm\n/c0 cs {r:.3} {g:.3} {b:.3} scn\nBT\n"
+        "q\n1 0 0 -1 {pos_x:.5} {base_y:.5} cm\n{opacity}/c0 cs {r:.3} {g:.3} {b:.3} scn\nBT\n"
     ));
 }
 
@@ -277,6 +295,28 @@ pub(super) fn verbose_tr_ops(
     } else {
         "0 Tr\n".to_string()
     }
+}
+
+/// A certified variable face realizes weight through its actual wght axis.
+/// Keep semantic weight intact without painting an additional synthetic stroke.
+pub(super) fn shaped_tr_ops(
+    style: &typst_core::entities::layout_types::TextStyle,
+    font: Option<&typst_core::entities::world_types::Font>,
+) -> String {
+    if style.faux_bold_stroke_pt(pdf_defaults::FAUX_BOLD_K) > f64::EPSILON {
+        let realized_weight = font
+            .and_then(|font| ttf_parser::Face::parse(font.as_slice(), 0).ok())
+            .and_then(|face| face.tables().fvar)
+            .is_some_and(|fvar| {
+                fvar.axes
+                    .into_iter()
+                    .any(|axis| axis.tag == ttf_parser::Tag::from_bytes(b"wght"))
+            });
+        if realized_weight {
+            return "0 Tr\n".to_string();
+        }
+    }
+    verbose_tr_ops(style)
 }
 
 /// **P956** — `Tc` do envelope verbose, apenas se tracking ≠ 0 (mesma
@@ -297,6 +337,10 @@ pub(super) fn push_shaped_spacing(ops: &mut String) {
     ops.push_str("0 Tc\n");
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C051: Emissor PDF Compact recebe texto autoral para fallback Type1, glyphs e face efetiva separados, estilo, posição PDF, escala e cenário de recursos"
+)]
 pub(in crate::export) fn emit_shaped_pdf(
     ops: &mut String,
     pos_x: f64,
@@ -306,10 +350,26 @@ pub(in crate::export) fn emit_shaped_pdf(
     style: &typst_core::entities::layout_types::TextStyle,
     scenario: &FontScenario,
     units_per_em: u16,
+    font: Option<&typst_core::entities::world_types::Font>,
 ) {
-    let _ = emit_shaped_pdf_inner(ops, pos_x, base_y, glyphs, text, style, scenario, units_per_em, true);
+    let _ = emit_shaped_pdf_inner(
+        ops,
+        pos_x,
+        base_y,
+        glyphs,
+        text,
+        style,
+        scenario,
+        units_per_em,
+        true,
+        font,
+    );
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C052: Variante Compact diferida possui os mesmos inputs causais e retorna o Q pendente para fechar ActualText antes da restauração gráfica"
+)]
 pub(in crate::export) fn emit_shaped_pdf_deferred(
     ops: &mut String,
     pos_x: f64,
@@ -319,10 +379,26 @@ pub(in crate::export) fn emit_shaped_pdf_deferred(
     style: &typst_core::entities::layout_types::TextStyle,
     scenario: &FontScenario,
     units_per_em: u16,
+    font: Option<&typst_core::entities::world_types::Font>,
 ) -> bool {
-    emit_shaped_pdf_inner(ops, pos_x, base_y, glyphs, text, style, scenario, units_per_em, false)
+    emit_shaped_pdf_inner(
+        ops,
+        pos_x,
+        base_y,
+        glyphs,
+        text,
+        style,
+        scenario,
+        units_per_em,
+        false,
+        font,
+    )
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C053: Núcleo Compact acrescenta restore à operação shaped; o controle distingue tail normal de diferido sem duplicar emissão"
+)]
 fn emit_shaped_pdf_inner(
     ops: &mut String,
     pos_x: f64,
@@ -333,6 +409,7 @@ fn emit_shaped_pdf_inner(
     scenario: &FontScenario,
     units_per_em: u16,
     restore: bool,
+    font: Option<&typst_core::entities::world_types::Font>,
 ) -> bool {
     let mut deferred = false;
     if glyphs.is_empty() {
@@ -341,7 +418,8 @@ fn emit_shaped_pdf_inner(
     let upm = units_per_em as f64;
     match scenario {
         FontScenario::Type1 => {
-            deferred = emit_text_pdf_inner(ops, pos_x, base_y, text, style, scenario, restore);
+            deferred =
+                emit_text_pdf_inner(ops, pos_x, base_y, text, style, scenario, restore);
         }
         FontScenario::Cidfont { glyph_mapping, glyph_to_nominal, bitmap, .. } => {
             if let Some(bmp) = bitmap {
@@ -360,17 +438,32 @@ fn emit_shaped_pdf_inner(
             ops.push_str(&format!("{rg}BT\n/F1 {:.1} Tf\n", style.size.val()));
             push_shaped_spacing(ops);
             ops.push_str(&format!("{pos_x:.3} {base_y:.3} Td\n[ "));
-            push_tj_glyph_entries(ops, glyphs, glyph_mapping, glyph_to_nominal, upm, Some(style));
+            push_tj_glyph_entries(
+                ops,
+                glyphs,
+                glyph_mapping,
+                glyph_to_nominal,
+                upm,
+                Some(style),
+            );
             ops.push_str("] TJ\nET\n");
         }
         FontScenario::Multifont {
             fonts,
+            bindings,
             per_font_glyph_mapping,
             per_font_glyph_to_nominal,
             per_font_bitmap,
             ..
         } => {
-            let fi = font_index_for_style(fonts, style);
+            let Some(fi) = crate::export::font_binding::lookup(
+                bindings.as_ref(),
+                fonts,
+                style,
+                font,
+            ) else {
+                return false;
+            };
             if let Some(Some(bmp)) = per_font_bitmap.get(fi) {
                 emit_bitmap_glyph_draws(
                     ops,
@@ -389,7 +482,14 @@ fn emit_shaped_pdf_inner(
             ops.push_str(&format!("{rg}BT\n/F{} {:.1} Tf\n", fi + 1, style.size.val()));
             push_shaped_spacing(ops);
             ops.push_str(&format!("{pos_x:.3} {base_y:.3} Td\n[ "));
-            push_tj_glyph_entries(ops, glyphs, glyph_mapping, glyph_to_nominal, upm, Some(style));
+            push_tj_glyph_entries(
+                ops,
+                glyphs,
+                glyph_mapping,
+                glyph_to_nominal,
+                upm,
+                Some(style),
+            );
             ops.push_str("] TJ\nET\n");
         }
     }
@@ -435,9 +535,15 @@ pub(in crate::export) fn emit_glyph_pdf(
     style: &typst_core::entities::layout_types::TextStyle,
     scenario: &FontScenario,
 ) {
-    emit_glyph_pdf_marked(ops, pos_x, base_y, glyph_id, size, style, scenario, None, false);
+    emit_glyph_pdf_marked(
+        ops, pos_x, base_y, glyph_id, size, style, scenario, None, false,
+    );
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C054: Emissor de glifo marcado recebe abertura e fecho causais de ActualText independentemente"
+)]
 pub(in crate::export) fn emit_glyph_pdf_marked(
     ops: &mut String,
     pos_x: f64,
@@ -471,8 +577,13 @@ pub(in crate::export) fn emit_glyph_pdf_marked(
             if let Some(text) = actualtext_open {
                 super::text_replacement::opening(ops, text);
             }
-            ops.push_str(&format!("/F1 {:.1} Tf\n{:.1} {:.1} Td\n<{:04X}> Tj\n",
-                size.val(), pos_x, base_y, new_gid));
+            ops.push_str(&format!(
+                "/F1 {:.1} Tf\n{:.1} {:.1} Td\n<{:04X}> Tj\n",
+                size.val(),
+                pos_x,
+                base_y,
+                new_gid
+            ));
             if actualtext_close {
                 super::text_replacement::closing(ops);
             }
@@ -497,8 +608,14 @@ pub(in crate::export) fn emit_glyph_pdf_marked(
             if let Some(text) = actualtext_open {
                 super::text_replacement::opening(ops, text);
             }
-            ops.push_str(&format!("/F{} {:.1} Tf\n{:.1} {:.1} Td\n<{:04X}> Tj\n",
-                fi + 1, size.val(), pos_x, base_y, new_gid));
+            ops.push_str(&format!(
+                "/F{} {:.1} Tf\n{:.1} {:.1} Td\n<{:04X}> Tj\n",
+                fi + 1,
+                size.val(),
+                pos_x,
+                base_y,
+                new_gid
+            ));
             if actualtext_close {
                 super::text_replacement::closing(ops);
             }
@@ -565,7 +682,11 @@ fn emit_text_pdf_verbose_inner(
             ops.push_str(&format!("/{font_ref} {:.1} Tf\n", style.size.val()));
             push_tc_if_tracking(ops, style);
             ops.push_str(&format!("1 0 0 -1 0 0 Tm\n({safe}) Tj\nET\n"));
-            if restore { ops.push_str("Q\n"); } else { deferred = true; }
+            if restore {
+                ops.push_str("Q\n");
+            } else {
+                deferred = true;
+            }
         }
         FontScenario::Cidfont { char_to_gid, .. } => {
             if text.is_empty() {
@@ -577,7 +698,11 @@ fn emit_text_pdf_verbose_inner(
             ops.push_str(&format!("/F1 {:.1} Tf\n", style.size.val()));
             push_tc_if_tracking(ops, style);
             ops.push_str(&format!("1 0 0 -1 0 0 Tm\n{hex_str} Tj\nET\n"));
-            if restore { ops.push_str("Q\n"); } else { deferred = true; }
+            if restore {
+                ops.push_str("Q\n");
+            } else {
+                deferred = true;
+            }
         }
         FontScenario::Multifont { fonts, per_font_char_to_gid, .. } => {
             if text.is_empty() {
@@ -590,7 +715,11 @@ fn emit_text_pdf_verbose_inner(
             ops.push_str(&format!("/F{} {:.1} Tf\n", fi + 1, style.size.val()));
             push_tc_if_tracking(ops, style);
             ops.push_str(&format!("1 0 0 -1 0 0 Tm\n{hex_str} Tj\nET\n"));
-            if restore { ops.push_str("Q\n"); } else { deferred = true; }
+            if restore {
+                ops.push_str("Q\n");
+            } else {
+                deferred = true;
+            }
         }
     }
 
@@ -601,6 +730,10 @@ fn emit_text_pdf_verbose_inner(
 /// partilhado (`push_tj_glyph_entries` — delta model P520/P548, x_offset
 /// P486, remap P516). Glifos bitmap (CBDT, P941) ficam **inalterados nos
 /// dois modos** — são desenho de imagem (`/ImN Do`), não texto.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C055: Emissor Verbose preserva a mesma identidade shaped, posição PDF, escala e recursos com envelope específico"
+)]
 pub(in crate::export) fn emit_shaped_pdf_verbose(
     ops: &mut String,
     pos_x: f64,
@@ -610,10 +743,26 @@ pub(in crate::export) fn emit_shaped_pdf_verbose(
     style: &typst_core::entities::layout_types::TextStyle,
     scenario: &FontScenario,
     units_per_em: u16,
+    font: Option<&typst_core::entities::world_types::Font>,
 ) {
-    let _ = emit_shaped_pdf_verbose_inner(ops, pos_x, base_y, glyphs, text, style, scenario, units_per_em, true);
+    let _ = emit_shaped_pdf_verbose_inner(
+        ops,
+        pos_x,
+        base_y,
+        glyphs,
+        text,
+        style,
+        scenario,
+        units_per_em,
+        true,
+        font,
+    );
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C056: Variante Verbose diferida transporta os mesmos inputs e informa restauração Q pendente"
+)]
 pub(in crate::export) fn emit_shaped_pdf_verbose_deferred(
     ops: &mut String,
     pos_x: f64,
@@ -623,10 +772,26 @@ pub(in crate::export) fn emit_shaped_pdf_verbose_deferred(
     style: &typst_core::entities::layout_types::TextStyle,
     scenario: &FontScenario,
     units_per_em: u16,
+    font: Option<&typst_core::entities::world_types::Font>,
 ) -> bool {
-    emit_shaped_pdf_verbose_inner(ops, pos_x, base_y, glyphs, text, style, scenario, units_per_em, false)
+    emit_shaped_pdf_verbose_inner(
+        ops,
+        pos_x,
+        base_y,
+        glyphs,
+        text,
+        style,
+        scenario,
+        units_per_em,
+        false,
+        font,
+    )
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C057: Núcleo Verbose recebe restore explicitamente para compartilhar a implementação normal/diferida; os demais inputs são os operandos reais do texto e seu cenário de fontes"
+)]
 fn emit_shaped_pdf_verbose_inner(
     ops: &mut String,
     pos_x: f64,
@@ -637,6 +802,7 @@ fn emit_shaped_pdf_verbose_inner(
     scenario: &FontScenario,
     units_per_em: u16,
     restore: bool,
+    font: Option<&typst_core::entities::world_types::Font>,
 ) -> bool {
     let mut deferred = false;
     if glyphs.is_empty() {
@@ -645,7 +811,9 @@ fn emit_shaped_pdf_verbose_inner(
     let upm = units_per_em as f64;
     match scenario {
         FontScenario::Type1 => {
-            deferred = emit_text_pdf_verbose_inner(ops, pos_x, base_y, text, style, scenario, restore);
+            deferred = emit_text_pdf_verbose_inner(
+                ops, pos_x, base_y, text, style, scenario, restore,
+            );
         }
         FontScenario::Cidfont { glyph_mapping, glyph_to_nominal, bitmap, .. } => {
             if let Some(bmp) = bitmap {
@@ -661,22 +829,41 @@ fn emit_shaped_pdf_verbose_inner(
                 return false;
             }
             verbose_block_prefix(ops, pos_x, base_y, &style.fill);
-            ops.push_str(&verbose_tr_ops(style));
+            ops.push_str(&shaped_tr_ops(style, font));
             ops.push_str(&format!("/F1 {:.1} Tf\n", style.size.val()));
             push_shaped_spacing(ops);
             ops.push_str("1 0 0 -1 0 0 Tm\n[ ");
-            push_tj_glyph_entries(ops, glyphs, glyph_mapping, glyph_to_nominal, upm, Some(style));
+            push_tj_glyph_entries(
+                ops,
+                glyphs,
+                glyph_mapping,
+                glyph_to_nominal,
+                upm,
+                Some(style),
+            );
             ops.push_str("] TJ\nET\n");
-            if restore { ops.push_str("Q\n"); } else { deferred = true; }
+            if restore {
+                ops.push_str("Q\n");
+            } else {
+                deferred = true;
+            }
         }
         FontScenario::Multifont {
             fonts,
+            bindings,
             per_font_glyph_mapping,
             per_font_glyph_to_nominal,
             per_font_bitmap,
             ..
         } => {
-            let fi = font_index_for_style(fonts, style);
+            let Some(fi) = crate::export::font_binding::lookup(
+                bindings.as_ref(),
+                fonts,
+                style,
+                font,
+            ) else {
+                return false;
+            };
             if let Some(Some(bmp)) = per_font_bitmap.get(fi) {
                 emit_bitmap_glyph_draws(
                     ops,
@@ -690,7 +877,7 @@ fn emit_shaped_pdf_verbose_inner(
                 return false;
             }
             verbose_block_prefix(ops, pos_x, base_y, &style.fill);
-            ops.push_str(&verbose_tr_ops(style));
+            ops.push_str(&shaped_tr_ops(style, font));
             ops.push_str(&format!("/F{} {:.1} Tf\n", fi + 1, style.size.val()));
             push_shaped_spacing(ops);
             ops.push_str("1 0 0 -1 0 0 Tm\n[ ");
@@ -703,7 +890,11 @@ fn emit_shaped_pdf_verbose_inner(
                 Some(style),
             );
             ops.push_str("] TJ\nET\n");
-            if restore { ops.push_str("Q\n"); } else { deferred = true; }
+            if restore {
+                ops.push_str("Q\n");
+            } else {
+                deferred = true;
+            }
         }
     }
 
@@ -722,9 +913,15 @@ pub(in crate::export) fn emit_glyph_pdf_verbose(
     style: &typst_core::entities::layout_types::TextStyle,
     scenario: &FontScenario,
 ) {
-    emit_glyph_pdf_verbose_marked(ops, pos_x, base_y, glyph_id, size, style, scenario, None, false);
+    emit_glyph_pdf_verbose_marked(
+        ops, pos_x, base_y, glyph_id, size, style, scenario, None, false,
+    );
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "C058: Variante Verbose do glifo marcado conserva abertura/fecho de ocorrência Large dentro de BT/ET e o cenário nominal/remapeado"
+)]
 pub(in crate::export) fn emit_glyph_pdf_verbose_marked(
     ops: &mut String,
     pos_x: f64,
@@ -794,6 +991,95 @@ mod tests {
     use typst_core::entities::layout_types::ShapedGlyph;
 
     #[test]
+    fn certified_variable_weight_is_not_synthetically_stroked() {
+        use typst_core::entities::layout_types::{
+            FrameItem, Point, Pt, ShapedGlyph, TextStyle,
+        };
+        use typst_core::entities::world_types::Font;
+        let font = Font::from_data(
+            std::fs::read(concat!(
+                env!("CARGO_MANIFEST_DIR"),
+                "/fixtures/fonts/UbuntuSans-Variable.ttf"
+            ))
+            .unwrap(),
+        );
+        let style = TextStyle {
+            size: Pt(20.0),
+            weight: Some(700),
+            variations: Some(typst_core::entities::font_variations::FontVariations(
+                vec![(*b"wght", 250.0)],
+            )),
+            ..Default::default()
+        };
+        let glyphs = vec![ShapedGlyph {
+            glyph_id: 1,
+            x_advance: 689,
+            x_offset: 0,
+            y_offset: 0,
+            cluster: 0,
+            char_code: 'H',
+        }];
+        let map = HashMap::new();
+        let chars = HashMap::new();
+        let nominal = HashMap::from([(1, 689)]);
+        let scenario = FontScenario::Cidfont {
+            char_to_gid: &chars,
+            glyph_mapping: &map,
+            glyph_to_nominal: &nominal,
+            bitmap: None,
+        };
+        let mut ops = String::new();
+        emit_shaped_pdf_verbose(
+            &mut ops,
+            10.0,
+            20.0,
+            &glyphs,
+            "H",
+            &style,
+            &scenario,
+            1000,
+            Some(&font),
+        );
+        assert!(
+            !ops.contains("2 Tr"),
+            "real variable weight must not acquire a synthetic stroke: {ops}"
+        );
+        ops.clear();
+        emit_shaped_pdf_verbose(
+            &mut ops, 10.0, 20.0, &glyphs, "H", &style, &scenario, 1000, None,
+        );
+        assert!(ops.contains("2 Tr"), "legacy None preserves its policy");
+        let ptrs = HashMap::new();
+        let pats = HashMap::new();
+        let mut ctx = PageContext::type1(
+            &ptrs,
+            &[],
+            &pats,
+            &[],
+            crate::export::StreamMode::Verbose,
+        );
+        ctx.font_scenario = scenario;
+        let run: Vec<_> = [10.0, 20.0]
+            .into_iter()
+            .map(|x| FrameItem::TextShaped {
+                pos: Point { x: Pt(x), y: Pt(20.0) },
+                glyphs: glyphs.clone(),
+                style: style.clone(),
+                text: "H".into(),
+                units_per_em: 1000,
+                bidi: None,
+                font: Some(font.clone()),
+            })
+            .collect();
+        ops.clear();
+        super::runs::emit_verbose_text_run(&mut ops, &run, 200.0, &ctx);
+        assert!(
+            !ops.contains("2 Tr"),
+            "coalesced variable runs must not acquire a synthetic stroke: {ops}"
+        );
+    }
+
+    #[test]
     fn tj_remap_preserves_nominal_delta() {
         let glyphs = [ShapedGlyph {
             glyph_id: 65,
@@ -816,9 +1102,16 @@ mod tests {
     }
     // Interpret PDF text advance independently from the formatter's delta model.
     fn rendered_positions(ops: &str, size: f64) -> Vec<f64> {
-        let tc = ops.split("[ ").next().unwrap().lines()
+        let tc = ops
+            .split("[ ")
+            .next()
+            .unwrap()
+            .lines()
             .filter_map(|line| line.strip_suffix(" Tc"))
-            .last().unwrap_or("0").parse::<f64>().unwrap();
+            .next_back()
+            .unwrap_or("0")
+            .parse::<f64>()
+            .unwrap();
         let array = ops.split("[ ").nth(1).unwrap().split("] TJ").next().unwrap();
         let mut cursor = 0.0;
         let mut positions = Vec::new();
@@ -833,7 +1126,13 @@ mod tests {
         positions
     }
 
-    fn tracking_controls(mut test: impl FnMut(&FontScenario, &typst_core::entities::layout_types::TextStyle, Vec<ShapedGlyph>)) {
+    fn tracking_controls(
+        mut test: impl FnMut(
+            &FontScenario,
+            &typst_core::entities::layout_types::TextStyle,
+            Vec<ShapedGlyph>,
+        ),
+    ) {
         use typst_core::entities::layout_types::{Length, Pt, TextStyle};
         let char_map = HashMap::from([('A', 1)]);
         let nominal = HashMap::from([(1, 500)]);
@@ -843,20 +1142,45 @@ mod tests {
         let widths = [nominal.clone()];
         let reverse = [HashMap::new()];
         let bitmaps = [None];
-        let scenarios = [FontScenario::Cidfont {
-            char_to_gid: &char_map, glyph_mapping: &empty, glyph_to_nominal: &nominal, bitmap: None,
-        }, FontScenario::Multifont {
-            fonts: &[], per_font_char_to_gid: &chars, per_font_glyph_mapping: &maps,
-            per_font_glyph_to_nominal: &widths, per_font_glyph_reverse: &reverse, per_font_bitmap: &bitmaps,
-        }];
+        let scenarios = [
+            FontScenario::Cidfont {
+                char_to_gid: &char_map,
+                glyph_mapping: &empty,
+                glyph_to_nominal: &nominal,
+                bitmap: None,
+            },
+            FontScenario::Multifont {
+                fonts: &[],
+                per_font_char_to_gid: &chars,
+                per_font_glyph_mapping: &maps,
+                per_font_glyph_to_nominal: &widths,
+                per_font_glyph_reverse: &reverse,
+                per_font_bitmap: &bitmaps,
+                bindings: None,
+            },
+        ];
         for scenario in &scenarios {
             for tracking in [Some(1.2), Some(-1.2), None, Some(0.0)] {
                 let mut style = TextStyle::regular(Pt(12.0));
                 style.tracking = tracking.map(Length::pt);
                 let extra = (tracking.unwrap_or(0.0) / 12.0 * 1000.0).round() as i32;
                 let glyphs = vec![
-                    ShapedGlyph { glyph_id: 1, x_advance: 500 + extra, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' },
-                    ShapedGlyph { glyph_id: 1, x_advance: 500, x_offset: 0, y_offset: 0, cluster: 1, char_code: 'A' },
+                    ShapedGlyph {
+                        glyph_id: 1,
+                        x_advance: 500 + extra,
+                        x_offset: 0,
+                        y_offset: 0,
+                        cluster: 0,
+                        char_code: 'A',
+                    },
+                    ShapedGlyph {
+                        glyph_id: 1,
+                        x_advance: 500,
+                        x_offset: 0,
+                        y_offset: 0,
+                        cluster: 1,
+                        char_code: 'A',
+                    },
                 ];
                 test(scenario, &style, glyphs);
             }
@@ -870,14 +1194,26 @@ mod tests {
                 for defer in [false, true] {
                     let mut ops = String::from("7 Tc\n");
                     if verbose {
-                        emit_shaped_pdf_verbose_inner(&mut ops, 10.0, 20.0, &glyphs, "AA", style, scenario, 1000, !defer);
+                        emit_shaped_pdf_verbose_inner(
+                            &mut ops, 10.0, 20.0, &glyphs, "AA", style, scenario, 1000,
+                            !defer, None,
+                        );
                     } else {
-                        emit_shaped_pdf_inner(&mut ops, 10.0, 20.0, &glyphs, "AA", style, scenario, 1000, !defer);
+                        emit_shaped_pdf_inner(
+                            &mut ops, 10.0, 20.0, &glyphs, "AA", style, scenario, 1000,
+                            !defer, None,
+                        );
                     }
                     let positions = rendered_positions(&ops, style.size.0);
                     assert_eq!(positions.len(), 2);
                     assert!(positions[0].abs() < 1e-8);
-                    assert!((positions[1] - glyphs[0].x_advance as f64 / 1000.0 * style.size.0).abs() < 1e-8, "{ops}");
+                    assert!(
+                        (positions[1]
+                            - glyphs[0].x_advance as f64 / 1000.0 * style.size.0)
+                            .abs()
+                            < 1e-8,
+                        "{ops}"
+                    );
                 }
             }
         });
@@ -885,16 +1221,38 @@ mod tests {
 
     #[test]
     fn shaped_tracking_coalesced_run_preserves_absolute_boundary() {
-        use typst_core::entities::layout_types::{FrameItem, Point, Pt};
         use crate::export::StreamMode;
+        use typst_core::entities::layout_types::{FrameItem, Point, Pt};
         tracking_controls(|scenario, style, glyphs| {
             // Reconstruct the enum with borrowed fields; no font resources needed.
             let copied = match scenario {
-                FontScenario::Cidfont { char_to_gid, glyph_mapping, glyph_to_nominal, bitmap } => FontScenario::Cidfont {
-                    char_to_gid, glyph_mapping, glyph_to_nominal, bitmap: *bitmap,
+                FontScenario::Cidfont {
+                    char_to_gid,
+                    glyph_mapping,
+                    glyph_to_nominal,
+                    bitmap,
+                } => FontScenario::Cidfont {
+                    char_to_gid,
+                    glyph_mapping,
+                    glyph_to_nominal,
+                    bitmap: *bitmap,
                 },
-                FontScenario::Multifont { fonts, per_font_char_to_gid, per_font_glyph_mapping, per_font_glyph_to_nominal, per_font_glyph_reverse, per_font_bitmap } => FontScenario::Multifont {
-                    fonts, per_font_char_to_gid, per_font_glyph_mapping, per_font_glyph_to_nominal, per_font_glyph_reverse, per_font_bitmap,
+                FontScenario::Multifont {
+                    fonts,
+                    per_font_char_to_gid,
+                    per_font_glyph_mapping,
+                    per_font_glyph_to_nominal,
+                    per_font_glyph_reverse,
+                    per_font_bitmap,
+                    ..
+                } => FontScenario::Multifont {
+                    fonts,
+                    per_font_char_to_gid,
+                    per_font_glyph_mapping,
+                    per_font_glyph_to_nominal,
+                    per_font_glyph_reverse,
+                    per_font_bitmap,
+                    bindings: None,
                 },
                 FontScenario::Type1 => unreachable!(),
             };
@@ -902,15 +1260,25 @@ mod tests {
             let pats = HashMap::new();
             let mut ctx = PageContext::type1(&ptrs, &[], &pats, &[], StreamMode::Verbose);
             ctx.font_scenario = copied;
-            let run: Vec<_> = [10.0, 46.0].into_iter().map(|x| FrameItem::TextShaped {
-                pos: Point { x: Pt(x), y: Pt(20.0) }, text: "AA".into(), style: style.clone(), glyphs: glyphs.clone(), units_per_em: 1000,
-            }).collect();
+            let run: Vec<_> = [10.0, 46.0]
+                .into_iter()
+                .map(|x| FrameItem::TextShaped {
+                    pos: Point { x: Pt(x), y: Pt(20.0) },
+                    text: "AA".into(),
+                    style: style.clone(),
+                    glyphs: glyphs.clone(),
+                    units_per_em: 1000,
+                    bidi: None,
+                    font: None,
+                })
+                .collect();
             let mut ops = String::from("7 Tc\n");
             emit_verbose_text_run(&mut ops, &run, 100.0, &ctx);
             let positions = rendered_positions(&ops, style.size.0);
             let step = glyphs[0].x_advance as f64 / 1000.0 * style.size.0;
             assert_eq!(positions.len(), 4);
-            for (actual, expected) in positions.iter().zip([0.0, step, 36.0, 36.0 + step]) {
+            for (actual, expected) in positions.iter().zip([0.0, step, 36.0, 36.0 + step])
+            {
                 assert!((*actual - expected).abs() < 1e-8, "{ops}");
             }
         });
@@ -921,7 +1289,9 @@ mod tests {
         tracking_controls(|scenario, style, glyphs| {
             let Some(tracking) = style.tracking else { return };
             let expected = tracking.resolve_pt(style.size.0);
-            if expected == 0.0 { return; }
+            if expected == 0.0 {
+                return;
+            }
             for scenario in [scenario, &FontScenario::Type1] {
                 let mut ops = String::new();
                 emit_text_pdf_verbose(&mut ops, 10.0, 20.0, "AA", style, scenario);
@@ -929,8 +1299,31 @@ mod tests {
             }
             for verbose in [false, true] {
                 let mut ops = String::new();
-                if verbose { emit_shaped_pdf_verbose(&mut ops, 10.0, 20.0, &glyphs, "AA", style, &FontScenario::Type1, 1000); }
-                else { emit_shaped_pdf(&mut ops, 10.0, 20.0, &glyphs, "AA", style, &FontScenario::Type1, 1000); }
+                if verbose {
+                    emit_shaped_pdf_verbose(
+                        &mut ops,
+                        10.0,
+                        20.0,
+                        &glyphs,
+                        "AA",
+                        style,
+                        &FontScenario::Type1,
+                        1000,
+                        None,
+                    );
+                } else {
+                    emit_shaped_pdf(
+                        &mut ops,
+                        10.0,
+                        20.0,
+                        &glyphs,
+                        "AA",
+                        style,
+                        &FontScenario::Type1,
+                        1000,
+                        None,
+                    );
+                }
                 assert!(ops.contains(&format!("{expected:.2} Tc")), "{ops}");
             }
         });
@@ -939,28 +1332,82 @@ mod tests {
     #[test]
     fn fractional_tracking_pdf_keeps_exact_cluster_positions() {
         use typst_core::entities::layout_types::{Length, Pt, TextStyle};
-        let map=HashMap::new();let nominal=HashMap::from([(1,500)]);let chars=HashMap::from([('A',1)]);
-        let scenario=FontScenario::Cidfont {char_to_gid:&chars,glyph_mapping:&map,glyph_to_nominal:&nominal,bitmap:None};
-        for t in [0.2,-0.2,0.333] {
-            let mut style=TextStyle::regular(Pt(12.0));style.tracking=Some(Length::pt(t));
-            let q=(t/12.0*1000.0).round() as i32;
-            let glyphs:Vec<_>=[0,0,1].into_iter().enumerate().map(|(i,cluster)|ShapedGlyph {glyph_id:1,x_advance:500+if i==1 {q}else{0},x_offset:0,y_offset:0,cluster,char_code:'A'}).collect();
-            for verbose in [false,true] {
-                let mut ops=String::new();
-                if verbose {emit_shaped_pdf_verbose(&mut ops,0.0,0.0,&glyphs,"AAA",&style,&scenario,1000);}
-                else {emit_shaped_pdf(&mut ops,0.0,0.0,&glyphs,"AAA",&style,&scenario,1000);}
-                let xs=rendered_positions(&ops,12.0);
-                for (x,want) in xs.into_iter().zip([0.0,6.0,12.0+t]) {assert!((x-want).abs()<1e-6,"{ops}");}
+        let map = HashMap::new();
+        let nominal = HashMap::from([(1, 500)]);
+        let chars = HashMap::from([('A', 1)]);
+        let scenario = FontScenario::Cidfont {
+            char_to_gid: &chars,
+            glyph_mapping: &map,
+            glyph_to_nominal: &nominal,
+            bitmap: None,
+        };
+        for t in [0.2, -0.2, 0.333] {
+            let mut style = TextStyle::regular(Pt(12.0));
+            style.tracking = Some(Length::pt(t));
+            let q = (t / 12.0 * 1000.0).round() as i32;
+            let glyphs: Vec<_> = [0, 0, 1]
+                .into_iter()
+                .enumerate()
+                .map(|(i, cluster)| ShapedGlyph {
+                    glyph_id: 1,
+                    x_advance: 500 + if i == 1 { q } else { 0 },
+                    x_offset: 0,
+                    y_offset: 0,
+                    cluster,
+                    char_code: 'A',
+                })
+                .collect();
+            for verbose in [false, true] {
+                let mut ops = String::new();
+                if verbose {
+                    emit_shaped_pdf_verbose(
+                        &mut ops, 0.0, 0.0, &glyphs, "AAA", &style, &scenario, 1000, None,
+                    );
+                } else {
+                    emit_shaped_pdf(
+                        &mut ops, 0.0, 0.0, &glyphs, "AAA", &style, &scenario, 1000, None,
+                    );
+                }
+                let xs = rendered_positions(&ops, 12.0);
+                for (x, want) in xs.into_iter().zip([0.0, 6.0, 12.0 + t]) {
+                    assert!((x - want).abs() < 1e-6, "{ops}");
+                }
             }
-            use typst_core::entities::layout_types::{FrameItem,Point};
             use crate::export::StreamMode;
-            let ptrs=HashMap::new();let pats=HashMap::new();
-            let mut ctx=PageContext::type1(&ptrs,&[],&pats,&[],StreamMode::Verbose);
-            ctx.font_scenario=FontScenario::Cidfont {char_to_gid:&chars,glyph_mapping:&map,glyph_to_nominal:&nominal,bitmap:None};
-            let run:Vec<_>=[0.0,30.123].into_iter().map(|x|FrameItem::TextShaped {pos:Point {x:Pt(x),y:Pt(0.0)},glyphs:glyphs.clone(),style:style.clone(),text:"AAA".into(),units_per_em:1000}).collect();
-            let mut ops=String::new();emit_verbose_text_run(&mut ops,&run,100.0,&ctx);
-            for (x,want) in rendered_positions(&ops,12.0).into_iter().zip([0.0,6.0,12.0+t,30.123,36.123,42.123+t]) {assert!((x-want).abs()<1e-6,"{ops}");}
+            use typst_core::entities::layout_types::{FrameItem, Point};
+            let ptrs = HashMap::new();
+            let pats = HashMap::new();
+            let mut ctx = PageContext::type1(&ptrs, &[], &pats, &[], StreamMode::Verbose);
+            ctx.font_scenario = FontScenario::Cidfont {
+                char_to_gid: &chars,
+                glyph_mapping: &map,
+                glyph_to_nominal: &nominal,
+                bitmap: None,
+            };
+            let run: Vec<_> = [0.0, 30.123]
+                .into_iter()
+                .map(|x| FrameItem::TextShaped {
+                    pos: Point { x: Pt(x), y: Pt(0.0) },
+                    glyphs: glyphs.clone(),
+                    style: style.clone(),
+                    text: "AAA".into(),
+                    units_per_em: 1000,
+                    bidi: None,
+                    font: None,
+                })
+                .collect();
+            let mut ops = String::new();
+            emit_verbose_text_run(&mut ops, &run, 100.0, &ctx);
+            for (x, want) in rendered_positions(&ops, 12.0).into_iter().zip([
+                0.0,
+                6.0,
+                12.0 + t,
+                30.123,
+                36.123,
+                42.123 + t,
+            ]) {
+                assert!((x - want).abs() < 1e-6, "{ops}");
+            }
         }
     }
-
 }

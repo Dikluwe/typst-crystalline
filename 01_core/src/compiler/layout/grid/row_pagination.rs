@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/grid/row_pagination.md
-//! @prompt-hash 877e5913
+//! @prompt-hash 2aa14c2f
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -34,10 +34,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::super::Layouter<'a, M, S> {
                 // fechar), para a linha seguinte reabrir do zero.
                 flush_all_vsegments(
                     open_vsegments,
-                    &col_starts,
-                    &resolved_widths,
+                    col_starts,
+                    resolved_widths,
                     num_cols,
-                    &mut self.regions.current.current_items,
+                    self,
                 );
                 self.new_page();
             }

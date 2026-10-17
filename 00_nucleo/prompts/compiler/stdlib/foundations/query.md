@@ -1,8 +1,9 @@
 # L0 — stdlib/foundations/query
-Hash do Código: 80ed15e4
+Hash do Código: a4586090
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
+- 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:a37779d03a4ba0f16ebcc5919477bfdcf783021511a28cf8c9203c67cd64a9e5
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/foundations/query.rs`
@@ -26,3 +27,50 @@ target requires known context, rejects arguments and preserves `can only be used
 ## Acceptance
 
 Preserve syntax, semantics, morphology, diagnostics/hints/spans, bindings, defaults and identities. No productive code or compatibility change is authorized by this sanitation. Preserve pinned shared claims and exclusive ownership under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.
+
+## D08A — seletor bare de table.cell (PROPOSTO, gate ADR-0127)
+
+### Medição anterior à decisão
+
+HEAD 06848cdcb5450f2c555626bf116bc7acd82bd82b, working tree não commitado;
+UTC, diffstat, entradas, comandos, hashes das fontes e executáveis em
+00_nucleo/diagnosticos/math-residuos-table-cell-2026-10-06/{before,table-additional-before,table-aliases-before}.json.gz.
+Vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8.
+selector(table.cell) devolve cell, where() devolve cell.where(:), a comparação
+é false, query/counter rejeitam cell não locatable. Alias verdadeiro medido
+por CodeBlock conserva esses resultados. A fixture anterior que definiu alias
+apenas no documento não disponibilizava a variável à expressão eval e não
+prova alias positivo; table-aliases-before corrige a fixture.
+
+Fonte: lab/typst-original/crates/typst-library/src/foundations/selector.rs:309–321
+distingue dict None de Some; :421–450 valida locatabilidade separadamente.
+No Tekt, entities/selector.rs:34–37 só representa grupo Element presente;
+stdlib/foundations/selector.rs:69–77,348–354 omite a nativa cell; os demais
+limites atuais e hashes estão em d08-owner-audit.json.
+
+Classificação: formato, identidade e rejeição de consulta são linguagem;
+o novo carrier fechado é mecânica escolhida para preservar esses observáveis.
+A distinção do vanilla é explícita na fonte; não se infere intenção apenas
+da saída. Inferência: a nova variante basta à fatia de seleção/locatabilidade;
+a hipótese será refutada por um caso público cuja ausência de grupo ou
+identidade não caiba nela. Não se presume correção de realização de células.
+
+### Contrato materializável somente após ratificação
+
+query e locate consomem o novo seletor e validam locatabilidade antes de consultar ou registrar observação. A âncora da validação é value_span da primeira ocorrência posicional não detached, com fallback args.span. O erro cell is not locatable é preservado para função direta, alias, NativeElement, where e composições; não indexar células para resolver o erro. Preservar aridade, context read, identidade, metadata e target.
+
+### Fronteira incompleta e aceitação
+
+D08A cobre apenas carrier, construção, repr, igualdade, composição e
+locatabilidade. D08 permanece incompleto: D08B completa show direto, projeção
+de body/campos e preparação de células explícitas/implícitas, incluindo
+posições, padding, spans, header/footer e escopo lexical. D08B precisa de
+seus L0s medidos e de gate próprio caso mude contrato ou fase; esta ratificação
+não o autoriza. Não esconder negativos D08B ou declarar paridade universal.
+
+Após ratificação: promover este conjunto atomicamente; escrever testes
+linguísticos e verificar RED válido antes do código; materializar com
+despacho estático e Rust seguro; validar 1:1/V26 antes de ressellar somente
+owners deste manifesto; build, suíte core e linter sem erros. Revalidar
+selector cell bare/where/alias, igualdade true/false, query/counter diretos
+e compostos, função homônima, partial/closure; preservar D05, D07 e query.

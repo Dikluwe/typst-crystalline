@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/selector_matching.md
-//! @prompt-hash c0cfa497
+//! @prompt-hash a2ab5617
 //! @layer L1
-//! @updated 2026-08-12
+//! @updated 2026-10-07
 //!
 //! Matching de selectores de show rule contra conteúdo; conversão de query
 //! selector para show selector. Extraído de `compiler/eval/rules.rs` no Passo
@@ -18,9 +18,7 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::{IntrospectedContent, Value};
 
-pub(crate) use super::operators::equality::{
-    counter_keys_eq, selector_contains_element, selectors_eq, values_eq,
-};
+pub(crate) use super::operators::equality::values_eq;
 
 /// **P417 (M)** — Converte um `entities::selector::Selector` (query)
 /// para um `entities::show::Selector` (show rule). P1339 transporta a
@@ -45,6 +43,7 @@ pub(crate) fn query_selector_to_show_selector(
     }
 
     match sel {
+        QuerySelector::NativeElement(function) => Ok(Selector::NativeElement(function)),
         QuerySelector::Element { function, fields } => {
             let mut selector = if function.element_name() == Some("raw.line") {
                 Selector::DynKind("raw.line".to_string())
@@ -110,6 +109,13 @@ pub(crate) fn query_selector_to_show_selector(
 /// de show-set: ambos usam exatamente o mesmo critério de match. `Selector::Text`
 /// nunca casa aqui (tratado por `map_text`).
 pub(crate) fn selector_matches(work: &Content, selector: &Selector) -> bool {
+    let work = match work {
+        Content::Source(e) => &e.body,
+        Content::ShowRecipe(e) => &e.body,
+        Content::Located(e) => &e.body,
+        Content::Realized(e) => &e.visual,
+        other => other,
+    };
     // F-5b fatia 1 (P371): `show strong/emph` casam as **variantes próprias**
     // `Content::Strong`/`Emph` (S1, por tipo). P431 (DEBT-50) acrescenta a
     // distinção de origem no `Style` para o cenário pós-bake-in (wrapping):
@@ -204,7 +210,13 @@ fn native_element_base(selector: &Selector) -> Option<&Func> {
     match selector {
         Selector::NativeElement(function) => Some(function),
         Selector::Where { base, .. } => native_element_base(base),
-        _ => None,
+        Selector::NodeKind(_)
+        | Selector::DynKind(_)
+        | Selector::Text(_)
+        | Selector::Regex(_)
+        | Selector::And(_)
+        | Selector::Or(_)
+        | Selector::Label(_) => None,
     }
 }
 
@@ -257,6 +269,14 @@ pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool
         native_highlight => Highlight,
     }
     match content {
+        Content::Source(e) => native_element_matches(&e.body, function),
+        Content::ShowRecipe(e) => native_element_matches(&e.body, function),
+        Content::Located(e) => native_element_matches(&e.body, function),
+        Content::Realized(e) => native_element_matches(&e.visual, function),
+        Content::Styled(e) if native!(native_math_equation) => {
+            native_element_matches(&e.body, function)
+        }
+        Content::Equation(_) => native!(native_math_equation),
         Content::Text(_) => native!(native_text),
         Content::Table(_) => native!(native_table),
         Content::Grid(_) => native!(native_grid),
@@ -297,7 +317,22 @@ pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool
         Content::GridCell(_) => native!(native_grid_cell),
         // The antecedent erased constructor identity in these representations.
         // P1339 does not infer square/rect, circle/ellipse or transforms from geometry.
-        Content::Shape(_) | Content::Transform(_) => false,
+        Content::Shape(_) => false,
+        Content::Transform(e) => match e.operation {
+            crate::entities::elements::transform::TransformOperation::Matrix(_) => false,
+            crate::entities::elements::transform::TransformOperation::Move { .. } => {
+                native!(native_move)
+            }
+            crate::entities::elements::transform::TransformOperation::Rotate {
+                ..
+            } => native!(native_rotate),
+            crate::entities::elements::transform::TransformOperation::Scale {
+                ..
+            } => native!(native_scale),
+            crate::entities::elements::transform::TransformOperation::Skew { .. } => {
+                native!(native_skew)
+            }
+        },
         _ => false,
     }
 }
@@ -357,7 +392,7 @@ pub(crate) fn is_node_rule(selector: &Selector) -> bool {
         Selector::Where { base, .. } => is_node_rule(base.as_ref()),
         // **P423 (S-M)** — combinadores viajam pela travessia de nós sse
         // todos os sub-selectors forem node-like.
-        Selector::And(sels) | Selector::Or(sels) => sels.iter().all(|s| is_node_rule(s)),
+        Selector::And(sels) | Selector::Or(sels) => sels.iter().all(is_node_rule),
         Selector::Text(_) | Selector::Regex(_) => false,
         // P791 — regras de label não viajam pela travessia de nós
         // (aplicação dedicada em `intercept_labelled`).
@@ -416,6 +451,52 @@ mod tests {
     use crate::entities::show::Selector;
     use crate::entities::value::Value;
     use ecow::EcoString;
+
+    #[test]
+    fn v16_show_selector_native_base_preserves_identity_and_composition_boundary() {
+        use crate::entities::label::Label;
+        use crate::entities::regex::Regex;
+
+        let function = Func::native("alias", crate::compiler::stdlib::native_heading);
+        let native = Selector::NativeElement(function.clone());
+        let filtered = Selector::Where {
+            base: Box::new(Selector::Where {
+                base: Box::new(native.clone()),
+                field: "level".into(),
+                value: Box::new(Value::Int(99)),
+            }),
+            field: "body".into(),
+            value: Box::new(Value::None),
+        };
+        for (selector, has_base) in [
+            (native.clone(), true),
+            (filtered, true),
+            (Selector::NodeKind(NodeKind::Heading), false),
+            (Selector::DynKind("heading".into()), false),
+            (Selector::Text("heading".into()), false),
+            (Selector::Regex(Regex::new("heading").unwrap()), false),
+            (Selector::And(vec![native.clone()]), false),
+            (Selector::Or(vec![native]), false),
+            (Selector::Label(Label("heading".into())), false),
+        ] {
+            let base = native_element_base(&selector);
+            assert_eq!(base.is_some(), has_base, "{selector:?}");
+            if let Some(base) = base {
+                assert!(std::sync::Arc::ptr_eq(&base.0, &function.0));
+            }
+        }
+        let par = Selector::NativeElement(Func::native(
+            "alias",
+            crate::compiler::stdlib::native_par,
+        ));
+        let fake = Selector::NativeElement(Func::native(
+            "par",
+            crate::compiler::stdlib::native_heading,
+        ));
+        assert!(is_par_rule(&par));
+        assert!(!is_par_rule(&fake));
+        assert!(!is_par_rule(&Selector::And(vec![par])));
+    }
 
     #[test]
     fn p1339_snapshot_is_authoritative_and_absence_differs_from_none() {
@@ -918,5 +999,61 @@ mod tests {
             assert_eq!(actual, None);
         }
         assert_eq!(calls, 0, "replacement não deve receber match vazio");
+    }
+}
+
+#[cfg(test)]
+mod equation_where_tests {
+    use super::*;
+    #[test]
+    fn equation_where_filters_match_identity_body_block_and_captured_fields() {
+        let Value::Module(math) = crate::compiler::stdlib::make_math_module() else {
+            panic!("math module")
+        };
+        let Some(Value::Func(eq)) = math.scope().get("equation") else {
+            panic!("missing equation")
+        };
+        let alias = Func::native("alias", eq.native_fn_addr().unwrap());
+        let body = Content::text("a");
+        let content = Content::equation(body.clone(), true);
+        let fields =
+            [("block".into(), Value::Bool(true)), ("body".into(), Value::Content(body))];
+        for function in [eq.clone(), alias] {
+            assert!(native_element_matches(&content, &function));
+            let styled = Content::styled(
+                Box::new(content.clone()),
+                crate::entities::style::Styles::default(),
+            );
+            assert!(element_selector_matches(
+                &IntrospectedContent::new(styled, None),
+                &function,
+                &fields
+            ));
+            assert!(element_selector_matches(
+                &IntrospectedContent::new(content.clone(), None),
+                &function,
+                &fields
+            ));
+            assert!(!element_selector_matches(
+                &IntrospectedContent::new(content.clone(), Some(Default::default())),
+                &function,
+                &fields
+            ));
+            let show = query_selector_to_show_selector(
+                QuerySelector::Element {
+                    function,
+                    fields: fields.clone().into_iter().collect(),
+                },
+                Span::detached(),
+            )
+            .unwrap();
+            assert!(selector_matches(&content, &show));
+            assert!(!selector_matches(
+                &Content::equation(Content::text("a"), false),
+                &show
+            ));
+        }
+        let fake = Func::native("math.equation", crate::compiler::stdlib::native_heading);
+        assert!(!native_element_matches(&content, &fake));
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/h_space.md
-//! @prompt-hash f70a81ec
+//! @prompt-hash 95b5c54c
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -27,6 +27,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         crate::entities::elements::h_space::Spacing::Absolute(l) => {
             let pt = l.resolve_pt(layouter.style.size.val());
             layouter.regions.current.cursor_x += Pt(pt);
+            layouter.record_flow_width_at(layouter.regions.current.cursor_x.0, 0.0);
         }
         crate::entities::elements::h_space::Spacing::Fractional(fr) => {
             let insert_at = layouter.regions.current.current_line.len();

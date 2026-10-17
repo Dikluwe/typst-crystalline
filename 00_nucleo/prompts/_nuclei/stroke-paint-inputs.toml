@@ -1,0 +1,9 @@
+tekt = 1
+kind = "nucleus"
+id = "stroke-paint-inputs"
+title = "Preservação de Paint na conversão de contornos"
+
+[[claims]]
+id = "typed-paint"
+level = "must"
+statement = "A conversão de paint de contorno preserva Color como Solid, Gradient como Gradient e Tiling como Tiling, sem amostrar a primeira cor, executar o tiling ou descartar o valor. Os consumidores mantêm os demais campos e a distinção entre omissão e presença explícita."

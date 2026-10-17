@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash f8e7201b
+//! @prompt-hash ddc685ec
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -494,6 +494,9 @@ pub struct TagIntrospector {
     /// `page_supplement`) retornam `None`. `page(location)` usa
     /// `positions` directamente (não depende de `page_store`).
     pub page_store: PageStore,
+    /// Estado Page realizado da geração corrente, por ocorrência/documento.
+    pub page_counter_values: HashMap<Location, Vec<usize>>,
+    pub page_counter_final_values: HashMap<Location, Vec<usize>>,
 
     /// **P240 (M9d/M7+1)** — pre-rendered Content por
     /// `(state_key, location)` produzido pelo `apply_state_displays`
@@ -1205,7 +1208,7 @@ mod tests {
     #[test]
     fn p207d_page_supplement_pre_injecao_devolve_none() {
         let i = TagIntrospector::empty();
-        assert_eq!(i.page_supplement(loc(1)).is_none(), true);
+        assert!(i.page_supplement(loc(1)).is_none());
     }
 
     #[test]
@@ -1311,7 +1314,6 @@ mod tests {
 
     #[test]
     fn back_refs_via_introspector_delega_a_bib_store() {
-        use crate::entities::bib_store::BibStore;
         let mut i = TagIntrospector::empty();
         i.bib_store.record_citation("key1".to_string());
         i.bib_store.record_citation("key2".to_string());

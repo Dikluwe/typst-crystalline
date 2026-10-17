@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/fonts.md
-//! @prompt-hash 724151b9
+//! @prompt-hash 60f074b1
 //! @layer L3
 //! @updated 2026-09-28
 //!
@@ -16,8 +16,9 @@
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 
+use crate::export::tiling::walk_resources as walk_frame_items;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
-use typst_core::entities::frame_visitor::{walk_frame_items, FrameVisitor};
+use typst_core::entities::frame_visitor::FrameVisitor;
 
 use ttf_parser::Face;
 use typst_core::entities::layout_types::{FrameItem, PagedDocument};
@@ -57,7 +58,9 @@ pub(super) fn collect_codepoints(doc: &PagedDocument) -> Vec<char> {
     struct CodepointCollector<'a>(&'a mut std::collections::BTreeSet<char>);
     impl<'a> FrameVisitor for CodepointCollector<'a> {
         fn visit_text(&mut self, item: &FrameItem) {
-            if matches!(item, FrameItem::TextSeparator { .. }) { self.0.insert(' '); }
+            if matches!(item, FrameItem::TextSeparator { .. }) {
+                self.0.insert(' ');
+            }
             if let FrameItem::Text { text, .. } = item {
                 for c in text.chars() {
                     self.0.insert(c);
@@ -89,7 +92,9 @@ pub(super) fn collect_text_codepoints(doc: &PagedDocument) -> Vec<char> {
     struct TextCodepointCollector<'a>(&'a mut std::collections::BTreeSet<char>);
     impl<'a> FrameVisitor for TextCodepointCollector<'a> {
         fn visit_text(&mut self, item: &FrameItem) {
-            if matches!(item, FrameItem::TextSeparator { .. }) { self.0.insert(' '); }
+            if matches!(item, FrameItem::TextSeparator { .. }) {
+                self.0.insert(' ');
+            }
             if let FrameItem::Text { text, .. } = item {
                 for c in text.chars() {
                     self.0.insert(c);
@@ -316,13 +321,17 @@ pub(super) fn cluster_text(glyphs: &[ShapedGlyph], text: &str) -> Vec<(u16, Stri
             ""
         };
 
-        // SHY is carried by the occurrence envelope. Its invisible glyph can
-        // alias an ordinary space (or share a cluster with a visible letter).
-        let visual_cluster: std::borrow::Cow<'_, str> = if cluster_str.contains('\u{ad}') {
-            std::borrow::Cow::Owned(cluster_str.chars().filter(|&c| c != '\u{ad}').collect())
-        } else {
-            std::borrow::Cow::Borrowed(cluster_str)
-        };
+        // SHY belongs to its occurrence envelope; bidi controls guide shaping.
+        // Neither belongs to a shared visible glyph identity (e.g. space).
+        let occurrence_control = |c| matches!(c, '\u{ad}' | '\u{61c}' | '\u{200e}' | '\u{200f}' | '\u{202a}'..='\u{202e}' | '\u{2066}'..='\u{2069}');
+        let visual_cluster: std::borrow::Cow<'_, str> =
+            if cluster_str.chars().any(occurrence_control) {
+                std::borrow::Cow::Owned(
+                    cluster_str.chars().filter(|&c| !occurrence_control(c)).collect(),
+                )
+            } else {
+                std::borrow::Cow::Borrowed(cluster_str)
+            };
         if !cluster_str.is_empty() && visual_cluster.is_empty() {
             continue;
         }
@@ -353,6 +362,28 @@ mod tests {
             cluster,
             char_code: '\0',
         }
+    }
+
+    #[test]
+    fn authored_bidi_global_mapping_preserves_spaces_and_visible_clusters() {
+        for control in [
+            '\u{61c}', '\u{200e}', '\u{200f}', '\u{202a}', '\u{202b}', '\u{202c}',
+            '\u{202d}', '\u{202e}', '\u{2066}', '\u{2067}', '\u{2068}', '\u{2069}',
+        ] {
+            let text = format!("{control} ");
+            assert_eq!(
+                cluster_text(&[glyph(3, 0), glyph(3, control.len_utf8() as u32)], &text),
+                vec![(3, "0020".into())]
+            );
+            assert_eq!(
+                cluster_text(&[glyph(8, 0)], &format!("𝄞{control}")),
+                vec![(8, "D834DD1E".into())]
+            );
+        }
+        assert_eq!(
+            cluster_text(&[glyph(5, 0)], "a\u{200d}\u{200c}\u{fe0f}"),
+            vec![(5, "0061200D200CFE0F".into())]
+        );
     }
 
     #[test]
@@ -478,8 +509,10 @@ mod tests {
                     },
                 ],
                 style: typst_core::entities::layout_types::TextStyle::default(),
-                text: ecow::EcoString::from("Conteúdo").into(),
+                text: ecow::EcoString::from("Conteúdo"),
                 units_per_em: 1000,
+                bidi: None,
+                font: None,
             }],
         };
         let doc = typst_core::entities::layout_types::PagedDocument::new(vec![page]);
@@ -513,8 +546,10 @@ mod tests {
                     pos: Point::ZERO,
                     text: "Olá ".into(),
                     style: style.clone(),
+                    bidi: None,
                 },
                 FrameItem::Group {
+                    paint_root: false,
                     pos: Point::ZERO,
                     matrix: typst_core::entities::layout_types::TransformMatrix::identity(
                     ),
@@ -525,6 +560,7 @@ mod tests {
                         pos: Point::ZERO,
                         text: "mundo!".into(),
                         style,
+                        bidi: None,
                     }],
                 },
             ],

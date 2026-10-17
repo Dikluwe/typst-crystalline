@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math/vector.md
-//! @prompt-hash 206cbce2
+//! @prompt-hash 35d6ee8e
 //! @layer L1
-//! @updated 2026-09-30
+//! @updated 2026-10-16
 //!
 //! Constructor, casts e opções da nativa `math.vec`.
 
@@ -44,7 +44,42 @@ fn vec_delim_char(value: &Value) -> Option<char> {
         Value::None => Some('\0'),
         Value::Str(text) => text.chars().next(),
         Value::Symbol(symbol) => symbol.value.chars().next(),
-        _ => None,
+        Value::Bool(_)
+        | Value::Int(_)
+        | Value::Float(_)
+        | Value::Array(_)
+        | Value::Dict(_)
+        | Value::Module(_)
+        | Value::Datetime(_)
+        | Value::Func(_)
+        | Value::Content(_)
+        | Value::LocatedContent(_, _)
+        | Value::Auto
+        | Value::Length(_)
+        | Value::Relative(_)
+        | Value::Ratio(_)
+        | Value::Angle(_)
+        | Value::Color(_)
+        | Value::Stroke(_)
+        | Value::Fraction(_)
+        | Value::Align(_)
+        | Value::Location(_)
+        | Value::Gradient(_)
+        | Value::Regex(_)
+        | Value::Tiling(_)
+        | Value::Bytes(_)
+        | Value::Decimal(_)
+        | Value::Duration(_)
+        | Value::Version(_)
+        | Value::Selector(_)
+        | Value::Args(_)
+        | Value::State(_)
+        | Value::Counter(_)
+        | Value::Label(_)
+        | Value::Dir(_)
+        | Value::Path(_)
+        | Value::Type(_)
+        | Value::SpotColorant(_) => None,
     }
 }
 
@@ -211,5 +246,49 @@ mod p1292_c_vec_tests {
             assert!(options.gap.abs.is_zero());
             assert!(options.explicit.gap);
         }
+    }
+}
+
+#[cfg(test)]
+mod v16_math_value_tests {
+    use super::*;
+    use crate::entities::symbol::Symbol;
+
+    #[test]
+    fn v16_math_value_vector_char_keeps_none_unicode_and_neutral_types() {
+        for (value, expected) in [
+            (Value::None, Some('\0')),
+            (Value::Str("".into()), None),
+            (Value::Str("⟦⟧".into()), Some('⟦')),
+            (Value::Symbol(Symbol::new("←→", "arrow")), Some('←')),
+            (Value::Array(vec![]), None),
+            (Value::Bool(false), None),
+            (Value::Int(1), None),
+            (Value::Auto, None),
+        ] {
+            assert_eq!(vec_delim_char(&value), expected, "{value:?}");
+        }
+    }
+
+    #[test]
+    fn v16_math_value_vector_array_fallback_and_top_level_error_are_preserved() {
+        for (values, expected) in [
+            (vec![], ('\0', '\0')),
+            (vec![Value::Str("[".into())], ('[', '[')),
+            (vec![Value::Int(2), Value::Str("]".into())], ('\0', ']')),
+            (vec![Value::Str("[".into()), Value::Bool(false)], ('[', '[')),
+            (vec![Value::Str("[".into()), Value::None], ('[', '\0')),
+        ] {
+            assert_eq!(
+                math_vec_delim(&Value::Array(values), Span::detached()).unwrap(),
+                expected
+            );
+        }
+        let errors = math_vec_delim(&Value::Int(1), Span::detached()).unwrap_err();
+        assert_eq!(
+            errors[0].message,
+            "expected array, none, symbol, or string, found integer"
+        );
+        assert_eq!(errors[0].span, Span::detached());
     }
 }

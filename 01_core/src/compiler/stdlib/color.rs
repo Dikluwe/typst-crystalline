@@ -524,7 +524,7 @@ mod p1473_tests {
 
     #[test]
     fn p1482_tint_process_projection_and_operations() {
-        let source = format!(r##"color.spot("Brand", rgb("#ff4136"))"##);
+        let source = r##"color.spot("Brand", rgb("#ff4136"))"##.to_string();
         assert_eq!(expect_ok_str(&format!("{source}.tint(0%).to-hex()")), "#ffffff");
         assert_eq!(expect_ok_str(&format!("{source}.tint(100%).to-hex()")), "#ff4136");
         assert_eq!(
