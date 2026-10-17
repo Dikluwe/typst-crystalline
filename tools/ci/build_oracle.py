@@ -9,8 +9,8 @@ from pathlib import Path
 import subprocess
 import tomllib
 
-PIN = '9f2b6e8715237cb086899a42873660fe744622e8'
-TREE = '6ab8bb9434b1bd4d44e1a10fbf1e407b3b86a1a4'
+PIN = 'bd5ebec285505889e8ff1d4f68804ab147a699f3'
+TREE = 'cac836c07e4dec2a89219370428292393a3216b5'
 
 
 def verify_source(source: Path, pin: str = PIN, tree: str = TREE) -> None:
@@ -33,7 +33,7 @@ def build(source: Path, receipt: Path) -> None:
     env = os.environ.copy()
     env['TYPST_COMMIT_SHA'] = PIN
     env['CARGO_TARGET_DIR'] = str(source / 'target')
-    env['CARGO_BUILD_JOBS'] = '2'
+    env['CARGO_BUILD_JOBS'] = '1'
     toolchain_file = Path(__file__).resolve().parents[2] / 'rust-toolchain.toml'
     env['RUSTUP_TOOLCHAIN'] = tomllib.loads(toolchain_file.read_text())['toolchain']['channel']
     command = ['cargo', 'build', '--release', '--locked', '-p', 'typst-cli']

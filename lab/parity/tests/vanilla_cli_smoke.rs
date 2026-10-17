@@ -2,7 +2,7 @@
 //!
 //! Sentinel de runtime: usa o build vanilla local em
 //! `lab/typst-original/target/release/typst` e confere a versão
-//! do pin ratificado `upstream/main 9f2b6e87`.
+//! do pin ratificado `upstream/main bd5ebec2`.
 //!
 //! **Skip graceful**: se o build local não puder ser iniciado
 //! (por exemplo, CI sem build do lab), o teste avisa via
@@ -17,7 +17,7 @@ use std::process::Command;
 
 /// Identidade pública esperada do binário construído com o pin explícito.
 /// A prova completa continua a exigir fonte, árvore, receita e SHA-256.
-const VANILLA_EXPECTED_VERSION: &str = "typst 0.15.1 (9f2b6e87)";
+const VANILLA_EXPECTED_VERSION: &str = "typst 0.15.1 (bd5ebec2)";
 
 fn vanilla_binary() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -33,7 +33,7 @@ fn p206b_vanilla_cli_disponivel_e_versao_compativel() {
             eprintln!(
                 "[p206b smoke] build vanilla local indisponível em \
                  lab/typst-original/target/release/typst ({}); skip graceful. \
-                 Para ativar a comparação, compilar typst-cli do lab no pin 9f2b6e87.",
+                 Para ativar a comparação, compilar typst-cli do lab no pin bd5ebec2.",
                 e
             );
             return;
@@ -53,7 +53,7 @@ fn p206b_vanilla_cli_disponivel_e_versao_compativel() {
         stdout_trim == VANILLA_EXPECTED_VERSION,
         "vanilla CLI incompatível: esperado exatamente \
          `{}`, output `{}`. Pinning per vanilla ratificado \
-         `upstream/main 9f2b6e87`.",
+         `upstream/main bd5ebec2`.",
         VANILLA_EXPECTED_VERSION,
         stdout_trim
     );

@@ -33,19 +33,20 @@ gate.
 Em Linux, instale `poppler-utils`, `qpdf`, `librsvg2-bin` e `imagemagick`.
 Os testes de paridade exigem `TYPST_VANILLA` apontando para um oráculo cuja
 proveniência tenha sido verificada. Não use a instalação antiga de
-`/usr/local/bin/typst`. Para o binário local ratificado em P1489:
+`/usr/local/bin/typst`. Para o binário local ratificado no re-sync de 2026-10-17:
 
 ```sh
-echo '7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea  lab/typst-original/target/release/typst' | sha256sum --check
+echo '9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9  lab/typst-original/target/release/typst' | sha256sum --check
 export TYPST_VANILLA="$PWD/lab/typst-original/target/release/typst"
 ```
 
 O CI faz checkout independente de `typst/typst` no pin
-`9f2b6e8715237cb086899a42873660fe744622e8`; `build_oracle.py` verifica commit,
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`; `build_oracle.py` verifica commit,
 árvore upstream e ausência de modificações antes/depois do build. Compila com
-lockfile e Rust do workspace, e guarda `oracle-build.json` como artefato com a
-receita e SHA-256 do executável. O SHA de um rebuild pode diferir do binário
-local P1489; ele é registrado, nunca substituído por uma string de versão.
+lockfile, um job e Rust do workspace, e guarda `oracle-build.json` como artefato com a
+receita e SHA-256 do executável. O relatório local e o recibo completos estão em
+`00_nucleo/diagnosticos/vanilla-resync-2026-10-17/relatorio.md`. O SHA de um rebuild pode diferir do binário
+local ratificado; ele é registrado, nunca substituído por uma string de versão.
 
 ```sh
 cargo build --workspace --locked

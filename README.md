@@ -20,7 +20,7 @@ as limitações de cada medição:
 - [Comandos e requisitos de CI/release](tools/ci/README.md)
 
 O alvo de paridade é o upstream pinado
-`9f2b6e8715237cb086899a42873660fe744622e8`. A versão textual do executável não
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`. A versão textual do executável não
 comprova sua proveniência. Os critérios de linguagem e de arquitetura estão nos
 [ADRs](00_nucleo/adr/) e nos [Prompts L0](00_nucleo/prompts/).
 

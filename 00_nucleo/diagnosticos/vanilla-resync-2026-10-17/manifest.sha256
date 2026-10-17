@@ -1,0 +1,17 @@
+402aac577d5720f1dc9509891269af50ab7856062340888ef088f97a2dbb8688  00_nucleo/diagnosticos/vanilla-resync-2026-10-17/catalog_check.py
+35bddcd4301437282f74a1eb8505f6032abd7df3e729796536feff27d7211a65  00_nucleo/diagnosticos/vanilla-resync-2026-10-17/close_report.py
+8a9db305c6cddd343b5e46f53bca72f6d402083fab72b5614767575d2a3c7412  00_nucleo/diagnosticos/vanilla-resync-2026-10-17/evidence.json.gz
+77a5bafb4c7e1c297e434f000711feb1745acffb1b1955d3d347e606af221cf8  00_nucleo/diagnosticos/vanilla-resync-2026-10-17/final-state.json.gz
+250fb0d539baa433b2a83c13ab4450d49293b37f24500e72ff851e7761b83ad2  00_nucleo/diagnosticos/vanilla-resync-2026-10-17/make_receipt.py
+9fe367b72f860a1e05f2beb482180a5a5dc935761c17f0e9980a48333894f042  00_nucleo/diagnosticos/vanilla-resync-2026-10-17/matrix-analysis.md
+ad7b7261b656a1e622d58667a1221acd9879400ba424ab0cdde4b00df9836ff5  00_nucleo/diagnosticos/vanilla-resync-2026-10-17/matrix.py
+e4fb252d25f6e582ee366bef86040d904783a0b24539d200f7c24da1af7964c3  00_nucleo/diagnosticos/vanilla-resync-2026-10-17/oracle-build.json.gz
+e3ecc7a7f288dbdad832e333924a1e06222267cdded2802c7260ba63645ee932  00_nucleo/diagnosticos/vanilla-resync-2026-10-17/post_validate.py
+f7597d9d24a546833587d0904363c2ebcfd386edf94cc0f3eaf4420f5b5fe884  00_nucleo/diagnosticos/vanilla-resync-2026-10-17/precommit-state.json.gz
+62c6068aefecb7fc1ebaebd61cd5d7a1e0ac769c82384116651baa6e2db38399  00_nucleo/diagnosticos/vanilla-resync-2026-10-17/relatorio.md
+399a68c0639f87179df7aaad9fc99992c2ccdbbc3be281a81aa3c83651a46786  00_nucleo/diagnosticos/vanilla-resync-2026-10-17/run.py
+9bd097417c6eb92c043141c056f6751eb7d5661b19cad6352accb754c14aa842  00_nucleo/diagnosticos/vanilla-resync-2026-10-17/suite.py
+0e36b435c04ea452bdc2cf481c303152c5fe734952cd29c3f68d9c045b22eab1  00_nucleo/diagnosticos/vanilla-resync-2026-10-17/update_references.py
+66d2b66d6f6d030a8fc97e46cacd4e813ace0af4c9fa455f7d5e3972e3f1d61e  00_nucleo/diagnosticos/vanilla-resync-2026-10-17/validate.py
+d02eb07d0e1357fea65306ace7af9b415ff520c4fe3455a1580218469596b70e  00_nucleo/diagnosticos/vanilla-resync-2026-10-17/validation-state.json.gz
+1d8b1b0383c25deb54968afdd45913370c314643ae4c9afea8baf4772e9866ef  00_nucleo/diagnosticos/vanilla-resync-2026-10-17/workspace/workspace-pre.json.gz

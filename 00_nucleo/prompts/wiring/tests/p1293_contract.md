@@ -1,5 +1,5 @@
 # L0 — wiring/tests/p1293_contract
-Hash do Código: 557a19e5
+Hash do Código: 253ea869
 
 **Layer:** L4
 **Exclusive consumer:** `04_wiring/tests/p1293_contract.rs`
@@ -80,3 +80,26 @@ Esta separação de harness é interna ADR-0127: nenhum código de suporte integ
 Preservar todos os corpos dos itens movidos, salvo a visibilidade mínima ao módulo de teste pai. Campos de Checks permanecem privados. Imports std devem ser próprios de L3, sem use super::* ou dependência de lógica L4. BIN, invocação dos subprocessos, opções, cenários, esperados e #[test] permanecem em L4; o helper não lê CARGO_BIN_EXE_typst. Não consolidar diferenças legítimas entre harnesses (prefixos, mensagens, atomicidade de criação e cleanup).
 
 Conferir replay restrito das transferências, funções de teste idênticas, atributos/expectativas sem mudanças, grafo 1:1 válido, ausência do suporte na biblioteca produtiva, V12 GREEN zero e SARIF completo sem avisos novos. Revalidar suíte workspace sob TMPDIR explícito em /dev/shm e oráculo vanilla pinado 9f2b6e8715237cb086899a42873660fe744622e8 com binário SHA-256 7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea; cargo build, Clippy workspace/all-targets -D warnings e -D unfulfilled_lint_expectations, formato, Rustdoc -D warnings com quatro índices, V1/V5/V15/V26 estrito e linhagem reversa, diff --check. L0 primeiro; resselo restrito aos owners e código autorizado. Jobs pesados sequenciais: MemoryMax=12 GiB, MemorySwapMax=0, CARGO_BUILD_JOBS=1. Fontes/L0/configuração congelados durante comandos. Não escrever testes de espelho da sintaxe de import nem alegar ganho de RAM/IA não medido. Sem release.
+
+
+## Referência atual do harness — re-sync 2026-10-17
+
+### Medição anterior à decisão
+
+`tools/ci/build_oracle.py:12-13` e `.github/workflows/ci.yml:37` foram
+auditados no checkpoint `e2d7f6cdc93c5f6b948ca80167411d390ccc714d`.
+A consulta oficial `git ls-remote upstream HEAD refs/heads/main` e o fetch
+registrados em `00_nucleo/diagnosticos/vanilla-resync-2026-10-17/` identificam
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`, árvore
+`cac836c07e4dec2a89219370428292393a3216b5`.
+`04_wiring/tests/p1293_contract.rs:28` ainda nomeia o pin anterior na mensagem
+de configuração ausente. A variável obrigatória e os comparadores não mudam.
+
+### Decisão e aceitação
+
+Atualizar somente a mensagem de `TYPST_VANILLA` para o pin atual explícito;
+exigir receita, fonte/árvore e SHA-256 registrados antes de usar o executável.
+Os parágrafos anteriores registram medições históricas; não certificam o novo
+pin. Reexecutar o harness com o novo oráculo, sem relaxar esperados ou tolerâncias.
+Fluxo contínuo ADR-0127: infraestrutura de teste, sem mudança pública de produto,
+default, compatibilidade ou fase. L0 primeiro e resselo restrito deste owner.

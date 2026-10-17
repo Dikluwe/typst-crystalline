@@ -2,7 +2,7 @@
 
 Este diretório contém casos versionados, não uma alegação de paridade. `manifest.yaml` é JSON válido e YAML 1.2 válido; essa forma permite validação reproduzível apenas com a biblioteca padrão do Python. `schema.json` documenta o contrato completo em JSON Schema.
 
-O alvo vanilla é exclusivamente `upstream/main 9f2b6e8715237cb086899a42873660fe744622e8`, materializado em `lab/typst-original/target/release/typst`. A string impressa por `--version` não prova sozinha a revisão. A proveniência ratificada vem do pin e da árvore do upstream, da receita com `TYPST_COMMIT_SHA` explícito e do SHA-256 do binário; o relatório registra também caminho, versão observada, HEAD e estado integral da árvore. As medições P1487 com `586e1bd43` permanecem históricas; estados esperados só são confirmados para o alvo novo após executar novamente a matriz.
+O alvo vanilla é exclusivamente `upstream/main bd5ebec285505889e8ff1d4f68804ab147a699f3`, materializado em `lab/typst-original/target/release/typst`. A string impressa por `--version` não prova sozinha a revisão. A proveniência ratificada vem do pin e da árvore do upstream, da receita com `TYPST_COMMIT_SHA` explícito e do SHA-256 do binário; o relatório registra também caminho, versão observada, HEAD e estado integral da árvore. O recibo vigente está em `00_nucleo/diagnosticos/vanilla-resync-2026-10-17/`. As medições anteriores com `9f2b6e871` ou `586e1bd43` permanecem históricas; estados esperados só são confirmados para o alvo novo após executar novamente a matriz.
 
 ## Reprodução
 

@@ -147,7 +147,7 @@ class ProfileAndDeterminismTests(unittest.TestCase):
             "side": side_name,
             "profile": profile,
             "features": features,
-            "vanilla_revision": "9f2b6e87" if side_name == "vanilla" else None,
+            "vanilla_revision": "bd5ebec2" if side_name == "vanilla" else None,
             "entries": {"same": side(kind="module", params=None)},
         }
 

@@ -15,7 +15,7 @@ from collections import Counter
 
 SCHEMA_VERSION = "p1282-v2"
 CATALOG_SCHEMA_VERSION = "p1282-catalog-v1"
-EXPECTED_VANILLA_REVISION = "9f2b6e87"
+EXPECTED_VANILLA_REVISION = "bd5ebec2"
 PROFILE_FEATURES = {
     "default": [],
     "html": ["html"],

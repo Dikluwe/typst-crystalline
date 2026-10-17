@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Sondas RED do catálogo P1495, sem alterar fontes nem artefatos.
 
-O oráculo é o binário vanilla P1489 pinado. Um exit 1 é RED de paridade;
+O oráculo é o binário vanilla bd5ebec2 ratificado no re-sync 2026-10-17. Um exit 1 é RED de paridade;
 exit 2 denuncia defeito do oráculo/harness. Extensões legadas são reportadas,
 mas não contam como violação contra o novo vanilla.
 """
@@ -15,7 +15,7 @@ import sys
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
-VANILLA_SHA256 = "7fa91e57df43593beef70967898d776d69c8f593b1f324ccb552290821c171ea"
+VANILLA_SHA256 = "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
 
 CHILDREN = {
     "chess": ("king", "queen", "rook", "bishop", "knight", "pawn"),
@@ -218,7 +218,7 @@ def main():
     args = parser.parse_args()
     vanilla, crystal = args.vanilla.resolve(), args.crystalline.resolve()
     if sha256(vanilla) != VANILLA_SHA256:
-        parser.error("binário vanilla não é o pin P1489 ratificado")
+        parser.error("binário vanilla não é o build bd5ebec2 ratificado em 2026-10-17")
     crystal_hash = sha256(crystal)
 
     results = []

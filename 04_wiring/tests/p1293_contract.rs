@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring/tests/p1293_contract.md
-//! @prompt-hash 97b051d9
+//! @prompt-hash 5d3a3b02
 //! @layer L4
 //! @updated 2026-09-01
 //!
@@ -25,7 +25,7 @@ use typst_infra::export::{
 const BIN: &str = env!("CARGO_BIN_EXE_typst");
 fn vanilla() -> String {
     env::var("TYPST_VANILLA").expect(
-        "set TYPST_VANILLA to the independently verified oracle for pin 9f2b6e8715237cb086899a42873660fe744622e8",
+        "set TYPST_VANILLA to the independently verified oracle for pin bd5ebec285505889e8ff1d4f68804ab147a699f3",
     )
 }
 
