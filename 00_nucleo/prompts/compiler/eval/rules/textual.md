@@ -1,9 +1,10 @@
 # L0 — compiler/eval/rules/textual
-Hash do Código: fccd165d
+Hash do Código: 989fa241
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
 - 00_nucleo/prompts/_nuclei/eval/pending-text.toml sha256:3f300957a00ac2f02354331585c19b935428e05d5b8ac2115a533764262250c8
+- 00_nucleo/prompts/_nuclei/eval/textual-consumed-slots.toml sha256:faaf206c9f4c20eba8b18b463ebe7836cb9671fd8672501c068eef2751f88d3c
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/rules/textual.rs`
@@ -236,3 +237,69 @@ esperados do pin; controles de guard de outra família e estilo real
 continuam opacos. Revalidar os 13 controles anteriores sem relaxamento.
 Esta é correção interna de aplicação única já ratificada em S13, sem
 novo tipo/campo público, fase ou mudança da política dos demais elementos.
+
+
+## R3 — slots consumidos e apresentação de None (2026-10-18)
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/sequence-r3-2026-10-18/{before,markup-after,
+textual-before,transport-before,transport-before-sources}.json.gz conserva
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
+UTC/diffstat/fontes, executáveis e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+Sob show literal Z que não casa, nested.children expõe um pacote Sequence
+mais dois Empty no Tekt; no pin são os três filhos originais. empty-child
+expõe pacote mais Empty no Tekt, mas []/A no pin. markup_stream.rs:201–249
+reconstitui o vetor incluindo slots que textual.rs:103–129 zerou; matching.rs:
+90–95 também zera os siblings consumidos. São detalhes de transporte vazando
+para a morfologia pública. CodeBlock/None interpolado desaparece; [#none#[]A]
+tem dois filhos no Tekt e três no pin, e X#none;B sob show Empty resulta XB
+contra XEB. A tabela value_to_display_content omite None por contrato histórico.
+No pin typst-library/src/foundations/value.rs:191–210 apresenta None como
+Content::empty; typst-eval/src/markup.rs:39–56 trata SetRule/ShowRule como
+fronteiras próprias e :78 apensa o valor das demais expressões. Não copiar
+buffers Rust nem inferir intenção a partir da implementação.
+
+### Decisão e limites
+
+Correção interna de paridade ADR-0127, sem contrato Rust externo, novo campo,
+modo/default ou fase. Máscara privada Vec<bool>, sem Location falsa ou carrier
+público novo. A hipótese é refutada por perda de Empty/Text vazio genuíno,
+deslocamento de fronteira/estilo, repetição de callback ou índices inconsistentes.
+A apresentação de None muda apenas na inserção do markup, não no helper genérico
+usado por Math/CodeSetTail. SetRule/ShowRule continuam suas fronteiras próprias.
+
+RED funcional antes de código: children/fields sob receita literal não casada,
+filhos []/Text vazio, valor None de literal/let/assert/condicional, aplicação do
+show Empty a None e set vazio/estilo sem Empty artificial. GREEN e corpus
+bilateral, controles R2-S/EOF/slots/estilos/CJK/loops, build/suítes completas,
+Clippy/Rustdoc estritos, formato/linhagem/reversa/diferencial SARIF. 12GiB,
+High8GiB, swap zero, jobs1 e jobs pesados sequenciais; sem publicação.
+
+A preservação de fronteiras do valor de markup não fecha a morfologia pública
+de Styled/Styles, repr de labels ou a formação do valor de módulo/include.
+R3-Reflection e o lote A3/include completarão esses eixos com medição própria.
+Precedência/guardas textuais e show-set literal continuam no lote R3-Textual;
+nenhuma mudança dessa política é legitimada por este transporte.
+
+Responsabilidade exclusiva: realize_textual_parts retorna SourceResult<Vec<bool>>
+crate-interno com o mesmo comprimento de parts, inicialmente false. Na captura
+adiada, marcar start+1..end ao consumir seus slots. Sem show, retornar a máscara
+vazia de consumo. Na rota imediata delegar a máscara produzida por matching.
+realize_captured_text usa a máscara para montar somente o visual dos slots
+preservados; original continua completo. Não alterar coalescimento/guards,
+ordem de regras ou normalização de espaço nesta revisão.
+
+
+### Limite adicional medido — grupos textuais em múltiplas caudas
+
+transport-after.json.gz no diagnóstico R3 confirma a remoção dos Empty
+consumidos e a presença dos None reais. style-tail ainda expõe um grupo
+sintético Sequence(A,Space) como um filho, antes do Styled; rule-tail também
+conserva forma de cauda divergente. O problema é adicional à máscara de consumo,
+não somente uma diferença de repr. O pacote R3-TextualGroups completará a
+projeção linguística dos grupos sintéticos em múltiplos escopos e sua igualdade/
+seleção, preservando a Sequence escrita pelo autor. R3-Reflection completará
+Styles e Styled públicos. Não considerar esses controles fechados nem achatar
+Sequence genericamente para escondê-los. Este adendo registra o recorte ainda
+incompleto; não autoriza modificar os owners dessas projeções sem L0 próprio.

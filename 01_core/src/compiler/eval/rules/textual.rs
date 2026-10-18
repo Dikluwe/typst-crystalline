@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/textual.md
-//! @prompt-hash d52fae01
+//! @prompt-hash 58d62887
 //! @layer L1
 //! @updated 2026-10-05
 //!
@@ -79,13 +79,14 @@ pub(crate) fn realize_textual_parts(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
     normalize_spaces: bool,
-) -> SourceResult<()> {
+) -> SourceResult<Vec<bool>> {
     debug_assert_eq!(parts.len(), snapshots.len());
+    let mut consumed = vec![false; parts.len()];
     if normalize_spaces {
         space::normalize_markup_spaces(parts);
     }
     if !ctx.apply_show_rules {
-        return Ok(());
+        return Ok(consumed);
     }
 
     if ctx.defer_show_rules {
@@ -122,6 +123,7 @@ pub(crate) fn realize_textual_parts(
                 };
                 recipe.body = coalesce_pending_text(&recipe.body, &recipe)?;
                 parts[start] = Content::ShowRecipe(Arc::new(recipe));
+                consumed[start + 1..end].fill(true);
                 for part in &mut parts[start + 1..end] {
                     *part = Content::Empty;
                 }
@@ -129,7 +131,7 @@ pub(crate) fn realize_textual_parts(
             }
             start = end;
         }
-        Ok(())
+        Ok(consumed)
     } else {
         matching::apply_textual_groups(parts, snapshots, style_boundaries, ctx, engine)
     }
@@ -180,10 +182,17 @@ pub(crate) fn realize_captured_text(
         other => vec![other],
     };
     let snapshots = vec![TextualSnapshot::capture(engine); parts.len()];
-    matching::apply_textual_groups(&mut parts, &snapshots, &[], ctx, engine)?;
+    let consumed =
+        matching::apply_textual_groups(&mut parts, &snapshots, &[], ctx, engine)?;
     Ok(Content::Realized(Arc::new(crate::entities::content::RealizedContent {
         original,
-        visual: Content::sequence(parts),
+        visual: Content::sequence(
+            parts
+                .into_iter()
+                .zip(consumed)
+                .filter_map(|(part, consumed)| (!consumed).then_some(part))
+                .collect(),
+        ),
     })))
 }
 

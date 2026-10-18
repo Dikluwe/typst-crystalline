@@ -1,5 +1,5 @@
 # L0 — compiler/eval/tests
-Hash do Código: 7da838e9
+Hash do Código: 5af69a40
 
 
 
@@ -8,11 +8,13 @@ Hash do Código: 7da838e9
 **Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/markup-sequence-children.toml sha256:db4336e052b1d265683446ad4357ca819596185058ab10a5679ac0376ee4211f
 - 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:825182e1dfe3591249a5efbc4c0ddbd937ebffde953c6595e0d1ed8176106435
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
 - 00_nucleo/prompts/_nuclei/eval/pending-text.toml sha256:3f300957a00ac2f02354331585c19b935428e05d5b8ac2115a533764262250c8
 - 00_nucleo/prompts/_nuclei/eval/source-validation.toml sha256:e29edf5bc71d0c7f8b45d0a2a0db43820151a7d80f7484197c56dc8b3830d774
+- 00_nucleo/prompts/_nuclei/eval/textual-consumed-slots.toml sha256:faaf206c9f4c20eba8b18b463ebe7836cb9671fd8672501c068eef2751f88d3c
 - 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:fb383f227b0bcd8b1e61899942fa0383a4cda66093da58bda2e87844e2895d2a
 - 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml sha256:2989f08ae6b4b379afb61d9673b94ab8538c45a97b98e566677ae0f719429dc3
 - 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:5cfb723d50e9518cdcee2df348927d02330b6019df96acef8394c1429cc950ff
@@ -1405,3 +1407,114 @@ esperados do pin; controles de guard de outra família e estilo real
 continuam opacos. Revalidar os 13 controles anteriores sem relaxamento.
 Esta é correção interna de aplicação única já ratificada em S13, sem
 novo tipo/campo público, fase ou mudança da política dos demais elementos.
+
+
+## R3-Markup — filhos imediatos do valor de markup (2026-10-18)
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/sequence-r3-2026-10-18/before.json.gz e
+before-sources.json.gz registram UTC, HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c,
+working tree não commitado/diffstat/status, fontes e SHA dos executáveis.
+Vanilla pin bd5ebec285505889e8ff1d4f68804ab147a699f3, árvore
+cac836c07e4dec2a89219370428292393a3216b5, oráculo SHA
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9.
+Em [#([A]+[B]) C], o Tekt expõe quatro filhos A/B/espaço/C e o pin
+três filhos Sequence(A,B)/espaço/C. Alias, dois siblings, soma posterior
+e for apresentam a mesma perda; singleton coincide. Sob show Sequence
+identidade o corpo já preservado coincide. append_markup_sequence em
+01_core/src/compiler/eval/markup_stream.rs:286–311 recursa sempre nos
+filhos Sequence, inclusive quando preserve_source identifica ContentBlock.
+A fonte pinada lab/typst-original/crates/typst-eval/src/markup.rs:78
+apensa o valor display inteiro e foundations/content/mod.rs:240–250
+normaliza somente coleções de zero/um filhos. É morfologia da linguagem,
+não obrigação de copiar Vec ou a mecânica de compartilhamento Rust.
+
+### Decisão, limites e aceitação
+
+Correção interna/de paridade ADR-0127 em fluxo contínuo: nenhuma API pública,
+novo campo/trait, fase, modo ou default de produto. O núcleo pinado distingue
+a coleção do valor e a composição do fluxo. Não mexer em Content::sequence,
+concat_content, alias/Source, regras locais, captura anterior ao aplanamento,
+Table/Cell, índices de estilos/labels/snapshots ou normalização de espaços.
+A hipótese de perda na coleta é refutada se os filhos imediatos não forem
+restaurados ou se singleton/+ e o produto visual mudarem.
+
+Antes do código: RED funcional de filhos/tipos, alias imutável, dois irmãos,
+singleton, + posterior, for e modo de fluxo. Depois: GREEN, controles CJK,
+show/text/labels/Source e recursão Strong64/256, suíte completa, build,
+Clippy/Rustdoc estritos, fmt, linhagem bidirecional e diferencial SARIF.
+Teto12GiB/High8GiB/swap0/jobs1; comandos pesados sequenciais. Sem publicação.
+As novas medições de None omitido, metadata textual vazando em children,
+repr/campos Styled, precedência literal/regex e Symbol continuam separadas:
+R3-DisplayNone, R3-TextualTransport, R3-Reflection, R3-Textual e R3-Symbol
+completarão esses subconjuntos; este reparo não os certifica como corretos.
+
+Responsabilidade exclusiva: regressões sequence_r3_markup no módulo de testes
+existente verificam a forma por children/func/fields/igualdade da linguagem e
+controle de aliases/+; não usar Debug Rust ou bytes PDF. Testes unitários do
+owner de markup verificam a distinção entre modos de coleta e fluxo e origem
+Source, sem executar callbacks nem mudar o comportamento dos helpers gerais.
+
+
+## R3 — slots consumidos e apresentação de None (2026-10-18)
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/sequence-r3-2026-10-18/{before,markup-after,
+textual-before,transport-before,transport-before-sources}.json.gz conserva
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
+UTC/diffstat/fontes, executáveis e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+Sob show literal Z que não casa, nested.children expõe um pacote Sequence
+mais dois Empty no Tekt; no pin são os três filhos originais. empty-child
+expõe pacote mais Empty no Tekt, mas []/A no pin. markup_stream.rs:201–249
+reconstitui o vetor incluindo slots que textual.rs:103–129 zerou; matching.rs:
+90–95 também zera os siblings consumidos. São detalhes de transporte vazando
+para a morfologia pública. CodeBlock/None interpolado desaparece; [#none#[]A]
+tem dois filhos no Tekt e três no pin, e X#none;B sob show Empty resulta XB
+contra XEB. A tabela value_to_display_content omite None por contrato histórico.
+No pin typst-library/src/foundations/value.rs:191–210 apresenta None como
+Content::empty; typst-eval/src/markup.rs:39–56 trata SetRule/ShowRule como
+fronteiras próprias e :78 apensa o valor das demais expressões. Não copiar
+buffers Rust nem inferir intenção a partir da implementação.
+
+### Decisão e limites
+
+Correção interna de paridade ADR-0127, sem contrato Rust externo, novo campo,
+modo/default ou fase. Máscara privada Vec<bool>, sem Location falsa ou carrier
+público novo. A hipótese é refutada por perda de Empty/Text vazio genuíno,
+deslocamento de fronteira/estilo, repetição de callback ou índices inconsistentes.
+A apresentação de None muda apenas na inserção do markup, não no helper genérico
+usado por Math/CodeSetTail. SetRule/ShowRule continuam suas fronteiras próprias.
+
+RED funcional antes de código: children/fields sob receita literal não casada,
+filhos []/Text vazio, valor None de literal/let/assert/condicional, aplicação do
+show Empty a None e set vazio/estilo sem Empty artificial. GREEN e corpus
+bilateral, controles R2-S/EOF/slots/estilos/CJK/loops, build/suítes completas,
+Clippy/Rustdoc estritos, formato/linhagem/reversa/diferencial SARIF. 12GiB,
+High8GiB, swap zero, jobs1 e jobs pesados sequenciais; sem publicação.
+
+A preservação de fronteiras do valor de markup não fecha a morfologia pública
+de Styled/Styles, repr de labels ou a formação do valor de módulo/include.
+R3-Reflection e o lote A3/include completarão esses eixos com medição própria.
+Precedência/guardas textuais e show-set literal continuam no lote R3-Textual;
+nenhuma mudança dessa política é legitimada por este transporte.
+
+Responsabilidade exclusiva: testes sequence_r3_transport verificam filhos e
+apresentação real, preservam Text vazio por func text e distinguem set/show
+sintáticos das expressões ordinárias. O helper comum não recebe expectativa
+relaxada nem nova normalização que esconda slots. Expected vem dos pares medidos.
+
+
+### Limite adicional medido — grupos textuais em múltiplas caudas
+
+transport-after.json.gz no diagnóstico R3 confirma a remoção dos Empty
+consumidos e a presença dos None reais. style-tail ainda expõe um grupo
+sintético Sequence(A,Space) como um filho, antes do Styled; rule-tail também
+conserva forma de cauda divergente. O problema é adicional à máscara de consumo,
+não somente uma diferença de repr. O pacote R3-TextualGroups completará a
+projeção linguística dos grupos sintéticos em múltiplos escopos e sua igualdade/
+seleção, preservando a Sequence escrita pelo autor. R3-Reflection completará
+Styles e Styled públicos. Não considerar esses controles fechados nem achatar
+Sequence genericamente para escondê-los. Este adendo registra o recorte ainda
+incompleto; não autoriza modificar os owners dessas projeções sem L0 próprio.

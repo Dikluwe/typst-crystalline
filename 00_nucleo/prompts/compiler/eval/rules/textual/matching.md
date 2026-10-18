@@ -1,9 +1,10 @@
 # L0 — compiler/eval/rules/textual/matching
-Hash do Código: ae2c9427
+Hash do Código: c72c3b0a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
+- 00_nucleo/prompts/_nuclei/eval/textual-consumed-slots.toml sha256:faaf206c9f4c20eba8b18b463ebe7836cb9671fd8672501c068eef2751f88d3c
 
 
 **Layer:** L1
@@ -75,3 +76,67 @@ L0 antes de código; correção interna de invariantes existentes (ADR-0127 cont
 Acrescentar regressões nos três módulos proprietários: ambos consumidores de normalização, Source único/aninhado e os quatro carriers em quebras/Empty, controles Parbreak/Text/MathIdent, preservação de span/estilo e Realized.visual separado de original; projeções matching positivas/negativas e matrizes 3×3 inline/top-level com Boundary/EmptyInline/Supportive. Não relaxar testes existentes. RED real antes da implementação, GREEN após. Sondas de variante futura Content/SpaceSupport com cfg(test) compilado: no core usar enum real; no infra desbloquear somente E0004 de dependências/unidades fora dos alvos, em cópia descartável, com braços panic sintéticos registrados e nunca executados. Nunca reparar o local selecionado na própria sonda. Isso distingue dependência que impede compilar o alvo de exaustividade efetiva do alvo. Registrar os 12 matches finais (13 braços), incluindo o helper novo; dois braços de space_with_origin compartilham um match e não contam como dois erros do compilador.
 
 Gates: build e suíte workspace completa, fmt, Clippy workspace/all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc -D warnings com quatro índices, V1/V5/V15/V26 estrito, reversa, replay e diferencial SARIF completo. Esperado V16 152→141; V19 somente dos grupos prescritos; V20 sem crescimento. Recursos: MemoryMax=12 GiB, swap zero, um job Cargo e comandos pesados sequenciais. Sem commit/push/merge/release ou alteração de pin CI. O objetivo geral e math-stretch-composite permanecem abertos.
+
+
+## R3 — slots consumidos e apresentação de None (2026-10-18)
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/sequence-r3-2026-10-18/{before,markup-after,
+textual-before,transport-before,transport-before-sources}.json.gz conserva
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
+UTC/diffstat/fontes, executáveis e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+Sob show literal Z que não casa, nested.children expõe um pacote Sequence
+mais dois Empty no Tekt; no pin são os três filhos originais. empty-child
+expõe pacote mais Empty no Tekt, mas []/A no pin. markup_stream.rs:201–249
+reconstitui o vetor incluindo slots que textual.rs:103–129 zerou; matching.rs:
+90–95 também zera os siblings consumidos. São detalhes de transporte vazando
+para a morfologia pública. CodeBlock/None interpolado desaparece; [#none#[]A]
+tem dois filhos no Tekt e três no pin, e X#none;B sob show Empty resulta XB
+contra XEB. A tabela value_to_display_content omite None por contrato histórico.
+No pin typst-library/src/foundations/value.rs:191–210 apresenta None como
+Content::empty; typst-eval/src/markup.rs:39–56 trata SetRule/ShowRule como
+fronteiras próprias e :78 apensa o valor das demais expressões. Não copiar
+buffers Rust nem inferir intenção a partir da implementação.
+
+### Decisão e limites
+
+Correção interna de paridade ADR-0127, sem contrato Rust externo, novo campo,
+modo/default ou fase. Máscara privada Vec<bool>, sem Location falsa ou carrier
+público novo. A hipótese é refutada por perda de Empty/Text vazio genuíno,
+deslocamento de fronteira/estilo, repetição de callback ou índices inconsistentes.
+A apresentação de None muda apenas na inserção do markup, não no helper genérico
+usado por Math/CodeSetTail. SetRule/ShowRule continuam suas fronteiras próprias.
+
+RED funcional antes de código: children/fields sob receita literal não casada,
+filhos []/Text vazio, valor None de literal/let/assert/condicional, aplicação do
+show Empty a None e set vazio/estilo sem Empty artificial. GREEN e corpus
+bilateral, controles R2-S/EOF/slots/estilos/CJK/loops, build/suítes completas,
+Clippy/Rustdoc estritos, formato/linhagem/reversa/diferencial SARIF. 12GiB,
+High8GiB, swap zero, jobs1 e jobs pesados sequenciais; sem publicação.
+
+A preservação de fronteiras do valor de markup não fecha a morfologia pública
+de Styled/Styles, repr de labels ou a formação do valor de módulo/include.
+R3-Reflection e o lote A3/include completarão esses eixos com medição própria.
+Precedência/guardas textuais e show-set literal continuam no lote R3-Textual;
+nenhuma mudança dessa política é legitimada por este transporte.
+
+Responsabilidade exclusiva: apply_textual_groups retorna máscara Vec<bool>
+privada, inicialmente false. Quando replacement realmente existe, marcar os
+slots start+1..end zerados como consumidos. Ausência de match não consome slot.
+A precedência/transform/splice atuais permanecem nesta revisão; o lote seguinte
+medirá e substituirá essa política, sem atribuir seu reparo a esta máscara.
+
+
+### Limite adicional medido — grupos textuais em múltiplas caudas
+
+transport-after.json.gz no diagnóstico R3 confirma a remoção dos Empty
+consumidos e a presença dos None reais. style-tail ainda expõe um grupo
+sintético Sequence(A,Space) como um filho, antes do Styled; rule-tail também
+conserva forma de cauda divergente. O problema é adicional à máscara de consumo,
+não somente uma diferença de repr. O pacote R3-TextualGroups completará a
+projeção linguística dos grupos sintéticos em múltiplos escopos e sua igualdade/
+seleção, preservando a Sequence escrita pelo autor. R3-Reflection completará
+Styles e Styled públicos. Não considerar esses controles fechados nem achatar
+Sequence genericamente para escondê-los. Este adendo registra o recorte ainda
+incompleto; não autoriza modificar os owners dessas projeções sem L0 próprio.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/markup_stream.md
-//! @prompt-hash ef8085d5
+//! @prompt-hash 8b7c9c9c
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -131,7 +131,52 @@ pub(super) fn eval_markup_impl(
                         )?;
                     } else {
                         let boolean_display = matches!(value, Value::Bool(_));
-                        if let Some(content) = value_to_display_content(value) {
+                        let display = match value {
+                            Value::None => (!matches!(
+                                child.kind(),
+                                SyntaxKind::SetRule | SyntaxKind::ShowRule
+                            ))
+                            .then(|| Content::Empty.with_source_span(child.span())),
+                            Value::Bool(..)
+                            | Value::Int(..)
+                            | Value::Float(..)
+                            | Value::Str(..)
+                            | Value::Array(..)
+                            | Value::Dict(..)
+                            | Value::Module(..)
+                            | Value::Datetime(..)
+                            | Value::Func(..)
+                            | Value::Content(..)
+                            | Value::LocatedContent(..)
+                            | Value::Auto
+                            | Value::Length(..)
+                            | Value::Relative(..)
+                            | Value::Ratio(..)
+                            | Value::Angle(..)
+                            | Value::Color(..)
+                            | Value::Stroke(..)
+                            | Value::Fraction(..)
+                            | Value::Align(..)
+                            | Value::Location(..)
+                            | Value::Gradient(..)
+                            | Value::Regex(..)
+                            | Value::Tiling(..)
+                            | Value::Bytes(..)
+                            | Value::Decimal(..)
+                            | Value::Duration(..)
+                            | Value::Version(..)
+                            | Value::Selector(..)
+                            | Value::Symbol(..)
+                            | Value::Args(..)
+                            | Value::State(..)
+                            | Value::Counter(..)
+                            | Value::Label(..)
+                            | Value::Dir(..)
+                            | Value::Path(..)
+                            | Value::Type(..)
+                            | Value::SpotColorant(..) => value_to_display_content(value),
+                        };
+                        if let Some(content) = display {
                             let content = if boolean_display {
                                 rules::intercept_content(content, ctx, engine)?
                             } else {
@@ -198,7 +243,7 @@ pub(super) fn eval_markup_impl(
     // (`parts[idx..]`) no delta do seu `#set`, produzindo o aninhamento
     // `Styled(A, [X, Styled(B, [Y])])` (escopo léxico, fiel ao vanilla). `#set`
     // único → 1 fronteira → 1 wrap = comportamento de antes (content-preserving).
-    rules::textual::realize_textual_parts(
+    let mut consumed = rules::textual::realize_textual_parts(
         &mut parts,
         &textual_snapshots,
         &boundaries,
@@ -218,6 +263,8 @@ pub(super) fn eval_markup_impl(
                 parts
                     .split_off(index)
                     .into_iter()
+                    .zip(consumed.split_off(index))
+                    .filter_map(|(part, consumed)| (!consumed).then_some(part))
                     .filter(|part| !matches!(part, Content::Empty))
                     .collect(),
             );
@@ -227,11 +274,18 @@ pub(super) fn eval_markup_impl(
                 sequence_origin,
                 ctx,
             ));
+            consumed.push(false);
         } else {
             let (index, delta) = styles.next().unwrap();
-            let tail = parts.split_off(index);
+            let tail = parts
+                .split_off(index)
+                .into_iter()
+                .zip(consumed.split_off(index))
+                .filter_map(|(part, consumed)| (!consumed).then_some(part))
+                .collect();
             let delta = delta.push_custom("eval.flow.scope", Value::Bool(true));
             parts.push(Content::styled(Box::new(Content::sequence(tail)), delta));
+            consumed.push(false);
         }
     }
 
@@ -242,7 +296,13 @@ pub(super) fn eval_markup_impl(
     // e transformar os parágrafos sem re-disparar regras textuais já aplicadas
     // ao grupo normalizado acima.
     Ok(Value::Content(rules::intercept_paragraphs(
-        Content::sequence(parts),
+        Content::sequence(
+            parts
+                .into_iter()
+                .zip(consumed)
+                .filter_map(|(part, consumed)| (!consumed).then_some(part))
+                .collect(),
+        ),
         ctx,
         engine,
     )?))
@@ -280,31 +340,142 @@ fn attach_label(
     Ok(())
 }
 
-/// Sequências interpoladas são transparentes no fluxo de markup. Os filhos
-/// retêm a sua origem; um espaço inferido isolado só é decidido quando
-/// encontra os vizinhos no corpo que o consome.
+/// A value keeps its immediate interpolated children; the realized flow
+/// expands sequences only after its causal capture has had access to them.
 fn append_markup_sequence(
     parts: &mut Vec<Content>,
     content: Content,
     preserve_source: bool,
 ) {
+    if preserve_source {
+        parts.push(content);
+        return;
+    }
     match content {
-        Content::Source(e) if !preserve_source => {
-            append_markup_sequence(parts, e.body.clone(), false)
-        }
-        Content::Source(e) if matches!(e.body.source_body(), Content::Sequence(_)) => {
-            if let Content::Sequence(children) = e.body.source_body() {
-                for child in children.iter().cloned() {
-                    append_markup_sequence(parts, child.with_source_span(e.span), true);
-                }
-            }
-        }
+        Content::Source(e) => append_markup_sequence(parts, e.body.clone(), false),
         Content::Sequence(children) => {
             for child in children.iter().cloned() {
-                append_markup_sequence(parts, child, preserve_source);
+                append_markup_sequence(parts, child, false);
             }
         }
-        other => parts.push(other),
+        Content::ShowRecipe(..)
+        | Content::Realized(..)
+        | Content::Located(..)
+        | Content::Empty
+        | Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Styled(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..)
+        | Content::TableCell(..)
+        | Content::Table(..) => parts.push(content),
     }
 }
 
@@ -391,4 +562,30 @@ pub(super) fn eval_markup_body(
 mod smoke {
     #[test]
     fn modulo_compila_e_carrega() {}
+}
+
+#[cfg(test)]
+mod sequence_r3_markup_tests {
+    use super::*;
+
+    #[test]
+    fn sequence_r3_markup_value_keeps_source_sequence_while_flow_expands_it() {
+        let id = crate::entities::file_id::FileId::from_raw(
+            std::num::NonZeroU16::new(1).unwrap(),
+        );
+        let span = Span::from_range(id, 10..20);
+        let inner = Content::sequence(vec![Content::text("A"), Content::text("B")])
+            .with_source_span(span);
+        let mut value = Vec::new();
+        append_markup_sequence(&mut value, inner.clone(), true);
+        assert_eq!(value.len(), 1);
+        assert!(matches!(value[0].source_body(), Content::Sequence(_)));
+        assert_eq!(value[0].source_span(), span);
+        let mut flow = Vec::new();
+        append_markup_sequence(&mut flow, inner.clone(), false);
+        assert_eq!(flow.len(), 2);
+        assert_eq!(flow[0].plain_text(), "A");
+        assert_eq!(flow[1].plain_text(), "B");
+        assert!(matches!(inner.source_body(), Content::Sequence(_)));
+    }
 }

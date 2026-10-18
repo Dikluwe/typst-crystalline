@@ -1,5 +1,5 @@
 # L0 — compiler/layout/sequence/inline_prefix
-Hash do Código: a86d7c4a
+Hash do Código: 730271c3
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
@@ -150,3 +150,79 @@ asserção final da fixture pressupunha 12pt; Layouter inicializa sua StyleChain
 vigente em 11pt. Capturar o estilo inicial antes de medir e exigir a sua
 restauração exata. Não mudar o constructor ou o estilo de produção. O controle
 PDF carriers-pdf confirma delta zero nos seis pares de prefixo/compilador.
+
+
+## R3 — Sequence com uma unidade visual no prefixo escalar (2026-10-18)
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/sequence-r3-2026-10-18/markup-geometry-before.json.gz,
+markup-geometry-before-resources.json e prefix-before-sources.json.gz registram
+UTC, HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c/working tree/diffstat,
+fontes, argv e hashes de binários contra bd5ebec285505889e8ff1d4f68804ab147a699f3.
+O R3 preserva corretamente a Sequence interpolada no valor de markup e
+None como filho real. Com prefixo strong e Block1fr em columns, as formas
+#(strong[Lead]+[]) e #[#none;*Lead*] passam de uma para duas páginas no Tekt;
+vanilla conserva a geometria, assim como os controles de prefixo simples e
+Styled. Maior delta observado212.762pt, por migração de página. O dispatch
+escalar em inline_prefix.rs:172–246 recusa Sequence mesmo quando contém só
+uma unidade visual entre Empty. paragraph::shared_chain já certifica Empty e
+Sequence; recorrer ao fallback geométrico perde a reserva escalar vigente.
+Isso é geometria da linguagem, não razão para apagar filhos reais do valor.
+
+### Decisão e responsabilidade exclusiva
+
+Reparo interno de certificado, ADR-0127 contínuo. Depois da projeção preparada
+Source/Located/Realized existente, helper privado scalar_prefix_body devolve
+None para Empty e grupos inteiramente Empty. Para Sequence com exatamente
+uma unidade não Empty, devolver por empréstimo essa unidade, recursivamente;
+com duas ou mais, devolver a Sequence intacta, que o certificado anterior
+recusa. As demais variantes são enumeradas e devolvidas intactas numa única
+política de forwarding V19. Não descartar Space, Text vazio, Linebreak,
+Styles ou outro elemento. Não emitir, reconstruir ou executar callback.
+
+O loop ignora projeção None como o Empty anterior, mantendo part_index do vetor
+original. Os bodies de Styled/Strong/Emph usam a mesma projeção; em seguida
+continuam o match Content anterior, sem ampliar profundidade tipográfica,
+gates de estilos/size/largura/wrap, fórmulas, hooks, Location ou tags emitidas.
+Nenhum campo/assinatura pública, nova fase/default ou normalização de valor.
+Não promover grupo com dois textos ou Space+Strong a certificado escalar.
+
+RED de reserva para Strong/Emph/Styled em Sequence singleton, com Empty,
+Empty aninhado e carriers preparados, incluindo body Strong com None; controles
+de recusa de dois textos, Text vazio real+Strong, Space+Strong e Link.
+GREEN e repetição dos18 PDFs/12 comparações geométricas dentro de cada
+compilador, páginas/palavras exatas e tolerância1e-6pt. Não é prova de igualdade
+geométrica entre Tekt e vanilla. Exigir suíte completa, Clippy/Rustdoc estritos,
+linhagem/diferencial e demais gates sob12GiB/High8GiB/swap0/jobs1.
+
+
+## V16 após tornar a projeção explícita — 2026-10-18
+
+### Medição anterior à decisão
+
+validation-attempt1.json.gz/prefix-exhaustiveness-before.json.gz no diagnóstico
+R3 preservam a rodada completa: 8979 testes e5 doctests passaram, Clippy e
+Rustdoc estritos passaram, mas o diferencial Tekt falhou. O baseline R2 tem
+106 V16 e nenhum neste owner; o candidato tem107, com V16 no wildcard externo
+em inline_prefix.rs:363. O match part agora é reconhecido pelo linter como
+Content. As três recusas dos bodies também usam wildcard (linhas330/342/354),
+embora a ferramenta não as reporte nesta forma. Não se trata de falha da
+fórmula nem de razão para ocultar o tipo ao linter.
+
+### Responsabilidade exclusiva e aceitação
+
+Fechar os quatro matches Content do certificado: no externo, manter braços
+positivos Text/Styled/Strong/Emph/Space/SpaceFromNewline/Empty e substituir só
+o wildcard pela lista explícita de todas as outras variantes. Nos três
+bodies, manter Text e enumerar todas as demais variantes na recusa. Cada
+grupo V19 compartilha return None; preserve integralmente corpos, guards,
+returns, ordem, fórmulas e os critérios do certificado. Sem supressão, if-let
+ou alteração do limiar. Variante futura exige decisão Rust explícita.
+
+Registrar replay nominal dos padrões/complementos e fonte anterior. O finding
+novo deve desaparecer, sem atribuir remoção de débito do baseline ao reparo:
+106→107→106, nenhum novo erro/warning. O forwarding de append, embora agora
+exaustivo, não emitia V16 no baseline e não pode receber crédito106→105.
+Resselo após ownership/núcleos válidos; repetir os gates completos no mesmo
+freeze final e conservar a tentativa anterior, sob12GiB/High8GiB/swap0/jobs1.

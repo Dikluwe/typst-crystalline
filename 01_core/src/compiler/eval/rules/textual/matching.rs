@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/textual/matching.md
-//! @prompt-hash 7e1d4978
+//! @prompt-hash 91d489a0
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -32,7 +32,8 @@ pub(super) fn apply_textual_groups(
     style_boundaries: &[(usize, Styles)],
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
-) -> SourceResult<()> {
+) -> SourceResult<Vec<bool>> {
+    let mut consumed = vec![false; parts.len()];
     let mut start = 0;
     while start < parts.len() {
         if textual_piece(&parts[start]).is_none() {
@@ -82,6 +83,7 @@ pub(super) fn apply_textual_groups(
                 *engine.active_guards = old_guards;
                 if let Some(replacement) = transformed? {
                     parts[start] = Content::sequence(replacement);
+                    consumed[start + 1..end].fill(true);
                     for part in &mut parts[start + 1..end] {
                         *part = Content::Empty;
                     }
@@ -90,7 +92,7 @@ pub(super) fn apply_textual_groups(
         }
         start = end.max(start + 1);
     }
-    Ok(())
+    Ok(consumed)
 }
 
 /// Regex conserva a precedência reversa vigente; o primeiro selector regex

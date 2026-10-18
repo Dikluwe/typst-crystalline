@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 2a8e12f7
+//! @prompt-hash 312add52
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -32359,6 +32359,85 @@ mod regressions {
             );
             let errors = eval_for_test(&world, &world.source).unwrap_err();
             assert_eq!(errors[0].message, "maximum show rule depth exceeded");
+        }
+    }
+
+    mod sequence_r3_markup_tests {
+        use super::*;
+
+        #[test]
+        fn sequence_r3_markup_preserves_interpolated_immediate_children_and_aliases() {
+            for source in [
+                "#let inner=[A]+[B]\n#let c=[#inner C]\n#assert.eq(c.children,(inner,[ ],[C]))\n#assert.eq(c.children.first().func(),[].func())\n#assert.eq(inner.children,([A],[B]))",
+                "#let inner=[A]+[B]\n#let c=[#inner#inner]\n#assert.eq(c.children,(inner,inner))\n#assert.eq(c.children.len(),2)",
+                "#let c=[#([A]+[B]) C]\n#assert.eq(c.fields().children,([A]+[B],[ ],[C]))",
+            ] {
+                let world = MockWorld::new(source);
+                let result = eval_for_test(&world, &world.source);
+                assert!(result.is_ok(), "{source}: {result:?}");
+            }
+        }
+
+        #[test]
+        fn sequence_r3_markup_keeps_collection_and_concatenation_distinct() {
+            for source in [
+                "#let inner=[A]+[B]\n#assert.eq([#inner].children,([A],[B]))\n#let c=[#inner C]+[D]\n#assert.eq(c.children,(inner,[ ],[C],[D]))",
+                "#let inner=[A]+[B]+[A]+[B]\n#let c=[#for i in range(2) {[A]+[B]} C]\n#assert.eq(c.children,(inner,[ ],[C]))",
+                "#let f=[].func()\n#let inner=f(([A],[B]))\n#let c=[#inner C]\n#assert.eq(c.children,(inner,[ ],[C]))",
+            ] {
+                let world = MockWorld::new(source);
+                let result = eval_for_test(&world, &world.source);
+                assert!(result.is_ok(), "{source}: {result:?}");
+            }
+        }
+    }
+
+    mod sequence_r3_transport_tests {
+        use super::*;
+
+        #[test]
+        fn sequence_r3_transport_hides_consumed_slots_from_value_children() {
+            for source in [
+                "#show \"Z\":it=>[X]\n#let inner=[A]+[B]\n#let c=[#inner C]\n#assert.eq(c.children,(inner,[ ],[C]))",
+                "#show \"Z\":it=>[X]\n#let c=[#[]A]\n#assert.eq(c.children,([],[A]))",
+                "#show \"Z\":it=>[X]\n#let c=[#text(\"\")A]\n#assert.eq(c.children,(text(\"\"),[A]))\n#assert.eq(c.children.first().func(),text)",
+            ] {
+                let world = MockWorld::new(source);
+                let result = eval_for_test(&world, &world.source);
+                assert!(result.is_ok(), "{source}: {result:?}");
+            }
+        }
+
+        #[test]
+        fn sequence_r3_transport_none_is_an_actual_empty_child() {
+            for source in [
+                "#let c=[#none#[]A]\n#assert.eq(c.children,([],[],[A]))",
+                "#let c=[#let x=1;A]\n#assert.eq(c.children,([],[A]))",
+                "#let c=[#assert(true)A]\n#assert.eq(c.children,([],[A]))",
+                "#let c=[#{if false {[B]}}A]\n#assert.eq(c.children,([],[A]))",
+                "#let c=[#let n=0;#assert.eq(n,0);A]\n#assert.eq(c.children,([],[],[A]))",
+                "#let c=[#none]\n#assert.eq(c.fields(),(children:()))",
+            ] {
+                let world = MockWorld::new(source);
+                let result = eval_for_test(&world, &world.source);
+                assert!(result.is_ok(), "{source}: {result:?}");
+            }
+        }
+
+        #[test]
+        fn sequence_r3_transport_none_show_and_set_boundaries() {
+            let source = "#let f=[].func()\n#show f.where(children:()):it=>[E]\nX#none;B";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source).unwrap();
+            assert_eq!(module.content().unwrap().plain_text().trim(), "XEB");
+            for source in [
+                "#let f=[].func()\n#let c=[#set f();A]\n#assert.eq(c,[A])",
+                "#let c=[#set text(fill:red);A]\n#assert.eq(c.func(),text(fill:red)[A].func())",
+            ] {
+                let world = MockWorld::new(source);
+                let result = eval_for_test(&world, &world.source);
+                assert!(result.is_ok(), "{source}: {result:?}");
+            }
         }
     }
 }
