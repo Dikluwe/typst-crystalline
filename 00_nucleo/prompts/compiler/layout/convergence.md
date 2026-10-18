@@ -1,5 +1,5 @@
 # L0 — convergência das tentativas de layout
-Hash do Código: c013022d
+Hash do Código: 81972db0
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/convergence.rs`
@@ -82,3 +82,88 @@ O inventário validado em `00_nucleo/diagnosticos/clippy-locais-2026-10-16/clipp
 Materializar somente as expectativas diretas nominais já justificadas neste owner: C010. Reconfirmadas contra os spans atuais e as cláusulas individuais. Usar exatamente #[expect(clippy::too_many_arguments, reason="ID: motivo prescrito")] na função, nunca módulo/impl/crate; preservar assinatura, corpo, chamadas, cfg e atributos alheios. As entradas classificadas corrigir, inclusive C047/C066 condicionais, continuam pendentes e não recebem anotação neste lote.
 
 Fluxo contínuo ADR-0127: este lote acrescenta apenas metadados de lint, não muda contratos públicos, corpo executável, cfg, defaults, fase, dependências ou arquitetura. A cláusula materializa somente as exceções nominais expressas e supersede proibições genéricas de supressão apenas para os itens/lints identificados; não autoriza silenciar as correções pendentes. L0 precede código, resselo restrito e prova de que remover os atributos acrescentados e o header de linhagem recupera a fonte anterior, normalizada pelo rustfmt. Medir RED antes; depois conferir inventário all-targets, exatamente 46 aridades e cinco avisos de testes satisfeitos por 49 expectativas, sem aviso novo e com unfulfilled_lint_expectations como erro. As 11 aridades destinadas a correção devem continuar visíveis. Validar build, formato, linhagens estrita/reversa, Tekt sem erros/avisos novos, testes existentes de Counter e cobertura sob 12 GiB, swap zero e um job. A suíte completa anterior permanece evidência do mesmo código executável; não criar testes que espelhem atributos de lint nem exigir nova comparação de performance para metadados.
+
+## A2-CSL — descoberta semântica do estilo bibliográfico (2026-10-18)
+
+### Medição anterior à decisão
+
+`00_nucleo/diagnosticos/bibliography-a2-2026-10-18/before.json.gz` registra
+16 fontes/pares PDF, argv, texto/posições, UTC, HEAD
+b1b486f3d42431f8ea360bc5712637ee1e3d4f6c e working tree não commitado;
+`before-sources.json.gz` contém fontes/L0, status e diff HEAD --stat completos.
+Oracle pinado bd5ebec285505889e8ff1d4f68804ab147a699f3, binário SHA-256
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9;
+Tekt SHA-256 57154005875bca986a1c4eb44038c8bd9ad2b3580e5534059574895c94e62f82.
+
+MLA simples e IEEE simples conservam seu texto nos dois compiladores. Com
+show bibliography.where():set text(fill:red), o Tekt troca (Silva) e a lista
+MLA por [1] e fallback com seta; a regra bare agora admitida tem o mesmo
+problema. Identidade, Block e show-set de hanging-indent também perdem CSL.
+Bibliography substituída por REPLACEMENT ou [] mantém (Silva) no vanilla,
+mas vira [1] no Tekt: só buscar a árvore visual não basta. O controle
+Block que oculta a Bibliography rejeita @audit nos dois; não ressuscitar a
+bibliografia de um filho não emitido. Multiple mostra um problema distinto:
+o Tekt duplica a mesma lista MLA, enquanto o vanilla atribui as citações à
+bibliografia pertinente. Esse controle permanece aberto, não é paridade por
+compartilhar uma árvore de render.
+
+convergence.rs:197–249 navega um catálogo parcial e omite Source/Located/
+Realized/ShowRecipe; :57–91 só constrói cache se ele acha a declaração.
+bibliography.rs:112–123 usa fallback quando esse cache inexiste. O índice
+TagIntrospector já transporta Bibliography por ocorrência (kind_index/elements)
+e o BibStore transporta o IndependentStyle resolvido por style_key.
+No vanilla model/bibliography.rs:885–909 prepara bibliografias obtidas da
+introspecção, com atribuição por ocorrência; :361–369 fixa show-set de recuo.
+São dados de linguagem/efeitos. Inferência causal: a busca parcial perde a
+seleção de CSL; testes por carrier, declaração ocultada, ordem e cache podem
+refutá-la. A implementação não precisa copiar as estruturas upstream.
+
+### Responsabilidade exclusiva
+
+Dentro da preparação privada já existente, descobrir primeiro a Bibliography
+registrada no índice semântico da tentativa, em ordem kind_index, lendo seu
+snapshot em elements. Assim uma declaração realizada e depois substituída
+continua a fornecer CSL às citações; não percorrer originais ocultos arbitrários
+para fabricar uma ocorrência. Preservar style/locale e a tabela lateral
+resolved_style de sua própria style_key. A primeira declaração com style None
+continua sendo a primeira: não saltar para outra só porque tem style explícito.
+
+Quando não há snapshot bibliográfico disponível no índice fornecido, conservar
+compatibilidade da entrada de layout cru descobrindo o primeiro elemento
+navegável por empréstimo com visit_content_static, cujo contrato pertence a
+00_nucleo/prompts/entities/content/traversal.md. Source/Located/ShowRecipe
+seguem body, Realized somente visual, e Table/Cell usam a vista ativa existente;
+não executar recipes, Func, ContextBlock ou Dynamic. Podar Document/Asset no
+hospedeiro e parar de descer após o primeiro achado. Não manter outro catálogo
+parcial de containers, clonar Content para navegar ou mudar o visitante.
+
+A closure observa somente ocorrências Bibliography já visitadas pelo dispatcher
+exaustivo do domínio; o if-let é uma observação de evento, não um substituto
+parcial da enumeração de filhos. A fronteira Document/Asset é explícita.
+Não classificar Content como enum aberto/dinâmico nem suprimir V16/V19/V20.
+
+Esta correção de paridade é interna/contínua ADR-0127. Mesma fase de cache antes
+do layout, mesmas fachadas públicas e mesma política explícita de fallback
+quando não há style; sem modo/flag, campo/trait, I/O ou mudança do pipeline.
+Não alterar a interpretação CSL ou o estado do Layouter neste owner.
+
+### Aceitação e divisão explícita
+
+Antes do código, testes locais RED para carriers e containers antes omitidos,
+prioridade do índice/ordem, declaração substituída/ocultada registrada,
+conservação de style_key/resolved_style/locale e fallback cru sem navegar
+Realized.original ou Document. Conferir ausência de efeito de receita.
+GREEN bilateral de CSL sob show-set/identity/Block e de citações sob
+substituição; IEEE continua IEEE e o parágrafo externo conserva estilo.
+Revalidar suites/build, Clippy/Rustdoc estritos, fmt, linhagem V1/V5/V15/V26 e
+reversa, diferencial SARIF sem novo erro/warning; remover o V16 desta busca
+por delegação ao visitante exaustivo, sem converter a dívida em supressão.
+12 GiB/High8 GiB/swap0/jobs1/debug0/incremental0 e comandos pesados sequenciais.
+Sem commit/push/release.
+
+A2-CSL é incompleto no escopo A2: A2-Indent deve completar hanging-indent
+(default MLA e override lexical, geometria real e isolamento de OUTSIDE),
+e A2-Multi deve completar atribuição/cache por Bibliography quando há várias.
+Não declarar E05 nem toda bibliografia encerrados por esta busca; não aceitar
+as coordenadas atuais só porque o formato MLA voltou. A correção não ratifica
+Symbol, Styles público ou a proposta de ordem R3-T1 ainda pendente.

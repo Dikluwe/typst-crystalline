@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/convergence.md
-//! @prompt-hash 7a4b8db9
+//! @prompt-hash 5e8b19e4
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -186,65 +186,45 @@ struct FirstBibliographyStyle {
     locale: Option<EcoString>,
 }
 
-/// Procura o primeiro `Content::Bibliography` no documento (DFS simples) e
-/// devolve os dados necessários à pré-renderização CSL. Usado para construir o
-/// cache antes do layout principal, permitindo que `cite` antes do
-/// `bibliography` use o mesmo style.
-///
-/// P429: o style resolvido é consultado no `BibStore` via
-/// `BibliographyElem::style_key()`.
+/// Use the first registered declaration, even when its visual was replaced.
+/// Raw-layout callers without a semantic snapshot use the active static view.
 fn find_first_bibliography_style(
     content: &Content,
     introspector: &crate::entities::introspector::TagIntrospector,
 ) -> Option<FirstBibliographyStyle> {
-    fn walk(
-        c: &Content,
+    fn discover(
+        content: &Content,
         introspector: &crate::entities::introspector::TagIntrospector,
     ) -> Option<FirstBibliographyStyle> {
-        match c {
-            Content::Bibliography(e) => Some(FirstBibliographyStyle {
-                resolved_style: introspector
-                    .bib_store
-                    .style_for_key(e.style_key())
-                    .cloned(),
-                style: e.style.clone(),
-                locale: e.locale.clone(),
-            }),
-            Content::Sequence(seq) => seq.iter().find_map(|c| walk(c, introspector)),
-            Content::Styled(styled) => walk(&styled.body, introspector),
-            Content::Block(e) => walk(&e.body, introspector),
-            Content::Boxed(e) => walk(&e.body, introspector),
-            Content::Pad(e) => walk(&e.body, introspector),
-            Content::Align(e) => walk(&e.body, introspector),
-            Content::Hide(e) => walk(&e.body, introspector),
-            Content::Figure(e) => walk(&e.body, introspector)
-                .or_else(|| e.caption.as_ref().and_then(|c| walk(c, introspector))),
-            Content::Table(e) => e
-                .caption
-                .as_ref()
-                .and_then(|c| walk(c, introspector))
-                .or_else(|| e.children.iter().find_map(|c| walk(c, introspector))),
-            Content::Grid(e) => e.cells.iter().find_map(|c| walk(c, introspector)),
-            Content::Stack(e) => e.children.iter().find_map(|c| walk(c, introspector)),
-            Content::ListItem(e) => walk(&e.body, introspector),
-            Content::EnumItem(e) => walk(&e.body, introspector),
-            Content::TermItem(e) => {
-                walk(&e.term, introspector).or_else(|| walk(&e.description, introspector))
+        let mut found = None;
+        content.visit_content_static(&mut |node| {
+            if found.is_some() {
+                return false;
             }
-            Content::Footnote(e) => walk(&e.body, introspector),
-            Content::Overline(e) => walk(&e.body, introspector),
-            Content::Strike(e) => walk(&e.body, introspector),
-            Content::Underline(e) => walk(&e.body, introspector),
-            Content::Strong(e) => walk(&e.body, introspector),
-            Content::Emph(e) => walk(&e.body, introspector),
-            Content::Link(e) => walk(&e.body, introspector),
-            Content::SmallCaps { body } => walk(body, introspector),
-            Content::Heading(e) => walk(&e.body, introspector),
-            Content::Title(e) => walk(&e.body, introspector),
-            _ => None, // neutro: N16[γ] — Content não-extraível retorna None no dispatch de layout (despacho dinâmico aberto)
-        }
+            if let Content::Bibliography(elem) = node {
+                found = Some(FirstBibliographyStyle {
+                    resolved_style: introspector
+                        .bib_store
+                        .style_for_key(elem.style_key())
+                        .cloned(),
+                    style: elem.style.clone(),
+                    locale: elem.locale.clone(),
+                });
+                return false;
+            }
+            !matches!(node, Content::Document { .. } | Content::Asset { .. })
+        });
+        found
     }
-    walk(content, introspector)
+
+    introspector
+        .kind_index
+        .get(&crate::entities::element_kind::ElementKind::Bibliography)
+        .into_iter()
+        .flatten()
+        .filter_map(|location| introspector.elements.get(location))
+        .find_map(|entry| discover(entry.content(), introspector))
+        .or_else(|| discover(content, introspector))
 }
 
 #[cfg(test)]
@@ -253,5 +233,161 @@ mod tests {
     #[test]
     fn convergence_entrypoint_keeps_static_types() {
         let _ = run::<FixedMetrics, NullImageSizer>;
+    }
+}
+
+#[cfg(test)]
+mod a2_csl_tests {
+    use super::*;
+    use crate::entities::content::{LocatedContent, RealizedContent, ShowRecipeContent};
+    use crate::entities::elements::bibliography::BibliographyElem;
+    use crate::entities::file_id::FileId;
+    use crate::entities::introspector::TagIntrospector;
+    use crate::entities::location::Location;
+    use crate::entities::span::Span;
+    use crate::entities::style::Styles;
+    use crate::entities::style_chain::StyleChain;
+
+    fn bibliography(style: Option<&str>) -> Content {
+        Content::Bibliography(Arc::new(BibliographyElem {
+            entries: vec![],
+            path: Some("test.bib".into()),
+            title: None,
+            style: style.map(Into::into),
+            locale: Some("pt-PT".into()),
+        }))
+    }
+
+    fn file() -> FileId {
+        FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+    }
+
+    fn realized(original: Content, visual: Content) -> Content {
+        Content::Realized(Arc::new(RealizedContent { original, visual }))
+    }
+
+    fn style(content: &Content, intr: &TagIntrospector) -> Option<String> {
+        find_first_bibliography_style(content, intr)
+            .and_then(|found| found.style.map(|style| style.to_string()))
+    }
+
+    #[test]
+    fn a2_csl_raw_carriers_keep_declaration_style() {
+        let b = bibliography(Some("mla"));
+        let cases = [
+            b.clone().with_source_span(Span::from_range(file(), 2..4)),
+            Content::Located(Arc::new(LocatedContent {
+                location: Location::from_raw(41),
+                body: b.clone(),
+            })),
+            realized(Content::text("consumed"), b.clone()),
+            Content::ShowRecipe(Arc::new(ShowRecipeContent {
+                body: b,
+                textual: false,
+                context_id_floor: 0,
+                rules: Arc::from([]),
+                styles: StyleChain::empty(),
+                guards: vec![],
+                file: file(),
+            })),
+        ];
+        for content in cases {
+            assert_eq!(
+                style(&content, &TagIntrospector::empty()).as_deref(),
+                Some("mla")
+            );
+        }
+    }
+
+    #[test]
+    fn a2_csl_registered_hidden_declaration_still_styles_citations() {
+        let content = realized(bibliography(Some("mla")), Content::text("replacement"));
+        let intr = crate::compiler::introspect::introspect_with_introspector(&content);
+        assert_eq!(style(&content, &intr).as_deref(), Some("mla"));
+    }
+
+    #[test]
+    fn a2_csl_semantic_order_does_not_skip_unstyled_first_declaration() {
+        let content = Content::sequence(vec![
+            realized(bibliography(None), Content::Empty),
+            bibliography(Some("ieee")),
+        ]);
+        let intr = crate::compiler::introspect::introspect_with_introspector(&content);
+        let found = find_first_bibliography_style(&content, &intr).unwrap();
+        assert!(found.style.is_none());
+        assert_eq!(found.locale.as_deref(), Some("pt-PT"));
+    }
+
+    #[test]
+    fn a2_csl_raw_static_containers_are_navigable() {
+        let b = bibliography(Some("mla"));
+        for content in [
+            Content::par(b.clone()),
+            Content::columns(b.clone(), 2, None),
+            Content::table_cell(b, None, None, None, None),
+        ] {
+            assert_eq!(
+                style(&content, &TagIntrospector::empty()).as_deref(),
+                Some("mla")
+            );
+        }
+    }
+
+    #[test]
+    fn a2_csl_fallback_does_not_resurrect_original_or_embedded_document() {
+        let hidden = realized(bibliography(Some("mla")), Content::text("replacement"));
+        assert!(
+            find_first_bibliography_style(&hidden, &TagIntrospector::empty()).is_none()
+        );
+        let embedded = Content::document(
+            "child.pdf".into(),
+            bibliography(Some("mla")),
+            None,
+            None,
+            vec![],
+            None,
+            vec![],
+        );
+        assert!(
+            find_first_bibliography_style(&embedded, &TagIntrospector::empty()).is_none()
+        );
+        assert_eq!(
+            style(
+                &Content::sequence(vec![embedded, bibliography(Some("ieee"))]),
+                &TagIntrospector::empty(),
+            )
+            .as_deref(),
+            Some("ieee"),
+        );
+    }
+
+    #[test]
+    fn a2_csl_semantic_snapshot_preserves_custom_resolved_style_and_locale() {
+        let b = bibliography(Some("custom.csl"));
+        let Content::Bibliography(elem) = &b else { unreachable!() };
+        let key = elem.style_key();
+        let content = realized(b, Content::Empty);
+        let mut intr =
+            crate::compiler::introspect::introspect_with_introspector(&content);
+        let resolved = Arc::new(
+            crate::compiler::layout::bib_csl::resolve_style_name("mla").unwrap(),
+        );
+        intr.bib_store.add_style(key, Arc::clone(&resolved));
+        let found = find_first_bibliography_style(&content, &intr).unwrap();
+        assert_eq!(found.style.as_deref(), Some("custom.csl"));
+        assert_eq!(found.locale.as_deref(), Some("pt-PT"));
+        assert!(Arc::ptr_eq(found.resolved_style.as_ref().unwrap(), &resolved));
+    }
+
+    #[test]
+    fn a2_csl_first_raw_declaration_and_no_declaration_controls() {
+        let first = Content::styled(Box::new(bibliography(Some("mla"))), Styles::new());
+        let content = Content::sequence(vec![first, bibliography(Some("ieee"))]);
+        assert_eq!(style(&content, &TagIntrospector::empty()).as_deref(), Some("mla"));
+        assert!(find_first_bibliography_style(
+            &Content::sequence(vec![Content::text("plain"), Content::Empty]),
+            &TagIntrospector::empty(),
+        )
+        .is_none());
     }
 }

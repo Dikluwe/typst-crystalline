@@ -1,0 +1,7 @@
+# Continuação do objetivo geral
+
+1. **A2-Indent e blocos:** corrigir hanging-indent e fronteira de entrada da bibliografia, incluindo título padrão/custom-default-title, sem declarar o RED como paridade. Os recuos e coordenadas em geometry-controls.json.gz são a referência medida. Auditar L0s de par/set, bibliography/bib_csl e planejamento/emissão de linhas antes de código; preservar first-line, RTL, negativos, widths e estilos existentes mediante sondas próprias. Isto é passo, não L0 nem autorização de API nova.
+2. **A2-Multi:** atribuição de citações e cache por ocorrência de Bibliography; o global único atual duplica listas. Medir target/ordem/fontes antes de decidir transporte ou contrato público.
+3. **R3-T1:** aprovação pendente da [revisão](/repos/Antigravity/typst-crystalline/00_nucleo/materialization/textual-realization-2026-10-18/review.md), manifesto 47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302. Acrescentar o alias-style bibliográfico aos refutadores de inserção; não sobrescrever candidatos ou pedir a mesma aprovação de novo.
+4. **R3-T2:** concluir coerção de retornos de show a partir do diagnóstico show-returns-2026-10-18; coordenar os owners compartilhados com R3-T1 e preservar as diferenças de Raw/Text/None e o caso Symbol ainda aberto.
+5. **Escopo integral:** manter E01–E20, frentes públicas RM1/RG/FG/Paint/Symbol e as lacunas explícitas do inventário; 105 V16 continuam bloqueando o gate global. O reparo CSL é progresso, não redefine o objetivo Faça todas as correções.
