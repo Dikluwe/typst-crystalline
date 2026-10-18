@@ -14,6 +14,9 @@ não certificam paridade completa nem substituem os gates do checkout atual.
 A auditoria e os recibos de validação registram o commit, a árvore de trabalho e
 as limitações de cada medição:
 
+- [Inventário consolidado, entregas, pendências e limpeza proposta — 18/10/2026](00_nucleo/diagnosticos/inventario-organizacao-2026-10-18/README.md)
+- [Limpeza de caches executada e retenção de artefatos — 18/10/2026](00_nucleo/diagnosticos/limpeza-caches-2026-10-18/relatorio.md)
+- [Commits por etapa e recuperação das evidências — 18/10/2026](00_nucleo/diagnosticos/commits-por-etapa-2026-10-18/relatorio.md)
 - [Auditoria de produção](00_nucleo/diagnosticos/auditoria-producao-tekt-2026-10-13.md)
 - [Linhagem e CI/release](00_nucleo/diagnosticos/linhagem-ci-release-2026-10-13.md)
 - [Correções e validação atual](00_nucleo/diagnosticos/correcoes-producao-2026-10-13.md)
