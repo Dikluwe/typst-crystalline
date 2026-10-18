@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access
-Hash do Código: c6180563
+Hash do Código: f5c4560b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:2b8888460a1e6008abda0ff71603fe4dace79ff0a2a7aad598f8aabfab3e3776
@@ -230,3 +230,16 @@ bilateral integral fixaram esse contrato antes do código. Atualizar somente
 a linha #array.nope daquele teste para mensagem com backticks e âncora nope.
 Manter os casos length/boolean/none/auto/integer/string, sua severidade, spans,
 hints, traces e perfis anteriores, sem retirar assertivas ou ignorar o teste.
+
+## A1 — revisão do residual histórico text.text, 2026-10-17
+
+Medição antes da decisão: workspace.log do diagnóstico
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17
+registra p1325_content_direct_alias_and_known_lookup_residual falhando porque
+`[x].text` agora devolve o texto, conforme sonda bilateral before-pdf-probe.json.gz
+contra vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. A asserção de erro era
+um residual conhecido, não um contrato desejado. Retirar somente essa entrada
+da tabela negativa; substituir por controle positivo explícito `[x].text == "x"`
+no teste positivo existente. Conservar negativos de campos desconhecidos, alias,
+Unicode e todos os perfis. Não mascarar regressões de presença nem alterar o
+dispatch produtivo deste hub. L0 antes do teste, resselo e suíte completa.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/show.md
-//! @prompt-hash 5f4768cd
+//! @prompt-hash 090c83aa
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -382,6 +382,9 @@ pub(crate) fn eval_show_rule(
                                 .into_iter()
                                 .any(|call| fn_addr_eq(addr, call)) =>
                             {
+                                Selector::NativeElement(f.clone())
+                            }
+                            _ if crate::compiler::eval::bindings::native_element_fields(f).is_some() => {
                                 Selector::NativeElement(f.clone())
                             }
                             Some(_) => {

@@ -1,5 +1,5 @@
 # L0 — introspect/walk
-Hash do Código: 0af6e95c
+Hash do Código: d13663dc
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
@@ -380,3 +380,67 @@ mudanças. Os seis testes selecionados devem passar após o reparo; cinco novos
 são deste owner e um do owner de eval. Suíte workspace esperada cresce em seis
 testes sobre o estado de entrada, sem alterar os casos antigos ou os sete
 ignorados. Preservar build/fmt/Clippy/Rustdoc/linhagem/reversa/SARIF e 12 GiB.
+
+## A1 — callbacks de suplemento de Heading, 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c e working tree/UTC/hash
+registrados em 00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+before-pdf-probe.json.gz: heading-supplement-panic termina em sucesso no Tekt
+e em A1_HEADING no vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
+heading-supplement-valid aceita ambos, mas só o vanilla usa Custom na referência.
+Fonte upstream model/heading.rs:249-289 sintetiza supplement por ocorrência e
+model/reference.rs:393-415 aplica a função e display. Set.rs:286-320 ignora
+supplement e limpa numbering; snapshot_fields heading.rs:55-68 fixa tradução.
+Isto é callback/valor observável, não exigência de mecânica upstream.
+
+### Decisão e responsabilidade exclusiva
+
+Ao capturar Heading com supplement custom, conservar no content da entrada
+canônica um Styled com o delta causal colapsado existente, além do snapshot de
+campos; não criar mapa concorrente de snapshots nem campo público. A entrada temporária permite ao pós-processador restaurar os styles causais
+da função; o wrapper de captura é retirado antes de publicar Heading.
+Somente a ocorrência com especificação custom recebe esse wrapper; a árvore
+produtiva original e as tags/Locations não mudam. Walk continua sem Engine e
+não executa callbacks.
+
+Correção de paridade em fluxo ADR-0127: sem nova API Rust, campo público ou
+transferência de lógica existente entre eval/layout. O pós-walk com Engine já
+é a fronteira de aplicação de callbacks. L0 primeiro, RED e controles bilaterais,
+sem callbacks em encoder/walk/layout e sem alegar paridade de todos os campos.
+
+
+## A1-H2 — suplemento antes das consultas, aprovado em 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
+final-freeze.json.gz e target-controls.json.gz no diagnóstico
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
+UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
+Styled de transporte altera func. Query também vê wrapper causal temporário;
+HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427 e
+pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
+de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
+Gate A1-H2 confirmado pelo dono nesta sessão: revisão
+00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
+SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
+
+### Responsabilidade exclusiva
+
+Guardar Content semântico intacto na entrada canônica; não criar Styled para
+transportar causalidade de Heading. Quando houver heading.supplement custom,
+anexar os styles causais ao cabeçalho privado do snapshot existente. Preservar
+mapa completo/ordem/label por último e Location; não criar segundo store nem
+executar callback no walk. O entrypoint puro projeta Heading como Heading.
+
+### Aceitação e limites
+
+H1–H8 da revisão ratificada, RED bilateral antes do código. Nenhum contrato
+público além da fachada Heading está autorizado por H2; A1-S2 cobre separadamente
+cinco helpers State. Sem novos campos públicos. Styled ordinário e demais
+callbacks conservam suas fronteiras. Workspace/doctests/build/Clippy/Rustdoc,
+fmt, V1/V5/V15/V26/reversa e V16 sem aumento; 12GiB/High8GiB/swap0/jobs1,
+comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.

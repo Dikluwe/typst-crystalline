@@ -1,5 +1,5 @@
 # L0 — entities/content/fields
-Hash do Código: ef3ea9f5
+Hash do Código: 910ae4ae
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:923f1c9e4c2fd5934316ae2eef3dbb461c3bef3009de1d8931d951e793dda342
@@ -361,3 +361,83 @@ unfulfilled_lint_expectations, Rustdoc estrito, fmt, linhagem estrita/reversa,
 replay, source freeze e diff --check. Pesados sequenciais MemoryMax12GiB,
 High10GiB/swap0/jobs1. Sem commit/push/merge/release. As frentes de linguagem,
 contratos pendentes e o objetivo global não são encerrados por este lote.
+
+## A1 — reparo de paridade medido em 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c; estado/UTC/fontes em
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. before-pdf-probe.json.gz
+no mesmo diagnóstico congela controles bilaterais de campo, admissão, callback
+e init. A auditoria anterior paridade-novo-vanilla-2026-10-17/inventario.md
+E02–E04 registra os limites de carrier e as fontes discriminantes; não se usa
+dump/estrutura Rust como critério. Estes observáveis são linguagem.
+
+### Responsabilidade exclusiva e aceitação
+
+Getters semânticos de Text.text; HSpace.amount/weak; VSpace.amount/weak;
+Boxed.body/width/height; Block.body/width/height projetam os carriers existentes.
+Spacing::Absolute vira Length e Fractional vira Fraction. Box.width_fraction tem
+precedência sobre width. Block.width conserva Rel completo e Block.height conserva
+Relative/Fractional. Styled não-equação conserva sua identidade e seus campos próprios; não é
+carrier transparente. Preservar os overrides de equação outer-first e as vistas
+de Source/Located/ShowRecipe/Realized.
+Não inventar medidas relativas truncadas, campos perdidos nem máscaras públicas.
+A presença estrita continua no owner content_methods; None não vira Auto assente.
+
+L0 primeiro, RED funcional e GREEN bilateral. Não alterar contrato público,
+default de produto, fase ou compatibilidade; gate A1-S1 é independente. Preservar
+1:1 e núcleos pinados; resselo após grafo válido. Build/workspace/Clippy estrito,
+Rustdoc/fmt/linhagem estrita e reversa, jobs sequenciais sob MemoryMax12GiB,
+High8GiB/swap0/jobs1. Debug0/incremental0 somente no ambiente de validação para
+reduzir picos; comparar consumo medido sem inferir ganho do produto.
+
+Contraprova de escopo: upstream foundations/content/mod.rs:761-768 declara
+Styled(child,styles), não o schema do filho. Não generalizar transparência de
+Source para Styled; `[A].text` não autoriza `text(fill:red)[A].text`.
+
+### Tipos observáveis das dimensões
+
+value-controls.json.gz no diagnóstico A1 mede que h/v absolutos expõem length,
+mas box.width e block.width absolutos expõem relative no pin novo. Sizing em
+upstream layout/container.rs:518-527 conserva Rel como Value::Relative. Portanto
+Box width/height Length armazenado vira Relative(rel:0,abs:length), fração de
+width permanece Fraction; Block já conserva Relative/Fractional. Não normalizar
+Box em Length só por o percentual ser zero. Testar type, não somente repr.
+
+
+## A1-H2 — suplemento antes das consultas, aprovado em 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
+final-freeze.json.gz e target-controls.json.gz no diagnóstico
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
+UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
+Styled de transporte altera func. Query também vê wrapper causal temporário;
+HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427 e
+pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
+de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
+Gate A1-H2 confirmado pelo dono nesta sessão: revisão
+00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
+SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
+
+### Responsabilidade exclusiva
+
+Adicionar projeção crate-private constructor_heading que reconhece somente
+Styled marcado heading.constructor=true cujo filho direto (desconsiderando
+Source) é Heading. Retorna Heading e seus Styles. Styled comum fica opaco.
+Getters dessa forma projetam supplement explicitamente armazenado, numbering
+string/none conforme gate/pattern e os campos já existentes do Heading base.
+Não remover wrappers em geral nem importar compiler a partir de entities.
+
+### Aceitação e limites
+
+H1–H8 da revisão ratificada, RED bilateral antes do código. Nenhum contrato
+público além da fachada Heading está autorizado por H2; A1-S2 cobre separadamente
+cinco helpers State. Sem novos campos públicos. Styled ordinário e demais
+callbacks conservam suas fronteiras. Workspace/doctests/build/Clippy/Rustdoc,
+fmt, V1/V5/V15/V26/reversa e V16 sem aumento; 12GiB/High8GiB/swap0/jobs1,
+comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.

@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/set — Avaliação de set rules
-Hash do Código: 0ee55a4c
+Hash do Código: 31f1223c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:2b8888460a1e6008abda0ff71603fe4dace79ff0a2a7aad598f8aabfab3e3776
@@ -289,3 +289,30 @@ público e os campos externos permanecem iguais; nenhum fallback novo ou
 supressão. Os controles e a matriz dos oito perfis permanecem; acrescentar
 verificação bilateral dos efeitos e de set com/sem feature. A suite completa
 regressa após o source freeze novo, sem reaproveitar gates de fonte alterada.
+
+## A1 — callbacks de suplemento de Heading, 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c e working tree/UTC/hash
+registrados em 00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+before-pdf-probe.json.gz: heading-supplement-panic termina em sucesso no Tekt
+e em A1_HEADING no vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
+heading-supplement-valid aceita ambos, mas só o vanilla usa Custom na referência.
+Fonte upstream model/heading.rs:249-289 sintetiza supplement por ocorrência e
+model/reference.rs:393-415 aplica a função e display. Set.rs:286-320 ignora
+supplement e limpa numbering; snapshot_fields heading.rs:55-68 fixa tradução.
+Isto é callback/valor observável, não exigência de mecânica upstream.
+
+### Decisão e responsabilidade exclusiva
+
+No target heading, avaliar argumentos uma vez no fluxo já existente e
+transportar supplement auto/none/Content/Str/Func como custom heading.supplement.
+Não chamar callback em set. Uma set somente de supplement não desativa
+numbering preexistente; só alterar numbering quando fornecido. Preservar
+outros scope-outs de heading, sem declarar suporte universal a seus campos.
+
+Correção de paridade em fluxo ADR-0127: sem nova API Rust, campo público ou
+transferência de lógica existente entre eval/layout. O pós-walk com Engine já
+é a fronteira de aplicação de callbacks. L0 primeiro, RED e controles bilaterais,
+sem callbacks em encoder/walk/layout e sem alegar paridade de todos os campos.

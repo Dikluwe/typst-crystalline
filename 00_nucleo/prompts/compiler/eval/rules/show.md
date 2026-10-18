@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/show — Avaliação de show rules
-Hash do Código: 723753bb
+Hash do Código: afa1738a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -203,3 +203,30 @@ Regressões RED→GREEN nos owners: propriedades/presence/kind/origem de Cell ex
 Sondas Content/Value/TableCellKind com variantes futuras reais em workspace descartável, cfg(test) compilado: os 18 matches finais devem exigir E0004, contando apenas uma vez cada match. Inputs e erro-testemunha cfg(test) preservados. Cargo target privado, nunca compartilhar artefatos mutantes/medições com o target principal. Gates: build, suíte workspace completa, fmt, Clippy all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc -D warnings e quatro índices, V1/V5/V15/V26 estrito e reversa, replay, diferencial SARIF completo e diff-check. V16 esperado 141→131; V19 só dos grupos prescritos; V20 sem crescimento, remover profundidade das duas projeções opcionais. Sob MemoryMax=12 GiB, swap zero, Cargo um job, comandos pesados sequenciais. Sem commit/push/merge/release ou pin CI novo.
 
 Incompletude explícita: header/footer spanning e limites entre níveis ainda exigem o pacote table-row-group-contract, com medição/L0 próprios. Nível do grupo e kind/nível semântico da Cell não são o mesmo conceito; não ratificar a inferência atual como contrato completo. Não corrigir ocupação com comprimento de Vec nem usar Source/Styles como marcador de fronteira. Preservar Grid legada. Demais casts/paint/insets ricos e compromissos históricos não são certificados por fechar V16. O objetivo geral, math-stretch-composite e as duas obrigações de matching permanecem abertos.
+
+## A1 — reparo de paridade medido em 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c; estado/UTC/fontes em
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. before-pdf-probe.json.gz
+no mesmo diagnóstico congela controles bilaterais de campo, admissão, callback
+e init. A auditoria anterior paridade-novo-vanilla-2026-10-17/inventario.md
+E02–E04 registra os limites de carrier e as fontes discriminantes; não se usa
+dump/estrutura Rust como critério. Estes observáveis são linguagem.
+
+### Responsabilidade exclusiva e aceitação
+
+Preservar mappings NodeKind e especiais page/par vigentes. O fallback de
+funções usa native_element_fields e NativeElement somente para elementos nativos
+já catalogados, incluindo text e bibliography e aliases reais. .with, closures
+e homônimos continuam rejeitados. O matching/terminação/escopo é responsabilidade
+dos owners atuais; este reparo não o duplica nem promove funções arbitrárias.
+
+L0 primeiro, RED funcional e GREEN bilateral. Não alterar contrato público,
+default de produto, fase ou compatibilidade; gate A1-S1 é independente. Preservar
+1:1 e núcleos pinados; resselo após grafo válido. Build/workspace/Clippy estrito,
+Rustdoc/fmt/linhagem estrita e reversa, jobs sequenciais sob MemoryMax12GiB,
+High8GiB/swap0/jobs1. Debug0/incremental0 somente no ambiente de validação para
+reduzir picos; comparar consumo medido sem inferir ganho do produto.

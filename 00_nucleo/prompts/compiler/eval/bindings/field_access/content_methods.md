@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access/content_methods
-Hash do Código: bd396aaa
+Hash do Código: 9b086c6c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:923f1c9e4c2fd5934316ae2eef3dbb461c3bef3009de1d8931d951e793dda342
@@ -267,3 +267,78 @@ real de getters/metadados/encoder/CLI, GREEN e corpus externo sem relaxar
 expectativas de corpo/nome. Revalidar todos os gates da etapa sob 12 GiB, swap
 zero, jobs1. Resselo só dos owners após V15/V26. FG1/SY1 permanecem incompletos
 conforme follow-ups.md; nenhuma API pendente está autorizada por esta seção.
+
+## A1 — reparo de paridade medido em 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c; estado/UTC/fontes em
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. before-pdf-probe.json.gz
+no mesmo diagnóstico congela controles bilaterais de campo, admissão, callback
+e init. A auditoria anterior paridade-novo-vanilla-2026-10-17/inventario.md
+E02–E04 registra os limites de carrier e as fontes discriminantes; não se usa
+dump/estrutura Rust como critério. Estes observáveis são linguagem.
+
+### Responsabilidade exclusiva e aceitação
+
+Presença de Text continua Set(text). H/V amount é Set; weak só Set quando
+weak_explicit, senão Unset. Box e Block: body é Set; width/height são Set quando
+transportados em Some (incluindo width_fraction de Box), senão Unset. fields
+enumera os campos em ordem width,height,body nos containers e amount,weak nos
+espaços; só inclui Set. Styled não-equação não projeta o schema do filho: preservar seu comportamento
+próprio, o guard de equação e snapshots autoritativos. Outros cosméticos desses containers
+sem presença fiel permanecem fora da fatia; não inferir explicit:false/none a
+partir do default nem afirmar paridade total desses construtores.
+
+L0 primeiro, RED funcional e GREEN bilateral. Não alterar contrato público,
+default de produto, fase ou compatibilidade; gate A1-S1 é independente. Preservar
+1:1 e núcleos pinados; resselo após grafo válido. Build/workspace/Clippy estrito,
+Rustdoc/fmt/linhagem estrita e reversa, jobs sequenciais sob MemoryMax12GiB,
+High8GiB/swap0/jobs1. Debug0/incremental0 somente no ambiente de validação para
+reduzir picos; comparar consumo medido sem inferir ganho do produto.
+
+### Limite de presença de body opcional de Box
+
+box_elem.rs:29-45 aceita body omitido e grava Content::Empty, indistinguível de
+body explícito vazio. Portanto esta fatia NÃO promove body de Box em has/at/fields
+ou na rota pública estrita: manter a ausência anterior até transporte de presença
+com contrato próprio. Box expõe somente width/height já em Option. Block exige
+body e pode expô-lo. Não criar regressão em box().fields() nem inferir presença
+pelo valor Empty. Esta cláusula supera o body Set genérico da seção A1 acima.
+
+
+## A1-H2 — suplemento antes das consultas, aprovado em 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
+final-freeze.json.gz e target-controls.json.gz no diagnóstico
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
+UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
+Styled de transporte altera func. Query também vê wrapper causal temporário;
+HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427 e
+pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
+de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
+Gate A1-H2 confirmado pelo dono nesta sessão: revisão
+00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
+SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
+
+### Responsabilidade exclusiva
+
+Usar a projeção nominal constructor_heading para func()==native_heading e para
+presença/at/has/fields, incluindo supplement e numbering explícitos. Ordem raw:
+level,depth,numbering,supplement,outlined,bookmarked,body; somente campos Set são
+emitidos, body por último. Fora das propriedades transportadas delegar ao Heading
+base. Não aceitar Styled comum de texto ou wrapper externo como Heading.
+Snapshots continuam autoritativos; não reinferir seus campos pelo estilo atual.
+
+### Aceitação e limites
+
+H1–H8 da revisão ratificada, RED bilateral antes do código. Nenhum contrato
+público além da fachada Heading está autorizado por H2; A1-S2 cobre separadamente
+cinco helpers State. Sem novos campos públicos. Styled ordinário e demais
+callbacks conservam suas fronteiras. Workspace/doctests/build/Clippy/Rustdoc,
+fmt, V1/V5/V15/V26/reversa e V16 sem aumento; 12GiB/High8GiB/swap0/jobs1,
+comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.

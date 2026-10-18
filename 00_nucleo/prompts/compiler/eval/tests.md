@@ -1,5 +1,5 @@
 # L0 — compiler/eval/tests
-Hash do Código: 384d497e
+Hash do Código: f1ee7333
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
@@ -1020,3 +1020,99 @@ A política compartilhada vem do núcleo pinado source-validation e do owner
 00_nucleo/prompts/compiler/eval/modules.md. Conferir teste legado focal,
 regressão completa, Clippy/Rustdoc estritos, linhagem e SARIF diferencial no
 novo source freeze sob MemoryMax12GiB/High10GiB/swap0/jobs1.
+
+## A1 — reparo de paridade medido em 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c; estado/UTC/fontes em
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. before-pdf-probe.json.gz
+no mesmo diagnóstico congela controles bilaterais de campo, admissão, callback
+e init. A auditoria anterior paridade-novo-vanilla-2026-10-17/inventario.md
+E02–E04 registra os limites de carrier e as fontes discriminantes; não se usa
+dump/estrutura Rust como critério. Estes observáveis são linguagem.
+
+### Responsabilidade exclusiva e aceitação
+
+Adicionar regressões A1 de linguagem no módulo de testes existente: getters
+text/h/v/box/block e presença de width/weak; bare text/bibliography/selector;
+counter(math.equation) e alias; negativos de closure/partial/não-locatabilidade;
+state init opcional. Esperados congelados do vanilla, não espelhados do código.
+State funcional requer revisão corrigida: A1-S1 foi retirada por contrariar
+init por objeto leitor. Heading tem seus próprios controles causais complementares.
+
+L0 primeiro, RED funcional e GREEN bilateral. Não alterar contrato público,
+default de produto, fase ou compatibilidade; a revisão corrigida de State é independente. Preservar
+1:1 e núcleos pinados; resselo após grafo válido. Build/workspace/Clippy estrito,
+Rustdoc/fmt/linhagem estrita e reversa, jobs sequenciais sob MemoryMax12GiB,
+High8GiB/swap0/jobs1. Debug0/incremental0 somente no ambiente de validação para
+reduzir picos; comparar consumo medido sem inferir ganho do produto.
+
+
+## A1-S2 — leitura por objeto aprovada em 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
+UTC/status/diffstat/fontes em before.json.gz e final-freeze.json.gz de
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17.
+state-counterproof.json.gz registra RED bilateral: init 1/10 da mesma chave
+após +1 exige 2/11; callback não lido não executa; atualização reutilizada
+executa por ocorrência. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3,
+upstream introspection/state.rs:226–245, 419–455 e 477–520. O init do leitor
+inicia a sequência; a ordem vem do documento, não do inteiro de Location.
+O método atual trata Func como Set e o pós-passe eager perde essa semântica.
+Estes são valores/erros de linguagem, não igualdade Rust ou algoritmo exigido.
+A1-S1 foi retirada; gate A1-S2 confirmado pelo dono nesta sessão, revisão
+00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md,
+SHA-256 6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4.
+
+### Responsabilidade exclusiva — supersede a fase histórica de State
+
+Acrescentar controles de linguagem para update funcional direto e método guardado
+em variável, com conteúdo inserido/reutilizado; a mera criação não executa.
+O init pertence a cada leitor. Não chamar State.display prova vanilla: é extensão
+Tekt. Estados com Set conservam paridade e controles anteriores.
+
+### Aceitação e fronteiras
+
+Gate A1-S2 ratificado para as cinco assinaturas e a fase de leitura. L0 primeiro,
+RED funcional antes do código; GREEN contra o pin indicado para linguagem e
+controles próprios das extensões Tekt. Não ampliar outros contratos públicos.
+Build/workspace/doctests, Clippy/Rustdoc estritos, fmt, linhagem V1/V5/V15/V26 e
+reversa; manter V16 sem aumento. MemoryMax12GiB/High8GiB/swap0/jobs1, tarefas
+pesadas sequenciais. Medir consumo sem inferir ganho global só da representação.
+
+
+## A1-H2 — suplemento antes das consultas, aprovado em 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
+final-freeze.json.gz e target-controls.json.gz no diagnóstico
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
+UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
+Styled de transporte altera func. Query também vê wrapper causal temporário;
+HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427 e
+pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
+de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
+Gate A1-H2 confirmado pelo dono nesta sessão: revisão
+00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
+SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
+
+### Responsabilidade exclusiva
+
+Adicionar controles raw: func, supplement presente, numbering:none explícito,
+campos em ordem e wrapper Styled comum opaco, incluindo texto. Comparar valores
+da linguagem, preservando negativos de ausência e sem espelhar o helper.
+
+### Aceitação e limites
+
+H1–H8 da revisão ratificada, RED bilateral antes do código. Nenhum contrato
+público além da fachada Heading está autorizado por H2; A1-S2 cobre separadamente
+cinco helpers State. Sem novos campos públicos. Styled ordinário e demais
+callbacks conservam suas fronteiras. Workspace/doctests/build/Clippy/Rustdoc,
+fmt, V1/V5/V15/V26/reversa e V16 sem aumento; 12GiB/High8GiB/swap0/jobs1,
+comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.

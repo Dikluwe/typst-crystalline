@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/from_tags.md
-//! @prompt-hash 040046e7
+//! @prompt-hash 417ab527
 //! @layer L1
 //! @updated 2026-05-05
 //!
@@ -12,13 +12,9 @@
 //! (todos os 12 ElementPayload variants). Pipeline simplificado:
 //! `walk → return` (sem etapa post-walk de construção).
 //!
-//! Função residual `apply_state_funcs` faz **slim post-pass** para
-//! `StateUpdate::Func` apenas — Funcs requerem `Engine + EvalContext`
-//! para `apply_func` (não disponíveis em walk). Caller único:
-//! `fixpoint::run_fixpoint` que tem ambos. Walk path legacy
-//! (`introspect()`, `introspect_with_introspector()`) silenciosamente
-//! ignora Funcs — coerente com semântica P171/P173 pré-P191B (sem
-//! Engine = defensive ignore).
+//! `apply_state_funcs` permanece API explícita legada; o runtime automático
+//! registra ações no walk e aplica callbacks somente quando a chave é lida.
+//! Os demais pós-processadores preservam sua fase e responsabilidade próprias.
 
 use crate::compiler::eval::call_dispatch::apply_func;
 use crate::compiler::eval::EvalContext;
@@ -35,10 +31,13 @@ use crate::entities::tag::Tag;
 mod counter_updates;
 mod displays;
 mod equations;
+mod headings;
+pub(super) use headings::apply_heading_supplements;
 mod state_updates;
 
 pub(crate) use counter_updates::{apply_bundle_counter_funcs, resolve_filtered_counter};
 pub use counter_updates::{apply_counter_funcs, realize_page_counter_snapshot};
+pub(super) use displays::apply_state_displays_checked;
 pub use displays::{apply_counter_displays, apply_state_displays};
 pub use equations::{
     apply_equation_numberings, apply_equation_supplements, realize_equation_elements,
@@ -49,6 +48,7 @@ pub use state_updates::apply_state_funcs;
 mod tests {
     use super::*;
     use crate::compiler::layout::FixedMetrics;
+    use crate::entities::content::Content;
     use crate::entities::counter::CounterKey;
     use crate::entities::element_info::ElementInfo;
     use crate::entities::location::Location;
@@ -181,6 +181,274 @@ mod tests {
             };
             $body
         }};
+    }
+
+    #[test]
+    fn a1_state_readers_keep_their_own_init() {
+        let world = make_world();
+        let content = Content::state_update(
+            "read",
+            StateUpdate::Func(Func::native("add", add_one_native)),
+        );
+        with_engine!(&world, |engine, ctx| {
+            ctx.introspector = crate::compiler::introspect::introspect_with_runtime(
+                &content,
+                &mut engine,
+                &mut ctx,
+            )
+            .unwrap();
+            ctx.in_context = true;
+            let first = crate::entities::state::State {
+                key: "read".into(),
+                init: Box::new(Value::Int(1)),
+            };
+            let second = crate::entities::state::State {
+                key: "read".into(),
+                init: Box::new(Value::Int(10)),
+            };
+            assert_eq!(
+                crate::compiler::stdlib::state::state_final(
+                    &first,
+                    &mut ctx,
+                    &mut engine,
+                    crate::entities::span::Span::detached()
+                )
+                .unwrap(),
+                Value::Int(2)
+            );
+            assert_eq!(
+                crate::compiler::stdlib::state::state_final(
+                    &second,
+                    &mut ctx,
+                    &mut engine,
+                    crate::entities::span::Span::detached()
+                )
+                .unwrap(),
+                Value::Int(11)
+            );
+        });
+    }
+
+    #[test]
+    fn a1_state_unused_callback_waits_for_a_read() {
+        fn fail(
+            _: &mut EvalContext,
+            _: &Args,
+            _: &dyn crate::contracts::world::World,
+            _: crate::entities::file_id::FileId,
+        ) -> SourceResult<Value> {
+            Err(vec![crate::entities::source_result::SourceDiagnostic::error(
+                crate::entities::span::Span::detached(),
+                "UNUSED",
+            )])
+        }
+        let world = make_world();
+        let content = Content::sequence(vec![
+            Content::state("read", Value::Int(0)),
+            Content::state_update("read", StateUpdate::Func(Func::native("fail", fail))),
+        ]);
+        with_engine!(&world, |engine, ctx| {
+            assert!(crate::compiler::introspect::introspect_with_runtime(
+                &content,
+                &mut engine,
+                &mut ctx
+            )
+            .is_ok());
+        });
+    }
+
+    #[test]
+    fn a1_state_update_context_is_absent_and_restored_after_success_and_error() {
+        fn check(
+            ctx: &mut EvalContext,
+            args: &Args,
+            _: &dyn crate::contracts::world::World,
+            _: crate::entities::file_id::FileId,
+        ) -> SourceResult<Value> {
+            assert!(!ctx.in_context);
+            assert!(ctx.current_location.is_none());
+            if args.items[0] == Value::Int(1) {
+                Ok(Value::Int(2))
+            } else {
+                Err(vec![crate::entities::source_result::SourceDiagnostic::error(
+                    crate::entities::span::Span::detached(),
+                    "FAIL",
+                )])
+            }
+        }
+        let world = make_world();
+        let content = Content::state_update(
+            "read",
+            StateUpdate::Func(Func::native("check", check)),
+        );
+        with_engine!(&world, |engine, ctx| {
+            ctx.introspector = crate::compiler::introspect::introspect_with_runtime(
+                &content,
+                &mut engine,
+                &mut ctx,
+            )
+            .unwrap();
+            ctx.in_context = true;
+            ctx.current_location = Some(loc(999));
+            for (init, succeeds) in [(1, true), (3, false)] {
+                let state = crate::entities::state::State {
+                    key: "read".into(),
+                    init: Box::new(Value::Int(init)),
+                };
+                let result = crate::compiler::stdlib::state::state_final(
+                    &state,
+                    &mut ctx,
+                    &mut engine,
+                    crate::entities::span::Span::detached(),
+                );
+                assert_eq!(result.is_ok(), succeeds);
+                assert!(ctx.in_context);
+                assert_eq!(ctx.current_location, Some(loc(999)));
+            }
+        });
+    }
+
+    #[test]
+    fn a1_heading_pending_styles_preserve_identity_and_finalize_once() {
+        fn count(
+            ctx: &mut EvalContext,
+            _: &Args,
+            _: &dyn crate::contracts::world::World,
+            _: crate::entities::file_id::FileId,
+        ) -> SourceResult<Value> {
+            assert!(!ctx.in_context);
+            assert!(ctx.current_location.is_none());
+            ctx.next_context_id += 1;
+            Ok(Value::Str(ctx.next_context_id.to_string().into()))
+        }
+        let world = make_world();
+        let content = Content::styled(
+            Content::heading(1, Content::text("A")),
+            crate::entities::style::Styles::new().push_custom(
+                "heading.supplement",
+                Value::Func(Func::native("count", count)),
+            ),
+        );
+        with_engine!(&world, |engine, ctx| {
+            let mut intr =
+                crate::compiler::introspect::introspect_with_introspector(&content);
+            let location = intr
+                .query_by_kind(crate::entities::element_kind::ElementKind::Heading)[0];
+            let pending = intr.elements[&location].clone();
+            ctx.in_context = true;
+            ctx.current_location = Some(location);
+            assert!(matches!(pending.content(), Content::Heading(_)));
+            crate::compiler::introspect::realize_heading_supplements(
+                &mut intr,
+                &mut engine,
+                &mut ctx,
+            )
+            .unwrap();
+            let realized = intr.elements[&location].clone();
+            crate::compiler::introspect::realize_heading_supplements(
+                &mut intr,
+                &mut engine,
+                &mut ctx,
+            )
+            .unwrap();
+            assert_eq!(ctx.next_context_id, 1);
+            assert!(ctx.in_context);
+            assert_eq!(ctx.current_location, Some(location));
+            assert_eq!(
+                realized.fields().unwrap().get("supplement"),
+                Some(&Value::Content(Content::text("1")))
+            );
+            assert_eq!(intr.elements[&location], realized);
+            assert!(pending.heading_styles().is_some());
+            assert!(matches!(
+                pending.fields().unwrap().get("supplement"),
+                Some(Value::Func(_))
+            ));
+            assert!(realized.heading_styles().is_none());
+        });
+    }
+
+    #[test]
+    fn a1_heading_supplement_executes_callback_and_publishes_content() {
+        fn callback(
+            _: &mut EvalContext,
+            args: &Args,
+            _: &dyn crate::contracts::world::World,
+            _: crate::entities::file_id::FileId,
+        ) -> SourceResult<Value> {
+            let Value::LocatedContent(heading, _) = &args.items[0] else {
+                panic!("callback must receive its heading occurrence");
+            };
+            assert_eq!(heading.fields().unwrap().get("depth"), Some(&Value::Int(2)));
+            Ok(Value::Str("Custom".into()))
+        }
+        let world = make_world();
+        let content = Content::styled(
+            Content::heading(2, Content::text("Body")),
+            crate::entities::style::Styles::from_delta(
+                StyleChain::empty()
+                    .push_custom(
+                        "heading.supplement",
+                        Value::Func(Func::native("callback", callback)),
+                    )
+                    .collapse(),
+            ),
+        );
+        with_engine!(&world, |engine, ctx| {
+            let intr = crate::compiler::introspect::introspect_with_runtime(
+                &content,
+                &mut engine,
+                &mut ctx,
+            )
+            .unwrap();
+            let entry = intr
+                .elements
+                .values()
+                .find(|entry| {
+                    entry.fields().is_some_and(|fields| fields.contains_key("depth"))
+                })
+                .unwrap();
+            assert_eq!(
+                entry.fields().unwrap().get("supplement"),
+                Some(&Value::Content(Content::text("Custom")))
+            );
+        });
+    }
+
+    #[test]
+    fn a1_heading_supplement_callback_error_is_not_ignored() {
+        fn callback(
+            _: &mut EvalContext,
+            _: &Args,
+            _: &dyn crate::contracts::world::World,
+            _: crate::entities::file_id::FileId,
+        ) -> SourceResult<Value> {
+            Err(vec![crate::entities::source_result::SourceDiagnostic::error(
+                crate::entities::span::Span::detached(),
+                "A1_HEADING",
+            )])
+        }
+        let world = make_world();
+        let content = Content::styled(
+            Content::heading(1, Content::text("Body")),
+            crate::entities::style::Styles::from_delta(
+                StyleChain::empty()
+                    .push_custom(
+                        "heading.supplement",
+                        Value::Func(Func::native("callback", callback)),
+                    )
+                    .collapse(),
+            ),
+        );
+        with_engine!(&world, |engine, ctx| {
+            let error = crate::compiler::introspect::introspect_with_runtime(
+                &content,
+                &mut engine,
+                &mut ctx,
+            )
+            .unwrap_err();
+            assert_eq!(error[0].message, "A1_HEADING");
+        });
     }
 
     #[test]

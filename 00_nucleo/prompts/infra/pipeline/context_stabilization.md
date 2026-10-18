@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/context_stabilization
-Hash do Código: 28b637ae
+Hash do Código: 57c6c9b4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:b4372cbdd36e0e25377d1258638a6859bcc88c9e584b91b377a2a12d0d66135f
@@ -322,3 +322,37 @@ Usar retired: Vec<Execution>; ao retirar o Box de current, mover *previous/*old/
 Teste de retenção usa Session.execute real e um Value::Version com Arc/Weak como testemunha de lifetime: após remover a outra cadeia proprietária, o valor deve sobreviver na execução atual, na aposentada e depois do crescimento real do Vec, e ser liberado ao sair da sessão. Confirmar mesma identidade de input e manutenção dos testes de replay/gerações existentes. Contagem de Arc é testemunha mecânica de retenção, não paridade da linguagem. Controles existentes de target/capturas/HTML/bundle/PDF permanecem; não criar teste que apenas reflita a sintaxe do container.
 
 Fluxo contínuo ADR-0127: somente campos privados e representação interna, sem API pública, default ou fase novos. L0 precede testes/código e resselo restrito. RED de dead_code/vec_box antes da correção, GREEN dos três spans selecionados; nenhum allow/expect novo, nem elevar limiar. O wrapper subset_font é decisão separada do seu owner. Validar build, Clippy all-targets/expectativas, suíte workspace completa, Rustdoc, formato e linhagem estrita/reversa, sem novos avisos Tekt, sob 12 GiB, swap zero e um job. Não inferir ganho de memória/tempo desta refatoração sem medição pareada própria.
+
+
+## A1-H2 — suplemento antes das consultas, aprovado em 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
+final-freeze.json.gz e target-controls.json.gz no diagnóstico
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
+UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
+Styled de transporte altera func. Query também vê wrapper causal temporário;
+HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427 e
+pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
+de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
+Gate A1-H2 confirmado pelo dono nesta sessão: revisão
+00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
+SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
+
+### Responsabilidade exclusiva
+
+No ramo de runtime candidato não bundle, fornecer self.target/self.features ao
+helper privado de introspecção, em vez de defaults Paged/sem features. Manter
+bundle existente, seleção, 5 tentativas, ordem de produtores, snapshots e cache
+de métricas. Nenhuma lógica de fold ou callback de Heading passa para L3.
+
+### Aceitação e limites
+
+H1–H8 da revisão ratificada, RED bilateral antes do código. Nenhum contrato
+público além da fachada Heading está autorizado por H2; A1-S2 cobre separadamente
+cinco helpers State. Sem novos campos públicos. Styled ordinário e demais
+callbacks conservam suas fronteiras. Workspace/doctests/build/Clippy/Rustdoc,
+fmt, V1/V5/V15/V26/reversa e V16 sem aumento; 12GiB/High8GiB/swap0/jobs1,
+comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.

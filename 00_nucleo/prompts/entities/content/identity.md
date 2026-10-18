@@ -1,5 +1,5 @@
 # L0 — entities/content/identity
-Hash do Código: 62253fd1
+Hash do Código: 2c607dd6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
@@ -243,3 +243,16 @@ formato Rust e mecanismo de reconstrução são mecânica.
 O nome da variante Transform é move/rotate/scale/skew conforme operation, nunca inferido pela matriz. Matrix continua transform. Debug transporta operation e body.
 
 Testar RED→GREEN e revalidar os caminhos dependentes; o build não fecha X1–X5.
+
+## A1-H2 — identidade do transporte de construção Heading
+
+Medição anterior: target-controls.json.gz no diagnóstico
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 mostra
+heading-raw-constructor-func regressando para styled; identity.rs:26 fixa esse
+nome para todo Styled. Usar somente a projeção nominal constructor_heading,
+ratificada na revisão A1-H2 SHA-256
+66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c,
+para elem_name devolver heading nessa forma. Styled externo/não marcado mantém
+styled. Não remover wrappers em geral nem alterar debug estrutural ou assinaturas.
+Isso conserva nomes corretos de erro de campo; L0 antes do código e testes
+func/campos/erro/Styled opaco, sem nova API além da fachada já ratificada.

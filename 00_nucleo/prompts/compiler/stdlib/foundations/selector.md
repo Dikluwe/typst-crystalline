@@ -1,5 +1,5 @@
 # L0 — stdlib/foundations/selector
-Hash do Código: 82991e7e
+Hash do Código: 429d7dea
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:a37779d03a4ba0f16ebcc5919477bfdcf783021511a28cf8c9203c67cd64a9e5
@@ -112,3 +112,35 @@ Correção interna ADR-0127: apenas esse erro de reconhecimento em native_select
 usa o primeiro value_span posicional não detached, com fallback args.span;
 preservar a mensagem, classificação e demais branches. RED→GREEN de aplicação
 parcial e revalidação bilateral fecham o diagnóstico, sem nova API ou fase.
+
+## A1 — reparo de paridade medido em 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c; estado/UTC/fontes em
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. before-pdf-probe.json.gz
+no mesmo diagnóstico congela controles bilaterais de campo, admissão, callback
+e init. A auditoria anterior paridade-novo-vanilla-2026-10-17/inventario.md
+E02–E04 registra os limites de carrier e as fontes discriminantes; não se usa
+dump/estrutura Rust como critério. Estes observáveis são linguagem.
+
+### Responsabilidade exclusiva e aceitação
+
+Para funções nativas do catálogo native_element_fields já existente, a
+construção/parsing bare admite NativeElement quando não houver a conversão Kind
+legada. Não executar constructor e não comparar pelo nome. .with/closure/homônimo
+não ganham identidade de elemento. Preservar Kind legados e a distinção bare
+versus where vazio; construção não valida locatabilidade. Query/counter continuam
+validando locatabilidade em suas fronteiras. Esta seção supersede a restrição
+histórica de não promover outras funções, somente para elementos já catalogados.
+
+L0 primeiro, RED funcional e GREEN bilateral. Não alterar contrato público,
+default de produto, fase ou compatibilidade; gate A1-S1 é independente. Preservar
+1:1 e núcleos pinados; resselo após grafo válido. Build/workspace/Clippy estrito,
+Rustdoc/fmt/linhagem estrita e reversa, jobs sequenciais sob MemoryMax12GiB,
+High8GiB/swap0/jobs1. Debug0/incremental0 somente no ambiente de validação para
+reduzir picos; comparar consumo medido sem inferir ganho do produto.
+
+Converter também a função real native_footnote em Kind(Footnote), preservando
+a chave existente do counter e a igualdade bare versus selector(f).

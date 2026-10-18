@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/html.md
-//! @prompt-hash a781cb31
+//! @prompt-hash 516baa19
 //! @layer L3
 //! @updated 2026-10-05
 //!
@@ -99,10 +99,20 @@ pub fn compile_to_html_string_with_features_and_serialization_and_pretty_overrid
         let content = module.content().cloned().unwrap_or(Content::Empty);
         let format_options = collect_document_format_options(&content)?;
         let pretty = resolve_html_pretty(pretty_override, &format_options);
-        let intr = module
+        let mut intr = module
             .realization_introspector()
             .cloned()
             .unwrap_or_else(|| introspect_with_introspector(&content));
+        let (supplements, supplement_warnings) =
+            super::runtime::prepare_heading_supplements(
+                &mut intr,
+                world,
+                source,
+                EvalTarget::Html,
+                features,
+            );
+        warnings.extend(supplement_warnings);
+        supplements?;
         let (prepared, contextual_warnings) = context_stabilization::prepare_html(
             content, &intr, world, source, false, features,
         );

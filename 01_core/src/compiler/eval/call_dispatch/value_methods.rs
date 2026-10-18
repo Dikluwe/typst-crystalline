@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch/value_methods.md
-//! @prompt-hash 48661d31
+//! @prompt-hash 09c6fe39
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -399,12 +399,15 @@ pub(super) fn dispatch_p1284_value_method(
         }
         Value::State(state) => {
             use crate::compiler::stdlib::state::{
-                state_at_location, state_final, state_get, state_update,
+                state_at_location, state_final, state_get,
             };
             match method {
                 "update" => match args.items.as_slice() {
                     [value] if args.named.is_empty() => {
-                        Ok(state_update(state.key.clone(), value.clone()))
+                        Ok(crate::compiler::stdlib::state::state_method_update(
+                            state.key.clone(),
+                            value.clone(),
+                        ))
                     }
                     _ => Err(vec![SourceDiagnostic::error(
                         args.span,
@@ -413,15 +416,15 @@ pub(super) fn dispatch_p1284_value_method(
                 },
                 "get" => {
                     p1284_no_args(&args)?;
-                    state_get(&state, ctx, args.span)
+                    state_get(&state, ctx, engine, args.span)
                 }
                 "final" => {
                     p1284_no_args(&args)?;
-                    state_final(&state, ctx, args.span)
+                    state_final(&state, ctx, engine, args.span)
                 }
                 "at" => match args.items.as_slice() {
                     [Value::Location(location)] if args.named.is_empty() => {
-                        state_at_location(&state, *location, ctx, args.span)
+                        state_at_location(&state, *location, ctx, engine, args.span)
                     }
                     [other] => Err(vec![SourceDiagnostic::error(
                         args.span,

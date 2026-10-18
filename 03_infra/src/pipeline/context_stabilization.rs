@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization.md
-//! @prompt-hash 1c08244c
+//! @prompt-hash 737dcec1
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -548,7 +548,13 @@ impl<'a> Session<'a> {
                 );
                 (result.map(|(intr, _starts)| intr), warnings)
             } else {
-                introspect_with_runtime_for_pipeline(&content, self.world, self.source)
+                super::paged::introspect_with_runtime_for_target(
+                    &content,
+                    self.world,
+                    self.source,
+                    self.target,
+                    self.features,
+                )
             };
             let mut candidate = match runtime {
                 Ok(intr) => intr,

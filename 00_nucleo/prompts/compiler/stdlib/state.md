@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/state` — objeto `state` e métodos
-Hash do Código: 56c1b323
+Hash do Código: 7479f57f
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/state/language-semantics.toml sha256:27acb21a5e0b2e0cb3b65de61bba5266158f3e9828392fe92a1a3b160e9d61a4
@@ -278,3 +278,88 @@ Continuam vigentes a leitura contextual produtiva, a aplicação única do
 callback real, seus argumentos, resultado, erro e conversão em conteúdo.
 Nenhum callback adicional nem evento fabricado substitui o hook removido.
 Instrumentação futura requer nova medição, atualização L0 e `cfg` formalizado.
+
+## A1 — reparo de paridade medido em 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c; estado/UTC/fontes em
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. before-pdf-probe.json.gz
+no mesmo diagnóstico congela controles bilaterais de campo, admissão, callback
+e init. A auditoria anterior paridade-novo-vanilla-2026-10-17/inventario.md
+E02–E04 registra os limites de carrier e as fontes discriminantes; não se usa
+dump/estrutura Rust como critério. Estes observáveis são linguagem.
+
+### Responsabilidade exclusiva e aceitação
+
+state(key) é válido, com init Value::None; state(key,init) conserva init.
+Rejeitar chave não-string, nomeados e aridade fora de 1–2 sem avaliar nada extra.
+Esta seção supersede o teste histórico que rejeitava state("total"). A correção
+de paridade não muda campo/assinatura Rust. A proposta A1-S1 de transportar init no update foi retirada: upstream
+introspection/state.rs:226–245 e 477–520 exige init do objeto leitor e callbacks
+sob demanda. Replay funcional depende de revisão corrigida separada; não simular essa informação
+por estado global, Sequence auxiliar ou execução antecipada de callback.
+
+L0 primeiro, RED funcional e GREEN bilateral. Não alterar contrato público,
+default de produto, fase ou compatibilidade; a revisão corrigida de State é independente. Preservar
+1:1 e núcleos pinados; resselo após grafo válido. Build/workspace/Clippy estrito,
+Rustdoc/fmt/linhagem estrita e reversa, jobs sequenciais sob MemoryMax12GiB,
+High8GiB/swap0/jobs1. Debug0/incremental0 somente no ambiente de validação para
+reduzir picos; comparar consumo medido sem inferir ganho do produto.
+
+
+## A1-S2 — leitura por objeto aprovada em 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
+UTC/status/diffstat/fontes em before.json.gz e final-freeze.json.gz de
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17.
+state-counterproof.json.gz registra RED bilateral: init 1/10 da mesma chave
+após +1 exige 2/11; callback não lido não executa; atualização reutilizada
+executa por ocorrência. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3,
+upstream introspection/state.rs:226–245, 419–455 e 477–520. O init do leitor
+inicia a sequência; a ordem vem do documento, não do inteiro de Location.
+O método atual trata Func como Set e o pós-passe eager perde essa semântica.
+Estes são valores/erros de linguagem, não igualdade Rust ou algoritmo exigido.
+A1-S1 foi retirada; gate A1-S2 confirmado pelo dono nesta sessão, revisão
+00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md,
+SHA-256 6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4.
+
+### Responsabilidade exclusiva — supersede a fase histórica de State
+
+Modernos get/at/final resolvem a sequência de ações a partir do init do receiver.
+Capturar o resultado completo (inclusive erro) na observação causal existente.
+Display de State lê o mesmo valor antes de sua callback; essa extensão Tekt não
+é método do vanilla atual. Replay delega a leitura com Engine, conserva contexto
+capturado e não reaplica a callback externa de display nem o corpo contextual.
+
+Alterar apenas as cinco assinaturas ratificadas: state_get/state_final recebem
+(state: &State, ctx: &mut EvalContext, engine: &mut Engine<'_>, span: Span);
+state_at_location recebe state, Location, ctx mutável, Engine mutável, Span.
+Todas retornam SourceResult<Value>. native_state_final/native_state_at passam
+a (ctx,args,world,current_file,scopes,engine) no ABI NativeFuncWithEngine já
+existente. Sem novos campos públicos, variantes públicas ou mudança de traits.
+
+Declarar descendente privado state/resolve.rs para o fold. Adapter crate-private
+state_method_update projeta Func em StateUpdate::Func e delega outros valores
+a state_update; este helper público antigo permanece construtor Set com mesma
+assinatura. Leituras legadas por key começam em init legado elegível ou None,
+compartilham ações modernas/legadas, e mantêm ausência de chave/label/validação.
+Adapters sem ações preservam fixtures/valores materializados da API legada.
+O helper privado de leitura legada com registry explícito também serve displays.
+
+Testes R1–R12 antes do código, incluindo callback não lido, init por objeto,
+Func/Set/Func, erro, captura e contexto restaurado. Preservar coerções de display
+que não pertencem a este reparo. As cláusulas antigas que fixavam leituras sem
+Engine, update Func fora do escopo ou replay sempre materializado são sucedidas.
+
+### Aceitação e fronteiras
+
+Gate A1-S2 ratificado para as cinco assinaturas e a fase de leitura. L0 primeiro,
+RED funcional antes do código; GREEN contra o pin indicado para linguagem e
+controles próprios das extensões Tekt. Não ampliar outros contratos públicos.
+Build/workspace/doctests, Clippy/Rustdoc estritos, fmt, linhagem V1/V5/V15/V26 e
+reversa; manter V16 sem aumento. MemoryMax12GiB/High8GiB/swap0/jobs1, tarefas
+pesadas sequenciais. Medir consumo sem inferir ganho global só da representação.

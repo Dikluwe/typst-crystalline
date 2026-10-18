@@ -1,5 +1,5 @@
 # L0 — introspect
-Hash do Código: e9b71363
+Hash do Código: fb704189
 
 ```text
 Núcleos Tekt:
@@ -215,3 +215,45 @@ are recorded in
 ## Realização com avaliação única
 
 Serviço interno de reserva de IDs do walk é acessível a layout, mantendo ownership do algoritmo em introspect/walk.
+
+## A1-S2 — import nominal de operações State
+
+Medição: state-green.log do diagnóstico lote-a1-callbacks-reflexao-seletores-2026-10-17
+registra import StateUpdate sem uso após populate delegar ações ao registry.
+Retirar somente esse import do hub; from_tags conserva seu import próprio e o
+helper público de aplicação explícita legada. A fase automática de leitura foi
+ratificada em A1-S2, revisão SHA-256
+6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4.
+Não mover a lógica dos filhos nem ampliar qualquer contrato deste hub.
+
+
+## A1-H2 — suplemento antes das consultas, aprovado em 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
+final-freeze.json.gz e target-controls.json.gz no diagnóstico
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
+UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
+Styled de transporte altera func. Query também vê wrapper causal temporário;
+HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427 e
+pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
+de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
+Gate A1-H2 confirmado pelo dono nesta sessão: revisão
+00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
+SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
+
+### Responsabilidade exclusiva
+
+Reexportar a nova fachada realize_heading_supplements de entrypoints, com o
+contrato público exato A1-H2. Sem lógica de realização neste hub nem novo trait.
+
+### Aceitação e limites
+
+H1–H8 da revisão ratificada, RED bilateral antes do código. Nenhum contrato
+público além da fachada Heading está autorizado por H2; A1-S2 cobre separadamente
+cinco helpers State. Sem novos campos públicos. Styled ordinário e demais
+callbacks conservam suas fronteiras. Workspace/doctests/build/Clippy/Rustdoc,
+fmt, V1/V5/V15/V26/reversa e V16 sem aumento; 12GiB/High8GiB/swap0/jobs1,
+comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/tests/table_grid.md
-//! @prompt-hash af65acbd
+//! @prompt-hash b18daf99
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -951,12 +951,16 @@ fn p235_native_table_cell_inset_paridade_gridcell() {
 #[test]
 fn p236_state_final_introspector_vazio_retorna_none() {
     null_ctx!(ctx);
-    let r = native_state_final(
-        &mut ctx,
-        &p(vec![Value::Str("counter_x".into())]),
-        &null_world(),
-        test_file_id(),
-    )
+    let r = with_engine(|engine, world| {
+        native_state_final(
+            &mut ctx,
+            &p(vec![Value::Str("counter_x".into())]),
+            world,
+            test_file_id(),
+            &mut Scopes::new(None),
+            engine,
+        )
+    })
     .unwrap();
     // Iter 0 fixpoint: introspector vazio → None.
     assert_eq!(r, Value::None);
@@ -970,12 +974,16 @@ fn p236_state_final_apos_init_retorna_init_value() {
     ctx.introspector
         .state
         .init("k".to_string(), Value::Int(42), Location::from_raw(1));
-    let r = native_state_final(
-        &mut ctx,
-        &p(vec![Value::Str("k".into())]),
-        &null_world(),
-        test_file_id(),
-    )
+    let r = with_engine(|engine, world| {
+        native_state_final(
+            &mut ctx,
+            &p(vec![Value::Str("k".into())]),
+            world,
+            test_file_id(),
+            &mut Scopes::new(None),
+            engine,
+        )
+    })
     .unwrap();
     // Sem updates → final = init.
     assert_eq!(r, Value::Int(42));
@@ -994,12 +1002,16 @@ fn p236_state_final_apos_updates_retorna_ultimo_valor() {
     ctx.introspector
         .state
         .update("k".to_string(), Value::Int(99), Location::from_raw(3));
-    let r = native_state_final(
-        &mut ctx,
-        &p(vec![Value::Str("k".into())]),
-        &null_world(),
-        test_file_id(),
-    )
+    let r = with_engine(|engine, world| {
+        native_state_final(
+            &mut ctx,
+            &p(vec![Value::Str("k".into())]),
+            world,
+            test_file_id(),
+            &mut Scopes::new(None),
+            engine,
+        )
+    })
     .unwrap();
     // Último update vence — paridade vanilla state.final().
     assert_eq!(r, Value::Int(99));
@@ -1015,12 +1027,16 @@ fn p236_state_final_key_inexistente_retorna_none() {
         Value::Int(7),
         Location::from_raw(1),
     );
-    let r = native_state_final(
-        &mut ctx,
-        &p(vec![Value::Str("inexistente".into())]),
-        &null_world(),
-        test_file_id(),
-    )
+    let r = with_engine(|engine, world| {
+        native_state_final(
+            &mut ctx,
+            &p(vec![Value::Str("inexistente".into())]),
+            world,
+            test_file_id(),
+            &mut Scopes::new(None),
+            engine,
+        )
+    })
     .unwrap();
     assert_eq!(r, Value::None);
 }
@@ -1028,19 +1044,32 @@ fn p236_state_final_key_inexistente_retorna_none() {
 #[test]
 fn p236_state_final_arg_nao_string_retorna_err() {
     null_ctx!(ctx);
-    let r = native_state_final(
-        &mut ctx,
-        &p(vec![Value::Int(42)]),
-        &null_world(),
-        test_file_id(),
-    );
+    let r = with_engine(|engine, world| {
+        native_state_final(
+            &mut ctx,
+            &p(vec![Value::Int(42)]),
+            world,
+            test_file_id(),
+            &mut Scopes::new(None),
+            engine,
+        )
+    });
     assert!(r.is_err(), "arg não-string deve retornar Err");
 }
 
 #[test]
 fn p236_state_final_zero_args_retorna_err() {
     null_ctx!(ctx);
-    let r = native_state_final(&mut ctx, &p(vec![]), &null_world(), test_file_id());
+    let r = with_engine(|engine, world| {
+        native_state_final(
+            &mut ctx,
+            &p(vec![]),
+            world,
+            test_file_id(),
+            &mut Scopes::new(None),
+            engine,
+        )
+    });
     assert!(r.is_err(), "zero args deve retornar Err");
 }
 
@@ -1048,12 +1077,16 @@ fn p236_state_final_zero_args_retorna_err() {
 fn p237_state_at_label_inexistente_retorna_none() {
     null_ctx!(ctx);
     // Sem labels nem state populados; label_str não resolve.
-    let r = native_state_at(
-        &mut ctx,
-        &p(vec![Value::Str("k".into()), Value::Str("intro".into())]),
-        &null_world(),
-        test_file_id(),
-    )
+    let r = with_engine(|engine, world| {
+        native_state_at(
+            &mut ctx,
+            &p(vec![Value::Str("k".into()), Value::Str("intro".into())]),
+            world,
+            test_file_id(),
+            &mut Scopes::new(None),
+            engine,
+        )
+    })
     .unwrap();
     // Paridade counter_at empty default: state_at retorna Value::None.
     assert_eq!(r, Value::None);
@@ -1073,12 +1106,16 @@ fn p237_state_at_key_inexistente_retorna_none() {
         Value::Int(7),
         Location::from_raw(5),
     );
-    let r = native_state_at(
-        &mut ctx,
-        &p(vec![Value::Str("inexistente".into()), Value::Str("intro".into())]),
-        &null_world(),
-        test_file_id(),
-    )
+    let r = with_engine(|engine, world| {
+        native_state_at(
+            &mut ctx,
+            &p(vec![Value::Str("inexistente".into()), Value::Str("intro".into())]),
+            world,
+            test_file_id(),
+            &mut Scopes::new(None),
+            engine,
+        )
+    })
     .unwrap();
     assert_eq!(r, Value::None);
 }
@@ -1095,12 +1132,16 @@ fn p237_state_at_resolve_label_retorna_init() {
     ctx.introspector
         .state
         .init("k".to_string(), Value::Int(42), Location::from_raw(1));
-    let r = native_state_at(
-        &mut ctx,
-        &p(vec![Value::Str("k".into()), Value::Str("intro".into())]),
-        &null_world(),
-        test_file_id(),
-    )
+    let r = with_engine(|engine, world| {
+        native_state_at(
+            &mut ctx,
+            &p(vec![Value::Str("k".into()), Value::Str("intro".into())]),
+            world,
+            test_file_id(),
+            &mut Scopes::new(None),
+            engine,
+        )
+    })
     .unwrap();
     // Sem updates entre init e label → init wins.
     assert_eq!(r, Value::Int(42));
@@ -1124,12 +1165,16 @@ fn p237_state_at_updates_antes_location_visivel() {
     ctx.introspector
         .state
         .update("k".to_string(), Value::Int(3), Location::from_raw(3));
-    let r = native_state_at(
-        &mut ctx,
-        &p(vec![Value::Str("k".into()), Value::Str("at_5".into())]),
-        &null_world(),
-        test_file_id(),
-    )
+    let r = with_engine(|engine, world| {
+        native_state_at(
+            &mut ctx,
+            &p(vec![Value::Str("k".into()), Value::Str("at_5".into())]),
+            world,
+            test_file_id(),
+            &mut Scopes::new(None),
+            engine,
+        )
+    })
     .unwrap();
     // Valor em location=5 reflecte último update <= 5: Int(3).
     assert_eq!(r, Value::Int(3));
@@ -1150,12 +1195,16 @@ fn p237_state_at_updates_depois_location_nao_visiveis() {
     ctx.introspector
         .state
         .update("k".to_string(), Value::Int(99), Location::from_raw(5));
-    let r = native_state_at(
-        &mut ctx,
-        &p(vec![Value::Str("k".into()), Value::Str("at_2".into())]),
-        &null_world(),
-        test_file_id(),
-    )
+    let r = with_engine(|engine, world| {
+        native_state_at(
+            &mut ctx,
+            &p(vec![Value::Str("k".into()), Value::Str("at_2".into())]),
+            world,
+            test_file_id(),
+            &mut Scopes::new(None),
+            engine,
+        )
+    })
     .unwrap();
     // Em location=2: só init (raw 1) visível; update raw 5 invisível.
     assert_eq!(r, Value::Int(10));
@@ -1165,20 +1214,28 @@ fn p237_state_at_updates_depois_location_nao_visiveis() {
 fn p237_state_at_arg_nao_string_rejeita() {
     null_ctx!(ctx);
     // Key Int (não Str).
-    let r = native_state_at(
-        &mut ctx,
-        &p(vec![Value::Int(42), Value::Str("intro".into())]),
-        &null_world(),
-        test_file_id(),
-    );
+    let r = with_engine(|engine, world| {
+        native_state_at(
+            &mut ctx,
+            &p(vec![Value::Int(42), Value::Str("intro".into())]),
+            world,
+            test_file_id(),
+            &mut Scopes::new(None),
+            engine,
+        )
+    });
     assert!(r.is_err(), "key não-string deve retornar Err");
     // Label Int (não Str).
-    let r2 = native_state_at(
-        &mut ctx,
-        &p(vec![Value::Str("k".into()), Value::Int(7)]),
-        &null_world(),
-        test_file_id(),
-    );
+    let r2 = with_engine(|engine, world| {
+        native_state_at(
+            &mut ctx,
+            &p(vec![Value::Str("k".into()), Value::Int(7)]),
+            world,
+            test_file_id(),
+            &mut Scopes::new(None),
+            engine,
+        )
+    });
     assert!(r2.is_err(), "label não-string deve retornar Err");
 }
 
@@ -1186,23 +1243,40 @@ fn p237_state_at_arg_nao_string_rejeita() {
 fn p237_state_at_arity_errada_rejeita() {
     null_ctx!(ctx);
     // 0 args.
-    let r0 = native_state_at(&mut ctx, &p(vec![]), &null_world(), test_file_id());
+    let r0 = with_engine(|engine, world| {
+        native_state_at(
+            &mut ctx,
+            &p(vec![]),
+            world,
+            test_file_id(),
+            &mut Scopes::new(None),
+            engine,
+        )
+    });
     assert!(r0.is_err(), "0 args deve retornar Err");
     // 1 arg.
-    let r1 = native_state_at(
-        &mut ctx,
-        &p(vec![Value::Str("k".into())]),
-        &null_world(),
-        test_file_id(),
-    );
+    let r1 = with_engine(|engine, world| {
+        native_state_at(
+            &mut ctx,
+            &p(vec![Value::Str("k".into())]),
+            world,
+            test_file_id(),
+            &mut Scopes::new(None),
+            engine,
+        )
+    });
     assert!(r1.is_err(), "1 arg deve retornar Err");
     // 3 args.
-    let r3 = native_state_at(
-        &mut ctx,
-        &p(vec![Value::Str("k".into()), Value::Str("l".into()), Value::Int(1)]),
-        &null_world(),
-        test_file_id(),
-    );
+    let r3 = with_engine(|engine, world| {
+        native_state_at(
+            &mut ctx,
+            &p(vec![Value::Str("k".into()), Value::Str("l".into()), Value::Int(1)]),
+            world,
+            test_file_id(),
+            &mut Scopes::new(None),
+            engine,
+        )
+    });
     assert!(r3.is_err(), "3 args deve retornar Err");
 }
 

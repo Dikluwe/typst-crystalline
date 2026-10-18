@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access/content_methods.md
-//! @prompt-hash 9091b26d
+//! @prompt-hash 43834372
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -41,6 +41,15 @@ pub(super) fn content_field(
     use crate::entities::elements::heading::{
         HEADING_SET_DEPTH, HEADING_SET_LEVEL, HEADING_SET_OUTLINED,
     };
+    if let Some((base, _)) = c.constructor_heading() {
+        return match field {
+            "supplement" | "numbering" => c
+                .get_field(field)
+                .map(ContentField::Set)
+                .unwrap_or(ContentField::Unset),
+            _ => content_field(base, field),
+        };
+    }
     match c {
         Content::Source(e) => content_field(&e.body, field),
         Content::Located(e) => content_field(&e.body, field),
@@ -70,6 +79,32 @@ pub(super) fn content_field(
                 content_field(child, field)
             }
         }
+        Content::HSpace(e) => match field {
+            "amount" => ContentField::Set(c.get_field(field).expect("spacing amount")),
+            "weak" if e.weak_explicit => ContentField::Set(Value::Bool(e.weak)),
+            "weak" => ContentField::Unset,
+            _ => ContentField::Undeclared,
+        },
+        Content::VSpace(e) => match field {
+            "amount" => ContentField::Set(Value::Length(e.amount)),
+            "weak" if e.weak_explicit => ContentField::Set(Value::Bool(e.weak)),
+            "weak" => ContentField::Unset,
+            _ => ContentField::Undeclared,
+        },
+        Content::Boxed(_) => match field {
+            "width" | "height" => c
+                .get_field(field)
+                .map(ContentField::Set)
+                .unwrap_or(ContentField::Unset),
+            _ => ContentField::Undeclared,
+        },
+        Content::Block(_) => match field {
+            "width" | "height" | "body" => c
+                .get_field(field)
+                .map(ContentField::Set)
+                .unwrap_or(ContentField::Unset),
+            _ => ContentField::Undeclared,
+        },
         Content::Transform(e) => {
             use crate::entities::elements::transform::TransformOperation;
             let declared = match e.operation {
@@ -203,6 +238,9 @@ pub(super) fn content_set_fields(
     use crate::entities::content::Content;
     let c = c.source_body();
     let candidates: &[&'static str] = match c {
+        Content::HSpace(_) | Content::VSpace(_) => &["amount", "weak"],
+        Content::Boxed(_) => &["width", "height"],
+        Content::Block(_) => &["width", "height", "body"],
         Content::FigureCaption(_) => &["position", "separator", "body"],
         Content::MathMatrix(_) => {
             &["delim", "align", "augment", "row-gap", "column-gap", "rows"]
@@ -235,6 +273,15 @@ pub(super) fn content_set_fields(
         Content::MathUndershell(_) => &["body"],
         Content::MathStretch(e) if e.size_explicit => &["body", "size"],
         Content::MathStretch(_) => &["body"],
+        Content::Styled(_) if c.constructor_heading().is_some() => &[
+            "level",
+            "depth",
+            "numbering",
+            "supplement",
+            "outlined",
+            "bookmarked",
+            "body",
+        ],
         Content::Styled(styled) if equation_descendant(&styled.body).is_some() => {
             &["block", "numbering", "number-align", "supplement", "alt", "body"]
         }
@@ -313,6 +360,9 @@ pub(super) fn content_elem_func(c: &crate::entities::content::Content) -> Value 
         Content::Strong(_) => crate::compiler::stdlib::native_strong,
         Content::Emph(_) => crate::compiler::stdlib::native_emph,
         Content::Heading(_) => crate::compiler::stdlib::native_heading,
+        Content::Styled(_) if c.constructor_heading().is_some() => {
+            crate::compiler::stdlib::native_heading
+        }
         Content::Title(_) => crate::compiler::stdlib::native_title,
         Content::Raw(_) => crate::compiler::stdlib::native_raw,
         Content::Transform(e) => match e.operation {

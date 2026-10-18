@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 8133961c
+//! @prompt-hash 1c46147d
 //! @layer L1
 //! @updated 2026-10-16
 //!
@@ -183,8 +183,12 @@ mod p1339_observer_local_tests {
             key: "read".into(),
             init: Box::new(Value::Int(1)),
         };
-        let body =
-            crate::compiler::stdlib::state::state_get(&state, &ctx, Span::detached());
+        let body = crate::compiler::stdlib::state::state_get(
+            &state,
+            &mut ctx,
+            &mut engine,
+            Span::detached(),
+        );
         assert_eq!(
             body.observation_relation(&Ok(Value::Int(1))),
             ObservationRelation::Same
@@ -195,7 +199,11 @@ mod p1339_observer_local_tests {
         ctx.in_context = false;
         ctx.current_location = None;
         assert!(ctx.context_reads_valid_for(&candidate, &mut engine).unwrap());
-        candidate.state.init("read".into(), Value::Int(2), location);
+        candidate.state.record_action(
+            "read",
+            &crate::entities::state_update::StateUpdate::Set(Box::new(Value::Int(2))),
+            location,
+        );
         assert!(!ctx.context_reads_valid_for(&candidate, &mut engine).unwrap());
         assert_eq!(ctx.context_reads.borrow().reads.len(), 1);
         assert_eq!(

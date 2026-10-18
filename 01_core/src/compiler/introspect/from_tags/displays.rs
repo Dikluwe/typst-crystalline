@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/from_tags/displays.md
-//! @prompt-hash 27603d6d
+//! @prompt-hash 7b604f69
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -36,6 +36,15 @@ pub fn apply_state_displays(
     engine: &mut Engine<'_>,
     ctx: &mut EvalContext,
 ) {
+    let _ = apply_state_displays_checked(tags, intr, engine, ctx);
+}
+
+pub(in crate::compiler::introspect) fn apply_state_displays_checked(
+    tags: &[Tag],
+    intr: &mut TagIntrospector,
+    engine: &mut Engine<'_>,
+    ctx: &mut EvalContext,
+) -> SourceResult<()> {
     use crate::entities::content::Content;
     use crate::entities::value::Value;
     // P394: callbacks de state display não têm acesso ao scope de eval.
@@ -43,8 +52,13 @@ pub fn apply_state_displays(
     for tag in tags {
         if let Tag::Start(loc, info) = tag {
             if let ElementPayload::StateDisplay { key, callback } = &info.payload {
-                let value =
-                    intr.state.value_at(key, *loc).cloned().unwrap_or(Value::None);
+                let value = crate::compiler::stdlib::state::read_legacy_state(
+                    &intr.state,
+                    key,
+                    Some(*loc),
+                    ctx,
+                    engine,
+                )?;
                 let pre_rendered = match callback {
                     Some(func) => {
                         let args = Args::positional(vec![value]);
@@ -102,6 +116,7 @@ pub fn apply_state_displays(
             }
         }
     }
+    Ok(())
 }
 
 /// **P241 (M9d/M7+2)** — slim post-pass para

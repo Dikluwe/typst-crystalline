@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/value_methods
-Hash do Código: 09c11ef7
+Hash do Código: cd6a4183
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/bindings/value_methods.rs`
@@ -74,3 +74,13 @@ typed shared helper for consumers, not permission to execute query/counter here.
 Under cfg(p1339_observation), retain the callback ledger adapter for functional
 counter.update actions with the real aggregate argument origin. No ledger event,
 extra evaluation or public instrumentation API is added to normal builds.
+
+## A1-S2 — migração do import de State
+
+Medição: state-green.log no diagnóstico lote-a1-callbacks-reflexao-seletores-2026-10-17
+registra import state_update sem uso após o adapter Func/Set ser chamado pelo
+filho proprietário. Gate A1-S2 ratificado, hash da revisão
+6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4.
+Remover somente esse import do hub; preservar seus módulos/reexports e demais
+receivers. A implementação de State continua no descendente, sem nova lógica
+no hub. L0 antes do código, Clippy estrito e linhagem.

@@ -1,55 +1,30 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/state_update.md
-//! @prompt-hash 910f953e
+//! @prompt-hash 4caed633
 //! @layer L1
 //! @updated 2026-04-30
 //!
-//! `StateUpdate` — operação a aplicar a um state durante a passagem
-//! de introspecção. P171 (M9 sub-passo 3).
-//!
-//! Vanilla `state.rs::StateUpdate { Set(Value), Func(Func) }`.
-//! Cristalino P171 implementa apenas `Set` — callbacks (`Func`)
-//! adiadas para passo M9+ quando Func eval em walk context for
-//! materializado.
+//! Operação pura de State: registrada no índice e aplicada quando a chave é lida.
+//! O init pertence ao objeto leitor; este enum não executa callbacks.
 
 use std::sync::Arc;
 
 use crate::entities::func::Func;
 use crate::entities::value::Value;
 
-/// Operação sobre um state. P171 (M9 sub-passo 3): `Set`.
-/// P172 (M9 sub-passo 4): `Func` variant adicionada.
-///
-/// `Box<Value>` evita ciclo Content→Value→Content (o mesmo padrão de
-/// `Content::Metadata { value: Box<Value> }` em P169).
-///
-/// **Func variant — eval é stub em P172**: adicionado para completude
-/// tipológica. `from_tags` reconhece a variant mas **não avalia** a
-/// closure — `Func::call` requer `EvalContext + Engine` que não estão
-/// disponíveis em walk nem em from_tags (Engine só existe durante
-/// eval; walk e from_tags correm depois). Avaliação real requer
-/// restructuring da pipeline (eval+walk integrados ou Engine kept-alive
-/// — passo M7 fixpoint, ou refactor dedicado).
-///
-/// Em P172, encontrar `Func` em from_tags é **silenciosamente
-/// ignorado** (comportamento defensivo coerente com P171
-/// "update sem init é ignorado"). Stdlib `state_update_with(key, fn)`
-/// constrói a variant; o efeito real depende de eval ser adicionada
-/// em passo futuro.
+/// Operação sobre um state. Set substitui o valor; Func transforma o acumulador.
+/// A aplicação automática pertence ao resolver de leitura, não ao walk.
 #[derive(Debug, Clone)]
 pub enum StateUpdate {
     /// Define o valor do state.
     Set(Box<Value>),
-    /// **P172** — callback `fn(Value) -> Value`. **Stub em P172** —
-    /// from_tags reconhece mas não avalia (sem contexto de eval).
-    /// Eval real requer pipeline restructuring (M7+).
+    /// Callback com o valor corrente como argumento único.
     Func(Func),
 }
 
 // `PartialEq` manual: `Func` interno é `Arc<FuncRepr>` que não impl
 // `PartialEq`. Comparação por ponteiro Arc — duas Funcs distintas com
-// mesmo comportamento são `!=` (paridade vanilla onde Func não compara
-// estruturalmente).
+// mesmo comportamento são `!=`. Esta igualdade Rust não define a igualdade da linguagem.
 impl PartialEq for StateUpdate {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {

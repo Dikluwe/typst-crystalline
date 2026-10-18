@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/state_registry`
-Hash do Código: 801b998c
+Hash do Código: b9bfdac6
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/realization-order.toml sha256:8de2c32fbeeee7a30088b4ff3808e15a211f23a182673ef5cdebe54bd3eadad6
@@ -253,3 +253,59 @@ Adicionar somente pub(crate) fn observe_locations_after(&mut self, anchor: Locat
 ### Aceitação
 
 Testes funcionais antes da mudança: índice bare da entry própria e aliases; ordem de três entries (dois outlines com entry direta entre eles), where e ausência de heading fantasma; estado e contador lidos na Location sintetizada devem refletir o prefixo do outline. Depois, testes de contrato dos dois helpers internos antes da sua implementação, com âncora desconhecida, duplicatas/repetição, IDs não monotônicos e append denso. Repetir nove sondas CLI sem relaxar resultados (seis originais e order/state/counter). Suíte completa, build, fmt, Clippy estrito, Rustdoc estrito, V1/V5/V15/V26/reversa/diff e SARIF: seis V16 removidos, sete V19 previstos e três mensagens existentes atualizadas, nenhum V20 novo. 12 GiB, swap zero, um job e comandos pesados sequenciais. Esta é correção interna/paridade ADR-0127, com helpers crate-private e nove pares L0/consumer; nenhuma assinatura externa, default deliberado ou fase nova. Resselo restrito, sem commit/push/release. As demais pendências de V16 continuam abertas.
+
+
+## A1-S2 — leitura por objeto aprovada em 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
+UTC/status/diffstat/fontes em before.json.gz e final-freeze.json.gz de
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17.
+state-counterproof.json.gz registra RED bilateral: init 1/10 da mesma chave
+após +1 exige 2/11; callback não lido não executa; atualização reutilizada
+executa por ocorrência. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3,
+upstream introspection/state.rs:226–245, 419–455 e 477–520. O init do leitor
+inicia a sequência; a ordem vem do documento, não do inteiro de Location.
+O método atual trata Func como Set e o pós-passe eager perde essa semântica.
+Estes são valores/erros de linguagem, não igualdade Rust ou algoritmo exigido.
+A1-S1 foi retirada; gate A1-S2 confirmado pelo dono nesta sessão, revisão
+00_nucleo/materialization/state-reader-runtime-2026-10-17/review.md,
+SHA-256 6d6a176b8e27cc53c38fe6650c03c217448059f4e7287fd8848fe54e80247fa4.
+
+### Responsabilidade exclusiva — supersede a fase histórica de State
+
+Preservar definições públicas e assinaturas de StateRegistry. Adicionar somente
+registro privado de ações StateUpdate por key/Location, independente de existir
+init global. Capturar Set e Func, deduplicar somente a mesma ocorrência de mesma
+Location, ordenar leituras por order_key causal e respeitar limite inclusivo.
+Nunca executar callbacks neste owner. A visão pública materializada continua
+legada; o leitor moderno não usa seu primeiro init como inicialização global.
+
+Representar privadamente valores materializados com Arc<Value>. Operações
+registradas usam enum interno pub(crate) RecordedStateUpdate: Set(Arc<Value>)
+e Func(Func), sem alterar StateUpdate público. Compartilhar o Arc do Set entre
+histórico legado e ação, sem clone profundo adicional. A lista de ações por key
+é Arc<Vec<...>> e mutação usa Arc::make_mut; clone de snapshots compartilha dados,
+mas extensões posteriores não alteram a cópia anterior. Helpers crate-private
+registram ações, extraem ações ordenadas com limite e obtêm init legado elegível.
+Registro Set preserva auto-init/último valor legado; Func não materializa valor.
+init/update explícitos históricos continuam com suas regras e não inventam ação.
+Testar ordem não numérica, snapshots independentes e partilha física do payload;
+isto verifica a prescrição de RAM, sem confundi-la com paridade de linguagem.
+
+### Aceitação e fronteiras
+
+Gate A1-S2 ratificado para as cinco assinaturas e a fase de leitura. L0 primeiro,
+RED funcional antes do código; GREEN contra o pin indicado para linguagem e
+controles próprios das extensões Tekt. Não ampliar outros contratos públicos.
+Build/workspace/doctests, Clippy/Rustdoc estritos, fmt, linhagem V1/V5/V15/V26 e
+reversa; manter V16 sem aumento. MemoryMax12GiB/High8GiB/swap0/jobs1, tarefas
+pesadas sequenciais. Medir consumo sem inferir ganho global só da representação.
+
+O enum de ações compartilhadas é privado ao crate, não nova variante do enum
+público StateUpdate. O helper extrai ordinal causal e operação compartilhada;
+o resolvedor pode computar a sequência inteira da key para propagar erros
+posteriores, selecionando o valor do prefixo pelo ordinal. Não filtrar ações
+futuras antes de testar erros: state-future-error em target-controls.json.gz
+refuta essa otimização. Uma consulta de outra key não executa estas ações.

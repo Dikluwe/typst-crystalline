@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/heading.md
-//! @prompt-hash 08e43dbf
+//! @prompt-hash ff95c97d
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -65,7 +65,13 @@ pub(super) fn snapshot_fields(
     );
     fields.insert("offset".into(), Value::Int(0));
     fields.insert("numbering".into(), numbering);
-    fields.insert("supplement".into(), Value::Content(Content::text(supplement)));
+    fields.insert(
+        "supplement".into(),
+        match chain.custom("heading.supplement") {
+            Some(Value::Auto) | None => Value::Content(Content::text(supplement)),
+            Some(value) => value.clone(),
+        },
+    );
     fields.insert("outlined".into(), Value::Bool(heading.outlined));
     fields.insert(
         "bookmarked".into(),

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/walk.md
-//! @prompt-hash 97dd2584
+//! @prompt-hash 896af7e7
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -927,10 +927,16 @@ fn walk_at(
             | Content::ContextBlock(_)
             | Content::Dynamic(_) => None,
         };
-        intr.elements.insert(
-            loc,
-            crate::entities::value::IntrospectedContent::new(content.clone(), fields),
-        );
+        let mut entry =
+            crate::entities::value::IntrospectedContent::new(content.clone(), fields);
+        if matches!(content, Content::Heading(_))
+            && chain.custom("heading.supplement").is_some()
+        {
+            entry = entry.with_heading_styles(
+                crate::entities::style::Styles::from_delta(chain.collapse()),
+            );
+        }
+        intr.elements.insert(loc, entry);
         tags.push(Tag::Start(loc, Box::new(info)));
         Some(loc)
     } else {

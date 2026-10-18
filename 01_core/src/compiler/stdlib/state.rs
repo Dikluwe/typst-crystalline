@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/state.md
-//! @prompt-hash 46d8af7d
+//! @prompt-hash 07c93729
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -16,7 +16,6 @@ use crate::entities::args::Args;
 use crate::entities::content::Content;
 use crate::entities::engine::Engine;
 use crate::entities::file_id::FileId;
-use crate::entities::introspector::Introspector;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::state::State;
@@ -24,6 +23,8 @@ use crate::entities::state_update::StateUpdate;
 use crate::entities::value::Value;
 
 use super::err;
+
+mod resolve;
 
 /// `state(key, init)` → `Value::State`.
 pub fn native_state(
@@ -34,15 +35,18 @@ pub fn native_state(
 ) -> SourceResult<Value> {
     super::expect_no_named(&args.named)?;
     match args.items.as_slice() {
+        [Value::Str(key)] => {
+            Ok(Value::State(State { key: key.clone(), init: Box::new(Value::None) }))
+        }
         [Value::Str(key), init] => {
             Ok(Value::State(State { key: key.clone(), init: Box::new(init.clone()) }))
         }
-        [other, _] => err(format!(
+        [other] | [other, _] => err(format!(
             "state() requer string como primeiro argumento (key), recebeu {}",
             other.type_name()
         )),
         _ => err(format!(
-            "state() requer 2 argumentos (key, init), recebeu {}",
+            "state() requer 1 ou 2 argumentos (key, init), recebeu {}",
             args.items.len()
         )),
     }
@@ -56,9 +60,47 @@ pub fn state_update(key: EcoString, value: Value) -> Value {
     ))
 }
 
+pub(crate) fn state_method_update(key: EcoString, value: Value) -> Value {
+    if let Value::Func(callback) = value {
+        Value::Content(Content::state_update(
+            key.to_string(),
+            StateUpdate::Func(callback),
+        ))
+    } else {
+        state_update(key, value)
+    }
+}
+
+fn read_state(
+    state: &State,
+    location: Option<crate::entities::location::Location>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    let registry = &ctx.introspector.state;
+    let actions = registry.actions_for(state.key.as_str());
+    let until = location.map(|location| registry.order_key(location));
+    resolve::read(actions, state.init.as_ref(), until, ctx, engine)
+}
+
+pub(crate) fn read_legacy_state(
+    registry: &crate::entities::state_registry::StateRegistry,
+    key: &str,
+    location: Option<crate::entities::location::Location>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    resolve::LegacyRead::capture(registry, key, location).read(ctx, engine)
+}
+
 /// Resolve `.get()` dentro ou fora de context.
 /// Fora de context: erro descritivo. Dentro: consulta o introspector.
-pub fn state_get(state: &State, ctx: &EvalContext, span: Span) -> SourceResult<Value> {
+pub fn state_get(
+    state: &State,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+    span: Span,
+) -> SourceResult<Value> {
     if !ctx.in_context {
         return Err(vec![SourceDiagnostic::error(
             span,
@@ -71,12 +113,8 @@ pub fn state_get(state: &State, ctx: &EvalContext, span: Span) -> SourceResult<V
             "state.get() requer uma localização de contexto".to_string(),
         )]);
     };
-    let value = ctx
-        .introspector
-        .state_value(state.key.as_str(), location)
-        .unwrap_or(state.init.as_ref())
-        .clone();
-    ctx.observe_context_read(Read::StateGet { state: state.clone() }, span, Ok(value))
+    let value = read_state(state, Some(location), ctx, engine);
+    ctx.observe_context_read(Read::StateGet { state: state.clone() }, span, value)
 }
 
 /// Resolve `.display([callback])` dentro ou fora de context.
@@ -101,16 +139,12 @@ pub fn state_display(
         )]);
     };
 
-    let value = ctx
-        .introspector
-        .state_value(state.key.as_str(), location)
-        .unwrap_or(state.init.as_ref())
-        .clone();
+    let value = read_state(state, Some(location), ctx, engine);
 
-    ctx.observe_context_read(
+    let value = ctx.observe_context_read(
         Read::StateDisplay { state: state.clone() },
         span,
-        Ok(value.clone()),
+        value,
     )?;
 
     match args.items.as_slice() {
@@ -150,7 +184,8 @@ pub fn state_display(
 pub fn state_at_location(
     state: &State,
     location: crate::entities::location::Location,
-    ctx: &EvalContext,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
     span: Span,
 ) -> SourceResult<Value> {
     if !ctx.in_context {
@@ -159,15 +194,11 @@ pub fn state_at_location(
             "can only be used when context is known".to_string(),
         )]);
     }
-    let value = ctx
-        .introspector
-        .state_value(state.key.as_str(), location)
-        .unwrap_or(state.init.as_ref())
-        .clone();
+    let value = read_state(state, Some(location), ctx, engine);
     ctx.observe_context_read(
         Read::StateAt { state: state.clone(), location },
         span,
-        Ok(value),
+        value,
     )
 }
 
@@ -176,19 +207,20 @@ pub fn state_at_location(
 /// sem updates, o init (medido: `state("s", 7).final()` → `7`).
 /// Reusa `Introspector::state_final_value` (P171/P240 — two-pass real
 /// pós-fixpoint).
-pub fn state_final(state: &State, ctx: &EvalContext, span: Span) -> SourceResult<Value> {
+pub fn state_final(
+    state: &State,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+    span: Span,
+) -> SourceResult<Value> {
     if !ctx.in_context {
         return Err(vec![SourceDiagnostic::error(
             span,
             "can only be used when context is known".to_string(),
         )]);
     }
-    let value = ctx
-        .introspector
-        .state_final_value(state.key.as_str())
-        .cloned()
-        .unwrap_or_else(|| state.init.as_ref().clone());
-    ctx.observe_context_read(Read::StateFinal { state: state.clone() }, span, Ok(value))
+    let value = read_state(state, None, ctx, engine);
+    ctx.observe_context_read(Read::StateFinal { state: state.clone() }, span, value)
 }
 
 /// Converte um `Value` resolvido em `Content` para display.
@@ -364,19 +396,19 @@ pub fn native_state_final(
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
+    _scopes: &mut Scopes<'_>,
+    engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     super::expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Str(key)] => {
-            let value = ctx
-                .introspector
-                .state_final_value(key.as_str())
-                .cloned()
-                .unwrap_or(Value::None);
+            let read =
+                resolve::LegacyRead::capture(&ctx.introspector.state, key.as_str(), None);
+            let value = read.read(ctx, engine);
             ctx.observe_context_read(
                 Read::StateLegacyFinal { key: key.to_string() },
                 args.span,
-                Ok(value),
+                value,
             )
         }
         [other] => err(format!(
@@ -397,6 +429,8 @@ pub fn native_state_at(
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
+    _scopes: &mut Scopes<'_>,
+    engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     use crate::entities::introspector::Introspector;
     use crate::entities::label::Label;
@@ -405,15 +439,21 @@ pub fn native_state_at(
     match args.items.as_slice() {
         [Value::Str(key), Value::Str(label_str)] => {
             let label = Label(label_str.to_string());
-            let value = ctx
-                .introspector
-                .query_by_label(&label)
-                .and_then(|loc| ctx.introspector.state_value(key.as_str(), loc).cloned())
-                .unwrap_or(Value::None);
+            let location = ctx.introspector.query_by_label(&label);
+            let value = if let Some(location) = location {
+                resolve::LegacyRead::capture(
+                    &ctx.introspector.state,
+                    key.as_str(),
+                    Some(location),
+                )
+                .read(ctx, engine)
+            } else {
+                Ok(Value::None)
+            };
             ctx.observe_context_read(
                 Read::StateLegacyAt { key: key.to_string(), label },
                 args.span,
-                Ok(value),
+                value,
             )
         }
         [_, other] => err(format!(
@@ -434,11 +474,11 @@ pub(crate) fn replay_context_read(
     span: Span,
 ) -> SourceResult<Value> {
     match request {
-        Read::StateGet { state } => state_get(state, ctx, span),
+        Read::StateGet { state } => state_get(state, ctx, engine, span),
         Read::StateAt { state, location } => {
-            state_at_location(state, *location, ctx, span)
+            state_at_location(state, *location, ctx, engine, span)
         }
-        Read::StateFinal { state } => state_final(state, ctx, span),
+        Read::StateFinal { state } => state_final(state, ctx, engine, span),
         Read::StateDisplay { state } => {
             if !ctx.in_context {
                 return Err(vec![SourceDiagnostic::error(
@@ -452,11 +492,7 @@ pub(crate) fn replay_context_read(
                     "state.display() requer uma localização de contexto",
                 )]
             })?;
-            Ok(ctx
-                .introspector
-                .state_value(state.key.as_str(), location)
-                .unwrap_or(state.init.as_ref())
-                .clone())
+            read_state(state, Some(location), ctx, engine)
         }
         Read::StateResolveLabel { label } => {
             crate::compiler::eval::bindings::resolve_state_label(label, ctx, span)
@@ -471,6 +507,8 @@ pub(crate) fn replay_context_read(
             ),
             engine.world,
             engine.current_file,
+            &mut Scopes::new(None),
+            engine,
         ),
         Read::StateLegacyAt { key, label } => native_state_at(
             ctx,
@@ -481,6 +519,8 @@ pub(crate) fn replay_context_read(
             ),
             engine.world,
             engine.current_file,
+            &mut Scopes::new(None),
+            engine,
         ),
         _ => unreachable!("state replay called for another owner"),
     }

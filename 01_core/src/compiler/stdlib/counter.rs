@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/counter.md
-//! @prompt-hash 0a0bc68f
+//! @prompt-hash 5e206d88
 //! @layer L1
 //! @updated 2026-10-06
 //!
@@ -18,7 +18,6 @@ use crate::entities::content::Content;
 use crate::entities::counter::Counter;
 use crate::entities::counter::CounterKey;
 use crate::entities::counter_update::CounterUpdate as CounterAction;
-use crate::entities::element_kind::ElementKind;
 use crate::entities::engine::Engine;
 use crate::entities::file_id::FileId;
 use crate::entities::func::Func;
@@ -39,11 +38,6 @@ pub fn native_counter(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    use crate::compiler::stdlib::{
-        native_figure, native_footnote, native_heading, native_table,
-    };
-    use std::ptr::fn_addr_eq;
-
     super::expect_no_named(&args.named)?;
     let value_span = args
         .occurrences
@@ -64,33 +58,24 @@ pub fn native_counter(
             Ok(Value::Counter(Counter { key }))
         }
         [Value::Func(f)] => {
-            if f.native_fn_addr().is_some_and(|addr| {
-                fn_addr_eq(addr, super::native_table_cell as fn(_, _, _, _) -> _)
-            }) {
+            let metadata = crate::compiler::eval::bindings::native_element_fields(f);
+            if metadata.is_some() && !matches!(metadata, Some(("page", _, _))) {
                 crate::compiler::eval::bindings::validate_element_locatability(
                     &Selector::NativeElement(f.clone()),
                     value_span,
                 )?;
             }
-            let key = if f.name() == Some("page") {
+            let key = if matches!(metadata, Some(("page", _, _))) {
                 Some(CounterKey::Page)
+            } else if metadata.is_some() {
+                let Value::Selector(selector) =
+                    super::native_selector(_ctx, args, _world, _current_file)?
+                else {
+                    unreachable!("native_selector must produce a selector");
+                };
+                Some(selector_to_key(&selector)?)
             } else {
-                f.native_fn_addr().and_then(|addr| {
-                    if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) {
-                        Some(CounterKey::Selector(Selector::Kind(ElementKind::Heading)))
-                    } else if fn_addr_eq(addr, native_figure as fn(_, _, _, _) -> _) {
-                        Some(CounterKey::Selector(Selector::Kind(ElementKind::Figure)))
-                    } else if fn_addr_eq(addr, native_table as fn(_, _, _, _) -> _) {
-                        Some(CounterKey::Selector(Selector::Kind(ElementKind::Table)))
-                    } else if fn_addr_eq(addr, native_footnote as fn(_, _, _, _) -> _) {
-                        // **P1016** — `Content::Footnote` locatable; counter
-                        // `Selector(Kind(Footnote))`. Paridade vanilla:
-                        // `counter(footnote).get()` devolve o número.
-                        Some(CounterKey::Selector(Selector::Kind(ElementKind::Footnote)))
-                    } else {
-                        None
-                    }
-                })
+                None
             };
             match key {
                 Some(k) => Ok(Value::Counter(Counter { key: k })),
@@ -676,6 +661,7 @@ pub fn native_counter_step(
 mod tests {
     use super::*;
     use crate::contracts::world::World;
+    use crate::entities::element_kind::ElementKind;
     use crate::entities::font_book::FontBook;
     use crate::entities::source::Source;
     use crate::entities::world_types::{

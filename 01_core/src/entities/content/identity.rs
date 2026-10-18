@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content/identity.md
-//! @prompt-hash 3703e54b
+//! @prompt-hash f0de33c8
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -11,6 +11,9 @@ use super::Content;
 impl Content {
     /// Return the stable element name used by diagnostics and field errors.
     pub fn elem_name(&self) -> &'static str {
+        if self.constructor_heading().is_some() {
+            return "heading";
+        }
         match self {
             Self::Source(e) => e.body.elem_name(),
             Self::ShowRecipe(e) => e.body.elem_name(),

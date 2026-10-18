@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/selector.md
-//! @prompt-hash a5932a13
+//! @prompt-hash 0e65d8b5
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -9,7 +9,7 @@ use std::ptr::fn_addr_eq;
 use crate::compiler::eval::EvalContext;
 use crate::compiler::stdlib::structural::native_math_equation;
 use crate::compiler::stdlib::{
-    expect_no_named, native_figure, native_heading,
+    expect_no_named, native_figure, native_footnote, native_heading,
     native_metadata as native_metadata_func, native_outline_entry, native_table,
 };
 use crate::entities::args::Args;
@@ -74,6 +74,10 @@ pub fn native_selector(
             }),
         [Value::Func(f)] => element_kind_of_native_func(f)
             .map(|kind| Value::Selector(Selector::Kind(kind)))
+            .or_else(|| {
+                crate::compiler::eval::bindings::native_element_fields(f)
+                    .map(|_| Value::Selector(Selector::NativeElement(f.clone())))
+            })
             .ok_or_else(|| {
                 vec![SourceDiagnostic::error(
                     value_span,
@@ -104,6 +108,8 @@ fn element_kind_of_native_func(f: &crate::entities::func::Func) -> Option<Elemen
     let addr = f.native_fn_addr()?;
     if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) {
         Some(ElementKind::Heading)
+    } else if fn_addr_eq(addr, native_footnote as fn(_, _, _, _) -> _) {
+        Some(ElementKind::Footnote)
     } else if fn_addr_eq(addr, native_figure as fn(_, _, _, _) -> _) {
         Some(ElementKind::Figure)
     } else if fn_addr_eq(addr, native_table as fn(_, _, _, _) -> _) {
@@ -145,6 +151,7 @@ pub(super) fn parse_selector_arg(
         [Value::Label(label)] => Ok(Selector::Label(label.clone())),
         [Value::Func(f)] => element_kind_of_native_func(f)
             .map(Selector::Kind)
+            .or_else(|| crate::compiler::eval::bindings::native_element_fields(f).map(|_| Selector::NativeElement(f.clone())))
             .ok_or_else(|| vec![SourceDiagnostic::error(
                 Span::detached(), "only element functions can be used as selectors",
             )]),

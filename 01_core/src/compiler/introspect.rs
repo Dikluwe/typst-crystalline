@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash c6cd6744
+//! @prompt-hash d098006b
 //! @layer L1
 //! @updated 2026-10-05
 //!
@@ -61,7 +61,6 @@ use crate::entities::{
     location::Location,
     locator::{Locator, LocatorSeed},
     selector::Selector,
-    state_update::StateUpdate,
     style_chain::StyleChain,
     tag::Tag,
     value::Value,
@@ -75,7 +74,7 @@ use self::classification::classify_unreferencable_body;
 pub use self::entrypoints::{
     introspect_bundle_documents_with_runtime_and_starts,
     introspect_bundle_documents_with_starts, introspect_with_introspector,
-    introspect_with_runtime,
+    introspect_with_runtime, realize_heading_supplements,
 };
 use self::materialize_time::materialize_time;
 use self::outline_entries::materialize_outline_entries;

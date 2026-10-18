@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/state_update`
-Hash do Código: ee95cbb3
+Hash do Código: 2f78e34c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/state_update.rs`
@@ -132,3 +132,17 @@ Manutenção interna ADR-0127 em fluxo contínuo: nenhuma definição de enum, c
 Antes do código, testes funcionais locais e gate V16 RED por escopo. Executar sonda de evolução em cópia descartável do workspace: acrescentar somente uma variante sentinela a Color, ColorSpace, MathStyleKind, FuncRepr e StateUpdate, sem alterar as definições produtivas. Usar cargo check --offline --locked -p typst-core com um job e cache de artefatos compartilhado; registrar fontes/hashes/argv/UTC/diagnósticos. Para cada um dos 21 matches selecionados, a baseline deve demonstrar a ausência de E0004 naquele match; GREEN exige E0004 ali, independentemente de erros de exaustividade já emitidos por outros matches na cópia. O controle de compilação sem sentinelas e os testes de comportamento aprovam o código real; não usar a sonda negativa como prova de paridade. Não editar source produtivo durante comandos.
 
 Resselo restrito, direto e reverso, sem reparo global da working tree. Revalidar build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, suíte workspace completa, Rustdoc -D warnings e quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF sem avisos novos e diff --check. Limite MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1, tarefas pesadas sequenciais. Nenhuma tolerância/fixture histórica é relaxada. As pendências V16 externas, inclusive T027/T158/T160 rastreadas sem emissão, continuam abertas.
+
+
+## A1-S2 — documentação do contrato vigente
+
+Medição anterior: state-counterproof.json.gz/state-extended.json.gz do diagnóstico
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17, HEAD
+b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree/UTC/diffstat ali registrados,
+pin bd5ebec285505889e8ff1d4f68804ab147a699f3. Set/Func já são públicos; a cláusula
+stub de P172 é histórica e não descreve o runtime materializado. A1-S2 aprovado
+no review de state-reader-runtime-2026-10-17 transfere a aplicação automática
+para a leitura. Este owner continua somente dado puro Set(Box<Value>)/Func(Func),
+sem executar callbacks. Corrigir comentários para distinguir histórico e contrato
+vigente; preservar todas as definições, igualdade Rust por identidade da Func e
+hash atuais. Não alegar equivalência de igualdade Rust à igualdade da linguagem.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content/fields.md
-//! @prompt-hash ac577cf8
+//! @prompt-hash 2fdbf1ad
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -132,6 +132,27 @@ fn styled_equation(content: &Content) -> Option<&EquationElem> {
 }
 
 impl Content {
+    pub(crate) fn constructor_heading(
+        &self,
+    ) -> Option<(&Content, &crate::entities::style::Styles)> {
+        let Content::Styled(styled) = self.source_body() else { return None };
+        if !matches!(styled.body.source_body(), Content::Heading(_)) {
+            return None;
+        }
+        let marker = styled
+            .styles
+            .delta()
+            .custom
+            .iter()
+            .rev()
+            .find(|(key, _)| key.as_str() == "heading.constructor");
+        marker
+            .filter(|(_, value)| {
+                matches!(value, crate::entities::value::Value::Bool(true))
+            })
+            .map(|_| (styled.body.source_body(), &styled.styles))
+    }
+
     pub fn get_field(&self, field: &str) -> Option<crate::entities::value::Value> {
         use crate::entities::value::Value;
         match (self, field) {
@@ -139,6 +160,39 @@ impl Content {
             (Content::ShowRecipe(e), f) => e.body.get_field(f),
             (Content::Located(e), f) => e.body.get_field(f),
             (Content::Realized(e), f) => e.visual.get_field(f),
+            (Content::Text(text), "text") => Some(Value::Str(text.clone())),
+            (Content::HSpace(e), "amount") => Some(match e.amount {
+                crate::entities::elements::h_space::Spacing::Absolute(length) => {
+                    Value::Length(length)
+                }
+                crate::entities::elements::h_space::Spacing::Fractional(fr) => {
+                    Value::Fraction(fr)
+                }
+            }),
+            (Content::VSpace(e), "amount") => Some(Value::Length(e.amount)),
+            (Content::HSpace(e), "weak") => Some(Value::Bool(e.weak)),
+            (Content::VSpace(e), "weak") => Some(Value::Bool(e.weak)),
+            (Content::Boxed(e), "body") => Some(Value::Content(e.body.clone())),
+            (Content::Boxed(e), "width") => {
+                e.width_fraction.map(Value::Fraction).or_else(|| {
+                    e.width.map(|abs| {
+                        Value::Relative(crate::entities::rel::Rel { rel: 0.0, abs })
+                    })
+                })
+            }
+            (Content::Boxed(e), "height") => e
+                .height
+                .map(|abs| Value::Relative(crate::entities::rel::Rel { rel: 0.0, abs })),
+            (Content::Block(e), "body") => Some(Value::Content(e.body.clone())),
+            (Content::Block(e), "width") => e.width.map(Value::Relative),
+            (Content::Block(e), "height") => e.height.map(|height| match height {
+                crate::entities::elements::block::BlockHeight::Relative(length) => {
+                    Value::Relative(length)
+                }
+                crate::entities::elements::block::BlockHeight::Fractional(fr) => {
+                    Value::Fraction(fr)
+                }
+            }),
             // Modelo D (P316): Heading delega ao elemento.
             (Content::Heading(h), f) => h.get_field(f),
             (Content::Raw(e), f) => e.get_field(f),
@@ -200,6 +254,30 @@ impl Content {
             (Content::MathUndershell(e), f) => e.get_field(f),
             (Content::MathStretch(e), f) => e.get_field(f),
             (Content::PdfArtifact(e), f) => e.get_field(f),
+            (Content::Styled(_), f) if self.constructor_heading().is_some() => {
+                let (base, styles) =
+                    self.constructor_heading().expect("constructor guard");
+                let lookup = |key: &str| {
+                    styles
+                        .delta()
+                        .custom
+                        .iter()
+                        .rev()
+                        .find(|(candidate, _)| candidate.as_str() == key)
+                        .map(|(_, value)| value.clone())
+                };
+                match f {
+                    "supplement" => lookup("heading.supplement"),
+                    "numbering" => lookup("heading.numbering").map(|gate| {
+                        if gate == Value::Bool(true) {
+                            lookup("heading.numbering.pattern").unwrap_or(Value::None)
+                        } else {
+                            Value::None
+                        }
+                    }),
+                    _ => base.get_field(f),
+                }
+            }
             (Content::Styled(styled), f) if styled_equation(&styled.body).is_some() => {
                 let child = &styled.body;
                 let styles = &styled.styles;

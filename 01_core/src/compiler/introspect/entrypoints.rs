@@ -1,10 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/entrypoints.md
-//! @prompt-hash fe864862
+//! @prompt-hash b6b5510c
 //! @layer L1
 //! @updated 2026-10-05
 
 use super::*;
+use crate::compiler::eval::EvalContext;
+use crate::entities::engine::Engine;
+use crate::entities::source_result::SourceResult;
 
 /// Entry point novo (M4 / P166): produz `CounterStateLegacy` E
 /// `TagIntrospector` num único walk. Consumers que precisem do
@@ -15,25 +18,9 @@ use super::*;
 /// passagem — não há duplicação. `introspect()` é wrapper que descarta
 /// o introspector.
 ///
-/// **P173 (M9 sub-passo 5)**: aceita `Engine + EvalContext` opcionais.
-/// Quando ambos `Some`, `from_tags` avalia `StateUpdate::Func` via
-/// `apply_func`. Walk em si **NÃO modificado** — continua puro
-/// (P163 invariante preservado). Engine só intervém em `from_tags`
-/// (eval localizada).
-///
-/// Padrão de migração M5+: caller que actualmente faz
-/// `let state = introspect(&c)` e quer queries via Introspector pode
-/// adoptar `let intr = introspect_with_introspector(&c)`
-/// sem custo adicional.
-///
-/// **P191B (ADR-0071)**: walk fn ganha `&mut TagIntrospector` parameter;
-/// populate de sub-stores acontece directamente durante walk em vez de
-/// pós-walk via `from_tags`. `from_tags::from_tags` substituído por
-/// `apply_state_funcs` (slim post-pass para `StateUpdate::Func` apenas;
-/// chamado por `fixpoint::run_fixpoint` que tem `Engine + EvalContext`).
-/// Funcs em state.update **silenciosamente ignoradas** neste path
-/// legacy (sem Engine disponível) — coerente com semântica P171
-/// pré-P191B.
+/// Walk puro: registra ações de State sem executar callbacks. Leitores modernos
+/// resolvem a chave com seu próprio init, usando Engine e EvalContext na leitura.
+/// Os pós-processadores runtime permanecem em seus entrypoints específicos.
 pub fn introspect_with_introspector(content: &Content) -> TagIntrospector {
     // **P533** — garantir que `@key` bibliográficos são vistos como
     // `Content::Cite` durante o walk, para que `citation_order` e
@@ -191,12 +178,12 @@ pub fn introspect_bundle_documents_with_runtime_and_starts(
     }
     materialize_outline_entries(&mut locator, &mut intr);
     intr.parent_locations = build_parent_index(&tags);
-    from_tags::apply_state_funcs(&tags, &mut intr, engine, ctx)?;
     from_tags::apply_bundle_counter_funcs(&tags, &body_tags, &mut intr, engine, ctx)?;
-    from_tags::apply_state_displays(&tags, &mut intr, engine, ctx);
+    from_tags::apply_state_displays_checked(&tags, &mut intr, engine, ctx)?;
     from_tags::apply_counter_displays(&tags, &mut intr, engine, ctx);
     from_tags::apply_equation_numberings(&tags, &mut intr, engine, ctx)?;
     from_tags::apply_equation_supplements(&tags, &mut intr, engine, ctx)?;
+    from_tags::apply_heading_supplements(&mut intr, engine, ctx)?;
     from_tags::realize_equation_elements(&tags, &mut intr);
     Ok((intr, starts))
 }
@@ -228,12 +215,21 @@ pub fn introspect_with_runtime(
     );
     materialize_outline_entries(&mut locator, &mut intr);
     intr.parent_locations = build_parent_index(&tags);
-    from_tags::apply_state_funcs(&tags, &mut intr, engine, ctx)?;
     from_tags::apply_counter_funcs(&tags, &mut intr, engine, ctx)?;
-    from_tags::apply_state_displays(&tags, &mut intr, engine, ctx);
+    from_tags::apply_state_displays_checked(&tags, &mut intr, engine, ctx)?;
     from_tags::apply_counter_displays(&tags, &mut intr, engine, ctx);
     from_tags::apply_equation_numberings(&tags, &mut intr, engine, ctx)?;
     from_tags::apply_equation_supplements(&tags, &mut intr, engine, ctx)?;
+    from_tags::apply_heading_supplements(&mut intr, engine, ctx)?;
     from_tags::realize_equation_elements(&tags, &mut intr);
     Ok(intr)
+}
+
+/// Realize pending heading supplements without applying other runtime callbacks.
+pub fn realize_heading_supplements(
+    intr: &mut TagIntrospector,
+    engine: &mut Engine<'_>,
+    ctx: &mut EvalContext,
+) -> SourceResult<()> {
+    from_tags::apply_heading_supplements(intr, engine, ctx)
 }

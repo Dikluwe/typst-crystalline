@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/value_methods.md
-//! @prompt-hash c68c5605
+//! @prompt-hash be0fd2fa
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -20,7 +20,7 @@ use crate::compiler::stdlib::counter::{
     counter_get_owned as counter_get, counter_step, counter_update,
 };
 use crate::compiler::stdlib::state::{
-    state_at_location, state_display, state_final, state_get, state_update,
+    state_at_location, state_display, state_final, state_get,
 };
 use crate::entities::args::{ArgOccurrence, Args};
 use crate::entities::ast::expr::{Arg, Expr};

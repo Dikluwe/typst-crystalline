@@ -1,5 +1,5 @@
 # L0 — stdlib/assert
-Hash do Código: b48054b1
+Hash do Código: f9da8fd6
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/assert.rs`
@@ -19,3 +19,25 @@ eq/ne require two values and use language equality, including Int/Float equality
 ## Acceptance
 
 Preserve the specified language semantics, syntax, morphology, diagnostics, spans, defaults and public identities. Do not change signatures, compatibility, feature defaults or phase ownership through this documentary revision. Shared pinned claims remain authoritative; this prompt owns only its exclusive consumer. Architectural decisions follow ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.
+
+## A1 — pré-requisito da reflexão de dimensões, 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, UTC/working tree e binário
+inicial preservados no diagnóstico lote-a1-callbacks-reflexao-seletores-2026-10-17.
+assert-prerequisite-before.json.gz confirma que assert.eq(1pt,0%+1pt) e
+assert.eq((1,),(1.0,)) erram no Tekt, passam no vanilla bd5ebec285.
+assert.rs:91-101 mantém comparador duplicado e raso; operators/equality.rs
+já conserva coerção Relative/Length e igualdade recursiva/counter semântica.
+A reflexão correta de Box retorna Relative mesmo para dimensão absoluta;
+converter o getter ao tipo errado para contornar assert não é aceitável.
+
+### Decisão e aceitação
+
+O helper privado values_equal delega ao comparador linguístico canônico
+compiler::eval::operators::equality::values_eq. Não criar nova relação de
+igualdade nem modificar o PartialEq Rust. Manter validação, repr e mensagens.
+Testes RED congelados acima e controle de desigualdade. Esta dependência
+restrita não corrige a igualdade de supplement/identidade std do lote A3.
+Fluxo ADR-0127, sem API ou fase nova; L0 antes do código, suíte e gates.

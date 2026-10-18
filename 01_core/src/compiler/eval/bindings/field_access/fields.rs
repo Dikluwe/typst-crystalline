@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access/fields.md
-//! @prompt-hash 6a6a54a9
+//! @prompt-hash 6a43c3b4
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -604,9 +604,16 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
 }
 
 fn is_presence_content(content: &crate::entities::content::Content) -> bool {
+    if content.constructor_heading().is_some() {
+        return true;
+    }
     use crate::entities::content::Content;
     match content {
-        Content::SmartQuote(_) => true,
+        Content::SmartQuote(_)
+        | Content::HSpace(_)
+        | Content::VSpace(_)
+        | Content::Boxed(_)
+        | Content::Block(_) => true,
         Content::Transform(e) => !matches!(
             e.operation,
             crate::entities::elements::transform::TransformOperation::Matrix(_)
@@ -700,8 +707,6 @@ fn is_presence_content(content: &crate::entities::content::Content) -> bool {
         | Content::SmallCaps { .. }
         | Content::Pad(..)
         | Content::Columns(..)
-        | Content::Boxed(..)
-        | Content::Block(..)
         | Content::Table(..)
         | Content::TableCell(..)
         | Content::TableHeader(..)
@@ -722,13 +727,11 @@ fn is_presence_content(content: &crate::entities::content::Content) -> bool {
         | Content::Asset { .. }
         | Content::ContextBlock(..)
         | Content::Colbreak(..)
-        | Content::HSpace(..)
         | Content::Hide(..)
         | Content::Pagebreak(..)
         | Content::Parbreak
         | Content::Repeat(..)
-        | Content::Stack(..)
-        | Content::VSpace(..) => false,
+        | Content::Stack(..) => false,
     }
 }
 

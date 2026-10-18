@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/fixpoint.md
-//! @prompt-hash 529aa4a7
+//! @prompt-hash 304b9ae2
 //! @layer L1
 //! @updated 2026-04-29
 //!
@@ -24,8 +24,7 @@ use crate::compiler::eval::EvalContext;
 use crate::compiler::introspect::convergence::compute_tags_hash;
 use crate::compiler::introspect::from_tags::{
     apply_counter_displays, apply_counter_funcs, apply_equation_numberings,
-    apply_equation_supplements, apply_state_displays, apply_state_funcs,
-    realize_equation_elements,
+    apply_equation_supplements, realize_equation_elements,
 };
 use crate::entities::engine::Engine;
 use crate::entities::introspector::TagIntrospector;
@@ -90,9 +89,8 @@ where
         // `CounterStateLegacy::auto_label_counter` eliminado.
         let mut auto_label_counter: usize = 0;
         // P191B (ADR-0071): walk popula `introspector` directamente
-        // durante walk via `populate_intr_from_tag_start`. Funcs
-        // deferred para `apply_state_funcs` (post-pass slim que
-        // requer Engine+ctx).
+        // durante walk via `populate_intr_from_tag_start`. Ações de State
+        // são resolvidas apenas por leituras da chave, com Engine+ctx.
         // P190I (M6 fechado): walk fn drop `state` parameter (struct
         // CounterStateLegacy eliminada). Adiciona `lang: Option<&Lang>`
         // — `None` aqui (fixpoint não exercita lang feature).
@@ -109,19 +107,24 @@ where
         );
 
         let curr_hash = compute_tags_hash(&tags);
-        apply_state_funcs(&tags, &mut introspector, engine, ctx)
-            .map_err(FixpointError::Eval)?;
         apply_counter_funcs(&tags, &mut introspector, engine, ctx)
             .map_err(FixpointError::Eval)?;
-        // P240 (M9d/M7+1): pre-render `Content::StateDisplay` callbacks
-        // paralelo `apply_state_funcs` (Opção γ ADR-0081 PROPOSTO P239).
-        apply_state_displays(&tags, &mut introspector, engine, ctx);
+        // Displays legados demandam a mesma sequência de State na leitura.
+        super::from_tags::apply_state_displays_checked(
+            &tags,
+            &mut introspector,
+            engine,
+            ctx,
+        )
+        .map_err(FixpointError::Eval)?;
         // P241 (M9d/M7+2): pre-render `Content::CounterDisplayCallback`
         // paralelo absoluto `apply_state_displays` (ADR-0081 M7+2).
         apply_counter_displays(&tags, &mut introspector, engine, ctx);
         apply_equation_numberings(&tags, &mut introspector, engine, ctx)
             .map_err(FixpointError::Eval)?;
         apply_equation_supplements(&tags, &mut introspector, engine, ctx)
+            .map_err(FixpointError::Eval)?;
+        super::from_tags::apply_heading_supplements(&mut introspector, engine, ctx)
             .map_err(FixpointError::Eval)?;
         realize_equation_elements(&tags, &mut introspector);
 
@@ -336,8 +339,8 @@ mod tests {
 
     #[test]
     fn fixpoint_propaga_erro_state_update_callback() {
-        // P642: state.update(func) com callback que dá erro deve propagar
-        // via FixpointError::Eval, não ser descartado.
+        // A1-S2: uma leitura da chave deve propagar o erro do update
+        // via FixpointError::Eval, sem execução eager para chaves não lidas.
         use crate::entities::content::Content;
         use crate::entities::func::Func;
         use crate::entities::state_update::StateUpdate;
@@ -366,6 +369,7 @@ mod tests {
                             "c".to_string(),
                             StateUpdate::Func(f.clone()),
                         ),
+                        Content::state_display("c", None),
                     ]
                     .into(),
                 ))

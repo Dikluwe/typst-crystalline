@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 9cc1d93c
+//! @prompt-hash a3a27dfc
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -346,6 +346,89 @@ mod regressions {
         Bytes, Datetime, FileError, FileResult, Font, Library,
     };
     use std::num::NonZeroU16;
+
+    #[test]
+    fn a1_reflection_of_transported_fields_and_presence() {
+        for src in [
+            r#"#assert.eq([A].text, "A")
+#assert.eq([A].fields(), (text: "A"))"#,
+            r#"#assert.eq(h(2em).amount, 2em)
+#assert.eq(h(1fr).amount, 1fr)
+#assert.eq(v(3pt).amount, 3pt)
+#assert.eq(h(2pt).fields(), (amount: 2pt))
+#assert.eq(h(2pt, weak: false).fields(), (amount: 2pt, weak: false))"#,
+            r#"#assert.eq(type(box(width: 3pt)[A].width), type(1% + 1pt))
+#assert.eq(box(width: 3pt)[A].width, 3pt)
+#assert.eq(box(width: 2fr)[A].width, 2fr)
+#assert.eq(block(width: 50% + 3pt)[A].width, 50% + 3pt)
+#assert.eq(block(height: 2fr)[A].height, 2fr)
+#assert.eq(block[A].body, [A])"#,
+            r#"#assert.eq(box[A].has("width"), false)
+#assert.eq(block[A].has("width"), false)
+#assert.eq(h(2pt).has("weak"), false)
+#assert.eq(h(2pt, weak: false).has("weak"), true)"#,
+        ] {
+            let world = MockWorld::new(src);
+            let result = eval_for_test(&world, &world.source);
+            assert!(result.is_ok(), "{src}: {result:?}");
+        }
+    }
+
+    #[test]
+    fn a1_bare_elements_and_equation_counter_use_real_identity() {
+        for src in [
+            "#show text: set text(fill: red)\nA",
+            "#show bibliography: it => it",
+            "#assert.eq(type(counter(page)), counter)",
+            "#assert.eq(counter(math.equation), counter(selector(math.equation)))",
+            "#assert.eq(counter(footnote), counter(selector(footnote)))",
+            "#let eq = math.equation\n#assert.eq(type(counter(eq)), counter)",
+            "#assert.eq(selector(text), selector(text))\n#assert.ne(selector(text), text.where())",
+            "#let bib = bibliography\n#assert.eq(selector(bib), selector(bibliography))",
+        ] {
+            let world = MockWorld::new(src);
+            let result = eval_for_test(&world, &world.source);
+            assert!(result.is_ok(), "{src}: {result:?}");
+        }
+        for src in [
+            "#let text(x) = x\n#show text: it => it",
+            "#let page(x) = x\n#counter(page)",
+            "#show text.with(): it => it",
+            "#counter(text)",
+            "#counter(table.cell)",
+            "#counter(math.equation.with())",
+        ] {
+            let world = MockWorld::new(src);
+            assert!(eval_for_test(&world, &world.source).is_err(), "{src}");
+        }
+    }
+
+    #[test]
+    fn a1_heading_constructor_identity_presence_and_external_styled() {
+        for src in [
+            r#"#assert.eq(heading(supplement:[Custom])[A].func(),heading)"#,
+            r#"#assert.eq(heading(supplement:[Custom])[A].supplement,[Custom])"#,
+            r#"#assert.eq(heading(supplement:[Custom])[A].fields().keys(),("supplement","body"))"#,
+            r#"#assert.eq(heading(numbering:none)[A].has("numbering"),true)
+#assert.eq(heading(numbering:none)[A].numbering,none)"#,
+            r#"#assert.ne(text(fill:red)[#heading(supplement:[Custom])[A]].func(),heading)
+#assert.eq(text(fill:red)[#heading(supplement:[Custom])[A]].has("supplement"),false)"#,
+        ] {
+            let world = MockWorld::new(src);
+            let result = eval_for_test(&world, &world.source);
+            assert!(result.is_ok(), "{src}: {result:?}");
+        }
+    }
+
+    #[test]
+    fn a1_state_constructor_defaults_to_none() {
+        let world = MockWorld::new("#let s = state(\"audit\")");
+        let module = eval_for_test(&world, &world.source).unwrap();
+        let Some(Value::State(state)) = module.scope().get("s") else {
+            panic!("state constructor lost its value");
+        };
+        assert_eq!(*state.init, Value::None);
+    }
 
     #[test]
     fn ts1_set_relative_prefix_spread_and_argument_evaluation_once() {

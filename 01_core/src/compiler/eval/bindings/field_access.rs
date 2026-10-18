@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 719f35fe
+//! @prompt-hash eac63159
 //! @layer L1
 //! @updated 2026-09-20
 //!
@@ -585,7 +585,6 @@ mod p1325_tests {
                 "ausência",
                 "strong",
             ),
-            ("#let result = [x].text", "text", "text"),
         ] {
             check(text, field, &format!("{kind} does not have field \"{field}\""));
         }
@@ -611,6 +610,7 @@ mod p1325_tests {
             book: FontBook::new(),
         };
         for expression in [
+            "[x].text == \"x\"",
             "(x: 1).x == 1",
             "(ausência: 17).ausência == 17",
             "{ let d = (body: strong[x]); d.body == strong[x] }",

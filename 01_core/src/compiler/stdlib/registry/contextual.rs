@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/registry/contextual.md
-//! @prompt-hash 35429759
+//! @prompt-hash b1183c90
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -38,14 +38,17 @@ pub(super) fn register(scope: &mut Scope) {
     // P171. Retorna Value (init se ausente; última update caso contrário).
     scope.define(
         "state_final",
-        Value::Func(Func::native("state_final", native_state_final)),
+        Value::Func(Func::native_with_engine("state_final", native_state_final)),
     );
     // P237 (Fase 5 Layout candidata Categoria D 1/?, refino estendido):
     // state_at(key, label) — valor do state na Location associada ao label.
     // Paralelo absoluto a counter_at P177. Reusa query_by_label P139+P140
     // + state_value P171. Retorna Value::None se key/label inexistentes
     // ou state nunca actualizado antes da Location.
-    scope.define("state_at", Value::Func(Func::native("state_at", native_state_at)));
+    scope.define(
+        "state_at",
+        Value::Func(Func::native_with_engine("state_at", native_state_at)),
+    );
     // P172 (M9 sub-passo 4): state_update_with(key, fn) — callback variant.
     // **Stub**: from_tags ignora Func variant até pipeline restructuring.
     scope.define(

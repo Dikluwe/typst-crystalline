@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/populate.md
-//! @prompt-hash 5ff286a4
+//! @prompt-hash 5c449603
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -160,19 +160,7 @@ pub(super) fn populate_intr_from_tag_start(
         }
         ElementPayload::StateUpdate { key, update } => {
             intr.kind_index.entry(ElementKind::StateUpdate).or_default().push(loc);
-            match update {
-                StateUpdate::Set(value) => {
-                    if intr.state.value_at(key, loc).is_none() {
-                        intr.state.init(key.clone(), (**value).clone(), loc);
-                    } else {
-                        intr.state.update(key.clone(), (**value).clone(), loc);
-                    }
-                }
-                StateUpdate::Func(_) => {
-                    // P191B (ADR-0071): Func eval requires Engine+ctx —
-                    // deferred to `apply_state_funcs` post-pass.
-                }
-            }
+            intr.state.record_action(key, update, loc);
         }
         ElementPayload::StateDisplay { .. } => {
             // P240 (M9d/M7+1): kind_index registo apenas em walk; valor

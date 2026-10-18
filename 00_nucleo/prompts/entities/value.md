@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/value`
-Hash do Código: ef15b193
+Hash do Código: 97f2f6c8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:5a0270231de70be1212dbd17298cce34b7161b527d74b4b589e3f4c69d35ce24
@@ -678,3 +678,43 @@ As variantes que compartilham resultado conservam um corpo comum. A lista nomina
 ### Gate e aceitação
 
 Fluxo contínuo ADR-0127: nenhuma assinatura/trait/campo público, nova variante produtiva, default de produto, quebra de compatibilidade ou fase diferente. L0 antes de testes e implementação, resselo bilateral restrito e V1/V5/V15/V26 válidos. Escrever controles no módulo, confirmar comportamento antes e depois; RED estrutural é ausência de E0004 nos 17 pontos selecionados numa cópia do core com variante sentinela acrescentada somente ao Value copiado. GREEN exige E0004 em cada um dos 17 pontos, sem stubs, e remoção exata dos nove V16 selecionados com os demais diagnósticos preservados. Build, suíte workspace, Clippy estrito, formato, Rustdoc e linhagem sob 12 GiB, swap zero e um job Cargo. O gate global permanece aberto enquanto os V16 externos existirem. O falso positivo do parser sobre None explícito é investigação separada e não será escondido neste consumer.
+
+
+## A1-H2 — suplemento antes das consultas, aprovado em 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
+final-freeze.json.gz e target-controls.json.gz no diagnóstico
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17 registram
+UTC/diffstat/fontes/argv. Pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+heading-raw-constructor-func passa no baseline/vanilla e falha no candidato:
+Styled de transporte altera func. Query também vê wrapper causal temporário;
+HTML ignora callback panic. Fonte walk.rs:930–945; pipeline/paged.rs:419–427 e
+pipeline/html.rs:101–106 preparam a consulta pelo walk puro. São valores e erros
+de linguagem, não um requisito de copiar algoritmo/estrutura do vanilla.
+Gate A1-H2 confirmado pelo dono nesta sessão: revisão
+00_nucleo/materialization/heading-supplement-runtime-2026-10-17/review.md,
+SHA-256 66739b13596013f4343bdc3ffacbdb9081151e3d9863e5d962e8ff13fd68775c.
+
+### Responsabilidade exclusiva
+
+Preservar todas as assinaturas públicas de IntrospectedContent e Value. O slot
+privado fields continua Option<Arc<...>>, agora apontando para cabeçalho privado
+SnapshotFields com mapa único e heading_styles: Option<Arc<Styles>>. Derivar
+Clone/Debug/PartialEq do cabeçalho privado, preservando comparação estrutural do
+mapa e dos styles pendentes (mecânica Rust, não igualdade de linguagem).
+new move o mapa e começa sem styles pendentes; fields devolve o mesmo &IndexMap.
+Adicionar apenas helpers crate-private para anexar/consultar styles pendentes,
+via cópia local quando Arc compartilhado. Styles auxiliares nunca viram campos
+públicos. Clones existentes permanecem imutáveis. Não aumentar slots, sizeof ou
+alinhamento de Value/IntrospectedContent; medir antes/depois no mesmo ABI.
+
+### Aceitação e limites
+
+H1–H8 da revisão ratificada, RED bilateral antes do código. Nenhum contrato
+público além da fachada Heading está autorizado por H2; A1-S2 cobre separadamente
+cinco helpers State. Sem novos campos públicos. Styled ordinário e demais
+callbacks conservam suas fronteiras. Workspace/doctests/build/Clippy/Rustdoc,
+fmt, V1/V5/V15/V26/reversa e V16 sem aumento; 12GiB/High8GiB/swap0/jobs1,
+comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.

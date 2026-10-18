@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/value_methods/state.md
-//! @prompt-hash f3f27292
+//! @prompt-hash edf715f3
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -22,7 +22,12 @@ pub(in crate::compiler::eval) fn eval_state_method(
         "update" => {
             let args = eval_args(args, scopes, ctx, engine)?;
             match args.items.as_slice() {
-                [value] => Ok(state_update(state.key.clone(), value.clone())),
+                [value] if args.named.is_empty() => {
+                    Ok(crate::compiler::stdlib::state::state_method_update(
+                        state.key.clone(),
+                        value.clone(),
+                    ))
+                }
                 _ => Err(vec![SourceDiagnostic::error(
                     span,
                     "state.update() requer 1 argumento".to_string(),
@@ -30,8 +35,11 @@ pub(in crate::compiler::eval) fn eval_state_method(
             }
         }
         "get" => {
-            let _ = eval_args(args, scopes, ctx, engine)?;
-            state_get(state, ctx, span)
+            let args = eval_args(args, scopes, ctx, engine)?;
+            if !args.items.is_empty() || !args.named.is_empty() {
+                return Err(vec![SourceDiagnostic::error(span, "unexpected argument")]);
+            }
+            state_get(state, ctx, engine, span)
         }
         "display" => {
             let args = eval_args(args, scopes, ctx, engine)?;
@@ -45,13 +53,13 @@ pub(in crate::compiler::eval) fn eval_state_method(
             let args = eval_args(args, scopes, ctx, engine)?;
             // Mensagens verbatim medidas no vanilla 0.15.0:
             // `s.final(1)` → "unexpected argument".
-            if !args.items.is_empty() {
+            if !args.items.is_empty() || !args.named.is_empty() {
                 return Err(vec![SourceDiagnostic::error(
                     span,
                     "unexpected argument".to_string(),
                 )]);
             }
-            state_final(state, ctx, span)
+            state_final(state, ctx, engine, span)
         }
         _ => Err(vec![SourceDiagnostic::error(
             span,
@@ -104,20 +112,20 @@ fn state_at_dispatch(
         Arg::Pos(Expr::Label(node)) => {
             let label = crate::entities::label::Label(node.get().to_string());
             let loc = resolve_label(&label, ctx)?;
-            state_at_location(state, loc, ctx, span)
+            state_at_location(state, loc, ctx, engine, span)
         }
         Arg::Pos(expr) => {
             let value = eval_expr(expr, scopes, ctx, engine)?;
             match value {
-                Value::Location(loc) => state_at_location(state, loc, ctx, span),
+                Value::Location(loc) => state_at_location(state, loc, ctx, engine, span),
                 Value::Label(label) => {
                     let loc = resolve_label(&label, ctx)?;
-                    state_at_location(state, loc, ctx, span)
+                    state_at_location(state, loc, ctx, engine, span)
                 }
                 Value::Content(crate::entities::content::Content::Label(e)) => {
                     let label = crate::entities::label::Label(e.name.to_string());
                     let loc = resolve_label(&label, ctx)?;
-                    state_at_location(state, loc, ctx, span)
+                    state_at_location(state, loc, ctx, engine, span)
                 }
                 Value::Str(_) => Err(vec![SourceDiagnostic::error(
                     span,

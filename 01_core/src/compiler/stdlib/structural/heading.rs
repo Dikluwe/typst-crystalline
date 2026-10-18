@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/heading.md
-//! @prompt-hash 6e844668
+//! @prompt-hash 40f97701
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -178,17 +178,41 @@ pub fn native_heading(
         set_fields |= crate::entities::elements::heading::HEADING_SET_OUTLINED;
     }
 
-    let content = if let Some(pattern) = numbering {
-        Content::heading_numbered_native(
-            level,
-            body,
-            Some(pattern),
-            outlined,
-            bookmarked,
-            set_fields,
-        )
+    let content = Content::heading_native(level, body, outlined, bookmarked, set_fields);
+    let mut styles = crate::entities::style::Styles::new();
+    if args.named.contains_key("numbering") {
+        styles =
+            styles.push_custom("heading.numbering", Value::Bool(numbering.is_some()));
+        if let Some(pattern) = numbering {
+            styles = styles.push_custom("heading.numbering.pattern", Value::Str(pattern));
+        }
+    }
+    if let Some(value) = args.named.get("supplement") {
+        if !matches!(
+            value,
+            Value::Auto
+                | Value::None
+                | Value::Str(_)
+                | Value::Content(_)
+                | Value::Func(_)
+        ) {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!(
+                    "expected content, function, or auto, found {}",
+                    value.type_name()
+                ),
+            )]);
+        }
+        styles = styles.push_custom("heading.supplement", value.clone());
+    }
+    let content = if styles.is_empty() {
+        content
     } else {
-        Content::heading_native(level, body, outlined, bookmarked, set_fields)
+        Content::styled(
+            content,
+            styles.push_custom("heading.constructor", Value::Bool(true)),
+        )
     };
     Ok(Value::Content(content))
 }

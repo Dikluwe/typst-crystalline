@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/set.md
-//! @prompt-hash 467073ef
+//! @prompt-hash c8188c89
 //! @layer L1
 //! @updated 2026-10-08
 //!
@@ -284,34 +284,40 @@ pub(crate) fn eval_set_rule(
     }
 
     if target == "heading" {
-        // #set heading(numbering: "1.1") — activa numeração automática.
-        // Outros argumentos de heading ignorados por agora (DEBT-10).
-        let mut active = false;
-        let mut pattern: Option<ecow::EcoString> = None;
-        for arg in set.args().items() {
-            if let Arg::Named(named) = arg {
-                if named.name().as_str() == "numbering" {
-                    // Defensivo: só String activa a numeração.
-                    // Closures, none, ou outros tipos → ignorar.
-                    let val = eval_expr(named.expr(), scopes, ctx, engine)?;
-                    if let Value::Str(s) = val {
-                        active = true;
-                        pattern = Some(s.clone());
-                    }
-                }
+        let args = crate::compiler::eval::call_dispatch::eval_args(
+            set.args(),
+            scopes,
+            ctx,
+            engine,
+        )?;
+        if let Some(value) = args.named.get("numbering") {
+            let active = matches!(value, Value::Str(_));
+            *engine.styles =
+                engine.styles.push_custom("heading.numbering", Value::Bool(active));
+            if let Value::Str(pattern) = value {
+                *engine.styles = engine.styles.push_custom(
+                    "heading.numbering.pattern",
+                    Value::Str(pattern.clone()),
+                );
             }
         }
-        // Lote F-2 S1 (P335): em vez de um marcador global `SetHeadingNumbering`,
-        // empurra para a chain léxica (`engine.styles` é escopado por
-        // `local_styles`). O heading assa este valor na criação
-        // (`eval/markup.rs`). Fecha o canal global → escopo de container (DEBT 99.E).
-        // P451: transporta também o pattern string para formatação configurável.
-        *engine.styles =
-            engine.styles.push_custom("heading.numbering", Value::Bool(active));
-        if let Some(pattern) = pattern {
-            *engine.styles = engine
-                .styles
-                .push_custom("heading.numbering.pattern", Value::Str(pattern));
+        if let Some(value) = args.named.get("supplement") {
+            if !matches!(
+                value,
+                Value::Auto
+                    | Value::None
+                    | Value::Str(_)
+                    | Value::Content(_)
+                    | Value::Func(_)
+            ) {
+                return Err(vec![type_mismatch(
+                    "content, function, or auto",
+                    value,
+                    args.span,
+                )]);
+            }
+            *engine.styles =
+                engine.styles.push_custom("heading.supplement", value.clone());
         }
         return Ok(Value::None);
     }

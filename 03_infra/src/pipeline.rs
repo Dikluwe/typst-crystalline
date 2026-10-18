@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 4837d697
+//! @prompt-hash 651b55e4
 //! @layer L3
 //! @updated 2026-10-07
 //!
@@ -78,6 +78,7 @@ use crate::font_metrics::FallbackFontMetrics;
 use crate::image_sizer::ImageSizeImageSizer;
 
 mod context_stabilization;
+mod runtime;
 
 mod paged;
 #[cfg(test)]
@@ -85,8 +86,8 @@ use paged::compile_to_paged_document_full_error;
 use paged::{
     bind_logical_page_numbers, compile_to_paged_document_full_error_and_features,
     compile_to_paged_document_full_error_and_features_with_introspector,
-    introspect_with_runtime_for_pipeline, layout_with_realized_math_callbacks_from,
-    page_reference_pages, realize_page_numberings,
+    layout_with_realized_math_callbacks_from, page_reference_pages,
+    realize_page_numberings,
 };
 mod html;
 pub use html::{

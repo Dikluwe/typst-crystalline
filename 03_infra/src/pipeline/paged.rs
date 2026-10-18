@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/paged.md
-//! @prompt-hash b2ac3091
+//! @prompt-hash 2049b7cf
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -134,33 +134,36 @@ pub(super) fn introspect_with_runtime_for_pipeline(
     SourceResult<typst_core::entities::introspector::TagIntrospector>,
     Vec<SourceDiagnostic>,
 ) {
-    let font_metrics = FallbackFontMetrics::new(world);
-    let mut ctx = EvalContext::new();
-    let mut styles = StyleChain::default_chain();
-    let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
-    let mut active_guards = Vec::new();
-    let mut sink = TypstSink::new();
-    let route = Route::root().with_id(source.id());
-    let result = {
-        let mut tracked_sink = sink.track_mut();
-        let mut local_sink = TrackedMut::reborrow_mut(&mut tracked_sink);
-        let mut engine = Engine {
-            world,
-            font_metrics: &font_metrics,
-            route: route.track(),
-            styles: &mut styles,
-            show_rules: &mut show_rules,
-            active_guards: &mut active_guards,
-            current_file: source.id(),
-            sink: &mut local_sink,
-        };
-        typst_core::compiler::introspect::introspect_with_runtime(
-            content,
-            &mut engine,
-            &mut ctx,
-        )
-    };
-    (result, sink.into_diagnostics())
+    introspect_with_runtime_for_target(
+        content,
+        world,
+        source,
+        EvalTarget::Paged,
+        typst_core::entities::compiler_features::Features::default(),
+    )
+}
+
+pub(super) fn introspect_with_runtime_for_target(
+    content: &Content,
+    world: &dyn World,
+    source: &Source,
+    target: EvalTarget,
+    features: typst_core::entities::compiler_features::Features,
+) -> (
+    SourceResult<typst_core::entities::introspector::TagIntrospector>,
+    Vec<SourceDiagnostic>,
+) {
+    super::runtime::with_introspection_runtime(
+        world,
+        source,
+        target,
+        features,
+        |engine, ctx| {
+            typst_core::compiler::introspect::introspect_with_runtime(
+                content, engine, ctx,
+            )
+        },
+    )
 }
 
 /// P1406 — realiza outlines com Engine em L3, mantendo toda a decisão
@@ -420,6 +423,17 @@ pub(super) fn compile_to_paged_document_full_error_and_features_with_introspecto
         .realization_introspector()
         .cloned()
         .unwrap_or_else(|| introspect_with_introspector(&intr_content));
+    let (supplements, supplement_warnings) = super::runtime::prepare_heading_supplements(
+        &mut intr,
+        world,
+        source,
+        EvalTarget::Paged,
+        features,
+    );
+    warnings.extend(supplement_warnings);
+    if let Err(errors) = supplements {
+        return (Err(errors), warnings);
+    }
     for (key, style) in module.bibliography_styles() {
         intr.bib_store.add_style(*key, style.clone());
     }

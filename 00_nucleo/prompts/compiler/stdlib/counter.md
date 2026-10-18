@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/counter` — objeto `counter` e métodos
-Hash do Código: a8c2a797
+Hash do Código: 047f32ee
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:bdbe23b72d7083b7672d71e851dc3d35baa8ed7ccb66f009f61edcf770d0aeff
@@ -589,3 +589,43 @@ e compostos, função homônima, partial/closure; preservar D05, D07 e query.
 Eliminar somente o wrapper sem chamadas counter_at_location de três argumentos, cujo módulo é pub(crate) e não possui reexport externo. Preservar counter_at_location_owned, usado pelo despacho com Engine/scopes/span, e counter_at_location_recorded. Os aliases em value_methods referem-se à versão owned e não ao wrapper morto. Não modificar a superfície counter.at(location), rastreamento de contexto, fallback ou diagnóstico.
 
 Correção interna em fluxo contínuo ADR-0127, sem nova assinatura pública, default de produto ou fase. Preservar os resultados de linguagem e as expectativas dos testes. Revalidar todos os targets, suíte core, build, Clippy e linhagem; não suprimir warnings para substituir a correção.
+
+## A1 — reparo de paridade medido em 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c; estado/UTC/fontes em
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. before-pdf-probe.json.gz
+no mesmo diagnóstico congela controles bilaterais de campo, admissão, callback
+e init. A auditoria anterior paridade-novo-vanilla-2026-10-17/inventario.md
+E02–E04 registra os limites de carrier e as fontes discriminantes; não se usa
+dump/estrutura Rust como critério. Estes observáveis são linguagem.
+
+### Responsabilidade exclusiva e aceitação
+
+A admissão usa native_element_fields, já dono do catálogo de identidade e
+locatabilidade. Preservar as quatro chaves Kind legadas. Outros elementos
+locatable já modelados (incluindo math.equation e aliases) usam NativeElement.
+Page só tem chave Page quando a identidade real catalogada for page, nunca
+f.name()==page isoladamente. Rejeitar não-locatáveis pelo validador existente
+(text is not locatable, cell etc.), sem lhes criar índice. Closure, .with e
+homônimo não entram. Não mudar updates, contagem automática, snapshot ou strings
+legadas. A whitelist histórica de quatro elementos deixa de limitar admissão.
+
+L0 primeiro, RED funcional e GREEN bilateral. Não alterar contrato público,
+default de produto, fase ou compatibilidade; gate A1-S1 é independente. Preservar
+1:1 e núcleos pinados; resselo após grafo válido. Build/workspace/Clippy estrito,
+Rustdoc/fmt/linhagem estrita e reversa, jobs sequenciais sob MemoryMax12GiB,
+High8GiB/swap0/jobs1. Debug0/incremental0 somente no ambiente de validação para
+reduzir picos; comparar consumo medido sem inferir ganho do produto.
+
+### Canonicalização do seletor admitido
+
+Fonte anterior à decisão: operators/equality.rs:205 compara Kind e NativeElement
+como variantes diferentes; foundations/selector.rs converte equation em Kind.
+O novo counter bare não deve fabricar uma chave diferente de counter(selector(f)).
+Depois de admitir/validar a função pelo catálogo, delegar a conversão canônica
+a native_selector e selector_to_key; manter Page separado e Footnote como Kind.
+A tabela de conversão de selector ganha Footnote já admitido pelo counter, sem
+segunda whitelist de admissão. Testar igualdade dos counters e contagem real.

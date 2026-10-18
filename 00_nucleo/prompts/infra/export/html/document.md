@@ -1,5 +1,5 @@
 # L0 — html/document
-Hash do Código: 329a1550
+Hash do Código: 6f0012ea
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
@@ -142,3 +142,31 @@ Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/base
 workspace-seventh/p1421 HTML contextual refuta perda de tag sob Source. Coleta/root, bloco-inline e render de documento/sequence delegam Source ao body, preservando tags, estilos, encoding e estado SmartQuote; Source não fabrica parágrafo/container.
 
 Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
+
+
+## A1 — projeção de marcadores introspectivos sem saída visual
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
+UTC/fontes/argv e diffstat em candidate-probe/target-controls/state-extended.json.gz
+e candidate-probes-resources.json de
+00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17.
+State reader-init, unused e at-prefix passam no PDF, mas HTML rejeita o marcador
+com unsupported; vanilla pin bd5ebec285505889e8ff1d4f68804ab147a699f3 aceita.
+Upstream foundations/styles.rs:1049–1050 registra StateUpdate/Metadata como empty
+em ambos os targets. Tekt document.rs:28–35 já projeta carriers antes de blocos;
+Label tem body (entities/content/construction.rs:391–398), que não pode sumir.
+Isto é conteúdo/erro observável. Não inferir intenção ou exigir mecânica upstream.
+
+### Responsabilidade e aceitação
+
+Na projeção visual já owned, StateUpdate, Metadata e inicializador State legado
+contribuem Empty; Label contribui seu body transformado. O índice semântico é
+construído antes e preserva ações, valores e labels. Não avaliar callbacks no
+exportador nem ocultar ContextBlock/StateDisplay não realizados. Preservar corpo
+de Label, fronteiras Heading e whitespace. Não certificar links/âncoras de Ref
+ou matemática HTML. Sem API pública, flag, fase ou default novo: correção de
+paridade em fluxo contínuo ADR-0127, teste RED→GREEN no próprio owner e sondas
+bilaterais PDF/HTML. Testar marcador entre texto, heading rotulado, metadado e
+State legado, inclusive erro de conteúdo ainda não suportado.

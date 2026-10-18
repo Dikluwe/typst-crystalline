@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/value.md
-//! @prompt-hash f972f17d
+//! @prompt-hash 3b687021
 //! @layer L1
 //! @updated 2026-10-08
 
@@ -25,7 +25,13 @@ use crate::entities::version::Version;
 #[derive(Debug, Clone, PartialEq)]
 pub struct IntrospectedContent {
     content: crate::entities::content::Content,
-    fields: Option<Arc<IndexMap<EcoString, Value, FxBuildHasher>>>,
+    fields: Option<Arc<SnapshotFields>>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+struct SnapshotFields {
+    values: IndexMap<EcoString, Value, FxBuildHasher>,
+    heading_styles: Option<Arc<crate::entities::style::Styles>>,
 }
 
 impl IntrospectedContent {
@@ -33,7 +39,11 @@ impl IntrospectedContent {
         content: crate::entities::content::Content,
         fields: Option<IndexMap<EcoString, Value, FxBuildHasher>>,
     ) -> Self {
-        Self { content, fields: fields.map(Arc::new) }
+        Self {
+            content,
+            fields: fields
+                .map(|values| Arc::new(SnapshotFields { values, heading_styles: None })),
+        }
     }
 
     pub fn content(&self) -> &crate::entities::content::Content {
@@ -41,7 +51,20 @@ impl IntrospectedContent {
     }
 
     pub fn fields(&self) -> Option<&IndexMap<EcoString, Value, FxBuildHasher>> {
-        self.fields.as_deref()
+        self.fields.as_ref().map(|fields| &fields.values)
+    }
+
+    pub(crate) fn with_heading_styles(
+        mut self,
+        styles: crate::entities::style::Styles,
+    ) -> Self {
+        let fields = self.fields.as_mut().expect("heading has a complete snapshot");
+        Arc::make_mut(fields).heading_styles = Some(Arc::new(styles));
+        self
+    }
+
+    pub(crate) fn heading_styles(&self) -> Option<&crate::entities::style::Styles> {
+        self.fields.as_ref()?.heading_styles.as_deref()
     }
 
     pub fn into_content(self) -> crate::entities::content::Content {

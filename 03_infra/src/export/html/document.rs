@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html/document.md
-//! @prompt-hash 923bea51
+//! @prompt-hash fbf70068
 //! @layer L3
 //! @updated 2026-10-07
 
@@ -30,6 +30,10 @@ pub(super) fn export_html_with_frame_resolver(
                 Content::Located(e) => Some(e.body.clone()),
                 Content::Realized(e) => Some(e.visual.clone()),
                 Content::ShowRecipe(e) => Some(e.body.clone()),
+                Content::Label(e) => Some(e.body.clone()),
+                Content::State(_) | Content::StateUpdate(_) | Content::Metadata(_) => {
+                    Some(Content::Empty)
+                }
                 _ => None,
             })
         })
@@ -405,5 +409,40 @@ mod heading_flow_regressions {
         )
         .unwrap();
         assert!(html.contains("<p>Before Inside After</p>"), "{html}");
+    }
+}
+
+#[cfg(test)]
+mod a1_introspection_projection {
+    use super::*;
+    use typst_core::entities::state_update::StateUpdate;
+    use typst_core::entities::value::Value;
+
+    #[test]
+    fn a1_html_preserves_labeled_body_and_hides_data_markers() {
+        let content = Content::sequence(vec![
+            Content::text("Before"),
+            Content::state("k", Value::Int(1)),
+            Content::state_update("k", StateUpdate::Set(Box::new(Value::Int(2)))),
+            Content::metadata(Value::Int(3)),
+            Content::label_auto("h", Content::heading(1, Content::text("Title"))),
+            Content::label("t", Content::text("After")),
+        ]);
+        let html = export_html_with_frame_resolver(
+            &content,
+            HtmlSerializationMode::Vanilla,
+            false,
+            None,
+        )
+        .unwrap();
+        assert!(html.contains("<p>Before</p><h2>Title</h2><p>After</p>"), "{html}");
+        let unsupported = Content::label("r", Content::reference("r"));
+        assert!(export_html_with_frame_resolver(
+            &unsupported,
+            HtmlSerializationMode::Vanilla,
+            false,
+            None,
+        )
+        .is_err());
     }
 }

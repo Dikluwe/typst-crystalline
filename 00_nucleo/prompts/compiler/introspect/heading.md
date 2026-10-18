@@ -1,5 +1,5 @@
 # L0 — introspect/heading
-Hash do Código: 5c18aac4
+Hash do Código: b0fa32b5
 
 ```text
 Núcleos Tekt:
@@ -186,3 +186,31 @@ T1: contratos de construção Box<ElementInfo>/Arc<Styles> e orçamento relativo
 ## Ratificação humana — 2026-10-16
 
 Proposta aprovada pelo humano, manifesto SHA-256 `282da3f8f79080a4831e1898879775e32a62caa0b2ffa941b8fca9198136b950`. O contrato acima passa a vigente; inclui materialização/testes T1–T6, sem release. Registro em `00_nucleo/diagnosticos/clippy-enums-publicos-2026-10-16/approval-receipt.json`.
+
+## A1 — callbacks de suplemento de Heading, 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c e working tree/UTC/hash
+registrados em 00_nucleo/diagnosticos/lote-a1-callbacks-reflexao-seletores-2026-10-17/before.json.gz.
+before-pdf-probe.json.gz: heading-supplement-panic termina em sucesso no Tekt
+e em A1_HEADING no vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
+heading-supplement-valid aceita ambos, mas só o vanilla usa Custom na referência.
+Fonte upstream model/heading.rs:249-289 sintetiza supplement por ocorrência e
+model/reference.rs:393-415 aplica a função e display. Set.rs:286-320 ignora
+supplement e limpa numbering; snapshot_fields heading.rs:55-68 fixa tradução.
+Isto é callback/valor observável, não exigência de mecânica upstream.
+
+### Decisão e responsabilidade exclusiva
+
+snapshot_fields conserva a especificação custom heading.supplement quando
+presente; sem especificação conserva o default traduzido causal. Func ainda é
+a especificação privada em construção, não resultado publicado; a finalização
+runtime substitui a entrada por um novo snapshot imutável já resolvido antes
+de entregá-lo a query. Esta seção supera o scope-out histórico de supplement
+Content/Func/none apenas nestas rotas. Nenhuma tabela nova de traduções.
+
+Correção de paridade em fluxo ADR-0127: sem nova API Rust, campo público ou
+transferência de lógica existente entre eval/layout. O pós-walk com Engine já
+é a fronteira de aplicação de callbacks. L0 primeiro, RED e controles bilaterais,
+sem callbacks em encoder/walk/layout e sem alegar paridade de todos os campos.

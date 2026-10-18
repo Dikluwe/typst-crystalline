@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/assert.md
-//! @prompt-hash 73f05091
+//! @prompt-hash 00babf12
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -85,19 +85,9 @@ pub fn native_assert(
 // (existe desde P513). Semântica medida no vanilla,
 // `foundations/mod.rs:198-247`: a mensagem de erro é o observável.
 
-/// Igualdade de valor com a coerção Int↔Float do `==` da linguagem
-/// (duplicado de `operators.rs::value_eq` — mesmo padrão já usado em
-/// `color.rs`; o helper de operators é privado ao seu módulo).
+/// Reutiliza a igualdade da linguagem, incluindo coerções e valores aninhados.
 fn values_equal(a: &Value, b: &Value) -> bool {
-    match (a, b) {
-        (Value::Int(a), Value::Float(b)) => (*a as f64) == *b,
-        (Value::Float(a), Value::Int(b)) => *a == (*b as f64),
-        (Value::Ratio(r), Value::Relative(rel))
-        | (Value::Relative(rel), Value::Ratio(r)) => {
-            rel.abs.is_zero() && (rel.rel - r.0).abs() < 1e-9
-        }
-        (a, b) => a == b,
-    }
+    crate::compiler::eval::operators::equality::values_eq(a, b)
 }
 
 /// Validação partilhada de `assert.eq`/`assert.ne`: apenas o named arg
@@ -188,4 +178,24 @@ pub fn native_assert_ne(
     }
 
     Ok(Value::None)
+}
+
+#[cfg(test)]
+mod a1_equality_tests {
+    use super::*;
+
+    #[test]
+    fn a1_assert_uses_language_relative_and_nested_numeric_equality() {
+        let absolute = Value::Length(crate::entities::layout_types::Length::pt(1.0));
+        let relative = Value::Relative(crate::entities::rel::Rel {
+            rel: 0.0,
+            abs: crate::entities::layout_types::Length::pt(1.0),
+        });
+        assert!(values_equal(&absolute, &relative));
+        assert!(values_equal(
+            &Value::Array(vec![Value::Int(1)]),
+            &Value::Array(vec![Value::Float(1.0)])
+        ));
+        assert!(!values_equal(&Value::Int(1), &Value::Int(2)));
+    }
 }
