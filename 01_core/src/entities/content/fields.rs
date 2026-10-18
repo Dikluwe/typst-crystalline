@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content/fields.md
-//! @prompt-hash 2fdbf1ad
+//! @prompt-hash c7ac64fd
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -160,6 +160,10 @@ impl Content {
             (Content::ShowRecipe(e), f) => e.body.get_field(f),
             (Content::Located(e), f) => e.body.get_field(f),
             (Content::Realized(e), f) => e.visual.get_field(f),
+            (Content::Empty, "children") => Some(Value::Array(vec![])),
+            (Content::Sequence(children), "children") => {
+                Some(Value::Array(children.iter().cloned().map(Value::Content).collect()))
+            }
             (Content::Text(text), "text") => Some(Value::Str(text.clone())),
             (Content::HSpace(e), "amount") => Some(match e.amount {
                 crate::entities::elements::h_space::Spacing::Absolute(length) => {
@@ -549,5 +553,33 @@ mod content_view_regressions {
                 "{kind}/inner"
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod sequence_reflection_tests {
+    use super::Content;
+    use crate::entities::{span::Span, value::Value};
+
+    #[test]
+    fn sequence_reflection_getter_keeps_immediate_children_and_empty_text() {
+        let children = vec![
+            Content::text(""),
+            Content::sequence(vec![Content::text("A"), Content::text("B")]),
+        ];
+        let span = Span::from_range(
+            crate::entities::file_id::FileId::from_raw(
+                std::num::NonZeroU16::new(7).unwrap(),
+            ),
+            0..1,
+        );
+        let c = Content::Sequence(children.clone().into()).with_source_span(span);
+        assert_eq!(
+            c.get_field("children"),
+            Some(Value::Array(children.into_iter().map(Value::Content).collect()))
+        );
+        assert_eq!(Content::Empty.get_field("children"), Some(Value::Array(vec![])));
+        assert_eq!(Content::text("").get_field("children"), None);
+        assert_eq!(c.get_field("body"), None);
     }
 }

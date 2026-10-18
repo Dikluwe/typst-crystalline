@@ -1,5 +1,5 @@
 # L0 — entities/content/identity
-Hash do Código: 2c607dd6
+Hash do Código: 31555b9d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
@@ -256,3 +256,41 @@ para elem_name devolver heading nessa forma. Styled externo/não marcado mantém
 styled. Não remover wrappers em geral nem alterar debug estrutural ou assinaturas.
 Isso conserva nomes corretos de erro de campo; L0 antes do código e testes
 func/campos/erro/Styled opaco, sem nova API além da fachada já ratificada.
+
+## R1 — reflexão de sequência e vazio, fluxo contínuo ADR-0127
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
+00_nucleo/diagnosticos/sequence-reflection-2026-10-17/before.json.gz e
+before-sources.json.gz guardam UTC, diffstat, fontes e SHA dos binários. Pin
+vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. No upstream
+lab/typst-original/crates/typst-library/src/foundations/content/mod.rs:724–728,
+Sequence tem children requerido; :538–585 projeta has/at/fields. As sondas
+empty-fields/empty-func/empty-children e sequence-fields/sequence-children/
+sequence-single/sequence-for refutam o Tekt: campos ausentes e nome empty.
+fields.rs:317–322 deixa Empty/Sequence no complemento sem campos;
+identity.rs:24 usa empty; content_methods.rs:242 enumera somente body no
+fallback. São morfologia e semântica da linguagem, não exigência de copiar
+representação Rust. Text vazio continua texto; Styled comum permanece opaco.
+
+### Responsabilidade exclusiva
+
+O nome de elemento da variante Empty passa a sequence, como Sequence, para
+func e mensagens de campos. A assinatura elem_name, as demais identidades e
+o Debug Rust permanecem iguais. Esta seção supera a estabilidade histórica
+do nome empty apenas nesta variante, por medição de linguagem.
+
+### Aceitação e divisão explícita
+
+R1 é incompleto para a função Sequence: R2 completará construção e admissão
+em selector/where/show/counter, medindo argumentos, identidade e limites antes
+de alterar seus owners. before.json.gz registra esses refutadores abertos.
+Não anunciar paridade total de func() ou de sequência por este reparo.
+A mensagem genérica de método inválido também permanece fora de R1.
+
+Sem novos campos, tipos, traits ou assinaturas Rust públicas, fase ou modo
+de produto. L0 antes de código, RED→GREEN, testes de regressão, workspace,
+build, Clippy/Rustdoc estritos, ownership/núcleos/linhagem e reversa válidos;
+V16 não aumenta. Resselo somente após V15/V26 válido. Validação sequencial
+com MemoryMax12GiB/High8GiB/swap0/jobs1; registrar pico, não inferir ganho.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 50336360
+//! @prompt-hash f499f066
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -32081,6 +32081,54 @@ mod regressions {
         ] {
             let world = MockWorld::new(source);
             assert!(eval_for_test(&world, &world.source).is_ok(), "{source}");
+        }
+    }
+
+    mod sequence_reflection_tests {
+        use super::*;
+
+        #[test]
+        fn sequence_reflection_empty_and_nonempty_language_fields() {
+            for source in [
+                r#"#assert.eq([].fields(),(children:()));#assert.eq([].children,());#assert([].has("children"));#assert(not [].has("body"));#assert.eq([].at("children"),());#assert.eq([].at("missing",default:7),7);#assert.eq(repr([].func()),"sequence")"#,
+                r#"#let c=[A]+[B];#assert.eq(c.fields(),(children:([A],[B])));#assert.eq(c.children,([A],[B]));#assert(c.has("children"));#assert.eq(c.at("children"),([A],[B]))"#,
+                r#"#let c=[]+[A];#assert.eq(c.fields(),(children:([A],)));#assert.eq(c.children,([A],));#assert.eq(repr(c.func()),"sequence")"#,
+            ] {
+                let world = MockWorld::new(source);
+                let result = eval_for_test(&world, &world.source);
+                assert!(result.is_ok(), "{source}: {result:?}");
+            }
+        }
+
+        #[test]
+        fn sequence_reflection_loops_and_aliases_keep_order() {
+            let world = MockWorld::new(
+                r#"#let a=for i in range(3) {[X]};#let b=a+[Y];#assert.eq(a.children,([X],[X],[X]));#assert.eq(b.children,([X],[X],[X],[Y]));#assert.eq(a.fields().keys(),("children",))"#,
+            );
+            let result = eval_for_test(&world, &world.source);
+            assert!(result.is_ok(), "{result:?}");
+        }
+
+        #[test]
+        fn sequence_reflection_unknown_field_uses_language_identity() {
+            for (source, message) in [
+            (r#"#[].missing"#, "sequence does not have field \"missing\""),
+            (r#"#[].at("missing")"#, "sequence does not have field \"missing\" and no default was specified"),
+            (r#"#[X].children"#, "text does not have field \"children\""),
+        ] {
+            let world = MockWorld::new(source);
+            let errors = eval_for_test(&world, &world.source).unwrap_err();
+            assert!(errors.iter().any(|e| e.message == message), "{errors:?}");
+        }
+        }
+
+        #[test]
+        fn sequence_reflection_styled_remains_opaque() {
+            let world = MockWorld::new(
+                r#"#let c={set text(fill:red);[A]+[B]};#assert.eq(repr(c.func()),"styled");#assert(not c.has("children"));#assert.eq(c.at("children",default:7),7)"#,
+            );
+            let result = eval_for_test(&world, &world.source);
+            assert!(result.is_ok(), "{result:?}");
         }
     }
 }

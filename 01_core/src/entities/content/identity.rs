@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content/identity.md
-//! @prompt-hash f0de33c8
+//! @prompt-hash b3588ee5
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -21,7 +21,7 @@ impl Content {
             Self::Realized(e) => e.visual.elem_name(),
             Self::Text(_) => "text",
             Self::Space | Self::SpaceFromNewline => "space",
-            Self::Empty => "empty",
+            Self::Empty => "sequence",
             Self::Sequence(_) => "sequence",
             Self::HtmlElem(_) => "elem",
             Self::HtmlFrame(_) => "frame",

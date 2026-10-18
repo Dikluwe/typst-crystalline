@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access/content_methods
-Hash do Código: 9b086c6c
+Hash do Código: 56ab78c7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:923f1c9e4c2fd5934316ae2eef3dbb461c3bef3009de1d8931d951e793dda342
@@ -342,3 +342,42 @@ cinco helpers State. Sem novos campos públicos. Styled ordinário e demais
 callbacks conservam suas fronteiras. Workspace/doctests/build/Clippy/Rustdoc,
 fmt, V1/V5/V15/V26/reversa e V16 sem aumento; 12GiB/High8GiB/swap0/jobs1,
 comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.
+
+## R1 — reflexão de sequência e vazio, fluxo contínuo ADR-0127
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
+00_nucleo/diagnosticos/sequence-reflection-2026-10-17/before.json.gz e
+before-sources.json.gz guardam UTC, diffstat, fontes e SHA dos binários. Pin
+vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3. No upstream
+lab/typst-original/crates/typst-library/src/foundations/content/mod.rs:724–728,
+Sequence tem children requerido; :538–585 projeta has/at/fields. As sondas
+empty-fields/empty-func/empty-children e sequence-fields/sequence-children/
+sequence-single/sequence-for refutam o Tekt: campos ausentes e nome empty.
+fields.rs:317–322 deixa Empty/Sequence no complemento sem campos;
+identity.rs:24 usa empty; content_methods.rs:242 enumera somente body no
+fallback. São morfologia e semântica da linguagem, não exigência de copiar
+representação Rust. Text vazio continua texto; Styled comum permanece opaco.
+
+### Responsabilidade exclusiva
+
+Enumerar children como único campo candidato para Empty e Sequence.
+content_field usa get_field do owner; children é Set inclusive quando vazio,
+body/missing são Undeclared. Preservar Source e a opacidade de Styled.
+func continua pelo bridge existente, com nome sequence fornecido por elem_name.
+Não classificar funções pelo nome nem ampliar o catálogo de seletores aqui.
+
+### Aceitação e divisão explícita
+
+R1 é incompleto para a função Sequence: R2 completará construção e admissão
+em selector/where/show/counter, medindo argumentos, identidade e limites antes
+de alterar seus owners. before.json.gz registra esses refutadores abertos.
+Não anunciar paridade total de func() ou de sequência por este reparo.
+A mensagem genérica de método inválido também permanece fora de R1.
+
+Sem novos campos, tipos, traits ou assinaturas Rust públicas, fase ou modo
+de produto. L0 antes de código, RED→GREEN, testes de regressão, workspace,
+build, Clippy/Rustdoc estritos, ownership/núcleos/linhagem e reversa válidos;
+V16 não aumenta. Resselo somente após V15/V26 válido. Validação sequencial
+com MemoryMax12GiB/High8GiB/swap0/jobs1; registrar pico, não inferir ganho.

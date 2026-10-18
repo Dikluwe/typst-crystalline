@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access/content_methods.md
-//! @prompt-hash 43834372
+//! @prompt-hash a253f53c
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -238,6 +238,7 @@ pub(super) fn content_set_fields(
     use crate::entities::content::Content;
     let c = c.source_body();
     let candidates: &[&'static str] = match c {
+        Content::Empty | Content::Sequence(_) => &["children"],
         Content::HSpace(_) | Content::VSpace(_) => &["amount", "weak"],
         Content::Boxed(_) => &["width", "height"],
         Content::Block(_) => &["width", "height", "body"],
