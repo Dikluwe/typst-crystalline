@@ -1,5 +1,5 @@
 # L0 — line commit
-Hash do Código: 0c854e09
+Hash do Código: afb7ba2c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:7b8a61eaafc8a07df12218f8f0560c33fae5c36f621b822b7350ccefc9774711
@@ -561,3 +561,127 @@ baseline, fim, espessura, texto ou região fora do delta horizontal prescrito.
 Correção privada de paridade ADR0127 em fluxo contínuo, sem fase/API nova.
 
 Responsabilidade deste owner: O segmento do collector usa a borda esquerda efetiva do parágrafo já admitido, mantendo end_x/baseline e a ordem de coleta/alinhamento existentes. Não substituir o collector nem alterar flush/paginação.
+
+## Arestas reais de faces mistas — 2026-10-18
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/mixed-style-metrics-2026-10-18/before-sources.json.gz
+preserva2102 fontes/L0s, HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c,
+working tree, diffstat/UTC e manifesto predecessor800c53750031041b4d61a26673d563e842b104c061cacc450173e6f29760d534.
+CLI ce9981c27e72e389cb208884416cb10b1bbdd4c17803247d9570ecf7e1389a80;
+oracle bd5ebec285505889e8ff1d4f68804ab147a699f3, binário9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9.
+24 pares genéricos PDF/SVG e seis bibliográficos estão em before/bib-before.
+O audit-before compõe as matrizes SVG para medir posições de glyphs, sem
+depender do FontDescriptor do PDF nem dos IDs internos. Libertinus12:
+italic→roman tem baseline15.740 no Tekt vs15.896; roman→italic coincide.
+Roman\\Italic\\Roman mede15.896/31.592/47.288 vs15.896/31.436/47.132.
+Na MLA, a segunda baseline local23.592 diverge da23.436 vanilla; as linhas
+seguintes puramente itálicas mantêm0.156pt. Casos de tamanho24pt e outras
+fontes são controles; desvios horizontais anteriores dessas fontes não
+legitimam reparo de largura neste lote.
+
+line_commit.rs:361–402 escolhe max_text por size e conserva a primeira face
+no empate, embora text_edges possa diferir entre faces do mesmo tamanho.
+:491–501 aplica clamp positivo fora do modo geométrico, conservando uma
+previsão de topo maior que o real da nova linha. Fonte pinada comprovada:
+crates/typst-layout/src/inline/line.rs:559–568,616–633 reúne o máximo das
+baselines e descidas dos frames; shaping.rs fornece seus frames. Isso é
+geometria de linguagem, não exigência de reproduzir buffers ou sort Rust.
+A hipótese é refutada por nova regressão de y/páginas, largura/seleção
+alteradas, consulta de fonte por marker neutro ou dupla medida de Group.
+
+### Decisão e responsabilidade exclusiva
+
+Correção interna de paridade ADR0127 em fluxo contínuo. Sem assinatura,
+trait, entidade pública, modo/flag, fase ou ordem de callbacks novos.
+Este adendo supersede a seleção de arestas por maior tamanho e o clamp
+positivo obrigatório para linhas textuais ordinárias. As políticas
+pré-existentes de leading, previsão do próximo topo, colunas e singleton
+certificado continuam independentes; não remover seus casos medidos.
+
+Agregar em uma passagem as arestas reais de todos os estilos textuais
+relevantes: topo máximo e bottom mínimo são independentes e podem vir de
+faces distintas; maior tamanho nominal não certifica maior ascent. Conservar
+o seletor de tamanho/estilo para os fallbacks históricos de avanço, sem
+usá-lo como substituto do máximo real de emissão. Não alocar um vetor por
+linha: usar visitante estático e acumuladores locais.
+
+Ler Text, TextShaped e TextSeparator Literal. Link, Semantic e
+TextReplacement são envelopes transparentes de coordenadas e devem visitar
+seus filhos uma vez; texto de substituição não cria métrica própria.
+Markers de contexto/posição/captura são neutros. Group conserva sua caixa
+transformada e extensões inline, sem medir seus filhos locais outra vez;
+Glyph, Shape, Image, Line e separadores fracos permanecem nos protocolos
+atuais. O match é nominal/exaustivo; agrupamentos neutros são deliberados e
+não constituem prova de cobertura de todas as alternativas (V19 visível).
+
+Em texto ordinário com métricas reais, reconciliar a baseline prevista com
+o máximo entre topo real e ascent inline usando a diferença com sinal:
+o topo da linha fica fixo também quando a face muda para um topo menor.
+Sem texto, conservar a correção positiva e os fallbacks atuais. Colunas e
+force_outer_singleton mantêm suas proteções/correção histórica (salvo modo
+geométrico já certificado), sem ampliar este lote para fórmulas escalares
+de prefixo. Para a descida física, usar o maior descent real compatível com
+os fallbacks explicitamente existentes; não o bottom da face de maior size.
+Some(0) continua ascent instalado válido, conforme núcleo pinado.
+
+### Aceitação
+
+Testes antes do código por FontMetrics injetado, sem função nova inexistente
+como RED: duas faces no mesmo tamanho nas duas ordens; face menor com topo
+maior; top/bottom dominados por faces distintas; reconciliação negativa de
+linha seguinte; envelopes transparentes; Group opaco e separador fraco
+neutro. Controles P1381/P1392, ascent instalado zero, prefixos e callbacks
+conservam seus esperados. RED→GREEN,30 pares fonte→PDF/SVG, corpus anterior
+132+94 e decorações21, suíte ampla, Clippy/Rustdoc/fmt/linhagem e diferencial
+Tekt sob12GiB/High8GiB/swap0/jobs1. Data fixa para snapshots de PDF.
+Se a fonte demonstrar outro problema horizontal ou de container, registrar
+separadamente, sem relaxar igualdade completa de0.001pt nem silenciar lint.
+
+## Faces mistas, fronteiras e regiões — refinamento medido 2026-10-18
+
+### Medição antes da decisão
+
+Os registros first-after/first-bib-after/first-regions-after e
+candidate1-sources em mixed-style-metrics-2026-10-18 preservam o candidato
+com apenas line_commit alterado e os sete testes verdes. audit-candidate1
+mede y SVG igual no título dos seis casos bibliográficos e na mistura
+itálico→romano, mas forced ainda difere0.156. linebreak.rs:46–58 acrescenta
+ExplicitLinebreakBoundary com Text vazio de estilo exterior; esse filho é
+causal para bidi, não uma face material.
+
+Os20 controles regionais PDF preservam os mesmos binários/pin e fontes do
+registro before-sources. Na altura39.44pt, o Tekt põe ITALIC na página2;
+o vanilla o conserva na página1. Em55.14pt forced usa2 páginas vs1. Em70pt
+wrap distribui3+1 linhas vs2+2. O primeiro candidato corrige y das linhas
+wrapped, mas não essas decisões regionais. A tentativa SVG sem template
+de páginas foi preservada em regions-before: o oracle recusa saída múltipla
+sem padrão; não é prova SVG de paridade. Para regiões, usar os PDFs válidos,
+e o script regional futuro solicita somente PDF.
+
+region_progress.rs:83–88 instala baseline com uma face mas não atualiza o
+ascent assumido. :143–152 admite só pela previsão, antes do texto real.
+paragraph_pagination.rs:43–59 recusa arestas diferentes, desligando a
+proteção de custos positivos, embora a seleção de ranges já seja conhecida.
+Fonte pinada flow/collect.rs:196–239 protege primeiros/últimos frames com
+suas alturas reais; distribute.rs:343–364 avança o grupo apenas quando cabe
+na próxima região. A geometria/palavras/páginas são linguagem; formato do
+Profile e IDs SVG são mecânica. Refutar por salto precoce, recontagem,
+callbacks novos, métrica por Group, alteração de largura/seleção/leading
+ou regressão de colunas/notas/float/NoTypography.
+
+### Classificação
+
+Refinamento privado de paridade ADR0127 contínuo: sem contrato público,
+flag/default do produto ou fase/ordem de callbacks nova. Preservar caminhos
+recusados/escalares anteriores. A medição amplia apenas a certificação
+regional de texto preparado com mesmo size/leading, baseline_offset zero,
+arestas finitas não negativas e faces com tops/descents diferentes. Tamanhos
+ou leading variáveis continuam fora dessa certificação, sem alegar paridade
+completa nesses casos.
+
+### Responsabilidade exclusiva deste owner
+Não ler as faces dos filhos de ExplicitLinebreakBoundary/ParbreakBoundary. Esses marcadores conservam seus filhos e posição para bidi/cópia; não contribuem top/bottom. Text vazio autoral fora deles conserva sua métrica, inclusive linhas vazias explícitas. Os demais Semantic com corpo real continuam transparentes. Novo teste mede a baseline e preservação do marcador, não a remoção do envelope.
+
+Aceitação: RED→GREEN das quatro regressões adicionais e dos controles existentes, matriz30+20 regional PDF, corpus132+94+21, suíte ampla/Clippy/Rustdoc/linhagem e12GiB/High8GiB/swap0/jobs1. Registrar as tentativas sem ocultar falhas.

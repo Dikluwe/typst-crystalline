@@ -1,5 +1,5 @@
 # L0 — paragraph_emit
-Hash do Código: 2af9150a
+Hash do Código: 5fba1d13
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:3a97c056eff81b344f46d83567274225e3519ae141fce4817e342d573a92fb41
@@ -147,3 +147,50 @@ as alternativas por executar um arm agrupado: classificações nominais fechadas
 do contexto inline/fluxo são intencionais e exigem testes por classe/variante.
 Resselo apenas após V15/V26 válidos; testes, build, Clippy/Rustdoc/fmt, reversa
 e diferencial Tekt do pin1279707, sob12GiB/High8GiB/swap0/jobs1. Sem publicação.
+
+## Faces mistas, fronteiras e regiões — refinamento medido 2026-10-18
+
+### Medição antes da decisão
+
+Os registros first-after/first-bib-after/first-regions-after e
+candidate1-sources em mixed-style-metrics-2026-10-18 preservam o candidato
+com apenas line_commit alterado e os sete testes verdes. audit-candidate1
+mede y SVG igual no título dos seis casos bibliográficos e na mistura
+itálico→romano, mas forced ainda difere0.156. linebreak.rs:46–58 acrescenta
+ExplicitLinebreakBoundary com Text vazio de estilo exterior; esse filho é
+causal para bidi, não uma face material.
+
+Os20 controles regionais PDF preservam os mesmos binários/pin e fontes do
+registro before-sources. Na altura39.44pt, o Tekt põe ITALIC na página2;
+o vanilla o conserva na página1. Em55.14pt forced usa2 páginas vs1. Em70pt
+wrap distribui3+1 linhas vs2+2. O primeiro candidato corrige y das linhas
+wrapped, mas não essas decisões regionais. A tentativa SVG sem template
+de páginas foi preservada em regions-before: o oracle recusa saída múltipla
+sem padrão; não é prova SVG de paridade. Para regiões, usar os PDFs válidos,
+e o script regional futuro solicita somente PDF.
+
+region_progress.rs:83–88 instala baseline com uma face mas não atualiza o
+ascent assumido. :143–152 admite só pela previsão, antes do texto real.
+paragraph_pagination.rs:43–59 recusa arestas diferentes, desligando a
+proteção de custos positivos, embora a seleção de ranges já seja conhecida.
+Fonte pinada flow/collect.rs:196–239 protege primeiros/últimos frames com
+suas alturas reais; distribute.rs:343–364 avança o grupo apenas quando cabe
+na próxima região. A geometria/palavras/páginas são linguagem; formato do
+Profile e IDs SVG são mecânica. Refutar por salto precoce, recontagem,
+callbacks novos, métrica por Group, alteração de largura/seleção/leading
+ou regressão de colunas/notas/float/NoTypography.
+
+### Classificação
+
+Refinamento privado de paridade ADR0127 contínuo: sem contrato público,
+flag/default do produto ou fase/ordem de callbacks nova. Preservar caminhos
+recusados/escalares anteriores. A medição amplia apenas a certificação
+regional de texto preparado com mesmo size/leading, baseline_offset zero,
+arestas finitas não negativas e faces com tops/descents diferentes. Tamanhos
+ou leading variáveis continuam fora dessa certificação, sem alegar paridade
+completa nesses casos.
+
+### Responsabilidade exclusiva deste owner
+Encaminhar ao certificador privado os ranges já selecionados no caminho emit e a fatia já preparada de linhas no caminho emit_prepared_lines. Reutilizar o Profile emprestado na admissão de cada linha. Não duplicar geometria/group_size, não refazer seleção, alterar estilos, carriers, justificação ou executar conteúdo para prever futuras linhas.
+
+Aceitação: RED→GREEN das quatro regressões adicionais e dos controles existentes, matriz30+20 regional PDF, corpus132+94+21, suíte ampla/Clippy/Rustdoc/linhagem e12GiB/High8GiB/swap0/jobs1. Registrar as tentativas sem ocultar falhas.

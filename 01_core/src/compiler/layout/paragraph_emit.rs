@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/paragraph_emit.md
-//! @prompt-hash 97076a46
+//! @prompt-hash c17aa396
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -36,7 +36,7 @@ pub(super) fn emit<M: FontMetrics, S: ImageSizer>(
 ) {
     super::paragraph_indent::start(l);
     let saved = l.style.clone();
-    let pagination = super::paragraph_pagination::certify(l, &[p]);
+    let pagination = super::paragraph_pagination::certify_selected(l, p, lines);
     for (index, &line) in lines.iter().enumerate() {
         super::paragraph_pagination::admit(l, pagination, index, lines.len());
         emit_line(l, p, line, width, justify, index + 1 < lines.len());
@@ -102,8 +102,7 @@ pub(super) fn emit_prepared_lines<M: FontMetrics, S: ImageSizer>(
 ) {
     super::paragraph_indent::start(l);
     let saved = l.style.clone();
-    let refs: Vec<_> = lines.iter().collect();
-    let pagination = super::paragraph_pagination::certify(l, &refs);
+    let pagination = super::paragraph_pagination::certify_prepared(l, lines);
     for (i, p) in lines.iter().enumerate() {
         super::paragraph_pagination::admit(l, pagination, i, lines.len());
         emit_line(

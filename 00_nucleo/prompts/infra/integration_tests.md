@@ -1,5 +1,5 @@
 # L0 — Infrastructure end-to-end test harness
-Hash do Código: c07ccce5
+Hash do Código: 15f5874c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
@@ -407,3 +407,31 @@ Manutenção interna ADR-0127 em fluxo contínuo: nenhum enum/campo novo, métod
 Antes do código, executar o controle novo de FrameVisitor e a suíte workspace nos mesmos esperados, e confirmar RED dos 70 avisos da família por leitura AST. Após código, zero V16 dessa família nos locais abrangidos e nenhum aviso novo; manter V16 externos como pendências. Nos matches do core produtivo alcançados por cargo check -p typst-core, usar cópia descartável com uma variante sentinela de FrameItem para medir ausência de E0004 nos locais antes e presença depois. A sonda cobre somente os locais efetivamente compilados: não extrapolar aos helpers cfg(test) ou L3 que a dependência impede de alcançar. Para todo o lote, conferir padrões/guards/corpos por replay, enum e assinaturas inalterados, build e testes reais. Não substituir corpos por stubs.
 
 Revalidar suíte workspace completa, cargo build, Clippy workspace/all-targets com -D warnings e -D unfulfilled_lint_expectations, formato, Rustdoc -D warnings com quatro índices HTML, linhagem V1/V5/V15/V26 estrita/reversa, SARIF e diff --check. Fontes/L0/configuração ficam congelados durante comandos. Execuções pesadas sequenciais com MemoryMax=12 GiB, MemorySwapMax=0 e CARGO_BUILD_JOBS=1. Não apresentar saneamento estrutural como nova paridade global, ganho de memória ou benefício medido para IA.
+
+
+## Ordem geométrica no stress de Grid — refinamento 2026-10-18
+
+### Medição antes da decisão
+
+mixed-style-metrics-2026-10-18/initial-workspace.log registra o único RED
+do alvo typst-infra --lib em stress_81_5_row_height_e_maximo_da_linha:
+41.449999999999996 >= 41.45
+falha em integration_tests.rs:2212. O desvio é 7.105427357601002e-15pt;
+um epsilon de f64 relativo à magnitude dessas coordenadas mede
+9.203748874142547e-15pt. rounding-before conserva fontes/L0/UTC e os
+valores exatos, antes desta decisão. Os demais controles de Grid da fixture
+passam. O contrato é a ordem geométrica, não identidade de aritmética binária.
+Não inferir desse RED isolado um erro de linha, altura ou quebra do produto.
+
+### Responsabilidade e aceitação
+
+Somente a desigualdade de ordem vertical desse teste admite erro numérico
+limitado a f64::EPSILON * max(abs(y_linha1), abs(y_max_linha0), 1).
+Exigir as duas coordenadas finitas. Comparar a diferença assinada com esse
+limite; não arredondar o documento ou alterar a fixture, observador de itens,
+posições esperadas, layout, snapshots e os demais testes/tolerâncias.
+Isto supersede a proibição genérica de mudar tolerâncias apenas nesse teste:
+um erro geométrico maior que esse bound deve continuar falhando. A tolerância
+de paridade de 0.001pt não se aplica aqui e não é relaxada por este adendo.
+Correção privada de observação ADR-0127/ADR-0107, com o RED preservado,
+L0 antes do código, resselo e revalidação ampla no freeze refinado.

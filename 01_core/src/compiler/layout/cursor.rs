@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cursor.md
-//! @prompt-hash fd8198e5
+//! @prompt-hash 18127bfa
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -80,15 +80,39 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// o offset do `top-edge` do estilo activo (default `cap-height`), convertendo
     /// `cursor_y` na baseline da primeira linha. Depois de fixada, a flag é desactivada.
     pub(super) fn ensure_initial_baseline(&mut self) {
+        self.ensure_baseline_for(super::region_progress::Admission::Generic);
+    }
+
+    pub(super) fn ensure_text_baseline(&mut self) {
+        self.ensure_baseline_for(super::region_progress::Admission::Text);
+    }
+
+    pub(super) fn ensure_line_baseline(&mut self, top: f64) {
+        self.ensure_baseline_for(super::region_progress::Admission::KnownTop(top));
+    }
+
+    fn ensure_baseline_for(&mut self, admission: super::region_progress::Admission) {
         if self.initial_baseline_pending {
-            let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
+            let top = match admission {
+                super::region_progress::Admission::KnownTop(top) => Pt(top),
+                super::region_progress::Admission::Generic
+                | super::region_progress::Admission::Text => {
+                    self.metrics.text_edges(self.style.size, &self.style).0
+                }
+            };
             self.regions.current.cursor_y += top;
             // P1120 — ascent assumido ao fixar esta baseline.
             self.line_assumed_ascent = Some(top.0);
             self.initial_baseline_pending = false;
             self.prev_margin_is_parbreak = false;
         } else if self.block_chain_active {
-            let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
+            let top = match admission {
+                super::region_progress::Admission::KnownTop(top) => Pt(top),
+                super::region_progress::Admission::Generic
+                | super::region_progress::Admission::Text => {
+                    self.metrics.text_edges(self.style.size, &self.style).0
+                }
+            };
             let gap = if self.prev_margin_is_parbreak {
                 let above = match self.chain.custom("par.spacing") {
                     Some(crate::entities::value::Value::Length(v)) => {
@@ -151,7 +175,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.prev_block_equation_descent = 0.0;
             self.last_equation_descent = 0.0;
         } else {
-            super::region_progress::admit_next_text_line(self);
+            super::region_progress::admit_next_text_line(self, admission);
         }
     }
 

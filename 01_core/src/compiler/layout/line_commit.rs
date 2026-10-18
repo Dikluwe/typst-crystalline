@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/line_commit.md
-//! @prompt-hash a075dc3e
+//! @prompt-hash eb5e791e
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -99,6 +99,39 @@ fn literal_line_right(items: &[FrameItem]) -> f64 {
             FrameItem::Group { .. } => 0.0,
         })
         .fold(0.0_f64, f64::max)
+}
+
+/// Transparent visual envelopes share line coordinates; transformed groups do not.
+fn visit_text_styles(items: &[FrameItem], visit: &mut impl FnMut(&TextStyle)) {
+    for item in items {
+        if super::html_frame::is_context_marker(item) {
+            continue;
+        }
+        match item {
+            FrameItem::Text { style, .. }
+            | FrameItem::TextShaped { style, .. }
+            | FrameItem::TextSeparator {
+                style,
+                origin: crate::entities::layout_types::TextSeparatorOrigin::Literal,
+                ..
+            } => visit(style),
+            FrameItem::Semantic {
+                kind:
+                    crate::entities::layout_types::SemanticKind::ExplicitLinebreakBoundary
+                    | crate::entities::layout_types::SemanticKind::ParbreakBoundary,
+                ..
+            } => {}
+            FrameItem::Link { items, .. }
+            | FrameItem::Semantic { items, .. }
+            | FrameItem::TextReplacement { items, .. } => visit_text_styles(items, visit),
+            FrameItem::TextSeparator { .. }
+            | FrameItem::Group { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Line { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. } => {}
+        }
+    }
 }
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
@@ -350,48 +383,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // current_line durante o drain). Se a linha não tiver items de texto,
         // usa self.style como fallback.
         let outer_font_size = self.style.size;
-        #[allow(deprecated)]
-        let (max_text, first_text_size, mut mixed_text_sizes, text_count) = self
-            .regions
-            .current
-            .current_line
-            .iter()
-            .filter_map(|item| match item {
-                crate::entities::layout_types::FrameItem::Text { style, .. }
-                | crate::entities::layout_types::FrameItem::TextShaped {
-                    style, ..
-                }
-                | crate::entities::layout_types::FrameItem::TextSeparator {
-                    style,
-                    origin: crate::entities::layout_types::TextSeparatorOrigin::Literal,
-                    ..
-                } => Some((style.size, style.clone())),
-                _ => None, // neutro: N16[β] — itens não-textuais não contribuem métricas de tamanho para cálculo de linha
-            })
-            .fold(
-                (
-                    None::<(Pt, crate::entities::layout_types::TextStyle)>,
-                    None::<f64>,
-                    false,
-                    0usize,
-                ),
-                |(max_text, first_size, mixed, text_count), (size, style)| {
-                    let mixed = mixed
-                        || (text_count > 0 && size.0 != outer_font_size.0)
-                        || first_size.is_some_and(|first| size.0 != first);
-                    let first_size = first_size.or(Some(size.0));
-                    let max_text = match max_text {
-                        Some((max_size, max_style)) if max_size.0 >= size.0 => {
-                            Some((max_size, max_style))
-                        }
-                        _ => Some((size, style)),
-                    };
-                    (max_text, first_size, mixed, text_count + 1)
-                },
-            );
-        let actual_text_top = max_text
-            .as_ref()
-            .map_or(0.0, |(size, style)| self.metrics.text_edges(*size, style).0 .0);
+        let mut max_text = None::<(Pt, TextStyle)>;
+        let mut first_text_size = None::<f64>;
+        let mut mixed_text_sizes = false;
+        let mut text_count = 0usize;
+        let mut actual_text_top = 0.0_f64;
+        let mut actual_text_bottom = 0.0_f64;
+        visit_text_styles(&self.regions.current.current_line, &mut |style| {
+            let size = style.size;
+            mixed_text_sizes |= (text_count > 0 && size.0 != outer_font_size.0)
+                || first_text_size.is_some_and(|first| size.0 != first);
+            first_text_size = first_text_size.or(Some(size.0));
+            if max_text.as_ref().is_none_or(|(max, _)| size.0 > max.0) {
+                max_text = Some((size, style.clone()));
+            }
+            text_count += 1;
+            let (top, bottom) = self.metrics.text_edges(size, style);
+            actual_text_top = actual_text_top.max(top.0);
+            actual_text_bottom = actual_text_bottom.min(bottom.0);
+        });
         let forced_smaller_singleton = force_outer_singleton
             && text_count == 1
             && first_text_size.is_some_and(|size| size < outer_font_size.0);
@@ -473,10 +483,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // produzidos. O avanço, porém, deve prever o ascent do estilo activo
         // da linha seguinte; reutilizar o maior fragmento corrente alongava
         // a distância quando um wrapper inline mudava o tamanho da fonte.
-        let (current_text_top, current_text_bottom) = if had_items {
-            self.metrics.text_edges(max_font_size, &max_style)
-        } else {
+        let legacy_edge_fallback =
+            !self.geometric_text_lines && (forced_smaller_singleton || self.column_mode);
+        let (current_text_top, current_text_bottom) = if !had_items {
             (Pt(0.0), Pt(0.0))
+        } else if text_count == 0 {
+            self.metrics.text_edges(max_font_size, &max_style)
+        } else if legacy_edge_fallback {
+            let (top, bottom) = self.metrics.text_edges(max_font_size, &max_style);
+            (Pt(actual_text_top.max(top.0)), Pt(actual_text_bottom.min(bottom.0)))
+        } else {
+            (Pt(actual_text_top), Pt(actual_text_bottom))
         };
         let next_text_top =
             if let Some(style) = common_style.as_ref().filter(|_| had_items) {
@@ -487,14 +504,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 current_text_top
             };
         let assumed_ascent = self.line_assumed_ascent.unwrap_or(next_text_top.0);
-        let line_extra_ascent = if self.geometric_text_lines {
+        let reconcile_text_top = self.geometric_text_lines
+            || (text_count > 0 && !self.column_mode && !force_outer_singleton);
+        let line_extra_ascent = if reconcile_text_top {
             inline_ascent.max(actual_text_top) - assumed_ascent
         } else if mixed_text_sizes {
             inline_ascent.max(current_text_top.0) - assumed_ascent
         } else {
             inline_ascent.max(actual_text_top) - assumed_ascent
         };
-        let mut line_extra_ascent = if self.geometric_text_lines {
+        let mut line_extra_ascent = if reconcile_text_top {
             line_extra_ascent
         } else {
             line_extra_ascent.max(0.0)
@@ -998,5 +1017,241 @@ mod tests {
         assert_eq!(end.x, Pt(14.0));
         assert_eq!(start.y, Pt(3.0));
         assert_eq!(end.y, Pt(3.0));
+    }
+}
+
+#[cfg(test)]
+mod face_edge_regressions {
+    use super::super::FixedMetrics;
+    use super::*;
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{
+            Length, LinkTarget, PageMarginSpec, PageMargins, SemanticKind,
+            SemanticPlacement, Size, TextEdge, TextSeparatorOrigin, TransformMatrix,
+        },
+        style::{Style, Styles},
+    };
+    use comemo::Track;
+
+    struct Faces;
+    impl FontMetrics for Faces {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, size: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (size * 1.2, size * 1.5)
+        }
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            size * if style.bold {
+                1.0
+            } else if style.italic {
+                0.6
+            } else {
+                0.7
+            }
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            let (top, bottom) = FixedMetrics.text_edges(size, style);
+            (
+                if style.top_edge.is_some() { top } else { self.cap_height(size, style) },
+                bottom,
+            )
+        }
+    }
+    fn configured(
+        intr: &dyn Introspector,
+        baseline: f64,
+        assumed: f64,
+    ) -> super::super::Layouter<'_, Faces, NullImageSizer> {
+        let mut l =
+            super::super::Layouter::new(Faces, NullImageSizer, 10.0, intr.track());
+        l.chain = l
+            .chain
+            .push_styles(&Styles::from_iter([Style::Size(Length::pt(10.0))]));
+        l.style = TextStyle::from(&l.chain);
+        l.page_config.width = 100.0;
+        l.page_config.height = f64::INFINITY;
+        l.page_config.margin = PageMargins::uniform(0.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(0.0);
+        l.regions.current.width = 100.0;
+        l.regions.current.height = f64::INFINITY;
+        l.regions.current.line_start_x = Pt(0.0);
+        l.regions.current.cursor_x = Pt(20.0);
+        l.initial_baseline_pending = false;
+        l.regions.current.cursor_y = Pt(baseline);
+        l.line_assumed_ascent = Some(assumed);
+        l
+    }
+    fn text(style: TextStyle, y: f64) -> FrameItem {
+        FrameItem::Text {
+            pos: Point { x: Pt(0.0), y: Pt(y) },
+            text: "X".into(),
+            style,
+            bidi: None,
+        }
+    }
+    fn ys(l: &super::super::Layouter<Faces, NullImageSizer>) -> Vec<f64> {
+        super::super::tests::frame_items_recursive(&l.regions.current.current_items)
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { pos, .. } => Some(pos.y.0),
+                _ => None,
+            })
+            .collect()
+    }
+    #[test]
+    fn face_edges_equal_sizes_use_actual_top_in_both_orders() {
+        let intr = TagIntrospector::empty();
+        for italic_first in [true, false] {
+            let normal = TextStyle::regular(Pt(10.0));
+            let mut italic = normal.clone();
+            italic.italic = true;
+            let first = if italic_first { 6.0 } else { 7.0 };
+            let mut l = configured(&intr, first, first);
+            let styles = if italic_first { [italic, normal] } else { [normal, italic] };
+            l.regions
+                .current
+                .current_line
+                .extend(styles.into_iter().map(|s| text(s, first)));
+            l.flush_line();
+            assert_eq!(ys(&l), vec![7.0, 7.0]);
+        }
+    }
+    #[test]
+    fn face_edges_smaller_face_can_dominate_top() {
+        let intr = TagIntrospector::empty();
+        let mut l = configured(&intr, 7.0, 7.0);
+        let normal = TextStyle::regular(Pt(10.0));
+        let mut tall = TextStyle::regular(Pt(8.0));
+        tall.bold = true;
+        l.regions
+            .current
+            .current_line
+            .extend([text(normal, 7.0), text(tall, 7.0)]);
+        l.flush_line();
+        assert_eq!(ys(&l), vec![8.0, 8.0]);
+    }
+    #[test]
+    fn face_edges_top_and_bottom_have_independent_owners() {
+        let intr = TagIntrospector::empty();
+        let mut l = configured(&intr, 14.0, 14.0);
+        let top = TextStyle::regular(Pt(20.0));
+        let mut bottom = TextStyle::regular(Pt(10.0));
+        bottom.italic = true;
+        bottom.bottom_edge = Some(TextEdge::Length(Length::pt(-2.0)));
+        l.regions
+            .current
+            .current_line
+            .extend([text(top, 14.0), text(bottom, 14.0)]);
+        l.flush_line();
+        assert_eq!(ys(&l), vec![14.0, 14.0]);
+        assert_eq!(l.regions.current.cursor_y.0, 29.5);
+    }
+    #[test]
+    fn face_edges_continuation_reconciles_smaller_real_top() {
+        let intr = TagIntrospector::empty();
+        let mut l = configured(&intr, 20.5, 7.0);
+        let mut italic = TextStyle::regular(Pt(10.0));
+        italic.italic = true;
+        l.regions.current.current_line.push(text(italic, 20.5));
+        l.flush_line();
+        assert_eq!(ys(&l), vec![19.5]);
+    }
+    #[test]
+    fn face_edges_transparent_envelopes_contribute_once() {
+        let intr = TagIntrospector::empty();
+        let mut l = configured(&intr, 7.0, 7.0);
+        let mut tall = TextStyle::regular(Pt(8.0));
+        tall.bold = true;
+        let wrapped = FrameItem::Semantic {
+            kind: SemanticKind::Label,
+            placement: SemanticPlacement::Inline,
+            alt: None,
+            items: vec![FrameItem::Link {
+                target: LinkTarget::Url("https://example.invalid".into()),
+                pos: Point { x: Pt(0.0), y: Pt(7.0) },
+                size: Size { width: Pt(8.0), height: Pt(8.0) },
+                items: vec![FrameItem::TextReplacement {
+                    text: "X".into(),
+                    items: vec![text(tall, 7.0)],
+                }],
+            }],
+        };
+        l.regions
+            .current
+            .current_line
+            .extend([wrapped, text(TextStyle::regular(Pt(10.0)), 7.0)]);
+        l.flush_line();
+        assert_eq!(ys(&l), vec![8.0, 8.0]);
+    }
+    #[test]
+    fn face_edges_group_uses_inline_extent_without_remeasuring_children() {
+        let intr = TagIntrospector::empty();
+        let mut l = configured(&intr, 3.0, 3.0);
+        let mut tall = TextStyle::regular(Pt(30.0));
+        tall.bold = true;
+        l.line_inline_ascent = 3.0;
+        l.regions.current.current_line.push(FrameItem::Group {
+            paint_root: true,
+            pos: Point { x: Pt(0.0), y: Pt(3.0) },
+            matrix: TransformMatrix::identity(),
+            clip_mask: None,
+            inner_width: 3.0,
+            inner_height: 3.0,
+            items: vec![text(tall, 0.0)],
+        });
+        l.flush_line();
+        let FrameItem::Group { pos, .. } = &l.regions.current.current_items[0] else {
+            panic!("group preserved")
+        };
+        assert_eq!(pos.y.0, 3.0);
+    }
+    #[test]
+    fn face_edges_break_boundaries_do_not_supply_font_metrics() {
+        let intr = TagIntrospector::empty();
+        for kind in
+            [SemanticKind::ExplicitLinebreakBoundary, SemanticKind::ParbreakBoundary]
+        {
+            let mut l = configured(&intr, 20.5, 7.0);
+            let mut italic = TextStyle::regular(Pt(10.0));
+            italic.italic = true;
+            let mut marker_text = text(TextStyle::regular(Pt(10.0)), 20.5);
+            if let FrameItem::Text { text, .. } = &mut marker_text {
+                *text = "".into();
+            }
+            l.regions.current.current_line.extend([
+                text(italic, 20.5),
+                FrameItem::Semantic {
+                    kind,
+                    placement: SemanticPlacement::Inline,
+                    alt: None,
+                    items: vec![marker_text],
+                },
+            ]);
+            l.flush_line();
+            assert_eq!(ys(&l), vec![19.5, 19.5]);
+        }
+    }
+    #[test]
+    fn face_edges_weak_separator_does_not_define_text_top() {
+        let intr = TagIntrospector::empty();
+        let mut l = configured(&intr, 7.0, 7.0);
+        let mut tall = TextStyle::regular(Pt(30.0));
+        tall.bold = true;
+        l.regions.current.current_line.push(FrameItem::TextSeparator {
+            pos: Point { x: Pt(0.0), y: Pt(7.0) },
+            advance: Pt(0.0),
+            style: tall,
+            origin: TextSeparatorOrigin::Markup,
+            bidi: None,
+        });
+        l.regions
+            .current
+            .current_line
+            .push(text(TextStyle::regular(Pt(10.0)), 7.0));
+        l.flush_line();
+        assert_eq!(ys(&l), vec![7.0]);
     }
 }

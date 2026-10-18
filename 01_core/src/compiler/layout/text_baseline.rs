@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/text_baseline.md
-//! @prompt-hash 80a7aa63
+//! @prompt-hash 5e10bb47
 //! @layer L1
 //! @updated 2026-09-29
 
@@ -13,7 +13,7 @@ pub(super) fn admit<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>
         && !super::html_frame::items_have_material(
             &layouter.regions.current.current_line,
         );
-    layouter.ensure_initial_baseline();
+    layouter.ensure_text_baseline();
     super::paragraph_indent::admit(layouter);
     if only_separators {
         for item in &mut layouter.regions.current.current_line {

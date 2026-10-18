@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/region_progress.md
-//! @prompt-hash 720966af
+//! @prompt-hash 7ea04ba1
 //! @layer L1
 //! @updated 2026-09-28
 
@@ -83,9 +83,11 @@ pub(super) fn next_region<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter
     // `ensure_initial_baseline()` adicionará o offset do `top-edge`. Só
     // pre-posicionamos a baseline quando o offset já foi fixado.
     layouter.regions.current.cursor_y = if layouter.initial_baseline_pending {
+        layouter.line_assumed_ascent = None;
         Pt(layouter.page_config.margin.top)
     } else {
         let (top, _) = layouter.metrics.text_edges(layouter.style.size, &layouter.style);
+        layouter.line_assumed_ascent = Some(top.0);
         Pt(layouter.page_config.margin.top) + top
     };
     // P245/P1292-D — a nova região ainda não incorporou inserções;
@@ -134,9 +136,17 @@ pub(super) fn post_line<M: FontMetrics, S: ImageSizer>(
     }
 }
 
+#[derive(Clone, Copy)]
+pub(super) enum Admission {
+    Generic,
+    Text,
+    KnownTop(f64),
+}
+
 /// Admit real continuation, rather than treating a predicted baseline as content.
 pub(super) fn admit_next_text_line<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
+    admission: Admission,
 ) {
     if !layouter.is_sub_frame
         && layouter.page_config.height.is_finite()
@@ -144,7 +154,20 @@ pub(super) fn admit_next_text_line<M: FontMetrics, S: ImageSizer>(
         && !super::html_frame::items_have_material(&layouter.regions.current.current_line)
         && !layouter.current_page_is_empty()
     {
-        layouter.new_page();
+        let top = match admission {
+            Admission::Generic => None,
+            Admission::Text => Some(
+                layouter.metrics.text_edges(layouter.style.size, &layouter.style).0 .0,
+            ),
+            Admission::KnownTop(top) => Some(top),
+        };
+        let candidate = top.map_or(layouter.regions.current.cursor_y.0, |top| {
+            layouter.regions.current.cursor_y.0 + top
+                - layouter.line_assumed_ascent.unwrap_or(top)
+        });
+        if candidate > layouter.page_bottom_limit() {
+            layouter.new_page();
+        }
     }
 }
 
@@ -158,4 +181,120 @@ fn reset_closed_region_flow<M: FontMetrics, S: ImageSizer>(
     layouter.prev_block_equation_descent = 0.0;
     layouter.prev_block_below_pending = 0.0;
     layouter.block_chain_active = false;
+}
+
+#[cfg(test)]
+mod face_region_regressions {
+    use crate::compiler::layout::{FixedMetrics, FontMetrics};
+    use crate::entities::{
+        content::Content,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{FrameItem, Length, PageMarginSpec, PageMargins, Pt, TextStyle},
+        style::{Style, Styles},
+    };
+    use comemo::Track;
+    struct Faces;
+    impl FontMetrics for Faces {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, size: Pt, _: &TextStyle) -> (Pt, Pt) {
+            (size * 1.2, size * 1.5)
+        }
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            size * if style.bold {
+                1.0
+            } else if style.italic {
+                0.6
+            } else {
+                0.7
+            }
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            let (top, bottom) = FixedMetrics.text_edges(size, style);
+            (
+                if style.top_edge.is_some() { top } else { self.cap_height(size, style) },
+                bottom,
+            )
+        }
+    }
+    fn configured(
+        intr: &dyn Introspector,
+        baseline: f64,
+        assumed: f64,
+    ) -> super::super::Layouter<'_, Faces, NullImageSizer> {
+        let mut l =
+            super::super::Layouter::new(Faces, NullImageSizer, 10.0, intr.track());
+        l.chain = l
+            .chain
+            .push_styles(&Styles::from_iter([Style::Size(Length::pt(10.0))]));
+        l.style = TextStyle::from(&l.chain);
+        l.page_config.width = 100.0;
+        l.page_config.height = f64::INFINITY;
+        l.page_config.margin = PageMargins::uniform(0.0);
+        l.page_config.margin_spec = PageMarginSpec::uniform(0.0);
+        l.regions.current.width = 100.0;
+        l.regions.current.height = f64::INFINITY;
+        l.regions.current.line_start_x = Pt(0.0);
+        l.regions.current.cursor_x = Pt(20.0);
+        l.initial_baseline_pending = false;
+        l.regions.current.cursor_y = Pt(baseline);
+        l.line_assumed_ascent = Some(assumed);
+        l
+    }
+    #[test]
+    fn face_edges_actual_next_line_can_fit_below_the_prediction() {
+        let intr = TagIntrospector::empty();
+        let mut l = configured(&intr, 7.0, 7.0);
+        l.page_config.height = 19.6;
+        l.regions.current.height = 19.6;
+        l.layout_content(&Content::text("FIRST"));
+        l.flush_line();
+        let saved = l.chain.clone();
+        l.chain = l.chain.push_styles(&Styles::from_iter([Style::italic(true)]));
+        l.style = TextStyle::from(&l.chain);
+        l.layout_content(&Content::text("SECOND"));
+        l.chain = saved;
+        l.style = TextStyle::from(&l.chain);
+        let doc = l.finish();
+        assert_eq!(doc.pages.len(), 1);
+        let ys: Vec<_> = super::super::tests::frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if !text.is_empty() => Some(pos.y.0),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(ys, vec![7.0, 19.5]);
+    }
+    #[test]
+    fn face_edges_new_page_tracks_the_face_that_installed_its_baseline() {
+        let intr = TagIntrospector::empty();
+        let mut l = configured(&intr, 6.0, 6.0);
+        l.page_config.height = 100.0;
+        l.regions.current.height = 100.0;
+        let saved = l.chain.clone();
+        l.chain = l.chain.push_styles(&Styles::from_iter([Style::italic(true)]));
+        l.style = TextStyle::from(&l.chain);
+        l.layout_content(&Content::text("OLD"));
+        l.flush_line();
+        l.chain = saved;
+        l.style = TextStyle::from(&l.chain);
+        l.new_page();
+        l.layout_content(&Content::text("NEXT"));
+        let doc = l.finish();
+        let ys: Vec<_> = doc
+            .pages
+            .iter()
+            .flat_map(|p| super::super::tests::frame_items_recursive(&p.items))
+            .filter_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "NEXT" => {
+                    Some(pos.y.0)
+                }
+                _ => None,
+            })
+            .collect();
+        assert_eq!(ys, vec![7.0]);
+    }
 }

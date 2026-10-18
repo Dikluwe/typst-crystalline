@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/integration_tests.md
-//! @prompt-hash a245d1a4
+//! @prompt-hash 8bbed4be
 //! @layer L3
 //! @updated 2026-10-06
 
@@ -2209,8 +2209,12 @@ mod integration {
             })
             .fold(f64::NEG_INFINITY, f64::max);
 
+        let rounding_bound =
+            f64::EPSILON * rect_50.y.0.abs().max(first_row_y_max.abs()).max(1.0);
         assert!(
-            rect_50.y.0 >= first_row_y_max,
+            rect_50.y.0.is_finite()
+                && first_row_y_max.is_finite()
+                && first_row_y_max - rect_50.y.0 <= rounding_bound,
             "Linha 1 do grid deve estar ao nível ou abaixo da linha 0. \
              rect_50 y={}, first_row_y_max={}",
             rect_50.y.0,

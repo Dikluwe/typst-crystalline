@@ -1,10 +1,11 @@
 # L0 — region progress
-Hash do Código: 182a2ce2
+Hash do Código: 8f8f92bb
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:77c7d31bf3f7276cc9b4d1b2951634724a6d0fb4352a0b45c76e6f3775b512dc
 - 00_nucleo/prompts/_nuclei/layout/block-inline-region.toml sha256:8d6cb7ee2458f368648c0ea6cfa84386dc506cf7273a16aa42bfbcbfeff05592
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:7b8a61eaafc8a07df12218f8f0560c33fae5c36f621b822b7350ccefc9774711
+- 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:42175932c75f37ed19205d1d82526969999e18fba8fed16f1b1dcff6e418bc0f
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:3a97c056eff81b344f46d83567274225e3519ae141fce4817e342d573a92fb41
 - 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml sha256:04f91fc931871165d4fef399ea9c2e21e8b75f7fd57031183a4e2aed0ed1b62a
 - 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:0e7c32f877924fea773be54f9719b43bb72b4c3bb065f6ff44a842c56683ff78
@@ -198,3 +199,50 @@ as alternativas por executar um arm agrupado: classificações nominais fechadas
 do contexto inline/fluxo são intencionais e exigem testes por classe/variante.
 Resselo apenas após V15/V26 válidos; testes, build, Clippy/Rustdoc/fmt, reversa
 e diferencial Tekt do pin1279707, sob12GiB/High8GiB/swap0/jobs1. Sem publicação.
+
+## Faces mistas, fronteiras e regiões — refinamento medido 2026-10-18
+
+### Medição antes da decisão
+
+Os registros first-after/first-bib-after/first-regions-after e
+candidate1-sources em mixed-style-metrics-2026-10-18 preservam o candidato
+com apenas line_commit alterado e os sete testes verdes. audit-candidate1
+mede y SVG igual no título dos seis casos bibliográficos e na mistura
+itálico→romano, mas forced ainda difere0.156. linebreak.rs:46–58 acrescenta
+ExplicitLinebreakBoundary com Text vazio de estilo exterior; esse filho é
+causal para bidi, não uma face material.
+
+Os20 controles regionais PDF preservam os mesmos binários/pin e fontes do
+registro before-sources. Na altura39.44pt, o Tekt põe ITALIC na página2;
+o vanilla o conserva na página1. Em55.14pt forced usa2 páginas vs1. Em70pt
+wrap distribui3+1 linhas vs2+2. O primeiro candidato corrige y das linhas
+wrapped, mas não essas decisões regionais. A tentativa SVG sem template
+de páginas foi preservada em regions-before: o oracle recusa saída múltipla
+sem padrão; não é prova SVG de paridade. Para regiões, usar os PDFs válidos,
+e o script regional futuro solicita somente PDF.
+
+region_progress.rs:83–88 instala baseline com uma face mas não atualiza o
+ascent assumido. :143–152 admite só pela previsão, antes do texto real.
+paragraph_pagination.rs:43–59 recusa arestas diferentes, desligando a
+proteção de custos positivos, embora a seleção de ranges já seja conhecida.
+Fonte pinada flow/collect.rs:196–239 protege primeiros/últimos frames com
+suas alturas reais; distribute.rs:343–364 avança o grupo apenas quando cabe
+na próxima região. A geometria/palavras/páginas são linguagem; formato do
+Profile e IDs SVG são mecânica. Refutar por salto precoce, recontagem,
+callbacks novos, métrica por Group, alteração de largura/seleção/leading
+ou regressão de colunas/notas/float/NoTypography.
+
+### Classificação
+
+Refinamento privado de paridade ADR0127 contínuo: sem contrato público,
+flag/default do produto ou fase/ordem de callbacks nova. Preservar caminhos
+recusados/escalares anteriores. A medição amplia apenas a certificação
+regional de texto preparado com mesmo size/leading, baseline_offset zero,
+arestas finitas não negativas e faces com tops/descents diferentes. Tamanhos
+ou leading variáveis continuam fora dessa certificação, sem alegar paridade
+completa nesses casos.
+
+### Responsabilidade exclusiva deste owner
+Possuir enum privado Copy de admissão Generic/Text/KnownTop e a fórmula de candidato regional. A condição original externa continua protegendo subframe, infinito, linha já material e região vazia. Só se a previsão excede o bottom calcular o candidato: Generic usa a previsão existente sem consultar fonte; Text mede a face corrente já resolvida, KnownTop usa o top certificado fornecido; nestes dois, candidato=cursor_y+top-real-ascent-assumido (None neutraliza a diferença; Some(0) é válido). Avançar apenas se esse candidato também excede. Não alterar cursor/itens só para testar fitting. Ao instalar baseline de página física, guardar Some(top) da face usada; se baseline continua pendente, guardar None e não consultar fonte. Colunas mantêm seu protocolo próprio e nenhum novo estado persistente é criado. Testes por APIs atuais: próxima linha de menor top que ainda cabe e baseline da primeira linha após transição com face diferente.
+
+Aceitação: RED→GREEN das quatro regressões adicionais e dos controles existentes, matriz30+20 regional PDF, corpus132+94+21, suíte ampla/Clippy/Rustdoc/linhagem e12GiB/High8GiB/swap0/jobs1. Registrar as tentativas sem ocultar falhas.

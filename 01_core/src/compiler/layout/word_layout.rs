@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/word_layout.md
-//! @prompt-hash 89ec2ee2
+//! @prompt-hash ad359055
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -208,7 +208,7 @@ pub(super) fn prepared<M: FontMetrics, S: ImageSizer>(
 ) {
     let previous = layouter.style.clone();
     layouter.style = style.clone();
-    layouter.ensure_initial_baseline();
+    layouter.ensure_text_baseline();
     super::paragraph_indent::admit(layouter);
     push_text(layouter, text.into(), width, replacement);
     layouter.regions.current.cursor_x += width;
