@@ -1,5 +1,5 @@
 # L0 — entities/content/traversal
-Hash do Código: e18e20e9
+Hash do Código: c3dffceb
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:ec32b8f89dc95f1de7376ca91e6252eb61a5da2ac0326abb7474fe56fd27fd7a
@@ -371,3 +371,89 @@ um V19 antigo removido e quatro V19 novos (saldo +3), V20 intacto. A execução
 de um grupo não prova cada alternativa. I1 cobre carriers, a sonda pública
 cobre Sequence/Par e controles estruturais adicionais cobrem MathSequence/
 SmallCaps, sem alegar que o walker emita eventos dentro de todo math.
+
+
+## Pilha da reconstrução pré-ordem — 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado;
+before.json.gz e stress-candidate.json.gz em
+00_nucleo/diagnosticos/state-stack-2026-10-17 conservam fonte/UTC/diffstat,
+argumentos, limites e hashes dos binários. GDB debug-root.log encontra frame
+map_content_pre repetido com distância de 104664 bytes entre níveis;
+traversal.rs:670–1440 mantém locais de muitas reconstruções no mesmo frame.
+64 Strong reais continuam abortando no candidato que já corrige a concatenação;
+vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3 aceita e produz X. Assim corrigir
+sequências artificiais é necessário, mas insuficiente para o caso de profundidade
+legítima. Não inferir resultado do release Tekt a partir do debug.
+
+### Responsabilidade exclusiva e preservação
+
+Isolar a reconstrução de cada braço recursivo de map_content_pre em frame próprio,
+por helper privado estático que recebe FnOnce tipada e retorna SourceResult<Content>.
+#[inline(never)] impede reintegrar todos os locais no frame do dispatcher. Não
+usar dyn/vtable, cache global, threads, stacker, unsafe ou nova configuração de
+pilha. A enumeração nominal/exaustiva, os filhos e suas ordens permanecem idênticos.
+Não trocar por visita rasa, podar dados legítimos, achatar wrappers ou alterar a
+vista de TableCell nesta intervenção.
+
+Source continua transparente sem callback extra. Callback ocorre antes dos filhos
+uma vez por nó; Some substitui terminalmente, None recursa; erros interrompem
+os mesmos irmãos posteriores. As reconstruções existentes preservam dados,
+spans, snapshots, slots e vistas preparadas, inclusive suas limitações documentadas.
+O helper apenas delimita armazenamento temporário nativo; não transforma conteúdo
+por conta própria. Métodos públicos e map_content/map_text/static visitor ficam
+intactos. Fluxo contínuo ADR-0127: nenhuma API/trait/estrutura pública, fase ou
+default de produto novo.
+
+Teste local RED antes da implementação com RUST_MIN_STACK=2097152 somente no
+processo de teste: percorrer e reconstruir 64 Strong, conferir ordem/preordem e
+substituição/erro terminal. A configuração produtiva não muda. GREEN do mesmo
+controle e suíte existente; CLI original 64×2048 e Strong64 na pilha padrão,
+GDB pós-fix e RAM/RSS medidos. Gates workspace/build/Clippy/Rustdoc estritos,
+V1/V5/V15/V26/reversa, sem novos erros Tekt, fmt/diff e fontes congeladas sob
+12GiB/High8GiB/swap0/jobs1. Não afirmar profundidade ilimitada: outras travessias
+recursivas, destruction/eq/render e custo de nós reais exigem medição própria.
+
+
+### Continuação medida: frames do mapper bottom-up
+
+stress-expanded.json.gz registra Strong256: vanilla rejeita com maximum show
+rule depth exceeded; Tekt aborta. expanded-trace.log localiza agora map_content_inner,
+via StrongElem::map_content_if_changed e wrap_page_columns. A passagem pré-ordem
+já deixou o programa avançar; resta o mesmo problema de locais compartilhados
+na passagem bottom-up. Não classificar o caso negativo upstream como sucesso
+obrigatório nem copiar seu limite numérico sem decisão de produto. O contrato
+Tekt de profundidade vigente não é alterado: exigir término sem SIGABRT e
+registrar separadamente valor/diagnóstico que a política atual produzir.
+
+Aplicar o mesmo isolamento estático a cada braço recursivo de map_content_inner,
+com FnOnce privada retornando SourceResult<Option<Content>>. Preservar exatamente
+a prova None de ausência de mudança, Some inclusive igual, ordem bottom-up,
+transform_root e supressão da raiz de Located, Source/Realized/ShowRecipe e
+delegação Dynamic. Não antecipar ou repetir transform, não reconstruir alias
+sem mudança, não alterar children selecionados nem usar igualdade como prova.
+O pipeline, seus limites existentes e map_text/static visitor conservam contratos.
+
+RED local com 128 Strong e pilha de teste 2MiB, antes do código: None deve
+reusar a raiz; substituição igual da folha deve reconstruir o caminho; conferir
+ordem e o mesmo conteúdo. GREEN nos mesmos parâmetros, regressões existentes e
+CLI Strong256; o caso upstream negativo fica distinguido dos seis positivos.
+Mesmo fluxo contínuo ADR-0127 e gates/RAM acima, sem API pública ou default novo.
+
+
+### Resultado observado sem alteração de política
+
+stress-both-mappers.json.gz: seis controles positivos concluem com a pilha padrão;
+Strong256 também produz X no Tekt, enquanto vanilla rejeita pelo limite de show.
+Os mappers não são donos de limites de show/layout e não introduzirão uma quota
+para simular o aborto ou copiar a contagem upstream. A fonte 01_core/src/entities/world_types.rs permanece com seus guardas próprios.
+Seu owner canônico é 00_nucleo/prompts/world-types.md; a leitura desse L0 não
+encontrou a especificação de Route/guardas. Registrar essa lacuna documental
+para auditoria própria, sem legitimar limites a partir do código neste mapper.
+ADR-0041 registra o teto de show 64; não se encontrou nesta leitura contrato
+completo para a divergência de Strong256.
+Este caso prova ausência de aborto neste recorte e registra uma divergência de
+limite operacional; não é certificado como paridade de rejeição nem segurança
+para profundidade ilimitada.

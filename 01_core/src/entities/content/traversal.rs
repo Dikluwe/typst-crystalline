@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content/traversal.md
-//! @prompt-hash eed792d3
+//! @prompt-hash 9a87c7ba
 //! @layer L1
 //! @updated 2026-10-10
 
@@ -421,18 +421,26 @@ impl Content {
                 }
             });
         }
+        #[inline(never)]
+        fn rebuild_bottom_up_node(
+            action: impl FnOnce() -> crate::entities::source_result::SourceResult<
+                Option<Content>,
+            >,
+        ) -> crate::entities::source_result::SourceResult<Option<Content>> {
+            action()
+        }
         let processed = match self {
             Content::Source(_) => unreachable!("source dispatched above"),
-            Content::ShowRecipe(e) => e.body.map_content_if_changed(transform)?.map(|body|
-                Content::ShowRecipe(Arc::new(ShowRecipeContent { body, ..e.as_ref().clone() }))),
-            Content::Located(e) => e.body.map_content_inner(transform, false)?.map(|body|
-                Content::Located(Arc::new(LocatedContent { body, location: e.location }))),
-            Content::Realized(e) => e.visual.map_content_if_changed(transform)?.map(|visual|
-                Content::Realized(Arc::new(RealizedContent { original: e.original.clone(), visual }))),
+            Content::ShowRecipe(e) => rebuild_bottom_up_node(|| Ok(e.body.map_content_if_changed(transform)?.map(|body|
+                Content::ShowRecipe(Arc::new(ShowRecipeContent { body, ..e.as_ref().clone() }))))),
+            Content::Located(e) => rebuild_bottom_up_node(|| Ok(e.body.map_content_inner(transform, false)?.map(|body|
+                Content::Located(Arc::new(LocatedContent { body, location: e.location }))))),
+            Content::Realized(e) => rebuild_bottom_up_node(|| Ok(e.visual.map_content_if_changed(transform)?.map(|visual|
+                Content::Realized(Arc::new(RealizedContent { original: e.original.clone(), visual }))))),
             // ── Containers: propagar recursivamente ─────────────────────────
-            Content::Sequence(seq) => Self::map_children_if_changed(seq, transform)?
-                .map(|parts| Content::Sequence(Arc::from(parts))),
-            Content::HtmlElem(e) => Some(Content::HtmlElem(Arc::new(
+            Content::Sequence(seq) => Ok(Self::map_children_if_changed(seq, transform)?
+                .map(|parts| Content::Sequence(Arc::from(parts)))),
+            Content::HtmlElem(e) => rebuild_bottom_up_node(|| Ok(Some(Content::HtmlElem(Arc::new(
                 crate::entities::html::HtmlElem::new(
                     e.tag.clone(),
                     e.attrs.clone(),
@@ -442,115 +450,115 @@ impl Content {
                         crate::entities::html::HtmlBody::Content(body) => crate::entities::html::HtmlBody::Content(Box::new(body.map_content(transform)?)),
                     },
                 ),
-            ))),
-            Content::HtmlFrame(e) => Some(Content::HtmlFrame(Arc::new(
+            ))))),
+            Content::HtmlFrame(e) => rebuild_bottom_up_node(|| Ok(Some(Content::HtmlFrame(Arc::new(
                 crate::entities::html::HtmlFrameElem {
                     body: e.body.map_content(transform)?,
                 },
-            ))),
+            ))))),
             // P863: parágrafo é container transparente.
-            Content::Par { body } => body.map_content_if_changed(transform)?
-                .map(|body| Content::Par { body: Box::new(body) }),
-            Content::PageRun(e) => Some(e.map_content(transform)?),
+            Content::Par { body } => rebuild_bottom_up_node(|| Ok(body.map_content_if_changed(transform)?
+                .map(|body| Content::Par { body: Box::new(body) }))),
+            Content::PageRun(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
             // Strong e Emph conservam suas variantes semânticas próprias.
             // A prova de ausência de substituição vem dos owners abaixo.
             // Modelo D (P316): Heading delega ao elemento.
-            Content::Heading(h) => Some(h.map_content(transform)?),
-            Content::Title(t) => Some(t.map_content(transform)?),
-            Content::Strong(e) => e.map_content_if_changed(transform)?,
-            Content::Emph(e)   => e.map_content_if_changed(transform)?,
+            Content::Heading(h) => rebuild_bottom_up_node(|| Ok(Some(h.map_content(transform)?))),
+            Content::Title(t) => rebuild_bottom_up_node(|| Ok(Some(t.map_content(transform)?))),
+            Content::Strong(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::Emph(e)   => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
             // Modelo D (Lote 3 P318): família lista/termos delega ao elemento.
-            Content::ListItem(e) => Some(e.map_content(transform)?),
-            Content::EnumItem(e) => Some(e.map_content(transform)?),
-            Content::Link(e)     => Some(e.map_content(transform)?),
-            Content::Label(e)    => Some(e.map_content(transform)?),
+            Content::ListItem(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
+            Content::EnumItem(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
+            Content::Link(e)     => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
+            Content::Label(e)    => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
             // Modelo D (Lote 13 P328): Figure container delega ao elemento.
-            Content::Figure(e) => Some(e.map_content(transform)?),
+            Content::Figure(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
             // P1473 — FigureCaption delega ao elemento.
-            Content::FigureCaption(e) => Some(e.map_content(transform)?),
+            Content::FigureCaption(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
             // Equation é um contêiner com body Content.
             // Modelo D (Lote 10 P325): Equation container delega ao elemento.
-            Content::Equation(e) => e.map_content_if_changed(transform)?,
-            Content::MathSequence(seq) => Self::map_children_if_changed(seq, transform)?
-                .map(|parts| Content::MathSequence(Arc::from(parts))),
+            Content::Equation(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathSequence(seq) => Ok(Self::map_children_if_changed(seq, transform)?
+                .map(|parts| Content::MathSequence(Arc::from(parts)))),
             // Modelo D (Lote 2 P317): família math delega ao elemento
             // (cada owner recursa e só materializa após substituição).
-            Content::MathFrac(e)      => e.map_content_if_changed(transform)?,
-            Content::MathAttach(e)    => e.map_content_if_changed(transform)?,
-            Content::MathPrimes(e)    => e.map_content_if_changed(transform)?,
-            Content::MathRoot(e)      => e.map_content_if_changed(transform)?,
-            Content::MathStretch(e)   => e.map_content_if_changed(transform)?,
-            Content::MathDelimited(e) => e.map_content_if_changed(transform)?,
-            Content::MathLr(e) => e.map_content_if_changed(transform)?,
-            Content::MathMid(e) => e.map_content_if_changed(transform)?,
-            Content::MathOverbrace(e) => e.map_content_if_changed(transform)?,
-            Content::MathUnderbrace(e) => e.map_content_if_changed(transform)?,
-            Content::MathUnderbracket(e) => e.map_content_if_changed(transform)?,
-            Content::MathUnderparen(e) => e.map_content_if_changed(transform)?,
-            Content::MathUndershell(e) => e.map_content_if_changed(transform)?,
-            Content::MathOverbracket(e) => e.map_content_if_changed(transform)?,
-            Content::MathOverparen(e) => e.map_content_if_changed(transform)?,
-            Content::MathOvershell(e) => e.map_content_if_changed(transform)?,
-            Content::MathMatrix(e)    => e.map_content_if_changed(transform)?,
-            Content::MathCases(e)     => e.map_content_if_changed(transform)?,
-            Content::MathAccent(e)    => e.map_content_if_changed(transform)?,
-            Content::MathCancel(e)    => e.map_content_if_changed(transform)?,
-            Content::MathUnderline(e) => e.map_content_if_changed(transform)?,
-            Content::MathOverline(e) => e.map_content_if_changed(transform)?,
-            Content::MathVec(e) => e.map_content_if_changed(transform)?,
-            Content::MathClassOverride(e) => e.map_content_if_changed(transform)?,
-            Content::MathLimitsOverride(e) => e.map_content_if_changed(transform)?,
-            Content::MathUnderover(e) => e.map_content_if_changed(transform)?,
-            Content::MathOp(e)        => e.map_content_if_changed(transform)?,
-            Content::MathAlignPoint(e) => e.map_content_if_changed(transform)?,
+            Content::MathFrac(e)      => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathAttach(e)    => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathPrimes(e)    => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathRoot(e)      => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathStretch(e)   => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathDelimited(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathLr(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathMid(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathOverbrace(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathUnderbrace(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathUnderbracket(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathUnderparen(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathUndershell(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathOverbracket(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathOverparen(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathOvershell(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathMatrix(e)    => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathCases(e)     => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathAccent(e)    => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathCancel(e)    => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathUnderline(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathOverline(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathVec(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathClassOverride(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathLimitsOverride(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathUnderover(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathOp(e)        => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
+            Content::MathAlignPoint(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
             // P311b.2 — MathStyled map_content recursivo (Modelo D P316: delega).
-            Content::MathStyled(m) => m.map_content_if_changed(transform)?,
+            Content::MathStyled(m) => rebuild_bottom_up_node(|| m.map_content_if_changed(transform)),
 
             // Modelo D (Lote 3 P318): Terms/TermItem delegam ao elemento.
-            Content::Terms(e)    => Some(e.map_content(transform)?),
-            Content::TermItem(e) => Some(e.map_content(transform)?),
+            Content::Terms(e)    => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
+            Content::TermItem(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
 
             // Modelo D (Lote 8 P323): Quote container delega ao elemento.
-            Content::Quote(e) => Some(e.map_content(transform)?),
-            Content::PdfArtifact(e) => Some(e.map_content(transform)?),
+            Content::Quote(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
+            Content::PdfArtifact(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
 
             // P284 — text decoration containers — recurse em body;
             // atributos cosméticos são Copy primitivos.
             // Modelo D (Lote 4 P319): decorações delegam ao elemento.
-            Content::Underline(e) => Some(e.map_content(transform)?),
-            Content::Strike(e)    => Some(e.map_content(transform)?),
-            Content::Overline(e)  => Some(e.map_content(transform)?),
+            Content::Underline(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
+            Content::Strike(e)    => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
+            Content::Overline(e)  => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
 
             // P408: smallcaps container — recurse em body (stub transparente).
-            Content::SmallCaps { body } => body.map_content_if_changed(transform)?
-                .map(|body| Content::SmallCaps { body: Box::new(body) }),
+            Content::SmallCaps { body } => rebuild_bottom_up_node(|| Ok(body.map_content_if_changed(transform)?
+                .map(|body| Content::SmallCaps { body: Box::new(body) }))),
 
             // Passo 156C / 156L: Pad / Hide containers — recurse em body;
             // sides é Copy primitivo (Sides<Option<Length>>).
             // Modelo D (Lote 10 P325): Pad container delega ao elemento.
-            Content::Pad(e) => Some(e.map_content(transform)?),
+            Content::Pad(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
             // Modelo D (Lote 7 P322): Hide delega ao elemento.
-            Content::Hide(e) => Some(e.map_content(transform)?),
+            Content::Hide(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
 
             // Passo 156G + P231 + P247 + P250: Block container — recurse em
             // body; preserva 9 cosméticos (Sides/Corners/bool/Color Copy;
             // Stroke Clone; Option<Length> Copy; bool Copy).
-            Content::Block(e) => e.map_content_if_changed(transform)?,
+            Content::Block(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
 
             // Passo 156H + P231 + P247: Boxed (Box inline) — recurse análogo a Block; preserva 5 cosméticos.
-            Content::Boxed(e) => e.map_content_if_changed(transform)?,
+            Content::Boxed(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
 
             // Modelo D (Lote 9 P324): Stack container delega ao elemento.
-            Content::Stack(e) => Some(e.map_content(transform)?),
+            Content::Stack(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
 
             // Passo 156J: Repeat container — recurse em body; gap e
             // justify são Copy primitivos (Option<Length>, bool).
-            Content::Repeat(e) => Some(e.map_content(transform)?),
+            Content::Repeat(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
 
             // Modelo D (Lote 8 P323): Columns container delega ao elemento.
-            Content::Columns(e) => Some(e.map_content(transform)?),
-            Content::Outline(e) => Some(e.map_content(transform)?),
-            Content::OutlineEntry(e) => Some(e.map_content(transform)?),
+            Content::Columns(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
+            Content::Outline(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
+            Content::OutlineEntry(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
 
             // ── Terminais: emprestar até o callback pedir substituição ───────
             // Listados explicitamente — variantes novas não passam em silêncio.
@@ -593,48 +601,48 @@ impl Content {
             | Content::StateDisplay(_)
             // P241 (M9d/M7+2): CounterDisplayCallback terminal paralelo
             // StateDisplay; resolvido pós-fixpoint via apply_counter_displays.
-            | Content::CounterDisplayCallback(_) => None,
+            | Content::CounterDisplayCallback(_) => Ok(None),
             // Modelo D (Lote 9 P324): Transform container delega ao elemento.
-            Content::Transform(e) => Some(e.map_content(transform)?),
+            Content::Transform(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
             // P224+P227+P228 — Grid refino +7 fields (gutter/align/inset/header/footer/stroke/fill).
             // Modelo D (Lote 12 P327): Grid container delega ao elemento.
-            Content::Grid(e) => Some(e.map_content(transform)?),
+            Content::Grid(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
             // Modelo D (Lote 5 P320): GridHeader/GridFooter delegam ao elemento.
-            Content::GridHeader(e) => Some(e.map_content(transform)?),
-            Content::GridFooter(e) => Some(e.map_content(transform)?),
+            Content::GridHeader(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
+            Content::GridFooter(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
             // Modelo D (Lote 12 P327): GridCell container delega ao elemento.
-            Content::GridCell(e) => Some(e.map_content(transform)?),
+            Content::GridCell(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
             // Passo 512 — linhas em grid/table são terminais.
-            Content::GridHLine(_) | Content::GridVLine(_) => None,
-            Content::TableHLine(_) | Content::TableVLine(_) => None,
+            Content::GridHLine(_) | Content::GridVLine(_) => Ok(None),
+            Content::TableHLine(_) | Content::TableVLine(_) => Ok(None),
             // Passo 157A + P227 + P228: Table — mapear children; preservar stroke + fill.
             // Modelo D (Lote 12 P327): Table container delega ao elemento.
-            Content::Table(e) => e.map_content_if_changed(transform)?,
+            Content::Table(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
             // Modelo D (Lote 12 P327): TableCell container delega ao elemento.
-            Content::TableCell(e) => e.map_content_if_changed(transform)?,
+            Content::TableCell(e) => rebuild_bottom_up_node(|| e.map_content_if_changed(transform)),
             // Modelo D (Lote 5 P320): TableHeader/TableFooter delegam ao elemento.
-            Content::TableHeader(e) => Some(e.map_content(transform)?),
-            Content::TableFooter(e) => Some(e.map_content(transform)?),
+            Content::TableHeader(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
+            Content::TableFooter(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
             // Passo 159A: Bibliography recurse em title; preserva
             // entries (BibEntry é dados puros, sem Content recursivo).
             // Cite recurse em supplement; preserva key.
             // Modelo D (Lote 10 P325): Bibliography delega ao elemento (recurse title).
-            Content::Bibliography(e) => Some(e.map_content(transform)?),
+            Content::Bibliography(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
             // Modelo D (Lote 9 P324): Cite delega ao elemento (recurse supplement).
-            Content::Cite(e) => Some(e.map_content(transform)?),
+            Content::Cite(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
             // Modelo D (Lote 11 P326): Footnote container delega ao elemento.
-            Content::Footnote(e) => Some(e.map_content(transform)?),
+            Content::Footnote(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
             // P1473 — FootnoteEntry delega ao elemento.
-            Content::FootnoteEntry(e) => Some(e.map_content(transform)?),
-            Content::Align(e) => Some(e.map_content(transform)?),
+            Content::FootnoteEntry(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
+            Content::Align(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
             // Modelo D (Lote 9 P324): Place container delega ao elemento.
-            Content::Place(e) => Some(e.map_content(transform)?),
-            Content::Flush(e) => Some(e.map_content(transform)?),
-            Content::Styled(styled) => styled.body.map_content_if_changed(transform)?
-                .map(|body| Content::styled(body, styled.styles.clone())),
+            Content::Place(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
+            Content::Flush(e) => rebuild_bottom_up_node(|| Ok(Some(e.map_content(transform)?))),
+            Content::Styled(styled) => rebuild_bottom_up_node(|| Ok(styled.body.map_content_if_changed(transform)?
+                .map(|body| Content::styled(body, styled.styles.clone())))),
             // P397: Document recursa no título (único Content aninhado);
             // Asset é terminal (sem Content aninhado).
-            Content::Document { path, body, format, title, author, date, keywords } => Some(Content::Document {
+            Content::Document { path, body, format, title, author, date, keywords } => rebuild_bottom_up_node(|| Ok(Some(Content::Document {
                 path: path.clone(),
                 body: Box::new(body.map_content(transform)?),
                 format: format.clone(),
@@ -645,16 +653,16 @@ impl Content {
                 author: author.clone(),
                 date:   *date,
                 keywords: keywords.clone(),
-            }),
-            Content::Asset { .. } => None,
+            }))),
+            Content::Asset { .. } => Ok(None),
             // P506: ContextBlock é terminal em map_content (o corpo é closure,
             // não content; expansão acontece pós-introspecção).
-            Content::ContextBlock(_) => None,
+            Content::ContextBlock(_) => Ok(None),
             // Lote F-1 (P334): a fronteira dinâmica recursa nos filhos via o
             // elemento (mesmo contrato dos 65: devolve o nó com filhos
             // transformados; o hub aplica `transform` ao nó abaixo).
-            Content::Dynamic(e) => Some(e.dyn_map_content(transform)?),
-        };
+            Content::Dynamic(e) => rebuild_bottom_up_node(|| Ok(Some(e.dyn_map_content(transform)?))),
+        }?;
 
         if !transform_root {
             return Ok(processed);
@@ -707,24 +715,31 @@ impl Content {
         if let Content::Source(e) = self {
             return Ok(e.body.map_content_pre(transform)?.with_source_span(e.span));
         }
-        let processed = match self {
+        // As reconstruções ficam em frames separados do dispatcher recursivo.
+        #[inline(never)]
+        fn rebuild_pre_node(
+            action: impl FnOnce() -> crate::entities::source_result::SourceResult<Content>,
+        ) -> crate::entities::source_result::SourceResult<Content> {
+            action()
+        }
+        match self {
             Content::Source(_) => unreachable!("source dispatched above"),
-            Content::ShowRecipe(e) => Content::ShowRecipe(Arc::new(ShowRecipeContent {
+            Content::ShowRecipe(e) => rebuild_pre_node(|| Ok(Content::ShowRecipe(Arc::new(ShowRecipeContent {
                 body: e.body.map_content_pre(transform)?, ..e.as_ref().clone()
-            })),
-            Content::Located(e) => Content::Located(Arc::new(LocatedContent {
+            })))),
+            Content::Located(e) => rebuild_pre_node(|| Ok(Content::Located(Arc::new(LocatedContent {
                 body: e.body.map_content_pre(transform)?, location: e.location,
-            })),
-            Content::Realized(e) => Content::Realized(Arc::new(RealizedContent {
+            })))),
+            Content::Realized(e) => rebuild_pre_node(|| Ok(Content::Realized(Arc::new(RealizedContent {
                 original: e.original.clone(), visual: e.visual.map_content_pre(transform)?,
-            })),
+            })))),
             // ── Containers: propagar recursivamente ─────────────────────────
-            Content::Sequence(seq) => {
+            Content::Sequence(seq) => rebuild_pre_node(|| Ok({
                 let new_seq: crate::entities::source_result::SourceResult<Vec<Content>> =
                     seq.iter().map(|c| c.map_content_pre(transform)).collect();
                 Content::Sequence(Arc::from(new_seq?))
-            },
-            Content::HtmlElem(e) => Content::HtmlElem(Arc::new(
+            })),
+            Content::HtmlElem(e) => rebuild_pre_node(|| Ok(Content::HtmlElem(Arc::new(
                 crate::entities::html::HtmlElem::new(
                     e.tag.clone(),
                     e.attrs.clone(),
@@ -734,17 +749,17 @@ impl Content {
                         crate::entities::html::HtmlBody::Content(body) => crate::entities::html::HtmlBody::Content(Box::new(body.map_content_pre(transform)?)),
                     },
                 ),
-            )),
-            Content::HtmlFrame(e) => Content::HtmlFrame(Arc::new(
+            )))),
+            Content::HtmlFrame(e) => rebuild_pre_node(|| Ok(Content::HtmlFrame(Arc::new(
                 crate::entities::html::HtmlFrameElem {
                     body: e.body.map_content_pre(transform)?,
                 },
-            )),
+            )))),
             // P863: parágrafo é container transparente.
-            Content::Par { body } => Content::Par {
+            Content::Par { body } => rebuild_pre_node(|| Ok(Content::Par {
                 body: Box::new(body.map_content_pre(transform)?),
-            },
-            Content::PageRun(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::PageRun(Arc::new(PageRunElem {
+            })),
+            Content::PageRun(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::PageRun(Arc::new(PageRunElem {
             paper: e.paper,
             flipped: e.flipped,
             binding: e.binding,
@@ -818,44 +833,44 @@ impl Content {
                 })
                 .transpose()?,
             body: e.body.map_content_pre(transform)?,
-        })))? },
+        })))),
             // Passo 101: Content::Strong/Emph removidos — cobertos pelo
             // arm Content::Styled abaixo (que já propaga transform recursivamente).
             // Modelo D (P316): Heading delega ao elemento.
-            Content::Heading(h) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Heading(Arc::new(h.with_body(h.body.map_content_pre(transform)?))))? },
-            Content::Title(t) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Title(Arc::new(TitleElem {
+            Content::Heading(h) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Heading(Arc::new(h.with_body(h.body.map_content_pre(transform)?))))),
+            Content::Title(t) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Title(Arc::new(TitleElem {
             body: t.body.map_content_pre(transform)?,
-        })))? },
-            Content::Strong(e) => { let mut mapped = e.as_ref().clone(); mapped.body = mapped.body.map_content_pre(transform)?; Content::Strong(Arc::new(mapped)) },
-            Content::Emph(e) => { let mut mapped = e.as_ref().clone(); mapped.body = mapped.body.map_content_pre(transform)?; Content::Emph(Arc::new(mapped)) },
+        })))),
+            Content::Strong(e) => rebuild_pre_node(|| Ok({ let mut mapped = e.as_ref().clone(); mapped.body = mapped.body.map_content_pre(transform)?; Content::Strong(Arc::new(mapped)) })),
+            Content::Emph(e) => rebuild_pre_node(|| Ok({ let mut mapped = e.as_ref().clone(); mapped.body = mapped.body.map_content_pre(transform)?; Content::Emph(Arc::new(mapped)) })),
             // Modelo D (Lote 3 P318): família lista/termos delega ao elemento.
-            Content::ListItem(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::ListItem(Arc::new(ListItemElem {
+            Content::ListItem(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::ListItem(Arc::new(ListItemElem {
             body: e.body.map_content_pre(transform)?,
             marker: e.marker.clone(),
             marker_align: e.marker_align,
             indent: e.indent,
             body_indent: e.body_indent,
             tight: e.tight,
-        })))? },
-            Content::EnumItem(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::EnumItem(Arc::new(EnumItemElem {
+        })))),
+            Content::EnumItem(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::EnumItem(Arc::new(EnumItemElem {
             number: e.number,
             body: e.body.map_content_pre(transform)?,
             numbering: e.numbering.clone(),
             indent: e.indent,
             body_indent: e.body_indent,
             tight: e.tight,
-        })))? },
-            Content::Link(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Link(Arc::new(LinkElem {
+        })))),
+            Content::Link(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Link(Arc::new(LinkElem {
             url: e.url.clone(),
             body: e.body.map_content_pre(transform)?,
-        })))? },
-            Content::Label(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Label(Arc::new(LabelElem {
+        })))),
+            Content::Label(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Label(Arc::new(LabelElem {
             body: e.body.map_content_pre(transform)?,
             name: e.name.clone(),
             auto: e.auto,
-        })))? },
+        })))),
             // Modelo D (Lote 13 P328): Figure container delega ao elemento.
-            Content::Figure(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Figure(Arc::new(FigureElem {
+            Content::Figure(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Figure(Arc::new(FigureElem {
             body: e.body.map_content_pre(transform)?,
             caption: e
                 .caption
@@ -863,9 +878,9 @@ impl Content {
                 .map(|c| c.map_content_pre(transform))
                 .transpose()?,
             kind: e.kind.clone(),
-        })))? },
+        })))),
             // P1473 — FigureCaption delega ao elemento.
-            Content::FigureCaption(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::FigureCaption(Arc::new(FigureCaptionElem {
+            Content::FigureCaption(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::FigureCaption(Arc::new(FigureCaptionElem {
             position: e.position,
             separator: e
                 .separator
@@ -873,29 +888,29 @@ impl Content {
                 .map(|s| s.map_content_pre(transform))
                 .transpose()?,
             body: e.body.map_content_pre(transform)?,
-        })))? },
+        })))),
             // Content::Equation tem body: Box<Content> → container.
             // Modelo D (Lote 10 P325): Equation container delega ao elemento.
-            Content::Equation(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Equation(Arc::new(EquationElem {
+            Content::Equation(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Equation(Arc::new(EquationElem {
             body: e.body.map_content_pre(transform)?,
             block: e.block,
-        })))? },
-            Content::MathSequence(seq) => {
+        })))),
+            Content::MathSequence(seq) => rebuild_pre_node(|| Ok({
                 let new_seq: crate::entities::source_result::SourceResult<Vec<Content>> =
                     seq.iter().map(|c| c.map_content_pre(transform)).collect();
                 Content::MathSequence(Arc::from(new_seq?))
-            },
+            })),
             // Modelo D (Lote 2 P317): família math delega ao elemento
             // (cada `…Elem::map_content` recurse nos filhos e re-embrulha).
-            Content::MathFrac(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathFrac(Arc::new(MathFracElem {
+            Content::MathFrac(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathFrac(Arc::new(MathFracElem {
             num: e.num.map_content_pre(transform)?,
             den: e.den.map_content_pre(transform)?,
             style: e.style,
             num_deparenthesized: e.num_deparenthesized,
             denom_deparenthesized: e.denom_deparenthesized,
             line: e.line,
-        })))? },
-            Content::MathAttach(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathAttach(Arc::new(MathAttachElem {
+        })))),
+            Content::MathAttach(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathAttach(Arc::new(MathAttachElem {
             base: e.base.map_content_pre(transform)?,
             t: map_slot(&e.t, transform)?,
             b: map_slot(&e.b, transform)?,
@@ -903,22 +918,22 @@ impl Content {
             bl: map_slot(&e.bl, transform)?,
             tr: map_slot(&e.tr, transform)?,
             br: map_slot(&e.br, transform)?,
-        })))? },
-            Content::MathPrimes(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathPrimes(Arc::new(e.as_ref().clone())))? },
-            Content::MathRoot(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathRoot(Arc::new(MathRootElem {
+        })))),
+            Content::MathPrimes(e) => Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathPrimes(Arc::new(e.as_ref().clone()))),
+            Content::MathRoot(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathRoot(Arc::new(MathRootElem {
             index: e.index.as_ref().map(|c| c.map_content_pre(transform)).transpose()?,
             radicand: e.radicand.map_content_pre(transform)?,
             index_explicit: e.index_explicit,
-        })))? },
-            Content::MathStretch(e) => { let mut mapped = e.as_ref().clone(); mapped.body = mapped.body.map_content_pre(transform)?; Content::MathStretch(Arc::new(mapped)) },
-            Content::MathDelimited(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathDelimited(Arc::new(MathDelimitedElem {
+        })))),
+            Content::MathStretch(e) => rebuild_pre_node(|| Ok({ let mut mapped = e.as_ref().clone(); mapped.body = mapped.body.map_content_pre(transform)?; Content::MathStretch(Arc::new(mapped)) })),
+            Content::MathDelimited(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathDelimited(Arc::new(MathDelimitedElem {
             open: e.open,
             body: e.body.map_content_pre(transform)?,
             close: e.close,
-        })))? },
-            Content::MathLr(e) => { let mut mapped = e.as_ref().clone(); mapped.body = mapped.body.map_content_pre(transform)?; Content::MathLr(Arc::new(mapped)) },
-            Content::MathMid(e) => { let mut mapped = e.as_ref().clone(); mapped.body = mapped.body.map_content_pre(transform)?; Content::MathMid(Arc::new(mapped)) },
-            Content::MathOverbrace(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathOverbrace(Arc::new(MathOverbraceElem {
+        })))),
+            Content::MathLr(e) => rebuild_pre_node(|| Ok({ let mut mapped = e.as_ref().clone(); mapped.body = mapped.body.map_content_pre(transform)?; Content::MathLr(Arc::new(mapped)) })),
+            Content::MathMid(e) => rebuild_pre_node(|| Ok({ let mut mapped = e.as_ref().clone(); mapped.body = mapped.body.map_content_pre(transform)?; Content::MathMid(Arc::new(mapped)) })),
+            Content::MathOverbrace(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathOverbrace(Arc::new(MathOverbraceElem {
             body: e.body.map_content_pre(transform)?,
             annotation: e
                 .annotation
@@ -926,8 +941,8 @@ impl Content {
                 .map(|content| content.map_content_pre(transform))
                 .transpose()?,
             annotation_explicit: e.annotation_explicit,
-        })))? },
-            Content::MathUnderbrace(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathUnderbrace(Arc::new(MathUnderbraceElem {
+        })))),
+            Content::MathUnderbrace(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathUnderbrace(Arc::new(MathUnderbraceElem {
             body: e.body.map_content_pre(transform)?,
             annotation: e
                 .annotation
@@ -935,8 +950,8 @@ impl Content {
                 .map(|content| content.map_content_pre(transform))
                 .transpose()?,
             annotation_explicit: e.annotation_explicit,
-        })))? },
-            Content::MathUnderbracket(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathUnderbracket(Arc::new(MathUnderbracketElem {
+        })))),
+            Content::MathUnderbracket(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathUnderbracket(Arc::new(MathUnderbracketElem {
             body: e.body.map_content_pre(transform)?,
             annotation: e
                 .annotation
@@ -944,8 +959,8 @@ impl Content {
                 .map(|content| content.map_content_pre(transform))
                 .transpose()?,
             annotation_explicit: e.annotation_explicit,
-        })))? },
-            Content::MathUnderparen(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathUnderparen(Arc::new(MathUnderparenElem {
+        })))),
+            Content::MathUnderparen(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathUnderparen(Arc::new(MathUnderparenElem {
             body: e.body.map_content_pre(transform)?,
             annotation: e
                 .annotation
@@ -953,8 +968,8 @@ impl Content {
                 .map(|content| content.map_content_pre(transform))
                 .transpose()?,
             annotation_explicit: e.annotation_explicit,
-        })))? },
-            Content::MathUndershell(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathUndershell(Arc::new(MathUndershellElem {
+        })))),
+            Content::MathUndershell(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathUndershell(Arc::new(MathUndershellElem {
             body: e.body.map_content_pre(transform)?,
             annotation: e
                 .annotation
@@ -962,8 +977,8 @@ impl Content {
                 .map(|content| content.map_content_pre(transform))
                 .transpose()?,
             annotation_explicit: e.annotation_explicit,
-        })))? },
-            Content::MathOverbracket(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathOverbracket(Arc::new(MathOverbracketElem {
+        })))),
+            Content::MathOverbracket(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathOverbracket(Arc::new(MathOverbracketElem {
             body: e.body.map_content_pre(transform)?,
             annotation: e
                 .annotation
@@ -971,8 +986,8 @@ impl Content {
                 .map(|content| content.map_content_pre(transform))
                 .transpose()?,
             annotation_explicit: e.annotation_explicit,
-        })))? },
-            Content::MathOverparen(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathOverparen(Arc::new(MathOverparenElem {
+        })))),
+            Content::MathOverparen(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathOverparen(Arc::new(MathOverparenElem {
             body: e.body.map_content_pre(transform)?,
             annotation: e
                 .annotation
@@ -980,8 +995,8 @@ impl Content {
                 .map(|content| content.map_content_pre(transform))
                 .transpose()?,
             annotation_explicit: e.annotation_explicit,
-        })))? },
-            Content::MathOvershell(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathOvershell(Arc::new(MathOvershellElem {
+        })))),
+            Content::MathOvershell(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathOvershell(Arc::new(MathOvershellElem {
             body: e.body.map_content_pre(transform)?,
             annotation: e
                 .annotation
@@ -989,8 +1004,8 @@ impl Content {
                 .map(|content| content.map_content_pre(transform))
                 .transpose()?,
             annotation_explicit: e.annotation_explicit,
-        })))? },
-            Content::MathMatrix(e) => { let rows = e
+        })))),
+            Content::MathMatrix(e) => rebuild_pre_node(|| Ok({ let rows = e
             .rows
             .iter()
             .map(|row| row.iter().map(|cell| cell.map_content_pre(transform)).collect())
@@ -1003,8 +1018,8 @@ impl Content {
             row_gap: e.row_gap,
             column_gap: e.column_gap,
             explicit: e.explicit,
-        })))? },
-            Content::MathCases(e) => { let children = e
+        })))? })),
+            Content::MathCases(e) => rebuild_pre_node(|| Ok({ let children = e
             .children
             .iter()
             .map(|child| child.map_content_pre(transform))
@@ -1015,15 +1030,15 @@ impl Content {
             reverse: e.reverse,
             gap: e.gap,
             explicit: e.explicit,
-        })))? },
-            Content::MathAccent(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathAccent(Arc::new(MathAccentElem {
+        })))? })),
+            Content::MathAccent(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathAccent(Arc::new(MathAccentElem {
             base: e.base.map_content_pre(transform)?,
             accent: e.accent,
             size: e.size,
             dotless: e.dotless,
             explicit: e.explicit,
-        })))? },
-            Content::MathCancel(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathCancel(Arc::new(MathCancelElem {
+        })))),
+            Content::MathCancel(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathCancel(Arc::new(MathCancelElem {
             body: e.body.map_content_pre(transform)?,
             length: e.length,
             inverted: e.inverted,
@@ -1033,14 +1048,14 @@ impl Content {
             background: e.background,
             span: e.span,
             explicit: e.explicit,
-        })))? },
-            Content::MathUnderline(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathUnderline(Arc::new(MathUnderlineElem {
+        })))),
+            Content::MathUnderline(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathUnderline(Arc::new(MathUnderlineElem {
             body: e.body.map_content_pre(transform)?,
-        })))? },
-            Content::MathOverline(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathOverline(Arc::new(MathOverlineElem {
+        })))),
+            Content::MathOverline(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathOverline(Arc::new(MathOverlineElem {
             body: e.body.map_content_pre(transform)?,
-        })))? },
-            Content::MathVec(e) => { let children = e
+        })))),
+            Content::MathVec(e) => rebuild_pre_node(|| Ok({ let children = e
             .children
             .iter()
             .map(|child| child.map_content_pre(transform))
@@ -1051,49 +1066,49 @@ impl Content {
             align: e.align,
             gap: e.gap,
             explicit: e.explicit,
-        })))? },
-            Content::MathClassOverride(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathClassOverride(Arc::new(MathClassOverrideElem {
+        })))? })),
+            Content::MathClassOverride(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathClassOverride(Arc::new(MathClassOverrideElem {
             class: e.class,
             body: e.body.map_content_pre(transform)?,
-        })))? },
-            Content::MathLimitsOverride(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathLimitsOverride(Arc::new(MathLimitsOverrideElem {
+        })))),
+            Content::MathLimitsOverride(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathLimitsOverride(Arc::new(MathLimitsOverrideElem {
             body: e.body.map_content_pre(transform)?,
             limits: e.limits,
             inline: e.inline,
             inline_explicit: e.inline_explicit,
-        })))? },
-            Content::MathUnderover(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathUnderover(Arc::new(MathUnderoverElem {
+        })))),
+            Content::MathUnderover(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathUnderover(Arc::new(MathUnderoverElem {
             base: e.base.map_content_pre(transform)?,
             under: e.under.as_ref().map(|c| c.map_content_pre(transform)).transpose()?,
             over: e.over.as_ref().map(|c| c.map_content_pre(transform)).transpose()?,
-        })))? },
-            Content::MathOp(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathOp(Arc::new(MathOpElem {
+        })))),
+            Content::MathOp(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathOp(Arc::new(MathOpElem {
             text: e.text.map_content_pre(transform)?,
             limits: e.limits,
-        })))? },
-            Content::MathAlignPoint(e) => { // Terminal (marcador unit; sem filhos).
-        Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathAlignPoint(Arc::new(e.as_ref().clone())))? },
+        })))),
+            Content::MathAlignPoint(e) => Ok({ // Terminal (marcador unit; sem filhos).
+        Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathAlignPoint(Arc::new(e.as_ref().clone())))? }),
             // P311b.2 — MathStyled map_content recursivo (Modelo D P316: delega).
-            Content::MathStyled(m) => { // Recursivo no body; preserva kind/flags (content.rs:2145).
+            Content::MathStyled(m) => rebuild_pre_node(|| Ok({ // Recursivo no body; preserva kind/flags (content.rs:2145).
         Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::MathStyled(Arc::new(MathStyledElem {
             kind: m.kind,
             bold: m.bold,
             italic: m.italic,
             body: m.body.map_content_pre(transform)?,
             cramped: m.cramped,
-        })))? },
+        })))? })),
 
             // Modelo D (Lote 3 P318): Terms/TermItem delegam ao elemento.
-            Content::Terms(e) => { let items: SourceResult<Vec<Content>> =
+            Content::Terms(e) => rebuild_pre_node(|| Ok({ let items: SourceResult<Vec<Content>> =
             e.items.iter().map(|c| c.map_content_pre(transform)).collect();
-        Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Terms(Arc::new(TermsElem { items: items? })))? },
-            Content::TermItem(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::TermItem(Arc::new(TermItemElem {
+        Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Terms(Arc::new(TermsElem { items: items? })))? })),
+            Content::TermItem(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::TermItem(Arc::new(TermItemElem {
             term: e.term.map_content_pre(transform)?,
             description: e.description.map_content_pre(transform)?,
-        })))? },
+        })))),
 
             // Modelo D (Lote 8 P323): Quote container delega ao elemento.
-            Content::Quote(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Quote(Arc::new(QuoteElem {
+            Content::Quote(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Quote(Arc::new(QuoteElem {
             body: e.body.map_content_pre(transform)?,
             attribution: e
                 .attribution
@@ -1102,59 +1117,59 @@ impl Content {
                 .transpose()?,
             block: e.block,
             quotes: e.quotes,
-        })))? },
-            Content::PdfArtifact(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::PdfArtifact(Arc::new(PdfArtifactElem {
+        })))),
+            Content::PdfArtifact(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::PdfArtifact(Arc::new(PdfArtifactElem {
             kind: e.kind,
             body: e.body.map_content_pre(transform)?,
-        })))? },
+        })))),
 
             // P284 — text decoration containers — recurse em body;
             // atributos cosméticos são Copy primitivos.
             // Modelo D (Lote 4 P319): decorações delegam ao elemento.
-            Content::Underline(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Underline(Arc::new(UnderlineElem {
+            Content::Underline(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Underline(Arc::new(UnderlineElem {
             body: e.body.map_content_pre(transform)?,
             stroke: e.stroke.clone(),
             offset: e.offset,
             extent: e.extent,
-        })))? },
-            Content::Strike(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Strike(Arc::new(StrikeElem {
+        })))),
+            Content::Strike(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Strike(Arc::new(StrikeElem {
             body: e.body.map_content_pre(transform)?,
             stroke: e.stroke.clone(),
             offset: e.offset,
             extent: e.extent,
-        })))? },
-            Content::Overline(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Overline(Arc::new(OverlineElem {
+        })))),
+            Content::Overline(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Overline(Arc::new(OverlineElem {
             body: e.body.map_content_pre(transform)?,
             stroke: e.stroke.clone(),
             offset: e.offset,
             extent: e.extent,
-        })))? },
+        })))),
 
             // P408: smallcaps container — recurse em body (stub transparente).
-            Content::SmallCaps { body } => Content::SmallCaps {
+            Content::SmallCaps { body } => rebuild_pre_node(|| Ok(Content::SmallCaps {
                 body: Box::new(body.map_content_pre(transform)?),
-            },
+            })),
 
             // Passo 156C / 156L: Pad / Hide containers — recurse em body;
             // sides é Copy primitivo (Sides<Option<Length>>).
             // Modelo D (Lote 10 P325): Pad container delega ao elemento.
-            Content::Pad(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Pad(Arc::new(PadElem {
+            Content::Pad(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Pad(Arc::new(PadElem {
             body: e.body.map_content_pre(transform)?,
             sides: e.sides,
-        })))? },
+        })))),
             // Modelo D (Lote 7 P322): Hide delega ao elemento.
-            Content::Hide(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Hide(Arc::new(HideElem { body: e.body.map_content_pre(transform)? })))? },
+            Content::Hide(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Hide(Arc::new(HideElem { body: e.body.map_content_pre(transform)? })))),
 
             // Passo 156G + P231 + P247 + P250: Block container — recurse em
             // body; preserva 9 cosméticos (Sides/Corners/bool/Color Copy;
             // Stroke Clone; Option<Length> Copy; bool Copy).
-            Content::Block(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Block(Arc::new(BlockElem {
+            Content::Block(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Block(Arc::new(BlockElem {
             body: e.body.map_content_pre(transform)?,
             ..e.as_ref().clone()
-        })))? },
+        })))),
 
             // Passo 156H + P231 + P247: Boxed (Box inline) — recurse análogo a Block; preserva 5 cosméticos.
-            Content::Boxed(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Boxed(Arc::new(BoxedElem {
+            Content::Boxed(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Boxed(Arc::new(BoxedElem {
             body: e.body.map_content_pre(transform)?,
             width: e.width,
             width_fraction: e.width_fraction,
@@ -1166,34 +1181,34 @@ impl Content {
             clip: e.clip,
             fill: e.fill.clone(),
             stroke: e.stroke.clone(),
-        })))? },
+        })))),
 
             // Modelo D (Lote 9 P324): Stack container delega ao elemento.
-            Content::Stack(e) => { let new_children: SourceResult<Vec<Content>> =
+            Content::Stack(e) => rebuild_pre_node(|| Ok({ let new_children: SourceResult<Vec<Content>> =
             e.children.iter().map(|c| c.map_content_pre(transform)).collect();
         Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Stack(Arc::new(StackElem {
             children: Arc::from(new_children?),
             dir: e.dir,
             spacing: e.spacing,
-        })))? },
+        })))? })),
 
             // Passo 156J: Repeat container — recurse em body; gap e
             // justify são Copy primitivos (Option<Length>, bool).
-            Content::Repeat(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Repeat(Arc::new(RepeatElem {
+            Content::Repeat(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Repeat(Arc::new(RepeatElem {
             body: e.body.map_content_pre(transform)?,
             gap: e.gap,
             justify: e.justify,
-        })))? },
+        })))),
 
             // Modelo D (Lote 8 P323): Columns container delega ao elemento.
-            Content::Columns(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Columns(Arc::new(ColumnsElem {
+            Content::Columns(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Columns(Arc::new(ColumnsElem {
             count: e.count,
             gutter: e.gutter,
             body: e.body.map_content_pre(transform)?,
             page_columns: e.page_columns,
-        })))? },
-            Content::Outline(e) => { let mut mapped = e.as_ref().clone(); mapped.title = e.title.as_ref().map(|c| c.map_content_pre(transform)).transpose()?; Content::Outline(Arc::new(mapped)) },
-            Content::OutlineEntry(e) => Content::OutlineEntry(Arc::new(e.remapped(e.element.map_content_pre(transform)?, e.fill.as_ref().map(|c| c.map_content_pre(transform)).transpose()?, e.prefix().as_ref().map(|c| c.map_content_pre(transform)).transpose()?))),
+        })))),
+            Content::Outline(e) => rebuild_pre_node(|| Ok({ let mut mapped = e.as_ref().clone(); mapped.title = e.title.as_ref().map(|c| c.map_content_pre(transform)).transpose()?; Content::Outline(Arc::new(mapped)) })),
+            Content::OutlineEntry(e) => rebuild_pre_node(|| Ok(Content::OutlineEntry(Arc::new(e.remapped(e.element.map_content_pre(transform)?, e.fill.as_ref().map(|c| c.map_content_pre(transform)).transpose()?, e.prefix().as_ref().map(|c| c.map_content_pre(transform)).transpose()?))))),
 
             // ── Terminais: clonar directamente ──────────────────────────────
             // Listados explicitamente — variantes novas não passam em silêncio.
@@ -1236,15 +1251,15 @@ impl Content {
             | Content::StateDisplay(_)
             // P241 (M9d/M7+2): CounterDisplayCallback terminal paralelo
             // StateDisplay; resolvido pós-fixpoint via apply_counter_displays.
-            | Content::CounterDisplayCallback(_) => self.clone(),
+            | Content::CounterDisplayCallback(_) => Ok(self.clone()),
             // Modelo D (Lote 9 P324): Transform container delega ao elemento.
-            Content::Transform(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Transform(Arc::new(TransformElem {
+            Content::Transform(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Transform(Arc::new(TransformElem {
             operation: e.operation,
             body: e.body.map_content_pre(transform)?,
-        })))? },
+        })))),
             // P224+P227+P228 — Grid refino +7 fields (gutter/align/inset/header/footer/stroke/fill).
             // Modelo D (Lote 12 P327): Grid container delega ao elemento.
-            Content::Grid(e) => { let new_cells: SourceResult<Vec<Content>> =
+            Content::Grid(e) => rebuild_pre_node(|| Ok({ let new_cells: SourceResult<Vec<Content>> =
             e.cells.iter().map(|c| c.map_content_pre(transform)).collect();
         Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Grid(Arc::new(GridElem {
             columns: e.columns.clone(),
@@ -1259,18 +1274,18 @@ impl Content {
             footer: e.footer.as_ref().map(|f| f.map_content_pre(transform)).transpose()?,
             stroke: e.stroke.clone(),
             fill: e.fill.clone(),
-        })))? },
+        })))? })),
             // Modelo D (Lote 5 P320): GridHeader/GridFooter delegam ao elemento.
-            Content::GridHeader(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::GridHeader(Arc::new(GridHeaderElem {
+            Content::GridHeader(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::GridHeader(Arc::new(GridHeaderElem {
             body: e.body.map_content_pre(transform)?,
             repeat: e.repeat,
-        })))? },
-            Content::GridFooter(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::GridFooter(Arc::new(GridFooterElem {
+        })))),
+            Content::GridFooter(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::GridFooter(Arc::new(GridFooterElem {
             body: e.body.map_content_pre(transform)?,
             repeat: e.repeat,
-        })))? },
+        })))),
             // Modelo D (Lote 12 P327): GridCell container delega ao elemento.
-            Content::GridCell(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::GridCell(Arc::new(GridCellElem {
+            Content::GridCell(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::GridCell(Arc::new(GridCellElem {
             body: e.body.map_content_pre(transform)?,
             x: e.x,
             y: e.y,
@@ -1281,27 +1296,27 @@ impl Content {
             align: e.align,
             inset: e.inset,
             breakable: e.breakable,
-        })))? },
+        })))),
             // Passo 512 — linhas em grid/table são terminais.
-            Content::GridHLine(_) | Content::GridVLine(_) => self.clone(),
-            Content::TableHLine(_) | Content::TableVLine(_) => self.clone(),
+            Content::GridHLine(_) | Content::GridVLine(_) => Ok(self.clone()),
+            Content::TableHLine(_) | Content::TableVLine(_) => Ok(self.clone()),
             // Passo 157A + P227 + P228: Table — mapear children; preservar stroke + fill.
             // Modelo D (Lote 12 P327): Table container delega ao elemento.
-            Content::Table(e) if e.resolved.is_some() => {
+            Content::Table(e) if e.resolved.is_some() => rebuild_pre_node(|| Ok({
                 let mut t=e.as_ref().clone();let mut r=t.resolved.as_ref().unwrap().as_ref().clone();
                 r.cells=r.cells.iter().map(|c|c.map_content_pre(transform)).collect::<crate::entities::source_result::SourceResult<_>>()?;
                 t.resolved=Some(Arc::new(r));t.caption=t.caption.as_ref().map(|c|c.map_content_pre(transform)).transpose()?;
                 Content::Table(Arc::new(t))
-            },
-            Content::TableCell(e) if e.standalone.is_some() => {
+            })),
+            Content::TableCell(e) if e.standalone.is_some() => rebuild_pre_node(|| Ok({
                 let mut c=e.as_ref().clone();let mut r=c.standalone.as_ref().unwrap().as_ref().clone();
                 r.visual=r.visual.map_content_pre(transform)?;c.standalone=Some(Arc::new(r));Content::TableCell(Arc::new(c))
-            },
-            Content::TableCell(e) if e.resolved.is_some() => {
+            })),
+            Content::TableCell(e) if e.resolved.is_some() => rebuild_pre_node(|| Ok({
                 let mut c=e.as_ref().clone();let mut r=c.resolved.as_ref().unwrap().as_ref().clone();
                 r.visual=r.visual.map_content_pre(transform)?;c.resolved=Some(Arc::new(r));Content::TableCell(Arc::new(c))
-            },
-            Content::Table(e) => { let new_children: SourceResult<Vec<Content>> =
+            })),
+            Content::Table(e) => rebuild_pre_node(|| Ok({ let new_children: SourceResult<Vec<Content>> =
             e.children.iter().map(|c| c.map_content_pre(transform)).collect();
         Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Table(Arc::new(TableElem {
             source_span: e.source_span,
@@ -1324,9 +1339,9 @@ impl Content {
             summary: e.summary.clone(),
             inset: e.inset,
             align: e.align,
-        })))? },
+        })))? })),
             // Modelo D (Lote 12 P327): TableCell container delega ao elemento.
-            Content::TableCell(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::TableCell(Arc::new(TableCellElem {
+            Content::TableCell(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::TableCell(Arc::new(TableCellElem {
             source_span: e.source_span,
             resolved: e.resolved.clone(),
             standalone: e.standalone.clone(),
@@ -1342,29 +1357,29 @@ impl Content {
             inset: e.inset,
             breakable: e.breakable,
             kind: e.kind,
-        })))? },
+        })))),
             // Modelo D (Lote 5 P320): TableHeader/TableFooter delegam ao elemento.
-            Content::TableHeader(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::TableHeader(Arc::new(TableHeaderElem {
+            Content::TableHeader(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::TableHeader(Arc::new(TableHeaderElem {
             body: e.body.map_content_pre(transform)?,
             repeat: e.repeat,
-        })))? },
-            Content::TableFooter(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::TableFooter(Arc::new(TableFooterElem {
+        })))),
+            Content::TableFooter(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::TableFooter(Arc::new(TableFooterElem {
             body: e.body.map_content_pre(transform)?,
             repeat: e.repeat,
-        })))? },
+        })))),
             // Passo 159A: Bibliography recurse em title; preserva
             // entries (BibEntry é dados puros, sem Content recursivo).
             // Cite recurse em supplement; preserva key.
             // Modelo D (Lote 10 P325): Bibliography delega ao elemento (recurse title).
-            Content::Bibliography(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Bibliography(Arc::new(BibliographyElem {
+            Content::Bibliography(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Bibliography(Arc::new(BibliographyElem {
             entries: e.entries.clone(),
             path: e.path.clone(),
             title: e.title.as_ref().map(|t| t.map_content_pre(transform)).transpose()?,
             style: e.style.clone(),
             locale: e.locale.clone(),
-        })))? },
+        })))),
             // Modelo D (Lote 9 P324): Cite delega ao elemento (recurse supplement).
-            Content::Cite(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Cite(Arc::new(CiteElem {
+            Content::Cite(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Cite(Arc::new(CiteElem {
             key: e.key.clone(),
             supplement: e
                 .supplement
@@ -1373,14 +1388,14 @@ impl Content {
                 .transpose()?,
             form: e.form,
             style: e.style,
-        })))? },
+        })))),
             // Modelo D (Lote 11 P326): Footnote container delega ao elemento.
-            Content::Footnote(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Footnote(Arc::new(FootnoteElem {
+            Content::Footnote(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Footnote(Arc::new(FootnoteElem {
             body: e.body.map_content_pre(transform)?,
             numbering: e.numbering.clone(),
-        })))? },
+        })))),
             // P1473 — FootnoteEntry delega ao elemento.
-            Content::FootnoteEntry(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::FootnoteEntry(Arc::new(FootnoteEntryElem {
+            Content::FootnoteEntry(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::FootnoteEntry(Arc::new(FootnoteEntryElem {
             note: e.note.map_content_pre(transform)?,
             separator: e
                 .separator
@@ -1390,13 +1405,13 @@ impl Content {
             clearance: e.clearance,
             gap: e.gap,
             indent: e.indent,
-        })))? },
-            Content::Align(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Align(Arc::new(AlignElem {
+        })))),
+            Content::Align(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Align(Arc::new(AlignElem {
             alignment: e.alignment,
             body: e.body.map_content_pre(transform)?,
-        })))? },
+        })))),
             // Modelo D (Lote 9 P324): Place container delega ao elemento.
-            Content::Place(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Place(Arc::new(PlaceElem {
+            Content::Place(e) => rebuild_pre_node(|| Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Place(Arc::new(PlaceElem {
             alignment: e.alignment,
             dx: e.dx,
             dy: e.dy,
@@ -1404,15 +1419,15 @@ impl Content {
             float: e.float,
             clearance: e.clearance,
             body: e.body.map_content_pre(transform)?,
-        })))? },
-            Content::Flush(e) => { Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Flush(Arc::new(e.as_ref().clone())))? },
-            Content::Styled(styled) => Content::styled(
+        })))),
+            Content::Flush(e) => Ok::<Content, Vec<crate::entities::source_result::SourceDiagnostic>>(Content::Flush(Arc::new(e.as_ref().clone()))),
+            Content::Styled(styled) => rebuild_pre_node(|| Ok(Content::styled(
                 styled.body.map_content_pre(transform)?,
                 styled.styles.clone(),
-            ),
+            ))),
             // P397: Document recursa no título (único Content aninhado);
             // Asset é terminal (sem Content aninhado).
-            Content::Document { path, body, format, title, author, date, keywords } => Content::Document {
+            Content::Document { path, body, format, title, author, date, keywords } => rebuild_pre_node(|| Ok(Content::Document {
                 path: path.clone(),
                 body: Box::new(body.map_content_pre(transform)?),
                 format: format.clone(),
@@ -1423,17 +1438,16 @@ impl Content {
                 author: author.clone(),
                 date:   *date,
                 keywords: keywords.clone(),
-            },
-            Content::Asset { .. } => self.clone(),
+            })),
+            Content::Asset { .. } => Ok(self.clone()),
             // P506: ContextBlock é terminal em map_content (o corpo é closure,
             // não content; expansão acontece pós-introspecção).
-            Content::ContextBlock(_) => self.clone(),
+            Content::ContextBlock(_) => Ok(self.clone()),
             // Lote F-1 (P334): a fronteira dinâmica recursa nos filhos via o
             // elemento (mesmo contrato dos 65: devolve o nó com filhos
             // transformados; o hub aplica `transform` ao nó abaixo).
-            Content::Dynamic(_) => self.clone(),
-        };
-        Ok(processed)
+            Content::Dynamic(_) => Ok(self.clone()),
+        }
     }
 
     /// Forma canônica para o `==` **morfológico** da linguagem (Passo 345,
@@ -2012,6 +2026,94 @@ mod change_aware_tests {
 #[cfg(test)]
 mod preorder_tests {
     use super::*;
+
+    #[test]
+    fn bottom_up_bounded_stack_preserves_change_proof_and_order() {
+        let mut original = Content::text("X");
+        for _ in 0..128 {
+            original = Content::strong(original);
+        }
+        let mut seen = Vec::new();
+        let unchanged = original
+            .map_content(&mut |node| {
+                if matches!(node, Content::Text(_)) {
+                    seen.push("text");
+                }
+                if matches!(node, Content::Strong(_)) {
+                    seen.push("strong");
+                }
+                Ok(None)
+            })
+            .unwrap();
+        assert_eq!(seen.len(), 129);
+        assert_eq!(seen[0], "text");
+        assert!(seen[1..].iter().all(|kind| *kind == "strong"));
+        let (Content::Strong(before), Content::Strong(after)) = (&original, &unchanged)
+        else {
+            panic!("expected Strong")
+        };
+        assert!(Arc::ptr_eq(before, after));
+        let changed = original
+            .map_content(&mut |node| {
+                Ok(if matches!(node, Content::Text(_)) {
+                    Some(node.clone())
+                } else {
+                    None
+                })
+            })
+            .unwrap();
+        let Content::Strong(after) = &changed else { panic!("expected Strong") };
+        assert!(!Arc::ptr_eq(before, after));
+        assert_eq!(changed.plain_text(), "X");
+    }
+
+    #[test]
+    fn pre_order_bounded_stack_keeps_nested_wrappers_and_short_circuit() {
+        let mut original = Content::text("X");
+        for _ in 0..64 {
+            original = Content::strong(original);
+        }
+        let mut strong = 0;
+        let mut text = 0;
+        let result = original
+            .map_content_pre(&mut |node| {
+                if matches!(node, Content::Strong(_)) {
+                    strong += 1;
+                }
+                if matches!(node, Content::Text(_)) {
+                    text += 1;
+                }
+                Ok(None)
+            })
+            .unwrap();
+        assert_eq!(strong, 64);
+        assert_eq!(text, 1);
+        assert_eq!(result, original);
+        let mut visited = 0;
+        let replaced = original
+            .map_content_pre(&mut |_| {
+                visited += 1;
+                Ok(Some(Content::text("terminal")))
+            })
+            .unwrap();
+        assert_eq!(visited, 1);
+        assert_eq!(replaced.plain_text(), "terminal");
+        visited = 0;
+        let result = original.map_content_pre(&mut |_| {
+            visited += 1;
+            if visited == 3 {
+                return Err(vec![
+                    crate::entities::source_result::SourceDiagnostic::error(
+                        crate::entities::span::Span::detached(),
+                        "stop",
+                    ),
+                ]);
+            }
+            Ok(None)
+        });
+        assert_eq!(visited, 3);
+        assert_eq!(result.unwrap_err()[0].message, "stop");
+    }
 
     #[test]
     fn math_bare_insertion_preorder_subtree_is_terminal_and_public_walk_is_unchanged() {

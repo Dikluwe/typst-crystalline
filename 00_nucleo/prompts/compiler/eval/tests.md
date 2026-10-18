@@ -1,5 +1,5 @@
 # L0 — compiler/eval/tests
-Hash do Código: f1ee7333
+Hash do Código: 37770d76
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
@@ -1116,3 +1116,28 @@ cinco helpers State. Sem novos campos públicos. Styled ordinário e demais
 callbacks conservam suas fronteiras. Workspace/doctests/build/Clippy/Rustdoc,
 fmt, V1/V5/V15/V26/reversa e V16 sem aumento; 12GiB/High8GiB/swap0/jobs1,
 comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.
+
+
+## Concatenação de conteúdo — 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c e working tree/UTC/diffstat/fontes
+em before.json.gz de 00_nucleo/diagnosticos/state-stack-2026-10-17.
+morphology-before.json.gz/morphology-measured.json.gz comparam repr de loops e +
+com vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3: o Tekt encaixa Sequence
+a cada junção; vanilla concatena os filhos imediatos. debug-root.log localiza
+a falha de pilha na varredura da cadeia produzida por 64 updates. São forma e
+falha de linguagem, sem obrigação de copiar estrutura Rust ou aumentar stack.
+
+### Responsabilidade exclusiva
+
+Possuir testes E2E de eval para for/while, concatenação + e aliases com origem,
+usando assert.eq(repr(...), ...) no nível da língua. Fixtures devem ser válidas
+no oráculo; não acessar children como pré-requisito enquanto sua ausência atual
+é dívida separada. O algoritmo não é owned por estes testes: é especificado em
+00_nucleo/prompts/compiler/eval/operators/join.md.
+
+Preservar os testes anteriores. Não reduzir profundidade ou quantidade do ensaio
+original para fazê-lo passar. Confirmar RED→GREEN e revalidar sob 12GiB/swap0/jobs1,
+sem contratos públicos, fase ou defaults novos (ADR-0127 contínuo).

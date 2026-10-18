@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash a3a27dfc
+//! @prompt-hash 50336360
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -346,6 +346,27 @@ mod regressions {
         Bytes, Datetime, FileError, FileResult, Font, Library,
     };
     use std::num::NonZeroU16;
+
+    #[test]
+    fn concat_language_for_while_and_aliases() {
+        for src in [
+            r#"#let c=for i in range(4) {[X]}
+#assert.eq(repr(c), "sequence([X], [X], [X], [X])")"#,
+            r#"#let n=0
+#let c=while n < 4 {n += 1;[X]}
+#assert.eq(repr(c), "sequence([X], [X], [X], [X])")"#,
+            r#"#let a=[A]+[B]
+#let b=a+[C]
+#assert.eq(repr(a), "sequence([A], [B])")
+#assert.eq(repr(b), "sequence([A], [B], [C])")"#,
+        ] {
+            let world = MockWorld::new(src);
+            let reg = registry_com_callout();
+            let source = World::source(&world, World::main(&world)).unwrap();
+            let result = eval_for_test_with_registry(&world, &source, &reg);
+            assert!(result.is_ok(), "{src}: {result:?}");
+        }
+    }
 
     #[test]
     fn a1_reflection_of_transported_fields_and_presence() {

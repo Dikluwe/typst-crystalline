@@ -1,5 +1,5 @@
 # L0 — compiler/eval/operators/arithmetic
-Hash do Código: ab3d8d4e
+Hash do Código: c606bf52
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/operators/arithmetic.rs`
@@ -115,3 +115,30 @@ Ratificação Memória 5: o dono confirmou o manifesto SHA-256
 6badf07a4f58f08e7c60ad2e34dfb9a14a3a6ba55db90045afe046be8e988237
 com “confirmo” em 2026-10-08. O gate ADR-0127 deste pacote está satisfeito;
 suas cláusulas propostas passam a vigorar nesta materialização.
+
+
+## Concatenação de conteúdo — 2026-10-17
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c e working tree/UTC/diffstat/fontes
+em before.json.gz de 00_nucleo/diagnosticos/state-stack-2026-10-17.
+morphology-before.json.gz/morphology-measured.json.gz comparam repr de loops e +
+com vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3: o Tekt encaixa Sequence
+a cada junção; vanilla concatena os filhos imediatos. debug-root.log localiza
+a falha de pilha na varredura da cadeia produzida por 64 updates. São forma e
+falha de linguagem, sem obrigação de copiar estrutura Rust ou aumentar stack.
+
+### Responsabilidade exclusiva
+
+Os cinco braços Add de Content com Content/Str/Symbol delegam ao helper interno
+concat_content, owned exclusivamente por
+00_nucleo/prompts/compiler/eval/operators/join.md, após as coerções atuais.
+Não duplicar essa implementação aqui nem encaminhar todos os tipos join-compatible
+para Add. A matriz de domínios, números, strings/symbols entre si, arrays, Args,
+repetição e erros conserva integralmente o contrato vigente.
+
+Testar concatenação nos dois lados e coerções Str/Symbol para Content, incluindo
+texto vazio, junto com os controles P900. L0 antes do código, RED→GREEN e gates
+workspace/build/Clippy/Rustdoc/linhagem/fmt, sob 12GiB/High8GiB/swap0/jobs1.
+Fluxo contínuo ADR-0127: sem API pública, fase, default ou compatibilidade nova.

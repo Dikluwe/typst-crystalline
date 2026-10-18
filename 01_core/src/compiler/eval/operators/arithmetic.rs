@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/operators/arithmetic.md
-//! @prompt-hash ac467b80
+//! @prompt-hash 783b7f1e
 //! @layer L1
 //! @updated 2026-10-08
 //!
@@ -9,6 +9,7 @@
 //! operadores unários e o saneamento NaN de `Length`. A fronteira de erro é
 //! do nó `error_formatting`.
 
+use super::join::concat_content;
 use crate::entities::ast::expr::{BinOp, UnOp};
 use crate::entities::content::Content;
 use crate::entities::decimal::Decimal;
@@ -81,7 +82,7 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         }
         (BinOp::Add, Value::Str(a), Value::Str(b)) => Ok(Value::Str(a + b.as_str())),
         (BinOp::Add, Value::Content(a), Value::Content(b)) => {
-            Ok(Value::Content(Content::sequence(vec![a, b])))
+            Ok(Value::Content(concat_content(a, b)))
         }
         // **P900** — causa real do "crash 2" catalogado em P894
         // (`typst-passo-894-relatorio.md`, `"⟨" + x + "|"` dentro de função
@@ -101,22 +102,16 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
             Ok(Value::Str(format!("{}{}", a.value, b).into()))
         }
         (BinOp::Add, Value::Str(a), Value::Content(b)) => {
-            Ok(Value::Content(Content::sequence(vec![Content::text(a), b])))
+            Ok(Value::Content(concat_content(Content::text(a), b)))
         }
         (BinOp::Add, Value::Content(a), Value::Str(b)) => {
-            Ok(Value::Content(Content::sequence(vec![a, Content::text(b)])))
+            Ok(Value::Content(concat_content(a, Content::text(b))))
         }
         (BinOp::Add, Value::Symbol(a), Value::Content(b)) => {
-            Ok(Value::Content(Content::sequence(vec![
-                Content::text(a.value.to_string()),
-                b,
-            ])))
+            Ok(Value::Content(concat_content(Content::text(a.value.to_string()), b)))
         }
         (BinOp::Add, Value::Content(a), Value::Symbol(b)) => {
-            Ok(Value::Content(Content::sequence(vec![
-                a,
-                Content::text(b.value.to_string()),
-            ])))
+            Ok(Value::Content(concat_content(a, Content::text(b.value.to_string()))))
         }
         // P720 — Array/Dict + Array/Dict (paridade `impl Add for Array/Dict`,
         // vanilla `foundations/array.rs:1203-1216`, `dict.rs:388-404`):
@@ -583,6 +578,29 @@ mod tests {
     use super::super::eval_binary_op;
     use super::*;
     use crate::entities::layout_types::{Angle, Ratio};
+
+    #[test]
+    fn concat_add_uses_same_sequence_semantics() {
+        let seq = || Content::sequence(vec![Content::text("A"), Content::text("B")]);
+        for (left, right) in [
+            (Value::Content(seq()), Value::Content(Content::text("C"))),
+            (Value::Content(Content::text("C")), Value::Content(seq())),
+            (Value::Content(seq()), Value::Str("C".into())),
+            (Value::Str("C".into()), Value::Content(seq())),
+        ] {
+            let Value::Content(result) = apply_binary(BinOp::Add, left, right).unwrap()
+            else {
+                panic!("expected Content")
+            };
+            let Content::Sequence(parts) = result.source_body() else {
+                panic!("expected Sequence")
+            };
+            assert_eq!(parts.len(), 3);
+            assert!(parts
+                .iter()
+                .all(|part| matches!(part.source_body(), Content::Text(_))));
+        }
+    }
 
     /// **P832/P850 (achado #59)** — braços `Neg` em paridade com o vanilla
     /// (`foundations/ops.rs:80-84`: Angle/Ratio/Relative/Fraction/Duration).
