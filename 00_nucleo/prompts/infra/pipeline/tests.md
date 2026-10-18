@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/tests
-Hash do Código: 63207863
+Hash do Código: 770fb24d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:b4372cbdd36e0e25377d1258638a6859bcc88c9e584b91b377a2a12d0d66135f
@@ -326,3 +326,100 @@ Resselo somente após implementação e grafo válido. RG1 continua independente
 ### Responsabilidade exclusiva adicional
 
 Somente fixtures/adapters de testes: substituir Style::Size(Pt) por Size(Length absoluto), e expectativas de StyleDelta.size por Option<Length>. Conservar os observáveis linguísticos e os contratos funcionais existentes; não trocar geometria correta por snapshots da representação nova.
+
+
+## Context — herança textual, 2026-10-18
+
+### Medição anterior à decisão
+
+HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fonte produtiva limpa;
+00_nucleo/diagnosticos/context-paridade-2026-10-18/before.json.gz contém
+UTC, argv, diffstat e SHA dos executáveis. Build novo em baseline-build-resources.json;
+freeze completo em before-sources.json.gz. Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
+Sondas global/local devolvem A/A no Tekt contra R/L; criação antes da regra,
+aninhamento, regex e produto também perdem a regra. Controle local dentro de
+Context dá L nos dois. compiler/realize/mod.rs:240–269 só captura Equation/Table;
+compiler/realize/recipes.rs:343 trata Context como folha genérica; textual.rs:46–103
+já preserva baseline e compõe delta local por RuleId. No vanilla pinado,
+foundations/context.rs:78–86 executa com styles do ponto contextual;
+typst-realize/src/lib.rs:353–418 prepara raiz, aplica regra e visita produto.
+Isso mede escopo/efeitos de linguagem, não exige copiar a estrutura upstream.
+A causa de perda de regras é inferida desses caminhos e será refutada se os
+controles de escopo, nesting, produto ou pai ocultando filho falharem.
+
+### Decisão e fronteira
+
+Correção interna de paridade dentro da realização contextual já ratificada em
+R3-T1: manter execução adiada, API e fases vigentes. Não corrigir colisões de
+Location por offset/hash, remoção de Located ou alteração de contratos neste
+recorte. Styled comum permanece opaco no matching textual; não alterar o mapper.
+
+### Responsabilidade exclusiva
+
+Adicionar regressões de linguagem no pipeline paginado e HTML para herança
+global/local de Context, criação anterior à regra, nesting, regex, produto,
+Styled e pai ocultando filho. Manter controles de regra local no corpo.
+Registrar separadamente REDs de identidade (duas equações, prefixo Heading e
+it.location), sem marcá-los ignorados nem reduzir expectativas. Somente os REDs
+textuais pertencem à correção interna desta revisão; identidade pede seu escopo.
+
+
+## Context — identidade de ocorrências ratificada, 2026-10-18
+
+### Medição anterior à decisão e gate
+
+before.json.gz em 00_nucleo/diagnosticos/context-paridade-2026-10-18 conserva
+HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fontes, UTC, diffstat, argv e
+SHA dos binários; baseline-build-resources.json contém a receita nova. Vanilla
+bd5ebec285505889e8ff1d4f68804ab147a699f3. Duas equações dão EQ EQ Q1/Q2;
+prefixo Heading H EQ Q0/Q1; it.location observado por query dá 00/01.
+context_stabilization.rs:257 reinicia EvalContext por produtor; eval/mod.rs:438
+reinicia Locator; realize/mod.rs:41 aloca sem domínio comum; introspect/walk.rs:
+375–390 deduplica pela Location. É semântica/identidade de linguagem.
+Upstream typst-realize/src/lib.rs:353–418 prepara identidade antes da receita,
+mas não exige copiar representação, vtables ou algoritmo.
+Hipótese de colisão será refutada por falha de contagem, alias, callback ou replay.
+
+O humano aprovou a proposta review.md sob
+00_nucleo/materialization/context-occurrences-2026-10-18, SHA-256
+500e01cf0754a166deb7f493ff734f040ef38e0374cbf5aa0ba879a37d19f388;
+recibo approval-receipt.json no mesmo diretório. Gate ADR-0127 §2.1 satisfeito
+para a API aditiva especificada. Não autoriza mudança de fase ou API alheia.
+
+### Responsabilidade exclusiva
+
+Testar duas equações em Contexts distintos, prefixo Heading e callback que
+localiza seu próprio it na lista query. Incluir produtores iguais, aliases,
+produtos frescos, Context aninhado e crescimento/retração em replay selecionado.
+Controles PDF/HTML usam texto, contagens e relações de identidade reais; não
+sintetizar Locations esperadas nem comparar bytes PDF. Registrar RED funcional
+antes do código, conservar todos os controles textuais e a suíte precedente.
+
+### Delimitação medida dos controles de replay — 2026-10-18
+
+`green-occurrences1.log`/recibo e `occurrences-candidate1-sources.json.gz`
+em 00_nucleo/diagnosticos/context-paridade-2026-10-18 preservam sete controles
+aprovados e três falhas. 00_nucleo/prompts/infra/pipeline/context_stabilization.md:29–32 conserva
+contribuições não selecionadas; implementação: selecionar apenas leituras efetivas
+de filtered-counter/posição HTML, laço de validação ignora os demais produtores.
+As sondas `equation-grow-numbered`/`shrink-numbered` consultam query em outro
+produtor não selecionado: Q0 permanece congelado. `equation-alias` usa assert
+sobre a primeira query vazia e termina antes do passe legado. Estas sondas seguem
+registradas como divergências, não se troca o esperado nem se declara GREEN.
+
+Aceitação da arena isola a identidade dentro do protocolo vigente: alias de it
+com contador Q observável em vez de assert prematura; crescimento/retração com
+leitura real do contador filtrado também no produtor observador da query, para
+que participe do replay já especificado. Comparar esses controles ao vanilla.
+Isso não corrige nem amplia seleção ou tolerância de erros. Manter sondas gerais
+na evidência externa e declarar seus limites no relatório. Testes core exercitam
+reuso dos slots e ausência de tags fantasma separadamente.
+
+HTML: occurrences-html-before.json.gz e occurrences-html-candidate2.json.gz
+recompilam respectivamente o freeze textual e a arena; 25 sondas têm os mesmos
+status/texto/erro primário. As dez textuais coincidem com vanilla; as quinze de
+equação continuam divergentes. prepare_html seleciona Position/Page, conserva
+query não selecionada e recusa filtered-counter no target standalone. Esta etapa
+não altera esse contrato. Não declarar paridade de query/it.location HTML nem
+considerar a bateria ampliada integralmente verde. A arena corrige a colisão,
+mas a aceitação bilateral HTML mais ampla permanece aberta.

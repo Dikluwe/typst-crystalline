@@ -1,5 +1,5 @@
 # L0 — infra/pipeline/context_stabilization
-Hash do Código: 57c6c9b4
+Hash do Código: 6c5d98a8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/compilation-metric-cache.toml sha256:b4372cbdd36e0e25377d1258638a6859bcc88c9e584b91b377a2a12d0d66135f
@@ -356,3 +356,51 @@ cinco helpers State. Sem novos campos públicos. Styled ordinário e demais
 callbacks conservam suas fronteiras. Workspace/doctests/build/Clippy/Rustdoc,
 fmt, V1/V5/V15/V26/reversa e V16 sem aumento; 12GiB/High8GiB/swap0/jobs1,
 comandos pesados sequenciais. Ganho de RAM exige medição, não intenção.
+
+
+## Context — identidade de ocorrências ratificada, 2026-10-18
+
+### Medição anterior à decisão e gate
+
+before.json.gz em 00_nucleo/diagnosticos/context-paridade-2026-10-18 conserva
+HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fontes, UTC, diffstat, argv e
+SHA dos binários; baseline-build-resources.json contém a receita nova. Vanilla
+bd5ebec285505889e8ff1d4f68804ab147a699f3. Duas equações dão EQ EQ Q1/Q2;
+prefixo Heading H EQ Q0/Q1; it.location observado por query dá 00/01.
+context_stabilization.rs:257 reinicia EvalContext por produtor; eval/mod.rs:438
+reinicia Locator; realize/mod.rs:41 aloca sem domínio comum; introspect/walk.rs:
+375–390 deduplica pela Location. É semântica/identidade de linguagem.
+Upstream typst-realize/src/lib.rs:353–418 prepara identidade antes da receita,
+mas não exige copiar representação, vtables ou algoritmo.
+Hipótese de colisão será refutada por falha de contagem, alias, callback ou replay.
+
+O humano aprovou a proposta review.md sob
+00_nucleo/materialization/context-occurrences-2026-10-18, SHA-256
+500e01cf0754a166deb7f493ff734f040ef38e0374cbf5aa0ba879a37d19f388;
+recibo approval-receipt.json no mesmo diretório. Gate ADR-0127 §2.1 satisfeito
+para a API aditiva especificada. Não autoriza mudança de fase ou API alheia.
+
+### Responsabilidade exclusiva
+
+Session possui arena da fachada L1 e Producer possui frame exclusivo emitido
+por ela. Criar arena do origin real; sem produtores pode usar None e evitar
+uma caminhada redundante. Cada novo Producer recebe frame novo; reexecução
+retém o frame do mesmo Producer. Descartar descendente não recicla seus slots.
+Envolver a operação já existente apply_func → realize_math_insertions →
+realize_table_insertions em arena.evaluate, sem mudar ordem ou executar mais
+vezes. L3 não escolhe nem manipula Locations numéricas. Session legacy nova
+reconstrói deterministicamente arena/frame do mesmo origin e ordem causal;
+não inicializar a arena do snapshot de resultados anteriores. Retenção,
+seleção, erros, budgets, estilos, targets, efeitos e callbacks ficam vigentes.
+
+### Inicialização na primeira inclusão — correção interna medida
+
+`workspace-rest-occurrences-final.log`, recibo validation-occurrences-final e
+freeze occurrences-final-sources.json.gz conservam a falha do teste existente
+execution_retains_style_values_through_retirement_and_vector_growth. No consumer,
+Session::add em 235–242 pressupõe arena; teste em 1485–1506 cria Session vazia e
+inclui o primeiro produtor depois. A arena deve ser inicializada em add na primeira
+inclusão usando o origin da sessão, via get_or_insert_with; Session::new pode
+sempre iniciar None. Zero produtores permanece sem arena. O teste existente não
+muda. Correção privada dentro da API aprovada, sem alterar seleção ou fase;
+RED registrado, exigir GREEN e revalidação integral.

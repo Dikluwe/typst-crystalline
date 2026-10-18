@@ -1,5 +1,5 @@
 # L0 — compiler/realize/recipes
-Hash do Código: 2c25e087
+Hash do Código: dd0a2dfb
 
 Camada: L1. Consumer produtivo exclusivo: `01_core/src/compiler/realize/recipes.rs`.
 Contrato ratificado pelo dono; o consumer será selado durante a materialização.
@@ -103,3 +103,38 @@ podem causar alocação antecipada de identidade numa contribuição bruta. Sem
 receita efetiva a raiz preserva seus dados e seus filhos emitidos seguem a
 coordenação; a finalização canônica de todo o documento mantém o seu owner.
 Revalidar aliases/locais/fresh, query, Table e contextos, sem relaxar testes.
+
+
+## Context — herança textual, 2026-10-18
+
+### Medição anterior à decisão
+
+HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fonte produtiva limpa;
+00_nucleo/diagnosticos/context-paridade-2026-10-18/before.json.gz contém
+UTC, argv, diffstat e SHA dos executáveis. Build novo em baseline-build-resources.json;
+freeze completo em before-sources.json.gz. Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
+Sondas global/local devolvem A/A no Tekt contra R/L; criação antes da regra,
+aninhamento, regex e produto também perdem a regra. Controle local dentro de
+Context dá L nos dois. compiler/realize/mod.rs:240–269 só captura Equation/Table;
+compiler/realize/recipes.rs:343 trata Context como folha genérica; textual.rs:46–103
+já preserva baseline e compõe delta local por RuleId. No vanilla pinado,
+foundations/context.rs:78–86 executa com styles do ponto contextual;
+typst-realize/src/lib.rs:353–418 prepara raiz, aplica regra e visita produto.
+Isso mede escopo/efeitos de linguagem, não exige copiar a estrutura upstream.
+A causa de perda de regras é inferida desses caminhos e será refutada se os
+controles de escopo, nesting, produto ou pai ocultando filho falharem.
+
+### Decisão e fronteira
+
+Correção interna de paridade dentro da realização contextual já ratificada em
+R3-T1: manter execução adiada, API e fases vigentes. Não corrigir colisões de
+Location por offset/hash, remoção de Located ou alteração de contratos neste
+recorte. Styled comum permanece opaco no matching textual; não alterar o mapper.
+
+### Responsabilidade exclusiva
+
+Ao visitar ContextBlock emitido, delegar a captura efetiva de sua inserção ao
+helper privado do hub de realização e encerrar essa visita (Some). Não executar
+a closure. Excluir ContextBlock do complemento nominal do mesmo match.
+A captura só ocorre depois de a decisão do pai permitir esse filho; preservar
+os wrappers de estilo e fonte e a identidade já preparada por Located.

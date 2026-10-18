@@ -1,0 +1,7 @@
+{
+  "utc": "2026-10-18T16:40:37.638889+00:00",
+  "review_sha256": "500e01cf0754a166deb7f493ff734f040ef38e0374cbf5aa0ba879a37d19f388",
+  "answer": "Aprovar a proposta de identidade",
+  "source": "Resposta humana à pergunta request_user_input_async nesta conversa",
+  "scope": "API aditiva e contratos descritos em review.md; materialização exige RED→GREEN e revalidação"
+}

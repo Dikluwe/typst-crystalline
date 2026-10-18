@@ -1,5 +1,5 @@
 # L0 — compiler/realize/table_cells
-Hash do Código: 3a38caa7
+Hash do Código: e8f14bab
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
@@ -312,3 +312,22 @@ que instala/restaura o ambiente e visita somente a raiz/produto emitidos. O
 caminho legado reaplicava apply_show_rules ao corpo já visitado, reintroduzindo
 o resultado cacheado da Table. Os snapshots de contexto/Styled e o preparo
 Table/Cell continuam nesta unidade, com guards herdados unidos por identidade.
+
+
+## Context — retirada do filtro restritivo, 2026-10-18
+
+Medição anterior: before.json.gz em 00_nucleo/diagnosticos/context-paridade-2026-10-18,
+HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3,
+com fontes, UTC, argv e identidades. Global/local textual retorna A/A contra R/L.
+O único caller produtivo de captures_rule era capture_context_recipe no hub.
+O filtro exclusivo Equation/Table impede transporte de regras válidas e o novo
+transporte lexical geral deixa este predicado sem uso (green-text1.log).
+
+Decisão interna ADR-0127: superseder somente o limite histórico de captura
+contextual e as cláusulas de manutenção deste filtro. Remover captures_rule e seu
+teste unitário que fixa a whitelist obsoleta; os testes funcionais Context do
+owner 00_nucleo/prompts/infra/pipeline/tests.md substituem esse critério de
+captura. Não alterar reconhecimento semântico dos seletores, matching, catálogo
+Mathy, preparo Table/Cell, aliases, wrappers ou interfaces públicas. Captura
+conserva regras; não declara que elas casam qualquer elemento. Nenhum lint é
+silenciado e nenhuma expectativa de linguagem é reduzida.

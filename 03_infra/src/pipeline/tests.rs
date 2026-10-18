@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/tests.md
-//! @prompt-hash 1fbcf811
+//! @prompt-hash 16485e1d
 //! @layer L3
 //! @updated 2026-10-09
 //!
@@ -3350,4 +3350,437 @@ fn query_compiled_context_reports_callback_and_retains_final_metadata_and_warnin
     let values = intr.query_metadata();
     assert_eq!(values.len(), 1);
     assert!(matches!(&values[0], Value::Str(value) if value == "context-value"));
+}
+
+#[test]
+fn context_frontier_text_context_global() {
+    let world = mock_world(
+        r###"#show "A":[L]
+#let c=context[A]
+#show "A":[R]
+#c"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let text = result.expect("contextual recipe must compile").plain_text();
+    assert_eq!(text.trim(), "R");
+    let html = compile_to_html_string_with_features(
+        &world,
+        &world.source,
+        typst_core::entities::compiler_features::Features::html(),
+    )
+    .0
+    .expect("contextual recipe must compile as HTML");
+    assert!(html.contains(">R<"), "{html}");
+}
+
+#[test]
+fn context_frontier_text_context_local() {
+    let world = mock_world(
+        r###"#let c=[#show "A":[L]
+#context[A]]
+#show "A":[R]
+#c"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let text = result.expect("contextual recipe must compile").plain_text();
+    assert_eq!(text.trim(), "L");
+    let html = compile_to_html_string_with_features(
+        &world,
+        &world.source,
+        typst_core::entities::compiler_features::Features::html(),
+    )
+    .0
+    .expect("contextual recipe must compile as HTML");
+    assert!(html.contains(">L<"), "{html}");
+}
+
+#[test]
+fn context_frontier_text_created_before_rule() {
+    let world = mock_world(
+        r###"#let c=context[A]
+#show "A":[R]
+#c"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let text = result.expect("contextual recipe must compile").plain_text();
+    assert_eq!(text.trim(), "R");
+    let html = compile_to_html_string_with_features(
+        &world,
+        &world.source,
+        typst_core::entities::compiler_features::Features::html(),
+    )
+    .0
+    .expect("contextual recipe must compile as HTML");
+    assert!(html.contains(">R<"), "{html}");
+}
+
+#[test]
+fn context_frontier_text_local_inside_context() {
+    let world = mock_world(
+        r###"#show "A":[R]
+#context { show "A":[L]; [A] }"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let text = result.expect("contextual recipe must compile").plain_text();
+    assert_eq!(text.trim(), "L");
+    let html = compile_to_html_string_with_features(
+        &world,
+        &world.source,
+        typst_core::entities::compiler_features::Features::html(),
+    )
+    .0
+    .expect("contextual recipe must compile as HTML");
+    assert!(html.contains(">L<"), "{html}");
+}
+
+#[test]
+fn context_frontier_text_nested_context() {
+    let world = mock_world(
+        r###"#show "A":[R]
+#context [#context[A]]"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let text = result.expect("contextual recipe must compile").plain_text();
+    assert_eq!(text.trim(), "R");
+    let html = compile_to_html_string_with_features(
+        &world,
+        &world.source,
+        typst_core::entities::compiler_features::Features::html(),
+    )
+    .0
+    .expect("contextual recipe must compile as HTML");
+    assert!(html.contains(">R<"), "{html}");
+}
+
+#[test]
+fn context_frontier_text_local_nested_context() {
+    let world = mock_world(
+        r###"#let c=[#show "A":[L]
+#context [#context[A]]]
+#show "A":[R]
+#c"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let text = result.expect("contextual recipe must compile").plain_text();
+    assert_eq!(text.trim(), "L");
+    let html = compile_to_html_string_with_features(
+        &world,
+        &world.source,
+        typst_core::entities::compiler_features::Features::html(),
+    )
+    .0
+    .expect("contextual recipe must compile as HTML");
+    assert!(html.contains(">L<"), "{html}");
+}
+
+#[test]
+fn context_frontier_text_regex_context() {
+    let world = mock_world(
+        r###"#show regex("A+"):it=>[R]
+#context[AAA]"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let text = result.expect("contextual recipe must compile").plain_text();
+    assert_eq!(text.trim(), "R");
+    let html = compile_to_html_string_with_features(
+        &world,
+        &world.source,
+        typst_core::entities::compiler_features::Features::html(),
+    )
+    .0
+    .expect("contextual recipe must compile as HTML");
+    assert!(html.contains(">R<"), "{html}");
+}
+
+#[test]
+fn context_frontier_text_hidden_context() {
+    let world = mock_world(
+        r###"#show strong:[H]
+#show "A":it=>panic("hidden")
+#context[*A*]"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let text = result.expect("contextual recipe must compile").plain_text();
+    assert_eq!(text.trim(), "H");
+    let html = compile_to_html_string_with_features(
+        &world,
+        &world.source,
+        typst_core::entities::compiler_features::Features::html(),
+    )
+    .0
+    .expect("contextual recipe must compile as HTML");
+    assert!(html.contains(">H<"), "{html}");
+}
+
+#[test]
+fn context_frontier_text_context_product() {
+    let world = mock_world(
+        r###"#show "A":[AA]
+#context[A]"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let text = result.expect("contextual recipe must compile").plain_text();
+    assert_eq!(text.trim(), "AA");
+    let html = compile_to_html_string_with_features(
+        &world,
+        &world.source,
+        typst_core::entities::compiler_features::Features::html(),
+    )
+    .0
+    .expect("contextual recipe must compile as HTML");
+    assert!(html.contains(">AA<"), "{html}");
+}
+
+#[test]
+fn context_frontier_text_styled_context() {
+    let world = mock_world(
+        r###"#show "A":[R]
+#context text(fill:red)[A]"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let text = result.expect("contextual recipe must compile").plain_text();
+    assert_eq!(text.trim(), "R");
+    let html = compile_to_html_string_with_features(
+        &world,
+        &world.source,
+        typst_core::entities::compiler_features::Features::html(),
+    )
+    .0
+    .expect("contextual recipe must compile as HTML");
+    assert!(html.contains(">R<"), "{html}");
+}
+
+#[test]
+fn context_occurrence_equation_one() {
+    let world = mock_world(
+        r###"#show math.equation.where():it=>[EQ]
+#context math.frac([1],[2])
+#context[Q#query(math.equation).len()]"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let doc = result.expect("distinct contextual occurrences and aliases must compile");
+    assert_eq!(doc.plain_text().split_whitespace().collect::<String>(), "EQQ1");
+}
+
+#[test]
+fn context_occurrence_equation_two() {
+    let world = mock_world(
+        r###"#show math.equation.where():it=>[EQ]
+#context math.frac([1],[2])
+#context math.frac([3],[4])
+#context[Q#query(math.equation).len()]"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let doc = result.expect("distinct contextual occurrences and aliases must compile");
+    assert_eq!(doc.plain_text().split_whitespace().collect::<String>(), "EQEQQ2");
+}
+
+#[test]
+fn context_occurrence_equation_heading_prefix() {
+    let world = mock_world(
+        r###"#show heading:it=>it
+= H
+#show math.equation.where():it=>[EQ]
+#context math.frac([1],[2])
+#context[Q#query(math.equation).len()]"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let doc = result.expect("distinct contextual occurrences and aliases must compile");
+    assert_eq!(doc.plain_text().split_whitespace().collect::<String>(), "HEQQ1");
+}
+
+#[test]
+fn context_occurrence_equation_locations() {
+    let world = mock_world(
+        r###"#show math.equation.where():it=>context [#query(math.equation).position(e=>e.location()==it.location())]
+#context math.frac([1],[2])
+#context math.frac([3],[4])"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let doc = result.expect("distinct contextual occurrences and aliases must compile");
+    assert_eq!(doc.plain_text().split_whitespace().collect::<String>(), "01");
+}
+
+#[test]
+fn context_occurrence_equation_equal_two() {
+    let world = mock_world(
+        r###"#show math.equation.where():it=>[EQ]
+#context math.frac([1],[2])
+#context math.frac([1],[2])
+#context[Q#query(math.equation).len()]"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let doc = result.expect("distinct contextual occurrences and aliases must compile");
+    assert_eq!(doc.plain_text().split_whitespace().collect::<String>(), "EQEQQ2");
+}
+
+#[test]
+fn context_occurrence_equation_nested_contexts() {
+    let world = mock_world(
+        r###"#show math.equation.where():it=>[EQ]
+#context [#context math.frac([1],[2])]
+#context [#context math.frac([3],[4])]
+#context[Q#query(math.equation).len()]"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let doc = result.expect("distinct contextual occurrences and aliases must compile");
+    assert_eq!(doc.plain_text().split_whitespace().collect::<String>(), "EQEQQ2");
+}
+
+#[test]
+fn context_occurrence_equation_alias_count() {
+    let world = mock_world(
+        r###"#show math.equation.where():it=>[#it#it]
+#context math.frac([1],[2])
+#context math.frac([3],[4])
+#context[Q#query(math.equation).len()]"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let doc = result.expect("distinct contextual occurrences and aliases must compile");
+    assert!(doc
+        .plain_text()
+        .split_whitespace()
+        .collect::<String>()
+        .ends_with("Q2"));
+}
+
+#[test]
+fn context_occurrence_equation_generated() {
+    let world = mock_world(
+        r###"#show math.equation.where(block:false):it=>math.equation([x],block:true)
+#context math.frac([1],[2])
+#context math.frac([3],[4])
+#context[Q#query(math.equation).len()]"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let doc = result.expect("distinct contextual occurrences and aliases must compile");
+    assert_eq!(doc.plain_text().split_whitespace().collect::<String>(), "xxQ4");
+}
+
+#[test]
+fn context_occurrence_equation_grow_selected_query() {
+    let world = mock_world(
+        r###"#set heading(numbering:"1.")
+= H
+#show math.equation.where():it=>[EQ]
+#context { if counter(heading.where(level:1)).final() == (0,) { math.frac([1],[2]) } else { [#math.frac([1],[2]) #math.frac([3],[4])] } }
+#context { let _ = counter(heading.where(level:1)).final(); [Q#query(math.equation).len()] }"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let doc = result.expect("distinct contextual occurrences and aliases must compile");
+    assert_eq!(doc.plain_text().split_whitespace().collect::<String>(), "1.HEQEQQ2");
+}
+
+#[test]
+fn context_occurrence_equation_shrink_selected_query() {
+    let world = mock_world(
+        r###"#set heading(numbering:"1.")
+= H
+#show math.equation.where():it=>[EQ]
+#context { if counter(heading.where(level:1)).final() == (0,) { [#math.frac([1],[2]) #math.frac([3],[4])] } else { math.frac([1],[2]) } }
+#context { let _ = counter(heading.where(level:1)).final(); [Q#query(math.equation).len()] }"###,
+    );
+    let (result, _) = compile_to_paged_document_full_error(
+        &world,
+        &world.source,
+        false,
+        &mut Timings::default(),
+    );
+    let doc = result.expect("distinct contextual occurrences and aliases must compile");
+    assert_eq!(doc.plain_text().split_whitespace().collect::<String>(), "1.HEQQ1");
 }

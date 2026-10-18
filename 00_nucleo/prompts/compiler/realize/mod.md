@@ -1,5 +1,5 @@
 # L0 — compiler/realize/mod
-Hash do Código: bd0283e1
+Hash do Código: a8c5c82f
 
 
 
@@ -502,3 +502,79 @@ conteúdo original, como o fallback anterior. Preservar a ordem dos testes e os
 mesmos efeitos; não remover guardas de produto nem normalizar outra fronteira.
 V17 deve passar sem supressão. Esta revisão não modifica comportamento, contrato
 público ou a fase ratificada; revalidar os testes existentes e os gates.
+
+
+## Context — herança textual, 2026-10-18
+
+### Medição anterior à decisão
+
+HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fonte produtiva limpa;
+00_nucleo/diagnosticos/context-paridade-2026-10-18/before.json.gz contém
+UTC, argv, diffstat e SHA dos executáveis. Build novo em baseline-build-resources.json;
+freeze completo em before-sources.json.gz. Vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
+Sondas global/local devolvem A/A no Tekt contra R/L; criação antes da regra,
+aninhamento, regex e produto também perdem a regra. Controle local dentro de
+Context dá L nos dois. compiler/realize/mod.rs:240–269 só captura Equation/Table;
+compiler/realize/recipes.rs:343 trata Context como folha genérica; textual.rs:46–103
+já preserva baseline e compõe delta local por RuleId. No vanilla pinado,
+foundations/context.rs:78–86 executa com styles do ponto contextual;
+typst-realize/src/lib.rs:353–418 prepara raiz, aplica regra e visita produto.
+Isso mede escopo/efeitos de linguagem, não exige copiar a estrutura upstream.
+A causa de perda de regras é inferida desses caminhos e será refutada se os
+controles de escopo, nesting, produto ou pai ocultando filho falharem.
+
+### Decisão e fronteira
+
+Correção interna de paridade dentro da realização contextual já ratificada em
+R3-T1: manter execução adiada, API e fases vigentes. Não corrigir colisões de
+Location por offset/hash, remoção de Located ou alteração de contratos neste
+recorte. Styled comum permanece opaco no matching textual; não alterar o mapper.
+
+### Responsabilidade exclusiva
+
+A captura lexical de Context conserva todas as regras pertinentes, inclusive
+textuais, usando capture_styles para distinguir baseline e delta local. Sem
+regras pode conservar o conteúdo cru; sua inserção posterior ainda deve herdar
+as regras vigentes. Um helper privado prepara o Context emitido na realização:
+compõe o snapshot lexical existente com as regras herdadas por compose_rules e
+transporta o resultado efetivo em eval.context.recipe, com guards unidos, arquivo
+e floor preservados. O metadado tem body Empty e nunca executa callbacks.
+A fachada realize_math_insertions continua restaurando o snapshot efetivo antes
+de realizar a contribuição; não antecipa a closure nem muda sua assinatura.
+
+O lookup existente de eval.context.recipe é compartilhado por helper privado
+emprestado entre realize_math_insertions e prepare_context_recipe; conservar a
+mesma projeção rasa de Value::Content(ShowRecipe) e ausência nos demais valores.
+Não multiplicar o despacho do mesmo metadado ou alterar precedência Table local.
+
+
+## Context — identidade de ocorrências ratificada, 2026-10-18
+
+### Medição anterior à decisão e gate
+
+before.json.gz em 00_nucleo/diagnosticos/context-paridade-2026-10-18 conserva
+HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fontes, UTC, diffstat, argv e
+SHA dos binários; baseline-build-resources.json contém a receita nova. Vanilla
+bd5ebec285505889e8ff1d4f68804ab147a699f3. Duas equações dão EQ EQ Q1/Q2;
+prefixo Heading H EQ Q0/Q1; it.location observado por query dá 00/01.
+context_stabilization.rs:257 reinicia EvalContext por produtor; eval/mod.rs:438
+reinicia Locator; realize/mod.rs:41 aloca sem domínio comum; introspect/walk.rs:
+375–390 deduplica pela Location. É semântica/identidade de linguagem.
+Upstream typst-realize/src/lib.rs:353–418 prepara identidade antes da receita,
+mas não exige copiar representação, vtables ou algoritmo.
+Hipótese de colisão será refutada por falha de contagem, alias, callback ou replay.
+
+O humano aprovou a proposta review.md sob
+00_nucleo/materialization/context-occurrences-2026-10-18, SHA-256
+500e01cf0754a166deb7f493ff734f040ef38e0374cbf5aa0ba879a37d19f388;
+recibo approval-receipt.json no mesmo diretório. Gate ADR-0127 §2.1 satisfeito
+para a API aditiva especificada. Não autoriza mudança de fase ou API alheia.
+
+### Responsabilidade exclusiva
+
+Declarar o módulo público context_occurrences, legitimado pelo owner
+00_nucleo/prompts/compiler/realize/context_occurrences.md. locate mantém
+Located existente intacto e delega somente a obtenção da nova Location ao
+helper privado next desse módulo; sem frame ativo mantém Locator::next atual.
+A reserva de ocorrências existentes continua observando o Locator, sem emitir
+nó, executar callback ou inventar identidade por offset/hash.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 82a5ecbe
+//! @prompt-hash 85a06208
 //! @layer L1
 //! @updated 2026-10-16
 //!
@@ -377,6 +377,8 @@ pub struct EvalContext {
     pub(crate) occurrence_show_depth: usize,
     pub(crate) occurrence_show_path: Vec<Content>,
     pub(crate) realization_locator: crate::entities::locator::Locator,
+    pub(crate) context_occurrence_slots:
+        Option<crate::compiler::realize::context_occurrences::OccurrenceSlots>,
 
     /// **P506 — indica que o eval está a correr dentro da expansão de um
     /// `context { ... }`. Quando `true`, métodos `.get()` e `.display()` de
@@ -436,6 +438,7 @@ impl EvalContext {
             occurrence_show_depth: 0,
             occurrence_show_path: Vec::new(),
             realization_locator: crate::entities::locator::Locator::new(),
+            context_occurrence_slots: None,
             in_context: false,
             next_context_id: 0,
             bibliography_styles: HashMap::new(),

@@ -1,5 +1,5 @@
 # L0 — compiler/eval
-Hash do Código: fabaf725
+Hash do Código: ac475766
 
 
 **Layer:** L1
@@ -796,3 +796,34 @@ apoiadas. Um produto formado apenas por espaços é elegível quando tem apoio d
 dois lados. Text whitespace explícito continua elegível independentemente disso.
 Nenhum dado público, estado global, passo de layout ou captura permanente do
 apoio em valores é criado: os vizinhos dependem da inserção atual.
+
+
+## Context — identidade de ocorrências ratificada, 2026-10-18
+
+### Medição anterior à decisão e gate
+
+before.json.gz em 00_nucleo/diagnosticos/context-paridade-2026-10-18 conserva
+HEAD b7e7c83223e5daa67bbdf124c36b5b7f93200731, fontes, UTC, diffstat, argv e
+SHA dos binários; baseline-build-resources.json contém a receita nova. Vanilla
+bd5ebec285505889e8ff1d4f68804ab147a699f3. Duas equações dão EQ EQ Q1/Q2;
+prefixo Heading H EQ Q0/Q1; it.location observado por query dá 00/01.
+context_stabilization.rs:257 reinicia EvalContext por produtor; eval/mod.rs:438
+reinicia Locator; realize/mod.rs:41 aloca sem domínio comum; introspect/walk.rs:
+375–390 deduplica pela Location. É semântica/identidade de linguagem.
+Upstream typst-realize/src/lib.rs:353–418 prepara identidade antes da receita,
+mas não exige copiar representação, vtables ou algoritmo.
+Hipótese de colisão será refutada por falha de contagem, alias, callback ou replay.
+
+O humano aprovou a proposta review.md sob
+00_nucleo/materialization/context-occurrences-2026-10-18, SHA-256
+500e01cf0754a166deb7f493ff734f040ef38e0374cbf5aa0ba879a37d19f388;
+recibo approval-receipt.json no mesmo diretório. Gate ADR-0127 §2.1 satisfeito
+para a API aditiva especificada. Não autoriza mudança de fase ou API alheia.
+
+### Responsabilidade exclusiva
+
+Guardar Option<OccurrenceSlots> crate-private, default None, além do Locator
+já existente. OccurrenceSlots pertence ao owner
+00_nucleo/prompts/compiler/realize/context_occurrences.md. Não alterar campos
+públicos, current_location, IDs de Context ou políticas de observação. O owner
+da arena instala e retira esse estado por execução; EvalContext só o armazena.

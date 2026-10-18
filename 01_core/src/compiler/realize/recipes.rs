@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/realize/recipes.md
-//! @prompt-hash 0ca5f6fa
+//! @prompt-hash 9bda3c5b
 //! @layer L1
 //! @updated 2026-10-18
 
@@ -190,6 +190,9 @@ fn visit(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Option<Content>> {
     match node {
+        Content::ContextBlock(_) => {
+            return Ok(Some(super::prepare_context_recipe(node.clone(), ctx, engine)));
+        }
         Content::ShowRecipe(recipe) => {
             return realize_pending(recipe, ctx, engine).map(Some)
         }
@@ -340,7 +343,6 @@ fn visit(
         | Content::StateUpdate(_)
         | Content::StateDisplay(_)
         | Content::CounterDisplayCallback(_)
-        | Content::ContextBlock(_)
         | Content::Dynamic(_) => {}
     }
     if ctx.recipe_math_depth == 0 {

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/realize/table_cells.md
-//! @prompt-hash 5579cc4d
+//! @prompt-hash 5e191664
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -11,33 +11,8 @@ use crate::entities::elements::table_cell::{
     TableCellStage, TableCellStandaloneResolved,
 };
 use crate::entities::layout_types::{Align2D, TrackSizing};
-use crate::entities::show::Selector;
 use crate::entities::value::Value;
 use comemo::TrackedMut;
-
-pub(super) fn captures_rule(selector: &Selector) -> bool {
-    match selector {
-        Selector::NativeElement(f) => match f.repr() {
-            crate::entities::func::FuncRepr::Native(n) => {
-                std::ptr::fn_addr_eq(
-                    n.call,
-                    crate::compiler::stdlib::native_table as fn(_, _, _, _) -> _,
-                ) || std::ptr::fn_addr_eq(
-                    n.call,
-                    crate::compiler::stdlib::native_table_cell as fn(_, _, _, _) -> _,
-                )
-            }
-            _ => false,
-        },
-        Selector::Where { base, .. } => captures_rule(base),
-        Selector::And(items) | Selector::Or(items) => items.iter().any(captures_rule),
-        Selector::Text(_)
-        | Selector::NodeKind(_)
-        | Selector::DynKind(_)
-        | Selector::Regex(_)
-        | Selector::Label(_) => false,
-    }
-}
 
 pub(super) fn needs_preparation(content: &Content) -> bool {
     let mut needs = false;
@@ -1399,67 +1374,6 @@ mod default_reuse_tests {
     use super::{cell_style_candidate, default_args, retain_or_recompute_defaults};
 
     #[test]
-    fn v16_show_selector_table_capture_keeps_aliases_and_any_composition() {
-        use super::captures_rule;
-        use crate::entities::func::Func;
-        use crate::entities::label::Label;
-        use crate::entities::regex::Regex;
-        use crate::entities::show::{NodeKind, Selector};
-        use crate::entities::value::Value;
-
-        let table = Selector::NativeElement(Func::native(
-            "alias",
-            crate::compiler::stdlib::native_table,
-        ));
-        let cell = Selector::NativeElement(Func::native(
-            "alias",
-            crate::compiler::stdlib::native_table_cell,
-        ));
-        let label = Selector::Label(Label("table".into()));
-        let filtered = Selector::Where {
-            base: Box::new(Selector::Where {
-                base: Box::new(cell.clone()),
-                field: "colspan".into(),
-                value: Box::new(Value::Int(99)),
-            }),
-            field: "body".into(),
-            value: Box::new(Value::None),
-        };
-        for selector in [
-            table,
-            cell,
-            filtered.clone(),
-            Selector::And(vec![label.clone(), filtered.clone()]),
-            Selector::Or(vec![label.clone(), filtered]),
-        ] {
-            assert!(captures_rule(&selector), "{selector:?}");
-        }
-        for selector in [
-            Selector::Text("table".into()),
-            Selector::Regex(Regex::new("table").unwrap()),
-            Selector::NodeKind(NodeKind::Heading),
-            Selector::DynKind("table".into()),
-            label,
-            Selector::And(vec![]),
-            Selector::Or(vec![]),
-            Selector::NativeElement(Func::native(
-                "table",
-                crate::compiler::stdlib::native_grid,
-            )),
-            Selector::NativeElement(Func::native(
-                "cell",
-                crate::compiler::stdlib::native_heading,
-            )),
-            Selector::NativeElement(Func::native_with_engine(
-                "table",
-                crate::compiler::stdlib::native_page,
-            )),
-        ] {
-            assert!(!captures_rule(&selector), "{selector:?}");
-        }
-    }
-
-    #[test]
     fn style_candidate_is_lazy_and_reused_for_eligible_rules() {
         let crate::entities::content::Content::TableCell(cell) =
             crate::entities::content::Content::table_cell(
@@ -1531,6 +1445,7 @@ mod default_reuse_tests {
 
 #[cfg(test)]
 mod v16_table_tests {
+    use crate::entities::show::Selector;
 
     use crate::contracts::world::World;
     use crate::entities::{

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/closures.md
-//! @prompt-hash 182ad38c
+//! @prompt-hash 46283d64
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -48,6 +48,16 @@ pub(super) fn apply_closure(
     // `typst-eval/src/call.rs:33` (ADR-0033). Pago parcial do DEBT-45
     // no Passo 93.
     route_check_call_depth(engine.route)?;
+    if matches!(closure.capturer, crate::entities::scope::Capturer::Context) {
+        if let Some(Value::Content(crate::entities::content::Content::ShowRecipe(
+            recipe,
+        ))) = engine.styles.custom("eval.context.recipe")
+        {
+            for rule in recipe.rules.iter() {
+                ctx.next_rule_id = ctx.next_rule_id.max(rule.id.saturating_add(1));
+            }
+        }
+    }
 
     // Criar scope filho do captured — O(1), sem clone dos valores capturados.
     // P772q — propaga por que motivo o scope foi capturado (Function/Context).

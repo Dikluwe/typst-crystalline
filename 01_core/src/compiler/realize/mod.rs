@@ -1,10 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/realize/mod.md
-//! @prompt-hash 9228ecfa
+//! @prompt-hash ce56abb6
 //! @layer L1
 //! @updated 2026-10-10
 
 pub(in crate::compiler) mod bare_math;
+pub mod context_occurrences;
 pub(in crate::compiler) mod recipes;
 pub(in crate::compiler) mod sequences;
 mod table_cells;
@@ -38,7 +39,7 @@ pub(crate) fn locate(content: Content, ctx: &mut EvalContext) -> Content {
         return content;
     }
     Content::Located(Arc::new(LocatedContent {
-        location: ctx.realization_locator.next(),
+        location: context_occurrences::next(ctx),
         body: content,
     }))
 }
@@ -201,12 +202,7 @@ pub fn realize_math_insertions(
         return Ok(content);
     }
     observe_occurrences(&content, ctx);
-    let captured = match engine.styles.custom("eval.context.recipe") {
-        Some(crate::entities::value::Value::Content(Content::ShowRecipe(recipe))) => {
-            Some(recipe.clone())
-        }
-        _ => None,
-    };
+    let captured = context_recipe(engine.styles).cloned();
     let previous_realizing = std::mem::replace(&mut ctx.realizing_show_rules, true);
     let previous_defer = std::mem::replace(&mut ctx.defer_show_rules, false);
     let previous_file = engine.current_file;
@@ -242,10 +238,7 @@ pub(crate) fn capture_context_recipe(
     ctx: &EvalContext,
     engine: &Engine<'_>,
 ) -> Content {
-    if !engine.show_rules.iter().any(|rule| {
-        bare_math::captures_equation_rule(&rule.selector)
-            || table_cells::captures_rule(&rule.selector)
-    }) {
+    if engine.show_rules.is_empty() {
         return content;
     }
     let snapshot =
@@ -254,7 +247,12 @@ pub(crate) fn capture_context_recipe(
             textual: false,
             context_id_floor: ctx.next_context_id,
             rules: Arc::clone(&*engine.show_rules),
-            styles: engine.styles.clone(),
+            styles: crate::compiler::eval::rules::textual::capture_styles(
+                engine.styles,
+                engine.show_rules,
+                ctx,
+                engine.current_file,
+            ),
             guards: engine.active_guards.clone(),
             file: engine.current_file,
         }));
@@ -264,6 +262,61 @@ pub(crate) fn capture_context_recipe(
             "eval.context.recipe",
             crate::entities::value::Value::Content(snapshot),
         ),
+    )
+}
+
+fn context_recipe(
+    styles: &StyleChain,
+) -> Option<&Arc<crate::entities::content::ShowRecipeContent>> {
+    match styles.custom("eval.context.recipe") {
+        Some(crate::entities::value::Value::Content(Content::ShowRecipe(recipe))) => {
+            Some(recipe)
+        }
+        _ => None,
+    }
+}
+
+/// Seal the effective insertion rules without executing the delayed closure.
+fn prepare_context_recipe(
+    content: Content,
+    ctx: &EvalContext,
+    engine: &Engine<'_>,
+) -> Content {
+    use crate::compiler::eval::rules::textual;
+    use crate::entities::content::ShowRecipeContent;
+    use crate::entities::value::Value;
+
+    let captured = context_recipe(engine.styles);
+    let rules = captured.map_or_else(
+        || Arc::clone(engine.show_rules),
+        |recipe| textual::compose_rules(recipe, engine.show_rules),
+    );
+    if rules.is_empty() {
+        return content;
+    }
+    let mut guards = engine.active_guards.clone();
+    if let Some(recipe) = captured {
+        for id in &recipe.guards {
+            if !guards.contains(id) {
+                guards.push(*id);
+            }
+        }
+    }
+    let snapshot = Content::ShowRecipe(Arc::new(ShowRecipeContent {
+        body: Content::Empty,
+        textual: false,
+        context_id_floor: captured.map_or(ctx.next_context_id, |recipe| {
+            ctx.next_context_id.max(recipe.context_id_floor)
+        }),
+        rules,
+        styles: engine.styles.clone(),
+        guards,
+        file: captured.map_or(engine.current_file, |recipe| recipe.file),
+    }));
+    Content::styled(
+        content,
+        crate::entities::style::Styles::new()
+            .push_custom("eval.context.recipe", Value::Content(snapshot)),
     )
 }
 

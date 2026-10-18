@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/realize/bare_math.md
-//! @prompt-hash a431cc5b
+//! @prompt-hash 76d42bd3
 //! @layer L1
 //! @updated 2026-10-09
 
@@ -155,84 +155,9 @@ pub(in crate::compiler) fn needs_preparation(content: &Content) -> bool {
     found
 }
 
-pub(in crate::compiler) fn captures_equation_rule(
-    selector: &crate::entities::show::Selector,
-) -> bool {
-    use crate::entities::show::Selector;
-    match selector {
-        Selector::NativeElement(function) => {
-            function.native_fn_addr().is_some_and(|addr| {
-                std::ptr::fn_addr_eq(
-                    addr,
-                    crate::compiler::stdlib::native_math_equation as fn(_, _, _, _) -> _,
-                )
-            })
-        }
-        Selector::Where { base, .. } => captures_equation_rule(base),
-        Selector::And(parts) | Selector::Or(parts) => {
-            parts.iter().any(captures_equation_rule)
-        }
-        Selector::Text(_)
-        | Selector::NodeKind(_)
-        | Selector::DynKind(_)
-        | Selector::Regex(_)
-        | Selector::Label(_) => false,
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn v16_show_selector_equation_capture_keeps_identity_and_any_composition() {
-        use crate::entities::func::Func;
-        use crate::entities::label::Label;
-        use crate::entities::regex::Regex;
-        use crate::entities::show::{NodeKind, Selector};
-
-        let native = Selector::NativeElement(Func::native(
-            "alias",
-            crate::compiler::stdlib::native_math_equation,
-        ));
-        let label = Selector::Label(Label("equation".into()));
-        let filtered = Selector::Where {
-            base: Box::new(Selector::Where {
-                base: Box::new(native.clone()),
-                field: "block".into(),
-                value: Box::new(Value::Bool(false)),
-            }),
-            field: "body".into(),
-            value: Box::new(Value::None),
-        };
-        for selector in [
-            native,
-            filtered.clone(),
-            Selector::And(vec![label.clone(), filtered.clone()]),
-            Selector::Or(vec![label.clone(), filtered]),
-        ] {
-            assert!(captures_equation_rule(&selector), "{selector:?}");
-        }
-        for selector in [
-            Selector::Text("equation".into()),
-            Selector::Regex(Regex::new("equation").unwrap()),
-            Selector::NodeKind(NodeKind::Equation),
-            Selector::DynKind("equation".into()),
-            label,
-            Selector::And(vec![]),
-            Selector::Or(vec![]),
-            Selector::NativeElement(Func::native(
-                "equation",
-                crate::compiler::stdlib::native_heading,
-            )),
-            Selector::NativeElement(Func::native_with_engine(
-                "equation",
-                crate::compiler::stdlib::native_page,
-            )),
-        ] {
-            assert!(!captures_equation_rule(&selector), "{selector:?}");
-        }
-    }
 
     fn count(content: &Content) -> usize {
         let mut count = 0;

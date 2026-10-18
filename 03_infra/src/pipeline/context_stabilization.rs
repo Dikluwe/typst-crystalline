@@ -1,12 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline/context_stabilization.md
-//! @prompt-hash 737dcec1
+//! @prompt-hash e8bb9400
 //! @layer L3
 //! @updated 2026-10-09
 //!
 //! A compilation-local owner of contextual contributions and their lifetimes.
 
 use super::*;
+use typst_core::compiler::realize::context_occurrences::{
+    ContextOccurrenceArena, ContextOccurrenceFrame,
+};
 use typst_core::entities::compiler_features::Features;
 use typst_core::entities::introspector::TagIntrospector;
 use typst_core::entities::location::Location;
@@ -27,6 +30,7 @@ struct Execution {
 }
 
 struct Producer {
+    occurrences: ContextOccurrenceFrame,
     elem: Arc<ContextBlockElem>,
     chain: StyleChain,
     children: Vec<usize>,
@@ -40,6 +44,7 @@ struct Producer {
 }
 
 struct Session<'a> {
+    occurrences: Option<ContextOccurrenceArena>,
     world: &'a dyn World,
     source: &'a Source,
     metrics: FallbackFontMetrics<'a>,
@@ -194,6 +199,7 @@ impl<'a> Session<'a> {
             .and_then(|id| id.checked_add(1))
             .unwrap_or(0);
         let mut session = Self {
+            occurrences: None,
             world,
             source,
             metrics: FallbackFontMetrics::new(world),
@@ -228,6 +234,10 @@ impl<'a> Session<'a> {
             parent.map(|parent| self.nodes[parent].target).unwrap_or(self.target);
         let selected = self.bundle_html_targets.is_some();
         self.nodes.push(Producer {
+            occurrences: self
+                .occurrences
+                .get_or_insert_with(|| ContextOccurrenceArena::new(&self.origin))
+                .frame(),
             elem,
             chain,
             children: Vec::new(),
@@ -248,7 +258,7 @@ impl<'a> Session<'a> {
         input: &Arc<TagIntrospector>,
         location: Location,
     ) {
-        let node = &self.nodes[index];
+        let node = &mut self.nodes[index];
         let mut ctx = EvalContext::new();
         ctx.in_context = true;
         ctx.introspector = input.as_ref().clone();
@@ -281,27 +291,34 @@ impl<'a> Session<'a> {
                 current_file: self.source.id(),
                 sink: &mut local,
             };
-            apply_func(
-                node.elem.closure.clone(),
-                Args::positional(vec![]),
-                &mut scopes,
+            let closure = node.elem.closure.clone();
+            self.occurrences.as_mut().expect("producer has an arena").evaluate(
+                &mut node.occurrences,
                 &mut ctx,
-                &mut engine,
+                |ctx| {
+                    apply_func(
+                        closure,
+                        Args::positional(vec![]),
+                        &mut scopes,
+                        ctx,
+                        &mut engine,
+                    )
+                    .and_then(|v| {
+                        typst_core::compiler::realize::realize_math_insertions(
+                            value_to_content(&v),
+                            ctx,
+                            &mut engine,
+                        )
+                    })
+                    .and_then(|content| {
+                        typst_core::compiler::realize::realize_table_insertions(
+                            content,
+                            ctx,
+                            &mut engine,
+                        )
+                    })
+                },
             )
-            .and_then(|v| {
-                typst_core::compiler::realize::realize_math_insertions(
-                    value_to_content(&v),
-                    &mut ctx,
-                    &mut engine,
-                )
-            })
-            .and_then(|content| {
-                typst_core::compiler::realize::realize_table_insertions(
-                    content,
-                    &mut ctx,
-                    &mut engine,
-                )
-            })
         };
         self.next_id = ctx.next_context_id;
         let selected_filtered_counter = ctx.has_filtered_counter_reads();
