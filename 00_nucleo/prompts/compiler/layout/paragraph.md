@@ -1,8 +1,9 @@
 # L0 — paragraph
-Hash do Código: 815f6a2c
+Hash do Código: adbf4504
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
+- 00_nucleo/prompts/_nuclei/layout/prepared-text-carriers.toml sha256:b2899862f439550920cdee8b3aec6a63c441b9bd2770e563d0a8fd49f93572d2
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
 - 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml sha256:77528cd6193277b9f776b29da06327d974f5cea26fb89abf821879b363185b0a
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
@@ -579,3 +580,42 @@ Resselo somente após implementação e grafo válido. RG1 continua independente
 ### Responsabilidade exclusiva adicional
 
 Somente fixtures/adapters de testes: substituir Style::Size(Pt) por Size(Length absoluto), e expectativas de StyleDelta.size por Option<Length>. Conservar os observáveis linguísticos e os contratos funcionais existentes; não trocar geometria correta por snapshots da representação nova.
+
+
+## R2-S — envelopes preparados e prefixo fracionário (2026-10-18)
+
+### Medição anterior à decisão
+
+No HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
+commitado, complete5/complete-alias-layout.log em
+00_nucleo/diagnosticos/sequence-constructor-2026-10-17/ registra UTC,
+estado exato e o controle com/sem show sequence identidade. Prefixo *Lead*
+antes de Block1fr em columns passa de uma para duas páginas no Tekt;
+o mesmo alias conserva uma página no vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
+Prefixo simples conserva geometria nos dois. inline_prefix.rs:181–231
+inspeciona somente source_body; apply.rs:551–688 localiza a ocorrência
+Strong mesmo sem transformação aplicável. paragraph.rs:19–98 aceita Located
+mas recusa Realized. Isso refuta transparência da identidade no certificado,
+não justifica remover tags ou a localização. carriers-before.json.gz guarda
+fontes/L0 antes deste reparo, HEAD, diffstat e UTC.
+
+### Decisão e aceitação
+
+Correção interna de paridade em fluxo contínuo ADR-0127, sem contrato público,
+nova fase/default ou entidade. Projeção visual emprestada conforme núcleo
+pinado; nenhum callback executado. Fórmulas, gates de estilo, largura, wrap,
+profundidade tipográfica e fallback opaco permanecem. Não ampliar a projeção
+ParagraphBody nem promover corpo opaco a Par/vazio. Inferência refutada se o
+alias mudar páginas, palavras ou coordenadas, ou se conteúdo opaco for aceito.
+RED funcional de prefixo Strong/Emph/Styled com Source/Located/Realized,
+escolha visual diferente do original e recusa de Link; GREEN mais controles
+PDF com/sem alias dentro de cada compilador, três prefixos, tolerância 1e-6pt.
+Conteúdo emitido conserva seus carriers e tags. Suíte completa e gates sob
+12GiB, swap zero, jobs1, sem alterar esperados anteriores.
+
+Responsabilidade exclusiva: helper privado de módulo prepared_text_body
+projeta os três envelopes até o primeiro nó distinto. Um match exaustivo
+retorna o empréstimo original para o complemento nominal; esse grupo V19
+compartilha a política identidade, não admite seu conteúdo como texto.
+shared_chain usa a projeção em certificação, filtro de material e descida
+lexical, conservando seus critérios e estilos. Não alterar ParagraphBody.

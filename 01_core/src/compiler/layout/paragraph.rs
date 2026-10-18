@@ -1,11 +1,137 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/paragraph.md
-//! @prompt-hash 03ac400b
+//! @prompt-hash 3526af8a
 //! @layer L1
 //! @updated 2026-10-17
 
 use super::{html_frame, parbreak, FontMetrics, ImageSizer, Layouter};
 use crate::entities::{content::Content, layout_types::Pt, value::Value};
+
+/// Inspect a completed visual without changing the content that is emitted.
+pub(super) fn prepared_text_body(content: &Content) -> &Content {
+    match content {
+        Content::Source(e) => prepared_text_body(&e.body),
+        Content::Located(e) => prepared_text_body(&e.body),
+        Content::Realized(e) => prepared_text_body(&e.visual),
+        Content::ShowRecipe(..)
+        | Content::Empty
+        | Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(..)
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Styled(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..)
+        | Content::TableCell(..)
+        | Content::Table(..) => content,
+    }
+}
 
 /// Resolve only a complete textual segment, preserving shared lexical scope
 /// rather than taking a consensus of individually resolved run values.
@@ -21,6 +147,7 @@ pub(super) fn shared_chain(
     chain: &crate::entities::style_chain::StyleChain,
 ) -> Option<crate::entities::style_chain::StyleChain> {
     fn certified(c: &Content) -> bool {
+        let c = prepared_text_body(c);
         if matches!(c, Content::Empty) {
             return true;
         }
@@ -35,12 +162,6 @@ pub(super) fn shared_chain(
         }
         if matches!(c, Content::Linebreak(_)) {
             return true;
-        }
-        if let Content::Source(e) = c {
-            return certified(&e.body);
-        }
-        if let Content::Located(e) = c {
-            return certified(&e.body);
         }
         if let Content::Sequence(p) = c {
             return p.iter().all(certified);
@@ -60,20 +181,14 @@ pub(super) fn shared_chain(
     if !parts.iter().all(certified) {
         return None;
     }
-    let mut substantive = parts.iter().filter(|p| {
-        !matches!(p.source_body(), Content::Empty)
-            && !matches!(p.source_body(), Content::Space)
-            && !matches!(p.source_body(), Content::SpaceFromNewline)
+    let mut substantive = parts.iter().map(prepared_text_body).filter(|p| {
+        !matches!(p, Content::Empty)
+            && !matches!(p, Content::Space)
+            && !matches!(p, Content::SpaceFromNewline)
     });
     let first = substantive.next();
     if substantive.next().is_none() {
         if let Some(first) = first {
-            if let Content::Source(e) = first {
-                return shared_chain(std::slice::from_ref(&e.body), chain);
-            }
-            if let Content::Located(e) = first {
-                return shared_chain(std::slice::from_ref(&e.body), chain);
-            }
             if let Content::Styled(s) = first {
                 return shared_chain(
                     std::slice::from_ref(&s.body),

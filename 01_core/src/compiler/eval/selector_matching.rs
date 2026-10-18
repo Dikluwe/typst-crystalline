@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/selector_matching.md
-//! @prompt-hash a2ab5617
+//! @prompt-hash 61b0bb95
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -220,6 +220,30 @@ fn native_element_base(selector: &Selector) -> Option<&Func> {
     }
 }
 
+/// Sequence identity is recognized without executing or spelling the callback.
+pub(crate) fn is_sequence_rule(selector: &Selector) -> bool {
+    match selector {
+        Selector::NativeElement(function) => {
+            function.native_fn_addr().is_some_and(|call| {
+                std::ptr::fn_addr_eq(
+                    call,
+                    crate::compiler::eval::bindings::native_sequence
+                        as fn(_, _, _, _) -> _,
+                )
+            })
+        }
+        Selector::Where { base, .. } => is_sequence_rule(base),
+        Selector::And(children) | Selector::Or(children) => {
+            children.iter().any(is_sequence_rule)
+        }
+        Selector::NodeKind(_)
+        | Selector::DynKind(_)
+        | Selector::Text(_)
+        | Selector::Regex(_)
+        | Selector::Label(_) => false,
+    }
+}
+
 /// Preserve the special paragraph path, including filters over its new base.
 pub(crate) fn is_par_rule(selector: &Selector) -> bool {
     matches!(selector, Selector::NodeKind(NodeKind::Par))
@@ -236,6 +260,7 @@ pub(crate) fn is_par_rule(selector: &Selector) -> bool {
 /// Recognize represented native element identities by executable, never by alias name.
 /// NodeKind remains authoritative for semantic style origins and list morphology.
 pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool {
+    use crate::compiler::eval::bindings::native_sequence;
     use crate::compiler::stdlib::*;
     if let crate::entities::func::FuncRepr::NativeWithEngine(native) = function.0.as_ref()
     {
@@ -276,6 +301,7 @@ pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool
         Content::Styled(e) if native!(native_math_equation) => {
             native_element_matches(&e.body, function)
         }
+        Content::Empty | Content::Sequence(_) => native!(native_sequence),
         Content::Equation(_) => native!(native_math_equation),
         Content::Text(_) => native!(native_text),
         Content::Table(_) => native!(native_table),
@@ -1055,5 +1081,34 @@ mod equation_where_tests {
         }
         let fake = Func::native("math.equation", crate::compiler::stdlib::native_heading);
         assert!(!native_element_matches(&content, &fake));
+    }
+}
+
+#[cfg(test)]
+mod sequence_constructor_tests {
+    use super::*;
+    use crate::entities::args::Args;
+
+    #[test]
+    fn sequence_constructor_matcher_covers_empty_sequence_and_false_identity() {
+        let Value::Func(f) = crate::compiler::eval::bindings::eval_content_method(
+            &Content::Empty,
+            "func",
+            Args::positional(vec![]),
+            Span::detached(),
+        )
+        .unwrap() else {
+            panic!("function")
+        };
+        for content in [
+            Content::Empty,
+            Content::Sequence(vec![Content::text("A")].into()),
+            Content::sequence(vec![Content::text("A"), Content::text("B")]),
+        ] {
+            assert!(native_element_matches(&content, &f));
+        }
+        assert!(!native_element_matches(&Content::text(""), &f));
+        let fake = Func::native("sequence", |_, _, _, _| Ok(Value::None));
+        assert!(!native_element_matches(&Content::Empty, &fake));
     }
 }

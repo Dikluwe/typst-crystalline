@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch/invoke.md
-//! @prompt-hash 7d052014
+//! @prompt-hash 3c7d2f90
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -47,6 +47,12 @@ pub(super) fn invoke_resolved_call(
             let result = trace_call(result, func.name(), call.span(), engine)?;
             // Intercepção eager — show rules aplicadas após apply_func (Passo 68).
             if let Value::Content(c) = result {
+                if matches!(c.source_body(), Content::Empty | Content::Sequence(_))
+                    && crate::compiler::realize::sequences::snapshot(engine).is_some()
+                {
+                    return Ok(Value::Content(c.with_source_span(call.span())));
+                }
+
                 if matches!(
                     c,
                     Content::Table(_)

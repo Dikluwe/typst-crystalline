@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash eac63159
+//! @prompt-hash edda6db7
 //! @layer L1
 //! @updated 2026-09-20
 //!
@@ -451,7 +451,7 @@ pub(in crate::compiler::eval) use self::content_methods::content_type_field;
 pub(crate) use self::content_methods::eval_content_method_at;
 pub(crate) use self::content_methods::{
     eval_content_method, eval_introspected_content_method_at,
-    eval_outline_entry_body_method,
+    eval_outline_entry_body_method, native_sequence,
 };
 pub(in crate::compiler::eval) use self::fields::{
     check_module_field_feature, eval_field_access, eval_field_access_with_target,

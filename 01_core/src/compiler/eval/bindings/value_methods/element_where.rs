@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/value_methods/element_where.md
-//! @prompt-hash e24a1232
+//! @prompt-hash b42d3040
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -118,6 +118,12 @@ pub(crate) fn native_element_fields(
             }
         };
     }
+    element!(
+        crate::compiler::eval::bindings::native_sequence,
+        "sequence",
+        false,
+        ["children"]
+    );
     element!(native_html_elem, "elem", false, ["tag", "attrs", "body"]);
     element!(native_html_frame, "frame", false, ["body"]);
     element!(native_pdf_artifact, "artifact", false, ["kind", "body"]);
@@ -1325,5 +1331,40 @@ mod native_format_catalogue_tests {
             true,
             false,
         );
+    }
+}
+
+#[cfg(test)]
+mod sequence_constructor_tests {
+    use super::*;
+
+    #[test]
+    fn sequence_constructor_catalogue_identity_schema_and_locatability() {
+        let Value::Func(f) = crate::compiler::eval::bindings::eval_content_method(
+            &crate::entities::content::Content::Empty,
+            "func",
+            Args::positional(vec![]),
+            Span::detached(),
+        )
+        .unwrap() else {
+            panic!("function")
+        };
+        assert_eq!(
+            native_element_fields(&f),
+            Some(("sequence", &["children"][..], false))
+        );
+        let alias =
+            crate::entities::func::Func::native("alias", f.native_fn_addr().unwrap());
+        assert_eq!(native_element_fields(&alias), native_element_fields(&f));
+        let fake =
+            crate::entities::func::Func::native("sequence", |_, _, _, _| Ok(Value::None));
+        assert!(native_element_fields(&fake).is_none());
+        assert!(
+            native_element_fields(&f.clone().with(Args::positional(vec![]))).is_none()
+        );
+        let errors =
+            validate_element_locatability(&Selector::NativeElement(f), Span::detached())
+                .unwrap_err();
+        assert_eq!(errors[0].message, "sequence is not locatable");
     }
 }

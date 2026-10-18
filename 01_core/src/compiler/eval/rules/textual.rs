@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/textual.md
-//! @prompt-hash f3067e9d
+//! @prompt-hash d52fae01
 //! @layer L1
 //! @updated 2026-10-05
 //!
@@ -8,7 +8,7 @@
 
 use std::sync::Arc;
 
-use crate::entities::content::Content;
+use crate::entities::content::{Content, ShowRecipeContent};
 use crate::entities::engine::Engine;
 use crate::entities::show::ShowRule;
 use crate::entities::source_result::SourceResult;
@@ -104,18 +104,24 @@ pub(crate) fn realize_textual_parts(
                 .iter()
                 .any(|rule| selector_matching::is_text_rule(&rule.selector))
             {
-                let body = Content::sequence(parts[start..end].to_vec());
-                parts[start] = Content::ShowRecipe(Arc::new(
-                    crate::entities::content::ShowRecipeContent {
-                        body,
-                        textual: true,
-                        context_id_floor: ctx.next_context_id,
-                        rules: snapshot.rules.clone(),
-                        styles: snapshot.styles.clone(),
-                        guards: snapshot.guards.clone(),
-                        file: engine.current_file,
-                    },
-                ));
+                let body = Content::sequence(
+                    parts[start..end]
+                        .iter()
+                        .filter(|part| !matches!(part, Content::Empty))
+                        .cloned()
+                        .collect(),
+                );
+                let mut recipe = ShowRecipeContent {
+                    body,
+                    textual: true,
+                    context_id_floor: ctx.next_context_id,
+                    rules: snapshot.rules.clone(),
+                    styles: snapshot.styles.clone(),
+                    guards: snapshot.guards.clone(),
+                    file: engine.current_file,
+                };
+                recipe.body = coalesce_pending_text(&recipe.body, &recipe)?;
+                parts[start] = Content::ShowRecipe(Arc::new(recipe));
                 for part in &mut parts[start + 1..end] {
                     *part = Content::Empty;
                 }
@@ -127,6 +133,40 @@ pub(crate) fn realize_textual_parts(
     } else {
         matching::apply_textual_groups(parts, snapshots, style_boundaries, ctx, engine)
     }
+}
+
+/// Remove only redundant pending text packets from this same causal group.
+/// Recipes with applicable element effects remain opaque until their owner runs.
+pub(crate) fn coalesce_pending_text(
+    body: &Content,
+    scope: &ShowRecipeContent,
+) -> SourceResult<Content> {
+    body.map_content_pre(&mut |node| {
+        let Content::ShowRecipe(nested) = node else { return Ok(None) };
+        let same_environment = nested.file == scope.file
+            && crate::compiler::realize::sequences::same_textual_transport(nested, scope);
+        if nested.textual && Arc::ptr_eq(&nested.rules, &scope.rules) && same_environment
+        {
+            coalesce_pending_text(&nested.body, scope).map(Some)
+        } else if !nested.textual
+            && same_environment
+            && nested
+                .rules
+                .iter()
+                .map(|rule| rule.id)
+                .eq(scope.rules.iter().map(|rule| rule.id))
+            && matches!(nested.body.source_body(), Content::Text(_))
+            && !nested.rules.iter().any(|rule| {
+                selector_matching::is_node_rule(&rule.selector)
+                    && selector_matching::selector_matches(&nested.body, &rule.selector)
+            })
+        {
+            // Generic capture copies the slice; RuleIds retain its causal identity.
+            Ok(Some(nested.body.clone()))
+        } else {
+            Ok(Some(node.clone()))
+        }
+    })
 }
 
 pub(crate) fn realize_captured_text(
@@ -182,5 +222,104 @@ mod tests {
 
         let changed_guards = TextualSnapshot { guards: vec![42], ..baseline.clone() };
         assert!(!baseline.same_group(&changed_guards));
+    }
+    #[test]
+    fn coalescing_preserves_real_styles_other_guards_and_element_callbacks() {
+        use crate::compiler::eval::bindings::native_sequence;
+        use crate::entities::content::{Content, ShowRecipeContent};
+        use crate::entities::file_id::FileId;
+        use crate::entities::func::Func;
+        use crate::entities::show::{NodeKind, Selector, Transformation};
+        use crate::entities::value::Value;
+        use std::num::NonZeroU16;
+        let scope = ShowRecipeContent {
+            body: Content::text("A"),
+            textual: true,
+            context_id_floor: 0,
+            rules: vec![
+                ShowRule {
+                    id: 1,
+                    selector: Selector::NativeElement(Func::native(
+                        "sequence",
+                        native_sequence,
+                    )),
+                    transform: Transformation::Content(Content::text("S")),
+                },
+                ShowRule {
+                    id: 2,
+                    selector: Selector::NodeKind(NodeKind::Strong),
+                    transform: Transformation::Content(Content::text("B")),
+                },
+                ShowRule {
+                    id: 3,
+                    selector: Selector::Text("A".into()),
+                    transform: Transformation::Content(Content::text("AA")),
+                },
+            ]
+            .into(),
+            styles: StyleChain::empty(),
+            guards: vec![],
+            file: FileId::from_raw(NonZeroU16::new(1).unwrap()),
+        };
+        let wrap = |recipe| Content::ShowRecipe(Arc::new(recipe));
+        let emitted = ShowRecipeContent {
+            guards: vec![1],
+            styles: scope
+                .styles
+                .push_custom("eval.sequence.occurrence", Value::Bool(false)),
+            ..scope.clone()
+        };
+        assert!(matches!(
+            super::coalesce_pending_text(&wrap(emitted), &scope).unwrap(),
+            Content::Text(_)
+        ));
+        for blocked in [
+            ShowRecipeContent { guards: vec![1, 2], ..scope.clone() },
+            ShowRecipeContent { guards: vec![3], ..scope.clone() },
+            ShowRecipeContent { guards: vec![42], ..scope.clone() },
+            ShowRecipeContent {
+                styles: scope
+                    .styles
+                    .push(StyleDelta { bold: Some(true), ..StyleDelta::empty() }),
+                ..scope.clone()
+            },
+            ShowRecipeContent {
+                rules: Arc::from(scope.rules.to_vec()),
+                ..scope.clone()
+            },
+            ShowRecipeContent {
+                file: FileId::from_raw(NonZeroU16::new(2).unwrap()),
+                ..scope.clone()
+            },
+        ] {
+            assert!(matches!(
+                super::coalesce_pending_text(&wrap(blocked), &scope).unwrap(),
+                Content::ShowRecipe(_)
+            ));
+        }
+        let generic = ShowRecipeContent {
+            textual: false,
+            rules: Arc::from(scope.rules.to_vec()),
+            ..scope.clone()
+        };
+        assert!(matches!(
+            super::coalesce_pending_text(&wrap(generic), &scope).unwrap(),
+            Content::Text(_)
+        ));
+        let mut text_rules = scope.rules.to_vec();
+        text_rules.push(ShowRule {
+            id: 4,
+            selector: Selector::NativeElement(Func::native(
+                "text",
+                crate::compiler::stdlib::native_text,
+            )),
+            transform: Transformation::Content(Content::text("CALLBACK")),
+        });
+        let active = ShowRecipeContent { rules: text_rules.into(), ..scope.clone() };
+        let generic = ShowRecipeContent { textual: false, ..active.clone() };
+        assert!(matches!(
+            super::coalesce_pending_text(&wrap(generic), &active).unwrap(),
+            Content::ShowRecipe(_)
+        ));
     }
 }

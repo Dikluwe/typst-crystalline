@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch/arguments.md
-//! @prompt-hash c5fc8d82
+//! @prompt-hash a2fba560
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -109,6 +109,11 @@ pub(in crate::compiler::eval) fn transport_native_call_span(
             ) || std::ptr::fn_addr_eq(native.call, native_panic as fn(_, _, _, _) -> _)
                 || std::ptr::fn_addr_eq(native.call, native_csv as fn(_, _, _, _) -> _)
                 || std::ptr::fn_addr_eq(native.call, calc_abs as fn(_, _, _, _) -> _)
+                || std::ptr::fn_addr_eq(
+                    native.call,
+                    crate::compiler::eval::bindings::native_sequence
+                        as fn(_, _, _, _) -> _,
+                )
                 || std::ptr::fn_addr_eq(
                     native.call,
                     crate::compiler::stdlib::native_table as fn(_, _, _, _) -> _,

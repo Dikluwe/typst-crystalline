@@ -1,10 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/realize/mod.md
-//! @prompt-hash b85c65bf
+//! @prompt-hash 10bfeeea
 //! @layer L1
 //! @updated 2026-10-10
 
 pub(in crate::compiler) mod bare_math;
+pub(in crate::compiler) mod sequences;
 mod table_cells;
 
 use crate::compiler::eval::{EvalContext, EvalTarget};
@@ -112,6 +113,9 @@ fn observe_occurrences(content: &Content, ctx: &mut EvalContext) {
                 ctx.next_context_id = ctx.next_context_id.max(block.id.saturating_add(1))
             }
             Content::ShowRecipe(recipe) => {
+                if sequences::marked(recipe) {
+                    ctx.has_deferred_show_rules = true;
+                }
                 ctx.next_context_id = ctx.next_context_id.max(recipe.context_id_floor);
                 for rule in recipe.rules.iter() {
                     ctx.next_rule_id = ctx.next_rule_id.max(rule.id.saturating_add(1));
@@ -163,7 +167,8 @@ pub fn realize_document(
             current_file: source.id(),
             sink: &mut tracked_sink,
         };
-        realize_table_insertions(content.clone(), &mut ctx, &mut engine)
+        sequences::realize(content, &mut ctx, &mut engine)
+            .and_then(|content| realize_table_insertions(content, &mut ctx, &mut engine))
             .and_then(|content| bare_math::prepare(&content, engine.styles))
             .and_then(|content| {
                 content.map_content(&mut |node| {
@@ -229,6 +234,7 @@ pub fn realize_math_insertions(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
+    let content = sequences::realize(&content, ctx, engine)?;
     if !bare_math::needs_preparation(&content) {
         return Ok(content);
     }

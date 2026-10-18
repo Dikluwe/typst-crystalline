@@ -1,5 +1,5 @@
 # L0 — compiler/eval/call_dispatch/arguments
-Hash do Código: ff91ed2f
+Hash do Código: caaf2085
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
@@ -66,3 +66,23 @@ T011: 01_core/src/compiler/eval/call_dispatch/arguments.rs:99. Fontes e L0 vigen
 Conservar With recursivo e caminho p1339 prioritário; Native decide no corpo se a identidade de função pertence à lista existente, na mesma ordem de fn_addr_eq e sem nomes textuais. Somente os mesmos oito alvos transportam args.span; demais representações permanecem sem efeito.
 
 Manutenção interna em fluxo contínuo ADR-0127: sem contrato público, default, compatibilidade ou fase novos. A responsabilidade permanece somente no consumer exclusivo deste L0. Não criar helper apenas para esconder a conjunção, não adicionar supressões nem mudar a configuração do linter. Executar controles funcionais existentes antes do código e preservar seus esperados; o RED real é o gate V17 com 28 avisos, GREEN exige zero V17. Conferir caminhos de sucesso/fallback/erro, curto-circuito e efeitos; resselo restrito por owner. Revalidar build, suíte workspace completa, Clippy all-targets com warnings e expectativas não cumpridas como erro, formato, Rustdoc com warnings como erro, linhagem V1/V5/V15/V26 estrita/reversa e SARIF sem novos avisos. Executar sob 12 GiB, swap zero e um job. Não alegar ganho de memória/desempenho ou paridade global sem medição separada.
+
+## R2 — origem do construtor Sequence
+
+Medição antes da decisão: r2s-scope.json.gz em
+00_nucleo/diagnosticos/sequence-constructor-2026-10-17 conserva estado
+não commitado em b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, UTC,
+diffstat e binários no pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+missing e unknown-only têm mensagem igual, mas o Tekt ancora apenas os
+parênteses, enquanto o vanilla ancora f() / f(x:1) completos.
+arguments.rs:84–132 só transporta call_span para a whitelist tipada
+anterior, que não inclui native_sequence; content_methods.rs:355–359
+usa Args.span para ausência do argumento obrigatório.
+
+Correção interna de mapeamento: acrescentar exclusivamente a identidade
+tipada de native_sequence à whitelist de transporte de call_span,
+incluindo With pelo caminho recursivo vigente. Conservar os value_span
+individuais e todas as prioridades e efeitos. A cláusula anterior de
+oito alvos passa a incluir este novo construtor, sem mudar outros alvos
+ou assinaturas. Testar os ranges completos de f(), f(x:1) e o valor
+individual incorreto; RED real antes do código e GREEN bilateral.

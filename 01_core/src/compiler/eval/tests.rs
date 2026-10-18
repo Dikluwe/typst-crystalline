@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash f499f066
+//! @prompt-hash 2a8e12f7
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -32129,6 +32129,236 @@ mod regressions {
             );
             let result = eval_for_test(&world, &world.source);
             assert!(result.is_ok(), "{result:?}");
+        }
+    }
+    mod sequence_constructor_tests {
+        use super::*;
+
+        #[test]
+        fn sequence_constructor_children_shapes_casts_and_aliases() {
+            for source in [
+                r#"#let f=[].func();#assert.eq(f(()).fields(),(children:()));#assert.eq(f(([A],)).fields(),(children:([A],)));#assert.eq(f(([A],[B])).children,([A],[B]))"#,
+                r#"#let f=[].func();#let inner=[A]+[B];#assert.eq(f((inner,[C])).children,(inner,[C]));#assert.eq(f(("A",none,"")).children,([A],[],text("")))"#,
+                r#"#let f=([A]+[B]).func();#let g=f;#assert.eq(g(([C],)).children,([C],));#assert.eq(f.with(([D],))().children,([D],))"#,
+            ] {
+                let world = MockWorld::new(source);
+                let result = eval_for_test(&world, &world.source);
+                assert!(result.is_ok(), "{source}: {result:?}");
+            }
+        }
+
+        #[test]
+        fn sequence_constructor_missing_argument_uses_call_span() {
+            for call in ["f()", "f(x:1)"] {
+                let source = format!("#let f=[].func()\n#{call}");
+                let world = MockWorld::new(&source);
+                let errors = eval_for_test(&world, &world.source).unwrap_err();
+                let start = source.rfind(call).unwrap();
+                assert_eq!(
+                    world.source.span_byte_range(errors[0].span),
+                    Some(start..start + call.len())
+                );
+            }
+        }
+
+        #[test]
+        fn sequence_constructor_argument_errors_and_priority() {
+            for (call, message) in [
+                ("f()", "missing argument: children"),
+                ("f(x:1)", "missing argument: children"),
+                ("f(children:12)", "the argument `children` is positional"),
+                ("f(12,x:2)", "expected array, found integer"),
+                ("f([A])", "expected array, found content"),
+                ("f((1,),x:2)", "expected content, found integer"),
+                ("f((),())", "unexpected argument"),
+                ("f(x:1,(),())", "unexpected argument: x"),
+                ("f((),children:())", "unexpected argument: children"),
+            ] {
+                let source = format!("#let f=[].func()\n#{call}");
+                let world = MockWorld::new(&source);
+                let errors = eval_for_test(&world, &world.source).unwrap_err();
+                assert_eq!(errors[0].message, message, "{source}: {errors:?}");
+                assert!(!errors[0].span.is_detached(), "{errors:?}");
+                if call == "f(children:12)" {
+                    assert_eq!(errors[0].hints, vec!["try removing `children:`"]);
+                }
+            }
+        }
+
+        #[test]
+        fn sequence_constructor_selectors_fields_and_negative_partial() {
+            for source in [
+                r#"#let f=[].func();#assert.eq(repr(selector(f)),"sequence");#assert.eq(repr(f.where(children:12)),"sequence.where(children: 12)");#assert(selector(f)!=f.where())"#,
+                r#"#let f=([A]+[B]).func();#let g=f;#assert.eq(selector(f),selector(g))"#,
+            ] {
+                let world = MockWorld::new(source);
+                let result = eval_for_test(&world, &world.source);
+                assert!(result.is_ok(), "{source}: {result:?}");
+            }
+            for (source, message) in [
+                ("#counter([].func())", "sequence is not locatable"),
+                (
+                    "#[].func().where(missing:1)",
+                    "element `sequence` does not have field `missing`",
+                ),
+                (
+                    "#selector([].func().with(()))",
+                    "only element functions can be used as selectors",
+                ),
+                (
+                    "#[].func().with(()).where()",
+                    "`where()` can only be called on element functions",
+                ),
+                (
+                    "#let sequence=()=>[]\n#selector(sequence)",
+                    "only element functions can be used as selectors",
+                ),
+            ] {
+                let world = MockWorld::new(source);
+                let errors = eval_for_test(&world, &world.source).unwrap_err();
+                assert_eq!(errors[0].message, message, "{source}: {errors:?}");
+            }
+        }
+
+        #[test]
+        fn sequence_constructor_set_arguments_effects_and_condition() {
+            for source in [
+                "#let f=[].func()\n#set f()\nA",
+                "#let f=[].func()\n#set f(children:panic(\"BAD\")) if false\nA",
+            ] {
+                let world = MockWorld::new(source);
+                assert!(eval_for_test(&world, &world.source).is_ok(), "{source}");
+            }
+            for (rule, message) in [
+                ("set f(children:())", "unexpected argument: children"),
+                ("set f(())", "unexpected argument"),
+                ("set f(x:1)", "unexpected argument: x"),
+                ("set f(children:panic(\"BAD\"))", "panicked with: BAD"),
+                (
+                    "let g=f.with(());set g()",
+                    "only element functions can be used in set rules",
+                ),
+            ] {
+                let source = format!("#let f=[].func()\n#{{{rule}}}");
+                let world = MockWorld::new(&source);
+                let errors = eval_for_test(&world, &world.source).unwrap_err();
+                assert_eq!(errors[0].message, message, "{source}: {errors:?}");
+            }
+        }
+
+        #[test]
+        fn sequence_constructor_show_bare_filter_empty_and_styled() {
+            for (source,expected) in [
+                ("#let f=[].func()\n#show f:it=>[Y]\n#([A]+[B])","Y"),
+                ("#let f=[].func()\n#show f.where(children:([A],[B])):it=>[Y]\n#([A]+[B])","Y"),
+                ("#let f=[].func()\n#show f.where(children:([C],)):it=>[Y]\n#([A]+[B])","AB"),
+                ("#let f=[].func()\n#show f:it=>[Y]\n#[]","Y"),
+                ("#let f=[].func()\n#show f:it=>[Y]\n#f(([A],))","Y"),
+                ("#let f=[].func()\n#show f:it=>[Y]\n#text(fill:red)[A B]\n","Y"),
+            ] {
+                let world=MockWorld::new(source);
+                let module=eval_for_test(&world,&world.source).unwrap();
+                assert_eq!(module.content().unwrap().plain_text().trim(),expected,"{source}");
+            }
+        }
+
+        #[test]
+        fn sequence_constructor_local_rule_and_primary_panic() {
+            let world = MockWorld::new(
+                "#let f=[].func()\n#let c={show f:it=>[LOCAL];[A]+[B]}\n#c",
+            );
+            let module = eval_for_test(&world, &world.source).unwrap();
+            assert_eq!(module.content().unwrap().plain_text().trim(), "LOCAL");
+            let world =
+                MockWorld::new("#let f=[].func()\n#show f:it=>panic(\"X\")\n#([A]+[B])");
+            let errors = eval_for_test(&world, &world.source).unwrap_err();
+            assert_eq!(errors[0].message, "panicked with: X");
+            assert!(!errors[0].span.is_detached());
+        }
+
+        #[test]
+        fn sequence_constructor_textual_groups_are_not_repeated() {
+            for (source, expected) in [
+                ("#show \"A\":it=>[AA]\n#([A]+[B])", "AAB"),
+                ("#show regex(\"A\"):it=>[AA]\n#([A]+[B])", "AAB"),
+                ("#show \"A\":it=>[AA]\n#[A]", "AA"),
+                ("#show \"A\":it=>[AA]\n#let c=[A]\n#c", "AA"),
+                ("#let f=[].func()\n#show \"A\":it=>[AA]\n#show f:it=>it\n#([A]+[B])", "AAB"),
+                ("#let f=[].func()\n#show \"A\":it=>[AA]\n#show f:it=>{it}\n#([A]+[B])", "AAB"),
+                ("#show \"AB\":it=>[X]\n#([A]+[B])", "X"),
+                ("#let f=[].func()\n#show \"A\":it=>panic(\"HIDDEN\")\n#show f:it=>[Y]\n#([A]+[B])", "Y"),
+            ] {
+                let world = MockWorld::new(source);
+                let module = eval_for_test(&world, &world.source).unwrap();
+                assert_eq!(module.content().unwrap().plain_text().trim(), expected, "{source}");
+            }
+        }
+
+        #[test]
+        fn sequence_constructor_fresh_empty_depth_uses_block_span() {
+            let source = "#let f=[].func()\n#show f:it=>[]\n#([A]+[B])";
+            let world = MockWorld::new(source);
+            let errors = eval_for_test(&world, &world.source).unwrap_err();
+            assert_eq!(errors[0].message, "maximum show rule depth exceeded");
+            let start = source.rfind("[]").unwrap();
+            assert_eq!(
+                world.source.span_byte_range(errors[0].span),
+                Some(start..start + 2)
+            );
+        }
+
+        #[test]
+        fn sequence_constructor_ignores_empty_transport_slots() {
+            let prefix = "#let f=[].func()\n#show f.where(children:()):it=>[E]\n";
+            for (body, expected) in [
+                ("BODY", "BODY"),
+                ("#[]", "E"),
+                ("#none", "E"),
+                ("", ""),
+                ("#f(())", "E"),
+                ("#f((none,[A]))", "EA"),
+                ("#f(([],[A]))", "EA"),
+                ("X#[]B", "XEB"),
+                ("#show \"A\":it=>[AA]\nA B", "AA B"),
+                ("#show \"A\":it=>[AA]\n#[A] B", "AA B"),
+            ] {
+                let source = format!("{prefix}{body}\n");
+                let world = MockWorld::new(&source);
+                let module = eval_for_test(&world, &world.source).unwrap();
+                assert_eq!(
+                    module.content().unwrap().plain_text().trim(),
+                    expected,
+                    "{source}"
+                );
+            }
+        }
+
+        #[test]
+        fn sequence_constructor_emitted_text_is_shown_once() {
+            for source in [
+                "#let f=[].func()\n#show \"A\":it=>[AA]\n#show f:it=>[A]\n#([B]+[C])\n",
+                "#let f=[].func()\n#show \"A\":it=>[AA]\n#show f:it=>text(\"A\")\n#([B]+[C])\n",
+                "#show \"A\":it=>[AA]\n#text(\"A\")\n",
+            ] {
+                let world = MockWorld::new(source);
+                let module = eval_for_test(&world, &world.source).unwrap();
+                assert_eq!(module.content().unwrap().plain_text().trim(), "AA", "{source}");
+            }
+        }
+
+        #[test]
+        fn sequence_constructor_recursive_show_diagnostic() {
+            let world = MockWorld::new(
+                "#let f=[].func()\n#let n=0\n#show f:it=>{n+=1;[Y]}\n#([A]+[B])",
+            );
+            let errors = eval_for_test(&world, &world.source).unwrap_err();
+            assert_eq!(errors[0].message,"variables from outside the function are read-only and cannot be modified");
+            assert!(!errors[0].span.is_detached());
+            let world = MockWorld::new(
+                "#let f=[].func()\n#show f:it=>f(it.children)\n#([A]+[B])",
+            );
+            let errors = eval_for_test(&world, &world.source).unwrap_err();
+            assert_eq!(errors[0].message, "maximum show rule depth exceeded");
         }
     }
 }

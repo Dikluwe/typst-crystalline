@@ -1,9 +1,17 @@
 # L0 — compiler/eval/tests
-Hash do Código: f6c45ad5
+Hash do Código: 7da838e9
+
+
+
+**Layer:** L1 test-only
+**Exclusive consumer:** `01_core/src/compiler/eval/tests.rs`
+**Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:825182e1dfe3591249a5efbc4c0ddbd937ebffde953c6595e0d1ed8176106435
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
+- 00_nucleo/prompts/_nuclei/eval/pending-text.toml sha256:3f300957a00ac2f02354331585c19b935428e05d5b8ac2115a533764262250c8
 - 00_nucleo/prompts/_nuclei/eval/source-validation.toml sha256:e29edf5bc71d0c7f8b45d0a2a0db43820151a7d80f7484197c56dc8b3830d774
 - 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:fb383f227b0bcd8b1e61899942fa0383a4cda66093da58bda2e87844e2895d2a
 - 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml sha256:2989f08ae6b4b379afb61d9673b94ab8538c45a97b98e566677ae0f719429dc3
@@ -13,11 +21,6 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:dc549d79f9e996433894effc8e4efd1f8f3da3d9c30933110eeabbab582ae9a8
 - 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:d207e8a3a934b2eff2b67c4bfc7f15b9af0c0f3abc83acdfaf774326e7b242eb
 - 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:1d697fae328277525e44cad674cecc537ceb23a1bb3ae11bb68a0a9575411ae4
-
-
-**Layer:** L1 test-only
-**Exclusive consumer:** `01_core/src/compiler/eval/tests.rs`
-**Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
 ## Source evidence
 
@@ -1179,3 +1182,226 @@ de produto. L0 antes de código, RED→GREEN, testes de regressão, workspace,
 build, Clippy/Rustdoc estritos, ownership/núcleos/linhagem e reversa válidos;
 V16 não aumenta. Resselo somente após V15/V26 válido. Validação sequencial
 com MemoryMax12GiB/High8GiB/swap0/jobs1; registrar pico, não inferir ganho.
+
+## R2 — construção e seleção de Sequence, fluxo contínuo ADR-0127
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
+00_nucleo/diagnosticos/sequence-constructor-2026-10-17/{before,expanded}.json.gz
+e before-sources.json.gz conservam UTC, diffstat/status, binários/fontes e casos
+bilaterais no pin bd5ebec285505889e8ff1d4f68804ab147a699f3. Vanilla
+foundations/content/mod.rs:724–728 declara children requerido;
+foundations/value.rs:644–650 define cast Content/string/symbol/none e
+typst-macros/src/elem.rs:573–604 gera o constructor. Tekt
+01_core/src/compiler/eval/bindings/field_access/content_methods.rs:358–410
+ainda projeta fallback não chamável; o catálogo element_where não tem Sequence
+e selector_matching.rs:272–337 não tem sua identidade. rules/set.rs:55–76
+só recusa With de transforms e não reconhece set da Sequence. São semântica,
+morfologia e diagnósticos de língua, não exigência de copiar storage upstream.
+A mensagem de children() marcada pendente em R1 já coincide no baseline atual: o
+getter recém-corrigido permite que o owner existente produza o erro correto.
+A medição nova retifica essa pendência; não editar código de diagnóstico.
+
+### Responsabilidade exclusiva
+
+Cobrir construção de zero/um/vários filhos, nested sem aplanamento, strings/
+symbol/none, alias/With; erros e precedência de casts/extras/children posicional.
+Cobrir selector/where positivos e nomes inválidos; negativas de With e closure
+homônima; set vazio/condicional/extra/panic/partial; show bare, filtrado, miss,
+Empty e Styled externo. Guardar o caso show-once recursivo como refutador a
+investigar: não relaxar a expectativa do oracle para obter verde. Controles
+children() e erro antes de panic estão corretos no baseline R1 e permanecem.
+
+### Aceitação e limites
+
+Esta seção completa a responsabilidade R2 nomeada no L0 de R1. Corrigir
+continuamente tabelas/composição/callback interno, sem novos campos/traits/
+assinaturas Rust externas, modo padrão, fase ou quebra de compatibilidade.
+L0 antes de teste e código, RED funcional, GREEN e corpus bilateral. Não
+certificar guardas globais de show, todos os casts/elementos, nem paridade
+universal de render. Qualquer refutador residual deve permanecer no relatório
+e ganhar owner/L0 antes de intervenção, sem mudar testes para esconder o caso.
+
+Validar build/workspace/doctests em invocação separada, Clippy/Rustdoc estritos,
+fmt, V1/V5/V15/V26 e reversa, SARIF diferencial sem erro/warning novo. V19 pode
+registrar agrupamento nominal prescrito sem supressão, testando alternativas.
+Heavy jobs sequenciais, MemoryMax12GiB/High8GiB/swap0/jobs1, debug0/incremental0
+só no ambiente de validação. Resselo após V15/V26 válido e proveniência exata.
+
+
+## R2-S — realização nominal de Sequence, ratificada em 2026-10-17
+
+### Medição anterior à decisão
+
+As coletas before/expanded/controls.json.gz e candidate.log em
+00_nucleo/diagnosticos/sequence-constructor-2026-10-17 fixam HEAD
+b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
+UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+Oito REDs iniciais; cinco passaram no candidato, show e recursão ainda não.
+markup_stream.rs:240–260 aplana antes de selecionar a sequência; realize/mod.rs:
+170–210 visita filhos antes de receita; apply.rs:140–170 delega não-localizáveis
+ao ponto-fixo. O vanilla aceita alias e rejeita nova Sequence com mesmos
+filhos. São efeitos, escopo, valores e diagnósticos de linguagem.
+
+O dono aprovou a revisão
+00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
+46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327,
+nesta sessão. O gate ADR-0127 §2.3 cobre a ordem de realização desta nova
+fronteira antes dos filhos/Table/math; não cobre novo contrato público.
+
+### Responsabilidade exclusiva
+
+Manter as expectativas RED de show e recursão, completando S1–S20 da revisão
+aprovada. Retificar somente a fixture que igualava Text("") a Empty: o
+pin distingue ambos. Usar text("") como controle de texto vazio e preservar
+a rejeição de equivalência com []. Symbol conserva dívida separada registrada
+em controls.json.gz: func symbol vs text e igualdade false vs true; não usar
+repr igual como certificado dessa morfologia. Não esconder refutadores de show.
+
+### Aceitação
+
+S1–S20 ratificados, RED antes de código, GREEN bilateral e regressões; não
+reduzir expectativas por limite mecânico. Todos os owners 1:1 e núcleos pinados
+válidos antes do resselo. Build/workspace/doctests separados, Clippy/Rustdoc
+estritos, fmt/linhagem/reversa e SARIF sem novo erro/warning. 12GiB/High8GiB/
+swap0/jobs1 e comandos pesados sequenciais. Sem publicação/release.
+
+### R2-S — erros primários e defeito do oracle, decisão após medição
+
+r2s-measurement.json.gz conserva os casos show-panic/show-once/stored-value/
+show-block-bad-mutation. No pin, typst-realize/src/lib.rs:394–403 chama
+engine.delay(result); typst-library/src/engine.rs:42–49 registra a falha e
+devolve Default, que para Content é Sequence vazia (content/mod.rs:94–96).
+A regra Sequence volta a casar esse fallback e esgota profundidade antes
+de apresentar panic/erro readonly originais. O novo máximo sem span é erro
+secundário causado pelo fallback; não é a causa do programa. Esta leitura
+refuta a expectativa inicial do teste, que copiava esse defeito do oracle.
+
+Conservar no Tekt o erro primário com sua Source: panicked with: X/EARLY e
+variables from outside the function are read-only and cannot be modified.
+Não retornar Empty após falha para obter o erro secundário. Esses quatro
+refutadores continuam no corpus e são auditados como divergências deliberadas
+nominais, com seus erros exatos; não supressão geral de divergência/exit.
+Separadamente, Sequence realmente reconstruída com children iguais deve
+continuar rejeitando maximum show rule depth exceeded. Testar ambas as
+causas e as origens, sem alterar o limite. ADR-0107/0108: defeitos do vanilla
+não são requisito; esta classificação decorre da fonte medida, não de
+preferência pelo candidato ou de igualdade da mecânica Rust.
+
+## R2-S13 — uma avaliação por grupo textual pendente
+
+Medição antes da decisão: r2s-scope.json.gz e text-before.json.gz em
+00_nucleo/diagnosticos/sequence-constructor-2026-10-17 preservam estado
+não commitado em b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, UTC,
+diffstat, binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+As sondas textual-no-repeat/baseline/interpolation/captured produzem
+AAAA(B) no Tekt contra AA(B) no vanilla. textual.rs:104–122 encapsula
+grupos que já contêm receitas pendentes do mesmo snapshot;
+realize/mod.rs:182–210 realiza ambas bottom-up, reaplicando o literal.
+text-before cross-piece mede AB→X sobre filhos separados nos dois;
+outer-hides-text mede Y sem executar panic do filho em ambos.
+
+Decisão interna, dentro de S13 ratificado: o owner textual coalesce
+somente receitas textuais ainda pendentes do mesmo ambiente causal
+(identidade Arc das regras, estilos colapsados, guards e arquivo).
+Preservar Source, ordem, morfologia e fronteiras com ambiente distinto
+ou recipe não textual com efeito de elemento (a exceção escalar redundante está prescrita abaixo). Nenhum callback é executado pelo coalescimento.
+Capturar o grupo com filhos coalescidos e, no owner Sequence, coalescer
+o corpo textual depois de realizar as sequências efetivamente emitidas,
+antes de devolver a receita ao owner textual. Não reaplicar o mesmo
+grupo por cada camada de transporte; não pular Realized indiscriminadamente
+nem alterar matching, precedência, scopes ou contratos públicos.
+
+Testes RED→GREEN: literal e regex em interpolação/captura, identidade
+Sequence simples e em bloco, prefixo lexical, matching entre peças e
+filhos textuais ocultos. Fronteiras de snapshot distintas permanecem
+opacas. A divergência independente local-text-scope (C vs B), causada
+pela precedência de literais distintos, continua explícita no inventário
+e não legitima alterar a ordem do matcher neste owner.
+
+## R2-S — slots internos não são Empty explícito
+
+Medição anterior à decisão: empty-slots-before.json.gz em
+00_nucleo/diagnosticos/sequence-constructor-2026-10-17 registra fontes,
+binários, UTC, HEAD/working tree/diffstat e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+Body simples produz EBODY contra BODY; filhos none/[] produzem EEA contra
+EA; com regra textual A→AA aparecem Es adicionais. markup_stream.rs:
+205–225 monta cauda incluindo slots Empty consumidos/normalizados;
+textual.rs:104–120 monta pacotes com os mesmos slots; sequences.rs:
+114–125 os visita como ocorrências reais.
+
+Correção interna dentro da captura ratificada: ao montar o corpo da cauda
+Sequence no owner markup e o corpo do pacote pendente no owner textual,
+remover somente slots Content::Empty nus do vetor. As ocorrências Empty
+explícitas sob regra Sequence já possuem captura/Source própria antes
+de entrar nesse vetor. Conservar esses carriers, Text vazio e arrays
+de filhos do construtor; não filtrar Empty arbitrariamente no visitor
+de domínio. Corpus body/[]/none/construtor vazio/filho none/filho []/prefixo/
+textual deve coincidir com o vanilla PDF, inclusive documento sem corpo.
+L0 primeiro, RED em módulo antes do código; revalidar PDF e HTML separadamente.
+
+## R2-S — raiz de pacote textual e EOF causal
+
+Medição anterior à decisão: validation-attempt-2.json.gz, trace-recipes,
+trace-markup2 e trace-textual2 em 00_nucleo/diagnosticos/sequence-constructor-2026-10-17
+mostram 11 testes verdes e dois REDs. eof-before.json.gz mede as fontes
+exatas sem acrescentar newline: Styled com EOF produz Y nos dois; sem
+EOF produz AB nos dois. A expectativa unitária Y usava a fonte sem EOF,
+diferente da sonda anterior. Preservar ambos os controles externos; o
+unitário Y passa a incluir o EOF medido, não a relaxar uma regra de show.
+
+Alias textual sem EOF produz AAAAAAAAB no Tekt e AAB no vanilla.
+sequences.rs:112–116 pula a raiz de todo pacote textual, mas a construção
+Content::sequence normaliza um único item para o próprio item. Quando
+esse item é ShowRecipe marcado, pular a raiz deixa a receita original
+pendente e realiza outra captura nos seus filhos. O owner genérico volta
+a executá-la e repete regras textuais. trace-textual2 registra essa
+receita marcada ainda opaca no coalescimento após o percurso.
+
+Correção interna: skip_root pula somente uma raiz crua Empty/Sequence
+artificial de pacote, nunca ShowRecipe/Styled ou outra raiz normalizada.
+Uma receita marcada na raiz efetiva deve decidir antes de seus filhos,
+como qualquer outra ocorrência. Manter comparação causal estrita de
+estilos/regras/guards/arquivo no coalescimento e todos os controles de
+slots. Os logs cfg(test) temporários foram arquivados e serão removidos
+do código antes da validação final. Sem campo/tipo/API/fase nova.
+
+## R2-S13 — texto emitido e receitas escalares redundantes
+
+Medição antes da decisão: validation-attempt-3.json.gz e emission-after.json.gz
+em 00_nucleo/diagnosticos/sequence-constructor-2026-10-17 preservam estado
+working tree, UTC, fontes/argv/binários/diffstat no pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+Sequence emitindo [A] ou text("A") sob A→AA produz AAAA contra AA.
+O controle text("A") sem Sequence já produz AAAA no release de pilha
+SHA 2ab1495d555ff4d61e67eb14bef67597f7f668a0e3bce3a8129623011443441c
+(native-before.json.gz). textual.rs:142–161 compara marca/guard de
+Sequence como se distinguissem escopo textual e conserva receitas
+genéricas escalares que aplicam o mesmo conjunto literal antes do pai.
+trace-textual2/instrumentation-sources registram esses campos privados.
+
+Responsabilidade do owner Sequence: fornecer helper crate-interno que
+compara o transporte textual excluindo somente a chave privada
+eval.sequence.occurrence do delta colapsado e guards cujo RuleId pertence
+a regra Sequence no snapshot. Guards desconhecidos e de outras famílias
+permanecem. Nenhuma filtragem de estilos reais nem assinatura externa.
+
+Responsabilidade do owner textual: conservar agrupamento lexical estrito
+TextualSnapshot::same_group. No coalescimento, pacotes textuais com
+mesmo Arc de regras, arquivo e transporte textual equivalente são uma
+única realização. Para receita genérica não textual, só eliminar o
+transporte redundante se o corpo bruto for Text (permitido Source),
+as regras ordenadas têm exatamente os mesmos RuleIds do pai, o arquivo
+e o transporte textual coincidem, e nenhuma regra de elemento casa
+com esse Text. Nesse caso não há callback de elemento a executar e
+o pai já possui a aplicação literal/regex correspondente; devolver o
+corpo com sua Source. Não eliminar receita Styled/estrutural/contextual
+ou receita com regra de elemento aplicável. Não retirar regras do Engine
+nem executar callbacks no coalescimento. IDs são a identidade já vigente
+no mesmo contexto; não comparar só nomes, Debug ou texto do produto.
+
+RED→GREEN de emissão [A]/text("A") e controle escalar nativo, com os
+esperados do pin; controles de guard de outra família e estilo real
+continuam opacos. Revalidar os 13 controles anteriores sem relaxamento.
+Esta é correção interna de aplicação única já ratificada em S13, sem
+novo tipo/campo público, fase ou mudança da política dos demais elementos.

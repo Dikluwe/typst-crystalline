@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/markup_stream.md
-//! @prompt-hash c46be27e
+//! @prompt-hash ef8085d5
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -25,6 +25,13 @@ pub(super) fn eval_markup_impl(
     normalize_spaces: bool,
 ) -> SourceResult<Value> {
     let mut parts: Vec<Content> = Vec::new();
+    let mut sequence_scopes = Vec::new();
+    if ctx.apply_show_rules {
+        if let Some(scope) = crate::compiler::realize::sequences::snapshot(engine) {
+            sequence_scopes.push((0, scope));
+        }
+    }
+
     // Set/show iniciam uma cauda lexical, mesmo quando não mudam estilos.
     let mut label_scope_start = 0;
     // P1494: snapshots por ocorrência, sem retroatividade de regras textuais.
@@ -47,16 +54,21 @@ pub(super) fn eval_markup_impl(
     let mut running_delta = snap_delta.clone();
     let mut boundaries: Vec<(usize, crate::entities::style::Styles)> = Vec::new();
 
-    let capture_origin = node
+    let content_block_origin = node
         .span()
         .id()
         .and_then(|id| engine.world.source(id).ok())
-        .is_some_and(|source| {
+        .and_then(|source| {
             crate::entities::syntax_node::LinkedNode::new(source.root())
                 .find(node.span())
-                .and_then(|node| node.parent().map(|p| p.kind()))
-                == Some(SyntaxKind::ContentBlock)
+                .and_then(|node| {
+                    node.parent()
+                        .filter(|parent| parent.kind() == SyntaxKind::ContentBlock)
+                        .map(|parent| parent.span())
+                })
         });
+    let capture_origin = content_block_origin.is_some();
+    let sequence_origin = content_block_origin.unwrap_or(node.span());
     for child in node.children() {
         let snapshot = rules::textual::TextualSnapshot::capture(engine);
         match child.kind() {
@@ -146,6 +158,12 @@ pub(super) fn eval_markup_impl(
                             } else {
                                 content
                             };
+                            let content = crate::compiler::realize::sequences::capture_at(
+                                content,
+                                child.span(),
+                                ctx,
+                                engine,
+                            );
                             append_markup_sequence(&mut parts, content, capture_origin);
                         }
                     }
@@ -154,6 +172,12 @@ pub(super) fn eval_markup_impl(
         }
         if matches!(child.kind(), SyntaxKind::SetRule | SyntaxKind::ShowRule) {
             label_scope_start = parts.len();
+            if ctx.apply_show_rules {
+                if let Some(scope) = crate::compiler::realize::sequences::snapshot(engine)
+                {
+                    sequence_scopes.push((parts.len(), scope));
+                }
+            }
         }
         textual_snapshots.resize(parts.len(), snapshot);
 
@@ -182,10 +206,33 @@ pub(super) fn eval_markup_impl(
         engine,
         normalize_spaces,
     )?;
-    for (idx, styles) in boundaries.into_iter().rev() {
-        let tail = parts.split_off(idx);
-        let styles = styles.push_custom("eval.flow.scope", Value::Bool(true));
-        parts.push(Content::styled(Box::new(Content::sequence(tail)), styles));
+    let mut styles = boundaries.into_iter().rev().peekable();
+    let mut sequences = sequence_scopes.into_iter().rev().peekable();
+    while styles.peek().is_some() || sequences.peek().is_some() {
+        let take_sequence = sequences.peek().is_some_and(|(index, _)| {
+            styles.peek().is_none_or(|(style_index, _)| index >= style_index)
+        });
+        if take_sequence {
+            let (index, scope) = sequences.next().unwrap();
+            let tail = Content::sequence(
+                parts
+                    .split_off(index)
+                    .into_iter()
+                    .filter(|part| !matches!(part, Content::Empty))
+                    .collect(),
+            );
+            parts.push(crate::compiler::realize::sequences::capture_scope(
+                tail,
+                scope,
+                sequence_origin,
+                ctx,
+            ));
+        } else {
+            let (index, delta) = styles.next().unwrap();
+            let tail = parts.split_off(index);
+            let delta = delta.push_custom("eval.flow.scope", Value::Bool(true));
+            parts.push(Content::styled(Box::new(Content::sequence(tail)), delta));
+        }
     }
 
     // P863: as show rules de elemento (NodeKind) são interceptadas nos pontos

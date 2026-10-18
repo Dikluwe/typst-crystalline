@@ -1,16 +1,18 @@
 # L0 — compiler/realize/mod
-Hash do Código: d936b498
+Hash do Código: 04f3e4a5
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:ec32b8f89dc95f1de7376ca91e6252eb61a5da2ac0326abb7474fe56fd27fd7a
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:5cfb723d50e9518cdcee2df348927d02330b6019df96acef8394c1429cc950ff
-- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
 
 
 **Camada:** L1.
 **Consumer produtivo exclusivo:** `01_core/src/compiler/realize/mod.rs`.
 **Governança:** ADR-0026, ADR-0029, ADR-0030, ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 e ADR-0130.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/map-content-change.toml sha256:ec32b8f89dc95f1de7376ca91e6252eb61a5da2ac0326abb7474fe56fd27fd7a
+- 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:825182e1dfe3591249a5efbc4c0ddbd937ebffde953c6595e0d1ed8176106435
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
+- 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:5cfb723d50e9518cdcee2df348927d02330b6019df96acef8394c1429cc950ff
+- 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
 
 ## Medição que precede a decisão
 
@@ -359,3 +361,50 @@ O inventário validado em `00_nucleo/diagnosticos/clippy-locais-2026-10-16/clipp
 Materializar somente as expectativas diretas nominais já justificadas neste owner: C020. Reconfirmadas contra os spans atuais e as cláusulas individuais. Usar exatamente #[expect(clippy::too_many_arguments, reason="ID: motivo prescrito")] na função, nunca módulo/impl/crate; preservar assinatura, corpo, chamadas, cfg e atributos alheios. As entradas classificadas corrigir, inclusive C047/C066 condicionais, continuam pendentes e não recebem anotação neste lote.
 
 Fluxo contínuo ADR-0127: este lote acrescenta apenas metadados de lint, não muda contratos públicos, corpo executável, cfg, defaults, fase, dependências ou arquitetura. A cláusula materializa somente as exceções nominais expressas e supersede proibições genéricas de supressão apenas para os itens/lints identificados; não autoriza silenciar as correções pendentes. L0 precede código, resselo restrito e prova de que remover os atributos acrescentados e o header de linhagem recupera a fonte anterior, normalizada pelo rustfmt. Medir RED antes; depois conferir inventário all-targets, exatamente 46 aridades e cinco avisos de testes satisfeitos por 49 expectativas, sem aviso novo e com unfulfilled_lint_expectations como erro. As 11 aridades destinadas a correção devem continuar visíveis. Validar build, formato, linhagens estrita/reversa, Tekt sem erros/avisos novos, testes existentes de Counter e cobertura sob 12 GiB, swap zero e um job. A suíte completa anterior permanece evidência do mesmo código executável; não criar testes que espelhem atributos de lint nem exigir nova comparação de performance para metadados.
+
+
+## R2-S — realização nominal de Sequence, ratificada em 2026-10-17
+
+### Medição anterior à decisão
+
+As coletas before/expanded/controls.json.gz e candidate.log em
+00_nucleo/diagnosticos/sequence-constructor-2026-10-17 fixam HEAD
+b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
+UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+Oito REDs iniciais; cinco passaram no candidato, show e recursão ainda não.
+markup_stream.rs:240–260 aplana antes de selecionar a sequência; realize/mod.rs:
+170–210 visita filhos antes de receita; apply.rs:140–170 delega não-localizáveis
+ao ponto-fixo. O vanilla aceita alias e rejeita nova Sequence com mesmos
+filhos. São efeitos, escopo, valores e diagnósticos de linguagem.
+
+O dono aprovou a revisão
+00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
+46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327,
+nesta sessão. O gate ADR-0127 §2.3 cobre a ordem de realização desta nova
+fronteira antes dos filhos/Table/math; não cobre novo contrato público.
+
+### Responsabilidade exclusiva
+
+Compor descendente privado sequences e chamar sua realização pre-order de
+recipes marcados antes de realize_table_insertions/bare_math e da travessia
+genérica de ShowRecipe. A fronteira Sequence selecionável pode ocultar esses
+filhos. O descendente resolve seus produtos/guards; o hub conserva os caminhos
+existentes de outras receitas, layouts, índices e targets. Expor somente as
+rotas crate-internas necessárias a markup/invoke/apply, sem pub externo.
+
+### Aceitação
+
+S1–S20 ratificados, RED antes de código, GREEN bilateral e regressões; não
+reduzir expectativas por limite mecânico. Todos os owners 1:1 e núcleos pinados
+válidos antes do resselo. Build/workspace/doctests separados, Clippy/Rustdoc
+estritos, fmt/linhagem/reversa e SARIF sem novo erro/warning. 12GiB/High8GiB/
+swap0/jobs1 e comandos pesados sequenciais. Sem publicação/release.
+
+### R2-S — ativação do descendente
+
+A passagem existente observe_occurrences também assenta a flag privada
+has_deferred_show_rules quando encontra recipe Sequence marcado. O contexto
+novo de realização começa sem essa informação; assentar antes da composição
+evita pular corpos vazios/locais. Sem marcador/regra Sequence, o descendente
+retorna clone raso sem percorrer/reconstruir o documento. Não criar campo
+público/flag de produto nem usar estado global para esse atalho.

@@ -1,7 +1,12 @@
 # L0 — compiler/eval/rules/apply — Aplicação de show rules
-Hash do Código: 652f27f1
+Hash do Código: 29e759f5
+
+
+Layer: L1
+Exclusive consumer: `01_core/src/compiler/eval/rules/apply.rs`
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:825182e1dfe3591249a5efbc4c0ddbd937ebffde953c6595e0d1ed8176106435
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
 - 00_nucleo/prompts/_nuclei/layout/raw-block-boundary.toml sha256:c983fdb9884f90548e110fe7c1709632fc00b6e2a1387ad9e80444009c3602fd
 - 00_nucleo/prompts/_nuclei/layout/raw-defaults.toml sha256:2ce5a50363605eb1a122920b92773b1fc956c52817dd57830c2ce12bfe5f285e
@@ -12,9 +17,6 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
 - 00_nucleo/prompts/_nuclei/table/cell-style-defaults.toml sha256:1d697fae328277525e44cad674cecc537ceb23a1bb3ae11bb68a0a9575411ae4
 - 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:f10f7afaabd1b97f3048736842df89d0ba48d4daa0ae3cd453c9be317f32ef91
-
-Layer: L1
-Exclusive consumer: `01_core/src/compiler/eval/rules/apply.rs`
 
 ## Medição antes da decisão
 
@@ -431,3 +433,41 @@ ou alterar a identidade/localização do conteúdo renderizado. style_scope lê
 o nível pelo mesmo desembrulho de inspeção. Não alterar realização/caches,
 avançar localização nem avaliar conteúdo outra vez. A condição continua exigir
 Heading original e visual efetivo, sem certificar substituições completas.
+
+
+## R2-S — realização nominal de Sequence, ratificada em 2026-10-17
+
+### Medição anterior à decisão
+
+As coletas before/expanded/controls.json.gz e candidate.log em
+00_nucleo/diagnosticos/sequence-constructor-2026-10-17 fixam HEAD
+b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
+UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+Oito REDs iniciais; cinco passaram no candidato, show e recursão ainda não.
+markup_stream.rs:240–260 aplana antes de selecionar a sequência; realize/mod.rs:
+170–210 visita filhos antes de receita; apply.rs:140–170 delega não-localizáveis
+ao ponto-fixo. O vanilla aceita alias e rejeita nova Sequence com mesmos
+filhos. São efeitos, escopo, valores e diagnósticos de linguagem.
+
+O dono aprovou a revisão
+00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
+46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327,
+nesta sessão. O gate ADR-0127 §2.3 cobre a ordem de realização desta nova
+fronteira antes dos filhos/Table/math; não cobre novo contrato público.
+
+### Responsabilidade exclusiva
+
+Adicionar aplicação root-only de um único passo para a Sequence preparada,
+sem usar ponto-fixo morfológico. O descendente sequences escolhe RuleId,
+protege o argumento e coordena a expansão. Reutilizar o dispatch/cast de
+Transformation e guard de chamada já existentes; a entrada é crate-interna.
+Os wrappers/loop legados mantêm comportamento e assinatura; nenhum limite
+ou política global de outros não-localizáveis muda.
+
+### Aceitação
+
+S1–S20 ratificados, RED antes de código, GREEN bilateral e regressões; não
+reduzir expectativas por limite mecânico. Todos os owners 1:1 e núcleos pinados
+válidos antes do resselo. Build/workspace/doctests separados, Clippy/Rustdoc
+estritos, fmt/linhagem/reversa e SARIF sem novo erro/warning. 12GiB/High8GiB/
+swap0/jobs1 e comandos pesados sequenciais. Sem publicação/release.

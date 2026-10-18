@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/set.md
-//! @prompt-hash c8188c89
+//! @prompt-hash 63c0c142
 //! @layer L1
 //! @updated 2026-10-08
 //!
@@ -59,6 +59,8 @@ pub(crate) fn eval_set_rule(
         if !std::ptr::eq(base, f)
             && base.native_fn_addr().is_some_and(|call| {
                 [
+                    crate::compiler::eval::bindings::native_sequence
+                        as fn(_, _, _, _) -> _,
                     crate::compiler::stdlib::native_move as fn(_, _, _, _) -> _,
                     crate::compiler::stdlib::native_rotate as fn(_, _, _, _) -> _,
                     crate::compiler::stdlib::native_scale as fn(_, _, _, _) -> _,
@@ -75,6 +77,31 @@ pub(crate) fn eval_set_rule(
         }
     }
     let native_target = target_function.as_ref().and_then(|f| f.native_fn_addr());
+    if native_target.is_some_and(|call| {
+        std::ptr::fn_addr_eq(
+            call,
+            crate::compiler::eval::bindings::native_sequence as fn(_, _, _, _) -> _,
+        )
+    }) {
+        let args = call_dispatch::eval_args(set.args(), scopes, ctx, engine)?;
+        let extra = if let Some(arg) =
+            args.occurrences.as_ref().and_then(|items| items.first())
+        {
+            Some((arg.span.or(args.span), arg.name.as_deref()))
+        } else if !args.items.is_empty() {
+            Some((args.span, None))
+        } else {
+            args.named.first().map(|(name, _)| (args.span, Some(name.as_str())))
+        };
+        if let Some((span, name)) = extra {
+            let message = name.map_or_else(
+                || "unexpected argument".to_string(),
+                |name| format!("unexpected argument: {name}"),
+            );
+            return Err(vec![SourceDiagnostic::error(span, message)]);
+        }
+        return Ok(Value::None);
+    }
     if let Some(call) = native_target {
         use crate::compiler::stdlib::{
             native_move, native_rotate, native_scale, native_skew,

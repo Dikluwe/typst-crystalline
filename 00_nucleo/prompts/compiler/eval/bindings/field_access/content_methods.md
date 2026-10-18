@@ -1,8 +1,11 @@
 # L0 — compiler/eval/bindings/field_access/content_methods
-Hash do Código: 56ab78c7
+Hash do Código: 7369fe79
+
+
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:923f1c9e4c2fd5934316ae2eef3dbb461c3bef3009de1d8931d951e793dda342
+- 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:825182e1dfe3591249a5efbc4c0ddbd937ebffde953c6595e0d1ed8176106435
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
 - 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml sha256:79283c9047419768139e0227b9ed7e34146a85706ed47731655736545c95306b
 - 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:f29e26ff07053f940cfe4ab5358fc9a6ac8d4d689528e169b5f8567492f52f46
@@ -11,7 +14,6 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/table/cell-projection.toml sha256:71d4b43f260cff61fffa8ba7831733e7a62f2517109911c8af346458d64cbd5b
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
 - 00_nucleo/prompts/_nuclei/transform-semantics.toml sha256:cbd8b56af347a35e867b2c4695581721d5983ec24ee7bb022e9f9987500d40f3
-
 
 ## Ownership e medição
 
@@ -381,3 +383,111 @@ de produto. L0 antes de código, RED→GREEN, testes de regressão, workspace,
 build, Clippy/Rustdoc estritos, ownership/núcleos/linhagem e reversa válidos;
 V16 não aumenta. Resselo somente após V15/V26 válido. Validação sequencial
 com MemoryMax12GiB/High8GiB/swap0/jobs1; registrar pico, não inferir ganho.
+
+## R2 — construção e seleção de Sequence, fluxo contínuo ADR-0127
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
+00_nucleo/diagnosticos/sequence-constructor-2026-10-17/{before,expanded}.json.gz
+e before-sources.json.gz conservam UTC, diffstat/status, binários/fontes e casos
+bilaterais no pin bd5ebec285505889e8ff1d4f68804ab147a699f3. Vanilla
+foundations/content/mod.rs:724–728 declara children requerido;
+foundations/value.rs:644–650 define cast Content/string/symbol/none e
+typst-macros/src/elem.rs:573–604 gera o constructor. Tekt
+01_core/src/compiler/eval/bindings/field_access/content_methods.rs:358–410
+ainda projeta fallback não chamável; o catálogo element_where não tem Sequence
+e selector_matching.rs:272–337 não tem sua identidade. rules/set.rs:55–76
+só recusa With de transforms e não reconhece set da Sequence. São semântica,
+morfologia e diagnósticos de língua, não exigência de copiar storage upstream.
+A mensagem de children() marcada pendente em R1 já coincide no baseline atual: o
+getter recém-corrigido permite que o owner existente produza o erro correto.
+A medição nova retifica essa pendência; não editar código de diagnóstico.
+
+### Responsabilidade exclusiva
+
+Completar a projeção de func para Empty e Sequence com callback exclusivo
+crate-interno native_sequence, ABI nativa atual de quatro argumentos. Receber
+children requerido posicional, validar array, converter cada filho Content/
+LocatedContent/string/symbol/none pelo cast de conteúdo atual. Preservar filhos
+imediatos, ordem e seq de zero/um filho sem Content::sequence normalizador.
+Borrow dos argumentos: não clonar o array de entrada para analisá-lo. Clonar
+somente os conteúdos que entram no resultado. Não executar callbacks dos filhos.
+Erros: children nomeado sem posicional gera the argument `children` is positional
+com hint try removing `children:`; ausente gera missing argument: children;
+array inválido gera expected array, found T; filho inválido gera expected content,
+found T. Cast do argumento e dos filhos precede detecção de extras. O primeiro
+extra pela sequência causal gera unexpected argument[: nome], com span da
+ocorrência; tipos usam value_span da primeira posição e missing usa args.span.
+Função com With funciona na chamada pelas rotas existentes; func retorna sempre
+o callback real, sem usar o fallback genérico e sem publicar binding global.
+
+### Aceitação e limites
+
+Esta seção completa a responsabilidade R2 nomeada no L0 de R1. Corrigir
+continuamente tabelas/composição/callback interno, sem novos campos/traits/
+assinaturas Rust externas, modo padrão, fase ou quebra de compatibilidade.
+L0 antes de teste e código, RED funcional, GREEN e corpus bilateral. Não
+certificar guardas globais de show, todos os casts/elementos, nem paridade
+universal de render. Qualquer refutador residual deve permanecer no relatório
+e ganhar owner/L0 antes de intervenção, sem mudar testes para esconder o caso.
+
+Validar build/workspace/doctests em invocação separada, Clippy/Rustdoc estritos,
+fmt, V1/V5/V15/V26 e reversa, SARIF diferencial sem erro/warning novo. V19 pode
+registrar agrupamento nominal prescrito sem supressão, testando alternativas.
+Heavy jobs sequenciais, MemoryMax12GiB/High8GiB/swap0/jobs1, debug0/incremental0
+só no ambiente de validação. Resselo após V15/V26 válido e proveniência exata.
+
+
+## R2-S — realização nominal de Sequence, ratificada em 2026-10-17
+
+### Medição anterior à decisão
+
+As coletas before/expanded/controls.json.gz e candidate.log em
+00_nucleo/diagnosticos/sequence-constructor-2026-10-17 fixam HEAD
+b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
+UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+Oito REDs iniciais; cinco passaram no candidato, show e recursão ainda não.
+markup_stream.rs:240–260 aplana antes de selecionar a sequência; realize/mod.rs:
+170–210 visita filhos antes de receita; apply.rs:140–170 delega não-localizáveis
+ao ponto-fixo. O vanilla aceita alias e rejeita nova Sequence com mesmos
+filhos. São efeitos, escopo, valores e diagnósticos de linguagem.
+
+O dono aprovou a revisão
+00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
+46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327,
+nesta sessão. O gate ADR-0127 §2.3 cobre a ordem de realização desta nova
+fronteira antes dos filhos/Table/math; não cobre novo contrato público.
+
+### Responsabilidade exclusiva
+
+No cast dos filhos, nomear as 34 variantes Value não convertíveis no grupo
+que devolve expected content, found T, preservando o domínio fechado para
+variantes futuras. O agrupamento é prescrito pela mesma rejeição, sem allow/
+expect. Text vazio permanece Text; None é Empty. A aceitação de Symbol nesta
+frente é somente glyph herdado do cast atual; sua identidade Symbol distinta
+requer contrato próprio, não inferência por repr ou igualdade de Text.
+
+### Aceitação
+
+S1–S20 ratificados, RED antes de código, GREEN bilateral e regressões; não
+reduzir expectativas por limite mecânico. Todos os owners 1:1 e núcleos pinados
+válidos antes do resselo. Build/workspace/doctests separados, Clippy/Rustdoc
+estritos, fmt/linhagem/reversa e SARIF sem novo erro/warning. 12GiB/High8GiB/
+swap0/jobs1 e comandos pesados sequenciais. Sem publicação/release.
+
+## Divisão explícita — pendências após R2/R2-S
+
+Medição e proveniência: r2s-scope.json.gz/text-before.json.gz no diagnóstico
+00_nucleo/diagnosticos/sequence-constructor-2026-10-17. Este pacote é
+incompleto no universo de morfologia e regras textuais. R3-Symbol deve
+completar identidade/igualdade do cast de Symbol (text/true no Tekt contra
+symbol/false no vanilla); exige proposta/gate próprio se criar variante
+pública, que R2-S não autoriza. R3-Markup deve preservar a Sequence
+interpolada como filho imediato no valor de ContentBlock sem regra de
+Sequence, hoje aplanada. R3-Textual deve medir/corrigir a precedência dos
+literais em escopos distintos (C vs B), no owner matching. R3-Diagnostics
+deve completar rastros genéricos de show de filhos emitidos. Estes nomes
+identificam os pacotes de conclusão; não são prompts L0 nem autorização
+para código adicional. Não classificar tais diferenças como mecânica
+aceita ou paridade já demonstrada.

@@ -1,15 +1,17 @@
 # L0 — compiler/eval/selector_matching
-Hash do Código: 37ac254e
+Hash do Código: 056dfba5
 
-Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
-- 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:a37779d03a4ba0f16ebcc5919477bfdcf783021511a28cf8c9203c67cd64a9e5
-- 00_nucleo/prompts/_nuclei/transform-semantics.toml sha256:cbd8b56af347a35e867b2c4695581721d5983ec24ee7bb022e9f9987500d40f3
 
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/selector_matching.rs`
 **Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:825182e1dfe3591249a5efbc4c0ddbd937ebffde953c6595e0d1ed8176106435
+- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
+- 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:a37779d03a4ba0f16ebcc5919477bfdcf783021511a28cf8c9203c67cd64a9e5
+- 00_nucleo/prompts/_nuclei/transform-semantics.toml sha256:cbd8b56af347a35e867b2c4695581721d5983ec24ee7bb022e9f9987500d40f3
 
 ## Source evidence
 
@@ -218,3 +220,87 @@ Alternativas com o mesmo resultado conservam um corpo compartilhado. Grupos expl
 ### Aceitação e limites
 
 Fluxo contínuo ADR-0127: nenhuma assinatura/campo/trait público, default de produto, compatibilidade ou fase nova. Não reabrir propostas históricas deste owner. L0 antes dos testes/código e resselo restrito bilateral. Escrever os controles no módulo e confirmar o comportamento anterior; o RED estrutural é a ausência de E0004 nos seis pontos na cópia real do core com uma variante sentinela acrescentada apenas ao enum copiado. Após nominalização, os seis pontos devem exigir E0004 nessa cópia, sem stubs nem mutação da fonte produtiva. Os cinco V16 selecionados devem desaparecer da emissão, preservando diagnósticos externos e notas V19. Reexecutar testes reais, build, formato, Clippy estrito, Rustdoc e linhagem direta/reversa sob 12 GiB, swap zero e um job Cargo. Não declarar gate global verde enquanto V16 externos permanecerem.
+
+## R2 — construção e seleção de Sequence, fluxo contínuo ADR-0127
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
+00_nucleo/diagnosticos/sequence-constructor-2026-10-17/{before,expanded}.json.gz
+e before-sources.json.gz conservam UTC, diffstat/status, binários/fontes e casos
+bilaterais no pin bd5ebec285505889e8ff1d4f68804ab147a699f3. Vanilla
+foundations/content/mod.rs:724–728 declara children requerido;
+foundations/value.rs:644–650 define cast Content/string/symbol/none e
+typst-macros/src/elem.rs:573–604 gera o constructor. Tekt
+01_core/src/compiler/eval/bindings/field_access/content_methods.rs:358–410
+ainda projeta fallback não chamável; o catálogo element_where não tem Sequence
+e selector_matching.rs:272–337 não tem sua identidade. rules/set.rs:55–76
+só recusa With de transforms e não reconhece set da Sequence. São semântica,
+morfologia e diagnósticos de língua, não exigência de copiar storage upstream.
+A mensagem de children() marcada pendente em R1 já coincide no baseline atual: o
+getter recém-corrigido permite que o owner existente produza o erro correto.
+A medição nova retifica essa pendência; não editar código de diagnóstico.
+
+### Responsabilidade exclusiva
+
+Reconhecer native_sequence em Content::Empty e Content::Sequence pelo ponteiro
+real. O agrupamento é prescrito: são duas representações Tekt do mesmo elemento
+de linguagem, com schema children. Os testes exercitam ambos e seq de um/vários
+filhos, alias e falso homônimo. Conservar Source/Located/ShowRecipe/Realized
+transparentes, Styled comum opaco (pode ter um filho Sequence selecionável).
+Filtros usam get_field/igualdade da linguagem já existentes, sem aplanar nem
+inferir filhos por plain_text; manter snapshots autoritativos. Não mudar
+NodeKind/ElementKind, guards de show, fase ou representação pública.
+
+### Aceitação e limites
+
+Esta seção completa a responsabilidade R2 nomeada no L0 de R1. Corrigir
+continuamente tabelas/composição/callback interno, sem novos campos/traits/
+assinaturas Rust externas, modo padrão, fase ou quebra de compatibilidade.
+L0 antes de teste e código, RED funcional, GREEN e corpus bilateral. Não
+certificar guardas globais de show, todos os casts/elementos, nem paridade
+universal de render. Qualquer refutador residual deve permanecer no relatório
+e ganhar owner/L0 antes de intervenção, sem mudar testes para esconder o caso.
+
+Validar build/workspace/doctests em invocação separada, Clippy/Rustdoc estritos,
+fmt, V1/V5/V15/V26 e reversa, SARIF diferencial sem erro/warning novo. V19 pode
+registrar agrupamento nominal prescrito sem supressão, testando alternativas.
+Heavy jobs sequenciais, MemoryMax12GiB/High8GiB/swap0/jobs1, debug0/incremental0
+só no ambiente de validação. Resselo após V15/V26 válido e proveniência exata.
+
+
+## R2-S — realização nominal de Sequence, ratificada em 2026-10-17
+
+### Medição anterior à decisão
+
+As coletas before/expanded/controls.json.gz e candidate.log em
+00_nucleo/diagnosticos/sequence-constructor-2026-10-17 fixam HEAD
+b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado,
+UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+Oito REDs iniciais; cinco passaram no candidato, show e recursão ainda não.
+markup_stream.rs:240–260 aplana antes de selecionar a sequência; realize/mod.rs:
+170–210 visita filhos antes de receita; apply.rs:140–170 delega não-localizáveis
+ao ponto-fixo. O vanilla aceita alias e rejeita nova Sequence com mesmos
+filhos. São efeitos, escopo, valores e diagnósticos de linguagem.
+
+O dono aprovou a revisão
+00_nucleo/materialization/sequence-realization-2026-10-17/review.md, manifesto
+46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327,
+nesta sessão. O gate ADR-0127 §2.3 cobre a ordem de realização desta nova
+fronteira antes dos filhos/Table/math; não cobre novo contrato público.
+
+### Responsabilidade exclusiva
+
+Disponibilizar predicado crate-interno is_sequence_rule para NativeElement
+com callback real native_sequence; Where delega à base e And/Or procuram
+um ramo pertinente. Text/Regex/Label/NodeKind/DynKind são negativos nominais.
+O agrupamento negativo compartilha somente false, sem supressão V19. O
+predicado nunca executa callback, usa Func.name ou torna Styled transparente.
+
+### Aceitação
+
+S1–S20 ratificados, RED antes de código, GREEN bilateral e regressões; não
+reduzir expectativas por limite mecânico. Todos os owners 1:1 e núcleos pinados
+válidos antes do resselo. Build/workspace/doctests separados, Clippy/Rustdoc
+estritos, fmt/linhagem/reversa e SARIF sem novo erro/warning. 12GiB/High8GiB/
+swap0/jobs1 e comandos pesados sequenciais. Sem publicação/release.

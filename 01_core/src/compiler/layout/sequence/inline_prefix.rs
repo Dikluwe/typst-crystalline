@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/sequence/inline_prefix.md
-//! @prompt-hash 02feff0c
+//! @prompt-hash 2352a285
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -170,63 +170,74 @@ pub(super) fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
     let mut first_fragment_overlong = false;
 
     for (part_index, part) in parts[..end].iter().enumerate() {
-        let (fragment, fragment_single_word) = match part.source_body() {
-            Content::Text(text) => {
-                if text_fragments == 0 {
-                    first_fragment_direct = true;
-                } else if text_fragments == 1 {
-                    second_fragment_direct = true;
-                }
-                (p1380_text_fragment(layouter, text, None), p1389_single_word(text))
-            }
-            Content::Styled(styled) => match styled.body.source_body() {
+        let (fragment, fragment_single_word) =
+            match super::super::paragraph::prepared_text_body(part) {
                 Content::Text(text) => {
-                    if text_fragments == 0 && p1383_size_only_styles(&styled.styles) {
-                        first_fragment_size_only = true;
+                    if text_fragments == 0 {
+                        first_fragment_direct = true;
+                    } else if text_fragments == 1 {
+                        second_fragment_direct = true;
                     }
-                    if text_fragments == 1 && p1383_size_only_styles(&styled.styles) {
-                        second_fragment_size_only = true;
+                    (p1380_text_fragment(layouter, text, None), p1389_single_word(text))
+                }
+                Content::Styled(styled) => {
+                    match super::super::paragraph::prepared_text_body(&styled.body) {
+                        Content::Text(text) => {
+                            if text_fragments == 0
+                                && p1383_size_only_styles(&styled.styles)
+                            {
+                                first_fragment_size_only = true;
+                            }
+                            if text_fragments == 1
+                                && p1383_size_only_styles(&styled.styles)
+                            {
+                                second_fragment_size_only = true;
+                            }
+                            (
+                                p1380_text_fragment(layouter, text, Some(&styled.styles)),
+                                p1389_single_word(text),
+                            )
+                        }
+                        _ => return None,
                     }
-                    (
-                        p1380_text_fragment(layouter, text, Some(&styled.styles)),
-                        p1389_single_word(text),
-                    )
                 }
+                Content::Strong(strong) => {
+                    match super::super::paragraph::prepared_text_body(&strong.body) {
+                        Content::Text(text) => {
+                            let styles = crate::entities::style::Styles::from_iter([
+                                crate::entities::style::Style::strong(),
+                            ]);
+                            (
+                                p1380_text_fragment(layouter, text, Some(&styles)),
+                                p1389_single_word(text),
+                            )
+                        }
+                        _ => return None,
+                    }
+                }
+                Content::Emph(emph) => {
+                    match super::super::paragraph::prepared_text_body(&emph.body) {
+                        Content::Text(text) => {
+                            let styles = crate::entities::style::Styles::from_iter([
+                                crate::entities::style::Style::emph(),
+                            ]);
+                            (
+                                p1380_text_fragment(layouter, text, Some(&styles)),
+                                p1389_single_word(text),
+                            )
+                        }
+                        _ => return None,
+                    }
+                }
+                Content::Space | Content::SpaceFromNewline => {
+                    if has_text {
+                        width += layouter.space_width().0;
+                    }
+                    continue;
+                }
+                Content::Empty => continue,
                 _ => return None,
-            },
-            Content::Strong(strong) => match strong.body.source_body() {
-                Content::Text(text) => {
-                    let styles = crate::entities::style::Styles::from_iter([
-                        crate::entities::style::Style::strong(),
-                    ]);
-                    (
-                        p1380_text_fragment(layouter, text, Some(&styles)),
-                        p1389_single_word(text),
-                    )
-                }
-                _ => return None,
-            },
-            Content::Emph(emph) => match emph.body.source_body() {
-                Content::Text(text) => {
-                    let styles = crate::entities::style::Styles::from_iter([
-                        crate::entities::style::Style::emph(),
-                    ]);
-                    (
-                        p1380_text_fragment(layouter, text, Some(&styles)),
-                        p1389_single_word(text),
-                    )
-                }
-                _ => return None,
-            },
-            Content::Space | Content::SpaceFromNewline => {
-                if has_text {
-                    width += layouter.space_width().0;
-                }
-                continue;
-            }
-            Content::Empty => continue,
-            _ => return None,
-        };
+            };
         let fragment = fragment?;
         let width_before_fragment = width;
         let had_text_before_fragment = has_text;
@@ -500,4 +511,107 @@ pub(super) fn p1380_inline_prefix<M: FontMetrics, S: ImageSizer>(
 mod smoke {
     #[test]
     fn modulo_compila_e_carrega() {}
+}
+
+#[cfg(test)]
+mod prepared_carriers_tests {
+    use super::*;
+    use crate::entities::{
+        content::{LocatedContent, RealizedContent, SourceContent},
+        introspector::{Introspector, TagIntrospector},
+        locator::Locator,
+        span::Span,
+        style::{Style, Styles},
+        style_chain::StyleChain,
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+
+    fn prepared(body: Content) -> Content {
+        Content::Source(Arc::new(SourceContent {
+            span: Span::detached(),
+            body: Content::Realized(Arc::new(RealizedContent {
+                original: Content::link("hidden", Content::text("NOT VISUAL")),
+                visual: Content::Located(Arc::new(LocatedContent {
+                    location: Locator::new().next(),
+                    body,
+                })),
+            })),
+        }))
+    }
+
+    #[test]
+    fn prepared_carriers_preserve_fractional_prefix_certificate() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::super::metrics::FixedMetrics,
+            crate::entities::image_sizer::NullImageSizer,
+            12.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        let initial_size = l.style.size.0;
+        let size = Styles::from_iter([Style::Size(
+            crate::entities::layout_types::Length::pt(8.0),
+        )]);
+        for plain in [
+            Content::strong(Content::text("Lead")),
+            Content::emph(Content::text("Lead")),
+            Content::styled(Box::new(Content::text("Lead")), size.clone()),
+            Content::strong(prepared(Content::text("Lead"))),
+        ] {
+            let baseline =
+                p1380_inline_prefix(&mut l, std::slice::from_ref(&plain), 1, 85.0)
+                    .expect("raw prefix must be certified");
+            let wrapped = prepared(plain);
+            let result = p1380_inline_prefix(&mut l, &[wrapped], 1, 85.0)
+                .expect("identity/visual carriers must preserve certificate");
+            assert!((result.fixed_height - baseline.fixed_height).abs() < 1e-9);
+            assert!((result.block_boundary - baseline.block_boundary).abs() < 1e-9);
+            assert_eq!(result.wrap_before, baseline.wrap_before);
+            assert_eq!(result.end, baseline.end);
+        }
+        // A larger singleton is outside the legacy scalar certificate.
+        let larger = Content::styled(
+            Box::new(Content::text("Lead")),
+            Styles::from_iter([Style::Size(crate::entities::layout_types::Length::pt(
+                16.0,
+            ))]),
+        );
+        assert!(
+            p1380_inline_prefix(&mut l, std::slice::from_ref(&larger), 1, 85.0).is_none()
+        );
+        assert!(p1380_inline_prefix(&mut l, &[prepared(larger)], 1, 85.0).is_none());
+        let opaque = prepared(Content::link("url", Content::text("Lead")));
+        assert!(p1380_inline_prefix(&mut l, &[opaque], 1, 85.0).is_none());
+        assert_eq!(l.style.size.0, initial_size);
+    }
+
+    #[test]
+    fn prepared_carriers_shared_chain_uses_visual_lexical_scope() {
+        let styles = Styles::from_iter([Style::Size(
+            crate::entities::layout_types::Length::pt(18.0),
+        )]);
+        let chain = StyleChain::empty();
+        let visual = Content::styled(Box::new(Content::text("Lead")), styles);
+        let expected = super::super::super::paragraph::shared_chain(
+            std::slice::from_ref(&visual),
+            &chain,
+        )
+        .unwrap();
+        let actual =
+            super::super::super::paragraph::shared_chain(&[prepared(visual)], &chain)
+                .expect("prepared visual must remain a complete textual segment");
+        assert!(
+            (crate::entities::layout_types::TextStyle::from(&actual).size.0
+                - crate::entities::layout_types::TextStyle::from(&expected).size.0)
+                .abs()
+                < 1e-9
+        );
+        assert_eq!(actual.custom("par.spacing"), expected.custom("par.spacing"));
+        assert!(super::super::super::paragraph::shared_chain(
+            &[prepared(Content::link("url", Content::text("Lead")))],
+            &chain,
+        )
+        .is_none());
+    }
 }

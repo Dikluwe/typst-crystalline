@@ -1,8 +1,9 @@
 # L0 — compiler/layout/sequence/inline_prefix
-Hash do Código: 4a3970b1
+Hash do Código: a86d7c4a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
+- 00_nucleo/prompts/_nuclei/layout/prepared-text-carriers.toml sha256:b2899862f439550920cdee8b3aec6a63c441b9bd2770e563d0a8fd49f93572d2
 - 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml sha256:77528cd6193277b9f776b29da06327d974f5cea26fb89abf821879b363185b0a
 
 ## Medição anterior à decisão
@@ -97,3 +98,55 @@ bidi/floats nem conteúdo opaco. Preservar os certificados escalares anteriores.
 ### Responsabilidade exclusiva
 
 Adicionar bool multiline privado ao InlinePrefixRuntime; false nos certificados anteriores, true somente na nova medição positiva. Não remover gates legados nem inventar novo campo público.
+
+
+## R2-S — envelopes preparados e prefixo fracionário (2026-10-18)
+
+### Medição anterior à decisão
+
+No HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
+commitado, complete5/complete-alias-layout.log em
+00_nucleo/diagnosticos/sequence-constructor-2026-10-17/ registra UTC,
+estado exato e o controle com/sem show sequence identidade. Prefixo *Lead*
+antes de Block1fr em columns passa de uma para duas páginas no Tekt;
+o mesmo alias conserva uma página no vanilla bd5ebec285505889e8ff1d4f68804ab147a699f3.
+Prefixo simples conserva geometria nos dois. inline_prefix.rs:181–231
+inspeciona somente source_body; apply.rs:551–688 localiza a ocorrência
+Strong mesmo sem transformação aplicável. paragraph.rs:19–98 aceita Located
+mas recusa Realized. Isso refuta transparência da identidade no certificado,
+não justifica remover tags ou a localização. carriers-before.json.gz guarda
+fontes/L0 antes deste reparo, HEAD, diffstat e UTC.
+
+### Decisão e aceitação
+
+Correção interna de paridade em fluxo contínuo ADR-0127, sem contrato público,
+nova fase/default ou entidade. Projeção visual emprestada conforme núcleo
+pinado; nenhum callback executado. Fórmulas, gates de estilo, largura, wrap,
+profundidade tipográfica e fallback opaco permanecem. Não ampliar a projeção
+ParagraphBody nem promover corpo opaco a Par/vazio. Inferência refutada se o
+alias mudar páginas, palavras ou coordenadas, ou se conteúdo opaco for aceito.
+RED funcional de prefixo Strong/Emph/Styled com Source/Located/Realized,
+escolha visual diferente do original e recusa de Link; GREEN mais controles
+PDF com/sem alias dentro de cada compilador, três prefixos, tolerância 1e-6pt.
+Conteúdo emitido conserva seus carriers e tags. Suíte completa e gates sob
+12GiB, swap zero, jobs1, sem alterar esperados anteriores.
+
+Responsabilidade exclusiva: consultar a projeção do owner paragraph no nó
+e no body de Styled/Strong/Emph, nos quatro pontos que antes usavam
+source_body. Não reconstruir conteúdo nem aumentar a profundidade dos
+wrappers tipográficos admitidos. Testes cfg(test) neste consumer verificam
+a reserva legada igual à do conteúdo cru, seleção de visual em vez de original,
+recusa de Link e estilo lexical compartilhado através de Realized.
+
+Refinamento da fixture: carriers-green.log confirma a cadeia visual mas
+recusa o baseline Styled16 singleton. O gate legado P1381/P1384 exige o
+segundo fragmento quando o primeiro é maior; esse teste prospectivo não
+constitui regressão. Usar Styled8 na célula admitida e testar recusa de
+Styled16 tanto cru quanto preparado. Não ampliar o certificado para fazer
+passar a fixture. Os dois REDs anteriores de transparência continuam válidos.
+
+complete-attempt6.json.gz confirma as comparações de certificado, mas a
+asserção final da fixture pressupunha 12pt; Layouter inicializa sua StyleChain
+vigente em 11pt. Capturar o estilo inicial antes de medir e exigir a sua
+restauração exata. Não mudar o constructor ou o estilo de produção. O controle
+PDF carriers-pdf confirma delta zero nos seis pares de prefixo/compilador.

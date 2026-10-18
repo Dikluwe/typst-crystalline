@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access
-Hash do Código: f5c4560b
+Hash do Código: 3947a3aa
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:2b8888460a1e6008abda0ff71603fe4dace79ff0a2a7aad598f8aabfab3e3776
@@ -243,3 +243,45 @@ da tabela negativa; substituir por controle positivo explícito `[x].text == "x"
 no teste positivo existente. Conservar negativos de campos desconhecidos, alias,
 Unicode e todos os perfis. Não mascarar regressões de presença nem alterar o
 dispatch produtivo deste hub. L0 antes do teste, resselo e suíte completa.
+
+## R2 — construção e seleção de Sequence, fluxo contínuo ADR-0127
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
+00_nucleo/diagnosticos/sequence-constructor-2026-10-17/{before,expanded}.json.gz
+e before-sources.json.gz conservam UTC, diffstat/status, binários/fontes e casos
+bilaterais no pin bd5ebec285505889e8ff1d4f68804ab147a699f3. Vanilla
+foundations/content/mod.rs:724–728 declara children requerido;
+foundations/value.rs:644–650 define cast Content/string/symbol/none e
+typst-macros/src/elem.rs:573–604 gera o constructor. Tekt
+01_core/src/compiler/eval/bindings/field_access/content_methods.rs:358–410
+ainda projeta fallback não chamável; o catálogo element_where não tem Sequence
+e selector_matching.rs:272–337 não tem sua identidade. rules/set.rs:55–76
+só recusa With de transforms e não reconhece set da Sequence. São semântica,
+morfologia e diagnósticos de língua, não exigência de copiar storage upstream.
+A mensagem de children() marcada pendente em R1 já coincide no baseline atual: o
+getter recém-corrigido permite que o owner existente produza o erro correto.
+A medição nova retifica essa pendência; não editar código de diagnóstico.
+
+### Responsabilidade exclusiva
+
+Somente reexportar native_sequence diretamente do owner content_methods para
+o hub de bindings com visibilidade interna; sem lógica de construção ou seleção
+nesta fachada. Preservar todos os demais exports e testes.
+
+### Aceitação e limites
+
+Esta seção completa a responsabilidade R2 nomeada no L0 de R1. Corrigir
+continuamente tabelas/composição/callback interno, sem novos campos/traits/
+assinaturas Rust externas, modo padrão, fase ou quebra de compatibilidade.
+L0 antes de teste e código, RED funcional, GREEN e corpus bilateral. Não
+certificar guardas globais de show, todos os casts/elementos, nem paridade
+universal de render. Qualquer refutador residual deve permanecer no relatório
+e ganhar owner/L0 antes de intervenção, sem mudar testes para esconder o caso.
+
+Validar build/workspace/doctests em invocação separada, Clippy/Rustdoc estritos,
+fmt, V1/V5/V15/V26 e reversa, SARIF diferencial sem erro/warning novo. V19 pode
+registrar agrupamento nominal prescrito sem supressão, testando alternativas.
+Heavy jobs sequenciais, MemoryMax12GiB/High8GiB/swap0/jobs1, debug0/incremental0
+só no ambiente de validação. Resselo após V15/V26 válido e proveniência exata.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access/content_methods.md
-//! @prompt-hash a253f53c
+//! @prompt-hash 16269719
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -326,8 +326,120 @@ pub(super) fn equation_descendant(
     }
 }
 
+/// Constructor exposed only by the element identity returned from content.func().
+pub(crate) fn native_sequence(
+    _ctx: &mut crate::compiler::eval::EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: crate::entities::file_id::FileId,
+) -> SourceResult<Value> {
+    use crate::entities::content::Content;
+    let occurrences = args.occurrences.as_deref();
+    let positional =
+        occurrences.and_then(|items| items.iter().find(|arg| arg.name.is_none()));
+    let value_span =
+        positional.map_or(args.span, |arg| arg.value_span.or(arg.span).or(args.span));
+    let Some(value) = args.items.first() else {
+        if args.named.contains_key("children") {
+            let span = occurrences
+                .and_then(|items| {
+                    items.iter().find(|arg| arg.name.as_deref() == Some("children"))
+                })
+                .map_or(args.span, |arg| arg.span.or(args.span));
+            return Err(vec![SourceDiagnostic::error(
+                span,
+                "the argument `children` is positional",
+            )
+            .with_hint("try removing `children:`")]);
+        }
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "missing argument: children",
+        )]);
+    };
+    let Value::Array(values) = value else {
+        return Err(vec![SourceDiagnostic::error(
+            value_span,
+            format!("expected array, found {}", vanilla_type_name(value)),
+        )]);
+    };
+    let children: Vec<Content> = values
+        .iter()
+        .map(|value| match value {
+            Value::Content(content) => Ok(content.clone()),
+            Value::LocatedContent(content, _) => Ok(content.content().clone()),
+            Value::Str(text) => Ok(Content::text(text.clone())),
+            Value::Symbol(symbol) => Ok(Content::text(symbol.value.clone())),
+            Value::None => Ok(Content::Empty),
+            other @ (Value::Bool(..)
+            | Value::Int(..)
+            | Value::Float(..)
+            | Value::Array(..)
+            | Value::Dict(..)
+            | Value::Module(..)
+            | Value::Datetime(..)
+            | Value::Func(..)
+            | Value::Auto
+            | Value::Length(..)
+            | Value::Relative(..)
+            | Value::Ratio(..)
+            | Value::Angle(..)
+            | Value::Color(..)
+            | Value::Stroke(..)
+            | Value::Fraction(..)
+            | Value::Align(..)
+            | Value::Location(..)
+            | Value::Gradient(..)
+            | Value::Regex(..)
+            | Value::Tiling(..)
+            | Value::Bytes(..)
+            | Value::Decimal(..)
+            | Value::Duration(..)
+            | Value::Version(..)
+            | Value::Selector(..)
+            | Value::Args(..)
+            | Value::State(..)
+            | Value::Counter(..)
+            | Value::Label(..)
+            | Value::Dir(..)
+            | Value::Path(..)
+            | Value::Type(..)
+            | Value::SpotColorant(..)) => Err(vec![SourceDiagnostic::error(
+                value_span,
+                format!("expected content, found {}", vanilla_type_name(other)),
+            )]),
+        })
+        .collect::<SourceResult<_>>()?;
+    let extra = if let Some(items) = occurrences {
+        let mut consumed = false;
+        items
+            .iter()
+            .find(|arg| {
+                if arg.name.is_none() && !consumed {
+                    consumed = true;
+                    false
+                } else {
+                    true
+                }
+            })
+            .map(|arg| (arg.span.or(args.span), arg.name.as_deref()))
+    } else if args.items.len() > 1 {
+        Some((args.span, None))
+    } else {
+        args.named.first().map(|(name, _)| (args.span, Some(name.as_str())))
+    };
+    if let Some((span, name)) = extra {
+        let message = name.map_or_else(
+            || "unexpected argument".to_string(),
+            |name| format!("unexpected argument: {name}"),
+        );
+        return Err(vec![SourceDiagnostic::error(span, message)]);
+    }
+    Ok(Value::Content(Content::Sequence(children.into())))
+}
+
 /// **P829** — fallback de `func()` para variantes sem constructor nativo
-/// exposto (Sequence, Styled, Label, math, Dynamic, …): o `Value::Func`
+/// exposto (Styled, Label, math, Dynamic, …): o `Value::Func`
 /// existe (repr = nome do elemento — paridade medida de `func()`) mas a
 /// chamada não é suportada. Caso não medido no vanilla (elementos internos
 /// não expostos no scope); mensagem própria, registada no L0.
@@ -354,6 +466,7 @@ pub(super) fn content_elem_func(c: &crate::entities::content::Content) -> Value 
         &dyn crate::contracts::world::World,
         crate::entities::file_id::FileId,
     ) -> SourceResult<Value> = match c {
+        Content::Empty | Content::Sequence(_) => native_sequence,
         Content::Text(_) => crate::compiler::stdlib::native_text,
         Content::MathMatrix(_) => crate::compiler::stdlib::native_math_mat,
         Content::TableCell(_) => crate::compiler::stdlib::native_table_cell,

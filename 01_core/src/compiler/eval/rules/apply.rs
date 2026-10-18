@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/apply.md
-//! @prompt-hash 695c9870
+//! @prompt-hash eff4d74d
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -21,7 +21,7 @@ pub(crate) fn apply_show_rules(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
-    apply_show_rules_inner(content, rules, ctx, engine, false, &mut false)
+    apply_show_rules_inner(content, rules, ctx, engine, false, &mut false, false)
 }
 
 pub(crate) fn apply_show_rules_root(
@@ -30,7 +30,7 @@ pub(crate) fn apply_show_rules_root(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
-    apply_show_rules_inner(content, rules, ctx, engine, true, &mut false)
+    apply_show_rules_inner(content, rules, ctx, engine, true, &mut false, false)
 }
 
 pub(crate) fn apply_cell_rules_root(
@@ -41,8 +41,26 @@ pub(crate) fn apply_cell_rules_root(
 ) -> SourceResult<(Content, bool)> {
     let mut applied = false;
     let product =
-        apply_show_rules_inner(content, rules, ctx, engine, true, &mut applied)?;
+        apply_show_rules_inner(content, rules, ctx, engine, true, &mut applied, false)?;
     Ok((product, applied))
+}
+
+/// The Sequence owner protects the argument and revisits the emitted product.
+pub(crate) fn apply_sequence_rule_once(
+    content: Content,
+    rule: &ShowRule,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Content> {
+    apply_show_rules_inner(
+        content,
+        std::slice::from_ref(rule),
+        ctx,
+        engine,
+        true,
+        &mut false,
+        true,
+    )
 }
 
 fn apply_show_rules_inner(
@@ -52,6 +70,7 @@ fn apply_show_rules_inner(
     engine: &mut Engine<'_>,
     root_only: bool,
     cell_applied: &mut bool,
+    single_step: bool,
 ) -> SourceResult<Content> {
     if rules.is_empty() {
         return Ok(content);
@@ -161,36 +180,36 @@ fn apply_show_rules_inner(
                 node
             };
             let full_error = ctx.full_error;
-            let (mut work, applied) = show_rule_termination::run_show_rule_loop(
-                node.clone(),
-                |work| {
-                    for rule in node_rules.iter().rev() {
-                        // Saltar se esta regra está em execução (anti-recursão na criação
-                        // aninhada — Lote F-3 inc-2; guard por `RuleId`, vale p/ DynKind).
-                        let guarded = if let Content::TableCell(c) = work {
-                            if c.stage().is_some() {
-                                c.guards().contains(&rule.id)
-                            } else {
-                                engine.active_guards.contains(&rule.id)
-                            }
+            let mut apply_one = |work: &Content| -> SourceResult<
+                Option<(Content, crate::entities::show::RuleId)>,
+            > {
+                for rule in node_rules.iter().rev() {
+                    // Saltar se esta regra está em execução (anti-recursão na criação
+                    // aninhada — Lote F-3 inc-2; guard por `RuleId`, vale p/ DynKind).
+                    let guarded = if let Content::TableCell(c) = work {
+                        if c.stage().is_some() {
+                            c.guards().contains(&rule.id)
                         } else {
                             engine.active_guards.contains(&rule.id)
-                        };
-                        if guarded {
-                            continue;
                         }
+                    } else {
+                        engine.active_guards.contains(&rule.id)
+                    };
+                    if guarded {
+                        continue;
+                    }
 
-                        // Show-set (P352): NÃO consome o passe de func — é tratado após o
-                        // loop α (embrulha o nó em `Content::Styled`). Saltado aqui.
-                        if matches!(rule.transform, Transformation::Style(_)) {
-                            continue;
-                        }
+                    // Show-set (P352): NÃO consome o passe de func — é tratado após o
+                    // loop α (embrulha o nó em `Content::Styled`). Saltado aqui.
+                    if matches!(rule.transform, Transformation::Style(_)) {
+                        continue;
+                    }
 
-                        if !selector_matching::selector_matches(work, &rule.selector) {
-                            continue;
-                        }
+                    if !selector_matching::selector_matches(work, &rule.selector) {
+                        continue;
+                    }
 
-                        match &rule.transform {
+                    match &rule.transform {
                             Transformation::Func(func) => {
                                 let argument=if let Content::TableCell(c)=work {
                                     if c.stage().is_some() {Content::TableCell(Arc::new(c.guarded(rule.id)))} else {work.clone()}
@@ -198,7 +217,7 @@ fn apply_show_rules_inner(
                                 let args = Args::positional(vec![Value::Content(argument)]);
                                 engine.active_guards.push(rule.id);
                                 let old_defer=ctx.defer_show_rules;
-                                if matches!(work,Content::TableCell(c) if c.stage().is_some()) {ctx.defer_show_rules=true;}
+                                if single_step || matches!(work,Content::TableCell(c) if c.stage().is_some()) {ctx.defer_show_rules=true;}
                                 let call_result = call_dispatch::apply_func(
                                     func.clone(),
                                     args,
@@ -241,12 +260,22 @@ fn apply_show_rules_inner(
                             // Saltado acima; inalcançável.
                             Transformation::Style(_) => continue,
                         }
-                    }
-                    Ok(None)
-                },
-                crate::entities::world_types::Route::MAX_SHOW_RULE_DEPTH,
-                full_error,
-            )?;
+                }
+                Ok(None)
+            };
+            let (mut work, applied) = if single_step {
+                match apply_one(node)? {
+                    Some((product, _)) => (product, true),
+                    None => (node.clone(), false),
+                }
+            } else {
+                show_rule_termination::run_show_rule_loop(
+                    node.clone(),
+                    &mut apply_one,
+                    crate::entities::world_types::Route::MAX_SHOW_RULE_DEPTH,
+                    full_error,
+                )?
+            };
 
             *cell_applied |= applied;
 

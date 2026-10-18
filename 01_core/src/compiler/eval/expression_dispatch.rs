@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/expression_dispatch.md
-//! @prompt-hash 7e877e12
+//! @prompt-hash 5129df73
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -196,6 +196,13 @@ fn eval_expr_inner(
                     }
                     let mut value = eval_expr(expr, scopes, ctx, &mut local_engine)?;
                     if let Value::Content(content) = &mut value {
+                        *content = crate::compiler::realize::sequences::capture_at(
+                            content.clone(),
+                            span,
+                            ctx,
+                            &local_engine,
+                        );
+
                         let local_delta = if styled_set_tail {
                             StyleChain::empty().collapse()
                         } else {

@@ -1,11 +1,13 @@
 # L0 — compiler/eval/expression_dispatch
-Hash do Código: 7c65d14d
+Hash do Código: 54d4ea21
+
+
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:825182e1dfe3591249a5efbc4c0ddbd937ebffde953c6595e0d1ed8176106435
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
 - 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:5cfb723d50e9518cdcee2df348927d02330b6019df96acef8394c1429cc950ff
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
-
 
 ## Medição anterior à decisão
 
@@ -230,3 +232,56 @@ preservando o protocolo de captura/guards do owner apply. Value::Content
 já existente não recebe uma segunda intercepção. Isso restaura o percurso
 existente, sem execução de receita Table/Cell nem nova fase. Teste RED próprio
 para Bool/Auto, false/true e set aninhado, seguido da recoleta bilateral.
+
+
+## R2-S — captura lexical de Sequence emitida por CodeBlock
+
+Medição anterior: r2s-measurement.json.gz no diagnóstico
+00_nucleo/diagnosticos/sequence-constructor-2026-10-17, pin bd5ebec285505889e8ff1d4f68804ab147a699f3,
+registra local-rule AB contra LOCAL. Esta unidade em :198–245 só transporta
+regras locais quando table_cells_needed; a restauração do Engine perde o
+show Sequence de uma soma emitida pelo bloco. Contrato R2-S aprovado pelo
+manifesto 46132cb53898f2b126a08bf3b0495ed4c05b531c380846bccbd3d0906477c327.
+
+Depois de avaliar uma expressão Content uma vez no bloco, passar esse valor
+pelo capturador Sequence com o local_engine antes de join/restauração. O
+capturador só marca Empty/Sequence pertinentes, guarda rules/styles/guards/
+file e não executa a receita. LetBinding não emite seu valor; conservar
+CodeSetTail, local_delta, Table/math, flow, scopes e mensagens existentes.
+Sem campo/trait/assinatura pública nova ou nova reavaliação. RED do corpus
+antes do código; GREEN local e regressões completas sob 12 GiB/swap0/jobs1.
+
+## R2-S — origem somente quando a captura é necessária
+
+Medição antes da decisão: validation-attempt-4.json.gz, complete-workspace.log
+e conditional-origin-before-sources.json.gz em 00_nucleo/diagnosticos/sequence-constructor-2026-10-17
+conservam HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, estado não
+commitado/UTC/diffstat/fontes/binários e pin bd5ebec285505889e8ff1d4f68804ab147a699f3.
+A suíte de core passou 7228 testes, falhou 24 e ignorou 5. Os dois
+controles de numbering local deixam de encontrar elementos internos;
+os demais falham na geometria do prefixo/cauda após 1fr. A referência R1
+validada antes desta etapa tinha zero falhas nesses testes.
+
+markup_stream.rs passa content.with_source_span(child.span()) ao helper
+mesmo quando não há regra Sequence ou quando o corpo não é Sequence.
+O helper devolve esse novo carrier mesmo sem capturar. Dentro de um
+ContentBlock, append_markup_sequence preserva Source, alterando as
+fronteiras legadas de estilos e coluna que não precisavam de captura.
+A adição de origem deve pertencer à operação efetiva de captura.
+
+Correção interna da rota aprovada: a fachada crate-interna capture_at
+recebe corpo cru e Span real; só acrescenta Source quando apply_show_rules
+está ativo, existe snapshot pertinente e o corpo é Empty/Sequence.
+capture conserva a assinatura interna atual e delega com Span detached;
+capture_scope recebe Span explícito e só o usa dentro do ramo que cria
+a receita marcada. Markup e CodeBlock passam o corpo sem embrulho prévio
+e a origem real separadamente. Nenhuma regra pertinente ou corpo não
+capturável devolve exatamente o conteúdo recebido; isso preserva os
+escopos por defeito e evita alocar carriers inúteis. Não modificar os
+algoritmos de layout nem os esperados dos 24 testes.
+
+RED já observado na suíte integral; exigir GREEN de f2s, integração de
+set/prefixo/1fr e controles Sequence antes da nova validação completa.
+Manter origem de [] e chamadas, guards nominais, não localização e
+coalescimento causal. Nenhuma assinatura Rust externa, campo público,
+modo padrão ou fase adicional é criada.

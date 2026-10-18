@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/value_methods/element_where
-Hash do Código: c5771a56
+Hash do Código: a0b25fb7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:923f1c9e4c2fd5934316ae2eef3dbb461c3bef3009de1d8931d951e793dda342
@@ -383,3 +383,49 @@ Esta etapa fecha admissão where/kind, não todas as operações de seleção,
 show/query, síntese, morfologia dos carriers ou counter. As frentes FG1, RM1,
 SY1, RG1 e V16 anteriores preservam seus escopos/gates; não aplicar candidatos
 antigos por cópia nem publicar.
+
+## R2 — construção e seleção de Sequence, fluxo contínuo ADR-0127
+
+### Medição anterior à decisão
+
+HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não commitado.
+00_nucleo/diagnosticos/sequence-constructor-2026-10-17/{before,expanded}.json.gz
+e before-sources.json.gz conservam UTC, diffstat/status, binários/fontes e casos
+bilaterais no pin bd5ebec285505889e8ff1d4f68804ab147a699f3. Vanilla
+foundations/content/mod.rs:724–728 declara children requerido;
+foundations/value.rs:644–650 define cast Content/string/symbol/none e
+typst-macros/src/elem.rs:573–604 gera o constructor. Tekt
+01_core/src/compiler/eval/bindings/field_access/content_methods.rs:358–410
+ainda projeta fallback não chamável; o catálogo element_where não tem Sequence
+e selector_matching.rs:272–337 não tem sua identidade. rules/set.rs:55–76
+só recusa With de transforms e não reconhece set da Sequence. São semântica,
+morfologia e diagnósticos de língua, não exigência de copiar storage upstream.
+A mensagem de children() marcada pendente em R1 já coincide no baseline atual: o
+getter recém-corrigido permite que o owner existente produza o erro correto.
+A medição nova retifica essa pendência; não editar código de diagnóstico.
+
+### Responsabilidade exclusiva
+
+Acrescentar ao catálogo estático a identidade tipada native_sequence: nome
+sequence, schema somente children, locatable=false. Label comum permanece
+permitido pelo mecanismo atual. Não usar nome, igualdade de Func ou execução
+do callback para classificar. Aliases reais são aceitos, With/closures/homônimos
+com outro callback continuam rejeitados. where valida nomes sem cast de valores.
+As validações existentes de locatabilidade produzem sequence is not locatable
+para query/counter diretos e filtrados; preservar composição e spans.
+
+### Aceitação e limites
+
+Esta seção completa a responsabilidade R2 nomeada no L0 de R1. Corrigir
+continuamente tabelas/composição/callback interno, sem novos campos/traits/
+assinaturas Rust externas, modo padrão, fase ou quebra de compatibilidade.
+L0 antes de teste e código, RED funcional, GREEN e corpus bilateral. Não
+certificar guardas globais de show, todos os casts/elementos, nem paridade
+universal de render. Qualquer refutador residual deve permanecer no relatório
+e ganhar owner/L0 antes de intervenção, sem mudar testes para esconder o caso.
+
+Validar build/workspace/doctests em invocação separada, Clippy/Rustdoc estritos,
+fmt, V1/V5/V15/V26 e reversa, SARIF diferencial sem erro/warning novo. V19 pode
+registrar agrupamento nominal prescrito sem supressão, testando alternativas.
+Heavy jobs sequenciais, MemoryMax12GiB/High8GiB/swap0/jobs1, debug0/incremental0
+só no ambiente de validação. Resselo após V15/V26 válido e proveniência exata.
