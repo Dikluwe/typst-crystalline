@@ -1,9 +1,10 @@
 # L0 — block
-Hash do Código: 4f168aaa
+Hash do Código: cf8b5eb9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:77c7d31bf3f7276cc9b4d1b2951634724a6d0fb4352a0b45c76e6f3775b512dc
 - 00_nucleo/prompts/_nuclei/layout/block-auto-alignment.toml sha256:ecf965471eedd8599209f0575811dd5b456dce1c43baa26881251e24e8ec6c6d
+- 00_nucleo/prompts/_nuclei/layout/block-inline-region.toml sha256:8d6cb7ee2458f368648c0ea6cfa84386dc506cf7273a16aa42bfbcbfeff05592
 - 00_nucleo/prompts/_nuclei/layout/block-spacing-resolution.toml sha256:2e2f3cfb51bd0c484e65cc9e5c3e1eee9f3dad12c77aa9330674b474e11f3342
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:9d9d6c265a3840cc5a3b8e121f403bc9e3fe55b1e586ab9014948f0784de5c3e
@@ -532,3 +533,69 @@ fonte do corpo, valores, API, fases nem flags. Terminal sem próximo conteúdo
 não materializa margem. Revalidar controles de zero/explícito, consecutivos,
 fracionários, nested e suíte inteira; isto não certifica toda força de margem
 em todos os containers.
+
+## A2 — prefixo admitido e região inline de Block (2026-10-18)
+
+### Medição anterior à decisão — admissão e continuação
+
+pagination-block.json.gz e block-freeze.json.gz em
+00_nucleo/diagnosticos/bibliography-structure-2026-10-18 preservam estado completo,
+UTC/HEAD/fontes/binários/argv e caixas do candidato Block/Place c1c222ae54ab3b67487471326012a7f6c4ed86c1e6bd61b1830ec6a987c2ccea.
+Em IEEE/200×90pt ele recupera duas páginas, mas a continuação começa em x8
+contra29.924 no oracle bd5ebec285505889e8ff1d4f68804ab147a699f3 (binário
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9).
+region_progress.rs:75–76 reinstala a margem física ao transitar, descartando o
+inset ativo. O teste corrigido para70pt também mostrou prefixo na primeira
+página e corpo admitido na segunda: paragraph_pagination.rs:87–105 pode adiar
+o corpo para respeitar widow/orphan depois que o Place já foi emitido.
+
+A exigência inicial de FIRSTWORD sempre na primeira página da fixture FixedMetrics
+não é o contrato correto: group_size em paragraph_pagination.rs:69 pode manter
+três linhas juntas. Substituir esse critério pelo prefixo acompanhar a página
+real da primeira linha; preservar o RED PDF90/duas páginas e a distinção entre
+coluna estável e estratégia de quebra. Não forçar greedy nem desabilitar
+widow/orphan para satisfazer um assert. Posições geométricas, conteúdo e agrupamento
+são observáveis da língua; slots/representação são mecânica privada.
+
+Correção interna ADR-0127 dentro do layout, sem assinatura/campo/trait público,
+flag/default novo, compatibilidade ou execução eval/show. A primeira tinta do
+prefixo continua antes da primeira tinta do corpo, após a admissão física do
+parágrafo. Não é nova ordem de realização de show nem transferência de fase.
+A hipótese é refutável por prefixo órfão, recuo perdido, emissão dupla, efeitos
+novos, estratégia alterada ou regressão dos controles de Block/columns/subframe.
+
+### Responsabilidade exclusiva
+
+Definir contexto Copy privado InlineRegion com offset horizontal relativo ao início da página/coluna exterior e largura interna. Instalar ao entrar no body depois de resolver inset e dimensões; restaurar em LIFO depois do body. Expor apenas helper descendente que reinstala a geometria horizontal na região atual a partir do contexto, ou da região externa natural quando ausente. A mesma região conserva saved_line_start/saved_width. Após mudança de região, restaurar o contexto do pai e a geometria atual desse pai; não copiar origem/limites da região encerrada nem alterar altura. O contexto não transfere inset vertical, pintura ou dimensões de outra fase.
+
+Aceitação: RED→GREEN de prefixo/corpo na mesma página e inset nas continuações, inclusive saída para OUTSIDE, simple/optimized e controles existentes. Medir PDF90/150/250, RTL, prefix-only/formatado, cores e regressões; build, suites/doctests/Clippy/Rustdoc/fmt/linhagem/reversa/diferencial Tekt. MemoryMax12GiB/High8GiB/swap0/jobs1; sem publicação. Hanging genérico/overrides e múltiplas bibliografias continuam frentes abertas.
+
+## A2 — preparação do parágrafo próprio de Block (2026-10-18)
+
+### Medição anterior à decisão
+
+A auditoria estrita complete-audit.log da primeira tentativa em
+00_nucleo/diagnosticos/bibliography-structure-2026-10-18 parou em ieee-none-size.
+attempt1-artifacts.tar.gz e admission-sources.json.gz conservam recibos e estado
+exato do HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c/working tree não
+commitado, fontes/L0s, binários, UTC/argv/textos/caixas. No PDF18pt, Tekt põe
+2020 em x155.654/y173.576 e o ponto sozinho em x40.886/y197.12; oracle pinado
+bd5ebec285505889e8ff1d4f68804ab147a699f3 põe 2020. unido em x40.886/y197.120014.
+O cache-shape.txt extraído pela API pública mostra Text(2020) adjacente a Text(.),
+sem espaço/quebra causal; o body inteiro é elegível à preparação latina.
+sequence.rs:46–58 suprime tentativas dos filhos depois de recusa do fluxo
+exterior (que contém Bibliography). Block não reinicia essa supressão ao abrir
+seu corpo independente. Isso deixa as folhas incrementais quebrarem antes do
+ponto, embora paragraph_prepare.rs:158–183 já preserve sua adjacência.
+
+### Responsabilidade exclusiva
+
+Salvar paragraph_planning_suppressed e reinstalá-lo false somente durante o
+corpo do Block, restaurando em LIFO após sua emissão/fechamento. Block constitui
+um novo fluxo próprio; a recusa de preparar a sequência exterior não recusa o
+parágrafo interno. Preservar direção/estilos/tracking e backend/configuração
+existentes; não habilitar preparação parcial de Styled/filhos no mesmo fluxo
+recusado, não forçar greedy/optimized e não modificar caracteres CSL. Sem API,
+fase ou flag nova, correção interna ADR-0127. RED de tokens adjacentes em Block
+sob sequência exterior, corpo com estilos/mais de uma linha, restauração de
+estado e demais controles. Repetir PDF18, corpus e validação completa sob12GiB.

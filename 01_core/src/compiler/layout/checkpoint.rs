@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/checkpoint.md
-//! @prompt-hash 82f99fa1
+//! @prompt-hash 926ea8d4
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -73,6 +73,9 @@ pub(in crate::compiler) struct FlowSuffixCheckpoint {
     attachments_len: usize,
     artifact_marker_id: u64,
     bib_render_cache: Option<crate::compiler::layout::bib_csl::BibRenderCache>,
+    bib_layout: Option<std::sync::Arc<super::bib_csl::plan::BibliographyPlan>>,
+    pending_bib_prefix: Option<super::bibliography::PendingPrefix>,
+    block_inline_region: Option<super::block::InlineRegion>,
     smallcaps: bool,
     paragraph_planning_suppressed: bool,
     bidi_scope_active: bool,
@@ -230,6 +233,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             attachments_len: self.attachments.len(),
             artifact_marker_id: self.artifact_marker_id,
             bib_render_cache: self.bib_render_cache.clone(),
+            bib_layout: self.bib_layout.clone(),
+            pending_bib_prefix: self.pending_bib_prefix.clone(),
+            block_inline_region: self.block_inline_region,
             smallcaps: self.smallcaps,
             paragraph_planning_suppressed: self.paragraph_planning_suppressed,
             bidi_scope_active: self.bidi_scope_active,
@@ -360,6 +366,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.attachments.truncate(checkpoint.attachments_len);
         self.artifact_marker_id = checkpoint.artifact_marker_id;
         self.bib_render_cache = checkpoint.bib_render_cache;
+        self.bib_layout = checkpoint.bib_layout;
+        self.pending_bib_prefix = checkpoint.pending_bib_prefix;
+        self.block_inline_region = checkpoint.block_inline_region;
         self.smallcaps = checkpoint.smallcaps;
         self.paragraph_planning_suppressed = checkpoint.paragraph_planning_suppressed;
         self.bidi_scope_active = checkpoint.bidi_scope_active;

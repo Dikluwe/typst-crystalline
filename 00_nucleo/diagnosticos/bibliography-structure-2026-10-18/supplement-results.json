@@ -1,0 +1,37 @@
+[
+  {
+    "label": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--workspace"
+    ],
+    "start": "2026-10-18T08:03:10.696751+00:00",
+    "end": "2026-10-18T08:03:45.235561+00:00",
+    "exit": 0
+  },
+  {
+    "label": "lint-diff",
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/lint-diff.py",
+      "final-architecture.log"
+    ],
+    "start": "2026-10-18T08:03:45.235832+00:00",
+    "end": "2026-10-18T08:03:45.324380+00:00",
+    "exit": 0
+  },
+  {
+    "label": "diff",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "start": "2026-10-18T08:03:45.324650+00:00",
+    "end": "2026-10-18T08:03:45.424545+00:00",
+    "exit": 0
+  }
+]

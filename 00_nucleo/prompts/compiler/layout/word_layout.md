@@ -1,7 +1,8 @@
 # L0 — word_layout
-Hash do Código: 39bbe89f
+Hash do Código: ca7b5333
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml sha256:64d61513bab0293f918958404cf4fe0387dea84cc53f5442faad2b467fa4e077
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:7b8a61eaafc8a07df12218f8f0560c33fae5c36f621b822b7350ccefc9774711
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:08c39c6b9cf6fdc571564646d12d71f9b12f2a5d2c029ca90f9253c39c28bb95
 - 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:3b0c535436048536ecd3133fcf8299e88c128a62c222661f36b7bcc6d98a598c
@@ -133,3 +134,39 @@ Nenhum novo algoritmo de hifenização, API pública ou fase do pipeline. Preser
 tracking e os controles de palavra longa, exact-fit, chunks e região ilimitada.
 
 Word/chunk passam regions.current.line_start_x ao seletor puro, não a margem física.
+
+## A2 — prefixo admitido e região inline de Block (2026-10-18)
+
+### Medição anterior à decisão — admissão e continuação
+
+pagination-block.json.gz e block-freeze.json.gz em
+00_nucleo/diagnosticos/bibliography-structure-2026-10-18 preservam estado completo,
+UTC/HEAD/fontes/binários/argv e caixas do candidato Block/Place c1c222ae54ab3b67487471326012a7f6c4ed86c1e6bd61b1830ec6a987c2ccea.
+Em IEEE/200×90pt ele recupera duas páginas, mas a continuação começa em x8
+contra29.924 no oracle bd5ebec285505889e8ff1d4f68804ab147a699f3 (binário
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9).
+region_progress.rs:75–76 reinstala a margem física ao transitar, descartando o
+inset ativo. O teste corrigido para70pt também mostrou prefixo na primeira
+página e corpo admitido na segunda: paragraph_pagination.rs:87–105 pode adiar
+o corpo para respeitar widow/orphan depois que o Place já foi emitido.
+
+A exigência inicial de FIRSTWORD sempre na primeira página da fixture FixedMetrics
+não é o contrato correto: group_size em paragraph_pagination.rs:69 pode manter
+três linhas juntas. Substituir esse critério pelo prefixo acompanhar a página
+real da primeira linha; preservar o RED PDF90/duas páginas e a distinção entre
+coluna estável e estratégia de quebra. Não forçar greedy nem desabilitar
+widow/orphan para satisfazer um assert. Posições geométricas, conteúdo e agrupamento
+são observáveis da língua; slots/representação são mecânica privada.
+
+Correção interna ADR-0127 dentro do layout, sem assinatura/campo/trait público,
+flag/default novo, compatibilidade ou execução eval/show. A primeira tinta do
+prefixo continua antes da primeira tinta do corpo, após a admissão física do
+parágrafo. Não é nova ordem de realização de show nem transferência de fase.
+A hipótese é refutável por prefixo órfão, recuo perdido, emissão dupla, efeitos
+novos, estratégia alterada ou regressão dos controles de Block/columns/subframe.
+
+### Responsabilidade exclusiva
+
+No produtor privado push_text, depois da admissão da baseline feita por word/chunk/prepared e antes de highlight e folha, pedir a emissão do prefixo pendente ao owner bibliography. Ausência é no-op; prefixo é tomado antes de emissão recursiva. Não mover a chamada para ensure_initial_baseline/paragraph_pagination, que também preparam geometria antes da decisão de página.
+
+Aceitação: RED→GREEN de prefixo/corpo na mesma página e inset nas continuações, inclusive saída para OUTSIDE, simple/optimized e controles existentes. Medir PDF90/150/250, RTL, prefix-only/formatado, cores e regressões; build, suites/doctests/Clippy/Rustdoc/fmt/linhagem/reversa/diferencial Tekt. MemoryMax12GiB/High8GiB/swap0/jobs1; sem publicação. Hanging genérico/overrides e múltiplas bibliografias continuam frentes abertas.

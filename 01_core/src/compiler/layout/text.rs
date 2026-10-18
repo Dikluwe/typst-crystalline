@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/text.md
-//! @prompt-hash 4467923a
+//! @prompt-hash 3b8b6be0
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -33,6 +33,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let effective = effective_style(layouter);
         let prev_style = std::mem::replace(&mut layouter.style, effective);
         super::text_baseline::admit(layouter);
+        super::bibliography::emit_pending_prefix(layouter);
         layouter.regions.current.current_line.push(
             crate::entities::layout_types::FrameItem::Text {
                 pos: crate::entities::layout_types::Point {

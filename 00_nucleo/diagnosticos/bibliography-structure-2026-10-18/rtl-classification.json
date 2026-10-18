@@ -1,0 +1,15 @@
+{
+  "utc": "2026-10-18T07:43:27.658881+00:00",
+  "evidence": "rtl-visual-provenance.json + evidence/rtl-{baseline,tekt,vanilla}.png",
+  "visual_review": true,
+  "scope": "Only the observed Latin references under explicit RTL in this pinned probe; not general bidi certification.",
+  "brackets": {
+    "observation": "All three rendered images show visible [1] and [2] with the same bracket shapes. pdftotext yields [1] in Tekt and ]1[ in vanilla.",
+    "classification": "Extraction/logical ordering difference in this probe, not evidence of a visible bracket defect; do not change glyphs merely to equalize pdftotext."
+  },
+  "period": {
+    "observation": "At the end of reference lines, both baseline and final Tekt keep the period after 2020/2021; the pinned vanilla displays it at the opposite edge before Press/Entry.",
+    "classification": "A real visible difference already present in the baseline. Remains open for classification against the direction contract and adversarial controls; do not infer intent or automatically copy it as an upstream requirement."
+  },
+  "next_action_changed": "Remove apparent bracket-shape defect from correction targets; keep the punctuation/direction observation separate from extraction mechanics."
+}

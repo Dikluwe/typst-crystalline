@@ -1,0 +1,229 @@
+[
+  {
+    "label": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--workspace"
+    ],
+    "start": "2026-10-18T07:37:24.646089+00:00",
+    "end": "2026-10-18T07:37:59.051099+00:00",
+    "exit": 0
+  },
+  {
+    "label": "probe",
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/probe.py",
+      "after"
+    ],
+    "start": "2026-10-18T07:37:59.051420+00:00",
+    "end": "2026-10-18T07:38:14.966802+00:00",
+    "exit": 0
+  },
+  {
+    "label": "pagination",
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/pagination.py",
+      "pagination-after"
+    ],
+    "start": "2026-10-18T07:38:14.967097+00:00",
+    "end": "2026-10-18T07:38:23.062352+00:00",
+    "exit": 0
+  },
+  {
+    "label": "extra",
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/extra.py",
+      "extra-after"
+    ],
+    "start": "2026-10-18T07:38:23.062689+00:00",
+    "end": "2026-10-18T07:38:27.594119+00:00",
+    "exit": 0
+  },
+  {
+    "label": "legacy",
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/legacy-controls.py",
+      "legacy-after"
+    ],
+    "start": "2026-10-18T07:38:27.594521+00:00",
+    "end": "2026-10-18T07:39:25.637164+00:00",
+    "exit": 0
+  },
+  {
+    "label": "textual",
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/textual-controls.py",
+      "textual-controls-after"
+    ],
+    "start": "2026-10-18T07:39:25.637549+00:00",
+    "end": "2026-10-18T07:39:54.208457+00:00",
+    "exit": 0
+  },
+  {
+    "label": "custom",
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/custom-csl.py",
+      "custom-after"
+    ],
+    "start": "2026-10-18T07:39:54.208897+00:00",
+    "end": "2026-10-18T07:40:02.064640+00:00",
+    "exit": 0
+  },
+  {
+    "label": "colors",
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/colors.py",
+      "colors-after"
+    ],
+    "start": "2026-10-18T07:40:02.064995+00:00",
+    "end": "2026-10-18T07:40:06.540791+00:00",
+    "exit": 0
+  },
+  {
+    "label": "audit",
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/audit.py"
+    ],
+    "start": "2026-10-18T07:40:06.541167+00:00",
+    "end": "2026-10-18T07:40:06.597438+00:00",
+    "exit": 0
+  },
+  {
+    "label": "clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--offline",
+      "--locked",
+      "--workspace",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings",
+      "-D",
+      "unfulfilled_lint_expectations"
+    ],
+    "start": "2026-10-18T07:40:06.597838+00:00",
+    "end": "2026-10-18T07:41:25.582371+00:00",
+    "exit": 0
+  },
+  {
+    "label": "workspace",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "--workspace",
+      "--lib",
+      "--bins",
+      "--tests",
+      "--no-fail-fast",
+      "--",
+      "--test-threads=1"
+    ],
+    "start": "2026-10-18T07:41:25.582990+00:00",
+    "end": "2026-10-18T07:47:57.053093+00:00",
+    "exit": 0
+  },
+  {
+    "label": "doctest",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "--workspace",
+      "--doc",
+      "--no-fail-fast",
+      "--",
+      "--test-threads=1"
+    ],
+    "start": "2026-10-18T07:47:57.053844+00:00",
+    "end": "2026-10-18T07:49:46.609723+00:00",
+    "exit": 0
+  },
+  {
+    "label": "rustdoc",
+    "command": [
+      "cargo",
+      "doc",
+      "--offline",
+      "--locked",
+      "--workspace",
+      "--no-deps"
+    ],
+    "start": "2026-10-18T07:49:46.610165+00:00",
+    "end": "2026-10-18T07:51:12.004931+00:00",
+    "exit": 0
+  },
+  {
+    "label": "fmt",
+    "command": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--check"
+    ],
+    "start": "2026-10-18T07:51:12.133790+00:00",
+    "end": "2026-10-18T07:51:17.151417+00:00",
+    "exit": 0
+  },
+  {
+    "label": "lineage",
+    "command": [
+      "crystalline-lint",
+      ".",
+      "--checks",
+      "v1,v5,v15,v26",
+      "--fail-on",
+      "warning"
+    ],
+    "start": "2026-10-18T07:51:17.151933+00:00",
+    "end": "2026-10-18T07:51:22.368747+00:00",
+    "exit": 0
+  },
+  {
+    "label": "reverse",
+    "command": [
+      "python3",
+      "tools/ci/check_reverse_lineage.py"
+    ],
+    "start": "2026-10-18T07:51:22.369277+00:00",
+    "end": "2026-10-18T07:51:22.800989+00:00",
+    "exit": 0
+  },
+  {
+    "label": "architecture",
+    "command": [
+      "crystalline-lint",
+      ".",
+      "--format",
+      "sarif"
+    ],
+    "start": "2026-10-18T07:51:22.801498+00:00",
+    "end": "2026-10-18T07:51:28.581490+00:00",
+    "exit": 1
+  },
+  {
+    "label": "lint-diff",
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/lint-diff.py"
+    ],
+    "start": "2026-10-18T07:51:28.581982+00:00",
+    "end": "2026-10-18T07:51:28.748416+00:00",
+    "exit": 1
+  }
+]

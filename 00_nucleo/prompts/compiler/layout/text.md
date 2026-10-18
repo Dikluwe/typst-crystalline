@@ -1,7 +1,8 @@
 # L0 — text
-Hash do Código: 5a2bf937
+Hash do Código: c7439e33
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml sha256:64d61513bab0293f918958404cf4fe0387dea84cc53f5442faad2b467fa4e077
 - 00_nucleo/prompts/_nuclei/layout/element-form-b.toml sha256:6dbf8faa56960845c60734f5e047685ec5b3a6f14c0ce3a48d333b8982d0baa5
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
@@ -84,3 +85,39 @@ Medição anterior à decisão: `00_nucleo/diagnosticos/bidi-contexto-2026-10-05
 Esta unidade participa do transporte por Cursor privado, input Arc e spans exatos. Preparar antes de emitir o parágrafo textual inteiro, base lexical já certificada; conservar offsets por ordem de visita, não matching de strings. Sequence/Par criam escopo, nested Sequence herda; checkpoint conserva cursor e span corrente; subframe isola e restaura. Text fornece subspans para palavras e espaços literais; Space consome seu segmento mesmo quando fraco; Linebreak consome fronteira. Word emite span somente se texto exato não foi transformado.
 
 Escopo inicial: incremental simple, fora de células/colunas/subframes, sem tracking/hifenização/justificação/smallcaps, Text sem newline/tab/segmentação linguística. Região recusada tem None. Preparação global anterior permanece para parágrafos que não precisam do contexto bidi; para o subconjunto certificado com base RTL ou caracteres RTL/override oposto, encaminhar pelo incremental sem mudar os breaks permitidos. Não interferir em optimized explicitamente escolhido. O owner privado bidi_origin prepara/valida; esta unidade só coordena o seu papel. Testes de origem por ocorrências, UTF8, restauração e parbreak; validação bilateral de wraps.
+
+## A2 — prefixo admitido e região inline de Block (2026-10-18)
+
+### Medição anterior à decisão — admissão e continuação
+
+pagination-block.json.gz e block-freeze.json.gz em
+00_nucleo/diagnosticos/bibliography-structure-2026-10-18 preservam estado completo,
+UTC/HEAD/fontes/binários/argv e caixas do candidato Block/Place c1c222ae54ab3b67487471326012a7f6c4ed86c1e6bd61b1830ec6a987c2ccea.
+Em IEEE/200×90pt ele recupera duas páginas, mas a continuação começa em x8
+contra29.924 no oracle bd5ebec285505889e8ff1d4f68804ab147a699f3 (binário
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9).
+region_progress.rs:75–76 reinstala a margem física ao transitar, descartando o
+inset ativo. O teste corrigido para70pt também mostrou prefixo na primeira
+página e corpo admitido na segunda: paragraph_pagination.rs:87–105 pode adiar
+o corpo para respeitar widow/orphan depois que o Place já foi emitido.
+
+A exigência inicial de FIRSTWORD sempre na primeira página da fixture FixedMetrics
+não é o contrato correto: group_size em paragraph_pagination.rs:69 pode manter
+três linhas juntas. Substituir esse critério pelo prefixo acompanhar a página
+real da primeira linha; preservar o RED PDF90/duas páginas e a distinção entre
+coluna estável e estratégia de quebra. Não forçar greedy nem desabilitar
+widow/orphan para satisfazer um assert. Posições geométricas, conteúdo e agrupamento
+são observáveis da língua; slots/representação são mecânica privada.
+
+Correção interna ADR-0127 dentro do layout, sem assinatura/campo/trait público,
+flag/default novo, compatibilidade ou execução eval/show. A primeira tinta do
+prefixo continua antes da primeira tinta do corpo, após a admissão física do
+parágrafo. Não é nova ordem de realização de show nem transferência de fase.
+A hipótese é refutável por prefixo órfão, recuo perdido, emissão dupla, efeitos
+novos, estratégia alterada ou regressão dos controles de Block/columns/subframe.
+
+### Responsabilidade exclusiva
+
+No caminho de Text vazio que emite uma folha diretamente, consumir o prefixo pendente após text_baseline::admit e antes da folha. Texto não vazio continua usando word_layout; nenhuma chamada adicional à preparação/avaliação.
+
+Aceitação: RED→GREEN de prefixo/corpo na mesma página e inset nas continuações, inclusive saída para OUTSIDE, simple/optimized e controles existentes. Medir PDF90/150/250, RTL, prefix-only/formatado, cores e regressões; build, suites/doctests/Clippy/Rustdoc/fmt/linhagem/reversa/diferencial Tekt. MemoryMax12GiB/High8GiB/swap0/jobs1; sem publicação. Hanging genérico/overrides e múltiplas bibliografias continuam frentes abertas.

@@ -1,0 +1,519 @@
+{
+  "utc": "2026-10-18T07:59:54.591311+00:00",
+  "sources_unchanged_during_each_cohort": true,
+  "production_unchanged_after_broad": true,
+  "broad_freeze": "complete-freeze.json.gz",
+  "final_freeze": "final-freeze.json.gz",
+  "equivalence": "production-equivalence.json",
+  "broad_results": "broad-results.json",
+  "final_results": "final-gates-results.json",
+  "suite": [
+    {
+      "status": "ok",
+      "passed": 7287,
+      "failed": 0,
+      "ignored": 5
+    },
+    {
+      "status": "ok",
+      "passed": 8,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 1349,
+      "failed": 0,
+      "ignored": 2
+    },
+    {
+      "status": "ok",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 6,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 7,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 4,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 4,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 4,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 5,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 99,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 10,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 126,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 2,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 4,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 2,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 5,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 11,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 10,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 7,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 7,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 4,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 4,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 10,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 12,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "status": "ok",
+      "passed": 10,
+      "failed": 0,
+      "ignored": 0
+    }
+  ],
+  "passed": 9005,
+  "failed": 0,
+  "ignored": 7,
+  "results": [
+    {
+      "label": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--offline",
+        "--locked",
+        "--workspace"
+      ],
+      "start": "2026-10-18T07:37:24.646089+00:00",
+      "end": "2026-10-18T07:37:59.051099+00:00",
+      "exit": 0,
+      "cohort": "broad"
+    },
+    {
+      "label": "probe",
+      "command": [
+        "python3",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/probe.py",
+        "after"
+      ],
+      "start": "2026-10-18T07:37:59.051420+00:00",
+      "end": "2026-10-18T07:38:14.966802+00:00",
+      "exit": 0,
+      "cohort": "broad"
+    },
+    {
+      "label": "pagination",
+      "command": [
+        "python3",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/pagination.py",
+        "pagination-after"
+      ],
+      "start": "2026-10-18T07:38:14.967097+00:00",
+      "end": "2026-10-18T07:38:23.062352+00:00",
+      "exit": 0,
+      "cohort": "broad"
+    },
+    {
+      "label": "extra",
+      "command": [
+        "python3",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/extra.py",
+        "extra-after"
+      ],
+      "start": "2026-10-18T07:38:23.062689+00:00",
+      "end": "2026-10-18T07:38:27.594119+00:00",
+      "exit": 0,
+      "cohort": "broad"
+    },
+    {
+      "label": "legacy",
+      "command": [
+        "python3",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/legacy-controls.py",
+        "legacy-after"
+      ],
+      "start": "2026-10-18T07:38:27.594521+00:00",
+      "end": "2026-10-18T07:39:25.637164+00:00",
+      "exit": 0,
+      "cohort": "broad"
+    },
+    {
+      "label": "textual",
+      "command": [
+        "python3",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/textual-controls.py",
+        "textual-controls-after"
+      ],
+      "start": "2026-10-18T07:39:25.637549+00:00",
+      "end": "2026-10-18T07:39:54.208457+00:00",
+      "exit": 0,
+      "cohort": "broad"
+    },
+    {
+      "label": "custom",
+      "command": [
+        "python3",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/custom-csl.py",
+        "custom-after"
+      ],
+      "start": "2026-10-18T07:39:54.208897+00:00",
+      "end": "2026-10-18T07:40:02.064640+00:00",
+      "exit": 0,
+      "cohort": "broad"
+    },
+    {
+      "label": "colors",
+      "command": [
+        "python3",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/colors.py",
+        "colors-after"
+      ],
+      "start": "2026-10-18T07:40:02.064995+00:00",
+      "end": "2026-10-18T07:40:06.540791+00:00",
+      "exit": 0,
+      "cohort": "broad"
+    },
+    {
+      "label": "audit",
+      "command": [
+        "python3",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/audit.py"
+      ],
+      "start": "2026-10-18T07:40:06.541167+00:00",
+      "end": "2026-10-18T07:40:06.597438+00:00",
+      "exit": 0,
+      "cohort": "broad"
+    },
+    {
+      "label": "workspace",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--workspace",
+        "--lib",
+        "--bins",
+        "--tests",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "start": "2026-10-18T07:41:25.582990+00:00",
+      "end": "2026-10-18T07:47:57.053093+00:00",
+      "exit": 0,
+      "cohort": "broad"
+    },
+    {
+      "label": "doctest",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--workspace",
+        "--doc",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "start": "2026-10-18T07:47:57.053844+00:00",
+      "end": "2026-10-18T07:49:46.609723+00:00",
+      "exit": 0,
+      "cohort": "broad"
+    },
+    {
+      "label": "rustdoc",
+      "command": [
+        "cargo",
+        "doc",
+        "--offline",
+        "--locked",
+        "--workspace",
+        "--no-deps"
+      ],
+      "start": "2026-10-18T07:49:46.610165+00:00",
+      "end": "2026-10-18T07:51:12.004931+00:00",
+      "exit": 0,
+      "cohort": "broad"
+    },
+    {
+      "label": "seal",
+      "command": [
+        "python3",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/seal.py"
+      ],
+      "start": "2026-10-18T07:56:39.200974+00:00",
+      "end": "2026-10-18T07:57:01.145085+00:00",
+      "exit": 0,
+      "cohort": "final-fixtures"
+    },
+    {
+      "label": "focused",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "typst-core",
+        "--lib",
+        "a2_",
+        "--",
+        "--test-threads=1"
+      ],
+      "start": "2026-10-18T07:57:01.700595+00:00",
+      "end": "2026-10-18T07:58:23.648069+00:00",
+      "exit": 0,
+      "cohort": "final-fixtures"
+    },
+    {
+      "label": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings",
+        "-D",
+        "unfulfilled_lint_expectations"
+      ],
+      "start": "2026-10-18T07:58:23.648374+00:00",
+      "end": "2026-10-18T07:59:39.129552+00:00",
+      "exit": 0,
+      "cohort": "final-fixtures"
+    },
+    {
+      "label": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "start": "2026-10-18T07:59:39.129858+00:00",
+      "end": "2026-10-18T07:59:42.898643+00:00",
+      "exit": 0,
+      "cohort": "final-fixtures"
+    },
+    {
+      "label": "lineage",
+      "command": [
+        "crystalline-lint",
+        ".",
+        "--checks",
+        "v1,v5,v15,v26",
+        "--fail-on",
+        "warning"
+      ],
+      "start": "2026-10-18T07:59:42.899044+00:00",
+      "end": "2026-10-18T07:59:47.927642+00:00",
+      "exit": 0,
+      "cohort": "final-fixtures"
+    },
+    {
+      "label": "reverse",
+      "command": [
+        "python3",
+        "tools/ci/check_reverse_lineage.py"
+      ],
+      "start": "2026-10-18T07:59:47.928027+00:00",
+      "end": "2026-10-18T07:59:48.373306+00:00",
+      "exit": 0,
+      "cohort": "final-fixtures"
+    },
+    {
+      "label": "architecture",
+      "command": [
+        "crystalline-lint",
+        ".",
+        "--format",
+        "sarif"
+      ],
+      "start": "2026-10-18T07:59:48.373683+00:00",
+      "end": "2026-10-18T07:59:54.330902+00:00",
+      "exit": 1,
+      "cohort": "final-fixtures"
+    },
+    {
+      "label": "lint-diff",
+      "command": [
+        "python3",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/lint-diff.py"
+      ],
+      "start": "2026-10-18T07:59:54.331307+00:00",
+      "end": "2026-10-18T07:59:54.416142+00:00",
+      "exit": 0,
+      "cohort": "final-fixtures"
+    },
+    {
+      "label": "diff",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "start": "2026-10-18T07:59:54.416558+00:00",
+      "end": "2026-10-18T07:59:54.514475+00:00",
+      "exit": 0,
+      "cohort": "final-fixtures"
+    },
+    {
+      "label": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--offline",
+        "--locked",
+        "--workspace"
+      ],
+      "start": "2026-10-18T08:03:10.696751+00:00",
+      "end": "2026-10-18T08:03:45.235561+00:00",
+      "exit": 0,
+      "cohort": "final-build-supplement"
+    },
+    {
+      "label": "lint-diff",
+      "command": [
+        "python3",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/lint-diff.py",
+        "final-architecture.log"
+      ],
+      "start": "2026-10-18T08:03:45.235832+00:00",
+      "end": "2026-10-18T08:03:45.324380+00:00",
+      "exit": 0,
+      "cohort": "final-build-supplement"
+    },
+    {
+      "label": "diff",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "start": "2026-10-18T08:03:45.324650+00:00",
+      "end": "2026-10-18T08:03:45.424545+00:00",
+      "exit": 0,
+      "cohort": "final-build-supplement"
+    }
+  ],
+  "binary_sha256": "8c355c1208e0c2eb98ceeae0e4bbf37387ff20b30643d8f34d28c47c97ec4471",
+  "binary_before_supplement_sha256": "8c355c1208e0c2eb98ceeae0e4bbf37387ff20b30643d8f34d28c47c97ec4471",
+  "supplement_results": "supplement-results.json"
+}

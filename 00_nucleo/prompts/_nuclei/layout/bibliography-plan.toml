@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "bibliography-plan"
+title = "Plano privado de entradas bibliográficas"
+
+[[claims]]
+id = "ordered-entries"
+level = "must"
+statement = "Preservar ordem e fronteiras das entradas, prefixo opcional e corpo Content do CSL. Prefixo em qualquer entrada seleciona colunas para a lista; sem prefixos, distinguir hanging e plain pela indicação do CSL. Não inferir prefixos analisando texto já concatenado."
+
+[[claims]]
+id = "private-transport"
+level = "must"
+statement = "O plano é privado ao layout, imutável e compartilhado por Arc entre tentativas e checkpoints; rollback conserva integralmente o plano. Não adicionar campos a BibRenderCache nem mudar assinaturas públicas. Não executar callbacks, nova introspecção ou outra passagem CSL para reconstruir fronteiras."
+
+[[claims]]
+id = "language-not-mechanics"
+level = "must"
+statement = "Cache público conserva sua composição Content anterior. O consumidor físico usa fronteiras tipadas e containers existentes sem acrescentar ocorrências semânticas de Grid/Block/Place ou Location artificial. Estado temporariamente incompleto de hanging precisa permanecer explícito nos L0s e nos resultados, sem ser certificado por melhora das colunas."

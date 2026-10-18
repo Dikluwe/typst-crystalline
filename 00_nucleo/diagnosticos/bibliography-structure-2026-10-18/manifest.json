@@ -1,0 +1,3717 @@
+{
+  "utc": "2026-10-18T08:04:11.788313+00:00",
+  "scope": "A2 structure/columns/admission/continuation complete; hanging/multi and full objective remain open",
+  "head": "b1b486f3d42431f8ea360bc5712637ee1e3d4f6c",
+  "files": [
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/.gitignore",
+      "sha256": "92d7e8d7d8d144693e62f8045b9c20bde78a09ce32bbcfd354a84e75c896ca6c",
+      "bytes": 104
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/admission-prescribed.json",
+      "sha256": "626ed67fc4cb95843a7ca13afe90bb3ab331d34d0c8f304aba41408a6359e67b",
+      "bytes": 546
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/admission-sources.json.gz",
+      "sha256": "277cb1f78c912e6cb48f3fe3437edd0e2bfdbe9c76ab474d4726a8c08291d9ca",
+      "bytes": 5390258
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/after-grid.json.gz",
+      "sha256": "ef7164f0bdb03a7174ed685832e30a6d5cc557a6bb8b52ce7b5157b0427fdd7f",
+      "bytes": 19454
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/after-sources.json.gz",
+      "sha256": "ae5d80af50ad0a821dbcd5e65ef27873e220bc0ae55453164a6425507bcb65d1",
+      "bytes": 5392391
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/after.json.gz",
+      "sha256": "875e19b9c4aff0d5d32cfa06865d08ff692ea17a316becdefc1c5afe2b18c7d7",
+      "bytes": 19923
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/archive-grid.py",
+      "sha256": "182b40d37acac6c51e1b202534cf2ca43f6d6e1bb7f38cc7840aeef20c828f68",
+      "bytes": 2750
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/attempt1-artifacts.tar.gz",
+      "sha256": "2f8a240bb32ef05971cb2ea4ff82e35e64132eedf2e8d52a1c2726d3bbfcd73b",
+      "bytes": 2130089
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/audit.json.gz",
+      "sha256": "0c56e289dff3ee145f4f5af19bbb26117f47d0dc5aee35958acedb496684dc0d",
+      "bytes": 1168
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/audit.py",
+      "sha256": "38db9f916289e495511be72825a2ddb6393329423ae6292ed145bc7a897a5e23",
+      "bytes": 5166
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/before-artifacts.tar.gz",
+      "sha256": "8c748375312455f338d2c4ba66d15c97433e2d7ad7710cb5b782d1a7c1b3b27c",
+      "bytes": 295127
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/before-sources.json.gz",
+      "sha256": "8370c2f8d37b251a126b96c5f1a84cecec4b9869b6458658391cd22f43881884",
+      "bytes": 5266770
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/before.json.gz",
+      "sha256": "e47a5741dd142adde0cf6e5bf4a51990e16d1600f0a6f10f7ebb24becd08e29c",
+      "bytes": 20057
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/bin/typst-admission-before",
+      "sha256": "ab3bc661e0f26086826d47be03926051817e3388f0f99143c383e273218beb8c",
+      "bytes": 116800472
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/bin/typst-before",
+      "sha256": "c2b1b2e93cf34f3c597a0a0fbbd51c8f8ac96a3c6bc0a4d9bd72373599acf899",
+      "bytes": 116750208
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/bin/typst-block-before",
+      "sha256": "c1c222ae54ab3b67487471326012a7f6c4ed86c1e6bd61b1830ec6a987c2ccea",
+      "bytes": 116786768
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/bin/typst-grid",
+      "sha256": "7c01fa4a9d183b371af3efcc0ea3952b4ca386969436c7fa6a37aa968c703434",
+      "bytes": 116789568
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/block-adjacent-probe.json",
+      "sha256": "14967fdd665860ce3781969422c9ea5a98c5c4801d90fe6df62d98e2070dda09",
+      "bytes": 9668
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/block-adjacent-width-probe.txt",
+      "sha256": "ef03d62275c1b789d57a8aeedb675afa9f40f8de8dcd9054c0f86fde1d365249",
+      "bytes": 622
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/block-artifacts.tar.gz",
+      "sha256": "a75ddd27c97a86a3c34c047917c69a547241adec82110ead31b20f1000353204",
+      "bytes": 495771
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/block-freeze.json.gz",
+      "sha256": "14a2bde0b52ee990a59a5e9af0eb31e99b883445a011212d21dfbaf0d04616e7",
+      "bytes": 5374370
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/block-measure-resources.json",
+      "sha256": "4409fb0c6233298452b8ea666506ab7bc7c41ebb2700bdf67fc25f0aa6b80d59",
+      "bytes": 8492
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/block-measure.log",
+      "sha256": "52c69714fb3d72a9e9816036d6a188a29ae465fbcfa07cda1d0a8fd78517f191",
+      "bytes": 143
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/block-measure.py",
+      "sha256": "e3548caecf7fb5de158eafd1d85a8ff09ea39fbd4273b9e505e74beafb381583",
+      "bytes": 1219
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/broad-results.json",
+      "sha256": "a3080bd662d8d5505f9e55622406d67ce40b2d1ec679db43dfee666df331c33b",
+      "bytes": 5407
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/broad-suite-sources.json.gz",
+      "sha256": "f0bb51613d11879a3efb3310a7c385f16348541af0e19c861325112c0738db83",
+      "bytes": 5391585
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/build-block.log",
+      "sha256": "8c0473b4571edf78e297ce0d97275267a7ceef9d422afe91939e725979fa24e7",
+      "bytes": 381
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/build-grid.log",
+      "sha256": "2cc216cec84095fffb46cf03e4b9dba69f99e10409e03e366a8507bb08f08ffd",
+      "bytes": 381
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/cache-shape-probe.json",
+      "sha256": "f78988d806179252bcd372293396359a774e6526ea1231776eee75c5d62a5d08",
+      "bytes": 9044
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/cache-shape.txt",
+      "sha256": "1303b8d8915cfcfeceb51915f2113b33831dbc74644d913c77382cb114acec51",
+      "bytes": 781
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/change.patch.gz",
+      "sha256": "8cfee8a5ca3404c3eac5efd1c6877ebe21e3f49eb9507d59ada747495fb3caa8",
+      "bytes": 22787
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/close-resources.json",
+      "sha256": "f4df00ffea64ce70bc586282d6a00ef8722495db6487891451f86feb14e7b9bd",
+      "bytes": 9102
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/close.log",
+      "sha256": "aafeec2d8bc41ce70bb8dca43c6823e8abe6ba5144468ea0f43bb574b53a4616",
+      "bytes": 282
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/close.py",
+      "sha256": "c880e5b5e760767459e617290c957b1a292165f2dea393e032e753bd5b49b2c7",
+      "bytes": 16330
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/colors-after.json.gz",
+      "sha256": "a9b379168a3575b6ce38b9e02277ba7849a2d2094a6809b6208838f013b82ed9",
+      "bytes": 8138
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/colors-audit.json.gz",
+      "sha256": "0a266661dc542db319b3dbc4c5f8d2a45e80caeae0ec3e50c48a812b0ea80af0",
+      "bytes": 680
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/colors.py",
+      "sha256": "2954772f349a612d5533c7ed1b791bf76422061ce00a24e7d73fdf277f180d6d",
+      "bytes": 4195
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-architecture.log",
+      "sha256": "901ce654db03c5aa7df18ffd7585cc4d82948087e528e85edcdc572bce4f591d",
+      "bytes": 3438341
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-audit.log",
+      "sha256": "d61364e236db216e4cd09f74dc560fd3a96e18022fb61a95755eb54de518b25f",
+      "bytes": 1128
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-build.log",
+      "sha256": "12d8be66d2b301baebc88452f23c8c1cc2ba8b56852b0df26a0bd4f91fbf7994",
+      "bytes": 381
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-clippy.log",
+      "sha256": "fd346032a2665721d6a28d0406c62af616a538bef6a07ff3ffa356d80d6abf68",
+      "bytes": 525
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-colors.log",
+      "sha256": "39c54527a83b5a4d8ce2e150be60aa89588f07ca1e07b959573df9c0ef469944",
+      "bytes": 3936
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-custom.log",
+      "sha256": "ac471e7079a90076eb0ec189e2abc267ee6a48234bddbf295837c234f25530bc",
+      "bytes": 2689
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-doctest.log",
+      "sha256": "8f0853a8335ef95766e1732a36172daa309a8679c024035e570efb8e235b6d81",
+      "bytes": 4057
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-extra.log",
+      "sha256": "c45ad7d9185f29d5249faa4f8b2b21eb40e0c506c6b4f4159d81b7d6dd003598",
+      "bytes": 2031
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-freeze.json.gz",
+      "sha256": "5b389704365f575f96b51c8720f376ef900dffd38ece049087a5f0a721cc322a",
+      "bytes": 104862
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-legacy.log",
+      "sha256": "7dfbc5b6d72eb0ae9af87ade1f81870e041e52534d84157c6050f0e4cc9343f8",
+      "bytes": 25836
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-lineage.log",
+      "sha256": "91a6d3da4ea876cf1389727cd10abe41cf117fa0295b588912b258b93118f0ac",
+      "bytes": 24
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-lint-diff.log",
+      "sha256": "4f886d3d03599b1e7e8ac78d8cf46c795831c0161a1f14a91551ae506a6b3a73",
+      "bytes": 1971
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-pagination.log",
+      "sha256": "a5860cc09e6cf361c474dab45b101bf80e4f729e55aae1f7b680079f28337152",
+      "bytes": 2137
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-probe.log",
+      "sha256": "bea58af5df90f04f6e4eea221ff59bde89f0acfb9c30327b221b86fcfe875cdf",
+      "bytes": 7612
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-resources.json",
+      "sha256": "752bd13f42271562eb698a38693a1d26de704eb8d9395509f04767c3bddc7235",
+      "bytes": 9108
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-results.json",
+      "sha256": "a3080bd662d8d5505f9e55622406d67ce40b2d1ec679db43dfee666df331c33b",
+      "bytes": 5407
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-reverse.log",
+      "sha256": "df5fb2982018a00b0cdd908e7b909310421206ddfc81f9f0f85cdacfb748c8e5",
+      "bytes": 41
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-rustdoc.log",
+      "sha256": "97ccfb46b88489f4d91dfa48bde5a0877d726edaca64df6560ed19f536e00e33",
+      "bytes": 2832
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-summary.json",
+      "sha256": "df050751bc480e4147e190222942bf89dacf62e43a921e0c2b242989f1d5d0ae",
+      "bytes": 11732
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-textual.log",
+      "sha256": "4a1e48e35808270d248a483ef1c4a515daa3b62d91993c38b74b68904e66f52c",
+      "bytes": 3229
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete-workspace.log",
+      "sha256": "673b777b8169cdb90997efa3f1c5e4927f3370dacc5ba23ea2e4bfbc16041df9",
+      "bytes": 800159
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete.log",
+      "sha256": "de0d817d9afa4bf30219b5afb64a1565894307b963a9e52747c69a5c204ecab3",
+      "bytes": 2333
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete2-resources.json",
+      "sha256": "3f334c92cd6034fbaba9c2cf8257f00143722d8b0dd699be1093498d1b378cfb",
+      "bytes": 9111
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/complete2.log",
+      "sha256": "b2f55e834f19e8e9931cd370ce59858318d14e40b0dc7927f2f7446254c63d28",
+      "bytes": 4312
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/custom-after.json.gz",
+      "sha256": "5edc5c341b15f6a36dd01e5e78d57abcc0e8d6d6fac230d0d109ac2101430cb5",
+      "bytes": 9581
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/custom-csl.py",
+      "sha256": "a84417622f69c34f1f79e9c78e8707c710aa9f9a94fef3306568e14b41807bb9",
+      "bytes": 3342
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/estado-continuacao.md",
+      "sha256": "b4cebdafe0881b9f22656f416978107a8626d29b324c53a73fce4d25d1eb1fde",
+      "bytes": 7635
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/evidence/rtl-baseline.png",
+      "sha256": "1e18672f01cf208233620ec0d53bcb6b26eb96d2825e1e654576dbd9494167a5",
+      "bytes": 48892
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/evidence/rtl-tekt.png",
+      "sha256": "81a2fd7dff96c72cf2ba0170f6acb33983db646306b040af64bb7372cb22c08e",
+      "bytes": 50789
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/evidence/rtl-vanilla.png",
+      "sha256": "7249632dad3e73992c8a8e673c175ede955015f3584c3f378802beddb423ba6d",
+      "bytes": 51014
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/extra-after.json.gz",
+      "sha256": "19e1c1f309434f96299e1eb31625308902ce73fb45abf7b361ea5fd75da21500",
+      "bytes": 10367
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/extra-before.json.gz",
+      "sha256": "2aa29c06ed0fc06b5cfd37b85185f4c8b9fa891b447c532c07cf0287c1995c30",
+      "bytes": 10475
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/extra-before.log",
+      "sha256": "e80966fcb713484d1fe0df3940412bc59c9c5bdea7f8e863588bd58e76968b13",
+      "bytes": 2031
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/extra-block.json.gz",
+      "sha256": "f0000bf7c0151c854a8966d2baba0a6cb4b5a9a396303307b29d5c84a1a0050c",
+      "bytes": 9969
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/extra-block.log",
+      "sha256": "c45ad7d9185f29d5249faa4f8b2b21eb40e0c506c6b4f4159d81b7d6dd003598",
+      "bytes": 2031
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/extra.py",
+      "sha256": "2b2bc76aebf774fb1e267f5a3d8b630b53ae0135163440a0b02f0ee2259eb211",
+      "bytes": 2893
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/final-architecture.log",
+      "sha256": "a58cb80e338bef68508a4a7e3ec8ca858d291ac131999ff35900bb9cfb5e720b",
+      "bytes": 3437701
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/final-clippy.log",
+      "sha256": "a23e18b3ab2914665898ed73eba0353814cf07b848a0e8c5de2cba70d55536e7",
+      "bytes": 525
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/final-diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/final-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/final-focused.log",
+      "sha256": "3b3ee20a2ffc87bdaf6d3f7ff418833dbb6a81e063e6bee8eb7a18d6c75dbb12",
+      "bytes": 3381
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/final-freeze.json.gz",
+      "sha256": "4c41146f0607f71f320468db3743a3f5a91969f1038695f1112f23185fc6326d",
+      "bytes": 105003
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/final-gates-resources.json",
+      "sha256": "30d60aeb2b217aab06d67b76fa8ab66517dda4e1676fb842afddcc3fb12acc16",
+      "bytes": 9115
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/final-gates-results.json",
+      "sha256": "880222fcf6a9e7817315393c91e3deb4bd53808c73f846f567fe59d5aa96c263",
+      "bytes": 2471
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/final-gates.log",
+      "sha256": "84f7f1fd6df283103e5b7d50c6e21405773326d53a3c61f3f3864698f3fdefa0",
+      "bytes": 1981
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/final-gates.py",
+      "sha256": "6e8035959269d7459c7d7d51d0a5e9d268754434ce167c4be3ebb6606ec214cd",
+      "bytes": 4701
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/final-lineage.log",
+      "sha256": "91a6d3da4ea876cf1389727cd10abe41cf117fa0295b588912b258b93118f0ac",
+      "bytes": 24
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/final-lint-diff.log",
+      "sha256": "23999a14952a2fa6bdf5fdb9cc73fcdf3de9c4beeb6d428a6782c417905e7f6e",
+      "bytes": 1300
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/final-reverse.log",
+      "sha256": "df5fb2982018a00b0cdd908e7b909310421206ddfc81f9f0f85cdacfb748c8e5",
+      "bytes": 41
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/final-seal.log",
+      "sha256": "5c5b5842cc448d99e8f59a1af16131c4608d61adbff6b56f162f5f53724e9e6b",
+      "bytes": 778
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/final-state.json.gz",
+      "sha256": "dbb030179fe9d29dd7c6ab4298c20d2aeabae19a47379f436d3c987125a4f44c",
+      "bytes": 12614
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/geometry-summary.json.gz",
+      "sha256": "ceff7dcbba2a6d45f3fdcb5d707a1cfb45416e687155484edcdf9bd0fd6b69f9",
+      "bytes": 987
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/green-check.py",
+      "sha256": "017a63a0c296e15e9befadd28890a5c40566ae8b6970cc01d4dd7d251f9ef586",
+      "bytes": 305
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/green-resources.json",
+      "sha256": "a99e3c74bea376203e1985eebefc182f35ac986f10c857a26714c4d3f203a063",
+      "bytes": 8529
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/green.log",
+      "sha256": "bf73df8f622f571d0db28e39db3d052765710e6b62a1384a1530e4d558f4707f",
+      "bytes": 2824
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/green2-resources.json",
+      "sha256": "4f98dff09e909d9aa4b66d8ee8b3f8a602b9234a850d4c85f0d076785a2d9eea",
+      "bytes": 8535
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/green2.log",
+      "sha256": "fb339fe22545d795e4cb19162236dce315e57a21f40ef5ec69c0558a557cd1c9",
+      "bytes": 3707
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/green3-resources.json",
+      "sha256": "c8aff1840058854e413e79fe88c00c984e6a6cba86e9462d557131f887d09ae0",
+      "bytes": 9109
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/green3.log",
+      "sha256": "461efbb54894870f4ba5228ca4926003546a017852bb7a431c4dc114248655b4",
+      "bytes": 4027
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/green4-resources.json",
+      "sha256": "afb0f3351401dbc630c57234187ed6b16c9ec034adf5c0cc67f4ede6f91e40c5",
+      "bytes": 9110
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/green4.log",
+      "sha256": "8ec3a743108be7e04d694b13623f8f17a92dd6972e9d67e7e9979c3039faa4e8",
+      "bytes": 4137
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/grid-artifacts.tar.gz",
+      "sha256": "e15c8475ebcba4459ee9bc7f48897abfd0a8ae026c6aef01f24b426dc4aee7dd",
+      "bytes": 428277
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/grid-freeze.json.gz",
+      "sha256": "196e4f367dd25c33db486e1f9771f308df9a39d0e11fa2ecb6fdd0fb836b8df5",
+      "bytes": 98783
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/grid-measure-resources.json",
+      "sha256": "5f207bbe92a471295aa06308df78347df1aefc76a4dc6776380b759b786ba326",
+      "bytes": 8487
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/grid-measure.log",
+      "sha256": "fcc2e35f969a77644f522a5ca195a189ceca85abc707313656de45bafd1330e6",
+      "bytes": 155
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/grid-measure.py",
+      "sha256": "ed71e6783722608aaeba5dda2f0346cea9c415cf00552b42245903ae66cb9964",
+      "bytes": 1667
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/grid-sources.json.gz",
+      "sha256": "ed70996fc78ff511b50b5cf6b87aad375c49548ae503dd465a4e150e6ef50c56",
+      "bytes": 5373322
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/implement-admission.py",
+      "sha256": "c70ab6df98095cdfe4aa0be5a36fbc950612c94b17bac761f219f11db43dd45e",
+      "bytes": 7808
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/implement.py",
+      "sha256": "c066e70ef2d4ac42901d6d5961e4720c7b5696832ee76098b481b37e3d23874a",
+      "bytes": 6411
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/legacy-after.json.gz",
+      "sha256": "f21502ca0d727e411168dc651621eafc085edb34e218c9c144fb1220e355d964",
+      "bytes": 36490
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/legacy-controls.py",
+      "sha256": "cfe29c97f2e4b97815fb49c4182e356b58d9364f3424e07e5894221897d624f9",
+      "bytes": 15859
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/lint-before-fixture-fix.json.gz",
+      "sha256": "7d17cfac7648adea11612fb2e449191a16a4dfbc198a738bc99cf0337a97229e",
+      "bytes": 675
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/lint-before.json.gz",
+      "sha256": "8bc91467ebe33ebf25438bcc36c9bac7e82819f967bbf2b3232016e789342080",
+      "bytes": 220705
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/lint-diff-used-final.py",
+      "sha256": "f0577f05be1dab3cd2699c13620c32feedfc889ba3193643af78cb098614ac26",
+      "bytes": 1569
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/lint-diff.json.gz",
+      "sha256": "e3d736d4d556b62e503db628239b2b6660e6c454ff947db338e6dccb5511a760",
+      "bytes": 579
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/lint-diff.py",
+      "sha256": "ba480ed4fbe3e35b39132b318f47e50b73f8460d1aed20cdf20336aba60db2cb",
+      "bytes": 1582
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/manifest.py",
+      "sha256": "e651c7ab592f64ae1eff0d6ea938ddc1645738a5d791d1a9bc0d8bb0b5677fe2",
+      "bytes": 1753
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/alias-chain-inverse-tekt.pdf",
+      "sha256": "bdb55197a4bc7f587ba8d6df679dd18a616181804dbc567ab63ffd373a5e56da",
+      "bytes": 4571
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/alias-chain-inverse-vanilla.pdf",
+      "sha256": "5bd0ee4601b5cc9db01e12de123bf71710acbccdcc8e1bbdf14929fc66328edb",
+      "bytes": 4680
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/alias-chain-inverse.typ",
+      "sha256": "563f55a93c7c1503ba2dea497e8d886e621d8c917d84a18fbf86da0df6b7db3d",
+      "bytes": 55
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/alias-chain-tekt.pdf",
+      "sha256": "52f4027f266bc3225dfa73d6fcff99ba9f7fb8af2f4370eddc76087e4e293dde",
+      "bytes": 4569
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/alias-chain-vanilla.pdf",
+      "sha256": "0995eebfcadf278fd0f1570ab0d42acf4ef2bd58454fd4f0069a1c042fa98871",
+      "bytes": 4680
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/alias-chain.typ",
+      "sha256": "f21818c3d283b0086a5adc972dba76f99b12c9d7374dbbce8a5a3806807be74b",
+      "bytes": 55
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/alias-style-tekt.bbox",
+      "sha256": "1d467d75275037b45a55465146ee114ae06e9db1f681481c2805d24581e1044e",
+      "bytes": 2398
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/alias-style-tekt.pdf",
+      "sha256": "eccd478a83181d886b0cc46f4d62f1d1b1fe7089e1cf4348aecb2ba1eb99a05c",
+      "bytes": 14357
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/alias-style-vanilla.bbox",
+      "sha256": "9cbb25ce1116bce37a6c120bac0001a14e6ce1ae1cb753cc91a310e6be9d082e",
+      "bytes": 2403
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/alias-style-vanilla.pdf",
+      "sha256": "2a7f8996c50f8677ef4d73c6ded14f07c6148cad81c4e2c1a778e1d1178624ec",
+      "bytes": 15354
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/alias-style.typ",
+      "sha256": "5932d7c45f60a784e76daeef855e51fe1388dfe2c80ddd6cb4d3cbd7d4617f26",
+      "bytes": 170
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/audit.bib",
+      "sha256": "36f5bfb1b803cbb65ae7f93d559a5fcd85380388355a8cc19ee3ae7556e30919",
+      "bytes": 187
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/bare-style-tekt.bbox",
+      "sha256": "81387f1ba130b9309b340f704ef213401f3b2a34d953122c266515665fa593b3",
+      "bytes": 2876
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/bare-style-tekt.pdf",
+      "sha256": "729be6fca770d23663595e547ac792f1a5c239ccd64381749c16ee49f04534fc",
+      "bytes": 16558
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/bare-style-vanilla.bbox",
+      "sha256": "0b8da1f3f8ae3de289584a1119e7030f8192fef2a0f6d48c886ce36909fe62e2",
+      "bytes": 2884
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/bare-style-vanilla.pdf",
+      "sha256": "5138aa969770da4c97e8cf3f345d992163e439939099f8c0edd76cae6bf567ad",
+      "bytes": 17516
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/bare-style.typ",
+      "sha256": "64ecd5ea676d6e59903462d6060277e9ff7fc9b66359440c7ec732ba16ad16a7",
+      "bytes": 207
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/constant-chain-inverse-tekt.pdf",
+      "sha256": "b72724ae3c701acec0c08f5a687cc79da9331d9a3e82a1ac97b825c0037a6f7b",
+      "bytes": 4571
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/constant-chain-inverse-vanilla.pdf",
+      "sha256": "60da0adb4d8a3a4ccc1770a9a3e66f67d198c75c1317fd7977d13ee8fd3c68e9",
+      "bytes": 4680
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/constant-chain-inverse.typ",
+      "sha256": "20cf90d95a2205d052a536bb3ff8d49124023db47764364088261899f5d5f9d1",
+      "bytes": 32
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/constant-chain-tekt.pdf",
+      "sha256": "b83a8b0f3d745c50160868f9d0ebbe54fb537f075adc9dfba50a3fd7e323c1b9",
+      "bytes": 4569
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/constant-chain-vanilla.pdf",
+      "sha256": "0ee37368e6783ea4dcdb836dee12f7f97d7301bc8e0bdc637ba8fada12982fc1",
+      "bytes": 4680
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/constant-chain.typ",
+      "sha256": "a8e44dc7dd231e6ea509eba02d3c78576633c368a1ff85c94aeb181edc858577",
+      "bytes": 32
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/constant-cycle-tekt.pdf",
+      "sha256": "5a0fa65364e3a383f3643bd8bef013498b9ccdfbe06a6d549f2118ae575164c0",
+      "bytes": 4551
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/constant-cycle-vanilla.pdf",
+      "sha256": "3d8c8688a495dca902b40531485655ab9a9ed8902c2d7918c170b232ea0621cf",
+      "bytes": 4665
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/constant-cycle.typ",
+      "sha256": "9648022d67018007b046f9800ebc4331bcd1c89518c64102bfddfd2e4d979a90",
+      "bytes": 31
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/constant-invalid-output-vanilla.pdf",
+      "sha256": "599c59b01ed4aa451438e432ea119617510405a65ce5765f1e7f85267dfd1648",
+      "bytes": 4623
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/constant-invalid-output.typ",
+      "sha256": "705f70ab99ce261a8246d55aa2f5e0f467bdc42b312cedcbb5c039beb239a071",
+      "bytes": 17
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/constant-revoked-cross-tekt.pdf",
+      "sha256": "d94f3b8be97586b5d189bfc44ab9fcdd0cebd9d97575935154b916a0bbb3a09c",
+      "bytes": 4661
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/constant-revoked-cross-vanilla.pdf",
+      "sha256": "99bd26141d9126368cc0f88d18495df38e327db8fcbb54ec24c0463f6a861164",
+      "bytes": 4857
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/constant-revoked-cross.typ",
+      "sha256": "4713c2a3844207864e44cba06e362a214a8bc30dcee986392dea07d197e8995e",
+      "bytes": 31
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/constant-style-vanilla.pdf",
+      "sha256": "1ddbb17bb8328b16c937e8d9368b41b798eb6165fdb821695367bb6f2a8e8bd5",
+      "bytes": 4754
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/constant-style.typ",
+      "sha256": "0f076adbdf8ecbbcf6d1eca675fc49ca47e8b9256b6a8fa3c3fbb9108a6805c0",
+      "bytes": 44
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-base-tekt.bbox",
+      "sha256": "881e5de3a063a60f54e262e5d50f3e9f03d19db6a1479ae8012e31837a7c174c",
+      "bytes": 3446
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-base-tekt.pdf",
+      "sha256": "7e548d105eac76cfbbaa43bef9763caa2065238a15ffe14e56a7cf70cb166809",
+      "bytes": 10231
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-base-vanilla.bbox",
+      "sha256": "e573cd4b292d28e8656bd6cbc4b750f9cea78a16a45e7dda0aceb47f77ed5de4",
+      "bytes": 3445
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-base-vanilla.pdf",
+      "sha256": "97b12c289d6f76e8de0d0cbe016262eaa793a42fe51b6cb6e110fb56b79244b6",
+      "bytes": 11604
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-base.typ",
+      "sha256": "b46a42923d4f9cb009617a9815fa3166f4c6e8f2159b219447e51302ef712246",
+      "bytes": 130
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-default-title-tekt.bbox",
+      "sha256": "f37113f4fb06b1ea8265d4dbbf226827ccaf09a95fa291f0039be8d749624978",
+      "bytes": 3554
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-default-title-tekt.pdf",
+      "sha256": "d054ef6bd530a9b1394b39a6a8c31572e5e92c08ebb52c74be47403bc22ccd6d",
+      "bytes": 14043
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-default-title-vanilla.bbox",
+      "sha256": "dc3494b07fd75a0c0584d956f847522dd5a30d46ae0862f9a9c251e18e607b0a",
+      "bytes": 3553
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-default-title-vanilla.pdf",
+      "sha256": "7f8642dc8e381b47a13655b4f1c492f4e9b1ce8aa942bb0f68ac7db38a8b7d55",
+      "bytes": 15182
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-default-title.typ",
+      "sha256": "f1a8b672e44b299f7915ae20ac9045bbb59e6cd0aa7dd3d98734732a96a5b7ee",
+      "bytes": 119
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-hidden-tekt.bbox",
+      "sha256": "d81b4aa63029995fbf3292bc017dde3b32629cd095ea0e9453292c124782180a",
+      "bytes": 1937
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-hidden-tekt.pdf",
+      "sha256": "cd89548f5969f010dda3b95a1c44e9919a0c5936a808e4b6e618f851b9df0a82",
+      "bytes": 9925
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-hidden-vanilla.bbox",
+      "sha256": "10eac0761099171b60615615ba05a6a83c4498bed3161d39aeab6432d7292ea7",
+      "bytes": 1936
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-hidden-vanilla.pdf",
+      "sha256": "ba9d5d0a914b37a54bd32daed6d391c14924d4f1bf1bf2fad4efed781fffcf6c",
+      "bytes": 11044
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-hidden.typ",
+      "sha256": "cd06a2d262643de7af05c0dbf5cd956b77a3bf9fd37a59f2da58a5507b4b557a",
+      "bytes": 156
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-identity-tekt.bbox",
+      "sha256": "94a1830d3b976753438dac1e2207b46b0959387bdd17355fa1aa5417199666c3",
+      "bytes": 3446
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-identity-tekt.pdf",
+      "sha256": "12a024750f9966407dd0de0b987345a1f7d2b86b4184d062c23e010442032c48",
+      "bytes": 10231
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-identity-vanilla.bbox",
+      "sha256": "af375d51baa1c560f8ef26f2a29cedf43cdc7e10649586cbb171026251ded133",
+      "bytes": 3445
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-identity-vanilla.pdf",
+      "sha256": "805f017d2bba739fdbe7a38e093e2a324e763e1d806aa64fe85cfe9204d025ec",
+      "bytes": 11604
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-identity.typ",
+      "sha256": "80023d9d088a6fdb201ab7e4dba35acce1023207ae202de6dd2f6a0e0231905c",
+      "bytes": 156
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-replace-tekt.bbox",
+      "sha256": "b0ca0ad2667295dbad83bf7eebfab8574198e538561ec0d0eb64ef73da5d5403",
+      "bytes": 2036
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-replace-tekt.pdf",
+      "sha256": "1de29a71b6e561489d2af34a3cd817ff7a96f46735071cd17e3eb90557e679bf",
+      "bytes": 10314
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-replace-vanilla.bbox",
+      "sha256": "95493f80c4e4d760e619c2c762564c7e64d57cd08c982e131c3a244a47b7acc6",
+      "bytes": 2032
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-replace-vanilla.pdf",
+      "sha256": "36a55a6b53eea035ef53d6b19a8409c2ca89359ebb8273e807d9a0c4e9e461c6",
+      "bytes": 11500
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-replace.typ",
+      "sha256": "be9fdb87143f969b587c93ec4e8d6f98374509fa1829b670547d14e125a234ee",
+      "bytes": 167
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-style-tekt.bbox",
+      "sha256": "fc9b0efbccfef98d6ddd68d8f11a66733aba44faf01976702de9278020247907",
+      "bytes": 3446
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-style-tekt.pdf",
+      "sha256": "d7b9e9647c1bd8e1430d4979a55b27bbdd5865892d0a366eb0420d75cced7bfd",
+      "bytes": 10243
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-style-vanilla.bbox",
+      "sha256": "fcc50dee8c444cbfb9e92bdc8ec6fc18a6ff084864848e0bb3663a216c515e4e",
+      "bytes": 3445
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-style-vanilla.pdf",
+      "sha256": "8251cd5752cee3e21fcf70a12f470acf4d4e887f505e94dc17155ceb060ef5a9",
+      "bytes": 12117
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom-style.typ",
+      "sha256": "ad3a30cd884abc8c2d9a491e268e79de82c9f61d1f7f16e28bd54ebc8bc41574",
+      "bytes": 168
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl",
+      "sha256": "32f9c7777f69e74f1df4d44c905d2ff55cccfe57f9a5c6b539f4f2eeb161533f",
+      "bytes": 414
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-absolute-tekt.bbox",
+      "sha256": "1aeec460a18fb4247efaef34028ad4c4742451ce8735644d71e8d6db25b46bfc",
+      "bytes": 4035
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-absolute-tekt.pdf",
+      "sha256": "12083ef6c658e21678f01bfab6ddea59a1152e4199564cc3cf4c35e0d455e1aa",
+      "bytes": 14222
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-absolute-vanilla.bbox",
+      "sha256": "75d0e38dc7fb9329b16cfc5839f4561016b147c161a311e4240fb72a9919afac",
+      "bytes": 4034
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-absolute-vanilla.pdf",
+      "sha256": "b0a4efcdf150c5b749f86ab6b88b34f12d396dbb20715f78ebf24bbd388e5d06",
+      "bytes": 15409
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-absolute.typ",
+      "sha256": "2a28f1547132eeb2d941d125dc73df6a7383ce4e0bd15faaf8e0eaa9ac1f4542",
+      "bytes": 213
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-base-tekt.bbox",
+      "sha256": "f92de83f93b7842fad8097cdbee671bb260cbe7fdd3320c143bf6b2e81ea5ff9",
+      "bytes": 4035
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-base-tekt.pdf",
+      "sha256": "24cb06b1c8b7d260830ed25d566b748c0ec08d37dd7f78f1b0a1d6687028ce60",
+      "bytes": 14222
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-base-vanilla.bbox",
+      "sha256": "dc6c31534f29e5e449993a8939919fdbc68fec0a5a64c77f04c5279d5c2b15cd",
+      "bytes": 4034
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-base-vanilla.pdf",
+      "sha256": "93bacb4cb3329f8c95106983d83b4695f5349af6887fd5b8b10094bdbabe1f9b",
+      "bytes": 15409
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-base.typ",
+      "sha256": "d405b3bca6c838e73e3a587aef18657d6c6cd717abfb158ad4fbab9987ed479f",
+      "bytes": 165
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-global-tekt.bbox",
+      "sha256": "b011669a3277b0a6e054c73d3922dc0f871f01068d2fd9384b40996378370db8",
+      "bytes": 4035
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-global-tekt.pdf",
+      "sha256": "f798dcd9d98ef2c9875fc5e303b5c6a8cbe9df693a1c11811d742d98f5161dcd",
+      "bytes": 14222
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-global-vanilla.bbox",
+      "sha256": "95608214da8474382c86fb75fa09e1f84291cfd1ca32f7d5261a7a2d00e49f1d",
+      "bytes": 4045
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-global-vanilla.pdf",
+      "sha256": "47295fd3e5aba33a9ebce3215f564fbfe34786fb953e904e05b24d90fd306f81",
+      "bytes": 15773
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-global.typ",
+      "sha256": "a13383046c5c48188acfda12b61b1e63bf950946151d258e4092b93ff274e8d9",
+      "bytes": 194
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-negative-tekt.bbox",
+      "sha256": "2ff7dfed9419ec0ec69b88aa30f3b23b2eff6ca5c283046722492809be2181bd",
+      "bytes": 4035
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-negative-tekt.pdf",
+      "sha256": "8d847eb00f485c85a889a03a0657505613b91d17a100d3eb5417011ad645cd92",
+      "bytes": 14222
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-negative-vanilla.bbox",
+      "sha256": "c57f31d54adbcd4ce58a27ae98667afa07ae4f26a0dc24420a0714c5902ca528",
+      "bytes": 4034
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-negative-vanilla.pdf",
+      "sha256": "bc807e5b895f286853ef12fea6b275344ae78278d298314c8385b90ab75382d3",
+      "bytes": 15409
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-negative.typ",
+      "sha256": "5876f27c4478f694859ccbf08197152ca0e48f48890b71c1efd2d11c528ef078",
+      "bytes": 213
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-relative-tekt.bbox",
+      "sha256": "6a4ef3aeac026894ba5cd04ac4ce2864b0d7559ca0a7472199a20fd297ad0212",
+      "bytes": 4035
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-relative-tekt.pdf",
+      "sha256": "ed0b2e6da722cc0644ff3ce0f5c12980036f5050862bc3ddb22e2552b7fafb72",
+      "bytes": 14222
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-relative-vanilla.bbox",
+      "sha256": "b03ea301ca81a6234007e0a6ff5f817fe8c9bd1b673344eebb5636edc30619a7",
+      "bytes": 4034
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-relative-vanilla.pdf",
+      "sha256": "869fff49698818c31940e6fc6d220512a67bf864a3228926ef46a00e6fa82755",
+      "bytes": 15409
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-relative.typ",
+      "sha256": "85b2796e995f7e142d59380d12bd4e67efb42aa07736bb033fa97a4108d87fa6",
+      "bytes": 212
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-size-tekt.bbox",
+      "sha256": "2855f64ac99904b52643341aaf12a4a964eddbd7267682fd227df8addb8be0c4",
+      "bytes": 4031
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-size-tekt.pdf",
+      "sha256": "d2d2a21e11a0c55077649fe06a6414cc929736b81ddd921cd2d998dc088b2fd0",
+      "bytes": 14263
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-size-vanilla.bbox",
+      "sha256": "dddc3d1439969b6ae9cde056540d75bc51b64940890e902563f445b383efd913",
+      "bytes": 4030
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-size-vanilla.pdf",
+      "sha256": "2bc27a29fc476795a5ab69397814728d53697bee87d549a0c702f0999fc1b532",
+      "bytes": 15504
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-size.typ",
+      "sha256": "f7c2030460056871e391c94b0c2dea9839b7411e1f665234ef46f1f55bd6b588",
+      "bytes": 204
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-zero-tekt.bbox",
+      "sha256": "3421a9327e40c8643c3f74ba3f51df321142614c968f952231b73129e21c5949",
+      "bytes": 4035
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-zero-tekt.pdf",
+      "sha256": "66e353c8df922808bf6217f4d0a59ede7d1f382c0b35aff61d48dd88126188e9",
+      "bytes": 14222
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-zero-vanilla.bbox",
+      "sha256": "c86da4b99753b8112b1e935edb683acec4f9c29efd57ddeb7bbb5988c15d7c99",
+      "bytes": 4034
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-zero-vanilla.pdf",
+      "sha256": "ebefbca0a76b6a4f9e27f89d64186623f01ebba5d750a7e3ca3892fb3df84a82",
+      "bytes": 15409
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-default-zero.typ",
+      "sha256": "d08557b9cdcc34a192ff0ddb1c8ea3c718d198051a1d0a04e5904a8e1da667e6",
+      "bytes": 212
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-multi-0pt-tekt.bbox",
+      "sha256": "331c415a06d7d1a75cb93dc21d23c66873a8cf4124302e07d427d9dd0a74881f",
+      "bytes": 6362
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-multi-0pt-tekt.pdf",
+      "sha256": "5d0decc98f978825269e9af9b6f3a8ef375cb18f0e148f96099945a24ec7a70a",
+      "bytes": 11216
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-multi-0pt-vanilla.bbox",
+      "sha256": "a9c906abf19b166e63f1c86db18729a2dfd7a8d458d2c96d522740be8429e736",
+      "bytes": 6273
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-multi-0pt-vanilla.pdf",
+      "sha256": "ad923a4b121ea4b42904c19a092193c64858c6074632d2fc546ea45aa850f978",
+      "bytes": 14125
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-multi-0pt.typ",
+      "sha256": "1ebbdae8956b1ca90708ec3ebf76b340b5c5e19e9d777395ced9614c148b5430",
+      "bytes": 169
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-multi-2em-tekt.bbox",
+      "sha256": "3a68fed157c3b37fe36f1db976266e48ebf66f2ee70dd3888688eae327841aec",
+      "bytes": 6362
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-multi-2em-tekt.pdf",
+      "sha256": "1f803019f1c03c4e0f82c4dab990aed758e092649b9f10f31dc76bc26b41a842",
+      "bytes": 11218
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-multi-2em-vanilla.bbox",
+      "sha256": "c75178394d232e92b556f95a9eab45d34ef1f6414f2bb9449ff7442e0c314bc6",
+      "bytes": 6273
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-multi-2em-vanilla.pdf",
+      "sha256": "bec6faff5f9b23e8d83562a5a437c944647e66c9cebaf6535a0b153a89aadefd",
+      "bytes": 14130
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-multi-2em.typ",
+      "sha256": "cabd7474df83ad86d65965254fed0545a48c44fec4cd22f18b02dd355c61c120",
+      "bytes": 169
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-multi-default-tekt.bbox",
+      "sha256": "e2a5587120ff8270d23b65e5f942818d62d33fc240bbc12dbfea9d34bfed233d",
+      "bytes": 6362
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-multi-default-tekt.pdf",
+      "sha256": "ac8d3feb42242ee67b039deffb8b5f5f5d81717a56d838fe3c9b027152d03a24",
+      "bytes": 11220
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-multi-default-vanilla.bbox",
+      "sha256": "1ff70e05ef9941b92842ae443d1f8d5ccf247e844d502923b4460e88af8a1558",
+      "bytes": 6273
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-multi-default-vanilla.pdf",
+      "sha256": "9172c6c5406fc527e34ba713fdf950465dd8f222b7b70ea1470968eaf1f0659a",
+      "bytes": 14147
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-multi-default.typ",
+      "sha256": "b8c76b7b138bdbc1c56f1040fcc9557b65c80b7368190132cf101fb32700de9f",
+      "bytes": 147
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-absolute-tekt.bbox",
+      "sha256": "421de5b3754d2aece99376e85f439dc387ff9d18ef7312fd41939573b2f2388d",
+      "bytes": 3927
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-absolute-tekt.pdf",
+      "sha256": "c100b59dd158563dd6ab1c1bceaa38cf189442247c6fb04315578440bd341061",
+      "bytes": 10411
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-absolute-vanilla.bbox",
+      "sha256": "eab6dec1b10462349ebe9dff83a420a8920472c3c5004dd515ebd6e3200e482c",
+      "bytes": 3926
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-absolute-vanilla.pdf",
+      "sha256": "3667078e443c43434ad7c7105695752d5df1140c40c362f82d48af99660de194",
+      "bytes": 11814
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-absolute.typ",
+      "sha256": "14c68e5d8c1ff0aa7c1da61a3fbf91a890fa003b668aa4074349d073c92ec54e",
+      "bytes": 224
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-base-tekt.bbox",
+      "sha256": "f1e56f0fce78008be2b5a71734fa642cec9d3283065e86abef720c86940a8d9c",
+      "bytes": 3927
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-base-tekt.pdf",
+      "sha256": "c73b676fe724f40d202fbe0e0bba4b46dee4bdc03be82652bf550088692c08d8",
+      "bytes": 10411
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-base-vanilla.bbox",
+      "sha256": "cc50897a6bd75db727d87c1ca2947eeb59519b614714e807ee73aea47a4aa76a",
+      "bytes": 3926
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-base-vanilla.pdf",
+      "sha256": "1c7143d07831c9643aa8f8cbce5f3e270647f534b2afc464e8cff2d659e96cf9",
+      "bytes": 11814
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-base.typ",
+      "sha256": "bff865e37da750b2dd4e1d99a3683173c1c2e89ffcafc7f93d47a83f72de874c",
+      "bytes": 176
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-global-tekt.bbox",
+      "sha256": "8ac4384d4b81b7466e544a56227529c60a46773a6988b0b72fc88e747fc1cea0",
+      "bytes": 3927
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-global-tekt.pdf",
+      "sha256": "2848d53647bd602e2191872a637f732db399ca7a981eb79cf4cc26d61f006d68",
+      "bytes": 10411
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-global-vanilla.bbox",
+      "sha256": "532685b1c97a15946d543cfc5887201440285915bff6445cc3b3f3a9fa726726",
+      "bytes": 3943
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-global-vanilla.pdf",
+      "sha256": "8b1bc8baf4466d1c1ae65c343d80e24ef8b60239ed0dab36e2b894f9839d90ce",
+      "bytes": 12171
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-global.typ",
+      "sha256": "9de8aaed6177f0662b65401edd070731930b0d0d95c40960982810a39c462f98",
+      "bytes": 205
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-negative-tekt.bbox",
+      "sha256": "5ed3a81619cd5407e1c3d4982917e14b4c9d82fb5cc6d8192a8595e3915f058c",
+      "bytes": 3927
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-negative-tekt.pdf",
+      "sha256": "fe2fc7accf6bd5f67eff244016b70b2832d3a242eaaa37b6fcd16167ab892836",
+      "bytes": 10411
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-negative-vanilla.bbox",
+      "sha256": "1a51fcbc888ff135833aea9fcfa7d38a71a34df4d8323269b6092c1c16fbf87e",
+      "bytes": 3926
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-negative-vanilla.pdf",
+      "sha256": "4c028c430cc3d5331738e9198ea352f551148b5df73eddd8c8b5ffcf58bc1cbb",
+      "bytes": 11814
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-negative.typ",
+      "sha256": "1609c6b44cd93a15adc4232fd8f7cca6d9263313ef6036f21d9f1519788166cb",
+      "bytes": 224
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-relative-tekt.bbox",
+      "sha256": "bc955d3f44ed988f39d5796428a76622074c12aaa0a7684b9d532144d5596d38",
+      "bytes": 3927
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-relative-tekt.pdf",
+      "sha256": "d4bddb185cd5bae2c401ac18d3fe4f5ba13bd2b120f4539f53f51d88eea7cc64",
+      "bytes": 10411
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-relative-vanilla.bbox",
+      "sha256": "dc525e625b7c3299174788d0456892ab7286d411fea034e1009f9c060b351262",
+      "bytes": 3926
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-relative-vanilla.pdf",
+      "sha256": "1294322d49a51c9101c18c0c5ed15eda23b32c6da7b7e1006efc24377a053886",
+      "bytes": 11814
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-relative.typ",
+      "sha256": "e35c9fc6c79fca41ac9b652be1146b02e0dc57cd2f234bf6f61ad19df4aa2db9",
+      "bytes": 223
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-size-tekt.bbox",
+      "sha256": "28553c3d22815b339f5d8180bfe763a25d3ce3d1febd7a27772ec27e8e892cb1",
+      "bytes": 3931
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-size-tekt.pdf",
+      "sha256": "ce311f86b54307e0739d4acc1fdb2f1040e6f7b0d3d502567b088138ce016c19",
+      "bytes": 10447
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-size-vanilla.bbox",
+      "sha256": "7830a1e5f93a7c0ffad6278969ddb2375286edb7e2ee14095695f033a7d04344",
+      "bytes": 3930
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-size-vanilla.pdf",
+      "sha256": "6c2fb6a1f962301f5daa1e2d6a0842e2200942214d3a0a4906d57107012ef858",
+      "bytes": 11899
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-size.typ",
+      "sha256": "6d9038d702cf16d1baa0ace503c5e772f4f14b250dbf26f958f83f143502f207",
+      "bytes": 215
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-zero-tekt.bbox",
+      "sha256": "c1c6be74bb4655410e0acfaf5d429a68594a9c964a572eaaef33df609d6eed5e",
+      "bytes": 3927
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-zero-tekt.pdf",
+      "sha256": "c5dd7e337dcff94cfa871b9eb6de8b703ebbbe293d119e7615c85a9339d6db41",
+      "bytes": 10411
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-zero-vanilla.bbox",
+      "sha256": "827b75cade17e2e780e21e04d3e62bed0605720673ea6483af6f82bfb516c747",
+      "bytes": 3926
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-zero-vanilla.pdf",
+      "sha256": "ef5e9afa6f4c79f40add97cbdc3c778d6f62a5ed42c8e59c81336994d0023c12",
+      "bytes": 11814
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/custom.csl-none-zero.typ",
+      "sha256": "9d24cef33500d7469c83e3f665146739b793f504242c74389a11fa8b0f69135e",
+      "bytes": 223
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/cycle-tekt.pdf",
+      "sha256": "c8b300abf52ceb29185787e2933c2b12fa6a3d5eda72aae72f99541ebdbd0768",
+      "bytes": 4551
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/cycle-vanilla.pdf",
+      "sha256": "1e7526f8cde28a43ce07226a87e18ec859f1895c0980cfd5f689247214a01c23",
+      "bytes": 4665
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/cycle.typ",
+      "sha256": "750be475bef9aede7e547165707aeab8cd1338348d940cf74c7de38ed2c0dc39",
+      "bytes": 37
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/different-guard-adjacent-tekt.pdf",
+      "sha256": "e7389e2d20fbdb29d8a0fce681bdf3c70a0e1039c7de895ff23e8be8c808490d",
+      "bytes": 4722
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/different-guard-adjacent-vanilla.pdf",
+      "sha256": "5a7657316ae30e8b8bdbb740f90cc2cac058b091f462cf699cc4efc738e7d359",
+      "bytes": 4857
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/different-guard-adjacent.typ",
+      "sha256": "d514002d19ac134e125fbf5cb945ee5255d984dd3997787218a506e90497189a",
+      "bytes": 57
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/func-alias-raw-output-tekt.pdf",
+      "sha256": "785043cef813a0760eba7365748bcf551e3ba1a15047ec3024a545e360752915",
+      "bytes": 4569
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/func-alias-raw-output-vanilla.pdf",
+      "sha256": "9bc731dc70a87507ca3a01e3c0a193fbf7d8b8bd844a06be282aeaa958c079a3",
+      "bytes": 4680
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/func-alias-raw-output.typ",
+      "sha256": "f21818c3d283b0086a5adc972dba76f99b12c9d7374dbbce8a5a3806807be74b",
+      "bytes": 55
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/function-chain-inverse-tekt.pdf",
+      "sha256": "8cfafab0711f764068b860adf635e1960c248948b01a3ded1909c438485c3f80",
+      "bytes": 4573
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/function-chain-inverse-vanilla.pdf",
+      "sha256": "0995eebfcadf278fd0f1570ab0d42acf4ef2bd58454fd4f0069a1c042fa98871",
+      "bytes": 4680
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/function-chain-inverse.typ",
+      "sha256": "f58540414f3e023c980332477ff985d8486a8ee741db270ceb125bb647c7997b",
+      "bytes": 38
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/function-chain-tekt.pdf",
+      "sha256": "ef0935b8e4c60b1f53587f1ddbd629db8564a6295c9b24c32ea7e1a2ac46e3d9",
+      "bytes": 4571
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/function-chain-vanilla.pdf",
+      "sha256": "fa5280f287ff3e43e59bd86adfd63d1195115319885ed56cc36fdacdfa84f16c",
+      "bytes": 4680
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/function-chain.typ",
+      "sha256": "0b25824893c21ac5b9d696ed439d686c813c745e90c9270fbff94b51ee54ae77",
+      "bytes": 38
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/function-style-vanilla.pdf",
+      "sha256": "1ddbb17bb8328b16c937e8d9368b41b798eb6165fdb821695367bb6f2a8e8bd5",
+      "bytes": 4754
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/function-style.typ",
+      "sha256": "6a43269823ace530a5edddbab3738bbab433b0dce8c3a595560b3e4d30a83fdb",
+      "bytes": 48
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/identical-literals-tekt.pdf",
+      "sha256": "f95b385a2b182a2a9ced0f6a055291c4ce3b53e96430a0523a00f13f63d125f2",
+      "bytes": 4528
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/identical-literals-vanilla.pdf",
+      "sha256": "59c220874dd247dfd9efb89a9138d7e7faededf0b33ef79eea5af80e036c747a",
+      "bytes": 4675
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/identical-literals.typ",
+      "sha256": "75f20a18ac6723b9fc84a9c208162508efa3e6d3c90187acb3f6d54870ce23bc",
+      "bytes": 37
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/identity-shared-rule-tekt.pdf",
+      "sha256": "aa27b784d729bebebd491c211aec35763e80860a8b341feb747107c9e740ffe5",
+      "bytes": 4554
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/identity-shared-rule-vanilla.pdf",
+      "sha256": "e9bcb3ca9285a866b4e9ef8b17934a931ce5206d8b5cf29671d60b0fa3f97ee3",
+      "bytes": 4688
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/identity-shared-rule.typ",
+      "sha256": "fb60ec76ac1778e2af668dc85ddc09bb76748c4f7b71c7c9158cc3e3f2ba2af2",
+      "bytes": 27
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-absolute-tekt.bbox",
+      "sha256": "19cf7c4692f31d982458084929f96e4893f65aee108ae6bb5c6626283e76dfc4",
+      "bytes": 3080
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-absolute-tekt.pdf",
+      "sha256": "fd770c50c66537319dd872181cd8ebf1a2b4e66f68c99282caea22b45e59bc60",
+      "bytes": 20066
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-absolute-vanilla.bbox",
+      "sha256": "8a5f4d78bc8cc8a6c108f9b43005fb5ab71fb2de549e3f75a875a6e324bf5b93",
+      "bytes": 3073
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-absolute-vanilla.pdf",
+      "sha256": "13eb55cbb4566c238543bb5efde1f4e5ad136f596e10d535114b3baa92cb8466",
+      "bytes": 20583
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-absolute.typ",
+      "sha256": "9403c3b2000ed918c9371801af1c5cb6e50c5d0601e298806e175fd2ce2f8618",
+      "bytes": 207
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-base-tekt.bbox",
+      "sha256": "e298077603b3736df886092a9f0776e81225c8cb5f7959b09428bd3075076154",
+      "bytes": 3080
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-base-tekt.pdf",
+      "sha256": "39b70ac0bf70f32667b94d2590962415e04288b8b43b2ab2d972ccf1aa8046fe",
+      "bytes": 20066
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-base-vanilla.bbox",
+      "sha256": "221fca7732e87cfff1492613f14928c406931b80d2ad929d373ed026c5e961b3",
+      "bytes": 3073
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-base-vanilla.pdf",
+      "sha256": "2f0805df4c3dcf687350130513583171df808eff0f0e28ab2b361d45b1de78a3",
+      "bytes": 20583
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-base.typ",
+      "sha256": "0fa90d15266679cf2f856dc1ef8a71740ec2589caba69f1ab7926f598ddc689d",
+      "bytes": 159
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-global-tekt.bbox",
+      "sha256": "6e18cbe0437537ec2b7712ccc43e5dece244a5a125103558284e7a86ae15c5ac",
+      "bytes": 3080
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-global-tekt.pdf",
+      "sha256": "b306a84d31b80278a1cd5c3e2690f285c20c57a48df83ded2b52f67c42afb956",
+      "bytes": 20066
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-global-vanilla.bbox",
+      "sha256": "507c1e35df9da40f556060439d70994be4489a45bbe860a18d99931f06d437f2",
+      "bytes": 3075
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-global-vanilla.pdf",
+      "sha256": "8ad14537b85d6eec21c933c3d0de60e97d6229d6afc393e46e113fb432dee929",
+      "bytes": 20586
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-global.typ",
+      "sha256": "d48d4abb9a0df706d329c2ca0c32da3dc634dc2f5022a9fce68b43101ca0ba9f",
+      "bytes": 188
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-negative-tekt.bbox",
+      "sha256": "ed85cafc41a22a648f3e605cb3e31b936c5e7bbda7e1271cae1023b81f5cb890",
+      "bytes": 3080
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-negative-tekt.pdf",
+      "sha256": "0fe2e1fd066684ff3fc5c2a2575cf843c1e1f16e3393f2ac0ac9ed19baa12919",
+      "bytes": 20066
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-negative-vanilla.bbox",
+      "sha256": "f078dec4a8a5a7f4ffd3382d6830252b655d978c96054644af03ff03fc574073",
+      "bytes": 3073
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-negative-vanilla.pdf",
+      "sha256": "fa43bebf14247f430ad7c18531933ddd9d8580dcf5b6fa20132bf57ac0c1b490",
+      "bytes": 20583
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-negative.typ",
+      "sha256": "593cf197c4789cb656e9a76ec24100e6ad150a149fb2deb6d7f856d04bc2593b",
+      "bytes": 207
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-relative-tekt.bbox",
+      "sha256": "c3da2077881a076dda9f9f735ae04029af37c591985983092d17f70791eb8ccc",
+      "bytes": 3080
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-relative-tekt.pdf",
+      "sha256": "09933a92f4842d0a888e4fd180c888329b0c3b27331729b31b15880266b40795",
+      "bytes": 20066
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-relative-vanilla.bbox",
+      "sha256": "476b174fcf78ebb9604b11b4c32feb51d2a7d5534e0d0990ce404a93839e6273",
+      "bytes": 3073
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-relative-vanilla.pdf",
+      "sha256": "e8fd0d3a80ff4de74de20d1be3157e9425941cd02de026d9b3532c01cc6eccbe",
+      "bytes": 20583
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-relative.typ",
+      "sha256": "a80323f5f6509b0003bdb06739997e7a29b81f0f7d4558967ab01fb7ee23ba07",
+      "bytes": 206
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-size-tekt.bbox",
+      "sha256": "bc29806bf159fd6a2700a0cc3eb917ea96b10d9e0d1139ed10d8eb0b5281a1c2",
+      "bytes": 3103
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-size-tekt.pdf",
+      "sha256": "407da931d840682a6e4d86245597937d59bf5c24cc9cdadea6855b34bd2717d1",
+      "bytes": 20091
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-size-vanilla.bbox",
+      "sha256": "8b489be737074b5b6919986cbfa563489fbed704f36d3da29e5dc801e00b369e",
+      "bytes": 3095
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-size-vanilla.pdf",
+      "sha256": "a918b097f89427d20eeedae819bc206470180a1b19a9092eafb26858cb11dadb",
+      "bytes": 20670
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-size.typ",
+      "sha256": "f48e46000e2e1133f641bfdbc198f4c1c5a84bcb49d1c9ccb0128f72004bb626",
+      "bytes": 198
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-zero-tekt.bbox",
+      "sha256": "5203f8d30a96ec983068a144878a4b8bc2e31edbc0a7c27a8cef56413f65b0bd",
+      "bytes": 3080
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-zero-tekt.pdf",
+      "sha256": "9d55ce7ec0afc84cce06bd7d2e96930534b2430b5ddd8149067d9ee7aceb35e0",
+      "bytes": 20066
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-zero-vanilla.bbox",
+      "sha256": "bd50f9618d8f129e7541a331cace58580fae850a958cc57abeaa7c20a17444df",
+      "bytes": 3073
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-zero-vanilla.pdf",
+      "sha256": "ec2b56276d02b38b5a84c67fba09c522faceb2611de78ddcd13318d240e9dcb2",
+      "bytes": 20583
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-default-zero.typ",
+      "sha256": "2ae5cc0cdf7300ffc23730d4b08cdb9f24c57c5e73b4fa9cfa4d41da86a50d6e",
+      "bytes": 206
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-height150-tekt.bbox",
+      "sha256": "a262b035f6f21797648cb77bcc1ec0930f46dfcfe177dd6b8b3bb3c92bb17b2a",
+      "bytes": 2579
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-height150-tekt.pdf",
+      "sha256": "09b5885b2112f8b7eea45a14b9b15c52eb275744fd25a7b441f14d8463270e5f",
+      "bytes": 14501
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-height150-vanilla.bbox",
+      "sha256": "8323b24767e5afaf84cda71bcd780c6ed2d6b1b4a0b7085f6c2c63cd062fdc75",
+      "bytes": 2578
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-height150-vanilla.pdf",
+      "sha256": "dcfe103404ce00fbbc98d2257566ed36a041aba729549b624f41df32148c7f29",
+      "bytes": 15362
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-height150.typ",
+      "sha256": "688591c3eafc2d4abe445610e808d2276da4d1c88325ef345825d08cdbd41140",
+      "bytes": 134
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-height250-tekt.bbox",
+      "sha256": "24a6d01a7744f7303c6a3fa51ff09b648a5e91aeb78d0cefd488cda19c5f1ae9",
+      "bytes": 2579
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-height250-tekt.pdf",
+      "sha256": "11efcb9e01c8feaecac2bf5f611b9d40da16add636e5e175d806ca8723073b11",
+      "bytes": 14502
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-height250-vanilla.bbox",
+      "sha256": "fbdd06394a52154f948630a75ab9d41ceb103af4c6d53ec81e23d7d0e3890f68",
+      "bytes": 2578
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-height250-vanilla.pdf",
+      "sha256": "0464308b778020b85b7a116f153a924765c8a14793ce32f44e9eec898b900f49",
+      "bytes": 15355
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-height250.typ",
+      "sha256": "5f2a655736d3ff01427b018d107ef7e4a559528c7819a9918e1956da4b2f922c",
+      "bytes": 134
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-height90-tekt.bbox",
+      "sha256": "96685326e1a54eae1560dd9cbde1cc332e7e436d35efd2711ec2664a5816c4e4",
+      "bytes": 2627
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-height90-tekt.pdf",
+      "sha256": "42eab4c8c97e039b6e5514a3305d05490290947fede430d93a08379328cd0cf0",
+      "bytes": 14933
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-height90-vanilla.bbox",
+      "sha256": "3b26e6178e5caefb4c011526345bf6b0c2f8dc13846339b606e5b0827cd000d7",
+      "bytes": 2626
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-height90-vanilla.pdf",
+      "sha256": "e0bdd521e9e79ec649d14ffdd3233615dfbb210ff9f9482d001244b6d4c72837",
+      "bytes": 15995
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-height90.typ",
+      "sha256": "dc142558da1e20f37207cc6a7e0558038fa8ea16d241a14d9db8be2cd3634b97",
+      "bytes": 133
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-multi-0pt-tekt.bbox",
+      "sha256": "f4e788e57687504602d340a04539dae00095965059ef85306a3fd3d3e3634ae5",
+      "bytes": 4534
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-multi-0pt-tekt.pdf",
+      "sha256": "278da3cbb8418dda1ba1c49a6076166edc257b1587614f7ef11d515e61d90e9f",
+      "bytes": 16682
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-multi-0pt-vanilla.bbox",
+      "sha256": "6341873ef835ba90e89d67efe50b3eafd95d7d3e78cf78a6c8b396aa62600992",
+      "bytes": 4534
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-multi-0pt-vanilla.pdf",
+      "sha256": "1d95a94cd589a233a514e44bdfed19744abc5a75c847551dfa73594d0093b0d3",
+      "bytes": 18492
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-multi-0pt.typ",
+      "sha256": "4f3f64e13f2ca3cd7c6bec35ae8d2c65cd9a7df4a92c1b4194d043f33e3f2fe2",
+      "bytes": 163
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-multi-2em-tekt.bbox",
+      "sha256": "dc72ab480a0f17d43d5d5a71821986459a750ce8e215d5b296cc8afc7bce1ab1",
+      "bytes": 4550
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-multi-2em-tekt.pdf",
+      "sha256": "7db1ce4da5ec0248ab469e86d96a000a1423475d368e6701e28370dfae20bc8d",
+      "bytes": 16686
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-multi-2em-vanilla.bbox",
+      "sha256": "e7502ca429c2d520a378cbaaf219edca40844c26040865dbce2016159f178377",
+      "bytes": 4550
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-multi-2em-vanilla.pdf",
+      "sha256": "e82074fff91000c5a9e7ce0ebd62b1add330b7d8f0dcab47219b756010768fd1",
+      "bytes": 18551
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-multi-2em.typ",
+      "sha256": "642b030c2f2159e477a788e7125a9eef16cd09d949689b219e0f2b329f606fca",
+      "bytes": 163
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-multi-default-tekt.bbox",
+      "sha256": "f7d5b9aeacb3f01f5ac427a781ecc699939ddcc56410d0b11d5cdef89f1fe9a6",
+      "bytes": 4550
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-multi-default-tekt.pdf",
+      "sha256": "ff52b05e26497ad0e75a8ed5b3879405dfbbf7c6a006ec4f93d309074fb3aec1",
+      "bytes": 16689
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-multi-default-vanilla.bbox",
+      "sha256": "6fc2fce788bc8fd08cb04e7cbc53c809a3fbde75602eef97e130ce37b056029c",
+      "bytes": 4550
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-multi-default-vanilla.pdf",
+      "sha256": "b5094a702b78afa67819c4f1f9c9f78196d177aef24f6c8c5f520e91014faf21",
+      "bytes": 18556
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-multi-default.typ",
+      "sha256": "1ac950c794a4451bd141983cf8c100df06ad584dafb2399f3f50fd209c8fd8c7",
+      "bytes": 141
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-no-grid-show-tekt.bbox",
+      "sha256": "bfffc187c66ff48670477e90a9dac7bacf7221cde83b223de27e7dd75b2a0c32",
+      "bytes": 2579
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-no-grid-show-tekt.pdf",
+      "sha256": "af59840b411ad17455497fcd16b4f5438b46d37dbff6be4fae4d532e0b08a604",
+      "bytes": 14498
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-no-grid-show-vanilla.bbox",
+      "sha256": "b43d846502a5673e90ce18b8beb1dd69c1698bd6b02113343b41c5e4fb8995a3",
+      "bytes": 2578
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-no-grid-show-vanilla.pdf",
+      "sha256": "67a327b9e1658c636a75ae4e3c25ee93394c82b0f603ce575c8693c8e6ec972e",
+      "bytes": 15382
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-no-grid-show.typ",
+      "sha256": "904653fd01b1cd6fb10221712a77558824bd4b714fd92cf40e4f3de89a047d15",
+      "bytes": 172
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-absolute-tekt.bbox",
+      "sha256": "11488555580f295f6ebb665f11007980a2948e98683baa8663114cdd4782e77c",
+      "bytes": 2966
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-absolute-tekt.pdf",
+      "sha256": "388d96f59919da49c0ca7c629a3c18edcd142f3ecf5d001bacb5be5f3e48f198",
+      "bytes": 16252
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-absolute-vanilla.bbox",
+      "sha256": "f30ea36ac6319dd79316eeda9281eae6aa5c11b560d6c2986a9eb19688a1c1f3",
+      "bytes": 2965
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-absolute-vanilla.pdf",
+      "sha256": "b0256d356550c8352e66cf193919cee5590609478812c6a021a81805748543d7",
+      "bytes": 17018
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-absolute.typ",
+      "sha256": "1e79aff9b98559286312ba1079f7d204fe1cba6ff8af0ccf0319122614c5fe67",
+      "bytes": 218
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-base-tekt.bbox",
+      "sha256": "464e2d4c2a9c5ef1c0e3aab437910ef5f2484283f255d95fbb88bd6e146c15d0",
+      "bytes": 2966
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-base-tekt.pdf",
+      "sha256": "b5e4c0e53200aefbc62cdec364a2a812c971334d494c229f06cf66b16628816c",
+      "bytes": 16252
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-base-vanilla.bbox",
+      "sha256": "72b82fad98295a4da283c2996f6f8410c1048a7c2c056b054e9c0dbc1d52a8af",
+      "bytes": 2965
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-base-vanilla.pdf",
+      "sha256": "e96afd53ca225c63344f0fe775e695cbce0c8ec9a108fd74a64a893bb216a5af",
+      "bytes": 17018
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-base.typ",
+      "sha256": "2a68a706a7e441b21cef799be346d3d19445fbb1eb0799610a45cde869e5854c",
+      "bytes": 170
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-global-tekt.bbox",
+      "sha256": "1bb9d910605ddbacd79696342564caad8a4626f0696d8fc6f94d5ec8228c6279",
+      "bytes": 2966
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-global-tekt.pdf",
+      "sha256": "07364c97a8800cb71f2e9fe1cddd091d7e330322956bc6f7bdd01326c8774bf0",
+      "bytes": 16252
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-global-vanilla.bbox",
+      "sha256": "c7f964362a3226795acfd91f3944aeb24a3e10971297bb0e1a3b22b6ee7955ff",
+      "bytes": 2967
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-global-vanilla.pdf",
+      "sha256": "2531aac44c47032e45593313383c726627042813171fda26c0537b9b7d161e11",
+      "bytes": 17019
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-global.typ",
+      "sha256": "54747fcb038732b8a946ca4dfd73825e9ad46a2e968354c38ba7de2acf75ccb2",
+      "bytes": 199
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-negative-tekt.bbox",
+      "sha256": "05b53f4d6ca5f4877f5d3dcf216b0ec3a99ab451a14f87336d1ae3345da40860",
+      "bytes": 2966
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-negative-tekt.pdf",
+      "sha256": "15624a26d1a16369f74a676b71178ad2bb4df5649cc4795324f4e462040b9473",
+      "bytes": 16252
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-negative-vanilla.bbox",
+      "sha256": "8f0a20003f0cea4669085982f8b5b979289d2b3601ce88321e74465dcd3b2402",
+      "bytes": 2965
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-negative-vanilla.pdf",
+      "sha256": "fd5ef089decebc18f9fd6610b8650eefd319cbe3444d1f4e5c8ca5ca2b0fcdb1",
+      "bytes": 17018
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-negative.typ",
+      "sha256": "f1bec6f742e743cc1dcc7560aac8e7f4320232cde1835dc6e4df2eddced0f12b",
+      "bytes": 218
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-relative-tekt.bbox",
+      "sha256": "d47aaea07b295771b3d89597dcc4a1328374e6299ec6661e4bfbcb58370fba8e",
+      "bytes": 2966
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-relative-tekt.pdf",
+      "sha256": "0c2bd6fc2b0cc7a34071220f0003b1c7994d0f94a912da7343206bc608ac0d4c",
+      "bytes": 16252
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-relative-vanilla.bbox",
+      "sha256": "5c2f6255b34a290505d55dc8a6840c33bcc2609ff0b4843e582d5cff098208bf",
+      "bytes": 2965
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-relative-vanilla.pdf",
+      "sha256": "ee4a15197c06ffed4f8cd24d70510cfcb80c13c1d5c99eabd9db6e82646ae6f4",
+      "bytes": 17018
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-relative.typ",
+      "sha256": "7ea970a47e05b65d90a93f68b9570061033867bdc903840499db0ca240752669",
+      "bytes": 217
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-size-tekt.bbox",
+      "sha256": "5daaaacbc5368103c02135299dcf2468f84f4ebdcee7deafa72ef9dc547d0882",
+      "bytes": 2992
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-size-tekt.pdf",
+      "sha256": "9d34411565a086f57f7c11bf82c3e8c8be5d7241c053fe4ccdb65bd03d18795e",
+      "bytes": 16277
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-size-vanilla.bbox",
+      "sha256": "cd70f93e4fea1df59bbd366bfd41371bb7dbf30e294409831791d1ffcd1ac6d9",
+      "bytes": 2991
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-size-vanilla.pdf",
+      "sha256": "7a7104e52ed97459cfbcb818f0d046c1bb2693c39fcc39de67790dcba0958721",
+      "bytes": 17077
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-size.typ",
+      "sha256": "42783b9015f4f1314865d13026c5f119ca509bc665303643008322a9911f0210",
+      "bytes": 209
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-zero-tekt.bbox",
+      "sha256": "f912a16c3da44b8e3fc43000b2e354d8c1fb5d172464cfb18725e407b2e62c37",
+      "bytes": 2966
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-zero-tekt.pdf",
+      "sha256": "e7441d405425abe246f5e7c6064b5b54d8ee7dd8c630031e60fc64a352d5a314",
+      "bytes": 16252
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-zero-vanilla.bbox",
+      "sha256": "3c808f3d163fb22eebc1054ecd13b3723230f875617ad908410dae096835e4c7",
+      "bytes": 2965
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-zero-vanilla.pdf",
+      "sha256": "5f238cc79be20502a7cfb2cdcaa97ca428ffea3a89fb8a138e6a675c3a7557dd",
+      "bytes": 17018
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-none-zero.typ",
+      "sha256": "edeb8f3626cfeb904a3e853a45f2dd652eaed43dfd597a1d1f6e4adf0a76db9a",
+      "bytes": 217
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-rtl-tekt.bbox",
+      "sha256": "df62534c3a0bf4681efdf2685e7f2aafe1b443dd6f3a29323bf5bc41b6f93e75",
+      "bytes": 4571
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-rtl-tekt.pdf",
+      "sha256": "756158b766138cb8d9faf36424ff8645bd960e9209ae93d78d0a662e9cf3e016",
+      "bytes": 16736
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-rtl-vanilla.bbox",
+      "sha256": "e98393ef2bd1ee5805c213dd1a57cd5d18812a91415d0054e466a763e6fce2e9",
+      "bytes": 5543
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-rtl-vanilla.pdf",
+      "sha256": "e7bda22769280bba529ad914833bbc3cbe7c1fb536f2b8a3c69ab04f5137d855",
+      "bytes": 20722
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-rtl.typ",
+      "sha256": "3cbac3100cfd9616a551f44f5769d0bd521f99ad7395579fabfeca74d70913a8",
+      "bytes": 161
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-size18-tekt.bbox",
+      "sha256": "0951dfd8f0992ab8844f6913cb692c3af0c3ec8fce9a25dc24cf165063f82027",
+      "bytes": 2605
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-size18-tekt.pdf",
+      "sha256": "9a926a00417bba58762852edcd89c9726cbbbba30354f6c3a248688eeaaa3d12",
+      "bytes": 14528
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-size18-vanilla.bbox",
+      "sha256": "afd56bef3c82845e0af86194abe1089143125cd65f9bab9a9531b91f84e857d5",
+      "bytes": 2604
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-size18-vanilla.pdf",
+      "sha256": "a3ee0ce5b66f7a6129a95b2578673ad55b9e19f72a3b7cbee3bb566ff023b9c7",
+      "bytes": 15441
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-size18.typ",
+      "sha256": "1bb2dbc50037eea5484362cdbb75361fbd9364cebe09666be779e80e4ea522ac",
+      "bytes": 172
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-title-tekt.bbox",
+      "sha256": "eecb3fc2d185d060b74f7ef6f922789960e03f7ab1da37120e23201adce6e6bc",
+      "bytes": 2693
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-title-tekt.pdf",
+      "sha256": "e577e22dc152979f82b56beb60d3ff0ff5fbfaf4205f7e8e4699f28890be6c7c",
+      "bytes": 18315
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-title-vanilla.bbox",
+      "sha256": "18f24f500bc5705836d5acb642627dc4d99e088c056a535e35f462b2f2fd8819",
+      "bytes": 2686
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-title-vanilla.pdf",
+      "sha256": "612f06dbcb5cdf22c8289dcc72020e3c791bbd4293abc62444b7aaf6f130bd19",
+      "bytes": 18941
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-title.typ",
+      "sha256": "fb169024ca4303880ffa2463a39eb4511edf22a2b68213c92de0afb46d7049ca",
+      "bytes": 122
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/invalid-native-\"x\".typ",
+      "sha256": "05e51dc59cb989c141f45f6e99cec399057ad5b8f0b78cc2233c1459d9050d08",
+      "bytes": 97
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/invalid-native-1.typ",
+      "sha256": "24d630d84594af7088ce5540b81beb9ebbafdfcb50431aa5e8f57cfe5eb197c1",
+      "bytes": 95
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/invalid-native-50%.typ",
+      "sha256": "8669b48160b27859105ce5c36661bb198aea5596c918f67c2b88b20e9e7617d9",
+      "bytes": 97
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/invalid-native-auto.typ",
+      "sha256": "bba9acd8fc0546c3cedcd8bf51527024a3c2090136de904faa1ee854645d2e2d",
+      "bytes": 98
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/invalid-native-none.typ",
+      "sha256": "276363ba6113bf93949e11f3a76a5c9d30fed8b17a6c09973bc300fa0fb5109f",
+      "bytes": 98
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/invalid-set-\"x\".typ",
+      "sha256": "01c2844ded64256d3c0661e371650c284b10c771d6a7f2533562af521b817dc9",
+      "bytes": 100
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/invalid-set-1.typ",
+      "sha256": "7bd440e8622535ec0995b537fa219c414b0abc6e282940b5cb7c9713b805980e",
+      "bytes": 98
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/invalid-set-50%.typ",
+      "sha256": "cb2d8541a96ba0e99d0ef6c62328e958c617c7adad1491763d932598ee4a66ee",
+      "bytes": 100
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/invalid-set-auto.typ",
+      "sha256": "73c2e4e05247cd16db0ab63aeb69eb61827dbfec75eb8c19d3d8c34397f28f4c",
+      "bytes": 101
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/invalid-set-none.typ",
+      "sha256": "b593dbdfb32b12a8431765cf4dec14c5b497886121bcd69857c06d96943ecd03",
+      "bytes": 101
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/leftmost-effect.typ",
+      "sha256": "982d25650c9ecbef615174d5417e71e965c170601f1796fbdefe1b89f32bfe4a",
+      "bytes": 60
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/leftmost-regex-effect.typ",
+      "sha256": "a035fcde9dca0d5ca7a8dbd664dc6a6fd642ed5eda25711edeb7f8ac4d788f4f",
+      "bytes": 74
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/leftmost-tekt.pdf",
+      "sha256": "2df853bab14e487e822755c7df4c88ef386ac81d5bda258a7cc37a1395db893e",
+      "bytes": 4705
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/leftmost-vanilla.pdf",
+      "sha256": "563bf1a733d97dc97adfb6ecfe0c8ff4edc488405a48cc4553108e3fafb5ca1d",
+      "bytes": 4838
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/leftmost.typ",
+      "sha256": "706c5171bbf04026fae91920c842f82cb8cf659675b21366fb0e989571b9fec9",
+      "bytes": 38
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/local-cjk-tekt.pdf",
+      "sha256": "98853911020e3aaee99bfa4173b0f512704a4ec624aade455607370c4f150246",
+      "bytes": 4794
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/local-cjk-vanilla.pdf",
+      "sha256": "7185b83b4d860d2a1588b144f0256d8dd6afb2e357ef54a662dd2ce2cc904f61",
+      "bytes": 4782
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/local-cjk.typ",
+      "sha256": "769da038098077d71ac0961f51de34c0ab5ef46d45bae2cb30375a8367b2e845",
+      "bytes": 42
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/local-cross-tekt.pdf",
+      "sha256": "00c8387ef0e35aa8ddbcb6f38206c80c9307c18b7a0f7d5fa8fcc99985d80a50",
+      "bytes": 4661
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/local-cross-vanilla.pdf",
+      "sha256": "59eaeb80614206953b7b440b15c185b79d106788539093978ae103d2f4570edb",
+      "bytes": 4857
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/local-cross.typ",
+      "sha256": "075b1a585a061c92d598cf7f2eff095260c42fc76ea588fcbd67177485f4172c",
+      "bytes": 59
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mixed-literal-regex-tekt.pdf",
+      "sha256": "a56c3377c66c24a1473d14d3f4c8d0ddebec42eaff9fdf38233854aea4f13b6b",
+      "bytes": 4597
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mixed-literal-regex-vanilla.pdf",
+      "sha256": "d8db004bb47cbfc15e96b1190d96fde660d77555e81e6399b605aed410b44c91",
+      "bytes": 4709
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mixed-literal-regex.typ",
+      "sha256": "4653af5936b67fb89cb351d15a4b569885abfc4688f125aa6642843196c31170",
+      "bytes": 44
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mixed-regex-literal-tekt.pdf",
+      "sha256": "22a6a5a17f133041db6ca8e07a9535694036e6567d68737a8c2be4a7dc0b8da5",
+      "bytes": 4597
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mixed-regex-literal-vanilla.pdf",
+      "sha256": "e5dd71da350036e80fee76fa873a4a93f8bd8a13610a8ded2b366aea5c606769",
+      "bytes": 4639
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mixed-regex-literal.typ",
+      "sha256": "d69d8ef16c39127805fb62e4308e2b7e9b40d53729b9060cd25fdaa3fcc449f6",
+      "bytes": 44
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-absolute-tekt.bbox",
+      "sha256": "30d69d1cdc9944c20664be9734d10aa28ece66a16bb4855f947878dcf35cb618",
+      "bytes": 2992
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-absolute-tekt.pdf",
+      "sha256": "611011d37ee18e464bc04974ebf21230aff3bf4437a69d68b5eae65898ac8b37",
+      "bytes": 20362
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-absolute-vanilla.bbox",
+      "sha256": "e1446976b8922d6470100640e12da036798a712c2203aefe45dc5ed39c3c4d1d",
+      "bytes": 2990
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-absolute-vanilla.pdf",
+      "sha256": "6aa1aa3ef0c044fc902a683503bd30eaad4bb643cd290bc030e7c0fb4b237139",
+      "bytes": 20584
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-absolute.typ",
+      "sha256": "0d6c617108e9d5b838ada5454e0c888710c7e5984df0fe105cede5d51200c69d",
+      "bytes": 206
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-base-tekt.bbox",
+      "sha256": "2768f155bdaa34892e51679584bedcf73d2542676405a16ccf7e652f31db8cf9",
+      "bytes": 2992
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-base-tekt.pdf",
+      "sha256": "a97b59693a11712408b5b66083a2f84b10a959717e9a53b9cd2b586939728352",
+      "bytes": 20362
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-base-vanilla.bbox",
+      "sha256": "61c6cc0d6a3644cf7b02650c89d041b3b79481992eb4efcd18dab7e0e003ab44",
+      "bytes": 2990
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-base-vanilla.pdf",
+      "sha256": "3f478c3e2fee2335174402079d29760133e6c881014b7b604f9f7eb1bcb87fa9",
+      "bytes": 20585
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-base.typ",
+      "sha256": "df335719a7c945cca7dabc262d1961a2ad22298e82354bc740dc00593bfd2c44",
+      "bytes": 158
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-global-tekt.bbox",
+      "sha256": "69d88f2cff370044b57c416ac8973c21e51013c15bea595db26bbd7decd8bc4e",
+      "bytes": 2992
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-global-tekt.pdf",
+      "sha256": "a5f10eaaf648ded2d53e9f125e6c18da7db77bced45311ebe31227bde86d451f",
+      "bytes": 20362
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-global-vanilla.bbox",
+      "sha256": "a97438dd859719b92b58cc1c4f0eaf91c2d1cec7d79ea1e0c019727968a99132",
+      "bytes": 2992
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-global-vanilla.pdf",
+      "sha256": "bde01ce532a428f8055d744e87cc63dcd97a11d732ad73da731fea797b925f2f",
+      "bytes": 20586
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-global.typ",
+      "sha256": "1f53850a611d7e58699474e8d6a740e2f5a7baecf79ca065ea691008f1712228",
+      "bytes": 187
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-negative-tekt.bbox",
+      "sha256": "509a9015a76e0fa72de0b7b7bf19ea7aeeb2a4a96fdf00c95e34afc05088c4d4",
+      "bytes": 2992
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-negative-tekt.pdf",
+      "sha256": "c9cac5c79fc5654043e21894097f2ed9fd3427c4af7d62850221cea3535ec04f",
+      "bytes": 20362
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-negative-vanilla.bbox",
+      "sha256": "e1f537bf0d12e8386148b329d13853ac274af71387bf4a24c3513d4d6ce80992",
+      "bytes": 2985
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-negative-vanilla.pdf",
+      "sha256": "4c840d0ee6b2008281b900eb22405d96a8116ab5bd75085363914806420e7753",
+      "bytes": 20561
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-negative.typ",
+      "sha256": "7fb6037bc856db0fe524b7b04226e690dbd2bddd9b5e73c203c761bab9210a94",
+      "bytes": 206
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-relative-tekt.bbox",
+      "sha256": "73d0aa1e2403d29f7bc79b34c87e6a746c55d92bd81b054c3a0d66fdd5c6a9b0",
+      "bytes": 2992
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-relative-tekt.pdf",
+      "sha256": "6942e3db65b9f371a642599f702ec66ec498f88668a9ad23bf49ac8e68028008",
+      "bytes": 20362
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-relative-vanilla.bbox",
+      "sha256": "0c205a798e3706d231577d0cec1eba4b90ca97d9364af22a5fac8c8700f674f1",
+      "bytes": 2992
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-relative-vanilla.pdf",
+      "sha256": "7dff021ccd073593247fd0dc1ed087c7bbc5081722c13706ecfba4e99b4574c9",
+      "bytes": 20582
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-relative.typ",
+      "sha256": "1d03558687d925ee9caf6d3eaa4fe326774dbb10582179e6ef4ae293f58cb121",
+      "bytes": 205
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-size-tekt.bbox",
+      "sha256": "6a432a3087f36ec473a849c07e4806b3a4bf3f39ea2e7e0ee2979b32ff3bdaa3",
+      "bytes": 3005
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-size-tekt.pdf",
+      "sha256": "91ae405c27af68e8b5ffb3bebb246298dc08d7b10d8a02368fba70ca1369f3f9",
+      "bytes": 20390
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-size-vanilla.bbox",
+      "sha256": "3ad60ce4948cdd74cdf1d6af0d863d5590d40057497ec06cfc4439a9d7595003",
+      "bytes": 3012
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-size-vanilla.pdf",
+      "sha256": "518ea3fd5cebda82423cff0c4192d1d6a887ba8ab7c24642dbf4c06e67151331",
+      "bytes": 20615
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-size.typ",
+      "sha256": "ab3446894a128fca0846051bc3077fa30588b1aedb06692432c48ad2021fe707",
+      "bytes": 197
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-zero-tekt.bbox",
+      "sha256": "a62f8457cf5677e2de1f72cb2274322e5a56ffd2772572c9c598dade73026754",
+      "bytes": 2992
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-zero-tekt.pdf",
+      "sha256": "b41b05e5d07eb92bd43265bac1e39bf6a0c01e044053a29c02e0a653261a1c54",
+      "bytes": 20362
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-zero-vanilla.bbox",
+      "sha256": "97a5eea2ce2b6f656978ad4bd2a54123f45b7b62c7d78d56c425c0861e41e310",
+      "bytes": 2985
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-zero-vanilla.pdf",
+      "sha256": "14e645fc25230eb7682114af21a8db210c8c8393cfd49d52b5d79387678cf74f",
+      "bytes": 20560
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-default-zero.typ",
+      "sha256": "542c639b8b85839f8a318814ce5e98177b6858ae19aca765f1c10a22c2d0d3b7",
+      "bytes": 205
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-height150-tekt.bbox",
+      "sha256": "24289c7353109cdb5b29dba99badaab59e7bcb9c66cb46f05727b9b86a756dce",
+      "bytes": 2492
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-height150-tekt.pdf",
+      "sha256": "4f335c31b8b0864eca5e7e2f154fbf1ff326369bc124b2c5fea7ada1468db963",
+      "bytes": 14945
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-height150-vanilla.bbox",
+      "sha256": "b800b2ec5e88dc042e2dc4416a1a9e312e96ca06822de100f3f72aebd0339c15",
+      "bytes": 2497
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-height150-vanilla.pdf",
+      "sha256": "325356c930328ce981134231c388c7fdc0874366527e0d8d809f42461c7bc2ad",
+      "bytes": 15487
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-height150.typ",
+      "sha256": "830e1abf46dd3049551148aa68638b4436a632f19811fb8f9b5fce1835834040",
+      "bytes": 133
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-height250-tekt.bbox",
+      "sha256": "47a8155f1681bb94cdf019679c7b8c4913f9aa945ad5609a0c9f6780d2261225",
+      "bytes": 2492
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-height250-tekt.pdf",
+      "sha256": "a6f588215cc2becc7098ab44ebcbe4d3167c77456d9659ff176cc0d61c45325c",
+      "bytes": 14946
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-height250-vanilla.bbox",
+      "sha256": "7228f6921b96fb800bf3ee51715ab2f523e59fdee52a384a7d02a6557163fbd0",
+      "bytes": 2497
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-height250-vanilla.pdf",
+      "sha256": "8271d5a1f79b0d88265b92a41493700ae6598cb60d1adfd7cf3fce8a2e8a39ae",
+      "bytes": 15486
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-height250.typ",
+      "sha256": "8f45cd42e08a994d3b7c53ac27632d17d04d6015ce6c8fc7fe15b09964867270",
+      "bytes": 133
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-height90-tekt.bbox",
+      "sha256": "990db1dfd54d3ffa4dcbfbbcb4f5ceaa248e5eac06976965e0bca2b0d0a458a9",
+      "bytes": 2543
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-height90-tekt.pdf",
+      "sha256": "7c930f809ce1d392b6bdf939a8a43e6989bc9df466d63026bf346f47ba7cc2c9",
+      "bytes": 15360
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-height90-vanilla.bbox",
+      "sha256": "000823b7c42878428c005a656254df928e35acaf204ae7088871bd13559f96ca",
+      "bytes": 2546
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-height90-vanilla.pdf",
+      "sha256": "3bcd4be5f3123ab1fd620740db9378b66a6acbeb8086318bed38b23f13b73e0d",
+      "bytes": 16123
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-height90.typ",
+      "sha256": "0bd6179371b22cf2bf3fc6b1683572ff6673441619be017adfc1492169bacf1b",
+      "bytes": 132
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-multi-0pt-tekt.bbox",
+      "sha256": "07b2f4065cd434346068eba5772862fdc9814725fcd0f23ecf826826f6beb814",
+      "bytes": 4346
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-multi-0pt-tekt.pdf",
+      "sha256": "412c0be7aefaf692f4bf24cffceeeeae18dff58c9bb0e160850e0cbe556ca080",
+      "bytes": 16712
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-multi-0pt-vanilla.bbox",
+      "sha256": "47df4b7e9ecbe5e6c1fffe593399762fbe2a81501de2648148f80b50e9d38feb",
+      "bytes": 4354
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-multi-0pt-vanilla.pdf",
+      "sha256": "c65a7d2ad24b243e1778a3d7f7b0a3d592129a5ee837c52341e4ceccfaddf530",
+      "bytes": 17959
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-multi-0pt.typ",
+      "sha256": "ba468466881530a3fa64689ea2ac48cb64704b3c3667aab099327fc171a78fd4",
+      "bytes": 162
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-multi-2em-tekt.bbox",
+      "sha256": "fdd43ef4a27511e237b60ee6967b4aef8f1ffe7afec399b8ee3eab8bf2d28184",
+      "bytes": 4372
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-multi-2em-tekt.pdf",
+      "sha256": "beb258495ce3ba7572f998e351471931ace112eab406df94f2e54125cf23e3df",
+      "bytes": 16713
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-multi-2em-vanilla.bbox",
+      "sha256": "3352aa744a0291128dd6b2ed41d47806230dd16f2ca4b62fa61d954acf1342c5",
+      "bytes": 4379
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-multi-2em-vanilla.pdf",
+      "sha256": "9b1acb7eccd9dd7403d8113a288b532b42c34ef24c8f39980b9a0b8596a4cc4e",
+      "bytes": 17960
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-multi-2em.typ",
+      "sha256": "7d31f5a67e3f5da8e407ae75ae4c9a03dfd48b533fe96edbb3ffb72f77b101f2",
+      "bytes": 162
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-multi-default-tekt.bbox",
+      "sha256": "8b830abf6158cae461d1eb3a96dcc895f12a2cdccd60e0e9ba31c48ff5be4542",
+      "bytes": 4367
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-multi-default-tekt.pdf",
+      "sha256": "df295a61685c8f90daadf8a84fb90e935360030929c8a15e55736b2b7df4c2da",
+      "bytes": 16717
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-multi-default-vanilla.bbox",
+      "sha256": "a79788ab7195afa2ea98b44dc63c8909e477c2e2a836779a8949d2175be84d6b",
+      "bytes": 4374
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-multi-default-vanilla.pdf",
+      "sha256": "26272331f2595c45e40b6139267dcfa2a4892c0318a2c2314604428f53e42d28",
+      "bytes": 17954
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-multi-default.typ",
+      "sha256": "b66990e7e7296ff1b5035b210602237bcb3e8f77e105dae2b1d9782e299c7a67",
+      "bytes": 140
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-absolute-tekt.bbox",
+      "sha256": "acd821b9774e661670f05ef42ff395645d4d1830494ca5e3007ff82d26ee16d8",
+      "bytes": 2876
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-absolute-tekt.pdf",
+      "sha256": "d98e7903394332878715c6177575d41695b065b045ad00bb3cc554a1c127232e",
+      "bytes": 16545
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-absolute-vanilla.bbox",
+      "sha256": "60dde8b938a71f307709bf7e4f16dcf5f1447d4a466b5b40e83149b0fc63124c",
+      "bytes": 2884
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-absolute-vanilla.pdf",
+      "sha256": "f82c7c7151c93a88ec06305d506e9474d742da8770ffc595b45bd0b3e0970ba0",
+      "bytes": 17002
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-absolute.typ",
+      "sha256": "d5958cd8b3e6f705d447fb4b427ac15758138dd59ad2baf6b61805ea11c80586",
+      "bytes": 217
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-base-tekt.bbox",
+      "sha256": "3fbc12b29ba09eab72c379c7dca5c27a1bd1a4b6aa83913a6620082543896cb4",
+      "bytes": 2876
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-base-tekt.pdf",
+      "sha256": "65ec680ec8728dddc7e902519594c73af8ee9601cd83f805d040782b88c2c621",
+      "bytes": 16545
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-base-vanilla.bbox",
+      "sha256": "56a28bfba48a96e53e7d05d169606c77be60a2123fcde7be718613573688838e",
+      "bytes": 2884
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-base-vanilla.pdf",
+      "sha256": "bc71855cbcb39cf60f3489b6ee0a36653729bd1a40881fd64a429bed59374fe5",
+      "bytes": 17003
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-base.typ",
+      "sha256": "8f79c0c219f96c324f15b23c7d867cb3495e09aeb062c56e5112c9a97f6a7d98",
+      "bytes": 169
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-global-tekt.bbox",
+      "sha256": "839152f23ebbc1c385eff40f0ba7e91dfe50c13aaa56480783983445f13a0872",
+      "bytes": 2876
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-global-tekt.pdf",
+      "sha256": "0c3e9bac73f8cfdc95d87bb4f55a7f68f65e2f8ece908b74b9c960924fba3f7a",
+      "bytes": 16545
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-global-vanilla.bbox",
+      "sha256": "51bd7917dd84f48775e556545a5d0a8d4604a8097e7a9cae508df3736e448ac1",
+      "bytes": 2886
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-global-vanilla.pdf",
+      "sha256": "5d2e31ef5ba814a3e01b8e8edd789863cbcd55331f393ee127345558b53f7061",
+      "bytes": 17004
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-global.typ",
+      "sha256": "e14653b17fde876652b962137d5395ff8f5d274a35bfbbaaf0b7fc207d942e1c",
+      "bytes": 198
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-negative-tekt.bbox",
+      "sha256": "bd88da12e9c31548e4eff48d5340299cdcfdfdeb2376b475b4587d7c16838a53",
+      "bytes": 2876
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-negative-tekt.pdf",
+      "sha256": "c47b31a1610cd9758bff9709a8e0d1330a6b376eb3809d0abe526c0beb46938e",
+      "bytes": 16545
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-negative-vanilla.bbox",
+      "sha256": "10622b1cd984f6a521eef0e3f4c227bbd25511a1a302e52a51ee9755a40b2530",
+      "bytes": 2875
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-negative-vanilla.pdf",
+      "sha256": "3d11e6f7fc15641275f9da7857b74514d485204a5e97374eae5d83f3cef99f93",
+      "bytes": 16992
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-negative.typ",
+      "sha256": "8425b5aec769981a03e8c93c6f3b010726f541f4040221adc4652845d71c5632",
+      "bytes": 217
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-relative-tekt.bbox",
+      "sha256": "4425ef324a87eaa033663375c3f3f0ed08bda8ad0161b83dcca3595a3342135b",
+      "bytes": 2876
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-relative-tekt.pdf",
+      "sha256": "6f4b481b1f2d9b0479273e068999ca4caaea96da6592b70d3bd9aef7041002c9",
+      "bytes": 16545
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-relative-vanilla.bbox",
+      "sha256": "2f0ea534be3dce75306a5052f374994c01dca5908172e98021bc2a50ac0d063d",
+      "bytes": 2885
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-relative-vanilla.pdf",
+      "sha256": "e692f9e7e1f3a211893ae4696ecea6cde9c3a7bee4713c171b254abfa870dcf1",
+      "bytes": 17002
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-relative.typ",
+      "sha256": "66afc6a69d07b93fd996ef7f8dcf3f0907c26b870844a2efda778ad781a8e0f0",
+      "bytes": 216
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-size-tekt.bbox",
+      "sha256": "34cbfd01bce0c3483e274239dbc4fa5439a928932cfcc72d8a1c7ec57d62d551",
+      "bytes": 2896
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-size-tekt.pdf",
+      "sha256": "2a355d72254a431842d4ff3830b623290327c94462424f36a1811f8dd1b322b4",
+      "bytes": 16570
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-size-vanilla.bbox",
+      "sha256": "2aab58973612fc0dde4fd281068873ad84e491c2439c09eb50d2774d5f40962c",
+      "bytes": 2909
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-size-vanilla.pdf",
+      "sha256": "3cfc9dc9596eb9fa353764cc5de08a22a93a963091e9884a18514d2101945036",
+      "bytes": 17030
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-size.typ",
+      "sha256": "76c9bfb00e0fa4cb8ed5c7a1a4895471a0330f67d4f58221b24efdd143a614f0",
+      "bytes": 208
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-zero-tekt.bbox",
+      "sha256": "af4f9e700febc0fe56bda766f6615a8868ba11b5f3ddb4cd3354b492175759c1",
+      "bytes": 2876
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-zero-tekt.pdf",
+      "sha256": "b2e81fd33e05fe2c075dbf9840f39449630eacbcfca05e62ab9ccade92724246",
+      "bytes": 16545
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-zero-vanilla.bbox",
+      "sha256": "99b61bebaede3858bfa6ba1962945dd6c7f3e57339174eb6b85ada46fc8e849a",
+      "bytes": 2875
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-zero-vanilla.pdf",
+      "sha256": "65fc478d6657ae13fb91a05537b5f6fa54b7548db53d3d90d89199ec664497b3",
+      "bytes": 16989
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/mla-none-zero.typ",
+      "sha256": "880bf5cb0f9317d4e166740ba0106f657035cd0f3ddb5b9adb38f9a28f5fe177",
+      "bytes": 216
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/multi.bib",
+      "sha256": "23c12dc17e28cd81a91b3e0f31e36fa2ac14f664ed8b40f1dcd683824ba9b053",
+      "bytes": 356
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/multiple-matches-tekt.pdf",
+      "sha256": "cc32d6cae53d6e43ebb4cc9fe7937851debda46fcf68b322e06482f96cb59d7c",
+      "bytes": 4727
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/multiple-matches-vanilla.pdf",
+      "sha256": "1d138578dc5283fd431e3e1b769742bd27181e71b6dfde7662f34ffecb5d3365",
+      "bytes": 4902
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/multiple-matches.typ",
+      "sha256": "34b0386cce802b0421bb606374185c4a1d3978a19d656eae2f974ca148d7bb9c",
+      "bytes": 42
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/new-rule-cross-completed-tekt.pdf",
+      "sha256": "19684068af7e6e50556c91a41eef04f90b1e7426dcc2fd73659ccd2e65267488",
+      "bytes": 4661
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/new-rule-cross-completed-vanilla.pdf",
+      "sha256": "ab48bcabad4f59d48226a4383aae5009d97172b7d5f291f9e9b63ace670d578d",
+      "bytes": 4857
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/new-rule-cross-completed.typ",
+      "sha256": "225d6654a4b39c9082e0546ba3ec904775b5d09632ba488d59a982631a7af67f",
+      "bytes": 53
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/new-rule-on-completed-tekt.pdf",
+      "sha256": "b55d33b90ac8eddff37371df35529c7ba4fca8ea43b934d7893b9c5519b44e25",
+      "bytes": 4528
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/new-rule-on-completed-vanilla.pdf",
+      "sha256": "e668e86ccd1490bc25d6be2044d3ddb78677dbf74880753f1124ce248644610a",
+      "bytes": 4630
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/new-rule-on-completed.typ",
+      "sha256": "501d9d3290ced1803e114a5265efdbef43b748ba5b152220944d111b617b90e2",
+      "bytes": 50
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/none-assert-tekt.pdf",
+      "sha256": "5a9207e8cb4ddc99f3cd3f48b73130cb7053efe96147923298d9e0bac3fe0cb3",
+      "bytes": 5016
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/none-assert-vanilla.pdf",
+      "sha256": "b1857f510209560b62b910d0e585ea26a330964659c38e744fb135dd9ac9e50e",
+      "bytes": 5056
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/none-assert.typ",
+      "sha256": "235a6232d86c23e95d7f644e1b280678b06ea4b9831d97574cc082f9378023b6",
+      "bytes": 41
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/none-definition-tekt.pdf",
+      "sha256": "7cb27e8a07c39e1d49de7b54216da81a33e1a8666adfc31dd0b8165f0a5d3efc",
+      "bytes": 5016
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/none-definition-vanilla.pdf",
+      "sha256": "1efa347c832750568a8396c42ee7f57eea2a4f8031a50b8110e7f12cf48614a5",
+      "bytes": 5056
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/none-definition.typ",
+      "sha256": "2a89c4ad440deb3aa70585cb81fd47e3516295062be717c722a91d28d9f23deb",
+      "bytes": 37
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/none-explicit-tekt.pdf",
+      "sha256": "da01a0583a2195087435ae50452e5297d612a58f7953f163fe469c9181054e4c",
+      "bytes": 5031
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/none-explicit-vanilla.pdf",
+      "sha256": "97dab1a63baedd13c7362a3d78c866951bf35456341351041b1029a413ad055f",
+      "bytes": 5060
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/none-explicit.typ",
+      "sha256": "0fe5f265d41cd4310e6c81f3c88c353a925691079803d2b58462efa521b9501e",
+      "bytes": 36
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/none-only-tekt.pdf",
+      "sha256": "51de37a301d7558dc3a3ee9091cdb8ecd59caea40c31cc6f03c20abd7f2a3e16",
+      "bytes": 6371
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/none-only-vanilla.pdf",
+      "sha256": "9e6795cbe3b3830823d6d75f77c8d1b6763f56743fd543877d8a4e84afe6b997",
+      "bytes": 6359
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/none-only.typ",
+      "sha256": "94802a26f18a38fc1bfb26b36532dfa691b27da4fb733616f23b126dc7222a70",
+      "bytes": 43
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/overlap-tekt.pdf",
+      "sha256": "160142098b567a4ffa119f1c1fe9d5f5eef4eb197141edd151ccaabb5b72e6cc",
+      "bytes": 4661
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/overlap-vanilla.pdf",
+      "sha256": "c9250ec94042801a23027a6e4c46acf1f8d166d3346ec652557e7d0ed92f234b",
+      "bytes": 4889
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/overlap.typ",
+      "sha256": "d0094af64334598c79845026a2ca39e873081d64ef706ed3d15623c0b801ad17",
+      "bytes": 39
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global--6pt-tekt.bbox",
+      "sha256": "0d70881759c3784bfefdf600265da962fd5cd0eec04d51950798b461dcacd853",
+      "bytes": 2934
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global--6pt-tekt.pdf",
+      "sha256": "d81c261af7b78eacf7afcd0c8a94d4d58a295e4bdfc31bdec924de0326c72316",
+      "bytes": 9571
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global--6pt-vanilla.bbox",
+      "sha256": "aa5b0c5f413eb2ea01956a01a462917a70083f70313c16c21f331d5ffe2439a0",
+      "bytes": 2932
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global--6pt-vanilla.pdf",
+      "sha256": "fdd6cc1190dd88cc18bd0debab0a72d891d209495c99f7d5f7897fee8afe0ac4",
+      "bytes": 9280
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global--6pt.typ",
+      "sha256": "6e2c941b9a15b204b2b8defc3614271d1d19c5c6648dde2e0c1e51ba063c94f5",
+      "bytes": 274
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global-0pt-tekt.bbox",
+      "sha256": "eeae7095fe76d705416ff61514a54e758a36d8b1923164dcf8e6f8f0cbf4700e",
+      "bytes": 2934
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global-0pt-tekt.pdf",
+      "sha256": "2444d17be878405b1221ea7cd51b4669e765ea9bc6d12537e1b24f60a9a991f3",
+      "bytes": 9571
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global-0pt-vanilla.bbox",
+      "sha256": "09dc613f57ac5a99c4d955bcc97e900bca5614b74ccb950f8f926e686f92e6f2",
+      "bytes": 2933
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global-0pt-vanilla.pdf",
+      "sha256": "40845f2765e39e30f29178914297c318c52c9462c7224cf5ec75d3d952da39b4",
+      "bytes": 9279
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global-0pt.typ",
+      "sha256": "954efc721ae9d9e9f425111db1394f17eed565de187751ad63e79f4d9f0b3e34",
+      "bytes": 273
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global-1.5em-tekt.bbox",
+      "sha256": "0c3a2fb9cd59008d078e2040c2b8cfbb46f582494f2d83e55b6728ff8a3bc22d",
+      "bytes": 2934
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global-1.5em-tekt.pdf",
+      "sha256": "f253c6a6ddb9e62a4cbeec7cd9a329d18aa0c7ce5f09c2a03e068715829953d6",
+      "bytes": 9571
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global-1.5em-vanilla.bbox",
+      "sha256": "caee89a18e98b9fa390b81a6d0a51cd6f097a36788c896a1d61f5d215f740930",
+      "bytes": 2943
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global-1.5em-vanilla.pdf",
+      "sha256": "a442f9bfc39be953d7465c0942f3b3f53d550d0895caa27b30620dea2f778a4f",
+      "bytes": 9282
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global-1.5em.typ",
+      "sha256": "8ea794d449f7819e31a079482db3e13174483493329c99bf439cc3920dcf3a6b",
+      "bytes": 275
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global-18pt-tekt.bbox",
+      "sha256": "6af94e2bda6248ff89a9feeee2e3f07a80acda3d080b12285dd8545230346d8e",
+      "bytes": 2934
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global-18pt-tekt.pdf",
+      "sha256": "5a0a35c17ae80473adf04e625734a364d4589831a0ffb2adecc694e43e864d5e",
+      "bytes": 9571
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global-18pt-vanilla.bbox",
+      "sha256": "beda033f0bf5db083bfcad7a4414946294cc5074ca3bfd1841dd6639028f7b0f",
+      "bytes": 2943
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global-18pt-vanilla.pdf",
+      "sha256": "dc60afd5493afacf51fa9be0a8e95cca8d47775039d0c518c93eb297acc2c4b6",
+      "bytes": 9282
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-global-18pt.typ",
+      "sha256": "e45793b978135fdd1b1346b1d73bf5e05876449e07b4cc8dfa0de8694e1cc97a",
+      "bytes": 274
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native--6pt-tekt.bbox",
+      "sha256": "112ec96eb8c554e6d2030ea1554a12ab1c45db55a6daa677ad4a5e469310412f",
+      "bytes": 2934
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native--6pt-tekt.pdf",
+      "sha256": "c61cecf9ac94e0640bf1cf454367b00730c511e52724bf577891f9b5f0523dda",
+      "bytes": 9571
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native--6pt-vanilla.bbox",
+      "sha256": "413adff462780971949ed57697459452e10409e4b7c62ff02e66f6afa2b4356a",
+      "bytes": 2932
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native--6pt-vanilla.pdf",
+      "sha256": "24d6e577856a64fcd600703d3d0cce12442f0f40aaa187f02a80ab780d4acc06",
+      "bytes": 9280
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native--6pt.typ",
+      "sha256": "180d21e4e57b165d68d78720ddc428c7bba660d6dceb497dd3e6bf1e03b19c8f",
+      "bytes": 271
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native-0pt-tekt.bbox",
+      "sha256": "6af94e2bda6248ff89a9feeee2e3f07a80acda3d080b12285dd8545230346d8e",
+      "bytes": 2934
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native-0pt-tekt.pdf",
+      "sha256": "e2182d4c45a9d8ade0e112dbefd8f104bce2b637dc60403d12c681270f500029",
+      "bytes": 9571
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native-0pt-vanilla.bbox",
+      "sha256": "fede755cbcf76dfb72af30165dacb634fedb4b335dce14c250d94fc67aafde85",
+      "bytes": 2933
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native-0pt-vanilla.pdf",
+      "sha256": "36efd72f6225ad7f0cac9da2ce0985543de20770a39e92dab202fa5553da8c75",
+      "bytes": 9279
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native-0pt.typ",
+      "sha256": "9b2589ce6cacae94e0533c62ffe920cb15a0d7d955bd4088479505e36fa4be68",
+      "bytes": 270
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native-1.5em-tekt.bbox",
+      "sha256": "93bf27249c96150695a6e6cb5c7c2761e54c24244a04d939d6dbbf7a1497095d",
+      "bytes": 2934
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native-1.5em-tekt.pdf",
+      "sha256": "6055c2e95939f1b6ba674546193600b87ec78a83a86598ae31f7f2251345e804",
+      "bytes": 9571
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native-1.5em-vanilla.bbox",
+      "sha256": "7930d90777378773138c8e241478bd8599f5da9a9fa706f5327bb759f9878516",
+      "bytes": 2942
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native-1.5em-vanilla.pdf",
+      "sha256": "f4441ae4d8bc6f5b3a3a4adae897afbaaad7019c87c807c6e32eef0f81a9e8d1",
+      "bytes": 9282
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native-1.5em.typ",
+      "sha256": "2d7f09488ac3c5b9e3fcf3a62539d8c546281a6edd0304c749a14b8898d46988",
+      "bytes": 272
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native-18pt-tekt.bbox",
+      "sha256": "f86de69ca68ede98f5d61d39b269a0607a898f2816d0d8c661cc1ba4d6f31e16",
+      "bytes": 2934
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native-18pt-tekt.pdf",
+      "sha256": "f8b9a84467e5a31ece9079a8f7ee47780a07721fae6f914375f979690483026e",
+      "bytes": 9571
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native-18pt-vanilla.bbox",
+      "sha256": "4bb4d2129bfd55e9c61c88634304290287d2ec7e20667db8cac8f366c4833c82",
+      "bytes": 2942
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native-18pt-vanilla.pdf",
+      "sha256": "f610e68dc0566938f66b2469f18523e48da245c2d14ca26444d945a8a537050d",
+      "bytes": 9282
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/par-native-18pt.typ",
+      "sha256": "374e88ed6b576516d13c7a92a6acd6c893bed7b306b9808b8bdc86f68e7b5014",
+      "bytes": 271
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/prefix-only-tekt.bbox",
+      "sha256": "0b4f7c0d7a3428b14c8f8c0eea4b2bdcb2d70715ac2d330899fec785161b164c",
+      "bytes": 3620
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/prefix-only-tekt.pdf",
+      "sha256": "a56ea7cade3aba51dbb61fc0bfdad5a8bc2feae533b6477a431b246c51b96635",
+      "bytes": 11123
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/prefix-only-vanilla.bbox",
+      "sha256": "623130801a414384f582ce3109c2f64922bbc5d1040a8c9200028ad775eb368f",
+      "bytes": 3619
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/prefix-only-vanilla.pdf",
+      "sha256": "8640fff8f549fb977f65e86ca2b17e28c1e6816ce80d7b327266c8a0c11ab967",
+      "bytes": 15105
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/prefix-only.csl",
+      "sha256": "91d1e437692a45f422a9e8daff01750750379885062daba0b0b9b32175039903",
+      "bytes": 445
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/prefix-only.typ",
+      "sha256": "56ff3c5e34557fe6cf724387125f26d2c27797ae436c592ffca0f10e457ec16a",
+      "bytes": 153
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/product-parent-hides-constant-tekt.pdf",
+      "sha256": "6c8f2ba8e5b8072c79a4ce20149a8b388c8780b9187fee501ecd34f4f9eb0e7b",
+      "bytes": 4559
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/product-parent-hides-constant-vanilla.pdf",
+      "sha256": "6862672bd719fc93db9e3c476f579e782f098103e11be104c58516471e89b788",
+      "bytes": 4805
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/product-parent-hides-constant.typ",
+      "sha256": "7806054edc5c9afc07fa8e63703bac52bdab6d86dcaae52ac83168c284024744",
+      "bytes": 93
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/product-parent-hides-text-vanilla.pdf",
+      "sha256": "6862672bd719fc93db9e3c476f579e782f098103e11be104c58516471e89b788",
+      "bytes": 4805
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/product-parent-hides-text.typ",
+      "sha256": "2068c248958c4d35d0a408dd476aa63e1f258a2608a2ae6d4625544fe90ac083",
+      "bytes": 76
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/product-separate-nodes-tekt.pdf",
+      "sha256": "e0ea9c960d7aaaacdacdd96bc6d2a4fa0e5ea16b82470f087135bc5314f3b0d7",
+      "bytes": 4722
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/product-separate-nodes-vanilla.pdf",
+      "sha256": "a93bdc096d023c06308d834669bbb570b5ff72dc1508dda5bc744e842f018011",
+      "bytes": 4782
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/product-separate-nodes.typ",
+      "sha256": "c0b8199aa9bf6c9cc028f2c7b68168f686ed798156526d163dfaedfdf9920094",
+      "bytes": 42
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/product-whole-group-tekt.pdf",
+      "sha256": "1d91b1e6540ba2bf7c7cb92e2ea44dbf0e651a1415ba7b0ea3db52393ebb27e2",
+      "bytes": 4661
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/product-whole-group-vanilla.pdf",
+      "sha256": "9ebfe17ea0fa8f5a29529b7a42db5d97dd62f19c0d395db2b2204d4aff4a98d4",
+      "bytes": 4782
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/product-whole-group.typ",
+      "sha256": "c9deff7eec36680398818ec787e31473dfcad82a0e2b8be5bfa1fa7ff4554cb9",
+      "bytes": 39
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/revoked-cross-inverse-tekt.pdf",
+      "sha256": "6bde6f5d7530e6730813a9f87a85b9d528b461ead790fb818396940358a69372",
+      "bytes": 4722
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/revoked-cross-inverse-vanilla.pdf",
+      "sha256": "186661b92a31a4698481416274b82afe3df1ad715648288dadd41343cc7a3a9d",
+      "bytes": 4857
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/revoked-cross-inverse.typ",
+      "sha256": "01bf5b59fbd06a756d901b8a7705e51c82a3bd1e591c8dc057b0c0a99dd20ea8",
+      "bytes": 39
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/revoked-cross-tekt.pdf",
+      "sha256": "3aab1a8a8a9d42c40b8bbbf1dd060bb151b17647688795f16787504e8ea8fc92",
+      "bytes": 4661
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/revoked-cross-vanilla.pdf",
+      "sha256": "186661b92a31a4698481416274b82afe3df1ad715648288dadd41343cc7a3a9d",
+      "bytes": 4857
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/revoked-cross.typ",
+      "sha256": "a81198a8aacfd8053898b64b0499255f7960587ff7983fc4fd25674ee08d8a00",
+      "bytes": 39
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/rich-prefix-tekt.bbox",
+      "sha256": "9e2ee83a2a80eac138afdc000f0c922a43d450aa849d417f2a67c471a23865e4",
+      "bytes": 6367
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/rich-prefix-tekt.pdf",
+      "sha256": "c423ca0f53d741053484bff502a841b6e0af7fa741ccd5f6fcbd9e054cdbf102",
+      "bytes": 13291
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/rich-prefix-vanilla.bbox",
+      "sha256": "4b742c2cd71e720e0cbfee20564d5ffb5f247017cdeb8d809cc64abfdce773f9",
+      "bytes": 6366
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/rich-prefix-vanilla.pdf",
+      "sha256": "3279663dd1c160770206818cc7c6f8945595f98a928f46c6cda8a37b48220bf6",
+      "bytes": 17164
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/rich-prefix.csl",
+      "sha256": "d71e4df7c65e126456e841a3992391f53b506e0344c965832ae7f25d2238ff7d",
+      "bytes": 503
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/rich-prefix.typ",
+      "sha256": "41c9a313a672af7dbcf07d6604cea0eddf505309db92a02528e6b4ef4df7439a",
+      "bytes": 153
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/same-guard-adjacent-tekt.pdf",
+      "sha256": "4a87269db5b97adff4c65b7a5d6cc2d680875bee130d9acd8175c7739f4898ea",
+      "bytes": 4555
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/same-guard-adjacent-vanilla.pdf",
+      "sha256": "782438aa615597e5e9304b127488b02e04c5e1e727a57b85193fe589f5ecf4ae",
+      "bytes": 4692
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/same-guard-adjacent.typ",
+      "sha256": "0a5f2e5043002268577fb4c8a20b7d01919c2c70ec9bd3f001a103cbeb467594",
+      "bytes": 42
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/same-guard-regex-adjacent-tekt.pdf",
+      "sha256": "78759add691854f7ddf22fce52648a8f2513c2f80b1d4ae713e31b87cd52f0a4",
+      "bytes": 4661
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/same-guard-regex-adjacent-vanilla.pdf",
+      "sha256": "82b54613bbd45059c53923dfcc19a0794e0a2b64e234ad2953425de076d1df0d",
+      "bytes": 4857
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/same-guard-regex-adjacent.typ",
+      "sha256": "85e90672f7566282a9a3d8a45b60f85d6bdeffbc8fe4eb4717ad2263e4979625",
+      "bytes": 47
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/show-set-vanilla.pdf",
+      "sha256": "2806ed9f9baf6a680ed6613deb8d9fc3b7a66d5d3b514d4530b25acb858f12d5",
+      "bytes": 4744
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/show-set.typ",
+      "sha256": "a78bc9eee106c558b49c38dffe16faa7dd0acd9dedefc9506991027d80e243df",
+      "bytes": 30
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/unicode-overlap-tekt.pdf",
+      "sha256": "88a28f83ded41b8b9ab52c27222711e2e3dde3d9b065ca8cde372585388eadc4",
+      "bytes": 4526
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/unicode-overlap-vanilla.pdf",
+      "sha256": "1f4b86c17d6c62a4b285bce59159d2704fd36d4bf2ca4578eaff5c579a578991",
+      "bytes": 4989
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/unicode-overlap.typ",
+      "sha256": "ab54a3d2cd34c89c652e91bb1e1af6d558f8f72128a20f5e4c64b5befeddcaf8",
+      "bytes": 42
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/where-style-tekt.bbox",
+      "sha256": "e3a3417b45071161f0f5b2a74a30118c2b485d0d6d690a31e3da50c211a648b1",
+      "bytes": 2876
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/where-style-tekt.pdf",
+      "sha256": "a40b0952cac66f0bc7a5aea75f4757a9f394419e70550864f0c9cd7c9c96b047",
+      "bytes": 16558
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/where-style-vanilla.bbox",
+      "sha256": "134a4415cba6505ae68fae0f55ecd7d31515a7100090005563a8d5e35f574664",
+      "bytes": 2884
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/where-style-vanilla.pdf",
+      "sha256": "8798d15203e30cc06d020c40f69c03a7a74fe898a5ae03fe5a635cb4c1428c8d",
+      "bytes": 17516
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/where-style.typ",
+      "sha256": "1d782ad7a738b472bc06c5baf359561c602b55528b91c9f7902e2d0fd6209e98",
+      "bytes": 215
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/white-input-normalization-tekt.pdf",
+      "sha256": "c220165b76821a38dac6d6a6f5b3955c7832cbf1784327b0075c3aedf67e5abd",
+      "bytes": 3013
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/white-input-normalization-vanilla.pdf",
+      "sha256": "32e79f9c4e866de9df17033ba0fbb190cc5e2c1c5ffb8d7371eeb05a18cd1c98",
+      "bytes": 2151
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/white-input-normalization.typ",
+      "sha256": "3e50ac5b16ad9e79ac0a1648aa7badd345401403e2eb14126325ce4fa6a2f798",
+      "bytes": 28
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/white-text-callback-tekt.pdf",
+      "sha256": "4879fa66a833cc1ad28759c54bfb21de719fe550fc3f9ac73b2889eae46d842e",
+      "bytes": 4559
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/white-text-callback-vanilla.pdf",
+      "sha256": "32e79f9c4e866de9df17033ba0fbb190cc5e2c1c5ffb8d7371eeb05a18cd1c98",
+      "bytes": 2151
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/white-text-callback.typ",
+      "sha256": "e87a2c7185e23a602a724b9b4e5c2f6349e623c34ab1224beb01a879416c5f6c",
+      "bytes": 37
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/white-text-tekt.pdf",
+      "sha256": "09d8cb426f309d35b5f45a82ce93afacaac1510bbd87432671cd64205d144867",
+      "bytes": 4409
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/white-text-vanilla.pdf",
+      "sha256": "5b9c693ae8a81d2b4e0e46d08b03521d619a7fbeba237c99e230c7bc448fd24b",
+      "bytes": 4656
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/white-text.typ",
+      "sha256": "966a16790bf5489af9619de5dcb0024959df1f2626384b548ba4997fb7aa8f7f",
+      "bytes": 28
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/pagination-after.json.gz",
+      "sha256": "fcb485c52e0b945b11f24cdae6c64945f5914d223c29d275e83fd353d6dd18e2",
+      "bytes": 9554
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/pagination-before.json.gz",
+      "sha256": "69361218f025b2cbfdc5684a1b4aca300a3e217b6e2084ec532a46783d161fcc",
+      "bytes": 9183
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/pagination-before.log",
+      "sha256": "a5860cc09e6cf361c474dab45b101bf80e4f729e55aae1f7b680079f28337152",
+      "bytes": 2137
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/pagination-block.json.gz",
+      "sha256": "31364b882b24d7afe403b3b6041d1494f6895438645d23232a096fb93e048a89",
+      "bytes": 9168
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/pagination-block.log",
+      "sha256": "a5860cc09e6cf361c474dab45b101bf80e4f729e55aae1f7b680079f28337152",
+      "bytes": 2137
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/pagination-grid.json.gz",
+      "sha256": "213f01a30bc44a6e0b3b04a6d4304f306b07f19b3255dfe3cab2ee3025df71e5",
+      "bytes": 9161
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/pagination-grid.log",
+      "sha256": "a5860cc09e6cf361c474dab45b101bf80e4f729e55aae1f7b680079f28337152",
+      "bytes": 2137
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/pagination.py",
+      "sha256": "1f479fdc8338b67cab5b0a89615c1a7a11117250a740133f44e135f6f0e400b5",
+      "bytes": 3246
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/prescribe-admission.py",
+      "sha256": "53f829df4158068f8da47e574919cccf2d919e290a06d4f330742620ba53a607",
+      "bytes": 9959
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/prescribe.py",
+      "sha256": "b33bc24c55203bf3fcf7f2ec9e75d658911df45b7d04ae13c4be92ccd6a076ff",
+      "bytes": 8965
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/prescription.json",
+      "sha256": "679271119a937b50591fb333e6fece15a8b08d92c681573ae959534e4dc2b36c",
+      "bytes": 915
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/probe-grid.log",
+      "sha256": "bea58af5df90f04f6e4eea221ff59bde89f0acfb9c30327b221b86fcfe875cdf",
+      "bytes": 7612
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/probe.py",
+      "sha256": "4c2f66d6e1e01f65faa78b9ad99719bce51083913557ca59beeb218aa7cd7ef2",
+      "bytes": 4527
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/production-equivalence.json",
+      "sha256": "77ea784c0221fe2ec13a69457d4e4381a6540d2540cb3fa115f26b5749f4b0b7",
+      "bytes": 1321
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/proximos-passos.md",
+      "sha256": "ffb9accae99f95e3f09178dd0ac77930aeba7cb7ec718690ff55e18383415ab5",
+      "bytes": 2470
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/red-admission-resources.json",
+      "sha256": "5e406da28f5e92a9e93759190b6e777cbe13a95f402718de1f295f79f3eeb933",
+      "bytes": 8920
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/red-admission.log",
+      "sha256": "870b8e04a4b22fb743443fd37b2e7123bbe496763d5b0e87933730d00f63ed1b",
+      "bytes": 537
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/red-admission2-resources.json",
+      "sha256": "df90534cdb258f7007cf53a5d4fe6678fcb750ab6ed2af535ad6eb4590eecf61",
+      "bytes": 8922
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/red-admission2.log",
+      "sha256": "c7bdbba73f5d9e5dd5e0ef70e994d971f67799075039a6734ddcb933c04f6922",
+      "bytes": 4777
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/red-block-planning-resources.json",
+      "sha256": "9751737dbddbb98add49b8992920a40aed9bb7e6eb7252ef47100d68d4eadcc4",
+      "bytes": 9204
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/red-block-planning.log",
+      "sha256": "3fce61274fccdb78e7af5bd7ccd6756a5e9d33ca272f195d251d1d9372a6496b",
+      "bytes": 461
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/red-block-planning2-resources.json",
+      "sha256": "8d61e562919080df492d70e905f2b1a793cc18e1ee58245f17e2244259b87917",
+      "bytes": 9207
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/red-block-planning2.log",
+      "sha256": "806762297c72944b594b01f85d2ce6ba99c9971975fc72ba6c3acbfef00cdc27",
+      "bytes": 1262
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/red-pagination-resources.json",
+      "sha256": "3a152c4bbd482cedcdd9c9fed7d76212801ec86cd6a81077d4bf96c3d80c8241",
+      "bytes": 8560
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/red-pagination.log",
+      "sha256": "b0766aed01e96d64d9dd97ac1d475ac607d104feccd57497e8fac1c3b0fc4da9",
+      "bytes": 452
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/red-pagination2-resources.json",
+      "sha256": "9a7bad3c71645d428ba69f845c8cc2ee34b660f0ca8b93dffea661fec53554ba",
+      "bytes": 8563
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/red-pagination2.log",
+      "sha256": "df4886d5579486f28ab345fb11c4b0979ba64e215f50d63cfeec4fdd03a79493",
+      "bytes": 1107
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/red-resources.json",
+      "sha256": "7eafb0f56fca58a983fb39a9ea0fe01cbaa77a37d8d7e81d34d93973416b1348",
+      "bytes": 8349
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/red.log",
+      "sha256": "62e1597793ea52553f4655ba98017ebb62cf397bae94db45f020b6f4038061f5",
+      "bytes": 4186
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/relatorio.md",
+      "sha256": "d6bdca0799501d2fe2bf626c37300b648c6360cd86db0b6acd33f07b5594a9e6",
+      "bytes": 8897
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/revise-pagination.py",
+      "sha256": "f2588e10b79511af29d785980d95af16504fdff772474c04350e5b25d2bdcbb4",
+      "bytes": 4660
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/rtl-classification.json",
+      "sha256": "c55f30df4af7538d202909c29d160d44db998ce0b738a2c8bda2250822490347",
+      "bytes": 1246
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/rtl-visual-provenance.json",
+      "sha256": "9ac956385b3cdf33a178f71e94dcbff359d97cdbd74f5becbacb65a80dd5631d",
+      "bytes": 2764
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/run.py",
+      "sha256": "04de1d3442a44cfed4b0f0985a8eecd38b13b51279431650ba538cec5b81d8ee",
+      "bytes": 2105
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/seal-resources.json",
+      "sha256": "32bd1118e00a80dc36197c6ea98ab68b996db829c7ea1ae010452121a26166a5",
+      "bytes": 8465
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/seal.log",
+      "sha256": "922a9bd376c41465a2c349d94caca20722ea940997ccbeb86b25dba6a1a9ce71",
+      "bytes": 1312
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/seal.py",
+      "sha256": "cd546fee2bb869a79ba0fc7532871336beadcb28a663154705a495bdec650498",
+      "bytes": 1114
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/seal2-resources.json",
+      "sha256": "05f51b11bddfacce94d1657719618f334327d39ff4793fd79af02bf3498c5a8c",
+      "bytes": 8469
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/seal2.log",
+      "sha256": "3ae057406e34345b5b0fc766e108579d7fdc63696972305aa16de1d6ed9c89b8",
+      "bytes": 778
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/seal3-resources.json",
+      "sha256": "94e0e3aaf4e275c4df1ddad37c14a6c1c3364aa90d3a02b7fbc75bf2d9aeba7e",
+      "bytes": 8471
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/seal3.log",
+      "sha256": "a58592ebbf10e0b2d9708fdf524d775ab6f15b27972f50ca135353080056d4c0",
+      "bytes": 1312
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/seal4-resources.json",
+      "sha256": "2b0a3dee05220713199a64335311d93ccc8aff36a7d6807e82e3070aa8940399",
+      "bytes": 8472
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/seal4.log",
+      "sha256": "430e805cc453fcc8ae29eb69f0fde38360babeb71ca2ebe75bd0afceb38cbccc",
+      "bytes": 635
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/seal5-resources.json",
+      "sha256": "21073e67d58669edfa5d7acd7725f059c882243d657472aa164fb8f69ec43b24",
+      "bytes": 9089
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/seal5.log",
+      "sha256": "32282e0d2ac16eb1263cebade2f0b3b085fba8914395b2e3cfbd897112218b28",
+      "bytes": 1578
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/summary-before-supplement.json",
+      "sha256": "d5444668e47e95e490a6cbd8708a44b058d06985e37580286ca29694add8b788",
+      "bytes": 10588
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/supplement-build.log",
+      "sha256": "e68b3ef45b4a134c48f93583d9dcd13bfe2338e33d1b1195ef4285f04066b300",
+      "bytes": 381
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/supplement-diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/supplement-lint-diff.log",
+      "sha256": "c517115c5c1a300a991aba522972883b27459c60734cde7541ccb5dd89809c6a",
+      "bytes": 1342
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/supplement-resources.json",
+      "sha256": "03e0cd784fb1a25c3a004947b177eb345598c3161c469a4b801339a2399d5b77",
+      "bytes": 9113
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/supplement-results.json",
+      "sha256": "f52163a4cd9273954307189b64271cb42ac77fdd0f2cdf66d39d9a671d847cc8",
+      "bytes": 795
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/supplement.log",
+      "sha256": "50613d4b9cc243fe6f6cac56e70973a0cdb9025bb29956a57e770f9946d41096",
+      "bytes": 761
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/supplement.py",
+      "sha256": "6a4dcebfad277aac3ef62170cda26faab50269c23b8e8fa0aa96a79d9a82268a",
+      "bytes": 1512
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/survey-resources.json",
+      "sha256": "71b9ffac1173f9e0c5cc5b85d724a5df22342f49b170d120810dd6586f949e71",
+      "bytes": 8106
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/survey.log",
+      "sha256": "bea58af5df90f04f6e4eea221ff59bde89f0acfb9c30327b221b86fcfe875cdf",
+      "bytes": 7612
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/tests-admission-before-code.json.gz",
+      "sha256": "c1d515bb62dab61bfa66bc772ec4dd72510b1f0ccea8b531904565b611f66db7",
+      "bytes": 13653
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/tests-before-code.json.gz",
+      "sha256": "8ab79bc0aa3a695588b7c3205eaa9cd48db1c0f8d5d7c5e96bb76ad90f1445cd",
+      "bytes": 4121
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/tests-block-planning-adjusted-before-code.json.gz",
+      "sha256": "c79298c2a4db2dd54de3abb134145e6fea760b2923750fda334720e45f4453ec",
+      "bytes": 9584
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/tests-block-planning-before-code.json.gz",
+      "sha256": "23a2658d2aba95b7b11d9b7aee97f3cc70ee3aaa1b16862ec56144a8d00aa1b4",
+      "bytes": 9591
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/tests-pagination-adjusted-before-code.json.gz",
+      "sha256": "9d8cfcc23d9da33d9cde5226378572640759d9d3ddd016ef1c41c979ba29d6e5",
+      "bytes": 5066
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/tests-pagination-before-code.json.gz",
+      "sha256": "1295c1930c44d5ed5df7b2d4fb9722a272be479598e70f70b990f0727cf681d7",
+      "bytes": 5064
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/textual-controls-after.json.gz",
+      "sha256": "658099af4ef94fdd78dab79b866319cd3c711696c58e987f21214847f36c5ffe",
+      "bytes": 10514
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/textual-controls.py",
+      "sha256": "6a6eaf14272c7d8f9e678ba8fb88048cf224138a4ebc079b4c39cb78d3155b60",
+      "bytes": 4803
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/validate.py",
+      "sha256": "d136127511fd855199a7b6d5150494cef8cf9e7146e3cbfe27221dc718a5b2e0",
+      "bytes": 3784
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/layout.md",
+      "sha256": "3155ada23b8909f85a2c54c400e4d7d09f5efc84986bb18ba6a79fb810839cb6",
+      "bytes": 83789
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/layout/bib_csl.md",
+      "sha256": "561846c15834da291fcb200c83854366afaf246154e99aee40f6b5b53ea1bacb",
+      "bytes": 6506
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/layout/bibliography.md",
+      "sha256": "be3aa2a04065f87af0e8239bbeabeb2d98f3b32bd93a2715204dd9b227c2829f",
+      "bytes": 17457
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/layout/block.md",
+      "sha256": "e69a83552a7809546cbb07adb5eba7a4e46034badff4774d13e13220e4ccacde",
+      "bytes": 44573
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/layout/checkpoint.md",
+      "sha256": "523aa6678548f1b3cd6c89e06b2291a754a081dc9f3b9a494bf40525a0ce370a",
+      "bytes": 35701
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/layout/convergence.md",
+      "sha256": "9840e1c9f8b166f4c754580a383c687464260827b130ad2f059ed7dea72e8dd1",
+      "bytes": 16324
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/layout/region_progress.md",
+      "sha256": "1b2db04a3a7afd600ec289bc67fd565f31ed5b085ab7551dadaec1d2eb698e18",
+      "bytes": 14471
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/layout/sub_frame.md",
+      "sha256": "c93929bcc7f600dfb6111d1eee8e4b2c5314406406ad09d06bd4f3d742c675c3",
+      "bytes": 56624
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/layout/text.md",
+      "sha256": "66afadf5c8784c8716aec5791e43fbe3d55b24eed58c8aef22099708b3bb3d35",
+      "bytes": 12940
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/layout/word_layout.md",
+      "sha256": "085d11b82651fb7f745de74ec67524a0d2841421358e800e0b457e69448d3425",
+      "bytes": 16335
+    },
+    {
+      "path": "01_core/src/compiler/layout/bib_csl.rs",
+      "sha256": "2602556ab16c310d50a5ba436aec3c31c6bd5238ae5a85ccd0f48baff9f3b70b",
+      "bytes": 30496
+    },
+    {
+      "path": "01_core/src/compiler/layout/bibliography.rs",
+      "sha256": "bf2f358f8fc78d2764dd7ed0f5bfb3caf760062db8691646058448fdb36c5769",
+      "bytes": 21661
+    },
+    {
+      "path": "01_core/src/compiler/layout/block.rs",
+      "sha256": "398c39a2ccab0b913f88214d5035eebf9e8ba192df2720674644a2c6fec73375",
+      "bytes": 38275
+    },
+    {
+      "path": "01_core/src/compiler/layout/checkpoint.rs",
+      "sha256": "ad2530cdd3c1bd7e27c0af494afd83ac3231cf46c9058f2f83993e72c98903f7",
+      "bytes": 22395
+    },
+    {
+      "path": "01_core/src/compiler/layout/convergence.rs",
+      "sha256": "295b728f6785a849850cc3cac29d920737f02284a8e11ea83e737ed505cee50a",
+      "bytes": 16630
+    },
+    {
+      "path": "01_core/src/compiler/layout/mod.rs",
+      "sha256": "920e66c46dea25778eff0c5a4b5698b3b1cc353f78acea05ed891ce933b6f216",
+      "bytes": 97161
+    },
+    {
+      "path": "01_core/src/compiler/layout/region_progress.rs",
+      "sha256": "3c59c6211efeb06588092bd43b8db9ce9db302e7203bb91d1d0edfa19fa8ac08",
+      "bytes": 6628
+    },
+    {
+      "path": "01_core/src/compiler/layout/sub_frame.rs",
+      "sha256": "b54115d6b1b8d9a60279ac2421e5b08bab75b46cb701e74696fef8e0493f10cc",
+      "bytes": 38595
+    },
+    {
+      "path": "01_core/src/compiler/layout/text.rs",
+      "sha256": "d4ff45e12f8388e97a932e4733029d3ea3c48d4ab16cad58d003718ec1f53bd6",
+      "bytes": 5884
+    },
+    {
+      "path": "01_core/src/compiler/layout/word_layout.rs",
+      "sha256": "c7892d9b8c3a6cd9d6cf1c53813af3058a81cdf1d6ab32883a9fbf46d067e957",
+      "bytes": 13194
+    },
+    {
+      "path": "00_nucleo/prompts/_nuclei/layout/bibliography-plan.toml",
+      "sha256": "086e54ed1dbb7d4e801e8b872c61e5882471bb300582d9a5b99e3fab269c7902",
+      "bytes": 1233
+    },
+    {
+      "path": "00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml",
+      "sha256": "1cb70baba7bb88071e1584f677e25808bae1ba3d0ef129d89327f5c3ce67a2cc",
+      "bytes": 665
+    },
+    {
+      "path": "00_nucleo/prompts/_nuclei/layout/block-inline-region.toml",
+      "sha256": "964989f7f4cc7b1e1d5e5b141051267df36bd0402ef1bc5f91afce2c043aebeb",
+      "bytes": 677
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/layout/bib_csl/plan.md",
+      "sha256": "45643d6037dd7ae83b05591256d663f4ab6576a389afc792d01449303cd1f5a4",
+      "bytes": 4901
+    },
+    {
+      "path": "01_core/src/compiler/layout/bib_csl/plan.rs",
+      "sha256": "75579b829ffdf389888e04a3c61f4a49271dfa4f67d5018043d40083e98a794d",
+      "bytes": 4594
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/sub_frame.md
-//! @prompt-hash 746c0230
+//! @prompt-hash 9c03601f
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -149,6 +149,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             std::mem::replace(&mut self.flow_frame_extent, (region.origin_x, 0.0));
         let saved_block_place_region = self.block_place_region.take();
         let saved_block_auto_width = std::mem::take(&mut self.block_auto_width);
+        let saved_pending_bib_prefix = self.pending_bib_prefix.take();
+        let saved_block_inline_region = self.block_inline_region.take();
         let saved_block_place_decorations =
             std::mem::take(&mut self.block_place_decorations);
         let saved_cell_bidi_allowed = self.cell_bidi_allowed;
@@ -419,6 +421,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.flow_frame_extent = saved_flow_frame_extent;
         self.block_place_region = saved_block_place_region;
         self.block_auto_width = saved_block_auto_width;
+        self.pending_bib_prefix = saved_pending_bib_prefix;
+        self.block_inline_region = saved_block_inline_region;
         self.block_place_decorations = saved_block_place_decorations;
         self.cell_bidi_allowed = saved_cell_bidi_allowed;
         self.initial_baseline_pending = saved_initial_baseline_pending;

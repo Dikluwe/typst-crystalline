@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/bibliography.md
-//! @prompt-hash 040a91a7
+//! @prompt-hash 31b7f4d5
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -16,6 +16,50 @@ use crate::entities::elements::bibliography::BibliographyElem;
 use crate::entities::introspector::Introspector;
 
 use super::{FontMetrics, ImageSizer, Layouter};
+
+#[derive(Clone)]
+pub(super) struct PendingPrefix {
+    body: Content,
+    chain: crate::entities::style_chain::StyleChain,
+    style: crate::entities::layout_types::TextStyle,
+    indent: f64,
+    rtl: bool,
+}
+
+/// Emit only after the paragraph backend has admitted its actual first line.
+pub(super) fn emit_pending_prefix<M: FontMetrics, S: ImageSizer>(l: &mut Layouter<M, S>) {
+    use crate::entities::layout_types::{Align2D, HAlign, PlaceScope, Pt, Rect, VAlign};
+    let Some(prefix) = l.pending_bib_prefix.take() else { return };
+    let baseline = l.baseline_y();
+    let style = std::mem::replace(&mut l.style, prefix.style);
+    let chain = std::mem::replace(&mut l.chain, prefix.chain);
+    let (top, _) = l.metrics.text_edges(l.style.size, &l.style);
+    let offset = l.style.baseline_offset.resolve_pt(l.style.size.0);
+    let region = l.block_place_region.replace(Rect {
+        x: l.regions.current.line_start_x,
+        y: baseline - top - Pt(offset),
+        w: Pt(l.regions.current.width
+            - l.page_config.margin.right
+            - l.regions.current.line_start_x.0),
+        h: Pt(f64::INFINITY),
+    });
+    let placed = Content::place(
+        Align2D {
+            h: Some(if prefix.rtl { HAlign::Right } else { HAlign::Left }),
+            v: Some(VAlign::Top),
+        },
+        if prefix.rtl { prefix.indent } else { -prefix.indent },
+        0.0,
+        PlaceScope::Column,
+        false,
+        None,
+        prefix.body,
+    );
+    l.layout_content(&placed);
+    l.block_place_region = region;
+    l.chain = chain;
+    l.style = style;
+}
 
 /// Helper privado P159D + P159E + P159G — formata `BibEntry`
 /// para render Bibliography. Concatenação condicional dos
@@ -126,17 +170,89 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.layout_content(title);
         layouter.flush_line();
     }
+    if let Some(plan) = layouter.bib_layout.clone() {
+        use super::bib_csl::plan::BibliographyPlan;
+        match plan.as_ref() {
+            BibliographyPlan::Columns(entries) => {
+                layout_columns(layouter, entries);
+            }
+            // Hanging transport is retained; its physical paragraph consumer
+            // belongs to the next A2-HangingTransport/A2-ParIndent step.
+            BibliographyPlan::Hanging(entries) | BibliographyPlan::Plain(entries) => {
+                for entry in entries {
+                    layouter.layout_content(&entry_block(entry.body.clone()));
+                }
+            }
+        }
+        return;
+    }
     if !body.is_empty() {
-        let block = Content::block(
-            body,
+        layouter.layout_content(&entry_block(body));
+    }
+}
+
+fn entry_block(body: Content) -> Content {
+    Content::block(
+        body,
+        None,
+        None,
+        crate::entities::sides::Sides::uniform(
+            crate::entities::layout_types::Length::ZERO,
+        ),
+        true,
+    )
+}
+
+fn layout_columns<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    entries: &[super::bib_csl::plan::Entry],
+) {
+    use crate::entities::{dir::Dir, layout_types::Length, sides::Sides};
+    let prefix_width = entries
+        .iter()
+        .filter_map(|entry| entry.prefix.as_ref())
+        .map(|prefix| {
+            super::measurement::measure_content_real(
+                prefix,
+                &layouter.chain,
+                &layouter.metrics,
+            )
+            .0
+        })
+        .fold(0.0_f64, f64::max);
+    let indent = prefix_width + 0.65 * layouter.style.size.0;
+    let rtl = super::text::effective_style(layouter).dir == Some(Dir::RTL);
+    let inset = Sides {
+        top: Length::ZERO,
+        bottom: Length::ZERO,
+        left: Length::pt(if rtl { 0.0 } else { indent }),
+        right: Length::pt(if rtl { indent } else { 0.0 }),
+    };
+    for entry in entries {
+        if entry.body.is_empty() {
+            let previous = layouter.pending_bib_prefix.take();
+            layouter.layout_content(&entry_block(
+                entry.prefix.clone().unwrap_or(Content::Empty),
+            ));
+            layouter.pending_bib_prefix = previous;
+            continue;
+        }
+        let pending = entry.prefix.as_ref().map(|prefix| PendingPrefix {
+            body: prefix.clone(),
+            chain: layouter.chain.clone(),
+            style: layouter.style.clone(),
+            indent,
+            rtl,
+        });
+        let previous = std::mem::replace(&mut layouter.pending_bib_prefix, pending);
+        layouter.layout_content(&Content::block(
+            entry.body.clone(),
             None,
             None,
-            crate::entities::sides::Sides::uniform(
-                crate::entities::layout_types::Length::ZERO,
-            ),
+            inset,
             true,
-        );
-        layouter.layout_content(&block);
+        ));
+        layouter.pending_bib_prefix = previous;
     }
 }
 
@@ -301,5 +417,184 @@ mod a2_bib_flow_tests {
                 l.regions.current.current_line.len()
             )
         );
+    }
+}
+
+#[cfg(test)]
+mod a2_structure_tests {
+    use super::*;
+    use crate::entities::{
+        bib_entry::BibEntry,
+        layout_types::{FrameItem, Length, Pt, TextStyle},
+        style::{Style, Styles},
+        value::Value,
+    };
+    use std::sync::Arc;
+
+    fn render(font: f64, spacing: f64) -> Vec<(String, f64, f64)> {
+        let b = Content::Bibliography(Arc::new(BibliographyElem {
+            entries: vec![
+                BibEntry::new("first", "Alpha, Ann", "FIRSTWORD", 2020),
+                BibEntry::new("second", "Beta, Bob", "SECONDWORD", 2021),
+            ],
+            path: None,
+            title: None,
+            style: Some("ieee".into()),
+            locale: None,
+        }));
+        let styles = Styles::from_iter([Style::Size(Length::pt(font))])
+            .push_custom("par.spacing", Value::Length(Length::pt(spacing)));
+        let content = Content::styled(b, styles);
+        super::super::layout(&content)
+            .pages
+            .iter()
+            .flat_map(|page| {
+                crate::compiler::layout::tests::frame_items_recursive(&page.items)
+            })
+            .filter_map(|item| match item {
+                FrameItem::Text { text, pos, .. } => {
+                    Some((text.to_string(), pos.x.0, pos.y.0))
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    fn at<'a>(rows: &'a [(String, f64, f64)], word: &str) -> &'a (String, f64, f64) {
+        rows.iter().find(|(text, _, _)| text == word).unwrap()
+    }
+
+    #[test]
+    fn a2_structure_prefix_column_uses_relative_gutter() {
+        use super::super::{FixedMetrics, FontMetrics};
+        for font in [12.0, 18.0] {
+            let rows = render(font, 0.0);
+            let label = at(&rows, "[1]");
+            let body = at(&rows, "A.");
+            let prefix =
+                FixedMetrics.advance("[1]", Pt(font), &TextStyle::regular(Pt(font))).0;
+            assert!((body.1 - label.1 - prefix - 0.65 * font).abs() < 1e-8, "{rows:?}");
+            assert!((body.2 - label.2).abs() < 1e-8, "{rows:?}");
+            assert_eq!(body.1, at(&rows, "B.").1);
+        }
+    }
+
+    #[test]
+    fn a2_structure_entry_gap_uses_paragraph_spacing() {
+        let zero = render(12.0, 0.0);
+        let spaced = render(12.0, 24.0);
+        let gap = |rows: &[(String, f64, f64)]| at(rows, "B.").2 - at(rows, "A.").2;
+        assert!((gap(&spaced) - gap(&zero) - 24.0).abs() < 1e-8, "{zero:?}\n{spaced:?}");
+        assert_eq!(at(&spaced, "A.").2, at(&zero, "A.").2);
+    }
+    #[test]
+    fn a2_structure_checkpoint_restores_same_shared_plan() {
+        use super::super::{bib_csl::plan::BibliographyPlan, FixedMetrics};
+        use crate::entities::{
+            image_sizer::NullImageSizer,
+            introspector::{Introspector, TagIntrospector},
+        };
+        use comemo::Track;
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            12.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        let plan = Arc::new(BibliographyPlan::Hanging(vec![]));
+        l.bib_layout = Some(plan.clone());
+        let checkpoint = l.capture_flow_suffix_checkpoint();
+        l.bib_layout = Some(Arc::new(BibliographyPlan::Columns(vec![])));
+        l.restore_flow_suffix_checkpoint(checkpoint);
+        assert!(Arc::ptr_eq(l.bib_layout.as_ref().unwrap(), &plan));
+        assert!(matches!(l.bib_layout.as_deref(), Some(BibliographyPlan::Hanging(_))));
+    }
+    #[test]
+    fn a2_structure_prefix_follows_admitted_body() {
+        use crate::entities::layout_types::{PageDimension, PageMarginSpec};
+        let bibliography = Content::Bibliography(Arc::new(BibliographyElem {
+            entries: vec![BibEntry::new(
+                "entry",
+                "Alpha, Ann",
+                "FIRSTWORD Long Reference Title",
+                2020,
+            )],
+            path: None,
+            title: None,
+            style: Some("ieee".into()),
+            locale: None,
+        }));
+        let page = Content::page_run(
+            Some(PageDimension::Length(200.0)),
+            Some(PageDimension::Length(70.0)),
+            Some(PageMarginSpec::uniform(8.0)),
+            None,
+            None,
+            Content::sequence(vec![
+                Content::text("CITE"),
+                bibliography,
+                Content::Parbreak,
+                Content::text("OUTSIDE"),
+            ]),
+        );
+        let document = super::super::layout(&page);
+        let first_page = |needle: &str| {
+            document.pages.iter().position(|page| crate::compiler::layout::tests::frame_items_recursive(&page.items).iter().any(|item| matches!(item, FrameItem::Text{text,..} if text.as_str()==needle))).unwrap()
+        };
+        assert_eq!(
+            first_page("[1]"),
+            first_page("A."),
+            "{:?}",
+            document.pages.iter().map(|p| p.plain_text()).collect::<Vec<_>>()
+        );
+        assert!(document.plain_text().contains("OUTSIDE"));
+    }
+    #[test]
+    fn a2_structure_prefix_only_entries_do_not_overlap() {
+        use super::super::{bib_csl::plan::Entry, FixedMetrics};
+        use crate::entities::{
+            image_sizer::NullImageSizer,
+            introspector::{Introspector, TagIntrospector},
+        };
+        use comemo::Track;
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            12.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        let entries = vec![
+            Entry {
+                prefix: Some(Content::text("[1]")),
+                body: Content::Empty,
+            },
+            Entry {
+                prefix: Some(Content::text("[2]")),
+                body: Content::Empty,
+            },
+        ];
+        layout_columns(&mut l, &entries);
+        let document = l.finish();
+        let rows: Vec<_> = document
+            .pages
+            .iter()
+            .flat_map(|page| {
+                crate::compiler::layout::tests::frame_items_recursive(&page.items)
+            })
+            .filter_map(|item| match item {
+                FrameItem::Text { text, pos, .. } if text.as_str().starts_with('[') => {
+                    Some((text.to_string(), pos.x.0, pos.y.0))
+                }
+                _ => None,
+            })
+            .collect();
+        assert_eq!(
+            rows.iter().map(|row| row.0.as_str()).collect::<Vec<_>>(),
+            ["[1]", "[2]"]
+        );
+        assert_eq!(rows.len(), 2, "{rows:?}");
+        assert!(rows[1].2 > rows[0].2, "{rows:?}");
     }
 }

@@ -1,0 +1,16 @@
+{
+  "new_owners": [
+    "compiler/layout/bibliography.md",
+    "compiler/layout/word_layout.md",
+    "compiler/layout/text.md",
+    "compiler/layout/block.md",
+    "compiler/layout/region_progress.md",
+    "compiler/layout.md",
+    "compiler/layout/checkpoint.md",
+    "compiler/layout/sub_frame.md"
+  ],
+  "pins": {
+    "layout/bibliography-prefix-admission.toml": "64d61513bab0293f918958404cf4fe0387dea84cc53f5442faad2b467fa4e077",
+    "layout/block-inline-region.toml": "8d6cb7ee2458f368648c0ea6cfa84386dc506cf7273a16aa42bfbcbfeff05592"
+  }
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/word_layout.md
-//! @prompt-hash 83b22850
+//! @prompt-hash c86912fb
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -95,6 +95,7 @@ fn push_text<M: FontMetrics, S: ImageSizer>(
     width: Pt,
     replacement: Option<&str>,
 ) {
+    super::bibliography::emit_pending_prefix(layouter);
     if let Some(fill) = layouter.style.highlight.clone() {
         let (ascender, line_height) = layouter
             .metrics

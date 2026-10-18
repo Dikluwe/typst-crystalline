@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 939213de
+//! @prompt-hash 1c64468a
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -569,6 +569,9 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// **P418** — cache pré-renderizado CSL para citações/bibliografia.
     /// Populado em `layout_with_introspector` antes do layout principal.
     pub(super) bib_render_cache: Option<crate::compiler::layout::bib_csl::BibRenderCache>,
+    bib_layout: Option<Arc<bib_csl::plan::BibliographyPlan>>,
+    pending_bib_prefix: Option<bibliography::PendingPrefix>,
+    block_inline_region: Option<block::InlineRegion>,
     /// **P446** — smallcaps activo no corpo de um `#smallcaps[...]`.
     pub(super) smallcaps: bool,
     pub(super) paragraph_planning_suppressed: bool,
@@ -1042,6 +1045,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             explicit_line_alignment: None,
             // P418 — cache pré-renderizado de citações/bibliografia CSL.
             bib_render_cache: None,
+            bib_layout: None,
+            pending_bib_prefix: None,
+            block_inline_region: None,
             // P472 — última key citada para ibid.
             last_cited_key: None,
             // P473 — keys citadas anteriormente para op. cit.

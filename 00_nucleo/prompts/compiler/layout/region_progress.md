@@ -1,8 +1,9 @@
 # L0 — region progress
-Hash do Código: f1159ad2
+Hash do Código: 62fb3b69
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:77c7d31bf3f7276cc9b4d1b2951634724a6d0fb4352a0b45c76e6f3775b512dc
+- 00_nucleo/prompts/_nuclei/layout/block-inline-region.toml sha256:8d6cb7ee2458f368648c0ea6cfa84386dc506cf7273a16aa42bfbcbfeff05592
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:7b8a61eaafc8a07df12218f8f0560c33fae5c36f621b822b7350ccefc9774711
 - 00_nucleo/prompts/_nuclei/layout/subframe-overflow.toml sha256:04f91fc931871165d4fef399ea9c2e21e8b75f7fd57031183a4e2aed0ed1b62a
 - 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:0e7c32f877924fea773be54f9719b43bb72b4c3bb065f6ff44a842c56683ff78
@@ -99,3 +100,39 @@ Invalidar block_place_region ao fechar página/coluna, sem restaurar limites do 
 Correção interna/de paridade ADR-0127, sem campo público, modo ou fase. Este adendo substitui somente as fórmulas incompatíveis de região/width/clip anteriores; não legitima outros reparos sem medição. L0 primeiro, RED→GREEN, validação bilateral, suíte e resselo restrito. B2a cobre região local e clipping na região sobrevivente. B2b completa fragmentação de Block, dimensões/outset e integração dos metadados/decoradores que controles adicionais refutarem; B3 continua responsável por baseline tardia de inline Box/Transform e produtores ainda não certificados. Não declarar objetivo completo com essas frentes abertas.
 
 B2a conserva também uma lista privada de faixas de decoração associadas ao índice do fixup Y de Place auto. O hub armazena; checkpoint clona/restaura; subframe e Block isolam/restauram; transição limpa; placement registra somente os segmentos emitidos pela ocorrência; Block aplica a mesma delta da geometria antes de encerrar o escopo.
+
+## A2 — prefixo admitido e região inline de Block (2026-10-18)
+
+### Medição anterior à decisão — admissão e continuação
+
+pagination-block.json.gz e block-freeze.json.gz em
+00_nucleo/diagnosticos/bibliography-structure-2026-10-18 preservam estado completo,
+UTC/HEAD/fontes/binários/argv e caixas do candidato Block/Place c1c222ae54ab3b67487471326012a7f6c4ed86c1e6bd61b1830ec6a987c2ccea.
+Em IEEE/200×90pt ele recupera duas páginas, mas a continuação começa em x8
+contra29.924 no oracle bd5ebec285505889e8ff1d4f68804ab147a699f3 (binário
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9).
+region_progress.rs:75–76 reinstala a margem física ao transitar, descartando o
+inset ativo. O teste corrigido para70pt também mostrou prefixo na primeira
+página e corpo admitido na segunda: paragraph_pagination.rs:87–105 pode adiar
+o corpo para respeitar widow/orphan depois que o Place já foi emitido.
+
+A exigência inicial de FIRSTWORD sempre na primeira página da fixture FixedMetrics
+não é o contrato correto: group_size em paragraph_pagination.rs:69 pode manter
+três linhas juntas. Substituir esse critério pelo prefixo acompanhar a página
+real da primeira linha; preservar o RED PDF90/duas páginas e a distinção entre
+coluna estável e estratégia de quebra. Não forçar greedy nem desabilitar
+widow/orphan para satisfazer um assert. Posições geométricas, conteúdo e agrupamento
+são observáveis da língua; slots/representação são mecânica privada.
+
+Correção interna ADR-0127 dentro do layout, sem assinatura/campo/trait público,
+flag/default novo, compatibilidade ou execução eval/show. A primeira tinta do
+prefixo continua antes da primeira tinta do corpo, após a admissão física do
+parágrafo. Não é nova ordem de realização de show nem transferência de fase.
+A hipótese é refutável por prefixo órfão, recuo perdido, emissão dupla, efeitos
+novos, estratégia alterada ou regressão dos controles de Block/columns/subframe.
+
+### Responsabilidade exclusiva
+
+Após criar a próxima coluna na mesma página, ou concluir o início da primeira coluna/página física, reinstalar o contexto inline de Block se Some, pelo helper do owner Block. Sem contexto, conservar o fluxo anterior. Fazer isso depois de estabelecer a geometria natural da região e antes de emitir a próxima linha. Não alterar ordem de drains, reset, floats ou aceitação do suffix.
+
+Aceitação: RED→GREEN de prefixo/corpo na mesma página e inset nas continuações, inclusive saída para OUTSIDE, simple/optimized e controles existentes. Medir PDF90/150/250, RTL, prefix-only/formatado, cores e regressões; build, suites/doctests/Clippy/Rustdoc/fmt/linhagem/reversa/diferencial Tekt. MemoryMax12GiB/High8GiB/swap0/jobs1; sem publicação. Hanging genérico/overrides e múltiplas bibliografias continuam frentes abertas.

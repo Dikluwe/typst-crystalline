@@ -1,0 +1,9 @@
+tekt = 1
+kind = "nucleus"
+id = "block-inline-region"
+title = "block-inline-region"
+
+[[claims]]
+id = "causal-context"
+level = "must"
+statement = "Enquanto o corpo de Block está ativo, conservar sua origem horizontal relativa ao início da região externa e largura interna resolvida. Após transição ordinária de página/coluna, reinstalar esses limites na nova região. Ao sair, restaurar o contexto externo; mesma região conserva restauração existente e região nova usa sua geometria externa atual. Checkpoints capturam/restauram; subframes isolam/restauram. Campos são privados de Layouter, não BlockElem; não restaurar altura ou origem de uma página encerrada."

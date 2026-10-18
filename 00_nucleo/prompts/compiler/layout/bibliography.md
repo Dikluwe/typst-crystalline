@@ -1,5 +1,9 @@
 # L0 — bibliography
-Hash do Código: 150eb680
+Hash do Código: db502c69
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/bibliography-plan.toml sha256:cec5b93a8888658ac90461deea96799dfd56393be3d63c874e6cf93f4d57032c
+- 00_nucleo/prompts/_nuclei/layout/bibliography-prefix-admission.toml sha256:64d61513bab0293f918958404cf4fe0387dea84cc53f5442faad2b467fa4e077
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/layout/bibliography.rs`
@@ -73,3 +77,125 @@ Antes de emitir título ou corpo não vazio, fechar o segmento anterior pelo hel
 ### Aceitação
 
 Testes RED funcionais antes da implementação; GREEN de fronteira título/citação/corpo/fallback e negativos com controles de zero/negativo/affine e vazio. Medir novamente caixas PDF/extração, manter os REDs de recuo e múltiplas bibliografias explícitos, não atribuir vantagem ao Tekt sem fonte/controle. Revalidar build/workspace/doctests, Clippy/Rustdoc estritos, fmt, linhagem V1/V5/V15/V26 e reversa, SARIF sem erro/warning novo. Teto 12 GiB/High8 GiB/swap0/jobs1/debug0/incremental0; comandos pesados sequenciais. Sem commit/push/release.
+
+## A2-Structure — entradas CSL e colunas (2026-10-18)
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/bibliography-structure-2026-10-18/before.json.gz registra
+12 pares, fontes/argv/UTC/HEAD/status/diff HEAD --stat, textos/caixas/binários;
+before-sources.json.gz conserva as fontes e L0s anteriores. HEAD
+b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada, Tekt SHA-256
+c2b1b2e93cf34f3c597a0a0fbbd51c8f8ac96a3c6bc0a4d9bd72373599acf899;
+oracle bd5ebec285505889e8ff1d4f68804ab147a699f3, árvore
+cac836c07e4dec2a89219370428292393a3216b5, binário SHA-256
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9.
+IEEE12 põe A. em x25.124 contra29.924 e a segunda entrada em y89.936
+contra112.232. IEEE18 usa x33.686 contra40.886. No CSL sem prefixo, a segunda
+entrada começa em y184.424 contra191.024. As sondas com par.spacing0/2em
+separam margens de espaçamento dentro das linhas. Há também diferença de
+agrupamento de citações adjacentes (MLA Silva/Doe), fora da composição da lista;
+manter o RED explícito, não chamar igualdade só da lista de paridade geral.
+
+bib_csl.rs:342–355 concatena first_field, espaço literal, content e Linebreak,
+perdendo a fronteira de cada entrada e o hanging_indent. convergence.rs:58–82
+transporta só BibRenderCache público; bibliography.rs:107–151 emite um Block
+único. O pin typst-layout/src/rules.rs:463–531 compõe duas colunas Auto com
+gutter0.65em e row-gutter par.spacing, ou um Block por entrada sem prefixo;
+o formato autoral do código Rust não é requisito. Observáveis são posição,
+ordem, conteúdo/estilo e escopo. Hipótese: transportar fronteiras reais e
+prefixos corrige a coluna e a separação sem reformatar; controles de fontes,
+ordem, campos vazios, sem prefixo, zero/2em, show-grid e estilo podem refutá-la.
+
+### Classe e escopo explícito
+
+Correção interna/de paridade ADR-0127 em fluxo contínuo, dentro do layout,
+sem API pública, tipo público novo, flag/default, compatibilidade ou fase nova.
+L0 antes de testes/código. A2-Structure preserva hanging no discriminante do
+plano, mas sua aplicação física, overrides por ocorrência e composição
+simple/optimized/RTL continuam em A2-HangingTransport/A2-ParIndent. Não forçar
+fallback greedy para contornar o suporte de avanço inicial ainda ausente da
+preparação. Margens de título, CSL completos, atribuição A2-Multi e agrupamento
+de citações adjacentes não ficam certificados por esta etapa.
+
+### Refutador de paginação antes da revisão
+
+pagination-before.json.gz / pagination-grid.json.gz e grid-freeze.json.gz no
+mesmo diagnóstico preservam o candidato Grid e a contraprova: IEEE em página
+200×90pt/margem8 exige duas páginas no oracle e no Tekt anterior, mas o
+candidato usa três, iniciando toda a entrada na página2 e OUTSIDE na3.
+Gutter/coluna e separação em página auto estavam corretos (A. x29.924 e
+segunda entrada y112.232), mas não bastam. grid/row_pagination.rs:23–31
+admite overflow de linha e move row inteira; não é a quebra de um parágrafo
+longo. Isto refuta a composição Grid desta subetapa e exige trocá-la antes
+de fechar, sem enfraquecer o teste. A linguagem pede coluna estável e entrada
+quebrável; não exige usar o mesmo Grid Rust do vanilla (ADR-0107/0109).
+Nova hipótese usa Block/Place existentes; testes de primeira região, conteúdo
+completo, fontes, alinhamento e caixas podem refutá-la, inclusive RTL.
+
+### Responsabilidade exclusiva
+
+Quando há plano privado, fechar a entrada como já prescrito e despachar o título existente. Lista com prefixos mede somente os prefixos puros fornecidos pelo CSL pelo helper público existente measure_content_real de 00_nucleo/prompts/compiler/layout/measurement.md, sob a chain e métricas atuais, uma vez por ocorrência de lista, para obter a largura intrínseca máxima comum. Cada entrada usa seu próprio Block breakable, inset na borda inicial igual a max_prefix_width + 0.65em; corpo segue o fluxo normal quebrável. Prefixo é um Place técnico sem float, alinhado à borda inicial/top do referencial interno do Block com dx que cancela o inset (negativo à esquerda, positivo à direita), emitido antes do corpo e só na primeira região da entrada. Não criar Grid nem reexecutar show/CSL/callback. O owner de Block resolve as margens fracas par.spacing entre entradas e sua continuação; não inventar offset vertical. Os owners 00_nucleo/prompts/compiler/layout/place.md e 00_nucleo/prompts/compiler/layout/placement.md já definem ancoragem ao block_place_region interno. Containers são detalhes privados de render, sem ocorrências/tags/Location sintetizada. Sem prefixos, despachar cada body em seu próprio Block breakable, conservando divisão plain/hanging no plano (ambos usam Block nesta subetapa incompleta). Sem plano, conservar cache programático e fallback anteriores. Não modificar Content público nem usar props genéricas para transportar o plano. Não alterar estratégia de quebra para simular hanging. As normas novas substituem o Block único de A2-fronteiras somente quando o plano está disponível.
+
+### Aceitação
+
+RED funcional de coluna com gutter relativo e margem entre entradas antes de
+implementar. Controles de cache público (Content anterior e assinaturas), CSL
+sem prefixo, preservação de modo hanging/plain, vazio, ordenação/citações e
+rollback. PDF bilateral com caixas e texto da lista, conservando divergências
+de recuo e agrupamento de citações no relatório. Build/workspace/doctests,
+Clippy e Rustdoc estritos, fmt, V1/V5/V15/V26 e reversa; SARIF sem erro/warning
+novo. Resselo só após ownership/grafo válido. MemoryMax12GiB/High8GiB/swap0,
+jobs1/debug0/incremental0, comandos pesados sequenciais; sem commit/push/release.
+
+### Controle de entrada somente com prefixo
+
+Place é fora do fluxo (placement.rs:432) e Block usa fim causal do corpo. Uma entrada CSL pode ter prefixo e corpo vazio; exigir que seu prefixo continue ocupando uma linha e que a próxima entrada não se sobreponha. Esse controle de geometria precede qualquer correção especial de corpo vazio, sem tratar prefixo ausente como prefixo vazio.
+
+## A2 — prefixo admitido e região inline de Block (2026-10-18)
+
+### Medição anterior à decisão — admissão e continuação
+
+pagination-block.json.gz e block-freeze.json.gz em
+00_nucleo/diagnosticos/bibliography-structure-2026-10-18 preservam estado completo,
+UTC/HEAD/fontes/binários/argv e caixas do candidato Block/Place c1c222ae54ab3b67487471326012a7f6c4ed86c1e6bd61b1830ec6a987c2ccea.
+Em IEEE/200×90pt ele recupera duas páginas, mas a continuação começa em x8
+contra29.924 no oracle bd5ebec285505889e8ff1d4f68804ab147a699f3 (binário
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9).
+region_progress.rs:75–76 reinstala a margem física ao transitar, descartando o
+inset ativo. O teste corrigido para70pt também mostrou prefixo na primeira
+página e corpo admitido na segunda: paragraph_pagination.rs:87–105 pode adiar
+o corpo para respeitar widow/orphan depois que o Place já foi emitido.
+
+A exigência inicial de FIRSTWORD sempre na primeira página da fixture FixedMetrics
+não é o contrato correto: group_size em paragraph_pagination.rs:69 pode manter
+três linhas juntas. Substituir esse critério pelo prefixo acompanhar a página
+real da primeira linha; preservar o RED PDF90/duas páginas e a distinção entre
+coluna estável e estratégia de quebra. Não forçar greedy nem desabilitar
+widow/orphan para satisfazer um assert. Posições geométricas, conteúdo e agrupamento
+são observáveis da língua; slots/representação são mecânica privada.
+
+Correção interna ADR-0127 dentro do layout, sem assinatura/campo/trait público,
+flag/default novo, compatibilidade ou execução eval/show. A primeira tinta do
+prefixo continua antes da primeira tinta do corpo, após a admissão física do
+parágrafo. Não é nova ordem de realização de show nem transferência de fase.
+A hipótese é refutável por prefixo órfão, recuo perdido, emissão dupla, efeitos
+novos, estratégia alterada ou regressão dos controles de Block/columns/subframe.
+
+### Responsabilidade exclusiva
+
+Trocar a emissão antecipada de Place por PendingPrefix privado com Content, chain, TextStyle, indent e direção. Instalar ao redor do Block do body e restaurar o contexto externo ao terminar a entrada. Corpo vazio com prefixo usa Block textual comum, sem deixar estado pendente para a próxima entrada. O helper privado emit_pending_prefix toma o contexto antes de renderizar (evita recursão), ancora um Place técnico à baseline da folha real e ao line_start_x/largura corrente, suspende temporariamente chain/style/block_place_region do corpo e os restaura. A página/coluna é a admitida, sem capturar Location ou deduzir posição de query por tinta. Prefixo continua CSL puro. Preparação mede só prefixos e não reexecuta o body. Preservar custos e backends de quebra. A sintaxe anterior emitido antes do corpo significa antes da tinta, não antes da admissão.
+
+Aceitação: RED→GREEN de prefixo/corpo na mesma página e inset nas continuações, inclusive saída para OUTSIDE, simple/optimized e controles existentes. Medir PDF90/150/250, RTL, prefix-only/formatado, cores e regressões; build, suites/doctests/Clippy/Rustdoc/fmt/linhagem/reversa/diferencial Tekt. MemoryMax12GiB/High8GiB/swap0/jobs1; sem publicação. Hanging genérico/overrides e múltiplas bibliografias continuam frentes abertas.
+
+### V17/V19 nos controles e no modo incompleto — 2026-10-18
+
+A varredura pós9005 testes (lint-before-fixture-fix.json.gz no diagnóstico do
+lote) encontrou um V17 no guard OR do teste prefix-only e uma nota V19 no ramo
+Hanging|Plain. A seleção dos prefixos da fixture usa o predicado nominal
+starts_with('['), com as duas identidades [1]/[2] verificadas explicitamente;
+não usar guard lógico composto nem supressão. O agrupamento Hanging|Plain é
+intencional e temporário: ambos despacham Blocks por entrada nesta subetapa,
+como declarado, mas hanging físico permanece pendente. O corpus contém MLA
+(hanging) e CSL custom (plain) separadamente. Conservar a nota V19 informativa,
+sem converter execução de um modo em prova do outro ou encerrar hanging.

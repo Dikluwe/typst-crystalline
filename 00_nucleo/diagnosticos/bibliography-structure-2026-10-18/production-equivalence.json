@@ -1,0 +1,26 @@
+{
+  "utc": "2026-10-18T07:57:01.231532+00:00",
+  "broad_suite_sources": "broad-suite-sources.json.gz",
+  "changed_after_broad": [
+    "01_core/src/compiler/layout/bibliography.rs",
+    "01_core/src/compiler/layout/bib_csl/plan.rs",
+    "00_nucleo/prompts/compiler/layout/bibliography.md",
+    "00_nucleo/prompts/compiler/layout/bib_csl/plan.md"
+  ],
+  "production_unchanged": true,
+  "productive_comparison": [
+    {
+      "file": "01_core/src/compiler/layout/bibliography.rs",
+      "normalized_productive_sha256": "aba4534f75bbfe00b9744ab079b26cf442ca2f1fe35333659d17eeab24563f0d",
+      "test_modules_begin": 10328,
+      "method": "Exact productive prefix through first cfg(test) module; omit only prompt-hash comment. All remaining edits are inside the known test modules."
+    },
+    {
+      "file": "01_core/src/compiler/layout/bib_csl/plan.rs",
+      "normalized_productive_sha256": "0add9619ec41d4191ac72efbc4e4901f3315dc781a04eff20d675b7d9c12a2fc",
+      "test_modules_begin": 1878,
+      "method": "Exact productive prefix through first cfg(test) module; omit only prompt-hash comment. All remaining edits are inside the known test modules."
+    }
+  ],
+  "only_changes": "Fixture guard + explicit identity asserts, no-prefix legacy projection coverage for false/true hanging, owner L0 prescriptions/hashes."
+}

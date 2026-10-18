@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/region_progress.md
-//! @prompt-hash 5d3236b7
+//! @prompt-hash 35b0a5e3
 //! @layer L1
 //! @updated 2026-09-28
 
@@ -24,6 +24,9 @@ pub(super) fn next_region<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter
         let count = layouter.page_columns.unwrap_or(1);
         if layouter.current_column + 1 < count {
             layouter.start_next_column();
+            if layouter.block_inline_region.is_some() {
+                super::block::install_inline_region(layouter);
+            }
             reset_closed_region_flow(layouter);
             return;
         }
@@ -105,6 +108,9 @@ pub(super) fn next_region<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter
         layouter.current_column = 0;
         layouter.column_page_items.clear();
         layouter.start_column(0);
+    }
+    if layouter.block_inline_region.is_some() {
+        super::block::install_inline_region(layouter);
     }
 }
 

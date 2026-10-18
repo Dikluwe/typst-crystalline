@@ -1,0 +1,78 @@
+{
+  "utc": "2026-10-18T07:41:04.186789+00:00",
+  "source_provenance": "extra-after.json.gz / complete-freeze.json.gz",
+  "renders": [
+    {
+      "kind": "tekt",
+      "command": [
+        "pdftoppm",
+        "-png",
+        "-r",
+        "144",
+        "-f",
+        "1",
+        "-singlefile",
+        "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-rtl-tekt.pdf",
+        "/tmp/tekt-bib-rtl/tekt"
+      ],
+      "pdf_sha256": "756158b766138cb8d9faf36424ff8645bd960e9209ae93d78d0a662e9cf3e016",
+      "png_path": "/tmp/tekt-bib-rtl/tekt.png",
+      "png_sha256": "81a2fd7dff96c72cf2ba0170f6acb33983db646306b040af64bb7372cb22c08e"
+    },
+    {
+      "kind": "vanilla",
+      "command": [
+        "pdftoppm",
+        "-png",
+        "-r",
+        "144",
+        "-f",
+        "1",
+        "-singlefile",
+        "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/outputs/ieee-rtl-vanilla.pdf",
+        "/tmp/tekt-bib-rtl/vanilla"
+      ],
+      "pdf_sha256": "e7bda22769280bba529ad914833bbc3cbe7c1fb536f2b8a3c69ab04f5137d855",
+      "png_path": "/tmp/tekt-bib-rtl/vanilla.png",
+      "png_sha256": "7249632dad3e73992c8a8e673c175ede955015f3584c3f378802beddb423ba6d"
+    }
+  ],
+  "baseline": {
+    "utc": "2026-10-18T07:42:24.365218+00:00",
+    "binary_sha256": "c2b1b2e93cf34f3c597a0a0fbbd51c8f8ac96a3c6bc0a4d9bd72373599acf899",
+    "binary_sources": "before-sources.json.gz + predecessor complete-freeze",
+    "source": "#set page(width:200pt,height:auto,margin:8pt)\n#set text(size:12pt)\n#set text(dir:rtl)\n@audit\n\n@second\n#bibliography(\"multi.bib\",style:\"ieee\",title:none)\n\nOUTSIDE",
+    "command": [
+      "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/bibliography-structure-2026-10-18/bin/typst-before",
+      "compile",
+      "/tmp/tekt-bib-rtl/baseline.typ",
+      "/tmp/tekt-bib-rtl/baseline.pdf"
+    ],
+    "render": [
+      "pdftoppm",
+      "-png",
+      "-r",
+      "144",
+      "-f",
+      "1",
+      "-singlefile",
+      "/tmp/tekt-bib-rtl/baseline.pdf",
+      "/tmp/tekt-bib-rtl/baseline"
+    ],
+    "pdf_sha256": "3240d8bc86f3325913cea2a1b917e9cbfb1c140b84f572e9c401cc0b21a7a98e"
+  },
+  "saved_images": [
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/evidence/rtl-baseline.png",
+      "sha256": "1e18672f01cf208233620ec0d53bcb6b26eb96d2825e1e654576dbd9494167a5"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/evidence/rtl-tekt.png",
+      "sha256": "81a2fd7dff96c72cf2ba0170f6acb33983db646306b040af64bb7372cb22c08e"
+    },
+    {
+      "path": "00_nucleo/diagnosticos/bibliography-structure-2026-10-18/evidence/rtl-vanilla.png",
+      "sha256": "7249632dad3e73992c8a8e673c175ede955015f3584c3f378802beddb423ba6d"
+    }
+  ]
+}

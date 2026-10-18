@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/bib_csl.md
-//! @prompt-hash f4e35111
+//! @prompt-hash 1e9fcfb0
 //! @layer L1
 //! @updated 2026-06-23
 //!
@@ -18,7 +18,10 @@
 //! Scope-out: múltiplas bibliografias, locales via ficheiro externo,
 //! formatação vertical (superscript/subscript) sem Content variant correspondente.
 
+pub(super) mod plan;
+
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
@@ -43,6 +46,11 @@ pub struct BibRenderCache {
     pub bibliography: Option<Content>,
 }
 
+pub(super) struct PreparedBibliography {
+    pub(super) cache: BibRenderCache,
+    pub(super) plan: Option<Arc<plan::BibliographyPlan>>,
+}
+
 /// Style CSL default quando o documento não especifica outro.
 const DEFAULT_STYLE: &str = "ieee";
 
@@ -61,6 +69,15 @@ pub fn build_cache(
     locale: Option<&str>,
     citation_order: Option<&[String]>,
 ) -> SourceResult<BibRenderCache> {
+    prepare_cache(entries, style, locale, citation_order).map(|prepared| prepared.cache)
+}
+
+pub(super) fn prepare_cache(
+    entries: &[BibEntry],
+    style: Option<&str>,
+    locale: Option<&str>,
+    citation_order: Option<&[String]>,
+) -> SourceResult<PreparedBibliography> {
     let style_name = style.unwrap_or(DEFAULT_STYLE);
     let independent = resolve_style_name(style_name).ok_or_else(|| {
         vec![SourceDiagnostic::error(
@@ -68,7 +85,7 @@ pub fn build_cache(
             format!("unknown bibliography style '{}'", style_name),
         )]
     })?;
-    build_cache_with_style(entries, &independent, locale, citation_order)
+    prepare_cache_with_style(entries, &independent, locale, citation_order)
 }
 
 /// Constrói o cache a partir de um `IndependentStyle` já resolvido (P420).
@@ -85,6 +102,16 @@ pub fn build_cache_with_style(
     locale: Option<&str>,
     citation_order: Option<&[String]>,
 ) -> SourceResult<BibRenderCache> {
+    prepare_cache_with_style(entries, independent, locale, citation_order)
+        .map(|prepared| prepared.cache)
+}
+
+pub(super) fn prepare_cache_with_style(
+    entries: &[BibEntry],
+    independent: &IndependentStyle,
+    locale: Option<&str>,
+    citation_order: Option<&[String]>,
+) -> SourceResult<PreparedBibliography> {
     let locales = build_locales(locale);
 
     // **P547** — só reordenar por citation_order em estilos numéricos (ex: IEEE).
@@ -104,7 +131,10 @@ pub fn build_cache_with_style(
         .map(bib_entry_to_hayagriva)
         .collect::<Result<Vec<_>, _>>()?;
     if hay_entries.is_empty() {
-        return Ok(BibRenderCache { citations: HashMap::new(), bibliography: None });
+        return Ok(PreparedBibliography {
+            cache: BibRenderCache { citations: HashMap::new(), bibliography: None },
+            plan: None,
+        });
     }
 
     let mut citations: HashMap<CitationForm, HashMap<String, Content>> = HashMap::new();
@@ -155,9 +185,16 @@ pub fn build_cache_with_style(
     }
     let rendered =
         driver.finish(hayagriva::BibliographyRequest::new(independent, None, &locales));
-    let bibliography = rendered.bibliography.as_ref().map(render_bibliography);
+    let plan = rendered
+        .bibliography
+        .as_ref()
+        .map(|bib| Arc::new(plan::BibliographyPlan::from_rendered(bib)));
+    let bibliography = plan.as_ref().map(|plan| plan.legacy_content());
 
-    Ok(BibRenderCache { citations, bibliography })
+    Ok(PreparedBibliography {
+        cache: BibRenderCache { citations, bibliography },
+        plan,
+    })
 }
 
 /// Resolve um style built-in pelo nome. Aceita styles do hayagriva archive.
@@ -336,22 +373,6 @@ fn escape_yaml_scalar(s: &str) -> String {
 /// Sanitiza a chave do mapa YAML (key da entry). Se necessário, envolve em aspas.
 fn sanitize_yaml_key(s: &str) -> String {
     escape_yaml_scalar(s)
-}
-
-/// Renderiza uma `RenderedBibliography` hayagriva num `Content` cristalino.
-fn render_bibliography(bib: &hayagriva::RenderedBibliography) -> Content {
-    let mut items = Vec::with_capacity(bib.items.len());
-    for item in &bib.items {
-        let mut line_parts = Vec::new();
-        if let Some(first) = &item.first_field {
-            line_parts.push(elem_child_to_content(first));
-            line_parts.push(Content::text(" "));
-        }
-        line_parts.push(elem_children_to_content(&item.content));
-        items.push(Content::sequence(line_parts));
-        items.push(Content::linebreak());
-    }
-    Content::sequence(items)
 }
 
 /// Converte `ElemChildren` hayagriva num único `Content` (Sequence se >1).

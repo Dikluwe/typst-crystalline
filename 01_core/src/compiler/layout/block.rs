@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/block.md
-//! @prompt-hash f57acc5e
+//! @prompt-hash c927d869
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -15,6 +15,27 @@ use crate::entities::rel::Rel;
 use crate::entities::value::Value;
 
 use super::{FontMetrics, ImageSizer, Layouter};
+
+#[derive(Clone, Copy)]
+pub(super) struct InlineRegion {
+    offset: f64,
+    width: f64,
+}
+
+/// Reinstall the active body's horizontal geometry in the current region.
+pub(super) fn install_inline_region<M: FontMetrics, S: ImageSizer>(
+    l: &mut Layouter<M, S>,
+) {
+    let natural_width = if l.column_mode { l.column_width } else { l.page_config.width };
+    let (offset, width) = l
+        .block_inline_region
+        .map(|r| (r.offset, r.width))
+        .unwrap_or((0.0, natural_width - l.page_config.margin.horizontal()));
+    let start = l.page_config.margin.left + offset;
+    l.regions.current.line_start_x = Pt(start);
+    l.regions.current.cursor_x = Pt(start);
+    l.regions.current.width = start + width + l.page_config.margin.right;
+}
 
 /// Resolve altura relativa contra a região exterior, sem multiplicar
 /// `infinity * 0` no caso absoluto de páginas com altura automática.
@@ -315,8 +336,17 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         inner_w,
         (resolved_height.unwrap_or(outer_height) - inset_top - inset_bottom).max(0.0),
     ));
+    let previous_inline_region = layouter.block_inline_region.replace(InlineRegion {
+        offset: layouter.regions.current.line_start_x.0
+            - layouter.page_config.margin.left,
+        width: inner_w,
+    });
+    let previous_planning =
+        std::mem::replace(&mut layouter.paragraph_planning_suppressed, false);
     layouter.layout_content(body);
     layouter.flush_line();
+    layouter.paragraph_planning_suppressed = previous_planning;
+    layouter.block_inline_region = previous_inline_region;
     layouter.relative_region_size = saved_relative_region;
     layouter.block_auto_width = saved_block_auto_width;
     let body_width = layouter.flow_frame_extent.1;
@@ -578,9 +608,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
 
     // 8. Restaura line_start_x e width (P243).
-    layouter.regions.current.line_start_x = saved_line_start;
-    layouter.regions.current.cursor_x = saved_line_start;
-    layouter.regions.current.width = saved_width;
+    if same_region {
+        layouter.regions.current.line_start_x = saved_line_start;
+        layouter.regions.current.cursor_x = saved_line_start;
+        layouter.regions.current.width = saved_width;
+    } else {
+        install_inline_region(layouter);
+    }
 
     // P250/P1061 — below cursor.y advance + state update para
     // collapse com próximo Block/Parágrafo consecutivo.
@@ -774,5 +808,113 @@ mod literal_extent_regression {
                 "spaces={spaces} x={x} expected={expected} right={right}"
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod a2_inline_region_tests {
+    use super::*;
+    use crate::entities::sides::Sides;
+    use crate::entities::{
+        content::Content,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{FrameItem, PageMarginSpec, PageMargins},
+    };
+    use comemo::Track;
+
+    #[test]
+    fn a2_structure_block_insets_survive_page_progress_and_restore_parent() {
+        for strategy in ["simple", "optimized"] {
+            let intr = TagIntrospector::empty();
+            let mut l = Layouter::new(
+                super::super::FixedMetrics,
+                NullImageSizer,
+                12.0,
+                (&intr as &dyn Introspector).track(),
+            );
+            l.page_config.width = 200.0;
+            l.page_config.height = 80.0;
+            l.page_config.margin = PageMargins::uniform(0.0);
+            l.page_config.margin_spec = PageMarginSpec::uniform(0.0);
+            l.regions.current.width = 200.0;
+            l.regions.current.height = 80.0;
+            l.regions.current.line_start_x = Pt(0.0);
+            l.regions.current.cursor_x = Pt(0.0);
+            l.regions.current.cursor_y = Pt(0.0);
+            l.chain = l.chain.push_custom("par.linebreaks", Value::Str(strategy.into()));
+            let body = Content::text("alpha beta gamma ".repeat(30));
+            l.layout_content(&Content::block(
+                body,
+                None,
+                None,
+                Sides {
+                    left: Length::pt(10.0),
+                    right: Length::pt(20.0),
+                    top: Length::ZERO,
+                    bottom: Length::ZERO,
+                },
+                true,
+            ));
+            l.layout_content(&Content::text("OUTSIDE"));
+            let doc = l.finish();
+            assert!(doc.pages.len() > 1);
+            let mut rows = vec![];
+            for (page, frame) in doc.pages.iter().enumerate() {
+                for item in
+                    crate::compiler::layout::tests::frame_items_recursive(&frame.items)
+                {
+                    if let FrameItem::Text { text, pos, .. } = item {
+                        rows.push((page, text.to_string(), pos.x.0));
+                    }
+                }
+            }
+            assert!(
+                rows.iter()
+                    .filter(|(_, text, _)| ["alpha", "beta", "gamma"]
+                        .contains(&text.as_str()))
+                    .all(|(_, _, x)| *x >= 10.0 - 1e-8),
+                "{strategy}: {rows:?}"
+            );
+            assert_eq!(
+                rows.iter().find(|(_, text, _)| text == "OUTSIDE").unwrap().2,
+                0.0,
+                "{strategy}"
+            );
+        }
+    }
+    #[test]
+    fn a2_structure_block_owns_preparation_after_outer_flow_rejection() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            12.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        let body = Content::sequence(vec![Content::text("xx 2020"), Content::text(".")]);
+        let block = Content::block(
+            body,
+            Some(Length::pt(52.0)),
+            None,
+            Sides::uniform(Length::ZERO),
+            true,
+        );
+        l.layout_content(&Content::sequence(vec![block, Content::text("OUTSIDE")]));
+        let doc = l.finish();
+        let rows: Vec<_> = doc
+            .pages
+            .iter()
+            .flat_map(|page| {
+                crate::compiler::layout::tests::frame_items_recursive(&page.items)
+            })
+            .filter_map(|item| match item {
+                FrameItem::Text { text, pos, .. } => Some((text.to_string(), pos.y.0)),
+                _ => None,
+            })
+            .collect();
+        let year = rows.iter().find(|(text, _)| text.contains("2020")).unwrap();
+        let period = rows.iter().find(|(text, _)| text.ends_with('.')).unwrap();
+        assert_eq!(year.1, period.1, "{rows:?}");
     }
 }

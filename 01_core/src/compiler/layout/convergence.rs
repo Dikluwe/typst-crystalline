@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/convergence.md
-//! @prompt-hash 5e8b19e4
+//! @prompt-hash 6f40c7c9
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -55,16 +55,16 @@ pub(super) fn run<M: FontMetrics + Clone, S: ImageSizer + Clone>(
     let bib_style = find_first_bibliography_style(content, &introspector);
     let citation_order = introspector.citation_order();
     let mut layout_errors: Vec<SourceDiagnostic> = Vec::new();
-    let bib_render_cache = bib_style.and_then(|style| {
+    let prepared_bibliography = bib_style.and_then(|style| {
         let result = if let Some(resolved) = style.resolved_style {
-            crate::compiler::layout::bib_csl::build_cache_with_style(
+            crate::compiler::layout::bib_csl::prepare_cache_with_style(
                 introspector.bib_store.entries(),
                 &resolved,
                 style.locale.as_deref(),
                 Some(citation_order),
             )
         } else if let Some(name) = style.style.as_deref() {
-            crate::compiler::layout::bib_csl::build_cache(
+            crate::compiler::layout::bib_csl::prepare_cache(
                 introspector.bib_store.entries(),
                 Some(name),
                 style.locale.as_deref(),
@@ -106,7 +106,11 @@ pub(super) fn run<M: FontMetrics + Clone, S: ImageSizer + Clone>(
             Layouter::new(metrics.clone(), sizer.clone(), font_size, intr_tracked);
         l.math_callback_pass = Some(&callback_pass);
         l.par_line_callback_pass = Some(&par_line_callback_pass);
-        l.bib_render_cache = bib_render_cache.clone();
+        l.bib_render_cache =
+            prepared_bibliography.as_ref().map(|prepared| prepared.cache.clone());
+        l.bib_layout = prepared_bibliography
+            .as_ref()
+            .and_then(|prepared| prepared.plan.clone());
         l.locator = Locator::from_seed(location_start);
         l.layout_errors = layout_errors.clone();
 
