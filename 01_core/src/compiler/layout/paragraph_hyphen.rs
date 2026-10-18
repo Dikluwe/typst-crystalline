@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/paragraph_hyphen.md
-//! @prompt-hash 68b582eb
+//! @prompt-hash 04b5e83d
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -248,6 +248,24 @@ pub(super) fn select(
     strategy: Strategy,
     costs: LineCosts,
 ) -> Vec<Prepared> {
+    select_shaped(
+        p,
+        super::paragraph_indent::Shape::uniform(width),
+        font,
+        justify,
+        strategy,
+        costs,
+    )
+}
+
+pub(super) fn select_shaped(
+    p: &Prepared,
+    shape: super::paragraph_indent::Shape,
+    font: f64,
+    justify: bool,
+    strategy: Strategy,
+    costs: LineCosts,
+) -> Vec<Prepared> {
     let points = points(p);
     let n = points.len();
     let measurements = Measurements::new(p);
@@ -256,11 +274,13 @@ pub(super) fn select(
         let mut start = 0;
         let mut last = None;
         for end in 1..n {
+            let mut width = shape.width(start == 0);
             let mut m = measurements.measure(p, points[start], points[end]);
             if m.width > width + 0.001 {
                 if let Some(fitting) = last.take() {
                     selected.push((start, fitting));
                     start = fitting;
+                    width = shape.width(start == 0);
                     m = measurements.measure(p, points[start], points[end]);
                 }
             }
@@ -284,6 +304,7 @@ pub(super) fn select(
             // Keep this candidate range fixed while pruning future prefixes.
             let first_active = active;
             for start in first_active..end {
+                let width = shape.width(start == 0);
                 let m = measurements.measure(p, points[start], points[end]);
                 if start == active
                     && ratio(m, width, font) < if justify { -1.0 } else { 0.0 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/decorations.md
-//! @prompt-hash 5805e2c7
+//! @prompt-hash 19870b9f
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -40,7 +40,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let color = stroke.or(layouter.style.fill.clone());
 
     // P286 — snapshot inicial + activa collector.
-    let start_x_initial = layouter.regions.current.cursor_x;
+    let cursor_x_initial = layouter.regions.current.cursor_x;
+    let start_x_initial = super::paragraph_indent::cursor_start(layouter);
     let baseline_y_initial = layouter.regions.current.cursor_y;
     let prev_collector = layouter.decoration_lines_collector.take();
     layouter.decoration_lines_collector = Some(Vec::new());
@@ -66,9 +67,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let final_start_x = if segments.is_empty() {
         start_x_initial
     } else {
-        layouter.regions.current.line_start_x
+        Pt(super::paragraph_indent::bounds(layouter).0)
     };
-    if final_end_x.val() > final_start_x.val() {
+    let final_admitted = start_x_initial == cursor_x_initial
+        || !segments.is_empty()
+        || super::paragraph_indent::origin_applied(layouter);
+    if final_admitted && final_end_x.val() > final_start_x.val() {
         segments.push(DecoSegment {
             start_x: final_start_x,
             end_x: final_end_x,

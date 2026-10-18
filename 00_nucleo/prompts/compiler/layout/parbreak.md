@@ -1,7 +1,8 @@
 # L0 — parbreak
-Hash do Código: b69f581e
+Hash do Código: 5ca3d8f4
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:3a97c056eff81b344f46d83567274225e3519ae141fce4817e342d573a92fb41
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
 - 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:0e7c32f877924fea773be54f9719b43bb72b4c3bb065f6ff44a842c56683ff78
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:dc549d79f9e996433894effc8e4efd1f8f3da3d9c30933110eeabbab582ae9a8
@@ -111,3 +112,64 @@ Preservar o fim físico certificado pelo flush enquanto prepara spacing/estado d
 
 Correção interna ADR-0127: L0 primeiro, RED→GREEN e resselo; sem campo público, flag/default ou fase nova. Este adendo autoriza somente o estado privado necessário a esse contrato, supersedendo proibições de novo estado limitadas a extrações anteriores. Guardar/restaurar em LIFO é obrigatório. Revalidar suíte completa, HTML/contexto, PDF/SVG, build/doc/fmt/check, linhagem e inventário de avisos.
 B1 completa a âncora após produtores certificados (linha, forma, Block, Align, Grid, Raw, VSpace), sem substituir o objetivo de corrigir todo o sistema. B2 completa região de Block/inset; B3 resolve assentamento tardio de linha pendente com inline Box/Transform, e audita demais produtores (Heading/List/Stack/Equation/Columns) antes de certificar Place universal. Testemunha inválida conserva a rota legada e é pendência, não crédito de paridade. O gate público de tiling continua pendente.
+
+## Recuo francês — aplicação física (2026-10-18)
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/bibliography-hanging-2026-10-18/before-sources.json.gz
+preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
+status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
+extra-before.json.gz contém26; boundary-before.json.gz contém10 e
+repeat-before.json.gz contém4. Oracle bd5ebec285505889e8ff1d4f68804ab147a699f3,
+binário9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9;
+Tekt inicial2cc69a555e9738dc659c06ed6d933853ab981cbb73e93c388a5b43c55afad095.
+Em160pt/margem8/font12, hanging10 mantém a primeira linha x8 mas move
+continuações x8→18; negativo-5 exige x3. RTL mantém primeira borda direita152
+mas continuações vão para142. O Tekt ignora o comprimento. MLA tem default
+18pt (1.5em), set ambiente3em não o troca, show-set3em exige36pt; IEEE/Plain
+não adquirem recuo de hanging por esse show-set. bibliography.where(style:"mla")
+não casa na sonda vanilla: conservar a decisão do seletor, não forçar override.
+
+Block/Box com body apenas inline ignoram hanging10; Par explícito dentro
+deles e Block com Parbreak aplicam. Heading/Raw/List/Quote simples não o
+aplicam. Declaração parcial, zero, repetida e escopo vazio fecham fronteiras:
+FIRST/MIDDLE/LAST em5.168/27.464/49.76, contra todos5.168 no Tekt. A primeira
+sonda lexical usou colchetes literais: foi refutada, corrigida para #[...] e
+preservada como extra-before-initial; não é evidência de escopo Styled.
+Valores extremos geram tinta recortada pelo extrator: não equiparar ausência
+em pdftotext a apagamento de Content. Fonte parcial24pt não muda o em do
+comprimento compartilhado12pt, como partial-font registra.
+
+Fontes pinadas: typst-realize/src/lib.rs:1061–1085,1190–1219 distinguem
+fragmento/Par e interrupção; typst-layout/src/flow/collect.rs:72–134 escolhe
+fluxo, inline/mod.rs:174,216–221 e collect.rs:141–147 resolvem forma;
+inline/line.rs:496–503 posiciona; rules.rs:510–523 faz inset/compensação CSL.
+typst-library/src/model/bibliography.rs:112–127,367 determina o default e
+precedência. Isso mede língua/geometria; não exige a estrutura Rust vanilla
+nem atribui intenção histórica. Refutação por fronteira perdida, em de run,
+recuo duplo, reset em página, fallback greedy imposto, cópia perdida, callbacks
+reexecutados ou regressões dos controles impede fechamento.
+
+### Classificação e limites
+
+Correção interna/de paridade ADR-0127, fluxo contínuo: sem campo ou assinatura
+pública, flag/default externo novo, fase ou ordem de realização diferente.
+A nova forma inicial/continuação supersede somente a limitação correspondente
+de largura constante; RTL latino certificado segue as condições do núcleo,
+sem BidiCursor ativo/tracking e sem inventar BidiSpan. Os demais limites
+anteriores continuam. Os valores/cópia fora da página requerem inspeção dos
+frames ou SVG, não igualdade de extração recortada. Não antecipar R3-T1.
+
+### Responsabilidade exclusiva deste owner
+
+Após fechamento causal existente, terminar o contexto de hanging; fazer a limpeza também quando a fronteira não tinha tinta, sem criar linha/altura. Fila de compensação CSL ainda não admitida permanece pendente.
+
+### Aceitação
+
+RED→GREEN antes da implementação; controles fonte→layout e bilaterais dos sinais,
+fronteiras, variantes e restauração pertinentes. Não deduzir cobertura de todas
+as alternativas por executar um arm agrupado: classificações nominais fechadas
+do contexto inline/fluxo são intencionais e exigem testes por classe/variante.
+Resselo apenas após V15/V26 válidos; testes, build, Clippy/Rustdoc/fmt, reversa
+e diferencial Tekt do pin1279707, sob12GiB/High8GiB/swap0/jobs1. Sem publicação.

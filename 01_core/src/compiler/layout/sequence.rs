@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/sequence.md
-//! @prompt-hash af67beef
+//! @prompt-hash 1861d616
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -40,6 +40,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
     parts: &[Content],
 ) {
+    super::paragraph_indent::start_scope(layouter, parts);
     let needs_bidi = layouter.bidi_cursor.is_some()
         || parts.split(|p| matches!(p, Content::Parbreak)).any(|p| {
             super::paragraph::shared_direction(p, &layouter.chain)

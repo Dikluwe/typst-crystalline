@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/word_layout.md
-//! @prompt-hash c86912fb
+//! @prompt-hash 89ec2ee2
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -40,8 +40,8 @@ pub(super) fn word<M: FontMetrics, S: ImageSizer>(
         text,
         width,
         layouter.regions.current.cursor_x.0 + boundary.0,
-        layouter.regions.current.width - layouter.page_config.margin.right,
-        layouter.regions.current.line_start_x.0,
+        super::paragraph_indent::bounds(layouter).1,
+        super::paragraph_indent::bounds(layouter).0,
         hyphenate,
     );
     match decision {
@@ -77,8 +77,8 @@ pub(super) fn chunk<M: FontMetrics, S: ImageSizer>(
     if break_selection::should_wrap(
         width,
         layouter.regions.current.cursor_x.0 + boundary.0,
-        layouter.regions.current.width - layouter.page_config.margin.right,
-        layouter.regions.current.line_start_x.0,
+        super::paragraph_indent::bounds(layouter).1,
+        super::paragraph_indent::bounds(layouter).0,
     ) {
         boundary = Pt(0.0);
         layouter.flush_continued_line();
@@ -209,6 +209,7 @@ pub(super) fn prepared<M: FontMetrics, S: ImageSizer>(
     let previous = layouter.style.clone();
     layouter.style = style.clone();
     layouter.ensure_initial_baseline();
+    super::paragraph_indent::admit(layouter);
     push_text(layouter, text.into(), width, replacement);
     layouter.regions.current.cursor_x += width;
     layouter.style = previous;

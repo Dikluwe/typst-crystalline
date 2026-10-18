@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/line_commit.md
-//! @prompt-hash 4e420d76
+//! @prompt-hash a075dc3e
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -131,7 +131,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         if self.regions.current.pending_fr.is_empty() && self.pending_repeats.is_empty() {
             return;
         }
-        let right_margin = self.regions.current.width - self.page_config.margin.right;
+        let right_margin = super::paragraph_indent::bounds(self).1;
         // **P867** — `width: auto` não define espaço restante; fracionários
         // não expandem (limpar pending sem alterar posições).
         if !right_margin.is_finite() {
@@ -254,7 +254,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// atravessados na linha. Valores de sondas não entram nesta fórmula.
     pub(super) fn justify_current_line(&mut self) {
         self.expand_fr_spacings();
-        let right_margin = self.regions.current.width - self.page_config.margin.right;
+        let right_margin = super::paragraph_indent::bounds(self).1;
         if !right_margin.is_finite() || self.justify_opportunities.is_empty() {
             return;
         }
@@ -611,9 +611,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // para que baseline e collector pertençam à região estabilizada.
         if had_items {
             self.prev_line_baseline = self.regions.current.cursor_y.0;
+            let decoration_start = Pt(super::paragraph_indent::bounds(self).0);
             if let Some(coll) = self.decoration_lines_collector.as_mut() {
                 coll.push(super::DecoSegment {
-                    start_x: self.regions.current.line_start_x,
+                    start_x: decoration_start,
                     end_x: self.regions.current.cursor_x,
                     baseline_y: self.regions.current.cursor_y,
                 });
@@ -879,6 +880,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // se estivermos dentro de um sub-layout de Grid (Passo 81.5).
         self.regions.current.cursor_x = self.regions.current.line_start_x;
 
+        super::paragraph_indent::commit(self, had_items);
         super::region_progress::post_line(self, had_items, effective_line_committed);
     }
 }

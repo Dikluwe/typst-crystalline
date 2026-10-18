@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/paragraph_prepare.md
-//! @prompt-hash b523c9ec
+//! @prompt-hash 275b2711
 //! @layer L1
 //! @updated 2026-10-08
 
@@ -109,7 +109,9 @@ fn style_supported<M: FontMetrics, S: ImageSizer>(
     l: &Layouter<M, S>,
     style: &TextStyle,
 ) -> bool {
-    style.dir != Some(Dir::RTL) && !style.math && !l.smallcaps
+    (style.dir != Some(Dir::RTL) || (l.bidi_cursor.is_none() && style.tracking.is_none()))
+        && !style.math
+        && !l.smallcaps
 }
 
 fn gap<M: FontMetrics, S: ImageSizer>(

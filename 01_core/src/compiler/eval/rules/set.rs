@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/set.md
-//! @prompt-hash 4e5214a6
+//! @prompt-hash 5a235949
 //! @layer L1
 //! @updated 2026-10-08
 //!
@@ -1114,6 +1114,21 @@ pub(crate) fn eval_set_rule(
                     return Err(vec![expected_length_error(&val, named.expr().span())]);
                 }
                 match key.as_str() {
+                    "hanging-indent" => {
+                        if let Value::Length(length) = val {
+                            let prior = matches!(
+                                engine.styles.custom("eval.par.hanging-boundary"),
+                                Some(Value::Bool(true))
+                            );
+                            *engine.styles = engine
+                                .styles
+                                .push_custom("par.hanging-indent", Value::Length(length))
+                                .push_custom(
+                                    "eval.par.hanging-boundary",
+                                    Value::Bool(!prior),
+                                );
+                        }
+                    }
                     "leading" => {
                         if let Value::Length(l) = val {
                             *engine.styles = engine

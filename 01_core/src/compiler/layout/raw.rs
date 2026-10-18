@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/raw_highlight.md
-//! @prompt-hash 9dc27b36
+//! @prompt-hash 5387e817
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -143,7 +143,7 @@ pub(super) fn begin_block<M: FontMetrics, S: ImageSizer>(
     l: &mut Layouter<M, S>,
     font: f64,
     outer: &TextStyle,
-) {
+) -> super::paragraph_indent::State {
     let prefix = super::html_frame::items_have_material(&l.regions.current.current_line);
     let previous_paragraph = prefix
         || (!l.block_chain_active
@@ -190,6 +190,8 @@ pub(super) fn begin_block<M: FontMetrics, S: ImageSizer>(
     l.prev_block_below_pending = 0.0;
     l.block_chain_active = false;
     l.prev_margin_is_parbreak = false;
+    super::paragraph_indent::end(l);
+    std::mem::replace(&mut l.paragraph_indent, super::paragraph_indent::State::inline())
 }
 
 pub(super) fn end_block<M: FontMetrics, S: ImageSizer>(
@@ -301,9 +303,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         default_style(&prev, &layouter.chain)
     };
     let block_font = base_style.size.val();
-    if owns_block {
-        begin_block(layouter, block_font, &prev);
-    }
+    let raw_indent_state = owns_block.then(|| begin_block(layouter, block_font, &prev));
     if let Some(crate::entities::value::Value::Color(c)) =
         layouter.chain.custom("text.fill")
     {
@@ -384,8 +384,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
     }
 
-    if owns_block {
+    if let Some(state) = raw_indent_state {
         end_block(layouter, block_font);
+        layouter.paragraph_indent = state;
     }
     layouter.style = prev;
 }

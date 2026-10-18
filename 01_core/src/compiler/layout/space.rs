@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/space.md
-//! @prompt-hash 85fa5b11
+//! @prompt-hash 491d2e10
 //! @layer L1
 //! @updated 2026-09-29
 
@@ -71,7 +71,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             layouter.chain.custom("par.justify"),
             Some(crate::entities::value::Value::Bool(true))
         ) && layouter.regions.current.cursor_x.0
-            > layouter.regions.current.width - layouter.page_config.margin.right
+            > super::paragraph_indent::bounds(layouter).1
         {
             layouter.flush_line();
         }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/block.md
-//! @prompt-hash 54cf4f49
+//! @prompt-hash f0ed84a8
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -358,11 +358,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             - layouter.page_config.margin.left,
         width: inner_w,
     });
+    let previous_indent = super::paragraph_indent::enter_fragment(layouter, body);
     let previous_planning =
         std::mem::replace(&mut layouter.paragraph_planning_suppressed, false);
     layouter.layout_content(body);
     layouter.flush_line();
     layouter.paragraph_planning_suppressed = previous_planning;
+    layouter.paragraph_indent = previous_indent;
     layouter.block_inline_region = previous_inline_region;
     layouter.relative_region_size = saved_relative_region;
     layouter.block_auto_width = saved_block_auto_width;

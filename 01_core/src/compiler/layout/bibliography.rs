@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/bibliography.md
-//! @prompt-hash 31b7f4d5
+//! @prompt-hash 37c7a08d
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -172,22 +172,61 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
     if let Some(plan) = layouter.bib_layout.clone() {
         use super::bib_csl::plan::BibliographyPlan;
+        let bibliography_chain = layouter.chain.clone();
+        layouter.chain = layouter.chain.push_custom(
+            "par.hanging-indent",
+            crate::entities::value::Value::Length(
+                crate::entities::layout_types::Length::ZERO,
+            ),
+        );
         match plan.as_ref() {
             BibliographyPlan::Columns(entries) => {
                 layout_columns(layouter, entries);
             }
-            // Hanging transport is retained; its physical paragraph consumer
-            // belongs to the next A2-HangingTransport/A2-ParIndent step.
-            BibliographyPlan::Hanging(entries) | BibliographyPlan::Plain(entries) => {
+            BibliographyPlan::Hanging(entries) => layout_hanging(layouter, entries),
+            BibliographyPlan::Plain(entries) => {
                 for entry in entries {
                     layouter.layout_content(&entry_block(entry.body.clone()));
                 }
             }
         }
+        layouter.chain = bibliography_chain;
         return;
     }
     if !body.is_empty() {
         layouter.layout_content(&entry_block(body));
+    }
+}
+
+fn layout_hanging<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    entries: &[super::bib_csl::plan::Entry],
+) {
+    use crate::entities::{dir::Dir, layout_types::Length, sides::Sides, value::Value};
+    let amount = match layouter.chain.custom("bibliography.hanging-override") {
+        Some(Value::Length(length)) => *length,
+        _ => Length::em(1.5),
+    }
+    .resolve_pt(layouter.style.size.0);
+    let dir = super::text::effective_style(layouter).dir.unwrap_or(Dir::LTR);
+    let inset = Sides {
+        top: Length::ZERO,
+        bottom: Length::ZERO,
+        left: Length::pt(if dir == Dir::LTR { amount } else { 0.0 }),
+        right: Length::pt(if dir == Dir::RTL { amount } else { 0.0 }),
+    };
+    for entry in entries {
+        let previous = layouter
+            .pending_bib_escape
+            .replace(super::paragraph_indent::Spec::escape(amount, dir));
+        layouter.layout_content(&Content::block(
+            entry.body.clone(),
+            None,
+            None,
+            inset,
+            true,
+        ));
+        layouter.pending_bib_escape = previous;
     }
 }
 

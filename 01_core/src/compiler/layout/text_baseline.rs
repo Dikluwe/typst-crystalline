@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/text_baseline.md
-//! @prompt-hash 42d2aeda
+//! @prompt-hash 80a7aa63
 //! @layer L1
 //! @updated 2026-09-29
 
@@ -14,6 +14,7 @@ pub(super) fn admit<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>
             &layouter.regions.current.current_line,
         );
     layouter.ensure_initial_baseline();
+    super::paragraph_indent::admit(layouter);
     if only_separators {
         for item in &mut layouter.regions.current.current_line {
             if let FrameItem::TextSeparator { pos, style, .. } = item {

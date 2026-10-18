@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/apply.md
-//! @prompt-hash eff4d74d
+//! @prompt-hash a126db59
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -312,6 +312,7 @@ fn apply_show_rules_inner(
             if any_set {
                 let mut delta = set_chain.collapse();
                 mark_heading_show_set(&mut delta, node, &work);
+                mark_bibliography_hanging(&mut delta, node, &work);
                 for (key, value) in &delta.custom {
                     if key.as_str() == "text.size" {
                         raw_overrides =
@@ -520,6 +521,44 @@ fn apply_show_rules_inner(
     Ok(content)
 }
 
+/// Preserve only an override actually matched to this bibliography occurrence.
+fn mark_bibliography_hanging(
+    delta: &mut crate::entities::style_chain::StyleDelta,
+    original: &Content,
+    visual: &Content,
+) {
+    fn bibliography(mut c: &Content) -> bool {
+        loop {
+            c = c.source_body();
+            if let Content::Located(e) = c {
+                c = &e.body;
+            } else if let Content::Realized(e) = c {
+                c = &e.visual;
+            } else {
+                return matches!(c, Content::Bibliography(_));
+            }
+        }
+    }
+    if bibliography(original) && bibliography(visual) {
+        let value = delta.custom.iter().rev().find_map(|(key, value)| {
+            if key.as_str() == "par.hanging-indent" {
+                if let Value::Length(length) = value {
+                    Some(*length)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        });
+        if let Some(length) = value {
+            delta
+                .custom
+                .push(("bibliography.hanging-override".into(), Value::Length(length)));
+        }
+    }
+}
+
 /// Productive locatables retain their identity across aliases. The legacy
 /// morphology loop above remains available for its separate evaluation path.
 fn mark_heading_show_set(
@@ -668,6 +707,7 @@ fn realize_occurrence(
     }
     let mut delta = set_chain.collapse();
     mark_heading_show_set(&mut delta, &node, &work);
+    mark_bibliography_hanging(&mut delta, &node, &work);
     let wrapped = !delta.is_empty();
     if wrapped {
         work = Content::styled(Box::new(work), Styles::from_delta(delta));

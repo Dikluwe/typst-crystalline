@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/paragraph_plan.md
-//! @prompt-hash 39212544
+//! @prompt-hash f038b31e
 //! @layer L1
 //! @updated 2026-10-08
 
@@ -85,17 +85,42 @@ pub(super) fn try_layout<M: FontMetrics, S: ImageSizer>(
     }
     let Some((strategy, width, font, justify)) = options(l) else { return false };
     let Some(p) = paragraph_prepare::prepare(l, body) else { return false };
+    super::paragraph_indent::start(l);
+    let shape = super::paragraph_indent::shape(l, width);
     let regional_only = implicit_regional_only(l);
     let costs = crate::compiler::text_costs::resolve(&l.chain);
     if p.words.iter().any(|w| w.hyphenation.is_some()) {
-        let lines =
-            super::paragraph_hyphen::select(&p, width, font, justify, strategy, costs);
+        let lines = if shape.is_uniform() {
+            super::paragraph_hyphen::select(
+                &p,
+                shape.width(true),
+                font,
+                justify,
+                strategy,
+                costs,
+            )
+        } else {
+            super::paragraph_hyphen::select_shaped(
+                &p, shape, font, justify, strategy, costs,
+            )
+        };
         if regional_only && lines.len() < 2 && !single_overlong_word(&p, width) {
             return false;
         }
         paragraph_emit::emit_prepared_lines(l, &lines, width, justify);
     } else {
-        let lines = paragraph_select::select(&p, width, font, justify, strategy, costs);
+        let lines = if shape.is_uniform() {
+            paragraph_select::select(
+                &p,
+                shape.width(true),
+                font,
+                justify,
+                strategy,
+                costs,
+            )
+        } else {
+            paragraph_select::select_shaped(&p, shape, font, justify, strategy, costs)
+        };
         if regional_only && lines.len() < 2 && !single_overlong_word(&p, width) {
             return false;
         }
@@ -108,6 +133,8 @@ pub(super) fn try_parts<M: FontMetrics, S: ImageSizer>(
     parts: &[Content],
 ) -> bool {
     let Some((strategy, width, font, justify)) = options(l) else { return false };
+    super::paragraph_indent::start_scope(l, parts);
+    let shape = super::paragraph_indent::shape(l, width);
     let regional_only = implicit_regional_only(l);
     if parts
         .split(|part| matches!(part, Content::Parbreak))
@@ -117,6 +144,7 @@ pub(super) fn try_parts<M: FontMetrics, S: ImageSizer>(
     }
     let costs = crate::compiler::text_costs::resolve(&l.chain);
     let mut prepared = Vec::new();
+    let mut first_material = true;
     for segment in parts.split(|part| matches!(part, Content::Parbreak)) {
         if segment.iter().all(|part| {
             matches!(part, Content::Empty | Content::Space | Content::SpaceFromNewline)
@@ -125,14 +153,41 @@ pub(super) fn try_parts<M: FontMetrics, S: ImageSizer>(
             continue;
         }
         let Some(p) = paragraph_prepare::prepare_parts(l, segment) else { return false };
+        let shape = if !first_material && l.pending_bib_escape.is_some() {
+            super::paragraph_indent::Shape::uniform(shape.width(false))
+        } else {
+            shape
+        };
+        first_material = false;
         if p.words.iter().any(|w| w.hyphenation.is_some()) {
-            let lines = super::paragraph_hyphen::select(
-                &p, width, font, justify, strategy, costs,
-            );
+            let lines = if shape.is_uniform() {
+                super::paragraph_hyphen::select(
+                    &p,
+                    shape.width(true),
+                    font,
+                    justify,
+                    strategy,
+                    costs,
+                )
+            } else {
+                super::paragraph_hyphen::select_shaped(
+                    &p, shape, font, justify, strategy, costs,
+                )
+            };
             prepared.push(Some((p, Vec::new(), Some(lines))));
         } else {
-            let lines =
-                paragraph_select::select(&p, width, font, justify, strategy, costs);
+            let lines = if shape.is_uniform() {
+                paragraph_select::select(
+                    &p,
+                    shape.width(true),
+                    font,
+                    justify,
+                    strategy,
+                    costs,
+                )
+            } else {
+                paragraph_select::select_shaped(&p, shape, font, justify, strategy, costs)
+            };
             prepared.push(Some((p, lines, None)));
         }
     }

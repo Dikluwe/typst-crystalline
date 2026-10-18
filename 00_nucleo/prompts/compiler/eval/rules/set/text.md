@@ -4,7 +4,7 @@ Hash do Código: ec4982c9
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-break-policy.toml sha256:7e41c96527dd5936bebe6916f2a9ea93477c057495845c7e8b52ce3c5917855a
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:70b72ac9efb2bf81aa4ef496c4e1c867264f696d454a9916e7e2e5f385b92020
-- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:e9038b453bbb1971c9a75a76eced99c35db742f57bebbb09b03c4922b3862800
+- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:a28cd4f2dd22d2bdb2cb30085596c2a758af7770fa21eb28c38dc35e904928eb
 - 00_nucleo/prompts/_nuclei/text-size-affine.toml sha256:f10f7afaabd1b97f3048736842df89d0ba48d4daa0ae3cd453c9be317f32ef91
 
 Layer: L1
@@ -68,3 +68,10 @@ Gradient/Tiling e os validadores font legados permanecem frentes separadas.
 Preservar especificamente o transporte parcial anterior de Gradient/Tiling: as duas variantes constituem grupo V19 explícito e coeso, sem efeito neste owner até a frente Paint. Não confundir esse scope-out com cast inválido; None e demais não-paints agora falham. Não fechar a frente Paint por meio de cor sólida ou mensagem contraditória.
 
 O SARIF da primeira materialização TS1 registrou dois V17 novos neste owner (lookup AST e validação da array font). Desdobrar a seleção exaustiva da variante e as condições no corpo do braço, sem supressão e preservando diagnósticos/avaliação. O grupo V19 residual Pos/Spread é coeso: não possuem expressão AST nomeada font, usando a ocorrência avaliada.
+
+## Pin do núcleo de seleção — 2026-10-18
+
+As medições e o refinamento de forma/RTL em
+00_nucleo/diagnosticos/bibliography-hanging-2026-10-18 precedem o novo pin.
+Este owner recebe somente o pin do núcleo compartilhado; seu código executável,
+API, fase e demais responsabilidades não mudam nesta etapa.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/paragraph_select.md
-//! @prompt-hash 148626df
+//! @prompt-hash 84b29876
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -126,11 +126,30 @@ pub(super) fn select(
     strategy: Strategy,
     costs: LineCosts,
 ) -> Vec<Line> {
+    select_shaped(
+        p,
+        super::paragraph_indent::Shape::uniform(width),
+        font,
+        justify,
+        strategy,
+        costs,
+    )
+}
+
+pub(super) fn select_shaped(
+    p: &Prepared,
+    shape: super::paragraph_indent::Shape,
+    font: f64,
+    justify: bool,
+    strategy: Strategy,
+    costs: LineCosts,
+) -> Vec<Line> {
     let n = p.words.len();
     if strategy == Strategy::Simple {
         let mut lines = Vec::new();
         let mut start = 0;
         while start < n {
+            let width = shape.width(start == 0);
             let mut end = start + 1;
             while end < n && measure(p, Line { start, end: end + 1 }).width <= width {
                 end += 1;
@@ -188,6 +207,7 @@ pub(super) fn select(
         // Keep this candidate range fixed while pruning future prefixes.
         let first_active = active;
         for start in first_active..end {
+            let width = shape.width(start == 0);
             let line = Line { start, end };
             let m = measured(line);
             if start == active && ratio(m, width, font) < if justify { -1.0 } else { 0.0 }

@@ -1,8 +1,9 @@
 # L0 — space
-Hash do Código: f5ffaa92
+Hash do Código: 0f9aeec2
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/coordinates.toml sha256:7b8a61eaafc8a07df12218f8f0560c33fae5c36f621b822b7350ccefc9774711
+- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:3a97c056eff81b344f46d83567274225e3519ae141fce4817e342d573a92fb41
 - 00_nucleo/prompts/_nuclei/layout/text-separators.toml sha256:79d5c48d0b9d0fb7d995207d18b1f9437209bf35c78a35cbfcedccea8b90abd2
 - 00_nucleo/prompts/_nuclei/layout/text-tracking.toml sha256:3b0c535436048536ecd3133fcf8299e88c128a62c222661f36b7bcc6d98a598c
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
@@ -86,3 +87,64 @@ Escopo inicial: incremental simple, fora de células/colunas/subframes, sem trac
 Medição anterior à decisão: verification.json.gz registra desvio de 3.4966pt na borda oposta de rtl_terminal_space/rtl_wrap e no DEF final de ltr_wrap. A árvore possui um Space fraco no fim do Styled e outro depois do envelope; space.rs:31 avança ambos. Correção interna de paridade: depois de consumir o segmento lógico, quando o último item já é TextSeparator Markup/Newline e o novo Space é fraco, não emitir/avançar a segunda ocorrência visual. Não colapsar Literal, não procurar igualdade de string, não fundir spans. Conservar o carrier sobrevivente e seu span; espaços fracos omitidos continuam no input lógico e não são reasignados. Aceitação RED→GREEN com Markup/Newline adjacentes e controle Literal, matriz fonte→PDF com mesmas larguras/fontes e escopos.
 
 Fonte primária complementar: vanilla `typst-realize/src/spaces.rs:25–31,68–99,128–132` conserva os estilos do primeiro espaço do grupo. A primeira suíte após a correção encontrou uma asserção mecânica antiga que esperava wrap provocado pelo segundo espaço fraco; a fixture passa a inserir um novo B antes de testar wrap, conservando a obrigação de quebra após material. O novo teste usa tolerância numérica de 1e-9pt para soma de floats; diferença medida foi ~1e-14pt, não de geometria.
+
+## Recuo francês — aplicação física (2026-10-18)
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/bibliography-hanging-2026-10-18/before-sources.json.gz
+preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
+status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
+extra-before.json.gz contém26; boundary-before.json.gz contém10 e
+repeat-before.json.gz contém4. Oracle bd5ebec285505889e8ff1d4f68804ab147a699f3,
+binário9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9;
+Tekt inicial2cc69a555e9738dc659c06ed6d933853ab981cbb73e93c388a5b43c55afad095.
+Em160pt/margem8/font12, hanging10 mantém a primeira linha x8 mas move
+continuações x8→18; negativo-5 exige x3. RTL mantém primeira borda direita152
+mas continuações vão para142. O Tekt ignora o comprimento. MLA tem default
+18pt (1.5em), set ambiente3em não o troca, show-set3em exige36pt; IEEE/Plain
+não adquirem recuo de hanging por esse show-set. bibliography.where(style:"mla")
+não casa na sonda vanilla: conservar a decisão do seletor, não forçar override.
+
+Block/Box com body apenas inline ignoram hanging10; Par explícito dentro
+deles e Block com Parbreak aplicam. Heading/Raw/List/Quote simples não o
+aplicam. Declaração parcial, zero, repetida e escopo vazio fecham fronteiras:
+FIRST/MIDDLE/LAST em5.168/27.464/49.76, contra todos5.168 no Tekt. A primeira
+sonda lexical usou colchetes literais: foi refutada, corrigida para #[...] e
+preservada como extra-before-initial; não é evidência de escopo Styled.
+Valores extremos geram tinta recortada pelo extrator: não equiparar ausência
+em pdftotext a apagamento de Content. Fonte parcial24pt não muda o em do
+comprimento compartilhado12pt, como partial-font registra.
+
+Fontes pinadas: typst-realize/src/lib.rs:1061–1085,1190–1219 distinguem
+fragmento/Par e interrupção; typst-layout/src/flow/collect.rs:72–134 escolhe
+fluxo, inline/mod.rs:174,216–221 e collect.rs:141–147 resolvem forma;
+inline/line.rs:496–503 posiciona; rules.rs:510–523 faz inset/compensação CSL.
+typst-library/src/model/bibliography.rs:112–127,367 determina o default e
+precedência. Isso mede língua/geometria; não exige a estrutura Rust vanilla
+nem atribui intenção histórica. Refutação por fronteira perdida, em de run,
+recuo duplo, reset em página, fallback greedy imposto, cópia perdida, callbacks
+reexecutados ou regressões dos controles impede fechamento.
+
+### Classificação e limites
+
+Correção interna/de paridade ADR-0127, fluxo contínuo: sem campo ou assinatura
+pública, flag/default externo novo, fase ou ordem de realização diferente.
+A nova forma inicial/continuação supersede somente a limitação correspondente
+de largura constante; RTL latino certificado segue as condições do núcleo,
+sem BidiCursor ativo/tracking e sem inventar BidiSpan. Os demais limites
+anteriores continuam. Os valores/cópia fora da página requerem inspeção dos
+frames ou SVG, não igualdade de extração recortada. Não antecipar R3-T1.
+
+### Responsabilidade exclusiva deste owner
+
+Manter regras de origem/duplicação e avanço; ao verificar overflow, usar a borda final efetiva do parágrafo. Não fabricar espaço para representar recuo.
+
+### Aceitação
+
+RED→GREEN antes da implementação; controles fonte→layout e bilaterais dos sinais,
+fronteiras, variantes e restauração pertinentes. Não deduzir cobertura de todas
+as alternativas por executar um arm agrupado: classificações nominais fechadas
+do contexto inline/fluxo são intencionais e exigem testes por classe/variante.
+Resselo apenas após V15/V26 válidos; testes, build, Clippy/Rustdoc/fmt, reversa
+e diferencial Tekt do pin1279707, sob12GiB/High8GiB/swap0/jobs1. Sem publicação.

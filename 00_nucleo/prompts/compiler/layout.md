@@ -1,5 +1,5 @@
 # L0 — Layout engine coordination
-Hash do Código: 70b336b1
+Hash do Código: 6f4cb64d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/block-place-region.toml sha256:77c7d31bf3f7276cc9b4d1b2951634724a6d0fb4352a0b45c76e6f3775b512dc
@@ -13,6 +13,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/flow-frame-width.toml sha256:9d9d6c265a3840cc5a3b8e121f403bc9e3fe55b1e586ab9014948f0784de5c3e
 - 00_nucleo/prompts/_nuclei/layout/installed-line-ascent.toml sha256:42175932c75f37ed19205d1d82526969999e18fba8fed16f1b1dcff6e418bc0f
 - 00_nucleo/prompts/_nuclei/layout/link-frame-scopes.toml sha256:4e487a99ea1f1e82a67dfaced0958f98392fb26b1a7d292355230d6ffa7f2d0b
+- 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:3a97c056eff81b344f46d83567274225e3519ae141fce4817e342d573a92fb41
 - 00_nucleo/prompts/_nuclei/layout/position-frame-carriers.toml sha256:ff71dfc6648d6deb4b2b8054e3d58a93777d17837129f0f1b1e7e138ffb6943c
 - 00_nucleo/prompts/_nuclei/layout/subframe-inline-extents.toml sha256:d9b9c00602c2c68bbe82eb37a84cc01a4e0575bf84f5df8950b86b7f4dab7dd3
 - 00_nucleo/prompts/_nuclei/layout/text-segment-scope.toml sha256:77528cd6193277b9f776b29da06327d974f5cea26fb89abf821879b363185b0a
@@ -20,7 +21,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/callback-realization.toml sha256:3cf8b79e22fcda6466dc38b7691a73ada4540956fbed14129c9e1ed5a6a56c43
 - 00_nucleo/prompts/_nuclei/paragraph-bidi-origin.toml sha256:3ee5760ffa44b5fd889b9d6772972e3b8417be332e13726cd9eea24b32e686f8
 - 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:6eec17984449d21b626379651b9b0a511a2dfe8e1a1f0a0af230cce52a47b827
-- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:e9038b453bbb1971c9a75a76eced99c35db742f57bebbb09b03c4922b3862800
+- 00_nucleo/prompts/_nuclei/paragraph-selection.toml sha256:a28cd4f2dd22d2bdb2cb30085596c2a758af7770fa21eb28c38dc35e904928eb
 - 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml sha256:2baf472bb540640d571ae618aa218e5f2b166839a2070f8a4a907ec65d7ded20
 - 00_nucleo/prompts/_nuclei/place-flow-boundary.toml sha256:0e7c32f877924fea773be54f9719b43bb72b4c3bb065f6ff44a842c56683ff78
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:dc549d79f9e996433894effc8e4efd1f8f3da3d9c30933110eeabbab582ae9a8
@@ -859,3 +860,64 @@ novos, estratégia alterada ou regressão dos controles de Block/columns/subfram
 Adicionar somente dois slots privados, pending_bib_prefix: Option<bibliography::PendingPrefix> e block_inline_region: Option<block::InlineRegion>, ambos None inicialmente. Manter dispatcher e interfaces públicas. Estes contextos são capacidades de layout local, não estado global, domínio público, Style custom ou vtable.
 
 Aceitação: RED→GREEN de prefixo/corpo na mesma página e inset nas continuações, inclusive saída para OUTSIDE, simple/optimized e controles existentes. Medir PDF90/150/250, RTL, prefix-only/formatado, cores e regressões; build, suites/doctests/Clippy/Rustdoc/fmt/linhagem/reversa/diferencial Tekt. MemoryMax12GiB/High8GiB/swap0/jobs1; sem publicação. Hanging genérico/overrides e múltiplas bibliografias continuam frentes abertas.
+
+## Recuo francês — aplicação física (2026-10-18)
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/bibliography-hanging-2026-10-18/before-sources.json.gz
+preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, árvore não commitada,
+status/diffstat/UTC e2099 fontes/L0s. before.json.gz contém92 pares;
+extra-before.json.gz contém26; boundary-before.json.gz contém10 e
+repeat-before.json.gz contém4. Oracle bd5ebec285505889e8ff1d4f68804ab147a699f3,
+binário9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9;
+Tekt inicial2cc69a555e9738dc659c06ed6d933853ab981cbb73e93c388a5b43c55afad095.
+Em160pt/margem8/font12, hanging10 mantém a primeira linha x8 mas move
+continuações x8→18; negativo-5 exige x3. RTL mantém primeira borda direita152
+mas continuações vão para142. O Tekt ignora o comprimento. MLA tem default
+18pt (1.5em), set ambiente3em não o troca, show-set3em exige36pt; IEEE/Plain
+não adquirem recuo de hanging por esse show-set. bibliography.where(style:"mla")
+não casa na sonda vanilla: conservar a decisão do seletor, não forçar override.
+
+Block/Box com body apenas inline ignoram hanging10; Par explícito dentro
+deles e Block com Parbreak aplicam. Heading/Raw/List/Quote simples não o
+aplicam. Declaração parcial, zero, repetida e escopo vazio fecham fronteiras:
+FIRST/MIDDLE/LAST em5.168/27.464/49.76, contra todos5.168 no Tekt. A primeira
+sonda lexical usou colchetes literais: foi refutada, corrigida para #[...] e
+preservada como extra-before-initial; não é evidência de escopo Styled.
+Valores extremos geram tinta recortada pelo extrator: não equiparar ausência
+em pdftotext a apagamento de Content. Fonte parcial24pt não muda o em do
+comprimento compartilhado12pt, como partial-font registra.
+
+Fontes pinadas: typst-realize/src/lib.rs:1061–1085,1190–1219 distinguem
+fragmento/Par e interrupção; typst-layout/src/flow/collect.rs:72–134 escolhe
+fluxo, inline/mod.rs:174,216–221 e collect.rs:141–147 resolvem forma;
+inline/line.rs:496–503 posiciona; rules.rs:510–523 faz inset/compensação CSL.
+typst-library/src/model/bibliography.rs:112–127,367 determina o default e
+precedência. Isso mede língua/geometria; não exige a estrutura Rust vanilla
+nem atribui intenção histórica. Refutação por fronteira perdida, em de run,
+recuo duplo, reset em página, fallback greedy imposto, cópia perdida, callbacks
+reexecutados ou regressões dos controles impede fechamento.
+
+### Classificação e limites
+
+Correção interna/de paridade ADR-0127, fluxo contínuo: sem campo ou assinatura
+pública, flag/default externo novo, fase ou ordem de realização diferente.
+A nova forma inicial/continuação supersede somente a limitação correspondente
+de largura constante; RTL latino certificado segue as condições do núcleo,
+sem BidiCursor ativo/tracking e sem inventar BidiSpan. Os demais limites
+anteriores continuam. Os valores/cópia fora da página requerem inspeção dos
+frames ou SVG, não igualdade de extração recortada. Não antecipar R3-T1.
+
+### Responsabilidade exclusiva deste owner
+
+Declarar o descendente paragraph_indent e guardar State e Option<Spec> pending_bib_escape privados, inicializados como Paragraph/sem ocorrência. Dispatcher continua estático e magro: apenas delegar hooks before_content/after_content; toda classificação e aplicação pertencem ao novo owner. Interfaces públicas permanecem.
+
+### Aceitação
+
+RED→GREEN antes da implementação; controles fonte→layout e bilaterais dos sinais,
+fronteiras, variantes e restauração pertinentes. Não deduzir cobertura de todas
+as alternativas por executar um arm agrupado: classificações nominais fechadas
+do contexto inline/fluxo são intencionais e exigem testes por classe/variante.
+Resselo apenas após V15/V26 válidos; testes, build, Clippy/Rustdoc/fmt, reversa
+e diferencial Tekt do pin1279707, sob12GiB/High8GiB/swap0/jobs1. Sem publicação.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/heading.md
-//! @prompt-hash a33607d6
+//! @prompt-hash f81fe5e4
 //! @layer L1
 //! @updated 2026-08-18
 //!
@@ -118,6 +118,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
     }
 
+    super::paragraph_indent::end(layouter);
+    let heading_indent = std::mem::replace(
+        &mut layouter.paragraph_indent,
+        super::paragraph_indent::State::inline(),
+    );
     layouter.layout_content(body);
     let heading_baseline = layouter.regions.current.cursor_y.0;
     layouter.flush_line();
@@ -129,6 +134,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter.block_chain_active = true;
     layouter.prev_margin_is_parbreak = false;
 
+    layouter.paragraph_indent = heading_indent;
     layouter.style = prev;
     layouter.chain = prev_chain;
 }

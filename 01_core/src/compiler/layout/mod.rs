@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 1c64468a
+//! @prompt-hash c4dcc255
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -155,6 +155,7 @@ mod outline_entry;
 mod paragraph;
 mod paragraph_emit;
 mod paragraph_hyphen;
+mod paragraph_indent;
 mod paragraph_pagination;
 mod paragraph_plan;
 mod paragraph_prepare;
@@ -571,6 +572,8 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) bib_render_cache: Option<crate::compiler::layout::bib_csl::BibRenderCache>,
     bib_layout: Option<Arc<bib_csl::plan::BibliographyPlan>>,
     pending_bib_prefix: Option<bibliography::PendingPrefix>,
+    paragraph_indent: paragraph_indent::State,
+    pending_bib_escape: Option<paragraph_indent::Spec>,
     block_inline_region: Option<block::InlineRegion>,
     /// **P446** — smallcaps activo no corpo de um `#smallcaps[...]`.
     pub(super) smallcaps: bool,
@@ -1047,6 +1050,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             bib_render_cache: None,
             bib_layout: None,
             pending_bib_prefix: None,
+            paragraph_indent: paragraph_indent::State::default(),
+            pending_bib_escape: None,
             block_inline_region: None,
             // P472 — última key citada para ibid.
             last_cited_key: None,
@@ -1258,6 +1263,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     }
 
     fn layout_content_body(&mut self, content: &Content) {
+        paragraph_indent::before_content(self, content);
         // Observe the logical input once; leaf arms remain static adapters.
         match content {
             Content::Text(text) => self.smartquote_context.observe_text(text),
@@ -1738,6 +1744,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::ContextBlock(elem) => context_block::layout(self, elem),
             Content::HtmlElem(_) => {}
         }
+        paragraph_indent::after_content(self, content);
         if matches!(content, Content::Equation(_) | Content::Image(_) | Content::Boxed(_))
         {
             self.smartquote_context.observe_object();

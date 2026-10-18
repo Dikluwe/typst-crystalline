@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/quote.md
-//! @prompt-hash 2d56516d
+//! @prompt-hash 8c8f63f8
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -35,6 +35,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         if layouter.regions.current.cursor_x.0 > layouter.page_config.margin.left {
             layouter.flush_line();
         }
+        let quote_indent_state =
+            super::paragraph_indent::enter_fragment(layouter, &e.body);
         let margin_pt = Pt(layouter.page_config.margin.left);
         // ref: lab/typst-original/crates/typst-library/src/model/quote.rs:80
         // **P1055** — paridade vanilla: indent padrão de quote bloco é 1.0em (não 1.5em).
@@ -54,6 +56,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
         layouter.flush_line();
         layouter.regions.current.cursor_x = margin_pt;
+        layouter.paragraph_indent = quote_indent_state;
     } else {
         if !open.is_empty() {
             layouter.layout_content(&Content::text(open));

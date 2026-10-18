@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/text.md
-//! @prompt-hash 3b8b6be0
+//! @prompt-hash 7f2f250d
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -28,6 +28,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     text: &str,
 ) {
     let original = layouter.bidi_cursor.as_mut().and_then(|c| c.next());
+    super::paragraph_indent::start(layouter);
     let previous_span = layouter.text_bidi.take();
     if text.is_empty() {
         let effective = effective_style(layouter);

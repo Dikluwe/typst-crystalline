@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/region_progress.md
-//! @prompt-hash 35b0a5e3
+//! @prompt-hash 720966af
 //! @layer L1
 //! @updated 2026-09-28
 
@@ -28,6 +28,7 @@ pub(super) fn next_region<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter
                 super::block::install_inline_region(layouter);
             }
             reset_closed_region_flow(layouter);
+            super::paragraph_indent::reopen(layouter);
             return;
         }
         // Última coluna da página: juntar items de todas as colunas
@@ -112,6 +113,7 @@ pub(super) fn next_region<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter
     if layouter.block_inline_region.is_some() {
         super::block::install_inline_region(layouter);
     }
+    super::paragraph_indent::reopen(layouter);
 }
 
 pub(super) fn post_line<M: FontMetrics, S: ImageSizer>(

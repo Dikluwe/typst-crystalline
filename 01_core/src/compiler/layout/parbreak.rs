@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/parbreak.md
-//! @prompt-hash 02b3a90e
+//! @prompt-hash d56cadb3
 //! @layer L1
 //! @updated 2026-10-06
 //!
@@ -93,6 +93,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S
             layouter.record_flow_placement_end(end);
         }
     }
+    super::paragraph_indent::end(layouter);
 }
 
 #[cfg(test)]

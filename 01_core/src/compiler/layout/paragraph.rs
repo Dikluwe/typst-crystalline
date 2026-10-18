@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/paragraph.md
-//! @prompt-hash 3526af8a
+//! @prompt-hash c1faa075
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -642,6 +642,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         html_frame::items_have_material(&layouter.regions.current.current_line)
             || layouter.terminal_paragraph_line;
     parbreak::layout(layouter);
+    let previous_indent = std::mem::take(&mut layouter.paragraph_indent);
+    super::paragraph_indent::start_scope(layouter, std::slice::from_ref(body));
     let previous_dir = layouter.active_paragraph_dir;
     let previous_bidi = layouter.bidi_cursor.take();
     let previous_scope = layouter.bidi_scope_active;
@@ -707,6 +709,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         parbreak::layout(layouter);
         layouter.terminal_paragraph_line = true;
     }
+    super::paragraph_indent::end(layouter);
+    layouter.paragraph_indent = previous_indent;
     layouter.active_paragraph_dir = previous_dir;
     layouter.bidi_cursor = previous_bidi;
     layouter.bidi_scope_active = previous_scope;

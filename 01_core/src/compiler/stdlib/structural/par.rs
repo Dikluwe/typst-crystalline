@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/par.md
-//! @prompt-hash c933b2de
+//! @prompt-hash 8bcb3899
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -185,7 +185,13 @@ pub fn native_par(
                 }
             }
             // Known properties awaiting their own consumers.
-            "first-line-indent" | "hanging-indent" | "justification-limits" => {}
+            "hanging-indent" => {
+                if let Value::Length(length) = value {
+                    styles =
+                        styles.push_custom("par.hanging-indent", Value::Length(*length));
+                }
+            }
+            "first-line-indent" | "justification-limits" => {}
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     Span::detached(),

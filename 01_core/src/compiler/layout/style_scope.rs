@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/style_scope.md
-//! @prompt-hash f7a2357b
+//! @prompt-hash 2116f0fb
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -20,6 +20,13 @@ pub(super) fn layout_styled<M: FontMetrics, S: ImageSizer>(
     body: &Content,
     styles: &Styles,
 ) {
+    let hanging_boundary = styles.delta().custom.iter().any(|(key, _)| {
+        key.as_str() == "par.hanging-indent"
+            || key.as_str() == "eval.par.hanging-boundary"
+    });
+    if hanging_boundary {
+        super::parbreak::layout(layouter);
+    }
     if super::paragraph::is_paragraph(body) {
         let had_line =
             html_frame::items_have_material(&layouter.regions.current.current_line);
@@ -27,6 +34,10 @@ pub(super) fn layout_styled<M: FontMetrics, S: ImageSizer>(
         if had_line {
             layouter.terminal_paragraph_line = true;
         }
+    }
+    let prev_planning = layouter.paragraph_planning_suppressed;
+    if hanging_boundary {
+        layouter.paragraph_planning_suppressed = false;
     }
     let prev_chain = layouter.chain.clone(); // O(1) Arc::clone
     let tracking_scope = (styles.delta()
@@ -108,9 +119,8 @@ pub(super) fn layout_styled<M: FontMetrics, S: ImageSizer>(
     let block_font = raw_block_size
         .map(|v| v.resolve_pt(layouter.style.size.val()))
         .unwrap_or(layouter.style.size.val());
-    if owns_raw_block {
-        super::raw::begin_block(layouter, block_font, &prev_style);
-    }
+    let raw_indent_state = owns_raw_block
+        .then(|| super::raw::begin_block(layouter, block_font, &prev_style));
     if layouter.document_language.is_none() {
         layouter.document_language = layouter.style.lang;
     }
@@ -149,8 +159,9 @@ pub(super) fn layout_styled<M: FontMetrics, S: ImageSizer>(
     } else {
         layouter.layout_content(body);
     }
-    if owns_raw_block {
+    if let Some(state) = raw_indent_state {
         super::raw::end_block(layouter, block_font);
+        layouter.paragraph_indent = state;
     }
     let owns_par_line_style = styles
         .delta()
@@ -162,6 +173,10 @@ pub(super) fn layout_styled<M: FontMetrics, S: ImageSizer>(
     {
         layouter.flush_line();
     }
+    if hanging_boundary {
+        super::parbreak::layout(layouter);
+    }
+    layouter.paragraph_planning_suppressed = prev_planning;
     layouter.chain = prev_chain;
     layouter.style = prev_style;
     if let Some(scope) = tracking_scope {

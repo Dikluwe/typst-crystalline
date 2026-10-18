@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/cursor.md
-//! @prompt-hash f14ecd25
+//! @prompt-hash fd8198e5
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -176,7 +176,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         if explicit == Some(HAlign::Left) || (!is_rtl && explicit.is_none()) {
             return;
         }
-        let right_margin = self.regions.current.width - self.page_config.margin.right;
+        let right_margin = super::paragraph_indent::bounds(self).1;
         // **P867** — `width: auto` não tem limite direito; alinhamento RTL
         // perde o referencial, por isso decai para left.
         if !right_margin.is_finite() {

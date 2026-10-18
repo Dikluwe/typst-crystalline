@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/checkpoint.md
-//! @prompt-hash 926ea8d4
+//! @prompt-hash e22a6d62
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -75,6 +75,8 @@ pub(in crate::compiler) struct FlowSuffixCheckpoint {
     bib_render_cache: Option<crate::compiler::layout::bib_csl::BibRenderCache>,
     bib_layout: Option<std::sync::Arc<super::bib_csl::plan::BibliographyPlan>>,
     pending_bib_prefix: Option<super::bibliography::PendingPrefix>,
+    paragraph_indent: super::paragraph_indent::State,
+    pending_bib_escape: Option<super::paragraph_indent::Spec>,
     block_inline_region: Option<super::block::InlineRegion>,
     smallcaps: bool,
     paragraph_planning_suppressed: bool,
@@ -235,6 +237,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             bib_render_cache: self.bib_render_cache.clone(),
             bib_layout: self.bib_layout.clone(),
             pending_bib_prefix: self.pending_bib_prefix.clone(),
+            paragraph_indent: self.paragraph_indent.clone(),
+            pending_bib_escape: self.pending_bib_escape,
             block_inline_region: self.block_inline_region,
             smallcaps: self.smallcaps,
             paragraph_planning_suppressed: self.paragraph_planning_suppressed,
@@ -368,6 +372,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.bib_render_cache = checkpoint.bib_render_cache;
         self.bib_layout = checkpoint.bib_layout;
         self.pending_bib_prefix = checkpoint.pending_bib_prefix;
+        self.paragraph_indent = checkpoint.paragraph_indent;
+        self.pending_bib_escape = checkpoint.pending_bib_escape;
         self.block_inline_region = checkpoint.block_inline_region;
         self.smallcaps = checkpoint.smallcaps;
         self.paragraph_planning_suppressed = checkpoint.paragraph_planning_suppressed;

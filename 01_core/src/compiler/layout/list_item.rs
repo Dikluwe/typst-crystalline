@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/list_item.md
-//! @prompt-hash 7aa1ccb0
+//! @prompt-hash 8d783b75
 //! @layer L1
 //! @updated 2026-07-23
 //!
@@ -74,8 +74,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter.regions.current.line_start_x = body_x;
     layouter.regions.current.cursor_x = body_x;
 
+    let body_indent_state = super::paragraph_indent::enter_fragment(layouter, &e.body);
     layouter.layout_content(&e.body);
     layouter.flush_line();
+    layouter.paragraph_indent = body_indent_state;
 
     // Restaura o início de linha original.
     layouter.regions.current.line_start_x = saved_line_start_x;

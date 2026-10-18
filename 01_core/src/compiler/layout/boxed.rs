@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/boxed.md
-//! @prompt-hash a47f5346
+//! @prompt-hash e4a3d2a9
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -178,9 +178,9 @@ fn layout_fractional<M: FontMetrics, S: ImageSizer>(
     }
 
     let baseline_shift = baseline.resolve_pt(font);
-    let body_measure_width = width
-        .map(|w| w.resolve_pt(font))
-        .unwrap_or_else(|| layouter.available_width());
+    let body_measure_width = width.map(|w| w.resolve_pt(font)).unwrap_or_else(|| {
+        super::paragraph_indent::current_width(layouter, layouter.available_width())
+    });
     let (measured_body_width, measured_body_height) =
         layouter.measure_content_constrained(body, body_measure_width);
 
@@ -364,7 +364,10 @@ fn layout_fractional<M: FontMetrics, S: ImageSizer>(
         if *clip {
             let avail_w_box = match width {
                 Some(w) => w.resolve_pt(font),
-                None => layouter.available_width(),
+                None => super::paragraph_indent::current_width(
+                    layouter,
+                    layouter.available_width(),
+                ),
             };
             let (body_w_real, body_h_real) =
                 layouter.measure_content_constrained(body, avail_w_box);
@@ -471,8 +474,9 @@ fn layout_sized<M: FontMetrics, S: ImageSizer>(
     let outset = resolve(e.outset);
     let explicit_w = e.width.map(|v| v.resolve_pt(font).max(0.0));
     let explicit_h = e.height.map(|v| v.resolve_pt(font).max(0.0));
-    let inner_w = (explicit_w.unwrap_or_else(|| layouter.available_width())
-        - inset.left
+    let inner_w = (explicit_w.unwrap_or_else(|| {
+        super::paragraph_indent::current_width(layouter, layouter.available_width())
+    }) - inset.left
         - inset.right)
         .max(0.0);
     let inner_h = explicit_h.map(|h| (h - inset.top - inset.bottom).max(0.0));

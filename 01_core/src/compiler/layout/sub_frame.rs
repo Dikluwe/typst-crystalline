@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/sub_frame.md
-//! @prompt-hash 9c03601f
+//! @prompt-hash 5f76b527
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -150,6 +150,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         let saved_block_place_region = self.block_place_region.take();
         let saved_block_auto_width = std::mem::take(&mut self.block_auto_width);
         let saved_pending_bib_prefix = self.pending_bib_prefix.take();
+        let saved_pending_bib_escape = self.pending_bib_escape.take();
+        let saved_paragraph_indent = std::mem::replace(
+            &mut self.paragraph_indent,
+            super::paragraph_indent::State::fragment(content),
+        );
         let saved_block_inline_region = self.block_inline_region.take();
         let saved_block_place_decorations =
             std::mem::take(&mut self.block_place_decorations);
@@ -341,9 +346,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // drena sem passar por `flush_line`, daí a decoração nunca ter
         // sido capturada aqui antes desta correcção).
         if had_items {
+            let decoration_start = Pt(super::paragraph_indent::bounds(self).0);
             if let Some(coll) = self.decoration_lines_collector.as_mut() {
                 coll.push(DecoSegment {
-                    start_x: self.regions.current.line_start_x,
+                    start_x: decoration_start,
                     end_x: self.regions.current.cursor_x,
                     baseline_y: self.regions.current.cursor_y,
                 });
@@ -422,6 +428,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.block_place_region = saved_block_place_region;
         self.block_auto_width = saved_block_auto_width;
         self.pending_bib_prefix = saved_pending_bib_prefix;
+        self.pending_bib_escape = saved_pending_bib_escape;
+        self.paragraph_indent = saved_paragraph_indent;
         self.block_inline_region = saved_block_inline_region;
         self.block_place_decorations = saved_block_place_decorations;
         self.cell_bidi_allowed = saved_cell_bidi_allowed;
@@ -474,6 +482,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
         let saved_cell_bidi_allowed =
             std::mem::replace(&mut self.cell_bidi_allowed, false);
+        let saved_indent = std::mem::replace(
+            &mut self.paragraph_indent,
+            super::paragraph_indent::State::fragment(content),
+        );
+        let saved_escape = self.pending_bib_escape.take();
         self.layout_content(content);
         self.cell_bidi_allowed = saved_cell_bidi_allowed;
 
@@ -524,6 +537,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             height = line_h.0;
         }
 
+        self.paragraph_indent = saved_indent;
+        self.pending_bib_escape = saved_escape;
         (height, aligned_body_tail)
     }
 }
