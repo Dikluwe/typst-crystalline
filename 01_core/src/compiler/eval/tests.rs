@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 312add52
+//! @prompt-hash 14a56d2b
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -32437,6 +32437,79 @@ mod regressions {
                 let world = MockWorld::new(source);
                 let result = eval_for_test(&world, &world.source);
                 assert!(result.is_ok(), "{source}: {result:?}");
+            }
+        }
+    }
+
+    mod a2_hanging_type_tests {
+        use super::*;
+
+        #[test]
+        fn a2_hanging_types_set_and_constructor_reject_non_lengths() {
+            for (literal, kind) in [
+                ("none", "none"),
+                ("auto", "auto"),
+                ("1", "integer"),
+                ("50%", "ratio"),
+                ("\"x\"", "string"),
+            ] {
+                for source in [
+                    format!("#set par(hanging-indent:{literal})\nTEXT"),
+                    format!("#par(hanging-indent:{literal})[TEXT]"),
+                    format!("#let p=par\n#set p(hanging-indent:{literal})\nTEXT"),
+                    format!("#let p=par\n#p(hanging-indent:{literal})[TEXT]"),
+                ] {
+                    let world = MockWorld::new(&source);
+                    let Err(errors) = eval_for_test(&world, &world.source) else {
+                        panic!("invalid hanging-indent must be rejected: {source}");
+                    };
+                    assert_eq!(
+                        errors[0].message,
+                        format!("expected length, found {kind}"),
+                        "{source}"
+                    );
+                    let range = world.source.span_byte_range(errors[0].span).unwrap();
+                    assert_eq!(&source[range], literal, "{source}");
+                    if literal == "1" {
+                        assert_eq!(
+                            errors[0].hints,
+                            ["a length needs a unit - did you mean 1pt?"]
+                        );
+                    }
+                }
+            }
+        }
+
+        #[test]
+        fn a2_hanging_types_invalid_value_precedes_missing_body() {
+            for source in
+                ["#par(hanging-indent:none)", "#let p=par\n#p(hanging-indent:none)"]
+            {
+                let world = MockWorld::new(source);
+                let errors = eval_for_test(&world, &world.source).unwrap_err();
+                assert_eq!(errors[0].message, "expected length, found none");
+                let range = world.source.span_byte_range(errors[0].span).unwrap();
+                assert_eq!(&source[range], "none");
+            }
+            let world = MockWorld::new("#par(hanging-indent:1em)");
+            assert_eq!(
+                eval_for_test(&world, &world.source).unwrap_err()[0].message,
+                "missing argument: body"
+            );
+        }
+
+        #[test]
+        fn a2_hanging_types_valid_lengths_remain_accepted() {
+            for literal in ["0pt", "-6pt", "1.5em", "(2pt + 1em)"] {
+                for source in [
+                    format!("#set par(hanging-indent:{literal})\nTEXT"),
+                    format!("#par(hanging-indent:{literal})[TEXT]"),
+                    format!("#let p=par\n#set p(hanging-indent:{literal})\nTEXT"),
+                    format!("#let p=par\n#p(hanging-indent:{literal})[TEXT]"),
+                ] {
+                    let world = MockWorld::new(&source);
+                    assert!(eval_for_test(&world, &world.source).is_ok(), "{source}");
+                }
             }
         }
     }

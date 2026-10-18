@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/par.md
-//! @prompt-hash e2bcbdd4
+//! @prompt-hash c933b2de
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -68,6 +68,21 @@ pub fn native_par(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
+    if let Some(value) = args.named.get("hanging-indent") {
+        if !matches!(value, Value::Length(_)) {
+            let span = args
+                .occurrences
+                .as_ref()
+                .and_then(|items| {
+                    items
+                        .iter()
+                        .rev()
+                        .find(|item| item.name.as_deref() == Some("hanging-indent"))
+                })
+                .map_or(args.span, |item| item.value_span);
+            return Err(vec![expected_length_error(value, span)]);
+        }
+    }
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s)) => Content::text(s.as_str()),

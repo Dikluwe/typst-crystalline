@@ -1,0 +1,11 @@
+*
+!*/
+!.gitignore
+!*.py
+!*.md
+!*.json.gz
+!*.sha256
+/outputs/
+!*.patch.gz
+
+bin/

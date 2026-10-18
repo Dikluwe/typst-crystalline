@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/set.md
-//! @prompt-hash 63c0c142
+//! @prompt-hash 4e5214a6
 //! @layer L1
 //! @updated 2026-10-08
 //!
@@ -1092,7 +1092,12 @@ pub(crate) fn eval_set_rule(
         return Ok(Value::None);
     }
 
-    if target == "par" {
+    if native_target.is_some_and(|call| {
+        std::ptr::fn_addr_eq(
+            call,
+            crate::compiler::stdlib::native_par as fn(_, _, _, _) -> _,
+        )
+    }) {
         // Passo 133: target `par` activado sem arms concretos.
         // Passo 134: arm `leading` migrado de `text` para `par`
         // (paridade ADR-0033; resolve divergência temporal do 128).
@@ -1105,6 +1110,9 @@ pub(crate) fn eval_set_rule(
             if let Arg::Named(named) = arg {
                 let key = named.name().as_str().to_owned();
                 let val = eval_expr(named.expr(), scopes, ctx, engine)?;
+                if key == "hanging-indent" && !matches!(&val, Value::Length(_)) {
+                    return Err(vec![expected_length_error(&val, named.expr().span())]);
+                }
                 match key.as_str() {
                     "leading" => {
                         if let Value::Length(l) = val {

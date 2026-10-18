@@ -1,7 +1,9 @@
 # L0 — compiler/eval/rules/set — Avaliação de set rules
-Hash do Código: 1247c824
+Hash do Código: 53116a22
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/paragraph-hanging-validation.toml sha256:182a3be50a215eddc4c94959fdbc2cb703c136b16a0ff22e15da5e95c3cc9e18
+
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:2b8888460a1e6008abda0ff71603fe4dace79ff0a2a7aad598f8aabfab3e3776
 - 00_nucleo/prompts/_nuclei/compiler-feature-gates.toml sha256:59d8938dc06d347ccc9db23ae1b740876b369227daacd266a219811a661b3cb9
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
@@ -362,3 +364,56 @@ fmt, V1/V5/V15/V26 e reversa, SARIF diferencial sem erro/warning novo. V19 pode
 registrar agrupamento nominal prescrito sem supressão, testando alternativas.
 Heavy jobs sequenciais, MemoryMax12GiB/High8GiB/swap0/jobs1, debug0/incremental0
 só no ambiente de validação. Resselo após V15/V26 válido e proveniência exata.
+
+## A2 — fronteira de bloco e validação de hanging-indent (2026-10-18)
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/bibliography-indent-2026-10-18/before.json.gz contém
+60 pares de sondas no HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c,
+working tree não commitado/UTC/status/diff HEAD --stat, fontes/argv/binários,
+texto e caixas. before-sources.json.gz preserva fontes/L0. Oracle pinado
+bd5ebec285505889e8ff1d4f68804ab147a699f3, árvore
+cac836c07e4dec2a89219370428292393a3216b5, executável SHA-256
+9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9;
+Tekt baseline 97f6fa3078bdd6c40aabb80d6f93f3fd019b405ce70fbf2266686d8fb42271cb.
+
+MLA sem título começa na linha da citação no Tekt (Silva x41.84/y5.168)
+contra x8/y27.463995 no vanilla. Com título, o Tekt mistura título e citação
+(y6.7568/y8.108) e intercala a extração no CSL customizado; o vanilla os
+separa. Oito positivos de par medem recuo não implementado. Dez negativos
+none/auto/int/ratio/string de set e constructor são aceitos no Tekt, mas o
+oracle rejeita expected length. bibliography.rs:106–123 despacha o título sem
+fechar a linha anterior e o cache como fluxo inline. set.rs:1180–1192 trata
+hanging-indent como desconhecido; structural/par.rs:173 ignora o valor.
+
+No pin, typst-layout/src/rules.rs:463–531 realiza título e blocos de entradas;
+sem prefixo, o recuo é inset mais HElem compensador; prefixos usam duas colunas.
+model/par.rs:431 declara Length e inline/collect.rs:146–148 conserva avanço
+inicial absoluto. São fatos de linguagem/posição/erro; não obrigação de copiar
+seu grafo Rust, bytes ou algoritmo de armazenamento. Hipótese causal desta
+subetapa: ausência de fronteira de bloco mistura título/citação/corpo, e falta
+de validação admite tipos inválidos. Medições de posições, tipos/hints/spans e
+os controles restantes podem refutá-la; não concluir que um offset único resolve
+recuo ou que toda diferença de extração PDF é só mecânica.
+
+### Classe e divisão explícita
+
+Correção interna de paridade em fluxo contínuo ADR-0127: sem campo/trait ou
+assinatura pública nova, default/flag adicional, compatibilidade Rust ou fase
+nova. O L0 precede testes/código. Esta revisão é incompleta para A2:
+A2-Structure deve preservar hanging_indent/prefix/body do CSL e compor entradas
+com suas margens/colunas; A2-HangingTransport deve transportar overrides por
+ocorrência e resolver prioridades; A2-ParIndent deve completar composição de
+parágrafos comuns (set/constructor), inclusive estratégias e direções. A2-Multi
+continua atribuição/cache por bibliografia. Não silenciar warnings de suporte
+incompleto antes de materializar seus consumidores, nem considerar positivos
+hanging-indent corrigidos pela rejeição dos negativos.
+
+### Responsabilidade exclusiva
+
+Resolver a rota de par pela identidade efetiva native_par já obtida pelo dispatcher (fn_addr_eq), cobrindo direto, alias e std.par sem executar constructor nem usar só grafia do alvo. argument-before.json.gz confirma alias-set inválido ainda aceito; o primeiro GREEN dos tipos detectou esse bypass e permanece preservado. Outros targets conservam seu roteamento atual; a rejeição geral de funções não-elemento é frente própria e não se declara encerrada. Para a chave hanging-indent do target par já existente, validar o valor pelo núcleo paragraph-hanging-validation antes do fallback atual. Neste primeiro passo, Length válido conserva o aviso de suporte incompleto e o comportamento atual; não capturar silenciosamente um estilo cujo consumidor geral ainda não existe. Os tipos inválidos devolvem expected_length_error com span da expressão. Não modificar outras chaves, scopes, casts, avaliação de argumentos ou o comportamento de show-set; A2-HangingTransport/A2-ParIndent devem completar a aplicação dos valores válidos.
+
+### Aceitação
+
+Testes RED funcionais antes da implementação; GREEN de fronteira título/citação/corpo/fallback e negativos com controles de zero/negativo/affine e vazio. Medir novamente caixas PDF/extração, manter os REDs de recuo e múltiplas bibliografias explícitos, não atribuir vantagem ao Tekt sem fonte/controle. Revalidar build/workspace/doctests, Clippy/Rustdoc estritos, fmt, linhagem V1/V5/V15/V26 e reversa, SARIF sem erro/warning novo. Teto 12 GiB/High8 GiB/swap0/jobs1/debug0/incremental0; comandos pesados sequenciais. Sem commit/push/release.

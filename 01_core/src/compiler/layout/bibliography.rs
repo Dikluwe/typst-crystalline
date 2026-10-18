@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/bibliography.md
-//! @prompt-hash e5e93ea0
+//! @prompt-hash 040a91a7
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -104,20 +104,46 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     b: &BibliographyElem,
 ) {
-    if let Some(t) = &b.title {
-        layouter.layout_content(t);
-        layouter.flush_line();
-    }
-
-    if let Some(bib_content) = layouter
+    let body = if let Some(content) = layouter
         .bib_render_cache
         .as_ref()
-        .and_then(|c| c.bibliography.clone())
+        .and_then(|cache| cache.bibliography.clone())
     {
-        layouter.layout_content(&bib_content);
+        content
+    } else {
+        fallback_body(layouter, b)
+    };
+    if b.title.is_none() && body.is_empty() {
         return;
     }
 
+    let previous_segment = layouter
+        .text_segment_chain
+        .clone()
+        .unwrap_or_else(|| layouter.chain.clone());
+    super::paragraph::close_in_chain(layouter, previous_segment, true);
+    if let Some(title) = &b.title {
+        layouter.layout_content(title);
+        layouter.flush_line();
+    }
+    if !body.is_empty() {
+        let block = Content::block(
+            body,
+            None,
+            None,
+            crate::entities::sides::Sides::uniform(
+                crate::entities::layout_types::Length::ZERO,
+            ),
+            true,
+        );
+        layouter.layout_content(&block);
+    }
+}
+
+fn fallback_body<M: FontMetrics, S: ImageSizer>(
+    layouter: &Layouter<M, S>,
+    b: &BibliographyElem,
+) -> Content {
     // Fallback P418/P468: reordena entries por ordem de primeira citação.
     // Entries não citadas ficam no final (na ordem original).
     let citation_order: Vec<String> = layouter.introspector.citation_order().to_vec();
@@ -125,6 +151,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     ordered.sort_by_key(|e| {
         citation_order.iter().position(|k| k == &e.key).unwrap_or(usize::MAX)
     });
+    let mut parts = Vec::with_capacity(ordered.len() * 2);
     for (idx, e) in ordered.iter().enumerate() {
         let n = idx + 1;
         let body = format_bib_entry_body(e);
@@ -138,7 +165,141 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             format!(" ↑{}", cited)
         };
         let line = format!("[{}] {}{}", n, body, back_ref_str);
-        layouter.layout_content(&Content::text(line));
-        layouter.flush_line();
+        parts.push(Content::text(line));
+        parts.push(Content::linebreak());
+    }
+    Content::sequence(parts)
+}
+
+#[cfg(test)]
+mod a2_bib_flow_tests {
+    use super::*;
+    use crate::compiler::layout::{bib_csl::BibRenderCache, FixedMetrics};
+    use crate::entities::{
+        bib_entry::BibEntry, image_sizer::NullImageSizer, introspector::TagIntrospector,
+        layout_types::FrameItem,
+    };
+    use comemo::Track;
+    use std::collections::HashMap;
+
+    fn bibliography(title: bool, fallback: bool) -> BibliographyElem {
+        BibliographyElem {
+            entries: if fallback {
+                vec![BibEntry::new("k", "AUTHOR", "ENTRY", 2020)]
+            } else {
+                vec![]
+            },
+            path: None,
+            title: title.then(|| Content::heading(1, Content::text("TITLE"))),
+            style: None,
+            locale: None,
+        }
+    }
+
+    fn render(prefix: bool, title: bool, fallback: bool) -> Vec<(String, f64, f64)> {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            12.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        if !fallback {
+            l.bib_render_cache = Some(BibRenderCache {
+                citations: HashMap::new(),
+                bibliography: Some(Content::text("ENTRY")),
+            });
+        }
+        if prefix {
+            l.layout_content(&Content::text("CITE"));
+        }
+        layout(&mut l, &bibliography(title, fallback));
+        l.layout_content(&Content::Parbreak);
+        l.layout_content(&Content::text("OUTSIDE"));
+        l.finish()
+            .pages
+            .iter()
+            .flat_map(|page| {
+                crate::compiler::layout::tests::frame_items_recursive(&page.items)
+            })
+            .filter_map(|item| match item {
+                FrameItem::Text { text, pos, .. } => {
+                    Some((text.to_string(), pos.x.0, pos.y.0))
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    fn y(rows: &[(String, f64, f64)], needle: &str) -> f64 {
+        rows.iter().find(|(text, _, _)| text.contains(needle)).unwrap().2
+    }
+
+    #[test]
+    fn a2_bib_flow_cached_body_starts_after_citation() {
+        let rows = render(true, false, false);
+        assert!(y(&rows, "ENTRY") > y(&rows, "CITE"), "{rows:?}");
+        assert!(y(&rows, "OUTSIDE") > y(&rows, "ENTRY"), "{rows:?}");
+    }
+
+    #[test]
+    fn a2_bib_flow_title_body_and_citation_are_separate() {
+        let rows = render(true, true, false);
+        assert!(y(&rows, "TITLE") > y(&rows, "CITE"), "{rows:?}");
+        let cite_x = rows.iter().find(|(text, _, _)| text == "CITE").unwrap().1;
+        let title_x = rows.iter().find(|(text, _, _)| text == "TITLE").unwrap().1;
+        assert_eq!(title_x, cite_x, "title must start its own line: {rows:?}");
+        assert!(y(&rows, "ENTRY") > y(&rows, "TITLE"), "{rows:?}");
+        assert!(y(&rows, "OUTSIDE") > y(&rows, "ENTRY"), "{rows:?}");
+    }
+
+    #[test]
+    fn a2_bib_flow_fallback_is_also_a_block() {
+        let rows = render(true, false, true);
+        assert!(y(&rows, "ENTRY") > y(&rows, "CITE"), "{rows:?}");
+        assert!(y(&rows, "OUTSIDE") > y(&rows, "ENTRY"), "{rows:?}");
+    }
+
+    #[test]
+    fn a2_bib_flow_first_body_keeps_page_origin() {
+        let rows = render(false, false, false);
+        let doc = crate::compiler::layout::layout(&Content::text("ENTRY"));
+        let baseline =
+            crate::compiler::layout::tests::frame_items_recursive(&doc.pages[0].items)
+                .into_iter()
+                .find_map(|item| match item {
+                    FrameItem::Text { text, pos, .. } if text.as_str() == "ENTRY" => {
+                        Some(pos.y.0)
+                    }
+                    _ => None,
+                })
+                .unwrap();
+        assert_eq!(y(&rows, "ENTRY"), baseline);
+    }
+
+    #[test]
+    fn a2_bib_flow_empty_body_does_not_flush_or_add_margin() {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            12.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.layout_content(&Content::text("CITE"));
+        let before = (
+            l.regions.current.cursor_x,
+            l.regions.current.cursor_y,
+            l.regions.current.current_line.len(),
+        );
+        layout(&mut l, &bibliography(false, false));
+        assert_eq!(
+            before,
+            (
+                l.regions.current.cursor_x,
+                l.regions.current.cursor_y,
+                l.regions.current.current_line.len()
+            )
+        );
     }
 }
