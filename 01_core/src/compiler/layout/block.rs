@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/block.md
-//! @prompt-hash c927d869
+//! @prompt-hash 54cf4f49
 //! @layer L1
 //! @updated 2026-09-01
 //!
@@ -58,6 +58,22 @@ pub(super) fn resolve_width_pt(
     let relative = if width.rel == 0.0 { 0.0 } else { outer_width * width.rel };
     let resolved = relative + width.abs.resolve_pt(font);
     (resolved.is_finite() && resolved >= 0.0).then_some(resolved)
+}
+
+/// Resolve causal margin priority before comparing their magnitudes.
+pub(super) fn collapse_margin(
+    previous: f64,
+    previous_is_auto: bool,
+    incoming: f64,
+    incoming_is_auto: bool,
+) -> f64 {
+    if previous_is_auto == incoming_is_auto {
+        previous.max(incoming)
+    } else if previous_is_auto {
+        incoming
+    } else {
+        previous
+    }
 }
 
 /// Layout do container `Block` (P156G/P242/P243/P247/P248/P250/P252/P273.6).
@@ -157,11 +173,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let end = layouter.flow_placement_y().unwrap_or(layouter.prev_line_baseline);
         layouter.regions.current.cursor_y = Pt(end + above_pt);
     } else if layouter.block_chain_active {
-        let gap = if layouter.prev_margin_is_parbreak && has_custom_above {
-            above_pt
-        } else {
-            layouter.prev_block_below_pending.max(above_pt)
-        };
+        let gap = collapse_margin(
+            layouter.prev_block_below_pending,
+            layouter.prev_margin_is_parbreak,
+            above_pt,
+            !has_custom_above,
+        );
         let prev_descent = layouter.prev_block_equation_descent;
         layouter.regions.current.cursor_y =
             Pt(layouter.prev_line_baseline + prev_descent + gap);
@@ -916,5 +933,136 @@ mod a2_inline_region_tests {
         let year = rows.iter().find(|(text, _)| text.contains("2020")).unwrap();
         let period = rows.iter().find(|(text, _)| text.ends_with('.')).unwrap();
         assert_eq!(year.1, period.1, "{rows:?}");
+    }
+}
+
+#[cfg(test)]
+mod a2_margin_priority_tests {
+    use super::*;
+    use crate::entities::{
+        content::Content,
+        corners::Corners,
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        sides::Sides,
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+
+    fn block(text: &str) -> BlockElem {
+        BlockElem {
+            body: Content::text(text),
+            width: None,
+            height: None,
+            inset: Sides::uniform(Length::ZERO),
+            breakable: true,
+            outset: Sides::uniform(Length::ZERO),
+            radius: Corners::uniform(Length::ZERO),
+            clip: false,
+            fill: None,
+            stroke: None,
+            spacing: None,
+            above: None,
+            below: None,
+            sticky: false,
+        }
+    }
+
+    fn positions(
+        below: Option<f64>,
+        above: Option<f64>,
+        ambient: f64,
+        spacing: Option<f64>,
+    ) -> (f64, f64) {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            12.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.chain = l.chain.push_custom("par.spacing", Value::Length(Length::pt(ambient)));
+        let mut first = block("BEFORE");
+        first.below = below.map(Length::pt);
+        first.spacing = spacing.map(Length::pt);
+        let mut second = block("BODY");
+        second.above = above.map(Length::pt);
+        l.layout_content(&Content::Block(Arc::new(first)));
+        l.layout_content(&Content::Block(Arc::new(second)));
+        l.layout_content(&Content::text("OUTSIDE"));
+        let doc = l.finish();
+        let y = |word| {
+            doc.pages
+                .iter()
+                .flat_map(|page| {
+                    crate::compiler::layout::tests::frame_items_recursive(&page.items)
+                })
+                .find_map(|item| match item {
+                    FrameItem::Text { text, pos, .. } if text.as_str() == word => {
+                        Some(pos.y.0)
+                    }
+                    _ => None,
+                })
+                .expect("marker survives")
+        };
+        (y("BODY"), y("OUTSIDE"))
+    }
+
+    #[test]
+    fn a2_margin_explicit_below_beats_automatic_above() {
+        for ambient in [0.0, 5.0, 24.0] {
+            for below in [0.0, 3.0, 30.0] {
+                assert_eq!(
+                    positions(Some(below), None, ambient, None),
+                    positions(Some(below), Some(0.0), ambient, None),
+                    "ambient={ambient}, explicit below={below}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn a2_margin_explicit_above_beats_automatic_below() {
+        for ambient in [0.0, 5.0, 24.0] {
+            for above in [0.0, 3.0, 30.0] {
+                assert_eq!(
+                    positions(None, Some(above), ambient, None),
+                    positions(Some(0.0), Some(above), ambient, None),
+                    "ambient={ambient}, explicit above={above}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn a2_margin_equal_priorities_keep_the_larger_gap() {
+        for ambient in [0.0, 5.0, 24.0] {
+            assert_eq!(
+                positions(None, None, ambient, None),
+                positions(Some(ambient), Some(ambient), ambient, None)
+            );
+            for (below, above) in [(3.0, 30.0), (30.0, 3.0), (0.0, 0.0)] {
+                assert_eq!(
+                    positions(Some(below), Some(above), ambient, None),
+                    positions(Some(f64::max(below, above)), Some(0.0), ambient, None)
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn a2_margin_explicit_spacing_is_not_automatic() {
+        for ambient in [5.0, 24.0] {
+            for spacing in [0.0, 3.0, 30.0] {
+                assert_eq!(
+                    positions(None, None, ambient, Some(spacing)),
+                    positions(Some(spacing), Some(0.0), ambient, Some(spacing))
+                );
+                assert_eq!(
+                    positions(Some(0.0), None, ambient, Some(spacing)),
+                    positions(Some(0.0), Some(0.0), ambient, Some(spacing))
+                );
+            }
+        }
     }
 }

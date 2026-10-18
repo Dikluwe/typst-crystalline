@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/heading.md
-//! @prompt-hash 235ef8d4
+//! @prompt-hash a33607d6
 //! @layer L1
 //! @updated 2026-08-18
 //!
@@ -59,7 +59,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // O `text_edges` deve usar `heading_style` (bold ativo) para obter o cap_height exato da face Bold.
     let (top, _) = layouter.metrics.text_edges(heading_size, &heading_style);
     if layouter.block_chain_active {
-        let gap = layouter.prev_block_below_pending.max(above_pt);
+        let gap = super::block::collapse_margin(
+            layouter.prev_block_below_pending,
+            layouter.prev_margin_is_parbreak,
+            above_pt,
+            false,
+        );
         let prev_descent = layouter.prev_block_equation_descent;
         let prev_bottom = layouter
             .last_block_descent_y
@@ -126,4 +131,95 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     layouter.style = prev;
     layouter.chain = prev_chain;
+}
+
+#[cfg(test)]
+mod a2_margin_priority_tests {
+    use super::*;
+    use crate::entities::{
+        image_sizer::NullImageSizer,
+        introspector::{Introspector, TagIntrospector},
+        layout_types::{FrameItem, Length},
+        sides::Sides,
+    };
+    use comemo::Track;
+    use std::sync::Arc;
+
+    fn title_y(ambient: f64, level: u8, below: Option<f64>, initial: bool) -> f64 {
+        let intr = TagIntrospector::empty();
+        let mut l = Layouter::new(
+            super::super::FixedMetrics,
+            NullImageSizer,
+            12.0,
+            (&intr as &dyn Introspector).track(),
+        );
+        l.chain = l.chain.push_custom("par.spacing", Value::Length(Length::pt(ambient)));
+        let original_size = l.style.size;
+        if !initial {
+            let block = crate::entities::elements::block::BlockElem {
+                body: Content::text("BEFORE"),
+                width: None,
+                height: None,
+                inset: Sides::uniform(Length::ZERO),
+                breakable: true,
+                outset: Sides::uniform(Length::ZERO),
+                radius: crate::entities::corners::Corners::uniform(Length::ZERO),
+                clip: false,
+                fill: None,
+                stroke: None,
+                spacing: None,
+                above: None,
+                below: below.map(Length::pt),
+                sticky: false,
+            };
+            l.layout_content(&Content::Block(Arc::new(block)));
+        }
+        l.layout_content(&Content::heading(level, Content::text("TITLE")));
+        assert_eq!(l.style.size, original_size);
+        let doc = l.finish();
+        doc.pages
+            .iter()
+            .flat_map(|page| {
+                crate::compiler::layout::tests::frame_items_recursive(&page.items)
+            })
+            .find_map(|item| match item {
+                FrameItem::Text { text, pos, .. } if text.as_str() == "TITLE" => {
+                    Some(pos.y.0)
+                }
+                _ => None,
+            })
+            .expect("heading survives")
+    }
+
+    #[test]
+    fn a2_margin_heading_above_overrides_automatic_previous_margin() {
+        for level in [1, 2, 3] {
+            for ambient in [0.0, 5.0, 24.0, 60.0] {
+                assert_eq!(
+                    title_y(ambient, level, None, false),
+                    title_y(ambient, level, Some(0.0), false),
+                    "level={level}, ambient={ambient}"
+                );
+                assert_eq!(
+                    title_y(ambient, level, None, true),
+                    title_y(0.0, level, None, true)
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn a2_margin_heading_keeps_larger_explicit_previous_margin() {
+        for level in [1, 2, 3] {
+            let above: f64 = 11.0 * if level == 1 { 1.8 } else { 1.44 };
+            let zero = title_y(24.0, level, Some(0.0), false);
+            for below in [3.0, 30.0] {
+                let shift = (below - above).max(0.0);
+                assert!(
+                    (title_y(24.0, level, Some(below), false) - zero - shift).abs()
+                        < 1e-8
+                );
+            }
+        }
+    }
 }
