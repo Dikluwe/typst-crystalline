@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/expression_dispatch.md
-//! @prompt-hash 5129df73
+//! @prompt-hash ca1d3d3d
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -46,14 +46,17 @@ pub(crate) fn eval_expr(
         engine.show_rules.clone(),
         engine.active_guards.clone(),
     );
-    let result = eval_expr_inner(expr, scopes, ctx, engine).map(|value| match value {
-        Value::Func(func) => Value::Func(func.with_diagnostic_span(span)),
-        Value::Content(content)
-            if matches!(expr, Expr::ContentBlock(_) | Expr::CodeBlock(_)) =>
-        {
-            Value::Content(content.with_source_span(span))
+    let result = eval_expr_inner(expr, scopes, ctx, engine).map(|value| {
+        let content_origin_required =
+            matches!(expr, Expr::ContentBlock(_) | Expr::CodeBlock(_))
+                || (ctx.defer_show_rules && !engine.show_rules.is_empty());
+        match value {
+            Value::Func(func) => Value::Func(func.with_diagnostic_span(span)),
+            Value::Content(content) if content_origin_required => {
+                Value::Content(content.with_source_span(span))
+            }
+            other => other,
         }
-        other => other,
     });
     ctx.replace_context_read_styles(previous);
     ctx.replace_context_read_file(previous_file);
@@ -116,6 +119,7 @@ fn eval_expr_inner(
         Expr::LetBinding(binding) => bindings::eval_let(binding, scopes, ctx, engine),
 
         Expr::CodeBlock(code_block) => {
+            let textual_frame = rules::textual::enter_scope(ctx, engine);
             // Bloco de código — styles e show_rules locais (atomização
             // Passos 94 e 95). `#set`/`#show` dentro do bloco mutam as
             // cópias locais mas não afectam o chamador. Engine
@@ -196,6 +200,11 @@ fn eval_expr_inner(
                     }
                     let mut value = eval_expr(expr, scopes, ctx, &mut local_engine)?;
                     if let Value::Content(content) = &mut value {
+                        *content = rules::textual::capture_local_output(
+                            content.clone(),
+                            ctx,
+                            &local_engine,
+                        );
                         *content = crate::compiler::realize::sequences::capture_at(
                             content.clone(),
                             span,
@@ -345,9 +354,26 @@ fn eval_expr_inner(
                         );
                     }
                 }
+                if let Some(FlowEvent::Return(
+                    span,
+                    Some(Value::Content(content)),
+                    conditional,
+                )) = ctx.flow.clone()
+                {
+                    ctx.flow = Some(FlowEvent::Return(
+                        span,
+                        Some(Value::Content(rules::textual::capture_local_output(
+                            content,
+                            ctx,
+                            &local_engine,
+                        ))),
+                        conditional,
+                    ));
+                }
                 Ok(output)
             })();
             scopes.exit();
+            rules::textual::leave_scope(ctx, textual_frame);
             result
         }
 

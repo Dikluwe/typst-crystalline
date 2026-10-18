@@ -1,5 +1,5 @@
 # L0 — compiler/eval/markup_stream
-Hash do Código: 5a8d77bf
+Hash do Código: bf4f8a9c
 
 
 
@@ -9,6 +9,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
 - 00_nucleo/prompts/_nuclei/eval/pending-text.toml sha256:3f300957a00ac2f02354331585c19b935428e05d5b8ac2115a533764262250c8
 - 00_nucleo/prompts/_nuclei/eval/textual-consumed-slots.toml sha256:faaf206c9f4c20eba8b18b463ebe7836cb9671fd8672501c068eef2751f88d3c
+- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:f225f3039d4663e9bfcb408d26cf1cd6e557f089013bc2d95090ce16c52080c6
 - 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml sha256:2989f08ae6b4b379afb61d9673b94ab8538c45a97b98e566677ae0f719429dc3
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:dc549d79f9e996433894effc8e4efd1f8f3da3d9c30933110eeabbab582ae9a8
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
@@ -553,3 +554,59 @@ seleção, preservando a Sequence escrita pelo autor. R3-Reflection completará
 Styles e Styled públicos. Não considerar esses controles fechados nem achatar
 Sequence genericamente para escondê-los. Este adendo registra o recorte ainda
 incompleto; não autoriza modificar os owners dessas projeções sem L0 próprio.
+
+## R3-T1 — realização causal ratificada (2026-10-18)
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
+preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
+commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
+bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém
+fontes/L0 vigentes completos. Não há código candidato implementado nesta medição.
+matching.rs:118–150 aplica regex reversa e depois literais em declaração;
+:194–207 volta a expor produtos a passes subsequentes. textual.rs:102–123
+captura snapshot completo. realize/mod.rs:177–217 visita receitas bottom-up.
+apply.rs:620–648 e matching.rs:218–225 chamam funções sem capturar os filhos.
+expression_dispatch.rs:125–129 já distingue insertion_rules do estado local.
+
+Exemplos medidos: literais idênticos C/B; empate literal/regex R/L; overlap
+X/YB; primeiro efeito LATER/FIRST; função encadeada inversa BBBB/BB;
+produto separado AB/X; produto+vizinho X/AB; Strong ocultando filho dá
+panic HIDDEN/Q; global capturado seguido de global nova dá L/R, mas local
+capturado dá L/L. Entrada CJK local 水\n果 dá 水果/X. A fonte pinada
+foundations/selector.rs:110–125 unifica literal escapado com regex;
+typst-realize/src/lib.rs:1328–1405 escolhe o início e carrega revogação
+no produto. Esses dados medem linguagem/efeitos; não ratificam mecânica Rust,
+igualdade de buffers ou bytes PDF. É inferência causal que a separação de
+escopos e a visita anterior aos filhos expliquem o conjunto; os controles de
+acceptance.json, igualdade/fields/estilo/query e erros podem refutá-la.
+
+### Decisão ratificada
+
+Aplicar o núcleo textual-recipe-frontier pinado neste L0. A confirmação humana
+do manifesto 47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302
+ratificou esta ordem. Ele supersede neste escopo as
+cláusulas históricas de execução provisória de show em ContentBlock e da
+visita bottom-up de receitas pendentes, sem alterar a ordem de avaliação
+de expressões comuns. Não reavaliar o programa, antecipar State/Counter,
+assentar render em morfologia nem criar contrato Rust público.
+
+### Responsabilidade exclusiva desta unidade
+
+Registrar o frame lexical ao entrar no fluxo, distinguir a raiz do documento da fabricação de ContentBlock e registrar deltas de show nas suas caudas. Capturar receitas sem executar show textual provisório no valor. Herança global participa na inserção, delta local acompanha somente sua cauda; não inferir o delta pela diferença final de texto. Preservar authored Sequence, Source, None explícito, slots consumidos e fronteiras de #set/#show. A formação completa de Styled/Styles públicos e de grupos sintéticos em múltiplas caudas segue R3-TextualGroups/R3-Reflection, não se encerra por esta mudança.
+
+### Aceitação desta revisão
+
+RED→GREEN das famílias de acceptance.json, corpus R2-S/R3 e controles de uma avaliação. Revalidar PDF e HTML separadamente; build/workspace/doctests, Clippy/Rustdoc estritos, fmt, V1/V5/V15/V26 e linhagem reversa; diferencial SARIF sem novo erro/warning. Teto 12 GiB/High8 GiB/swap0/jobs1 e comandos pesados sequenciais. Não alegar ganho de RAM antes de ensaio pareado nem zerar o gate com supressão. Sem commit/push/release.
+
+### R3-T1 — integração revelada pela suíte ampla
+
+A regressão codeblock_set_display_raw_keeps_show_rules_once do candidato3
+perdeu a regra Raw na inserção de um bool convertido dentro de CodeBlock:
+o packet interno herdou Raw, mas a realização nova começa sem ambiente global.
+Ao inserir um valor em markup diferido, capturar também o delta lexical do
+frame de inserção com capture_local_output, depois do transporte Sequence.
+O frame da raiz fornece as regras ali declaradas; bindings continuam sem emissão.
+O packet interno então herda o ambiente atual e não congela a global antiga.
+Preservar concatenação, slots, origens e distinção entre local e global.

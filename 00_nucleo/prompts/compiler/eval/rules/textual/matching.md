@@ -1,10 +1,11 @@
 # L0 — compiler/eval/rules/textual/matching
-Hash do Código: c72c3b0a
+Hash do Código: f6825ad5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
 - 00_nucleo/prompts/_nuclei/eval/textual-consumed-slots.toml sha256:faaf206c9f4c20eba8b18b463ebe7836cb9671fd8672501c068eef2751f88d3c
+- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:f225f3039d4663e9bfcb408d26cf1cd6e557f089013bc2d95090ce16c52080c6
 
 
 **Layer:** L1
@@ -140,3 +141,83 @@ seleção, preservando a Sequence escrita pelo autor. R3-Reflection completará
 Styles e Styled públicos. Não considerar esses controles fechados nem achatar
 Sequence genericamente para escondê-los. Este adendo registra o recorte ainda
 incompleto; não autoriza modificar os owners dessas projeções sem L0 próprio.
+
+## R3-T1 — realização causal ratificada (2026-10-18)
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
+preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
+commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
+bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém
+fontes/L0 vigentes completos. Não há código candidato implementado nesta medição.
+matching.rs:118–150 aplica regex reversa e depois literais em declaração;
+:194–207 volta a expor produtos a passes subsequentes. textual.rs:102–123
+captura snapshot completo. realize/mod.rs:177–217 visita receitas bottom-up.
+apply.rs:620–648 e matching.rs:218–225 chamam funções sem capturar os filhos.
+expression_dispatch.rs:125–129 já distingue insertion_rules do estado local.
+
+Exemplos medidos: literais idênticos C/B; empate literal/regex R/L; overlap
+X/YB; primeiro efeito LATER/FIRST; função encadeada inversa BBBB/BB;
+produto separado AB/X; produto+vizinho X/AB; Strong ocultando filho dá
+panic HIDDEN/Q; global capturado seguido de global nova dá L/R, mas local
+capturado dá L/L. Entrada CJK local 水\n果 dá 水果/X. A fonte pinada
+foundations/selector.rs:110–125 unifica literal escapado com regex;
+typst-realize/src/lib.rs:1328–1405 escolhe o início e carrega revogação
+no produto. Esses dados medem linguagem/efeitos; não ratificam mecânica Rust,
+igualdade de buffers ou bytes PDF. É inferência causal que a separação de
+escopos e a visita anterior aos filhos expliquem o conjunto; os controles de
+acceptance.json, igualdade/fields/estilo/query e erros podem refutá-la.
+
+### Decisão ratificada
+
+Aplicar o núcleo textual-recipe-frontier pinado neste L0. A confirmação humana
+do manifesto 47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302
+ratificou esta ordem. Ele supersede neste escopo as
+cláusulas históricas de execução provisória de show em ContentBlock e da
+visita bottom-up de receitas pendentes, sem alterar a ordem de avaliação
+de expressões comuns. Não reavaliar o programa, antecipar State/Counter,
+assentar render em morfologia nem criar contrato Rust público.
+
+### Responsabilidade exclusiva desta unidade
+
+Substituir passes regex/literal pela seleção única de menor início, desempate léxico e revogação por produto. Prefixo e sufixo do input permanecem no ambiente original. Capturar conteúdo produzido pela função antes da realização de seus filhos; revisitar somente o produto por meio do coordenador privado. Produtos separados não viram um grupo novo só por compartilharem guardas. Constante/alias/corpo composto são processados uma vez pelas regras restantes. Text whitespace elegível e show-set com Styles reais seguem o núcleo; normalização continua no owner space. Não alterar casts de símbolos ou contratos públicos.
+
+### Aceitação desta revisão
+
+RED→GREEN das famílias de acceptance.json, corpus R2-S/R3 e controles de uma avaliação. Revalidar PDF e HTML separadamente; build/workspace/doctests, Clippy/Rustdoc estritos, fmt, V1/V5/V15/V26 e linhagem reversa; diferencial SARIF sem novo erro/warning. Teto 12 GiB/High8 GiB/swap0/jobs1 e comandos pesados sequenciais. Não alegar ganho de RAM antes de ensaio pareado nem zerar o gate com supressão. Sem commit/push/release.
+
+### R3-T1 — limites fracos e unidade do produto
+
+O candidato1, congelado em r3-t1-materializacao-2026-10-18/candidate1-sources.json.gz,
+passou 51/56 sondas textuais. T30 emitiu AB em vez de X: os packets de [A]+[B]
+precisam ser coalescidos no ambiente efetivo do produto antes de o coordenador
+visitá-los. Não coalescer produtos já concluídos nem packets com efeitos de raiz.
+T35/T51/T52 transformaram a newline inicial depois de show em S; T53 deixou o
+espaço emitido pelo callback sem aplicar a regra restante. A seleção sobre o
+fluxo comum exclui as bordas fracas Space/SpaceFromNewline do texto pesquisado,
+conservando os carriers originais na projeção. Text whitespace continua texto.
+Dentro de um produto protegido, um fluxo formado só por espaço é elegível:
+trata-se do conteúdo emitido pela transformação, não de uma borda da fonte.
+Calcular limites UTF-8 por nós/intervalos e não por estado por byte. Prefixo e
+sufixo excluídos continuam projetados, sem mudar morfologia ou normalização.
+
+### R3-T1 — apoio contextual de espaços emitidos
+
+Candidato2 passou 63/64 testes, mas T36 transformou o espaço isolado emitido por
+A em S onde o oracle não emite texto. T53 exige S quando esse mesmo produto
+fica entre X e X. Guardas não determinam apoio textual. EvalContext transporta
+privadamente um par de booleanos de apoio esquerdo/direito durante a realização
+de um produto. O matcher deriva o par dos intervalos prefixo/sufixo do match e
+do apoio externo vigente, restaura-o em sucesso e erro e só inclui bordas fracas
+apoiadas. Um produto formado apenas por espaços é elegível quando tem apoio dos
+dois lados. Text whitespace explícito continua elegível independentemente disso.
+Nenhum dado público, estado global, passo de layout ou captura permanente do
+apoio em valores é criado: os vizinhos dependem da inserção atual.
+
+### R3-T1 — integração revelada pela suíte ampla
+
+Em significant_bounds manter o complemento Content nominal, incluindo Text e
+Realized guardados e excluindo só Sequence/Located incondicionais. Todos os
+outros tipos são fronteiras sem intervalo de texto, conforme textual_piece.
+O agrupamento V19 é intencional e não prova cobertura por alternativa.

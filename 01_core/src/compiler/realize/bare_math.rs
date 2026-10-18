@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/realize/bare_math.md
-//! @prompt-hash defadd99
+//! @prompt-hash a431cc5b
 //! @layer L1
 //! @updated 2026-10-09
 
@@ -86,8 +86,8 @@ pub(in crate::compiler) fn prepare(
         if plain_without_bare_math(node) {
             return Ok(Some(node.clone()));
         }
-        if mathy(node) {
-            return Ok(Some(Content::equation(node.clone(), block(styles))));
+        if let Some(equation) = prepare_root(node, styles) {
+            return Ok(Some(equation));
         }
         match node {
             Content::Equation(_) | Content::Located(_) => Ok(Some(node.clone())),
@@ -131,6 +131,13 @@ pub(in crate::compiler) fn prepare(
             _ => Ok(None),
         }
     })
+}
+
+pub(in crate::compiler) fn prepare_root(
+    content: &Content,
+    styles: &StyleChain,
+) -> Option<Content> {
+    mathy(content).then(|| Content::equation(content.clone(), block(styles)))
 }
 
 pub(in crate::compiler) fn needs_preparation(content: &Content) -> bool {

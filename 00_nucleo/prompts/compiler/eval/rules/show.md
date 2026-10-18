@@ -1,8 +1,9 @@
 # L0 — compiler/eval/rules/show — Avaliação de show rules
-Hash do Código: afa1738a
+Hash do Código: bac83d82
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
+- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:f225f3039d4663e9bfcb408d26cf1cd6e557f089013bc2d95090ce16c52080c6
 - 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:5cfb723d50e9518cdcee2df348927d02330b6019df96acef8394c1429cc950ff
 - 00_nucleo/prompts/_nuclei/table/cell-projection.toml sha256:71d4b43f260cff61fffa8ba7831733e7a62f2517109911c8af346458d64cbd5b
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
@@ -230,3 +231,48 @@ default de produto, fase ou compatibilidade; gate A1-S1 é independente. Preserv
 Rustdoc/fmt/linhagem estrita e reversa, jobs sequenciais sob MemoryMax12GiB,
 High8GiB/swap0/jobs1. Debug0/incremental0 somente no ambiente de validação para
 reduzir picos; comparar consumo medido sem inferir ganho do produto.
+
+## R3-T1 — realização causal ratificada (2026-10-18)
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
+preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
+commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
+bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém
+fontes/L0 vigentes completos. Não há código candidato implementado nesta medição.
+matching.rs:118–150 aplica regex reversa e depois literais em declaração;
+:194–207 volta a expor produtos a passes subsequentes. textual.rs:102–123
+captura snapshot completo. realize/mod.rs:177–217 visita receitas bottom-up.
+apply.rs:620–648 e matching.rs:218–225 chamam funções sem capturar os filhos.
+expression_dispatch.rs:125–129 já distingue insertion_rules do estado local.
+
+Exemplos medidos: literais idênticos C/B; empate literal/regex R/L; overlap
+X/YB; primeiro efeito LATER/FIRST; função encadeada inversa BBBB/BB;
+produto separado AB/X; produto+vizinho X/AB; Strong ocultando filho dá
+panic HIDDEN/Q; global capturado seguido de global nova dá L/R, mas local
+capturado dá L/L. Entrada CJK local 水\n果 dá 水果/X. A fonte pinada
+foundations/selector.rs:110–125 unifica literal escapado com regex;
+typst-realize/src/lib.rs:1328–1405 escolhe o início e carrega revogação
+no produto. Esses dados medem linguagem/efeitos; não ratificam mecânica Rust,
+igualdade de buffers ou bytes PDF. É inferência causal que a separação de
+escopos e a visita anterior aos filhos expliquem o conjunto; os controles de
+acceptance.json, igualdade/fields/estilo/query e erros podem refutá-la.
+
+### Decisão ratificada
+
+Aplicar o núcleo textual-recipe-frontier pinado neste L0. A confirmação humana
+do manifesto 47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302
+ratificou esta ordem. Ele supersede neste escopo as
+cláusulas históricas de execução provisória de show em ContentBlock e da
+visita bottom-up de receitas pendentes, sem alterar a ordem de avaliação
+de expressões comuns. Não reavaliar o programa, antecipar State/Counter,
+assentar render em morfologia nem criar contrato Rust público.
+
+### Responsabilidade exclusiva desta unidade
+
+Aceitar Transformation::Style existente para selectores literais/regex, capturando Styles reais pelo helper atual. Remover a rejeição artificial de show-set textual; não mudar identidade de selector, assinatura, validação geral de set nem inventar NodeKind. Delegar recorte/aplicação ao matcher, com cores/estilos e efeitos como critério de aceitação.
+
+### Aceitação desta revisão
+
+RED→GREEN das famílias de acceptance.json, corpus R2-S/R3 e controles de uma avaliação. Revalidar PDF e HTML separadamente; build/workspace/doctests, Clippy/Rustdoc estritos, fmt, V1/V5/V15/V26 e linhagem reversa; diferencial SARIF sem novo erro/warning. Teto 12 GiB/High8 GiB/swap0/jobs1 e comandos pesados sequenciais. Não alegar ganho de RAM antes de ensaio pareado nem zerar o gate com supressão. Sem commit/push/release.

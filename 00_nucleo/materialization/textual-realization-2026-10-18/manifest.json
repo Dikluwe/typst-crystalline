@@ -1,0 +1,168 @@
+{
+  "utc": "2026-10-18T05:19:05.913349+00:00",
+  "status": "PROPOSED_NOT_APPROVED_NOT_IMPLEMENTED",
+  "head": "b1b486f3d42431f8ea360bc5712637ee1e3d4f6c",
+  "scope": "R3-T1",
+  "files": [
+    {
+      "path": "00_nucleo/materialization/textual-realization-2026-10-18/acceptance.json",
+      "sha256": "a52d0d0481fe168f2489edf4c915db1cc7fe394eba3c22e68ad31e93ccef5f2d",
+      "bytes": 70399
+    },
+    {
+      "path": "00_nucleo/materialization/textual-realization-2026-10-18/baseline-owners.json",
+      "sha256": "40aa2baf9ede2a8a8c4cbf850e5e990679b72bebd1e7a928d33171dc988b71ea",
+      "bytes": 2964
+    },
+    {
+      "path": "00_nucleo/materialization/textual-realization-2026-10-18/candidates/00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml",
+      "sha256": "c886c87f14ec990908315062f7193e06b721447087e2f966da94a9670892cb18",
+      "bytes": 3474
+    },
+    {
+      "path": "00_nucleo/materialization/textual-realization-2026-10-18/candidates/00_nucleo/prompts/compiler/eval/expression_dispatch.md",
+      "sha256": "adfb4324df99d3723acf93eaea6dedae7e6240e5737770e6ae3008a5ae585999",
+      "bytes": 25505
+    },
+    {
+      "path": "00_nucleo/materialization/textual-realization-2026-10-18/candidates/00_nucleo/prompts/compiler/eval/markup_stream.md",
+      "sha256": "fb0a08ee8fa4f93f4bb2831aa451ab8663ebc8449622955a2cdc4861bfc02fce",
+      "bytes": 41767
+    },
+    {
+      "path": "00_nucleo/materialization/textual-realization-2026-10-18/candidates/00_nucleo/prompts/compiler/eval/rules/apply.md",
+      "sha256": "5698016fce9ba70bc5aeb5a6c1c720cbd20ab926f571a352f939f48e7947aebb",
+      "bytes": 40529
+    },
+    {
+      "path": "00_nucleo/materialization/textual-realization-2026-10-18/candidates/00_nucleo/prompts/compiler/eval/rules/show.md",
+      "sha256": "3dca1bb6b35ab6d8cdf3bbcb1fadf359bacfb33b92584abc657fe1abd51b629f",
+      "bytes": 25002
+    },
+    {
+      "path": "00_nucleo/materialization/textual-realization-2026-10-18/candidates/00_nucleo/prompts/compiler/eval/rules/textual/matching/projection.md",
+      "sha256": "3c9883be6df936329261405f0d3edef2c5aadb98498d1aed8bbfcd326600fe4b",
+      "bytes": 5244
+    },
+    {
+      "path": "00_nucleo/materialization/textual-realization-2026-10-18/candidates/00_nucleo/prompts/compiler/eval/rules/textual/matching.md",
+      "sha256": "9cf83c621ace54be97ea59da0fd25cc109fc86f12d93c12f35558f9dbda68e9b",
+      "bytes": 15975
+    },
+    {
+      "path": "00_nucleo/materialization/textual-realization-2026-10-18/candidates/00_nucleo/prompts/compiler/eval/rules/textual.md",
+      "sha256": "37c9e3b2ef90b60be3bd4d372d9084a0edd6e5d500e84b8574a006013f5928e1",
+      "bytes": 21502
+    },
+    {
+      "path": "00_nucleo/materialization/textual-realization-2026-10-18/candidates/00_nucleo/prompts/compiler/eval/tests.md",
+      "sha256": "5a64b3897a8164d9020d1b84602de8e09b328cb924f3237c34b007a8991a9c59",
+      "bytes": 135052
+    },
+    {
+      "path": "00_nucleo/materialization/textual-realization-2026-10-18/candidates/00_nucleo/prompts/compiler/eval.md",
+      "sha256": "5d0774c66e583bdc2c8db912b172e110bdd0758bb58263558608102bed8d5e85",
+      "bytes": 58455
+    },
+    {
+      "path": "00_nucleo/materialization/textual-realization-2026-10-18/candidates/00_nucleo/prompts/compiler/realize/mod.md",
+      "sha256": "a081cf66566cd17e60f88660532d40414069efc8130f43fae27c03dae60a80a1",
+      "bytes": 40654
+    },
+    {
+      "path": "00_nucleo/materialization/textual-realization-2026-10-18/candidates/00_nucleo/prompts/compiler/realize/recipes.md",
+      "sha256": "8cc1651062ce77edc710e4ae5e823fb9f85934e4c890c06101cfa96551fb168e",
+      "bytes": 4513
+    },
+    {
+      "path": "00_nucleo/materialization/textual-realization-2026-10-18/candidates/00_nucleo/prompts/compiler/realize/sequences.md",
+      "sha256": "a09b7066699568aeecf154957f23a8630f845f41db682e19b61e2568d2822ba6",
+      "bytes": 20444
+    },
+    {
+      "path": "00_nucleo/materialization/textual-realization-2026-10-18/review.md",
+      "sha256": "23c3fee5e25416e2a581f0e45a66621a76edba0f64a77fafe7332f4c1fc0091b",
+      "bytes": 7514
+    },
+    {
+      "path": "00_nucleo/diagnosticos/textual-realization-2026-10-18/before-sources.json.gz",
+      "sha256": "80b8d984e69f16967619534166c63f96c43843f41ae562c342f1fbd1b1ca5742",
+      "bytes": 5256737
+    },
+    {
+      "path": "00_nucleo/diagnosticos/textual-realization-2026-10-18/before.json.gz",
+      "sha256": "c5c64112c5397c88d54ed7820119b64793e875189c68d6a905906e27daec6c2f",
+      "bytes": 9013
+    },
+    {
+      "path": "00_nucleo/diagnosticos/textual-realization-2026-10-18/scope.json.gz",
+      "sha256": "d8309d0b9deaa24e78395953e8c9484f799f3954a0f9f7a1d7087e5f5549d2e7",
+      "bytes": 6597
+    },
+    {
+      "path": "00_nucleo/diagnosticos/textual-realization-2026-10-18/refuters.json.gz",
+      "sha256": "da18713b7e6c8fb3d32e35f644d7691f7b54d6552772f4b64110ed5485887122",
+      "bytes": 5280
+    },
+    {
+      "path": "00_nucleo/diagnosticos/textual-realization-2026-10-18/classification.json",
+      "sha256": "6e8dd9873afccb76b60ae84a641254de3750a777ff5c2ef698e8cdf46438460b",
+      "bytes": 16659
+    },
+    {
+      "path": "00_nucleo/diagnosticos/textual-realization-2026-10-18/survey-summary.json",
+      "sha256": "0589def88e64842822e119c864c0835fb34ef031bd2051d5e2d9cfc63432cffb",
+      "bytes": 324
+    },
+    {
+      "path": "00_nucleo/diagnosticos/textual-realization-2026-10-18/verification.json",
+      "sha256": "c416c5de7a40960ef777d308bc02555aa76c06bd34c8b90419fa3bae11562d47",
+      "bytes": 627
+    },
+    {
+      "path": "00_nucleo/diagnosticos/textual-realization-2026-10-18/relatorio.md",
+      "sha256": "c1f5b045c7d229e24db09293726e52ae78728571bf6120004076c1c3c468f4cb",
+      "bytes": 9377
+    },
+    {
+      "path": "00_nucleo/diagnosticos/textual-realization-2026-10-18/probe.py",
+      "sha256": "6a6eaf14272c7d8f9e678ba8fb88048cf224138a4ebc079b4c39cb78d3155b60",
+      "bytes": 4803
+    },
+    {
+      "path": "00_nucleo/diagnosticos/textual-realization-2026-10-18/scope-probe.py",
+      "sha256": "cf2d553687d8aefc1b266181fb6e13cf090b13380c7f6bd1d093d29fccadfa53",
+      "bytes": 2991
+    },
+    {
+      "path": "00_nucleo/diagnosticos/textual-realization-2026-10-18/refuters-probe.py",
+      "sha256": "fd3d3a8feb9d249524c62cca23eb7ae2b873946dff3333497bbe51cc2a4b42d8",
+      "bytes": 2316
+    },
+    {
+      "path": "00_nucleo/diagnosticos/textual-realization-2026-10-18/run.py",
+      "sha256": "04de1d3442a44cfed4b0f0985a8eecd38b13b51279431650ba538cec5b81d8ee",
+      "bytes": 2105
+    },
+    {
+      "path": "00_nucleo/diagnosticos/textual-realization-2026-10-18/survey-resources.json",
+      "sha256": "bc74e1369e5cf17ac5312b6296d436c7687f7895b9a48c535def344d84059d8f",
+      "bytes": 7715
+    },
+    {
+      "path": "00_nucleo/diagnosticos/textual-realization-2026-10-18/scope-resources.json",
+      "sha256": "d6d397b78cf72bc8e24e52488b0c5ec081e76e04718a32788899f98b6087d772",
+      "bytes": 7719
+    },
+    {
+      "path": "00_nucleo/diagnosticos/textual-realization-2026-10-18/refuters-resources.json",
+      "sha256": "6e55e1509d6f2154932c4ba6023f244c49bbc9f336d7fb93e731e7cc95f1a295",
+      "bytes": 7728
+    },
+    {
+      "path": "00_nucleo/diagnosticos/textual-realization-2026-10-18/lint-before.json.gz",
+      "sha256": "d87d4d118a30ebde37a348fed53758701a9525bf1c86e2286b81068068a4528d",
+      "bytes": 234362
+    }
+  ]
+}

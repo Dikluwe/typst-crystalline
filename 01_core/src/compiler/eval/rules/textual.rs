@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/textual.md
-//! @prompt-hash 58d62887
+//! @prompt-hash a9192503
 //! @layer L1
 //! @updated 2026-10-05
 //!
@@ -21,6 +21,281 @@ use super::apply_show_rules;
 mod matching;
 pub(crate) mod space;
 
+const BASELINE: &str = "eval.textual.baseline";
+const PRODUCT: &str = "eval.textual.product";
+
+#[derive(Clone)]
+pub(crate) struct LexicalFrame {
+    rules: Arc<[ShowRule]>,
+}
+
+pub(crate) fn enter_scope(ctx: &mut EvalContext, engine: &Engine<'_>) -> usize {
+    let depth = ctx.textual_frames.len();
+    ctx.textual_frames
+        .push(LexicalFrame { rules: Arc::clone(engine.show_rules) });
+    depth
+}
+
+pub(crate) fn leave_scope(ctx: &mut EvalContext, depth: usize) {
+    ctx.textual_frames.truncate(depth);
+}
+
+/// The metadata is data only: its empty body is never executed. Its styles
+/// retain the original persistent chain, so removing transport does not
+/// collapse relative lengths or duplicate style levels.
+pub(crate) fn capture_styles(
+    styles: &StyleChain,
+    rules: &Arc<[ShowRule]>,
+    ctx: &EvalContext,
+    file: crate::entities::file_id::FileId,
+) -> StyleChain {
+    let base = ctx.textual_frames.last().map_or(rules, |frame| &frame.rules);
+    let metadata = ShowRecipeContent {
+        body: Content::Empty,
+        textual: false,
+        context_id_floor: 0,
+        rules: Arc::clone(base),
+        styles: styles.clone(),
+        guards: vec![],
+        file,
+    };
+    styles.push_custom(
+        BASELINE,
+        crate::entities::value::Value::Content(Content::ShowRecipe(Arc::new(metadata))),
+    )
+}
+
+fn baseline(styles: &StyleChain) -> Option<&ShowRecipeContent> {
+    match styles.custom(BASELINE) {
+        Some(crate::entities::value::Value::Content(Content::ShowRecipe(data))) => {
+            Some(data)
+        }
+        _ => None,
+    }
+}
+
+pub(crate) fn captured_styles(recipe: &ShowRecipeContent) -> StyleChain {
+    baseline(&recipe.styles)
+        .map_or_else(|| recipe.styles.clone(), |data| data.styles.clone())
+}
+
+pub(super) fn snapshot_styles(styles: &StyleChain) -> StyleChain {
+    baseline(styles).map_or_else(|| styles.clone(), |data| data.styles.clone())
+}
+
+pub(crate) fn compose_rules(
+    recipe: &ShowRecipeContent,
+    inherited: &Arc<[ShowRule]>,
+) -> Arc<[ShowRule]> {
+    let Some(base) = baseline(&recipe.styles) else { return Arc::clone(&recipe.rules) };
+    let owned = recipe
+        .rules
+        .iter()
+        .filter(|rule| !base.rules.iter().any(|old| old.id == rule.id));
+    let mut combined = None;
+    for rule in owned {
+        if inherited.iter().any(|old| old.id == rule.id) {
+            continue;
+        }
+        combined.get_or_insert_with(|| inherited.to_vec()).push(rule.clone());
+    }
+    combined.map_or_else(|| Arc::clone(inherited), Arc::from)
+}
+
+pub(crate) fn is_product(content: &Content) -> bool {
+    let Content::Realized(done) = content.source_body() else { return false };
+    let Content::ShowRecipe(origin) = done.original.source_body() else { return false };
+    matches!(
+        origin.styles.custom(PRODUCT),
+        Some(crate::entities::value::Value::Bool(true))
+    )
+}
+
+pub(crate) fn complete_product(
+    original: Content,
+    visual: Content,
+    ctx: &EvalContext,
+    engine: &Engine<'_>,
+) -> Content {
+    let origin = ShowRecipeContent {
+        body: original,
+        textual: true,
+        context_id_floor: ctx.next_context_id,
+        rules: Arc::clone(engine.show_rules),
+        styles: capture_styles(
+            engine.styles,
+            engine.show_rules,
+            ctx,
+            engine.current_file,
+        )
+        .push_custom(PRODUCT, crate::entities::value::Value::Bool(true)),
+        guards: engine.active_guards.clone(),
+        file: engine.current_file,
+    };
+    Content::Realized(Arc::new(crate::entities::content::RealizedContent {
+        original: Content::ShowRecipe(Arc::new(origin)),
+        visual,
+    }))
+}
+
+fn contextual_root(content: &Content) -> bool {
+    match content.source_body() {
+        Content::Styled(styled) => contextual_root(&styled.body),
+        Content::ContextBlock(_) => true,
+        Content::Source(_)
+        | Content::ShowRecipe(_)
+        | Content::Realized(_)
+        | Content::Located(_)
+        | Content::Empty
+        | Content::Text(_)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(_)
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_)
+        | Content::Par { .. }
+        | Content::Heading(_)
+        | Content::Title(_)
+        | Content::Strong(_)
+        | Content::Emph(_)
+        | Content::Raw(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::Link(_)
+        | Content::Equation(_)
+        | Content::MathSequence(_)
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathPrimes(_)
+        | Content::MathRoot(_)
+        | Content::MathStretch(_)
+        | Content::MathDelimited(_)
+        | Content::MathLr(_)
+        | Content::MathMid(_)
+        | Content::MathOverbrace(_)
+        | Content::MathUnderbrace(_)
+        | Content::MathUnderbracket(_)
+        | Content::MathUnderparen(_)
+        | Content::MathUndershell(_)
+        | Content::MathOverbracket(_)
+        | Content::MathOverparen(_)
+        | Content::MathOvershell(_)
+        | Content::MathAlignPoint(_)
+        | Content::Linebreak(_)
+        | Content::MathMatrix(_)
+        | Content::MathCases(_)
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathOverline(_)
+        | Content::MathVec(_)
+        | Content::MathClassOverride(_)
+        | Content::MathLimitsOverride(_)
+        | Content::MathUnderover(_)
+        | Content::MathOp(_)
+        | Content::MathStyled(_)
+        | Content::Label(_)
+        | Content::Ref(_)
+        | Content::CounterDisplay(_)
+        | Content::CounterUpdate(_)
+        | Content::Outline(_)
+        | Content::OutlineEntry(_)
+        | Content::Figure(_)
+        | Content::FigureCaption(_)
+        | Content::Image(_)
+        | Content::Shape(_)
+        | Content::Curve(_)
+        | Content::Transform(_)
+        | Content::Grid(_)
+        | Content::GridHeader(_)
+        | Content::GridFooter(_)
+        | Content::GridCell(_)
+        | Content::SetPage(_)
+        | Content::PageRun(_)
+        | Content::Align(_)
+        | Content::Place(_)
+        | Content::Flush(_)
+        | Content::Divider(_)
+        | Content::Terms(_)
+        | Content::TermItem(_)
+        | Content::Quote(_)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(_)
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. }
+        | Content::Pad(_)
+        | Content::Hide(_)
+        | Content::HSpace(_)
+        | Content::VSpace(_)
+        | Content::Pagebreak(_)
+        | Content::Colbreak(_)
+        | Content::Stack(_)
+        | Content::Boxed(_)
+        | Content::Block(_)
+        | Content::TableCell(_)
+        | Content::Bibliography(_)
+        | Content::Cite(_)
+        | Content::Footnote(_)
+        | Content::FootnoteEntry(_)
+        | Content::TableHeader(_)
+        | Content::TableFooter(_)
+        | Content::GridHLine(_)
+        | Content::GridVLine(_)
+        | Content::TableHLine(_)
+        | Content::TableVLine(_)
+        | Content::Table(_)
+        | Content::Repeat(_)
+        | Content::Columns(_)
+        | Content::Metadata(_)
+        | Content::State(_)
+        | Content::StateUpdate(_)
+        | Content::StateDisplay(_)
+        | Content::CounterDisplayCallback(_)
+        | Content::Dynamic(_) => false,
+    }
+}
+
+pub(crate) fn capture_local_output(
+    body: Content,
+    ctx: &mut EvalContext,
+    engine: &Engine<'_>,
+) -> Content {
+    if contextual_root(&body) {
+        return body;
+    }
+    let Some(frame) = ctx.textual_frames.last() else { return body };
+    if !engine
+        .show_rules
+        .iter()
+        .any(|rule| !frame.rules.iter().any(|base| base.id == rule.id))
+    {
+        return body;
+    }
+    ctx.has_deferred_show_rules = true;
+    Content::ShowRecipe(Arc::new(ShowRecipeContent {
+        body,
+        textual: false,
+        context_id_floor: ctx.next_context_id,
+        rules: Arc::clone(engine.show_rules),
+        styles: capture_styles(
+            engine.styles,
+            engine.show_rules,
+            ctx,
+            engine.current_file,
+        ),
+        guards: engine.active_guards.clone(),
+        file: engine.current_file,
+    }))
+}
+
 /// Snapshot causal de show e style no instante em que uma ocorrência de
 /// markup é avaliada. Não é exposto como valor da linguagem.
 #[derive(Clone)]
@@ -31,10 +306,15 @@ pub(crate) struct TextualSnapshot {
 }
 
 impl TextualSnapshot {
-    pub(crate) fn capture(engine: &Engine<'_>) -> Self {
+    pub(crate) fn capture(engine: &Engine<'_>, ctx: &EvalContext) -> Self {
         Self {
             rules: Arc::clone(&*engine.show_rules),
-            styles: (*engine.styles).clone(),
+            styles: capture_styles(
+                engine.styles,
+                engine.show_rules,
+                ctx,
+                engine.current_file,
+            ),
             guards: (*engine.active_guards).clone(),
         }
     }
@@ -43,6 +323,13 @@ impl TextualSnapshot {
         Arc::ptr_eq(&self.rules, &other.rules)
             && self.styles.collapse() == other.styles.collapse()
             && self.guards == other.guards
+            && match (baseline(&self.styles), baseline(&other.styles)) {
+                (Some(left), Some(right)) => {
+                    left.rules.iter().map(|r| r.id).eq(right.rules.iter().map(|r| r.id))
+                }
+                (None, None) => true,
+                (Some(_), None) | (None, Some(_)) => false,
+            }
     }
 }
 
@@ -69,8 +356,8 @@ pub(crate) fn intercept_text_element(
 }
 
 /// No fluxo realizado, normaliza espaços antes dos selectors textuais. Um
-/// ContentBlock ainda bruto preserva-os até ser interpolado; seu show local
-/// atua provisoriamente no texto pré-normalizado. Slots consumidos tornam-se
+/// ContentBlock ainda bruto preserva-os até ser interpolado; suas receitas
+/// permanecem dados até a inserção causal. Slots consumidos tornam-se
 /// Empty para que os índices das fronteiras lexicais de #set permaneçam válidos.
 pub(crate) fn realize_textual_parts(
     parts: &mut [Content],
@@ -89,7 +376,7 @@ pub(crate) fn realize_textual_parts(
         return Ok(consumed);
     }
 
-    if ctx.defer_show_rules {
+    if ctx.defer_show_rules || !normalize_spaces {
         let mut start = 0;
         while start < parts.len() {
             let snapshot = &snapshots[start];
@@ -171,17 +458,227 @@ pub(crate) fn coalesce_pending_text(
     })
 }
 
+pub(crate) fn coalesce_for_insertion(
+    body: &Content,
+    ctx: &EvalContext,
+    engine: &Engine<'_>,
+) -> SourceResult<Content> {
+    let scope = ShowRecipeContent {
+        body: Content::Empty,
+        textual: true,
+        context_id_floor: ctx.next_context_id,
+        rules: Arc::clone(engine.show_rules),
+        styles: engine.styles.clone(),
+        guards: engine.active_guards.clone(),
+        file: engine.current_file,
+    };
+    body.map_content_pre(&mut |node| {
+        if is_product(node) {
+            return Ok(Some(node.clone()));
+        }
+        let Content::ShowRecipe(nested) = node else { return Ok(None) };
+        let mut guards = nested.guards.clone();
+        for id in engine.active_guards.iter() {
+            if !guards.contains(id) {
+                guards.push(*id);
+            }
+        }
+        let effective = ShowRecipeContent {
+            rules: compose_rules(nested, engine.show_rules),
+            styles: captured_styles(nested),
+            guards,
+            ..nested.as_ref().clone()
+        };
+        let compatible = effective.file == scope.file
+            && Arc::ptr_eq(&effective.rules, &scope.rules)
+            && crate::compiler::realize::sequences::same_textual_transport(
+                &effective, &scope,
+            );
+        if !compatible || crate::compiler::realize::sequences::marked(nested) {
+            return Ok(Some(node.clone()));
+        }
+        let body = coalesce_for_insertion(&effective.body, ctx, engine)?;
+        if effective.textual {
+            return Ok(Some(body));
+        }
+        let mut node_effect = false;
+        if can_group(&body) {
+            let _ = body.map_content_pre(&mut |node| {
+                node_effect |= effective.rules.iter().any(|rule| {
+                    selector_matching::is_node_rule(&rule.selector)
+                        && selector_matching::selector_matches(node, &rule.selector)
+                });
+                Ok(None)
+            });
+        }
+        Ok(Some(if can_group(&body) && !node_effect { body } else { node.clone() }))
+    })
+}
+
+pub(crate) fn can_group(content: &Content) -> bool {
+    matching::textual_piece(content).is_some()
+}
+
+fn emitted_group_parts(content: &Content, out: &mut Vec<Content>) {
+    match content {
+        Content::Sequence(children) => {
+            for child in children.iter() {
+                emitted_group_parts(child, out);
+            }
+        }
+        Content::Source(source) => {
+            let start = out.len();
+            emitted_group_parts(&source.body, out);
+            for part in &mut out[start..] {
+                *part = part.clone().with_source_span(source.span);
+            }
+        }
+        Content::Realized(done) if !is_product(content) => {
+            out.push(Content::Realized(Arc::new(
+                crate::entities::content::RealizedContent {
+                    original: done.original.clone(),
+                    visual: Content::Empty,
+                },
+            )));
+            emitted_group_parts(&done.visual, out);
+        }
+        Content::ShowRecipe(_)
+        | Content::Realized(_)
+        | Content::Located(_)
+        | Content::Empty
+        | Content::Text(_)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_)
+        | Content::Par { .. }
+        | Content::Heading(_)
+        | Content::Title(_)
+        | Content::Strong(_)
+        | Content::Emph(_)
+        | Content::Raw(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::Link(_)
+        | Content::Equation(_)
+        | Content::MathSequence(_)
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathPrimes(_)
+        | Content::MathRoot(_)
+        | Content::MathStretch(_)
+        | Content::MathDelimited(_)
+        | Content::MathLr(_)
+        | Content::MathMid(_)
+        | Content::MathOverbrace(_)
+        | Content::MathUnderbrace(_)
+        | Content::MathUnderbracket(_)
+        | Content::MathUnderparen(_)
+        | Content::MathUndershell(_)
+        | Content::MathOverbracket(_)
+        | Content::MathOverparen(_)
+        | Content::MathOvershell(_)
+        | Content::MathAlignPoint(_)
+        | Content::Linebreak(_)
+        | Content::MathMatrix(_)
+        | Content::MathCases(_)
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathOverline(_)
+        | Content::MathVec(_)
+        | Content::MathClassOverride(_)
+        | Content::MathLimitsOverride(_)
+        | Content::MathUnderover(_)
+        | Content::MathOp(_)
+        | Content::MathStyled(_)
+        | Content::Label(_)
+        | Content::Ref(_)
+        | Content::CounterDisplay(_)
+        | Content::CounterUpdate(_)
+        | Content::Outline(_)
+        | Content::OutlineEntry(_)
+        | Content::Figure(_)
+        | Content::FigureCaption(_)
+        | Content::Image(_)
+        | Content::Shape(_)
+        | Content::Curve(_)
+        | Content::Transform(_)
+        | Content::Grid(_)
+        | Content::GridHeader(_)
+        | Content::GridFooter(_)
+        | Content::GridCell(_)
+        | Content::SetPage(_)
+        | Content::PageRun(_)
+        | Content::Align(_)
+        | Content::Place(_)
+        | Content::Flush(_)
+        | Content::Styled(_)
+        | Content::Divider(_)
+        | Content::Terms(_)
+        | Content::TermItem(_)
+        | Content::Quote(_)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(_)
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. }
+        | Content::Pad(_)
+        | Content::Hide(_)
+        | Content::HSpace(_)
+        | Content::VSpace(_)
+        | Content::Pagebreak(_)
+        | Content::Colbreak(_)
+        | Content::Stack(_)
+        | Content::Boxed(_)
+        | Content::Block(_)
+        | Content::TableCell(_)
+        | Content::Bibliography(_)
+        | Content::Cite(_)
+        | Content::Footnote(_)
+        | Content::FootnoteEntry(_)
+        | Content::TableHeader(_)
+        | Content::TableFooter(_)
+        | Content::GridHLine(_)
+        | Content::GridVLine(_)
+        | Content::TableHLine(_)
+        | Content::TableVLine(_)
+        | Content::Table(_)
+        | Content::Repeat(_)
+        | Content::Columns(_)
+        | Content::Metadata(_)
+        | Content::State(_)
+        | Content::StateUpdate(_)
+        | Content::StateDisplay(_)
+        | Content::CounterDisplayCallback(_)
+        | Content::ContextBlock(_)
+        | Content::Dynamic(_) => out.push(content.clone()),
+    }
+}
+
 pub(crate) fn realize_captured_text(
     content: Content,
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
+    if !engine.show_rules.iter().any(|rule| {
+        selector_matching::is_text_rule(&rule.selector)
+            && !engine.active_guards.contains(&rule.id)
+    }) {
+        return Ok(content);
+    }
     let original = content.clone();
-    let mut parts = match content {
-        Content::Sequence(parts) => parts.to_vec(),
-        other => vec![other],
-    };
-    let snapshots = vec![TextualSnapshot::capture(engine); parts.len()];
+    let mut parts = Vec::new();
+    emitted_group_parts(&content, &mut parts);
+    space::normalize_markup_spaces(&mut parts);
+    let snapshots = vec![TextualSnapshot::capture(engine, ctx); parts.len()];
     let consumed =
         matching::apply_textual_groups(&mut parts, &snapshots, &[], ctx, engine)?;
     Ok(Content::Realized(Arc::new(crate::entities::content::RealizedContent {

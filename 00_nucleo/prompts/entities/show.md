@@ -3,6 +3,13 @@ Hash do Código: e4fcefbc
 
 `NativeElement` e o grupo de filtros integram o contrato vigente de show rules.
 
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:f225f3039d4663e9bfcb408d26cf1cd6e557f089013bc2d95090ce16c52080c6
+
+**Vigência R3-T1 (2026-10-18):** a seção ratificada ao fim deste owner
+supersede as restrições históricas de Style sobre Text/Regex, matching por nó
+e realização eager descritas abaixo. Os tipos públicos permanecem existentes.
+
 ## Propósito
 
 Define as entidades de dados para o motor de show rules do cristalino.
@@ -262,3 +269,20 @@ T1: contratos de construção Box<ElementInfo>/Arc<Styles> e orçamento relativo
 ## Ratificação humana — 2026-10-16
 
 Proposta aprovada pelo humano, manifesto SHA-256 `282da3f8f79080a4831e1898879775e32a62caa0b2ffa941b8fca9198136b950`. O contrato acima passa a vigente; inclui materialização/testes T1–T6, sem release. Registro em `00_nucleo/diagnosticos/clippy-enums-publicos-2026-10-16/approval-receipt.json`.
+
+## R3-T1 — consumidores de selectors textuais ratificados
+
+Medição anterior: review.md e acceptance.json em materialization/textual-realization-2026-10-18,
+manifesto aprovado 47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302;
+style-before.json.gz e unit-candidate3.log no diagnóstico de materialização
+preservam o RED da rejeição e o GREEN das cores, com proveniência completa.
+As cláusulas do núcleo textual-recipe-frontier pinado governam este contrato.
+Transformation::Style(Arc<Styles>) é válido para selectors Text e Regex,
+transportando os estilos reais para o match/produto. Str, Content e Func
+permanecem os payloads atuais. Não adicionar campos/variantes/métodos nem
+alterar Clone, igualdade, hashes, orçamento de enums ou os contratos de State.
+A captura e aplicação pertencem aos respectivos owners do compilador; esta
+entidade apenas define os dados. A ratificação inclui a ordem causal R3 e
+supersede as proibições textuais antigas, sem legitimar alterações mecânicas
+não previstas. V19 é observação de grupos explícitos, não motivo para duplicar
+os corpos. Validar a aceitação R3 e os controles de enums/linhagem existentes.

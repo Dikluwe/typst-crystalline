@@ -1,8 +1,9 @@
 # L0 — compiler/eval/rules/realize — Realização de parágrafos
-Hash do Código: e938d7ae
+Hash do Código: a8a12ac5
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
+- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:f225f3039d4663e9bfcb408d26cf1cd6e557f089013bc2d95090ce16c52080c6
 - 00_nucleo/prompts/_nuclei/paragraph-break-policy.toml sha256:7e41c96527dd5936bebe6916f2a9ea93477c057495845c7e8b52ce3c5917855a
 - 00_nucleo/prompts/_nuclei/paragraph-composition.toml sha256:6eec17984449d21b626379651b9b0a511a2dfe8e1a1f0a0af230cce52a47b827
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:9f76ec456ed18fb3f64ff5d03d6ca7bb4049fe700c700c42fa80d072db8bc0e0
@@ -71,3 +72,39 @@ Medição anterior: 00_nucleo/diagnosticos/table-origens-d08b3c2-2026-10-07/base
 workspace-seventh/composition_show_par refuta Source como fronteira de scope/flow: classificar Source.body em Par/carriers e scoped prefix, transformar flow/inline/nó conservando origem. Não criar segundo parágrafo ou permitir estilo interno vencer show-set externo por wrapper novo; matemática segue seu owner.
 
 Manter owner exclusivo e despacho estático; sem I/O, assinatura/trait/flag nova ou fase eval↔layout. Testes e coletas C2/C/macro, builds e lineage necessários antes de certificar.
+
+## R3-T1 — fronteira de estilo através de transporte privado
+
+### Medição anterior à decisão
+
+workspace-rest.log, candidato7-sources.json.gz e workspace-validation-resources.json
+em diagnosticos/r3-t1-materializacao-2026-10-18 conservam HEAD b1b486f3, working
+tree não commitado, UTC, fontes/diffstat e comandos sob 12 GiB. O controle
+composition_show_par_overrides_outer_set_with_page_configuration produz quatro
+palavras hifenizadas em vez de zero quando text(hyphenate:true) cobre o fluxo
+inteiro sob show par:set text(hyphenate:false); a forma inline deve continuar
+hifenizando. O packet de inserção esconde Styled da classificação whole_style
+em realize_flow:47–51. A regra de precedência vigente não mudou; perdeu-se a
+fronteira já reconhecida pelo owner antes do novo transporte R3.
+
+### Decisão e responsabilidade exclusiva
+
+O núcleo R3 pinado preserva raiz/produto e estilos sem executar packets nesta
+unidade. Um helper puro flow_boundary_body atravessa Source e ShowRecipe somente
+para reconhecer fronteiras Styled de fluxo. realize_flow usa a vista nos
+predicados scoped_prefix/whole_style; realize_scoped_flow reconstrói ShowRecipe
+com o mesmo snapshot/guards/arquivo e corpo preparado recursivamente, sem executar
+regra ou remover o packet. is_paragraph_node reconhece Par através desses carriers.
+Não preparar indiscriminadamente o corpo de ShowRecipe em realize_node; Sequence
+escrita pelo autor ainda precisa da decisão de sua raiz pelo owner apropriado.
+O helper tem complemento Content nominal: todo tipo que não seja Source/ShowRecipe
+encerra a busca; grupos V19 ficam visíveis, sem prova fictícia de cobertura.
+
+### Aceitação
+
+O RED existente deve passar sem mudar expectativas de zero no fluxo inteiro e
+hifenização no inline. Revalidar controles Par/Sequence, todo núcleo e integração,
+PDF/HTML e geometria congelada, Clippy/Rustdoc estritos e linhagens. Sem contrato
+público novo, alteração de pipeline adicional ou supressão de lint. Este reparo
+materializa o transporte e a ordem já ratificados pelo manifesto R3-T1
+47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302.

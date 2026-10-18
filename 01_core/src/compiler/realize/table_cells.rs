@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/realize/table_cells.md
-//! @prompt-hash b0a26d9d
+//! @prompt-hash 5579cc4d
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -364,6 +364,19 @@ fn captured_rules(
     rules.into()
 }
 
+fn insertion_guards(
+    captured: &[crate::entities::show::RuleId],
+    inherited: &[crate::entities::show::RuleId],
+) -> Vec<crate::entities::show::RuleId> {
+    let mut guards = inherited.to_vec();
+    for id in captured {
+        if !guards.contains(id) {
+            guards.push(*id);
+        }
+    }
+    guards
+}
+
 pub(super) fn realize(
     content: Content,
     ctx: &mut EvalContext,
@@ -377,9 +390,10 @@ pub(super) fn realize(
         let rules = captured_rules(r, engine);
         std::mem::replace(engine.show_rules, rules)
     });
-    let old_guards = captured
-        .as_ref()
-        .map(|r| std::mem::replace(engine.active_guards, r.guards.clone()));
+    let old_guards = captured.as_ref().map(|r| {
+        let guards = insertion_guards(&r.guards, engine.active_guards);
+        std::mem::replace(engine.active_guards, guards)
+    });
     let old_file = engine.current_file;
     if let Some(r) = &captured {
         engine.current_file = r.file;
@@ -431,34 +445,8 @@ fn walk_node(
 ) -> SourceResult<Option<Content>> {
     let result = match node {
         Content::Source(e) => walk(&e.body, ctx, engine)?.with_source_span(e.span),
-        Content::ShowRecipe(recipe) => {
-            let old_styles = std::mem::replace(engine.styles, recipe.styles.clone());
-            let old_rules = std::mem::replace(engine.show_rules, recipe.rules.clone());
-            let old_guards =
-                std::mem::replace(engine.active_guards, recipe.guards.clone());
-            let old_file = std::mem::replace(&mut engine.current_file, recipe.file);
-            ctx.next_context_id = ctx.next_context_id.max(recipe.context_id_floor);
-            let result = bare_math::prepare(&recipe.body, engine.styles)
-                .and_then(|body| walk(&body, ctx, engine))
-                .and_then(|body| {
-                    if recipe.textual {
-                        crate::compiler::eval::rules::textual::realize_captured_text(
-                            body, ctx, engine,
-                        )
-                    } else {
-                        crate::compiler::eval::rules::apply_show_rules(
-                            body,
-                            &recipe.rules,
-                            ctx,
-                            engine,
-                        )
-                    }
-                });
-            *engine.styles = old_styles;
-            *engine.show_rules = old_rules;
-            *engine.active_guards = old_guards;
-            engine.current_file = old_file;
-            result?
+        Content::ShowRecipe(_) => {
+            return super::recipes::realize(node, ctx, engine).map(Some);
         }
         Content::Styled(styled) => {
             let body = &styled.body;
@@ -470,9 +458,10 @@ fn walk_node(
                 let rules = captured_rules(r, engine);
                 std::mem::replace(engine.show_rules, rules)
             });
-            let old_guards = captured
-                .as_ref()
-                .map(|r| std::mem::replace(engine.active_guards, r.guards.clone()));
+            let old_guards = captured.as_ref().map(|r| {
+                let guards = insertion_guards(&r.guards, engine.active_guards);
+                std::mem::replace(engine.active_guards, guards)
+            });
             let old_file = engine.current_file;
             if let Some(r) = captured {
                 engine.current_file = r.file;
@@ -1206,14 +1195,49 @@ fn table(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
-    let rules = Arc::clone(&*engine.show_rules);
+    let protected = matches!(node.source_body(), Content::Located(located)
+        if ctx.recipe_protected_locations.contains(&located.location));
+    let rules: Vec<_> = engine
+        .show_rules
+        .iter()
+        .filter(|rule| !protected || !engine.active_guards.contains(&rule.id))
+        .cloned()
+        .collect();
+    let mut applied: Vec<_> = rules
+        .iter()
+        .filter(|rule| {
+            matches!(rule.transform, crate::entities::show::Transformation::Style(_))
+                && crate::compiler::eval::selector_matching::selector_matches(
+                    node,
+                    &rule.selector,
+                )
+        })
+        .map(|rule| rule.id)
+        .collect();
+    if let Some(rule) = rules.iter().rev().find(|rule| {
+        !matches!(rule.transform, crate::entities::show::Transformation::Style(_))
+            && crate::compiler::eval::selector_matching::selector_matches(
+                node,
+                &rule.selector,
+            )
+    }) {
+        applied.push(rule.id);
+    }
     let product = crate::compiler::eval::rules::apply::apply_show_rules_root(
         node.clone(),
         &rules,
         ctx,
         engine,
     )?;
-    product.map_content_pre(&mut |child| {
+    let guard_depth = engine.active_guards.len();
+    engine.active_guards.extend(applied);
+    let depth = ctx.recipe_protected_locations.len();
+    if let Content::Realized(done) = product.source_body() {
+        if let Content::Located(located) = done.original.source_body() {
+            ctx.recipe_protected_locations.push(located.location);
+        }
+    }
+    let result = product.map_content_pre(&mut |child| {
         match child {
             Content::Table(e) if e.resolved.is_none()=>Ok(Some(prepare_table(e,ctx,engine)?)),
             Content::Located(e) if matches!(&e.body,Content::Table(t) if t.resolved.is_none())=>{
@@ -1223,7 +1247,10 @@ fn table(
             Content::ShowRecipe(_) | Content::Styled(_) | Content::TableCell(_)=>Ok(Some(walk(child,ctx,engine)?)),
             Content::Source(_) | Content::Realized(_) | Content::Located(_) | Content::Empty | Content::Text(_) | Content::Space | Content::SpaceFromNewline | Content::Parbreak | Content::Sequence(_) | Content::HtmlElem(_) | Content::HtmlFrame(_) | Content::Par { .. } | Content::Heading(_) | Content::Title(_) | Content::Strong(_) | Content::Emph(_) | Content::Raw(_) | Content::ListItem(_) | Content::EnumItem(_) | Content::Link(_) | Content::Equation(_) | Content::MathSequence(_) | Content::MathIdent(_) | Content::MathText(_) | Content::MathFrac(_) | Content::MathAttach(_) | Content::MathPrimes(_) | Content::MathRoot(_) | Content::MathStretch(_) | Content::MathDelimited(_) | Content::MathLr(_) | Content::MathMid(_) | Content::MathOverbrace(_) | Content::MathUnderbrace(_) | Content::MathUnderbracket(_) | Content::MathUnderparen(_) | Content::MathUndershell(_) | Content::MathOverbracket(_) | Content::MathOverparen(_) | Content::MathOvershell(_) | Content::MathAlignPoint(_) | Content::Linebreak(_) | Content::MathMatrix(_) | Content::MathCases(_) | Content::MathAccent(_) | Content::MathCancel(_) | Content::MathUnderline(_) | Content::MathOverline(_) | Content::MathVec(_) | Content::MathClassOverride(_) | Content::MathLimitsOverride(_) | Content::MathUnderover(_) | Content::MathOp(_) | Content::MathStyled(_) | Content::Label(_) | Content::Ref(_) | Content::CounterDisplay(_) | Content::CounterUpdate(_) | Content::Outline(_) | Content::OutlineEntry(_) | Content::Figure(_) | Content::FigureCaption(_) | Content::Image(_) | Content::Shape(_) | Content::Curve(_) | Content::Transform(_) | Content::Grid(_) | Content::GridHeader(_) | Content::GridFooter(_) | Content::GridCell(_) | Content::SetPage(_) | Content::PageRun(_) | Content::Align(_) | Content::Place(_) | Content::Flush(_) | Content::Divider(_) | Content::Terms(_) | Content::TermItem(_) | Content::Quote(_) | Content::Document { .. } | Content::Asset { .. } | Content::SmartQuote(_) | Content::PdfAttach(_) | Content::PdfArtifact(_) | Content::Underline(_) | Content::Strike(_) | Content::Overline(_) | Content::SmallCaps { .. } | Content::Pad(_) | Content::Hide(_) | Content::HSpace(_) | Content::VSpace(_) | Content::Pagebreak(_) | Content::Colbreak(_) | Content::Stack(_) | Content::Boxed(_) | Content::Block(_) | Content::Bibliography(_) | Content::Cite(_) | Content::Footnote(_) | Content::FootnoteEntry(_) | Content::TableHeader(_) | Content::TableFooter(_) | Content::GridHLine(_) | Content::GridVLine(_) | Content::TableHLine(_) | Content::TableVLine(_) | Content::Table(_) | Content::Repeat(_) | Content::Columns(_) | Content::Metadata(_) | Content::State(_) | Content::StateUpdate(_) | Content::StateDisplay(_) | Content::CounterDisplayCallback(_) | Content::ContextBlock(_) | Content::Dynamic(_)=>Ok(None),
         }
-    })
+    });
+    ctx.recipe_protected_locations.truncate(depth);
+    engine.active_guards.truncate(guard_depth);
+    result
 }
 
 fn fold_align(cell: Option<Align2D>, table: Option<Align2D>) -> Option<Align2D> {

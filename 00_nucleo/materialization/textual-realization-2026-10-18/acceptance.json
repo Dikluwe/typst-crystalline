@@ -1,0 +1,1626 @@
+[
+  {
+    "id": "T01",
+    "collection": "before",
+    "label": "constant-chain",
+    "source": "#show \"B\": [BB]\n#show \"A\": [B]\nA",
+    "source_sha256": "a8e44dc7dd231e6ea509eba02d3c78576633c368a1ff85c94aeb181edc858577",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-chain.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-chain-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "BB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-chain.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-chain-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "B"
+    }
+  },
+  {
+    "id": "T02",
+    "collection": "before",
+    "label": "constant-chain-inverse",
+    "source": "#show \"A\": [B]\n#show \"B\": [BB]\nA",
+    "source_sha256": "20cf90d95a2205d052a536bb3ff8d49124023db47764364088261899f5d5f9d1",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-chain-inverse.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-chain-inverse-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "BB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-chain-inverse.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-chain-inverse-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "BB"
+    }
+  },
+  {
+    "id": "T03",
+    "collection": "before",
+    "label": "function-chain",
+    "source": "#show \"B\":it=>[BB]\n#show \"A\":it=>[B]\nA",
+    "source_sha256": "0b25824893c21ac5b9d696ed439d686c813c745e90c9270fbff94b51ee54ae77",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/function-chain.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/function-chain-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "BB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/function-chain.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/function-chain-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "BB"
+    }
+  },
+  {
+    "id": "T04",
+    "collection": "before",
+    "label": "function-chain-inverse",
+    "source": "#show \"A\":it=>[B]\n#show \"B\":it=>[BB]\nA",
+    "source_sha256": "f58540414f3e023c980332477ff985d8486a8ee741db270ceb125bb647c7997b",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/function-chain-inverse.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/function-chain-inverse-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "BB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/function-chain-inverse.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/function-chain-inverse-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "BBBB"
+    }
+  },
+  {
+    "id": "T05",
+    "collection": "before",
+    "label": "alias-chain",
+    "source": "#let saved=[B]\n#show \"B\":it=>[BB]\n#show \"A\":it=>saved\nA",
+    "source_sha256": "f21818c3d283b0086a5adc972dba76f99b12c9d7374dbbce8a5a3806807be74b",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/alias-chain.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/alias-chain-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "BB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/alias-chain.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/alias-chain-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "B"
+    }
+  },
+  {
+    "id": "T06",
+    "collection": "before",
+    "label": "alias-chain-inverse",
+    "source": "#let saved=[B]\n#show \"A\":it=>saved\n#show \"B\":it=>[BB]\nA",
+    "source_sha256": "563f55a93c7c1503ba2dea497e8d886e621d8c917d84a18fbf86da0df6b7db3d",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/alias-chain-inverse.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/alias-chain-inverse-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "BB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/alias-chain-inverse.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/alias-chain-inverse-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "BB"
+    }
+  },
+  {
+    "id": "T07",
+    "collection": "before",
+    "label": "cycle",
+    "source": "#show \"A\":it=>[B]\n#show \"B\":it=>[A]\nA",
+    "source_sha256": "750be475bef9aede7e547165707aeab8cd1338348d940cf74c7de38ed2c0dc39",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/cycle.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/cycle-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "A"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/cycle.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/cycle-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "A"
+    }
+  },
+  {
+    "id": "T08",
+    "collection": "before",
+    "label": "constant-cycle",
+    "source": "#show \"A\": [B]\n#show \"B\": [A]\nA",
+    "source_sha256": "9648022d67018007b046f9800ebc4331bcd1c89518c64102bfddfd2e4d979a90",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-cycle.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-cycle-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "A"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-cycle.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-cycle-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "A"
+    }
+  },
+  {
+    "id": "T09",
+    "collection": "before",
+    "label": "revoked-cross",
+    "source": "#show \"C\":it=>[A]\n#show \"AB\":it=>[X]\nCB",
+    "source_sha256": "a81198a8aacfd8053898b64b0499255f7960587ff7983fc4fd25674ee08d8a00",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/revoked-cross.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/revoked-cross-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "AB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/revoked-cross.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/revoked-cross-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "X"
+    }
+  },
+  {
+    "id": "T10",
+    "collection": "before",
+    "label": "revoked-cross-inverse",
+    "source": "#show \"AB\":it=>[X]\n#show \"C\":it=>[A]\nCB",
+    "source_sha256": "01bf5b59fbd06a756d901b8a7705e51c82a3bd1e591c8dc057b0c0a99dd20ea8",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/revoked-cross-inverse.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/revoked-cross-inverse-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "AB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/revoked-cross-inverse.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/revoked-cross-inverse-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "AB"
+    }
+  },
+  {
+    "id": "T11",
+    "collection": "before",
+    "label": "local-cross",
+    "source": "#let part={show \"C\":it=>[A];[C]}\n#show \"AB\":it=>[X]\n#part;B",
+    "source_sha256": "075b1a585a061c92d598cf7f2eff095260c42fc76ea588fcbd67177485f4172c",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/local-cross.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/local-cross-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "AB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/local-cross.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/local-cross-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "X"
+    }
+  },
+  {
+    "id": "T12",
+    "collection": "before",
+    "label": "leftmost",
+    "source": "#show \"A\":it=>[L]\n#show \"B\":it=>[R]\nAB",
+    "source_sha256": "706c5171bbf04026fae91920c842f82cb8cf659675b21366fb0e989571b9fec9",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "LR"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "LR"
+    }
+  },
+  {
+    "id": "T13",
+    "collection": "before",
+    "label": "unicode-overlap",
+    "source": "#show \"éX\":it=>[L]\n#show \"é\":it=>[R]\néX",
+    "source_sha256": "ab54a3d2cd34c89c652e91bb1e1af6d558f8f72128a20f5e4c64b5befeddcaf8",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/unicode-overlap.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/unicode-overlap-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "RX"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/unicode-overlap.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/unicode-overlap-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "L"
+    }
+  },
+  {
+    "id": "T14",
+    "collection": "before",
+    "label": "multiple-matches",
+    "source": "#show \"A\":it=>[AA]\n#show \"B\":it=>[BB]\nABAB",
+    "source_sha256": "34b0386cce802b0421bb606374185c4a1d3978a19d656eae2f974ca148d7bb9c",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/multiple-matches.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/multiple-matches-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "AABBAABB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/multiple-matches.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/multiple-matches-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "AABBAABB"
+    }
+  },
+  {
+    "id": "T15",
+    "collection": "before",
+    "label": "show-set",
+    "source": "#show \"A\":set text(fill:red)\nA",
+    "source_sha256": "a78bc9eee106c558b49c38dffe16faa7dd0acd9dedefc9506991027d80e243df",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/show-set.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/show-set-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "A"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/show-set.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/show-set-tekt.pdf"
+      ],
+      "exit": 1,
+      "stderr": "error: show-set (`#show …: set …`) não é válido para um selector de texto — use uma função ou Content\n  ┌─ 00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/show-set.typ:1:10\n  │\n1 │ #show \"A\":set text(fill:red)\n  │           ^^^^^^^^^^^^^^^^^^\n\n",
+      "text": ""
+    }
+  },
+  {
+    "id": "T16",
+    "collection": "before",
+    "label": "none-definition",
+    "source": "#let c=[#let x=1;A]\n#repr(c.children)",
+    "source_sha256": "2a89c4ad440deb3aa70585cb81fd47e3516295062be717c722a91d28d9f23deb",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/none-definition.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/none-definition-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "([], [A])"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/none-definition.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/none-definition-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "([], [A])"
+    }
+  },
+  {
+    "id": "T17",
+    "collection": "before",
+    "label": "none-assert",
+    "source": "#let c=[#assert(true)A]\n#repr(c.children)",
+    "source_sha256": "235a6232d86c23e95d7f644e1b280678b06ea4b9831d97574cc082f9378023b6",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/none-assert.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/none-assert-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "([], [A])"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/none-assert.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/none-assert-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "([], [A])"
+    }
+  },
+  {
+    "id": "T18",
+    "collection": "before",
+    "label": "none-explicit",
+    "source": "#let c=[#none#[]A]\n#repr(c.children)",
+    "source_sha256": "0fe5f265d41cd4310e6c81f3c88c353a925691079803d2b58462efa521b9501e",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/none-explicit.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/none-explicit-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "([], [], [A])"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/none-explicit.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/none-explicit-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "([], [], [A])"
+    }
+  },
+  {
+    "id": "T19",
+    "collection": "before",
+    "label": "none-only",
+    "source": "#let c=[#none]\n#repr((c.func(),c.fields()))",
+    "source_sha256": "94802a26f18a38fc1bfb26b36532dfa691b27da4fb733616f23b126dc7222a70",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/none-only.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/none-only-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "(sequence, (children: ()))"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/none-only.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/none-only-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "(sequence, (children: ()))"
+    }
+  },
+  {
+    "id": "T20",
+    "collection": "before",
+    "label": "identical-literals",
+    "source": "#show \"A\":it=>[C]\n#show \"A\":it=>[B]\nA",
+    "source_sha256": "75f20a18ac6723b9fc84a9c208162508efa3e6d3c90187acb3f6d54870ce23bc",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/identical-literals.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/identical-literals-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "B"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/identical-literals.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/identical-literals-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "C"
+    }
+  },
+  {
+    "id": "T21",
+    "collection": "before",
+    "label": "mixed-regex-literal",
+    "source": "#show regex(\"A\"):it=>[R]\n#show \"A\":it=>[L]\nA",
+    "source_sha256": "d69d8ef16c39127805fb62e4308e2b7e9b40d53729b9060cd25fdaa3fcc449f6",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/mixed-regex-literal.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/mixed-regex-literal-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "L"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/mixed-regex-literal.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/mixed-regex-literal-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "R"
+    }
+  },
+  {
+    "id": "T22",
+    "collection": "before",
+    "label": "mixed-literal-regex",
+    "source": "#show \"A\":it=>[L]\n#show regex(\"A\"):it=>[R]\nA",
+    "source_sha256": "4653af5936b67fb89cb351d15a4b569885abfc4688f125aa6642843196c31170",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/mixed-literal-regex.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/mixed-literal-regex-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "R"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/mixed-literal-regex.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/mixed-literal-regex-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "R"
+    }
+  },
+  {
+    "id": "T23",
+    "collection": "before",
+    "label": "overlap",
+    "source": "#show \"AB\":it=>[X]\n#show \"A\":it=>[Y]\nAB",
+    "source_sha256": "d0094af64334598c79845026a2ca39e873081d64ef706ed3d15623c0b801ad17",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/overlap.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/overlap-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "YB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/overlap.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/overlap-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "X"
+    }
+  },
+  {
+    "id": "T24",
+    "collection": "before",
+    "label": "leftmost-effect",
+    "source": "#show \"A\":it=>panic(\"LATER\")\n#show \"Z\":it=>panic(\"FIRST\")\nZA",
+    "source_sha256": "982d25650c9ecbef615174d5417e71e965c170601f1796fbdefe1b89f32bfe4a",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost-effect.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost-effect-vanilla.pdf"
+      ],
+      "exit": 1,
+      "stderr": "error: panicked with: FIRST\n  ┌─ 00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost-effect.typ:2:14\n  │\n2 │ #show \"Z\":it=>panic(\"FIRST\")\n  │               ^^^^^^^^^^^^^^\n\n  while showing text element at 00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost-effect.typ:3:0\n    ZA\n\n",
+      "text": ""
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost-effect.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost-effect-tekt.pdf"
+      ],
+      "exit": 1,
+      "stderr": "error: panicked with: LATER\n  ┌─ 00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost-effect.typ:1:14\n  │\n1 │ #show \"A\":it=>panic(\"LATER\")\n  │               ^^^^^^^^^^^^^^\n\n",
+      "text": ""
+    }
+  },
+  {
+    "id": "T25",
+    "collection": "before",
+    "label": "leftmost-regex-effect",
+    "source": "#show regex(\"A\"):it=>panic(\"LATER\")\n#show regex(\"Z\"):it=>panic(\"FIRST\")\nZA",
+    "source_sha256": "a035fcde9dca0d5ca7a8dbd664dc6a6fd642ed5eda25711edeb7f8ac4d788f4f",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost-regex-effect.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost-regex-effect-vanilla.pdf"
+      ],
+      "exit": 1,
+      "stderr": "error: panicked with: FIRST\n  ┌─ 00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost-regex-effect.typ:2:21\n  │\n2 │ #show regex(\"Z\"):it=>panic(\"FIRST\")\n  │                      ^^^^^^^^^^^^^^\n\n  while showing text element at 00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost-regex-effect.typ:3:0\n    ZA\n\n",
+      "text": ""
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost-regex-effect.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost-regex-effect-tekt.pdf"
+      ],
+      "exit": 1,
+      "stderr": "error: panicked with: FIRST\n  ┌─ 00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/leftmost-regex-effect.typ:2:21\n  │\n2 │ #show regex(\"Z\"):it=>panic(\"FIRST\")\n  │                      ^^^^^^^^^^^^^^\n\n",
+      "text": ""
+    }
+  },
+  {
+    "id": "T26",
+    "collection": "before",
+    "label": "same-guard-adjacent",
+    "source": "#show \"AAAA\":it=>[X]\n#show \"A\":it=>[AA]\nAA",
+    "source_sha256": "0a5f2e5043002268577fb4c8a20b7d01919c2c70ec9bd3f001a103cbeb467594",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/same-guard-adjacent.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/same-guard-adjacent-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "AAAA"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/same-guard-adjacent.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/same-guard-adjacent-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "AAAA"
+    }
+  },
+  {
+    "id": "T27",
+    "collection": "before",
+    "label": "same-guard-regex-adjacent",
+    "source": "#show \"AB\":it=>[X]\n#show regex(\"A|B\"):it=>it\nAB",
+    "source_sha256": "85e90672f7566282a9a3d8a45b60f85d6bdeffbc8fe4eb4717ad2263e4979625",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/same-guard-regex-adjacent.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/same-guard-regex-adjacent-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "AB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/same-guard-regex-adjacent.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/same-guard-regex-adjacent-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "X"
+    }
+  },
+  {
+    "id": "T28",
+    "collection": "before",
+    "label": "different-guard-adjacent",
+    "source": "#show \"AB\":it=>[X]\n#show \"C\":it=>[A]\n#show \"D\":it=>[B]\nCD",
+    "source_sha256": "d514002d19ac134e125fbf5cb945ee5255d984dd3997787218a506e90497189a",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/different-guard-adjacent.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/different-guard-adjacent-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "AB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/different-guard-adjacent.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/different-guard-adjacent-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "AB"
+    }
+  },
+  {
+    "id": "T29",
+    "collection": "before",
+    "label": "product-whole-group",
+    "source": "#show \"AB\":it=>[X]\n#show \"C\":it=>[AB]\nC",
+    "source_sha256": "c9deff7eec36680398818ec787e31473dfcad82a0e2b8be5bfa1fa7ff4554cb9",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/product-whole-group.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/product-whole-group-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "X"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/product-whole-group.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/product-whole-group-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "X"
+    }
+  },
+  {
+    "id": "T30",
+    "collection": "before",
+    "label": "product-separate-nodes",
+    "source": "#show \"AB\":it=>[X]\n#show \"C\":it=>[A]+[B]\nC",
+    "source_sha256": "c0b8199aa9bf6c9cc028f2c7b68168f686ed798156526d163dfaedfdf9920094",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/product-separate-nodes.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/product-separate-nodes-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "X"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/product-separate-nodes.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/product-separate-nodes-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "AB"
+    }
+  },
+  {
+    "id": "T31",
+    "collection": "before",
+    "label": "constant-revoked-cross",
+    "source": "#show \"C\":[A]\n#show \"AB\":[X]\nCB",
+    "source_sha256": "4713c2a3844207864e44cba06e362a214a8bc30dcee986392dea07d197e8995e",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-revoked-cross.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-revoked-cross-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "AB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-revoked-cross.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-revoked-cross-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "X"
+    }
+  },
+  {
+    "id": "T32",
+    "collection": "before",
+    "label": "new-rule-on-completed",
+    "source": "#let c={show \"A\":it=>[B];[A]}\n#show \"B\":it=>[C]\n#c",
+    "source_sha256": "501d9d3290ced1803e114a5265efdbef43b748ba5b152220944d111b617b90e2",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/new-rule-on-completed.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/new-rule-on-completed-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "C"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/new-rule-on-completed.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/new-rule-on-completed-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "C"
+    }
+  },
+  {
+    "id": "T33",
+    "collection": "before",
+    "label": "new-rule-cross-completed",
+    "source": "#let c={show \"C\":it=>[A];[C]}\n#show \"AB\":it=>[X]\n#c;B",
+    "source_sha256": "225d6654a4b39c9082e0546ba3ec904775b5d09632ba488d59a982631a7af67f",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/new-rule-cross-completed.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/new-rule-cross-completed-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "AB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/new-rule-cross-completed.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/new-rule-cross-completed-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "X"
+    }
+  },
+  {
+    "id": "T34",
+    "collection": "before",
+    "label": "func-alias-raw-output",
+    "source": "#let saved=[B]\n#show \"B\":it=>[BB]\n#show \"A\":it=>saved\nA",
+    "source_sha256": "f21818c3d283b0086a5adc972dba76f99b12c9d7374dbbce8a5a3806807be74b",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/func-alias-raw-output.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/func-alias-raw-output-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "BB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/func-alias-raw-output.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/func-alias-raw-output-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "B"
+    }
+  },
+  {
+    "id": "T35",
+    "collection": "before",
+    "label": "white-text",
+    "source": "#show \" \":it=>[S]\n#text(\" \")",
+    "source_sha256": "966a16790bf5489af9619de5dcb0024959df1f2626384b548ba4997fb7aa8f7f",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-text.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-text-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "S"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-text.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-text-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": ""
+    }
+  },
+  {
+    "id": "T36",
+    "collection": "before",
+    "label": "white-text-callback",
+    "source": "#show \"A\":it=>[ ]\n#show \" \":it=>[S]\nA",
+    "source_sha256": "e87a2c7185e23a602a724b9b4e5c2f6349e623c34ab1224beb01a879416c5f6c",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-text-callback.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-text-callback-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": ""
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-text-callback.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-text-callback-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "S"
+    }
+  },
+  {
+    "id": "T37",
+    "collection": "before",
+    "label": "white-input-normalization",
+    "source": "#show \" \":it=>[S]\n#([ ]+[ ])",
+    "source_sha256": "3e50ac5b16ad9e79ac0a1648aa7badd345401403e2eb14126325ce4fa6a2f798",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-input-normalization.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-input-normalization-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": ""
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-input-normalization.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-input-normalization-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": ""
+    }
+  },
+  {
+    "id": "T38",
+    "collection": "before",
+    "label": "product-parent-hides-text",
+    "source": "#show \"B\":it=>panic(\"HIDDEN\")\n#show strong:it=>[Q]\n#show \"A\":it=>strong[B]\nA",
+    "source_sha256": "2068c248958c4d35d0a408dd476aa63e1f258a2608a2ae6d4625544fe90ac083",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/product-parent-hides-text.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/product-parent-hides-text-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "Q"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/product-parent-hides-text.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/product-parent-hides-text-tekt.pdf"
+      ],
+      "exit": 1,
+      "stderr": "error: panicked with: HIDDEN\n  ┌─ 00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/product-parent-hides-text.typ:1:14\n  │\n1 │ #show \"B\":it=>panic(\"HIDDEN\")\n  │               ^^^^^^^^^^^^^^^\n\n",
+      "text": ""
+    }
+  },
+  {
+    "id": "T39",
+    "collection": "before",
+    "label": "product-parent-hides-constant",
+    "source": "#let saved=strong[B]\n#show \"B\":it=>panic(\"HIDDEN\")\n#show strong:it=>[Q]\n#show \"A\":it=>saved\nA",
+    "source_sha256": "7806054edc5c9afc07fa8e63703bac52bdab6d86dcaae52ac83168c284024744",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/product-parent-hides-constant.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/product-parent-hides-constant-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "Q"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/product-parent-hides-constant.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/product-parent-hides-constant-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "B"
+    }
+  },
+  {
+    "id": "T40",
+    "collection": "before",
+    "label": "local-cjk",
+    "source": "#let c=[#show \"水果\":it=>[X]\n水\n果]\n#c",
+    "source_sha256": "769da038098077d71ac0961f51de34c0ab5ef46d45bae2cb30375a8367b2e845",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/local-cjk.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/local-cjk-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "X"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/local-cjk.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/local-cjk-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "水果"
+    }
+  },
+  {
+    "id": "T41",
+    "collection": "before",
+    "label": "identity-shared-rule",
+    "source": "#show \"A\":it=>it\n#([A]+[A])",
+    "source_sha256": "fb60ec76ac1778e2af668dc85ddc09bb76748c4f7b71c7c9158cc3e3f2ba2af2",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/identity-shared-rule.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/identity-shared-rule-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "AA"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/identity-shared-rule.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/identity-shared-rule-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "AA"
+    }
+  },
+  {
+    "id": "T42",
+    "collection": "before",
+    "label": "constant-style",
+    "source": "#show \"B\":set text(fill:red)\n#show \"A\":[B]\nA",
+    "source_sha256": "0f076adbdf8ecbbcf6d1eca675fc49ca47e8b9256b6a8fa3c3fbb9108a6805c0",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-style.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-style-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "B"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-style.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-style-tekt.pdf"
+      ],
+      "exit": 1,
+      "stderr": "error: show-set (`#show …: set …`) não é válido para um selector de texto — use uma função ou Content\n  ┌─ 00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/constant-style.typ:1:10\n  │\n1 │ #show \"B\":set text(fill:red)\n  │           ^^^^^^^^^^^^^^^^^^\n\n",
+      "text": ""
+    }
+  },
+  {
+    "id": "T43",
+    "collection": "before",
+    "label": "function-style",
+    "source": "#show \"B\":set text(fill:red)\n#show \"A\":it=>[B]\nA",
+    "source_sha256": "6a43269823ace530a5edddbab3738bbab433b0dce8c3a595560b3e4d30a83fdb",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/function-style.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/function-style-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "B"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/function-style.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/function-style-tekt.pdf"
+      ],
+      "exit": 1,
+      "stderr": "error: show-set (`#show …: set …`) não é válido para um selector de texto — use uma função ou Content\n  ┌─ 00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/function-style.typ:1:10\n  │\n1 │ #show \"B\":set text(fill:red)\n  │           ^^^^^^^^^^^^^^^^^^\n\n",
+      "text": ""
+    }
+  },
+  {
+    "id": "T44",
+    "collection": "scope",
+    "label": "captured-outer-precedence",
+    "source": "#show \"B\":it=>[L]\n#let c=[B]\n#show \"B\":it=>[R]\n#c",
+    "source_sha256": "a5a0d28a749ea1ea09f5c3ca7e0762d5cfb6db874f4988315fd73321e27d9e7d",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-outer-precedence.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-outer-precedence-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "R"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-outer-precedence.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-outer-precedence-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "L"
+    }
+  },
+  {
+    "id": "T45",
+    "collection": "scope",
+    "label": "captured-local-precedence",
+    "source": "#let c={show \"B\":it=>[L];[B]}\n#show \"B\":it=>[R]\n#c",
+    "source_sha256": "8a8814e879a5a121a5466c54cc239ca824bca9d50ef15418a7d40de12f0e9e23",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-local-precedence.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-local-precedence-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "L"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-local-precedence.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-local-precedence-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "L"
+    }
+  },
+  {
+    "id": "T46",
+    "collection": "scope",
+    "label": "captured-none-then-new",
+    "source": "#let c=[B]\n#show \"B\":it=>[R]\n#c",
+    "source_sha256": "60a90c966a494d877430900498733453a5c088231cdeba17532a03fee3c5bd23",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-none-then-new.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-none-then-new-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "R"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-none-then-new.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-none-then-new-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "R"
+    }
+  },
+  {
+    "id": "T47",
+    "collection": "scope",
+    "label": "captured-unmatched-then-new",
+    "source": "#show \"Z\":it=>[L]\n#let c=[B]\n#show \"B\":it=>[R]\n#c",
+    "source_sha256": "0dab67a207967d88d7176a7510b988f7bf299d8d2ba231926c4c69f2e2d5b761",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-unmatched-then-new.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-unmatched-then-new-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "R"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-unmatched-then-new.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-unmatched-then-new-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "R"
+    }
+  },
+  {
+    "id": "T48",
+    "collection": "scope",
+    "label": "captured-outer-chain",
+    "source": "#show \"B\":it=>[L]\n#let c=[B]\n#show \"L\":it=>[R]\n#c",
+    "source_sha256": "129789c1cb4d7e40cc4abc06726864bae9a624e92295a17c9e73e5a382b8487a",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-outer-chain.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-outer-chain-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "R"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-outer-chain.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-outer-chain-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "R"
+    }
+  },
+  {
+    "id": "T49",
+    "collection": "scope",
+    "label": "captured-latest-inside",
+    "source": "#show \"B\":it=>[G]\n#let c={show \"B\":it=>[L];[B]}\n#show \"B\":it=>[R]\n#c",
+    "source_sha256": "f4d07b458f7a9b0a4f80039801dba55556ccc12ce259babee5c26b1a475c3be1",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-latest-inside.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-latest-inside-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "L"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-latest-inside.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-latest-inside-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "G"
+    }
+  },
+  {
+    "id": "T50",
+    "collection": "scope",
+    "label": "hidden-generic-child",
+    "source": "#show \"B\":it=>panic(\"HIDDEN\")\n#show strong:it=>[Q]\n#strong[B]",
+    "source_sha256": "3337e323e7865635e6538ac95dde96fa573670a7cdb1c125655cff5a9e2ad0a8",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/hidden-generic-child.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/hidden-generic-child-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "Q"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/hidden-generic-child.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/hidden-generic-child-tekt.pdf"
+      ],
+      "exit": 1,
+      "stderr": "error: panicked with: HIDDEN\n  ┌─ 00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/hidden-generic-child.typ:1:14\n  │\n1 │ #show \"B\":it=>panic(\"HIDDEN\")\n  │               ^^^^^^^^^^^^^^^\n\n",
+      "text": ""
+    }
+  },
+  {
+    "id": "T51",
+    "collection": "scope",
+    "label": "white-text-middle",
+    "source": "#show \" \":it=>[S]\nA#text(\" \")B",
+    "source_sha256": "4faa6fdd453b7b51ff113c74f100f129c86ecfb088b1c602c9240b7eba39d16a",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-text-middle.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-text-middle-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "ASB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-text-middle.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-text-middle-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "SASB"
+    }
+  },
+  {
+    "id": "T52",
+    "collection": "scope",
+    "label": "white-content-middle",
+    "source": "#show \" \":it=>[S]\nA#([ ]+[ ])B",
+    "source_sha256": "bc53274c155e8fbb8b105598bc23495716caa4b7716197f7f3cf4524bd8266e4",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-content-middle.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-content-middle-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "ASB"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-content-middle.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-content-middle-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "SASSB"
+    }
+  },
+  {
+    "id": "T53",
+    "collection": "scope",
+    "label": "white-callback-middle",
+    "source": "#show \"A\":it=>[ ]\n#show \" \":it=>[S]\nXAX",
+    "source_sha256": "59b0562919483f6b8894f6fcb58ccdbccb5bba4ad73f1b8136db8108c70a2aeb",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-callback-middle.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-callback-middle-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "XSX"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-callback-middle.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/white-callback-middle-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "XSX"
+    }
+  },
+  {
+    "id": "T54",
+    "collection": "refuters",
+    "label": "capture-with-local-text",
+    "source": "#show \"B\":it=>[G]\n#let c=[#show \"B\":it=>[L]\nB]\n#show \"B\":it=>[R]\n#c",
+    "source_sha256": "92fef8867f7b492c35d02775c88d80e2bd00b67832589da6624d4a481f200f49",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/capture-with-local-text.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/capture-with-local-text-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "L"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/capture-with-local-text.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/capture-with-local-text-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "G"
+    }
+  },
+  {
+    "id": "T55",
+    "collection": "refuters",
+    "label": "captured-rule-binding-return",
+    "source": "#let make()={show \"B\":it=>[L];let c=[B];c}\n#let c=make()\n#show \"B\":it=>[R]\n#c",
+    "source_sha256": "2047a07257953c50412272995c627ca360f61e35df8d00a10a8586492e65b423",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-rule-binding-return.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-rule-binding-return-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "L"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-rule-binding-return.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-rule-binding-return-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "L"
+    }
+  },
+  {
+    "id": "T56",
+    "collection": "refuters",
+    "label": "captured-global-binding-return",
+    "source": "#show \"B\":it=>[G]\n#let make()={let c=[B];c}\n#let c=make()\n#show \"B\":it=>[R]\n#c",
+    "source_sha256": "7f53bf99bce8e245452df9cd5ef9a3ca056a9c63fcbf6153e7646e6f55ad13ac",
+    "expected_oracle": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-global-binding-return.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-global-binding-return-vanilla.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "R"
+    },
+    "before_tekt": {
+      "command": [
+        "/repos/Antigravity/typst-crystalline/target/debug/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-global-binding-return.typ",
+        "/repos/Antigravity/typst-crystalline/00_nucleo/diagnosticos/textual-realization-2026-10-18/outputs/captured-global-binding-return-tekt.pdf"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "text": "G"
+    }
+  }
+]

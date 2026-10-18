@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-18T11:27:26.455872+00:00",
+  "scope": "R3-T1",
+  "status": "APPROVED_IMPLEMENTATION_PENDING",
+  "answer": "Aprovar R3-T1",
+  "question_item_id": "[\"request_user_input_async\",\"call_b312ab36bb814f1284889740e338c6b2\",0]",
+  "authorization_source": "Explicit human reply in this conversation",
+  "approved_manifest_sha256": "47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302",
+  "manifest_entries_verified": 32,
+  "review_sha256": "23c3fee5e25416e2a581f0e45a66621a76edba0f64a77fafe7332f4c1fc0091b",
+  "constraints": "Existing public types and private transport; L0 before code; 12 GiB ceiling; no commit or publication. Finish independent mixed-style-metrics validation before materializing R3-T1; rebase candidate L0s on current owners rather than overwriting intervening clauses."
+}

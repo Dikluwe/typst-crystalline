@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/realize.md
-//! @prompt-hash 792e40a7
+//! @prompt-hash c5f23e62
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -34,6 +34,133 @@ pub(crate) fn is_flow_carrier(content: &Content) -> bool {
     )
 }
 
+fn flow_boundary_body(mut content: &Content) -> &Content {
+    loop {
+        content = match content {
+            Content::Source(source) => &source.body,
+            Content::ShowRecipe(recipe) => &recipe.body,
+            Content::Realized(_)
+            | Content::Located(_)
+            | Content::Empty
+            | Content::Text(_)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::Sequence(_)
+            | Content::HtmlElem(_)
+            | Content::HtmlFrame(_)
+            | Content::Par { .. }
+            | Content::Heading(_)
+            | Content::Title(_)
+            | Content::Strong(_)
+            | Content::Emph(_)
+            | Content::Raw(_)
+            | Content::ListItem(_)
+            | Content::EnumItem(_)
+            | Content::Link(_)
+            | Content::Equation(_)
+            | Content::MathSequence(_)
+            | Content::MathIdent(_)
+            | Content::MathText(_)
+            | Content::MathFrac(_)
+            | Content::MathAttach(_)
+            | Content::MathPrimes(_)
+            | Content::MathRoot(_)
+            | Content::MathStretch(_)
+            | Content::MathDelimited(_)
+            | Content::MathLr(_)
+            | Content::MathMid(_)
+            | Content::MathOverbrace(_)
+            | Content::MathUnderbrace(_)
+            | Content::MathUnderbracket(_)
+            | Content::MathUnderparen(_)
+            | Content::MathUndershell(_)
+            | Content::MathOverbracket(_)
+            | Content::MathOverparen(_)
+            | Content::MathOvershell(_)
+            | Content::MathAlignPoint(_)
+            | Content::Linebreak(_)
+            | Content::MathMatrix(_)
+            | Content::MathCases(_)
+            | Content::MathAccent(_)
+            | Content::MathCancel(_)
+            | Content::MathUnderline(_)
+            | Content::MathOverline(_)
+            | Content::MathVec(_)
+            | Content::MathClassOverride(_)
+            | Content::MathLimitsOverride(_)
+            | Content::MathUnderover(_)
+            | Content::MathOp(_)
+            | Content::MathStyled(_)
+            | Content::Label(_)
+            | Content::Ref(_)
+            | Content::CounterDisplay(_)
+            | Content::CounterUpdate(_)
+            | Content::Outline(_)
+            | Content::OutlineEntry(_)
+            | Content::Figure(_)
+            | Content::FigureCaption(_)
+            | Content::Image(_)
+            | Content::Shape(_)
+            | Content::Curve(_)
+            | Content::Transform(_)
+            | Content::Grid(_)
+            | Content::GridHeader(_)
+            | Content::GridFooter(_)
+            | Content::GridCell(_)
+            | Content::SetPage(_)
+            | Content::PageRun(_)
+            | Content::Align(_)
+            | Content::Place(_)
+            | Content::Flush(_)
+            | Content::Styled(_)
+            | Content::Divider(_)
+            | Content::Terms(_)
+            | Content::TermItem(_)
+            | Content::Quote(_)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(_)
+            | Content::PdfAttach(_)
+            | Content::PdfArtifact(_)
+            | Content::Underline(_)
+            | Content::Strike(_)
+            | Content::Overline(_)
+            | Content::SmallCaps { .. }
+            | Content::Pad(_)
+            | Content::Hide(_)
+            | Content::HSpace(_)
+            | Content::VSpace(_)
+            | Content::Pagebreak(_)
+            | Content::Colbreak(_)
+            | Content::Stack(_)
+            | Content::Boxed(_)
+            | Content::Block(_)
+            | Content::TableCell(_)
+            | Content::Bibliography(_)
+            | Content::Cite(_)
+            | Content::Footnote(_)
+            | Content::FootnoteEntry(_)
+            | Content::TableHeader(_)
+            | Content::TableFooter(_)
+            | Content::GridHLine(_)
+            | Content::GridVLine(_)
+            | Content::TableHLine(_)
+            | Content::TableVLine(_)
+            | Content::Table(_)
+            | Content::Repeat(_)
+            | Content::Columns(_)
+            | Content::Metadata(_)
+            | Content::State(_)
+            | Content::StateUpdate(_)
+            | Content::StateDisplay(_)
+            | Content::CounterDisplayCallback(_)
+            | Content::ContextBlock(_)
+            | Content::Dynamic(_) => return content,
+        };
+    }
+}
+
 pub(crate) fn realize_flow(content: &Content) -> Vec<Content> {
     match content {
         Content::Source(e) => realize_flow(&e.body)
@@ -44,10 +171,10 @@ pub(crate) fn realize_flow(content: &Content) -> Vec<Content> {
             let mut out = Vec::new();
             let mut current = Vec::new();
             for (index, child) in seq.iter().enumerate() {
-                let scoped_prefix = matches!(child.source_body(), Content::Styled(styled)
+                let scoped_prefix = matches!(flow_boundary_body(child), Content::Styled(styled)
                     if styled.styles.delta().custom.iter().any(|(key, value)|
                         key.as_str() == "eval.flow.scope" && matches!(value, Value::Bool(true))));
-                let whole_style = matches!(child.source_body(), Content::Styled(_))
+                let whole_style = matches!(flow_boundary_body(child), Content::Styled(_))
                     && seq.iter().skip(index + 1).all(is_flow_carrier);
                 if (scoped_prefix || whole_style) && current.iter().all(is_flow_carrier) {
                     out.append(&mut current);
@@ -84,6 +211,12 @@ pub(crate) fn realize_flow(content: &Content) -> Vec<Content> {
 pub(crate) fn realize_scoped_flow(content: &Content) -> Content {
     match content {
         Content::Source(e) => realize_scoped_flow(&e.body).with_source_span(e.span),
+        Content::ShowRecipe(recipe) => {
+            Content::ShowRecipe(Arc::new(crate::entities::content::ShowRecipeContent {
+                body: realize_scoped_flow(&recipe.body),
+                ..recipe.as_ref().clone()
+            }))
+        }
         Content::Styled(styled) => {
             Content::styled(realize_scoped_flow(&styled.body), styled.styles.clone())
         }
@@ -95,6 +228,7 @@ pub(crate) fn realize_scoped_flow(content: &Content) -> Content {
 pub(crate) fn is_paragraph_node(content: &Content) -> bool {
     match content {
         Content::Source(e) => is_paragraph_node(&e.body),
+        Content::ShowRecipe(recipe) => is_paragraph_node(&recipe.body),
         Content::Par { .. } => true,
         Content::Styled(styled) => is_paragraph_node(&styled.body),
         _ => false,

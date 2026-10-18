@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/apply.md
-//! @prompt-hash a126db59
+//! @prompt-hash 9c689060
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -84,7 +84,12 @@ fn apply_show_rules_inner(
                 textual: false,
                 context_id_floor: ctx.next_context_id,
                 rules: Arc::from(rules),
-                styles: engine.styles.clone(),
+                styles: super::textual::capture_styles(
+                    engine.styles,
+                    engine.show_rules,
+                    ctx,
+                    engine.current_file,
+                ),
                 guards: engine.active_guards.clone(),
                 file: engine.current_file,
             },
@@ -217,7 +222,7 @@ fn apply_show_rules_inner(
                                 let args = Args::positional(vec![Value::Content(argument)]);
                                 engine.active_guards.push(rule.id);
                                 let old_defer=ctx.defer_show_rules;
-                                if single_step || matches!(work,Content::TableCell(c) if c.stage().is_some()) {ctx.defer_show_rules=true;}
+                                if root_only || single_step || matches!(work,Content::TableCell(c) if c.stage().is_some()) {ctx.defer_show_rules=true;}
                                 let call_result = call_dispatch::apply_func(
                                     func.clone(),
                                     args,
@@ -653,13 +658,17 @@ fn realize_occurrence(
             let produced = match &rule.transform {
                 Transformation::Func(func) => {
                     let mut scopes = Scopes::new(None);
-                    match call_dispatch::apply_func(
+                    let previous_defer = ctx.defer_show_rules;
+                    if root_only { ctx.defer_show_rules = true; }
+                    let result = call_dispatch::apply_func(
                         func.clone(),
                         Args::positional(vec![Value::Content(node.clone())]),
                         &mut scopes,
                         ctx,
                         engine,
-                    )? {
+                    );
+                    ctx.defer_show_rules = previous_defer;
+                    match result? {
                         Value::Content(content) => content,
                         Value::Str(text) => Content::text(text.as_str()),
                         other => {

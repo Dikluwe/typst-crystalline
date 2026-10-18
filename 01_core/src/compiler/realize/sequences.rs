@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/realize/sequences.md
-//! @prompt-hash 4f0108eb
+//! @prompt-hash 2af47893
 //! @layer L1
 //! @updated 2026-10-17
 
@@ -44,7 +44,7 @@ pub(crate) fn snapshot(engine: &Engine<'_>) -> Option<Snapshot> {
     })
 }
 
-pub(super) fn marked(recipe: &ShowRecipeContent) -> bool {
+pub(in crate::compiler) fn marked(recipe: &ShowRecipeContent) -> bool {
     matches!(recipe.styles.custom(MARKER), Some(Value::Bool(true)))
 }
 
@@ -54,7 +54,8 @@ pub(crate) fn same_textual_transport(
     right: &ShowRecipeContent,
 ) -> bool {
     let normalize = |scope: &ShowRecipeContent| {
-        let mut styles = scope.styles.collapse();
+        let mut styles =
+            crate::compiler::eval::rules::textual::captured_styles(scope).collapse();
         styles.custom.retain(|(key, _)| key.as_str() != MARKER);
         let guards: Vec<RuleId> = scope
             .guards
@@ -72,12 +73,18 @@ pub(crate) fn same_textual_transport(
     normalize(left) == normalize(right)
 }
 
-fn recipe(body: Content, scope: Snapshot, floor: u64) -> Content {
+fn recipe(body: Content, scope: Snapshot, ctx: &EvalContext) -> Content {
     Content::ShowRecipe(Arc::new(ShowRecipeContent {
         body,
         textual: false,
-        context_id_floor: floor,
-        styles: scope.styles.push_custom(MARKER, Value::Bool(true)),
+        context_id_floor: ctx.next_context_id,
+        styles: crate::compiler::eval::rules::textual::capture_styles(
+            &scope.styles,
+            &scope.rules,
+            ctx,
+            scope.file,
+        )
+        .push_custom(MARKER, Value::Bool(true)),
         rules: scope.rules,
         guards: scope.guards,
         file: scope.file,
@@ -94,7 +101,7 @@ pub(crate) fn capture_scope(
         && matches!(body.source_body(), Content::Empty | Content::Sequence(_))
     {
         ctx.has_deferred_show_rules = true;
-        recipe(body.with_source_span(origin), scope, ctx.next_context_id)
+        recipe(body.with_source_span(origin), scope, ctx)
     } else {
         body
     }
@@ -124,89 +131,7 @@ pub(crate) fn capture_at(
     }
 }
 
-/// Marked outer recipes are decided before descending into any hidden children.
-pub(crate) fn realize(
-    content: &Content,
-    ctx: &mut EvalContext,
-    engine: &mut Engine<'_>,
-) -> SourceResult<Content> {
-    if !ctx.has_deferred_show_rules && snapshot(engine).is_none() {
-        return Ok(content.clone());
-    }
-    visit(content, false, ctx, engine)
-}
-
-fn visit(
-    content: &Content,
-    skip_root: bool,
-    ctx: &mut EvalContext,
-    engine: &mut Engine<'_>,
-) -> SourceResult<Content> {
-    let mut first = true;
-    content.map_content_pre(&mut |node| {
-        let at_root = std::mem::replace(&mut first, false);
-        if skip_root && at_root && matches!(node, Content::Empty | Content::Sequence(_)) {
-            return Ok(None);
-        }
-        let captured;
-        let pending = if let Content::ShowRecipe(pending) = node {
-            pending
-        } else if matches!(node, Content::Empty | Content::Sequence(_)) {
-            captured = capture(node.clone(), ctx, engine);
-            let Content::ShowRecipe(pending) = &captured else { return Ok(None) };
-            pending
-        } else {
-            return Ok(None);
-        };
-        let previous_styles = std::mem::replace(
-            engine.styles,
-            pending.styles.push_custom(MARKER, Value::Bool(false)),
-        );
-        let previous_rules = std::mem::replace(engine.show_rules, pending.rules.clone());
-        let previous_guards = std::mem::replace(
-            engine.active_guards,
-            pending
-                .guards
-                .iter()
-                .copied()
-                .filter(|id| {
-                    !pending
-                        .rules
-                        .iter()
-                        .any(|rule| rule.id == *id && is_sequence_rule(&rule.selector))
-                })
-                .collect(),
-        );
-        let previous_file = std::mem::replace(&mut engine.current_file, pending.file);
-        let previous_realizing = std::mem::replace(&mut ctx.realizing_show_rules, true);
-        let previous_defer = std::mem::replace(&mut ctx.defer_show_rules, false);
-        let result = if marked(pending) {
-            realize_root(&pending.body, &pending.guards, ctx, engine)
-        } else {
-            visit(&pending.body, pending.textual, ctx, engine).and_then(|body| {
-                let body = if pending.textual {
-                    crate::compiler::eval::rules::textual::coalesce_pending_text(
-                        &body, pending,
-                    )?
-                } else {
-                    body
-                };
-                let mut recipe = pending.as_ref().clone();
-                recipe.body = body;
-                Ok(Content::ShowRecipe(Arc::new(recipe)))
-            })
-        };
-        *engine.styles = previous_styles;
-        *engine.show_rules = previous_rules;
-        *engine.active_guards = previous_guards;
-        engine.current_file = previous_file;
-        ctx.realizing_show_rules = previous_realizing;
-        ctx.defer_show_rules = previous_defer;
-        result.map(Some)
-    })
-}
-
-fn realize_root(
+pub(super) fn realize_root(
     body: &Content,
     guards: &[RuleId],
     ctx: &mut EvalContext,
@@ -242,7 +167,7 @@ fn realize_root(
     });
     let result = (|| {
         let Some(rule) = selected else {
-            return visit(body, true, ctx, engine);
+            return super::recipes::realize_children(body, ctx, engine);
         };
         if ctx.occurrence_show_depth >= Route::MAX_SHOW_RULE_DEPTH {
             let mut error = SourceDiagnostic::error(
@@ -269,7 +194,7 @@ fn realize_root(
                 guards: consumed,
                 file: engine.current_file,
             },
-            ctx.next_context_id,
+            ctx,
         );
         ctx.occurrence_show_depth += 1;
         if ctx.full_error {
@@ -280,7 +205,7 @@ fn realize_root(
         )
         .and_then(|product| {
             let product = capture(product, ctx, engine);
-            realize(&product, ctx, engine)
+            super::recipes::realize(&product, ctx, engine)
         });
         if ctx.full_error {
             ctx.occurrence_show_path.pop();

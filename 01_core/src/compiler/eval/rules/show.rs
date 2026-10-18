@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/rules/show.md
-//! @prompt-hash 090c83aa
+//! @prompt-hash f679f953
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -430,16 +430,6 @@ pub(crate) fn eval_show_rule(
     let transform_expr = show_rule.transform();
     let transform = match transform_expr {
         Expr::SetRule(set) => {
-            // Show-set é sobre um elemento (NodeKind/DynKind), não sobre texto
-            // nem regex (P393).
-            if matches!(selector, Selector::Text(_) | Selector::Regex(_)) {
-                return Err(vec![SourceDiagnostic::error(
-                    set.to_untyped().span(),
-                    "show-set (`#show …: set …`) não é válido para um selector de \
-                     texto — use uma função ou Content"
-                        .to_string(),
-                )]);
-            }
             Transformation::Style(Arc::new(capture_set_styles(set, scopes, ctx, engine)?))
         }
         expr => {

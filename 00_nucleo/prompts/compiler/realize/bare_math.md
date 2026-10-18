@@ -1,5 +1,5 @@
 # L0 — compiler/realize/bare_math
-Hash do Código: e2cc18f8
+Hash do Código: 2028fe1a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:5cfb723d50e9518cdcee2df348927d02330b6019df96acef8394c1429cc950ff
@@ -141,3 +141,32 @@ Alternativas com o mesmo resultado conservam um corpo compartilhado. Grupos expl
 ### Aceitação e limites
 
 Fluxo contínuo ADR-0127: nenhuma assinatura/campo/trait público, default de produto, compatibilidade ou fase nova. Não reabrir propostas históricas deste owner. L0 antes dos testes/código e resselo restrito bilateral. Escrever os controles no módulo e confirmar o comportamento anterior; o RED estrutural é a ausência de E0004 nos seis pontos na cópia real do core com uma variante sentinela acrescentada apenas ao enum copiado. Após nominalização, os seis pontos devem exigir E0004 nessa cópia, sem stubs nem mutação da fonte produtiva. Os cinco V16 selecionados devem desaparecer da emissão, preservando diagnósticos externos e notas V19. Reexecutar testes reais, build, formato, Clippy estrito, Rustdoc e linhagem direta/reversa sob 12 GiB, swap zero e um job Cargo. Não declarar gate global verde enquanto V16 externos permanecerem.
+
+
+## R3-T1 — projeção somente da raiz para o coordenador causal
+
+### Medição antes da decisão
+
+01_core/src/compiler/realize/bare_math.rs:14–44 possui o catálogo nominal
+mathy; :78–95 prepara uma raiz Mathy envolvendo-a em Equation, e o mesmo
+helper depois desce por containers. O coordenador ratificado em
+00_nucleo/prompts/compiler/realize/recipes.md não pode duplicar esse catálogo
+nem preparar descendentes antes de decidir o show do pai. Os REDs T38/T50
+em 00_nucleo/diagnosticos/r3-t1-materializacao-2026-10-18/acceptance-red.log
+confirmam o defeito causal de filhos ocultáveis; não são prova de Mathy.
+A aprovação R3-T1 cobre a ordem raiz→filhos, preservando Mathy antes da
+seleção da sua própria inserção. before-sources.json.gz desse lote conserva
+este owner e código antes da extração privada; não há alegação nova de paridade.
+
+### Responsabilidade exclusiva e limite
+
+Expor somente no compiler um helper prepare_root(&Content, &StyleChain)
+-> Option<Content>: consultar o catálogo mathy existente e, apenas se a
+própria raiz for Mathy, produzir a mesma Equation com block efetivo. Não
+inspecionar filhos, chamar callbacks ou alocar Location. O prepare vigente
+reutiliza esse passo no seu braço Mathy, conservando as demais fronteiras,
+atalhos e assinaturas. Nenhum classificador deve migrar ao coordenador.
+Esta é extração/reutilização interna no fluxo de ordem já ratificado, sem
+API Rust externa, dependência, flag ou critério novo de Mathy. Preservar os
+controles já existentes deste owner e revalidar os controles Equation/Mathy,
+contexto e produto emitido no corpus amplo de R3-T1 antes de fechar o lote.

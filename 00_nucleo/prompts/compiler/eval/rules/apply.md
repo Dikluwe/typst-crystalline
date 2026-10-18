@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/apply — Aplicação de show rules
-Hash do Código: b4461a7a
+Hash do Código: 525a0243
 
 
 Layer: L1
@@ -8,6 +8,7 @@ Exclusive consumer: `01_core/src/compiler/eval/rules/apply.rs`
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:825182e1dfe3591249a5efbc4c0ddbd937ebffde953c6595e0d1ed8176106435
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
+- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:f225f3039d4663e9bfcb408d26cf1cd6e557f089013bc2d95090ce16c52080c6
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:3a97c056eff81b344f46d83567274225e3519ae141fce4817e342d573a92fb41
 - 00_nucleo/prompts/_nuclei/layout/raw-block-boundary.toml sha256:c983fdb9884f90548e110fe7c1709632fc00b6e2a1387ad9e80444009c3602fd
 - 00_nucleo/prompts/_nuclei/layout/raw-defaults.toml sha256:2ce5a50363605eb1a122920b92773b1fc956c52817dd57830c2ce12bfe5f285e
@@ -533,3 +534,48 @@ as alternativas por executar um arm agrupado: classificações nominais fechadas
 do contexto inline/fluxo são intencionais e exigem testes por classe/variante.
 Resselo apenas após V15/V26 válidos; testes, build, Clippy/Rustdoc/fmt, reversa
 e diferencial Tekt do pin1279707, sob12GiB/High8GiB/swap0/jobs1. Sem publicação.
+
+## R3-T1 — realização causal ratificada (2026-10-18)
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
+preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
+commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
+bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém
+fontes/L0 vigentes completos. Não há código candidato implementado nesta medição.
+matching.rs:118–150 aplica regex reversa e depois literais em declaração;
+:194–207 volta a expor produtos a passes subsequentes. textual.rs:102–123
+captura snapshot completo. realize/mod.rs:177–217 visita receitas bottom-up.
+apply.rs:620–648 e matching.rs:218–225 chamam funções sem capturar os filhos.
+expression_dispatch.rs:125–129 já distingue insertion_rules do estado local.
+
+Exemplos medidos: literais idênticos C/B; empate literal/regex R/L; overlap
+X/YB; primeiro efeito LATER/FIRST; função encadeada inversa BBBB/BB;
+produto separado AB/X; produto+vizinho X/AB; Strong ocultando filho dá
+panic HIDDEN/Q; global capturado seguido de global nova dá L/R, mas local
+capturado dá L/L. Entrada CJK local 水\n果 dá 水果/X. A fonte pinada
+foundations/selector.rs:110–125 unifica literal escapado com regex;
+typst-realize/src/lib.rs:1328–1405 escolhe o início e carrega revogação
+no produto. Esses dados medem linguagem/efeitos; não ratificam mecânica Rust,
+igualdade de buffers ou bytes PDF. É inferência causal que a separação de
+escopos e a visita anterior aos filhos expliquem o conjunto; os controles de
+acceptance.json, igualdade/fields/estilo/query e erros podem refutá-la.
+
+### Decisão ratificada
+
+Aplicar o núcleo textual-recipe-frontier pinado neste L0. A confirmação humana
+do manifesto 47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302
+ratificou esta ordem. Ele supersede neste escopo as
+cláusulas históricas de execução provisória de show em ContentBlock e da
+visita bottom-up de receitas pendentes, sem alterar a ordem de avaliação
+de expressões comuns. Não reavaliar o programa, antecipar State/Counter,
+assentar render em morfologia nem criar contrato Rust público.
+
+### Responsabilidade exclusiva desta unidade
+
+Fornecer o passo privado de raiz usado pelo coordenador de receitas, sem percorrer antecipadamente filhos ocultáveis. Quando a função efetiva produz conteúdo para essa realização, avaliar sua expressão com captura de receitas e devolver o produto pendente ao coordenador. Manter a proteção de identidade de localizáveis e guards de TableCell/Sequence, sem trocar pela guarda textual global; preservar aliases it e a distinção de construções novas. Não mudar a fachada pública nem o helper legado de terminação.
+
+### Aceitação desta revisão
+
+RED→GREEN das famílias de acceptance.json, corpus R2-S/R3 e controles de uma avaliação. Revalidar PDF e HTML separadamente; build/workspace/doctests, Clippy/Rustdoc estritos, fmt, V1/V5/V15/V26 e linhagem reversa; diferencial SARIF sem novo erro/warning. Teto 12 GiB/High8 GiB/swap0/jobs1 e comandos pesados sequenciais. Não alegar ganho de RAM antes de ensaio pareado nem zerar o gate com supressão. Sem commit/push/release.

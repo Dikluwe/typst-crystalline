@@ -1,5 +1,5 @@
 # L0 — compiler/realize/table_cells
-Hash do Código: 6e62bfc0
+Hash do Código: 3a38caa7
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
@@ -272,3 +272,43 @@ Regressões RED→GREEN nos owners: propriedades/presence/kind/origem de Cell ex
 Sondas Content/Value/TableCellKind com variantes futuras reais em workspace descartável, cfg(test) compilado: os 18 matches finais devem exigir E0004, contando apenas uma vez cada match. Inputs e erro-testemunha cfg(test) preservados. Cargo target privado, nunca compartilhar artefatos mutantes/medições com o target principal. Gates: build, suíte workspace completa, fmt, Clippy all-targets -D warnings/-D unfulfilled_lint_expectations, Rustdoc -D warnings e quatro índices, V1/V5/V15/V26 estrito e reversa, replay, diferencial SARIF completo e diff-check. V16 esperado 141→131; V19 só dos grupos prescritos; V20 sem crescimento, remover profundidade das duas projeções opcionais. Sob MemoryMax=12 GiB, swap zero, Cargo um job, comandos pesados sequenciais. Sem commit/push/merge/release ou pin CI novo.
 
 Incompletude explícita: header/footer spanning e limites entre níveis ainda exigem o pacote table-row-group-contract, com medição/L0 próprios. Nível do grupo e kind/nível semântico da Cell não são o mesmo conceito; não ratificar a inferência atual como contrato completo. Não corrigir ocupação com comprimento de Vec nem usar Source/Styles como marcador de fronteira. Preservar Grid legada. Demais casts/paint/insets ricos e compromissos históricos não são certificados por fechar V16. O objetivo geral, math-stretch-composite e as duas obrigações de matching permanecem abertos.
+
+### R3-T1 — integração revelada pela suíte ampla
+
+O candidato3 abortou d08b3_reused_table_indexes_emitted_metadata. O backtrace
+(table-stack-trace.log) mostra table→walk(ShowRecipe)→table reintroduzindo o
+produto em cada alias de it após a captura causal dos callbacks. Durante a
+visita do produto de Table, proteger a Location original real no contexto
+privado já existente e restaurar a pilha mesmo em erro. Um alias protegido
+pula só a receita da própria Table e ainda prepara seu plano/Cells por emissão,
+preservando dois metadados e Table→placement→Cell→body. Não criar Location.
+Packets novos com baseline causal delegam ao coordenador recipes; packets
+legados conservam sua política vigente. Não realizar filhos ocultados antes da
+raiz. Os testes existentes de reuse/nested/fresh/error são refutadores.
+
+### R3-T1 — refinamento por regra e fronteira
+
+A proteção da Location de Table é por regra: ao entrar no produto conservar
+ativos os IDs das receitas Table selecionadas (e show-set aplicado); um alias
+protegido filtra somente esses IDs, admitindo regras anteriores/locais. Preparar
+Cells independentemente em cada emissão. Restaurar guards e Locations em todo
+retorno. A falha de metadata zero do candidato4 é RED desta integração.
+
+### R3-T1 — guards herdados no transporte legado
+
+O backtrace5b confirma a recursão por walk(ShowRecipe)→table: o packet legado
+substitui guards ativos por seu snapshot anterior, perdendo a revogação atual.
+Ao instalar guards de recipe/contexto/Styled nesta unidade, unir por identidade
+os guards capturados aos ativos da inserção e restaurar a lista anterior em
+todo retorno. Não alterar captured_rules nem o reset nominal de guards Cell de
+uma ocorrência nova. A proteção só vale para o alias da Location já conhecida.
+
+### R3-T1 — integração do fluxo emitido
+
+O candidato6 terminou com metadata zero e quatro tabelas emitidas em vez das
+duas emissões esperadas. Retirar a realização bottom-up própria dos packets
+ShowRecipe, inclusive legados: delegar sua execução ao coordenador recipes,
+que instala/restaura o ambiente e visita somente a raiz/produto emitidos. O
+caminho legado reaplicava apply_show_rules ao corpo já visitado, reintroduzindo
+o resultado cacheado da Table. Os snapshots de contexto/Styled e o preparo
+Table/Cell continuam nesta unidade, com guards herdados unidos por identidade.

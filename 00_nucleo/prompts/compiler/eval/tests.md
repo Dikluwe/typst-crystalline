@@ -1,5 +1,5 @@
 # L0 — compiler/eval/tests
-Hash do Código: 020fabcc
+Hash do Código: b5df0584
 
 
 
@@ -8,19 +8,20 @@ Hash do Código: 020fabcc
 **Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/paragraph-hanging-validation.toml sha256:182a3be50a215eddc4c94959fdbc2cb703c136b16a0ff22e15da5e95c3cc9e18
-
 - 00_nucleo/prompts/_nuclei/content/markup-sequence-children.toml sha256:db4336e052b1d265683446ad4357ca819596185058ab10a5679ac0376ee4211f
 - 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:825182e1dfe3591249a5efbc4c0ddbd937ebffde953c6595e0d1ed8176106435
+
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:4b70701bc95837b493354283f66121b166ffc1ad670152f9a3d995794c0a6c67
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
 - 00_nucleo/prompts/_nuclei/eval/pending-text.toml sha256:3f300957a00ac2f02354331585c19b935428e05d5b8ac2115a533764262250c8
 - 00_nucleo/prompts/_nuclei/eval/source-validation.toml sha256:e29edf5bc71d0c7f8b45d0a2a0db43820151a7d80f7484197c56dc8b3830d774
 - 00_nucleo/prompts/_nuclei/eval/textual-consumed-slots.toml sha256:faaf206c9f4c20eba8b18b463ebe7836cb9671fd8672501c068eef2751f88d3c
+- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:f225f3039d4663e9bfcb408d26cf1cd6e557f089013bc2d95090ce16c52080c6
 - 00_nucleo/prompts/_nuclei/expression-source-identity.toml sha256:fb383f227b0bcd8b1e61899942fa0383a4cda66093da58bda2e87844e2895d2a
 - 00_nucleo/prompts/_nuclei/layout/typc-atom-display.toml sha256:2989f08ae6b4b379afb61d9673b94ab8538c45a97b98e566677ae0f719429dc3
 - 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:5cfb723d50e9518cdcee2df348927d02330b6019df96acef8394c1429cc950ff
 - 00_nucleo/prompts/_nuclei/paragraph-costs.toml sha256:70b72ac9efb2bf81aa4ef496c4e1c867264f696d454a9916e7e2e5f385b92020
+- 00_nucleo/prompts/_nuclei/paragraph-hanging-validation.toml sha256:182a3be50a215eddc4c94959fdbc2cb703c136b16a0ff22e15da5e95c3cc9e18
 - 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:f29e26ff07053f940cfe4ab5358fc9a6ac8d4d689528e169b5f8567492f52f46
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:dc549d79f9e996433894effc8e4efd1f8f3da3d9c30933110eeabbab582ae9a8
 - 00_nucleo/prompts/_nuclei/table/cell-occurrence.toml sha256:d207e8a3a934b2eff2b67c4bfc7f15b9af0c0f3abc83acdfaf774326e7b242eb
@@ -1573,3 +1574,102 @@ Acrescentar no módulo canônico de regressões E2E, reutilizando MockWorld, tes
 ### Aceitação
 
 Testes RED funcionais antes da implementação; GREEN de fronteira título/citação/corpo/fallback e negativos com controles de zero/negativo/affine e vazio. Medir novamente caixas PDF/extração, manter os REDs de recuo e múltiplas bibliografias explícitos, não atribuir vantagem ao Tekt sem fonte/controle. Revalidar build/workspace/doctests, Clippy/Rustdoc estritos, fmt, linhagem V1/V5/V15/V26 e reversa, SARIF sem erro/warning novo. Teto 12 GiB/High8 GiB/swap0/jobs1/debug0/incremental0; comandos pesados sequenciais. Sem commit/push/release.
+
+## R3-T1 — realização causal ratificada (2026-10-18)
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
+preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
+commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
+bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém
+fontes/L0 vigentes completos. Não há código candidato implementado nesta medição.
+matching.rs:118–150 aplica regex reversa e depois literais em declaração;
+:194–207 volta a expor produtos a passes subsequentes. textual.rs:102–123
+captura snapshot completo. realize/mod.rs:177–217 visita receitas bottom-up.
+apply.rs:620–648 e matching.rs:218–225 chamam funções sem capturar os filhos.
+expression_dispatch.rs:125–129 já distingue insertion_rules do estado local.
+
+Exemplos medidos: literais idênticos C/B; empate literal/regex R/L; overlap
+X/YB; primeiro efeito LATER/FIRST; função encadeada inversa BBBB/BB;
+produto separado AB/X; produto+vizinho X/AB; Strong ocultando filho dá
+panic HIDDEN/Q; global capturado seguido de global nova dá L/R, mas local
+capturado dá L/L. Entrada CJK local 水\n果 dá 水果/X. A fonte pinada
+foundations/selector.rs:110–125 unifica literal escapado com regex;
+typst-realize/src/lib.rs:1328–1405 escolhe o início e carrega revogação
+no produto. Esses dados medem linguagem/efeitos; não ratificam mecânica Rust,
+igualdade de buffers ou bytes PDF. É inferência causal que a separação de
+escopos e a visita anterior aos filhos expliquem o conjunto; os controles de
+acceptance.json, igualdade/fields/estilo/query e erros podem refutá-la.
+
+### Decisão ratificada
+
+Aplicar o núcleo textual-recipe-frontier pinado neste L0. A confirmação humana
+do manifesto 47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302
+ratificou esta ordem. Ele supersede neste escopo as
+cláusulas históricas de execução provisória de show em ContentBlock e da
+visita bottom-up de receitas pendentes, sem alterar a ordem de avaliação
+de expressões comuns. Não reavaliar o programa, antecipar State/Counter,
+assentar render em morfologia nem criar contrato Rust público.
+
+### Responsabilidade exclusiva desta unidade
+
+Acrescentar testes RED antes de código para cada família de acceptance.json e controles de erro/identidade/morfologia; expectativas vêm do pin comprovado, não do candidato. Cobrir valores globais/locais retornados por funções, global mais recente, empate/menor offset/Unicode, ciclos, alias versus produto composto, produtos adjacentes e produtos ocultos. Mostrar estilo por observável real, incluindo confinement e regra seguinte ao produto. Conservar todos os esperados R2/R3 anteriores; nunca relaxar um controle porque o novo algoritmo falhou. Casos de erro primário Tekt vs fallback de profundidade do vanilla ficam classificados individualmente.
+
+### Aceitação desta revisão
+
+RED→GREEN das famílias de acceptance.json, corpus R2-S/R3 e controles de uma avaliação. Revalidar PDF e HTML separadamente; build/workspace/doctests, Clippy/Rustdoc estritos, fmt, V1/V5/V15/V26 e linhagem reversa; diferencial SARIF sem novo erro/warning. Teto 12 GiB/High8 GiB/swap0/jobs1 e comandos pesados sequenciais. Não alegar ganho de RAM antes de ensaio pareado nem zerar o gate com supressão. Sem commit/push/release.
+
+### R3-T1 — observador de cores
+
+O candidato1 alcançou oito conjuntos corretos de cores visuais, mas o observer
+comparava Color por igualdade Rust entre variante nomeada e sRGB e entre f32
+arredondados no transporte. Isso viola ADR-0107. Nos oito testes novos converter
+cada fill a canais sRGB u8/alpha via Color::to_srgb e comparar exatamente os
+canais esperados do SVG oracle (#0074d9 / #ff4136). Não alterar produto, cores,
+tolerâncias globais ou expectativas de confinamento; confirmar os SVGs reais.
+
+### R3-T1 — integração revelada pela suíte ampla
+
+A contagem de Par no teste de composição deve atravessar apenas o visual de
+Realized e os carriers Source/Located, conservando a expectativa de exatamente
+um Par e o texto integral; nunca contar Realized.original como emissão. O
+candidato3 passou as 64 sondas e refutou o observer antigo que parava no carrier.
+Adicionar o refutador de ambiente preparado em refuter-fragment.rs do diagnóstico
+R3: regras de texto e Strong, sucesso e erro, alias reemitido, callback uma vez,
+restauração de styles/regras/guards/arquivo/defer/realizing/frames/profundidade e
+apoio textual. Usar apenas estado local no teste, sem global mutável. As falhas
+raw e Table existentes são RED da integração e não têm expectativas relaxadas.
+
+### R3-T1 — refinamento por regra e fronteira
+
+As duas expectativas históricas de rejeitar show-set literal/regex são
+supersedidas pela aprovação R3-T1 e pelas oito sondas bilaterais de cor, que já
+passaram. Atualizar esses testes para aceitação e texto preservado; a prova de
+estilo permanece nos oito testes de canais sRGB/SVG. Não relaxar os outros 13
+REDs de integração do candidato4 nem alterar suas expectativas.
+
+### R3-T1 — observadores de emissão e composição regex
+
+O diagnóstico candidato5b-skip-reuse expôs observers que paravam em Source,
+Realized e Located embora o conteúdo esperado estivesse no visual. Ajustar
+somente has_dynamic, styled_bold_envolve_heading, contem_heading,
+styled_bold_anywhere, styled_bold_e_weight e os go de texto_em_strong/emph
+para atravessar Source.body, Located.body e Realized.visual, nunca original.
+Conservar todas as expectativas de conteúdo/estilo e os complementos nominais.
+
+Antes de decidir a expectativa de show_rule_regex_ultima_declarada_vence,
+regex-oracle.json mediu HTML do pin bd5ebec285505889e8ff1d4f68804ab147a699f3
+(ver SHA-256 integral do binário no próprio recibo).
+O resultado literal foi <p>abc<em><strong>123</strong></em>def</p>.
+A regra mais recente fornece o envoltório externo Emph e a anterior ainda
+atua dentro do produto. O teste deve exigir ambos Strong e Emph, conservando
+texto integral; não declarar que Strong desaparece. É morfologia de linguagem,
+não igualdade Rust. O receipt guarda fonte, argv, UTC, estado e hash integral.
+
+### R3-T1 — integração do fluxo emitido
+
+O observer texto_em_strong deve também atravessar Emph.body, e texto_em_emph
+atravessar Strong.body, para verificar a composição medida em regex-oracle.json.
+Conservar os nós Strong/Emph na linguagem: a mudança é só na observação do
+produto aninhado, sem comparar wrappers Rust ou contar originais como emissão.

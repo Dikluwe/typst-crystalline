@@ -1,10 +1,11 @@
 # L0 — compiler/eval/rules/textual
-Hash do Código: 989fa241
+Hash do Código: dba17a26
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:e7642a709c937928333439b2a78cdb3a6dbd6b56d67fcc67728efd2a26796e58
 - 00_nucleo/prompts/_nuclei/eval/pending-text.toml sha256:3f300957a00ac2f02354331585c19b935428e05d5b8ac2115a533764262250c8
 - 00_nucleo/prompts/_nuclei/eval/textual-consumed-slots.toml sha256:faaf206c9f4c20eba8b18b463ebe7836cb9671fd8672501c068eef2751f88d3c
+- 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:f225f3039d4663e9bfcb408d26cf1cd6e557f089013bc2d95090ce16c52080c6
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/eval/rules/textual.rs`
@@ -303,3 +304,105 @@ seleção, preservando a Sequence escrita pelo autor. R3-Reflection completará
 Styles e Styled públicos. Não considerar esses controles fechados nem achatar
 Sequence genericamente para escondê-los. Este adendo registra o recorte ainda
 incompleto; não autoriza modificar os owners dessas projeções sem L0 próprio.
+
+## R3-T1 — realização causal ratificada (2026-10-18)
+
+### Medição anterior à decisão
+
+00_nucleo/diagnosticos/textual-realization-2026-10-18/{before,scope,refuters}.json.gz
+preserva HEAD b1b486f3d42431f8ea360bc5712637ee1e3d4f6c, working tree não
+commitado, UTC, status/diffstat, fontes/argv/hashes dos binários e pin vanilla
+bd5ebec285505889e8ff1d4f68804ab147a699f3. before-sources.json.gz contém
+fontes/L0 vigentes completos. Não há código candidato implementado nesta medição.
+matching.rs:118–150 aplica regex reversa e depois literais em declaração;
+:194–207 volta a expor produtos a passes subsequentes. textual.rs:102–123
+captura snapshot completo. realize/mod.rs:177–217 visita receitas bottom-up.
+apply.rs:620–648 e matching.rs:218–225 chamam funções sem capturar os filhos.
+expression_dispatch.rs:125–129 já distingue insertion_rules do estado local.
+
+Exemplos medidos: literais idênticos C/B; empate literal/regex R/L; overlap
+X/YB; primeiro efeito LATER/FIRST; função encadeada inversa BBBB/BB;
+produto separado AB/X; produto+vizinho X/AB; Strong ocultando filho dá
+panic HIDDEN/Q; global capturado seguido de global nova dá L/R, mas local
+capturado dá L/L. Entrada CJK local 水\n果 dá 水果/X. A fonte pinada
+foundations/selector.rs:110–125 unifica literal escapado com regex;
+typst-realize/src/lib.rs:1328–1405 escolhe o início e carrega revogação
+no produto. Esses dados medem linguagem/efeitos; não ratificam mecânica Rust,
+igualdade de buffers ou bytes PDF. É inferência causal que a separação de
+escopos e a visita anterior aos filhos expliquem o conjunto; os controles de
+acceptance.json, igualdade/fields/estilo/query e erros podem refutá-la.
+
+### Decisão ratificada
+
+Aplicar o núcleo textual-recipe-frontier pinado neste L0. A confirmação humana
+do manifesto 47e714dfbb813eae9f2be20b8f57de5c197cda13db1871c8bb3da49a08430302
+ratificou esta ordem. Ele supersede neste escopo as
+cláusulas históricas de execução provisória de show em ContentBlock e da
+visita bottom-up de receitas pendentes, sem alterar a ordem de avaliação
+de expressões comuns. Não reavaliar o programa, antecipar State/Counter,
+assentar render em morfologia nem criar contrato Rust público.
+
+### Responsabilidade exclusiva desta unidade
+
+Possuir frames/snapshots e transporte de conclusão textual, sem publicar tipos. Compartilhar baseline/regras por Arc; transportar a classificação herdada/local no ShowRecipe/styles privado, com grafo acíclico e sem Location fictícia. Metadado de baseline guarda snapshot de regras e não um conteúdo executável; não guardar o carrier dentro dele próprio. Coalescer apenas pacotes PENDENTES do mesmo ambiente; conclusão de produto preserva sua fronteira. Expor helpers apenas crate/compiler para o coordenador. Restaurar state e guards mesmo quando matcher/callback falha.
+
+### Aceitação desta revisão
+
+RED→GREEN das famílias de acceptance.json, corpus R2-S/R3 e controles de uma avaliação. Revalidar PDF e HTML separadamente; build/workspace/doctests, Clippy/Rustdoc estritos, fmt, V1/V5/V15/V26 e linhagem reversa; diferencial SARIF sem novo erro/warning. Teto 12 GiB/High8 GiB/swap0/jobs1 e comandos pesados sequenciais. Não alegar ganho de RAM antes de ensaio pareado nem zerar o gate com supressão. Sem commit/push/release.
+
+### R3-T1 — integração revelada pela suíte ampla
+
+Expor apenas para o compilador o predicado privado has_causal_scope(recipe),
+que identifica o metadado BASELINE sem executá-lo nem revelar sua chave na
+linguagem. O owner Table usa o predicado para delegar packets R3 ao coordenador;
+packets anteriores mantêm seu caminho. A validação ampla candidato3 revelou a
+interoperabilidade necessária, não um novo contrato Rust público.
+
+### R3-T1 — refinamento por regra e fronteira
+
+O candidato4 refutou coalescer apenas packets genéricos de Text: a fronteira
+adicional de inserção contém também sequências puramente textuais. Pode retirar
+um packet genérico quando seu corpo inteiro é agrupável e nenhum nó dele tem
+regra de elemento aplicável no ambiente efetivo. Verificar o catálogo por mapa
+estático e não só o tipo da raiz. Nunca retirar packet Sequence marcado; ele
+precisa decidir sua raiz mesmo quando o corpo é Empty. Os produtos concluídos
+permanecem opacos. Sem regras textuais elegíveis, realize_captured_text retorna
+clone raso, sem fabricar Realized sem transformação; isso evita camadas de
+transporte desnecessárias, sem alegar ganho de performance não medido.
+
+### R3-T1 — coalescimento puro de packets aninhados
+
+T52 e sequence_constructor_textual_groups_are_not_repeated ainda falharam no
+candidato5b: um packet genérico contém outros packets textuais, tornando falso
+can_group antes de seus transportes redundantes serem retirados. Para ambiente
+compatível, preparar recursivamente uma vista coalescida pura do corpo antes de
+decidir se o packet genérico é inteiramente textual e sem efeitos de elemento.
+Se não for, conservar o packet original; não executar nada nem modificar filhos
+observáveis. Receitas Sequence marcadas continuam opacas e produtos concluídos
+não se juntam. Os dois REDs mantêm exatamente suas expectativas ASB e X.
+
+### R3-T1 — integração do fluxo emitido
+
+O candidato6 corrigiu o agrupamento AB, mas T52 produziu ASSB: o fluxo textual
+continha dois Space dentro de uma Sequence filha, não normalizados pelo owner
+space ao receber apenas o vetor externo. Antes do matching de um grupo já
+elegível, montar uma vista plana dos nós emitidos, preservando Source em cada
+fatia e proveniência Realized por marcador de visual vazio. Guardar o conteúdo
+original integral como Realized.original, sem alterar valores, campos ou a
+Sequence antes de sua decisão nominal. Produtos concluídos permanecem fronteira.
+Aplicar normalize_markup_spaces existente à vista emitida, depois pesquisar e
+projetar nela. Não duplicar a regra Unicode/weak-space nem criar estado por byte.
+O predicado has_causal_scope deixa de ser necessário após a delegação de todos
+os packets Table ao coordenador; removê-lo sem mudar o metadado BASELINE.
+
+### R3-T1 — contribuição bruta e identidade canônica
+
+ContextBlock é um marcador de avaliação adiada, já transportado pelo owner
+capture_context_recipe quando pertinente. capture_local_output não cria um
+packet genérico adicional só por haver regras novas em torno de um marcador
+ContextBlock (inclusive através de Source/Styled). Isso forçava a realização e
+finalização do documento apesar de a raiz não ter receita aplicável, mudando a
+faixa de identidades antes de a contribuição existir. Um helper contextual_root
+puro identifica apenas esse marcador; não executa nem remove wrappers/closures.
+Conservar deltas locais de valores emitidos e o transporte de Raw/Sequence.
+O complemento Content é nominal e permanece observado por V19.

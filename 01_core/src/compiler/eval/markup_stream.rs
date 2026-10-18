@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/markup_stream.md
-//! @prompt-hash 8b7c9c9c
+//! @prompt-hash eede786e
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -18,6 +18,19 @@ pub(crate) fn eval_markup(
 /// Um ContentBlock ainda é um valor: conserva os espaços brutos até entrar
 /// num fluxo de markup. Os demais corpos são realizados no próprio escopo.
 pub(super) fn eval_markup_impl(
+    node: &SyntaxNode,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+    normalize_spaces: bool,
+) -> SourceResult<Value> {
+    let frame = rules::textual::enter_scope(ctx, engine);
+    let result = eval_markup_in_scope(node, scopes, ctx, engine, normalize_spaces);
+    rules::textual::leave_scope(ctx, frame);
+    result
+}
+
+fn eval_markup_in_scope(
     node: &SyntaxNode,
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext,
@@ -70,7 +83,7 @@ pub(super) fn eval_markup_impl(
     let capture_origin = content_block_origin.is_some();
     let sequence_origin = content_block_origin.unwrap_or(node.span());
     for child in node.children() {
-        let snapshot = rules::textual::TextualSnapshot::capture(engine);
+        let snapshot = rules::textual::TextualSnapshot::capture(engine, ctx);
         match child.kind() {
             SyntaxKind::Text => {
                 // F-5b fatia 2 (P373): o render não é mais assado no node — viaja
@@ -186,29 +199,35 @@ pub(super) fn eval_markup_impl(
                                 crate::compiler::realize::capture_table_insertion(
                                     content, ctx, engine,
                                 )?;
-                            let content = if ctx.realizing_show_rules {
-                                rules::apply::realize_inserted_occurrences(
-                                    content, ctx, engine,
-                                )
-                                .map_err(
-                                    |mut errors| {
-                                        for error in &mut errors {
-                                            if error.span.is_detached() {
-                                                error.span = child.span();
+                            let content =
+                                if ctx.realizing_show_rules && !ctx.defer_show_rules {
+                                    rules::apply::realize_inserted_occurrences(
+                                        content, ctx, engine,
+                                    )
+                                    .map_err(
+                                        |mut errors| {
+                                            for error in &mut errors {
+                                                if error.span.is_detached() {
+                                                    error.span = child.span();
+                                                }
                                             }
-                                        }
-                                        errors
-                                    },
-                                )?
-                            } else {
-                                content
-                            };
+                                            errors
+                                        },
+                                    )?
+                                } else {
+                                    content
+                                };
                             let content = crate::compiler::realize::sequences::capture_at(
                                 content,
                                 child.span(),
                                 ctx,
                                 engine,
                             );
+                            let content = if ctx.defer_show_rules {
+                                rules::textual::capture_local_output(content, ctx, engine)
+                            } else {
+                                content
+                            };
                             append_markup_sequence(&mut parts, content, capture_origin);
                         }
                     }

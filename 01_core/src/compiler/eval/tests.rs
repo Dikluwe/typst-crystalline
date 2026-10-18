@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/tests.md
-//! @prompt-hash 14a56d2b
+//! @prompt-hash efef6164
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -2040,10 +2040,10 @@ mod regressions {
             Content::Dynamic(_) => true,
             Content::Sequence(items) => items.iter().any(has_dynamic),
             Content::Styled(styled) => has_dynamic(&styled.body),
-            Content::Source(_)
-            | Content::ShowRecipe(_)
-            | Content::Realized(_)
-            | Content::Located(_)
+            Content::Source(source) => has_dynamic(&source.body),
+            Content::Realized(done) => has_dynamic(&done.visual),
+            Content::Located(located) => has_dynamic(&located.body),
+            Content::ShowRecipe(_)
             | Content::Empty
             | Content::Text(_)
             | Content::Space
@@ -10419,8 +10419,8 @@ mod regressions {
         let module = eval_for_test(&world, &src).unwrap();
         let c = module.content().unwrap();
         assert!(
-            !texto_em_strong(c, "123"),
-            "primeira regra (strong) deve ser sobreposta: {c:?}"
+            texto_em_strong(c, "123"),
+            "a regra anterior continua dentro do produto Emph, conforme oracle: {c:?}"
         );
         assert!(texto_em_emph(c, "123"), "última regra (emph) deve vencer: {c:?}");
     }
@@ -10440,12 +10440,12 @@ mod regressions {
     }
 
     #[test]
-    fn show_rule_regex_set_rejeitado() {
-        // Show-set com regex selector deve ser rejeitado (mesma regra de Selector::Text).
+    fn show_rule_regex_set_aceito() {
+        // R3-T1 ratified: textual show-set is accepted; color is covered below.
         let world = MockWorld::new("#show regex(\"\\\\d+\"): set text(weight: 700)\n123");
         let src = world.source(world.main()).unwrap();
         let result = eval_for_test(&world, &src);
-        assert!(result.is_err(), "show-set com regex deve gerar Err");
+        assert_eq!(result.unwrap().content().unwrap().plain_text().trim(), "123");
     }
 
     // ── P394 — eval(source) ─────────────────────────────────────────────────
@@ -11637,12 +11637,13 @@ mod regressions {
                     }
                     go(&e.body, needle)
                 }
+                Content::Emph(element) => go(&element.body, needle),
                 Content::Sequence(items) => items.iter().any(|i| go(i, needle)),
                 Content::Styled(styled) => go(&styled.body, needle),
-                Content::Source(_)
-                | Content::ShowRecipe(_)
-                | Content::Realized(_)
-                | Content::Located(_)
+                Content::Source(source) => go(&source.body, needle),
+                Content::Realized(done) => go(&done.visual, needle),
+                Content::Located(located) => go(&located.body, needle),
+                Content::ShowRecipe(_)
                 | Content::Empty
                 | Content::Text(_)
                 | Content::Space
@@ -11653,7 +11654,6 @@ mod regressions {
                 | Content::Par { .. }
                 | Content::Heading(_)
                 | Content::Title(_)
-                | Content::Emph(_)
                 | Content::Raw(_)
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
@@ -11772,12 +11772,13 @@ mod regressions {
                     }
                     go(&e.body, needle)
                 }
+                Content::Strong(element) => go(&element.body, needle),
                 Content::Sequence(items) => items.iter().any(|i| go(i, needle)),
                 Content::Styled(styled) => go(&styled.body, needle),
-                Content::Source(_)
-                | Content::ShowRecipe(_)
-                | Content::Realized(_)
-                | Content::Located(_)
+                Content::Source(source) => go(&source.body, needle),
+                Content::Realized(done) => go(&done.visual, needle),
+                Content::Located(located) => go(&located.body, needle),
+                Content::ShowRecipe(_)
                 | Content::Empty
                 | Content::Text(_)
                 | Content::Space
@@ -11788,7 +11789,6 @@ mod regressions {
                 | Content::Par { .. }
                 | Content::Heading(_)
                 | Content::Title(_)
-                | Content::Strong(_)
                 | Content::Raw(_)
                 | Content::ListItem(_)
                 | Content::EnumItem(_)
@@ -11924,10 +11924,10 @@ mod regressions {
                 styled_bold_envolve_heading(b)
             }
             Content::Sequence(items) => items.iter().any(styled_bold_envolve_heading),
-            Content::Source(_)
-            | Content::ShowRecipe(_)
-            | Content::Realized(_)
-            | Content::Located(_)
+            Content::Source(source) => styled_bold_envolve_heading(&source.body),
+            Content::Realized(done) => styled_bold_envolve_heading(&done.visual),
+            Content::Located(located) => styled_bold_envolve_heading(&located.body),
+            Content::ShowRecipe(_)
             | Content::Empty
             | Content::Text(_)
             | Content::Space
@@ -12050,10 +12050,10 @@ mod regressions {
             Content::Heading(_) => true,
             Content::Styled(styled) => contem_heading(&styled.body),
             Content::Sequence(items) => items.iter().any(contem_heading),
-            Content::Source(_)
-            | Content::ShowRecipe(_)
-            | Content::Realized(_)
-            | Content::Located(_)
+            Content::Source(source) => contem_heading(&source.body),
+            Content::Realized(done) => contem_heading(&done.visual),
+            Content::Located(located) => contem_heading(&located.body),
+            Content::ShowRecipe(_)
             | Content::Empty
             | Content::Text(_)
             | Content::Space
@@ -12361,13 +12361,12 @@ mod regressions {
     }
 
     #[test]
-    fn show_set_em_selector_de_texto_e_erro() {
-        // Show-set é sobre elementos; sobre um selector de texto literal → erro
-        // explícito (invariante de `entities/show.md`).
+    fn show_set_em_selector_de_texto_e_aceito() {
+        // R3-T1 ratified: preserve text while applying the matched style.
         let world = MockWorld::new("#show \"x\": set text(weight: 700)\nxxx");
         let src = world.source(world.main()).unwrap();
         let r = eval_for_test(&world, &src);
-        assert!(r.is_err(), "show-set sobre selector de texto deve errar");
+        assert_eq!(r.unwrap().content().unwrap().plain_text().trim(), "xxx");
     }
 
     fn module_content(
@@ -12387,10 +12386,10 @@ mod regressions {
             }
             Content::Sequence(items) => items.iter().any(styled_bold_anywhere),
             Content::Heading(h) => styled_bold_anywhere(&h.body),
-            Content::Source(_)
-            | Content::ShowRecipe(_)
-            | Content::Realized(_)
-            | Content::Located(_)
+            Content::Source(source) => styled_bold_anywhere(&source.body),
+            Content::Realized(done) => styled_bold_anywhere(&done.visual),
+            Content::Located(located) => styled_bold_anywhere(&located.body),
+            Content::ShowRecipe(_)
             | Content::Empty
             | Content::Text(_)
             | Content::Space
@@ -12550,10 +12549,10 @@ mod regressions {
                         || styled_bold_e_weight(b)
                 }
                 Content::Sequence(items) => items.iter().any(styled_bold_e_weight),
-                Content::Source(_)
-                | Content::ShowRecipe(_)
-                | Content::Realized(_)
-                | Content::Located(_)
+                Content::Source(source) => styled_bold_e_weight(&source.body),
+                Content::Realized(done) => styled_bold_e_weight(&done.visual),
+                Content::Located(located) => styled_bold_e_weight(&located.body),
+                Content::ShowRecipe(_)
                 | Content::Empty
                 | Content::Text(_)
                 | Content::Space
@@ -31304,14 +31303,14 @@ mod regressions {
         fn count(content: &Content) -> usize {
             match content {
                 Content::Par { body } => 1 + count(body),
+                Content::Realized(done) => count(&done.visual),
+                Content::Located(located) => count(&located.body),
+                Content::Source(source) => count(&source.body),
                 Content::Styled(s) => count(&s.body),
                 Content::Strong(s) => count(&s.body),
                 Content::Emph(s) => count(&s.body),
                 Content::Sequence(s) => s.iter().map(count).sum(),
-                Content::Source(_)
-                | Content::ShowRecipe(_)
-                | Content::Realized(_)
-                | Content::Located(_)
+                Content::ShowRecipe(_)
                 | Content::Empty
                 | Content::Text(_)
                 | Content::Space
@@ -32511,6 +32510,1045 @@ mod regressions {
                     assert!(eval_for_test(&world, &world.source).is_ok(), "{source}");
                 }
             }
+        }
+    }
+
+    mod r3_t1_environment_refuters {
+        use super::*;
+        use crate::entities::content::ShowRecipeContent;
+        use crate::entities::show::{NodeKind, Selector, Transformation};
+
+        #[test]
+        fn r3_t1_environment_restored_and_callback_once() {
+            use comemo::Track;
+            for generic in [false, true] {
+                for fail in [false, true] {
+                    let world = MockWorld::new("A");
+                    let mut ctx = EvalContext::new();
+                    ctx.defer_show_rules = true;
+                    ctx.next_context_id = 3;
+                    let route = Route::root().with_id(world.main());
+                    let mut styles = StyleChain::default_chain();
+                    let expected_styles = styles.collapse();
+                    let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
+                    let expected_rules = show_rules.clone();
+                    let mut guards = vec![900];
+                    let metrics = FixedMetrics;
+                    let mut sink = Sink::new();
+                    let mut tracked_sink = sink.track_mut();
+                    let mut engine = Engine {
+                        world: &world,
+                        font_metrics: &metrics,
+                        route: route.track(),
+                        styles: &mut styles,
+                        show_rules: &mut show_rules,
+                        active_guards: &mut guards,
+                        current_file: world.main(),
+                        sink: &mut tracked_sink,
+                    };
+                    let frame = rules::textual::enter_scope(&mut ctx, &engine);
+                    let transform = if fail {
+                        Func::native("r3-fail", |ctx, _, _, _| {
+                            ctx.next_context_id += 1;
+                            Err(vec![SourceDiagnostic::error(
+                                Span::detached(),
+                                "R3-FAIL",
+                            )])
+                        })
+                    } else if generic {
+                        Func::native("r3-alias", |ctx, args, _, _| {
+                            ctx.next_context_id += 1;
+                            Ok(args.items[0].clone())
+                        })
+                    } else {
+                        Func::native("r3-text", |ctx, _, _, _| {
+                            ctx.next_context_id += 1;
+                            Ok(Value::Content(Content::text("B")))
+                        })
+                    };
+                    let local: Arc<[ShowRule]> = Arc::from([ShowRule {
+                        id: 7,
+                        selector: if generic {
+                            Selector::NodeKind(NodeKind::Strong)
+                        } else {
+                            Selector::Text("A".into())
+                        },
+                        transform: Transformation::Func(transform),
+                    }]);
+                    let pending = Content::ShowRecipe(Arc::new(ShowRecipeContent {
+                        body: if generic {
+                            Content::strong(Content::text("A"))
+                        } else {
+                            Content::text("A")
+                        },
+                        textual: !generic,
+                        context_id_floor: 3,
+                        rules: local.clone(),
+                        styles: rules::textual::capture_styles(
+                            engine.styles,
+                            &local,
+                            &ctx,
+                            world.main(),
+                        ),
+                        guards: vec![],
+                        file: world.main(),
+                    }));
+                    rules::textual::leave_scope(&mut ctx, frame);
+                    let result = crate::compiler::realize::recipes::realize(
+                        &pending,
+                        &mut ctx,
+                        &mut engine,
+                    );
+                    assert_eq!(result.is_err(), fail, "generic={generic}: {result:?}");
+                    if let Ok(product) = result {
+                        assert_eq!(product.plain_text(), if generic { "A" } else { "B" });
+                        let again = crate::compiler::realize::recipes::realize(
+                            &product,
+                            &mut ctx,
+                            &mut engine,
+                        )
+                        .unwrap();
+                        assert_eq!(again.plain_text(), product.plain_text());
+                    }
+                    assert_eq!(ctx.next_context_id, 4, "callback runs once");
+                    assert!(ctx.defer_show_rules);
+                    assert!(!ctx.realizing_show_rules);
+                    assert!(ctx.textual_frames.is_empty());
+                    assert!(ctx.recipe_protected_locations.is_empty());
+                    assert_eq!(ctx.recipe_math_depth, 0);
+                    assert_eq!(ctx.recipe_text_edges, (false, false));
+                    assert_eq!(ctx.occurrence_show_depth, 0);
+                    assert_eq!(*engine.active_guards, [900]);
+                    assert_eq!(engine.styles.collapse(), expected_styles);
+                    assert!(Arc::ptr_eq(engine.show_rules, &expected_rules));
+                    assert_eq!(engine.current_file, world.main());
+                }
+            }
+        }
+    }
+
+    mod r3_t1_acceptance {
+        use super::*;
+        #[test]
+        fn r3_t1_t01_constant_chain() {
+            let source = "#show \"B\": [BB]\n#show \"A\": [B]\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "BB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t02_constant_chain_inverse() {
+            let source = "#show \"A\": [B]\n#show \"B\": [BB]\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "BB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t03_function_chain() {
+            let source = "#show \"B\":it=>[BB]\n#show \"A\":it=>[B]\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "BB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t04_function_chain_inverse() {
+            let source = "#show \"A\":it=>[B]\n#show \"B\":it=>[BB]\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "BB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t05_alias_chain() {
+            let source = "#let saved=[B]\n#show \"B\":it=>[BB]\n#show \"A\":it=>saved\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "BB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t06_alias_chain_inverse() {
+            let source = "#let saved=[B]\n#show \"A\":it=>saved\n#show \"B\":it=>[BB]\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "BB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t07_cycle() {
+            let source = "#show \"A\":it=>[B]\n#show \"B\":it=>[A]\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "A",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t08_constant_cycle() {
+            let source = "#show \"A\": [B]\n#show \"B\": [A]\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "A",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t09_revoked_cross() {
+            let source = "#show \"C\":it=>[A]\n#show \"AB\":it=>[X]\nCB";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "AB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t10_revoked_cross_inverse() {
+            let source = "#show \"AB\":it=>[X]\n#show \"C\":it=>[A]\nCB";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "AB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t11_local_cross() {
+            let source =
+                "#let part={show \"C\":it=>[A];[C]}\n#show \"AB\":it=>[X]\n#part;B";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "AB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t12_leftmost() {
+            let source = "#show \"A\":it=>[L]\n#show \"B\":it=>[R]\nAB";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "LR",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t13_unicode_overlap() {
+            let source = "#show \"éX\":it=>[L]\n#show \"é\":it=>[R]\néX";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "RX",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t14_multiple_matches() {
+            let source = "#show \"A\":it=>[AA]\n#show \"B\":it=>[BB]\nABAB";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "AABBAABB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t15_show_set() {
+            let source = "#show \"A\":set text(fill:red)\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "A",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t16_none_definition() {
+            let source = "#let c=[#let x=1;A]\n#repr(c.children)";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "([], [A])",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t17_none_assert() {
+            let source = "#let c=[#assert(true)A]\n#repr(c.children)";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "([], [A])",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t18_none_explicit() {
+            let source = "#let c=[#none#[]A]\n#repr(c.children)";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "([], [], [A])",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t19_none_only() {
+            let source = "#let c=[#none]\n#repr((c.func(),c.fields()))";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "(sequence, (children: ()))",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t20_identical_literals() {
+            let source = "#show \"A\":it=>[C]\n#show \"A\":it=>[B]\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "B",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t21_mixed_regex_literal() {
+            let source = "#show regex(\"A\"):it=>[R]\n#show \"A\":it=>[L]\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "L",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t22_mixed_literal_regex() {
+            let source = "#show \"A\":it=>[L]\n#show regex(\"A\"):it=>[R]\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "R",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t23_overlap() {
+            let source = "#show \"AB\":it=>[X]\n#show \"A\":it=>[Y]\nAB";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "YB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t24_leftmost_effect() {
+            let source =
+                "#show \"A\":it=>panic(\"LATER\")\n#show \"Z\":it=>panic(\"FIRST\")\nZA";
+            let world = MockWorld::new(source);
+            let errors = eval_for_test(&world, &world.source).unwrap_err();
+            assert_eq!(errors[0].message, "panicked with: FIRST", "{source}");
+            assert!(!errors[0].span.is_detached(), "{errors:?}");
+        }
+        #[test]
+        fn r3_t1_t25_leftmost_regex_effect() {
+            let source = "#show regex(\"A\"):it=>panic(\"LATER\")\n#show regex(\"Z\"):it=>panic(\"FIRST\")\nZA";
+            let world = MockWorld::new(source);
+            let errors = eval_for_test(&world, &world.source).unwrap_err();
+            assert_eq!(errors[0].message, "panicked with: FIRST", "{source}");
+            assert!(!errors[0].span.is_detached(), "{errors:?}");
+        }
+        #[test]
+        fn r3_t1_t26_same_guard_adjacent() {
+            let source = "#show \"AAAA\":it=>[X]\n#show \"A\":it=>[AA]\nAA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "AAAA",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t27_same_guard_regex_adjacent() {
+            let source = "#show \"AB\":it=>[X]\n#show regex(\"A|B\"):it=>it\nAB";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "AB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t28_different_guard_adjacent() {
+            let source =
+                "#show \"AB\":it=>[X]\n#show \"C\":it=>[A]\n#show \"D\":it=>[B]\nCD";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "AB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t29_product_whole_group() {
+            let source = "#show \"AB\":it=>[X]\n#show \"C\":it=>[AB]\nC";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "X",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t30_product_separate_nodes() {
+            let source = "#show \"AB\":it=>[X]\n#show \"C\":it=>[A]+[B]\nC";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "X",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t31_constant_revoked_cross() {
+            let source = "#show \"C\":[A]\n#show \"AB\":[X]\nCB";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "AB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t32_new_rule_on_completed() {
+            let source = "#let c={show \"A\":it=>[B];[A]}\n#show \"B\":it=>[C]\n#c";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "C",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t33_new_rule_cross_completed() {
+            let source = "#let c={show \"C\":it=>[A];[C]}\n#show \"AB\":it=>[X]\n#c;B";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "AB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t34_func_alias_raw_output() {
+            let source = "#let saved=[B]\n#show \"B\":it=>[BB]\n#show \"A\":it=>saved\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "BB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t35_white_text() {
+            let source = "#show \" \":it=>[S]\n#text(\" \")";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "S",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t36_white_text_callback() {
+            let source = "#show \"A\":it=>[ ]\n#show \" \":it=>[S]\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t37_white_input_normalization() {
+            let source = "#show \" \":it=>[S]\n#([ ]+[ ])";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t38_product_parent_hides_text() {
+            let source = "#show \"B\":it=>panic(\"HIDDEN\")\n#show strong:it=>[Q]\n#show \"A\":it=>strong[B]\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "Q",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t39_product_parent_hides_constant() {
+            let source = "#let saved=strong[B]\n#show \"B\":it=>panic(\"HIDDEN\")\n#show strong:it=>[Q]\n#show \"A\":it=>saved\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "Q",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t40_local_cjk() {
+            let source = "#let c=[#show \"水果\":it=>[X]\n水\n果]\n#c";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "X",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t41_identity_shared_rule() {
+            let source = "#show \"A\":it=>it\n#([A]+[A])";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "AA",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t42_constant_style() {
+            let source = "#show \"B\":set text(fill:red)\n#show \"A\":[B]\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "B",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t43_function_style() {
+            let source = "#show \"B\":set text(fill:red)\n#show \"A\":it=>[B]\nA";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "B",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t44_captured_outer_precedence() {
+            let source = "#show \"B\":it=>[L]\n#let c=[B]\n#show \"B\":it=>[R]\n#c";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "R",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t45_captured_local_precedence() {
+            let source = "#let c={show \"B\":it=>[L];[B]}\n#show \"B\":it=>[R]\n#c";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "L",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t46_captured_none_then_new() {
+            let source = "#let c=[B]\n#show \"B\":it=>[R]\n#c";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "R",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t47_captured_unmatched_then_new() {
+            let source = "#show \"Z\":it=>[L]\n#let c=[B]\n#show \"B\":it=>[R]\n#c";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "R",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t48_captured_outer_chain() {
+            let source = "#show \"B\":it=>[L]\n#let c=[B]\n#show \"L\":it=>[R]\n#c";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "R",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t49_captured_latest_inside() {
+            let source = "#show \"B\":it=>[G]\n#let c={show \"B\":it=>[L];[B]}\n#show \"B\":it=>[R]\n#c";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "L",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t50_hidden_generic_child() {
+            let source =
+                "#show \"B\":it=>panic(\"HIDDEN\")\n#show strong:it=>[Q]\n#strong[B]";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "Q",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t51_white_text_middle() {
+            let source = "#show \" \":it=>[S]\nA#text(\" \")B";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "ASB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t52_white_content_middle() {
+            let source = "#show \" \":it=>[S]\nA#([ ]+[ ])B";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "ASB",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t53_white_callback_middle() {
+            let source = "#show \"A\":it=>[ ]\n#show \" \":it=>[S]\nXAX";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "XSX",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t54_capture_with_local_text() {
+            let source = "#show \"B\":it=>[G]\n#let c=[#show \"B\":it=>[L]\nB]\n#show \"B\":it=>[R]\n#c";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "L",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t55_captured_rule_binding_return() {
+            let source = "#let make()={show \"B\":it=>[L];let c=[B];c}\n#let c=make()\n#show \"B\":it=>[R]\n#c";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "L",
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_t56_captured_global_binding_return() {
+            let source = "#show \"B\":it=>[G]\n#let make()={let c=[B];c}\n#let c=make()\n#show \"B\":it=>[R]\n#c";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source)
+                .unwrap_or_else(|errors| panic!("{source}: {errors:?}"));
+            let text = module.content().unwrap().plain_text();
+            assert_eq!(
+                text.split_whitespace().collect::<Vec<_>>().join(" "),
+                "R",
+                "{source}"
+            );
+        }
+    }
+
+    mod r3_t1_style_acceptance {
+        use super::*;
+        use crate::entities::layout_types::{Color, FrameItem};
+
+        #[allow(deprecated)] // Pure layout fixtures exercise both text carriers.
+        fn painted_colors(
+            items: &[FrameItem],
+            colors: &mut Vec<Option<(u8, u8, u8, u8)>>,
+        ) {
+            for item in items {
+                match item {
+                    FrameItem::Text { text, style, .. }
+                    | FrameItem::TextShaped { text, style, .. } => {
+                        colors.extend(
+                            text.chars()
+                                .filter(|ch| !ch.is_whitespace())
+                                .map(|_| style.fill.as_ref().map(Color::to_srgb)),
+                        );
+                    }
+                    FrameItem::Group { items, .. }
+                    | FrameItem::Link { items, .. }
+                    | FrameItem::Semantic { items, .. }
+                    | FrameItem::TextReplacement { items, .. } => {
+                        painted_colors(items, colors)
+                    }
+                    FrameItem::TextSeparator { .. }
+                    | FrameItem::Glyph { .. }
+                    | FrameItem::Line { .. }
+                    | FrameItem::Image { .. }
+                    | FrameItem::Shape { .. } => {}
+                }
+            }
+        }
+        #[test]
+        fn r3_t1_style_literal_confined() {
+            let source = "#set text(fill:blue)\n#show \"A\":set text(fill:red)\nP A Q";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source).unwrap();
+            let doc = crate::compiler::layout::layout(module.content().unwrap());
+            let mut colors = Vec::new();
+            for page in &doc.pages {
+                painted_colors(&page.items, &mut colors);
+            }
+            assert_eq!(
+                colors,
+                vec![
+                    Some((0, 116, 217, 255)),
+                    Some((255, 65, 54, 255)),
+                    Some((0, 116, 217, 255))
+                ],
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_style_regex_confined() {
+            let source =
+                "#set text(fill:blue)\n#show regex(\"A\"):set text(fill:red)\nP A Q";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source).unwrap();
+            let doc = crate::compiler::layout::layout(module.content().unwrap());
+            let mut colors = Vec::new();
+            for page in &doc.pages {
+                painted_colors(&page.items, &mut colors);
+            }
+            assert_eq!(
+                colors,
+                vec![
+                    Some((0, 116, 217, 255)),
+                    Some((255, 65, 54, 255)),
+                    Some((0, 116, 217, 255))
+                ],
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_style_constant_product() {
+            let source = "#set text(fill:blue)\n#show \"B\":set text(fill:red)\n#show \"A\":[B]\nP A Q";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source).unwrap();
+            let doc = crate::compiler::layout::layout(module.content().unwrap());
+            let mut colors = Vec::new();
+            for page in &doc.pages {
+                painted_colors(&page.items, &mut colors);
+            }
+            assert_eq!(
+                colors,
+                vec![
+                    Some((0, 116, 217, 255)),
+                    Some((255, 65, 54, 255)),
+                    Some((0, 116, 217, 255))
+                ],
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_style_function_product() {
+            let source = "#set text(fill:blue)\n#show \"B\":set text(fill:red)\n#show \"A\":it=>[B]\nP A Q";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source).unwrap();
+            let doc = crate::compiler::layout::layout(module.content().unwrap());
+            let mut colors = Vec::new();
+            for page in &doc.pages {
+                painted_colors(&page.items, &mut colors);
+            }
+            assert_eq!(
+                colors,
+                vec![
+                    Some((0, 116, 217, 255)),
+                    Some((255, 65, 54, 255)),
+                    Some((0, 116, 217, 255))
+                ],
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_style_local_confined() {
+            let source = "#set text(fill:blue)\n#let part=[#show \"A\":set text(fill:red)\nA]\nP #part Q";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source).unwrap();
+            let doc = crate::compiler::layout::layout(module.content().unwrap());
+            let mut colors = Vec::new();
+            for page in &doc.pages {
+                painted_colors(&page.items, &mut colors);
+            }
+            assert_eq!(
+                colors,
+                vec![
+                    Some((0, 116, 217, 255)),
+                    Some((255, 65, 54, 255)),
+                    Some((0, 116, 217, 255))
+                ],
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_style_partial_match() {
+            let source = "#set text(fill:blue)\n#show \"AB\":set text(fill:red)\nX ABC Y";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source).unwrap();
+            let doc = crate::compiler::layout::layout(module.content().unwrap());
+            let mut colors = Vec::new();
+            for page in &doc.pages {
+                painted_colors(&page.items, &mut colors);
+            }
+            assert_eq!(
+                colors,
+                vec![
+                    Some((0, 116, 217, 255)),
+                    Some((255, 65, 54, 255)),
+                    Some((255, 65, 54, 255)),
+                    Some((0, 116, 217, 255)),
+                    Some((0, 116, 217, 255))
+                ],
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_style_remaining_rule() {
+            let source = "#set text(fill:blue)\n#show \"B\":set text(fill:red)\n#show \"A\":it=>[B]\nP A B Q";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source).unwrap();
+            let doc = crate::compiler::layout::layout(module.content().unwrap());
+            let mut colors = Vec::new();
+            for page in &doc.pages {
+                painted_colors(&page.items, &mut colors);
+            }
+            assert_eq!(
+                colors,
+                vec![
+                    Some((0, 116, 217, 255)),
+                    Some((255, 65, 54, 255)),
+                    Some((255, 65, 54, 255)),
+                    Some((0, 116, 217, 255))
+                ],
+                "{source}"
+            );
+        }
+        #[test]
+        fn r3_t1_style_overlapping_style() {
+            let source = "#set text(fill:blue)\n#show \"A\":set text(fill:red)\n#show \"A\":set text(fill:green)\nP A Q";
+            let world = MockWorld::new(source);
+            let module = eval_for_test(&world, &world.source).unwrap();
+            let doc = crate::compiler::layout::layout(module.content().unwrap());
+            let mut colors = Vec::new();
+            for page in &doc.pages {
+                painted_colors(&page.items, &mut colors);
+            }
+            assert_eq!(
+                colors,
+                vec![
+                    Some((0, 116, 217, 255)),
+                    Some((255, 65, 54, 255)),
+                    Some((0, 116, 217, 255))
+                ],
+                "{source}"
+            );
         }
     }
 }

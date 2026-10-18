@@ -1,0 +1,63 @@
+{
+  "utc": "2026-10-18T05:17:31.410918+00:00",
+  "head": "b1b486f3d42431f8ea360bc5712637ee1e3d4f6c",
+  "owners": [
+    {
+      "path": "00_nucleo/prompts/compiler/eval.md",
+      "sha256": "6fdb10cea71cd25194f31b31b60c4682fafbb1159bad78c28d019aa95cdbdeca",
+      "candidate": "candidates/00_nucleo/prompts/compiler/eval.md"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/markup_stream.md",
+      "sha256": "952351b682adbdd9a33eb2ea51a3d4d17580ce17b52923328a00bca57d06c92e",
+      "candidate": "candidates/00_nucleo/prompts/compiler/eval/markup_stream.md"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/expression_dispatch.md",
+      "sha256": "dceba6b9be783b82b2f2426d45c240d84f6a3c7a5368e68032de06c17e24a21d",
+      "candidate": "candidates/00_nucleo/prompts/compiler/eval/expression_dispatch.md"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/rules/textual.md",
+      "sha256": "e81a9567f43bca6e65ad97dc27c61aaa27adc427c5167fdcecc167f8f61998d6",
+      "candidate": "candidates/00_nucleo/prompts/compiler/eval/rules/textual.md"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/rules/textual/matching.md",
+      "sha256": "beaf2a8a7608740be8b8e08ef183c9e361a47b6bd934aa457554f8b09436d4a1",
+      "candidate": "candidates/00_nucleo/prompts/compiler/eval/rules/textual/matching.md"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/rules/textual/matching/projection.md",
+      "sha256": "1bc771f007e4f369cabab16bb63936298f96754dbbf305668f6b254b99dd0639",
+      "candidate": "candidates/00_nucleo/prompts/compiler/eval/rules/textual/matching/projection.md"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/rules/apply.md",
+      "sha256": "f81d33fd33bbf4e625f2cb27b5da63b2f440abe65d88420df54976352f6d2eae",
+      "candidate": "candidates/00_nucleo/prompts/compiler/eval/rules/apply.md"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/rules/show.md",
+      "sha256": "afbd463fd247fe4dc3b40c89303c4a6b61a7aa11aaefd316d052f9951ba33463",
+      "candidate": "candidates/00_nucleo/prompts/compiler/eval/rules/show.md"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/realize/mod.md",
+      "sha256": "be506165b14034ef8fc8e1c529f14f7f349cb51c56b0fa8f0319284530ad8a1a",
+      "candidate": "candidates/00_nucleo/prompts/compiler/realize/mod.md"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/realize/sequences.md",
+      "sha256": "409c01d772ddcf001d00ee25fe07fb17d3082b5ee4caf4ff5dadd794f1ade7f4",
+      "candidate": "candidates/00_nucleo/prompts/compiler/realize/sequences.md"
+    },
+    {
+      "path": "00_nucleo/prompts/compiler/eval/tests.md",
+      "sha256": "869ddffb2bff8318d8a99c01c4c3409dbcf1ae6b900b7635df0492e315bf585e",
+      "candidate": "candidates/00_nucleo/prompts/compiler/eval/tests.md"
+    }
+  ],
+  "new_owner": "01_core/src/compiler/realize/recipes.rs",
+  "new_nucleus_effective_sha256": "f225f3039d4663e9bfcb408d26cf1cd6e557f089013bc2d95090ce16c52080c6"
+}

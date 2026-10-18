@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 62c5a10a
+//! @prompt-hash 82a5ecbe
 //! @layer L1
 //! @updated 2026-10-16
 //!
@@ -366,6 +366,10 @@ pub struct EvalContext {
     pub(crate) defer_show_rules: bool,
     pub(crate) has_deferred_show_rules: bool,
     pub(crate) realizing_show_rules: bool,
+    pub(crate) textual_frames: Vec<rules::textual::LexicalFrame>,
+    pub(crate) recipe_protected_locations: Vec<crate::entities::location::Location>,
+    pub(crate) recipe_math_depth: usize,
+    pub(crate) recipe_text_edges: (bool, bool),
     pub(crate) occurrence_show_results: HashMap<
         (crate::entities::location::Location, crate::entities::show::RuleId),
         Option<Content>,
@@ -424,6 +428,10 @@ impl EvalContext {
             defer_show_rules: false,
             has_deferred_show_rules: false,
             realizing_show_rules: false,
+            textual_frames: Vec::new(),
+            recipe_protected_locations: Vec::new(),
+            recipe_math_depth: 0,
+            recipe_text_edges: (false, false),
             occurrence_show_results: HashMap::new(),
             occurrence_show_depth: 0,
             occurrence_show_path: Vec::new(),
