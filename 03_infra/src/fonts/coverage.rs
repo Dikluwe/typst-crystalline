@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fonts/coverage.md
-//! @prompt-hash e263c79a
+//! @prompt-hash 3a60eca6
 //! @layer L3
 //! @updated 2026-10-10
 
@@ -87,7 +87,12 @@ fn collect(face: &Face) -> Option<Vec<Range<u32>>> {
             Format::SegmentMappingToDeltaValues(_) => Some(4),
             Format::SegmentedCoverage(_) => Some(12),
             Format::ManyToOneRangeMappings(_) => Some(13),
-            _ => None,
+            Format::ByteEncodingTable(_)
+            | Format::HighByteMappingThroughTable(_)
+            | Format::TrimmedTableMapping(_)
+            | Format::MixedCoverage
+            | Format::TrimmedArray(_)
+            | Format::UnicodeVariationSequences(_) => None,
         };
         let checkpoint = out.len();
         let native_ok = format

@@ -1,0 +1,30 @@
+[
+  {
+    "name": "new-core-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "v16_",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CRYSTALLINE_PDF_FIXED_EPOCH": "1792281600"
+    },
+    "utc_end": "2026-10-19T10:35:56.818578+00:00",
+    "exit": 101,
+    "seconds": 62.70588638300251,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "2561056768",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

@@ -1,0 +1,138 @@
+[
+  {
+    "utc": "2026-10-19T10:29:50.201049+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/entities/font_variations.rs",
+        "before": "4395547bacbb870f7747c8e2757c39736d8468b126b6a5d66a3aa43cb8c27b5c",
+        "after": "038bdf4ef25adf503ea2b55b43643030d277d9b28c947747a0e44c835b4bf8b0"
+      },
+      {
+        "file": "01_core/src/entities/operators.rs",
+        "before": "d4646fcb7a5f76704278ba9cfdd8e02de85b82f6956d696988cda82b82ca22b9",
+        "after": "6fa78f6e5eb2b06a56408acbec5236fb019ef84ca87faac2139b7f43fc36b026"
+      },
+      {
+        "file": "01_core/src/compiler/parse/math.rs",
+        "before": "0a46e8323934e6e3b9b3474b5c587f41252ea0967a9f87c3752283979150a99e",
+        "after": "0a68855090eb2a280e360c96025d7e6f3eda460f4ef5052896f666b53861db87"
+      },
+      {
+        "file": "01_core/src/entities/ast/expr.rs",
+        "before": "9a2eab91ded1bc6cecc72bbf39a1e0f167877ae58853c41efaf00de9608ba71c",
+        "after": "fd67f6bdc6571323894006bd498ded2a33d373e85d42638a17c3966d77b118d8"
+      },
+      {
+        "file": "01_core/src/entities/syntax_node/representation.rs",
+        "before": "478145de92a13a7302fdc355d46e65998fd6bdadd684322881caf58806617108",
+        "after": "9a0f97a60b0b2865a713bcc8ded329843a861bf6b9604c3ec2215d5c50c57193"
+      },
+      {
+        "file": "01_core/src/entities/gradient/radial.rs",
+        "before": "72a58158ea5c60033e734e65659a159309e9ea1fd5ad03ba6a93528f4d15e85f",
+        "after": "c6635b0752ccc3d6e864d90ea054fc81715f5aec060f188ba89f523e03ea703c"
+      },
+      {
+        "file": "03_infra/tests/armed_watch_contract.rs",
+        "before": "2f3cc194daa304652c868614a666f4ea5b305da8d0685d7907c057dcacb6729a",
+        "after": "783c86f8c562a9a6eba1d224036dece723c3ac087ff26d1b895c2ff6d1662b15"
+      },
+      {
+        "file": "03_infra/tests/watch_snapshot_contract.rs",
+        "before": "cfc684461413a21b8e791cf636b21894bb09e3aaaa6e77e707c4f11e2bb37628",
+        "after": "19dadb8c3653fb85262d83c7d5c65a8a9cba6f6b904d5e802577c35ff68dad78"
+      },
+      {
+        "file": "03_infra/src/fonts/coverage.rs",
+        "before": "d22c792e6f1736fe52118af334991789f8ce9332c22c8771f3102d7fac655724",
+        "after": "ebf5a7aab40c746bc7e2974b191851528599ec9a372f135c00e557749cbaabbf"
+      },
+      {
+        "file": "03_infra/src/export/gradients/adaptive.rs",
+        "before": "b3c8f043ad636c8a36d6b3499f64f32b21bb06e3dd4594cafdc34825bc1f3007",
+        "after": "90b034311ef5870789aab51ac3c3f8a0cc043cfc7761937b0399596e9917e85e"
+      },
+      {
+        "file": "03_infra/src/export/builder/metadata.rs",
+        "before": "56048d6f5ca246900e97d0b8a4d1dd874d8cf49535181c684b87e1811f093f59",
+        "after": "3cc76a93bc29d00752d4b9ec3d84369f27aa924a53fc3926bb3a4dabaeaf0031"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/parse/math.rs prompt=00_nucleo/prompts/core/compiler/parse/math.md hash-a=dfd23061 hash-b=8746b0b2\nApplied ./01_core/src/entities/ast/expr.rs prompt=00_nucleo/prompts/core/entities/ast/expr.md hash-a=8c64c623 hash-b=db528856\nApplied ./01_core/src/entities/font_variations.rs prompt=00_nucleo/prompts/core/entities/font_variations.md hash-a=b2f3f115 hash-b=71747179\nApplied ./01_core/src/entities/gradient/radial.rs prompt=00_nucleo/prompts/core/entities/gradient/radial.md hash-a=fdb066a8 hash-b=eb32eeed\nApplied ./01_core/src/entities/operators.rs prompt=00_nucleo/prompts/core/entities/operators.md hash-a=86f5bee7 hash-b=300fe547\nApplied ./01_core/src/entities/syntax_node/representation.rs prompt=00_nucleo/prompts/core/entities/syntax_node/representation.md hash-a=11022d07 hash-b=622d2c76\nApplied ./03_infra/src/export/builder/metadata.rs prompt=00_nucleo/prompts/infra/export/builder/metadata.md hash-a=3e9bd1c4 hash-b=c2338d85\nApplied ./03_infra/src/export/gradients/adaptive.rs prompt=00_nucleo/prompts/infra/export/gradients/adaptive.md hash-a=04c6551e hash-b=462b00f9\nApplied ./03_infra/src/fonts/coverage.rs prompt=00_nucleo/prompts/infra/fonts/coverage.md hash-a=3a60eca6 hash-b=0a13b3af\nApplied ./03_infra/tests/armed_watch_contract.rs prompt=00_nucleo/prompts/infra/tests/armed_watch_contract.md hash-a=99730b33 hash-b=d064eb94\nApplied ./03_infra/tests/watch_snapshot_contract.rs prompt=00_nucleo/prompts/infra/tests/watch_snapshot_contract.md hash-a=76f115cd hash-b=fd064303\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T10:45:54.054134+00:00",
+    "changes": [
+      {
+        "file": "00_nucleo/prompts/infra/tests/armed_watch_contract.md",
+        "before": "8cde5885adc41908d41ffe079c63bcd0e06c4564ad5c72e00bb0498d1c8dc6a1",
+        "after": "7b00958fa6100211e1c1b9aa45d7f49892c3b52e43b8ad581124471621461aa7"
+      },
+      {
+        "file": "00_nucleo/prompts/infra/tests/watch_snapshot_contract.md",
+        "before": "d35189c26c5a9f35b758ca1380d04ef0a02f2c8f8c2a5047898f7c3a8e4ec491",
+        "after": "e9d713895450c30ca9588a73e0b662b069d3c334d07e32ed3523d379f7a3093e"
+      },
+      {
+        "file": "00_nucleo/prompts/infra/fonts/coverage.md",
+        "before": "67e87de7b5d1bfa046c2e115b31ee2e1382a46152a86155a533e6593fa0f1c78",
+        "after": "2cb082a4c4ea1e4bd32a78ad3e068b3eb8f72e87df6b898ed8a74a4d20415e53"
+      },
+      {
+        "file": "00_nucleo/prompts/infra/export/gradients/adaptive.md",
+        "before": "e77ebe6e3a21410bb4c13e4dffa9a0ff5a3634f36c75cd24f26f0ee81bdf8080",
+        "after": "4b4d25cd004d0869893f96ef4480d9776e68ba1492fc7621b0908f730089b7ba"
+      },
+      {
+        "file": "00_nucleo/prompts/infra/export/builder/metadata.md",
+        "before": "9c5453efc0c3d78891941da12608c46412127fa87120ae667654bec008fd6504",
+        "after": "7d573c7ed7d62bbfecc36d511850d5333976068423d043099d33ce8c5e0f418a"
+      },
+      {
+        "file": "00_nucleo/prompts/core/entities/font_variations.md",
+        "before": "d2d09f213a9eee91524f7d332e9d8329d130484492a4ec188afa45087187e317",
+        "after": "985a7d1beab159bbdbc732eb13a261abbc6d7b0a415aaa7a92458a5126938b1c"
+      },
+      {
+        "file": "00_nucleo/prompts/core/entities/operators.md",
+        "before": "0a7c412fbf9c03cfc3254fd047abaf3c7099d0f928e8ca72a2be1800e51a6de2",
+        "after": "ff6d8e26194cfb581037b0dfef55282db821352ebd1025aeb29ae58d02122602"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/parse/math.md",
+        "before": "cac335b95240404006fac87831db6aee7ad10a85e460ed361b68b6b89fa1c526",
+        "after": "06204f1647263bd8594c02e283eb45b772a2d2a451be0ea6c213483d04013996"
+      },
+      {
+        "file": "00_nucleo/prompts/core/entities/ast/expr.md",
+        "before": "530b8063e86f238455807c88687f3f3c71b7aa910195c61651f036dfc571c820",
+        "after": "10e707d643855b8df679234763343fef70e64ea60291392ee410739a47ec2168"
+      },
+      {
+        "file": "00_nucleo/prompts/core/entities/gradient/radial.md",
+        "before": "47df37225b28b29d7ee827e4108c29ed4bdad9831235c286ec4696207a272b6c",
+        "after": "7d7bacc21dbd9cfc9ad707b4be40d8673e5f18be352c3b202eace5c762365d83"
+      },
+      {
+        "file": "00_nucleo/prompts/core/entities/syntax_node/representation.md",
+        "before": "50877fd33406f6611ba36e3b646aa2d0aa0361cced88beafdd93a25376e7cf73",
+        "after": "d0cb45aa17440417d24a3a627701e348ef412a30feb40421e7367f1670d74fdc"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/parse/math.rs prompt=00_nucleo/prompts/core/compiler/parse/math.md hash-a=dfd23061 hash-b=9c712e67\nApplied ./01_core/src/entities/ast/expr.rs prompt=00_nucleo/prompts/core/entities/ast/expr.md hash-a=8c64c623 hash-b=2745dfa7\nApplied ./01_core/src/entities/font_variations.rs prompt=00_nucleo/prompts/core/entities/font_variations.md hash-a=b2f3f115 hash-b=c8585ebf\nApplied ./01_core/src/entities/gradient/radial.rs prompt=00_nucleo/prompts/core/entities/gradient/radial.md hash-a=fdb066a8 hash-b=330593e5\nApplied ./01_core/src/entities/operators.rs prompt=00_nucleo/prompts/core/entities/operators.md hash-a=86f5bee7 hash-b=8b9a30b7\nApplied ./01_core/src/entities/syntax_node/representation.rs prompt=00_nucleo/prompts/core/entities/syntax_node/representation.md hash-a=11022d07 hash-b=6ae1f5cc\nApplied ./03_infra/src/export/builder/metadata.rs prompt=00_nucleo/prompts/infra/export/builder/metadata.md hash-a=3e9bd1c4 hash-b=6f88b061\nApplied ./03_infra/src/export/gradients/adaptive.rs prompt=00_nucleo/prompts/infra/export/gradients/adaptive.md hash-a=04c6551e hash-b=d92b5ba8\nApplied ./03_infra/src/fonts/coverage.rs prompt=00_nucleo/prompts/infra/fonts/coverage.md hash-a=3a60eca6 hash-b=4e66a279\nApplied ./03_infra/tests/armed_watch_contract.rs prompt=00_nucleo/prompts/infra/tests/armed_watch_contract.md hash-a=99730b33 hash-b=8f69c2d7\nApplied ./03_infra/tests/watch_snapshot_contract.rs prompt=00_nucleo/prompts/infra/tests/watch_snapshot_contract.md hash-a=76f115cd hash-b=566a5c21\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T10:51:45.999046+00:00",
+    "changes": [
+      {
+        "file": "00_nucleo/prompts/infra/export/builder/metadata.md",
+        "before": "7d573c7ed7d62bbfecc36d511850d5333976068423d043099d33ce8c5e0f418a",
+        "after": "e03ef19e3b492430837a541d1246833fb076c1d539c760eff5f28d6f2746f7d2"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/parse/math.rs prompt=00_nucleo/prompts/core/compiler/parse/math.md hash-a=dfd23061 hash-b=9c712e67\nApplied ./01_core/src/entities/ast/expr.rs prompt=00_nucleo/prompts/core/entities/ast/expr.md hash-a=8c64c623 hash-b=2745dfa7\nApplied ./01_core/src/entities/font_variations.rs prompt=00_nucleo/prompts/core/entities/font_variations.md hash-a=b2f3f115 hash-b=c8585ebf\nApplied ./01_core/src/entities/gradient/radial.rs prompt=00_nucleo/prompts/core/entities/gradient/radial.md hash-a=fdb066a8 hash-b=330593e5\nApplied ./01_core/src/entities/operators.rs prompt=00_nucleo/prompts/core/entities/operators.md hash-a=86f5bee7 hash-b=8b9a30b7\nApplied ./01_core/src/entities/syntax_node/representation.rs prompt=00_nucleo/prompts/core/entities/syntax_node/representation.md hash-a=11022d07 hash-b=6ae1f5cc\nApplied ./03_infra/src/export/builder/metadata.rs prompt=00_nucleo/prompts/infra/export/builder/metadata.md hash-a=3e9bd1c4 hash-b=6a0a6dde\nApplied ./03_infra/src/export/gradients/adaptive.rs prompt=00_nucleo/prompts/infra/export/gradients/adaptive.md hash-a=04c6551e hash-b=d92b5ba8\nApplied ./03_infra/src/fonts/coverage.rs prompt=00_nucleo/prompts/infra/fonts/coverage.md hash-a=3a60eca6 hash-b=4e66a279\nApplied ./03_infra/tests/armed_watch_contract.rs prompt=00_nucleo/prompts/infra/tests/armed_watch_contract.md hash-a=99730b33 hash-b=8f69c2d7\nApplied ./03_infra/tests/watch_snapshot_contract.rs prompt=00_nucleo/prompts/infra/tests/watch_snapshot_contract.md hash-a=76f115cd hash-b=566a5c21\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  }
+]

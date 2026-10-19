@@ -1,0 +1,22 @@
+{
+  "reason": "Metadata wildcard copy and current workspace reported the same test artifact; current metadata command reused it without a compile. Do not use that cached run as independent candidate-build evidence. Clean four workspace packages before final integrated build/tests; dependencies remain cached.",
+  "inconclusive_current_receipt": "metadata-control-run/metadata-current.log",
+  "shared_artifact": "typst_infra-fe20ec64d9b98dd4",
+  "copy_compile_receipt": "metadata-control/original-wildcard.log",
+  "resolution_command": [
+    "cargo",
+    "clean",
+    "--offline",
+    "--locked",
+    "--target-dir",
+    "lab/target/product",
+    "-p",
+    "typst-core",
+    "-p",
+    "typst-infra",
+    "-p",
+    "typst-shell",
+    "-p",
+    "typst-wiring"
+  ]
+}

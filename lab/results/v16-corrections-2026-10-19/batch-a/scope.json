@@ -1,0 +1,44 @@
+{
+  "ids": [
+    "V16-048",
+    "V16-071",
+    "V16-072",
+    "V16-073",
+    "V16-078",
+    "V16-079",
+    "V16-080",
+    "V16-081",
+    "V16-082",
+    "V16-086",
+    "V16-087",
+    "V16-090",
+    "V16-104",
+    "V16-105"
+  ],
+  "sources": [
+    "01_core/src/compiler/parse/math.rs",
+    "01_core/src/entities/ast/expr.rs",
+    "01_core/src/entities/font_variations.rs",
+    "01_core/src/entities/gradient/radial.rs",
+    "01_core/src/entities/operators.rs",
+    "01_core/src/entities/syntax_node/representation.rs",
+    "03_infra/src/export/builder/metadata.rs",
+    "03_infra/src/export/gradients/adaptive.rs",
+    "03_infra/src/fonts/coverage.rs",
+    "03_infra/tests/armed_watch_contract.rs",
+    "03_infra/tests/watch_snapshot_contract.rs"
+  ],
+  "owners": [
+    "00_nucleo/prompts/core/compiler/parse/math.md",
+    "00_nucleo/prompts/core/entities/ast/expr.md",
+    "00_nucleo/prompts/core/entities/font_variations.md",
+    "00_nucleo/prompts/core/entities/gradient/radial.md",
+    "00_nucleo/prompts/core/entities/operators.md",
+    "00_nucleo/prompts/core/entities/syntax_node/representation.md",
+    "00_nucleo/prompts/infra/export/builder/metadata.md",
+    "00_nucleo/prompts/infra/export/gradients/adaptive.md",
+    "00_nucleo/prompts/infra/fonts/coverage.md",
+    "00_nucleo/prompts/infra/tests/armed_watch_contract.md",
+    "00_nucleo/prompts/infra/tests/watch_snapshot_contract.md"
+  ]
+}

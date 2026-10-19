@@ -1,0 +1,37 @@
+[
+  {
+    "name": "node-axis-proof",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/node_axes.py",
+      "all"
+    ],
+    "utc_end": "2026-10-19T10:53:12.396078+00:00",
+    "exit": 0,
+    "seconds": 56.90609600499738,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "931024896",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "metadata-original-wildcard",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/metadata_control.py"
+    ],
+    "utc_end": "2026-10-19T10:53:19.217845+00:00",
+    "exit": 1,
+    "seconds": 6.8212926229971345,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "931024896",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/ast/expr`
-Hash do Código: db528856
+Hash do Código: 2745dfa7
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/ast/expr.rs`
@@ -9,9 +9,12 @@ Hash do Código: db528856
 
 Expr unifies markup/math/code views and atomic expressions. It derives
 Debug/Copy/Clone/Hash, without Eq/PartialEq even though inner nodes can have
-those traits. Pure L1, no I/O; Scanner decodes strings. The operator enum/API
-below is a cross-owner dependency, not a second materialization owner;
-`00_nucleo/prompts/core/entities/operators.md` owns those pure data types.
+those traits. Pure L1, no I/O; Scanner decodes strings. The AST-local operator
+enums/accessors below belong to this exclusive consumer. The parallel pure data
+types in `01_core/src/entities/operators.rs` belong only to
+`00_nucleo/prompts/core/entities/operators.md`. Preserve both current public type
+families; cross-check their language rules without transferring ownership or
+unifying types in this internal repair.
 
 ```rust
 #[derive(Debug, Copy, Clone, Hash)]
@@ -148,6 +151,103 @@ FieldAccess exposes target/field; FuncCall callee/args; Args iterates Pos/Named/
 Spread in both directions and reports trailing comma. Anonymous Closure name
 is None; parameters/body remain accessible. Patterns preserve normal,
 placeholder,parenthesized/destructuring cases and return bound identifiers.
+
+## Closed token and binding projections
+
+### Source evidence before classification
+
+Inspection at clean HEAD `841c9855f8ad6695f4e140d1ee4a33e4f4a46689`,
+2026-10-19T10:22:03Z, reads the complete local `UnOp::from_kind` at
+`01_core/src/entities/ast/expr.rs:597–604`, `BinOp::from_kind` at `:672–694`,
+and `Pattern::bindings` at `:904–911`. `Unary::op` at `:575–581` scans children
+for an operator; `Binary::op` at `:625–638` separately composes Not then In.
+Consequently ordinary child tokens legitimately return `None` from the arity
+maps. `Pattern` is declared at `:876–881`, `Expr` at `:36–96`, and recursive
+Destructuring binding collection at `:922–933` preserves item order and named/
+spread handling. The two distinct operator families also exist in
+`01_core/src/entities/operators.rs`; this inspection does not authorize
+unifying their public types. Baseline occurrences are V16-071/072/073 in
+`lab/results/v16-cause-analysis-2026-10-19/entities-boundaries-inventory.json`.
+This is static evidence of the current projections, not a new bilateral parity
+measurement or intent inferred from an implementation fallback.
+
+### Preservation and exclusive decisions
+
+Make both local SyntaxKind arity decisions exhaustive at their actual sites.
+UnOp accepts exactly Plus→Pos, Minus→Neg and Not→Not. BinOp accepts exactly
+Plus→Add, Minus→Sub, Star→Mul, Slash→Div, And→And, Or→Or, EqEq→Eq,
+ExclEq→Neq, Lt→Lt, LtEq→Leq, Gt→Gt, GtEq→Geq, Eq→Assign, In→In,
+PlusEq→AddAssign, HyphEq→SubAssign, StarEq→MulAssign and SlashEq→DivAssign.
+All other current SyntaxKinds explicitly return `None` for that arity:
+nonoperator children, trivia, delimiters, literals, syntax nodes and tokens of
+a different operator role do not become errors. In particular Star is not
+unary and Not alone is not binary; NotIn is still composed in `Binary::op`.
+Cross-check these maps against `01_core/src/entities/syntax_set.rs:136–142`
+and `01_core/src/compiler/parse/code.rs:97–156`, without copying the unary
+complement into the binary map. Preserve existing precedence, spelling,
+association and fallback behavior of the surrounding accessors.
+
+Make Pattern exhaustive first: Placeholder produces no identifiers;
+Parenthesized delegates to its pattern; Destructuring delegates to its ordered
+items; Normal then exhaustively classifies Expr. Only Normal(Ident) yields
+that one identifier. Every other current Expr under Normal contributes no
+bindings because this projection identifies declarations, not free-variable
+uses or arbitrary identifiers inside expressions. Do not recurse through
+normal FieldAccess/FuncCall/Array/Closure to invent declarations, and do not
+turn a literal's empty binding list into a new parser error. The existing
+Parenthesized and Destructuring Pattern routes retain their explicit recursion,
+including named patterns and spread sinks. This closes both the outer Pattern
+and nested Expr evolution holes; `Normal(_)` is not a sufficient repair.
+
+The changes are internal preservation under ADR-0127 continuous flow: no public
+type unification, new grammar admission, defaults, phase or compatibility
+changes. Keep the real decisions closed, without suppression or moving a
+wildcard into `if let`, `matches!` or an unreviewed helper. A language pattern
+whose existing binding order changes, an operator admitted by the parser but
+now missed, or a new diagnostic on a current nonbinding pattern refutes this
+prescription. Broader parser/AST interface discrepancies are outside this
+bounded change and must not be silently corrected here.
+
+### Regression and exact-site enum-growth acceptance
+
+Add meaningful local tests for all positive arity mappings and independent
+negative representatives End/Error/Space/LineComment/Ident/Int/LeftParen,
+including Star-unary and Not-binary controls. Parse real unary/binary fixtures
+and assert the required operator and operand accessors, precedence and the
+composed `not in` operator; require the expected AST nodes instead of skipping
+assertions when extraction fails. Keep existing `binop_as_str` and
+`unop_precedence` controls. Compare spellings/precedence/association with the
+parallel operator family through an explicit cross-check; retain both public
+types rather than changing source ownership.
+
+For bindings, assert exact ordered names from an identifier, nested
+parenthesized/destructuring patterns, a named pattern, a named spread sink and
+an anonymous spread/underscore. Literal and a normal nonbinding expression
+must yield an empty vector without introducing parse rejection. Use real valid
+parsed patterns where admitted; direct SyntaxNode fixtures may isolate the
+existing Normal(non-Ident) projection but must not claim new language grammar
+admission. Distinguish declaration names from identifiers merely used inside
+an expression. No test passes by conditionally omitting its assertion.
+
+Perform enum-growth checks in disposable complete copies of the actual
+workspace, retaining its real manifests, modules, enums, dependencies and
+function bodies, and compile the real crate. Do not extract methods, replace
+enums, stub dependencies or build a toy harness. With a fresh SyntaxKind
+sentinel require independently attributable E0004 diagnostics at the repaired
+AST-local UnOp::from_kind and BinOp::from_kind matches; neither site's failure
+can stand in for the other. In separate copies extend Pattern to require E0004
+at the outer `bindings` decision, and extend Expr to require E0004 at its nested
+Normal decision. Record that the original wildcard decisions lack those
+site-specific exhaustiveness failures. Errors at unrelated derived/accessor
+matches may coexist but do not prove these decisions; inability to obtain a
+diagnostic at a required site leaves its proof incomplete. No sentinel enters
+productive source. Record original/repaired workspace snapshots, source
+digests, sentinel-only changes, compiler command/version and exact diagnostic
+spans. Run the regression controls against the original implementation before
+changing it, then repeat after repair. Require structural RED, these independent
+growth checks, valid ownership/nucleus preflight and restricted resealing;
+passing runtime controls do not replace the structural proof. These are
+enduring acceptance requirements, not tests already run.
 
 ## Acceptance
 

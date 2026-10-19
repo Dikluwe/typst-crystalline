@@ -1,0 +1,14 @@
+2026-10-19T10:52:17.115042+00:00 baseline new-old START
+2026-10-19T10:52:26.952875+00:00 baseline new-old END 101 selected 0 witness []
+2026-10-19T10:52:27.004721+00:00 baseline old-new START
+2026-10-19T10:52:35.640666+00:00 baseline old-new END 101 selected 0 witness []
+2026-10-19T10:52:35.689812+00:00 baseline new-new START
+2026-10-19T10:52:43.858226+00:00 baseline new-new END 101 selected 0 witness []
+PASS baseline three isolated NodeKind pair classes
+2026-10-19T10:52:45.302054+00:00 green new-old START
+2026-10-19T10:52:54.518677+00:00 green new-old END 101 selected 1 witness [['TektV16EvolutionProbe', 'Leaf'], ['TektV16EvolutionProbe', 'Inner'], ['TektV16EvolutionProbe', 'Error']]
+2026-10-19T10:52:54.570684+00:00 green old-new START
+2026-10-19T10:53:03.430294+00:00 green old-new END 101 selected 1 witness [['Leaf', 'TektV16EvolutionProbe'], ['Inner', 'TektV16EvolutionProbe'], ['Error', 'TektV16EvolutionProbe']]
+2026-10-19T10:53:03.484546+00:00 green new-new START
+2026-10-19T10:53:12.288932+00:00 green new-new END 101 selected 1 witness [['TektV16EvolutionProbe', 'TektV16EvolutionProbe']]
+PASS green three isolated NodeKind pair classes

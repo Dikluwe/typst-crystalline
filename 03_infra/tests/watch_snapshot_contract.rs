@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/tests/watch_snapshot_contract.md
-//! @prompt-hash 80333d0d
+//! @prompt-hash 76f115cd
 //! @layer L3
 //! @updated 2026-09-02
 //!
@@ -186,8 +186,48 @@ fn signature_mentions_id(value: &Value, target: u64) -> bool {
             resolved_here
                 || object.values().any(|value| signature_mentions_id(value, target))
         }
-        _ => false,
+        Value::Null | Value::Bool(_) | Value::Number(_) | Value::String(_) => false,
     }
+}
+
+#[test]
+fn v16_signature_references_require_structured_resolved_path() {
+    let target = 73;
+    for leaf in [
+        Value::Null,
+        Value::Bool(true),
+        Value::Number(target.into()),
+        Value::String(target.to_string()),
+    ] {
+        assert!(!signature_mentions_id(&leaf, target));
+    }
+    for unrelated in [
+        serde_json::json!({"id": target}),
+        serde_json::json!({"resolved_path": {"id": target + 1}}),
+        serde_json::json!({"resolved_path": {"id": target.to_string()}}),
+        serde_json::json!({"resolved_path": {"id": null}}),
+        serde_json::json!({"resolved_path": {}}),
+        serde_json::json!({"resolved_path": target}),
+        serde_json::json!([]),
+        serde_json::json!({}),
+    ] {
+        assert!(!signature_mentions_id(&unrelated, target), "{unrelated}");
+    }
+}
+
+#[test]
+fn v16_signature_references_recurse_through_arrays_and_objects() {
+    let signature = serde_json::json!({
+        "inputs": [
+            {"type": {"resolved_path": {"id": 19}}},
+            {"nested": [null, {"type": {"resolved_path": {"id": 73}}}]}
+        ],
+        "output": {"resolved_path": {"id": 101}}
+    });
+    assert!(signature_mentions_id(&signature, 19));
+    assert!(signature_mentions_id(&signature, 73));
+    assert!(signature_mentions_id(&signature, 101));
+    assert!(!signature_mentions_id(&signature, 74));
 }
 
 fn assert_private_struct_storage(struct_data: &Value) {

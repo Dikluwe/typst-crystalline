@@ -1,0 +1,20 @@
+    Finished `test` profile [unoptimized] target(s) in 0.14s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_infra-fe20ec64d9b98dd4)
+
+running 13 tests
+test fonts::coverage::tests::absent_cmap_and_corrupt_group_count_are_empty ... ok
+test fonts::coverage::tests::alias_memoization_respects_invalid_and_nonunicode_records ... ok
+test fonts::coverage::tests::checked_native_reader_rejects_truncation_after_a_partial_group ... ok
+test fonts::coverage::tests::distinct_offsets_and_callback_payloads_are_not_memoized ... ok
+test fonts::coverage::tests::first_invalid_record_keeps_the_pinned_iterator_termination ... ok
+test fonts::coverage::tests::format4_retains_declared_ranges_zero_glyph_and_sentinel_stop ... ok
+test fonts::coverage::tests::formats0_and10_keep_callback_membership ... ok
+test fonts::coverage::tests::formats12_and13_preserve_holes_overlap_and_unicode_max ... ok
+test fonts::coverage::tests::native_memo_capacity_never_loses_later_payloads ... ok
+test fonts::coverage::tests::nonunicode_is_ignored_and_format6_retains_callback_fallback ... ok
+test fonts::coverage::tests::repeated_native_payloads_are_collected_once_across_formats ... ok
+test fonts::coverage::tests::truncated_format4_is_not_promoted_to_a_native_range ... ok
+test fonts::coverage::tests::unrepresentable_exclusive_endpoint_requires_legacy_face_fallback ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 1362 filtered out; finished in 0.01s
+

@@ -1,0 +1,13 @@
+    Finished `test` profile [unoptimized] target(s) in 0.14s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 6 tests
+test entities::syntax_node::representation::tests::editing_clone_updates_its_caches_without_mutating_original ... ok
+test entities::syntax_node::representation::tests::replacement_retains_spans_of_unchanged_edges ... ok
+test entities::syntax_node::representation::tests::spanless_equality_covers_all_representation_pairs_with_identical_text ... ok
+test entities::syntax_node::representation::tests::spanless_equality_ignores_synthesized_spans_for_each_representation ... ok
+test entities::syntax_node::representation::tests::spanless_equality_retains_error_category_message_hints_and_text ... ok
+test entities::syntax_node::representation::tests::spanless_equality_retains_leaf_kind_text_and_inner_order_structure ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 7411 filtered out; finished in 0.00s
+

@@ -1,0 +1,26 @@
+    Finished `test` profile [unoptimized] target(s) in 0.16s
+     Running tests/armed_watch_contract.rs (lab/target/product/debug/deps/armed_watch_contract-a4f4612cfe13921b)
+
+running 7 tests
+test abandon_detecta_some_para_none_sem_captura_lazy_ou_recaptura ... ok
+test abandon_preserva_destino_valido ... ok
+test capacidade_consumidora_e_apis_p1295_preservam_assinaturas_publicas ... ok
+test publish_detecta_staging_some_para_none_sem_captura_lazy_ou_recaptura ... ok
+test publish_falho_limpa_staging_e_preserva_erro_original_do_rename ... ok
+test publish_falho_nao_mascara_rename_quando_cleanup_tambem_falha ... ok
+test rustdoc_json_pinado_fecha_superficie_publica_da_capacidade ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 59.40s
+
+     Running tests/watch_snapshot_contract.rs (lab/target/product/debug/deps/watch_snapshot_contract-4500dbe4f4e0649f)
+
+running 6 tests
+test rustdoc_json_pinado_prova_superficie_opaca_e_fechada ... ok
+test snapshot_anterior_detecta_alteracao_de_mesmo_tamanho_sem_recaptura ... ok
+test snapshot_anterior_detecta_criacao_sem_recaptura ... ok
+test snapshot_anterior_detecta_remocao_sem_recaptura ... ok
+test snapshot_e_api_legada_preservam_assinaturas_publicas ... ok
+test wait_for_change_legado_permanece_funcional_sem_race_de_prontidao ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.06s
+

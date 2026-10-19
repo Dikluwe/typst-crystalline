@@ -1,0 +1,114 @@
+{
+  "utc": "2026-10-19T10:57:00.865147+00:00",
+  "head": "841c9855f8ad6695f4e140d1ee4a33e4f4a46689",
+  "new_test_count": 31,
+  "files": [
+    {
+      "file": "01_core/src/compiler/parse/math.rs",
+      "sha256": "e8f7054e4f20e9939b4c58d84b83c53ddfce76153d2e7c450d3dff919b9c3971",
+      "new_tests": [
+        "v16_math_attachment_chaining_preserves_prime_boundary",
+        "v16_math_call_and_root_bind_before_fraction",
+        "v16_math_fraction_is_left_associative",
+        "v16_math_operator_roles_and_trivia",
+        "v16_math_postfix_trivia_preserves_separate_expressions"
+      ],
+      "removed_tests": []
+    },
+    {
+      "file": "01_core/src/entities/ast/expr.rs",
+      "sha256": "75435293baa19c734d473e748097471e3226e69340f90b75bd7e797d26f4d906",
+      "new_tests": [
+        "v16_ast_accessors_preserve_precedence_and_composed_not_in",
+        "v16_ast_binding_projection_distinguishes_uses_from_declarations",
+        "v16_ast_bindings_preserve_nested_named_and_spread_order",
+        "v16_ast_operator_maps_match_parser_roles"
+      ],
+      "removed_tests": []
+    },
+    {
+      "file": "01_core/src/entities/font_variations.rs",
+      "sha256": "be45b30942d51fc97509b0d33551f7d907137fc2463dd80c9ff765e107247a9e",
+      "new_tests": [
+        "strict_axes_report_span_and_hint_while_validated_axes_omit",
+        "validated_axes_omit_every_current_nonnumeric_category",
+        "validated_axes_skip_invalid_tags_and_preserve_normalized_precedence"
+      ],
+      "removed_tests": []
+    },
+    {
+      "file": "01_core/src/entities/gradient/radial.rs",
+      "sha256": "8f36858c8f7b112f98cb057ea604f5e122923fb5658644294d85a62d35fe2d24",
+      "new_tests": [
+        "sample_precise_delegated_process_spaces_keep_components_and_shorter_hue",
+        "sample_precise_preserves_empty_single_clamp_and_coincident_boundaries",
+        "sample_precise_specialized_spaces_keep_components_and_alpha",
+        "sample_precise_spot_keeps_complete_identity_or_uses_process_fallback"
+      ],
+      "removed_tests": []
+    },
+    {
+      "file": "01_core/src/entities/operators.rs",
+      "sha256": "1dfa873c127bfae96a389633b2b557d3df5577bcfe83e5d5ce8db3186962bd12",
+      "new_tests": [
+        "v16_operator_assignment_remains_right_associative_in_language",
+        "v16_operator_maps_preserve_distinct_type_families"
+      ],
+      "removed_tests": []
+    },
+    {
+      "file": "01_core/src/entities/syntax_node/representation.rs",
+      "sha256": "313068e1114429a6118da6ed4f78b15929b8013749e7514a510c2fce6a17241b",
+      "new_tests": [
+        "spanless_equality_covers_all_representation_pairs_with_identical_text",
+        "spanless_equality_ignores_synthesized_spans_for_each_representation",
+        "spanless_equality_retains_error_category_message_hints_and_text",
+        "spanless_equality_retains_leaf_kind_text_and_inner_order_structure"
+      ],
+      "removed_tests": []
+    },
+    {
+      "file": "03_infra/src/export/builder/metadata.rs",
+      "sha256": "e2de05ddb896f0bd74324c99be7d71978449cbb5563a95197871d1a61f69cce8",
+      "new_tests": [
+        "boundaries_keep_ua1_paragraphs_and_exclude_artifact_descendants",
+        "every_semantic_continuation_reaches_top_level_processing",
+        "semantic_continuations_preserve_formula_label_and_table_structure"
+      ],
+      "removed_tests": []
+    },
+    {
+      "file": "03_infra/src/export/gradients/adaptive.rs",
+      "sha256": "2a55a96543b15c2db676a23cb541bc829a6ec0ddb707197e8f7b44627718e6b9",
+      "new_tests": [
+        "v16_precise_sampler_delegates_other_spaces_without_erasing_spot",
+        "v16_precise_sampler_nonangular_spaces_keep_components_and_alpha"
+      ],
+      "removed_tests": []
+    },
+    {
+      "file": "03_infra/src/fonts/coverage.rs",
+      "sha256": "4086421399d891fed9ab370f0f585af8eb67497f32a0da280a89c4d8a39b93d1",
+      "new_tests": [],
+      "removed_tests": []
+    },
+    {
+      "file": "03_infra/tests/armed_watch_contract.rs",
+      "sha256": "dcca3df5116792fe9cd635e082485550e8ac0acab1084fcb419c9afb2d40d53f",
+      "new_tests": [
+        "v16_signature_references_recurse_through_arrays_and_objects",
+        "v16_signature_references_require_structured_resolved_path"
+      ],
+      "removed_tests": []
+    },
+    {
+      "file": "03_infra/tests/watch_snapshot_contract.rs",
+      "sha256": "220787a36ce7728c82af685782a0d7c71e49ac5772d33042bdf085453ef0bd9b",
+      "new_tests": [
+        "v16_signature_references_recurse_through_arrays_and_objects",
+        "v16_signature_references_require_structured_resolved_path"
+      ],
+      "removed_tests": []
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 # L0 — Exact cmap coverage extraction by ranges
-Hash do Código: 0a13b3af
+Hash do Código: 4e66a279
 
 Layer L3. Exclusive productive consumer: `03_infra/src/fonts/coverage.rs`. Package ratified by owner `confirmo` on 2026-10-07; current canonical owner.
 
@@ -155,3 +155,93 @@ RED then all-target inventory exactly 46 arities/five test warnings satisfied by
 still visible; build/fmt/strict-reverse lineage/Tekt no new errors/warnings/existing
 Counter+coverage tests under 12 GiB/zero swap/one job. Prior full suite remains
 same-executable evidence, no new run/performance claim or attribute-mirror tests.
+
+## Exhaustive native-format selection with callback fallback
+
+### Source evidence before decision
+
+At HEAD `841c9855f8ad6695f4e140d1ee4a33e4f4a46689`,
+`03_infra/src/fonts/coverage.rs:71–150` contains `collect`; the V16-090
+`match subtable.format` occupies `:86–91`. Only typed formats 4/12/13 select
+a native reader; None continues through the existing checkpoint/callback path,
+not empty Coverage. `Cargo.lock:2344–2345` pins ttf-parser 0.25.1; its
+`src/tables/cmap/mod.rs:35–45` defines all nine Format variants, read from the
+installed source at
+`/home/dikluwe/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ttf-parser-0.25.1/src/tables/cmap/mod.rs`.
+The current source/L0 digests are in
+`lab/results/v16-cause-analysis-2026-10-19/entities-boundaries-inventory.json`.
+This is static adapter evidence, not a new extraction benchmark or corpus result.
+
+### Decision and preserved complement
+
+Replace the wildcard None with the explicit callback-path variants
+ByteEncodingTable, HighByteMappingThroughTable, TrimmedTableMapping,
+MixedCoverage, TrimmedArray and UnicodeVariationSequences, preserving payload
+shapes and the single None body. Keep native Some(4), Some(12) and Some(13)
+unchanged. A future dependency Format variant must require an explicit decision.
+Do not implement new native formats or interpret callback selection as a dropped
+subtable. A typed callback that emits no points retains that existing behavior;
+this does not certify new variation-sequence coverage.
+
+Preserve typed Unicode selection, first-invalid-record termination, same-Face raw
+offset/format validation, successful native-payload memoization, per-subtable
+rollback before callback and whole-Face legacy fallback on unrepresentable
+exclusive endpoint. Preserve declared codepoints, including existing glyph-zero
+behavior, order/union membership, no approximate Unicode-block inference and no
+new malformed-font policy. No parser type or I/O crosses into L1.
+
+### Acceptance and exact-site evolution proof
+
+Keep the existing coverage tests unchanged, especially
+`nonunicode_is_ignored_and_format6_retains_callback_fallback`,
+`formats0_and10_keep_callback_membership`,
+`format4_retains_declared_ranges_zero_glyph_and_sentinel_stop`,
+`formats12_and13_preserve_holes_overlap_and_unicode_max`,
+`first_invalid_record_keeps_the_pinned_iterator_termination`,
+`unrepresentable_exclusive_endpoint_requires_legacy_face_fallback`,
+`checked_native_reader_rejects_truncation_after_a_partial_group`, and all four
+native-payload reuse controls. Propose additional independent membership versus
+legacy-callback controls for any other callback format with a valid available
+fixture. A missing fixture is an explicit gap; do not fabricate new semantics,
+weaken the existing expected set or claim complete corpus coverage.
+
+The mutation proof copies the exact locked ttf-parser source into
+a disposable workspace dependency and adds a Format sentinel there only. Record
+copied dependency identity and how that target is resolved; do not alter the
+productive registry, Cargo.lock or public dependency API. Build the real infra
+library consumer and require E0004 at collect's format-selection match after
+repair, with no E0004 there in the wildcard baseline. Errors confined to the copied
+dependency or other matches do not prove this site and must be reported as an
+inconclusive probe until the consumer is type-checked. Ordinary no-sentinel
+compilation and existing functional controls remain separate required evidence.
+
+This is an internal classification correction under ADR-0127 continuous flow:
+no public field, trait, signature, product default, compatibility rule, dependency
+version or pipeline phase changes. Preserve the owning layer and static dispatch.
+No suppression, severity change, `if let`/`matches!` replacement, or helper that
+relocates the unchecked complement is an acceptable repair. Validate V15/V26
+before restricted forward/reverse resealing. Freeze source/dependency identity during structural and functional validation;
+record exact targets, compiler diagnostics, resource settings and outcomes before
+claiming acceptance. A structural proof is not a functional test result.
+
+### Attributable actual-domain omission proof
+
+For V16-090, an equally strict structural alternative avoids a new enum variant
+preventing core or external-dependency metadata emission before the real infra
+consumer is type-checked. Use two disposable copies with the same unchanged real
+dependencies: one with the original wildcard decision and one with its repaired
+exhaustive classification. At the collect native-format match at coverage.rs:86–91, remove only
+the complete unguarded SegmentMappingToDeltaValues(_) => Some(4) arm in each copy. This arm is unique and unguarded; no other arm
+in that match handles SegmentMappingToDeltaValues. With the omission, the wildcard baseline
+still covers SegmentMappingToDeltaValues and must lack E0004 at this site; the repaired copy must
+emit E0004 at this exact match. Retain function/target identity, mutation diff,
+source/dependency hashes, compiler JSON and no-omission controls. An unrelated
+error or dependency failure remains inconclusive. No replacement stub, new public
+API, linter or target-scope change is allowed.
+
+This paired omission experiment proves that the actual-domain classification no
+longer has an implicit complement. The normal repaired match must remain fully
+nominal and exhaustive, so future enum growth still forces an explicit owner
+decision. This alternative changes only how the structural obligation is measured;
+it weakens neither the future-variant obligation nor the independent functional
+controls, and no probe result is claimed by the specification.

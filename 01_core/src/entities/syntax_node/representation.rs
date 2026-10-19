@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/syntax_node/representation.md
-//! @prompt-hash b90c2a9f
+//! @prompt-hash 11022d07
 //! @layer L1
 //! @updated 2026-09-26
 
@@ -193,7 +193,12 @@ impl SyntaxNode {
             (NodeKind::Leaf(a), NodeKind::Leaf(b)) => a.spanless_eq(b),
             (NodeKind::Inner(a), NodeKind::Inner(b)) => a.spanless_eq(b),
             (NodeKind::Error(a), NodeKind::Error(b)) => a.spanless_eq(b),
-            _ => false, // neutro: N16[β] — tipos de nós de sintaxe heterogêneos são desiguais em spanless_eq
+            (NodeKind::Leaf(_), NodeKind::Inner(_))
+            | (NodeKind::Leaf(_), NodeKind::Error(_))
+            | (NodeKind::Inner(_), NodeKind::Leaf(_))
+            | (NodeKind::Inner(_), NodeKind::Error(_))
+            | (NodeKind::Error(_), NodeKind::Leaf(_))
+            | (NodeKind::Error(_), NodeKind::Inner(_)) => false,
         }
     }
 }
@@ -607,6 +612,112 @@ impl Debug for ErrorNode {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn spanless_equality_covers_all_representation_pairs_with_identical_text() {
+        let nodes = [
+            SyntaxNode::leaf(SyntaxKind::Text, "x"),
+            SyntaxNode::inner(
+                SyntaxKind::Markup,
+                vec![SyntaxNode::leaf(SyntaxKind::Text, "x")],
+            ),
+            SyntaxNode::error(SyntaxError::new("invalid token"), "x"),
+        ];
+        let expected = [[true, false, false], [false, true, false], [false, false, true]];
+        for (i, left) in nodes.iter().enumerate() {
+            assert_eq!(left.clone().into_text().as_str(), "x");
+            for (j, right) in nodes.iter().enumerate() {
+                assert_eq!(left.spanless_eq(right), expected[i][j], "pair {i}/{j}");
+            }
+        }
+        let empty_leaf = SyntaxNode::leaf(SyntaxKind::Text, "");
+        let empty_inner = SyntaxNode::inner(SyntaxKind::Markup, vec![]);
+        assert!(!empty_leaf.spanless_eq(&empty_inner));
+        assert!(!empty_inner.spanless_eq(&empty_leaf));
+    }
+
+    #[test]
+    fn spanless_equality_ignores_synthesized_spans_for_each_representation() {
+        let nodes = [
+            SyntaxNode::leaf(SyntaxKind::Text, "x"),
+            SyntaxNode::inner(
+                SyntaxKind::Markup,
+                vec![SyntaxNode::leaf(SyntaxKind::Text, "x")],
+            ),
+            SyntaxNode::error(SyntaxError::new("invalid token"), "x"),
+        ];
+        let id = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        let first_span = Span::from_number(id, 7).unwrap();
+        let second_span = Span::from_number(id, 19).unwrap();
+        for original in nodes {
+            let mut first = original.clone();
+            let mut second = original.clone();
+            first.synthesize(first_span);
+            second.synthesize(second_span);
+            assert_eq!(first.span(), first_span);
+            assert_eq!(second.span(), second_span);
+            assert!(original.span().is_detached());
+            assert_ne!(first, second);
+            assert!(first.spanless_eq(&second));
+            assert!(second.spanless_eq(&first));
+            assert!(original.spanless_eq(&first));
+        }
+    }
+
+    #[test]
+    fn spanless_equality_retains_leaf_kind_text_and_inner_order_structure() {
+        let text = SyntaxNode::leaf(SyntaxKind::Text, "ab");
+        assert!(!text.spanless_eq(&SyntaxNode::leaf(SyntaxKind::Ident, "ab")));
+        assert!(!text.spanless_eq(&SyntaxNode::leaf(SyntaxKind::Text, "ac")));
+        let tree = SyntaxNode::inner(
+            SyntaxKind::Markup,
+            vec![
+                SyntaxNode::leaf(SyntaxKind::Text, "a"),
+                SyntaxNode::leaf(SyntaxKind::Text, "b"),
+            ],
+        );
+        let reversed = SyntaxNode::inner(
+            SyntaxKind::Markup,
+            vec![
+                SyntaxNode::leaf(SyntaxKind::Text, "b"),
+                SyntaxNode::leaf(SyntaxKind::Text, "a"),
+            ],
+        );
+        let merged = SyntaxNode::inner(SyntaxKind::Markup, vec![text]);
+        let nested = SyntaxNode::inner(SyntaxKind::Markup, vec![merged.clone()]);
+        let different_kind =
+            SyntaxNode::inner(SyntaxKind::CodeBlock, tree.children().cloned().collect());
+        assert!(!tree.spanless_eq(&reversed));
+        assert!(!tree.spanless_eq(&merged));
+        assert!(!merged.spanless_eq(&nested));
+        assert!(!tree.spanless_eq(&different_kind));
+        assert_eq!(tree.clone().into_text(), merged.clone().into_text());
+        assert_eq!(merged.into_text(), nested.into_text());
+    }
+
+    #[test]
+    fn spanless_equality_retains_error_category_message_hints_and_text() {
+        use crate::entities::syntax_node::SyntaxErrorKind;
+
+        let error = SyntaxError::new("invalid token");
+        let original = SyntaxNode::error(error.clone(), "x");
+        let mut category = error.clone();
+        category.kind = SyntaxErrorKind::InvalidHexNumber;
+        let mut message = error.clone();
+        message.message = "different message".into();
+        let mut hinted = error.clone();
+        hinted.hints.push("try a number".into());
+        for changed in [
+            SyntaxNode::error(category, "x"),
+            SyntaxNode::error(message, "x"),
+            SyntaxNode::error(hinted, "x"),
+            SyntaxNode::error(error, "y"),
+        ] {
+            assert!(!original.spanless_eq(&changed));
+            assert!(!changed.spanless_eq(&original));
+        }
+        assert!(original.spanless_eq(&original.clone()));
+    }
 
     #[test]
     fn editing_clone_updates_its_caches_without_mutating_original() {

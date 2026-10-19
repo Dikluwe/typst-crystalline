@@ -1,0 +1,142 @@
+[
+  {
+    "name": "new-core-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "v16_",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CRYSTALLINE_PDF_FIXED_EPOCH": "1792281600"
+    },
+    "utc_end": "2026-10-19T10:41:47.970092+00:00",
+    "exit": 0,
+    "seconds": 78.46643120599765,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3363115008",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "font-controls",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "entities::font_variations::tests",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CRYSTALLINE_PDF_FIXED_EPOCH": "1792281600"
+    },
+    "utc_end": "2026-10-19T10:41:48.142381+00:00",
+    "exit": 0,
+    "seconds": 0.17175731199677102,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3363115008",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "radial-controls",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "entities::gradient::radial::tests",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CRYSTALLINE_PDF_FIXED_EPOCH": "1792281600"
+    },
+    "utc_end": "2026-10-19T10:41:48.310409+00:00",
+    "exit": 0,
+    "seconds": 0.16741719000128796,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3363115008",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "node-controls",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "entities::syntax_node::representation::tests",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CRYSTALLINE_PDF_FIXED_EPOCH": "1792281600"
+    },
+    "utc_end": "2026-10-19T10:41:48.479241+00:00",
+    "exit": 0,
+    "seconds": 0.16824678099510493,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3363115008",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "new-infra-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-infra",
+      "--lib",
+      "v16_",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CRYSTALLINE_PDF_FIXED_EPOCH": "1792281600"
+    },
+    "utc_end": "2026-10-19T10:42:44.534346+00:00",
+    "exit": 101,
+    "seconds": 56.054530296998564,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3363115008",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

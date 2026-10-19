@@ -1,0 +1,27 @@
+[
+  {
+    "name": "metadata-original-wildcard",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/metadata_control.py"
+    ]
+  },
+  {
+    "name": "metadata-current",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-infra",
+      "--lib",
+      "v16_semantic_continuation_tests",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CRYSTALLINE_PDF_FIXED_EPOCH": "1792281600"
+    }
+  }
+]

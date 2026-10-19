@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-19T10:54:12.169582+00:00",
+  "changed": [],
+  "memory_after": {
+    "memory.max": "12884901888",
+    "memory.high": "8589934592",
+    "memory.swap.max": "0",
+    "memory.peak": "1270636544",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+  }
+}

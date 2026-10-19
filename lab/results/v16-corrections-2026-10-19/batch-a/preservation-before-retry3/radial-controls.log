@@ -1,0 +1,12 @@
+    Finished `test` profile [unoptimized] target(s) in 0.13s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 5 tests
+test entities::gradient::radial::tests::preserves_variant_behavior ... ok
+test entities::gradient::radial::tests::sample_precise_delegated_process_spaces_keep_components_and_shorter_hue ... ok
+test entities::gradient::radial::tests::sample_precise_preserves_empty_single_clamp_and_coincident_boundaries ... ok
+test entities::gradient::radial::tests::sample_precise_specialized_spaces_keep_components_and_alpha ... ok
+test entities::gradient::radial::tests::sample_precise_spot_keeps_complete_identity_or_uses_process_fallback ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 7412 filtered out; finished in 0.00s
+

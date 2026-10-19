@@ -1,0 +1,146 @@
+   Compiling zerofrom v0.1.8
+   Compiling yoke v0.8.3
+   Compiling serde v1.0.228
+   Compiling zerovec v0.11.6
+   Compiling tinystr v0.8.3
+   Compiling icu_locale_core v2.2.0
+   Compiling potential_utf v0.1.5
+   Compiling zerotrie v0.2.4
+   Compiling icu_collections v2.2.0
+   Compiling icu_provider v2.2.0
+   Compiling zerocopy v0.8.27
+   Compiling icu_properties v2.2.0
+   Compiling icu_normalizer v2.2.0
+   Compiling half v2.7.1
+   Compiling unic-langid-impl v0.9.6
+   Compiling ciborium-ll v0.2.2
+   Compiling thiserror v2.0.16
+   Compiling unic-langid-macros v0.9.6
+   Compiling icu_locale v2.2.0
+   Compiling idna_adapter v1.2.2
+   Compiling plist v1.10.0
+   Compiling enum-ordinalize v4.3.2
+   Compiling idna v1.1.0
+   Compiling unic-langid v0.9.6
+   Compiling ciborium v0.2.2
+   Compiling strum v0.27.2
+   Compiling ppv-lite86 v0.2.21
+   Compiling quick-xml v0.38.4
+   Compiling bincode v1.3.3
+   Compiling toml_datetime v0.6.11
+   Compiling serde_spanned v0.6.9
+   Compiling toml_edit v0.22.27
+   Compiling biblatex v0.12.0
+   Compiling chinese-number v0.7.8
+   Compiling syntect v5.3.0
+   Compiling serde_yaml v0.9.34+deprecated
+   Compiling citationberg v0.7.0
+   Compiling rand_chacha v0.3.1
+   Compiling icu_collator v2.2.0
+   Compiling url v2.5.8
+   Compiling tinytemplate v1.2.1
+   Compiling rust_decimal v1.42.1
+   Compiling comemo v0.4.0
+   Compiling criterion v0.5.1
+   Compiling hayagriva v0.10.1
+   Compiling lipsum v0.9.1
+   Compiling icu_segmenter v2.2.0
+   Compiling two-face v0.4.5
+   Compiling codex v0.3.0 (https://github.com/typst/codex?rev=2e43ab90079cf9f9fa670d421c8c38233143b376#2e43ab90)
+   Compiling toml v0.8.23
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+error[E0308]: mismatched types
+    --> 01_core/src/entities/ast/expr.rs:1029:47
+     |
+1029 |             assert_eq!(UnOp::from_kind(kind), None, "unary nonoperator {kind:?}");
+     |                                               ^^^^ expected `Option<UnOp>`, found struct constructor
+     |
+     = note:            expected enum `Option<expr::UnOp>`
+             found struct constructor `fn(&syntax_node::representation::SyntaxNode) -> expr::None<'_> {expr::None::<'_>}`
+
+error[E0277]: `fn(&syntax_node::representation::SyntaxNode) -> expr::None<'_> {expr::None::<'_>}` doesn't implement `Debug`
+    --> 01_core/src/entities/ast/expr.rs:1029:13
+     |
+1029 |             assert_eq!(UnOp::from_kind(kind), None, "unary nonoperator {kind:?}");
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Debug` is not implemented for fn item `fn(&syntax_node::representation::SyntaxNode) -> expr::None<'_> {expr::None::<'_>}`
+     |
+    ::: 01_core/src/entities/ast/mod.rs:46:9
+     |
+  46 |         pub struct $name<'a>(pub(crate) &'a $crate::entities::syntax_node::SyntaxNode);
+     |         ------------------------------------------------------------------------------- consider calling the constructor for `expr::None`
+     |
+     = help: use parentheses to construct this tuple struct: `expr::None(/* &syntax_node::representation::SyntaxNode */)`
+     = note: this error originates in the macro `assert_eq` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+    --> 01_core/src/entities/ast/expr.rs:1030:48
+     |
+1030 |             assert_eq!(BinOp::from_kind(kind), None, "binary nonoperator {kind:?}");
+     |                                                ^^^^ expected `Option<BinOp>`, found struct constructor
+     |
+     = note:            expected enum `Option<expr::BinOp>`
+             found struct constructor `fn(&syntax_node::representation::SyntaxNode) -> expr::None<'_> {expr::None::<'_>}`
+
+error[E0277]: `fn(&syntax_node::representation::SyntaxNode) -> expr::None<'_> {expr::None::<'_>}` doesn't implement `Debug`
+    --> 01_core/src/entities/ast/expr.rs:1030:13
+     |
+1030 |             assert_eq!(BinOp::from_kind(kind), None, "binary nonoperator {kind:?}");
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Debug` is not implemented for fn item `fn(&syntax_node::representation::SyntaxNode) -> expr::None<'_> {expr::None::<'_>}`
+     |
+    ::: 01_core/src/entities/ast/mod.rs:46:9
+     |
+  46 |         pub struct $name<'a>(pub(crate) &'a $crate::entities::syntax_node::SyntaxNode);
+     |         ------------------------------------------------------------------------------- consider calling the constructor for `expr::None`
+     |
+     = help: use parentheses to construct this tuple struct: `expr::None(/* &syntax_node::representation::SyntaxNode */)`
+     = note: this error originates in the macro `assert_eq` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+    --> 01_core/src/entities/ast/expr.rs:1032:55
+     |
+1032 |         assert_eq!(UnOp::from_kind(SyntaxKind::Star), None);
+     |                                                       ^^^^ expected `Option<UnOp>`, found struct constructor
+     |
+     = note:            expected enum `Option<expr::UnOp>`
+             found struct constructor `fn(&syntax_node::representation::SyntaxNode) -> expr::None<'_> {expr::None::<'_>}`
+
+error[E0277]: `fn(&syntax_node::representation::SyntaxNode) -> expr::None<'_> {expr::None::<'_>}` doesn't implement `Debug`
+    --> 01_core/src/entities/ast/expr.rs:1032:9
+     |
+1032 |         assert_eq!(UnOp::from_kind(SyntaxKind::Star), None);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Debug` is not implemented for fn item `fn(&syntax_node::representation::SyntaxNode) -> expr::None<'_> {expr::None::<'_>}`
+     |
+    ::: 01_core/src/entities/ast/mod.rs:46:9
+     |
+  46 |         pub struct $name<'a>(pub(crate) &'a $crate::entities::syntax_node::SyntaxNode);
+     |         ------------------------------------------------------------------------------- consider calling the constructor for `expr::None`
+     |
+     = help: use parentheses to construct this tuple struct: `expr::None(/* &syntax_node::representation::SyntaxNode */)`
+     = note: this error originates in the macro `assert_eq` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+    --> 01_core/src/entities/ast/expr.rs:1033:55
+     |
+1033 |         assert_eq!(BinOp::from_kind(SyntaxKind::Not), None);
+     |                                                       ^^^^ expected `Option<BinOp>`, found struct constructor
+     |
+     = note:            expected enum `Option<expr::BinOp>`
+             found struct constructor `fn(&syntax_node::representation::SyntaxNode) -> expr::None<'_> {expr::None::<'_>}`
+
+error[E0277]: `fn(&syntax_node::representation::SyntaxNode) -> expr::None<'_> {expr::None::<'_>}` doesn't implement `Debug`
+    --> 01_core/src/entities/ast/expr.rs:1033:9
+     |
+1033 |         assert_eq!(BinOp::from_kind(SyntaxKind::Not), None);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Debug` is not implemented for fn item `fn(&syntax_node::representation::SyntaxNode) -> expr::None<'_> {expr::None::<'_>}`
+     |
+    ::: 01_core/src/entities/ast/mod.rs:46:9
+     |
+  46 |         pub struct $name<'a>(pub(crate) &'a $crate::entities::syntax_node::SyntaxNode);
+     |         ------------------------------------------------------------------------------- consider calling the constructor for `expr::None`
+     |
+     = help: use parentheses to construct this tuple struct: `expr::None(/* &syntax_node::representation::SyntaxNode */)`
+     = note: this error originates in the macro `assert_eq` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+Some errors have detailed explanations: E0277, E0308.
+For more information about an error, try `rustc --explain E0277`.
+error: could not compile `typst-core` (lib test) due to 8 previous errors

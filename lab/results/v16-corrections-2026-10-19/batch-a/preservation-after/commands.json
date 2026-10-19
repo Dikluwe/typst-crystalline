@@ -1,0 +1,198 @@
+[
+  {
+    "name": "new-core-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "v16_",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CRYSTALLINE_PDF_FIXED_EPOCH": "1792281600"
+    },
+    "utc_end": "2026-10-19T10:48:41.158754+00:00",
+    "exit": 0,
+    "seconds": 81.25040289599565,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3400347648",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "font-controls",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "entities::font_variations::tests",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CRYSTALLINE_PDF_FIXED_EPOCH": "1792281600"
+    },
+    "utc_end": "2026-10-19T10:48:41.338036+00:00",
+    "exit": 0,
+    "seconds": 0.17877366400352912,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3400347648",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "radial-controls",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "entities::gradient::radial::tests",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CRYSTALLINE_PDF_FIXED_EPOCH": "1792281600"
+    },
+    "utc_end": "2026-10-19T10:48:41.526731+00:00",
+    "exit": 0,
+    "seconds": 0.18813761299679754,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3400347648",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "node-controls",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "entities::syntax_node::representation::tests",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CRYSTALLINE_PDF_FIXED_EPOCH": "1792281600"
+    },
+    "utc_end": "2026-10-19T10:48:41.709122+00:00",
+    "exit": 0,
+    "seconds": 0.18188825799734332,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3400347648",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "new-infra-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-infra",
+      "--lib",
+      "v16_",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CRYSTALLINE_PDF_FIXED_EPOCH": "1792281600"
+    },
+    "utc_end": "2026-10-19T10:49:19.638866+00:00",
+    "exit": 0,
+    "seconds": 37.92912164799782,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3400347648",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "coverage-controls",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-infra",
+      "--lib",
+      "fonts::coverage::tests",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CRYSTALLINE_PDF_FIXED_EPOCH": "1792281600"
+    },
+    "utc_end": "2026-10-19T10:49:19.825627+00:00",
+    "exit": 0,
+    "seconds": 0.18623046100401552,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3400347648",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "new-watch-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-infra",
+      "--test",
+      "armed_watch_contract",
+      "--test",
+      "watch_snapshot_contract",
+      "v16_signature_references_",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-19T10:49:29.799221+00:00",
+    "exit": 0,
+    "seconds": 9.972946125002636,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3400347648",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

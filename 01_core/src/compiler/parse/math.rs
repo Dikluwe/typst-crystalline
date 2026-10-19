@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/parse/math.md
-//! @prompt-hash 785f25cd
+//! @prompt-hash dfd23061
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -202,9 +202,148 @@ fn math_op(
         SyntaxKind::Slash => (SyntaxKind::MathFrac, Some(Assoc::Left), 1),
         SyntaxKind::Underscore => (SyntaxKind::MathAttach, Some(Assoc::Right), 2),
         SyntaxKind::Hat => (SyntaxKind::MathAttach, Some(Assoc::Right), 2),
-        SyntaxKind::MathPrimes if !had_trivia => (SyntaxKind::MathAttach, None, 2),
-        SyntaxKind::Bang if !had_trivia => (SyntaxKind::Math, None, 3),
-        _ => return None, // neutro: N16[β] — tokens não-identificador retornam None no parse de math args
+        SyntaxKind::MathPrimes => {
+            if had_trivia {
+                return None;
+            }
+            (SyntaxKind::MathAttach, None, 2)
+        }
+        SyntaxKind::Bang => {
+            if had_trivia {
+                return None;
+            }
+            (SyntaxKind::Math, None, 3)
+        }
+        // These tokens end this operator subgrammar without consuming them.
+        SyntaxKind::End
+        | SyntaxKind::Error
+        | SyntaxKind::Shebang
+        | SyntaxKind::LineComment
+        | SyntaxKind::BlockComment
+        | SyntaxKind::Markup
+        | SyntaxKind::Text
+        | SyntaxKind::Space
+        | SyntaxKind::Linebreak
+        | SyntaxKind::Parbreak
+        | SyntaxKind::Escape
+        | SyntaxKind::Shorthand
+        | SyntaxKind::SmartQuote
+        | SyntaxKind::Strong
+        | SyntaxKind::Emph
+        | SyntaxKind::Raw
+        | SyntaxKind::RawLang
+        | SyntaxKind::RawDelim
+        | SyntaxKind::RawTrimmed
+        | SyntaxKind::Link
+        | SyntaxKind::Label
+        | SyntaxKind::Ref
+        | SyntaxKind::RefMarker
+        | SyntaxKind::Heading
+        | SyntaxKind::HeadingMarker
+        | SyntaxKind::ListItem
+        | SyntaxKind::ListMarker
+        | SyntaxKind::EnumItem
+        | SyntaxKind::EnumMarker
+        | SyntaxKind::TermItem
+        | SyntaxKind::TermMarker
+        | SyntaxKind::Equation
+        | SyntaxKind::Math
+        | SyntaxKind::MathText
+        | SyntaxKind::MathIdent
+        | SyntaxKind::MathShorthand
+        | SyntaxKind::MathAlignPoint
+        | SyntaxKind::MathDelimited
+        | SyntaxKind::MathAttach
+        | SyntaxKind::MathFrac
+        | SyntaxKind::MathRoot
+        | SyntaxKind::Hash
+        | SyntaxKind::LeftBrace
+        | SyntaxKind::RightBrace
+        | SyntaxKind::LeftBracket
+        | SyntaxKind::RightBracket
+        | SyntaxKind::LeftParen
+        | SyntaxKind::RightParen
+        | SyntaxKind::Comma
+        | SyntaxKind::Semicolon
+        | SyntaxKind::Colon
+        | SyntaxKind::Star
+        | SyntaxKind::Dollar
+        | SyntaxKind::Plus
+        | SyntaxKind::Minus
+        | SyntaxKind::Dot
+        | SyntaxKind::Eq
+        | SyntaxKind::EqEq
+        | SyntaxKind::ExclEq
+        | SyntaxKind::Lt
+        | SyntaxKind::LtEq
+        | SyntaxKind::Gt
+        | SyntaxKind::GtEq
+        | SyntaxKind::PlusEq
+        | SyntaxKind::HyphEq
+        | SyntaxKind::StarEq
+        | SyntaxKind::SlashEq
+        | SyntaxKind::Dots
+        | SyntaxKind::Arrow
+        | SyntaxKind::Root
+        | SyntaxKind::Not
+        | SyntaxKind::And
+        | SyntaxKind::Or
+        | SyntaxKind::None
+        | SyntaxKind::Auto
+        | SyntaxKind::Let
+        | SyntaxKind::Set
+        | SyntaxKind::Show
+        | SyntaxKind::Context
+        | SyntaxKind::If
+        | SyntaxKind::Else
+        | SyntaxKind::For
+        | SyntaxKind::In
+        | SyntaxKind::While
+        | SyntaxKind::Break
+        | SyntaxKind::Continue
+        | SyntaxKind::Return
+        | SyntaxKind::Import
+        | SyntaxKind::Include
+        | SyntaxKind::As
+        | SyntaxKind::Code
+        | SyntaxKind::Ident
+        | SyntaxKind::Bool
+        | SyntaxKind::Int
+        | SyntaxKind::Float
+        | SyntaxKind::Numeric
+        | SyntaxKind::Str
+        | SyntaxKind::CodeBlock
+        | SyntaxKind::ContentBlock
+        | SyntaxKind::Parenthesized
+        | SyntaxKind::Array
+        | SyntaxKind::Dict
+        | SyntaxKind::Named
+        | SyntaxKind::Keyed
+        | SyntaxKind::Unary
+        | SyntaxKind::Binary
+        | SyntaxKind::FieldAccess
+        | SyntaxKind::FuncCall
+        | SyntaxKind::Args
+        | SyntaxKind::Spread
+        | SyntaxKind::Closure
+        | SyntaxKind::Params
+        | SyntaxKind::LetBinding
+        | SyntaxKind::SetRule
+        | SyntaxKind::ShowRule
+        | SyntaxKind::Contextual
+        | SyntaxKind::Conditional
+        | SyntaxKind::WhileLoop
+        | SyntaxKind::ForLoop
+        | SyntaxKind::ModuleImport
+        | SyntaxKind::ImportItems
+        | SyntaxKind::ImportItemPath
+        | SyntaxKind::RenamedImportItem
+        | SyntaxKind::ModuleInclude
+        | SyntaxKind::LoopBreak
+        | SyntaxKind::LoopContinue
+        | SyntaxKind::FuncReturn
+        | SyntaxKind::Destructuring
+        | SyntaxKind::DestructAssignment => return None,
     };
     Some(op)
 }
@@ -379,4 +518,181 @@ fn math_arg<'s>(p: &mut Parser<'s>, seen: &mut FxHashSet<&'s str>) -> bool {
         p.wrap(m, kind);
     }
     arg_kind != Some(SyntaxKind::Named)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::compiler::parse::parse_math;
+    use crate::entities::ast::math::{MathAttach, MathFrac, MathRoot};
+    use crate::entities::ast::AstNode;
+    use crate::entities::syntax_node::SyntaxNode;
+
+    fn leaf_text(node: &SyntaxNode) -> String {
+        if node.children().len() == 0 {
+            node.text_str().to_owned()
+        } else {
+            node.children().map(leaf_text).collect()
+        }
+    }
+
+    fn only_expression(root: &SyntaxNode) -> &SyntaxNode {
+        let mut children = root.children().filter(|node| !node.kind().is_trivia());
+        let child = children.next().expect("math fixture must have an expression");
+        assert!(children.next().is_none(), "expected one top-level math expression");
+        child
+    }
+
+    #[test]
+    fn v16_math_operator_roles_and_trivia() {
+        for (kind, expected) in [
+            (SyntaxKind::Slash, (SyntaxKind::MathFrac, Some(Assoc::Left), 1)),
+            (SyntaxKind::Underscore, (SyntaxKind::MathAttach, Some(Assoc::Right), 2)),
+            (SyntaxKind::Hat, (SyntaxKind::MathAttach, Some(Assoc::Right), 2)),
+        ] {
+            assert_eq!(math_op(kind, false), Some(expected));
+            assert_eq!(math_op(kind, true), Some(expected));
+        }
+        assert_eq!(
+            math_op(SyntaxKind::MathPrimes, false),
+            Some((SyntaxKind::MathAttach, None, 2))
+        );
+        assert_eq!(math_op(SyntaxKind::Bang, false), Some((SyntaxKind::Math, None, 3)));
+        assert_eq!(math_op(SyntaxKind::MathPrimes, true), None);
+        assert_eq!(math_op(SyntaxKind::Bang, true), None);
+        for kind in [
+            SyntaxKind::End,
+            SyntaxKind::Error,
+            SyntaxKind::Space,
+            SyntaxKind::MathIdent,
+            SyntaxKind::LeftParen,
+            SyntaxKind::RightParen,
+            SyntaxKind::Plus,
+        ] {
+            assert_eq!(math_op(kind, false), None, "nonoperator: {kind:?}");
+            assert_eq!(math_op(kind, true), None, "nonoperator with trivia: {kind:?}");
+        }
+    }
+
+    #[test]
+    fn v16_math_fraction_is_left_associative() {
+        let root = parse_math("a/b/c");
+        assert!(!root.erroneous(), "{:?}", root.errors());
+        assert_eq!(leaf_text(&root), "a/b/c");
+        let outer =
+            MathFrac::from_untyped(only_expression(&root)).expect("outer fraction");
+        assert_eq!(outer.denom().to_untyped().text_str(), "c");
+        let inner = MathFrac::from_untyped(outer.num().to_untyped())
+            .expect("left numerator fraction");
+        assert_eq!(inner.num().to_untyped().text_str(), "a");
+        assert_eq!(inner.denom().to_untyped().text_str(), "b");
+    }
+
+    #[test]
+    fn v16_math_attachment_chaining_preserves_prime_boundary() {
+        let root = parse_math("a^b_c");
+        assert!(!root.erroneous(), "{:?}", root.errors());
+        let attach =
+            MathAttach::from_untyped(only_expression(&root)).expect("chained attachment");
+        assert_eq!(attach.base().to_untyped().text_str(), "a");
+        assert_eq!(attach.top().expect("top attachment").to_untyped().text_str(), "b");
+        assert_eq!(
+            attach.bottom().expect("bottom attachment").to_untyped().text_str(),
+            "c"
+        );
+        let root = parse_math("a^b'_c");
+        assert!(!root.erroneous(), "{:?}", root.errors());
+        assert_eq!(leaf_text(&root), "a^b'_c");
+        let attach = MathAttach::from_untyped(only_expression(&root))
+            .unwrap_or_else(|| panic!("expected minimal attachment: {root:#?}"));
+        assert_eq!(attach.base().to_untyped().text_str(), "a");
+        assert_eq!(attach.bottom().expect("minimal bottom").to_untyped().text_str(), "c");
+        let primed =
+            MathAttach::from_untyped(attach.top().expect("minimal top").to_untyped())
+                .unwrap_or_else(|| panic!("expected primed top: {root:#?}"));
+        assert_eq!(primed.base().to_untyped().text_str(), "b");
+        assert_eq!(primed.primes().expect("prime remains on b").count(), 1);
+
+        // Characterize the existing chained-RHS parse, not upstream intent.
+        // The productive grouping comment differs; that language question is
+        // separate from this behavior-preserving closed-domain repair.
+        let root = parse_math("a^b'_c^d");
+        assert!(!root.erroneous(), "{:?}", root.errors());
+        assert_eq!(leaf_text(&root), "a^b'_c^d");
+        let attach = MathAttach::from_untyped(only_expression(&root))
+            .unwrap_or_else(|| panic!("expected long attachment: {root:#?}"));
+        assert_eq!(attach.base().to_untyped().text_str(), "a", "{root:#?}");
+        let top = attach.top().unwrap_or_else(|| panic!("expected long top: {root:#?}"));
+        let primed = MathAttach::from_untyped(top.to_untyped())
+            .unwrap_or_else(|| panic!("expected long primed top: {root:#?}"));
+        assert_eq!(primed.base().to_untyped().text_str(), "b", "{root:#?}");
+        assert_eq!(
+            primed
+                .primes()
+                .unwrap_or_else(|| panic!("expected b prime: {root:#?}"))
+                .count(),
+            1
+        );
+        assert!(primed.top().is_none(), "prime must not absorb the next top: {root:#?}");
+        assert!(primed.bottom().is_none(), "prime must not absorb the bottom: {root:#?}");
+        let bottom = attach
+            .bottom()
+            .unwrap_or_else(|| panic!("expected long bottom: {root:#?}"));
+        let nested = MathAttach::from_untyped(bottom.to_untyped())
+            .unwrap_or_else(|| panic!("expected chained c^d bottom: {root:#?}"));
+        assert_eq!(nested.base().to_untyped().text_str(), "c", "{root:#?}");
+        assert_eq!(
+            nested
+                .top()
+                .unwrap_or_else(|| panic!("expected d top: {root:#?}"))
+                .to_untyped()
+                .text_str(),
+            "d",
+            "{root:#?}"
+        );
+        assert!(nested.bottom().is_none(), "unexpected nested bottom: {root:#?}");
+    }
+
+    #[test]
+    fn v16_math_postfix_trivia_preserves_separate_expressions() {
+        for (text, expected) in [("a'", SyntaxKind::MathAttach), ("a!", SyntaxKind::Math)]
+        {
+            let root = parse_math(text);
+            assert!(!root.erroneous(), "{:?}", root.errors());
+            assert_eq!(only_expression(&root).kind(), expected);
+            assert_eq!(leaf_text(&root), text);
+        }
+        for (text, second) in
+            [("a '", SyntaxKind::MathPrimes), ("a !", SyntaxKind::MathText)]
+        {
+            let root = parse_math(text);
+            assert!(!root.erroneous(), "{:?}", root.errors());
+            let children: Vec<_> =
+                root.children().filter(|node| !node.kind().is_trivia()).collect();
+            assert_eq!(children.len(), 2, "postfix after trivia must stay separate");
+            assert_eq!(children[0].kind(), SyntaxKind::MathText);
+            assert_eq!(children[1].kind(), second);
+            assert_eq!(leaf_text(&root), text);
+        }
+    }
+
+    #[test]
+    fn v16_math_call_and_root_bind_before_fraction() {
+        let root = parse_math("a(b)/c");
+        assert!(!root.erroneous(), "{:?}", root.errors());
+        let frac = MathFrac::from_untyped(only_expression(&root))
+            .expect("call numerator fraction");
+        assert_eq!(frac.num().to_untyped().kind(), SyntaxKind::Math);
+        assert_eq!(leaf_text(frac.num().to_untyped()), "a(b)");
+        assert_eq!(frac.denom().to_untyped().text_str(), "c");
+        let root = parse_math("√x/2");
+        assert!(!root.erroneous(), "{:?}", root.errors());
+        assert_eq!(leaf_text(&root), "√x/2");
+        let frac = MathFrac::from_untyped(only_expression(&root))
+            .expect("root numerator fraction");
+        let radical = MathRoot::from_untyped(frac.num().to_untyped())
+            .expect("root binds before slash");
+        assert_eq!(radical.radicand().to_untyped().text_str(), "x");
+        assert_eq!(frac.denom().to_untyped().text_str(), "2");
+    }
 }

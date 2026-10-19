@@ -1,0 +1,11 @@
+2026-10-19T10:46:21.557090+00:00 core-domains START
+2026-10-19T10:46:30.430015+00:00 core-domains END 101 selected 8 other 0
+2026-10-19T10:46:30.636160+00:00 pattern START
+2026-10-19T10:46:38.708295+00:00 pattern END 101 selected 1 other 0
+2026-10-19T10:46:38.908432+00:00 expr START
+2026-10-19T10:46:47.318894+00:00 expr END 101 selected 1 other 0
+2026-10-19T10:46:47.624000+00:00 infra-domain-omissions START
+2026-10-19T10:46:58.719164+00:00 infra-domain-omissions END 101 selected 3 other 0
+2026-10-19T10:46:58.932168+00:00 watch-omissions START
+2026-10-19T10:47:09.989129+00:00 watch-omissions END 101 selected 2 other 0
+PASS green 15 obligations across14 V16 occurrences

@@ -1,0 +1,16 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+    Finished `test` profile [unoptimized] target(s) in 37.88s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_infra-fe20ec64d9b98dd4)
+
+running 7 tests
+test export::builder::metadata::v16_semantic_continuation_tests::boundaries_keep_ua1_paragraphs_and_exclude_artifact_descendants ... ok
+test export::builder::metadata::v16_semantic_continuation_tests::semantic_continuations_preserve_formula_label_and_table_structure ... ok
+test export::gradients::adaptive::p1257_tests::v16_precise_sampler_delegates_other_spaces_without_erasing_spot ... ok
+test export::gradients::adaptive::p1257_tests::v16_precise_sampler_nonangular_spaces_keep_components_and_alpha ... ok
+test export::html::whitespace::v16_whitespace_tests::v16_whitespace_html_boundary_row ... ok
+test export::html::whitespace::v16_whitespace_tests::v16_whitespace_html_empty_inline_row ... ok
+test export::html::whitespace::v16_whitespace_tests::v16_whitespace_html_supportive_row ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 1368 filtered out; finished in 0.00s
+

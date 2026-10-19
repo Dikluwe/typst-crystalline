@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/gradients/adaptive.md
-//! @prompt-hash 41531086
+//! @prompt-hash 04c6551e
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -216,14 +216,17 @@ fn sample_gradient_precise_for_svg(gradient: &Gradient, t: f64) -> Color {
         Gradient::Radial(value) => (&*value.stops, value.space.clone()),
         Gradient::Conic(value) => return value.sample(t as f32),
     };
-    if !matches!(
-        space,
+    let precise_space = match &space {
         ColorSpace::Oklab
-            | ColorSpace::LinearRgb
-            | ColorSpace::Oklch
-            | ColorSpace::Hsl
-            | ColorSpace::Hsv
-    ) {
+        | ColorSpace::LinearRgb
+        | ColorSpace::Oklch
+        | ColorSpace::Hsl
+        | ColorSpace::Hsv => true,
+        ColorSpace::Srgb | ColorSpace::Luma | ColorSpace::Cmyk | ColorSpace::Spot(_) => {
+            false
+        }
+    };
+    if !precise_space {
         return match gradient {
             Gradient::Linear(value) => value.sample(t as f32),
             Gradient::Radial(value) => value.sample(t as f32),
@@ -272,7 +275,12 @@ fn sample_gradient_precise_for_svg(gradient: &Gradient, t: f64) -> Color {
     if let Some(hue_index) = match space {
         ColorSpace::Oklch => Some(2),
         ColorSpace::Hsl | ColorSpace::Hsv => Some(0),
-        _ => None,
+        ColorSpace::Oklab
+        | ColorSpace::LinearRgb
+        | ColorSpace::Srgb
+        | ColorSpace::Luma
+        | ColorSpace::Cmyk
+        | ColorSpace::Spot(_) => None,
     } {
         if (c0[hue_index] - c1[hue_index]).abs() > 180.0 {
             if c0[hue_index] < c1[hue_index] {
@@ -302,7 +310,9 @@ fn sample_gradient_precise_for_svg(gradient: &Gradient, t: f64) -> Color {
         ColorSpace::Hsv => {
             Color::hsv(mixed[0].rem_euclid(360.0), mixed[1], mixed[2], mixed[3])
         }
-        _ => unreachable!(),
+        ColorSpace::Srgb | ColorSpace::Luma | ColorSpace::Cmyk | ColorSpace::Spot(_) => {
+            unreachable!()
+        }
     }
 }
 
@@ -477,6 +487,114 @@ mod p1257_tests {
                 "precisao divergente em {space:?}"
             );
         }
+    }
+
+    #[test]
+    fn v16_precise_sampler_nonangular_spaces_keep_components_and_alpha() {
+        let cases = [
+            (
+                ColorSpace::Oklab,
+                Color::oklab(0.25, 0.125, -0.25, 0.25),
+                Color::oklab(0.75, 0.375, 0.25, 0.75),
+                Color::oklab(0.5, 0.25, 0.0, 0.5),
+            ),
+            (
+                ColorSpace::LinearRgb,
+                Color::linear_rgb(0.125, 0.25, 0.375, 0.25),
+                Color::linear_rgb(0.875, 0.75, 0.625, 0.75),
+                Color::linear_rgb(0.5, 0.5, 0.5, 0.5),
+            ),
+        ];
+        for (space, first, last, midpoint) in cases {
+            let gradient = Gradient::linear_with_space(
+                vec![
+                    GradientStop::new(first.clone(), Ratio(0.0)),
+                    GradientStop::new(last.clone(), Ratio(1.0)),
+                ],
+                Angle::deg(0.0),
+                space.clone(),
+            );
+            assert_eq!(sample_gradient_precise_for_svg(&gradient, 0.0), first);
+            assert_eq!(sample_gradient_precise_for_svg(&gradient, 0.5), midpoint);
+            assert_eq!(sample_gradient_precise_for_svg(&gradient, 1.0), last);
+        }
+    }
+
+    #[test]
+    fn v16_precise_sampler_delegates_other_spaces_without_erasing_spot() {
+        use std::sync::Arc;
+        use typst_core::entities::color::{SpotColor, SpotColorant};
+
+        let colorant = SpotColorant {
+            name: Some("Brand".into()),
+            fallback: Color::rgb(255, 65, 54),
+        };
+        let spot = |tint| {
+            Color::Spot(SpotColor {
+                colorant: Arc::new(colorant.clone()),
+                tint: Ratio(tint),
+            })
+        };
+        let cases = [
+            (ColorSpace::Srgb, Color::rgb(10, 20, 30), Color::rgb(240, 160, 80)),
+            (ColorSpace::Luma, Color::luma(0.25), Color::luma(0.75)),
+            (
+                ColorSpace::Cmyk,
+                Color::cmyk(0.25, 0.0, 0.5, 0.0),
+                Color::cmyk(0.75, 0.5, 0.0, 0.25),
+            ),
+            (ColorSpace::Spot(colorant.clone()), spot(0.25), spot(0.75)),
+        ];
+        for (space, first, last) in cases {
+            let gradient = Gradient::linear_with_space(
+                vec![
+                    GradientStop::new(first, Ratio(0.0)),
+                    GradientStop::new(last, Ratio(1.0)),
+                ],
+                Angle::deg(0.0),
+                space.clone(),
+            );
+            let Gradient::Linear(domain) = &gradient else {
+                panic!("linear constructor must retain its domain carrier");
+            };
+            for t in [0.0, 0.125, 0.5, 0.875, 1.0] {
+                assert_eq!(
+                    sample_gradient_precise_for_svg(&gradient, t),
+                    domain.sample(t as f32),
+                    "domain delegation changed for {space:?} at {t}"
+                );
+            }
+        }
+        let gradient = Gradient::linear_with_space(
+            vec![
+                GradientStop::new(spot(0.25), Ratio(0.0)),
+                GradientStop::new(spot(0.75), Ratio(1.0)),
+            ],
+            Angle::deg(0.0),
+            ColorSpace::Spot(colorant.clone()),
+        );
+        assert_eq!(sample_gradient_precise_for_svg(&gradient, 0.5), spot(0.5));
+        let other = Color::Spot(SpotColor {
+            colorant: Arc::new(SpotColorant {
+                name: Some("Other".into()),
+                fallback: colorant.fallback.clone(),
+            }),
+            tint: Ratio(0.75),
+        });
+        let mixed = Gradient::linear_with_space(
+            vec![
+                GradientStop::new(spot(0.25), Ratio(0.0)),
+                GradientStop::new(other, Ratio(1.0)),
+            ],
+            Angle::deg(0.0),
+            ColorSpace::Spot(colorant.clone()),
+        );
+        let Gradient::Linear(domain) = &mixed else {
+            panic!("linear constructor must retain its domain carrier");
+        };
+        let sampled = sample_gradient_precise_for_svg(&mixed, 0.5);
+        assert_eq!(sampled, domain.sample(0.5));
+        assert_eq!(sampled.space(), ColorSpace::Oklab);
     }
 
     #[test]

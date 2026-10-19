@@ -1,0 +1,50 @@
+[
+  {
+    "name": "core-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--",
+      "--test-threads=1"
+    ]
+  },
+  {
+    "name": "infra-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-infra",
+      "--lib",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CRYSTALLINE_PDF_FIXED_EPOCH": "1792281600"
+    }
+  },
+  {
+    "name": "watch-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-infra",
+      "--test",
+      "armed_watch_contract",
+      "--test",
+      "watch_snapshot_contract",
+      "--",
+      "--test-threads=1"
+    ]
+  }
+]

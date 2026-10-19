@@ -1,9 +1,25 @@
 # L0 — entities/syntax-node/representation
-Hash do Código: 622d2c76
+Hash do Código: 6ae1f5cc
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/entities/syntax_node/representation.rs`
 **Governance:** ADR-0107, ADR-0129, ADR-0130.
+
+## Evidence before the nominal equality decision
+
+At reviewed HEAD `841c9855f8ad6695f4e140d1ee4a33e4f4a46689`,
+`01_core/src/entities/syntax_node/representation.rs:27-34` defines private
+NodeKind with Leaf, Inner and Error. SyntaxNode::spanless_eq at lines 191-198
+matches `(&self.0, &other.0)`: the three same-kind pairs delegate to their
+existing representation-specific comparisons; its open complement returns
+false. The V16-082 inventory and causal ledger in
+`lab/results/v16-cause-analysis-2026-10-19/` agree with the consumer and this
+owner's pre-edit hashes. Leaf comparison at lines 362-364 retains kind/text;
+Inner at lines 461-473 retains structure/caches and recursive equality;
+Error at lines 596-598 retains text and the error owner's spanless comparison
+(`01_core/src/entities/syntax_node/errors.rs:66-70`). This is inspection of
+the current Rust syntax-tree contract, not a new language parity measurement
+or a claim about language Content equality.
 
 ## Contract
 
@@ -24,8 +40,53 @@ intervals, replace_children/update_parent boundaries, caches and spans of equal
 edge children. Preserve Clone/Eq/PartialEq/Hash behavior. Local tests cover COW
 cache updates and equal-edge spans.
 
+Keep the exact three same-kind delegates in SyntaxNode::spanless_eq. Name
+the six heterogeneous pairs explicitly: (Leaf, Inner), (Leaf, Error),
+(Inner, Leaf), (Inner, Error), (Error, Leaf) and (Error, Inner); each returns
+false. Identical visible text or empty children do not equate unlike syntax
+representations. This closed 3×3 decision ignores spans only; it does not
+ignore kind, byte text, child order/structure, error category/message/hints
+or cached structural distinctions. Preserve both operand directions.
+
+Require a new decision when NodeKind grows on either tuple axis, including
+new/new. Do not substitute discriminant equality, a hash comparison,
+if-let/matches! or a helper carrying the same open false fallback. Do not
+duplicate equal bodies merely to hide V19 or change Eq/PartialEq/Hash,
+syntax representation, COW storage, numbering/editing or public paths.
+
 ## Acceptance
 
 Verify the owned behavior through local tests and its existing integrations.
 Preserve public paths and observable results. Ownership, nucleus integrity and
 lineage checks must remain valid; no unrelated consumer is authorized by this prompt.
+
+Preserve existing integration tests `spanless_eq` and
+`representation_clone_and_spanless_equality_are_preserved` in
+`01_core/src/entities/syntax_node.rs`, and this consumer's
+`editing_clone_updates_its_caches_without_mutating_original` and
+`replacement_retains_spans_of_unchanged_edges`. The error owner's
+`spanless_error_equality_keeps_hints_and_kind` remains an integration control,
+not test ownership transferred here.
+
+Local controls must cover all nine Leaf/Inner/Error pair categories.
+The six heterogeneous pairs stay false even when they expose identical
+text. Same-kind structural equals with different synthesized spans stay
+true, while changed leaf kind/text, inner child order/structure and error
+category/message/hints stay unequal. Preserve clone isolation and the
+existing equal-edge span behavior. These are current syntax-tree API
+observations, not a replacement oracle for Typst Content equality.
+
+In a disposable complete workspace only, extend copied NodeKind with a
+sentinel. Structural baseline lacks an E0004 obligation at this selected
+match; the nominal correction must yield attributable E0004 in
+the tuple match at
+`01_core/src/entities/syntax_node/representation.rs:192-197`, with coverage
+of new/old, old/new and new/new. Function-level errors elsewhere are insufficient.
+Other matches may also fail on the added variant, but those failures alone
+do not prove this match closed. Do not alter the productive enum, use stubs,
+suppress V16, change scan scope or weaken expected test values. Review any
+informative V19/V20 notes without treating one grouped arm as every executed
+case. ADR-0127 continuous flow applies to this internal preservation change:
+L0 first, no public/default/phase/compatibility change, pure L1 and existing
+1:1 ownership. Valid V15/V26 precedes restricted resealing
+and regression/build/lint gates.

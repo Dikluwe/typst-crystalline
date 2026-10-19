@@ -1,0 +1,80 @@
+[
+  {
+    "name": "core-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-19T10:27:46.660085+00:00",
+    "exit": 0,
+    "seconds": 132.94307542000024,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "4099674112",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "infra-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-infra",
+      "--lib",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CRYSTALLINE_PDF_FIXED_EPOCH": "1792281600"
+    },
+    "utc_end": "2026-10-19T10:28:23.629597+00:00",
+    "exit": 0,
+    "seconds": 36.96892475899949,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "4099674112",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "watch-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-infra",
+      "--test",
+      "armed_watch_contract",
+      "--test",
+      "watch_snapshot_contract",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-19T10:29:29.298740+00:00",
+    "exit": 0,
+    "seconds": 65.66866606200347,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "4099674112",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

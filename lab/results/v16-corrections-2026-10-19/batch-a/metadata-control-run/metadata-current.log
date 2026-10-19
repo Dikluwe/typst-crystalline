@@ -1,0 +1,10 @@
+    Finished `test` profile [unoptimized] target(s) in 0.15s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_infra-fe20ec64d9b98dd4)
+
+running 3 tests
+test export::builder::metadata::v16_semantic_continuation_tests::boundaries_keep_ua1_paragraphs_and_exclude_artifact_descendants ... ok
+test export::builder::metadata::v16_semantic_continuation_tests::every_semantic_continuation_reaches_top_level_processing ... ok
+test export::builder::metadata::v16_semantic_continuation_tests::semantic_continuations_preserve_formula_label_and_table_structure ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 1373 filtered out; finished in 0.01s
+

@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-19T11:08:29.360461+00:00",
+  "command": [
+    "python3",
+    "lab/tools/ci/check_mature_layout.py"
+  ],
+  "exit": 0,
+  "head": "841c9855f8ad6695f4e140d1ee4a33e4f4a46689",
+  "diff_head_stat": " .../v16-cause-correction-plan-2026-10-19.md        |  10 +-\n 00_nucleo/prompts/core/compiler/parse/math.md      |  71 ++-\n 00_nucleo/prompts/core/entities/ast/expr.md        | 108 ++++-\n 00_nucleo/prompts/core/entities/font_variations.md |  63 ++-\n 00_nucleo/prompts/core/entities/gradient/radial.md |  76 +++-\n 00_nucleo/prompts/core/entities/operators.md       |  74 +++-\n .../core/entities/syntax_node/representation.md    |  63 ++-\n 00_nucleo/prompts/infra/export/builder/metadata.md |  84 +++-\n .../prompts/infra/export/gradients/adaptive.md     |  91 +++-\n 00_nucleo/prompts/infra/fonts/coverage.md          |  92 +++-\n .../prompts/infra/tests/armed_watch_contract.md    |  86 +++-\n .../prompts/infra/tests/watch_snapshot_contract.md |  86 +++-\n 01_core/src/compiler/parse/math.rs                 | 324 +++++++++++++-\n 01_core/src/entities/ast/expr.rs                   | 480 ++++++++++++++++++++-\n 01_core/src/entities/font_variations.rs            | 222 +++++++++-\n 01_core/src/entities/gradient/radial.rs            | 196 ++++++++-\n 01_core/src/entities/operators.rs                  | 337 ++++++++++++++-\n 01_core/src/entities/syntax_node/representation.rs | 115 ++++-\n 03_infra/src/export/builder/metadata.rs            | 308 ++++++++++++-\n 03_infra/src/export/gradients/adaptive.rs          | 138 +++++-\n 03_infra/src/fonts/coverage.rs                     |   9 +-\n 03_infra/tests/armed_watch_contract.rs             |  44 +-\n 03_infra/tests/watch_snapshot_contract.rs          |  44 +-\n 23 files changed, 3067 insertions(+), 54 deletions(-)\n"
+}

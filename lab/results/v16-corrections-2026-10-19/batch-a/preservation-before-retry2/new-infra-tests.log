@@ -1,0 +1,32 @@
+   Compiling bytemuck v1.25.0
+   Compiling font-types v0.11.3
+   Compiling ring v0.17.14
+   Compiling read-fonts v0.39.2
+   Compiling syntect v5.3.0
+   Compiling rustls-webpki v0.103.13
+   Compiling tiny-skia-path v0.12.0
+   Compiling rustls v0.23.42
+   Compiling write-fonts v0.48.1
+   Compiling two-face v0.4.5
+   Compiling skrifa v0.42.1
+   Compiling image v0.24.9
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+   Compiling rustybuzz v0.20.1
+   Compiling tiny-skia v0.12.0
+   Compiling subsetter v0.2.6
+   Compiling ureq v2.12.1
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+error[E0599]: no method named `sample` found for enum `typst_core::entities::gradient::Gradient` in the current scope
+   --> 03_infra/src/export/gradients/adaptive.rs:550:30
+    |
+550 |                     gradient.sample(t as f32),
+    |                              ^^^^^^ method not found in `typst_core::entities::gradient::Gradient`
+
+error[E0599]: no method named `sample` found for enum `typst_core::entities::gradient::Gradient` in the current scope
+   --> 03_infra/src/export/gradients/adaptive.rs:580:35
+    |
+580 |         assert_eq!(sampled, mixed.sample(0.5));
+    |                                   ^^^^^^ method not found in `typst_core::entities::gradient::Gradient`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `typst-infra` (lib test) due to 2 previous errors

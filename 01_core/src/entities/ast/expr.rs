@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/ast/expr.md
-//! @prompt-hash 9bfb193a
+//! @prompt-hash 8c64c623
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -599,7 +599,138 @@ impl UnOp {
             SyntaxKind::Plus => Self::Pos,
             SyntaxKind::Minus => Self::Neg,
             SyntaxKind::Not => Self::Not,
-            _ => return Option::None, // neutro: N16[β] — SyntaxKind não-operador unário retorna None em UnOp::from_kind
+            // Not a unary operator: child scanning must continue.
+            SyntaxKind::End
+            | SyntaxKind::Error
+            | SyntaxKind::Shebang
+            | SyntaxKind::LineComment
+            | SyntaxKind::BlockComment
+            | SyntaxKind::Markup
+            | SyntaxKind::Text
+            | SyntaxKind::Space
+            | SyntaxKind::Linebreak
+            | SyntaxKind::Parbreak
+            | SyntaxKind::Escape
+            | SyntaxKind::Shorthand
+            | SyntaxKind::SmartQuote
+            | SyntaxKind::Strong
+            | SyntaxKind::Emph
+            | SyntaxKind::Raw
+            | SyntaxKind::RawLang
+            | SyntaxKind::RawDelim
+            | SyntaxKind::RawTrimmed
+            | SyntaxKind::Link
+            | SyntaxKind::Label
+            | SyntaxKind::Ref
+            | SyntaxKind::RefMarker
+            | SyntaxKind::Heading
+            | SyntaxKind::HeadingMarker
+            | SyntaxKind::ListItem
+            | SyntaxKind::ListMarker
+            | SyntaxKind::EnumItem
+            | SyntaxKind::EnumMarker
+            | SyntaxKind::TermItem
+            | SyntaxKind::TermMarker
+            | SyntaxKind::Equation
+            | SyntaxKind::Math
+            | SyntaxKind::MathText
+            | SyntaxKind::MathIdent
+            | SyntaxKind::MathShorthand
+            | SyntaxKind::MathAlignPoint
+            | SyntaxKind::MathDelimited
+            | SyntaxKind::MathAttach
+            | SyntaxKind::MathPrimes
+            | SyntaxKind::MathFrac
+            | SyntaxKind::MathRoot
+            | SyntaxKind::Hash
+            | SyntaxKind::LeftBrace
+            | SyntaxKind::RightBrace
+            | SyntaxKind::LeftBracket
+            | SyntaxKind::RightBracket
+            | SyntaxKind::LeftParen
+            | SyntaxKind::RightParen
+            | SyntaxKind::Comma
+            | SyntaxKind::Semicolon
+            | SyntaxKind::Colon
+            | SyntaxKind::Star
+            | SyntaxKind::Underscore
+            | SyntaxKind::Dollar
+            | SyntaxKind::Slash
+            | SyntaxKind::Hat
+            | SyntaxKind::Dot
+            | SyntaxKind::Eq
+            | SyntaxKind::EqEq
+            | SyntaxKind::ExclEq
+            | SyntaxKind::Lt
+            | SyntaxKind::LtEq
+            | SyntaxKind::Gt
+            | SyntaxKind::GtEq
+            | SyntaxKind::PlusEq
+            | SyntaxKind::HyphEq
+            | SyntaxKind::StarEq
+            | SyntaxKind::SlashEq
+            | SyntaxKind::Dots
+            | SyntaxKind::Arrow
+            | SyntaxKind::Root
+            | SyntaxKind::Bang
+            | SyntaxKind::And
+            | SyntaxKind::Or
+            | SyntaxKind::None
+            | SyntaxKind::Auto
+            | SyntaxKind::Let
+            | SyntaxKind::Set
+            | SyntaxKind::Show
+            | SyntaxKind::Context
+            | SyntaxKind::If
+            | SyntaxKind::Else
+            | SyntaxKind::For
+            | SyntaxKind::In
+            | SyntaxKind::While
+            | SyntaxKind::Break
+            | SyntaxKind::Continue
+            | SyntaxKind::Return
+            | SyntaxKind::Import
+            | SyntaxKind::Include
+            | SyntaxKind::As
+            | SyntaxKind::Code
+            | SyntaxKind::Ident
+            | SyntaxKind::Bool
+            | SyntaxKind::Int
+            | SyntaxKind::Float
+            | SyntaxKind::Numeric
+            | SyntaxKind::Str
+            | SyntaxKind::CodeBlock
+            | SyntaxKind::ContentBlock
+            | SyntaxKind::Parenthesized
+            | SyntaxKind::Array
+            | SyntaxKind::Dict
+            | SyntaxKind::Named
+            | SyntaxKind::Keyed
+            | SyntaxKind::Unary
+            | SyntaxKind::Binary
+            | SyntaxKind::FieldAccess
+            | SyntaxKind::FuncCall
+            | SyntaxKind::Args
+            | SyntaxKind::Spread
+            | SyntaxKind::Closure
+            | SyntaxKind::Params
+            | SyntaxKind::LetBinding
+            | SyntaxKind::SetRule
+            | SyntaxKind::ShowRule
+            | SyntaxKind::Contextual
+            | SyntaxKind::Conditional
+            | SyntaxKind::WhileLoop
+            | SyntaxKind::ForLoop
+            | SyntaxKind::ModuleImport
+            | SyntaxKind::ImportItems
+            | SyntaxKind::ImportItemPath
+            | SyntaxKind::RenamedImportItem
+            | SyntaxKind::ModuleInclude
+            | SyntaxKind::LoopBreak
+            | SyntaxKind::LoopContinue
+            | SyntaxKind::FuncReturn
+            | SyntaxKind::Destructuring
+            | SyntaxKind::DestructAssignment => return Option::None,
         })
     }
 
@@ -689,7 +820,123 @@ impl BinOp {
             SyntaxKind::HyphEq => Self::SubAssign,
             SyntaxKind::StarEq => Self::MulAssign,
             SyntaxKind::SlashEq => Self::DivAssign,
-            _ => return Option::None, // neutro: N16[β] — SyntaxKind não-operador binário retorna None em BinOp::from_kind
+            // Not a binary token; NotIn is composed by the surrounding accessor.
+            SyntaxKind::End
+            | SyntaxKind::Error
+            | SyntaxKind::Shebang
+            | SyntaxKind::LineComment
+            | SyntaxKind::BlockComment
+            | SyntaxKind::Markup
+            | SyntaxKind::Text
+            | SyntaxKind::Space
+            | SyntaxKind::Linebreak
+            | SyntaxKind::Parbreak
+            | SyntaxKind::Escape
+            | SyntaxKind::Shorthand
+            | SyntaxKind::SmartQuote
+            | SyntaxKind::Strong
+            | SyntaxKind::Emph
+            | SyntaxKind::Raw
+            | SyntaxKind::RawLang
+            | SyntaxKind::RawDelim
+            | SyntaxKind::RawTrimmed
+            | SyntaxKind::Link
+            | SyntaxKind::Label
+            | SyntaxKind::Ref
+            | SyntaxKind::RefMarker
+            | SyntaxKind::Heading
+            | SyntaxKind::HeadingMarker
+            | SyntaxKind::ListItem
+            | SyntaxKind::ListMarker
+            | SyntaxKind::EnumItem
+            | SyntaxKind::EnumMarker
+            | SyntaxKind::TermItem
+            | SyntaxKind::TermMarker
+            | SyntaxKind::Equation
+            | SyntaxKind::Math
+            | SyntaxKind::MathText
+            | SyntaxKind::MathIdent
+            | SyntaxKind::MathShorthand
+            | SyntaxKind::MathAlignPoint
+            | SyntaxKind::MathDelimited
+            | SyntaxKind::MathAttach
+            | SyntaxKind::MathPrimes
+            | SyntaxKind::MathFrac
+            | SyntaxKind::MathRoot
+            | SyntaxKind::Hash
+            | SyntaxKind::LeftBrace
+            | SyntaxKind::RightBrace
+            | SyntaxKind::LeftBracket
+            | SyntaxKind::RightBracket
+            | SyntaxKind::LeftParen
+            | SyntaxKind::RightParen
+            | SyntaxKind::Comma
+            | SyntaxKind::Semicolon
+            | SyntaxKind::Colon
+            | SyntaxKind::Underscore
+            | SyntaxKind::Dollar
+            | SyntaxKind::Hat
+            | SyntaxKind::Dot
+            | SyntaxKind::Dots
+            | SyntaxKind::Arrow
+            | SyntaxKind::Root
+            | SyntaxKind::Bang
+            | SyntaxKind::Not
+            | SyntaxKind::None
+            | SyntaxKind::Auto
+            | SyntaxKind::Let
+            | SyntaxKind::Set
+            | SyntaxKind::Show
+            | SyntaxKind::Context
+            | SyntaxKind::If
+            | SyntaxKind::Else
+            | SyntaxKind::For
+            | SyntaxKind::While
+            | SyntaxKind::Break
+            | SyntaxKind::Continue
+            | SyntaxKind::Return
+            | SyntaxKind::Import
+            | SyntaxKind::Include
+            | SyntaxKind::As
+            | SyntaxKind::Code
+            | SyntaxKind::Ident
+            | SyntaxKind::Bool
+            | SyntaxKind::Int
+            | SyntaxKind::Float
+            | SyntaxKind::Numeric
+            | SyntaxKind::Str
+            | SyntaxKind::CodeBlock
+            | SyntaxKind::ContentBlock
+            | SyntaxKind::Parenthesized
+            | SyntaxKind::Array
+            | SyntaxKind::Dict
+            | SyntaxKind::Named
+            | SyntaxKind::Keyed
+            | SyntaxKind::Unary
+            | SyntaxKind::Binary
+            | SyntaxKind::FieldAccess
+            | SyntaxKind::FuncCall
+            | SyntaxKind::Args
+            | SyntaxKind::Spread
+            | SyntaxKind::Closure
+            | SyntaxKind::Params
+            | SyntaxKind::LetBinding
+            | SyntaxKind::SetRule
+            | SyntaxKind::ShowRule
+            | SyntaxKind::Contextual
+            | SyntaxKind::Conditional
+            | SyntaxKind::WhileLoop
+            | SyntaxKind::ForLoop
+            | SyntaxKind::ModuleImport
+            | SyntaxKind::ImportItems
+            | SyntaxKind::ImportItemPath
+            | SyntaxKind::RenamedImportItem
+            | SyntaxKind::ModuleInclude
+            | SyntaxKind::LoopBreak
+            | SyntaxKind::LoopContinue
+            | SyntaxKind::FuncReturn
+            | SyntaxKind::Destructuring
+            | SyntaxKind::DestructAssignment => return Option::None,
         })
     }
 
@@ -903,10 +1150,71 @@ impl<'a> AstNode<'a> for Pattern<'a> {
 impl<'a> Pattern<'a> {
     pub fn bindings(self) -> Vec<Ident<'a>> {
         match self {
-            Self::Normal(Expr::Ident(ident)) => vec![ident],
+            Self::Normal(binding) => match binding {
+                Expr::Ident(ident) => vec![ident],
+                // Normal expressions use identifiers but do not declare bindings.
+                Expr::Text(_)
+                | Expr::Space(_)
+                | Expr::Linebreak(_)
+                | Expr::Parbreak(_)
+                | Expr::Escape(_)
+                | Expr::Shorthand(_)
+                | Expr::SmartQuote(_)
+                | Expr::Strong(_)
+                | Expr::Emph(_)
+                | Expr::Raw(_)
+                | Expr::Link(_)
+                | Expr::Label(_)
+                | Expr::Ref(_)
+                | Expr::Heading(_)
+                | Expr::ListItem(_)
+                | Expr::EnumItem(_)
+                | Expr::TermItem(_)
+                | Expr::Equation(_)
+                | Expr::Math(_)
+                | Expr::MathText(_)
+                | Expr::MathIdent(_)
+                | Expr::MathShorthand(_)
+                | Expr::MathAlignPoint(_)
+                | Expr::MathDelimited(_)
+                | Expr::MathAttach(_)
+                | Expr::MathPrimes(_)
+                | Expr::MathFrac(_)
+                | Expr::MathRoot(_)
+                | Expr::None(_)
+                | Expr::Auto(_)
+                | Expr::Bool(_)
+                | Expr::Int(_)
+                | Expr::Float(_)
+                | Expr::Numeric(_)
+                | Expr::Str(_)
+                | Expr::CodeBlock(_)
+                | Expr::ContentBlock(_)
+                | Expr::Parenthesized(_)
+                | Expr::Array(_)
+                | Expr::Dict(_)
+                | Expr::Unary(_)
+                | Expr::Binary(_)
+                | Expr::FieldAccess(_)
+                | Expr::FuncCall(_)
+                | Expr::Closure(_)
+                | Expr::LetBinding(_)
+                | Expr::DestructAssignment(_)
+                | Expr::SetRule(_)
+                | Expr::ShowRule(_)
+                | Expr::Contextual(_)
+                | Expr::Conditional(_)
+                | Expr::WhileLoop(_)
+                | Expr::ForLoop(_)
+                | Expr::ModuleImport(_)
+                | Expr::ModuleInclude(_)
+                | Expr::LoopBreak(_)
+                | Expr::LoopContinue(_)
+                | Expr::FuncReturn(_) => vec![],
+            },
+            Self::Placeholder(_) => vec![],
             Self::Parenthesized(v) => v.pattern().bindings(),
             Self::Destructuring(v) => v.bindings(),
-            _ => vec![], // neutro: N16[β] — Pattern sem bindings (literais, etc.) retorna vec![]
         }
     }
 }
@@ -1002,5 +1310,167 @@ mod tests {
         if let Some(n) = int_node {
             assert_eq!(Int::from_untyped(n).unwrap().get(), 42);
         }
+    }
+
+    #[test]
+    fn v16_ast_operator_maps_match_parser_roles() {
+        for (kind, expected) in [
+            (SyntaxKind::Plus, UnOp::Pos),
+            (SyntaxKind::Minus, UnOp::Neg),
+            (SyntaxKind::Not, UnOp::Not),
+        ] {
+            assert_eq!(UnOp::from_kind(kind), Some(expected));
+            assert!(crate::entities::syntax_set::UNARY_OP.contains(kind));
+        }
+        for (kind, expected) in [
+            (SyntaxKind::Plus, BinOp::Add),
+            (SyntaxKind::Minus, BinOp::Sub),
+            (SyntaxKind::Star, BinOp::Mul),
+            (SyntaxKind::Slash, BinOp::Div),
+            (SyntaxKind::And, BinOp::And),
+            (SyntaxKind::Or, BinOp::Or),
+            (SyntaxKind::EqEq, BinOp::Eq),
+            (SyntaxKind::ExclEq, BinOp::Neq),
+            (SyntaxKind::Lt, BinOp::Lt),
+            (SyntaxKind::LtEq, BinOp::Leq),
+            (SyntaxKind::Gt, BinOp::Gt),
+            (SyntaxKind::GtEq, BinOp::Geq),
+            (SyntaxKind::Eq, BinOp::Assign),
+            (SyntaxKind::In, BinOp::In),
+            (SyntaxKind::PlusEq, BinOp::AddAssign),
+            (SyntaxKind::HyphEq, BinOp::SubAssign),
+            (SyntaxKind::StarEq, BinOp::MulAssign),
+            (SyntaxKind::SlashEq, BinOp::DivAssign),
+        ] {
+            assert_eq!(BinOp::from_kind(kind), Some(expected));
+            assert!(crate::entities::syntax_set::BINARY_OP.contains(kind));
+        }
+        for kind in [
+            SyntaxKind::End,
+            SyntaxKind::Error,
+            SyntaxKind::Space,
+            SyntaxKind::LineComment,
+            SyntaxKind::Ident,
+            SyntaxKind::Int,
+            SyntaxKind::LeftParen,
+        ] {
+            assert_eq!(UnOp::from_kind(kind), Option::None, "unary nonoperator {kind:?}");
+            assert_eq!(
+                BinOp::from_kind(kind),
+                Option::None,
+                "binary nonoperator {kind:?}"
+            );
+        }
+        assert_eq!(UnOp::from_kind(SyntaxKind::Star), Option::None);
+        assert_eq!(BinOp::from_kind(SyntaxKind::Not), Option::None);
+    }
+
+    #[test]
+    fn v16_ast_accessors_preserve_precedence_and_composed_not_in() {
+        let root = crate::compiler::parse::parse_code("1 + 2 * 3");
+        assert!(!root.erroneous(), "{:?}", root.errors());
+        let add = root
+            .children()
+            .find_map(Binary::from_untyped)
+            .expect("addition fixture");
+        assert_eq!(add.op(), BinOp::Add);
+        assert_eq!(add.lhs().to_untyped().text_str(), "1");
+        let mul = Binary::from_untyped(add.rhs().to_untyped())
+            .expect("multiplication binds tighter");
+        assert_eq!(mul.op(), BinOp::Mul);
+        assert_eq!(mul.lhs().to_untyped().text_str(), "2");
+        assert_eq!(mul.rhs().to_untyped().text_str(), "3");
+        let root = crate::compiler::parse::parse_code("not 1 == 2");
+        assert!(!root.erroneous(), "{:?}", root.errors());
+        let not = root
+            .children()
+            .find_map(Unary::from_untyped)
+            .expect("unary not fixture");
+        assert_eq!(not.op(), UnOp::Not);
+        let eq =
+            Binary::from_untyped(not.expr().to_untyped()).expect("comparison within not");
+        assert_eq!(eq.op(), BinOp::Eq);
+        let root = crate::compiler::parse::parse_code("item not in items");
+        assert!(!root.erroneous(), "{:?}", root.errors());
+        let not_in = root
+            .children()
+            .find_map(Binary::from_untyped)
+            .expect("not in fixture");
+        assert_eq!(not_in.op(), BinOp::NotIn);
+        assert_eq!(not_in.lhs().to_untyped().text_str(), "item");
+        assert_eq!(not_in.rhs().to_untyped().text_str(), "items");
+    }
+
+    #[test]
+    fn v16_ast_bindings_preserve_nested_named_and_spread_order() {
+        let root = crate::compiler::parse::parse_code(
+            "let (head, (middle), key: renamed, ..tail) = none",
+        );
+        assert!(!root.erroneous(), "{:?}", root.errors());
+        let binding = root
+            .children()
+            .find_map(crate::entities::ast::code::LetBinding::from_untyped)
+            .expect("destructuring let fixture");
+        let names: Vec<_> =
+            binding.kind().bindings().into_iter().map(Ident::as_str).collect();
+        assert_eq!(names, ["head", "middle", "renamed", "tail"]);
+        let root = crate::compiler::parse::parse_code("let (head, _, ..) = none");
+        assert!(!root.erroneous(), "{:?}", root.errors());
+        let binding = root
+            .children()
+            .find_map(crate::entities::ast::code::LetBinding::from_untyped)
+            .expect("anonymous sink fixture");
+        let names: Vec<_> =
+            binding.kind().bindings().into_iter().map(Ident::as_str).collect();
+        assert_eq!(names, ["head"]);
+    }
+
+    #[test]
+    fn v16_ast_binding_projection_distinguishes_uses_from_declarations() {
+        let identifier = SyntaxNode::leaf(SyntaxKind::Ident, "bound");
+        let pattern = Pattern::from_untyped(&identifier).expect("identifier pattern");
+        assert_eq!(
+            pattern.bindings().into_iter().map(Ident::as_str).collect::<Vec<_>>(),
+            ["bound"]
+        );
+        let placeholder = SyntaxNode::leaf(SyntaxKind::Underscore, "_");
+        assert!(Pattern::from_untyped(&placeholder)
+            .expect("placeholder pattern")
+            .bindings()
+            .is_empty());
+        let literal = SyntaxNode::leaf(SyntaxKind::Int, "42");
+        assert!(Pattern::from_untyped(&literal)
+            .expect("structural literal pattern")
+            .bindings()
+            .is_empty());
+        // Structural Normal expressions are not declarations of identifiers they use.
+        for kind in [
+            SyntaxKind::Array,
+            SyntaxKind::FieldAccess,
+            SyntaxKind::FuncCall,
+            SyntaxKind::Closure,
+        ] {
+            let node = SyntaxNode::inner(kind, vec![identifier.clone()]);
+            let expression =
+                Expr::from_untyped(&node).expect("normal expression fixture");
+            assert!(
+                Pattern::Normal(expression).bindings().is_empty(),
+                "nonbinding expression {kind:?}"
+            );
+        }
+        let node = SyntaxNode::inner(SyntaxKind::Parenthesized, vec![identifier]);
+        let parenthesized =
+            Parenthesized::from_untyped(&node).expect("parenthesized fixture");
+        assert_eq!(
+            Pattern::Parenthesized(parenthesized)
+                .bindings()
+                .into_iter()
+                .map(Ident::as_str)
+                .collect::<Vec<_>>(),
+            ["bound"]
+        );
+        assert!(Pattern::Normal(Expr::Parenthesized(parenthesized))
+            .bindings()
+            .is_empty());
     }
 }

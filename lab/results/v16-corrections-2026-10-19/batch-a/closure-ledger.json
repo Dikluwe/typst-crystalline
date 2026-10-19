@@ -1,0 +1,234 @@
+{
+  "utc": "2026-10-19T11:10:30.919340+00:00",
+  "tested_state": "uncommitted working tree; exact sources and diff in validation/validation-state.json.gz",
+  "checkpoint": "841c9855f8ad6695f4e140d1ee4a33e4f4a46689",
+  "closed": [
+    {
+      "id": "V16-048",
+      "file": "01_core/src/compiler/parse/math.rs",
+      "owner": "00_nucleo/prompts/core/compiler/parse/math.md",
+      "status": "closed-in-batch-a",
+      "source_sha256": "e8f7054e4f20e9939b4c58d84b83c53ddfce76153d2e7c450d3dff919b9c3971",
+      "owner_sha256": "06204f1647263bd8594c02e283eb45b772a2d2a451be0ea6c213483d04013996",
+      "structural_sites": [
+        {
+          "id": "V16-048",
+          "function": "math_op",
+          "copied_match_line": 201
+        }
+      ]
+    },
+    {
+      "id": "V16-071",
+      "file": "01_core/src/entities/ast/expr.rs",
+      "owner": "00_nucleo/prompts/core/entities/ast/expr.md",
+      "status": "closed-in-batch-a",
+      "source_sha256": "75435293baa19c734d473e748097471e3226e69340f90b75bd7e797d26f4d906",
+      "owner_sha256": "10e707d643855b8df679234763343fef70e64ea60291392ee410739a47ec2168",
+      "structural_sites": [
+        {
+          "id": "V16-071",
+          "function": "from_kind",
+          "copied_match_line": 598
+        }
+      ]
+    },
+    {
+      "id": "V16-072",
+      "file": "01_core/src/entities/ast/expr.rs",
+      "owner": "00_nucleo/prompts/core/entities/ast/expr.md",
+      "status": "closed-in-batch-a",
+      "source_sha256": "75435293baa19c734d473e748097471e3226e69340f90b75bd7e797d26f4d906",
+      "owner_sha256": "10e707d643855b8df679234763343fef70e64ea60291392ee410739a47ec2168",
+      "structural_sites": [
+        {
+          "id": "V16-072",
+          "function": "from_kind",
+          "copied_match_line": 804
+        }
+      ]
+    },
+    {
+      "id": "V16-073",
+      "file": "01_core/src/entities/ast/expr.rs",
+      "owner": "00_nucleo/prompts/core/entities/ast/expr.md",
+      "status": "closed-in-batch-a",
+      "source_sha256": "75435293baa19c734d473e748097471e3226e69340f90b75bd7e797d26f4d906",
+      "owner_sha256": "10e707d643855b8df679234763343fef70e64ea60291392ee410739a47ec2168",
+      "structural_sites": [
+        {
+          "id": "V16-073-Pattern",
+          "function": "bindings",
+          "copied_match_line": 1153
+        },
+        {
+          "id": "V16-073-Expr",
+          "function": "bindings",
+          "copied_match_line": 1154
+        }
+      ]
+    },
+    {
+      "id": "V16-078",
+      "file": "01_core/src/entities/font_variations.rs",
+      "owner": "00_nucleo/prompts/core/entities/font_variations.md",
+      "status": "closed-in-batch-a",
+      "source_sha256": "be45b30942d51fc97509b0d33551f7d907137fc2463dd80c9ff765e107247a9e",
+      "owner_sha256": "985a7d1beab159bbdbc732eb13a261abbc6d7b0a415aaa7a92458a5126938b1c",
+      "structural_sites": [
+        {
+          "id": "V16-078",
+          "function": "from_validated_dict",
+          "copied_match_line": 95
+        }
+      ]
+    },
+    {
+      "id": "V16-079",
+      "file": "01_core/src/entities/gradient/radial.rs",
+      "owner": "00_nucleo/prompts/core/entities/gradient/radial.md",
+      "status": "closed-in-batch-a",
+      "source_sha256": "8f36858c8f7b112f98cb057ea604f5e122923fb5658644294d85a62d35fe2d24",
+      "owner_sha256": "7d7bacc21dbd9cfc9ad707b4be40d8673e5f18be352c3b202eace5c762365d83",
+      "structural_sites": [
+        {
+          "id": "V16-079",
+          "function": "sample_precise",
+          "copied_match_line": 142
+        }
+      ]
+    },
+    {
+      "id": "V16-080",
+      "file": "01_core/src/entities/operators.rs",
+      "owner": "00_nucleo/prompts/core/entities/operators.md",
+      "status": "closed-in-batch-a",
+      "source_sha256": "1dfa873c127bfae96a389633b2b557d3df5577bcfe83e5d5ce8db3186962bd12",
+      "owner_sha256": "ff6d8e26194cfb581037b0dfef55282db821352ebd1025aeb29ae58d02122602",
+      "structural_sites": [
+        {
+          "id": "V16-080",
+          "function": "from_kind",
+          "copied_match_line": 23
+        }
+      ]
+    },
+    {
+      "id": "V16-081",
+      "file": "01_core/src/entities/operators.rs",
+      "owner": "00_nucleo/prompts/core/entities/operators.md",
+      "status": "closed-in-batch-a",
+      "source_sha256": "1dfa873c127bfae96a389633b2b557d3df5577bcfe83e5d5ce8db3186962bd12",
+      "owner_sha256": "ff6d8e26194cfb581037b0dfef55282db821352ebd1025aeb29ae58d02122602",
+      "structural_sites": [
+        {
+          "id": "V16-081",
+          "function": "from_kind",
+          "copied_match_line": 207
+        }
+      ]
+    },
+    {
+      "id": "V16-082",
+      "file": "01_core/src/entities/syntax_node/representation.rs",
+      "owner": "00_nucleo/prompts/core/entities/syntax_node/representation.md",
+      "status": "closed-in-batch-a",
+      "source_sha256": "313068e1114429a6118da6ed4f78b15929b8013749e7514a510c2fce6a17241b",
+      "owner_sha256": "d0cb45aa17440417d24a3a627701e348ef412a30feb40421e7367f1670d74fdc",
+      "structural_sites": [
+        {
+          "id": "V16-082",
+          "function": "spanless_eq",
+          "copied_match_line": 193
+        }
+      ]
+    },
+    {
+      "id": "V16-086",
+      "file": "03_infra/src/export/builder/metadata.rs",
+      "owner": "00_nucleo/prompts/infra/export/builder/metadata.md",
+      "status": "closed-in-batch-a",
+      "source_sha256": "e2de05ddb896f0bd74324c99be7d71978449cbb5563a95197871d1a61f69cce8",
+      "owner_sha256": "e03ef19e3b492430837a541d1246833fb076c1d539c760eff5f28d6f2746f7d2",
+      "structural_sites": [
+        {
+          "id": "V16-086",
+          "function": "collect_top",
+          "copied_match_line": 778
+        }
+      ]
+    },
+    {
+      "id": "V16-087",
+      "file": "03_infra/src/export/gradients/adaptive.rs",
+      "owner": "00_nucleo/prompts/infra/export/gradients/adaptive.md",
+      "status": "closed-in-batch-a",
+      "source_sha256": "2a55a96543b15c2db676a23cb541bc829a6ec0ddb707197e8f7b44627718e6b9",
+      "owner_sha256": "4b4d25cd004d0869893f96ef4480d9776e68ba1492fc7621b0908f730089b7ba",
+      "structural_sites": [
+        {
+          "id": "V16-087",
+          "function": "sample_gradient_precise_for_svg",
+          "copied_match_line": 275
+        }
+      ]
+    },
+    {
+      "id": "V16-090",
+      "file": "03_infra/src/fonts/coverage.rs",
+      "owner": "00_nucleo/prompts/infra/fonts/coverage.md",
+      "status": "closed-in-batch-a",
+      "source_sha256": "4086421399d891fed9ab370f0f585af8eb67497f32a0da280a89c4d8a39b93d1",
+      "owner_sha256": "2cb082a4c4ea1e4bd32a78ad3e068b3eb8f72e87df6b898ed8a74a4d20415e53",
+      "structural_sites": [
+        {
+          "id": "V16-090",
+          "function": "collect",
+          "copied_match_line": 86
+        }
+      ]
+    },
+    {
+      "id": "V16-104",
+      "file": "03_infra/tests/armed_watch_contract.rs",
+      "owner": "00_nucleo/prompts/infra/tests/armed_watch_contract.md",
+      "status": "closed-in-batch-a",
+      "source_sha256": "dcca3df5116792fe9cd635e082485550e8ac0acab1084fcb419c9afb2d40d53f",
+      "owner_sha256": "7b00958fa6100211e1c1b9aa45d7f49892c3b52e43b8ad581124471621461aa7",
+      "structural_sites": [
+        {
+          "id": "V16-104",
+          "function": "signature_mentions_id",
+          "copied_match_line": 241
+        }
+      ]
+    },
+    {
+      "id": "V16-105",
+      "file": "03_infra/tests/watch_snapshot_contract.rs",
+      "owner": "00_nucleo/prompts/infra/tests/watch_snapshot_contract.md",
+      "status": "closed-in-batch-a",
+      "source_sha256": "220787a36ce7728c82af685782a0d7c71e49ac5772d33042bdf085453ef0bd9b",
+      "owner_sha256": "e9d713895450c30ca9588a73e0b662b069d3c334d07e32ed3523d379f7a3093e",
+      "structural_sites": [
+        {
+          "id": "V16-105",
+          "function": "signature_mentions_id",
+          "copied_match_line": 175
+        }
+      ]
+    }
+  ],
+  "remaining_v16": 91,
+  "integrated_gates_passed": 12,
+  "additional_evidence": [
+    "node-axis-proof",
+    "metadata-control",
+    "validation/tests-domain-infra.log"
+  ],
+  "limitations": [
+    "No new global Typst parity or performance claim.",
+    "Parser grouping comment remains an intent question.",
+    "Three callback font formats lack independent fixtures; existing callback behavior is preserved."
+  ]
+}

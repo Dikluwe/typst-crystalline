@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/font_variations.md
-//! @prompt-hash 6e5734b1
+//! @prompt-hash b2f3f115
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -95,7 +95,43 @@ impl FontVariations {
             let value = match val {
                 Value::Int(n) => *n as f32,
                 Value::Float(f) => *f as f32,
-                _ => continue, // neutro: N16[β] — entradas de dict com tag inválida ou valor não-numérico são ignoradas
+                Value::None
+                | Value::Bool(_)
+                | Value::Str(_)
+                | Value::Array(_)
+                | Value::Dict(_)
+                | Value::Module(_)
+                | Value::Datetime(_)
+                | Value::Func(_)
+                | Value::Content(_)
+                | Value::LocatedContent(_, _)
+                | Value::Auto
+                | Value::Length(_)
+                | Value::Relative(_)
+                | Value::Ratio(_)
+                | Value::Angle(_)
+                | Value::Color(_)
+                | Value::Stroke(_)
+                | Value::Fraction(_)
+                | Value::Align(_)
+                | Value::Location(_)
+                | Value::Gradient(_)
+                | Value::Regex(_)
+                | Value::Tiling(_)
+                | Value::Bytes(_)
+                | Value::Decimal(_)
+                | Value::Duration(_)
+                | Value::Version(_)
+                | Value::Selector(_)
+                | Value::Symbol(_)
+                | Value::Args(_)
+                | Value::State(_)
+                | Value::Counter(_)
+                | Value::Label(_)
+                | Value::Dir(_)
+                | Value::Path(_)
+                | Value::Type(_)
+                | Value::SpotColorant(_) => continue,
             };
             if let Ok(tag) = validate_axis_tag(key) {
                 entries.push((tag, value));
@@ -322,5 +358,187 @@ mod tests {
         };
         let fv = FontVariations::from_validated_dict(&d);
         assert_eq!(fv.0, vec![(*b"wght", 300.0)]);
+    }
+
+    #[test]
+    fn validated_axes_omit_every_current_nonnumeric_category() {
+        use crate::entities::args::Args;
+        use crate::entities::bytes::Bytes;
+        use crate::entities::color::{Color, SpotColorant};
+        use crate::entities::content::Content;
+        use crate::entities::counter::Counter;
+        use crate::entities::decimal::Decimal;
+        use crate::entities::dir::Dir;
+        use crate::entities::duration::Duration;
+        use crate::entities::func::{ClosureRepr, Func};
+        use crate::entities::geometry::Stroke;
+        use crate::entities::gradient::Gradient;
+        use crate::entities::label::Label;
+        use crate::entities::layout_types::{Align2D, Angle, Length, Ratio};
+        use crate::entities::locator::Locator;
+        use crate::entities::module::Module;
+        use crate::entities::path::{RootedPath, VirtualPath, VirtualRoot};
+        use crate::entities::regex::Regex;
+        use crate::entities::rel::Rel;
+        use crate::entities::scope::Scope;
+        use crate::entities::selector::Selector;
+        use crate::entities::state::State;
+        use crate::entities::symbol::Symbol;
+        use crate::entities::syntax_kind::SyntaxKind;
+        use crate::entities::syntax_node::SyntaxNode;
+        use crate::entities::tiling::{Tiling, TilingBody};
+        use crate::entities::value::{IntrospectedContent, Type};
+        use crate::entities::version::Version;
+        use crate::entities::world_types::Datetime;
+        use std::sync::Arc;
+
+        let location = Locator::new().next();
+        let black = Color::rgb(0, 0, 0);
+        let closure = Func::closure(ClosureRepr {
+            name: None,
+            params: vec![],
+            sink_name: None,
+            body: SyntaxNode::leaf(SyntaxKind::Int, "1"),
+            captured: Arc::new(Scope::new()),
+            capturer: crate::entities::scope::Capturer::Function,
+        });
+        let cases = [
+            ("None", Value::None),
+            ("Bool", Value::Bool(true)),
+            ("Str", Value::Str("300".into())),
+            ("Array", Value::Array(vec![Value::Int(300)])),
+            ("Dict", dict(&[("wght", Value::Int(300))])),
+            ("Module", Value::Module(Module::new("axes", Scope::new()))),
+            ("Datetime", Value::Datetime(Datetime::new_date(2026, 10, 19).unwrap())),
+            ("Func", Value::Func(closure)),
+            ("Content", Value::Content(Content::Empty)),
+            (
+                "LocatedContent",
+                Value::LocatedContent(
+                    IntrospectedContent::new(Content::Empty, None),
+                    location,
+                ),
+            ),
+            ("Auto", Value::Auto),
+            ("Length", Value::Length(Length::pt(300.0))),
+            ("Relative", Value::Relative(Rel::from_percent(30.0))),
+            ("Ratio", Value::Ratio(Ratio(0.3))),
+            ("Angle", Value::Angle(Angle::rad(0.3))),
+            ("Color", Value::Color(black.clone())),
+            ("Stroke", Value::Stroke(Arc::new(Stroke::default()))),
+            ("Fraction", Value::Fraction(300.0)),
+            ("Align", Value::Align(Align2D::default())),
+            ("Location", Value::Location(location)),
+            ("Gradient", Value::Gradient(Gradient::linear(vec![], Angle::rad(0.0)))),
+            ("Regex", Value::Regex(Regex::new("300").unwrap())),
+            (
+                "Tiling",
+                Value::Tiling(Arc::new(Tiling::new(TilingBody::Color(black.clone())))),
+            ),
+            ("Bytes", Value::Bytes(Bytes::new(vec![3, 0, 0]))),
+            ("Decimal", Value::Decimal(Decimal::from_i64(300))),
+            ("Duration", Value::Duration(Duration::from_seconds(300))),
+            ("Version", Value::Version(Arc::new(Version::new(3, 0, 0)))),
+            ("Selector", Value::Selector(Selector::Location(location))),
+            ("Symbol", Value::Symbol(Symbol::new("3", "three"))),
+            ("Args", Value::Args(Args::positional(vec![Value::Int(300)]))),
+            (
+                "State",
+                Value::State(State {
+                    key: "axes".into(),
+                    init: Box::new(Value::Int(300)),
+                }),
+            ),
+            ("Counter", Value::Counter(Counter { key: "axes".into() })),
+            ("Label", Value::Label(Label("axes".into()))),
+            ("Dir", Value::Dir(Dir::LTR)),
+            (
+                "Path",
+                Value::Path(RootedPath::new(
+                    VirtualRoot::Project,
+                    VirtualPath::new("/300").unwrap(),
+                )),
+            ),
+            ("Type", Value::Type(Type::Int)),
+            (
+                "SpotColorant",
+                Value::SpotColorant(SpotColorant {
+                    name: Some("axes".into()),
+                    fallback: black,
+                }),
+            ),
+        ];
+        assert_eq!(cases.len(), 37);
+        for (category, value) in cases {
+            let Value::Dict(input) = dict(&[
+                ("wght", Value::Int(250)),
+                ("wdth", value),
+                ("ital", Value::Float(0.5)),
+            ]) else {
+                panic!("expected dictionary")
+            };
+            assert_eq!(
+                FontVariations::from_validated_dict(&input).0,
+                vec![(*b"ital", 0.5), (*b"wght", 250.0)],
+                "omitted category: {category}",
+            );
+        }
+    }
+
+    #[test]
+    fn validated_axes_skip_invalid_tags_and_preserve_normalized_precedence() {
+        let Value::Dict(empty) = dict(&[]) else { panic!("expected dictionary") };
+        assert!(FontVariations::from_validated_dict(&empty).is_empty());
+        let Value::Dict(input) = dict(&[
+            ("w", Value::Int(1)),
+            ("w ", Value::Int(2)),
+            ("w  ", Value::Str("ignored".into())),
+            ("w   ", Value::Float(3.5)),
+            ("", Value::Int(9)),
+            ("abcde", Value::Int(9)),
+            ("é", Value::Int(9)),
+            ("a b", Value::Int(9)),
+            (" abc", Value::Int(9)),
+            ("ital", Value::Float(-2.0)),
+        ]) else {
+            panic!("expected dictionary")
+        };
+        let axes = FontVariations::from_validated_dict(&input);
+        assert_eq!(axes.0, vec![(*b"ital", -2.0), (*b"w   ", 3.5)]);
+        assert_eq!(
+            axes.fold(&FontVariations(vec![(*b"wdth", 80.0), (*b"w   ", 99.0)])).0,
+            vec![(*b"ital", -2.0), (*b"w   ", 3.5), (*b"wdth", 80.0)],
+        );
+        let Value::Dict(ignored_collision) =
+            dict(&[("w", Value::Int(1)), ("w ", Value::Bool(false))])
+        else {
+            panic!("expected dictionary")
+        };
+        assert_eq!(
+            FontVariations::from_validated_dict(&ignored_collision).0,
+            vec![(*b"w   ", 1.0)]
+        );
+    }
+
+    #[test]
+    fn strict_axes_report_span_and_hint_while_validated_axes_omit() {
+        let id = crate::entities::file_id::FileId::from_raw(
+            std::num::NonZeroU16::new(1).unwrap(),
+        );
+        let span = Span::from_number(id, 7).unwrap();
+        let input = dict(&[("wght", Value::Int(250)), ("ital", Value::Bool(true))]);
+        let errors = FontVariations::from_value(&input, span).unwrap_err();
+        assert_eq!(errors.len(), 1);
+        assert_eq!(errors[0].span, span);
+        assert_eq!(errors[0].message, "expected float, found boolean");
+        assert_eq!(
+            errors[0].hints,
+            vec!["occurred in tag at index 1 (`\"ital\"`)".to_string()]
+        );
+        let Value::Dict(input) = input else { panic!("expected dictionary") };
+        assert_eq!(
+            FontVariations::from_validated_dict(&input).0,
+            vec![(*b"wght", 250.0)]
+        );
     }
 }

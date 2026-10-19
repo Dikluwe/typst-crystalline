@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/operators.md
-//! @prompt-hash fe8d9fd1
+//! @prompt-hash 86f5bee7
 //! @layer L1
 //! @updated 2026-03-23
 
@@ -24,7 +24,138 @@ impl UnOp {
             SyntaxKind::Plus => Self::Pos,
             SyntaxKind::Minus => Self::Neg,
             SyntaxKind::Not => Self::Not,
-            _ => return None, // neutro: N16[β] — SyntaxKind sem precedência de operador retorna None
+            // These syntax kinds have no unary operator role.
+            SyntaxKind::End
+            | SyntaxKind::Error
+            | SyntaxKind::Shebang
+            | SyntaxKind::LineComment
+            | SyntaxKind::BlockComment
+            | SyntaxKind::Markup
+            | SyntaxKind::Text
+            | SyntaxKind::Space
+            | SyntaxKind::Linebreak
+            | SyntaxKind::Parbreak
+            | SyntaxKind::Escape
+            | SyntaxKind::Shorthand
+            | SyntaxKind::SmartQuote
+            | SyntaxKind::Strong
+            | SyntaxKind::Emph
+            | SyntaxKind::Raw
+            | SyntaxKind::RawLang
+            | SyntaxKind::RawDelim
+            | SyntaxKind::RawTrimmed
+            | SyntaxKind::Link
+            | SyntaxKind::Label
+            | SyntaxKind::Ref
+            | SyntaxKind::RefMarker
+            | SyntaxKind::Heading
+            | SyntaxKind::HeadingMarker
+            | SyntaxKind::ListItem
+            | SyntaxKind::ListMarker
+            | SyntaxKind::EnumItem
+            | SyntaxKind::EnumMarker
+            | SyntaxKind::TermItem
+            | SyntaxKind::TermMarker
+            | SyntaxKind::Equation
+            | SyntaxKind::Math
+            | SyntaxKind::MathText
+            | SyntaxKind::MathIdent
+            | SyntaxKind::MathShorthand
+            | SyntaxKind::MathAlignPoint
+            | SyntaxKind::MathDelimited
+            | SyntaxKind::MathAttach
+            | SyntaxKind::MathPrimes
+            | SyntaxKind::MathFrac
+            | SyntaxKind::MathRoot
+            | SyntaxKind::Hash
+            | SyntaxKind::LeftBrace
+            | SyntaxKind::RightBrace
+            | SyntaxKind::LeftBracket
+            | SyntaxKind::RightBracket
+            | SyntaxKind::LeftParen
+            | SyntaxKind::RightParen
+            | SyntaxKind::Comma
+            | SyntaxKind::Semicolon
+            | SyntaxKind::Colon
+            | SyntaxKind::Star
+            | SyntaxKind::Underscore
+            | SyntaxKind::Dollar
+            | SyntaxKind::Slash
+            | SyntaxKind::Hat
+            | SyntaxKind::Dot
+            | SyntaxKind::Eq
+            | SyntaxKind::EqEq
+            | SyntaxKind::ExclEq
+            | SyntaxKind::Lt
+            | SyntaxKind::LtEq
+            | SyntaxKind::Gt
+            | SyntaxKind::GtEq
+            | SyntaxKind::PlusEq
+            | SyntaxKind::HyphEq
+            | SyntaxKind::StarEq
+            | SyntaxKind::SlashEq
+            | SyntaxKind::Dots
+            | SyntaxKind::Arrow
+            | SyntaxKind::Root
+            | SyntaxKind::Bang
+            | SyntaxKind::And
+            | SyntaxKind::Or
+            | SyntaxKind::None
+            | SyntaxKind::Auto
+            | SyntaxKind::Let
+            | SyntaxKind::Set
+            | SyntaxKind::Show
+            | SyntaxKind::Context
+            | SyntaxKind::If
+            | SyntaxKind::Else
+            | SyntaxKind::For
+            | SyntaxKind::In
+            | SyntaxKind::While
+            | SyntaxKind::Break
+            | SyntaxKind::Continue
+            | SyntaxKind::Return
+            | SyntaxKind::Import
+            | SyntaxKind::Include
+            | SyntaxKind::As
+            | SyntaxKind::Code
+            | SyntaxKind::Ident
+            | SyntaxKind::Bool
+            | SyntaxKind::Int
+            | SyntaxKind::Float
+            | SyntaxKind::Numeric
+            | SyntaxKind::Str
+            | SyntaxKind::CodeBlock
+            | SyntaxKind::ContentBlock
+            | SyntaxKind::Parenthesized
+            | SyntaxKind::Array
+            | SyntaxKind::Dict
+            | SyntaxKind::Named
+            | SyntaxKind::Keyed
+            | SyntaxKind::Unary
+            | SyntaxKind::Binary
+            | SyntaxKind::FieldAccess
+            | SyntaxKind::FuncCall
+            | SyntaxKind::Args
+            | SyntaxKind::Spread
+            | SyntaxKind::Closure
+            | SyntaxKind::Params
+            | SyntaxKind::LetBinding
+            | SyntaxKind::SetRule
+            | SyntaxKind::ShowRule
+            | SyntaxKind::Contextual
+            | SyntaxKind::Conditional
+            | SyntaxKind::WhileLoop
+            | SyntaxKind::ForLoop
+            | SyntaxKind::ModuleImport
+            | SyntaxKind::ImportItems
+            | SyntaxKind::ImportItemPath
+            | SyntaxKind::RenamedImportItem
+            | SyntaxKind::ModuleInclude
+            | SyntaxKind::LoopBreak
+            | SyntaxKind::LoopContinue
+            | SyntaxKind::FuncReturn
+            | SyntaxKind::Destructuring
+            | SyntaxKind::DestructAssignment => return None,
         })
     }
 
@@ -92,7 +223,123 @@ impl BinOp {
             SyntaxKind::HyphEq => Self::SubAssign,
             SyntaxKind::StarEq => Self::MulAssign,
             SyntaxKind::SlashEq => Self::DivAssign,
-            _ => return None, // neutro: N16[β] — SyntaxKind sem aridade de operador retorna None
+            // These syntax kinds have no binary token role; NotIn is composed.
+            SyntaxKind::End
+            | SyntaxKind::Error
+            | SyntaxKind::Shebang
+            | SyntaxKind::LineComment
+            | SyntaxKind::BlockComment
+            | SyntaxKind::Markup
+            | SyntaxKind::Text
+            | SyntaxKind::Space
+            | SyntaxKind::Linebreak
+            | SyntaxKind::Parbreak
+            | SyntaxKind::Escape
+            | SyntaxKind::Shorthand
+            | SyntaxKind::SmartQuote
+            | SyntaxKind::Strong
+            | SyntaxKind::Emph
+            | SyntaxKind::Raw
+            | SyntaxKind::RawLang
+            | SyntaxKind::RawDelim
+            | SyntaxKind::RawTrimmed
+            | SyntaxKind::Link
+            | SyntaxKind::Label
+            | SyntaxKind::Ref
+            | SyntaxKind::RefMarker
+            | SyntaxKind::Heading
+            | SyntaxKind::HeadingMarker
+            | SyntaxKind::ListItem
+            | SyntaxKind::ListMarker
+            | SyntaxKind::EnumItem
+            | SyntaxKind::EnumMarker
+            | SyntaxKind::TermItem
+            | SyntaxKind::TermMarker
+            | SyntaxKind::Equation
+            | SyntaxKind::Math
+            | SyntaxKind::MathText
+            | SyntaxKind::MathIdent
+            | SyntaxKind::MathShorthand
+            | SyntaxKind::MathAlignPoint
+            | SyntaxKind::MathDelimited
+            | SyntaxKind::MathAttach
+            | SyntaxKind::MathPrimes
+            | SyntaxKind::MathFrac
+            | SyntaxKind::MathRoot
+            | SyntaxKind::Hash
+            | SyntaxKind::LeftBrace
+            | SyntaxKind::RightBrace
+            | SyntaxKind::LeftBracket
+            | SyntaxKind::RightBracket
+            | SyntaxKind::LeftParen
+            | SyntaxKind::RightParen
+            | SyntaxKind::Comma
+            | SyntaxKind::Semicolon
+            | SyntaxKind::Colon
+            | SyntaxKind::Underscore
+            | SyntaxKind::Dollar
+            | SyntaxKind::Hat
+            | SyntaxKind::Dot
+            | SyntaxKind::Dots
+            | SyntaxKind::Arrow
+            | SyntaxKind::Root
+            | SyntaxKind::Bang
+            | SyntaxKind::Not
+            | SyntaxKind::None
+            | SyntaxKind::Auto
+            | SyntaxKind::Let
+            | SyntaxKind::Set
+            | SyntaxKind::Show
+            | SyntaxKind::Context
+            | SyntaxKind::If
+            | SyntaxKind::Else
+            | SyntaxKind::For
+            | SyntaxKind::While
+            | SyntaxKind::Break
+            | SyntaxKind::Continue
+            | SyntaxKind::Return
+            | SyntaxKind::Import
+            | SyntaxKind::Include
+            | SyntaxKind::As
+            | SyntaxKind::Code
+            | SyntaxKind::Ident
+            | SyntaxKind::Bool
+            | SyntaxKind::Int
+            | SyntaxKind::Float
+            | SyntaxKind::Numeric
+            | SyntaxKind::Str
+            | SyntaxKind::CodeBlock
+            | SyntaxKind::ContentBlock
+            | SyntaxKind::Parenthesized
+            | SyntaxKind::Array
+            | SyntaxKind::Dict
+            | SyntaxKind::Named
+            | SyntaxKind::Keyed
+            | SyntaxKind::Unary
+            | SyntaxKind::Binary
+            | SyntaxKind::FieldAccess
+            | SyntaxKind::FuncCall
+            | SyntaxKind::Args
+            | SyntaxKind::Spread
+            | SyntaxKind::Closure
+            | SyntaxKind::Params
+            | SyntaxKind::LetBinding
+            | SyntaxKind::SetRule
+            | SyntaxKind::ShowRule
+            | SyntaxKind::Contextual
+            | SyntaxKind::Conditional
+            | SyntaxKind::WhileLoop
+            | SyntaxKind::ForLoop
+            | SyntaxKind::ModuleImport
+            | SyntaxKind::ImportItems
+            | SyntaxKind::ImportItemPath
+            | SyntaxKind::RenamedImportItem
+            | SyntaxKind::ModuleInclude
+            | SyntaxKind::LoopBreak
+            | SyntaxKind::LoopContinue
+            | SyntaxKind::FuncReturn
+            | SyntaxKind::Destructuring
+            | SyntaxKind::DestructAssignment => return None,
         })
     }
 
@@ -205,5 +452,89 @@ mod tests {
         // NotIn é construído pelo parser com lógica especial (Not + In)
         assert_eq!(BinOp::NotIn.precedence(), 4);
         assert_eq!(BinOp::NotIn.assoc(), Assoc::Left);
+    }
+
+    #[test]
+    fn v16_operator_maps_preserve_distinct_type_families() {
+        use crate::entities::ast::expr::{BinOp as AstBinOp, UnOp as AstUnOp};
+        for (kind, expected) in [
+            (SyntaxKind::Plus, UnOp::Pos),
+            (SyntaxKind::Minus, UnOp::Neg),
+            (SyntaxKind::Not, UnOp::Not),
+        ] {
+            let op = UnOp::from_kind(kind).expect("admitted unary token");
+            assert_eq!(op, expected);
+            assert!(crate::entities::syntax_set::UNARY_OP.contains(kind));
+            let ast = AstUnOp::from_kind(kind).expect("AST unary map agrees");
+            assert_eq!(op.as_str(), ast.as_str());
+            assert_eq!(op.precedence(), ast.precedence());
+        }
+        for (kind, expected) in [
+            (SyntaxKind::Plus, BinOp::Add),
+            (SyntaxKind::Minus, BinOp::Sub),
+            (SyntaxKind::Star, BinOp::Mul),
+            (SyntaxKind::Slash, BinOp::Div),
+            (SyntaxKind::And, BinOp::And),
+            (SyntaxKind::Or, BinOp::Or),
+            (SyntaxKind::EqEq, BinOp::Eq),
+            (SyntaxKind::ExclEq, BinOp::Neq),
+            (SyntaxKind::Lt, BinOp::Lt),
+            (SyntaxKind::LtEq, BinOp::Leq),
+            (SyntaxKind::Gt, BinOp::Gt),
+            (SyntaxKind::GtEq, BinOp::Geq),
+            (SyntaxKind::Eq, BinOp::Assign),
+            (SyntaxKind::In, BinOp::In),
+            (SyntaxKind::PlusEq, BinOp::AddAssign),
+            (SyntaxKind::HyphEq, BinOp::SubAssign),
+            (SyntaxKind::StarEq, BinOp::MulAssign),
+            (SyntaxKind::SlashEq, BinOp::DivAssign),
+        ] {
+            let op = BinOp::from_kind(kind).expect("admitted binary token");
+            assert_eq!(op, expected);
+            assert!(crate::entities::syntax_set::BINARY_OP.contains(kind));
+            let ast = AstBinOp::from_kind(kind).expect("AST binary map agrees");
+            assert_eq!(op.as_str(), ast.as_str());
+            assert_eq!(op.precedence(), ast.precedence());
+            assert_eq!(
+                op.assoc() == Assoc::Right,
+                ast.assoc() == crate::entities::ast::expr::Assoc::Right
+            );
+        }
+        for kind in [
+            SyntaxKind::End,
+            SyntaxKind::Error,
+            SyntaxKind::Space,
+            SyntaxKind::LineComment,
+            SyntaxKind::Ident,
+            SyntaxKind::Int,
+            SyntaxKind::LeftParen,
+        ] {
+            assert_eq!(UnOp::from_kind(kind), None, "unary nonoperator {kind:?}");
+            assert_eq!(BinOp::from_kind(kind), None, "binary nonoperator {kind:?}");
+        }
+        assert_eq!(UnOp::from_kind(SyntaxKind::Star), None);
+        assert_eq!(BinOp::from_kind(SyntaxKind::Not), None);
+        assert_eq!(BinOp::NotIn.as_str(), "not in");
+        assert_eq!(BinOp::NotIn.precedence(), 4);
+        assert_eq!(BinOp::NotIn.assoc(), Assoc::Left);
+    }
+
+    #[test]
+    fn v16_operator_assignment_remains_right_associative_in_language() {
+        use crate::entities::ast::expr::Binary;
+        use crate::entities::ast::AstNode;
+        let root = crate::compiler::parse::parse_code("a = b = c");
+        assert!(!root.erroneous(), "{:?}", root.errors());
+        let outer = root
+            .children()
+            .find_map(Binary::from_untyped)
+            .expect("outer assignment");
+        assert_eq!(outer.op().as_str(), "=");
+        assert_eq!(outer.lhs().to_untyped().text_str(), "a");
+        let inner =
+            Binary::from_untyped(outer.rhs().to_untyped()).expect("right assignment");
+        assert_eq!(inner.op().as_str(), "=");
+        assert_eq!(inner.lhs().to_untyped().text_str(), "b");
+        assert_eq!(inner.rhs().to_untyped().text_str(), "c");
     }
 }

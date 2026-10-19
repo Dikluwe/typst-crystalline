@@ -1,9 +1,11 @@
 # V16 cause correction plan
 
-Status: analysis and proposed implementation sequence only. No productive source,
-L0 contract, linter, configuration, or test expectation was changed by this
-analysis. The 105 errors remain open. This diagnostic does not authorize code;
-each implementation batch must first update its owning L0 specifications.
+Status: analysis baseline and implementation sequence. No productive source,
+L0 contract, linter, configuration, or test expectation was changed by the original
+analysis; all 105 errors were open at that checkpoint. Subsequent implementation
+is tracked in [the correction progress report](v16-correction-progress-2026-10-19.md).
+This diagnostic does not authorize code; each implementation batch must first
+update its owning L0 specifications.
 
 ## Evidence before classification
 

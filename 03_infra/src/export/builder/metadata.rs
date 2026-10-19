@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder/metadata.md
-//! @prompt-hash 143f00fb
+//! @prompt-hash 3e9bd1c4
 //! @layer L3
 //! @updated 2026-09-28
 
@@ -786,7 +786,15 @@ impl PdfBuilder {
                                 return;
                             }
                             typst_core::entities::layout_types::SemanticKind::ExplicitLinebreakBoundary => return,
-                            _ => {}
+                            typst_core::entities::layout_types::SemanticKind::Formula
+                            | typst_core::entities::layout_types::SemanticKind::Label
+                            | typst_core::entities::layout_types::SemanticKind::Artifact(_)
+                            | typst_core::entities::layout_types::SemanticKind::Table { .. }
+                            | typst_core::entities::layout_types::SemanticKind::TableHead { .. }
+                            | typst_core::entities::layout_types::SemanticKind::TableBody { .. }
+                            | typst_core::entities::layout_types::SemanticKind::TableRow { .. }
+                            | typst_core::entities::layout_types::SemanticKind::TableHeaderCell { .. }
+                            | typst_core::entities::layout_types::SemanticKind::TableDataCell { .. } => {}
                         }
                     }
                     let artifact = matches!(
@@ -1312,5 +1320,301 @@ impl PdfBuilder {
                 " /ViewerPreferences << /DisplayDocTitle true >>",
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod v16_semantic_continuation_tests {
+    use crate::export::{
+        export_pdf_with_document_id_and_tags_and_serialization_and_pages_and_standard,
+        PdfSerializationMode, PdfTags, StreamMode,
+    };
+    use typst_core::entities::content::Content;
+    use typst_core::entities::document_format_options::{PdfStandard, PdfStandards};
+    use typst_core::entities::elements::pdf_artifact::ArtifactKind;
+    use typst_core::entities::elements::table_cell::TableHeaderScope;
+    use typst_core::entities::layout_types::{
+        FrameItem, Page, PagedDocument, Point, Pt, SemanticKind, SemanticPlacement,
+        TextStyle,
+    };
+
+    fn text(value: &str) -> FrameItem {
+        FrameItem::Text {
+            pos: Point::ZERO,
+            text: value.into(),
+            style: TextStyle::regular(Pt(11.0)),
+            bidi: None,
+        }
+    }
+
+    fn semantic(kind: SemanticKind, items: Vec<FrameItem>) -> FrameItem {
+        FrameItem::Semantic {
+            kind,
+            placement: SemanticPlacement::Block,
+            alt: None,
+            items,
+        }
+    }
+
+    fn export(items: Vec<FrameItem>, ua1: bool, tags: PdfTags) -> String {
+        let doc = PagedDocument::new(vec![Page {
+            width: 200.0,
+            height: 200.0,
+            numbering: None,
+            logical_number: 1,
+            supplement: Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
+            items,
+        }]);
+        let standards = if ua1 {
+            PdfStandards::new([PdfStandard::Ua1]).unwrap()
+        } else {
+            PdfStandards::default()
+        };
+        let pdf =
+            export_pdf_with_document_id_and_tags_and_serialization_and_pages_and_standard(
+                &doc,
+                None,
+                StreamMode::Verbose,
+                tags,
+                PdfSerializationMode::Compact,
+                None,
+                standards,
+            );
+        String::from_utf8_lossy(&pdf).into_owned()
+    }
+
+    #[test]
+    fn boundaries_keep_ua1_paragraphs_and_exclude_artifact_descendants() {
+        let items = || {
+            vec![
+                semantic(SemanticKind::ParbreakBoundary, vec![]),
+                text("first"),
+                semantic(SemanticKind::ExplicitLinebreakBoundary, vec![]),
+                text("continued"),
+                semantic(
+                    SemanticKind::Artifact(ArtifactKind::Layout),
+                    vec![
+                        text("artifact"),
+                        semantic(SemanticKind::Formula, vec![text("hidden formula")]),
+                        semantic(SemanticKind::ParbreakBoundary, vec![]),
+                    ],
+                ),
+                semantic(SemanticKind::ParbreakBoundary, vec![]),
+                text("second"),
+                semantic(SemanticKind::ParbreakBoundary, vec![]),
+            ]
+        };
+        let ua1 = export(items(), true, PdfTags::Enabled);
+        assert_eq!(ua1.matches("/Type /StructElem /S /P ").count(), 2);
+        assert_eq!(ua1.matches("/Type /StructElem /S /Span ").count(), 3);
+        assert!(!ua1.contains("/Type /StructElem /S /Formula "));
+        assert_eq!(ua1.matches("/Pg 3 0 R /K ").count(), 3);
+        for mcid in 0..3 {
+            assert!(ua1.contains(&format!("/Pg 3 0 R /K {mcid} ")));
+        }
+        let ordinary = export(items(), false, PdfTags::Enabled);
+        assert!(!ordinary.contains("/Type /StructElem /S /P "));
+        assert!(!ordinary.contains("/Type /StructElem /S /Formula "));
+        let disabled = export(items(), true, PdfTags::Disabled);
+        assert!(!disabled.contains("/StructTreeRoot"));
+    }
+
+    #[test]
+    fn semantic_continuations_preserve_formula_label_and_table_structure() {
+        let header = semantic(
+            SemanticKind::TableHeaderCell {
+                table_id: 7,
+                row: 0,
+                column: 0,
+                level: 1,
+                scope: TableHeaderScope::Column,
+                rowspan: 1,
+                colspan: 1,
+            },
+            vec![text("header")],
+        );
+        let data = semantic(
+            SemanticKind::TableDataCell {
+                table_id: 7,
+                row: 1,
+                column: 0,
+                rowspan: 1,
+                colspan: 1,
+            },
+            vec![text("value")],
+        );
+        let table = semantic(
+            SemanticKind::Table { id: 7 },
+            vec![
+                semantic(
+                    SemanticKind::TableHead { table_id: 7 },
+                    vec![semantic(
+                        SemanticKind::TableRow { table_id: 7, row: 0 },
+                        vec![header],
+                    )],
+                ),
+                semantic(
+                    SemanticKind::TableBody { table_id: 7 },
+                    vec![semantic(
+                        SemanticKind::TableRow { table_id: 7, row: 1 },
+                        vec![data],
+                    )],
+                ),
+            ],
+        );
+        let raw = export(
+            vec![
+                semantic(SemanticKind::Formula, vec![text("formula")]),
+                semantic(SemanticKind::Label, vec![text("label")]),
+                table,
+            ],
+            true,
+            PdfTags::Enabled,
+        );
+        for (role, count) in [
+            ("Formula", 1),
+            ("Lbl", 1),
+            ("Table", 1),
+            ("THead", 1),
+            ("TBody", 1),
+            ("TR", 2),
+            ("TH", 1),
+            ("TD", 1),
+        ] {
+            assert_eq!(
+                raw.matches(&format!("/Type /StructElem /S /{role} ")).count(),
+                count,
+                "lost semantic continuation {role}"
+            );
+        }
+        assert_eq!(raw.matches("/Pg 3 0 R /K ").count(), 4);
+        for mcid in 0..4 {
+            assert!(raw.contains(&format!("/Pg 3 0 R /K {mcid} ")));
+        }
+        assert!(raw.contains("/Scope /Column"));
+        assert!(raw.contains("/Headers [(U1x0y0)]"));
+        assert!(raw.contains("/ParentTree"));
+    }
+
+    #[test]
+    fn every_semantic_continuation_reaches_top_level_processing() {
+        // These deliberately isolated table roles are internal walker controls,
+        // not a claim that their PDF/UA table hierarchy is conforming. The
+        // existing nested-table integration control remains unchanged.
+        for (kind, role, container) in [
+            (SemanticKind::Formula, "Formula", false),
+            (SemanticKind::Label, "Lbl", false),
+            (SemanticKind::Table { id: 7 }, "Table", true),
+            (SemanticKind::TableHead { table_id: 7 }, "THead", true),
+            (SemanticKind::TableBody { table_id: 7 }, "TBody", true),
+            (SemanticKind::TableRow { table_id: 7, row: 0 }, "TR", true),
+            (
+                SemanticKind::TableHeaderCell {
+                    table_id: 7,
+                    row: 0,
+                    column: 0,
+                    level: 1,
+                    scope: TableHeaderScope::Column,
+                    rowspan: 1,
+                    colspan: 1,
+                },
+                "TH",
+                false,
+            ),
+            (
+                SemanticKind::TableDataCell {
+                    table_id: 7,
+                    row: 1,
+                    column: 0,
+                    rowspan: 1,
+                    colspan: 1,
+                },
+                "TD",
+                false,
+            ),
+        ] {
+            // Each tested kind is a page root, so collect_top itself sees it.
+            // Containers retain a semantic child that owns MCID 0; Formula,
+            // Label and cells own MCID 0 directly. The valid text neighbor
+            // owns MCID 1 and prevents an empty result from passing.
+            let children = if container {
+                vec![semantic(SemanticKind::Formula, vec![text("child")])]
+            } else {
+                vec![text("leaf")]
+            };
+            let raw = export(
+                vec![semantic(kind, children), text("visible neighbor")],
+                true,
+                PdfTags::Enabled,
+            );
+            let marker = format!("/Type /StructElem /S /{role} ");
+            assert_eq!(raw.matches(&marker).count(), 1, "root role {role}");
+            let root = raw
+                .split_once(&marker)
+                .expect("root role must be emitted")
+                .1
+                .split("endobj")
+                .next()
+                .unwrap();
+            if container {
+                assert!(root.contains(" /K ["), "{role} must retain its child");
+                assert!(!root.contains(" /Pg 3 0 R /K "), "{role} has no own MCID");
+                let formula = raw
+                    .split_once("/Type /StructElem /S /Formula ")
+                    .expect("container must retain its Formula child")
+                    .1
+                    .split("endobj")
+                    .next()
+                    .unwrap();
+                assert!(formula.contains(" /Pg 3 0 R /K 0 "), "{role} child MCID");
+            } else {
+                assert!(root.contains(" /Pg 3 0 R /K 0 "), "{role} own MCID");
+            }
+            assert_eq!(raw.matches("/Pg 3 0 R /K ").count(), 2, "{role} MCID count");
+            assert_eq!(raw.matches("/Type /StructElem /S /P ").count(), 1);
+            assert_eq!(raw.matches("/Type /StructElem /S /Span ").count(), 1);
+            let neighbor = raw
+                .split_once("/Type /StructElem /S /Span ")
+                .expect("visible neighbor must remain tagged")
+                .1
+                .split("endobj")
+                .next()
+                .unwrap();
+            assert!(neighbor.contains(" /Pg 3 0 R /K 1 "), "{role} neighbor MCID");
+        }
+
+        // The ninth continuation must enter artifact exclusion rather than
+        // discard the following root or allocate MCIDs for hidden descendants.
+        let raw = export(
+            vec![
+                semantic(
+                    SemanticKind::Artifact(ArtifactKind::Layout),
+                    vec![
+                        semantic(SemanticKind::Formula, vec![text("hidden formula")]),
+                        text("hidden text"),
+                    ],
+                ),
+                text("visible neighbor"),
+            ],
+            true,
+            PdfTags::Enabled,
+        );
+        assert!(!raw.contains("/Type /StructElem /S /Artifact "));
+        assert!(!raw.contains("/Type /StructElem /S /Formula "));
+        assert_eq!(raw.matches("/Type /StructElem /S /P ").count(), 1);
+        assert_eq!(raw.matches("/Type /StructElem /S /Span ").count(), 1);
+        assert_eq!(raw.matches("/Pg 3 0 R /K ").count(), 1);
+        let neighbor = raw
+            .split_once("/Type /StructElem /S /Span ")
+            .expect("artifact must not hide its valid neighbor")
+            .1
+            .split("endobj")
+            .next()
+            .unwrap();
+        assert!(neighbor.contains(" /Pg 3 0 R /K 0 "));
     }
 }

@@ -1,0 +1,200 @@
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-a-metadata-control/03_infra)
+error: couldn't read `03_infra/src/../../lab/parity/corpus/visual/outline-toc.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:3966:19
+     |
+3966 |         let src = include_str!("../../lab/parity/corpus/visual/outline-toc.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+3966 |         let src = include_str!("../../../../../lab/parity/corpus/visual/outline-toc.typ");
+     |                                       +++++++++
+
+error: couldn't read `03_infra/src/../../lab/parity/corpus/visual/counter-heading.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:3974:19
+     |
+3974 |         let src = include_str!("../../lab/parity/corpus/visual/counter-heading.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+3974 |         let src = include_str!("../../../../../lab/parity/corpus/visual/counter-heading.typ");
+     |                                       +++++++++
+
+error: couldn't read `03_infra/src/../../lab/parity/corpus/visual/figure-ref.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:3981:19
+     |
+3981 |         let src = include_str!("../../lab/parity/corpus/visual/figure-ref.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+3981 |         let src = include_str!("../../../../../lab/parity/corpus/visual/figure-ref.typ");
+     |                                       +++++++++
+
+error: couldn't read `03_infra/src/../../lab/parity/corpus/visual/equation-ref.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:3988:19
+     |
+3988 |         let src = include_str!("../../lab/parity/corpus/visual/equation-ref.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+3988 |         let src = include_str!("../../../../../lab/parity/corpus/visual/equation-ref.typ");
+     |                                       +++++++++
+
+error: couldn't read `03_infra/src/../../lab/parity/corpus/visual/cite-bibliography.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:4000:19
+     |
+4000 |         let src = include_str!("../../lab/parity/corpus/visual/cite-bibliography.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+4000 |         let src = include_str!("../../../../../lab/parity/corpus/visual/cite-bibliography.typ");
+     |                                       +++++++++
+
+error: couldn't read `03_infra/src/../../lab/parity/corpus/visual/query-metadata.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:4029:19
+     |
+4029 |         let src = include_str!("../../lab/parity/corpus/visual/query-metadata.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+4029 |         let src = include_str!("../../../../../lab/parity/corpus/visual/query-metadata.typ");
+     |                                       +++++++++
+
+error: couldn't read `03_infra/src/../../lab/corpus/legacy-sections/sec_27.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:4873:19
+     |
+4873 |         let src = include_str!("../../lab/corpus/legacy-sections/sec_27.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+4873 |         let src = include_str!("../../../../../lab/corpus/legacy-sections/sec_27.typ");
+     |                                       +++++++++
+
+error: couldn't read `03_infra/src/../../lab/corpus/legacy-sections/sec_09.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:4913:19
+     |
+4913 |         let src = include_str!("../../lab/corpus/legacy-sections/sec_09.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+4913 |         let src = include_str!("../../../../../lab/corpus/legacy-sections/sec_09.typ");
+     |                                       +++++++++
+
+error: couldn't read `03_infra/src/../../lab/corpus/legacy-sections/sec_07.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:4949:19
+     |
+4949 |         let src = include_str!("../../lab/corpus/legacy-sections/sec_07.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+4949 |         let src = include_str!("../../../../../lab/corpus/legacy-sections/sec_07.typ");
+     |                                       +++++++++
+
+error: couldn't read `03_infra/src/../../lab/corpus/legacy-sections/sec_12.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:4995:19
+     |
+4995 |         let src = include_str!("../../lab/corpus/legacy-sections/sec_12.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+4995 |         let src = include_str!("../../../../../lab/corpus/legacy-sections/sec_12.typ");
+     |                                       +++++++++
+
+error: couldn't read `03_infra/src/../../lab/corpus/legacy-sections/sec_04.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:5053:19
+     |
+5053 |         let src = include_str!("../../lab/corpus/legacy-sections/sec_04.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+5053 |         let src = include_str!("../../../../../lab/corpus/legacy-sections/sec_04.typ");
+     |                                       +++++++++
+
+error: couldn't read `03_infra/src/../../lab/corpus/legacy-sections/sec_07.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:5095:19
+     |
+5095 |         let src = include_str!("../../lab/corpus/legacy-sections/sec_07.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+5095 |         let src = include_str!("../../../../../lab/corpus/legacy-sections/sec_07.typ");
+     |                                       +++++++++
+
+error: couldn't read `03_infra/src/../../lab/corpus/legacy-sections/sec_17.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:5155:19
+     |
+5155 |         let src = include_str!("../../lab/corpus/legacy-sections/sec_17.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+5155 |         let src = include_str!("../../../../../lab/corpus/legacy-sections/sec_17.typ");
+     |                                       +++++++++
+
+error: couldn't read `03_infra/src/../../lab/corpus/legacy-sections/sec_16.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:5190:19
+     |
+5190 |         let src = include_str!("../../lab/corpus/legacy-sections/sec_16.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+5190 |         let src = include_str!("../../../../../lab/corpus/legacy-sections/sec_16.typ");
+     |                                       +++++++++
+
+error: couldn't read `03_infra/src/../../lab/corpus/legacy-sections/sec_18.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:5216:19
+     |
+5216 |         let src = include_str!("../../lab/corpus/legacy-sections/sec_18.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+5216 |         let src = include_str!("../../../../../lab/corpus/legacy-sections/sec_18.typ");
+     |                                       +++++++++
+
+error: couldn't read `03_infra/src/../../lab/corpus/legacy-sections/sec_18.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:5257:19
+     |
+5257 |         let src = include_str!("../../lab/corpus/legacy-sections/sec_18.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+5257 |         let src = include_str!("../../../../../lab/corpus/legacy-sections/sec_18.typ");
+     |                                       +++++++++
+
+error: couldn't read `03_infra/src/../../lab/corpus/legacy-sections/sec_10.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:5324:19
+     |
+5324 |         let src = include_str!("../../lab/corpus/legacy-sections/sec_10.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+5324 |         let src = include_str!("../../../../../lab/corpus/legacy-sections/sec_10.typ");
+     |                                       +++++++++
+
+error: couldn't read `03_infra/src/../../lab/corpus/legacy-sections/sec_22.typ`: No such file or directory (os error 2)
+    --> 03_infra/src/integration_tests.rs:5372:19
+     |
+5372 |         let src = include_str!("../../lab/corpus/legacy-sections/sec_22.typ");
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+help: there is a file with the same name in a different directory
+     |
+5372 |         let src = include_str!("../../../../../lab/corpus/legacy-sections/sec_22.typ");
+     |                                       +++++++++
+
+error: could not compile `typst-infra` (lib test) due to 18 previous errors

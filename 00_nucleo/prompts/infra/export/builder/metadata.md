@@ -1,5 +1,5 @@
 # L0 — builder/metadata
-Hash do Código: c2338d85
+Hash do Código: 6a0a6dde
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/text-replacement.toml sha256:395a968c2fe49429b03b369cd5047df513132bfef6511ec21af466670ec2e147
@@ -149,3 +149,85 @@ indexes/strict V1/V5/V15/V26/reverse lineage/SARIF/diff --check. Freeze sources/
 configuration during runs; heavy commands sequential under MemoryMax=12 GiB,
 MemorySwapMax=0, CARGO_BUILD_JOBS=1. Structural cleanup is not new global parity,
 memory gain or measured AI benefit.
+
+## Exhaustive semantic-boundary classification
+
+### Source evidence before decision
+
+At HEAD `841c9855f8ad6695f4e140d1ee4a33e4f4a46689`,
+`03_infra/src/export/builder/metadata.rs:767–872` contains `collect_top`;
+its `match kind` at `:778–790` is the V16-086 site. The existing
+`ua1 && !inside_artifact` guard intercepts ParbreakBoundary by appending a
+Boundary marker and returning, and ExplicitLinebreakBoundary by returning.
+`01_core/src/entities/layout_types.rs:312–352` defines the eleven current
+SemanticKind alternatives. The other nine currently continue at `metadata.rs:792`
+into artifact classification, `semantic_node`, and recursive child collection.
+This is static control-flow evidence, not a new PDF/UA or language measurement.
+The source/L0 inventory is retained in
+`lab/results/v16-cause-analysis-2026-10-19/entities-boundaries-inventory.json`.
+
+### Decision and preserved complement
+
+Keep both boundary arms and their guards, returns, ordering and marker fields.
+Replace only the inner unchecked continuation with the explicit current kinds
+Formula, Label, Artifact, Table, TableHead, TableBody, TableRow,
+TableHeaderCell and TableDataCell, retaining their empty continuation body.
+That body means continue through existing semantic processing, not discard the
+kind, its children or its MCIDs. Preserve inside-artifact propagation, no empty
+UA1 paragraphs, tag-disabled behavior, Link associations, table-header reuse,
+Formula alt presence, semantic-node selection and page-local MCID order.
+No inference from typography or new kind-to-PDF-role mapping is introduced.
+
+### Acceptance and exact-site evolution proof
+
+Propose a focused export-structure control covering both intercepted boundaries
+between meaningful children, all nine continuation kinds, UA1/non-UA1 and nested
+Artifact. Assert existing paragraph/line grouping, absence of artifact StructElem/
+MCID entries and unchanged meaningful-child order/MCID relationships. Observe
+structure and diagnostics rather than complete PDF bytes. New tests outside this
+consumer require their own test L0 update; this owner does not absorb them.
+Existing integration controls include
+`export::tests::p1140_6_tagged_pdf::{default_emite_formula_mcid_parent_tree_e_mark_info,disabled_remove_toda_a_estrutura_sem_remover_desenho,mcids_sao_deterministicos_e_alt_vazio_e_preservado}`
+in `03_infra/src/export/tests/mod.rs:10021–10112`, and the three
+`p1481_*` controls in `03_infra/src/export/tests/pdfua_structure_tests.rs`.
+Their assertions and fixtures remain unchanged.
+
+In a disposable workspace copy, add a sentinel only to copied
+SemanticKind. The original consumer must compile without the sentinel; its
+wildcard version lacks E0004 at this inner match, and the repaired version must
+produce E0004 at this exact inner match, not merely another SemanticKind match.
+Compile the actual typst-infra library target so this nested function is checked;
+no test-only extract, stub or productive enum mutation counts as evidence.
+A continuation that skips semantic_node/children or changes MCID/order/Artifact
+behavior refutes the repair even if V16 disappears.
+
+This is an internal classification correction under ADR-0127 continuous flow:
+no public field, trait, signature, product default, compatibility rule, dependency
+version or pipeline phase changes. Preserve the owning layer and static dispatch.
+No suppression, severity change, `if let`/`matches!` replacement, or helper that
+relocates the unchecked complement is an acceptable repair. Validate V15/V26
+before restricted forward/reverse resealing. Freeze source/dependency identity during structural and functional validation;
+record exact targets, compiler diagnostics, resource settings and outcomes before
+claiming acceptance. A structural proof is not a functional test result.
+
+### Attributable actual-domain omission proof
+
+For V16-086, an equally strict structural alternative avoids a new enum variant
+preventing core or external-dependency metadata emission before the real infra
+consumer is type-checked. Use two disposable copies with the same unchanged real
+dependencies: one with the original wildcard decision and one with its repaired
+exhaustive classification. At the collect_top inner SemanticKind match at metadata.rs:778–790, remove only
+the complete unguarded ParbreakBoundary arm in each copy. This arm is unique and unguarded; no other arm
+in that match handles ParbreakBoundary. With the omission, the wildcard baseline
+still covers ParbreakBoundary and must lack E0004 at this site; the repaired copy must
+emit E0004 at this exact match. Retain function/target identity, mutation diff,
+source/dependency hashes, compiler JSON and no-omission controls. An unrelated
+error or dependency failure remains inconclusive. No replacement stub, new public
+API, linter or target-scope change is allowed.
+
+This paired omission experiment proves that the actual-domain classification no
+longer has an implicit complement. The normal repaired match must remain fully
+nominal and exhaustive, so future enum growth still forces an explicit owner
+decision. This alternative changes only how the structural obligation is measured;
+it weakens neither the future-variant obligation nor the independent functional
+controls, and no probe result is claimed by the specification.
