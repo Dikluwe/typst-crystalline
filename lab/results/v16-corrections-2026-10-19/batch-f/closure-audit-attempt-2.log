@@ -1,0 +1,98 @@
+{
+  "utc": "2026-10-19T21:41:02.166623+00:00",
+  "baseline_commit": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "branch": "codex/tekt-mature-layout",
+  "validated_input_count": 2132,
+  "validation_completed": "2026-10-19T21:40:03.769355+00:00",
+  "full_linter_exit": 1,
+  "remaining_v16": 21,
+  "selected_v16_closed": 16,
+  "closed_ids": [
+    "V16-053",
+    "V16-054",
+    "V16-056",
+    "V16-057",
+    "V16-058",
+    "V16-059",
+    "V16-060",
+    "V16-061",
+    "V16-062",
+    "V16-063",
+    "V16-064",
+    "V16-066",
+    "V16-067",
+    "V16-068",
+    "V16-069",
+    "V16-070"
+  ],
+  "pending_ids": [
+    "V16-055",
+    "V16-065"
+  ],
+  "owner_pairs": 19,
+  "new_tests": 52,
+  "test_classifications": {
+    "semantic RED": 22,
+    "preservation": 30
+  },
+  "deferred_original_tests": [
+    {
+      "file": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "name": "batch_f_circle_rejects_invalid_radius_at_value_span",
+      "classification": "semantic RED",
+      "baseline_outcome": "FAILED"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "name": "batch_f_circle_em_radius_reaches_actual_layout_at_occurrence_font",
+      "classification": "semantic RED",
+      "baseline_outcome": "FAILED"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "name": "batch_f_circle_preserves_absolute_and_numeric_geometry",
+      "classification": "preservation",
+      "baseline_outcome": "ok"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "name": "batch_f_circle_radius_error_precedes_paint_error",
+      "classification": "semantic RED",
+      "baseline_outcome": "FAILED"
+    }
+  ],
+  "existing_adapter_test": "actual semantic RED and final PASS; not counted as a new test",
+  "supplemental_version_test": {
+    "name": "batch_f_higher_order_sorted_key",
+    "actual_RED": "cannot compare version and version",
+    "early_GREEN": "version-green-run",
+    "final_outcome": "ok",
+    "duplicate_count": false
+  },
+  "strengthened_legacy_grid_test": {
+    "name": "p633_grid_columns_invalid_string_rejected",
+    "actual_RED": "isolated HEAD grid/table accepts invalid string",
+    "final_outcome": "ok",
+    "counted_in_new_tests": false
+  },
+  "replay_cases": {
+    "adapters": 102,
+    "geometry": 182,
+    "encoding": 51
+  },
+  "adapter_classifications": {
+    "PRESERVED": 66,
+    "REPAIRED": 23,
+    "CHANGED_WITH_RESIDUAL": 13,
+    "oracle_matches": 53,
+    "failed": 0
+  },
+  "geometry_policies": {
+    "repair-oracle-diagnostic": 36,
+    "preserve": 112,
+    "preserve-deferred-circle": 25,
+    "repair-local-legacy-type": 9
+  },
+  "encoding_preserved": 51,
+  "limits": "Scoped repair only. Deferred Figure055 and Circle065 remain visible; preserved baseline semantic debt and informational lint notes are not parity certification."
+}

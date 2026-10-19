@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md
-//! @prompt-hash 7035d31f
+//! @prompt-hash 49d1dca8
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -161,7 +161,7 @@ pub(super) fn parse_selector_arg(
             "{}() requer string ou location, recebeu {}. Tipos suportados: \"kind\", \"<label>\", Value::Location. (Regex requer P209D; And/Or ainda só Rust API.)",
             func_name, other.type_name()
         )),
-        _ => msg(format!("{}() requer 1 argumento (selector), recebeu {}", func_name, items.len())),
+        [] | [_, _, ..] => msg(format!("{}() requer 1 argumento (selector), recebeu {}", func_name, items.len())),
     }
 }
 
@@ -465,5 +465,70 @@ mod tests {
             parse_selector_arg(&[same_name], "query").unwrap(),
             Selector::Kind(ElementKind::Heading),
         );
+    }
+}
+
+#[cfg(test)]
+mod batch_f_tests {
+    use super::*;
+
+    #[test]
+    fn batch_f_selector_slice_cardinality_and_singleton_errors() {
+        for function in ["query", "locate"] {
+            for len in [0, 2, 3, 16] {
+                let errors =
+                    parse_selector_arg(&vec![Value::Int(7); len], function).unwrap_err();
+                assert_eq!(
+                    errors[0].message,
+                    format!("{function}() requer 1 argumento (selector), recebeu {len}")
+                );
+                assert!(errors[0].span.is_detached());
+            }
+            let errors = parse_selector_arg(&[Value::Int(7)], function).unwrap_err();
+            assert!(errors[0].message.starts_with(&format!(
+                "{function}() requer string ou location, recebeu int."
+            )));
+            assert_eq!(
+                parse_selector_arg(&[Value::Label(Label("x".into()))], function).unwrap(),
+                Selector::Label(Label("x".into()))
+            );
+        }
+    }
+    #[test]
+    fn batch_f_selector_singleton_keeps_complete_filter_and_guard_residuals() {
+        let function = crate::entities::func::Func::native("alias", native_heading);
+        let selector = Selector::Element {
+            function: function.clone(),
+            fields: vec![
+                ("level".into(), Value::Int(2)),
+                ("outlined".into(), Value::Bool(false)),
+            ]
+            .into(),
+        };
+        assert_eq!(
+            parse_selector_arg(&[Value::Selector(selector.clone())], "query").unwrap(),
+            selector
+        );
+        assert_eq!(
+            parse_selector_arg(&[Value::Func(function)], "query").unwrap(),
+            Selector::Kind(ElementKind::Heading)
+        );
+        assert_eq!(
+            parse_selector_arg(&[Value::Str("<x>".into())], "query").unwrap(),
+            Selector::Label(Label("x".into()))
+        );
+        assert_eq!(
+            parse_selector_arg(&[Value::Str("heading".into())], "query").unwrap(),
+            Selector::Kind(ElementKind::Heading)
+        );
+        let errors = parse_selector_arg(
+            &[Value::Func(crate::entities::func::Func::native(
+                "heading",
+                crate::compiler::stdlib::native_int,
+            ))],
+            "query",
+        )
+        .unwrap_err();
+        assert_eq!(errors[0].message, "only element functions can be used as selectors");
     }
 }

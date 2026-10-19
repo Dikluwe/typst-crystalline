@@ -1,0 +1,1 @@
+#let x = grid(columns: "foo")[A]

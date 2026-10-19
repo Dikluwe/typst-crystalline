@@ -1,0 +1,30 @@
+{
+  "utc": "2026-10-19T20:36:28.645740+00:00",
+  "changed": [
+    "00_nucleo/prompts/core/compiler/stdlib/collections/validation.md",
+    "00_nucleo/prompts/core/compiler/stdlib/counter/display.md",
+    "00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md",
+    "00_nucleo/prompts/core/compiler/stdlib/html/attr_cast.md",
+    "00_nucleo/prompts/core/compiler/stdlib/layout.md",
+    "00_nucleo/prompts/core/compiler/stdlib/layout/grid.md",
+    "00_nucleo/prompts/core/compiler/stdlib/layout/place.md",
+    "00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md",
+    "00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md",
+    "00_nucleo/prompts/core/compiler/stdlib/loading/yaml_encode.md",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes/line.md",
+    "00_nucleo/prompts/core/compiler/stdlib/structural/bibliography.md",
+    "00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md",
+    "00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md",
+    "00_nucleo/prompts/core/compiler/stdlib/structural/outline.md",
+    "00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md",
+    "01_core/src/compiler/stdlib/shapes/ellipse.rs"
+  ],
+  "memory_after": {
+    "memory.max": "12884901888",
+    "memory.high": "8589934592",
+    "memory.swap.max": "0",
+    "memory.peak": "3424669696",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+  }
+}

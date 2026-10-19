@@ -1,5 +1,5 @@
 # L0 — stdlib/layout/place — place and flush
-Hash do Código: 498810d7
+Hash do Código: 7eda64f2
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/place-coordinate-origin.toml sha256:b9012d07e2d22b7c3984963a6d4e90eedbb9b925280f4136f8db8aaa9459bbc8
@@ -44,3 +44,39 @@ place-coordinate-origin nucleus. Preserve clearance/scope/validation/floats and
 validate pending-line, explicit-Top, geometry, float and full-suite controls.
 The separate anchor-after-committed-flow work remains open in the local-origin
 diagnostic; this does not close it.
+
+## Exhaustive argument decisions and measured rejection
+
+### Evidence before decision
+
+At baseline `91ea6ee91105b97b1aedf172e34780dddde14c94`, the exact source/L0
+hashes and UTC are retained in
+`lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/initial-audit-state.json`.
+The baseline eval/query receipts in that directory bind the rebuilt product
+SHA to the ratified oracle commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`.
+They measure acceptance, diagnostic meaning, supplied-value provenance and
+geometry, not Rust representation or rendered bytes. The initial audit separates
+source evidence from inferred intent and records refuters.
+
+`layout/place.rs:34-51` converts every unsupported supplied dx/dy to zero.
+Pinned `layout/place.rs:163,169` defines relative lengths; baseline Boolean, None,
+Auto, String, Fraction and Array are errors upstream while succeeding locally.
+The public PlaceElem stores f64 offsets, so full em/relative support cannot be
+claimed from this local correction.
+
+### Contract and limits
+
+Make the private point extractor fallible and exhaustive over Value. Float/Int
+retain the deliberate point extension; Length retains its current absolute
+projection. Ratio/Relative retain their measured zero projection as explicit RM1
+debt, not final dimensional semantics. All other variants report
+`expected relative length, found {vanilla type}` instead of becoming zero.
+Omitted dx/dy still mean zero, distinct from invalid supplied data. Validate dx
+then dy at their existing sites before scope/float/clearance/body. Use last named
+occurrence value_span then occurrence.span then Args.span. Preserve alignment
+omission, scope rules, callbacks, clearance and every native/public signature.
+
+Tests cover invalid types, zero/negative/numeric point compatibility, omitted
+vertical alignment, causal span and dx-before-dy precedence. Preserve explicitly
+measured dimensional limitations; do not add resolution in eval or change a
+public carrier. This is continuous internal contract repair under ADR-0127.

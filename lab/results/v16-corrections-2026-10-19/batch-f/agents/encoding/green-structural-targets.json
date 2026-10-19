@@ -1,0 +1,158 @@
+[
+  {
+    "id": "V16-057",
+    "file": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+    "function": "cast_attr",
+    "domain": "Value",
+    "baseline": {
+      "context_anchor": "AttrKind::OnOffOrNoneOrEnum(values) => match value {",
+      "match_selector": "match in context anchor",
+      "expected_local_E0004": false
+    },
+    "green": {
+      "context_anchor": "AttrKind::OnOffOrNoneOrEnum(values) => match value {",
+      "expected_local_E0004": true,
+      "context_line": 105,
+      "source_sha256": "6bd99eefe9070873ed00b7e70abc640fb4f6fd952d4054a8d040e555128c72b1"
+    },
+    "test_compilation": false,
+    "note": "Preserve existing behavior; compiler-extension witness is structural, not language parity."
+  },
+  {
+    "id": "V16-058",
+    "file": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+    "function": "cast_attr",
+    "domain": "Value",
+    "baseline": {
+      "context_anchor": "AttrKind::PresenceOr(values) => match value {",
+      "match_selector": "match in context anchor",
+      "expected_local_E0004": false
+    },
+    "green": {
+      "context_anchor": "AttrKind::PresenceOr(values) => match value {",
+      "expected_local_E0004": true,
+      "context_line": 157,
+      "source_sha256": "6bd99eefe9070873ed00b7e70abc640fb4f6fd952d4054a8d040e555128c72b1"
+    },
+    "test_compilation": false,
+    "note": "Preserve existing behavior; compiler-extension witness is structural, not language parity."
+  },
+  {
+    "id": "V16-061",
+    "file": "01_core/src/compiler/stdlib/layout/stroke.rs",
+    "function": "native_stroke::dash_item",
+    "domain": "Value",
+    "baseline": {
+      "context_anchor": "fn dash_item(value: &Value) -> Option<DashLength> {",
+      "match_selector": "first match after context anchor",
+      "expected_local_E0004": false
+    },
+    "green": {
+      "context_anchor": "fn dash_item(value: &Value) -> Option<DashLength> {",
+      "expected_local_E0004": true,
+      "context_line": 145,
+      "source_sha256": "f44e54c9cc7add196a46b00941cd6ccc1b1ad5cebee9b7fb75b7f67093ddd1f0"
+    },
+    "test_compilation": false,
+    "note": "Preserve existing behavior; compiler-extension witness is structural, not language parity."
+  },
+  {
+    "id": "V16-062",
+    "file": "01_core/src/compiler/stdlib/layout.rs",
+    "function": "extract_alignment",
+    "domain": "Value",
+    "baseline": {
+      "context_anchor": ".find_map(|v| match v {",
+      "match_selector": "match in context anchor",
+      "expected_local_E0004": false
+    },
+    "green": {
+      "context_anchor": ".find_map(|v| match v {",
+      "expected_local_E0004": true,
+      "context_line": 121,
+      "source_sha256": "fd877772e46e671589940aa85889d81db290336be41acae1c2d28c68c572148e"
+    },
+    "test_compilation": false,
+    "note": "Preserve existing behavior; compiler-extension witness is structural, not language parity."
+  },
+  {
+    "id": "V16-063",
+    "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+    "function": "textual_content_fields",
+    "domain": "Content",
+    "baseline": {
+      "context_anchor": "// Campos de payload cuja presen\u00e7a \u00e9 estrutural.",
+      "match_selector": "first match after context anchor",
+      "expected_local_E0004": false
+    },
+    "green": {
+      "context_anchor": "fn textual_content_fields(",
+      "expected_local_E0004": true,
+      "context_line": 46,
+      "match_anchor": "match content {",
+      "match_ordinal_after_context": 3,
+      "selected_match_line": 48,
+      "source_sha256": "7fbf8a39a5fc6f7d7ecbfb040a26391a5ac981125452686118a298754c152f0a",
+      "selected_context_anchor": "// Campos de payload cuja presen\u00e7a \u00e9 estrutural."
+    },
+    "test_compilation": false,
+    "note": "Preserve existing behavior; compiler-extension witness is structural, not language parity."
+  },
+  {
+    "id": "V16-064",
+    "file": "01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+    "function": "write_yaml_value",
+    "domain": "Value",
+    "baseline": {
+      "context_anchor": "fn write_yaml_value(",
+      "match_selector": "first match after context anchor",
+      "expected_local_E0004": false
+    },
+    "green": {
+      "context_anchor": "fn write_yaml_value(",
+      "expected_local_E0004": true,
+      "context_line": 31,
+      "source_sha256": "79146a48b8a560b4c7eee05ecd32823d1c7068adb2e0a0e8d5b80439abbe4d5a"
+    },
+    "test_compilation": false,
+    "note": "Flatten outer and inner decisions into one exhaustive writer; both old catches must disappear."
+  },
+  {
+    "id": "V16-068",
+    "file": "01_core/src/compiler/stdlib/structural/math_accent_tests.rs",
+    "function": "find_accent",
+    "domain": "Content",
+    "baseline": {
+      "context_anchor": "fn find_accent(content: &Content) -> Option<&Content> {",
+      "match_selector": "first match after context anchor",
+      "expected_local_E0004": false
+    },
+    "green": {
+      "context_anchor": "fn find_accent(content: &Content) -> Option<&Content> {",
+      "expected_local_E0004": true,
+      "context_line": 334,
+      "source_sha256": "602de703a86ef36acb647d31872775d2fb9b1e3c12740259a46f7cd1ff891cf0"
+    },
+    "test_compilation": true,
+    "note": "Preserve existing behavior; compiler-extension witness is structural, not language parity."
+  },
+  {
+    "id": "V16-069",
+    "file": "01_core/src/compiler/stdlib/structural/math_cases_tests.rs",
+    "function": "find_cases",
+    "domain": "Content",
+    "baseline": {
+      "context_anchor": "fn find_cases(content: &Content) -> Option<&Content> {",
+      "match_selector": "first match after context anchor",
+      "expected_local_E0004": false
+    },
+    "green": {
+      "context_anchor": "fn find_cases(content: &Content) -> Option<&Content> {",
+      "expected_local_E0004": true,
+      "context_line": 318,
+      "source_sha256": "39c80b34b003a908dc1f817827b8b0d4df9ecdc8ab019b4f5b630d0adb80b8c0"
+    },
+    "test_compilation": true,
+    "note": "Preserve existing behavior; compiler-extension witness is structural, not language parity."
+  }
+]

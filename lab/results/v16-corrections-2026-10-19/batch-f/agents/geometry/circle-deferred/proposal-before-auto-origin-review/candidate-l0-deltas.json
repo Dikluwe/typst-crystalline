@@ -1,0 +1,29 @@
+{
+  "status": "proposal-only; not active L0",
+  "deltas": [
+    {
+      "owner": "00_nucleo/prompts/core/entities/elements/shape.md",
+      "delta": "After the evidence section, cite the baseline equality and failed candidate receipts before the decision. Add the exact ShapeOrigin enum/required origin field above. Preserve all existing field types, correcting stale Color documentation to actual Paint. Derived equality/hash include origin; terminal maps retain it; pure geometry leaf and nonlocatability remain. Add clone/map/identity controls. This public addition requires its own approval receipt, not a fabricated prior approval."
+    },
+    {
+      "owner": "00_nucleo/prompts/core/entities/content/construction/layout.md",
+      "delta": "Preserve existing shape and shape_with_radius signatures and radius-to-RoundedRect behavior. Both initialize ShapeOrigin::Geometry, never infer Circle from equal axes or ShapeKind::Ellipse. The origin is not a new render parameter. Retain every other constructor."
+    },
+    {
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md",
+      "delta": "Replace the current absolute-only radius interpretation for explicit Int/Float/Length with canonical full-Length diameters as specified in review.md. Native Circle explicitly sets ShapeOrigin::Circle; Ellipse retains generic Shape. State malformed type/span/precedence requirements, numeric extension preservation, and Auto/omitted debt. Preserve stroke nucleus. Include all archived geometry/equality acceptance plus new mixed/alias/consumer controls; name the approval receipt before code."
+    },
+    {
+      "owner": "00_nucleo/prompts/core/compiler/eval/observation/elements.md",
+      "delta": "Extend exhaustive ShapeElem destructuring with origin. Compare ShapeOrigin nominally: Geometry/Geometry and Circle/Circle are Same, cross variants Different; keep every existing field comparison. Future ShapeOrigin variants require an explicit decision. No geometry, callback or textual identity shortcut."
+    },
+    {
+      "owner": "00_nucleo/prompts/core/compiler/layout/shape.md",
+      "delta": "Add evidence that the rejected explicit full-Length candidate reached actual font-dependent geometry. Preserve existing dimension resolution and all flow/paint behavior. Origin is semantic data and does not alter ShapeKind::Ellipse rendering. Migrate local ShapeElem fixtures to Geometry and add actual explicit-radius controls. Auto/default and unrelated Circle surfaces remain open."
+    },
+    {
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/shapes.md",
+      "delta": "Qualify the fa\u00e7ade catalog: Circle and generic Ellipse now have distinct typed constructor origin while sharing rendered ellipse geometry. Preserve numeric extensions and paint/stroke behavior. The old no-new-public-field clause is superseded only by the specific ratified ShapeOrigin addition; all other exclusions remain."
+    }
+  ]
+}

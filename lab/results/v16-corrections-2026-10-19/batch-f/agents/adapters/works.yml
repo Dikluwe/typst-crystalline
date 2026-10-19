@@ -1,0 +1,5 @@
+test:
+  type: Book
+  title: Test
+  author: Doe, Jane
+  date: 2020

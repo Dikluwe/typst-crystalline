@@ -1,0 +1,37 @@
+[
+  {
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/replay.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/accepted-replay",
+      "--validation-state",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/validation/validation-state.json.gz",
+      "--build-receipt",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/accepted-build-receipt.json"
+    ],
+    "exit": 1
+  },
+  {
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/replay.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/accepted-replay",
+      "--validation-state",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/validation/validation-state.json.gz"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/encoding/replay.py",
+      "accepted-replay.json",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/validation/validation-state.json.gz",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/accepted-build-receipt.json",
+      "7f40c742ee6bb6829afec052c32be904db34faf42aea846b299d57744df486df"
+    ],
+    "exit": 0
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "utc": "2026-10-19T21:14:19.828733+00:00",
+  "owner": "00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md",
+  "before_sha256": "70026a0fb152586304ef82aed2f3d2dbd593a369f6b6fbeab2ac40114318574a",
+  "after_sha256": "36d0eec8fca02ed3f3fdeedd8837e03386cb9a07cfd13ac7f1ac5f8f8d07e237",
+  "change": "Evidence coordinates only: Version pinned ops483 and local ordering126\u2013128; productive code and tests unchanged"
+}

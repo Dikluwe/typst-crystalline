@@ -1,0 +1,19 @@
+{
+  "utc": "2026-10-19T20:24:41.740339+00:00",
+  "build_receipt": "lab/results/v16-corrections-2026-10-19/batch-f/baseline-build-receipt.json",
+  "build_receipt_sha256": "1f610e073de9a97efc88eb7ea056f230677c5826589d057a289460d803b31870",
+  "receipts": [
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-eval/receipt.json",
+      "sha256": "6afbe48f44c2361d6f0885e6365447f9289e9ef035dbf221bc3eecea0b5e9cf3",
+      "cases": 166,
+      "product_matches_build": true
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/receipt.json",
+      "sha256": "dafc3e343dedeabc6302c095cacc46a630652b66ce44a28d3432f1814175ea4f",
+      "cases": 16,
+      "product_matches_build": true
+    }
+  ]
+}

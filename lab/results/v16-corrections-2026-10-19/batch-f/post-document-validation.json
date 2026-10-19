@@ -1,0 +1,60 @@
+{
+  "utc_start": "2026-10-19T21:41:33.559146+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "diff_head_stat": " .../v16-correction-progress-2026-10-19.md          |  56 +++-\n 00_nucleo/prompts/core/compiler/eval/tests.md      |  36 ++-\n .../prompts/core/compiler/stdlib/collections.md    |  25 +-\n .../compiler/stdlib/collections/array_predicate.md |  62 ++++-\n .../core/compiler/stdlib/collections/validation.md |  55 +++-\n .../core/compiler/stdlib/counter/display.md        |  28 +-\n .../core/compiler/stdlib/foundations/selector.md   |  24 +-\n .../prompts/core/compiler/stdlib/html/attr_cast.md |  37 ++-\n 00_nucleo/prompts/core/compiler/stdlib/layout.md   |  44 ++-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  63 ++++-\n .../prompts/core/compiler/stdlib/layout/place.md   |  38 ++-\n .../prompts/core/compiler/stdlib/layout/stroke.md  |  38 ++-\n .../core/compiler/stdlib/loading/encoding.md       |  39 ++-\n .../core/compiler/stdlib/loading/yaml_encode.md    |  40 ++-\n .../prompts/core/compiler/stdlib/shapes/line.md    |  41 ++-\n .../compiler/stdlib/structural/bibliography.md     |  29 +-\n .../stdlib/structural/math_accent_tests.md         |  39 ++-\n .../compiler/stdlib/structural/math_cases_tests.md |  39 ++-\n .../core/compiler/stdlib/structural/outline.md     |  26 +-\n .../core/compiler/stdlib/structural/table_grid.md  |  36 ++-\n 01_core/src/compiler/eval/tests.rs                 |  20 +-\n 01_core/src/compiler/stdlib/collections.rs         |   4 +-\n .../compiler/stdlib/collections/array_predicate.rs |   4 +-\n .../src/compiler/stdlib/collections/validation.rs  | 253 +++++++++++++++++-\n 01_core/src/compiler/stdlib/counter/display.rs     | 163 +++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |  69 ++++-\n 01_core/src/compiler/stdlib/html/attr_cast.rs      | 156 ++++++++++-\n 01_core/src/compiler/stdlib/layout.rs              |  93 ++++++-\n 01_core/src/compiler/stdlib/layout/grid.rs         | 295 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/layout/place.rs        | 195 +++++++++++++-\n 01_core/src/compiler/stdlib/layout/stroke.rs       | 154 ++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 173 +++++++++++-\n 01_core/src/compiler/stdlib/loading/yaml_encode.rs | 169 +++++++++---\n 01_core/src/compiler/stdlib/shapes/line.rs         | 165 +++++++++++-\n .../src/compiler/stdlib/structural/bibliography.rs | 137 +++++++++-\n .../stdlib/structural/math_accent_tests.rs         | 144 +++++++++-\n .../compiler/stdlib/structural/math_cases_tests.rs | 143 +++++++++-\n 01_core/src/compiler/stdlib/structural/outline.rs  | 212 ++++++++++++++-\n .../src/compiler/stdlib/structural/table_grid.rs   |  76 +++++-\n 39 files changed, 3297 insertions(+), 123 deletions(-)\n",
+  "commands": [
+    {
+      "name": "paths",
+      "command": [
+        "python3",
+        "lab/tools/ci/check_mature_layout.py"
+      ],
+      "exit": 0,
+      "stdout": "mature layout check passed\n",
+      "stderr": "",
+      "utc_end": "2026-10-19T21:41:35.654369+00:00"
+    },
+    {
+      "name": "strict-lineage",
+      "command": [
+        "/repos/Antigravity/typst-crystalline/lab/target/linter/debug/crystalline-lint",
+        ".",
+        "--checks",
+        "v1,v5,v15,v26",
+        "--fail-on",
+        "warning"
+      ],
+      "exit": 0,
+      "stdout": "\u2713 No violations found\n",
+      "stderr": "",
+      "utc_end": "2026-10-19T21:41:40.274550+00:00"
+    },
+    {
+      "name": "reverse-lineage",
+      "command": [
+        "python3",
+        "lab/tools/ci/check_reverse_lineage.py"
+      ],
+      "exit": 0,
+      "stdout": "Reverse lineage: 991 consumers, 0 errors\n",
+      "stderr": "",
+      "utc_end": "2026-10-19T21:41:40.709756+00:00"
+    },
+    {
+      "name": "authored-diff",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "utc_end": "2026-10-19T21:41:40.778514+00:00"
+    }
+  ],
+  "utc_end": "2026-10-19T21:41:40.840985+00:00",
+  "diagnostic_sha256": "475ca0298f3fbe00b233a56231da9326fc59ed1978b66fa12daa9d39aa6163a6",
+  "readme_sha256": "71e856ce904eda67a05d0de0da3daf92926214973262fc22b37a92e7f3c735a0",
+  "unchanged_validated_inputs": 2132
+}

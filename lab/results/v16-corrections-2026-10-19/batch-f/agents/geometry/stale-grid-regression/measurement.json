@@ -1,0 +1,31 @@
+{
+  "utc_start": "2026-10-19T20:48:05.479857+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "diff_head_stat": " .../prompts/core/compiler/stdlib/collections.md    |  25 +-\n .../compiler/stdlib/collections/array_predicate.md |  33 ++-\n .../core/compiler/stdlib/collections/validation.md |  41 ++-\n .../core/compiler/stdlib/counter/display.md        |  28 +-\n .../core/compiler/stdlib/foundations/selector.md   |  24 +-\n .../prompts/core/compiler/stdlib/html/attr_cast.md |  37 ++-\n 00_nucleo/prompts/core/compiler/stdlib/layout.md   |  44 ++-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  63 ++++-\n .../prompts/core/compiler/stdlib/layout/place.md   |  38 ++-\n .../prompts/core/compiler/stdlib/layout/stroke.md  |  38 ++-\n .../core/compiler/stdlib/loading/encoding.md       |  39 ++-\n .../core/compiler/stdlib/loading/yaml_encode.md    |  40 ++-\n .../prompts/core/compiler/stdlib/shapes/line.md    |  41 ++-\n .../compiler/stdlib/structural/bibliography.md     |  29 +-\n .../stdlib/structural/math_accent_tests.md         |  39 ++-\n .../compiler/stdlib/structural/math_cases_tests.md |  39 ++-\n .../core/compiler/stdlib/structural/outline.md     |  26 +-\n .../core/compiler/stdlib/structural/table_grid.md  |  36 ++-\n 01_core/src/compiler/stdlib/collections.rs         |   4 +-\n .../compiler/stdlib/collections/array_predicate.rs |   3 +-\n .../src/compiler/stdlib/collections/validation.rs  | 249 ++++++++++++++++-\n 01_core/src/compiler/stdlib/counter/display.rs     | 163 +++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |  69 ++++-\n 01_core/src/compiler/stdlib/html/attr_cast.rs      | 156 ++++++++++-\n 01_core/src/compiler/stdlib/layout.rs              |  93 ++++++-\n 01_core/src/compiler/stdlib/layout/grid.rs         | 295 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/layout/place.rs        | 195 +++++++++++++-\n 01_core/src/compiler/stdlib/layout/stroke.rs       | 154 ++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 173 +++++++++++-\n 01_core/src/compiler/stdlib/loading/yaml_encode.rs | 169 +++++++++---\n 01_core/src/compiler/stdlib/shapes/line.rs         | 165 +++++++++++-\n .../src/compiler/stdlib/structural/bibliography.rs | 137 +++++++++-\n .../stdlib/structural/math_accent_tests.rs         | 144 +++++++++-\n .../compiler/stdlib/structural/math_cases_tests.rs | 143 +++++++++-\n 01_core/src/compiler/stdlib/structural/outline.rs  | 212 ++++++++++++++-\n .../src/compiler/stdlib/structural/table_grid.rs   |  76 +++++-\n 36 files changed, 3145 insertions(+), 115 deletions(-)\n",
+  "before": {
+    "01_core/src/compiler/eval/tests.rs": "523fbd5a4192698961c0f9edd85fb751bd8d8450e0d2325eacc78959db0b5d9e",
+    "00_nucleo/prompts/core/compiler/eval/tests.md": "ab87e626f31c1e0b1c749e0f544d46d8cf5fd916c92fba6f61773f5db9eef53b"
+  },
+  "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+  "oracle_tree": "cac836c07e4dec2a89219370428292393a3216b5",
+  "oracle_binary": {
+    "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+    "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+  },
+  "source": "#let x = grid(columns: \"foo\")[A]",
+  "source_sha256": "d3e0afe0020905bd6ae5b69d49ca40cf41a5ba43d4fe883f8b5fa80289d000f8",
+  "expected_utf8_range": [
+    23,
+    28
+  ],
+  "argv": [
+    "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+    "compile",
+    "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/stale-grid-regression/invalid-column-string.typ",
+    "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/stale-grid-regression/unexpected.pdf"
+  ],
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "error: expected auto, relative length, fraction, integer, or array, found string\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/stale-grid-regression/invalid-column-string.typ:1:23\n  \u2502\n1 \u2502 #let x = grid(columns: \"foo\")[A]\n  \u2502                        ^^^^^\n\n",
+  "utc_end": "2026-10-19T20:48:05.720323+00:00"
+}

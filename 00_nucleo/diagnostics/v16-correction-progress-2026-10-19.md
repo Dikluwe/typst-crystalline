@@ -1,7 +1,7 @@
 # V16 correction progress
 
-Status: batches A, B, C, D and E validated and closed. The other
-37 V16 findings remain open in the [cause-correction plan](v16-cause-correction-plan-2026-10-19.md).
+Status: batches A–E are closed; batch F has 16 validated repairs and two
+explicit pending items. The remaining 21 V16 findings remain open in the [cause-correction plan](v16-cause-correction-plan-2026-10-19.md).
 This diagnostic is not a new L0 contract or a claim of complete Typst parity.
 
 ## Batch A: evidence before closure
@@ -273,9 +273,59 @@ bind the selected findings to the exact validated sources, owners and seals.
 The full linter still exits 1 for the remaining 37 V16 errors; no suppression,
 severity reduction, linter/configuration change or weakened contract was used.
 
+## Batch F: argument conversion and exhaustive decisions — partial
+
+The baseline is commit `91ea6ee91105b97b1aedf172e34780dddde14c94` on the same branch.
+The final pinned lint comparison ended at **2026-10-19T21:22:37.852499+00:00**
+on the uncommitted implementation: **37 → 21 V16 errors**, exactly 16 selected
+findings removed across 19 exclusive source/L0 pairs. IDs 055 and 065 remain
+open; batch F as a whole is not closed. The exact changed-file list, source
+hashes, UTC and command are in [the lint receipt](../../lab/results/v16-corrections-2026-10-19/batch-f/lint-state.json.gz).
+No new error or warning appears. Outside-scope diagnostics are unchanged.
+V19 remains visible at 1,259 notes (previously 1,237); V20 stays at 877.
+[The note review](../../lab/results/v16-corrections-2026-10-19/batch-f/note-review.md)
+accounts for every substantive addition/removal without changing severity or scope.
+
+Three agents implemented and cross-reviewed the bounded corrections. L0 updates
+preceded implementation and centralized resealing. Constructor adapters preserve
+lazy calls and causal Arguments; Decimal and Version keys use existing exact
+domain ordering. Grid/table reject malformed tracks; place/line retain the
+supplied value's diagnostic origin. Counter projections, selector cardinality,
+HTML/stroke/alignment conversions, encoders, locale and math/outline decisions
+now enumerate their nominal domains. No public API, default or phase changed.
+
+All 52 new tests pass: 22 original semantic RED cases and 30 preservation
+controls. The existing adapter admission test and strengthened malformed-grid
+test also pass. The sorted-key test additionally demonstrated a genuine Version
+RED before its private comparator correction. Failed Circle attempts, the old
+grid acceptance regression, cache reuse and the failed Version replay remain
+archived. No expected result was weakened to pass. Seventeen exact compiler
+witnesses and two arity witnesses received independent raw-span review.
+
+All twelve integrated gates completed at **2026-10-19T21:40:03.769355+00:00**,
+with 2,132 unchanged frozen inputs. Paths, strict direct/reverse lineage,
+ownership/Nuclei, builds, domain/infra/wiring tests, doctests, all targets,
+Clippy, formatting and Rustdoc passed. The 335 strict replay cases also passed
+their frozen, case-specific policies: 102 adapters, 182 geometry and 51 encoding.
+Preserved baseline debt and explicit residuals are not full oracle parity.
+The [evidence report](../../lab/results/v16-corrections-2026-10-19/batch-f/README.md)
+and [scoped closure ledger](../../lab/results/v16-corrections-2026-10-19/batch-f/closure-ledger.json)
+bind the accepted results to their exact source/L0 and executable identities.
+
+Figure055 needs a coherent typed-kind, selection/finalization and counter-demand
+contract. The [readiness analysis](../../lab/results/v16-corrections-2026-10-19/batch-f/fg1-proposal/readiness.md)
+and [lifecycle refutation](../../lab/results/v16-corrections-2026-10-19/batch-f/fg1-proposal/counter-lifecycle-followup.md)
+explain why the current draft is not ready for approval. Circle065 has an
+[independently reviewed proposal](../../lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/circle-deferred/proposal/review.md)
+for typed constructor origin and full explicit radius. It awaits ADR-0127
+approval for the public entity change; its source/L0 remain identical to baseline.
+[Open obligations](../../lab/results/v16-corrections-2026-10-19/batch-f/open-obligations.json)
+retain Auto/default, relative-dimension and native-constructor gaps. The full
+linter still exits 1 for 21 V16 errors; no suppression or weaker contract was used.
+
 ## Remaining obligations and organizational result
 
-Batches F and G remain open. The mathematical parser's old grouping comment differs
+The two pending F items and batch G remain open. The mathematical parser's old grouping comment differs
 from the observed tree for `a^b'_c^d`; batch A preserved the observed tree and
 recorded the intent question separately. It does not ratify that comment or close
 parity through Rust exhaustiveness. Three callback font formats still lack

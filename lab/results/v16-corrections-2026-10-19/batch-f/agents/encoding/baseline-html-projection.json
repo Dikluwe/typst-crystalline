@@ -1,0 +1,631 @@
+{
+  "utc_start": "2026-10-19T20:19:40.187943+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "diff_head_stat": "",
+  "baseline_build_receipt": {
+    "utc": "2026-10-19T20:18:35.094314+00:00",
+    "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+    "status": "",
+    "diff_head_stat": "",
+    "build_receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/baseline-build-run/commands.json",
+    "build_receipt_sha256": "af27e055076b2bc30e66d5eff1c7c503660536d5c29813abaaf875b2234e1451",
+    "state": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/baseline-build-run/state.json.gz",
+    "state_sha256": "c8139fb51d64c41d1120cedd6965e3b34fb58fb9809c988b59c87e08e36e710f",
+    "product": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+      "sha256": "44178e4fecc5c66cba3aa134f4d82290c6d53fb340dd5966b67eec45b737c914"
+    },
+    "oracle": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+      "commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+      "tree": "cac836c07e4dec2a89219370428292393a3216b5",
+      "recipe": "lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md"
+    },
+    "baseline_workspace": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-f-base-2026-10-19"
+  },
+  "runner_sha256": "63001f0de13b76c90eeec83c4cc5994b332b30425ebdaaeb509441ccf1a7708a",
+  "case_manifest_sha256": "146992eeccdda0e2cf1d5549b903c4506990c4aa1fbcb09ee58436feef6b0ac1",
+  "binaries": {
+    "product": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+      "sha256": "44178e4fecc5c66cba3aa134f4d82290c6d53fb340dd5966b67eec45b737c914"
+    },
+    "oracle": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+    }
+  },
+  "cases": [
+    {
+      "name": "html-autocapitalize-0",
+      "expression": "json.encode(html.div(autocapitalize: true)[x])",
+      "format": "json",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: true)[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"attrs\\\": {\\n    \\\"autocapitalize\\\": \\\"on\\\"\\n  },\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.406045+00:00",
+          "utc_end": "2026-10-19T20:19:40.419892+00:00"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: true)[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"attrs\\\": {\\n    \\\"autocapitalize\\\": \\\"on\\\"\\n  },\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.419910+00:00",
+          "utc_end": "2026-10-19T20:19:40.426911+00:00"
+        }
+      }
+    },
+    {
+      "name": "html-autocapitalize-1",
+      "expression": "json.encode(html.div(autocapitalize: false)[x])",
+      "format": "json",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: false)[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"attrs\\\": {\\n    \\\"autocapitalize\\\": \\\"off\\\"\\n  },\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.426933+00:00",
+          "utc_end": "2026-10-19T20:19:40.446211+00:00"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: false)[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"attrs\\\": {\\n    \\\"autocapitalize\\\": \\\"off\\\"\\n  },\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.446228+00:00",
+          "utc_end": "2026-10-19T20:19:40.452724+00:00"
+        }
+      }
+    },
+    {
+      "name": "html-autocapitalize-2",
+      "expression": "json.encode(html.div(autocapitalize: none)[x])",
+      "format": "json",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: none)[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"attrs\\\": {\\n    \\\"autocapitalize\\\": \\\"none\\\"\\n  },\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.452744+00:00",
+          "utc_end": "2026-10-19T20:19:40.465912+00:00"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: none)[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"attrs\\\": {\\n    \\\"autocapitalize\\\": \\\"none\\\"\\n  },\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.465929+00:00",
+          "utc_end": "2026-10-19T20:19:40.472531+00:00"
+        }
+      }
+    },
+    {
+      "name": "html-autocapitalize-3",
+      "expression": "json.encode(html.div(autocapitalize: \"sentences\")[x])",
+      "format": "json",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: \"sentences\")[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"attrs\\\": {\\n    \\\"autocapitalize\\\": \\\"sentences\\\"\\n  },\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.472557+00:00",
+          "utc_end": "2026-10-19T20:19:40.485771+00:00"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: \"sentences\")[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"attrs\\\": {\\n    \\\"autocapitalize\\\": \\\"sentences\\\"\\n  },\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.485789+00:00",
+          "utc_end": "2026-10-19T20:19:40.492705+00:00"
+        }
+      }
+    },
+    {
+      "name": "html-autocapitalize-4",
+      "expression": "json.encode(html.div(autocapitalize: \"words\")[x])",
+      "format": "json",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: \"words\")[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"attrs\\\": {\\n    \\\"autocapitalize\\\": \\\"words\\\"\\n  },\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.492724+00:00",
+          "utc_end": "2026-10-19T20:19:40.505717+00:00"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: \"words\")[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"attrs\\\": {\\n    \\\"autocapitalize\\\": \\\"words\\\"\\n  },\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.505734+00:00",
+          "utc_end": "2026-10-19T20:19:40.512369+00:00"
+        }
+      }
+    },
+    {
+      "name": "html-autocapitalize-5",
+      "expression": "json.encode(html.div(autocapitalize: \"characters\")[x])",
+      "format": "json",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: \"characters\")[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"attrs\\\": {\\n    \\\"autocapitalize\\\": \\\"characters\\\"\\n  },\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.512387+00:00",
+          "utc_end": "2026-10-19T20:19:40.526694+00:00"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: \"characters\")[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"attrs\\\": {\\n    \\\"autocapitalize\\\": \\\"characters\\\"\\n  },\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.526712+00:00",
+          "utc_end": "2026-10-19T20:19:40.533074+00:00"
+        }
+      }
+    },
+    {
+      "name": "html-autocapitalize-6",
+      "expression": "json.encode(html.div(autocapitalize: \"invalid\")[x])",
+      "format": "json",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: \"invalid\")[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected \"sentences\", \"words\", or \"characters\"\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 json.encode(html.div(autocapitalize: \"invalid\")[x])\n  \u2502                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+          "utc_start": "2026-10-19T20:19:40.533092+00:00",
+          "utc_end": "2026-10-19T20:19:40.546415+00:00"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: \"invalid\")[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected boolean, none, \"sentences\", \"words\", or \"characters\"\n  \u250c\u2500 <input-expression>:1:37\n  \u2502\n1 \u2502 json.encode(html.div(autocapitalize: \"invalid\")[x])\n  \u2502                                      ^^^^^^^^^\n\n",
+          "utc_start": "2026-10-19T20:19:40.546432+00:00",
+          "utc_end": "2026-10-19T20:19:40.552658+00:00"
+        }
+      }
+    },
+    {
+      "name": "html-autocapitalize-7",
+      "expression": "json.encode(html.div(autocapitalize: 1)[x])",
+      "format": "json",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: 1)[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected \"sentences\", \"words\", or \"characters\", found integer\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 json.encode(html.div(autocapitalize: 1)[x])\n  \u2502                     ^^^^^^^^^^^^^^^^^^^^^^\n\n",
+          "utc_start": "2026-10-19T20:19:40.552673+00:00",
+          "utc_end": "2026-10-19T20:19:40.565253+00:00"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: 1)[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected boolean, none, \"sentences\", \"words\", or \"characters\", found integer\n  \u250c\u2500 <input-expression>:1:37\n  \u2502\n1 \u2502 json.encode(html.div(autocapitalize: 1)[x])\n  \u2502                                      ^\n\n",
+          "utc_start": "2026-10-19T20:19:40.565269+00:00",
+          "utc_end": "2026-10-19T20:19:40.572643+00:00"
+        }
+      }
+    },
+    {
+      "name": "html-autocapitalize-8",
+      "expression": "json.encode(html.div(autocapitalize: [x])[x])",
+      "format": "json",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: [x])[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected \"sentences\", \"words\", or \"characters\", found content\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 json.encode(html.div(autocapitalize: [x])[x])\n  \u2502                     ^^^^^^^^^^^^^^^^^^^^^^^^\n\n",
+          "utc_start": "2026-10-19T20:19:40.572665+00:00",
+          "utc_end": "2026-10-19T20:19:40.586181+00:00"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "json.encode(html.div(autocapitalize: [x])[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected boolean, none, \"sentences\", \"words\", or \"characters\", found content\n  \u250c\u2500 <input-expression>:1:37\n  \u2502\n1 \u2502 json.encode(html.div(autocapitalize: [x])[x])\n  \u2502                                      ^^^\n\n",
+          "utc_start": "2026-10-19T20:19:40.586196+00:00",
+          "utc_end": "2026-10-19T20:19:40.592659+00:00"
+        }
+      }
+    },
+    {
+      "name": "html-hidden-0",
+      "expression": "json.encode(html.div(hidden: true)[x])",
+      "format": "json",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "json.encode(html.div(hidden: true)[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"attrs\\\": {\\n    \\\"hidden\\\": \\\"\\\"\\n  },\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.592677+00:00",
+          "utc_end": "2026-10-19T20:19:40.605832+00:00"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "json.encode(html.div(hidden: true)[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"attrs\\\": {\\n    \\\"hidden\\\": \\\"\\\"\\n  },\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.605849+00:00",
+          "utc_end": "2026-10-19T20:19:40.612318+00:00"
+        }
+      }
+    },
+    {
+      "name": "html-hidden-1",
+      "expression": "json.encode(html.div(hidden: false)[x])",
+      "format": "json",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "json.encode(html.div(hidden: false)[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.612337+00:00",
+          "utc_end": "2026-10-19T20:19:40.624376+00:00"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "json.encode(html.div(hidden: false)[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.624393+00:00",
+          "utc_end": "2026-10-19T20:19:40.631120+00:00"
+        }
+      }
+    },
+    {
+      "name": "html-hidden-2",
+      "expression": "json.encode(html.div(hidden: \"until-found\")[x])",
+      "format": "json",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "json.encode(html.div(hidden: \"until-found\")[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"attrs\\\": {\\n    \\\"hidden\\\": \\\"until-found\\\"\\n  },\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.631140+00:00",
+          "utc_end": "2026-10-19T20:19:40.644227+00:00"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "json.encode(html.div(hidden: \"until-found\")[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 0,
+          "stdout": "\"{\\n  \\\"func\\\": \\\"elem\\\",\\n  \\\"tag\\\": \\\"div\\\",\\n  \\\"attrs\\\": {\\n    \\\"hidden\\\": \\\"until-found\\\"\\n  },\\n  \\\"body\\\": {\\n    \\\"func\\\": \\\"text\\\",\\n    \\\"text\\\": \\\"x\\\"\\n  }\\n}\"\n",
+          "stderr": "",
+          "utc_start": "2026-10-19T20:19:40.644245+00:00",
+          "utc_end": "2026-10-19T20:19:40.650596+00:00"
+        }
+      }
+    },
+    {
+      "name": "html-hidden-3",
+      "expression": "json.encode(html.div(hidden: \"invalid\")[x])",
+      "format": "json",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "json.encode(html.div(hidden: \"invalid\")[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected \"until-found\"\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 json.encode(html.div(hidden: \"invalid\")[x])\n  \u2502                     ^^^^^^^^^^^^^^^^^^^^^^\n\n",
+          "utc_start": "2026-10-19T20:19:40.650616+00:00",
+          "utc_end": "2026-10-19T20:19:40.663849+00:00"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "json.encode(html.div(hidden: \"invalid\")[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected boolean or \"until-found\"\n  \u250c\u2500 <input-expression>:1:29\n  \u2502\n1 \u2502 json.encode(html.div(hidden: \"invalid\")[x])\n  \u2502                              ^^^^^^^^^\n\n",
+          "utc_start": "2026-10-19T20:19:40.663866+00:00",
+          "utc_end": "2026-10-19T20:19:40.670564+00:00"
+        }
+      }
+    },
+    {
+      "name": "html-hidden-4",
+      "expression": "json.encode(html.div(hidden: none)[x])",
+      "format": "json",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "json.encode(html.div(hidden: none)[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected \"until-found\", found none\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 json.encode(html.div(hidden: none)[x])\n  \u2502                     ^^^^^^^^^^^^^^^^^\n\n",
+          "utc_start": "2026-10-19T20:19:40.670582+00:00",
+          "utc_end": "2026-10-19T20:19:40.682980+00:00"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "json.encode(html.div(hidden: none)[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected boolean or \"until-found\", found none\n  \u250c\u2500 <input-expression>:1:29\n  \u2502\n1 \u2502 json.encode(html.div(hidden: none)[x])\n  \u2502                              ^^^^\n\n",
+          "utc_start": "2026-10-19T20:19:40.682996+00:00",
+          "utc_end": "2026-10-19T20:19:40.689420+00:00"
+        }
+      }
+    },
+    {
+      "name": "html-hidden-5",
+      "expression": "json.encode(html.div(hidden: 1)[x])",
+      "format": "json",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "json.encode(html.div(hidden: 1)[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected \"until-found\", found integer\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 json.encode(html.div(hidden: 1)[x])\n  \u2502                     ^^^^^^^^^^^^^^\n\n",
+          "utc_start": "2026-10-19T20:19:40.689434+00:00",
+          "utc_end": "2026-10-19T20:19:40.702167+00:00"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "json.encode(html.div(hidden: 1)[x])",
+            "--format",
+            "json",
+            "--features",
+            "html"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected boolean or \"until-found\", found integer\n  \u250c\u2500 <input-expression>:1:29\n  \u2502\n1 \u2502 json.encode(html.div(hidden: 1)[x])\n  \u2502                              ^\n\n",
+          "utc_start": "2026-10-19T20:19:40.702186+00:00",
+          "utc_end": "2026-10-19T20:19:40.708500+00:00"
+        }
+      }
+    }
+  ],
+  "utc_end": "2026-10-19T20:19:40.708515+00:00",
+  "binary_sha256_after": {
+    "product": "44178e4fecc5c66cba3aa134f4d82290c6d53fb340dd5966b67eec45b737c914",
+    "oracle": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+  }
+}

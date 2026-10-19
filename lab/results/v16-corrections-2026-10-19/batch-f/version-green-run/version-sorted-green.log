@@ -1,0 +1,9 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 1m 29s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 1 test
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_sorted_key ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7594 filtered out; finished in 0.01s
+

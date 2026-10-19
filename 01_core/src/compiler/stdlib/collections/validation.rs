@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/collections/validation.md
-//! @prompt-hash 66e39c33
+//! @prompt-hash 189884bd
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -97,8 +97,52 @@ pub(super) fn type_as_callable(t: Type) -> Option<Func> {
         Type::Symbol => Func::native("symbol", native_symbol),
         Type::Bytes => Func::native("bytes", native_bytes),
         Type::Datetime => Func::native("datetime", native_datetime),
-        _ => return None, // neutro: N16[β] — Value sem representação iterável retorna None
+        Type::Decimal => Func::native("decimal", crate::compiler::stdlib::native_decimal),
+        Type::Duration => {
+            Func::native("duration", crate::compiler::stdlib::native_duration)
+        }
+        Type::Regex => Func::native("regex", crate::compiler::stdlib::native_regex),
+        Type::Selector => {
+            Func::native("selector", crate::compiler::stdlib::native_selector)
+        }
+        Type::Stroke => Func::native("stroke", crate::compiler::stdlib::native_stroke),
+        Type::Tiling => Func::native("tiling", crate::compiler::stdlib::native_tiling),
+        Type::Version => Func::native("version", crate::compiler::stdlib::native_version),
+        Type::Label => Func::native("label", crate::compiler::stdlib::native_label),
+        Type::Array => Func::native("array", crate::compiler::stdlib::native_array_bytes),
+        Type::Arguments => Func::native("arguments", native_arguments_adapter),
+        Type::SpotColorant => {
+            Func::native("spot", crate::compiler::stdlib::native_spot_colorant_construct)
+        }
+        Type::None
+        | Type::Auto
+        | Type::Bool
+        | Type::Dictionary
+        | Type::Module
+        | Type::Function
+        | Type::Content
+        | Type::Length
+        | Type::Ratio
+        | Type::Relative
+        | Type::Angle
+        | Type::Color
+        | Type::Fraction
+        | Type::Alignment
+        | Type::Location
+        | Type::Gradient
+        | Type::Direction
+        | Type::Path => return None,
     })
+}
+
+// Arguments is a causal value; conversion must preserve the complete carrier.
+fn native_arguments_adapter(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: crate::entities::file_id::FileId,
+) -> SourceResult<Value> {
+    Ok(Value::Args(args.clone()))
 }
 
 pub(super) fn expect_one_func(args: Args, context: &str) -> SourceResult<Func> {
@@ -208,5 +252,210 @@ pub(super) fn expect_one_int(args: Args, context: &str) -> SourceResult<i64> {
             Span::detached(),
             format!("{} requer 1 argumento posicional", context),
         )]),
+    }
+}
+
+#[cfg(test)]
+mod batch_f_tests {
+    use super::*;
+
+    #[derive(Default)]
+    struct TestWorld {
+        library: crate::entities::world_types::Library,
+        book: crate::entities::font_book::FontBook,
+    }
+    impl crate::contracts::world::World for TestWorld {
+        fn library(&self) -> &crate::entities::world_types::Library {
+            &self.library
+        }
+        fn book(&self) -> &crate::entities::font_book::FontBook {
+            &self.book
+        }
+        fn main(&self) -> crate::entities::file_id::FileId {
+            test_file()
+        }
+        fn source(
+            &self,
+            _: crate::entities::file_id::FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn file(
+            &self,
+            _: crate::entities::file_id::FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<crate::entities::world_types::Datetime> {
+            None
+        }
+    }
+    fn test_file() -> crate::entities::file_id::FileId {
+        crate::entities::file_id::FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+    }
+
+    fn evaluate(expression: &str) -> Value {
+        crate::compiler::eval::eval_expression(&TestWorld::default(), expression)
+            .0
+            .unwrap_or_else(|errors| panic!("{expression}: {errors:?}"))
+    }
+
+    #[test]
+    fn batch_f_higher_order_decimal() {
+        assert_eq!(
+            evaluate("(\"2.5\",).map(decimal).first() == decimal(\"2.5\")"),
+            Value::Bool(true)
+        );
+    }
+
+    #[test]
+    fn batch_f_higher_order_regex() {
+        assert_eq!(
+            evaluate("(\"a\",).map(regex).first() == regex(\"a\")"),
+            Value::Bool(true)
+        );
+    }
+
+    #[test]
+    fn batch_f_higher_order_selector() {
+        assert_eq!(
+            evaluate("(heading,).map(selector).first() == selector(heading)"),
+            Value::Bool(true)
+        );
+    }
+
+    #[test]
+    fn batch_f_higher_order_stroke() {
+        assert_eq!(
+            evaluate("(red,).map(stroke).first() == stroke(red)"),
+            Value::Bool(true)
+        );
+    }
+
+    #[test]
+    fn batch_f_higher_order_tiling() {
+        assert_eq!(
+            evaluate("type(([x],).map(tiling).first()) == tiling"),
+            Value::Bool(true)
+        );
+    }
+
+    #[test]
+    fn batch_f_higher_order_version() {
+        assert_eq!(
+            evaluate("(2,).map(version).first() == version(2)"),
+            Value::Bool(true)
+        );
+    }
+
+    #[test]
+    fn batch_f_higher_order_label() {
+        assert_eq!(evaluate("(\"x\",).map(label).first() == <x>"), Value::Bool(true));
+    }
+
+    #[test]
+    fn batch_f_higher_order_array() {
+        assert_eq!(
+            evaluate("(bytes((0,255)),).map(array).first() == (0,255)"),
+            Value::Bool(true)
+        );
+    }
+
+    #[test]
+    fn batch_f_higher_order_arguments() {
+        assert_eq!(
+            evaluate("(1,).map(arguments).first().pos() == (1,)"),
+            Value::Bool(true)
+        );
+    }
+
+    #[test]
+    fn batch_f_higher_order_spot() {
+        assert_eq!(evaluate("().map(color.spot) == ()"), Value::Bool(true));
+        let errors = crate::compiler::eval::eval_expression(
+            &TestWorld::default(),
+            "(\"x\",).map(color.spot)",
+        )
+        .0
+        .unwrap_err();
+        assert_eq!(errors[0].message, "missing argument: fallback");
+    }
+
+    #[test]
+    fn batch_f_higher_order_duration() {
+        assert_eq!(evaluate("().map(duration) == ()"), Value::Bool(true));
+    }
+
+    #[test]
+    fn batch_f_higher_order_sorted_key() {
+        assert_eq!(
+            evaluate("(\"10\", \"2\").sorted(key: decimal) == (\"2\", \"10\")"),
+            Value::Bool(true)
+        );
+        assert_eq!(
+            evaluate("(10, 2).sorted(key: version) == (2, 10)"),
+            Value::Bool(true)
+        );
+    }
+
+    #[test]
+    fn batch_f_higher_order_predicate_retains_result_validation() {
+        let errors = crate::compiler::eval::eval_expression(
+            &TestWorld::default(),
+            "(\"x\",).filter(label)",
+        )
+        .0
+        .unwrap_err();
+        assert_eq!(errors[0].message, "expected boolean, found label");
+    }
+    #[test]
+    fn batch_f_higher_order_legacy_alias_and_unsupported_types() {
+        assert_eq!(
+            evaluate("{ let alias = int; (\"2\",).map(alias) == (2,) }"),
+            Value::Bool(true)
+        );
+        for ty in [
+            Type::None,
+            Type::Auto,
+            Type::Bool,
+            Type::Content,
+            Type::Path,
+            Type::Dictionary,
+        ] {
+            assert!(type_as_callable(ty).is_none(), "{ty:?}");
+        }
+        let errors = crate::compiler::eval::eval_expression(
+            &TestWorld::default(),
+            "(\"bad\",).map(int)",
+        )
+        .0
+        .unwrap_err();
+        assert_eq!(errors[0].message, "int() não consegue parsear \"bad\"");
+    }
+    #[test]
+    fn batch_f_higher_order_constructors_remain_lazy() {
+        for ty in [
+            Type::Decimal,
+            Type::Duration,
+            Type::Regex,
+            Type::Selector,
+            Type::Stroke,
+            Type::Tiling,
+            Type::Version,
+            Type::Label,
+            Type::Array,
+            Type::Arguments,
+            Type::SpotColorant,
+        ] {
+            assert!(type_as_callable(ty).is_some(), "{ty:?}");
+        }
     }
 }

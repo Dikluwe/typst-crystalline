@@ -1,0 +1,38 @@
+[
+  {
+    "id": "V16-059",
+    "source": "01_core/src/compiler/stdlib/layout/grid.rs",
+    "function": "parse_track_sizing",
+    "match_anchor": "match val {",
+    "domain": "Value",
+    "final_match_line": 12,
+    "future_variant_obligation": "Add a Value sentinel only in disposable copy; require E0004 attributed to this exact nominal match, not generic build failure."
+  },
+  {
+    "id": "V16-060",
+    "source": "01_core/src/compiler/stdlib/layout/place.rs",
+    "function": "native_place::extract_pt",
+    "match_anchor": "match val {",
+    "domain": "Value",
+    "final_match_line": 35,
+    "future_variant_obligation": "Add a Value sentinel only in disposable copy; require E0004 attributed to this exact nominal match, not generic build failure."
+  },
+  {
+    "id": "V16-065",
+    "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+    "function": "native_circle::radius_diameter",
+    "match_anchor": "match val {",
+    "domain": "Value",
+    "final_match_line": 86,
+    "future_variant_obligation": "Add a Value sentinel only in disposable copy; require E0004 attributed to this exact nominal match, not generic build failure."
+  },
+  {
+    "id": "V16-066",
+    "source": "01_core/src/compiler/stdlib/shapes/line.rs",
+    "function": "native_line::extract_pt",
+    "match_anchor": "match val {",
+    "domain": "Value",
+    "final_match_line": 32,
+    "future_variant_obligation": "Add a Value sentinel only in disposable copy; require E0004 attributed to this exact nominal match, not generic build failure."
+  }
+]

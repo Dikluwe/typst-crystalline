@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/loading/yaml_encode.md
-//! @prompt-hash 724f6aee
+//! @prompt-hash 7f33c13c
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -34,49 +34,84 @@ fn write_yaml_value(
     indent: usize,
 ) -> Result<(), String> {
     match value {
-        Value::Array(values) if !values.is_empty() => {
-            for (index, value) in values.iter().enumerate() {
-                if index > 0 {
-                    output.push_str(&" ".repeat(indent));
+        Value::Array(values) => {
+            if values.is_empty() {
+                output.push_str("[]\n");
+            } else {
+                for (index, value) in values.iter().enumerate() {
+                    if index > 0 {
+                        output.push_str(&" ".repeat(indent));
+                    }
+                    output.push_str("- ");
+                    write_yaml_value(value, output, indent + 2)?;
                 }
-                output.push_str("- ");
-                write_yaml_value(value, output, indent + 2)?;
             }
         }
-        Value::Dict(values) if !values.is_empty() => {
-            write_yaml_map(values, output, indent)?
+        Value::Dict(values) => {
+            if values.is_empty() {
+                output.push_str("{}\n");
+            } else {
+                write_yaml_map(values, output, indent)?;
+            }
         }
         Value::Content(_) | Value::LocatedContent(_, _) => {
             write_yaml_map(&textual_content_fields(value)?, output, indent)?;
         }
         Value::Str(value) => write_yaml_string(value, output, indent, false),
         Value::Symbol(value) => write_yaml_string(&value.value, output, indent, false),
-        _ => {
-            match value {
-                Value::None => output.push_str("null"),
-                Value::Bool(value) => {
-                    output.push_str(if *value { "true" } else { "false" })
-                }
-                Value::Int(value) => output.push_str(&value.to_string()),
-                Value::Float(value) if value.is_nan() => output.push_str(".nan"),
-                Value::Float(value) if value.is_infinite() => output
-                    .push_str(if value.is_sign_negative() { "-.inf" } else { ".inf" }),
-                Value::Float(value) => output.push_str(&canonical_numeric_token(
+        Value::None => output.push_str("null\n"),
+        Value::Bool(value) => output.push_str(if *value { "true\n" } else { "false\n" }),
+        Value::Int(value) => {
+            output.push_str(&value.to_string());
+            output.push('\n');
+        }
+        Value::Float(value) => {
+            if value.is_nan() {
+                output.push_str(".nan");
+            } else if value.is_infinite() {
+                output.push_str(if value.is_sign_negative() { "-.inf" } else { ".inf" });
+            } else {
+                output.push_str(&canonical_numeric_token(
                     serde_json::to_string(value).map_err(|error| error.to_string())?,
-                )),
-                Value::Array(_) => output.push_str("[]"),
-                Value::Dict(_) => output.push_str("{}"),
-                other => {
-                    write_yaml_string(
-                        &crate::compiler::eval::repr_value_for_serialization(other),
-                        output,
-                        indent,
-                        false,
-                    );
-                    return Ok(());
-                }
+                ));
             }
             output.push('\n');
+        }
+        Value::Module(..)
+        | Value::Datetime(..)
+        | Value::Func(..)
+        | Value::Auto
+        | Value::Length(..)
+        | Value::Relative(..)
+        | Value::Ratio(..)
+        | Value::Angle(..)
+        | Value::Color(..)
+        | Value::Stroke(..)
+        | Value::Fraction(..)
+        | Value::Align(..)
+        | Value::Location(..)
+        | Value::Gradient(..)
+        | Value::Regex(..)
+        | Value::Tiling(..)
+        | Value::Bytes(..)
+        | Value::Decimal(..)
+        | Value::Duration(..)
+        | Value::Version(..)
+        | Value::Selector(..)
+        | Value::Args(..)
+        | Value::State(..)
+        | Value::Counter(..)
+        | Value::Label(..)
+        | Value::Dir(..)
+        | Value::Path(..)
+        | Value::Type(..)
+        | Value::SpotColorant(..) => {
+            write_yaml_string(
+                &crate::compiler::eval::repr_value_for_serialization(value),
+                output,
+                indent,
+                false,
+            );
         }
     }
     Ok(())
@@ -262,5 +297,75 @@ mod tests {
         write_yaml_value(&Value::Str("true".into()), &mut output, 0).unwrap();
         assert_ne!(output, "true\n");
         assert!(output.contains("true"));
+    }
+}
+
+#[cfg(test)]
+mod batch_f_yaml_tests {
+    use super::*;
+    fn encode(value: Value) -> String {
+        let mut output = String::new();
+        write_yaml_value(&value, &mut output, 0).unwrap();
+        output
+    }
+    #[test]
+    fn batch_f_yaml_empty_and_nested_containers_keep_shape() {
+        assert_eq!(encode(Value::Array(vec![])), "[]\n");
+        assert_eq!(encode(Value::Dict(new_dict())), "{}\n");
+        let mut nested = new_dict();
+        nested.insert(
+            "a".into(),
+            Value::Array(vec![
+                Value::Array(vec![]),
+                Value::Dict(new_dict()),
+                Value::Array(vec![Value::Int(1), Value::Int(2)]),
+            ]),
+        );
+        let mut inner = new_dict();
+        inner.insert("c".into(), Value::Array(vec![]));
+        nested.insert("b".into(), Value::Dict(inner));
+        assert_eq!(
+            encode(Value::Dict(nested)),
+            "a:\n- []\n- {}\n- - 1\n  - 2\nb:\n  c: []\n"
+        );
+    }
+    #[test]
+    fn batch_f_yaml_scalar_tokens_and_opaque_repr_keep_newline() {
+        for (value, expected) in [
+            (Value::None, "null\n"),
+            (Value::Bool(true), "true\n"),
+            (Value::Bool(false), "false\n"),
+            (Value::Int(-2), "-2\n"),
+            (Value::Float(-0.0), "-0.0\n"),
+            (Value::Float(f64::NAN), ".nan\n"),
+            (Value::Float(f64::INFINITY), ".inf\n"),
+            (Value::Float(f64::NEG_INFINITY), "-.inf\n"),
+            (Value::Auto, "auto\n"),
+            (
+                Value::Bytes(crate::entities::bytes::Bytes::new(vec![65, 0, 66])),
+                "bytes(3)\n",
+            ),
+        ] {
+            assert_eq!(encode(value), expected);
+        }
+    }
+    #[test]
+    fn batch_f_yaml_strings_and_snapshot_keep_their_own_routes() {
+        for (value, expected) in [
+            ("true", "'true'\n"),
+            ("é", "é\n"),
+            ("a\nb", "|-\n  a\n  b\n"),
+            ("a: b", "'a: b'\n"),
+        ] {
+            assert_eq!(encode(Value::Str(value.into())), expected);
+        }
+        let value = Value::LocatedContent(
+            crate::entities::value::IntrospectedContent::new(
+                crate::entities::content::Content::raw("x", None, false),
+                Some(new_dict()),
+            ),
+            crate::entities::location::Location::from_raw(73),
+        );
+        assert_eq!(encode(value), "func: raw\n");
     }
 }

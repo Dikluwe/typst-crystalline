@@ -1,0 +1,224 @@
+{
+  "utc": "2026-10-19T20:23:01.823600+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "diff_head_stat": " .../core/compiler/stdlib/collections/validation.md |  39 ++++\n .../core/compiler/stdlib/counter/display.md        |  26 +++\n .../core/compiler/stdlib/foundations/selector.md   |  22 +++\n .../prompts/core/compiler/stdlib/html/attr_cast.md |  35 ++++\n 00_nucleo/prompts/core/compiler/stdlib/layout.md   |  42 +++++\n .../prompts/core/compiler/stdlib/layout/grid.md    |  53 ++++++\n .../prompts/core/compiler/stdlib/layout/place.md   |  36 ++++\n .../prompts/core/compiler/stdlib/layout/stroke.md  |  36 ++++\n .../core/compiler/stdlib/loading/encoding.md       |  37 ++++\n .../core/compiler/stdlib/loading/yaml_encode.md    |  38 ++++\n .../prompts/core/compiler/stdlib/shapes/ellipse.md |  42 +++++\n .../prompts/core/compiler/stdlib/shapes/line.md    |  39 ++++\n .../compiler/stdlib/structural/bibliography.md     |  27 +++\n .../stdlib/structural/math_accent_tests.md         |  37 +++-\n .../compiler/stdlib/structural/math_cases_tests.md |  37 +++-\n .../core/compiler/stdlib/structural/outline.md     |  24 +++\n .../core/compiler/stdlib/structural/table_grid.md  |  34 ++++\n .../src/compiler/stdlib/collections/validation.rs  | 201 +++++++++++++++++++++\n 01_core/src/compiler/stdlib/counter/display.rs     | 141 +++++++++++++++\n .../src/compiler/stdlib/foundations/selector.rs    |  65 +++++++\n 01_core/src/compiler/stdlib/html/attr_cast.rs      |  77 ++++++++\n 01_core/src/compiler/stdlib/layout.rs              |  53 ++++++\n 01_core/src/compiler/stdlib/layout/stroke.rs       | 112 ++++++++++++\n 01_core/src/compiler/stdlib/loading/encoding.rs    |  56 ++++++\n 01_core/src/compiler/stdlib/loading/yaml_encode.rs |  70 +++++++\n .../src/compiler/stdlib/structural/bibliography.rs | 101 +++++++++++\n .../stdlib/structural/math_accent_tests.rs         |  27 +++\n .../compiler/stdlib/structural/math_cases_tests.rs |  26 +++\n 01_core/src/compiler/stdlib/structural/outline.rs  | 174 ++++++++++++++++++\n 29 files changed, 1705 insertions(+), 2 deletions(-)\n",
+  "receipts": {
+    "baseline.json": "fbb0d4d994cff23c981fca37ca116caf71e8bba932cbf17e3951e97d94014e38",
+    "baseline-supplement.json": "b60bed94a7f6b1a1ec9a9e26bb93883600391692454b38f51975851432c5db96",
+    "oracle-baseline.json": "8765eacf648bb8311dea06e632e7fa52ff5998624097fa67bd9a7043ebf70859"
+  },
+  "targets": [
+    {
+      "id": "V16-053",
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "function": "type_as_callable",
+      "baseline_anchor": "Some(match t {",
+      "green_anchor": "Some(match t {",
+      "domain": "Type",
+      "enum_file": "01_core/src/entities/value.rs",
+      "proof": "Add disposable Type sentinel; require E0004 primary span at this exact match, absent here in baseline."
+    },
+    {
+      "id": "V16-054",
+      "file": "01_core/src/compiler/stdlib/counter/display.rs",
+      "function": "render",
+      "baseline_anchor": "let pattern_key = match &counter.key {",
+      "green_anchor": "CounterKey::Selector(selector) => match selector {",
+      "domain": "Selector nested in CounterKey",
+      "enum_file": "01_core/src/entities/selector.rs",
+      "proof": "Add disposable Selector sentinel; require E0004 at nested style decision, no such failure in baseline."
+    },
+    {
+      "id": "V16-056",
+      "file": "01_core/src/compiler/stdlib/foundations/selector.rs",
+      "function": "parse_selector_arg",
+      "baseline_anchor": "match items {",
+      "green_anchor": "match items {",
+      "domain": "slice cardinality",
+      "proof": "Exhaustive [] / singleton [other] / [_, _, ..]. Functional zero/one/two/many with exact count/errors; no enum sentinel evidence claimed."
+    },
+    {
+      "id": "V16-067",
+      "file": "01_core/src/compiler/stdlib/structural/bibliography.rs",
+      "function": "native_bibliography",
+      "baseline_anchor": "let locale = args.named.get(\"locale\").and_then(|v| match v {",
+      "green_anchor": "let locale = args.named.get(\"locale\").and_then(|v| match v {",
+      "domain": "Value",
+      "enum_file": "01_core/src/entities/value.rs",
+      "proof": "Disposable Value sentinel requires E0004 at locale projection; baseline wildcard absorbs it."
+    },
+    {
+      "id": "V16-070",
+      "file": "01_core/src/compiler/stdlib/structural/outline.rs",
+      "function": "native_outline_entry_indented",
+      "baseline_anchor": "match value {",
+      "context_anchor": "engine.styles.custom(\"outline.parent.indent\")",
+      "green_anchor": "match value {",
+      "domain": "Value",
+      "enum_file": "01_core/src/entities/value.rs",
+      "proof": "Disposable Value sentinel requires E0004 inside exact parent-indent decode; baseline wildcard absorbs it."
+    }
+  ],
+  "tests": [
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_decimal",
+      "expected_baseline": "semantic RED"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_regex",
+      "expected_baseline": "semantic RED"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_selector",
+      "expected_baseline": "semantic RED"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_stroke",
+      "expected_baseline": "semantic RED"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_tiling",
+      "expected_baseline": "semantic RED"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_version",
+      "expected_baseline": "semantic RED"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_label",
+      "expected_baseline": "semantic RED"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_array",
+      "expected_baseline": "semantic RED"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_arguments",
+      "expected_baseline": "semantic RED"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_spot",
+      "expected_baseline": "semantic RED"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_duration",
+      "expected_baseline": "semantic RED"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_sorted_key",
+      "expected_baseline": "semantic RED"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_predicate_retains_result_validation",
+      "expected_baseline": "semantic RED"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_legacy_alias_and_unsupported_types",
+      "expected_baseline": "pass"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_constructors_remain_lazy",
+      "expected_baseline": "semantic RED"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/foundations/selector.rs",
+      "name": "batch_f_selector_slice_cardinality_and_singleton_errors",
+      "expected_baseline": "pass"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/foundations/selector.rs",
+      "name": "batch_f_selector_singleton_keeps_complete_filter_and_guard_residuals",
+      "expected_baseline": "pass"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/structural/bibliography.rs",
+      "name": "batch_f_bibliography_locale_extension_preserves_projection",
+      "expected_baseline": "pass"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/structural/bibliography.rs",
+      "name": "batch_f_bibliography_source_failure_precedes_locale_and_style",
+      "expected_baseline": "pass"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/counter/display.rs",
+      "name": "batch_f_counter_numbering_keeps_kind_and_composite_keys_distinct",
+      "expected_baseline": "pass"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/counter/display.rs",
+      "name": "batch_f_counter_context_error_precedes_named_validation",
+      "expected_baseline": "pass"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/structural/outline.rs",
+      "name": "batch_f_outline_invalid_parent_schema_preserves_context_error",
+      "expected_baseline": "pass"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/structural/outline.rs",
+      "name": "batch_f_outline_valid_private_indent_forms_preserve_inner",
+      "expected_baseline": "pass"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/structural/outline.rs",
+      "name": "batch_f_outline_parent_callback_receives_level_minus_one",
+      "expected_baseline": "pass"
+    }
+  ],
+  "phase": "L0 and tests only; parent owns RED and implementation authorization",
+  "open_obligations": [
+    {
+      "name": "Path higher-order context",
+      "evidence": "baseline.json path-direct/path-map; baseline-supplement path-map-context",
+      "observed": "Oracle direct path succeeds while higher-order path fails cannot access file system from here; Tekt adapter rejects Path; no new mapping authorized.",
+      "refuter": "A current-pin contextual higher-order case proving an existing native adapter can preserve rooted/context semantics without owner changes."
+    },
+    {
+      "name": "Dictionary constructor absent in main dispatcher",
+      "evidence": "baseline-supplement dictionary-direct-module",
+      "observed": "Oracle dictionary(math) succeeds; product main dispatch rejects Type::Dictionary.",
+      "refuter": "Main dispatcher owner gains measured native constructor mapping; then revisit adapter."
+    },
+    {
+      "name": "Native residuals transferred by new higher-order admission",
+      "evidence": "baseline.json direct counterparts; baseline-supplement native-error cases",
+      "observed": "Duration/Array/Decimal/Selector error wording, Tiling repr and SpotColorant single-color admission already differ in direct constructors. Adapter must forward existing natives, not rewrite their domains.",
+      "refuter": "Separate native owner fixes with bounded bilateral proofs."
+    },
+    {
+      "name": "Collection rejection/diagnostic residuals",
+      "evidence": "baseline bool/content/length/color/location map; supplement by-error and arguments-by-error",
+      "observed": "Unsupported-type adapter errors and by-return diagnostics differ from oracle; no new type-admission or message rewrite requested here.",
+      "refuter": "Scoped adapter/collection diagnostic correction measured and specified by owners."
+    },
+    {
+      "name": "Bibliography locale extension",
+      "evidence": "baseline locale cases",
+      "observed": "Upstream has no locale parameter; Tekt retains existing extension and nonstring negative projection.",
+      "refuter": "Explicit compatibility decision or upstream pinned change; nominal coverage cannot remove extension."
+    },
+    {
+      "name": "Selector legacy parser boundary",
+      "evidence": "foundations/selector.rs parse_selector_arg; baseline native_selector probes",
+      "observed": "Query/locate arity diagnostic/Regex handling differs from native_selector/upstream. Slice cleanup preserves those independent boundaries.",
+      "refuter": "Owning language contract remeasured and updated separately."
+    }
+  ],
+  "setup_error": "oracle-baseline.json locale rows used filesystem absolute path where language uses project-root paths; these rows do not certify locale. baseline.json fixes fixture spelling; old receipt retained."
+}

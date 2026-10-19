@@ -1,0 +1,40 @@
+[
+  {
+    "name": "clean-product-packages",
+    "command": [
+      "cargo",
+      "clean",
+      "-p",
+      "typst-core",
+      "-p",
+      "typst-shell",
+      "-p",
+      "typst-infra",
+      "-p",
+      "typst-wiring"
+    ]
+  },
+  {
+    "name": "legacy-grid-green",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "p633_grid_columns_invalid_string_rejected",
+      "--",
+      "--test-threads=1"
+    ]
+  },
+  {
+    "name": "structural-final-green",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_f_structural.py",
+      "final-green"
+    ]
+  }
+]

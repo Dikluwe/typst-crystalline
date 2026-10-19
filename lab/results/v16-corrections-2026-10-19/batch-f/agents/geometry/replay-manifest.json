@@ -1,0 +1,20 @@
+{
+  "receipts": [
+    {
+      "file": "baseline-eval/receipt.json",
+      "sha256": "6afbe48f44c2361d6f0885e6365447f9289e9ef035dbf221bc3eecea0b5e9cf3"
+    },
+    {
+      "file": "baseline-query/receipt.json",
+      "sha256": "dafc3e343dedeabc6302c095cacc46a630652b66ce44a28d3432f1814175ea4f"
+    }
+  ],
+  "expected_policies": {
+    "file": "expected-policies.json",
+    "sha256": "48edcc627a29aeddc14eb7c47392ef95fd30857f01288c9259b2e881ab4cdbb0"
+  },
+  "deferral_receipt": {
+    "file": "circle-deferred/deferral.json",
+    "sha256": "a6c43acdcbb5fd3c7b6d2d9b3f0dbaf52eb141d72bf865c5f3256ee0ffaefff1"
+  }
+}

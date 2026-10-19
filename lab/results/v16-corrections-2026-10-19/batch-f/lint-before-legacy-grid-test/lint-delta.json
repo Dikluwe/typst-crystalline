@@ -1,0 +1,4523 @@
+{
+  "utc": "2026-10-19T20:39:04.833787+00:00",
+  "closed_ids": [
+    "V16-053",
+    "V16-054",
+    "V16-056",
+    "V16-057",
+    "V16-058",
+    "V16-059",
+    "V16-060",
+    "V16-061",
+    "V16-062",
+    "V16-063",
+    "V16-064",
+    "V16-066",
+    "V16-067",
+    "V16-068",
+    "V16-069",
+    "V16-070"
+  ],
+  "pending_ids": [
+    "V16-055",
+    "V16-065"
+  ],
+  "remaining_v16": 21,
+  "counts_before": {
+    "V16:error": 37,
+    "V19:note": 1237,
+    "V20:note": 877
+  },
+  "counts_after": {
+    "V16:error": 21,
+    "V19:note": 1259,
+    "V20:note": 877
+  },
+  "removed_notes": [
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 106
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `\"array.all()\" | \"array.any()\" | \"array.filter()\"`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 107
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `\"array.find()\" | \"array.position()\"`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 109
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 4; guard: ausente; padr\u00e3o: `\"dict.map()\" | \"dict.filter()\" | \"arguments.map()\" | \"arguments.filter()\"`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 121
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Func(f)]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 122
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Type(t)]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 145
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Dict(d)]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 159
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Str(s)]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 176
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Str(a), Value::Str(b)]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 177
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Str(_), other]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 202
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Int(i)]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/counter/display.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 128
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `CounterKey::Selector(Selector::Kind(k))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/counter/display.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 156
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Str(pattern)]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/counter/display.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 173
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Func(callback)]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/html/attr_cast.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 179
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Value::Float(_) | Value::Int(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 28
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Array(arr))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 30
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Int(n))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 93
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Align(a))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 106
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Length(l))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 208
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 215
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Color(c))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 216
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/place.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 55
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/place.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 80
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Bool(b))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 175
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `None | Some(Value::None)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 176
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(name))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 179
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Array(values))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 182
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Dict(dict))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 184
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Array(values))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 189
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Length(value))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 215
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Bool(b))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 21,
+              "startLine": 329
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Array(values))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 21,
+              "startLine": 339
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Length(length))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 393
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `None | Some(Value::Auto)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 394
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Length(length))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 401
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `None | Some(Value::Auto)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 402
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(name))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 422
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `None | Some(Value::Auto)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 423
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(name))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 443
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `None | Some(Value::Auto)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 450
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `None | Some(Value::Auto)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 451
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Float(limit))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 455
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Int(limit))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/loading/encoding.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 156
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 114; guard: ausente; padr\u00e3o: `Content::Empty\n        | Content::Text(..)\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::Sequence(..)\n        | Content::HtmlElem(..)\n        | Content::HtmlFrame(..)\n        | Content::Par { .. }\n        | Content::Heading(..)\n        | Content::Title(..)\n        | Content::Strong(..)\n        | Content::Emph(..)\n        | Content::Raw(..)\n        | Content::ListItem(..)\n        | Content::EnumItem(..)\n        | Content::Link(..)\n        | Content::MathSequence(..)\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathFrac(..)\n        | Content::MathAttach(..)\n        | Content::MathPrimes(..)\n        | Content::MathRoot(..)\n        | Content::MathStretch(..)\n        | Content::MathDelimited(..)\n        | Content::MathLr(..)\n        | Content::MathMid(..)\n        | Content::MathOverbrace(..)\n        | Content::MathUnderbrace(..)\n        | Content::MathUnderbracket(..)\n        | Content::MathUnderparen(..)\n        | Content::MathUndershell(..)\n        | Content::MathOverbracket(..)\n        | Content::MathOverparen(..)\n        | Content::MathOvershell(..)\n        | Content::MathAlignPoint(..)\n        | Content::Linebreak(..)\n        | Content::MathMatrix(..)\n        | Content::MathCases(..)\n        | Content::MathAccent(..)\n        | Content::MathCancel(..)\n        | Content::MathUnderline(..)\n        | Content::MathOverline(..)\n        | Content::MathVec(..)\n        | Content::MathClassOverride(..)\n        | Content::MathLimitsOverride(..)\n        | Content::MathUnderover(..)\n        | Content::MathOp(..)\n        | Content::MathStyled(..)\n        | Content::Label(..)\n        | Content::Ref(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Outline(..)\n        | Content::OutlineEntry(..)\n        | Content::Figure(..)\n        | Content::FigureCaption(..)\n        | Content::Image(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::Transform(..)\n        | Content::Grid(..)\n        | Content::GridHeader(..)\n        | Content::GridFooter(..)\n        | Content::GridCell(..)\n        | Content::SetPage(..)\n        | Content::PageRun(..)\n        | Content::Align(..)\n        | Content::Place(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Terms(..)\n        | Content::TermItem(..)\n        | Content::Quote(..)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::SmartQuote(..)\n        | Content::PdfAttach(..)\n        | Content::PdfArtifact(..)\n        | Content::Underline(..)\n        | Content::Strike(..)\n        | Content::Overline(..)\n        | Content::SmallCaps { .. }\n        | Content::Pad(..)\n        | Content::Hide(..)\n        | Content::HSpace(..)\n        | Content::VSpace(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::Stack(..)\n        | Content::Boxed(..)\n        | Content::Block(..)\n        | Content::TableCell(..)\n        | Content::Bibliography(..)\n        | Content::Cite(..)\n        | Content::Footnote(..)\n        | Content::FootnoteEntry(..)\n        | Content::TableHeader(..)\n        | Content::TableFooter(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)\n        | Content::Table(..)\n        | Content::Repeat(..)\n        | Content::Columns(..)\n        | Content::Metadata(..)\n        | Content::State(..)\n        | Content::StateUpdate(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::ContextBlock(..)\n        | Content::Dynamic(..)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/loading/yaml_encode.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 49
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Value::Content(_) | Value::LocatedContent(_, _)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/loading/yaml_encode.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 225
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `'\\u{feff}' | '\\u{fffe}' | '\\u{ffff}'`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/shapes/line.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 107
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `Some(v @ (Value::Float(_) | Value::Int(_) | Value::Length(_)))`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/shapes/line.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 107
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 4 > 2 em `Some(v @ (Value::Float(_) | Value::Int(_) | Value::Length(_)))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/shapes/line.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 110
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Ratio(_))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/shapes/line.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 125
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Angle(a))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/bibliography.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 389
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/bibliography.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 390
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(_))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/bibliography.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 443
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `None | Some(Value::Auto) | Some(Value::None)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/bibliography.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 444
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/bibliography.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 474
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `None | Some(Value::Auto) | Some(Value::None)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/bibliography.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 475
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 464
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `OutlineIndent::Auto | OutlineIndent::Bool(true)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 557
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Content(c))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 558
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 586
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Int(n))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 596
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 607
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Bool(b))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 608
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Length(l))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 609
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Func(f))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 610
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `Some(Value::Auto) | Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 624
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 625
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `\"headings\" | \"heading\"`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 626
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `\"figures\"  | \"figure\"`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 627
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `\"tables\"   | \"table\"`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 633
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 657
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Content(c))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 659
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 682
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Content(c))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 683
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 684
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 106
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Value::Content(Content::TableHLine(e))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 118
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Value::Content(Content::TableVLine(e))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 126
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Value::Content(c @ Content::TableHeader(_))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 152
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Value::Content(c @ Content::TableFooter(_))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 234
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 37; guard: ausente; padr\u00e3o: `Value::None\n                | Value::Bool(_)\n                | Value::Int(_)\n                | Value::Float(_)\n                | Value::Str(_)\n                | Value::Array(_)\n                | Value::Dict(_)\n                | Value::Module(_)\n                | Value::Datetime(_)\n                | Value::Func(_)\n                | Value::Content(_)\n                | Value::LocatedContent(_, _)\n                | Value::Auto\n                | Value::Relative(_)\n                | Value::Ratio(_)\n                | Value::Angle(_)\n                | Value::Stroke(_)\n                | Value::Fraction(_)\n                | Value::Align(_)\n                | Value::Location(_)\n                | Value::Gradient(_)\n                | Value::Regex(_)\n                | Value::Tiling(_)\n                | Value::Bytes(_)\n                | Value::Decimal(_)\n                | Value::Duration(_)\n                | Value::Version(_)\n                | Value::Selector(_)\n                | Value::Symbol(_)\n                | Value::Args(_)\n                | Value::State(_)\n                | Value::Counter(_)\n                | Value::Label(_)\n                | Value::Dir(_)\n                | Value::Path(_)\n                | Value::Type(_)\n                | Value::SpotColorant(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 278
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Color(c))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 279
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 289
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Align(a))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 290
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 301
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Length(l))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 317
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Content(c))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 318
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 319
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 453
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Content(c))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 454
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 505
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 4; guard: ausente; padr\u00e3o: `\"x\" | \"y\" | \"colspan\" | \"rowspan\"`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 534
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 37; guard: ausente; padr\u00e3o: `Value::None | Value::Bool(_) | Value::Int(_) | Value::Float(_) | Value::Str(_) | Value::Array(_) | Value::Dict(_) | Value::Module(_) | Value::Datetime(_) | Value::Func(_) | Value::Content(_) | Value::LocatedContent(_, _) | Value::Auto | Value::Relative(_) | Value::Ratio(_) | Value::Angle(_) | Value::Stroke(_) | Value::Fraction(_) | Value::Align(_) | Value::Location(_) | Value::Gradient(_) | Value::Regex(_) | Value::Tiling(_) | Value::Bytes(_) | Value::Decimal(_) | Value::Duration(_) | Value::Version(_) | Value::Selector(_) | Value::Symbol(_) | Value::Args(_) | Value::State(_) | Value::Counter(_) | Value::Label(_) | Value::Dir(_) | Value::Path(_) | Value::Type(_) | Value::SpotColorant(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 21,
+              "startLine": 542
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Value::Auto | Value::None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 21,
+              "startLine": 552
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 37; guard: ausente; padr\u00e3o: `Value::Bool(_) | Value::Int(_) | Value::Float(_) | Value::Str(_) | Value::Array(_) | Value::Dict(_) | Value::Module(_) | Value::Datetime(_) | Value::Func(_) | Value::Content(_) | Value::LocatedContent(_, _) | Value::Length(_) | Value::Relative(_) | Value::Ratio(_) | Value::Angle(_) | Value::Color(_) | Value::Stroke(_) | Value::Fraction(_) | Value::Align(_) | Value::Location(_) | Value::Gradient(_) | Value::Regex(_) | Value::Tiling(_) | Value::Bytes(_) | Value::Decimal(_) | Value::Duration(_) | Value::Version(_) | Value::Selector(_) | Value::Symbol(_) | Value::Args(_) | Value::State(_) | Value::Counter(_) | Value::Label(_) | Value::Dir(_) | Value::Path(_) | Value::Type(_) | Value::SpotColorant(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 623
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Bool(b))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 668
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Int(value))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 699
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 119; guard: ausente; padr\u00e3o: `Content::Source(_)\n            | Content::ShowRecipe(_)\n            | Content::Realized(_)\n            | Content::Located(_)\n            | Content::Empty\n            | Content::Text(_)\n            | Content::Space\n            | Content::SpaceFromNewline\n            | Content::Parbreak\n            | Content::Sequence(_)\n            | Content::HtmlElem(_)\n            | Content::HtmlFrame(_)\n            | Content::Par { .. }\n            | Content::Heading(_)\n            | Content::Title(_)\n            | Content::Strong(_)\n            | Content::Emph(_)\n            | Content::Raw(_)\n            | Content::ListItem(_)\n            | Content::EnumItem(_)\n            | Content::Link(_)\n            | Content::Equation(_)\n            | Content::MathSequence(_)\n            | Content::MathIdent(_)\n            | Content::MathText(_)\n            | Content::MathFrac(_)\n            | Content::MathAttach(_)\n            | Content::MathPrimes(_)\n            | Content::MathRoot(_)\n            | Content::MathStretch(_)\n            | Content::MathDelimited(_)\n            | Content::MathLr(_)\n            | Content::MathMid(_)\n            | Content::MathOverbrace(_)\n            | Content::MathUnderbrace(_)\n            | Content::MathUnderbracket(_)\n            | Content::MathUnderparen(_)\n            | Content::MathUndershell(_)\n            | Content::MathOverbracket(_)\n            | Content::MathOverparen(_)\n            | Content::MathOvershell(_)\n            | Content::MathAlignPoint(_)\n            | Content::Linebreak(_)\n            | Content::MathMatrix(_)\n            | Content::MathCases(_)\n            | Content::MathAccent(_)\n            | Content::MathCancel(_)\n            | Content::MathUnderline(_)\n            | Content::MathOverline(_)\n            | Content::MathVec(_)\n            | Content::MathClassOverride(_)\n            | Content::MathLimitsOverride(_)\n            | Content::MathUnderover(_)\n            | Content::MathOp(_)\n            | Content::MathStyled(_)\n            | Content::Label(_)\n            | Content::Ref(_)\n            | Content::CounterDisplay(_)\n            | Content::CounterUpdate(_)\n            | Content::Outline(_)\n            | Content::OutlineEntry(_)\n            | Content::Figure(_)\n            | Content::FigureCaption(_)\n            | Content::Image(_)\n            | Content::Shape(_)\n            | Content::Curve(_)\n            | Content::Transform(_)\n            | Content::Grid(_)\n            | Content::GridHeader(_)\n            | Content::GridFooter(_)\n            | Content::GridCell(_)\n            | Content::SetPage(_)\n            | Content::PageRun(_)\n            | Content::Align(_)\n            | Content::Place(_)\n            | Content::Flush(_)\n            | Content::Styled(_)\n            | Content::Divider(_)\n            | Content::Terms(_)\n            | Content::TermItem(_)\n            | Content::Quote(_)\n            | Content::Document { .. }\n            | Content::Asset { .. }\n            | Content::SmartQuote(_)\n            | Content::PdfAttach(_)\n            | Content::PdfArtifact(_)\n            | Content::Underline(_)\n            | Content::Strike(_)\n            | Content::Overline(_)\n            | Content::SmallCaps { .. }\n            | Content::Pad(_)\n            | Content::Hide(_)\n            | Content::HSpace(_)\n            | Content::VSpace(_)\n            | Content::Pagebreak(_)\n            | Content::Colbreak(_)\n            | Content::Stack(_)\n            | Content::Boxed(_)\n            | Content::Block(_)\n            | Content::Bibliography(_)\n            | Content::Cite(_)\n            | Content::Footnote(_)\n            | Content::FootnoteEntry(_)\n            | Content::TableHeader(_)\n            | Content::TableFooter(_)\n            | Content::GridHLine(_)\n            | Content::GridVLine(_)\n            | Content::TableHLine(_)\n            | Content::TableVLine(_)\n            | Content::Table(_)\n            | Content::Repeat(_)\n            | Content::Columns(_)\n            | Content::Metadata(_)\n            | Content::State(_)\n            | Content::StateUpdate(_)\n            | Content::StateDisplay(_)\n            | Content::CounterDisplayCallback(_)\n            | Content::ContextBlock(_)\n            | Content::Dynamic(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 846
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `TableCellKind::Header { .. } | TableCellKind::Data`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 21,
+              "startLine": 896
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `TableCellKind::Auto | TableCellKind::Data`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 899
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 117; guard: ausente; padr\u00e3o: `Content::Source(_)\n            | Content::ShowRecipe(_)\n            | Content::Realized(_)\n            | Content::Located(_)\n            | Content::Empty\n            | Content::Text(_)\n            | Content::Space\n            | Content::SpaceFromNewline\n            | Content::Parbreak\n            | Content::HtmlElem(_)\n            | Content::HtmlFrame(_)\n            | Content::Par { .. }\n            | Content::Heading(_)\n            | Content::Title(_)\n            | Content::Strong(_)\n            | Content::Emph(_)\n            | Content::Raw(_)\n            | Content::ListItem(_)\n            | Content::EnumItem(_)\n            | Content::Link(_)\n            | Content::Equation(_)\n            | Content::MathSequence(_)\n            | Content::MathIdent(_)\n            | Content::MathText(_)\n            | Content::MathFrac(_)\n            | Content::MathAttach(_)\n            | Content::MathPrimes(_)\n            | Content::MathRoot(_)\n            | Content::MathStretch(_)\n            | Content::MathDelimited(_)\n            | Content::MathLr(_)\n            | Content::MathMid(_)\n            | Content::MathOverbrace(_)\n            | Content::MathUnderbrace(_)\n            | Content::MathUnderbracket(_)\n            | Content::MathUnderparen(_)\n            | Content::MathUndershell(_)\n            | Content::MathOverbracket(_)\n            | Content::MathOverparen(_)\n            | Content::MathOvershell(_)\n            | Content::MathAlignPoint(_)\n            | Content::Linebreak(_)\n            | Content::MathMatrix(_)\n            | Content::MathCases(_)\n            | Content::MathAccent(_)\n            | Content::MathCancel(_)\n            | Content::MathUnderline(_)\n            | Content::MathOverline(_)\n            | Content::MathVec(_)\n            | Content::MathClassOverride(_)\n            | Content::MathLimitsOverride(_)\n            | Content::MathUnderover(_)\n            | Content::MathOp(_)\n            | Content::MathStyled(_)\n            | Content::Label(_)\n            | Content::Ref(_)\n            | Content::CounterDisplay(_)\n            | Content::CounterUpdate(_)\n            | Content::Outline(_)\n            | Content::OutlineEntry(_)\n            | Content::Figure(_)\n            | Content::FigureCaption(_)\n            | Content::Image(_)\n            | Content::Shape(_)\n            | Content::Curve(_)\n            | Content::Transform(_)\n            | Content::Grid(_)\n            | Content::GridHeader(_)\n            | Content::GridFooter(_)\n            | Content::GridCell(_)\n            | Content::SetPage(_)\n            | Content::PageRun(_)\n            | Content::Align(_)\n            | Content::Place(_)\n            | Content::Flush(_)\n            | Content::Styled(_)\n            | Content::Divider(_)\n            | Content::Terms(_)\n            | Content::TermItem(_)\n            | Content::Quote(_)\n            | Content::Document { .. }\n            | Content::Asset { .. }\n            | Content::SmartQuote(_)\n            | Content::PdfAttach(_)\n            | Content::PdfArtifact(_)\n            | Content::Underline(_)\n            | Content::Strike(_)\n            | Content::Overline(_)\n            | Content::SmallCaps { .. }\n            | Content::Pad(_)\n            | Content::Hide(_)\n            | Content::HSpace(_)\n            | Content::VSpace(_)\n            | Content::Pagebreak(_)\n            | Content::Colbreak(_)\n            | Content::Stack(_)\n            | Content::Boxed(_)\n            | Content::Block(_)\n            | Content::Bibliography(_)\n            | Content::Cite(_)\n            | Content::Footnote(_)\n            | Content::FootnoteEntry(_)\n            | Content::TableFooter(_)\n            | Content::GridHLine(_)\n            | Content::GridVLine(_)\n            | Content::TableHLine(_)\n            | Content::TableVLine(_)\n            | Content::Table(_)\n            | Content::Repeat(_)\n            | Content::Columns(_)\n            | Content::Metadata(_)\n            | Content::State(_)\n            | Content::StateUpdate(_)\n            | Content::StateDisplay(_)\n            | Content::CounterDisplayCallback(_)\n            | Content::ContextBlock(_)\n            | Content::Dynamic(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 1118
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Content(c))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 1119
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    }
+  ],
+  "added_notes": [
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 117
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 18; guard: ausente; padr\u00e3o: `Type::None\n        | Type::Auto\n        | Type::Bool\n        | Type::Dictionary\n        | Type::Module\n        | Type::Function\n        | Type::Content\n        | Type::Length\n        | Type::Ratio\n        | Type::Relative\n        | Type::Angle\n        | Type::Color\n        | Type::Fraction\n        | Type::Alignment\n        | Type::Location\n        | Type::Gradient\n        | Type::Direction\n        | Type::Path`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 150
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `\"array.all()\" | \"array.any()\" | \"array.filter()\"`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 151
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `\"array.find()\" | \"array.position()\"`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 153
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 4; guard: ausente; padr\u00e3o: `\"dict.map()\" | \"dict.filter()\" | \"arguments.map()\" | \"arguments.filter()\"`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 165
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Func(f)]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 166
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Type(t)]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 189
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Dict(d)]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 203
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Str(s)]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 220
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Str(a), Value::Str(b)]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 221
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Str(_), other]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/collections/validation.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 246
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Int(i)]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/counter/display.rs"
+            },
+            "region": {
+              "startColumn": 21,
+              "startLine": 132
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 11; guard: ausente; padr\u00e3o: `Selector::NativeElement(..)\n                    | Selector::Element { .. }\n                    | Selector::Label(..)\n                    | Selector::Location(..)\n                    | Selector::And(..)\n                    | Selector::Or(..)\n                    | Selector::Regex(..)\n                    | Selector::Where { .. }\n                    | Selector::Within { .. }\n                    | Selector::Before { .. }\n                    | Selector::After { .. }`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/counter/display.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 168
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Str(pattern)]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/counter/display.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 185
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `[Value::Func(callback)]` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/foundations/selector.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 164
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `[] | [_, _, ..]`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/html/attr_cast.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 108
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 37; guard: ausente; padr\u00e3o: `Value::Int(..)\n            | Value::Float(..)\n            | Value::Str(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Func(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Auto\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Symbol(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/html/attr_cast.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 160
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 38; guard: ausente; padr\u00e3o: `Value::None\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Str(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Func(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Auto\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Symbol(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/html/attr_cast.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 252
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Value::Float(_) | Value::Int(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 18
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 35; guard: ausente; padr\u00e3o: `Value::None\n        | Value::Bool(_)\n        | Value::Int(_)\n        | Value::Str(_)\n        | Value::Array(_)\n        | Value::Dict(_)\n        | Value::Module(_)\n        | Value::Datetime(_)\n        | Value::Func(_)\n        | Value::Content(_)\n        | Value::LocatedContent(_, _)\n        | Value::Relative(_)\n        | Value::Ratio(_)\n        | Value::Angle(_)\n        | Value::Color(_)\n        | Value::Stroke(_)\n        | Value::Align(_)\n        | Value::Location(_)\n        | Value::Gradient(_)\n        | Value::Regex(_)\n        | Value::Tiling(_)\n        | Value::Bytes(_)\n        | Value::Decimal(_)\n        | Value::Duration(_)\n        | Value::Version(_)\n        | Value::Selector(_)\n        | Value::Symbol(_)\n        | Value::Args(_)\n        | Value::State(_)\n        | Value::Counter(_)\n        | Value::Label(_)\n        | Value::Dir(_)\n        | Value::Path(_)\n        | Value::Type(_)\n        | Value::SpotColorant(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 64
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Array(values))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 73
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Value::Ratio(_) | Value::Relative(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 74
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 37; guard: ausente; padr\u00e3o: `Value::None\n                        | Value::Bool(_)\n                        | Value::Int(_)\n                        | Value::Float(_)\n                        | Value::Str(_)\n                        | Value::Array(_)\n                        | Value::Dict(_)\n                        | Value::Module(_)\n                        | Value::Datetime(_)\n                        | Value::Func(_)\n                        | Value::Content(_)\n                        | Value::LocatedContent(_, _)\n                        | Value::Auto\n                        | Value::Length(_)\n                        | Value::Angle(_)\n                        | Value::Color(_)\n                        | Value::Stroke(_)\n                        | Value::Fraction(_)\n                        | Value::Align(_)\n                        | Value::Location(_)\n                        | Value::Gradient(_)\n                        | Value::Regex(_)\n                        | Value::Tiling(_)\n                        | Value::Bytes(_)\n                        | Value::Decimal(_)\n                        | Value::Duration(_)\n                        | Value::Version(_)\n                        | Value::Selector(_)\n                        | Value::Symbol(_)\n                        | Value::Args(_)\n                        | Value::State(_)\n                        | Value::Counter(_)\n                        | Value::Label(_)\n                        | Value::Dir(_)\n                        | Value::Path(_)\n                        | Value::Type(_)\n                        | Value::SpotColorant(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 124
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Int(count))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 132
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 4; guard: ausente; padr\u00e3o: `Some(Value::Ratio(_) | Value::Relative(_)) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 132
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Ratio(_) | Value::Relative(_)) | None` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 210
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Align(a))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 223
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Length(l))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 325
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 332
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Color(c))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 333
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/place.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 41
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Value::Ratio(_) | Value::Relative(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/place.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 42
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 34; guard: ausente; padr\u00e3o: `Value::None\n            | Value::Bool(_)\n            | Value::Str(_)\n            | Value::Array(_)\n            | Value::Dict(_)\n            | Value::Module(_)\n            | Value::Datetime(_)\n            | Value::Func(_)\n            | Value::Content(_)\n            | Value::LocatedContent(_, _)\n            | Value::Auto\n            | Value::Angle(_)\n            | Value::Color(_)\n            | Value::Stroke(_)\n            | Value::Fraction(_)\n            | Value::Align(_)\n            | Value::Location(_)\n            | Value::Gradient(_)\n            | Value::Regex(_)\n            | Value::Tiling(_)\n            | Value::Bytes(_)\n            | Value::Decimal(_)\n            | Value::Duration(_)\n            | Value::Version(_)\n            | Value::Selector(_)\n            | Value::Symbol(_)\n            | Value::Args(_)\n            | Value::State(_)\n            | Value::Counter(_)\n            | Value::Label(_)\n            | Value::Dir(_)\n            | Value::Path(_)\n            | Value::Type(_)\n            | Value::SpotColorant(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/place.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 113
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/place.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 138
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Bool(b))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 151
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 39; guard: ausente; padr\u00e3o: `Value::None\n            | Value::Bool(..)\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Str(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Func(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Auto\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Symbol(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 213
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `None | Some(Value::None)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 214
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(name))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 217
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Array(values))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 220
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Dict(dict))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 222
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Array(values))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 227
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Length(value))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 253
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Bool(b))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 21,
+              "startLine": 367
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Array(values))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 21,
+              "startLine": 377
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Length(length))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 431
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `None | Some(Value::Auto)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 432
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Length(length))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 439
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `None | Some(Value::Auto)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 440
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(name))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 460
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `None | Some(Value::Auto)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 461
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(name))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 481
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `None | Some(Value::Auto)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 488
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `None | Some(Value::Auto)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 489
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Float(limit))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout/stroke.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 493
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Int(limit))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/layout.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 124
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 37; guard: ausente; padr\u00e3o: `Value::None\n            | Value::Bool(..)\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Func(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Auto\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Symbol(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/loading/encoding.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 112
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 4; guard: ausente; padr\u00e3o: `Content::Source(..)\n            | Content::ShowRecipe(..)\n            | Content::Located(..)\n            | Content::Realized(..)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/loading/encoding.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 118
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 108; guard: ausente; padr\u00e3o: `Content::Text(..)\n            | Content::Space\n            | Content::SpaceFromNewline\n            | Content::Parbreak\n            | Content::HtmlFrame(..)\n            | Content::Par { .. }\n            | Content::Heading(..)\n            | Content::Title(..)\n            | Content::Strong(..)\n            | Content::Emph(..)\n            | Content::Raw(..)\n            | Content::ListItem(..)\n            | Content::EnumItem(..)\n            | Content::Equation(..)\n            | Content::MathSequence(..)\n            | Content::MathIdent(..)\n            | Content::MathText(..)\n            | Content::MathFrac(..)\n            | Content::MathAttach(..)\n            | Content::MathPrimes(..)\n            | Content::MathRoot(..)\n            | Content::MathStretch(..)\n            | Content::MathDelimited(..)\n            | Content::MathLr(..)\n            | Content::MathMid(..)\n            | Content::MathOverbrace(..)\n            | Content::MathUnderbrace(..)\n            | Content::MathUnderbracket(..)\n            | Content::MathUnderparen(..)\n            | Content::MathUndershell(..)\n            | Content::MathOverbracket(..)\n            | Content::MathOverparen(..)\n            | Content::MathOvershell(..)\n            | Content::MathAlignPoint(..)\n            | Content::Linebreak(..)\n            | Content::MathMatrix(..)\n            | Content::MathCases(..)\n            | Content::MathAccent(..)\n            | Content::MathCancel(..)\n            | Content::MathUnderline(..)\n            | Content::MathOverline(..)\n            | Content::MathVec(..)\n            | Content::MathClassOverride(..)\n            | Content::MathLimitsOverride(..)\n            | Content::MathUnderover(..)\n            | Content::MathOp(..)\n            | Content::MathStyled(..)\n            | Content::Label(..)\n            | Content::Ref(..)\n            | Content::CounterDisplay(..)\n            | Content::CounterUpdate(..)\n            | Content::Outline(..)\n            | Content::OutlineEntry(..)\n            | Content::Figure(..)\n            | Content::FigureCaption(..)\n            | Content::Image(..)\n            | Content::Shape(..)\n            | Content::Curve(..)\n            | Content::Transform(..)\n            | Content::Grid(..)\n            | Content::GridHeader(..)\n            | Content::GridFooter(..)\n            | Content::GridCell(..)\n            | Content::SetPage(..)\n            | Content::PageRun(..)\n            | Content::Align(..)\n            | Content::Place(..)\n            | Content::Flush(..)\n            | Content::Divider(..)\n            | Content::Terms(..)\n            | Content::TermItem(..)\n            | Content::Quote(..)\n            | Content::Document { .. }\n            | Content::Asset { .. }\n            | Content::SmartQuote(..)\n            | Content::PdfAttach(..)\n            | Content::PdfArtifact(..)\n            | Content::Underline(..)\n            | Content::Strike(..)\n            | Content::Overline(..)\n            | Content::SmallCaps { .. }\n            | Content::Pad(..)\n            | Content::Hide(..)\n            | Content::HSpace(..)\n            | Content::VSpace(..)\n            | Content::Pagebreak(..)\n            | Content::Colbreak(..)\n            | Content::Stack(..)\n            | Content::TableCell(..)\n            | Content::Bibliography(..)\n            | Content::Cite(..)\n            | Content::Footnote(..)\n            | Content::FootnoteEntry(..)\n            | Content::TableHeader(..)\n            | Content::TableFooter(..)\n            | Content::GridHLine(..)\n            | Content::GridVLine(..)\n            | Content::TableHLine(..)\n            | Content::TableVLine(..)\n            | Content::Table(..)\n            | Content::Repeat(..)\n            | Content::Columns(..)\n            | Content::State(..)\n            | Content::StateUpdate(..)\n            | Content::StateDisplay(..)\n            | Content::CounterDisplayCallback(..)\n            | Content::ContextBlock(..)\n            | Content::Dynamic(..)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/loading/encoding.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 269
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 114; guard: ausente; padr\u00e3o: `Content::Empty\n        | Content::Text(..)\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::Sequence(..)\n        | Content::HtmlElem(..)\n        | Content::HtmlFrame(..)\n        | Content::Par { .. }\n        | Content::Heading(..)\n        | Content::Title(..)\n        | Content::Strong(..)\n        | Content::Emph(..)\n        | Content::Raw(..)\n        | Content::ListItem(..)\n        | Content::EnumItem(..)\n        | Content::Link(..)\n        | Content::MathSequence(..)\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathFrac(..)\n        | Content::MathAttach(..)\n        | Content::MathPrimes(..)\n        | Content::MathRoot(..)\n        | Content::MathStretch(..)\n        | Content::MathDelimited(..)\n        | Content::MathLr(..)\n        | Content::MathMid(..)\n        | Content::MathOverbrace(..)\n        | Content::MathUnderbrace(..)\n        | Content::MathUnderbracket(..)\n        | Content::MathUnderparen(..)\n        | Content::MathUndershell(..)\n        | Content::MathOverbracket(..)\n        | Content::MathOverparen(..)\n        | Content::MathOvershell(..)\n        | Content::MathAlignPoint(..)\n        | Content::Linebreak(..)\n        | Content::MathMatrix(..)\n        | Content::MathCases(..)\n        | Content::MathAccent(..)\n        | Content::MathCancel(..)\n        | Content::MathUnderline(..)\n        | Content::MathOverline(..)\n        | Content::MathVec(..)\n        | Content::MathClassOverride(..)\n        | Content::MathLimitsOverride(..)\n        | Content::MathUnderover(..)\n        | Content::MathOp(..)\n        | Content::MathStyled(..)\n        | Content::Label(..)\n        | Content::Ref(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Outline(..)\n        | Content::OutlineEntry(..)\n        | Content::Figure(..)\n        | Content::FigureCaption(..)\n        | Content::Image(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::Transform(..)\n        | Content::Grid(..)\n        | Content::GridHeader(..)\n        | Content::GridFooter(..)\n        | Content::GridCell(..)\n        | Content::SetPage(..)\n        | Content::PageRun(..)\n        | Content::Align(..)\n        | Content::Place(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Terms(..)\n        | Content::TermItem(..)\n        | Content::Quote(..)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::SmartQuote(..)\n        | Content::PdfAttach(..)\n        | Content::PdfArtifact(..)\n        | Content::Underline(..)\n        | Content::Strike(..)\n        | Content::Overline(..)\n        | Content::SmallCaps { .. }\n        | Content::Pad(..)\n        | Content::Hide(..)\n        | Content::HSpace(..)\n        | Content::VSpace(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::Stack(..)\n        | Content::Boxed(..)\n        | Content::Block(..)\n        | Content::TableCell(..)\n        | Content::Bibliography(..)\n        | Content::Cite(..)\n        | Content::Footnote(..)\n        | Content::FootnoteEntry(..)\n        | Content::TableHeader(..)\n        | Content::TableFooter(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)\n        | Content::Table(..)\n        | Content::Repeat(..)\n        | Content::Columns(..)\n        | Content::Metadata(..)\n        | Content::State(..)\n        | Content::StateUpdate(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::ContextBlock(..)\n        | Content::Dynamic(..)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/loading/yaml_encode.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 57
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Value::Content(_) | Value::LocatedContent(_, _)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/loading/yaml_encode.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 80
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 29; guard: ausente; padr\u00e3o: `Value::Module(..)\n        | Value::Datetime(..)\n        | Value::Func(..)\n        | Value::Auto\n        | Value::Length(..)\n        | Value::Relative(..)\n        | Value::Ratio(..)\n        | Value::Angle(..)\n        | Value::Color(..)\n        | Value::Stroke(..)\n        | Value::Fraction(..)\n        | Value::Align(..)\n        | Value::Location(..)\n        | Value::Gradient(..)\n        | Value::Regex(..)\n        | Value::Tiling(..)\n        | Value::Bytes(..)\n        | Value::Decimal(..)\n        | Value::Duration(..)\n        | Value::Version(..)\n        | Value::Selector(..)\n        | Value::Args(..)\n        | Value::State(..)\n        | Value::Counter(..)\n        | Value::Label(..)\n        | Value::Dir(..)\n        | Value::Path(..)\n        | Value::Type(..)\n        | Value::SpotColorant(..)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/loading/yaml_encode.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 260
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `'\\u{feff}' | '\\u{fffe}' | '\\u{ffff}'`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/shapes/line.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 38
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Value::Ratio(_) | Value::Relative(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/shapes/line.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 39
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 34; guard: ausente; padr\u00e3o: `Value::None\n            | Value::Bool(_)\n            | Value::Str(_)\n            | Value::Array(_)\n            | Value::Dict(_)\n            | Value::Module(_)\n            | Value::Datetime(_)\n            | Value::Func(_)\n            | Value::Content(_)\n            | Value::LocatedContent(_, _)\n            | Value::Auto\n            | Value::Angle(_)\n            | Value::Color(_)\n            | Value::Stroke(_)\n            | Value::Fraction(_)\n            | Value::Align(_)\n            | Value::Location(_)\n            | Value::Gradient(_)\n            | Value::Regex(_)\n            | Value::Tiling(_)\n            | Value::Bytes(_)\n            | Value::Decimal(_)\n            | Value::Duration(_)\n            | Value::Version(_)\n            | Value::Selector(_)\n            | Value::Symbol(_)\n            | Value::Args(_)\n            | Value::State(_)\n            | Value::Counter(_)\n            | Value::Label(_)\n            | Value::Dir(_)\n            | Value::Path(_)\n            | Value::Type(_)\n            | Value::SpotColorant(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/shapes/line.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 155
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `Some(v @ (Value::Float(_) | Value::Int(_) | Value::Length(_)))`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/shapes/line.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 155
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 4 > 2 em `Some(v @ (Value::Float(_) | Value::Int(_) | Value::Length(_)))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/shapes/line.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 158
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Ratio(_))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/shapes/line.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 173
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Angle(a))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/bibliography.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 334
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 37; guard: ausente; padr\u00e3o: `Value::Bool(..)\n        | Value::Int(..)\n        | Value::Float(..)\n        | Value::Array(..)\n        | Value::Dict(..)\n        | Value::Module(..)\n        | Value::Datetime(..)\n        | Value::Func(..)\n        | Value::Content(..)\n        | Value::LocatedContent(..)\n        | Value::Auto\n        | Value::Length(..)\n        | Value::Relative(..)\n        | Value::Ratio(..)\n        | Value::Angle(..)\n        | Value::Color(..)\n        | Value::Stroke(..)\n        | Value::Fraction(..)\n        | Value::Align(..)\n        | Value::Location(..)\n        | Value::Gradient(..)\n        | Value::Regex(..)\n        | Value::Tiling(..)\n        | Value::Bytes(..)\n        | Value::Decimal(..)\n        | Value::Duration(..)\n        | Value::Version(..)\n        | Value::Selector(..)\n        | Value::Symbol(..)\n        | Value::Args(..)\n        | Value::State(..)\n        | Value::Counter(..)\n        | Value::Label(..)\n        | Value::Dir(..)\n        | Value::Path(..)\n        | Value::Type(..)\n        | Value::SpotColorant(..)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/bibliography.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 425
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/bibliography.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 426
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(_))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/bibliography.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 479
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `None | Some(Value::Auto) | Some(Value::None)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/bibliography.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 480
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/bibliography.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 510
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `None | Some(Value::Auto) | Some(Value::None)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/bibliography.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 511
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/math_accent_tests.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 343
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 114; guard: ausente; padr\u00e3o: `Content::Source(..)\n        | Content::ShowRecipe(..)\n        | Content::Realized(..)\n        | Content::Located(..)\n        | Content::Empty\n        | Content::Text(..)\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::HtmlElem(..)\n        | Content::HtmlFrame(..)\n        | Content::Par { .. }\n        | Content::Heading(..)\n        | Content::Title(..)\n        | Content::Strong(..)\n        | Content::Emph(..)\n        | Content::Raw(..)\n        | Content::ListItem(..)\n        | Content::EnumItem(..)\n        | Content::Link(..)\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathFrac(..)\n        | Content::MathAttach(..)\n        | Content::MathPrimes(..)\n        | Content::MathRoot(..)\n        | Content::MathStretch(..)\n        | Content::MathLr(..)\n        | Content::MathMid(..)\n        | Content::MathOverbrace(..)\n        | Content::MathUnderbrace(..)\n        | Content::MathUnderbracket(..)\n        | Content::MathUnderparen(..)\n        | Content::MathUndershell(..)\n        | Content::MathOverbracket(..)\n        | Content::MathOverparen(..)\n        | Content::MathOvershell(..)\n        | Content::MathAlignPoint(..)\n        | Content::Linebreak(..)\n        | Content::MathMatrix(..)\n        | Content::MathCases(..)\n        | Content::MathCancel(..)\n        | Content::MathUnderline(..)\n        | Content::MathOverline(..)\n        | Content::MathVec(..)\n        | Content::MathClassOverride(..)\n        | Content::MathLimitsOverride(..)\n        | Content::MathUnderover(..)\n        | Content::MathOp(..)\n        | Content::MathStyled(..)\n        | Content::Label(..)\n        | Content::Ref(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Outline(..)\n        | Content::OutlineEntry(..)\n        | Content::Figure(..)\n        | Content::FigureCaption(..)\n        | Content::Image(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::Transform(..)\n        | Content::Grid(..)\n        | Content::GridHeader(..)\n        | Content::GridFooter(..)\n        | Content::GridCell(..)\n        | Content::SetPage(..)\n        | Content::PageRun(..)\n        | Content::Align(..)\n        | Content::Place(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Terms(..)\n        | Content::TermItem(..)\n        | Content::Quote(..)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::SmartQuote(..)\n        | Content::PdfAttach(..)\n        | Content::PdfArtifact(..)\n        | Content::Underline(..)\n        | Content::Strike(..)\n        | Content::Overline(..)\n        | Content::SmallCaps { .. }\n        | Content::Pad(..)\n        | Content::Hide(..)\n        | Content::HSpace(..)\n        | Content::VSpace(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::Stack(..)\n        | Content::Boxed(..)\n        | Content::Block(..)\n        | Content::TableCell(..)\n        | Content::Bibliography(..)\n        | Content::Cite(..)\n        | Content::Footnote(..)\n        | Content::FootnoteEntry(..)\n        | Content::TableHeader(..)\n        | Content::TableFooter(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)\n        | Content::Table(..)\n        | Content::Repeat(..)\n        | Content::Columns(..)\n        | Content::Metadata(..)\n        | Content::State(..)\n        | Content::StateUpdate(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::ContextBlock(..)\n        | Content::Dynamic(..)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/math_cases_tests.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 327
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 114; guard: ausente; padr\u00e3o: `Content::Source(..)\n        | Content::ShowRecipe(..)\n        | Content::Realized(..)\n        | Content::Located(..)\n        | Content::Empty\n        | Content::Text(..)\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::HtmlElem(..)\n        | Content::HtmlFrame(..)\n        | Content::Par { .. }\n        | Content::Heading(..)\n        | Content::Title(..)\n        | Content::Strong(..)\n        | Content::Emph(..)\n        | Content::Raw(..)\n        | Content::ListItem(..)\n        | Content::EnumItem(..)\n        | Content::Link(..)\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathFrac(..)\n        | Content::MathAttach(..)\n        | Content::MathPrimes(..)\n        | Content::MathRoot(..)\n        | Content::MathStretch(..)\n        | Content::MathLr(..)\n        | Content::MathMid(..)\n        | Content::MathOverbrace(..)\n        | Content::MathUnderbrace(..)\n        | Content::MathUnderbracket(..)\n        | Content::MathUnderparen(..)\n        | Content::MathUndershell(..)\n        | Content::MathOverbracket(..)\n        | Content::MathOverparen(..)\n        | Content::MathOvershell(..)\n        | Content::MathAlignPoint(..)\n        | Content::Linebreak(..)\n        | Content::MathMatrix(..)\n        | Content::MathAccent(..)\n        | Content::MathCancel(..)\n        | Content::MathUnderline(..)\n        | Content::MathOverline(..)\n        | Content::MathVec(..)\n        | Content::MathClassOverride(..)\n        | Content::MathLimitsOverride(..)\n        | Content::MathUnderover(..)\n        | Content::MathOp(..)\n        | Content::MathStyled(..)\n        | Content::Label(..)\n        | Content::Ref(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Outline(..)\n        | Content::OutlineEntry(..)\n        | Content::Figure(..)\n        | Content::FigureCaption(..)\n        | Content::Image(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::Transform(..)\n        | Content::Grid(..)\n        | Content::GridHeader(..)\n        | Content::GridFooter(..)\n        | Content::GridCell(..)\n        | Content::SetPage(..)\n        | Content::PageRun(..)\n        | Content::Align(..)\n        | Content::Place(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Terms(..)\n        | Content::TermItem(..)\n        | Content::Quote(..)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::SmartQuote(..)\n        | Content::PdfAttach(..)\n        | Content::PdfArtifact(..)\n        | Content::Underline(..)\n        | Content::Strike(..)\n        | Content::Overline(..)\n        | Content::SmallCaps { .. }\n        | Content::Pad(..)\n        | Content::Hide(..)\n        | Content::HSpace(..)\n        | Content::VSpace(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::Stack(..)\n        | Content::Boxed(..)\n        | Content::Block(..)\n        | Content::TableCell(..)\n        | Content::Bibliography(..)\n        | Content::Cite(..)\n        | Content::Footnote(..)\n        | Content::FootnoteEntry(..)\n        | Content::TableHeader(..)\n        | Content::TableFooter(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)\n        | Content::Table(..)\n        | Content::Repeat(..)\n        | Content::Columns(..)\n        | Content::Metadata(..)\n        | Content::State(..)\n        | Content::StateUpdate(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::ContextBlock(..)\n        | Content::Dynamic(..)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 434
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 35; guard: ausente; padr\u00e3o: `Value::None\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Str(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Symbol(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 498
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `OutlineIndent::Auto | OutlineIndent::Bool(true)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 591
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Content(c))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 592
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 620
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Int(n))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 630
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 641
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Bool(b))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 642
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Length(l))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 643
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Func(f))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 644
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 3; guard: ausente; padr\u00e3o: `Some(Value::Auto) | Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 659
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `\"headings\" | \"heading\"`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 660
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `\"figures\"  | \"figure\"`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 661
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `\"tables\"   | \"table\"`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 667
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 691
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Content(c))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 692
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 693
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 716
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Content(c))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 717
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/outline.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 718
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 114
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Value::Content(Content::TableHLine(e))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 126
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Value::Content(Content::TableVLine(e))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 134
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Value::Content(c @ Content::TableHeader(_))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 160
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Value::Content(c @ Content::TableFooter(_))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 17,
+              "startLine": 242
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 37; guard: ausente; padr\u00e3o: `Value::None\n                | Value::Bool(_)\n                | Value::Int(_)\n                | Value::Float(_)\n                | Value::Str(_)\n                | Value::Array(_)\n                | Value::Dict(_)\n                | Value::Module(_)\n                | Value::Datetime(_)\n                | Value::Func(_)\n                | Value::Content(_)\n                | Value::LocatedContent(_, _)\n                | Value::Auto\n                | Value::Relative(_)\n                | Value::Ratio(_)\n                | Value::Angle(_)\n                | Value::Stroke(_)\n                | Value::Fraction(_)\n                | Value::Align(_)\n                | Value::Location(_)\n                | Value::Gradient(_)\n                | Value::Regex(_)\n                | Value::Tiling(_)\n                | Value::Bytes(_)\n                | Value::Decimal(_)\n                | Value::Duration(_)\n                | Value::Version(_)\n                | Value::Selector(_)\n                | Value::Symbol(_)\n                | Value::Args(_)\n                | Value::State(_)\n                | Value::Counter(_)\n                | Value::Label(_)\n                | Value::Dir(_)\n                | Value::Path(_)\n                | Value::Type(_)\n                | Value::SpotColorant(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 286
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Color(c))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 287
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 297
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Align(a))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 298
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 309
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Length(l))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 325
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Content(c))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 326
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 327
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Some(Value::None) | None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 461
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Content(c))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 462
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 513
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 4; guard: ausente; padr\u00e3o: `\"x\" | \"y\" | \"colspan\" | \"rowspan\"`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 25,
+              "startLine": 542
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 37; guard: ausente; padr\u00e3o: `Value::None | Value::Bool(_) | Value::Int(_) | Value::Float(_) | Value::Str(_) | Value::Array(_) | Value::Dict(_) | Value::Module(_) | Value::Datetime(_) | Value::Func(_) | Value::Content(_) | Value::LocatedContent(_, _) | Value::Auto | Value::Relative(_) | Value::Ratio(_) | Value::Angle(_) | Value::Stroke(_) | Value::Fraction(_) | Value::Align(_) | Value::Location(_) | Value::Gradient(_) | Value::Regex(_) | Value::Tiling(_) | Value::Bytes(_) | Value::Decimal(_) | Value::Duration(_) | Value::Version(_) | Value::Selector(_) | Value::Symbol(_) | Value::Args(_) | Value::State(_) | Value::Counter(_) | Value::Label(_) | Value::Dir(_) | Value::Path(_) | Value::Type(_) | Value::SpotColorant(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 21,
+              "startLine": 550
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Value::Auto | Value::None`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 21,
+              "startLine": 568
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 37; guard: ausente; padr\u00e3o: `Value::Bool(_) | Value::Int(_) | Value::Float(_) | Value::Str(_) | Value::Array(_) | Value::Dict(_) | Value::Module(_) | Value::Datetime(_) | Value::Func(_) | Value::Content(_) | Value::LocatedContent(_, _) | Value::Length(_) | Value::Relative(_) | Value::Ratio(_) | Value::Angle(_) | Value::Color(_) | Value::Stroke(_) | Value::Fraction(_) | Value::Align(_) | Value::Location(_) | Value::Gradient(_) | Value::Regex(_) | Value::Tiling(_) | Value::Bytes(_) | Value::Decimal(_) | Value::Duration(_) | Value::Version(_) | Value::Selector(_) | Value::Symbol(_) | Value::Args(_) | Value::State(_) | Value::Counter(_) | Value::Label(_) | Value::Dir(_) | Value::Path(_) | Value::Type(_) | Value::SpotColorant(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 631
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Bool(b))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 676
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Int(value))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 707
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 119; guard: ausente; padr\u00e3o: `Content::Source(_)\n            | Content::ShowRecipe(_)\n            | Content::Realized(_)\n            | Content::Located(_)\n            | Content::Empty\n            | Content::Text(_)\n            | Content::Space\n            | Content::SpaceFromNewline\n            | Content::Parbreak\n            | Content::Sequence(_)\n            | Content::HtmlElem(_)\n            | Content::HtmlFrame(_)\n            | Content::Par { .. }\n            | Content::Heading(_)\n            | Content::Title(_)\n            | Content::Strong(_)\n            | Content::Emph(_)\n            | Content::Raw(_)\n            | Content::ListItem(_)\n            | Content::EnumItem(_)\n            | Content::Link(_)\n            | Content::Equation(_)\n            | Content::MathSequence(_)\n            | Content::MathIdent(_)\n            | Content::MathText(_)\n            | Content::MathFrac(_)\n            | Content::MathAttach(_)\n            | Content::MathPrimes(_)\n            | Content::MathRoot(_)\n            | Content::MathStretch(_)\n            | Content::MathDelimited(_)\n            | Content::MathLr(_)\n            | Content::MathMid(_)\n            | Content::MathOverbrace(_)\n            | Content::MathUnderbrace(_)\n            | Content::MathUnderbracket(_)\n            | Content::MathUnderparen(_)\n            | Content::MathUndershell(_)\n            | Content::MathOverbracket(_)\n            | Content::MathOverparen(_)\n            | Content::MathOvershell(_)\n            | Content::MathAlignPoint(_)\n            | Content::Linebreak(_)\n            | Content::MathMatrix(_)\n            | Content::MathCases(_)\n            | Content::MathAccent(_)\n            | Content::MathCancel(_)\n            | Content::MathUnderline(_)\n            | Content::MathOverline(_)\n            | Content::MathVec(_)\n            | Content::MathClassOverride(_)\n            | Content::MathLimitsOverride(_)\n            | Content::MathUnderover(_)\n            | Content::MathOp(_)\n            | Content::MathStyled(_)\n            | Content::Label(_)\n            | Content::Ref(_)\n            | Content::CounterDisplay(_)\n            | Content::CounterUpdate(_)\n            | Content::Outline(_)\n            | Content::OutlineEntry(_)\n            | Content::Figure(_)\n            | Content::FigureCaption(_)\n            | Content::Image(_)\n            | Content::Shape(_)\n            | Content::Curve(_)\n            | Content::Transform(_)\n            | Content::Grid(_)\n            | Content::GridHeader(_)\n            | Content::GridFooter(_)\n            | Content::GridCell(_)\n            | Content::SetPage(_)\n            | Content::PageRun(_)\n            | Content::Align(_)\n            | Content::Place(_)\n            | Content::Flush(_)\n            | Content::Styled(_)\n            | Content::Divider(_)\n            | Content::Terms(_)\n            | Content::TermItem(_)\n            | Content::Quote(_)\n            | Content::Document { .. }\n            | Content::Asset { .. }\n            | Content::SmartQuote(_)\n            | Content::PdfAttach(_)\n            | Content::PdfArtifact(_)\n            | Content::Underline(_)\n            | Content::Strike(_)\n            | Content::Overline(_)\n            | Content::SmallCaps { .. }\n            | Content::Pad(_)\n            | Content::Hide(_)\n            | Content::HSpace(_)\n            | Content::VSpace(_)\n            | Content::Pagebreak(_)\n            | Content::Colbreak(_)\n            | Content::Stack(_)\n            | Content::Boxed(_)\n            | Content::Block(_)\n            | Content::Bibliography(_)\n            | Content::Cite(_)\n            | Content::Footnote(_)\n            | Content::FootnoteEntry(_)\n            | Content::TableHeader(_)\n            | Content::TableFooter(_)\n            | Content::GridHLine(_)\n            | Content::GridVLine(_)\n            | Content::TableHLine(_)\n            | Content::TableVLine(_)\n            | Content::Table(_)\n            | Content::Repeat(_)\n            | Content::Columns(_)\n            | Content::Metadata(_)\n            | Content::State(_)\n            | Content::StateUpdate(_)\n            | Content::StateDisplay(_)\n            | Content::CounterDisplayCallback(_)\n            | Content::ContextBlock(_)\n            | Content::Dynamic(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 854
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `TableCellKind::Header { .. } | TableCellKind::Data`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 21,
+              "startLine": 904
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `TableCellKind::Auto | TableCellKind::Data`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 13,
+              "startLine": 907
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 117; guard: ausente; padr\u00e3o: `Content::Source(_)\n            | Content::ShowRecipe(_)\n            | Content::Realized(_)\n            | Content::Located(_)\n            | Content::Empty\n            | Content::Text(_)\n            | Content::Space\n            | Content::SpaceFromNewline\n            | Content::Parbreak\n            | Content::HtmlElem(_)\n            | Content::HtmlFrame(_)\n            | Content::Par { .. }\n            | Content::Heading(_)\n            | Content::Title(_)\n            | Content::Strong(_)\n            | Content::Emph(_)\n            | Content::Raw(_)\n            | Content::ListItem(_)\n            | Content::EnumItem(_)\n            | Content::Link(_)\n            | Content::Equation(_)\n            | Content::MathSequence(_)\n            | Content::MathIdent(_)\n            | Content::MathText(_)\n            | Content::MathFrac(_)\n            | Content::MathAttach(_)\n            | Content::MathPrimes(_)\n            | Content::MathRoot(_)\n            | Content::MathStretch(_)\n            | Content::MathDelimited(_)\n            | Content::MathLr(_)\n            | Content::MathMid(_)\n            | Content::MathOverbrace(_)\n            | Content::MathUnderbrace(_)\n            | Content::MathUnderbracket(_)\n            | Content::MathUnderparen(_)\n            | Content::MathUndershell(_)\n            | Content::MathOverbracket(_)\n            | Content::MathOverparen(_)\n            | Content::MathOvershell(_)\n            | Content::MathAlignPoint(_)\n            | Content::Linebreak(_)\n            | Content::MathMatrix(_)\n            | Content::MathCases(_)\n            | Content::MathAccent(_)\n            | Content::MathCancel(_)\n            | Content::MathUnderline(_)\n            | Content::MathOverline(_)\n            | Content::MathVec(_)\n            | Content::MathClassOverride(_)\n            | Content::MathLimitsOverride(_)\n            | Content::MathUnderover(_)\n            | Content::MathOp(_)\n            | Content::MathStyled(_)\n            | Content::Label(_)\n            | Content::Ref(_)\n            | Content::CounterDisplay(_)\n            | Content::CounterUpdate(_)\n            | Content::Outline(_)\n            | Content::OutlineEntry(_)\n            | Content::Figure(_)\n            | Content::FigureCaption(_)\n            | Content::Image(_)\n            | Content::Shape(_)\n            | Content::Curve(_)\n            | Content::Transform(_)\n            | Content::Grid(_)\n            | Content::GridHeader(_)\n            | Content::GridFooter(_)\n            | Content::GridCell(_)\n            | Content::SetPage(_)\n            | Content::PageRun(_)\n            | Content::Align(_)\n            | Content::Place(_)\n            | Content::Flush(_)\n            | Content::Styled(_)\n            | Content::Divider(_)\n            | Content::Terms(_)\n            | Content::TermItem(_)\n            | Content::Quote(_)\n            | Content::Document { .. }\n            | Content::Asset { .. }\n            | Content::SmartQuote(_)\n            | Content::PdfAttach(_)\n            | Content::PdfArtifact(_)\n            | Content::Underline(_)\n            | Content::Strike(_)\n            | Content::Overline(_)\n            | Content::SmallCaps { .. }\n            | Content::Pad(_)\n            | Content::Hide(_)\n            | Content::HSpace(_)\n            | Content::VSpace(_)\n            | Content::Pagebreak(_)\n            | Content::Colbreak(_)\n            | Content::Stack(_)\n            | Content::Boxed(_)\n            | Content::Block(_)\n            | Content::Bibliography(_)\n            | Content::Cite(_)\n            | Content::Footnote(_)\n            | Content::FootnoteEntry(_)\n            | Content::TableFooter(_)\n            | Content::GridHLine(_)\n            | Content::GridVLine(_)\n            | Content::TableHLine(_)\n            | Content::TableVLine(_)\n            | Content::Table(_)\n            | Content::Repeat(_)\n            | Content::Columns(_)\n            | Content::Metadata(_)\n            | Content::State(_)\n            | Content::StateUpdate(_)\n            | Content::StateDisplay(_)\n            | Content::CounterDisplayCallback(_)\n            | Content::ContextBlock(_)\n            | Content::Dynamic(_)`."
+      },
+      "ruleId": "V19"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 1126
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Content(c))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    },
+    {
+      "level": "note",
+      "locations": [
+        {
+          "physicalLocation": {
+            "artifactLocation": {
+              "uri": "./01_core/src/compiler/stdlib/structural/table_grid.rs"
+            },
+            "region": {
+              "startColumn": 9,
+              "startLine": 1127
+            }
+          }
+        }
+      ],
+      "message": {
+        "text": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Str(s))` fora de contexto-tabela"
+      },
+      "ruleId": "V20"
+    }
+  ],
+  "new_errors_or_warnings": 0,
+  "outside_scope_exact": true,
+  "preserved_finding_movements": []
+}

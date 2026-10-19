@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/html/attr_cast.md
-//! @prompt-hash 282c1f75
+//! @prompt-hash 905a4724
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -105,7 +105,43 @@ pub(super) fn cast_attr(
         AttrKind::OnOffOrNoneOrEnum(values) => match value {
             Value::Bool(value) => if *value { "on" } else { "off" }.into(),
             Value::None => "none".into(),
-            _ => require_enum(value, span, values)?.into(),
+            Value::Int(..)
+            | Value::Float(..)
+            | Value::Str(..)
+            | Value::Array(..)
+            | Value::Dict(..)
+            | Value::Module(..)
+            | Value::Datetime(..)
+            | Value::Func(..)
+            | Value::Content(..)
+            | Value::LocatedContent(..)
+            | Value::Auto
+            | Value::Length(..)
+            | Value::Relative(..)
+            | Value::Ratio(..)
+            | Value::Angle(..)
+            | Value::Color(..)
+            | Value::Stroke(..)
+            | Value::Fraction(..)
+            | Value::Align(..)
+            | Value::Location(..)
+            | Value::Gradient(..)
+            | Value::Regex(..)
+            | Value::Tiling(..)
+            | Value::Bytes(..)
+            | Value::Decimal(..)
+            | Value::Duration(..)
+            | Value::Version(..)
+            | Value::Selector(..)
+            | Value::Symbol(..)
+            | Value::Args(..)
+            | Value::State(..)
+            | Value::Counter(..)
+            | Value::Label(..)
+            | Value::Dir(..)
+            | Value::Path(..)
+            | Value::Type(..)
+            | Value::SpotColorant(..) => require_enum(value, span, values)?.into(),
         },
         AttrKind::OnOff => bool_string(value, span, "on", "off")?.into(),
         AttrKind::ContentEditable => match value {
@@ -121,7 +157,44 @@ pub(super) fn cast_attr(
         AttrKind::PresenceOr(values) => match value {
             Value::Bool(true) => "".into(),
             Value::Bool(false) => return Ok(None),
-            _ => require_enum(value, span, values)?.into(),
+            Value::None
+            | Value::Int(..)
+            | Value::Float(..)
+            | Value::Str(..)
+            | Value::Array(..)
+            | Value::Dict(..)
+            | Value::Module(..)
+            | Value::Datetime(..)
+            | Value::Func(..)
+            | Value::Content(..)
+            | Value::LocatedContent(..)
+            | Value::Auto
+            | Value::Length(..)
+            | Value::Relative(..)
+            | Value::Ratio(..)
+            | Value::Angle(..)
+            | Value::Color(..)
+            | Value::Stroke(..)
+            | Value::Fraction(..)
+            | Value::Align(..)
+            | Value::Location(..)
+            | Value::Gradient(..)
+            | Value::Regex(..)
+            | Value::Tiling(..)
+            | Value::Bytes(..)
+            | Value::Decimal(..)
+            | Value::Duration(..)
+            | Value::Version(..)
+            | Value::Selector(..)
+            | Value::Symbol(..)
+            | Value::Args(..)
+            | Value::State(..)
+            | Value::Counter(..)
+            | Value::Label(..)
+            | Value::Dir(..)
+            | Value::Path(..)
+            | Value::Type(..)
+            | Value::SpotColorant(..) => require_enum(value, span, values)?.into(),
         },
         AttrKind::NoneOrStr => match value {
             Value::None => "".into(),
@@ -207,4 +280,81 @@ pub(super) fn cast_attr(
         }
     };
     Ok(Some(string))
+}
+
+#[cfg(test)]
+mod batch_f_tests {
+    use super::*;
+    fn span() -> Span {
+        Span::from_range(FileId::from_raw(std::num::NonZeroU16::new(71).unwrap()), 3..9)
+    }
+    #[test]
+    fn batch_f_html_union_success_preserves_presence_and_tokens() {
+        let on_off = AttrKind::OnOffOrNoneOrEnum(&["sentences", "words", "characters"]);
+        for (value, expected) in [
+            (Value::Bool(true), "on"),
+            (Value::Bool(false), "off"),
+            (Value::None, "none"),
+            (Value::Str("sentences".into()), "sentences"),
+            (Value::Str("words".into()), "words"),
+            (Value::Str("characters".into()), "characters"),
+        ] {
+            assert_eq!(
+                cast_attr(on_off, &value, span()).unwrap().as_deref(),
+                Some(expected)
+            );
+        }
+        let presence = AttrKind::PresenceOr(&["until-found"]);
+        assert_eq!(
+            cast_attr(presence, &Value::Bool(true), span()).unwrap().as_deref(),
+            Some("")
+        );
+        assert_eq!(cast_attr(presence, &Value::Bool(false), span()).unwrap(), None);
+        assert_eq!(
+            cast_attr(presence, &Value::Str("until-found".into()), span())
+                .unwrap()
+                .as_deref(),
+            Some("until-found")
+        );
+    }
+    #[test]
+    fn batch_f_html_union_rejection_keeps_diagnostic_and_span() {
+        for (kind, value, expected) in [
+            (
+                AttrKind::OnOffOrNoneOrEnum(&["words"]),
+                Value::Str("bad".into()),
+                "expected \"words\"",
+            ),
+            (
+                AttrKind::OnOffOrNoneOrEnum(&["words"]),
+                Value::Int(1),
+                "expected \"words\", found integer",
+            ),
+            (
+                AttrKind::OnOffOrNoneOrEnum(&["words"]),
+                Value::Content(Content::text("x")),
+                "expected \"words\", found content",
+            ),
+            (
+                AttrKind::PresenceOr(&["until-found"]),
+                Value::None,
+                "expected \"until-found\", found none",
+            ),
+            (
+                AttrKind::PresenceOr(&["until-found"]),
+                Value::Str("bad".into()),
+                "expected \"until-found\"",
+            ),
+            (
+                AttrKind::PresenceOr(&["until-found"]),
+                Value::Int(1),
+                "expected \"until-found\", found integer",
+            ),
+        ] {
+            let errors = cast_attr(kind, &value, span()).unwrap_err();
+            assert_eq!(errors.len(), 1);
+            assert_eq!(errors[0].message, expected);
+            assert_eq!(errors[0].span, span());
+        }
+    }
 }

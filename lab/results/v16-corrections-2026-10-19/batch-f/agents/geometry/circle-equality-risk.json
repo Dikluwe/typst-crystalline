@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-19T20:32:34.831389+00:00",
+  "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+  "sha256": "9f99dce1675b2b464e9753aeedd06237a8228ea1b7347e7aebf8411ac108f661",
+  "archive": "lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/circle-before-equality-review.rs.gz",
+  "finding": "Unconditional Value::Length diameter changes absolute-only constructor representation observed by language equality; baseline equality probes still required, no runtime regression certification yet.",
+  "evidence": [
+    "01_core/src/compiler/eval/operators/equality.rs:150",
+    "01_core/src/entities/content/morphology.rs:185"
+  ]
+}

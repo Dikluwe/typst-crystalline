@@ -1,0 +1,63 @@
+[
+  {
+    "name": "clean-product-packages",
+    "command": [
+      "cargo",
+      "clean",
+      "-p",
+      "typst-core",
+      "-p",
+      "typst-shell",
+      "-p",
+      "typst-infra",
+      "-p",
+      "typst-wiring"
+    ],
+    "utc_end": "2026-10-19T20:56:09.440839+00:00",
+    "exit": 0,
+    "seconds": 0.45131001599656884,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "44851200",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "full-validation",
+    "command": [
+      "python3",
+      "lab/tools/ci/validate_layout_migration.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/validation"
+    ],
+    "utc_end": "2026-10-19T21:11:04.819673+00:00",
+    "exit": 0,
+    "seconds": 895.3783043970034,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "7225933824",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "accepted-language-replays",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_f_replays.py"
+    ],
+    "utc_end": "2026-10-19T21:11:19.375132+00:00",
+    "exit": 1,
+    "seconds": 14.554879981005797,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "7225933824",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

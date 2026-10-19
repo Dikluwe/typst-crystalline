@@ -1,0 +1,107 @@
+{
+  "tests": [
+    {
+      "name": "batch_f_grid_rejects_invalid_array_member_at_array_value_span",
+      "source": "01_core/src/compiler/stdlib/layout/grid.rs",
+      "expected_baseline": "FAIL_semantic",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout"
+    },
+    {
+      "name": "batch_f_grid_rejects_malformed_scalar_and_nonpositive_counts",
+      "source": "01_core/src/compiler/stdlib/layout/grid.rs",
+      "expected_baseline": "FAIL_semantic",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout"
+    },
+    {
+      "name": "batch_f_grid_columns_error_precedes_rows_and_gutter",
+      "source": "01_core/src/compiler/stdlib/layout/grid.rs",
+      "expected_baseline": "FAIL_semantic",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout"
+    },
+    {
+      "name": "batch_f_grid_preserves_valid_order_and_legacy_tracks",
+      "source": "01_core/src/compiler/stdlib/layout/grid.rs",
+      "expected_baseline": "PASS_preservation",
+      "reason": "Preserve measured valid forms/precedence"
+    },
+    {
+      "name": "batch_f_place_rejects_malformed_offsets_at_value_span",
+      "source": "01_core/src/compiler/stdlib/layout/place.rs",
+      "expected_baseline": "FAIL_semantic",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout"
+    },
+    {
+      "name": "batch_f_place_preserves_point_extensions_and_vertical_omission",
+      "source": "01_core/src/compiler/stdlib/layout/place.rs",
+      "expected_baseline": "PASS_preservation",
+      "reason": "Preserve measured valid forms/precedence"
+    },
+    {
+      "name": "batch_f_place_dx_rejection_precedes_dy_and_scope",
+      "source": "01_core/src/compiler/stdlib/layout/place.rs",
+      "expected_baseline": "FAIL_semantic",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout"
+    },
+    {
+      "name": "batch_f_circle_rejects_invalid_radius_at_value_span",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "expected_baseline": "FAIL_semantic",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout"
+    },
+    {
+      "name": "batch_f_circle_em_radius_reaches_actual_layout_at_occurrence_font",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "expected_baseline": "FAIL_semantic",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout"
+    },
+    {
+      "name": "batch_f_circle_preserves_absolute_and_numeric_geometry",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "expected_baseline": "PASS_preservation",
+      "reason": "Preserve measured valid forms/precedence"
+    },
+    {
+      "name": "batch_f_circle_radius_error_precedes_paint_error",
+      "source": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "expected_baseline": "FAIL_semantic",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout"
+    },
+    {
+      "name": "batch_f_line_rejects_malformed_legacy_offsets_at_value_span",
+      "source": "01_core/src/compiler/stdlib/shapes/line.rs",
+      "expected_baseline": "FAIL_semantic",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout"
+    },
+    {
+      "name": "batch_f_line_preserves_numeric_and_negative_offsets",
+      "source": "01_core/src/compiler/stdlib/shapes/line.rs",
+      "expected_baseline": "PASS_preservation",
+      "reason": "Preserve measured valid forms/precedence"
+    },
+    {
+      "name": "batch_f_line_preserves_stroke_and_conflict_precedence",
+      "source": "01_core/src/compiler/stdlib/shapes/line.rs",
+      "expected_baseline": "PASS_preservation",
+      "reason": "Preserve measured valid forms/precedence"
+    },
+    {
+      "name": "batch_f_table_rejects_invalid_track_without_dropping_member",
+      "source": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+      "expected_baseline": "FAIL_semantic",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout"
+    },
+    {
+      "name": "batch_f_table_track_counts_are_positive_and_columns_validate_first",
+      "source": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+      "expected_baseline": "FAIL_semantic",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout"
+    },
+    {
+      "name": "batch_f_table_preserves_valid_track_order_and_rows_presence",
+      "source": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+      "expected_baseline": "PASS_preservation",
+      "reason": "Preserve measured valid forms/precedence"
+    }
+  ],
+  "count": 17
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "name": "legacy-grid-red",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_f_legacy_red.py"
+    ],
+    "utc_end": "2026-10-19T20:52:02.553241+00:00",
+    "exit": 0,
+    "seconds": 125.34641283200472,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3873841152",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "legacy-grid-green",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "p633_grid_columns_invalid_string_rejected",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-19T20:52:02.743841+00:00",
+    "exit": 101,
+    "seconds": 0.19002064999949653,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3873841152",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

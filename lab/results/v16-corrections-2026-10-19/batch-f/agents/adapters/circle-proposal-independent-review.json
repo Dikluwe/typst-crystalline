@@ -1,0 +1,61 @@
+{
+  "status": "READY FOR BOUNDED HUMAN APPROVAL; implementation is not authorized by this review",
+  "utc": "2026-10-19T20:46:16.961594+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "working_tree": "uncommitted working tree",
+  "diff_HEAD_stat": " .../prompts/core/compiler/stdlib/collections.md    |  25 +-\n .../compiler/stdlib/collections/array_predicate.md |  33 ++-\n .../core/compiler/stdlib/collections/validation.md |  41 ++-\n .../core/compiler/stdlib/counter/display.md        |  28 +-\n .../core/compiler/stdlib/foundations/selector.md   |  24 +-\n .../prompts/core/compiler/stdlib/html/attr_cast.md |  37 ++-\n 00_nucleo/prompts/core/compiler/stdlib/layout.md   |  44 ++-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  63 ++++-\n .../prompts/core/compiler/stdlib/layout/place.md   |  38 ++-\n .../prompts/core/compiler/stdlib/layout/stroke.md  |  38 ++-\n .../core/compiler/stdlib/loading/encoding.md       |  39 ++-\n .../core/compiler/stdlib/loading/yaml_encode.md    |  40 ++-\n .../prompts/core/compiler/stdlib/shapes/line.md    |  41 ++-\n .../compiler/stdlib/structural/bibliography.md     |  29 +-\n .../stdlib/structural/math_accent_tests.md         |  39 ++-\n .../compiler/stdlib/structural/math_cases_tests.md |  39 ++-\n .../core/compiler/stdlib/structural/outline.md     |  26 +-\n .../core/compiler/stdlib/structural/table_grid.md  |  36 ++-\n 01_core/src/compiler/stdlib/collections.rs         |   4 +-\n .../compiler/stdlib/collections/array_predicate.rs |   3 +-\n .../src/compiler/stdlib/collections/validation.rs  | 249 ++++++++++++++++-\n 01_core/src/compiler/stdlib/counter/display.rs     | 163 +++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |  69 ++++-\n 01_core/src/compiler/stdlib/html/attr_cast.rs      | 156 ++++++++++-\n 01_core/src/compiler/stdlib/layout.rs              |  93 ++++++-\n 01_core/src/compiler/stdlib/layout/grid.rs         | 295 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/layout/place.rs        | 195 +++++++++++++-\n 01_core/src/compiler/stdlib/layout/stroke.rs       | 154 ++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 173 +++++++++++-\n 01_core/src/compiler/stdlib/loading/yaml_encode.rs | 169 +++++++++---\n 01_core/src/compiler/stdlib/shapes/line.rs         | 165 +++++++++++-\n .../src/compiler/stdlib/structural/bibliography.rs | 137 +++++++++-\n .../stdlib/structural/math_accent_tests.rs         | 144 +++++++++-\n .../compiler/stdlib/structural/math_cases_tests.rs | 143 +++++++++-\n 01_core/src/compiler/stdlib/structural/outline.rs  | 212 ++++++++++++++-\n .../src/compiler/stdlib/structural/table_grid.rs   |  76 +++++-\n 36 files changed, 3145 insertions(+), 115 deletions(-)\n",
+  "package": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/circle-deferred/proposal/package-manifest.json",
+    "sha256": "b1f09615b75784cda995dec89426a488a6f5954d30687df73a16d4030e52add0",
+    "files": {
+      "candidate-l0-deltas.json": "41b11700989692cf2faeadba1781543f69aca5dc3ab0989a8df9b6f9afaed57b",
+      "owner-graph.json": "995f6e3b4f86580ffa385735635116dba5642993ffc5d1c0d59b93de672b644a",
+      "review.md": "5b7136bc18f419004113d8d83c9c54adb816e3b70389039aeeed35e1c6f772e8",
+      "revision-receipt.json": "502cd4959fc110c76e41c691e81433061bc235099b1e70883e5234deed6f8e40",
+      "source-manifest.json": "b84a879e938a6e0d62fc85e4019f2c53bea337224e0e5d5398fff63c54f46e0b",
+      "source-snapshot.json.gz": "f1acd16ab3d4469af347a90b7fbcfe007eaa4aa8f52a0f157b39eff38d6339b4"
+    }
+  },
+  "source_manifest_sha256": "b84a879e938a6e0d62fc85e4019f2c53bea337224e0e5d5398fff63c54f46e0b",
+  "literal_inventory": [
+    "01_core/src/entities/content/construction/layout.rs",
+    "01_core/src/entities/elements/shape.rs",
+    "01_core/src/compiler/layout/boxed.rs",
+    "01_core/src/compiler/layout/tests.rs",
+    "01_core/src/compiler/layout/shape.rs",
+    "01_core/src/compiler/layout/sub_frame.rs",
+    "01_core/src/compiler/layout/helpers.rs",
+    "01_core/src/compiler/layout/measurement.rs",
+    "01_core/src/compiler/eval/observation/elements.rs",
+    "01_core/src/compiler/stdlib/shapes/polygon.rs",
+    "01_core/src/compiler/stdlib/shapes/curve.rs"
+  ],
+  "findings": [
+    {
+      "id": "C1",
+      "status": "resolved in reviewed candidate",
+      "finding": "Numeric/Length radii canonicalize to Length, while ambiguous old Auto Float zero would introduce an unlisted equality change. Revised candidate explicitly canonicalizes Auto to Length::ZERO and requires Auto/zero preservation controls. Omission remains absent, and unresolved default geometry is not promoted."
+    },
+    {
+      "id": "C2",
+      "status": "resolved in reviewed candidate",
+      "finding": "Constructor-produced ShapeOrigin::Circle must accompany ShapeKind::Ellipse; generic constructors never infer it. Manually inconsistent public carriers are outside the native-constructor certificate; render dispatch remains ShapeKind-based."
+    }
+  ],
+  "conclusions": [
+    "Public ShapeOrigin field and enum express constructor identity independently of resolved ellipse geometry; current failure evidence supports that distinction.",
+    "Current ShapeElem literal-bearing productive/test files are covered by the graph, including conservative observer destructuring.",
+    "Terminal clone maps and morphology preserve origin; existing shape structural equality/hash incorporate it, while language tests remain the acceptance oracle. No hash uniqueness claim.",
+    "Canonical explicit diameter preserves Int/Float/pt extension equality and retains em until existing layout resolution. Numeric generic Ellipse accidental equalities are explicitly scoped as compatibility corrections.",
+    "Current Paint type documentation repair retains productive behavior and does not retroactively ratify unrelated historical fields.",
+    "No new default size, render phase, Content/Value variant, callback or public signature is proposed; required public struct literals do change and the human must approve that compatibility break."
+  ],
+  "limits": [
+    "This is readiness of an exact bounded proposal, not proof of implementation or all Circle parity.",
+    "Before implementation update each affected current 1:1 owner, restore/archive acceptance tests without weakening, obtain actual RED and run full semantic/geometry/structural/lineage gates.",
+    "Auto/default size, func/fields/selector/show/set, body/inset/outset and width/height syntax remain explicitly excluded.",
+    "Mechanical fixture owner clauses must be read fully before their L0/code edits; existing graph records this prerequisite."
+  ],
+  "active_source_or_L0_edits_by_reviewer": "none",
+  "tests_or_product_runs_by_reviewer": "none; source/proposal audit and existing archived evidence only"
+}

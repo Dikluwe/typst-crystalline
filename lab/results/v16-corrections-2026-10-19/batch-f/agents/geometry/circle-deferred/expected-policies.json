@@ -1,0 +1,666 @@
+[
+  {
+    "name": "grid-columns-000",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "grid-columns-001",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-columns-002",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "grid-columns-003",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "grid-columns-004",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-columns-005",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "grid-columns-006",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "grid-columns-007",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-columns-008",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-columns-009",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-columns-010",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-columns-011",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-columns-012",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-columns-013",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-columns-014",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-columns-015",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-columns-016",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-columns-017",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "grid-columns-018",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-rows-019",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "grid-rows-020",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-rows-021",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "grid-rows-022",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "grid-rows-023",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-rows-024",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "grid-rows-025",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "grid-rows-026",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-rows-027",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-rows-028",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-rows-029",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-rows-030",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-rows-031",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-rows-032",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-rows-033",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-rows-034",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-rows-035",
+    "policy": "preserve"
+  },
+  {
+    "name": "grid-rows-036",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "grid-rows-037",
+    "policy": "preserve"
+  },
+  {
+    "name": "table-columns-038",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "table-columns-039",
+    "policy": "preserve"
+  },
+  {
+    "name": "table-columns-040",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "table-columns-041",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "table-columns-042",
+    "policy": "preserve"
+  },
+  {
+    "name": "table-columns-043",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "table-columns-044",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "table-columns-045",
+    "policy": "preserve"
+  },
+  {
+    "name": "table-columns-046",
+    "policy": "preserve"
+  },
+  {
+    "name": "table-columns-047",
+    "policy": "preserve"
+  },
+  {
+    "name": "table-columns-048",
+    "policy": "preserve"
+  },
+  {
+    "name": "table-columns-049",
+    "policy": "preserve"
+  },
+  {
+    "name": "table-columns-050",
+    "policy": "preserve"
+  },
+  {
+    "name": "table-columns-051",
+    "policy": "preserve"
+  },
+  {
+    "name": "table-columns-052",
+    "policy": "preserve"
+  },
+  {
+    "name": "table-columns-053",
+    "policy": "preserve"
+  },
+  {
+    "name": "table-columns-054",
+    "policy": "preserve"
+  },
+  {
+    "name": "table-columns-055",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "table-columns-056",
+    "policy": "preserve"
+  },
+  {
+    "name": "circle-radius-057",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "circle-radius-058",
+    "policy": "preserve"
+  },
+  {
+    "name": "circle-radius-059",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "circle-radius-060",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "circle-radius-061",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "circle-radius-062",
+    "policy": "preserve"
+  },
+  {
+    "name": "circle-radius-063",
+    "policy": "preserve"
+  },
+  {
+    "name": "circle-radius-064",
+    "policy": "preserve"
+  },
+  {
+    "name": "circle-radius-065",
+    "policy": "preserve"
+  },
+  {
+    "name": "circle-radius-066",
+    "policy": "preserve"
+  },
+  {
+    "name": "circle-radius-067",
+    "policy": "preserve"
+  },
+  {
+    "name": "circle-radius-068",
+    "policy": "preserve"
+  },
+  {
+    "name": "circle-radius-069",
+    "policy": "preserve"
+  },
+  {
+    "name": "circle-radius-070",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "circle-radius-071",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "circle-radius-072",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "circle-radius-073",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "circle-radius-074",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "circle-radius-075",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dx-076",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dx-077",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dx-078",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dx-079",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dx-080",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dx-081",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dx-082",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dx-083",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dx-084",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dx-085",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dx-086",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dx-087",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dx-088",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dx-089",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dx-090",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dx-091",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dx-092",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dx-093",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dx-094",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dy-095",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dy-096",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dy-097",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dy-098",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dy-099",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dy-100",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dy-101",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dy-102",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dy-103",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dy-104",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dy-105",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dy-106",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dy-107",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dy-108",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dy-109",
+    "policy": "preserve"
+  },
+  {
+    "name": "place-dy-110",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dy-111",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dy-112",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "place-dy-113",
+    "policy": "repair-oracle-diagnostic"
+  },
+  {
+    "name": "line-dx-114",
+    "policy": "repair-local-legacy-type"
+  },
+  {
+    "name": "line-dx-115",
+    "policy": "repair-local-legacy-type"
+  },
+  {
+    "name": "line-dx-116",
+    "policy": "repair-local-legacy-type"
+  },
+  {
+    "name": "line-dx-117",
+    "policy": "repair-local-legacy-type"
+  },
+  {
+    "name": "line-dx-118",
+    "policy": "repair-local-legacy-type"
+  },
+  {
+    "name": "line-dx-119",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-dx-120",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-dx-121",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-dx-122",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-dx-123",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-dx-124",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-dx-125",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-dx-126",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-dx-127",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-dx-128",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-dx-129",
+    "policy": "repair-local-legacy-type"
+  },
+  {
+    "name": "line-dx-130",
+    "policy": "repair-local-legacy-type"
+  },
+  {
+    "name": "line-dx-131",
+    "policy": "repair-local-legacy-type"
+  },
+  {
+    "name": "line-dx-132",
+    "policy": "repair-local-legacy-type"
+  },
+  {
+    "name": "line-length-133",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-134",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-135",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-136",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-137",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-138",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-139",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-140",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-141",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-142",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-143",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-144",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-145",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-146",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-147",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-148",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-149",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-150",
+    "policy": "preserve"
+  },
+  {
+    "name": "line-length-151",
+    "policy": "preserve"
+  },
+  {
+    "name": "figure-kind-152",
+    "policy": "preserve"
+  },
+  {
+    "name": "figure-kind-153",
+    "policy": "preserve"
+  },
+  {
+    "name": "figure-kind-154",
+    "policy": "preserve"
+  },
+  {
+    "name": "figure-kind-155",
+    "policy": "preserve"
+  },
+  {
+    "name": "figure-kind-156",
+    "policy": "preserve"
+  },
+  {
+    "name": "figure-kind-157",
+    "policy": "preserve"
+  },
+  {
+    "name": "figure-kind-158",
+    "policy": "preserve"
+  },
+  {
+    "name": "figure-kind-159",
+    "policy": "preserve"
+  },
+  {
+    "name": "figure-kind-160",
+    "policy": "preserve"
+  },
+  {
+    "name": "figure-kind-161",
+    "policy": "preserve"
+  },
+  {
+    "name": "figure-explicit-162",
+    "policy": "preserve"
+  },
+  {
+    "name": "figure-explicit-163",
+    "policy": "preserve"
+  },
+  {
+    "name": "figure-explicit-164",
+    "policy": "preserve"
+  },
+  {
+    "name": "figure-explicit-165",
+    "policy": "preserve"
+  }
+]

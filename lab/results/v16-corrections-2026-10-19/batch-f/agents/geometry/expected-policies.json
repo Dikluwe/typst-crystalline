@@ -1,0 +1,1862 @@
+{
+  "schema": "batch-f-geometry-expectations-v1",
+  "cases": [
+    {
+      "name": "grid-columns-000",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected auto, relative length, fraction, integer, or array, found none\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 { let x = grid(columns: none, [X]); repr(x) }\n  \u2502                         ^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "grid-columns-001",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-columns-002",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected auto, relative length, fraction, integer, or array, found boolean\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 { let x = grid(columns: true, [X]); repr(x) }\n  \u2502                         ^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "grid-columns-003",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected auto, relative length, fraction, integer, or array, found string\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 { let x = grid(columns: \"bad\", [X]); repr(x) }\n  \u2502                         ^^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "grid-columns-004",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-columns-005",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: number must be positive\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 { let x = grid(columns: 0, [X]); repr(x) }\n  \u2502                         ^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "grid-columns-006",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: number must be positive\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 { let x = grid(columns: -1, [X]); repr(x) }\n  \u2502                         ^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "grid-columns-007",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-columns-008",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-columns-009",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-columns-010",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-columns-011",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-columns-012",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-columns-013",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-columns-014",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-columns-015",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-columns-016",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-columns-017",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected auto, relative length, or fraction, found boolean\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 { let x = grid(columns: (1pt, true, 2pt), [X]); repr(x) }\n  \u2502                         ^^^^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "grid-columns-018",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-rows-019",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected auto, relative length, fraction, integer, or array, found none\n  \u250c\u2500 <input-expression>:1:21\n  \u2502\n1 \u2502 { let x = grid(rows: none, [X]); repr(x) }\n  \u2502                      ^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "grid-rows-020",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-rows-021",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected auto, relative length, fraction, integer, or array, found boolean\n  \u250c\u2500 <input-expression>:1:21\n  \u2502\n1 \u2502 { let x = grid(rows: true, [X]); repr(x) }\n  \u2502                      ^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "grid-rows-022",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected auto, relative length, fraction, integer, or array, found string\n  \u250c\u2500 <input-expression>:1:21\n  \u2502\n1 \u2502 { let x = grid(rows: \"bad\", [X]); repr(x) }\n  \u2502                      ^^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "grid-rows-023",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-rows-024",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: number must be positive\n  \u250c\u2500 <input-expression>:1:21\n  \u2502\n1 \u2502 { let x = grid(rows: 0, [X]); repr(x) }\n  \u2502                      ^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "grid-rows-025",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: number must be positive\n  \u250c\u2500 <input-expression>:1:21\n  \u2502\n1 \u2502 { let x = grid(rows: -1, [X]); repr(x) }\n  \u2502                      ^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "grid-rows-026",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-rows-027",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-rows-028",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-rows-029",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-rows-030",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-rows-031",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-rows-032",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-rows-033",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-rows-034",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-rows-035",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "grid-rows-036",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected auto, relative length, or fraction, found boolean\n  \u250c\u2500 <input-expression>:1:21\n  \u2502\n1 \u2502 { let x = grid(rows: (1pt, true, 2pt), [X]); repr(x) }\n  \u2502                      ^^^^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "grid-rows-037",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"grid\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "table-columns-038",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected auto, relative length, fraction, integer, or array, found none\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = table(columns: none, [X]); repr(x) }\n  \u2502                          ^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "table-columns-039",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"table\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "table-columns-040",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected auto, relative length, fraction, integer, or array, found boolean\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = table(columns: true, [X]); repr(x) }\n  \u2502                          ^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "table-columns-041",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected auto, relative length, fraction, integer, or array, found string\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = table(columns: \"bad\", [X]); repr(x) }\n  \u2502                          ^^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "table-columns-042",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"table\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "table-columns-043",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: number must be positive\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = table(columns: 0, [X]); repr(x) }\n  \u2502                          ^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "table-columns-044",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: number must be positive\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = table(columns: -1, [X]); repr(x) }\n  \u2502                          ^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "table-columns-045",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"table\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "table-columns-046",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"table\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "table-columns-047",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"table\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "table-columns-048",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"table\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "table-columns-049",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"table\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "table-columns-050",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"table\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "table-columns-051",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"table\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "table-columns-052",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"table\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "table-columns-053",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"table\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "table-columns-054",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"table\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "table-columns-055",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected auto, relative length, or fraction, found boolean\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = table(columns: (1pt, true, 2pt), [X]); repr(x) }\n  \u2502                          ^^^^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "table-columns-056",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"table\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "circle-radius-057",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-058",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-059",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-060",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-061",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-062",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-063",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-064",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-065",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-066",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-067",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-068",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-069",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-070",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-071",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-072",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-073",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-074",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-radius-075",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "place-dx-076",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found none\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: none, [X]); repr(x) }\n  \u2502                     ^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "place-dx-077",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found auto\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: auto, [X]); repr(x) }\n  \u2502                     ^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "place-dx-078",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found boolean\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: true, [X]); repr(x) }\n  \u2502                     ^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "place-dx-079",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found string\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: \"bad\", [X]); repr(x) }\n  \u2502                     ^^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "place-dx-080",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found string\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: \"auto\", [X]); repr(x) }\n  \u2502                     ^^^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "place-dx-081",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dx-082",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dx-083",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dx-084",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dx-085",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dx-086",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dx-087",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dx-088",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dx-089",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dx-090",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dx-091",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found fraction\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: 1fr, [X]); repr(x) }\n  \u2502                     ^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "place-dx-092",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found array\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: (), [X]); repr(x) }\n  \u2502                     ^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "place-dx-093",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found array\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: (1pt, true, 2pt), [X]); repr(x) }\n  \u2502                     ^^^^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "place-dx-094",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found array\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: (auto, 1fr, 2pt), [X]); repr(x) }\n  \u2502                     ^^^^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "place-dy-095",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found none\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: none, [X]); repr(x) }\n  \u2502                     ^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "place-dy-096",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found auto\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: auto, [X]); repr(x) }\n  \u2502                     ^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "place-dy-097",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found boolean\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: true, [X]); repr(x) }\n  \u2502                     ^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "place-dy-098",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found string\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: \"bad\", [X]); repr(x) }\n  \u2502                     ^^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "place-dy-099",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found string\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: \"auto\", [X]); repr(x) }\n  \u2502                     ^^^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "place-dy-100",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dy-101",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dy-102",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dy-103",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dy-104",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dy-105",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dy-106",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dy-107",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dy-108",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dy-109",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"place(Column)[...]\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "place-dy-110",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found fraction\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: 1fr, [X]); repr(x) }\n  \u2502                     ^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "place-dy-111",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found array\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: (), [X]); repr(x) }\n  \u2502                     ^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "place-dy-112",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found array\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: (1pt, true, 2pt), [X]); repr(x) }\n  \u2502                     ^^^^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "place-dy-113",
+      "policy": "repair-oracle-diagnostic",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected relative length, found array\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: (auto, 1fr, 2pt), [X]); repr(x) }\n  \u2502                     ^^^^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Malformed supplied input now rejects with complete frozen oracle diagnostic and source span."
+    },
+    {
+      "name": "line-dx-114",
+      "policy": "repair-local-legacy-type",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found none\n  \u250c\u2500 <input-expression>:1:19\n  \u2502\n1 \u2502 { let x = line(dx: none); repr(x) }\n  \u2502                    ^^^^\n\n"
+      },
+      "reason": "Local dx typed extension rejects malformed input; expected diagnostic differs from upstream unsupported-dx. Exact value-origin source rendering derived from frozen same-literal length diagnostic."
+    },
+    {
+      "name": "line-dx-115",
+      "policy": "repair-local-legacy-type",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found auto\n  \u250c\u2500 <input-expression>:1:19\n  \u2502\n1 \u2502 { let x = line(dx: auto); repr(x) }\n  \u2502                    ^^^^\n\n"
+      },
+      "reason": "Local dx typed extension rejects malformed input; expected diagnostic differs from upstream unsupported-dx. Exact value-origin source rendering derived from frozen same-literal length diagnostic."
+    },
+    {
+      "name": "line-dx-116",
+      "policy": "repair-local-legacy-type",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found boolean\n  \u250c\u2500 <input-expression>:1:19\n  \u2502\n1 \u2502 { let x = line(dx: true); repr(x) }\n  \u2502                    ^^^^\n\n"
+      },
+      "reason": "Local dx typed extension rejects malformed input; expected diagnostic differs from upstream unsupported-dx. Exact value-origin source rendering derived from frozen same-literal length diagnostic."
+    },
+    {
+      "name": "line-dx-117",
+      "policy": "repair-local-legacy-type",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found string\n  \u250c\u2500 <input-expression>:1:19\n  \u2502\n1 \u2502 { let x = line(dx: \"bad\"); repr(x) }\n  \u2502                    ^^^^^\n\n"
+      },
+      "reason": "Local dx typed extension rejects malformed input; expected diagnostic differs from upstream unsupported-dx. Exact value-origin source rendering derived from frozen same-literal length diagnostic."
+    },
+    {
+      "name": "line-dx-118",
+      "policy": "repair-local-legacy-type",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found string\n  \u250c\u2500 <input-expression>:1:19\n  \u2502\n1 \u2502 { let x = line(dx: \"auto\"); repr(x) }\n  \u2502                    ^^^^^^\n\n"
+      },
+      "reason": "Local dx typed extension rejects malformed input; expected diagnostic differs from upstream unsupported-dx. Exact value-origin source rendering derived from frozen same-literal length diagnostic."
+    },
+    {
+      "name": "line-dx-119",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-dx-120",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-dx-121",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-dx-122",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-dx-123",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-dx-124",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-dx-125",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-dx-126",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-dx-127",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-dx-128",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-dx-129",
+      "policy": "repair-local-legacy-type",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found fraction\n  \u250c\u2500 <input-expression>:1:19\n  \u2502\n1 \u2502 { let x = line(dx: 1fr); repr(x) }\n  \u2502                    ^^^\n\n"
+      },
+      "reason": "Local dx typed extension rejects malformed input; expected diagnostic differs from upstream unsupported-dx. Exact value-origin source rendering derived from frozen same-literal length diagnostic."
+    },
+    {
+      "name": "line-dx-130",
+      "policy": "repair-local-legacy-type",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found array\n  \u250c\u2500 <input-expression>:1:19\n  \u2502\n1 \u2502 { let x = line(dx: ()); repr(x) }\n  \u2502                    ^^\n\n"
+      },
+      "reason": "Local dx typed extension rejects malformed input; expected diagnostic differs from upstream unsupported-dx. Exact value-origin source rendering derived from frozen same-literal length diagnostic."
+    },
+    {
+      "name": "line-dx-131",
+      "policy": "repair-local-legacy-type",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found array\n  \u250c\u2500 <input-expression>:1:19\n  \u2502\n1 \u2502 { let x = line(dx: (1pt, true, 2pt)); repr(x) }\n  \u2502                    ^^^^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Local dx typed extension rejects malformed input; expected diagnostic differs from upstream unsupported-dx. Exact value-origin source rendering derived from frozen same-literal length diagnostic."
+    },
+    {
+      "name": "line-dx-132",
+      "policy": "repair-local-legacy-type",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found array\n  \u250c\u2500 <input-expression>:1:19\n  \u2502\n1 \u2502 { let x = line(dx: (auto, 1fr, 2pt)); repr(x) }\n  \u2502                    ^^^^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Local dx typed extension rejects malformed input; expected diagnostic differs from upstream unsupported-dx. Exact value-origin source rendering derived from frozen same-literal length diagnostic."
+    },
+    {
+      "name": "line-length-133",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found none\n  \u250c\u2500 <input-expression>:1:14\n  \u2502\n1 \u2502 { let x = line(length: none); repr(x) }\n  \u2502               ^^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-134",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found auto\n  \u250c\u2500 <input-expression>:1:14\n  \u2502\n1 \u2502 { let x = line(length: auto); repr(x) }\n  \u2502               ^^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-135",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found bool\n  \u250c\u2500 <input-expression>:1:14\n  \u2502\n1 \u2502 { let x = line(length: true); repr(x) }\n  \u2502               ^^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-136",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found str\n  \u250c\u2500 <input-expression>:1:14\n  \u2502\n1 \u2502 { let x = line(length: \"bad\"); repr(x) }\n  \u2502               ^^^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-137",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found str\n  \u250c\u2500 <input-expression>:1:14\n  \u2502\n1 \u2502 { let x = line(length: \"auto\"); repr(x) }\n  \u2502               ^^^^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-138",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-139",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-140",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-141",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-142",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-143",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-144",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-145",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 0,
+        "stdout": "\"shape\"\n",
+        "stderr": ""
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-146",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: line(length): percentagem n\u00e3o \u00e9 suportada (scope-out) \u2014 o native n\u00e3o tem a regi\u00e3o para resolver ratio\n  \u250c\u2500 <input-expression>:1:14\n  \u2502\n1 \u2502 { let x = line(length: 20%); repr(x) }\n  \u2502               ^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-147",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found relative length\n  \u250c\u2500 <input-expression>:1:14\n  \u2502\n1 \u2502 { let x = line(length: 20% + 2pt); repr(x) }\n  \u2502               ^^^^^^^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-148",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found fraction\n  \u250c\u2500 <input-expression>:1:14\n  \u2502\n1 \u2502 { let x = line(length: 1fr); repr(x) }\n  \u2502               ^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-149",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found array\n  \u250c\u2500 <input-expression>:1:14\n  \u2502\n1 \u2502 { let x = line(length: ()); repr(x) }\n  \u2502               ^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-150",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found array\n  \u250c\u2500 <input-expression>:1:14\n  \u2502\n1 \u2502 { let x = line(length: (1pt, true, 2pt)); repr(x) }\n  \u2502               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "line-length-151",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: expected length, found array\n  \u250c\u2500 <input-expression>:1:14\n  \u2502\n1 \u2502 { let x = line(length: (auto, 1fr, 2pt)); repr(x) }\n  \u2502               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+      },
+      "reason": "Preserve valid input, explicit legacy extension, typed dimensional debt, or previously reported polar diagnostic."
+    },
+    {
+      "name": "figure-kind-152",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <input-expression>:1:19\n  \u2502\n1 \u2502 figure(table([A])).kind\n  \u2502                    ^^^^\n\n"
+      },
+      "reason": "Preserve frozen Figure lexical observation."
+    },
+    {
+      "name": "figure-kind-153",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <input-expression>:1:17\n  \u2502\n1 \u2502 figure(raw(\"X\")).kind\n  \u2502                  ^^^^\n\n"
+      },
+      "reason": "Preserve frozen Figure lexical observation."
+    },
+    {
+      "name": "figure-kind-154",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <input-expression>:1:26\n  \u2502\n1 \u2502 figure([pre #table([A])]).kind\n  \u2502                           ^^^^\n\n"
+      },
+      "reason": "Preserve frozen Figure lexical observation."
+    },
+    {
+      "name": "figure-kind-155",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <input-expression>:1:27\n  \u2502\n1 \u2502 figure(strong(table([A]))).kind\n  \u2502                            ^^^^\n\n"
+      },
+      "reason": "Preserve frozen Figure lexical observation."
+    },
+    {
+      "name": "figure-kind-156",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <input-expression>:1:23\n  \u2502\n1 \u2502 figure(emph(raw(\"X\"))).kind\n  \u2502                        ^^^^\n\n"
+      },
+      "reason": "Preserve frozen Figure lexical observation."
+    },
+    {
+      "name": "figure-kind-157",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 figure(hide(table([A]))).kind\n  \u2502                          ^^^^\n\n"
+      },
+      "reason": "Preserve frozen Figure lexical observation."
+    },
+    {
+      "name": "figure-kind-158",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 figure(box(table([A]))).kind\n  \u2502                         ^^^^\n\n"
+      },
+      "reason": "Preserve frozen Figure lexical observation."
+    },
+    {
+      "name": "figure-kind-159",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <input-expression>:1:26\n  \u2502\n1 \u2502 figure(block(table([A]))).kind\n  \u2502                           ^^^^\n\n"
+      },
+      "reason": "Preserve frozen Figure lexical observation."
+    },
+    {
+      "name": "figure-kind-160",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <input-expression>:1:27\n  \u2502\n1 \u2502 figure(figure(table([A]))).kind\n  \u2502                            ^^^^\n\n"
+      },
+      "reason": "Preserve frozen Figure lexical observation."
+    },
+    {
+      "name": "figure-kind-161",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <input-expression>:1:16\n  \u2502\n1 \u2502 figure([plain]).kind\n  \u2502                 ^^^^\n\n"
+      },
+      "reason": "Preserve frozen Figure lexical observation."
+    },
+    {
+      "name": "figure-explicit-162",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 figure([X], kind: table).kind\n  \u2502                          ^^^^\n\n"
+      },
+      "reason": "Preserve frozen Figure lexical observation."
+    },
+    {
+      "name": "figure-explicit-163",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <input-expression>:1:23\n  \u2502\n1 \u2502 figure([X], kind: raw).kind\n  \u2502                        ^^^^\n\n"
+      },
+      "reason": "Preserve frozen Figure lexical observation."
+    },
+    {
+      "name": "figure-explicit-164",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <input-expression>:1:27\n  \u2502\n1 \u2502 figure([X], kind: \"table\").kind\n  \u2502                            ^^^^\n\n"
+      },
+      "reason": "Preserve frozen Figure lexical observation."
+    },
+    {
+      "name": "figure-explicit-165",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 figure([X], kind: auto).kind\n  \u2502                         ^^^^\n\n"
+      },
+      "reason": "Preserve frozen Figure lexical observation."
+    },
+    {
+      "name": "figure-synth-00",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "reason": "Preserve frozen Figure/Auto debt or absolute geometry observation, including diagnostic text."
+    },
+    {
+      "name": "figure-synth-01",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "reason": "Preserve frozen Figure/Auto debt or absolute geometry observation, including diagnostic text."
+    },
+    {
+      "name": "figure-synth-02",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "reason": "Preserve frozen Figure/Auto debt or absolute geometry observation, including diagnostic text."
+    },
+    {
+      "name": "figure-synth-03",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "reason": "Preserve frozen Figure/Auto debt or absolute geometry observation, including diagnostic text."
+    },
+    {
+      "name": "figure-synth-04",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "reason": "Preserve frozen Figure/Auto debt or absolute geometry observation, including diagnostic text."
+    },
+    {
+      "name": "figure-synth-05",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "reason": "Preserve frozen Figure/Auto debt or absolute geometry observation, including diagnostic text."
+    },
+    {
+      "name": "figure-synth-06",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "reason": "Preserve frozen Figure/Auto debt or absolute geometry observation, including diagnostic text."
+    },
+    {
+      "name": "figure-synth-07",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "reason": "Preserve frozen Figure/Auto debt or absolute geometry observation, including diagnostic text."
+    },
+    {
+      "name": "figure-synth-08",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "reason": "Preserve frozen Figure/Auto debt or absolute geometry observation, including diagnostic text."
+    },
+    {
+      "name": "figure-synth-09",
+      "policy": "preserve",
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "reason": "Preserve frozen Figure/Auto debt or absolute geometry observation, including diagnostic text."
+    },
+    {
+      "name": "circle-geometry-0-10pt",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "4pt",
+            "height": "4pt",
+            "baseline": "4pt"
+          }
+        ]
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-geometry-0-20pt",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "4pt",
+            "height": "4pt",
+            "baseline": "4pt"
+          }
+        ]
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-geometry-1-10pt",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "0pt",
+            "height": "0pt",
+            "baseline": "0pt"
+          }
+        ]
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-geometry-1-20pt",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "0pt",
+            "height": "0pt",
+            "baseline": "0pt"
+          }
+        ]
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-geometry-2-10pt",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "0pt",
+            "height": "0pt",
+            "baseline": "0pt"
+          }
+        ]
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    },
+    {
+      "name": "circle-geometry-2-20pt",
+      "policy": "preserve-deferred-circle",
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n",
+        "value": [
+          {
+            "width": "0pt",
+            "height": "0pt",
+            "baseline": "0pt"
+          }
+        ]
+      },
+      "reason": "Whole V16-065 owner restored after measured identity regression; retain all baseline malformed-radius and geometry obligations, not acceptance of those semantics. See circle-deferred/deferral.json."
+    }
+  ],
+  "deferral_receipt": "circle-deferred/deferral.json"
+}

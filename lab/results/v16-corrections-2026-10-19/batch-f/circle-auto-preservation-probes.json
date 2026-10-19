@@ -1,0 +1,135 @@
+{
+  "utc_start": "2026-10-19T20:52:35.227855+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "diff_head_stat": " 00_nucleo/prompts/core/compiler/eval/tests.md      |  36 ++-\n .../prompts/core/compiler/stdlib/collections.md    |  25 +-\n .../compiler/stdlib/collections/array_predicate.md |  33 ++-\n .../core/compiler/stdlib/collections/validation.md |  41 ++-\n .../core/compiler/stdlib/counter/display.md        |  28 +-\n .../core/compiler/stdlib/foundations/selector.md   |  24 +-\n .../prompts/core/compiler/stdlib/html/attr_cast.md |  37 ++-\n 00_nucleo/prompts/core/compiler/stdlib/layout.md   |  44 ++-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  63 ++++-\n .../prompts/core/compiler/stdlib/layout/place.md   |  38 ++-\n .../prompts/core/compiler/stdlib/layout/stroke.md  |  38 ++-\n .../core/compiler/stdlib/loading/encoding.md       |  39 ++-\n .../core/compiler/stdlib/loading/yaml_encode.md    |  40 ++-\n .../prompts/core/compiler/stdlib/shapes/line.md    |  41 ++-\n .../compiler/stdlib/structural/bibliography.md     |  29 +-\n .../stdlib/structural/math_accent_tests.md         |  39 ++-\n .../compiler/stdlib/structural/math_cases_tests.md |  39 ++-\n .../core/compiler/stdlib/structural/outline.md     |  26 +-\n .../core/compiler/stdlib/structural/table_grid.md  |  36 ++-\n 01_core/src/compiler/eval/tests.rs                 |  20 +-\n 01_core/src/compiler/stdlib/collections.rs         |   4 +-\n .../compiler/stdlib/collections/array_predicate.rs |   3 +-\n .../src/compiler/stdlib/collections/validation.rs  | 249 ++++++++++++++++-\n 01_core/src/compiler/stdlib/counter/display.rs     | 163 +++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |  69 ++++-\n 01_core/src/compiler/stdlib/html/attr_cast.rs      | 156 ++++++++++-\n 01_core/src/compiler/stdlib/layout.rs              |  93 ++++++-\n 01_core/src/compiler/stdlib/layout/grid.rs         | 295 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/layout/place.rs        | 195 +++++++++++++-\n 01_core/src/compiler/stdlib/layout/stroke.rs       | 154 ++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 173 +++++++++++-\n 01_core/src/compiler/stdlib/loading/yaml_encode.rs | 169 +++++++++---\n 01_core/src/compiler/stdlib/shapes/line.rs         | 165 +++++++++++-\n .../src/compiler/stdlib/structural/bibliography.rs | 137 +++++++++-\n .../stdlib/structural/math_accent_tests.rs         | 144 +++++++++-\n .../compiler/stdlib/structural/math_cases_tests.rs | 143 +++++++++-\n 01_core/src/compiler/stdlib/structural/outline.rs  | 212 ++++++++++++++-\n .../src/compiler/stdlib/structural/table_grid.rs   |  76 +++++-\n 38 files changed, 3196 insertions(+), 120 deletions(-)\n",
+  "build_state": {
+    "path": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/validation-legacy-grid-failure/validation-state.json.gz",
+    "sha256": "382aa0501a6237f06673263fc90d4e4424b21492c09f61b5fa3f1bcd3d45e96f"
+  },
+  "build_commands": {
+    "path": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/validation-legacy-grid-failure/validation-commands.json",
+    "sha256": "5c71a88adab785ae73386a42f6ef282b3fbd8e9498bd15bb911093bbeafb3e2b"
+  },
+  "source_note": "Product from successful build preceding stale-grid-test correction; Circle source/owner remain byte-identical to HEAD and that build. This is not a build of the later test-only source revision.",
+  "circle_pair": {
+    "01_core/src/compiler/stdlib/shapes/ellipse.rs": "72803caa979acf261d9af8af1e7b991e04bb063a07d72cad785985c0fcb194a8",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md": "9f4dcf8c5686c963e645db07f90ba56b4e62017c5e0e7af802aef5d212ad49d4"
+  },
+  "binaries": {
+    "product": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+      "sha256": "7f40c742ee6bb6829afec052c32be904db34faf42aea846b299d57744df486df"
+    },
+    "oracle": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+    }
+  },
+  "cases": [
+    {
+      "expression": "circle(radius:auto)==circle(radius:0pt)",
+      "results": {
+        "product": {
+          "command": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "circle(radius:auto)==circle(radius:0pt)"
+          ],
+          "exit": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        },
+        "oracle": {
+          "command": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "circle(radius:auto)==circle(radius:0pt)"
+          ],
+          "exit": 0,
+          "stdout": "false\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "expression": "circle(radius:auto)==circle(radius:0)",
+      "results": {
+        "product": {
+          "command": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "circle(radius:auto)==circle(radius:0)"
+          ],
+          "exit": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        },
+        "oracle": {
+          "command": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "circle(radius:auto)==circle(radius:0)"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: expected length or auto, found integer\n  \u250c\u2500 <input-expression>:1:35\n  \u2502\n1 \u2502 circle(radius:auto)==circle(radius:0)\n  \u2502                                    ^\n  \u2502\n  = hint: a length needs a unit - did you mean 0pt?\n\n"
+        }
+      }
+    },
+    {
+      "expression": "circle(radius:auto)==circle(radius:0.0)",
+      "results": {
+        "product": {
+          "command": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "circle(radius:auto)==circle(radius:0.0)"
+          ],
+          "exit": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        },
+        "oracle": {
+          "command": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "circle(radius:auto)==circle(radius:0.0)"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: expected length or auto, found float\n  \u250c\u2500 <input-expression>:1:35\n  \u2502\n1 \u2502 circle(radius:auto)==circle(radius:0.0)\n  \u2502                                    ^^^\n\n"
+        }
+      }
+    },
+    {
+      "expression": "circle()==circle(radius:auto)",
+      "results": {
+        "product": {
+          "command": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "circle()==circle(radius:auto)"
+          ],
+          "exit": 0,
+          "stdout": "false\n",
+          "stderr": ""
+        },
+        "oracle": {
+          "command": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "circle()==circle(radius:auto)"
+          ],
+          "exit": 0,
+          "stdout": "false\n",
+          "stderr": ""
+        }
+      }
+    }
+  ],
+  "utc_end": "2026-10-19T20:52:35.559489+00:00",
+  "binaries_after": {
+    "product": "7f40c742ee6bb6829afec052c32be904db34faf42aea846b299d57744df486df",
+    "oracle": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+  }
+}

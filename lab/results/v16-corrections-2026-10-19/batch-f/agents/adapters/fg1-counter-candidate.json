@@ -1,0 +1,278 @@
+{
+  "status": "Concrete occurrence and demand candidate; cache lifecycle remains measured-source blocker, no gate readiness claim",
+  "utc": "2026-10-19T20:41:21.135118+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "working_tree": "uncommitted working tree",
+  "diff_HEAD_stat": " .../prompts/core/compiler/stdlib/collections.md    |  25 +-\n .../compiler/stdlib/collections/array_predicate.md |  33 ++-\n .../core/compiler/stdlib/collections/validation.md |  41 ++-\n .../core/compiler/stdlib/counter/display.md        |  28 +-\n .../core/compiler/stdlib/foundations/selector.md   |  24 +-\n .../prompts/core/compiler/stdlib/html/attr_cast.md |  37 ++-\n 00_nucleo/prompts/core/compiler/stdlib/layout.md   |  44 ++-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  63 ++++-\n .../prompts/core/compiler/stdlib/layout/place.md   |  38 ++-\n .../prompts/core/compiler/stdlib/layout/stroke.md  |  38 ++-\n .../core/compiler/stdlib/loading/encoding.md       |  39 ++-\n .../core/compiler/stdlib/loading/yaml_encode.md    |  40 ++-\n .../prompts/core/compiler/stdlib/shapes/line.md    |  41 ++-\n .../compiler/stdlib/structural/bibliography.md     |  29 +-\n .../stdlib/structural/math_accent_tests.md         |  39 ++-\n .../compiler/stdlib/structural/math_cases_tests.md |  39 ++-\n .../core/compiler/stdlib/structural/outline.md     |  26 +-\n .../core/compiler/stdlib/structural/table_grid.md  |  36 ++-\n 01_core/src/compiler/stdlib/collections.rs         |   4 +-\n .../compiler/stdlib/collections/array_predicate.rs |   3 +-\n .../src/compiler/stdlib/collections/validation.rs  | 249 ++++++++++++++++-\n 01_core/src/compiler/stdlib/counter/display.rs     | 163 +++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |  69 ++++-\n 01_core/src/compiler/stdlib/html/attr_cast.rs      | 156 ++++++++++-\n 01_core/src/compiler/stdlib/layout.rs              |  93 ++++++-\n 01_core/src/compiler/stdlib/layout/grid.rs         | 295 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/layout/place.rs        | 195 +++++++++++++-\n 01_core/src/compiler/stdlib/layout/stroke.rs       | 154 ++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 173 +++++++++++-\n 01_core/src/compiler/stdlib/loading/yaml_encode.rs | 169 +++++++++---\n 01_core/src/compiler/stdlib/shapes/line.rs         | 165 +++++++++++-\n .../src/compiler/stdlib/structural/bibliography.rs | 137 +++++++++-\n .../stdlib/structural/math_accent_tests.rs         | 144 +++++++++-\n .../compiler/stdlib/structural/math_cases_tests.rs | 143 +++++++++-\n 01_core/src/compiler/stdlib/structural/outline.rs  | 212 ++++++++++++++-\n .../src/compiler/stdlib/structural/table_grid.rs   |  76 +++++-\n 36 files changed, 3145 insertions(+), 115 deletions(-)\n",
+  "candidate": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/fg1-counter-candidate.md",
+    "sha256": "51d950040107c6a7b0cbd3b52ca73fc52e05b15c1752388ad19564b83783190d"
+  },
+  "graph": [
+    {
+      "source": "01_core/src/entities/elements/figure.rs",
+      "source_sha256": "848750fda400acc3ef94f812f9889ec0eeba8eec4fa30b547697eaca7aa28bca",
+      "owner": "00_nucleo/prompts/core/entities/elements/figure.md",
+      "owner_sha256": "3b7f699668a76ea012f077121645522c99a61a2ff8dcf80bc70f19f1d119918d",
+      "role": "Public typed kind, lexical presence, resolved state, getters, payload and maps",
+      "review": "complete current L0 and relevant source read"
+    },
+    {
+      "source": "01_core/src/entities/element_payload.rs",
+      "source_sha256": "1b699ffced7fd5ef6d62f1869e6137e86a76717c04f2a63bcf66bf69ef522450",
+      "owner": "00_nucleo/prompts/core/entities/element_payload.md",
+      "owner_sha256": "67d7a896f9d1e26324956a6a1c6f602a696fb5b1e182e94a81aca045657304e7",
+      "role": "Public Figure payload kind",
+      "review": "complete current L0 and relevant source read"
+    },
+    {
+      "source": "01_core/src/entities/introspector.rs",
+      "source_sha256": "f48687e102c1c965257751ca273fb239d7b5edb25c87344eddac7d73eec5869d",
+      "owner": "00_nucleo/prompts/core/entities/introspector.md",
+      "owner_sha256": "1f6b53d53d061240ddbcc614836409fd492ad575ea1429a881f04929407e437a",
+      "role": "Public figure_number_at_index signature and read contract",
+      "review": "complete current L0 and relevant source read"
+    },
+    {
+      "source": "01_core/src/entities/content/construction.rs",
+      "source_sha256": "c14b1444987297949bcc733c9cce25702d86e6187b421e2a2cef0714db33aa23",
+      "owner": "00_nucleo/prompts/core/entities/content/construction.md",
+      "owner_sha256": "35437de362fe5bcc08f22216d276e809cf7bc9d96b5d4ec1debbf6b42925dc99",
+      "role": "Legacy Rust adapter; Some(\"table\") semantics change requires caller classification",
+      "review": "complete current L0 and relevant source read"
+    },
+    {
+      "source": "01_core/src/entities/content/traversal.rs",
+      "source_sha256": "2e51ef6ef43ca074904effe54cef4dee69a633e2d39e0ce74c8eb71403516554",
+      "owner": "00_nucleo/prompts/core/entities/content/traversal.md",
+      "owner_sha256": "ced51dba9414f643d6824aebc8a0537b1414a922b17dd0639aa5885d76607e69",
+      "role": "Reconstructed Figure literal must preserve lexical and prepared fields",
+      "review": "source/callsite dependency identified; full owner audit pending before implementation"
+    },
+    {
+      "source": "01_core/src/entities/counter.rs",
+      "source_sha256": "c02ff0c4a22702ebaf3e4faa289d15118163c5b8e3dc91a1d17d70d8e3f0a094",
+      "owner": "00_nucleo/prompts/core/entities/counter.md",
+      "owner_sha256": "8c0abad514013a94be8684bbf8372fb14b8421a4ca4730b0e06d4236c86acf68",
+      "role": "Existing typed key vocabulary; no new variant required",
+      "review": "complete current L0 and relevant source read"
+    },
+    {
+      "source": "01_core/src/entities/counter_registry.rs",
+      "source_sha256": "e452dbabed4a8bf29cebd23f1799cccdc0163d03af4d70e111a4ae490c32b54f",
+      "owner": "00_nucleo/prompts/core/entities/counter_registry.md",
+      "owner_sha256": "445636432bb5197d31db033fd3aab481d60ca308c773655445bd9cae58a70eaa",
+      "role": "History indexing includes manual events, not only Figure occurrences; reference dependency",
+      "review": "source/callsite dependency identified; full owner audit pending before implementation"
+    },
+    {
+      "source": "01_core/src/entities/func.rs",
+      "source_sha256": "6ad351d724f603ed5bfa363526ee6e2eb0d4a8810e9cd8cfe49e166c67dd0536",
+      "owner": "00_nucleo/prompts/core/entities/func.md",
+      "owner_sha256": "eb79d3e83a6d9c5abe69ec7b0c2df5c213efd8f5d6135fc48671d1fb041cb717",
+      "role": "Rust native equality/hash use names; cannot substitute for canonical element identity",
+      "review": "source/callsite dependency identified; full owner audit pending before implementation"
+    },
+    {
+      "source": "01_core/src/compiler/introspect.rs",
+      "source_sha256": "04098adc4885d0c6b6782dcec131953cd31b6f0957d00da3f75bbd3a7407037f",
+      "owner": "00_nucleo/prompts/core/compiler/introspect.md",
+      "owner_sha256": "7227e91fab350cda912d8c1f1bd6c1abd4794b87d08f60bf82b12b1eddb74626",
+      "role": "TagIntrospector storage and test fixtures; phase coordinator requires further full audit",
+      "review": "source/callsite dependency identified; full owner audit pending before implementation"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/populate.rs",
+      "source_sha256": "b1f965205be24b35268ad2d91ae01001942905628c3b413b7cc265bab167a27e",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/populate.md",
+      "owner_sha256": "6afbfcc79c5626d3482090e3ea008d4b519712b065e2a9c3cf1b15d516b60a18",
+      "role": "Automatic Figure events, typed key materialization and labels",
+      "review": "complete current L0 and relevant source read"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/queries.rs",
+      "source_sha256": "6e28412fb1e356511db4c60c97385a1ab41366f59bd12f970bbd528796d21111",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/queries.md",
+      "owner_sha256": "1035c451358b111abc1be6357f7fc045fd97e6cd6853c309e79ed7914b527c7e",
+      "role": "Only core trait implementation; occurrence-index-to-Location then prefix read required",
+      "review": "complete current L0 and relevant source read"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/from_tags/counter_updates.rs",
+      "source_sha256": "d5d181b2e47e4249474329064021895db4dee26f95b6b409875efe9c125674de",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/from_tags/counter_updates.md",
+      "owner_sha256": "516ca4d4f5e6cbe095ad45b77d2207bfc4a435da4234f155e3974ce74cb2f962",
+      "role": "Demanded filtered fold with engine; whole-log Func execution",
+      "review": "complete current L0 and relevant source read"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/labelled.rs",
+      "source_sha256": "3d3776d02f64151b460d91a2ff01b7592888fc31d75ba965042e0ca6750bf1a1",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/labelled.md",
+      "owner_sha256": "52181daaddda31d2728e90bd3cb5b240d382a0862c1e2cf138bbc47ec2a04900",
+      "role": "Compatibility reference projection and supplement",
+      "review": "complete current L0 and relevant source read"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/materialize_time.rs",
+      "source_sha256": "bb308683e835bc2ceb31b83bc3159e544b4b1954bbc0e9248c5550208dcd95b0",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/materialize_time.md",
+      "owner_sha256": "0b0666c90912f7f6ed8ff5057c882f5e2df9bdc8df1c5c6fdab380f064c78d63",
+      "role": "Current legacy Content::figure reconstruction would lose prepared state",
+      "review": "complete current L0 and relevant source read"
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/counter/filtered_reads.rs",
+      "source_sha256": "fafe8489b4424fcca2ac3cc7a1dc89095c9d9c7a1ec3e7193cc8484a99cf9bb1",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/counter/filtered_reads.md",
+      "owner_sha256": "eb2acbe128e9df2cd333aafdd88da9ebec7eb0d0a9087bc99514517576564786",
+      "role": "Existing filtered counter demand path must agree with caption/reference reads",
+      "review": "complete current L0 and relevant source read"
+    },
+    {
+      "source": "01_core/src/compiler/layout/figure.rs",
+      "source_sha256": "643698bd6651f997607226a373107797b0b2c9ff3b2254c2ecbcf9d20475adc7",
+      "owner": "00_nucleo/prompts/core/compiler/layout/figure.md",
+      "owner_sha256": "686be4e94d851472c00638523dc8f279dd613d92d62a92f359b0396d0de6b093",
+      "role": "Only productive index-method caller; local ordinal counts Figure occurrences",
+      "review": "complete current L0 and relevant source read"
+    },
+    {
+      "source": "01_core/src/compiler/layout/references.rs",
+      "source_sha256": "3585dcfa343276500caedfe51392db1e21e3afd9fe2f43d7b8b9f88c2a669616",
+      "owner": "00_nucleo/prompts/core/compiler/layout/references.md",
+      "owner_sha256": "eb7adaa0f3b24e914142ba235a494bd66d4fe42ba8c4abcb6b776a7d9fdd3f0e",
+      "role": "Reads flat_counter_at; Selector::Element has no implicit supplement under current L0",
+      "review": "complete current L0 and relevant source read"
+    },
+    {
+      "source": "01_core/src/compiler/lang/figure_supplement.rs",
+      "source_sha256": "d9bd4fcac3e4971d39f419e5e2faea6abbee3f46e7c03042995b801381ee23cb",
+      "owner": "00_nucleo/prompts/core/compiler/lang/figure_supplement.md",
+      "owner_sha256": "090c415f2cd0c3254e30d17e63f303f772aced22b6b01c880809534183a32e89",
+      "role": "Existing string helper conflates names with element kinds if reused directly",
+      "review": "complete current L0 and relevant source read"
+    },
+    {
+      "source": "01_core/src/compiler/layout/mod.rs",
+      "source_sha256": "e6dcb9ee79571269d653e30059922f8df10ea90f1e695adb3c82f573394a1718",
+      "owner": "00_nucleo/prompts/core/compiler/layout/mod.md",
+      "owner_sha256": "611d51e002a593584e1132e0e86299436581e9bdd67e4ca3cf467b66211df0b8",
+      "role": "Private figure_progress key storage; owner integration audit still needed",
+      "review": "source/callsite dependency identified; full owner audit pending before implementation"
+    },
+    {
+      "source": "01_core/src/compiler/layout/checkpoint.rs",
+      "source_sha256": "19afb29c7f78481deebdb92c592cfa43aeeee2a71a4136953c1da7595af7735c",
+      "owner": "00_nucleo/prompts/core/compiler/layout/checkpoint.md",
+      "owner_sha256": "2b1328e0b8c3340d321bbefe6a3de88c365157103b413393b76cf23bd0fabe88",
+      "role": "Capture/restore same typed progress state without recomputation",
+      "review": "source/callsite dependency identified; full owner audit pending before implementation"
+    },
+    {
+      "source": "01_core/src/compiler/layout/measurement.rs",
+      "source_sha256": "bc77edbfff74f9a1c1191c54b9a2af8d00124bb2d47fece2b06a24e2f35c0377",
+      "owner": "00_nucleo/prompts/core/compiler/layout/measurement.md",
+      "owner_sha256": "148f198548bb4f44b66a373ba74049a4bfff1544d540bcdc236dae2f18fc0727",
+      "role": "Test Figure literal and progress assertions",
+      "review": "source/callsite dependency identified; full owner audit pending before implementation"
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "source_sha256": "1d042c973122153a7fae351a3f48c50a9dc78850a2b7d3b59baf8c3c2be783b8",
+      "owner": "00_nucleo/prompts/core/compiler/layout/tests.md",
+      "owner_sha256": "497062302a0451fa89081d9169241aab0914a89a846e4408ad2e74eabb034628",
+      "role": "Test callsites and Figure fixtures",
+      "review": "source/callsite dependency identified; full owner audit pending before implementation"
+    },
+    {
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "source_sha256": "95571a725ba40187cc4c4d400943e540824eef849e2e714af42ba3804dbfcf76",
+      "owner": "00_nucleo/prompts/core/compiler/eval/observation/elements.md",
+      "owner_sha256": "82b7c45eb12dabd125e7993c41fab228955b3f45d02a812001db0a032f1ec49a",
+      "role": "Exhaustive Figure comparison must preserve lexical/prepared distinction",
+      "review": "source/callsite dependency identified; full owner audit pending before implementation"
+    },
+    {
+      "source": "01_core/src/compiler/eval/operators/equality.rs",
+      "source_sha256": "7d144440b68b575917dcad808e64a81f346d0e6e5dadf4017df5f3bf58f5fa67",
+      "owner": "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+      "owner_sha256": "e3850222a8d1fdb50b596af41ce45f58eade7e74e2e33aa9d84ae06af83f660c",
+      "role": "Language selector/key equality boundary; no hash-only identity proof",
+      "review": "source/callsite dependency identified; full owner audit pending before implementation"
+    },
+    {
+      "source": "03_infra/src/measurements.rs",
+      "source_sha256": "32854be1db01519e8162710e542540ca3bbbad5a0a33c8758b0a352fe4ca3f5c",
+      "owner": "00_nucleo/prompts/infra/measurements.md",
+      "owner_sha256": "2ab6c9d8790126f5e2a7822a766dfa7815ca5b0e3250935ddadfb736f196efa8",
+      "role": "Only L3 trait implementation; forward typed argument and retain method counter slot",
+      "review": "complete current L0 and relevant source read"
+    },
+    {
+      "source": "03_infra/src/integration_tests.rs",
+      "source_sha256": "8d2679dee4b0058f82c84fa250d0249e4ad305a5c5f9639c6998944b1bdf21ff",
+      "owner": "00_nucleo/prompts/infra/integration_tests.md",
+      "owner_sha256": "391f86ec54a3e7f007cd80f0220aa8e692b934f0bb12070f8cc9b12ee15e7f6d",
+      "role": "Public trait direct-call fixtures at lines 1538\u20131539",
+      "review": "test callsites identified; full owner audit pending"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/entrypoints.rs",
+      "source_sha256": "48acdc750721560446ecd2d3035477a9f2ed942532e5557d212407db707b0f59",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/entrypoints.md",
+      "owner_sha256": "0aba9ba24a91e6c49178792fc664cc470532b4e505bcd2ef64d4b990a42324aa",
+      "review": "Source boundary inspected; complete current L0 audit pending before choosing cache lifecycle"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/fixpoint.rs",
+      "source_sha256": "bd927f97fd1526ea3fa47627d480e0a16c05c0d70ed2209a863d7c129397d04f",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/fixpoint.md",
+      "owner_sha256": "317a74cbf7ba8ec2fbe190d953004e2d1ddb3eff28392fececd91f30d6158d13",
+      "review": "Source boundary inspected; complete current L0 audit pending before choosing cache lifecycle"
+    },
+    {
+      "source": "01_core/src/compiler/introspect/from_tags.rs",
+      "source_sha256": "4217f2f852ef1b273ce89e23346e0702ba81e5e29a8a2430b97fa1dc71639596",
+      "owner": "00_nucleo/prompts/core/compiler/introspect/from_tags.md",
+      "owner_sha256": "297caa54fd59f8c81df2ad52777312b6fa8582e5fe1f5af46a1333b951a42af7",
+      "review": "Source boundary inspected; complete current L0 audit pending before choosing cache lifecycle"
+    },
+    {
+      "source": "01_core/src/compiler/eval/context_reads.rs",
+      "source_sha256": "5589d056fd9fa8a7f40e44de568a2e477e9f184af089b1cff93b3df0a800c830",
+      "owner": "00_nucleo/prompts/core/compiler/eval/context_reads.md",
+      "owner_sha256": "e5302d0b67eec36f506c53563437857b9a387ed33207d4b6e3ccc2bce575d4c3",
+      "review": "Source boundary inspected; complete current L0 audit pending before choosing cache lifecycle"
+    },
+    {
+      "source": "01_core/src/compiler/eval/mod.rs",
+      "source_sha256": "623864ffcaf4376804814898c1f8430b2f746acf7811dd6086ec227f2cc04b08",
+      "owner": "00_nucleo/prompts/core/compiler/eval/mod.md",
+      "owner_sha256": "e505b412d22f90dc4d3ab9025e7493eda456eaacb0eaf3a37a5f0608a4cc4114",
+      "review": "Source boundary inspected; complete current L0 audit pending before choosing cache lifecycle"
+    },
+    {
+      "source": "01_core/src/compiler/realize/mod.rs",
+      "source_sha256": "b52e91f0671b9392a2f81f2cc21fa32d7ce37b5439e9ed343746dd47ce7a67fd",
+      "owner": "00_nucleo/prompts/core/compiler/realize/mod.md",
+      "owner_sha256": "719ab0775feb90887125ed88f602527a3812aba18a0afaff90e399590d163717",
+      "review": "Source boundary inspected; complete current L0 audit pending before choosing cache lifecycle"
+    },
+    {
+      "source": "01_core/src/compiler/eval/rules/outline.rs",
+      "source_sha256": "dfdcf1d8d81d69d48287b5a1c4f79ed1dd4a4cb3ee62ee22e7d2b9832f975080",
+      "owner": "00_nucleo/prompts/core/compiler/eval/rules/outline.md",
+      "owner_sha256": "a4658e1c555860708354009acdd77c2fa39dbbc8392f10e38372245bc0aa0507",
+      "review": "Source boundary inspected; complete current L0 audit pending before choosing cache lifecycle"
+    }
+  ],
+  "inputs": {
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/fg1-review.json": "be4af89daeabacb77d52321a7edca1143a40d738e9d10a5b14736598dac2dc60",
+    "lab/results/v16-corrections-2026-10-19/batch-f/fg1-proposal/design-draft.md": "9f6c13c6809dde107f8591045e6fe68376474ee389dca37185c0f754fa758245",
+    "lab/results/v16-corrections-2026-10-19/batch-f/fg1-proposal/readiness.md": "99023251e5e8c1c454ed696fa9b876c3db1e2659377daa9f03f88cc1422408a5",
+    "lab/results/v16-corrections-2026-10-19/batch-f/fg1-proposal/oracle-boundaries.json": "63cfc4bae267feb6423661c1aeb0261b655c35b707aaebbd27ebc11f26b29d64"
+  },
+  "active_changes": "none",
+  "runtime_measurements": "none; source review and already archived oracle evidence only"
+}

@@ -1,0 +1,165 @@
+{
+  "utc": "2026-10-19T20:18:49.669245+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "diff_head_stat": "",
+  "read_sha256": {
+    "01_core/src/compiler/stdlib/html/attr_cast.rs": "c8fa5f3325111706de4f9800c6481491c0b5983c1d8645e3bf3bb20b271f9daf",
+    "00_nucleo/prompts/core/compiler/stdlib/html/attr_cast.md": "229d9e9efe54e796817ec2fb25f942598beee1683bd9fe85d69dc53f8bfd3d9e",
+    "01_core/src/compiler/stdlib/layout/stroke.rs": "8058dd56102805d8fc066068c79879cbd634d0ccbe504ed5c185b68097ce73c9",
+    "00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md": "14a1e13df5ab55d98c6b65041c2da749882ea7dc3fdbe87857744fd750764b14",
+    "01_core/src/compiler/stdlib/layout.rs": "6056b757e6466b8c0bae6a9b5f27623769455596f8da5f6836b506dd8b0a5b99",
+    "00_nucleo/prompts/core/compiler/stdlib/layout.md": "b3e3d9e06e9921db079590ae80a48cf22a7d137d35c797f219359695ca240f64",
+    "01_core/src/compiler/stdlib/loading/encoding.rs": "4463c1c34d091528d502e9fea430feed1797728e1d9526f942bef96e61131be3",
+    "00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md": "c4f2644cca860d57c0e584eb5c9beb1915ba051b543ae3f9eb29f79d469dfe83",
+    "01_core/src/compiler/stdlib/loading/yaml_encode.rs": "e315712190c18aca3b0a03e58ce9b2619d55577bbba4911bf4e0ff1dd7382b65",
+    "00_nucleo/prompts/core/compiler/stdlib/loading/yaml_encode.md": "154662ee329df40b78f14c4976921e288ebeeb88017d579c64d16e72a746a49c",
+    "01_core/src/compiler/stdlib/structural/math_accent_tests.rs": "3bcf8fc1c31fce76a1048cf4945bcf1d551090f6182a0700ae5043a0be3af8ea",
+    "00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md": "b84bd592c31fc30103abe7696a469a1e6396436799bb1e091b64d91376978010",
+    "01_core/src/compiler/stdlib/structural/math_cases_tests.rs": "add6d202dc47196a03b30c231c805a6a1d1ef75565df9216b804682e4f417b82",
+    "00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md": "e3564a1aa018323f80094f801bd5695a27d14475d40c76151f828c478ec025a3"
+  },
+  "classification": "continuous-flow internal nominal coverage; no semantic change is currently justified",
+  "sites": {
+    "V16-057": {
+      "file": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+      "function": "cast_attr",
+      "scrutinee": "value under AttrKind::OnOffOrNoneOrEnum",
+      "handled_variants": [
+        "Bool",
+        "None"
+      ],
+      "guard_or_payload_residuals": [],
+      "observed_source_behavior": "Bool\u2192on/off, None\u2192none, Str must be an allowed token; all other types are sent to require_enum and rejected, not accepted by fallback.",
+      "complement_rationale": "The delegated fallback is a string-union validator, not a neutral default. Preserve Str allowed/invalid token split and exact wrong-type diagnostics; never route new Value variants to success automatically."
+    },
+    "V16-058": {
+      "file": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+      "function": "cast_attr",
+      "scrutinee": "value under AttrKind::PresenceOr",
+      "handled_variants": [
+        "Bool"
+      ],
+      "guard_or_payload_residuals": [],
+      "observed_source_behavior": "Bool true\u2192empty attribute, false\u2192omit, Str must be an allowed token; all other types are sent to require_enum and rejected, not accepted by fallback.",
+      "complement_rationale": "The delegated fallback is a string-union validator, not a neutral default. Preserve Str allowed/invalid token split and exact wrong-type diagnostics; never route new Value variants to success automatically."
+    },
+    "V16-061": {
+      "file": "01_core/src/compiler/stdlib/layout/stroke.rs",
+      "function": "native_stroke::dash_item",
+      "scrutinee": "value: &Value",
+      "handled_variants": [
+        "Length",
+        "Str"
+      ],
+      "guard_or_payload_residuals": [
+        "Length with !(abs>=0) ->None",
+        "Str != dot ->None"
+      ],
+      "observed_source_behavior": "Only Length with abs>=0 and exact string dot become a DashLength; None from any failed item propagates through collect and the outer native emits its existing dash diagnostic.",
+      "complement_rationale": "Guard-false Length and non-dot Str are actual rejected states, not two nominal successes. Current abs/em/nonfinite behavior must not be silently changed. Refusal is validation, never an omitted dash item or default."
+    },
+    "V16-062": {
+      "file": "01_core/src/compiler/stdlib/layout.rs",
+      "function": "extract_alignment",
+      "scrutinee": "each positional Value",
+      "handled_variants": [
+        "Align",
+        "Str"
+      ],
+      "guard_or_payload_residuals": [],
+      "observed_source_behavior": "Finds first Align/legacy Str and defaults if absent, ignoring body and other non-alignment values.",
+      "complement_rationale": "Content body is deliberately a negative alignment candidate: refusing the whole call on this complement would break omitted alignment. This function is a search projection, not the full public argument validator. Preserve first-match and legacy string conversion."
+    },
+    "V16-063": {
+      "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+      "function": "textual_content_fields",
+      "scrutinee": "normalized Content when no authoritative snapshot",
+      "handled_variants": [
+        "Empty",
+        "Sequence",
+        "Metadata",
+        "Styled",
+        "Link",
+        "Boxed",
+        "Block",
+        "HtmlElem"
+      ],
+      "guard_or_payload_residuals": [
+        "Source/ShowRecipe/Located/Realized impossible at this normalized match",
+        "No direct-schema arm means delegation, not no-op"
+      ],
+      "observed_source_behavior": "Fallback continues to eval_content_method(fields); it does not erase content or accept a blank result. Success must be Dict, otherwise error. A Some snapshot bypasses reconstruction entirely.",
+      "complement_rationale": "Explicitly implemented legacy field schemas differ from general getter-backed projection. Remaining public elements must continue delegated fields, including Raw/caption presence, without synthesizing defaults. Source/ShowRecipe/Located/Realized are normalized out before this match and cannot be blindly redelegated as public wrappers."
+    },
+    "V16-064": {
+      "file": "01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+      "function": "write_yaml_value",
+      "scrutinee": "value: &Value",
+      "handled_variants": [
+        "Array",
+        "Dict",
+        "Content",
+        "LocatedContent",
+        "Str",
+        "Symbol"
+      ],
+      "guard_or_payload_residuals": [
+        "Array empty -> inner []",
+        "Dict empty -> inner {}"
+      ],
+      "observed_source_behavior": "Outer fallback sends scalars/empty containers/opaque values to an inner scalar-or-repr match; None is null, Bool/Int/Float preserve exact YAML tokens and opaque values use canonical serialization repr.",
+      "complement_rationale": "Nonempty Array/Dict are guarded; their empty values deliberately enter scalar []/{} branches. Existing Str/Symbol/Content paths cannot reach the inner repr fallback. Flattening must preserve signed zero, nan/inf, newline/quote/indent/error behavior, not apply repr universally."
+    },
+    "V16-068": {
+      "file": "01_core/src/compiler/stdlib/structural/math_accent_tests.rs",
+      "function": "find_accent",
+      "scrutinee": "content: &Content in test-only target finder",
+      "handled_variants": [
+        "MathAccent",
+        "Equation",
+        "Styled",
+        "MathDelimited",
+        "Sequence",
+        "MathSequence"
+      ],
+      "guard_or_payload_residuals": [],
+      "observed_source_behavior": "Finds MathAccent through a narrow set of wrappers and first matching sequence child; None causes the calling eval helper to panic on missing target, not report success.",
+      "complement_rationale": "This is a test observation boundary. Unsupported leaves can legitimately lack the target, but Source/realization/new math wrappers may hide it. Do not widen traversal to arbitrary descendants that could find an unrelated target and weaken the oracle. Classify intended fixture wrapper routes first; preserve missing-target failure."
+    },
+    "V16-069": {
+      "file": "01_core/src/compiler/stdlib/structural/math_cases_tests.rs",
+      "function": "find_cases",
+      "scrutinee": "content: &Content in test-only target finder",
+      "handled_variants": [
+        "MathCases",
+        "Equation",
+        "Styled",
+        "MathDelimited",
+        "Sequence",
+        "MathSequence"
+      ],
+      "guard_or_payload_residuals": [],
+      "observed_source_behavior": "Finds MathCases through a narrow set of wrappers and first matching sequence child; None causes the calling eval helper to panic on missing target, not report success.",
+      "complement_rationale": "This is a test observation boundary. Unsupported leaves can legitimately lack the target, but Source/realization/new math wrappers may hide it. Do not widen traversal to arbitrary descendants that could find an unrelated target and weaken the oracle. Classify intended fixture wrapper routes first; preserve missing-target failure."
+    }
+  },
+  "open_obligations": [
+    "named dash negative and empty-array rejection differs from upstream accepted casts; do not silently repair in nominal batch",
+    "named dash stores abs component and loses em; accepted infinity unchanged pending wider carrier/cast scope",
+    "align L0 mentions Str body but implementation searches Content only; no new acceptance claim",
+    "full generic Content fields remains bounded by existing strict projection; E constructor marker and Some snapshots must remain exact"
+  ],
+  "test_manifest": "tests.json",
+  "structural_manifest": "structural-targets.json",
+  "baseline_probes": [
+    "baseline-probes.json (HTML feature disabled setup only)",
+    "baseline-enabled-probes.json",
+    "baseline-html-projection.json"
+  ],
+  "additional_open_obligations": [
+    "HTML invalid token/type errors omit accepted bool/none alternatives from message union; attrs textual encoding correct while direct fields() currently empty",
+    "Align direct fields() currently empty; legacy strings and extra arguments accepted unlike oracle",
+    "YAML sequence block scalar uses different indentation but must judge decoded YAML; nominal rewrite preserves current public string",
+    "math repr has known body/carrier formatting and implicit block differences; finder tests retain existing target observations, no whole-repr parity claimed"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-19T20:46:07.998514+00:00",
+  "previous_package": "lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/circle-deferred/proposal-before-auto-origin-review/package-manifest.json",
+  "previous_package_sha256": "b64cbff5a4b42a9d39a3a80637868c9b98eb2270d33ce478eecfd602adb67682",
+  "changes": [
+    "Specify canonical Auto zero Length carrier and same-circle identity preservation controls; do not silently change unresolved default semantics.",
+    "Specify native-produced Circle origin implies Ellipse geometry, public manually inconsistent structs outside certified domain."
+  ],
+  "productive_changes": false,
+  "new_measurements": false,
+  "measurement_note": "This revision chooses the explicit preservation contract; before/after runtime controls remain implementation gates, not claimed completed measurements."
+}

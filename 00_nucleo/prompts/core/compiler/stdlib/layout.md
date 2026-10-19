@@ -1,5 +1,5 @@
 # L0 — stdlib/layout — layout façade and alignment
-Hash do Código: 7995e65e
+Hash do Código: 23c8b00d
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/layout.rs`
@@ -61,3 +61,45 @@ Page controls cover paper/body, isolation, empty/multipage/config restore, every
 Require meaningful RED→GREEN and bilateral probes, valid V15/V26 before restricted owner resealing, build/full L1/workspace/all-target checks, strict Clippy/Rustdoc/fmt and strict/reverse lineage. Preserve negative cases, tolerances and test inventory. No new public signature/default/phase/compatibility is authorized beyond explicit receipts. Block's public approval gap, RM1 relative casts, fractional Box render, Repeat flow, generic measure runtime queries, rich side paint and diagnostic debts remain pending. Existing certificates prove only their measured regions/render scopes, not universal behavior or performance; do not resurrect superseded stubs or declare all scopes closed.
 
 The complete original is archived at `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/compiler/stdlib/layout.md`.
+
+
+## Closed decision coverage
+
+### Measurement before decision
+
+At HEAD `91ea6ee91105b97b1aedf172e34780dddde14c94`, the source/owner hashes
+and exact inspection state are in
+`lab/results/v16-corrections-2026-10-19/batch-f/agents/encoding/read-only-audit.json`.
+The baseline binary build and UTC-stamped bilateral commands/output are retained
+in `lab/results/v16-corrections-2026-10-19/batch-f/agents/encoding/baseline-enabled-probes.json`;
+the separate HTML textual projection receipt is `baseline-html-projection.json`
+in that directory. The initial feature-disabled HTML run is setup evidence only.
+The oracle is pinned to commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`,
+tree `cac836c07e4dec2a89219370428292393a3216b5`, binary SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+These observations do not infer upstream intent or certify unrelated parity.
+
+`layout.rs:117–127` selects the first Align or legacy Str and ignores other
+values; native_align separately selects the Content body. Probes show accepted
+legacy/extra arguments and general fields differ from the oracle. The earlier
+Content/Str body description is not evidence that native_align accepts Str body:
+the observed Content-only search remains an explicit unresolved contract gap.
+
+### Decision and acceptance
+
+Close extract_alignment over Value, preserving first-match and supplied default.
+Every non-Align/non-Str variant is search-neutral, including the required Content
+body; do not turn this helper into an argument validator. Tests must discriminate
+body-only/default, earlier neutral candidates, competing Align/Str ordering and
+legacy conversion. Existing native-align tests and source probes retain body and
+errors. Future variants require a local exhaustiveness decision. This internal
+ADR-0127 correction adds no acceptance of new public arguments and does not close
+legacy-string, extra-argument, body-Str or field-reflection obligations.
+
+The current fallible Grid/Table track conversion is owned by the grid and table
+prompts. `lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-eval/receipt.json`
+and pinned upstream `layout/grid/mod.rs:455–463` support rejecting malformed
+non-dimensional track entries rather than silently dropping them. Preserve
+columns-before-rows validation and named-value spans; the facade retains static
+delegation only. Ratio/Relative omission or truncation remains the explicitly
+recorded carrier debt and is not replaced by rejection or claimed resolved.

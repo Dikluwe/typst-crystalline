@@ -1,0 +1,376 @@
+[
+  {
+    "utc": "2026-10-19T20:24:46.993131+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/stdlib/collections.rs",
+        "before": "187ceb8b8708a29a5b4b723791955353e574aba3028d05bde67a7ac9be5c88c9",
+        "after": "95e8c5ad75bd5c22e7754ea3094a70deac25dbb5e852fc6c5b961c041e56febd"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/layout.rs",
+        "before": "04bea0ca9a0a6edb1b87ca6f311619a8b78b3bb600b4345062c1311b3718da26",
+        "after": "34322bcf8d6e58fde75c8e589636a300f8886f4cd196bf11e40f9f1017bcf534"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/foundations/selector.rs",
+        "before": "c908692993b533743bf61f360cce21b9087a1648658b38343f350fb30fba4da0",
+        "after": "e54a7f1d37690cf97f156d45f5b0ed95f4d38454f0f821ea9e9c95a6c21931bc"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/structural/bibliography.rs",
+        "before": "988a837c271bebd9646d37e34be2103d1feb789c19858ca0d51bd62e321180a9",
+        "after": "a1c9c72a1c6495ce5c297e95d18b4b8f2c1b410131565f13b15c53a33fa3b432"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/structural/math_accent_tests.rs",
+        "before": "70546331651b9d7a8a6a9dceff1d69fdbafa3d0d7bdbb58f18cc29e8593f94fa",
+        "after": "3df1ce67118ea9b0c1784bf10d18d5f0e0bb90c8796ebb0968e48ce39c3b3afc"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/structural/math_cases_tests.rs",
+        "before": "5530b1dbdba3f357eaeac1070500ff36e37a0917ad5ddb8b26dc884e1ace41d7",
+        "after": "40623ea6193f038628046f0da9a3a36fbc6645ba220cba759593e874d2a652d1"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/structural/outline.rs",
+        "before": "0039c983d82f36a0149c15079f47cd60cd43ee09f6c9480d7850dc671abd8f5f",
+        "after": "64b39299edd602c168facb10fc332c1cdfca3e6548b66ac47805ca76c31780be"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+        "before": "57f72723da1d3db59ffa52a23380622b2e762b1958121507b8b8c30a50445c84",
+        "after": "a61243d89b8aa2f32d2bc1508f1d97905a3c5cb7eea29872fa0d69915f1b7f98"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+        "before": "3242fd0be4043eb47b64432279958e8cabc7cc291ee9b2f6e2dd5bfd6c587aa1",
+        "after": "ab9ca1bc9fccfbd5661d17bc13dc5ec4c52869f92de1645c9deb94aba8a0c225"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+        "before": "627f19beae31658d777168fbd8aba673781611c3e3f9e10715aa7d3e8f4eec5d",
+        "after": "5cffa4bda73e7ad5e3bb169da93bc556cdcd4f982b239f7145a08c4293bf986b"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/layout/grid.rs",
+        "before": "6f5e30a16dfd46e1f6b44352750561fee3aba09b1c6eb61ec2846369496d2ecf",
+        "after": "183d86897e756974483effc28e5b823edf2e5c6b1e2976a24229f3dcbbb1be9b"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/layout/place.rs",
+        "before": "22e1e2a21a0d007beee4350d7c154ace8a7de1baf9a0740f9de3f84b57769374",
+        "after": "1dfaafa5a29efe9522c3e79d3dbe6987452211141ca19a2f0daf7fc3292f9630"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/layout/stroke.rs",
+        "before": "06f1564a5f7d98bedc57414b13d1b1d864fead56c8909d0d5656cd102ae9a49f",
+        "after": "8ea02d5cbdb62dedaa70376d9e9915910371861f34b2973d08971ec6679379ef"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+        "before": "68ec475ac82eddf1593f5b4e608940d301053151fadeecce3cbb8dd8564589ae",
+        "after": "fcbe74bad597f24873ff3b77ca80d5ed7b42b89e96aadee16b94f5d056db43b3"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+        "before": "8fe495888dc6c19062810d0c3a51f51f369935da2589e18dc81a50e13df2ba01",
+        "after": "2409aaba7add2afc4dc840f4b99455d3e568aa79109af7a5cec4701939dde2b4"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+        "before": "3cc6b6e2b9ff0517010866224cc11523d07a596865ce4763a7cee3a9fda72f01",
+        "after": "5143b1b59684770daa959110fd64562500005d8b005b55697208b184ae9f3cb6"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/shapes/line.rs",
+        "before": "17c67f9b75b3b51161cff5e1c93896c66f84fa9c0c04efd029add281762ccf67",
+        "after": "63290a77243ef4dc4d4dcbe3e56f8ac465ab11df6fed98222843872ec8d08ba5"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/counter/display.rs",
+        "before": "9f080858e19d696686618d6fb45101991bda68b01b5715efb9c3a42b71078606",
+        "after": "c77ad1d9300ef923517a4ac716ce6636a28c4ca4e881f2b3838b1b572287d518"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/collections.md",
+        "before": "83df0a3d74455e4e8ba4b97c536b061baa898d910e9fbdc5e9cc55666540ae1c",
+        "after": "4565d263d1dfb761b2f33bd9df2c8f3f9f8e8cf5b265913214e502f702c76065"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/layout.md",
+        "before": "c971d7a015771be9c6f1fc37f1e9cf4af5c864213dd3014f217456599189209b",
+        "after": "620e5ded7b756d1a157b4a36c980308fccb00378e43527ff01d0c9ea2b6e6861"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/collections/validation.md",
+        "before": "d0270f8f37f71606c7328075b6d9905d18c4fefdf92890926c86839809386ffa",
+        "after": "b786efc58db15c3998aa1be030b7fba99a147efe0c745091a26b239b78870ade"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/counter/display.md",
+        "before": "b3937a2d8ac56cb72c6e18d89b977392bf2ed2ef4c213539e65ab294318ca0bf",
+        "after": "1aed460147090ef96128959a2a78b861f3569cc8525669cd26964e121982bf02"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md",
+        "before": "00ec6ba4b19a2221f8697c6400064f1292ab06a6003592c6448eb21eb951bb75",
+        "after": "e69b6453915cf07a9a19ef533982c52ab87c714dc810d8824c7ac26f632d53ad"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/html/attr_cast.md",
+        "before": "8d842dbd1aba99ba461f29df57ff2b930c073139711f572341a1d2b378ceab94",
+        "after": "ee21c578a00211ab1d13d7417abb4e1331251f2f5cdfe09a72cfbcad36973003"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/layout/grid.md",
+        "before": "c9b15f9d8a601c54f3be62b1bc35db5a8188d7db5a132ecf69f6def4260d4b23",
+        "after": "786777bbd240fc976f7acd863895131eb5c738f054a3a0e42d7c671ec1675ad2"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/layout/place.md",
+        "before": "09bed871e29141077e7ff331c5186667257dfb9932b798516020b27908505af5",
+        "after": "e585267a316264652fd39e1fbc9a863bb788f3ba6465579f0820dadc9c68ae1c"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md",
+        "before": "3a68752306e9221bc5126b8a237dbc6611e8df178c617808b4660fd3bb5b0653",
+        "after": "a454c5d4fc426f0a22dfea5a1459f00c85b377d3ab0ca90d070a62cf51c6e3b3"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md",
+        "before": "1f689e1ecb5a7b94886dd0e2c5ba8b0bb9b0096635a846feadfa7c2e6c1c05b2",
+        "after": "93967ddd3a332310b2ecd46da1ded86d56a74dec7dd981679cf47a1e3125ea78"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/loading/yaml_encode.md",
+        "before": "2518a6d66d0f3aece1b95d370158a6a6c1e2a4f2a758c96378f6b3c493befa63",
+        "after": "54d9f882e6e0514ecd21fa9e88a39a308c297b82123850bbbd4245fe94a55213"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md",
+        "before": "2c719396be835c962fa59795af7fe0bf50a022db08421aac9c1cd9400a907db5",
+        "after": "a0399fac319ff15f3ff7450bd1ee68f80f6cfed1ad56900d77609fd980edd52d"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/shapes/line.md",
+        "before": "7fcc8886bb791554990714502f5180dd01b11a46fbc4acde53b06f8518cfe63b",
+        "after": "997e16449196c447afc641bc3cd6018195af521317a946f6abc2d354c866a944"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/structural/bibliography.md",
+        "before": "a870dd615d809983a01ded08b29c3c5ea5b3e2ed647e652e643bf48226ea0648",
+        "after": "68f887871461a581b74cdbf40ea2ca00de37a9c6b03a2b2db3887d9a47bb533c"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md",
+        "before": "2ca046f4190f2f19d7bdbba4a96ce6c1eed1c607a1d2512cdbffab0dc675ee72",
+        "after": "f8f203b1e30fabb002eb9f3ee8b67b782f1c043a3b9c667838c37b943e9d197e"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md",
+        "before": "04c975af6c2e83988be54d364c6adb54a3b9c078ceea4ed7560273e3d7193e90",
+        "after": "6b5692efe63e4ff987cfa7444b2d53a37cc2cb1419fe875949dcc67cc94b5244"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/structural/outline.md",
+        "before": "4e3d2bb662152659f95391f3d519053655c3d7c8428c7675fa146ca7f2c7c702",
+        "after": "b3c9ee6e82b2e7c002d46fcf750d106f48b7e01dc248d1ab44828ed9eb45b74a"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md",
+        "before": "6731fa3297371f687fc3368b2a056bcfd11366a2f69049fb49a18f45721047f3",
+        "after": "78eb5ff2a33ac4df48cf91cd42bdd68bb936175196b0fea37624e2646756c747"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/stdlib/collections/validation.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections/validation.md hash-a=b52c30e4 hash-b=bc358a89\nApplied ./01_core/src/compiler/stdlib/collections.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections.md hash-a=a939f8ad hash-b=2d77bf43\nApplied ./01_core/src/compiler/stdlib/counter/display.rs prompt=00_nucleo/prompts/core/compiler/stdlib/counter/display.md hash-a=a36cf120 hash-b=5c92077f\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=49d1dca8 hash-b=23a99c86\nApplied ./01_core/src/compiler/stdlib/html/attr_cast.rs prompt=00_nucleo/prompts/core/compiler/stdlib/html/attr_cast.md hash-a=905a4724 hash-b=c09440e5\nApplied ./01_core/src/compiler/stdlib/layout/grid.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/grid.md hash-a=6b54697b hash-b=ea55c7a8\nApplied ./01_core/src/compiler/stdlib/layout/place.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/place.md hash-a=1d1e518a hash-b=eb030911\nApplied ./01_core/src/compiler/stdlib/layout/stroke.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md hash-a=0dffc18f hash-b=7c31bb43\nApplied ./01_core/src/compiler/stdlib/layout.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout.md hash-a=e783b0a0 hash-b=951d5558\nApplied ./01_core/src/compiler/stdlib/loading/encoding.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md hash-a=86c0befd hash-b=976b5b47\nApplied ./01_core/src/compiler/stdlib/loading/yaml_encode.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/yaml_encode.md hash-a=7f33c13c hash-b=3b8ee807\nApplied ./01_core/src/compiler/stdlib/shapes/ellipse.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md hash-a=e9530fdb hash-b=fec80b74\nApplied ./01_core/src/compiler/stdlib/shapes/line.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/line.md hash-a=e6dae452 hash-b=fc77e89b\nApplied ./01_core/src/compiler/stdlib/structural/bibliography.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/bibliography.md hash-a=a7b12005 hash-b=988946e3\nApplied ./01_core/src/compiler/stdlib/structural/math_accent_tests.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md hash-a=715e6437 hash-b=5f2f43be\nApplied ./01_core/src/compiler/stdlib/structural/math_cases_tests.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md hash-a=c5da0ed2 hash-b=a72ac5b9\nApplied ./01_core/src/compiler/stdlib/structural/outline.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/outline.md hash-a=9eedec67 hash-b=4041be81\nApplied ./01_core/src/compiler/stdlib/structural/table_grid.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md hash-a=559b1edc hash-b=4246d9ee\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T20:27:33.507988+00:00",
+    "changes": [
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/loading/yaml_encode.md",
+        "before": "54d9f882e6e0514ecd21fa9e88a39a308c297b82123850bbbd4245fe94a55213",
+        "after": "1c922cdce4095581c614a08941fa0e6357c0a117c43f858bee39d347e6c2de8a"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/stdlib/collections/validation.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections/validation.md hash-a=b52c30e4 hash-b=bc358a89\nApplied ./01_core/src/compiler/stdlib/collections.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections.md hash-a=a939f8ad hash-b=2d77bf43\nApplied ./01_core/src/compiler/stdlib/counter/display.rs prompt=00_nucleo/prompts/core/compiler/stdlib/counter/display.md hash-a=a36cf120 hash-b=5c92077f\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=49d1dca8 hash-b=23a99c86\nApplied ./01_core/src/compiler/stdlib/html/attr_cast.rs prompt=00_nucleo/prompts/core/compiler/stdlib/html/attr_cast.md hash-a=905a4724 hash-b=c09440e5\nApplied ./01_core/src/compiler/stdlib/layout/grid.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/grid.md hash-a=6b54697b hash-b=ea55c7a8\nApplied ./01_core/src/compiler/stdlib/layout/place.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/place.md hash-a=1d1e518a hash-b=eb030911\nApplied ./01_core/src/compiler/stdlib/layout/stroke.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md hash-a=0dffc18f hash-b=7c31bb43\nApplied ./01_core/src/compiler/stdlib/layout.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout.md hash-a=e783b0a0 hash-b=951d5558\nApplied ./01_core/src/compiler/stdlib/loading/encoding.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md hash-a=86c0befd hash-b=976b5b47\nApplied ./01_core/src/compiler/stdlib/loading/yaml_encode.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/yaml_encode.md hash-a=7f33c13c hash-b=15ead27f\nApplied ./01_core/src/compiler/stdlib/shapes/ellipse.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md hash-a=e9530fdb hash-b=fec80b74\nApplied ./01_core/src/compiler/stdlib/shapes/line.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/line.md hash-a=e6dae452 hash-b=fc77e89b\nApplied ./01_core/src/compiler/stdlib/structural/bibliography.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/bibliography.md hash-a=a7b12005 hash-b=988946e3\nApplied ./01_core/src/compiler/stdlib/structural/math_accent_tests.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md hash-a=715e6437 hash-b=5f2f43be\nApplied ./01_core/src/compiler/stdlib/structural/math_cases_tests.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md hash-a=c5da0ed2 hash-b=a72ac5b9\nApplied ./01_core/src/compiler/stdlib/structural/outline.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/outline.md hash-a=9eedec67 hash-b=4041be81\nApplied ./01_core/src/compiler/stdlib/structural/table_grid.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md hash-a=559b1edc hash-b=4246d9ee\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T20:35:03.483784+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+        "before": "8108ca0ddfad95468ff6f43a024f2d6cc4ad064795ae8f13e22c37fe1960fb0f",
+        "after": "451a792cc9ca0f702cde496cb8aca540a14926fe6f212cb787bd9f9d5cf46743"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/layout.md",
+        "before": "620e5ded7b756d1a157b4a36c980308fccb00378e43527ff01d0c9ea2b6e6861",
+        "after": "9599c456b441a808e8f919dde8b77b429a2d2a1773033db3ea53f1baa64ed446"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/collections/validation.md",
+        "before": "b786efc58db15c3998aa1be030b7fba99a147efe0c745091a26b239b78870ade",
+        "after": "c0d1a52a070c4d400dfbc53133e6e53cecf4150cc5cbffb6feaf19faf2388b95"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/counter/display.md",
+        "before": "1aed460147090ef96128959a2a78b861f3569cc8525669cd26964e121982bf02",
+        "after": "e0b6b0b9e7e7addacc594b767c100feb79e73d6859c5c83fe4796b324ff1048f"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md",
+        "before": "e69b6453915cf07a9a19ef533982c52ab87c714dc810d8824c7ac26f632d53ad",
+        "after": "f492e331e4d9e946b1c98d9e27c6a43437b65eba5716cf51974ecc09a7e687dc"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/html/attr_cast.md",
+        "before": "ee21c578a00211ab1d13d7417abb4e1331251f2f5cdfe09a72cfbcad36973003",
+        "after": "f7995b4322221d75fa0bc98e67d6982c06adce897eda208bfb0a05d30163e365"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/layout/grid.md",
+        "before": "786777bbd240fc976f7acd863895131eb5c738f054a3a0e42d7c671ec1675ad2",
+        "after": "4cec2e4543441fef6bec78c199d0b9a8aa4e4b377b181277939f1d882fa8b9fb"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/layout/place.md",
+        "before": "e585267a316264652fd39e1fbc9a863bb788f3ba6465579f0820dadc9c68ae1c",
+        "after": "cf3622c51b9663ec466463f5ba0dca95cc4e9f49246100da2aefe78fd1ec29ab"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md",
+        "before": "a454c5d4fc426f0a22dfea5a1459f00c85b377d3ab0ca90d070a62cf51c6e3b3",
+        "after": "66890e86f06b3ccd6ce37bebaa66e33903176ef712838ba38a44b88a90462844"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md",
+        "before": "93967ddd3a332310b2ecd46da1ded86d56a74dec7dd981679cf47a1e3125ea78",
+        "after": "d322fd4145935f81e0444433630565a1667a428f6d0023d183d0da9de76dd760"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/loading/yaml_encode.md",
+        "before": "1c922cdce4095581c614a08941fa0e6357c0a117c43f858bee39d347e6c2de8a",
+        "after": "0ee67cfa8edfea23210f24809aca501705428df3370b3fa0503248ce8d6add70"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md",
+        "before": "b07a7fac1df71afea372cd09daf29818dbc42de6a1acd028c1fa44e1c3bdf27c",
+        "after": "272083ab0f9de5cd85603138f202e6a9d625f332aa413848d2d9309aec0dc30d"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/shapes/line.md",
+        "before": "997e16449196c447afc641bc3cd6018195af521317a946f6abc2d354c866a944",
+        "after": "47dfb30b23190f7325b823da7836f99229ddd625ff715b7fb6b87c274dee773d"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/structural/bibliography.md",
+        "before": "68f887871461a581b74cdbf40ea2ca00de37a9c6b03a2b2db3887d9a47bb533c",
+        "after": "8fe9780bb0bfbbb11d79d1ad396abb48f6cd9a147a583cd0ee018c1daf7174c5"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md",
+        "before": "f8f203b1e30fabb002eb9f3ee8b67b782f1c043a3b9c667838c37b943e9d197e",
+        "after": "72419f728950ba142544b56aea6eef50c62b85d2bbd28f3f2a9029d31f660898"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md",
+        "before": "6b5692efe63e4ff987cfa7444b2d53a37cc2cb1419fe875949dcc67cc94b5244",
+        "after": "176d7001f4e15f307259667dce7fe763a86076761bde6e247223e87c80ce5060"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/structural/outline.md",
+        "before": "b3c9ee6e82b2e7c002d46fcf750d106f48b7e01dc248d1ab44828ed9eb45b74a",
+        "after": "e5ce1ea0daee8375b19ed02c031497c91940f9cf7d0ae9d69789a6e9f51943cb"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md",
+        "before": "78eb5ff2a33ac4df48cf91cd42bdd68bb936175196b0fea37624e2646756c747",
+        "after": "74a2afcd87d281a6d4d92d14f488f3d721aa365b25e78e0f776b4b3062efd427"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/stdlib/collections/validation.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections/validation.md hash-a=b52c30e4 hash-b=3c631cbf\nApplied ./01_core/src/compiler/stdlib/collections.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections.md hash-a=a939f8ad hash-b=2d77bf43\nApplied ./01_core/src/compiler/stdlib/counter/display.rs prompt=00_nucleo/prompts/core/compiler/stdlib/counter/display.md hash-a=a36cf120 hash-b=7967c100\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=49d1dca8 hash-b=e38cf0e8\nApplied ./01_core/src/compiler/stdlib/html/attr_cast.rs prompt=00_nucleo/prompts/core/compiler/stdlib/html/attr_cast.md hash-a=905a4724 hash-b=524d9144\nApplied ./01_core/src/compiler/stdlib/layout/grid.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/grid.md hash-a=6b54697b hash-b=b62db5fa\nApplied ./01_core/src/compiler/stdlib/layout/place.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/place.md hash-a=1d1e518a hash-b=7eda64f2\nApplied ./01_core/src/compiler/stdlib/layout/stroke.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md hash-a=0dffc18f hash-b=f69f20a4\nApplied ./01_core/src/compiler/stdlib/layout.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout.md hash-a=e783b0a0 hash-b=23c8b00d\nApplied ./01_core/src/compiler/stdlib/loading/encoding.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md hash-a=86c0befd hash-b=73a02ff1\nApplied ./01_core/src/compiler/stdlib/loading/yaml_encode.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/yaml_encode.md hash-a=7f33c13c hash-b=ce556da4\nApplied ./01_core/src/compiler/stdlib/shapes/ellipse.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md hash-a=7ebce296 hash-b=415c5bab\nApplied ./01_core/src/compiler/stdlib/shapes/line.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/line.md hash-a=e6dae452 hash-b=b53ebd37\nApplied ./01_core/src/compiler/stdlib/structural/bibliography.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/bibliography.md hash-a=a7b12005 hash-b=ab78a56c\nApplied ./01_core/src/compiler/stdlib/structural/math_accent_tests.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md hash-a=715e6437 hash-b=acffcb58\nApplied ./01_core/src/compiler/stdlib/structural/math_cases_tests.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md hash-a=c5da0ed2 hash-b=c6ed9f6b\nApplied ./01_core/src/compiler/stdlib/structural/outline.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/outline.md hash-a=9eedec67 hash-b=f88e91b8\nApplied ./01_core/src/compiler/stdlib/structural/table_grid.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md hash-a=559b1edc hash-b=ea9e472a\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T20:38:41.577774+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/stdlib/collections/array_predicate.rs",
+        "before": "749c53a6ae3596a8c33b324e2a4798a87397387a00a53b38d2bc68faac1f7c0e",
+        "after": "bf8aa7cfa691402edbacbb9414bb44fea06acc9f3ff78da02fdacc684385f42a"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/layout/grid.rs",
+        "before": "24213d9ba6e9a39d6297a379cad8379a71d7548bff6b9a1f678d31689c98cc7e",
+        "after": "8f5fbe094345d91f067616e4bb72341b5becdf7b62ef093568a2c8fc415d85f2"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md",
+        "before": "cd178c1b1b4cf9ef49ebab617c348ca9efd1b0c9016bb96185c4c43e855c1834",
+        "after": "7f4dc63e0832596b2c985da5edcef1e1fcfe2e7d06b9bfbd826486c43bea083c"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/layout/grid.md",
+        "before": "c59f3a3c036912d118b942ad3c93ae3dbe0c5b2ce71cd37e7b382e07951e1edb",
+        "after": "1e8c1a15978ef96be17357b86671630860c5f91be88666b6e1cfc2b34d9e085f"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/stdlib/collections/array_predicate.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md hash-a=d48e4e31 hash-b=2dd3d02c\nApplied ./01_core/src/compiler/stdlib/collections/validation.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections/validation.md hash-a=b52c30e4 hash-b=3c631cbf\nApplied ./01_core/src/compiler/stdlib/collections.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections.md hash-a=a939f8ad hash-b=2d77bf43\nApplied ./01_core/src/compiler/stdlib/counter/display.rs prompt=00_nucleo/prompts/core/compiler/stdlib/counter/display.md hash-a=a36cf120 hash-b=7967c100\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=49d1dca8 hash-b=e38cf0e8\nApplied ./01_core/src/compiler/stdlib/html/attr_cast.rs prompt=00_nucleo/prompts/core/compiler/stdlib/html/attr_cast.md hash-a=905a4724 hash-b=524d9144\nApplied ./01_core/src/compiler/stdlib/layout/grid.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/grid.md hash-a=98f972ca hash-b=b66d2f15\nApplied ./01_core/src/compiler/stdlib/layout/place.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/place.md hash-a=1d1e518a hash-b=7eda64f2\nApplied ./01_core/src/compiler/stdlib/layout/stroke.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md hash-a=0dffc18f hash-b=f69f20a4\nApplied ./01_core/src/compiler/stdlib/layout.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout.md hash-a=e783b0a0 hash-b=23c8b00d\nApplied ./01_core/src/compiler/stdlib/loading/encoding.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md hash-a=86c0befd hash-b=73a02ff1\nApplied ./01_core/src/compiler/stdlib/loading/yaml_encode.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/yaml_encode.md hash-a=7f33c13c hash-b=ce556da4\nApplied ./01_core/src/compiler/stdlib/shapes/line.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/line.md hash-a=e6dae452 hash-b=b53ebd37\nApplied ./01_core/src/compiler/stdlib/structural/bibliography.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/bibliography.md hash-a=a7b12005 hash-b=ab78a56c\nApplied ./01_core/src/compiler/stdlib/structural/math_accent_tests.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md hash-a=715e6437 hash-b=acffcb58\nApplied ./01_core/src/compiler/stdlib/structural/math_cases_tests.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md hash-a=c5da0ed2 hash-b=c6ed9f6b\nApplied ./01_core/src/compiler/stdlib/structural/outline.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/outline.md hash-a=9eedec67 hash-b=f88e91b8\nApplied ./01_core/src/compiler/stdlib/structural/table_grid.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md hash-a=559b1edc hash-b=ea9e472a\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T20:49:39.938878+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/eval/tests.rs",
+        "before": "4dcaff0ac898c399ad512937b0ac99d9b142d3ba0c29703ccc0aaf1c8bf59493",
+        "after": "2366c3a79f48f2573a99f11f7e1a41afe9a36aa17c2b0ebe809d28f941414dd6"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/tests.md",
+        "before": "bc021e484f81886a1cefefa5b756ff0c12adb035aecd68290303377c6b01a976",
+        "after": "4abe68582069ae0d417d98f9a1e58c3a3b642352f8b8a2270ded423c2c78b5aa"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/tests.rs prompt=00_nucleo/prompts/core/compiler/eval/tests.md hash-a=55e228dd hash-b=ee31092b\nApplied ./01_core/src/compiler/stdlib/collections/array_predicate.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md hash-a=d48e4e31 hash-b=2dd3d02c\nApplied ./01_core/src/compiler/stdlib/collections/validation.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections/validation.md hash-a=b52c30e4 hash-b=3c631cbf\nApplied ./01_core/src/compiler/stdlib/collections.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections.md hash-a=a939f8ad hash-b=2d77bf43\nApplied ./01_core/src/compiler/stdlib/counter/display.rs prompt=00_nucleo/prompts/core/compiler/stdlib/counter/display.md hash-a=a36cf120 hash-b=7967c100\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=49d1dca8 hash-b=e38cf0e8\nApplied ./01_core/src/compiler/stdlib/html/attr_cast.rs prompt=00_nucleo/prompts/core/compiler/stdlib/html/attr_cast.md hash-a=905a4724 hash-b=524d9144\nApplied ./01_core/src/compiler/stdlib/layout/grid.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/grid.md hash-a=98f972ca hash-b=b66d2f15\nApplied ./01_core/src/compiler/stdlib/layout/place.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/place.md hash-a=1d1e518a hash-b=7eda64f2\nApplied ./01_core/src/compiler/stdlib/layout/stroke.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md hash-a=0dffc18f hash-b=f69f20a4\nApplied ./01_core/src/compiler/stdlib/layout.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout.md hash-a=e783b0a0 hash-b=23c8b00d\nApplied ./01_core/src/compiler/stdlib/loading/encoding.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md hash-a=86c0befd hash-b=73a02ff1\nApplied ./01_core/src/compiler/stdlib/loading/yaml_encode.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/yaml_encode.md hash-a=7f33c13c hash-b=ce556da4\nApplied ./01_core/src/compiler/stdlib/shapes/line.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/line.md hash-a=e6dae452 hash-b=b53ebd37\nApplied ./01_core/src/compiler/stdlib/structural/bibliography.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/bibliography.md hash-a=a7b12005 hash-b=ab78a56c\nApplied ./01_core/src/compiler/stdlib/structural/math_accent_tests.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md hash-a=715e6437 hash-b=acffcb58\nApplied ./01_core/src/compiler/stdlib/structural/math_cases_tests.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md hash-a=c5da0ed2 hash-b=c6ed9f6b\nApplied ./01_core/src/compiler/stdlib/structural/outline.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/outline.md hash-a=9eedec67 hash-b=f88e91b8\nApplied ./01_core/src/compiler/stdlib/structural/table_grid.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md hash-a=559b1edc hash-b=ea9e472a\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T21:16:42.293724+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/stdlib/collections/array_predicate.rs",
+        "before": "bf8aa7cfa691402edbacbb9414bb44fea06acc9f3ff78da02fdacc684385f42a",
+        "after": "850018db89f6b383469c05931a3c8df469f68f907ffb548b8d37ab0163cfaefe"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+        "before": "f5de40997b6300bb99e433fe31eefed74c98143c22b51c4c03fcf7709d223531",
+        "after": "112d0e8c32aa0757f807501296f9b1423684b5326ef551ee752236393d62cdb9"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/collections/validation.md",
+        "before": "fe7ca615b3b730d948f91cb009f16ec8195296986a24a3a95c50cbbceafb4654",
+        "after": "28ff479ebf51513f7c2eeb868586eac71faf4d63e1b834945ff3eee666f9be97"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/tests.rs prompt=00_nucleo/prompts/core/compiler/eval/tests.md hash-a=55e228dd hash-b=ee31092b\nApplied ./01_core/src/compiler/stdlib/collections/array_predicate.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md hash-a=f3ca852e hash-b=2dd3d02c\nApplied ./01_core/src/compiler/stdlib/collections/validation.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections/validation.md hash-a=189884bd hash-b=b1d888f8\nApplied ./01_core/src/compiler/stdlib/collections.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections.md hash-a=a939f8ad hash-b=2d77bf43\nApplied ./01_core/src/compiler/stdlib/counter/display.rs prompt=00_nucleo/prompts/core/compiler/stdlib/counter/display.md hash-a=a36cf120 hash-b=7967c100\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=49d1dca8 hash-b=e38cf0e8\nApplied ./01_core/src/compiler/stdlib/html/attr_cast.rs prompt=00_nucleo/prompts/core/compiler/stdlib/html/attr_cast.md hash-a=905a4724 hash-b=524d9144\nApplied ./01_core/src/compiler/stdlib/layout/grid.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/grid.md hash-a=98f972ca hash-b=b66d2f15\nApplied ./01_core/src/compiler/stdlib/layout/place.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/place.md hash-a=1d1e518a hash-b=7eda64f2\nApplied ./01_core/src/compiler/stdlib/layout/stroke.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md hash-a=0dffc18f hash-b=f69f20a4\nApplied ./01_core/src/compiler/stdlib/layout.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout.md hash-a=e783b0a0 hash-b=23c8b00d\nApplied ./01_core/src/compiler/stdlib/loading/encoding.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md hash-a=86c0befd hash-b=73a02ff1\nApplied ./01_core/src/compiler/stdlib/loading/yaml_encode.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/yaml_encode.md hash-a=7f33c13c hash-b=ce556da4\nApplied ./01_core/src/compiler/stdlib/shapes/line.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/line.md hash-a=e6dae452 hash-b=b53ebd37\nApplied ./01_core/src/compiler/stdlib/structural/bibliography.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/bibliography.md hash-a=a7b12005 hash-b=ab78a56c\nApplied ./01_core/src/compiler/stdlib/structural/math_accent_tests.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md hash-a=715e6437 hash-b=acffcb58\nApplied ./01_core/src/compiler/stdlib/structural/math_cases_tests.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md hash-a=c5da0ed2 hash-b=c6ed9f6b\nApplied ./01_core/src/compiler/stdlib/structural/outline.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/outline.md hash-a=9eedec67 hash-b=f88e91b8\nApplied ./01_core/src/compiler/stdlib/structural/table_grid.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md hash-a=559b1edc hash-b=ea9e472a\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T21:22:10.925607+00:00",
+    "changes": [
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md",
+        "before": "36d0eec8fca02ed3f3fdeedd8837e03386cb9a07cfd13ac7f1ac5f8f8d07e237",
+        "after": "486e68bfaaebf27df246a5e22ec89ccd2b015477fd812185c4262ec708b60448"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/tests.rs prompt=00_nucleo/prompts/core/compiler/eval/tests.md hash-a=55e228dd hash-b=ee31092b\nApplied ./01_core/src/compiler/stdlib/collections/array_predicate.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md hash-a=f3ca852e hash-b=990b8ae1\nApplied ./01_core/src/compiler/stdlib/collections/validation.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections/validation.md hash-a=189884bd hash-b=b1d888f8\nApplied ./01_core/src/compiler/stdlib/collections.rs prompt=00_nucleo/prompts/core/compiler/stdlib/collections.md hash-a=a939f8ad hash-b=2d77bf43\nApplied ./01_core/src/compiler/stdlib/counter/display.rs prompt=00_nucleo/prompts/core/compiler/stdlib/counter/display.md hash-a=a36cf120 hash-b=7967c100\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=49d1dca8 hash-b=e38cf0e8\nApplied ./01_core/src/compiler/stdlib/html/attr_cast.rs prompt=00_nucleo/prompts/core/compiler/stdlib/html/attr_cast.md hash-a=905a4724 hash-b=524d9144\nApplied ./01_core/src/compiler/stdlib/layout/grid.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/grid.md hash-a=98f972ca hash-b=b66d2f15\nApplied ./01_core/src/compiler/stdlib/layout/place.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/place.md hash-a=1d1e518a hash-b=7eda64f2\nApplied ./01_core/src/compiler/stdlib/layout/stroke.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md hash-a=0dffc18f hash-b=f69f20a4\nApplied ./01_core/src/compiler/stdlib/layout.rs prompt=00_nucleo/prompts/core/compiler/stdlib/layout.md hash-a=e783b0a0 hash-b=23c8b00d\nApplied ./01_core/src/compiler/stdlib/loading/encoding.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md hash-a=86c0befd hash-b=73a02ff1\nApplied ./01_core/src/compiler/stdlib/loading/yaml_encode.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/yaml_encode.md hash-a=7f33c13c hash-b=ce556da4\nApplied ./01_core/src/compiler/stdlib/shapes/line.rs prompt=00_nucleo/prompts/core/compiler/stdlib/shapes/line.md hash-a=e6dae452 hash-b=b53ebd37\nApplied ./01_core/src/compiler/stdlib/structural/bibliography.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/bibliography.md hash-a=a7b12005 hash-b=ab78a56c\nApplied ./01_core/src/compiler/stdlib/structural/math_accent_tests.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md hash-a=715e6437 hash-b=acffcb58\nApplied ./01_core/src/compiler/stdlib/structural/math_cases_tests.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md hash-a=c5da0ed2 hash-b=c6ed9f6b\nApplied ./01_core/src/compiler/stdlib/structural/outline.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/outline.md hash-a=9eedec67 hash-b=f88e91b8\nApplied ./01_core/src/compiler/stdlib/structural/table_grid.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md hash-a=559b1edc hash-b=ea9e472a\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  }
+]

@@ -1,0 +1,25 @@
+   Compiling syntect v5.3.0
+   Compiling criterion v0.5.1
+   Compiling two-face v0.4.5
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 1m 28s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 1 test
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_sorted_key ... FAILED
+
+failures:
+
+---- compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_sorted_key stdout ----
+
+thread 'compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_sorted_key' (1778601) panicked at 01_core/src/compiler/stdlib/collections/validation.rs:308:38:
+(10, 2).sorted(key: version) == (2, 10): [SourceDiagnostic { severity: Error, span: Span(291264177009561), message: "cannot compare version and version", hints: [], trace: [] }]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_sorted_key
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7594 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p typst-core --lib`

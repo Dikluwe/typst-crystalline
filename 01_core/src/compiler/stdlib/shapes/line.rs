@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/shapes/line.md
-//! @prompt-hash d3c27c4e
+//! @prompt-hash e6dae452
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -27,14 +27,62 @@ pub fn native_line(
         }
     }
 
-    fn extract_pt(val: &Value) -> f64 {
+    fn extract_pt(val: &Value, span: Span) -> SourceResult<f64> {
+        use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
         match val {
-            Value::Float(f) => *f,
-            Value::Int(i) => *i as f64,
-            Value::Length(l) => l.abs.to_pt(),
-            _ => 0.0, // neutro: N16[β] — Value não-numérico retorna 0.0 na extracção de dimensões de linha
+            Value::Float(f) => Ok(*f),
+            Value::Int(i) => Ok(*i as f64),
+            Value::Length(l) => Ok(l.abs.to_pt()),
+            // RM1: existing unresolved relative projections remain explicit;
+            // malformed non-dimensional arguments must not use this path.
+            Value::Ratio(_) | Value::Relative(_) => Ok(0.0),
+            Value::None
+            | Value::Bool(_)
+            | Value::Str(_)
+            | Value::Array(_)
+            | Value::Dict(_)
+            | Value::Module(_)
+            | Value::Datetime(_)
+            | Value::Func(_)
+            | Value::Content(_)
+            | Value::LocatedContent(_, _)
+            | Value::Auto
+            | Value::Angle(_)
+            | Value::Color(_)
+            | Value::Stroke(_)
+            | Value::Fraction(_)
+            | Value::Align(_)
+            | Value::Location(_)
+            | Value::Gradient(_)
+            | Value::Regex(_)
+            | Value::Tiling(_)
+            | Value::Bytes(_)
+            | Value::Decimal(_)
+            | Value::Duration(_)
+            | Value::Version(_)
+            | Value::Selector(_)
+            | Value::Symbol(_)
+            | Value::Args(_)
+            | Value::State(_)
+            | Value::Counter(_)
+            | Value::Label(_)
+            | Value::Dir(_)
+            | Value::Path(_)
+            | Value::Type(_)
+            | Value::SpotColorant(_) => Err(vec![SourceDiagnostic::error(
+                span,
+                format!("expected length, found {}", vanilla_type_name(val)),
+            )]),
         }
     }
+    let value_span = |name: &str| {
+        args.occurrences
+            .as_ref()
+            .and_then(|occurrences| {
+                occurrences.iter().rev().find(|arg| arg.name.as_deref() == Some(name))
+            })
+            .map_or(args.span, |arg| arg.value_span.or(arg.span).or(args.span))
+    };
 
     let stroke = match args.named.get("stroke") {
         Some(value) => parse_shape_stroke(value, "line")?,
@@ -105,7 +153,7 @@ pub fn native_line(
             };
             let length = match args.named.get("length") {
                 Some(v @ (Value::Float(_) | Value::Int(_) | Value::Length(_))) => {
-                    extract_pt(v)
+                    extract_pt(v, value_span("length"))?
                 }
                 Some(Value::Ratio(_)) => {
                     return Err(vec![SourceDiagnostic::error(
@@ -136,8 +184,18 @@ pub fn native_line(
             (sx, sy, sx + dx, sy + dy, true)
         }
         None => {
-            let dx = args.named.get("dx").map(extract_pt).unwrap_or(0.0);
-            let dy = args.named.get("dy").map(extract_pt).unwrap_or(0.0);
+            let dx = args
+                .named
+                .get("dx")
+                .map(|value| extract_pt(value, value_span("dx")))
+                .transpose()?
+                .unwrap_or(0.0);
+            let dy = args
+                .named
+                .get("dy")
+                .map(|value| extract_pt(value, value_span("dy")))
+                .transpose()?
+                .unwrap_or(0.0);
             (0.0, 0.0, dx, dy, false)
         }
     };
@@ -177,5 +235,94 @@ mod tests {
             call(native_line, Args::positional(vec![])).unwrap(),
             Value::Content(Content::Shape(_))
         ));
+    }
+}
+
+#[cfg(test)]
+mod batch_f_tests {
+
+    use super::super::atomization_test_support::call;
+    use super::*;
+
+    fn at(start: usize) -> Span {
+        Span::from_range(
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+            start..start + 1,
+        )
+    }
+    fn named(name: &str, value: Value) -> Args {
+        use crate::entities::args::ArgOccurrence;
+        Args::from_occurrences(
+            at(1),
+            vec![
+                ArgOccurrence {
+                    name: None,
+                    value: Value::Content(Content::Empty),
+                    span: at(2),
+                    value_span: at(3),
+                },
+                ArgOccurrence {
+                    name: Some(name.into()),
+                    value,
+                    span: at(4),
+                    value_span: at(5),
+                },
+            ],
+        )
+    }
+
+    #[test]
+    fn batch_f_line_rejects_malformed_legacy_offsets_at_value_span() {
+        for (value, kind) in [
+            (Value::None, "none"),
+            (Value::Auto, "auto"),
+            (Value::Bool(true), "boolean"),
+            (Value::Str("x".into()), "string"),
+            (Value::Array(vec![]), "array"),
+            (Value::Fraction(1.0), "fraction"),
+        ] {
+            for name in ["dx", "dy"] {
+                let errors = call(native_line, named(name, value.clone())).unwrap_err();
+                assert_eq!(errors[0].message, format!("expected length, found {kind}"));
+                assert_eq!(errors[0].span, at(5));
+            }
+        }
+    }
+    #[test]
+    fn batch_f_line_preserves_numeric_and_negative_offsets() {
+        for (value, expected) in [
+            (Value::Float(-2.5), -2.5),
+            (Value::Int(0), 0.0),
+            (Value::Length(Length::pt(4.0)), 4.0),
+        ] {
+            let Value::Content(Content::Shape(shape)) =
+                call(native_line, named("dx", value)).unwrap()
+            else {
+                panic!("line")
+            };
+            assert!(
+                matches!(shape.kind, ShapeKind::Line { dx, dy } if dx == expected && dy == 0.0)
+            );
+        }
+        let Value::Content(Content::Shape(shape)) =
+            call(native_line, Args::positional(vec![])).unwrap()
+        else {
+            panic!("line")
+        };
+        assert!(matches!(shape.kind, ShapeKind::Line { dx: 0.0, dy: 0.0 }));
+    }
+    #[test]
+    fn batch_f_line_preserves_stroke_and_conflict_precedence() {
+        let mut args = named("dx", Value::Bool(true));
+        args.named.insert("stroke".into(), Value::Bool(false));
+        let errors = call(native_line, args.clone()).unwrap_err();
+        assert!(errors[0].message.contains("stroke"));
+        args.named.shift_remove("stroke");
+        args.named.insert(
+            "end".into(),
+            Value::Array(vec![Value::Length(Length::ZERO), Value::Length(Length::ZERO)]),
+        );
+        let errors = call(native_line, args).unwrap_err();
+        assert!(errors[0].message.contains("não pode ser combinado"));
     }
 }

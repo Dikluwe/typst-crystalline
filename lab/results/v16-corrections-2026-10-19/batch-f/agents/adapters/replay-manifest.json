@@ -1,0 +1,1638 @@
+{
+  "utc": "2026-10-19T20:29:27.285738+00:00",
+  "baseline_receipts": [
+    {
+      "path": "baseline.json",
+      "sha256": "fbb0d4d994cff23c981fca37ca116caf71e8bba932cbf17e3951e97d94014e38",
+      "case_count": 82
+    },
+    {
+      "path": "baseline-supplement.json",
+      "sha256": "b60bed94a7f6b1a1ec9a9e26bb93883600391692454b38f51975851432c5db96",
+      "case_count": 20
+    }
+  ],
+  "oracle_pin": {
+    "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+    "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+    "commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+    "tree": "cac836c07e4dec2a89219370428292393a3216b5",
+    "recipe": "lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md"
+  },
+  "supporting_evidence": [
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-f/baseline-build-receipt.json",
+      "sha256": "1f610e073de9a97efc88eb7ea056f230677c5826589d057a289460d803b31870"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/native-controls-baseline.json",
+      "sha256": "18e053dc590bceabb049f5510d9c3315ba201ee2bc038f789b436bfb1ca4402f"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/primitives_constructors/array.rs",
+      "sha256": "1d133fb4697d30c5ccd607f4ec505dddac4029cfb09f1a424521650687055260"
+    },
+    {
+      "path": "01_core/src/compiler/eval/call_dispatch/apply.rs",
+      "sha256": "810ae47a7ef069e7567ae2a708b3a65df93913c769d8312cb7439c666e3b1eab"
+    }
+  ],
+  "fixtures": [
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml",
+      "sha256": "d530a913f9ab36a01cf4b7dc9ee7e294a7e861ec16b934408ee51f3d35d89b36"
+    },
+    {
+      "path": "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml",
+      "absent": true
+    }
+  ],
+  "cases": {
+    "baseline.json::int-direct": {
+      "expression_sha256": "eddf013559f5c817e3941370441e8f52e9399a75e65cddd898298f2ce9f20f80",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "2"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "2"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::int-map": {
+      "expression_sha256": "db24be162907e296648115ea5a232469ecb425b45dbcbc0905270fee702c7df5",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "2"
+        ]
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "2"
+        ]
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::float-direct": {
+      "expression_sha256": "a69ad422423fbd8e549ae6067ba347a7a7c7702800f4d98dd2e2a560a19a29a9",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "2.5"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "2.5"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::float-map": {
+      "expression_sha256": "ed990e49fb80463738713786163ee600b0df92b35dfc4e311e6222915ff8899c",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "2.5"
+        ]
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "2.5"
+        ]
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::str-direct": {
+      "expression_sha256": "fcbf82a09b573afb01cff77faba1eba8d9b6a807d853cdbfe128339249ee9a3c",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "\"2\""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "\"2\""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::str-map": {
+      "expression_sha256": "e82c438f86743970d06fed8bf1ca508c67946ac3d708099fc658bfaf4afcad8d",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "\"2\""
+        ]
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "\"2\""
+        ]
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::type-direct": {
+      "expression_sha256": "79d125011a24f36a6bd2027d5c8cfff96fd5e23ca9bafa8bc18d307833f6a17a",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "int"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "int"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::type-map": {
+      "expression_sha256": "66a117cb4d11f286ef05b9be7643a9cd05e676e5fe1862a6f9ce8cdb114cfe35",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "int"
+        ]
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "int"
+        ]
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::counter-direct": {
+      "expression_sha256": "017b3080f2357afd353e7f0b1dfe4bf4e32c71e9331d267ac04276e8a198893c",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "counter(\"x\")"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "counter(\"x\")"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::counter-map": {
+      "expression_sha256": "c4aa5a3da91a309394878bdbaf2753642a1fe82914faad264300644aff42c8eb",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "counter(\"x\")"
+        ]
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "counter(\"x\")"
+        ]
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::state-direct": {
+      "expression_sha256": "43eee0c4aae11fd7a2193e261617573c0571ef65e2ed81b5d9170515aeb9603b",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "state(\"x\", none)"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "state(\"x\", none)"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::state-map": {
+      "expression_sha256": "2c033011e86f27d0a8d3e825431ccaac8c13f9083c17956547a55690df74cb70",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "state(\"x\", none)"
+        ]
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "state(\"x\", none)"
+        ]
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::symbol-direct": {
+      "expression_sha256": "91e71990d667583f8f4aa56fc90e213d4ac5e04e23cfbe820658515bdf3f430b",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "symbol(\"x\")"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "symbol(\"x\")"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::symbol-map": {
+      "expression_sha256": "f1538349573e5654e3194ef92dd3a7053a386651f02e8498b2e3b23fd4ee6a2c",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "symbol(\"x\")"
+        ]
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "symbol(\"x\")"
+        ]
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::bytes-direct": {
+      "expression_sha256": "3192e6c463ffd855286fe2d0c61536d39210df23c1751dbbe5bc9a7fa24bb185",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "bytes(1)"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "bytes(1)"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::bytes-map": {
+      "expression_sha256": "c09566365a8d5b43ff337dcbe5ffbd3335c2669d5e75bde43ca9ce1da57dd633",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "bytes(1)"
+        ]
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "bytes(1)"
+        ]
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::datetime-direct": {
+      "expression_sha256": "9d293f83cd664cbd13615f60f1a81d41e9261fddf16a0bd0ace32593ff10fbbf",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: unexpected argument\n  \u250c\u2500 <input-expression>:1:13\n  \u2502\n1 \u2502 repr(datetime(2024))\n  \u2502              ^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: unexpected argument\n  \u250c\u2500 <input-expression>:1:13\n  \u2502\n1 \u2502 repr(datetime(2024))\n  \u2502              ^^^^^^\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::datetime-map": {
+      "expression_sha256": "c1254f81f16be81bee7d589d82bd70307e62a0acdf1dc3487d7841942b9c4dcb",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: unexpected argument\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: unexpected argument\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::decimal-direct": {
+      "expression_sha256": "dff5b7dca09c0e04879401ce158b311311a33f384e09c8e96b5a13803921e112",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "decimal(\"2.5\")"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "decimal(\"2.5\")"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::decimal-map": {
+      "expression_sha256": "e85609c1b61c2a84b9edea8a3e95e8268e8448811d9f023a58bcdc786f5929ed",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu decimal\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "decimal(\"2.5\")"
+        ]
+      },
+      "policy": "oracle repair",
+      "reason": "Existing constructor admission must now match the frozen pinned oracle exactly."
+    },
+    "baseline.json::duration-direct": {
+      "expression_sha256": "a7a633a6d43420dff32e84555e297cc06d499825d277ea136f1d152c0df1293d",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: duration(): espera Str, recebeu int\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: duration(): espera Str, recebeu int\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::duration-map": {
+      "expression_sha256": "aee97cff106b2ac7c3a2462d76adf7332274a2f91f2d489132dea3c550cfe1d6",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu duration\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: duration(): espera Str, recebeu int\n\n",
+        "stdout": ""
+      },
+      "policy": "native-constructor residual retained",
+      "reason": "Forward existing duration(1) error exactly; source constructor has preexisting positional-language/diagnostic debt."
+    },
+    "baseline.json::regex-direct": {
+      "expression_sha256": "6d31ed006b31095b3f9a81add5860cace62098a213fa012da1508e08dcd3ffff",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "regex(\"a\")"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "regex(\"a\")"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::regex-map": {
+      "expression_sha256": "bbd942a16ca5c2ed4da80e90923a88c99b43c25f290d7954c7e293308ab552e9",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu regex\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "regex(\"a\")"
+        ]
+      },
+      "policy": "oracle repair",
+      "reason": "Existing constructor admission must now match the frozen pinned oracle exactly."
+    },
+    "baseline.json::selector-direct": {
+      "expression_sha256": "302763012ab77b9e16b66dc997ddf3cfcbdb887a20cff9c8fcb1ed3047da4e23",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "heading"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "heading"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::selector-map": {
+      "expression_sha256": "de6cf338b11f131969df3e87c3626bb2a9abde568d0791df63b32587eb4bb6cf",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu selector\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "heading"
+        ]
+      },
+      "policy": "oracle repair",
+      "reason": "Existing constructor admission must now match the frozen pinned oracle exactly."
+    },
+    "baseline.json::stroke-direct": {
+      "expression_sha256": "dd1118e034fec51e92896747439dc13c24099d79edb523e0dbf181bdfdaac803",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "rgb(\"#ff4136\")"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "rgb(\"#ff4136\")"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::stroke-map": {
+      "expression_sha256": "1442649f09b3cce910784b73a8d90568f85c51c4c5fd787c40878ef83a17a4ca",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu stroke\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "rgb(\"#ff4136\")"
+        ]
+      },
+      "policy": "oracle repair",
+      "reason": "Existing constructor admission must now match the frozen pinned oracle exactly."
+    },
+    "baseline.json::tiling-direct": {
+      "expression_sha256": "1cababdc789fdecdef81ff65dfda1d9945adf97e5186773b7102f750e3a332c9",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "tiling(...)"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "tiling(...)"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::tiling-map": {
+      "expression_sha256": "73150a91e3d2efab19a710e482eee5970157968b157627ad8a31777938f35753",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu tiling\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "tiling(...)"
+        ]
+      },
+      "policy": "native-constructor residual retained",
+      "reason": "Wrap the measured existing native tiling representation once in map result; representation debt belongs to native tiling/repr owners."
+    },
+    "baseline.json::version-direct": {
+      "expression_sha256": "8ca5699d1db3fb3ca2e8498bde439b53268df2e52535697d16f2f69c03614ae8",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "version(1)"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "version(1)"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::version-map": {
+      "expression_sha256": "2abb815cee7c55ba34d15614c15da9142e77e4b9917bda4e372e6e9ac330a876",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu version\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "version(1)"
+        ]
+      },
+      "policy": "oracle repair",
+      "reason": "Existing constructor admission must now match the frozen pinned oracle exactly."
+    },
+    "baseline.json::label-direct": {
+      "expression_sha256": "2398778b1336c9eec9cf365b05dd105daeb803d20d71a8e667e460909d749764",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "<x>"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "<x>"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::label-map": {
+      "expression_sha256": "633dbab7dac16c23232bcc7799da52c97ed39be65ea2cde7ed71994330a211ea",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu label\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "<x>"
+        ]
+      },
+      "policy": "oracle repair",
+      "reason": "Existing constructor admission must now match the frozen pinned oracle exactly."
+    },
+    "baseline.json::path-direct": {
+      "expression_sha256": "4ddadb5888964c98a83912be2d32e624532cf443bc52be663138d49ae6df9f31",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "path(\"/x\")"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "path(\"/x\")"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::path-map": {
+      "expression_sha256": "589c06c44b76723e9eef51156270a58ecaf0859bf1c3aa4cde39ef48d2788703",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu path\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu path\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::array-direct": {
+      "expression_sha256": "ad5b6b6eb4dfad989dead5e9461704b93a7fd6dafd3e17cf8f3b14ae00e97f65",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "(120,)"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "(120,)"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::array-map": {
+      "expression_sha256": "b79c2cea3219cd4d59fecde87f93f3fb17bc9c7063eeea3aba9c83dcc7935e5a",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu array\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "(120,)"
+        ]
+      },
+      "policy": "oracle repair",
+      "reason": "Existing constructor admission must now match the frozen pinned oracle exactly."
+    },
+    "baseline.json::arguments-direct": {
+      "expression_sha256": "af9783da77445f24ab41c4db3b12f59701d8c26a0bfa1d5bba03bc347c168587",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "arguments(1)"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "arguments(1)"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::arguments-map": {
+      "expression_sha256": "d923df55cc1adcd9ebc1c6644d8ee8850c9815284c0e0d1d41ef1a0f36fa66fa",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu arguments\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "arguments(1)"
+        ]
+      },
+      "policy": "oracle repair",
+      "reason": "Existing constructor admission must now match the frozen pinned oracle exactly."
+    },
+    "baseline.json::color.spot-direct": {
+      "expression_sha256": "106436d481482eb2ef766bc2dece58abbff789be40d4ab7344aba098cfcfa49e",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: missing argument: fallback\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: missing argument: fallback\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::color.spot-map": {
+      "expression_sha256": "c1b94d695907135725da98aee67fb920f64abe1bd8824386706a62fad4690603",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu spot\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: missing argument: fallback\n\n",
+        "stdout": ""
+      },
+      "policy": "native-constructor residual retained",
+      "reason": "Forward existing name-only SpotColorant missing-fallback error exactly; oracle trace differences remain explicit."
+    },
+    "baseline.json::bool-direct": {
+      "expression_sha256": "fb36640e0aefabaf597f362e7f25f056ee44e86b4440e3e67855858732e5cc2c",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: type bool does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(bool(1))\n  \u2502      ^^^^\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: type bool does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(bool(1))\n  \u2502      ^^^^\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::bool-map": {
+      "expression_sha256": "ba18120f822b83a21c67c1530c8d5ae33a9fd35ad60f8adcce8d2ba48a2114a8",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu bool\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu bool\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::content-direct": {
+      "expression_sha256": "7b384eeaf2b5869e172392d5ea7d17a6788e0a4b3c5c6d116e12ea4dd9b34aaf",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: type content does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(content([x]))\n  \u2502      ^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: type content does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(content([x]))\n  \u2502      ^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::content-map": {
+      "expression_sha256": "2d7aca9c7f5fe1249d02e06db3eff168286143814bc8f7f71bf14ec5b0f8f287",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu content\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu content\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::length-direct": {
+      "expression_sha256": "89323b16f9e2979540e21f414b133a43a38759c659765db22e85ff7aa72928be",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: type length does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(length(1))\n  \u2502      ^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: type length does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(length(1))\n  \u2502      ^^^^^^\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::length-map": {
+      "expression_sha256": "6a6f2b33bff8bc83800650aa2341762d2fcf861259613e33238d7e4ff90884ad",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu length\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu length\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::color-direct": {
+      "expression_sha256": "1db7d0a8b8270a658bcec0de1287903b65e2cf75798e6feedc9bf35c99b0d8ea",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: type color does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(color(red))\n  \u2502      ^^^^^\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: type color does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(color(red))\n  \u2502      ^^^^^\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::color-map": {
+      "expression_sha256": "dbbd34848cebf5b8db5c4cd9f4357c4703ad69e69c308b2679b2a58fc9736aab",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu color\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu color\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::location-direct": {
+      "expression_sha256": "255b943aadbc6347759e3997f3ed90306db6d2bac46ae4c663eb6d42da6559d3",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: type location does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(location(1))\n  \u2502      ^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: type location does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(location(1))\n  \u2502      ^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::location-map": {
+      "expression_sha256": "b5ea71cb67ff83cf28cdf5a361ada1294d46f7930ef91d911113458896cb95c7",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu location\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu location\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::dictionary-direct": {
+      "expression_sha256": "fab0bb782d65462ec889153b7f8e58bc8439b0e71cbee6f964590935672c071e",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: type dictionary does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(dictionary((:)))\n  \u2502      ^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: type dictionary does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(dictionary((:)))\n  \u2502      ^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::dictionary-map": {
+      "expression_sha256": "398e37cf9104dacbb0a1eba17f6d3a2d89b782d5eb394c11f0e94395ff2d83ba",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu dictionary\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu dictionary\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::decimal-key": {
+      "expression_sha256": "6520676e9cd203878272f2e02f37685f26ce48def9dd075b2faf6b5cfd39b6cd",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: expected function, found decimal\n  \u250c\u2500 <input-expression>:1:18\n  \u2502\n1 \u2502 (\"10\", \"2\").sorted(key: decimal)\n  \u2502                   ^^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          "2",
+          "10"
+        ]
+      },
+      "policy": "oracle repair",
+      "reason": "Existing constructor admission must now match the frozen pinned oracle exactly."
+    },
+    "baseline.json::version-key": {
+      "expression_sha256": "6448d3a5249dd3cf14f999a14e61d398ef7f85a38474ddb6b8d00c513cc28a99",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: expected function, found version\n  \u250c\u2500 <input-expression>:1:14\n  \u2502\n1 \u2502 (10, 2).sorted(key: version)\n  \u2502               ^^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": [
+          2,
+          10
+        ]
+      },
+      "policy": "oracle repair",
+      "reason": "Existing constructor admission must now match the frozen pinned oracle exactly."
+    },
+    "baseline.json::label-filter": {
+      "expression_sha256": "6cd9ee4eed90e24515001e2a2171ae82b155c7507403a0720628ae4f4ba26528",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.filter() espera fun\u00e7\u00e3o, recebeu label\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: expected boolean, found label\n  \u250c\u2500 <input-expression>:1:13\n  \u2502\n1 \u2502 (\"x\",).filter(label)\n  \u2502              ^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "policy": "native-constructor residual retained",
+      "reason": "Same frozen predicate-result validator as str-filter; Label result requires the exact type word label. Retain full Args source diagnostic for the original label-filter expression using its measured parser span rule; no coordinate or trace stripping."
+    },
+    "baseline.json::str-filter": {
+      "expression_sha256": "5944de9b69c31184a419fc9c8f64ea7f24d092bee965c114915f52a61e0d1700",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: expected boolean, found string\n  \u250c\u2500 <input-expression>:1:11\n  \u2502\n1 \u2502 (1,).filter(str)\n  \u2502            ^^^^^\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: expected boolean, found string\n  \u250c\u2500 <input-expression>:1:11\n  \u2502\n1 \u2502 (1,).filter(str)\n  \u2502            ^^^^^\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::decimal-by": {
+      "expression_sha256": "7309a9d0617b405547b53aafe5f95d59008db8c2732daf3fc27add8be53fddb6",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: expected function, found decimal\n  \u250c\u2500 <input-expression>:1:17\n  \u2502\n1 \u2502 (\"2\", \"1\").sorted(by: decimal)\n  \u2502                  ^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: decimal(): requer 1 argumento, recebeu 2\n\n",
+        "stdout": ""
+      },
+      "policy": "native-constructor residual retained",
+      "reason": "sorted forwards both arguments to existing Decimal; use independently measured decimal(\"2\", \"1\") complete product error."
+    },
+    "baseline.json::int-map-error": {
+      "expression_sha256": "6c2bcc3835291c6fa45de3652913ae32dc20dac831786794edb3226c6aa1e2ff",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: int() n\u00e3o consegue parsear \"bad\"\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: int() n\u00e3o consegue parsear \"bad\"\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::empty-decimal-map": {
+      "expression_sha256": "281f21ce372acb4095f28d292b809ddbb316c7fbb763ec88761874d57d8548fd",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu decimal\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": []
+      },
+      "policy": "oracle repair",
+      "reason": "Existing constructor admission must now match the frozen pinned oracle exactly."
+    },
+    "baseline.json::empty-duration-map": {
+      "expression_sha256": "62e783d1144d602b64b126b732f96baaad727fca01d7bcb4c0896ee8df084876",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu duration\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": []
+      },
+      "policy": "oracle repair",
+      "reason": "Existing constructor admission must now match the frozen pinned oracle exactly."
+    },
+    "baseline.json::empty-arguments-map": {
+      "expression_sha256": "ed0bf5f41e02747635f9a9068b29248c02340e4bc0dd4d196d78b5e8f3f99f82",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu arguments\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": []
+      },
+      "policy": "oracle repair",
+      "reason": "Existing constructor admission must now match the frozen pinned oracle exactly."
+    },
+    "baseline.json::locale-omitted-\"works.yml\"": {
+      "expression_sha256": "58d04782e4f7cf316378ba3d31e8061e9d7b60cd0268d7e0326e02a9da331c59",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "bibliography(\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\")"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "bibliography(\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\")"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::locale-omitted-\"missing.yml\"": {
+      "expression_sha256": "6a9eca160967b0931951e3d35bf1a26bb65b9c0ef18822aa4dea33e301ab859d",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\")\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\")\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::locale-none-\"works.yml\"": {
+      "expression_sha256": "284300a57fc2a5d5a8d23ee350ef99983e3ba7dade73d070acbd448a2a361491",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "bibliography(\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\")"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "bibliography(\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\")"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::locale-none-\"missing.yml\"": {
+      "expression_sha256": "45723df62f11b46d8359693b4bd97404fa50a8e98b45c67e1cb007761a1c3abf",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: none)\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: none)\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::locale-\"en\"-\"works.yml\"": {
+      "expression_sha256": "b46c5a4c835f6088ebf55b9230dd0ca9bdbe3db4f68245f470fee03f768cec5a",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "bibliography(\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\")"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "bibliography(\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\")"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::locale-\"en\"-\"missing.yml\"": {
+      "expression_sha256": "fa5988ef285eb4eaae0a9bd7288e7eeb99f9559c25ee4d3c764611e758eb1464",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: \"en\")\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: \"en\")\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::locale-\"bad_locale\"-\"works.yml\"": {
+      "expression_sha256": "a02ff775b81f2162265a405d4d03caa6a710aa4fa5b6604e1d76759e8bd7bd34",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "bibliography(\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\")"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "bibliography(\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\")"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::locale-\"bad_locale\"-\"missing.yml\"": {
+      "expression_sha256": "347dc43a9910f749812db749be080e8377be4ca93c62132e26e319446e245eb8",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: \"bad_locale\")\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: \"bad_locale\")\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::locale-true-\"works.yml\"": {
+      "expression_sha256": "b569d94e4e73e17ae134f4b291e130b5b2ba98cca8897003e82209e521d5f988",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "bibliography(\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\")"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "bibliography(\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\")"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::locale-true-\"missing.yml\"": {
+      "expression_sha256": "02111764bf0ee8c4ea031ec2ab68288d71c2fd323d91cf8e55fc10a819af7d81",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: true)\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: true)\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::locale-3-\"works.yml\"": {
+      "expression_sha256": "f2e76fd72b4b17d1144b6991f42930079abbcec6b6f857fc4566c4b0a7870e99",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "bibliography(\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\")"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "bibliography(\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\")"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::locale-3-\"missing.yml\"": {
+      "expression_sha256": "fc202631defba9aeacd99a3b7598dc8dfed5463ef49606a5f8f68e2ce2103fa3",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: 3)\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: 3)\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::locale-[x]-\"works.yml\"": {
+      "expression_sha256": "5a588adc6534a21fcdfc3155bac618eca92a94557eda3ebde4b27f468a8bd759",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "bibliography(\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\")"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "bibliography(\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\")"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::locale-[x]-\"missing.yml\"": {
+      "expression_sha256": "8450fe98591243d59f1aba5874b9abc5b05c0009159de960e44fcd020e6b9c5e",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: [x])\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: [x])\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::selector-selector()": {
+      "expression_sha256": "e05a263b888688a72f4d29ea5d12034da41df563662652bc452e50e975005dea",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: selector() requer 1 argumento, recebeu 0\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: selector() requer 1 argumento, recebeu 0\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::selector-selector(heading, figure)": {
+      "expression_sha256": "c51d1fd2bcaf349a2a5930bd9b5489703340890b9f6d1334690620cd319a36c6",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: selector() requer 1 argumento, recebeu 2\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: selector() requer 1 argumento, recebeu 2\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::selector-selector(1)": {
+      "expression_sha256": "2225138988ad5f0d86f69fb8654056755434d680c88e883bd8b7be7b64121816",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: selector(): argumento inv\u00e1lido (int)\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: selector(): argumento inv\u00e1lido (int)\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::selector-selector(regex(\"a\"))": {
+      "expression_sha256": "7ea44dace8356cb13abdb9eea72b36feb35bdf957a512f67d2a4ab705181c6e7",
+      "baseline_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "regex(\"a\")"
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": "regex(\"a\")"
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline.json::selector-selector(\"\")": {
+      "expression_sha256": "2a168135a32bb64d032612f501a3dd515440f59f679004b0dc1317b7ad093c35",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: text selector is empty\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: text selector is empty\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline-supplement.json::spot-positive": {
+      "expression_sha256": "7421ce3af5585fcf5dd3df8b3092605cad6f61c2f33574bb4514fcbc54ce4ee9",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu spot\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": true
+      },
+      "policy": "native-constructor residual retained",
+      "reason": "Preserve independently measured existing native SpotColorant single-color shortcut; oracle rejects this already-established direct constructor behavior, so no parity claim."
+    },
+    "baseline-supplement.json::decimal-semantic": {
+      "expression_sha256": "91faa5dad450c693e54eb67dc4d1a37342bd2a9c688f1512cdf112279a962494",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu decimal\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": true
+      },
+      "policy": "oracle repair",
+      "reason": "Require frozen oracle language value from newly admitted existing native constructor."
+    },
+    "baseline-supplement.json::regex-semantic": {
+      "expression_sha256": "1dc51f5e36f6472a3d7daf16eb213f88d481f1bac0fba5564810b2d9aa18ca32",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu regex\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": true
+      },
+      "policy": "oracle repair",
+      "reason": "Require frozen oracle language value from newly admitted existing native constructor."
+    },
+    "baseline-supplement.json::selector-semantic": {
+      "expression_sha256": "fe562b2ded8198e11e95f822abdb62116e95a512763644be2980398f7a45fea2",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu selector\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": true
+      },
+      "policy": "oracle repair",
+      "reason": "Require frozen oracle language value from newly admitted existing native constructor."
+    },
+    "baseline-supplement.json::stroke-semantic": {
+      "expression_sha256": "8f98bd966eba42dcd4913b03b9f6d81b1290263bd1895d7d8f7c7bbf05d2fa71",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu stroke\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": true
+      },
+      "policy": "oracle repair",
+      "reason": "Require frozen oracle language value from newly admitted existing native constructor."
+    },
+    "baseline-supplement.json::array-semantic": {
+      "expression_sha256": "011de83ccc42a9501fa3cbb71176e2f9e80ed48b40cf334b3a96a380777ac4d0",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu array\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": true
+      },
+      "policy": "oracle repair",
+      "reason": "Require frozen oracle language value from newly admitted existing native constructor."
+    },
+    "baseline-supplement.json::arguments-semantic": {
+      "expression_sha256": "bd82cfd5ef1e3949072a35e984203dbb5d22e2420acc9b1c481c3d0fc6ee9c42",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu arguments\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": true
+      },
+      "policy": "oracle repair",
+      "reason": "Require frozen oracle language value from newly admitted existing native constructor."
+    },
+    "baseline-supplement.json::tiling-type": {
+      "expression_sha256": "83d352ccd037df7e59cf7f39bd87f8cc297677c289fd4b4d2144d4c2d0133d26",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu tiling\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": true
+      },
+      "policy": "oracle repair",
+      "reason": "Require frozen oracle language value from newly admitted existing native constructor."
+    },
+    "baseline-supplement.json::version-semantic": {
+      "expression_sha256": "4205a4d7d8f560c7f336ab17b7a112c1b8e2dca9b517a9b6e4e20f54b70c7ada",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu version\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": true
+      },
+      "policy": "oracle repair",
+      "reason": "Require frozen oracle language value from newly admitted existing native constructor."
+    },
+    "baseline-supplement.json::label-semantic": {
+      "expression_sha256": "f06e35a76b107f61f47d9525d49752a7500ee945c2c88f81b3f21956bdc96800",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu label\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": true
+      },
+      "policy": "oracle repair",
+      "reason": "Require frozen oracle language value from newly admitted existing native constructor."
+    },
+    "baseline-supplement.json::duration-lazy": {
+      "expression_sha256": "37942b43c5182a6b61310e7d724ecd6bbf4d2d496e04eed9a49221f9100dbe60",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu duration\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 0,
+        "stderr": "",
+        "value": true
+      },
+      "policy": "oracle repair",
+      "reason": "Require frozen oracle language value from newly admitted existing native constructor."
+    },
+    "baseline-supplement.json::by-error": {
+      "expression_sha256": "837727f6b5e0b4ef8968fbad5b9a0cbd66ff449468a87a09202d1654d004941d",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: expected function, found version\n  \u250c\u2500 <input-expression>:1:12\n  \u2502\n1 \u2502 (2,1).sorted(by: version)\n  \u2502             ^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: expected boolean, found version\n  \u250c\u2500 <input-expression>:1:12\n  \u2502\n1 \u2502 (2,1).sorted(by: version)\n  \u2502             ^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "policy": "native-constructor residual retained",
+      "reason": "The independently measured by callback returns version and fails the existing Bool validator. Preserve the original corpus Args source/span verbatim; replace only the prior admission diagnostic with the measured result diagnostic, without stripping coordinates or traces."
+    },
+    "baseline-supplement.json::duration-native-error": {
+      "expression_sha256": "8b90d0d799bae79e954fdefcdb0689758f301686e37e396de4eb1004f75d807f",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu duration\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: duration(): espera Str, recebeu int\n\n",
+        "stdout": ""
+      },
+      "policy": "native-constructor residual retained",
+      "reason": "Forward the measured existing duration(1) error; native positional/error debt retained."
+    },
+    "baseline-supplement.json::array-native-error": {
+      "expression_sha256": "ab9ef24fdb2cd180abb56d5f17b4a29cd54f75f634280e01d273bdd7aa137dc3",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu array\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: type array does not have a constructor\n\n"
+      },
+      "policy": "native-constructor residual retained",
+      "reason": "Existing native_array_bytes rejects non-Bytes with this exact message at passed Args span (array.rs). apply_func directly forwards Args::positional with detached span; no source-call span or trace is invented. This differs from the measured direct-dispatch callee span and from vanilla general Array casts."
+    },
+    "baseline-supplement.json::decimal-native-error": {
+      "expression_sha256": "b49d6b7d0c1d91d96544e757e093cc46ea0835ab22abd09ccfe3872d337943f7",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu decimal\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: decimal(): string inv\u00e1lida: 'bad'\n\n",
+        "stdout": ""
+      },
+      "policy": "native-constructor residual retained",
+      "reason": "Forward measured decimal(\"bad\") diagnostic without rewriting native behavior."
+    },
+    "baseline-supplement.json::selector-native-error": {
+      "expression_sha256": "9a109ce082e8b6d993fd867d5e15f403a6c982c8eb9f01427331e4182c1898f2",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu selector\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: selector(): argumento inv\u00e1lido (int)\n\n",
+        "stdout": ""
+      },
+      "policy": "native-constructor residual retained",
+      "reason": "Forward measured selector(1) diagnostic without rewriting native behavior."
+    },
+    "baseline-supplement.json::spot-native-error": {
+      "expression_sha256": "ec680913dd57f845644f2ba13269961cd9679eaca7b172790432baa67c989b12",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu spot\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: missing argument: fallback\n\n",
+        "stdout": ""
+      },
+      "policy": "native-constructor residual retained",
+      "reason": "Forward measured name-only SpotColorant missing-fallback error."
+    },
+    "baseline-supplement.json::arguments-by-error": {
+      "expression_sha256": "0bb037c26f902a3281e351f03bf39935e2e88f36fac6cad6c17c128c8cc1694b",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: expected function, found arguments\n  \u250c\u2500 <input-expression>:1:12\n  \u2502\n1 \u2502 (2,1).sorted(by: arguments)\n  \u2502             ^^^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: expected boolean, found arguments\n  \u250c\u2500 <input-expression>:1:12\n  \u2502\n1 \u2502 (2,1).sorted(by: arguments)\n  \u2502             ^^^^^^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "policy": "native-constructor residual retained",
+      "reason": "The independently measured by callback returns arguments and fails the existing Bool validator. Preserve the original corpus Args source/span verbatim; replace only the prior admission diagnostic with the measured result diagnostic, without stripping coordinates or traces."
+    },
+    "baseline-supplement.json::dictionary-direct-module": {
+      "expression_sha256": "e7dbe3ab0b013092f70ede68cf1a698af177a9f1b55b13262a9c4a42c95d8ad9",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: type dictionary does not have a constructor\n  \u250c\u2500 <input-expression>:1:0\n  \u2502\n1 \u2502 dictionary(math).keys().contains(\"equation\")\n  \u2502 ^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: type dictionary does not have a constructor\n  \u250c\u2500 <input-expression>:1:0\n  \u2502\n1 \u2502 dictionary(math).keys().contains(\"equation\")\n  \u2502 ^^^^^^^^^^\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    },
+    "baseline-supplement.json::path-map-context": {
+      "expression_sha256": "46f6de660457880929b4915d6ac4325233a7c8bcdee2319521d652143f1bbb33",
+      "baseline_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu path\n\n",
+        "stdout": ""
+      },
+      "expected_observation": {
+        "returncode": 1,
+        "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu path\n\n",
+        "stdout": ""
+      },
+      "policy": "baseline preservation",
+      "reason": "Unchanged contract; retain the exact parsed result and complete diagnostics, including preexisting parity debt."
+    }
+  }
+}

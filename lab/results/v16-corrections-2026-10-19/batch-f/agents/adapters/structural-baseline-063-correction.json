@@ -1,0 +1,47 @@
+{
+  "status": "corrected baseline evidence; original report retained untouched",
+  "utc": "2026-10-19T20:36:02.252238+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "working_tree": "uncommitted working tree",
+  "changed_file_stat": " .../prompts/core/compiler/stdlib/collections.md    |  25 +-\n .../core/compiler/stdlib/collections/validation.md |  41 +++-\n .../core/compiler/stdlib/counter/display.md        |  28 ++-\n .../core/compiler/stdlib/foundations/selector.md   |  24 +-\n .../prompts/core/compiler/stdlib/html/attr_cast.md |  37 ++-\n 00_nucleo/prompts/core/compiler/stdlib/layout.md   |  44 +++-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  55 ++++-\n .../prompts/core/compiler/stdlib/layout/place.md   |  38 ++-\n .../prompts/core/compiler/stdlib/layout/stroke.md  |  38 ++-\n .../core/compiler/stdlib/loading/encoding.md       |  39 +++-\n .../core/compiler/stdlib/loading/yaml_encode.md    |  40 +++-\n .../prompts/core/compiler/stdlib/shapes/ellipse.md |  60 ++++-\n .../prompts/core/compiler/stdlib/shapes/line.md    |  41 +++-\n .../compiler/stdlib/structural/bibliography.md     |  29 ++-\n .../stdlib/structural/math_accent_tests.md         |  39 +++-\n .../compiler/stdlib/structural/math_cases_tests.md |  39 +++-\n .../core/compiler/stdlib/structural/outline.md     |  26 ++-\n .../core/compiler/stdlib/structural/table_grid.md  |  36 ++-\n 01_core/src/compiler/stdlib/collections.rs         |   4 +-\n .../src/compiler/stdlib/collections/validation.rs  | 249 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/counter/display.rs     | 163 ++++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |  69 +++++-\n 01_core/src/compiler/stdlib/html/attr_cast.rs      | 156 ++++++++++++-\n 01_core/src/compiler/stdlib/layout.rs              |  93 +++++++-\n 01_core/src/compiler/stdlib/layout/grid.rs         | 259 +++++++++++++++++++--\n 01_core/src/compiler/stdlib/layout/place.rs        | 195 +++++++++++++++-\n 01_core/src/compiler/stdlib/layout/stroke.rs       | 154 +++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 173 +++++++++++++-\n 01_core/src/compiler/stdlib/loading/yaml_encode.rs | 169 +++++++++++---\n 01_core/src/compiler/stdlib/shapes/ellipse.rs      | 195 +++++++++++++++-\n 01_core/src/compiler/stdlib/shapes/line.rs         | 165 ++++++++++++-\n .../src/compiler/stdlib/structural/bibliography.rs | 137 ++++++++++-\n .../stdlib/structural/math_accent_tests.rs         | 144 +++++++++++-\n .../compiler/stdlib/structural/math_cases_tests.rs | 143 +++++++++++-\n 01_core/src/compiler/stdlib/structural/outline.rs  | 212 ++++++++++++++++-\n .../src/compiler/stdlib/structural/table_grid.rs   |  76 +++++-\n 36 files changed, 3313 insertions(+), 122 deletions(-)\n",
+  "measurement": "Independent reparse of original raw compiler JSON; no compilation or product execution",
+  "historical_baseline": "2026-10-19T20:21:33.621310+00:00",
+  "bound_artifacts": {
+    "lab/results/v16-corrections-2026-10-19/batch-f/structural-baseline/results.json": "d4b58e75c723a96b1935dc8fb7d6791c23c6b768f9f77b971c02eeeb1f5f3bde",
+    "lab/results/v16-corrections-2026-10-19/batch-f/structural-baseline/all-domains.log": "09be946c4624ceca08a9fbb7238946ce1443eedbe9298a499d307a86e0666e8a",
+    "lab/results/v16-corrections-2026-10-19/batch-f/structural-baseline/original-sources.json.gz": "74ce06c27ea2b4948cb2ef8b6735d4f4d9ba39c5ed254401c11d35f76ed7393c",
+    "lab/results/v16-corrections-2026-10-19/batch-f/structural-baseline/all-domains-mutations.json.gz": "d179387071a527d7cf4f64641e5cc656821ab1e79bcfbae150421add55ff1153",
+    "lab/results/v16-corrections-2026-10-19/batch-f/structural-baseline/inputs.json.gz": "db99d3b2c218f7a6002e87dde9c64b317b92452a988c7298d429a55b1d5321f7",
+    "lab/results/v16-corrections-2026-10-19/batch-f/structural-targets.json": "c2a1ab0bc5096e1e02bb334b7a9f6faae35881a56f0c7022734da10e9b61d641",
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/structural-targets-before-correction.json": "1bddfb4079d5f6e270b0fa41d86dadbc9faeaeb730d120f4685612435c4da63b"
+  },
+  "original_wrong_anchor": {
+    "line": 28,
+    "role": "source/occurrence normalization match; does not prove payload match"
+  },
+  "corrected_target": {
+    "id": "V16-063",
+    "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+    "domain": "Content",
+    "baseline": {
+      "after": "// Campos de payload cuja presen\u00e7a \u00e9 estrutural.",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "// Campos de payload cuja presen\u00e7a \u00e9 estrutural.",
+      "anchor": "match content {"
+    },
+    "line": 48,
+    "byte_start": 1874,
+    "byte_end": 1889,
+    "archived_source_sha256": "4463c1c34d091528d502e9fea430feed1797728e1d9526f942bef96e61131be3",
+    "diagnostics": []
+  },
+  "compiler_error_count": 283,
+  "primary_e0004_count_at_exact_payload_match": 0,
+  "green_only_targets": [
+    "V16-054-selector",
+    "V16-059-extract-tracks-rejection"
+  ],
+  "pending": "Green compilation must witness every target; geometry must make new extract_tracks rejection nominal."
+}

@@ -1,0 +1,28 @@
+{
+  "utc_before": "2026-10-19T20:38:05.208342+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "working_tree": "uncommitted working tree",
+  "diff_HEAD_stat": " .../prompts/core/compiler/stdlib/collections.md    |  25 +-\n .../core/compiler/stdlib/collections/validation.md |  41 ++-\n .../core/compiler/stdlib/counter/display.md        |  28 +-\n .../core/compiler/stdlib/foundations/selector.md   |  24 +-\n .../prompts/core/compiler/stdlib/html/attr_cast.md |  37 ++-\n 00_nucleo/prompts/core/compiler/stdlib/layout.md   |  44 ++-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  63 ++++-\n .../prompts/core/compiler/stdlib/layout/place.md   |  38 ++-\n .../prompts/core/compiler/stdlib/layout/stroke.md  |  38 ++-\n .../core/compiler/stdlib/loading/encoding.md       |  39 ++-\n .../core/compiler/stdlib/loading/yaml_encode.md    |  40 ++-\n .../prompts/core/compiler/stdlib/shapes/line.md    |  41 ++-\n .../compiler/stdlib/structural/bibliography.md     |  29 +-\n .../stdlib/structural/math_accent_tests.md         |  39 ++-\n .../compiler/stdlib/structural/math_cases_tests.md |  39 ++-\n .../core/compiler/stdlib/structural/outline.md     |  26 +-\n .../core/compiler/stdlib/structural/table_grid.md  |  36 ++-\n 01_core/src/compiler/stdlib/collections.rs         |   4 +-\n .../src/compiler/stdlib/collections/validation.rs  | 249 ++++++++++++++++-\n 01_core/src/compiler/stdlib/counter/display.rs     | 163 +++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |  69 ++++-\n 01_core/src/compiler/stdlib/html/attr_cast.rs      | 156 ++++++++++-\n 01_core/src/compiler/stdlib/layout.rs              |  93 ++++++-\n 01_core/src/compiler/stdlib/layout/grid.rs         | 295 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/layout/place.rs        | 195 +++++++++++++-\n 01_core/src/compiler/stdlib/layout/stroke.rs       | 154 ++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 173 +++++++++++-\n 01_core/src/compiler/stdlib/loading/yaml_encode.rs | 169 +++++++++---\n 01_core/src/compiler/stdlib/shapes/line.rs         | 165 +++++++++++-\n .../src/compiler/stdlib/structural/bibliography.rs | 137 +++++++++-\n .../stdlib/structural/math_accent_tests.rs         | 144 +++++++++-\n .../compiler/stdlib/structural/math_cases_tests.rs | 143 +++++++++-\n 01_core/src/compiler/stdlib/structural/outline.rs  | 212 ++++++++++++++-\n .../src/compiler/stdlib/structural/table_grid.rs   |  76 +++++-\n 34 files changed, 3111 insertions(+), 113 deletions(-)\n",
+  "source": "01_core/src/compiler/stdlib/collections/array_predicate.rs",
+  "owner": "00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md",
+  "before": {
+    "01_core/src/compiler/stdlib/collections/array_predicate.rs": "da5d5cabc49267346e18dfc3c600b1e8cea7d53eee32f7c0d45bf06d6bc49b00",
+    "00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md": "3eb4f76a1eb71b2160c5989cd368ee54f6d044964ed02defddad1d972ca4322c",
+    "lab/results/v16-corrections-2026-10-19/batch-f/candidate-run/new-tests-green.log": "454fa61208725edccee861d297391e454769088425b0189f74dee6374cd2dbb8",
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/baseline.json": "fbb0d4d994cff23c981fca37ca116caf71e8bba932cbf17e3951e97d94014e38",
+    "01_core/src/compiler/eval/operators/ordering.rs": "5766aa837284591f36845c31865afe9f817f3bc67f73d40c232be02bf5cfeddc",
+    "00_nucleo/prompts/core/compiler/eval/operators/ordering.md": "db2effe298e2611e4fe76c762113f109d513aceda88a2c7c34751bebb1c894fc",
+    "lab/typst-original/crates/typst-library/src/foundations/ops.rs": "652cd66e2b2358d9f007f72fe216cff82fc8c75fd5f3e804ea86a90f2f364006"
+  },
+  "actual_RED": "batch_f_higher_order_sorted_key: cannot compare decimal and decimal",
+  "authorization": "Parent explicitly authorized bounded internal parity correction using actual candidate RED. Parent notified of exact new source/owner before code.",
+  "contract_class": "ADR-0127 continuous internal parity flow; no public signature/default/phase change",
+  "scope": "One homogeneous Decimal comparison arm; existing test unchanged. Mixed Int/Decimal and other comparator omissions remain separate.",
+  "owner_after_L0_first": "cd178c1b1b4cf9ef49ebab617c348ca9efd1b0c9016bb96185c4c43e855c1834",
+  "utc_L0_before_code": "2026-10-19T20:38:05.250501+00:00",
+  "after": {
+    "01_core/src/compiler/stdlib/collections/array_predicate.rs": "749c53a6ae3596a8c33b324e2a4798a87397387a00a53b38d2bc68faac1f7c0e",
+    "00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md": "cd178c1b1b4cf9ef49ebab617c348ca9efd1b0c9016bb96185c4c43e855c1834"
+  },
+  "utc_after": "2026-10-19T20:38:05.250743+00:00"
+}

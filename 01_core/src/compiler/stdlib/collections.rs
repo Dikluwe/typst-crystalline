@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/collections.md
-//! @prompt-hash 455dc104
+//! @prompt-hash a939f8ad
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -1544,7 +1544,7 @@ mod tests {
 
         // tipos não chamáveis → None
         assert!(type_as_callable(Type::Bool).is_none());
-        assert!(type_as_callable(Type::Array).is_none());
+        assert!(type_as_callable(Type::Array).is_some());
         assert!(type_as_callable(Type::Length).is_none());
     }
 

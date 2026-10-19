@@ -1,5 +1,5 @@
 # L0 — stdlib/structural/table_grid
-Hash do Código: 96a123ce
+Hash do Código: ea9e472a
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -56,3 +56,37 @@ Meaningful owner RED→GREEN for lexical presence/body/method/JSON/clone/maps/ty
 Future Content/Value/TableCellKind real disposable workspace/cfgtest probes require E0004at 18distinct final matches with unchanged witness/test inputs; private Cargo target, never share mutant artifacts with main. Structural differential V16expected 141→131,V19onlyprescribed,V20noincrease/remove two optional-projection depth, full replay/SARIF/diff/build/workspace/fmt/strict all-target Clippy+unfulfilled/Rustdoc four indexes/strict-reverse V1/V5/V15/V26 under sequential 12GiB/swap 0/jobs 1. No commit/push/merge/release/newCIpin. V17structuralRED28→zero retains functional controls/order/effects, no unsupported performance/AI claim.
 
 Header/footer spanning and boundaries across levels remain table-row-group-contract measured/public gate, group level distinct from Cell kind/semantic level. Do not ratify current inference, use Vec length to “fix” occupancy, or use Source/Styles as frontier marker. Preserve Grid legacy and rich casts/paint/inset debts. General objective/math-stretch-composite/two matching obligations remain open; no universal table/selector/render certification from structural cleanup.
+
+## Exhaustive argument decisions and measured rejection
+
+### Evidence before decision
+
+At baseline `91ea6ee91105b97b1aedf172e34780dddde14c94`, the exact source/L0
+hashes and UTC are retained in
+`lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/initial-audit-state.json`.
+The baseline eval/query receipts in that directory bind the rebuilt product
+SHA to the ratified oracle commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`.
+They measure acceptance, diagnostic meaning, supplied-value provenance and
+geometry, not Rust representation or rendered bytes. The initial audit separates
+source evidence from inferred intent and records refuters.
+
+`structural/table_grid.rs:71-72` consumes the shared track extractor owned by
+`00_nucleo/prompts/core/compiler/stdlib/layout/grid.md`. Baseline
+`table(columns: (1pt, true, 2pt), [X])` loses the Boolean and succeeds, whereas
+pinned `layout/grid/mod.rs:455-463` and oracle reject that member.
+
+### Contract and limits
+
+Propagate the shared crate-private fallible extractor at columns then rows,
+before children, preserving Table defaults and rows_explicit. Supply the last
+matching named occurrence value_span, then occurrence.span, then Args.span.
+Reject malformed scalar/member tracks and nonpositive counts without changing
+valid ordering or Float/string-auto compatibility. Inherit only the extractor
+contract from its owning prompt; no duplicate parser or second validation path.
+The explicitly recorded Ratio/Relative omission and Length.em truncation remain
+RM1 dimensional-carrier debt, not malformed values or completed parity.
+
+Test the actual Table constructor's mixed-invalid array rejection, source span,
+column-before-row ordering, default/empty/positive-count/legacy controls and
+rows_explicit. Native ABI, public entities, cell/header semantics and phase stay
+unchanged. This internal shared-helper correction follows ADR-0127 flow.

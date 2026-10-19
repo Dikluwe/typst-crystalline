@@ -1,0 +1,18 @@
+[
+  {
+    "name": "version-sorted-red",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "batch_f_higher_order_sorted_key",
+      "--",
+      "--test-threads=1"
+    ],
+    "expected_exit": 101
+  }
+]

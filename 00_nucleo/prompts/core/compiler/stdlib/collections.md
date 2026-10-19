@@ -1,5 +1,5 @@
 # L0 — stdlib/collections
-Hash do Código: 9cc7e161
+Hash do Código: 2d77bf43
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
@@ -64,3 +64,26 @@ Keep eager try_dispatch_collection_method signature as already-evaluated-Args ad
 Structural current-pattern control compiles/future Value-Type rejects E0004 in isolated probe, not actual workspace/target mutation. Erased RHS/stubs isolate patterns, not functional equivalence; functional controls pass before/after, no invented functional RED. Global four V16 become three family decisions because first owner combines two matches; restricted two-owner reseal after V15/V26. Repeat 159 pairs preserving each backend's full stdout/stderr including 18 known negatives; test same-name different Func/constant-vs-function/cross misses/Location, no blanket diagnostic parity. Build/workspace/strict Clippy including unfulfilled/Rustdoc four indexes/fmt/diff/strict-reverse lineage/differential SARIF under 12GiB/High 10GiB/swap0/jobs1. No commit/push/merge/release.
 
 Call-once complement tests construct 39distinct Value discriminants (36language+pure RootedPath/Locator/IntrospectedContent). Unknown-name test preserves payload equality/original Vec pointer and panic-if-called Args; callable classifier checks 37pre-Args rejections and Func/Type actual-argument panic. This proves internal transport/classification, not upstream cast capability/all schema parity. Consume pinned call-once invariants. Internal ADR-0127 continuous-flow correction supersedes only conflicting internal-signature/name-compensation restrictions, retaining Tekt extensions, public functions/reexports/structs/traits/fields/default/phase. Functional co-located RED→GREEN for observed receiver/args effects, mutating fallback/error-before-args, where/With/selector/collections/matrix without truncating legitimate effects; hits/misses, spans/occurrences and Value complements. Unhandled preserves receiver and does not execute args callback; count effects, not PDF bytes/Rust Eq/benchmark. Preserve residual diagnostics explicitly. Ownership/V26 before restricted resealing; build/workspace/strict all-target Clippy including unfulfilled expectations/Rustdoc/fmt/strict-reverse V1/V5/V15/V26/global differential SARIF, no new error/config/suppression. Informative V19 retains alternatives matrix and behavioral relation. Sequential 12GiB/High 10GiB/swap0/jobs1. No publish/commit/merge/release/global-completion claim.
+
+## Constructor-admission regression expectation
+
+### Evidence before decision
+
+At baseline HEAD `91ea6ee911`, the historical constructor test at
+`compiler/stdlib/collections.rs:1534-1548` asserts that Array is unsupported by
+`type_as_callable`. The current-pin receipts
+`lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/baseline.json`
+and `baseline-supplement.json` demonstrate `(bytes((0,255)),).map(array)` succeeds
+upstream while the existing direct Tekt Array(Bytes) constructor already succeeds.
+The mapping policy and repair belong exclusively to
+`00_nucleo/prompts/core/compiler/stdlib/collections/validation.md`.
+
+### Contract and acceptance
+
+Update only this old test's Array assertion to require admission. Preserve all
+nine prior positive constructor assertions and the Bool/Length rejections. This
+assertion must fail on the old adapter and pass after its measured mapping fix;
+retain it as an existing-test semantic RED distinct from newly added tests.
+No productive hub dispatch, catalogue, callback or signature change is authorized.
+This test expectation corrects an obsolete mapping restriction under ADR-0127
+continuous flow and does not relax the remaining negative controls.

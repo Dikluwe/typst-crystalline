@@ -1,0 +1,122 @@
+[
+  {
+    "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+    "name": "batch_f_higher_order_decimal",
+    "expected_baseline": "semantic RED"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+    "name": "batch_f_higher_order_regex",
+    "expected_baseline": "semantic RED"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+    "name": "batch_f_higher_order_selector",
+    "expected_baseline": "semantic RED"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+    "name": "batch_f_higher_order_stroke",
+    "expected_baseline": "semantic RED"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+    "name": "batch_f_higher_order_tiling",
+    "expected_baseline": "semantic RED"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+    "name": "batch_f_higher_order_version",
+    "expected_baseline": "semantic RED"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+    "name": "batch_f_higher_order_label",
+    "expected_baseline": "semantic RED"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+    "name": "batch_f_higher_order_array",
+    "expected_baseline": "semantic RED"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+    "name": "batch_f_higher_order_arguments",
+    "expected_baseline": "semantic RED"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+    "name": "batch_f_higher_order_spot",
+    "expected_baseline": "semantic RED"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+    "name": "batch_f_higher_order_duration",
+    "expected_baseline": "semantic RED"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+    "name": "batch_f_higher_order_sorted_key",
+    "expected_baseline": "semantic RED"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+    "name": "batch_f_higher_order_predicate_retains_result_validation",
+    "expected_baseline": "semantic RED"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+    "name": "batch_f_higher_order_legacy_alias_and_unsupported_types",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+    "name": "batch_f_higher_order_constructors_remain_lazy",
+    "expected_baseline": "semantic RED"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/foundations/selector.rs",
+    "name": "batch_f_selector_slice_cardinality_and_singleton_errors",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/foundations/selector.rs",
+    "name": "batch_f_selector_singleton_keeps_complete_filter_and_guard_residuals",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/structural/bibliography.rs",
+    "name": "batch_f_bibliography_locale_extension_preserves_projection",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/structural/bibliography.rs",
+    "name": "batch_f_bibliography_source_failure_precedes_locale_and_style",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/counter/display.rs",
+    "name": "batch_f_counter_numbering_keeps_kind_and_composite_keys_distinct",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/counter/display.rs",
+    "name": "batch_f_counter_context_error_precedes_named_validation",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/structural/outline.rs",
+    "name": "batch_f_outline_invalid_parent_schema_preserves_context_error",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/structural/outline.rs",
+    "name": "batch_f_outline_valid_private_indent_forms_preserve_inner",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/structural/outline.rs",
+    "name": "batch_f_outline_parent_callback_receives_level_minus_one",
+    "expected_baseline": "pass"
+  }
+]

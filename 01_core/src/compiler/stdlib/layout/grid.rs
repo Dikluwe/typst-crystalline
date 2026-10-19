@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/layout/grid.md
-//! @prompt-hash 4b2e9ad8
+//! @prompt-hash 98f972ca
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -15,21 +15,130 @@ pub(crate) fn parse_track_sizing(val: &Value) -> Option<TrackSizing> {
         Value::Fraction(fr) => Some(TrackSizing::Fraction(*fr)),
         Value::Auto => Some(TrackSizing::Auto),
         Value::Str(s) if s.as_str() == "auto" => Some(TrackSizing::Auto),
-        _ => None, // neutro: N16[β] — Value não-TrackSizing retorna None na projecção de track
+        Value::None
+        | Value::Bool(_)
+        | Value::Int(_)
+        | Value::Str(_)
+        | Value::Array(_)
+        | Value::Dict(_)
+        | Value::Module(_)
+        | Value::Datetime(_)
+        | Value::Func(_)
+        | Value::Content(_)
+        | Value::LocatedContent(_, _)
+        | Value::Relative(_)
+        | Value::Ratio(_)
+        | Value::Angle(_)
+        | Value::Color(_)
+        | Value::Stroke(_)
+        | Value::Align(_)
+        | Value::Location(_)
+        | Value::Gradient(_)
+        | Value::Regex(_)
+        | Value::Tiling(_)
+        | Value::Bytes(_)
+        | Value::Decimal(_)
+        | Value::Duration(_)
+        | Value::Version(_)
+        | Value::Selector(_)
+        | Value::Symbol(_)
+        | Value::Args(_)
+        | Value::State(_)
+        | Value::Counter(_)
+        | Value::Label(_)
+        | Value::Dir(_)
+        | Value::Path(_)
+        | Value::Type(_)
+        | Value::SpotColorant(_) => None,
     }
 }
 
-/// `pub(super)` per P157A — reuso N=2 cross-módulo (sibling
-/// `stdlib/structural.rs::native_table`). Subpadrão emergente
-/// análogo a `extract_length` (N=7); promoção a helper público
-/// diferida até atingir N=3-4.
-pub(crate) fn extract_tracks(val: Option<&Value>) -> Vec<TrackSizing> {
+/// Shared Grid/Table conversion. Malformed supplied tracks are errors;
+/// dimensional omissions remain the separately inventoried RM1 carrier debt.
+pub(crate) fn extract_tracks(
+    val: Option<&Value>,
+    span: Span,
+) -> SourceResult<Vec<TrackSizing>> {
+    use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
     match val {
-        Some(Value::Array(arr)) => arr.iter().filter_map(parse_track_sizing).collect(),
-        // `grid(rows: 3)` ou `grid(columns: 3)` → 3 tracks Auto (Passo 83).
-        Some(Value::Int(n)) if *n > 0 => vec![TrackSizing::Auto; *n as usize],
-        Some(v) => parse_track_sizing(v).into_iter().collect(),
-        None => vec![], // neutro: N16[β] — argumento opcional de tracks ausente retorna lista vazia
+        Some(Value::Array(values)) => {
+            let mut tracks = Vec::with_capacity(values.len());
+            for value in values {
+                if let Some(track) = parse_track_sizing(value) {
+                    tracks.push(track);
+                } else {
+                    match value {
+                        // RM1: preserve measured dimensional omission until the
+                        // public track carrier can retain relative dimensions.
+                        Value::Ratio(_) | Value::Relative(_) => {}
+                        Value::None
+                        | Value::Bool(_)
+                        | Value::Int(_)
+                        | Value::Float(_)
+                        | Value::Str(_)
+                        | Value::Array(_)
+                        | Value::Dict(_)
+                        | Value::Module(_)
+                        | Value::Datetime(_)
+                        | Value::Func(_)
+                        | Value::Content(_)
+                        | Value::LocatedContent(_, _)
+                        | Value::Auto
+                        | Value::Length(_)
+                        | Value::Angle(_)
+                        | Value::Color(_)
+                        | Value::Stroke(_)
+                        | Value::Fraction(_)
+                        | Value::Align(_)
+                        | Value::Location(_)
+                        | Value::Gradient(_)
+                        | Value::Regex(_)
+                        | Value::Tiling(_)
+                        | Value::Bytes(_)
+                        | Value::Decimal(_)
+                        | Value::Duration(_)
+                        | Value::Version(_)
+                        | Value::Selector(_)
+                        | Value::Symbol(_)
+                        | Value::Args(_)
+                        | Value::State(_)
+                        | Value::Counter(_)
+                        | Value::Label(_)
+                        | Value::Dir(_)
+                        | Value::Path(_)
+                        | Value::Type(_)
+                        | Value::SpotColorant(_) => {
+                            return Err(vec![SourceDiagnostic::error(
+                                span,
+                                format!(
+                                    "expected auto, relative length, or fraction, found {}",
+                                    vanilla_type_name(value)
+                                ),
+                            )]);
+                        }
+                    }
+                }
+            }
+            Ok(tracks)
+        }
+        Some(Value::Int(count)) => {
+            if *count <= 0 {
+                return Err(vec![SourceDiagnostic::error(span, "number must be positive")]);
+            }
+            Ok(vec![TrackSizing::Auto; *count as usize])
+        }
+        // This is retained RM1 debt, not a malformed-type diagnostic or final
+        // relative-track semantics. It must not become a catch-all fallback.
+        Some(Value::Ratio(_) | Value::Relative(_)) | None => Ok(vec![]),
+        Some(value) => parse_track_sizing(value).map(|track| vec![track]).ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                span,
+                format!(
+                    "expected auto, relative length, fraction, integer, or array, found {}",
+                    vanilla_type_name(value)
+                ),
+            )]
+        }),
     }
 }
 
@@ -57,8 +166,16 @@ pub fn native_grid(
             )]);
         }
     }
-    let mut columns = extract_tracks(args.named.get("columns"));
-    let mut rows = extract_tracks(args.named.get("rows"));
+    let value_span = |name: &str| {
+        args.occurrences
+            .as_ref()
+            .and_then(|occurrences| {
+                occurrences.iter().rev().find(|arg| arg.name.as_deref() == Some(name))
+            })
+            .map_or(args.span, |arg| arg.value_span.or(arg.span).or(args.span))
+    };
+    let mut columns = extract_tracks(args.named.get("columns"), value_span("columns"))?;
+    let mut rows = extract_tracks(args.named.get("rows"), value_span("rows"))?;
     // Defaults Passo 83 — `rows` omitido ou tuplo vazio → uma linha Auto repetida
     // para todas as linhas geradas pelo número de cells. Idem para columns.
     if columns.is_empty() {
@@ -238,4 +355,154 @@ pub fn native_grid(
             fill,
         },
     ))))
+}
+
+#[cfg(test)]
+mod batch_f_tests {
+    use super::*;
+
+    use crate::contracts::world::World;
+    use crate::entities::{
+        font_book::FontBook,
+        source::Source,
+        world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+    };
+    #[derive(Default)]
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+    }
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+    fn call(args: &Args) -> SourceResult<Value> {
+        let world = TestWorld::default();
+        native_grid(&mut EvalContext::new(), args, &world, world.main())
+    }
+
+    fn at(start: usize) -> Span {
+        Span::from_range(
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+            start..start + 1,
+        )
+    }
+    fn named(name: &str, value: Value) -> Args {
+        use crate::entities::args::ArgOccurrence;
+        Args::from_occurrences(
+            at(1),
+            vec![
+                ArgOccurrence {
+                    name: None,
+                    value: Value::Content(Content::text("X")),
+                    span: at(2),
+                    value_span: at(3),
+                },
+                ArgOccurrence {
+                    name: Some(name.into()),
+                    value,
+                    span: at(4),
+                    value_span: at(5),
+                },
+            ],
+        )
+    }
+
+    #[test]
+    fn batch_f_grid_rejects_invalid_array_member_at_array_value_span() {
+        let args = named(
+            "columns",
+            Value::Array(vec![
+                Value::Length(Length::pt(2.0)),
+                Value::Bool(true),
+                Value::Length(Length::pt(3.0)),
+            ]),
+        );
+        let errors = call(&args).unwrap_err();
+        assert_eq!(
+            errors[0].message,
+            "expected auto, relative length, or fraction, found boolean"
+        );
+        assert_eq!(errors[0].span, at(5));
+    }
+    #[test]
+    fn batch_f_grid_rejects_malformed_scalar_and_nonpositive_counts() {
+        for (value, message) in [
+            (Value::None, "expected auto, relative length, fraction, integer, or array, found none"),
+            (Value::Str("bad".into()), "expected auto, relative length, fraction, integer, or array, found string"),
+            (Value::Int(0), "number must be positive"),
+            (Value::Int(-1), "number must be positive"),
+        ] {
+            let errors = call(&named("rows", value)).unwrap_err();
+            assert_eq!(errors[0].message, message); assert_eq!(errors[0].span, at(5));
+        }
+    }
+    #[test]
+    fn batch_f_grid_columns_error_precedes_rows_and_gutter() {
+        let mut args = named("columns", Value::Bool(true));
+        args.named.insert("rows".into(), Value::None);
+        args.named.insert("gutter".into(), Value::None);
+        let errors = call(&args).unwrap_err();
+        assert_eq!(
+            errors[0].message,
+            "expected auto, relative length, fraction, integer, or array, found boolean"
+        );
+        assert_eq!(errors[0].span, at(5));
+    }
+    #[test]
+    fn batch_f_grid_preserves_valid_order_and_legacy_tracks() {
+        let args = named(
+            "columns",
+            Value::Array(vec![
+                Value::Length(Length::pt(-2.0)),
+                Value::Auto,
+                Value::Fraction(3.0),
+                Value::Float(4.0),
+                Value::Str("auto".into()),
+            ]),
+        );
+        let Value::Content(Content::Grid(grid)) = call(&args).unwrap() else {
+            panic!("grid")
+        };
+        assert_eq!(
+            grid.columns,
+            vec![
+                TrackSizing::Fixed(-2.0),
+                TrackSizing::Auto,
+                TrackSizing::Fraction(3.0),
+                TrackSizing::Fixed(4.0),
+                TrackSizing::Auto
+            ]
+        );
+        for value in [Value::Array(vec![]), Value::Int(1)] {
+            let Value::Content(Content::Grid(grid)) =
+                call(&named("columns", value)).unwrap()
+            else {
+                panic!("grid")
+            };
+            assert_eq!(grid.columns, vec![TrackSizing::Auto]);
+        }
+    }
 }

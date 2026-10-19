@@ -1,0 +1,77 @@
+[
+  {
+    "file": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+    "name": "batch_f_html_union_success_preserves_presence_and_tokens",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+    "name": "batch_f_html_union_rejection_keeps_diagnostic_and_span",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/layout/stroke.rs",
+    "name": "batch_f_dash_native_keeps_order_dot_and_dictionary_phase",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/layout/stroke.rs",
+    "name": "batch_f_dash_native_preserves_guard_rejection_and_current_length_debt",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/layout.rs",
+    "name": "batch_f_alignment_search_preserves_first_candidate",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/layout.rs",
+    "name": "batch_f_alignment_non_candidates_preserve_supplied_default",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+    "name": "batch_f_fields_delegate_raw_caption_and_keep_order",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+    "name": "batch_f_fields_snapshot_overrides_normalized_raw_without_fallback",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+    "name": "batch_f_yaml_empty_and_nested_containers_keep_shape",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+    "name": "batch_f_yaml_scalar_tokens_and_opaque_repr_keep_newline",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+    "name": "batch_f_yaml_strings_and_snapshot_keep_their_own_routes",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/structural/math_accent_tests.rs",
+    "name": "batch_f_accent_finder_observes_actual_fixture_and_rejects_absence",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/structural/math_accent_tests.rs",
+    "name": "batch_f_accent_finder_keeps_order_and_opaque_descendant_boundary",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/structural/math_cases_tests.rs",
+    "name": "batch_f_cases_finder_observes_actual_fixture_and_rejects_absence",
+    "expected_baseline": "pass"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/structural/math_cases_tests.rs",
+    "name": "batch_f_cases_finder_keeps_order_and_opaque_descendant_boundary",
+    "expected_baseline": "pass"
+  }
+]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/tests.md
-//! @prompt-hash 18ba3a46
+//! @prompt-hash 55e228dd
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -20917,10 +20917,22 @@ mod regressions {
         assert!(p633_eval_fails("#state(\"x\", 0).get(1, 2)"));
     }
 
-    // Confirma falha silenciosa em grid(columns: <inválido>).
+    // Invalid track input must report its value origin instead of silently using Auto.
     #[test]
-    fn p633_grid_columns_string_silent_auto() {
-        assert!(p633_eval_succeeds("#let x = grid(columns: \"foo\")[A]"));
+    fn p633_grid_columns_invalid_string_rejected() {
+        let world = MockWorld::new("#let x = grid(columns: \"foo\")[A]");
+        let errors = eval_for_test(&world, &world.source).unwrap_err();
+        assert_eq!(errors.len(), 1, "{errors:?}");
+        let error = &errors[0];
+        assert_eq!(error.severity, crate::entities::source_result::Severity::Error);
+        assert_eq!(
+            error.message,
+            "expected auto, relative length, fraction, integer, or array, found string"
+        );
+        assert!(error.hints.is_empty(), "{error:?}");
+        assert!(error.trace.is_empty(), "{error:?}");
+        assert_eq!(error.span.id(), Some(world.source.id()));
+        assert_eq!(world.source.span_byte_range(error.span), Some(23..28));
     }
 
     // P643: escape unicode inválido em code string produz erro.

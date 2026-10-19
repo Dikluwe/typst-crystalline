@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md
-//! @prompt-hash e0017563
+//! @prompt-hash 559b1edc
 //! @layer L1
 //! @updated 2026-10-17
 //!
@@ -68,8 +68,16 @@ pub fn native_table(
             )]);
         }
     }
-    let mut columns = extract_tracks(args.named.get("columns"));
-    let mut rows = extract_tracks(args.named.get("rows"));
+    let value_span = |name: &str| {
+        args.occurrences
+            .as_ref()
+            .and_then(|occurrences| {
+                occurrences.iter().rev().find(|arg| arg.name.as_deref() == Some(name))
+            })
+            .map_or(args.span, |arg| arg.value_span.or(arg.span).or(args.span))
+    };
+    let mut columns = extract_tracks(args.named.get("columns"), value_span("columns"))?;
+    let mut rows = extract_tracks(args.named.get("rows"), value_span("rows"))?;
     // Defaults — `columns`/`rows` omitido cai em `[Auto]` (paridade
     // com Grid em P83).
     if columns.is_empty() {
@@ -1670,5 +1678,67 @@ mod v16_table_tests {
     fn v16_table_header_source_duplicate_level_still_errors() {
         let e = headers(2, 2).unwrap_err();
         assert!(e[0].message.contains("mais do que um header"));
+    }
+
+    #[test]
+    fn batch_f_table_rejects_invalid_track_without_dropping_member() {
+        use crate::entities::args::ArgOccurrence;
+        let world = TestWorld::new("");
+        let args = Args::from_occurrences(
+            span(1),
+            vec![ArgOccurrence {
+                name: Some("columns".into()),
+                value: Value::Array(vec![
+                    Value::Length(crate::entities::layout_types::Length::pt(2.0)),
+                    Value::Bool(true),
+                    Value::Auto,
+                ]),
+                span: span(2),
+                value_span: span(3),
+            }],
+        );
+        let errors = native_table(&mut EvalContext::new(), &args, &world, world.main())
+            .unwrap_err();
+        assert_eq!(
+            errors[0].message,
+            "expected auto, relative length, or fraction, found boolean"
+        );
+        assert_eq!(errors[0].span, span(3));
+    }
+    #[test]
+    fn batch_f_table_track_counts_are_positive_and_columns_validate_first() {
+        let world = TestWorld::new("");
+        let mut args = Args::positional(vec![]);
+        args.named.insert("rows".into(), Value::Bool(true));
+        args.named.insert("columns".into(), Value::Int(0));
+        let errors = native_table(&mut EvalContext::new(), &args, &world, world.main())
+            .unwrap_err();
+        assert_eq!(errors[0].message, "number must be positive");
+    }
+    #[test]
+    fn batch_f_table_preserves_valid_track_order_and_rows_presence() {
+        use crate::entities::layout_types::TrackSizing;
+        let world = TestWorld::new("");
+        let mut args = Args::positional(vec![]);
+        args.named.insert(
+            "columns".into(),
+            Value::Array(vec![
+                Value::Float(3.0),
+                Value::Str("auto".into()),
+                Value::Fraction(2.0),
+            ]),
+        );
+        args.named.insert("rows".into(), Value::Array(vec![]));
+        let Value::Content(Content::Table(table)) =
+            native_table(&mut EvalContext::new(), &args, &world, world.main()).unwrap()
+        else {
+            panic!("table")
+        };
+        assert_eq!(
+            table.columns,
+            vec![TrackSizing::Fixed(3.0), TrackSizing::Auto, TrackSizing::Fraction(2.0)]
+        );
+        assert_eq!(table.rows, vec![TrackSizing::Auto]);
+        assert!(table.rows_explicit);
     }
 }

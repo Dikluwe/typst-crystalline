@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/outline.md
-//! @prompt-hash 3ae7b7fd
+//! @prompt-hash 9eedec67
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -431,7 +431,41 @@ pub fn native_outline_entry_indented(
             Value::Bool(value) => Some(OutlineIndent::Bool(*value)),
             Value::Length(value) => Some(OutlineIndent::Length(*value)),
             Value::Func(value) => Some(OutlineIndent::Function(value.clone())),
-            _ => None,
+            Value::None
+            | Value::Int(..)
+            | Value::Float(..)
+            | Value::Str(..)
+            | Value::Array(..)
+            | Value::Dict(..)
+            | Value::Module(..)
+            | Value::Datetime(..)
+            | Value::Content(..)
+            | Value::LocatedContent(..)
+            | Value::Relative(..)
+            | Value::Ratio(..)
+            | Value::Angle(..)
+            | Value::Color(..)
+            | Value::Stroke(..)
+            | Value::Fraction(..)
+            | Value::Align(..)
+            | Value::Location(..)
+            | Value::Gradient(..)
+            | Value::Regex(..)
+            | Value::Tiling(..)
+            | Value::Bytes(..)
+            | Value::Decimal(..)
+            | Value::Duration(..)
+            | Value::Version(..)
+            | Value::Selector(..)
+            | Value::Symbol(..)
+            | Value::Args(..)
+            | Value::State(..)
+            | Value::Counter(..)
+            | Value::Label(..)
+            | Value::Dir(..)
+            | Value::Path(..)
+            | Value::Type(..)
+            | Value::SpotColorant(..) => None,
         }
     }) else {
         return Err(vec![SourceDiagnostic::error(
@@ -808,5 +842,179 @@ mod tests {
             (13.2, Some(26.4))
         );
         assert_eq!(compute_auto_indents(&[], 2, None, 13.2), (13.2, None));
+    }
+}
+
+#[cfg(test)]
+mod batch_f_tests {
+    use super::*;
+
+    #[derive(Default)]
+    struct TestWorld {
+        library: crate::entities::world_types::Library,
+        book: crate::entities::font_book::FontBook,
+    }
+    impl crate::contracts::world::World for TestWorld {
+        fn library(&self) -> &crate::entities::world_types::Library {
+            &self.library
+        }
+        fn book(&self) -> &crate::entities::font_book::FontBook {
+            &self.book
+        }
+        fn main(&self) -> crate::entities::file_id::FileId {
+            test_file()
+        }
+        fn source(
+            &self,
+            _: crate::entities::file_id::FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn file(
+            &self,
+            _: crate::entities::file_id::FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<crate::entities::world_types::Datetime> {
+            None
+        }
+    }
+    fn test_file() -> crate::entities::file_id::FileId {
+        crate::entities::file_id::FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+    }
+
+    fn with_engine<R>(
+        f: impl FnOnce(&mut crate::entities::engine::Engine<'_>) -> R,
+    ) -> R {
+        use comemo::Track;
+        let world = TestWorld::default();
+        let route = crate::entities::world_types::Route::root();
+        let mut styles = crate::entities::style_chain::StyleChain::default_chain();
+        let mut rules = std::sync::Arc::from([]);
+        let mut guards = Vec::new();
+        let mut sink_local = crate::entities::sink::Sink::new();
+        let mut sink = sink_local.track_mut();
+        let mut engine = crate::entities::engine::Engine {
+            world: &world,
+            font_metrics: &crate::compiler::layout::FixedMetrics,
+            route: route.track(),
+            styles: &mut styles,
+            show_rules: &mut rules,
+            active_guards: &mut guards,
+            current_file: test_file(),
+            sink: &mut sink,
+        };
+        f(&mut engine)
+    }
+
+    fn invoke_indent(
+        indent: Option<Value>,
+        key: Option<Value>,
+        in_context: bool,
+    ) -> SourceResult<Value> {
+        with_engine(|engine| {
+            if let Some(indent) = indent {
+                *engine.styles =
+                    engine.styles.push_custom("outline.parent.indent", indent);
+            }
+            if let Some(key) = key {
+                *engine.styles = engine.styles.push_custom("outline.parent.key", key);
+            }
+            let entry = crate::entities::elements::outline_entry::OutlineEntryElem::new(
+                2,
+                Content::heading(1, Content::text("H")),
+                None,
+                true,
+            );
+            let args = Args::positional(vec![
+                Value::Content(Content::OutlineEntry(std::sync::Arc::new(entry))),
+                Value::None,
+                Value::Content(Content::text("inner")),
+            ]);
+            let mut ctx = EvalContext::new();
+            ctx.in_context = in_context;
+            native_outline_entry_indented(
+                &mut ctx,
+                &args,
+                engine.world,
+                test_file(),
+                &mut crate::compiler::scopes::Scopes::new(None),
+                engine,
+            )
+        })
+    }
+    #[test]
+    fn batch_f_outline_invalid_parent_schema_preserves_context_error() {
+        for indent in [
+            None,
+            Some(Value::None),
+            Some(Value::Int(2)),
+            Some(Value::Str("auto".into())),
+            Some(Value::Content(Content::text("x"))),
+            Some(Value::Array(vec![])),
+        ] {
+            let errors = invoke_indent(indent, Some(Value::Int(1)), true).unwrap_err();
+            assert_eq!(
+                errors[0].message,
+                "must be called within the context of an outline"
+            );
+        }
+        for key in [None, Some(Value::None), Some(Value::Str("1".into()))] {
+            assert_eq!(
+                invoke_indent(Some(Value::Auto), key, true).unwrap_err()[0].message,
+                "must be called within the context of an outline"
+            );
+        }
+        assert_eq!(
+            invoke_indent(None, None, false).unwrap_err()[0].message,
+            "can only be used when context is known"
+        );
+    }
+    #[test]
+    fn batch_f_outline_valid_private_indent_forms_preserve_inner() {
+        for indent in [
+            Value::Auto,
+            Value::Bool(true),
+            Value::Bool(false),
+            Value::Length(crate::entities::layout_types::Length::pt(7.0)),
+        ] {
+            let Value::Content(Content::Block(block)) =
+                invoke_indent(Some(indent), Some(Value::Int(9)), true).unwrap()
+            else {
+                panic!("expected block");
+            };
+            assert_eq!(block.body.plain_text(), "inner");
+        }
+    }
+    #[test]
+    fn batch_f_outline_parent_callback_receives_level_minus_one() {
+        fn indent(
+            _: &mut EvalContext,
+            args: &Args,
+            _: &dyn crate::contracts::world::World,
+            _: FileId,
+        ) -> SourceResult<Value> {
+            assert_eq!(args.items, vec![Value::Int(1)]);
+            assert!(args.named.is_empty());
+            Ok(Value::Length(crate::entities::layout_types::Length::pt(17.0)))
+        }
+        let function = crate::entities::func::Func::native("indent", indent);
+        let Value::Content(Content::Block(block)) =
+            invoke_indent(Some(Value::Func(function)), Some(Value::Int(9)), true)
+                .unwrap()
+        else {
+            panic!("expected block");
+        };
+        assert_eq!(block.inset.left, crate::entities::layout_types::Length::pt(17.0));
+        assert_eq!(block.body.plain_text(), "inner");
     }
 }

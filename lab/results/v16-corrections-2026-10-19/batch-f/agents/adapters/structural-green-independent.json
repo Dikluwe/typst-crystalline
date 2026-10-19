@@ -1,0 +1,286 @@
+{
+  "status": "PASS independent raw compiler and mutation reparse",
+  "utc": "2026-10-19T20:42:06.975163+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "working_tree": "uncommitted working tree",
+  "diff_HEAD_stat": " .../prompts/core/compiler/stdlib/collections.md    |  25 +-\n .../compiler/stdlib/collections/array_predicate.md |  33 ++-\n .../core/compiler/stdlib/collections/validation.md |  41 ++-\n .../core/compiler/stdlib/counter/display.md        |  28 +-\n .../core/compiler/stdlib/foundations/selector.md   |  24 +-\n .../prompts/core/compiler/stdlib/html/attr_cast.md |  37 ++-\n 00_nucleo/prompts/core/compiler/stdlib/layout.md   |  44 ++-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  63 ++++-\n .../prompts/core/compiler/stdlib/layout/place.md   |  38 ++-\n .../prompts/core/compiler/stdlib/layout/stroke.md  |  38 ++-\n .../core/compiler/stdlib/loading/encoding.md       |  39 ++-\n .../core/compiler/stdlib/loading/yaml_encode.md    |  40 ++-\n .../prompts/core/compiler/stdlib/shapes/line.md    |  41 ++-\n .../compiler/stdlib/structural/bibliography.md     |  29 +-\n .../stdlib/structural/math_accent_tests.md         |  39 ++-\n .../compiler/stdlib/structural/math_cases_tests.md |  39 ++-\n .../core/compiler/stdlib/structural/outline.md     |  26 +-\n .../core/compiler/stdlib/structural/table_grid.md  |  36 ++-\n 01_core/src/compiler/stdlib/collections.rs         |   4 +-\n .../compiler/stdlib/collections/array_predicate.rs |   3 +-\n .../src/compiler/stdlib/collections/validation.rs  | 249 ++++++++++++++++-\n 01_core/src/compiler/stdlib/counter/display.rs     | 163 +++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |  69 ++++-\n 01_core/src/compiler/stdlib/html/attr_cast.rs      | 156 ++++++++++-\n 01_core/src/compiler/stdlib/layout.rs              |  93 ++++++-\n 01_core/src/compiler/stdlib/layout/grid.rs         | 295 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/layout/place.rs        | 195 +++++++++++++-\n 01_core/src/compiler/stdlib/layout/stroke.rs       | 154 ++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 173 +++++++++++-\n 01_core/src/compiler/stdlib/loading/yaml_encode.rs | 169 +++++++++---\n 01_core/src/compiler/stdlib/shapes/line.rs         | 165 +++++++++++-\n .../src/compiler/stdlib/structural/bibliography.rs | 137 +++++++++-\n .../stdlib/structural/math_accent_tests.rs         | 144 +++++++++-\n .../compiler/stdlib/structural/math_cases_tests.rs | 143 +++++++++-\n 01_core/src/compiler/stdlib/structural/outline.rs  | 212 ++++++++++++++-\n .../src/compiler/stdlib/structural/table_grid.rs   |  76 +++++-\n 36 files changed, 3145 insertions(+), 115 deletions(-)\n",
+  "method": "Recompute selected match line/byte positions from archived original+mutant sources; require exact primary E0004 in original compiler JSON. Separate slice mutants prove zero/many arity; no enum extension substitutes for arity. No new compiler execution.",
+  "bound": {
+    "lab/results/v16-corrections-2026-10-19/batch-f/structural-green/results.json": "6d45225cf711b7bf8ccf9cd5c699a53bafebbb432482bf88ab3a70d56829db62",
+    "lab/results/v16-corrections-2026-10-19/batch-f/structural-green/freeze.json": "87de5b1a8cced4bdd5de63f44eadbc35ba2a6bd4982405cad7cafe64b2498cf4",
+    "lab/results/v16-corrections-2026-10-19/batch-f/structural-green/original-sources.json.gz": "37e6aef4a3e2ece8307cac70ea6582688a4f9251fc75d30355bf141859956e86",
+    "lab/results/v16-corrections-2026-10-19/batch-f/structural-green/inputs.json.gz": "aa4c0cb4a1645b2fb8bdc76340cf89a38313b3b3cffc0938cc9980c5a770bdfa",
+    "lab/results/v16-corrections-2026-10-19/batch-f/structural-targets.json": "7b14a2b319db1df404e4754b61b314a8310a5cab41e7ff2c86eb2f93d11e3d22",
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/structural-baseline-063-correction.json": "c13ca8e06d58dcffe1d439505379b51eab508d7d5fe33e842daaf498ee3f7e5b"
+  },
+  "audits": [
+    {
+      "name": "all-domains",
+      "recorded_utc_start": "2026-10-19T20:40:30.194354+00:00",
+      "recorded_utc_end": "2026-10-19T20:40:57.569556+00:00",
+      "exit": 101,
+      "all_errors": 300,
+      "exact_selected": [
+        {
+          "id": "V16-053",
+          "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+          "source_sha256": "450c3b0e30f32f45d9c6e344498ed9951d7a6ca065b65f10cf89de312fb8da91",
+          "line": 90,
+          "byte_start": 2594,
+          "byte_end": 2603,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `entities::value::Type::TektV16EvolutionProbe` not covered"
+          ]
+        },
+        {
+          "id": "V16-054",
+          "file": "01_core/src/compiler/stdlib/counter/display.rs",
+          "source_sha256": "4348584b2fbe325c34e6400486757da4166a5f74a18fb7a5d3cdee647ce5a929",
+          "line": 126,
+          "byte_start": 4297,
+          "byte_end": 4317,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&entities::counter::CounterKey::TektV16EvolutionProbe` not covered"
+          ]
+        },
+        {
+          "id": "V16-057",
+          "file": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+          "source_sha256": "6bd99eefe9070873ed00b7e70abc640fb4f6fd952d4054a8d040e555128c72b1",
+          "line": 105,
+          "byte_start": 4166,
+          "byte_end": 4179,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered"
+          ]
+        },
+        {
+          "id": "V16-058",
+          "file": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+          "source_sha256": "6bd99eefe9070873ed00b7e70abc640fb4f6fd952d4054a8d040e555128c72b1",
+          "line": 157,
+          "byte_start": 6116,
+          "byte_end": 6129,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered"
+          ]
+        },
+        {
+          "id": "V16-059",
+          "file": "01_core/src/compiler/stdlib/layout/grid.rs",
+          "source_sha256": "8f5fbe094345d91f067616e4bb72341b5becdf7b62ef093568a2c8fc415d85f2",
+          "line": 12,
+          "byte_start": 293,
+          "byte_end": 304,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered"
+          ]
+        },
+        {
+          "id": "V16-060",
+          "file": "01_core/src/compiler/stdlib/layout/place.rs",
+          "source_sha256": "54e49c3267541840b8f56f1ac3c78444c7a2c993755b200c4ecfd57f27dfdc25",
+          "line": 35,
+          "byte_start": 1275,
+          "byte_end": 1286,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered"
+          ]
+        },
+        {
+          "id": "V16-061",
+          "file": "01_core/src/compiler/stdlib/layout/stroke.rs",
+          "source_sha256": "f44e54c9cc7add196a46b00941cd6ccc1b1ad5cebee9b7fb75b7f67093ddd1f0",
+          "line": 146,
+          "byte_start": 5186,
+          "byte_end": 5199,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered"
+          ]
+        },
+        {
+          "id": "V16-062",
+          "file": "01_core/src/compiler/stdlib/layout.rs",
+          "source_sha256": "fd877772e46e671589940aa85889d81db290336be41acae1c2d28c68c572148e",
+          "line": 121,
+          "byte_start": 4134,
+          "byte_end": 4143,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered"
+          ]
+        },
+        {
+          "id": "V16-063",
+          "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+          "source_sha256": "7fbf8a39a5fc6f7d7ecbfb040a26391a5ac981125452686118a298754c152f0a",
+          "line": 48,
+          "byte_start": 1874,
+          "byte_end": 1889,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered"
+          ]
+        },
+        {
+          "id": "V16-064",
+          "file": "01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+          "source_sha256": "79146a48b8a560b4c7eee05ecd32823d1c7068adb2e0a0e8d5b80439abbe4d5a",
+          "line": 36,
+          "byte_start": 1057,
+          "byte_end": 1070,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered"
+          ]
+        },
+        {
+          "id": "V16-066",
+          "file": "01_core/src/compiler/stdlib/shapes/line.rs",
+          "source_sha256": "ddb0e9d6ffc05f30784fc7a3c39c2e0e7be33124807e5dea95e57cd33992f144",
+          "line": 32,
+          "byte_start": 1056,
+          "byte_end": 1067,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered"
+          ]
+        },
+        {
+          "id": "V16-067",
+          "file": "01_core/src/compiler/stdlib/structural/bibliography.rs",
+          "source_sha256": "17d7901e53f7a337b45b3a3a187e261fdf5169aade7d6379ff5c971fad67565f",
+          "line": 331,
+          "byte_start": 13061,
+          "byte_end": 13070,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered"
+          ]
+        },
+        {
+          "id": "V16-068",
+          "file": "01_core/src/compiler/stdlib/structural/math_accent_tests.rs",
+          "source_sha256": "602de703a86ef36acb647d31872775d2fb9b1e3c12740259a46f7cd1ff891cf0",
+          "line": 335,
+          "byte_start": 9981,
+          "byte_end": 9996,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered"
+          ]
+        },
+        {
+          "id": "V16-069",
+          "file": "01_core/src/compiler/stdlib/structural/math_cases_tests.rs",
+          "source_sha256": "39c80b34b003a908dc1f817827b8b0d4df9ecdc8ab019b4f5b630d0adb80b8c0",
+          "line": 319,
+          "byte_start": 9362,
+          "byte_end": 9377,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered"
+          ]
+        },
+        {
+          "id": "V16-070",
+          "file": "01_core/src/compiler/stdlib/structural/outline.rs",
+          "source_sha256": "73244d422b3cbf984045ce7f54b5478847f69d53de414980fc15b2bc3e262613",
+          "line": 429,
+          "byte_start": 14352,
+          "byte_end": 14365,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered"
+          ]
+        },
+        {
+          "id": "V16-054-selector",
+          "file": "01_core/src/compiler/stdlib/counter/display.rs",
+          "source_sha256": "4348584b2fbe325c34e6400486757da4166a5f74a18fb7a5d3cdee647ce5a929",
+          "line": 128,
+          "byte_start": 4442,
+          "byte_end": 4458,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&entities::selector::Selector::TektV16EvolutionProbe` not covered"
+          ]
+        },
+        {
+          "id": "V16-059-extract-tracks-rejection",
+          "file": "01_core/src/compiler/stdlib/layout/grid.rs",
+          "source_sha256": "8f5fbe094345d91f067616e4bb72341b5becdf7b62ef093568a2c8fc415d85f2",
+          "line": 70,
+          "byte_start": 2218,
+          "byte_end": 2231,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered"
+          ]
+        }
+      ],
+      "bound": {
+        "lab/results/v16-corrections-2026-10-19/batch-f/structural-green/all-domains.log": "107de7bb88e48f61fdf966c2bb81aff80c3f6252a83717cd2974c493796b14d3",
+        "lab/results/v16-corrections-2026-10-19/batch-f/structural-green/all-domains-mutations.json.gz": "f3714652e8be6d0a5b0f9c5256dafb6d30da2ca0d9d8f4da541d6838a0698e09"
+      }
+    },
+    {
+      "name": "arity-zero",
+      "recorded_utc_start": "2026-10-19T20:40:57.832371+00:00",
+      "recorded_utc_end": "2026-10-19T20:41:27.645716+00:00",
+      "exit": 101,
+      "all_errors": 1,
+      "exact_selected": [
+        {
+          "id": "V16-056-arity-zero",
+          "file": "01_core/src/compiler/stdlib/foundations/selector.rs",
+          "source_sha256": "2fa7c0506c7fd56ad771b473cead2f54b3b24ee86363863ae4d73856c7703922",
+          "line": 135,
+          "byte_start": 5080,
+          "byte_end": 5093,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&[]` not covered"
+          ]
+        }
+      ],
+      "bound": {
+        "lab/results/v16-corrections-2026-10-19/batch-f/structural-green/arity-zero.log": "e7239b32f1a53cdb098811559e6585dc14985774f4b0632abcd4308cc536a57f",
+        "lab/results/v16-corrections-2026-10-19/batch-f/structural-green/arity-zero-mutations.json.gz": "4b9c358ef6e235ac0c1d2e50e26fb7322a9af8467a9c4b8db50892f29d72aebf"
+      }
+    },
+    {
+      "name": "arity-many",
+      "recorded_utc_start": "2026-10-19T20:41:27.827574+00:00",
+      "recorded_utc_end": "2026-10-19T20:41:57.907119+00:00",
+      "exit": 101,
+      "all_errors": 1,
+      "exact_selected": [
+        {
+          "id": "V16-056-arity-many",
+          "file": "01_core/src/compiler/stdlib/foundations/selector.rs",
+          "source_sha256": "b25574e6af363b6c7ba58ad2a9dc8791a5f79b19020ff40fbfbf45e210fb0b98",
+          "line": 135,
+          "byte_start": 5080,
+          "byte_end": 5093,
+          "primary_e0004": 1,
+          "messages": [
+            "non-exhaustive patterns: `&[_, _, ..]` not covered"
+          ]
+        }
+      ],
+      "bound": {
+        "lab/results/v16-corrections-2026-10-19/batch-f/structural-green/arity-many.log": "9bf2cadda8c3524fa62b60e2c41f39c0e544b7b9eadf75e9333927fc0a966e50",
+        "lab/results/v16-corrections-2026-10-19/batch-f/structural-green/arity-many-mutations.json.gz": "b1a3b88070b0c990fa562042c45d412b396740e6f16f40a82bdde51c9e49d432"
+      }
+    }
+  ],
+  "exclusions": "V16-055 Figure and V16-065 circle remain deferred. No green proof or closure claim for them."
+}

@@ -1,0 +1,2900 @@
+{
+  "utc_start": "2026-10-19T20:18:59.576332+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "status": "",
+  "diff_head_stat": "",
+  "runner_sha256": "e35e8c3500ad13e89e601d94d71c5d1552269a699e907296a142110e062e34c8",
+  "oracle_pin": {
+    "commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+    "tree": "cac836c07e4dec2a89219370428292393a3216b5",
+    "recipe": "lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md"
+  },
+  "binaries": {
+    "oracle": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+    },
+    "product": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+      "sha256": "44178e4fecc5c66cba3aa134f4d82290c6d53fb340dd5966b67eec45b737c914"
+    }
+  },
+  "cases": [
+    {
+      "name": "int-direct",
+      "expression": "repr(int(\"2\"))",
+      "expression_sha256": "eddf013559f5c817e3941370441e8f52e9399a75e65cddd898298f2ce9f20f80",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(int(\"2\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:18:59.853088+00:00",
+          "utc_end": "2026-10-19T20:18:59.859924+00:00",
+          "returncode": 0,
+          "stdout": "\"2\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(int(\"2\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:18:59.859939+00:00",
+          "utc_end": "2026-10-19T20:18:59.873220+00:00",
+          "returncode": 0,
+          "stdout": "\"2\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "int-map",
+      "expression": "(\"2\",).map(int).map(repr)",
+      "expression_sha256": "db24be162907e296648115ea5a232469ecb425b45dbcbc0905270fee702c7df5",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(\"2\",).map(int).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:18:59.873776+00:00",
+          "utc_end": "2026-10-19T20:18:59.880105+00:00",
+          "returncode": 0,
+          "stdout": "[\"2\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(\"2\",).map(int).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:18:59.880122+00:00",
+          "utc_end": "2026-10-19T20:18:59.893109+00:00",
+          "returncode": 0,
+          "stdout": "[\"2\"]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "float-direct",
+      "expression": "repr(float(\"2.5\"))",
+      "expression_sha256": "a69ad422423fbd8e549ae6067ba347a7a7c7702800f4d98dd2e2a560a19a29a9",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(float(\"2.5\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:18:59.893683+00:00",
+          "utc_end": "2026-10-19T20:18:59.900105+00:00",
+          "returncode": 0,
+          "stdout": "\"2.5\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(float(\"2.5\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:18:59.900123+00:00",
+          "utc_end": "2026-10-19T20:18:59.913534+00:00",
+          "returncode": 0,
+          "stdout": "\"2.5\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "float-map",
+      "expression": "(\"2.5\",).map(float).map(repr)",
+      "expression_sha256": "ed990e49fb80463738713786163ee600b0df92b35dfc4e311e6222915ff8899c",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(\"2.5\",).map(float).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:18:59.914102+00:00",
+          "utc_end": "2026-10-19T20:18:59.921019+00:00",
+          "returncode": 0,
+          "stdout": "[\"2.5\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(\"2.5\",).map(float).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:18:59.921036+00:00",
+          "utc_end": "2026-10-19T20:18:59.934723+00:00",
+          "returncode": 0,
+          "stdout": "[\"2.5\"]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "str-direct",
+      "expression": "repr(str(2))",
+      "expression_sha256": "fcbf82a09b573afb01cff77faba1eba8d9b6a807d853cdbfe128339249ee9a3c",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(str(2))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:18:59.935341+00:00",
+          "utc_end": "2026-10-19T20:18:59.941713+00:00",
+          "returncode": 0,
+          "stdout": "\"\\\"2\\\"\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(str(2))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:18:59.941731+00:00",
+          "utc_end": "2026-10-19T20:18:59.953914+00:00",
+          "returncode": 0,
+          "stdout": "\"\\\"2\\\"\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "str-map",
+      "expression": "(2,).map(str).map(repr)",
+      "expression_sha256": "e82c438f86743970d06fed8bf1ca508c67946ac3d708099fc658bfaf4afcad8d",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(2,).map(str).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:18:59.954457+00:00",
+          "utc_end": "2026-10-19T20:18:59.960841+00:00",
+          "returncode": 0,
+          "stdout": "[\"\\\"2\\\"\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(2,).map(str).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:18:59.960857+00:00",
+          "utc_end": "2026-10-19T20:18:59.973628+00:00",
+          "returncode": 0,
+          "stdout": "[\"\\\"2\\\"\"]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "type-direct",
+      "expression": "repr(type(2))",
+      "expression_sha256": "79d125011a24f36a6bd2027d5c8cfff96fd5e23ca9bafa8bc18d307833f6a17a",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(type(2))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:18:59.974301+00:00",
+          "utc_end": "2026-10-19T20:18:59.981742+00:00",
+          "returncode": 0,
+          "stdout": "\"int\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(type(2))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:18:59.981759+00:00",
+          "utc_end": "2026-10-19T20:18:59.994653+00:00",
+          "returncode": 0,
+          "stdout": "\"int\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "type-map",
+      "expression": "(2,).map(type).map(repr)",
+      "expression_sha256": "66a117cb4d11f286ef05b9be7643a9cd05e676e5fe1862a6f9ce8cdb114cfe35",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(2,).map(type).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:18:59.995309+00:00",
+          "utc_end": "2026-10-19T20:19:00.001950+00:00",
+          "returncode": 0,
+          "stdout": "[\"int\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(2,).map(type).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.001968+00:00",
+          "utc_end": "2026-10-19T20:19:00.014405+00:00",
+          "returncode": 0,
+          "stdout": "[\"int\"]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "counter-direct",
+      "expression": "repr(counter(\"x\"))",
+      "expression_sha256": "017b3080f2357afd353e7f0b1dfe4bf4e32c71e9331d267ac04276e8a198893c",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(counter(\"x\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.015117+00:00",
+          "utc_end": "2026-10-19T20:19:00.021081+00:00",
+          "returncode": 0,
+          "stdout": "\"counter(\\\"x\\\")\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(counter(\"x\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.021098+00:00",
+          "utc_end": "2026-10-19T20:19:00.033570+00:00",
+          "returncode": 0,
+          "stdout": "\"counter(\\\"x\\\")\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "counter-map",
+      "expression": "(\"x\",).map(counter).map(repr)",
+      "expression_sha256": "c4aa5a3da91a309394878bdbaf2753642a1fe82914faad264300644aff42c8eb",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(\"x\",).map(counter).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.034308+00:00",
+          "utc_end": "2026-10-19T20:19:00.040906+00:00",
+          "returncode": 0,
+          "stdout": "[\"counter(\\\"x\\\")\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(\"x\",).map(counter).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.040925+00:00",
+          "utc_end": "2026-10-19T20:19:00.053633+00:00",
+          "returncode": 0,
+          "stdout": "[\"counter(\\\"x\\\")\"]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "state-direct",
+      "expression": "repr(state(\"x\"))",
+      "expression_sha256": "43eee0c4aae11fd7a2193e261617573c0571ef65e2ed81b5d9170515aeb9603b",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(state(\"x\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.054360+00:00",
+          "utc_end": "2026-10-19T20:19:00.061422+00:00",
+          "returncode": 0,
+          "stdout": "\"state(\\\"x\\\", none)\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(state(\"x\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.061438+00:00",
+          "utc_end": "2026-10-19T20:19:00.074748+00:00",
+          "returncode": 0,
+          "stdout": "\"state(\\\"x\\\", none)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "state-map",
+      "expression": "(\"x\",).map(state).map(repr)",
+      "expression_sha256": "2c033011e86f27d0a8d3e825431ccaac8c13f9083c17956547a55690df74cb70",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(\"x\",).map(state).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.075917+00:00",
+          "utc_end": "2026-10-19T20:19:00.085385+00:00",
+          "returncode": 0,
+          "stdout": "[\"state(\\\"x\\\", none)\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(\"x\",).map(state).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.085403+00:00",
+          "utc_end": "2026-10-19T20:19:00.098137+00:00",
+          "returncode": 0,
+          "stdout": "[\"state(\\\"x\\\", none)\"]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "symbol-direct",
+      "expression": "repr(symbol(\"x\"))",
+      "expression_sha256": "91e71990d667583f8f4aa56fc90e213d4ac5e04e23cfbe820658515bdf3f430b",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(symbol(\"x\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.099011+00:00",
+          "utc_end": "2026-10-19T20:19:00.105264+00:00",
+          "returncode": 0,
+          "stdout": "\"symbol(\\\"x\\\")\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(symbol(\"x\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.105282+00:00",
+          "utc_end": "2026-10-19T20:19:00.118464+00:00",
+          "returncode": 0,
+          "stdout": "\"symbol(\\\"x\\\")\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "symbol-map",
+      "expression": "(\"x\",).map(symbol).map(repr)",
+      "expression_sha256": "f1538349573e5654e3194ef92dd3a7053a386651f02e8498b2e3b23fd4ee6a2c",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(\"x\",).map(symbol).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.119308+00:00",
+          "utc_end": "2026-10-19T20:19:00.125086+00:00",
+          "returncode": 0,
+          "stdout": "[\"symbol(\\\"x\\\")\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(\"x\",).map(symbol).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.125100+00:00",
+          "utc_end": "2026-10-19T20:19:00.137570+00:00",
+          "returncode": 0,
+          "stdout": "[\"symbol(\\\"x\\\")\"]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "bytes-direct",
+      "expression": "repr(bytes(\"x\"))",
+      "expression_sha256": "3192e6c463ffd855286fe2d0c61536d39210df23c1751dbbe5bc9a7fa24bb185",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(bytes(\"x\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.138410+00:00",
+          "utc_end": "2026-10-19T20:19:00.148806+00:00",
+          "returncode": 0,
+          "stdout": "\"bytes(1)\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(bytes(\"x\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.148828+00:00",
+          "utc_end": "2026-10-19T20:19:00.162628+00:00",
+          "returncode": 0,
+          "stdout": "\"bytes(1)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "bytes-map",
+      "expression": "(\"x\",).map(bytes).map(repr)",
+      "expression_sha256": "c09566365a8d5b43ff337dcbe5ffbd3335c2669d5e75bde43ca9ce1da57dd633",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(\"x\",).map(bytes).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.163481+00:00",
+          "utc_end": "2026-10-19T20:19:00.170061+00:00",
+          "returncode": 0,
+          "stdout": "[\"bytes(1)\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(\"x\",).map(bytes).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.170083+00:00",
+          "utc_end": "2026-10-19T20:19:00.182494+00:00",
+          "returncode": 0,
+          "stdout": "[\"bytes(1)\"]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "datetime-direct",
+      "expression": "repr(datetime(2024))",
+      "expression_sha256": "9d293f83cd664cbd13615f60f1a81d41e9261fddf16a0bd0ace32593ff10fbbf",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(datetime(2024))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.183550+00:00",
+          "utc_end": "2026-10-19T20:19:00.190133+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument\n  \u250c\u2500 <input-expression>:1:14\n  \u2502\n1 \u2502 repr(datetime(2024))\n  \u2502               ^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(datetime(2024))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.190153+00:00",
+          "utc_end": "2026-10-19T20:19:00.202111+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument\n  \u250c\u2500 <input-expression>:1:13\n  \u2502\n1 \u2502 repr(datetime(2024))\n  \u2502              ^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "datetime-map",
+      "expression": "(2024,).map(datetime).map(repr)",
+      "expression_sha256": "c1254f81f16be81bee7d589d82bd70307e62a0acdf1dc3487d7841942b9c4dcb",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(2024,).map(datetime).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.203044+00:00",
+          "utc_end": "2026-10-19T20:19:00.209466+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument\n\n  while calling `datetime` at <input-expression>:1:12\n    datetime\n  while calling `map` at <input-expression>:1:0\n    (2024,).map(datetime)\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(2024,).map(datetime).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.209482+00:00",
+          "utc_end": "2026-10-19T20:19:00.221443+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument\n\n"
+        }
+      }
+    },
+    {
+      "name": "decimal-direct",
+      "expression": "repr(decimal(\"2.5\"))",
+      "expression_sha256": "dff5b7dca09c0e04879401ce158b311311a33f384e09c8e96b5a13803921e112",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(decimal(\"2.5\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.222383+00:00",
+          "utc_end": "2026-10-19T20:19:00.228768+00:00",
+          "returncode": 0,
+          "stdout": "\"decimal(\\\"2.5\\\")\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(decimal(\"2.5\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.228782+00:00",
+          "utc_end": "2026-10-19T20:19:00.241272+00:00",
+          "returncode": 0,
+          "stdout": "\"decimal(\\\"2.5\\\")\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "decimal-map",
+      "expression": "(\"2.5\",).map(decimal).map(repr)",
+      "expression_sha256": "e85609c1b61c2a84b9edea8a3e95e8268e8448811d9f023a58bcdc786f5929ed",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(\"2.5\",).map(decimal).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.242151+00:00",
+          "utc_end": "2026-10-19T20:19:00.249835+00:00",
+          "returncode": 0,
+          "stdout": "[\"decimal(\\\"2.5\\\")\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(\"2.5\",).map(decimal).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.249852+00:00",
+          "utc_end": "2026-10-19T20:19:00.262509+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu decimal\n\n"
+        }
+      }
+    },
+    {
+      "name": "duration-direct",
+      "expression": "repr(duration(1))",
+      "expression_sha256": "a7a633a6d43420dff32e84555e297cc06d499825d277ea136f1d152c0df1293d",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(duration(1))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.263520+00:00",
+          "utc_end": "2026-10-19T20:19:00.270264+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument\n  \u250c\u2500 <input-expression>:1:14\n  \u2502\n1 \u2502 repr(duration(1))\n  \u2502               ^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(duration(1))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.270280+00:00",
+          "utc_end": "2026-10-19T20:19:00.284190+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: duration(): espera Str, recebeu int\n\n"
+        }
+      }
+    },
+    {
+      "name": "duration-map",
+      "expression": "(1,).map(duration).map(repr)",
+      "expression_sha256": "aee97cff106b2ac7c3a2462d76adf7332274a2f91f2d489132dea3c550cfe1d6",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(1,).map(duration).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.285076+00:00",
+          "utc_end": "2026-10-19T20:19:00.291357+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument\n\n  while calling `duration` at <input-expression>:1:9\n    duration\n  while calling `map` at <input-expression>:1:0\n    (1,).map(duration)\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(1,).map(duration).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.291374+00:00",
+          "utc_end": "2026-10-19T20:19:00.303595+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu duration\n\n"
+        }
+      }
+    },
+    {
+      "name": "regex-direct",
+      "expression": "repr(regex(\"a\"))",
+      "expression_sha256": "6d31ed006b31095b3f9a81add5860cace62098a213fa012da1508e08dcd3ffff",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(regex(\"a\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.304725+00:00",
+          "utc_end": "2026-10-19T20:19:00.311269+00:00",
+          "returncode": 0,
+          "stdout": "\"regex(\\\"a\\\")\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(regex(\"a\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.311285+00:00",
+          "utc_end": "2026-10-19T20:19:00.323666+00:00",
+          "returncode": 0,
+          "stdout": "\"regex(\\\"a\\\")\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "regex-map",
+      "expression": "(\"a\",).map(regex).map(repr)",
+      "expression_sha256": "bbd942a16ca5c2ed4da80e90923a88c99b43c25f290d7954c7e293308ab552e9",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(\"a\",).map(regex).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.324731+00:00",
+          "utc_end": "2026-10-19T20:19:00.331205+00:00",
+          "returncode": 0,
+          "stdout": "[\"regex(\\\"a\\\")\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(\"a\",).map(regex).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.331221+00:00",
+          "utc_end": "2026-10-19T20:19:00.344028+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu regex\n\n"
+        }
+      }
+    },
+    {
+      "name": "selector-direct",
+      "expression": "repr(selector(heading))",
+      "expression_sha256": "302763012ab77b9e16b66dc997ddf3cfcbdb887a20cff9c8fcb1ed3047da4e23",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(selector(heading))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.345395+00:00",
+          "utc_end": "2026-10-19T20:19:00.357952+00:00",
+          "returncode": 0,
+          "stdout": "\"heading\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(selector(heading))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.357969+00:00",
+          "utc_end": "2026-10-19T20:19:00.370614+00:00",
+          "returncode": 0,
+          "stdout": "\"heading\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "selector-map",
+      "expression": "(heading,).map(selector).map(repr)",
+      "expression_sha256": "de6cf338b11f131969df3e87c3626bb2a9abde568d0791df63b32587eb4bb6cf",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(heading,).map(selector).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.371771+00:00",
+          "utc_end": "2026-10-19T20:19:00.378680+00:00",
+          "returncode": 0,
+          "stdout": "[\"heading\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(heading,).map(selector).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.378698+00:00",
+          "utc_end": "2026-10-19T20:19:00.391163+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu selector\n\n"
+        }
+      }
+    },
+    {
+      "name": "stroke-direct",
+      "expression": "repr(stroke(red))",
+      "expression_sha256": "dd1118e034fec51e92896747439dc13c24099d79edb523e0dbf181bdfdaac803",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(stroke(red))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.392098+00:00",
+          "utc_end": "2026-10-19T20:19:00.399224+00:00",
+          "returncode": 0,
+          "stdout": "\"rgb(\\\"#ff4136\\\")\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(stroke(red))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.399240+00:00",
+          "utc_end": "2026-10-19T20:19:00.412322+00:00",
+          "returncode": 0,
+          "stdout": "\"rgb(\\\"#ff4136\\\")\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "stroke-map",
+      "expression": "(red,).map(stroke).map(repr)",
+      "expression_sha256": "1442649f09b3cce910784b73a8d90568f85c51c4c5fd787c40878ef83a17a4ca",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(red,).map(stroke).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.413363+00:00",
+          "utc_end": "2026-10-19T20:19:00.419933+00:00",
+          "returncode": 0,
+          "stdout": "[\"rgb(\\\"#ff4136\\\")\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(red,).map(stroke).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.419951+00:00",
+          "utc_end": "2026-10-19T20:19:00.434185+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu stroke\n\n"
+        }
+      }
+    },
+    {
+      "name": "tiling-direct",
+      "expression": "repr(tiling([x]))",
+      "expression_sha256": "1cababdc789fdecdef81ff65dfda1d9945adf97e5186773b7102f750e3a332c9",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(tiling([x]))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.435604+00:00",
+          "utc_end": "2026-10-19T20:19:00.563863+00:00",
+          "returncode": 0,
+          "stdout": "\"tiling((5.39pt, 7.24pt), ..)\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(tiling([x]))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.563879+00:00",
+          "utc_end": "2026-10-19T20:19:00.577018+00:00",
+          "returncode": 0,
+          "stdout": "\"tiling(...)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "tiling-map",
+      "expression": "([x],).map(tiling).map(repr)",
+      "expression_sha256": "73150a91e3d2efab19a710e482eee5970157968b157627ad8a31777938f35753",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "([x],).map(tiling).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.578177+00:00",
+          "utc_end": "2026-10-19T20:19:00.708609+00:00",
+          "returncode": 0,
+          "stdout": "[\"tiling((5.39pt, 7.24pt), ..)\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "([x],).map(tiling).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.708627+00:00",
+          "utc_end": "2026-10-19T20:19:00.721292+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu tiling\n\n"
+        }
+      }
+    },
+    {
+      "name": "version-direct",
+      "expression": "repr(version(1))",
+      "expression_sha256": "8ca5699d1db3fb3ca2e8498bde439b53268df2e52535697d16f2f69c03614ae8",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(version(1))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.722692+00:00",
+          "utc_end": "2026-10-19T20:19:00.729445+00:00",
+          "returncode": 0,
+          "stdout": "\"version(1)\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(version(1))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.729460+00:00",
+          "utc_end": "2026-10-19T20:19:00.742372+00:00",
+          "returncode": 0,
+          "stdout": "\"version(1)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "version-map",
+      "expression": "(1,).map(version).map(repr)",
+      "expression_sha256": "2abb815cee7c55ba34d15614c15da9142e77e4b9917bda4e372e6e9ac330a876",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(1,).map(version).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.743604+00:00",
+          "utc_end": "2026-10-19T20:19:00.749630+00:00",
+          "returncode": 0,
+          "stdout": "[\"version(1)\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(1,).map(version).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.749642+00:00",
+          "utc_end": "2026-10-19T20:19:00.762237+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu version\n\n"
+        }
+      }
+    },
+    {
+      "name": "label-direct",
+      "expression": "repr(label(\"x\"))",
+      "expression_sha256": "2398778b1336c9eec9cf365b05dd105daeb803d20d71a8e667e460909d749764",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(label(\"x\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.763568+00:00",
+          "utc_end": "2026-10-19T20:19:00.769874+00:00",
+          "returncode": 0,
+          "stdout": "\"<x>\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(label(\"x\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.769890+00:00",
+          "utc_end": "2026-10-19T20:19:00.782476+00:00",
+          "returncode": 0,
+          "stdout": "\"<x>\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "label-map",
+      "expression": "(\"x\",).map(label).map(repr)",
+      "expression_sha256": "633dbab7dac16c23232bcc7799da52c97ed39be65ea2cde7ed71994330a211ea",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(\"x\",).map(label).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.783785+00:00",
+          "utc_end": "2026-10-19T20:19:00.790029+00:00",
+          "returncode": 0,
+          "stdout": "[\"<x>\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(\"x\",).map(label).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.790045+00:00",
+          "utc_end": "2026-10-19T20:19:00.803366+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu label\n\n"
+        }
+      }
+    },
+    {
+      "name": "path-direct",
+      "expression": "repr(path(\"x\"))",
+      "expression_sha256": "4ddadb5888964c98a83912be2d32e624532cf443bc52be663138d49ae6df9f31",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(path(\"x\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.804870+00:00",
+          "utc_end": "2026-10-19T20:19:00.811427+00:00",
+          "returncode": 0,
+          "stdout": "\"path(\\\"/x\\\")\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(path(\"x\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.811440+00:00",
+          "utc_end": "2026-10-19T20:19:00.823768+00:00",
+          "returncode": 0,
+          "stdout": "\"path(\\\"/x\\\")\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "path-map",
+      "expression": "(\"x\",).map(path).map(repr)",
+      "expression_sha256": "589c06c44b76723e9eef51156270a58ecaf0859bf1c3aa4cde39ef48d2788703",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(\"x\",).map(path).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.825377+00:00",
+          "utc_end": "2026-10-19T20:19:00.831936+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: cannot access file system from here\n\n  while calling `path` at <input-expression>:1:11\n    path\n  while calling `map` at <input-expression>:1:0\n    (\"x\",).map(path)\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(\"x\",).map(path).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.831951+00:00",
+          "utc_end": "2026-10-19T20:19:00.844387+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu path\n\n"
+        }
+      }
+    },
+    {
+      "name": "array-direct",
+      "expression": "repr(array(bytes(\"x\")))",
+      "expression_sha256": "ad5b6b6eb4dfad989dead5e9461704b93a7fd6dafd3e17cf8f3b14ae00e97f65",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(array(bytes(\"x\")))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.845508+00:00",
+          "utc_end": "2026-10-19T20:19:00.851695+00:00",
+          "returncode": 0,
+          "stdout": "\"(120,)\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(array(bytes(\"x\")))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.851710+00:00",
+          "utc_end": "2026-10-19T20:19:00.863663+00:00",
+          "returncode": 0,
+          "stdout": "\"(120,)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "array-map",
+      "expression": "(bytes(\"x\"),).map(array).map(repr)",
+      "expression_sha256": "b79c2cea3219cd4d59fecde87f93f3fb17bc9c7063eeea3aba9c83dcc7935e5a",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(bytes(\"x\"),).map(array).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.865412+00:00",
+          "utc_end": "2026-10-19T20:19:00.871637+00:00",
+          "returncode": 0,
+          "stdout": "[\"(120,)\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(bytes(\"x\"),).map(array).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.871654+00:00",
+          "utc_end": "2026-10-19T20:19:00.884239+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu array\n\n"
+        }
+      }
+    },
+    {
+      "name": "arguments-direct",
+      "expression": "repr(arguments(1))",
+      "expression_sha256": "af9783da77445f24ab41c4db3b12f59701d8c26a0bfa1d5bba03bc347c168587",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(arguments(1))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.885445+00:00",
+          "utc_end": "2026-10-19T20:19:00.891968+00:00",
+          "returncode": 0,
+          "stdout": "\"arguments(1)\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(arguments(1))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.891985+00:00",
+          "utc_end": "2026-10-19T20:19:00.904525+00:00",
+          "returncode": 0,
+          "stdout": "\"arguments(1)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "arguments-map",
+      "expression": "(1,).map(arguments).map(repr)",
+      "expression_sha256": "d923df55cc1adcd9ebc1c6644d8ee8850c9815284c0e0d1d41ef1a0f36fa66fa",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(1,).map(arguments).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.905717+00:00",
+          "utc_end": "2026-10-19T20:19:00.911998+00:00",
+          "returncode": 0,
+          "stdout": "[\"arguments(1)\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(1,).map(arguments).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.912014+00:00",
+          "utc_end": "2026-10-19T20:19:00.924824+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu arguments\n\n"
+        }
+      }
+    },
+    {
+      "name": "color.spot-direct",
+      "expression": "repr(color.spot(\"x\"))",
+      "expression_sha256": "106436d481482eb2ef766bc2dece58abbff789be40d4ab7344aba098cfcfa49e",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(color.spot(\"x\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.926116+00:00",
+          "utc_end": "2026-10-19T20:19:00.933100+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: missing argument: fallback\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(color.spot(\"x\"))\n  \u2502      ^^^^^^^^^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(color.spot(\"x\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.933117+00:00",
+          "utc_end": "2026-10-19T20:19:00.946013+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: missing argument: fallback\n\n"
+        }
+      }
+    },
+    {
+      "name": "color.spot-map",
+      "expression": "(\"x\",).map(color.spot).map(repr)",
+      "expression_sha256": "c1b94d695907135725da98aee67fb920f64abe1bd8824386706a62fad4690603",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(\"x\",).map(color.spot).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.947506+00:00",
+          "utc_end": "2026-10-19T20:19:00.954811+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: missing argument: fallback\n\n  while calling `spot` at <input-expression>:1:11\n    color.spot\n  while calling `map` at <input-expression>:1:0\n    (\"x\",).map(color.spot)\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(\"x\",).map(color.spot).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.954827+00:00",
+          "utc_end": "2026-10-19T20:19:00.968828+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu spot\n\n"
+        }
+      }
+    },
+    {
+      "name": "bool-direct",
+      "expression": "repr(bool(1))",
+      "expression_sha256": "fb36640e0aefabaf597f362e7f25f056ee44e86b4440e3e67855858732e5cc2c",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(bool(1))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.970686+00:00",
+          "utc_end": "2026-10-19T20:19:00.977583+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: type boolean does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(bool(1))\n  \u2502      ^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(bool(1))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.977603+00:00",
+          "utc_end": "2026-10-19T20:19:00.990981+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: type bool does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(bool(1))\n  \u2502      ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "bool-map",
+      "expression": "(1,).map(bool).map(repr)",
+      "expression_sha256": "ba18120f822b83a21c67c1530c8d5ae33a9fd35ad60f8adcce8d2ba48a2114a8",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(1,).map(bool).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.993110+00:00",
+          "utc_end": "2026-10-19T20:19:00.999917+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: type boolean does not have a constructor\n  \u250c\u2500 <input-expression>:1:9\n  \u2502\n1 \u2502 (1,).map(bool).map(repr)\n  \u2502          ^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(1,).map(bool).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:00.999937+00:00",
+          "utc_end": "2026-10-19T20:19:01.013273+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu bool\n\n"
+        }
+      }
+    },
+    {
+      "name": "content-direct",
+      "expression": "repr(content([x]))",
+      "expression_sha256": "7b384eeaf2b5869e172392d5ea7d17a6788e0a4b3c5c6d116e12ea4dd9b34aaf",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(content([x]))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.014771+00:00",
+          "utc_end": "2026-10-19T20:19:01.021283+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: type content does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(content([x]))\n  \u2502      ^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(content([x]))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.021300+00:00",
+          "utc_end": "2026-10-19T20:19:01.034129+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: type content does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(content([x]))\n  \u2502      ^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "content-map",
+      "expression": "([x],).map(content).map(repr)",
+      "expression_sha256": "2d7aca9c7f5fe1249d02e06db3eff168286143814bc8f7f71bf14ec5b0f8f287",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "([x],).map(content).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.035564+00:00",
+          "utc_end": "2026-10-19T20:19:01.042359+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: type content does not have a constructor\n  \u250c\u2500 <input-expression>:1:11\n  \u2502\n1 \u2502 ([x],).map(content).map(repr)\n  \u2502            ^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "([x],).map(content).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.042375+00:00",
+          "utc_end": "2026-10-19T20:19:01.060841+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu content\n\n"
+        }
+      }
+    },
+    {
+      "name": "length-direct",
+      "expression": "repr(length(1))",
+      "expression_sha256": "89323b16f9e2979540e21f414b133a43a38759c659765db22e85ff7aa72928be",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(length(1))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.062853+00:00",
+          "utc_end": "2026-10-19T20:19:01.069553+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: type length does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(length(1))\n  \u2502      ^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(length(1))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.069570+00:00",
+          "utc_end": "2026-10-19T20:19:01.083233+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: type length does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(length(1))\n  \u2502      ^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "length-map",
+      "expression": "(1,).map(length).map(repr)",
+      "expression_sha256": "6a6f2b33bff8bc83800650aa2341762d2fcf861259613e33238d7e4ff90884ad",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(1,).map(length).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.084957+00:00",
+          "utc_end": "2026-10-19T20:19:01.092040+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: type length does not have a constructor\n  \u250c\u2500 <input-expression>:1:9\n  \u2502\n1 \u2502 (1,).map(length).map(repr)\n  \u2502          ^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(1,).map(length).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.092070+00:00",
+          "utc_end": "2026-10-19T20:19:01.106768+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu length\n\n"
+        }
+      }
+    },
+    {
+      "name": "color-direct",
+      "expression": "repr(color(red))",
+      "expression_sha256": "1db7d0a8b8270a658bcec0de1287903b65e2cf75798e6feedc9bf35c99b0d8ea",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(color(red))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.108504+00:00",
+          "utc_end": "2026-10-19T20:19:01.115164+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: type color does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(color(red))\n  \u2502      ^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(color(red))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.115183+00:00",
+          "utc_end": "2026-10-19T20:19:01.127977+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: type color does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(color(red))\n  \u2502      ^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "color-map",
+      "expression": "(red,).map(color).map(repr)",
+      "expression_sha256": "dbbd34848cebf5b8db5c4cd9f4357c4703ad69e69c308b2679b2a58fc9736aab",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(red,).map(color).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.129685+00:00",
+          "utc_end": "2026-10-19T20:19:01.136676+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: type color does not have a constructor\n  \u250c\u2500 <input-expression>:1:11\n  \u2502\n1 \u2502 (red,).map(color).map(repr)\n  \u2502            ^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(red,).map(color).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.136692+00:00",
+          "utc_end": "2026-10-19T20:19:01.149521+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu color\n\n"
+        }
+      }
+    },
+    {
+      "name": "location-direct",
+      "expression": "repr(location(1))",
+      "expression_sha256": "255b943aadbc6347759e3997f3ed90306db6d2bac46ae4c663eb6d42da6559d3",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(location(1))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.151147+00:00",
+          "utc_end": "2026-10-19T20:19:01.157610+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: type location does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(location(1))\n  \u2502      ^^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(location(1))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.157625+00:00",
+          "utc_end": "2026-10-19T20:19:01.170858+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: type location does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(location(1))\n  \u2502      ^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "location-map",
+      "expression": "(1,).map(location).map(repr)",
+      "expression_sha256": "b5ea71cb67ff83cf28cdf5a361ada1294d46f7930ef91d911113458896cb95c7",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(1,).map(location).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.172530+00:00",
+          "utc_end": "2026-10-19T20:19:01.179350+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: type location does not have a constructor\n  \u250c\u2500 <input-expression>:1:9\n  \u2502\n1 \u2502 (1,).map(location).map(repr)\n  \u2502          ^^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(1,).map(location).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.179367+00:00",
+          "utc_end": "2026-10-19T20:19:01.193064+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu location\n\n"
+        }
+      }
+    },
+    {
+      "name": "dictionary-direct",
+      "expression": "repr(dictionary((:)))",
+      "expression_sha256": "fab0bb782d65462ec889153b7f8e58bc8439b0e71cbee6f964590935672c071e",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(dictionary((:)))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.195460+00:00",
+          "utc_end": "2026-10-19T20:19:01.202651+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected module, found dictionary\n  \u250c\u2500 <input-expression>:1:16\n  \u2502\n1 \u2502 repr(dictionary((:)))\n  \u2502                 ^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(dictionary((:)))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.202670+00:00",
+          "utc_end": "2026-10-19T20:19:01.216717+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: type dictionary does not have a constructor\n  \u250c\u2500 <input-expression>:1:5\n  \u2502\n1 \u2502 repr(dictionary((:)))\n  \u2502      ^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "dictionary-map",
+      "expression": "((:),).map(dictionary).map(repr)",
+      "expression_sha256": "398e37cf9104dacbb0a1eba17f6d3a2d89b782d5eb394c11f0e94395ff2d83ba",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "((:),).map(dictionary).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.218486+00:00",
+          "utc_end": "2026-10-19T20:19:01.225324+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected module, found dictionary\n\n  while calling `dictionary` at <input-expression>:1:11\n    dictionary\n  while calling `map` at <input-expression>:1:0\n    ((:),).map(dictionary)\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "((:),).map(dictionary).map(repr)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.225344+00:00",
+          "utc_end": "2026-10-19T20:19:01.238891+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu dictionary\n\n"
+        }
+      }
+    },
+    {
+      "name": "decimal-key",
+      "expression": "(\"10\", \"2\").sorted(key: decimal)",
+      "expression_sha256": "6520676e9cd203878272f2e02f37685f26ce48def9dd075b2faf6b5cfd39b6cd",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(\"10\", \"2\").sorted(key: decimal)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.240624+00:00",
+          "utc_end": "2026-10-19T20:19:01.247185+00:00",
+          "returncode": 0,
+          "stdout": "[\"2\",\"10\"]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(\"10\", \"2\").sorted(key: decimal)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.247201+00:00",
+          "utc_end": "2026-10-19T20:19:01.261165+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected function, found decimal\n  \u250c\u2500 <input-expression>:1:18\n  \u2502\n1 \u2502 (\"10\", \"2\").sorted(key: decimal)\n  \u2502                   ^^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "version-key",
+      "expression": "(10, 2).sorted(key: version)",
+      "expression_sha256": "6448d3a5249dd3cf14f999a14e61d398ef7f85a38474ddb6b8d00c513cc28a99",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(10, 2).sorted(key: version)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.263215+00:00",
+          "utc_end": "2026-10-19T20:19:01.271117+00:00",
+          "returncode": 0,
+          "stdout": "[2,10]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(10, 2).sorted(key: version)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.271136+00:00",
+          "utc_end": "2026-10-19T20:19:01.284384+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected function, found version\n  \u250c\u2500 <input-expression>:1:14\n  \u2502\n1 \u2502 (10, 2).sorted(key: version)\n  \u2502               ^^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "label-filter",
+      "expression": "(\"x\",).filter(label)",
+      "expression_sha256": "6cd9ee4eed90e24515001e2a2171ae82b155c7507403a0720628ae4f4ba26528",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(\"x\",).filter(label)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.286469+00:00",
+          "utc_end": "2026-10-19T20:19:01.293603+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected boolean, found label\n  \u250c\u2500 <input-expression>:1:14\n  \u2502\n1 \u2502 (\"x\",).filter(label)\n  \u2502               ^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(\"x\",).filter(label)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.293625+00:00",
+          "utc_end": "2026-10-19T20:19:01.306089+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.filter() espera fun\u00e7\u00e3o, recebeu label\n\n"
+        }
+      }
+    },
+    {
+      "name": "str-filter",
+      "expression": "(1,).filter(str)",
+      "expression_sha256": "5944de9b69c31184a419fc9c8f64ea7f24d092bee965c114915f52a61e0d1700",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(1,).filter(str)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.307839+00:00",
+          "utc_end": "2026-10-19T20:19:01.314155+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected boolean, found string\n  \u250c\u2500 <input-expression>:1:12\n  \u2502\n1 \u2502 (1,).filter(str)\n  \u2502             ^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(1,).filter(str)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.314169+00:00",
+          "utc_end": "2026-10-19T20:19:01.325905+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected boolean, found string\n  \u250c\u2500 <input-expression>:1:11\n  \u2502\n1 \u2502 (1,).filter(str)\n  \u2502            ^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "decimal-by",
+      "expression": "(\"2\", \"1\").sorted(by: decimal)",
+      "expression_sha256": "7309a9d0617b405547b53aafe5f95d59008db8c2732daf3fc27add8be53fddb6",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(\"2\", \"1\").sorted(by: decimal)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.327617+00:00",
+          "utc_end": "2026-10-19T20:19:01.333962+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument\n\n  while calling `decimal` at <input-expression>:1:22\n    decimal\n  while calling `sorted` at <input-expression>:1:0\n    (\"2\", \"1\").sorted(by: decimal)\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(\"2\", \"1\").sorted(by: decimal)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.333975+00:00",
+          "utc_end": "2026-10-19T20:19:01.345977+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected function, found decimal\n  \u250c\u2500 <input-expression>:1:17\n  \u2502\n1 \u2502 (\"2\", \"1\").sorted(by: decimal)\n  \u2502                  ^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "int-map-error",
+      "expression": "(\"bad\",).map(int)",
+      "expression_sha256": "6c2bcc3835291c6fa45de3652913ae32dc20dac831786794edb3226c6aa1e2ff",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(\"bad\",).map(int)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.347894+00:00",
+          "utc_end": "2026-10-19T20:19:01.353707+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: string contains invalid digits\n\n  while calling `int` at <input-expression>:1:13\n    int\n  while calling `map` at <input-expression>:1:0\n    (\"bad\",).map(int)\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(\"bad\",).map(int)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.353722+00:00",
+          "utc_end": "2026-10-19T20:19:01.364851+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: int() n\u00e3o consegue parsear \"bad\"\n\n"
+        }
+      }
+    },
+    {
+      "name": "empty-decimal-map",
+      "expression": "().map(decimal)",
+      "expression_sha256": "281f21ce372acb4095f28d292b809ddbb316c7fbb763ec88761874d57d8548fd",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "().map(decimal)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.367075+00:00",
+          "utc_end": "2026-10-19T20:19:01.373590+00:00",
+          "returncode": 0,
+          "stdout": "[]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "().map(decimal)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.373607+00:00",
+          "utc_end": "2026-10-19T20:19:01.387714+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu decimal\n\n"
+        }
+      }
+    },
+    {
+      "name": "empty-duration-map",
+      "expression": "().map(duration)",
+      "expression_sha256": "62e783d1144d602b64b126b732f96baaad727fca01d7bcb4c0896ee8df084876",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "().map(duration)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.389805+00:00",
+          "utc_end": "2026-10-19T20:19:01.396227+00:00",
+          "returncode": 0,
+          "stdout": "[]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "().map(duration)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.396250+00:00",
+          "utc_end": "2026-10-19T20:19:01.409081+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu duration\n\n"
+        }
+      }
+    },
+    {
+      "name": "empty-arguments-map",
+      "expression": "().map(arguments)",
+      "expression_sha256": "ed0bf5f41e02747635f9a9068b29248c02340e4bc0dd4d196d78b5e8f3f99f82",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "().map(arguments)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.410891+00:00",
+          "utc_end": "2026-10-19T20:19:01.417101+00:00",
+          "returncode": 0,
+          "stdout": "[]\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "().map(arguments)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.417119+00:00",
+          "utc_end": "2026-10-19T20:19:01.431209+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: array.map() espera fun\u00e7\u00e3o, recebeu arguments\n\n"
+        }
+      }
+    },
+    {
+      "name": "locale-omitted-\"works.yml\"",
+      "expression": "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\"))",
+      "expression_sha256": "58d04782e4f7cf316378ba3d31e8061e9d7b60cd0268d7e0326e02a9da331c59",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.433066+00:00",
+          "utc_end": "2026-10-19T20:19:01.439999+00:00",
+          "returncode": 0,
+          "stdout": "\"bibliography(\\n  sources: (\\n    \\\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\\\",\\n  ),\\n)\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.440019+00:00",
+          "utc_end": "2026-10-19T20:19:01.456068+00:00",
+          "returncode": 0,
+          "stdout": "\"bibliography(\\\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\\\")\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "locale-omitted-\"missing.yml\"",
+      "expression": "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\"))",
+      "expression_sha256": "6a9eca160967b0931951e3d35bf1a26bb65b9c0ef18822aa4dea33e301ab859d",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.458202+00:00",
+          "utc_end": "2026-10-19T20:19:01.465355+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: file not found (searched at /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n  \u250c\u2500 <input-expression>:1:18\n  \u2502\n1 \u2502 repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\"))\n  \u2502                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.465369+00:00",
+          "utc_end": "2026-10-19T20:19:01.477830+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\")\n\n"
+        }
+      }
+    },
+    {
+      "name": "locale-none-\"works.yml\"",
+      "expression": "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: none))",
+      "expression_sha256": "284300a57fc2a5d5a8d23ee350ef99983e3ba7dade73d070acbd448a2a361491",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: none))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.479843+00:00",
+          "utc_end": "2026-10-19T20:19:01.487779+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: locale\n  \u250c\u2500 <input-expression>:1:94\n  \u2502\n1 \u2502 repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: none))\n  \u2502                                                                                               ^^^^^^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: none))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.487794+00:00",
+          "utc_end": "2026-10-19T20:19:01.503474+00:00",
+          "returncode": 0,
+          "stdout": "\"bibliography(\\\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\\\")\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "locale-none-\"missing.yml\"",
+      "expression": "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: none))",
+      "expression_sha256": "45723df62f11b46d8359693b4bd97404fa50a8e98b45c67e1cb007761a1c3abf",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: none))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.505284+00:00",
+          "utc_end": "2026-10-19T20:19:01.511804+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: file not found (searched at /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n  \u250c\u2500 <input-expression>:1:18\n  \u2502\n1 \u2502 repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: none))\n  \u2502                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: none))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.511821+00:00",
+          "utc_end": "2026-10-19T20:19:01.523159+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: none)\n\n"
+        }
+      }
+    },
+    {
+      "name": "locale-\"en\"-\"works.yml\"",
+      "expression": "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: \"en\"))",
+      "expression_sha256": "b46c5a4c835f6088ebf55b9230dd0ca9bdbe3db4f68245f470fee03f768cec5a",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: \"en\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.525118+00:00",
+          "utc_end": "2026-10-19T20:19:01.532083+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: locale\n  \u250c\u2500 <input-expression>:1:94\n  \u2502\n1 \u2502 repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: \"en\"))\n  \u2502                                                                                               ^^^^^^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: \"en\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.532100+00:00",
+          "utc_end": "2026-10-19T20:19:01.547403+00:00",
+          "returncode": 0,
+          "stdout": "\"bibliography(\\\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\\\")\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "locale-\"en\"-\"missing.yml\"",
+      "expression": "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: \"en\"))",
+      "expression_sha256": "fa5988ef285eb4eaae0a9bd7288e7eeb99f9559c25ee4d3c764611e758eb1464",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: \"en\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.549228+00:00",
+          "utc_end": "2026-10-19T20:19:01.555721+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: file not found (searched at /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n  \u250c\u2500 <input-expression>:1:18\n  \u2502\n1 \u2502 repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: \"en\"))\n  \u2502                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: \"en\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.555735+00:00",
+          "utc_end": "2026-10-19T20:19:01.568508+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: \"en\")\n\n"
+        }
+      }
+    },
+    {
+      "name": "locale-\"bad_locale\"-\"works.yml\"",
+      "expression": "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: \"bad_locale\"))",
+      "expression_sha256": "a02ff775b81f2162265a405d4d03caa6a710aa4fa5b6604e1d76759e8bd7bd34",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: \"bad_locale\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.570346+00:00",
+          "utc_end": "2026-10-19T20:19:01.577587+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: locale\n  \u250c\u2500 <input-expression>:1:94\n  \u2502\n1 \u2502 repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: \"bad_locale\"))\n  \u2502                                                                                               ^^^^^^^^^^^^^^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: \"bad_locale\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.577602+00:00",
+          "utc_end": "2026-10-19T20:19:01.592578+00:00",
+          "returncode": 0,
+          "stdout": "\"bibliography(\\\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\\\")\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "locale-\"bad_locale\"-\"missing.yml\"",
+      "expression": "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: \"bad_locale\"))",
+      "expression_sha256": "347dc43a9910f749812db749be080e8377be4ca93c62132e26e319446e245eb8",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: \"bad_locale\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.594546+00:00",
+          "utc_end": "2026-10-19T20:19:01.602186+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: file not found (searched at /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n  \u250c\u2500 <input-expression>:1:18\n  \u2502\n1 \u2502 repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: \"bad_locale\"))\n  \u2502                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: \"bad_locale\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.602204+00:00",
+          "utc_end": "2026-10-19T20:19:01.616053+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: \"bad_locale\")\n\n"
+        }
+      }
+    },
+    {
+      "name": "locale-true-\"works.yml\"",
+      "expression": "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: true))",
+      "expression_sha256": "b569d94e4e73e17ae134f4b291e130b5b2ba98cca8897003e82209e521d5f988",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: true))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.618651+00:00",
+          "utc_end": "2026-10-19T20:19:01.624838+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: locale\n  \u250c\u2500 <input-expression>:1:94\n  \u2502\n1 \u2502 repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: true))\n  \u2502                                                                                               ^^^^^^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: true))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.624851+00:00",
+          "utc_end": "2026-10-19T20:19:01.639686+00:00",
+          "returncode": 0,
+          "stdout": "\"bibliography(\\\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\\\")\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "locale-true-\"missing.yml\"",
+      "expression": "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: true))",
+      "expression_sha256": "02111764bf0ee8c4ea031ec2ab68288d71c2fd323d91cf8e55fc10a819af7d81",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: true))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.641870+00:00",
+          "utc_end": "2026-10-19T20:19:01.648478+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: file not found (searched at /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n  \u250c\u2500 <input-expression>:1:18\n  \u2502\n1 \u2502 repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: true))\n  \u2502                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: true))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.648492+00:00",
+          "utc_end": "2026-10-19T20:19:01.660576+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: true)\n\n"
+        }
+      }
+    },
+    {
+      "name": "locale-3-\"works.yml\"",
+      "expression": "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: 3))",
+      "expression_sha256": "f2e76fd72b4b17d1144b6991f42930079abbcec6b6f857fc4566c4b0a7870e99",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: 3))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.662738+00:00",
+          "utc_end": "2026-10-19T20:19:01.669987+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: locale\n  \u250c\u2500 <input-expression>:1:94\n  \u2502\n1 \u2502 repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: 3))\n  \u2502                                                                                               ^^^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: 3))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.670006+00:00",
+          "utc_end": "2026-10-19T20:19:01.685566+00:00",
+          "returncode": 0,
+          "stdout": "\"bibliography(\\\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\\\")\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "locale-3-\"missing.yml\"",
+      "expression": "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: 3))",
+      "expression_sha256": "fc202631defba9aeacd99a3b7598dc8dfed5463ef49606a5f8f68e2ce2103fa3",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: 3))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.687679+00:00",
+          "utc_end": "2026-10-19T20:19:01.694527+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: file not found (searched at /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n  \u250c\u2500 <input-expression>:1:18\n  \u2502\n1 \u2502 repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: 3))\n  \u2502                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: 3))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.694550+00:00",
+          "utc_end": "2026-10-19T20:19:01.708499+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: 3)\n\n"
+        }
+      }
+    },
+    {
+      "name": "locale-[x]-\"works.yml\"",
+      "expression": "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: [x]))",
+      "expression_sha256": "5a588adc6534a21fcdfc3155bac618eca92a94557eda3ebde4b27f468a8bd759",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: [x]))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.710874+00:00",
+          "utc_end": "2026-10-19T20:19:01.717501+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: locale\n  \u250c\u2500 <input-expression>:1:94\n  \u2502\n1 \u2502 repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: [x]))\n  \u2502                                                                                               ^^^^^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\", locale: [x]))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.717516+00:00",
+          "utc_end": "2026-10-19T20:19:01.732512+00:00",
+          "returncode": 0,
+          "stdout": "\"bibliography(\\\"/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/works.yml\\\")\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "locale-[x]-\"missing.yml\"",
+      "expression": "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: [x]))",
+      "expression_sha256": "8450fe98591243d59f1aba5874b9abc5b05c0009159de960e44fcd020e6b9c5e",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: [x]))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.734739+00:00",
+          "utc_end": "2026-10-19T20:19:01.741518+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: file not found (searched at /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n  \u250c\u2500 <input-expression>:1:18\n  \u2502\n1 \u2502 repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: [x]))\n  \u2502                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "repr(bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: [x]))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.741531+00:00",
+          "utc_end": "2026-10-19T20:19:01.753062+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: file not found (searched at ./lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml)\n\n  while calling `bibliography` at <input-expression>:1:5\n    bibliography(\"lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/missing.yml\", locale: [x])\n\n"
+        }
+      }
+    },
+    {
+      "name": "selector-selector()",
+      "expression": "selector()",
+      "expression_sha256": "e05a263b888688a72f4d29ea5d12034da41df563662652bc452e50e975005dea",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "selector()",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.755391+00:00",
+          "utc_end": "2026-10-19T20:19:01.761746+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: missing argument: target\n  \u250c\u2500 <input-expression>:1:0\n  \u2502\n1 \u2502 selector()\n  \u2502 ^^^^^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "selector()",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.761759+00:00",
+          "utc_end": "2026-10-19T20:19:01.773422+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: selector() requer 1 argumento, recebeu 0\n\n"
+        }
+      }
+    },
+    {
+      "name": "selector-selector(heading, figure)",
+      "expression": "selector(heading, figure)",
+      "expression_sha256": "c51d1fd2bcaf349a2a5930bd9b5489703340890b9f6d1334690620cd319a36c6",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "selector(heading, figure)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.775787+00:00",
+          "utc_end": "2026-10-19T20:19:01.782002+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument\n  \u250c\u2500 <input-expression>:1:18\n  \u2502\n1 \u2502 selector(heading, figure)\n  \u2502                   ^^^^^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "selector(heading, figure)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.782018+00:00",
+          "utc_end": "2026-10-19T20:19:01.794188+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: selector() requer 1 argumento, recebeu 2\n\n"
+        }
+      }
+    },
+    {
+      "name": "selector-selector(1)",
+      "expression": "selector(1)",
+      "expression_sha256": "2225138988ad5f0d86f69fb8654056755434d680c88e883bd8b7be7b64121816",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "selector(1)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.796548+00:00",
+          "utc_end": "2026-10-19T20:19:01.803001+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected string, function, label, regex, location, or selector, found integer\n  \u250c\u2500 <input-expression>:1:9\n  \u2502\n1 \u2502 selector(1)\n  \u2502          ^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "selector(1)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.803016+00:00",
+          "utc_end": "2026-10-19T20:19:01.814904+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: selector(): argumento inv\u00e1lido (int)\n\n"
+        }
+      }
+    },
+    {
+      "name": "selector-selector(regex(\"a\"))",
+      "expression": "selector(regex(\"a\"))",
+      "expression_sha256": "7ea44dace8356cb13abdb9eea72b36feb35bdf957a512f67d2a4ab705181c6e7",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "selector(regex(\"a\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.817188+00:00",
+          "utc_end": "2026-10-19T20:19:01.823605+00:00",
+          "returncode": 0,
+          "stdout": "\"regex(\\\"a\\\")\"\n",
+          "stderr": ""
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "selector(regex(\"a\"))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.823619+00:00",
+          "utc_end": "2026-10-19T20:19:01.836233+00:00",
+          "returncode": 0,
+          "stdout": "\"regex(\\\"a\\\")\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "selector-selector(\"\")",
+      "expression": "selector(\"\")",
+      "expression_sha256": "2a168135a32bb64d032612f501a3dd515440f59f679004b0dc1317b7ad093c35",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "selector(\"\")",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.838786+00:00",
+          "utc_end": "2026-10-19T20:19:01.845282+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: text selector is empty\n  \u250c\u2500 <input-expression>:1:9\n  \u2502\n1 \u2502 selector(\"\")\n  \u2502          ^^\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "selector(\"\")",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:19:01.845299+00:00",
+          "utc_end": "2026-10-19T20:19:01.857073+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: text selector is empty\n\n"
+        }
+      }
+    }
+  ],
+  "utc_end": "2026-10-19T20:19:01.859128+00:00",
+  "diff_head_stat_after": "",
+  "binaries_after": {
+    "oracle": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+    "product": "44178e4fecc5c66cba3aa134f4d82290c6d53fb340dd5966b67eec45b737c914"
+  }
+}

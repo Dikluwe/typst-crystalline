@@ -1,0 +1,13 @@
+{
+  "utc": "2026-10-19T21:13:05.809127+00:00",
+  "reason": "All twelve gates passed; strict335replay found one real Version comparison prerequisite. Preserve complete attempt; no outcome reclassification or expectation weakening.",
+  "mapping": {
+    "validation": "version-ordering-failure/validation",
+    "validation-run": "version-ordering-failure/validation-run",
+    "accepted-build-receipt.json": "version-ordering-failure/accepted-build-receipt.json",
+    "accepted-replay-commands.json": "version-ordering-failure/accepted-replay-commands.json",
+    "agents/adapters/accepted-replay": "version-ordering-failure/agents/adapters/accepted-replay",
+    "agents/geometry/accepted-replay": "version-ordering-failure/agents/geometry/accepted-replay",
+    "agents/encoding/accepted-replay.json": "version-ordering-failure/agents/encoding/accepted-replay.json"
+  }
+}

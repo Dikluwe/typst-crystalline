@@ -1,0 +1,37 @@
+{
+  "utc": "2026-10-19T20:48:44.738115+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "classification": "One existing regression strengthened; not an additional batch_f test and not a production logic change.",
+  "old_test": "p633_grid_columns_string_silent_auto",
+  "new_test": "p633_grid_columns_invalid_string_rejected",
+  "source": "01_core/src/compiler/eval/tests.rs",
+  "owner": "00_nucleo/prompts/core/compiler/eval/tests.md",
+  "before": {
+    "01_core/src/compiler/eval/tests.rs": "523fbd5a4192698961c0f9edd85fb751bd8d8450e0d2325eacc78959db0b5d9e",
+    "00_nucleo/prompts/core/compiler/eval/tests.md": "ab87e626f31c1e0b1c749e0f544d46d8cf5fd916c92fba6f61773f5db9eef53b"
+  },
+  "after": {
+    "01_core/src/compiler/eval/tests.rs": "4dcaff0ac898c399ad512937b0ac99d9b142d3ba0c29703ccc0aaf1c8bf59493",
+    "00_nucleo/prompts/core/compiler/eval/tests.md": "bc021e484f81886a1cefefa5b756ff0c12adb035aecd68290303377c6b01a976"
+  },
+  "measurement": {
+    "path": "lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/stale-grid-regression/measurement.json",
+    "sha256": "6216fb944c14450b47941c1a6dda047c4e4c09596806c12dadb24f8204036f40"
+  },
+  "unchanged_outside_exact_test_region": true,
+  "red_recipe": {
+    "workspace": "isolated copy of current source",
+    "restore_from_head": [
+      "01_core/src/compiler/stdlib/layout/grid.rs",
+      "01_core/src/compiler/stdlib/structural/table_grid.rs"
+    ],
+    "filter": "p633_grid_columns_invalid_string_rejected",
+    "expected": "one assertion failure at unwrap_err because baseline accepts invalid string; compilation failures do not count"
+  },
+  "green_recipe": {
+    "workspace": "current corrected source",
+    "filter": "p633_grid_columns_invalid_string_rejected",
+    "expected": "one passing test with exact message/severity/hints/trace/source/range"
+  },
+  "validation_status": "pending parent central RED/GREEN and full revalidation"
+}

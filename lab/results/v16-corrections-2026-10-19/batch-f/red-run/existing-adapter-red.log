@@ -1,0 +1,21 @@
+    Finished `test` profile [unoptimized] target(s) in 0.13s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 1 test
+test compiler::stdlib::collections::tests::p881_type_as_callable_mapeia_tipos_construtores ... FAILED
+
+failures:
+
+---- compiler::stdlib::collections::tests::p881_type_as_callable_mapeia_tipos_construtores stdout ----
+
+thread 'compiler::stdlib::collections::tests::p881_type_as_callable_mapeia_tipos_construtores' (1687732) panicked at 01_core/src/compiler/stdlib/collections.rs:1547:9:
+assertion failed: type_as_callable(Type::Array).is_some()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    compiler::stdlib::collections::tests::p881_type_as_callable_mapeia_tipos_construtores
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7598 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p typst-core --lib`

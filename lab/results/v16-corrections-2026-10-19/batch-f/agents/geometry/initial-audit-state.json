@@ -1,0 +1,24 @@
+{
+  "utc": "2026-10-19T20:19:30.459479+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "diff_head_stat": "",
+  "files": {
+    "01_core/src/compiler/stdlib/figure_image.rs": "83b21239369362f8e0fd87a090eb815c0263b61191cc87ace4f746a4edf2da5e",
+    "01_core/src/compiler/stdlib/layout/grid.rs": "380ebf0860e86869cd8c6de455f24c51c52249dd350ea8f72cf69c889687f7b3",
+    "01_core/src/compiler/stdlib/layout/place.rs": "5456da2cf3613dd9a78374d506eb591ca4d1bf1b808b9346d26af432c82e61ff",
+    "01_core/src/compiler/stdlib/shapes/ellipse.rs": "72803caa979acf261d9af8af1e7b991e04bb063a07d72cad785985c0fcb194a8",
+    "01_core/src/compiler/stdlib/shapes/line.rs": "8ef5b466740c07741f9255453892cc7323e1b629d06ca5f86a475986a2ccf8e4",
+    "01_core/src/compiler/stdlib/structural/table_grid.rs": "d7d97b69f2a6387a170d2b3bec0d44bf3f1201ecf03a9d4312107fc5f75eb4db"
+  },
+  "owners": {
+    "00_nucleo/prompts/core/compiler/stdlib/figure_image.md": "7a0adf6e21580440065bb70fa5f0f2ae9b8276d5c9f7a331026a9d35b9eb67ba",
+    "00_nucleo/prompts/core/compiler/stdlib/layout/grid.md": "2e8260431ab16e9b1ace106cee0e3b546d4ccaabcc3ed6552a9fb78355b56676",
+    "00_nucleo/prompts/core/compiler/stdlib/layout/place.md": "f886990ac7f282fce9c035cbf3215da1570167f379a0084a2b60cad38fd07c70",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md": "9f4dcf8c5686c963e645db07f90ba56b4e62017c5e0e7af802aef5d212ad49d4",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes/line.md": "0d263ed22249964b718f3d0628c8422c0f1d271b4b7c6ce8896ad36615d18abf",
+    "00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md": "e44041a9a28de4cd071b6032320a204753eb08da76cd0ce4f6dc9edda3ef1f34"
+  },
+  "receipts": {
+    "receipt.json": "89f085f292178c15a8c8adea4031a94ec1d243440b0424117b03d0a5331f12ca"
+  }
+}

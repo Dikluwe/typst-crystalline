@@ -1,0 +1,70 @@
+[
+  {
+    "name": "clean-product-packages",
+    "command": [
+      "cargo",
+      "clean",
+      "-p",
+      "typst-core",
+      "-p",
+      "typst-shell",
+      "-p",
+      "typst-infra",
+      "-p",
+      "typst-wiring"
+    ],
+    "utc_end": "2026-10-19T20:53:09.345387+00:00",
+    "exit": 0,
+    "seconds": 0.6267976270028157,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "45469696",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "legacy-grid-green",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "p633_grid_columns_invalid_string_rejected",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-19T20:54:30.608044+00:00",
+    "exit": 0,
+    "seconds": 81.26211801300815,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3509952512",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "structural-final-green",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_f_structural.py",
+      "final-green"
+    ],
+    "utc_end": "2026-10-19T20:55:57.688614+00:00",
+    "exit": 0,
+    "seconds": 87.08001319499454,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3509952512",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

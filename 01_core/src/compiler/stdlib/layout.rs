@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/layout.md
-//! @prompt-hash 35fda480
+//! @prompt-hash e783b0a0
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -121,7 +121,43 @@ fn extract_alignment(args: &Args, default: Align2D) -> Align2D {
         .find_map(|v| match v {
             Value::Align(a) => Some(*a),
             Value::Str(s) => Some(Align2D::from_string(s.as_str())),
-            _ => None, // neutro: N16[β] — Value não-Alignment retorna None na projecção de alinhamento
+            Value::None
+            | Value::Bool(..)
+            | Value::Int(..)
+            | Value::Float(..)
+            | Value::Array(..)
+            | Value::Dict(..)
+            | Value::Module(..)
+            | Value::Datetime(..)
+            | Value::Func(..)
+            | Value::Content(..)
+            | Value::LocatedContent(..)
+            | Value::Auto
+            | Value::Length(..)
+            | Value::Relative(..)
+            | Value::Ratio(..)
+            | Value::Angle(..)
+            | Value::Color(..)
+            | Value::Stroke(..)
+            | Value::Fraction(..)
+            | Value::Location(..)
+            | Value::Gradient(..)
+            | Value::Regex(..)
+            | Value::Tiling(..)
+            | Value::Bytes(..)
+            | Value::Decimal(..)
+            | Value::Duration(..)
+            | Value::Version(..)
+            | Value::Selector(..)
+            | Value::Symbol(..)
+            | Value::Args(..)
+            | Value::State(..)
+            | Value::Counter(..)
+            | Value::Label(..)
+            | Value::Dir(..)
+            | Value::Path(..)
+            | Value::Type(..)
+            | Value::SpotColorant(..) => None,
         })
         .unwrap_or(default)
 }
@@ -236,5 +272,58 @@ mod p1491_measure_tests {
         assert!(composite_w > box_w);
         assert!((composite_h - 20.0).abs() < 1e-6);
         assert!((composite_baseline - 17.0).abs() < 1e-6);
+    }
+}
+
+#[cfg(test)]
+mod batch_f_alignment_tests {
+    use super::*;
+    #[test]
+    fn batch_f_alignment_search_preserves_first_candidate() {
+        let default = Align2D::from_string("right");
+        let center = Align2D::from_string("center");
+        let left = Align2D::from_string("left");
+        let body = Value::Content(Content::text("body"));
+        assert_eq!(
+            extract_alignment(
+                &Args::positional(vec![
+                    Value::None,
+                    body.clone(),
+                    Value::Align(center),
+                    Value::Str("left".into())
+                ]),
+                default
+            ),
+            center
+        );
+        assert_eq!(
+            extract_alignment(
+                &Args::positional(vec![
+                    Value::Int(1),
+                    Value::Str("left".into()),
+                    Value::Align(center),
+                    body
+                ]),
+                default
+            ),
+            left
+        );
+    }
+    #[test]
+    fn batch_f_alignment_non_candidates_preserve_supplied_default() {
+        let default = Align2D::from_string("bottom");
+        for values in [
+            vec![],
+            vec![Value::Content(Content::text("body"))],
+            vec![
+                Value::None,
+                Value::Bool(true),
+                Value::Int(3),
+                Value::Array(vec![]),
+                Value::Content(Content::text("body")),
+            ],
+        ] {
+            assert_eq!(extract_alignment(&Args::positional(values), default), default);
+        }
     }
 }

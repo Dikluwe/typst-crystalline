@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-19T21:41:19.923074+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "exit": 0,
+  "result": "PASS fail-closed final Batch F closure audit",
+  "auditor_change": "Only expected empty successful fmt log accepted; exact fmt command/exit still required. No productive source, L0, tests, replay policy or lineage acceptance changed.",
+  "bound": {
+    "lab/results/v16-corrections-2026-10-19/batch-f/closure-audit-attempts/attempt-2/batch_f_close.py": "6d95ff519396d18239eb26a4b1f00245906992a7743168c9eef7a17fc14bce66",
+    "lab/results/v16-corrections-2026-10-19/batch-f/closure-audit-attempts/attempt-2/closure-audit-attempt-2.log": "4a788df5b41ef0f0d170db748acea17342cb5f12952b0c1d447e888ff8d7bb2a",
+    "lab/results/v16-corrections-2026-10-19/batch-f/closure-ledger.json": "5daa3db27108f13d9b5bcf02175e288d749c08817309dd564a4649b8756d5b5b"
+  }
+}

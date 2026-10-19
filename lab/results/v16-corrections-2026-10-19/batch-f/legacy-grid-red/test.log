@@ -1,0 +1,87 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.46
+   Compiling syn v2.0.98
+   Compiling synstructure v0.13.2
+   Compiling zerofrom-derive v0.1.7
+   Compiling zerofrom v0.1.8
+   Compiling yoke-derive v0.8.2
+   Compiling serde_derive v1.0.228
+   Compiling displaydoc v0.2.6
+   Compiling yoke v0.8.3
+   Compiling serde v1.0.228
+   Compiling zerovec-derive v0.11.3
+   Compiling zerovec v0.11.6
+   Compiling tinystr v0.8.3
+   Compiling icu_locale_core v2.2.0
+   Compiling potential_utf v0.1.5
+   Compiling zerotrie v0.2.4
+   Compiling icu_collections v2.2.0
+   Compiling icu_provider v2.2.0
+   Compiling zerocopy-derive v0.8.27
+   Compiling zerocopy v0.8.27
+   Compiling icu_properties v2.2.0
+   Compiling icu_normalizer v2.2.0
+   Compiling unic-langid-impl v0.9.6
+   Compiling thiserror v2.0.16
+   Compiling unic-langid-macros-impl v0.9.6
+   Compiling half v2.7.1
+   Compiling thiserror-impl v2.0.16
+   Compiling ciborium-ll v0.2.2
+   Compiling strum_macros v0.27.2
+   Compiling unic-langid-macros v0.9.6
+   Compiling icu_locale v2.2.0
+   Compiling idna_adapter v1.2.2
+   Compiling enum-ordinalize-derive v4.3.2
+   Compiling plist v1.10.0
+   Compiling enum-ordinalize v4.3.2
+   Compiling idna v1.1.0
+   Compiling unic-langid v0.9.6
+   Compiling strum v0.27.2
+   Compiling ciborium v0.2.2
+   Compiling ppv-lite86 v0.2.21
+   Compiling quick-xml v0.38.4
+   Compiling toml_datetime v0.6.11
+   Compiling bincode v1.3.3
+   Compiling serde_spanned v0.6.9
+   Compiling toml_edit v0.22.27
+   Compiling syntect v5.3.0
+   Compiling serde_yaml v0.9.34+deprecated
+   Compiling biblatex v0.12.0
+   Compiling chinese-number v0.7.8
+   Compiling citationberg v0.7.0
+   Compiling rand_chacha v0.3.1
+   Compiling icu_collator v2.2.0
+   Compiling url v2.5.8
+   Compiling tinytemplate v1.2.1
+   Compiling comemo-macros v0.4.0
+   Compiling rust_decimal v1.42.1
+   Compiling comemo v0.4.0
+   Compiling criterion v0.5.1
+   Compiling hayagriva v0.10.1
+   Compiling lipsum v0.9.1
+   Compiling icu_segmenter v2.2.0
+   Compiling codex v0.3.0 (https://github.com/typst/codex?rev=2e43ab90079cf9f9fa670d421c8c38233143b376#2e43ab90)
+   Compiling two-face v0.4.5
+   Compiling toml v0.8.23
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-f-legacy-grid-red/01_core)
+    Finished `test` profile [unoptimized] target(s) in 2m 04s
+     Running unittests src/lib.rs (/repos/Antigravity/typst-crystalline/lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 1 test
+test compiler::eval::tests::regressions::p633_grid_columns_invalid_string_rejected ... FAILED
+
+failures:
+
+---- compiler::eval::tests::regressions::p633_grid_columns_invalid_string_rejected stdout ----
+
+thread 'compiler::eval::tests::regressions::p633_grid_columns_invalid_string_rejected' (1723918) panicked at 01_core/src/compiler/eval/tests.rs:20924:59:
+called `Result::unwrap_err()` on an `Ok` value: Module { name: "1" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    compiler::eval::tests::regressions::p633_grid_columns_invalid_string_rejected
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7587 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p typst-core --lib`

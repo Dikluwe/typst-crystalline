@@ -1,0 +1,532 @@
+{
+  "utc": "2026-10-19T20:29:30.644646+00:00",
+  "counts": {
+    "semantic RED": 25,
+    "preservation": 31
+  },
+  "tests": [
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_decimal",
+      "expected_baseline": "semantic RED",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_regex",
+      "expected_baseline": "semantic RED",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_selector",
+      "expected_baseline": "semantic RED",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_stroke",
+      "expected_baseline": "semantic RED",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_tiling",
+      "expected_baseline": "semantic RED",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_version",
+      "expected_baseline": "semantic RED",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_label",
+      "expected_baseline": "semantic RED",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_array",
+      "expected_baseline": "semantic RED",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_arguments",
+      "expected_baseline": "semantic RED",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_spot",
+      "expected_baseline": "semantic RED",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_duration",
+      "expected_baseline": "semantic RED",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_sorted_key",
+      "expected_baseline": "semantic RED",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_predicate_retains_result_validation",
+      "expected_baseline": "semantic RED",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_legacy_alias_and_unsupported_types",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "name": "batch_f_higher_order_constructors_remain_lazy",
+      "expected_baseline": "semantic RED",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/foundations/selector.rs",
+      "name": "batch_f_selector_slice_cardinality_and_singleton_errors",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/foundations/selector.rs",
+      "name": "batch_f_selector_singleton_keeps_complete_filter_and_guard_residuals",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/structural/bibliography.rs",
+      "name": "batch_f_bibliography_locale_extension_preserves_projection",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/structural/bibliography.rs",
+      "name": "batch_f_bibliography_source_failure_precedes_locale_and_style",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/counter/display.rs",
+      "name": "batch_f_counter_numbering_keeps_kind_and_composite_keys_distinct",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/counter/display.rs",
+      "name": "batch_f_counter_context_error_precedes_named_validation",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/structural/outline.rs",
+      "name": "batch_f_outline_invalid_parent_schema_preserves_context_error",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/structural/outline.rs",
+      "name": "batch_f_outline_valid_private_indent_forms_preserve_inner",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/structural/outline.rs",
+      "name": "batch_f_outline_parent_callback_receives_level_minus_one",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+      "name": "batch_f_html_union_success_preserves_presence_and_tokens",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+      "name": "batch_f_html_union_rejection_keeps_diagnostic_and_span",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/layout/stroke.rs",
+      "name": "batch_f_dash_native_keeps_order_dot_and_dictionary_phase",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/layout/stroke.rs",
+      "name": "batch_f_dash_native_preserves_guard_rejection_and_current_length_debt",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/layout.rs",
+      "name": "batch_f_alignment_search_preserves_first_candidate",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/layout.rs",
+      "name": "batch_f_alignment_non_candidates_preserve_supplied_default",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+      "name": "batch_f_fields_delegate_raw_caption_and_keep_order",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+      "name": "batch_f_fields_snapshot_overrides_normalized_raw_without_fallback",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+      "name": "batch_f_yaml_empty_and_nested_containers_keep_shape",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+      "name": "batch_f_yaml_scalar_tokens_and_opaque_repr_keep_newline",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+      "name": "batch_f_yaml_strings_and_snapshot_keep_their_own_routes",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/structural/math_accent_tests.rs",
+      "name": "batch_f_accent_finder_observes_actual_fixture_and_rejects_absence",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/structural/math_accent_tests.rs",
+      "name": "batch_f_accent_finder_keeps_order_and_opaque_descendant_boundary",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/structural/math_cases_tests.rs",
+      "name": "batch_f_cases_finder_observes_actual_fixture_and_rejects_absence",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "file": "01_core/src/compiler/stdlib/structural/math_cases_tests.rs",
+      "name": "batch_f_cases_finder_keeps_order_and_opaque_descendant_boundary",
+      "expected_baseline": "pass",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "name": "batch_f_grid_rejects_invalid_array_member_at_array_value_span",
+      "expected_baseline": "semantic RED",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout",
+      "file": "01_core/src/compiler/stdlib/layout/grid.rs",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "name": "batch_f_grid_rejects_malformed_scalar_and_nonpositive_counts",
+      "expected_baseline": "semantic RED",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout",
+      "file": "01_core/src/compiler/stdlib/layout/grid.rs",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "name": "batch_f_grid_columns_error_precedes_rows_and_gutter",
+      "expected_baseline": "semantic RED",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout",
+      "file": "01_core/src/compiler/stdlib/layout/grid.rs",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "name": "batch_f_grid_preserves_valid_order_and_legacy_tracks",
+      "expected_baseline": "pass",
+      "reason": "Preserve measured valid forms/precedence",
+      "file": "01_core/src/compiler/stdlib/layout/grid.rs",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "name": "batch_f_place_rejects_malformed_offsets_at_value_span",
+      "expected_baseline": "semantic RED",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout",
+      "file": "01_core/src/compiler/stdlib/layout/place.rs",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "name": "batch_f_place_preserves_point_extensions_and_vertical_omission",
+      "expected_baseline": "pass",
+      "reason": "Preserve measured valid forms/precedence",
+      "file": "01_core/src/compiler/stdlib/layout/place.rs",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "name": "batch_f_place_dx_rejection_precedes_dy_and_scope",
+      "expected_baseline": "semantic RED",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout",
+      "file": "01_core/src/compiler/stdlib/layout/place.rs",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "name": "batch_f_circle_rejects_invalid_radius_at_value_span",
+      "expected_baseline": "semantic RED",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout",
+      "file": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "name": "batch_f_circle_em_radius_reaches_actual_layout_at_occurrence_font",
+      "expected_baseline": "semantic RED",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout",
+      "file": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "name": "batch_f_circle_preserves_absolute_and_numeric_geometry",
+      "expected_baseline": "pass",
+      "reason": "Preserve measured valid forms/precedence",
+      "file": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "name": "batch_f_circle_radius_error_precedes_paint_error",
+      "expected_baseline": "semantic RED",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout",
+      "file": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "name": "batch_f_line_rejects_malformed_legacy_offsets_at_value_span",
+      "expected_baseline": "semantic RED",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout",
+      "file": "01_core/src/compiler/stdlib/shapes/line.rs",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "name": "batch_f_line_preserves_numeric_and_negative_offsets",
+      "expected_baseline": "pass",
+      "reason": "Preserve measured valid forms/precedence",
+      "file": "01_core/src/compiler/stdlib/shapes/line.rs",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "name": "batch_f_line_preserves_stroke_and_conflict_precedence",
+      "expected_baseline": "pass",
+      "reason": "Preserve measured valid forms/precedence",
+      "file": "01_core/src/compiler/stdlib/shapes/line.rs",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "name": "batch_f_table_rejects_invalid_track_without_dropping_member",
+      "expected_baseline": "semantic RED",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout",
+      "file": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "name": "batch_f_table_track_counts_are_positive_and_columns_validate_first",
+      "expected_baseline": "semantic RED",
+      "reason": "Reject silent malformed coercion/filtering or preserve em into actual layout",
+      "file": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    },
+    {
+      "name": "batch_f_table_preserves_valid_track_order_and_rows_presence",
+      "expected_baseline": "pass",
+      "reason": "Preserve measured valid forms/precedence",
+      "file": "01_core/src/compiler/stdlib/structural/table_grid.rs",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "red-run/new-tests-red.log",
+      "log_sha256": "4acc52dc2f985db09bdb4107d8dc5439c1fe1dd08057f8b85d0b20969f2b5b77"
+    }
+  ],
+  "existing_adapter_test": "Observed semantic RED; Array admission assertion only; excluded from56newtests",
+  "setup_failure": "red-type-error-run preserved E0308 and provides no semantic RED"
+}

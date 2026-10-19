@@ -1,0 +1,52 @@
+{
+  "utc_before": "2026-10-19T21:13:58.731339+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "working_tree": "uncommitted working tree",
+  "diff_HEAD_stat": " 00_nucleo/prompts/core/compiler/eval/tests.md      |  36 ++-\n .../prompts/core/compiler/stdlib/collections.md    |  25 +-\n .../compiler/stdlib/collections/array_predicate.md |  33 ++-\n .../core/compiler/stdlib/collections/validation.md |  41 ++-\n .../core/compiler/stdlib/counter/display.md        |  28 +-\n .../core/compiler/stdlib/foundations/selector.md   |  24 +-\n .../prompts/core/compiler/stdlib/html/attr_cast.md |  37 ++-\n 00_nucleo/prompts/core/compiler/stdlib/layout.md   |  44 ++-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  63 ++++-\n .../prompts/core/compiler/stdlib/layout/place.md   |  38 ++-\n .../prompts/core/compiler/stdlib/layout/stroke.md  |  38 ++-\n .../core/compiler/stdlib/loading/encoding.md       |  39 ++-\n .../core/compiler/stdlib/loading/yaml_encode.md    |  40 ++-\n .../prompts/core/compiler/stdlib/shapes/line.md    |  41 ++-\n .../compiler/stdlib/structural/bibliography.md     |  29 +-\n .../stdlib/structural/math_accent_tests.md         |  39 ++-\n .../compiler/stdlib/structural/math_cases_tests.md |  39 ++-\n .../core/compiler/stdlib/structural/outline.md     |  26 +-\n .../core/compiler/stdlib/structural/table_grid.md  |  36 ++-\n 01_core/src/compiler/eval/tests.rs                 |  20 +-\n 01_core/src/compiler/stdlib/collections.rs         |   4 +-\n .../compiler/stdlib/collections/array_predicate.rs |   3 +-\n .../src/compiler/stdlib/collections/validation.rs  | 249 ++++++++++++++++-\n 01_core/src/compiler/stdlib/counter/display.rs     | 163 +++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |  69 ++++-\n 01_core/src/compiler/stdlib/html/attr_cast.rs      | 156 ++++++++++-\n 01_core/src/compiler/stdlib/layout.rs              |  93 ++++++-\n 01_core/src/compiler/stdlib/layout/grid.rs         | 295 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/layout/place.rs        | 195 +++++++++++++-\n 01_core/src/compiler/stdlib/layout/stroke.rs       | 154 ++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 173 +++++++++++-\n 01_core/src/compiler/stdlib/loading/yaml_encode.rs | 169 +++++++++---\n 01_core/src/compiler/stdlib/shapes/line.rs         | 165 +++++++++++-\n .../src/compiler/stdlib/structural/bibliography.rs | 137 +++++++++-\n .../stdlib/structural/math_accent_tests.rs         | 144 +++++++++-\n .../compiler/stdlib/structural/math_cases_tests.rs | 143 +++++++++-\n 01_core/src/compiler/stdlib/structural/outline.rs  | 212 ++++++++++++++-\n .../src/compiler/stdlib/structural/table_grid.rs   |  76 +++++-\n 38 files changed, 3196 insertions(+), 120 deletions(-)\n",
+  "before": {
+    "01_core/src/compiler/stdlib/collections/array_predicate.rs": "bf8aa7cfa691402edbacbb9414bb44fea06acc9f3ff78da02fdacc684385f42a",
+    "00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md": "7f4dc63e0832596b2c985da5edcef1e1fcfe2e7d06b9bfbd826486c43bea083c",
+    "01_core/src/compiler/stdlib/collections/validation.rs": "450c3b0e30f32f45d9c6e344498ed9951d7a6ca065b65f10cf89de312fb8da91",
+    "00_nucleo/prompts/core/compiler/stdlib/collections/validation.md": "c0d1a52a070c4d400dfbc53133e6e53cecf4150cc5cbffb6feaf19faf2388b95"
+  },
+  "evidence": {
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/version-ordering-repair/before-sources.json.gz": "ebe7d2540eba7777a57d48da562283688164c2e6ea9aa4a1f20c056f2fffd613",
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/version-ordering-repair/failed-replay.json": "933dd6222c27827b4833d63a11aebd1df57ccac68c75fa3cf39382fe21fcd82a",
+    "lab/results/v16-corrections-2026-10-19/batch-f/version-ordering-failure/agents/adapters/accepted-replay/receipt.json": "933dd6222c27827b4833d63a11aebd1df57ccac68c75fa3cf39382fe21fcd82a",
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/replay-manifest.json": "11b0591fcb17ddd86e6b6d2524843f6bc4e86941c29457d7c8b6f40cd7cb92a6",
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/baseline.json": "fbb0d4d994cff23c981fca37ca116caf71e8bba932cbf17e3951e97d94014e38",
+    "01_core/src/entities/version.rs": "f855f3810d8542ebefe45aac17f1eb9b77f63000ea960e675548438772b1f241",
+    "00_nucleo/prompts/core/entities/version.md": "bf9833f21b6da03de5342387ff8dd6cb042c6cc30cbd9b1fe321efc37045f2b8",
+    "01_core/src/compiler/eval/operators/ordering.rs": "5766aa837284591f36845c31865afe9f817f3bc67f73d40c232be02bf5cfeddc",
+    "00_nucleo/prompts/core/compiler/eval/operators/ordering.md": "db2effe298e2611e4fe76c762113f109d513aceda88a2c7c34751bebb1c894fc",
+    "lab/typst-original/crates/typst-library/src/foundations/ops.rs": "652cd66e2b2358d9f007f72fe216cff82fc8c75fd5f3e804ea86a90f2f364006"
+  },
+  "classification": "Private homogeneous Version comparison missing from collection comparator; existing domain Version::Ord provides exact zero-padded ordering; no entity/public/default/phase changes.",
+  "frozen_sorted_cases": [
+    "baseline.json::decimal-key",
+    "baseline.json::version-key",
+    "baseline.json::decimal-by",
+    "baseline-supplement.json::by-error",
+    "baseline-supplement.json::arguments-by-error"
+  ],
+  "other_new_constructor_ordering_audit": {
+    "Decimal": "Homogeneous comparison repaired; frozen decimal-key passes.",
+    "Version": "Frozen version-key sole failure; focused RED test now required.",
+    "Duration": "Domain ordering exists; native invocation residual prevents frozen map case from reaching ordering. No sorted Duration case in frozen corpus; general collection Duration ordering remains separate debt.",
+    "Array": "Domain lexicographic ordering exists but collection comparator lacks it. No sorted Array case in frozen corpus; constructor remains Bytes-only and collection Array ordering remains separate debt.",
+    "Regex,Selector,Stroke,Tiling,Label,Arguments,SpotColorant": "No homogeneous comparison branch in pinned ops::compare; admission does not imply sortable values."
+  },
+  "stage": "L0 and test only; implementation paused for parent focused RED",
+  "utc_L0_before_test": "2026-10-19T21:13:58.898627+00:00",
+  "L0_before_test": {
+    "00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md": "70026a0fb152586304ef82aed2f3d2dbd593a369f6b6fbeab2ac40114318574a",
+    "00_nucleo/prompts/core/compiler/stdlib/collections/validation.md": "fe7ca615b3b730d948f91cb009f16ec8195296986a24a3a95c50cbbceafb4654"
+  },
+  "after_test_only": {
+    "01_core/src/compiler/stdlib/collections/array_predicate.rs": "bf8aa7cfa691402edbacbb9414bb44fea06acc9f3ff78da02fdacc684385f42a",
+    "00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md": "70026a0fb152586304ef82aed2f3d2dbd593a369f6b6fbeab2ac40114318574a",
+    "01_core/src/compiler/stdlib/collections/validation.rs": "f5de40997b6300bb99e433fe31eefed74c98143c22b51c4c03fcf7709d223531",
+    "00_nucleo/prompts/core/compiler/stdlib/collections/validation.md": "fe7ca615b3b730d948f91cb009f16ec8195296986a24a3a95c50cbbceafb4654"
+  },
+  "utc_after_test": "2026-10-19T21:13:58.899035+00:00"
+}

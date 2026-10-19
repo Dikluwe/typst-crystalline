@@ -1,5 +1,5 @@
 # L0 — stdlib/loading/encoding
-Hash do Código: 6b28b534
+Hash do Código: 73a02ff1
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
@@ -89,3 +89,40 @@ full legacy serialization, arbitrary nested style merging, or the other measured
 residuals. A marker escaping into observable values or a non-constructor losing
 its child/styles schema refutes this implementation; diagnose it rather than
 weakening the nucleus or acceptance conditions.
+
+
+## Closed decision coverage
+
+### Measurement before decision
+
+At HEAD `91ea6ee91105b97b1aedf172e34780dddde14c94`, the source/owner hashes
+and exact inspection state are in
+`lab/results/v16-corrections-2026-10-19/batch-f/agents/encoding/read-only-audit.json`.
+The baseline binary build and UTC-stamped bilateral commands/output are retained
+in `lab/results/v16-corrections-2026-10-19/batch-f/agents/encoding/baseline-enabled-probes.json`;
+the separate HTML textual projection receipt is `baseline-html-projection.json`
+in that directory. The initial feature-disabled HTML run is setup evidence only.
+The oracle is pinned to commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`,
+tree `cac836c07e4dec2a89219370428292393a3216b5`, binary SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+These observations do not infer upstream intent or certify unrelated parity.
+
+`encoding.rs:27–35` normalizes Source/ShowRecipe/Located body and Realized
+visual; `:48–112` handles structural schemas before delegating remaining elements
+to the strict fields method. Marked Equation Styled intentionally reaches that
+delegation. Existing tests retain constructor marker, Some snapshots, Raw and
+caption; current YAML probes preserve their distinctions and expose the already
+recorded omitted Equation block discrepancy.
+
+### Decision and acceptance
+
+Make the no-snapshot schema decision exhaustive over Content. Name each remaining
+public variant as delegated, retaining the same strict Dict-result validation.
+Name Source/ShowRecipe/Located/Realized as impossible after the preceding
+normalization; do not publish or synthesize their fields. Keep the existing marked
+Styled branch and its exact bounded recognizer; ordinary Styled remains structural.
+Some(empty/ordered) snapshots bypass reconstruction entirely. Tests retain ordered
+func/known fields, normalized Raw/Caption, malformed input rejection and snapshots;
+all batch-E constructor/snapshot tests remain unchanged. The new-variant sentinel
+must fail this exact schema match. General missing fields, omitted Equation block
+presence and representation debts remain open. No new schema/API/default/phase.

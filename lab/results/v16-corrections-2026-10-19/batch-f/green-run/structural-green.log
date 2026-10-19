@@ -1,0 +1,7 @@
+2026-10-19T20:40:30.196183+00:00 all-domains START
+2026-10-19T20:40:57.572118+00:00 all-domains END 101 selected 17 other 0
+2026-10-19T20:40:57.834986+00:00 arity-zero START
+2026-10-19T20:41:27.648386+00:00 arity-zero END 101 selected 1 other 0
+2026-10-19T20:41:27.829518+00:00 arity-many START
+2026-10-19T20:41:57.910180+00:00 arity-many END 101 selected 1 other 0
+PASS green selected decisions; slice arity uses separate proof

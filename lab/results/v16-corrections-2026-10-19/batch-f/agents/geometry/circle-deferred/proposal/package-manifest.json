@@ -1,0 +1,11 @@
+{
+  "status": "proposal-only",
+  "files": {
+    "candidate-l0-deltas.json": "41b11700989692cf2faeadba1781543f69aca5dc3ab0989a8df9b6f9afaed57b",
+    "owner-graph.json": "995f6e3b4f86580ffa385735635116dba5642993ffc5d1c0d59b93de672b644a",
+    "review.md": "5b7136bc18f419004113d8d83c9c54adb816e3b70389039aeeed35e1c6f772e8",
+    "revision-receipt.json": "502cd4959fc110c76e41c691e81433061bc235099b1e70883e5234deed6f8e40",
+    "source-manifest.json": "b84a879e938a6e0d62fc85e4019f2c53bea337224e0e5d5398fff63c54f46e0b",
+    "source-snapshot.json.gz": "f1acd16ab3d4469af347a90b7fbcfe007eaa4aa8f52a0f157b39eff38d6339b4"
+  }
+}

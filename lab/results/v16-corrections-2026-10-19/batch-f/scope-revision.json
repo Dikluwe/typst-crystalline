@@ -1,0 +1,32 @@
+{
+  "utc": "2026-10-19T20:38:00.996076+00:00",
+  "accepted_ids": [
+    "V16-053",
+    "V16-054",
+    "V16-056",
+    "V16-057",
+    "V16-058",
+    "V16-059",
+    "V16-060",
+    "V16-061",
+    "V16-062",
+    "V16-063",
+    "V16-064",
+    "V16-066",
+    "V16-067",
+    "V16-068",
+    "V16-069",
+    "V16-070"
+  ],
+  "pending_ids": [
+    "V16-055",
+    "V16-065"
+  ],
+  "removed_owner": "shapes/ellipse: fullLength repair regresses language identity; entire attempt archived and pair restored",
+  "added_owner": "collections/array_predicate: homogeneous decimal ordering needed for unchanged sorted(key:decimal) acceptance",
+  "evidence": [
+    "candidate-run/new-tests-green.log",
+    "agents/geometry/baseline-equality/receipt.json"
+  ],
+  "classification": "Bounded internal decimal parity correction; circle identity requires a coherent carrier correction before acceptance."
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "name": "new-tests-green",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "batch_f_",
+      "--",
+      "--test-threads=1"
+    ],
+    "expected_exit": 0,
+    "utc_end": "2026-10-19T20:40:27.681296+00:00",
+    "exit": 0,
+    "seconds": 89.61961771499773,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3989278720",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "existing-adapter-green",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "p881_type_as_callable_mapeia_tipos_construtores",
+      "--",
+      "--test-threads=1"
+    ],
+    "expected_exit": 0,
+    "utc_end": "2026-10-19T20:40:27.883582+00:00",
+    "exit": 0,
+    "seconds": 0.2017156609945232,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3989278720",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "structural-green",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_f_structural.py",
+      "green"
+    ],
+    "utc_end": "2026-10-19T20:41:57.924748+00:00",
+    "exit": 0,
+    "seconds": 90.04057031100092,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3989278720",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "name": "version-sorted-green",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "batch_f_higher_order_sorted_key",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-19T21:23:53.671896+00:00",
+    "exit": 0,
+    "seconds": 89.83715049900638,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3411025920",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "version-product-build",
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-wiring",
+      "--bin",
+      "typst"
+    ],
+    "utc_end": "2026-10-19T21:24:27.031593+00:00",
+    "exit": 0,
+    "seconds": 33.3590507459885,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3411025920",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

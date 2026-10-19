@@ -1,0 +1,33 @@
+{
+  "utc": "2026-10-19T21:23:12.046789+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "working_tree": "uncommitted working tree",
+  "diff_HEAD_stat": " 00_nucleo/prompts/core/compiler/eval/tests.md      |  36 ++-\n .../prompts/core/compiler/stdlib/collections.md    |  25 +-\n .../compiler/stdlib/collections/array_predicate.md |  62 ++++-\n .../core/compiler/stdlib/collections/validation.md |  55 +++-\n .../core/compiler/stdlib/counter/display.md        |  28 +-\n .../core/compiler/stdlib/foundations/selector.md   |  24 +-\n .../prompts/core/compiler/stdlib/html/attr_cast.md |  37 ++-\n 00_nucleo/prompts/core/compiler/stdlib/layout.md   |  44 ++-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  63 ++++-\n .../prompts/core/compiler/stdlib/layout/place.md   |  38 ++-\n .../prompts/core/compiler/stdlib/layout/stroke.md  |  38 ++-\n .../core/compiler/stdlib/loading/encoding.md       |  39 ++-\n .../core/compiler/stdlib/loading/yaml_encode.md    |  40 ++-\n .../prompts/core/compiler/stdlib/shapes/line.md    |  41 ++-\n .../compiler/stdlib/structural/bibliography.md     |  29 +-\n .../stdlib/structural/math_accent_tests.md         |  39 ++-\n .../compiler/stdlib/structural/math_cases_tests.md |  39 ++-\n .../core/compiler/stdlib/structural/outline.md     |  26 +-\n .../core/compiler/stdlib/structural/table_grid.md  |  36 ++-\n 01_core/src/compiler/eval/tests.rs                 |  20 +-\n 01_core/src/compiler/stdlib/collections.rs         |   4 +-\n .../compiler/stdlib/collections/array_predicate.rs |   4 +-\n .../src/compiler/stdlib/collections/validation.rs  | 253 +++++++++++++++++-\n 01_core/src/compiler/stdlib/counter/display.rs     | 163 +++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |  69 ++++-\n 01_core/src/compiler/stdlib/html/attr_cast.rs      | 156 ++++++++++-\n 01_core/src/compiler/stdlib/layout.rs              |  93 ++++++-\n 01_core/src/compiler/stdlib/layout/grid.rs         | 295 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/layout/place.rs        | 195 +++++++++++++-\n 01_core/src/compiler/stdlib/layout/stroke.rs       | 154 ++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 173 +++++++++++-\n 01_core/src/compiler/stdlib/loading/yaml_encode.rs | 169 +++++++++---\n 01_core/src/compiler/stdlib/shapes/line.rs         | 165 +++++++++++-\n .../src/compiler/stdlib/structural/bibliography.rs | 137 +++++++++-\n .../stdlib/structural/math_accent_tests.rs         | 144 +++++++++-\n .../compiler/stdlib/structural/math_cases_tests.rs | 143 +++++++++-\n 01_core/src/compiler/stdlib/structural/outline.rs  | 212 ++++++++++++++-\n .../src/compiler/stdlib/structural/table_grid.rs   |  76 +++++-\n 38 files changed, 3244 insertions(+), 120 deletions(-)\n",
+  "method": "Compared multisets of every note rule, complete message and source path across baseline, pre-Version and final scans; ignored only locations for substantive classification. Verified reviewed added/removed content exactly before rebinding.",
+  "substantive_added": 25,
+  "substantive_removed": 3,
+  "substantive_changes_since_pre_version": 0,
+  "raw_removed_or_moved": 155,
+  "raw_added_or_moved": 177,
+  "counts_before": {
+    "V16:error": 37,
+    "V19:note": 1237,
+    "V20:note": 877
+  },
+  "counts_after": {
+    "V16:error": 21,
+    "V19:note": 1259,
+    "V20:note": 877
+  },
+  "bound": {
+    "lab/results/v16-corrections-2026-10-19/batch-f/baseline.sarif.gz": "4feb580b1d2a34371d762d8a640dc4a34cf03df7ca5539ba1804dd8bc48064de",
+    "lab/results/v16-corrections-2026-10-19/batch-f/after.sarif.gz": "36b9b6d86c06fb1ebce974c0879688120e57dbd8aff50e1060654796d8c57ed5",
+    "lab/results/v16-corrections-2026-10-19/batch-f/lint-state.json.gz": "b8f58efa1e519081de8a33ee5482bb852216b15ccc572d110900fd9c4fd1c31d",
+    "lab/results/v16-corrections-2026-10-19/batch-f/lint-delta.json": "f90594c515338756b6cd352c1c7f08f0232c3907625e1be65999c8ea47dde61a",
+    "lab/results/v16-corrections-2026-10-19/batch-f/note-review.json": "f2d43b7b0b763c156d16498e0ece69a5a030b191341f61a819c0f1de1e91ee3f",
+    "lab/results/v16-corrections-2026-10-19/batch-f/note-review.md": "f016a48799630aad0511356f6f793005151c831ed4d73803ed29357bb102b758",
+    "lab/results/v16-corrections-2026-10-19/batch-f/lint-before-version-ordering/after.sarif.gz": "a920d1341e573b7981735997ae36e0e96947eacd975d9a7d17fb037cd25465fd",
+    "lab/results/v16-corrections-2026-10-19/batch-f/lint-before-version-ordering/note-review.json": "a2319dd980a52f51125636b8f85ed494e4dab0d3c54cd9bd15cc8021fa4a844c",
+    "lab/results/v16-corrections-2026-10-19/batch-f/lint-before-version-ordering/note-review.md": "f81edcb7c05161695f50038c81a17f9e05887e56e0f41bebc9136bf96f344e12"
+  }
+}

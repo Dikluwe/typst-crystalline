@@ -1,0 +1,231 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 1m 22s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 56 tests
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_arguments ... FAILED
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_array ... FAILED
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_constructors_remain_lazy ... FAILED
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_decimal ... FAILED
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_duration ... FAILED
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_label ... FAILED
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_legacy_alias_and_unsupported_types ... ok
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_predicate_retains_result_validation ... FAILED
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_regex ... FAILED
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_selector ... FAILED
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_sorted_key ... FAILED
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_spot ... FAILED
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_stroke ... FAILED
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_tiling ... FAILED
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_version ... FAILED
+test compiler::stdlib::counter::display::batch_f_tests::batch_f_counter_context_error_precedes_named_validation ... ok
+test compiler::stdlib::counter::display::batch_f_tests::batch_f_counter_numbering_keeps_kind_and_composite_keys_distinct ... ok
+test compiler::stdlib::foundations::selector::batch_f_tests::batch_f_selector_singleton_keeps_complete_filter_and_guard_residuals ... ok
+test compiler::stdlib::foundations::selector::batch_f_tests::batch_f_selector_slice_cardinality_and_singleton_errors ... ok
+test compiler::stdlib::html::attr_cast::batch_f_tests::batch_f_html_union_rejection_keeps_diagnostic_and_span ... ok
+test compiler::stdlib::html::attr_cast::batch_f_tests::batch_f_html_union_success_preserves_presence_and_tokens ... ok
+test compiler::stdlib::layout::batch_f_alignment_tests::batch_f_alignment_non_candidates_preserve_supplied_default ... ok
+test compiler::stdlib::layout::batch_f_alignment_tests::batch_f_alignment_search_preserves_first_candidate ... ok
+test compiler::stdlib::layout::grid::batch_f_tests::batch_f_grid_columns_error_precedes_rows_and_gutter ... FAILED
+test compiler::stdlib::layout::grid::batch_f_tests::batch_f_grid_preserves_valid_order_and_legacy_tracks ... ok
+test compiler::stdlib::layout::grid::batch_f_tests::batch_f_grid_rejects_invalid_array_member_at_array_value_span ... FAILED
+test compiler::stdlib::layout::grid::batch_f_tests::batch_f_grid_rejects_malformed_scalar_and_nonpositive_counts ... FAILED
+test compiler::stdlib::layout::place::batch_f_tests::batch_f_place_dx_rejection_precedes_dy_and_scope ... FAILED
+test compiler::stdlib::layout::place::batch_f_tests::batch_f_place_preserves_point_extensions_and_vertical_omission ... ok
+test compiler::stdlib::layout::place::batch_f_tests::batch_f_place_rejects_malformed_offsets_at_value_span ... FAILED
+test compiler::stdlib::layout::stroke::batch_f_dash_tests::batch_f_dash_native_keeps_order_dot_and_dictionary_phase ... ok
+test compiler::stdlib::layout::stroke::batch_f_dash_tests::batch_f_dash_native_preserves_guard_rejection_and_current_length_debt ... ok
+test compiler::stdlib::loading::encoding::batch_f_fields_tests::batch_f_fields_delegate_raw_caption_and_keep_order ... ok
+test compiler::stdlib::loading::encoding::batch_f_fields_tests::batch_f_fields_snapshot_overrides_normalized_raw_without_fallback ... ok
+test compiler::stdlib::loading::yaml_encode::batch_f_yaml_tests::batch_f_yaml_empty_and_nested_containers_keep_shape ... ok
+test compiler::stdlib::loading::yaml_encode::batch_f_yaml_tests::batch_f_yaml_scalar_tokens_and_opaque_repr_keep_newline ... ok
+test compiler::stdlib::loading::yaml_encode::batch_f_yaml_tests::batch_f_yaml_strings_and_snapshot_keep_their_own_routes ... ok
+test compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_em_radius_reaches_actual_layout_at_occurrence_font ... FAILED
+test compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_preserves_absolute_and_numeric_geometry ... ok
+test compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_radius_error_precedes_paint_error ... FAILED
+test compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_rejects_invalid_radius_at_value_span ... FAILED
+test compiler::stdlib::shapes::line::batch_f_tests::batch_f_line_preserves_numeric_and_negative_offsets ... ok
+test compiler::stdlib::shapes::line::batch_f_tests::batch_f_line_preserves_stroke_and_conflict_precedence ... ok
+test compiler::stdlib::shapes::line::batch_f_tests::batch_f_line_rejects_malformed_legacy_offsets_at_value_span ... FAILED
+test compiler::stdlib::structural::bibliography::batch_f_tests::batch_f_bibliography_locale_extension_preserves_projection ... ok
+test compiler::stdlib::structural::bibliography::batch_f_tests::batch_f_bibliography_source_failure_precedes_locale_and_style ... ok
+test compiler::stdlib::structural::math_accent_tests::batch_f_accent_finder_keeps_order_and_opaque_descendant_boundary ... ok
+test compiler::stdlib::structural::math_accent_tests::batch_f_accent_finder_observes_actual_fixture_and_rejects_absence ... ok
+test compiler::stdlib::structural::math_cases_tests::batch_f_cases_finder_keeps_order_and_opaque_descendant_boundary ... ok
+test compiler::stdlib::structural::math_cases_tests::batch_f_cases_finder_observes_actual_fixture_and_rejects_absence ... ok
+test compiler::stdlib::structural::outline::batch_f_tests::batch_f_outline_invalid_parent_schema_preserves_context_error ... ok
+test compiler::stdlib::structural::outline::batch_f_tests::batch_f_outline_parent_callback_receives_level_minus_one ... ok
+test compiler::stdlib::structural::outline::batch_f_tests::batch_f_outline_valid_private_indent_forms_preserve_inner ... ok
+test compiler::stdlib::structural::table_grid::v16_table_tests::batch_f_table_preserves_valid_track_order_and_rows_presence ... ok
+test compiler::stdlib::structural::table_grid::v16_table_tests::batch_f_table_rejects_invalid_track_without_dropping_member ... FAILED
+test compiler::stdlib::structural::table_grid::v16_table_tests::batch_f_table_track_counts_are_positive_and_columns_validate_first ... FAILED
+
+failures:
+
+---- compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_arguments stdout ----
+
+thread 'compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_arguments' (1687663) panicked at 01_core/src/compiler/stdlib/collections/validation.rs:264:38:
+(1,).map(arguments).first().pos() == (1,): [SourceDiagnostic { severity: Error, span: Span(1), message: "array.map() espera função, recebeu arguments", hints: [], trace: [] }]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_array stdout ----
+
+thread 'compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_array' (1687664) panicked at 01_core/src/compiler/stdlib/collections/validation.rs:264:38:
+(bytes((0,255)),).map(array).first() == (0,255): [SourceDiagnostic { severity: Error, span: Span(1), message: "array.map() espera função, recebeu array", hints: [], trace: [] }]
+
+---- compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_constructors_remain_lazy stdout ----
+
+thread 'compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_constructors_remain_lazy' (1687665) panicked at 01_core/src/compiler/stdlib/collections/validation.rs:410:13:
+Decimal
+
+---- compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_decimal stdout ----
+
+thread 'compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_decimal' (1687666) panicked at 01_core/src/compiler/stdlib/collections/validation.rs:264:38:
+("2.5",).map(decimal).first() == decimal("2.5"): [SourceDiagnostic { severity: Error, span: Span(1), message: "array.map() espera função, recebeu decimal", hints: [], trace: [] }]
+
+---- compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_duration stdout ----
+
+thread 'compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_duration' (1687667) panicked at 01_core/src/compiler/stdlib/collections/validation.rs:264:38:
+().map(duration) == (): [SourceDiagnostic { severity: Error, span: Span(1), message: "array.map() espera função, recebeu duration", hints: [], trace: [] }]
+
+---- compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_label stdout ----
+
+thread 'compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_label' (1687668) panicked at 01_core/src/compiler/stdlib/collections/validation.rs:264:38:
+("x",).map(label).first() == <x>: [SourceDiagnostic { severity: Error, span: Span(1), message: "array.map() espera função, recebeu label", hints: [], trace: [] }]
+
+---- compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_predicate_retains_result_validation stdout ----
+
+thread 'compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_predicate_retains_result_validation' (1687670) panicked at 01_core/src/compiler/stdlib/collections/validation.rs:369:9:
+assertion `left == right` failed
+  left: "array.filter() espera função, recebeu label"
+ right: "expected boolean, found label"
+
+---- compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_regex stdout ----
+
+thread 'compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_regex' (1687671) panicked at 01_core/src/compiler/stdlib/collections/validation.rs:264:38:
+("a",).map(regex).first() == regex("a"): [SourceDiagnostic { severity: Error, span: Span(1), message: "array.map() espera função, recebeu regex", hints: [], trace: [] }]
+
+---- compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_selector stdout ----
+
+thread 'compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_selector' (1687672) panicked at 01_core/src/compiler/stdlib/collections/validation.rs:264:38:
+(heading,).map(selector).first() == selector(heading): [SourceDiagnostic { severity: Error, span: Span(1), message: "array.map() espera função, recebeu selector", hints: [], trace: [] }]
+
+---- compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_sorted_key stdout ----
+
+thread 'compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_sorted_key' (1687673) panicked at 01_core/src/compiler/stdlib/collections/validation.rs:264:38:
+("10", "2").sorted(key: decimal) == ("2", "10"): [SourceDiagnostic { severity: Error, span: Span(291264177009561), message: "expected function, found decimal", hints: [], trace: [] }]
+
+---- compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_spot stdout ----
+
+thread 'compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_spot' (1687674) panicked at 01_core/src/compiler/stdlib/collections/validation.rs:264:38:
+().map(color.spot) == (): [SourceDiagnostic { severity: Error, span: Span(1), message: "array.map() espera função, recebeu spot", hints: [], trace: [] }]
+
+---- compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_stroke stdout ----
+
+thread 'compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_stroke' (1687675) panicked at 01_core/src/compiler/stdlib/collections/validation.rs:264:38:
+(red,).map(stroke).first() == stroke(red): [SourceDiagnostic { severity: Error, span: Span(1), message: "array.map() espera função, recebeu stroke", hints: [], trace: [] }]
+
+---- compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_tiling stdout ----
+
+thread 'compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_tiling' (1687676) panicked at 01_core/src/compiler/stdlib/collections/validation.rs:264:38:
+type(([x],).map(tiling).first()) == tiling: [SourceDiagnostic { severity: Error, span: Span(1), message: "array.map() espera função, recebeu tiling", hints: [], trace: [] }]
+
+---- compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_version stdout ----
+
+thread 'compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_version' (1687677) panicked at 01_core/src/compiler/stdlib/collections/validation.rs:264:38:
+(2,).map(version).first() == version(2): [SourceDiagnostic { severity: Error, span: Span(1), message: "array.map() espera função, recebeu version", hints: [], trace: [] }]
+
+---- compiler::stdlib::layout::grid::batch_f_tests::batch_f_grid_columns_error_precedes_rows_and_gutter stdout ----
+
+thread 'compiler::stdlib::layout::grid::batch_f_tests::batch_f_grid_columns_error_precedes_rows_and_gutter' (1687686) panicked at 01_core/src/compiler/stdlib/layout/grid.rs:351:9:
+assertion `left == right` failed
+  left: "grid(gutter): espera length, recebeu none"
+ right: "expected auto, relative length, fraction, integer, or array, found boolean"
+
+---- compiler::stdlib::layout::grid::batch_f_tests::batch_f_grid_rejects_invalid_array_member_at_array_value_span stdout ----
+
+thread 'compiler::stdlib::layout::grid::batch_f_tests::batch_f_grid_rejects_invalid_array_member_at_array_value_span' (1687688) panicked at 01_core/src/compiler/stdlib/layout/grid.rs:326:34:
+called `Result::unwrap_err()` on an `Ok` value: Content(grid)
+
+---- compiler::stdlib::layout::grid::batch_f_tests::batch_f_grid_rejects_malformed_scalar_and_nonpositive_counts stdout ----
+
+thread 'compiler::stdlib::layout::grid::batch_f_tests::batch_f_grid_rejects_malformed_scalar_and_nonpositive_counts' (1687689) panicked at 01_core/src/compiler/stdlib/layout/grid.rs:341:54:
+called `Result::unwrap_err()` on an `Ok` value: Content(grid)
+
+---- compiler::stdlib::layout::place::batch_f_tests::batch_f_place_dx_rejection_precedes_dy_and_scope stdout ----
+
+thread 'compiler::stdlib::layout::place::batch_f_tests::batch_f_place_dx_rejection_precedes_dy_and_scope' (1687690) panicked at 01_core/src/compiler/stdlib/layout/place.rs:280:9:
+assertion `left == right` failed
+  left: "place(): scope deve ser string, recebeu none"
+ right: "expected relative length, found boolean"
+
+---- compiler::stdlib::layout::place::batch_f_tests::batch_f_place_rejects_malformed_offsets_at_value_span stdout ----
+
+thread 'compiler::stdlib::layout::place::batch_f_tests::batch_f_place_rejects_malformed_offsets_at_value_span' (1687692) panicked at 01_core/src/compiler/stdlib/layout/place.rs:248:64:
+called `Result::unwrap_err()` on an `Ok` value: Content(place(PlaceElem { alignment: Align2D { h: Some(Left), v: None }, dx: 0.0, dy: 0.0, scope: Column, float: false, clearance: Some(Length { abs: Abs(0.0), em: 1.5 }), body: text("X") }))
+
+---- compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_em_radius_reaches_actual_layout_at_occurrence_font stdout ----
+
+thread 'compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_em_radius_reaches_actual_layout_at_occurrence_font' (1687700) panicked at 01_core/src/compiler/stdlib/shapes/ellipse.rs:271:13:
+assertion `left == right` failed
+  left: (0.0, 0.0, 0.0)
+ right: (40.0, 40.0, 40.0)
+
+---- compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_radius_error_precedes_paint_error stdout ----
+
+thread 'compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_radius_error_precedes_paint_error' (1687702) panicked at 01_core/src/compiler/stdlib/shapes/ellipse.rs:297:9:
+assertion `left == right` failed
+  left: "expected color, gradient, tiling, or none, found bool"
+ right: "expected length or auto, found boolean"
+
+---- compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_rejects_invalid_radius_at_value_span stdout ----
+
+thread 'compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_rejects_invalid_radius_at_value_span' (1687703) panicked at 01_core/src/compiler/stdlib/shapes/ellipse.rs:247:70:
+called `Result::unwrap_err()` on an `Ok` value: Content(shape)
+
+---- compiler::stdlib::shapes::line::batch_f_tests::batch_f_line_rejects_malformed_legacy_offsets_at_value_span stdout ----
+
+thread 'compiler::stdlib::shapes::line::batch_f_tests::batch_f_line_rejects_malformed_legacy_offsets_at_value_span' (1687706) panicked at 01_core/src/compiler/stdlib/shapes/line.rs:227:76:
+called `Result::unwrap_err()` on an `Ok` value: Content(shape)
+
+---- compiler::stdlib::structural::table_grid::v16_table_tests::batch_f_table_rejects_invalid_track_without_dropping_member stdout ----
+
+thread 'compiler::stdlib::structural::table_grid::v16_table_tests::batch_f_table_rejects_invalid_track_without_dropping_member' (1687717) panicked at 01_core/src/compiler/stdlib/structural/table_grid.rs:1693:14:
+called `Result::unwrap_err()` on an `Ok` value: Content(table)
+
+---- compiler::stdlib::structural::table_grid::v16_table_tests::batch_f_table_track_counts_are_positive_and_columns_validate_first stdout ----
+
+thread 'compiler::stdlib::structural::table_grid::v16_table_tests::batch_f_table_track_counts_are_positive_and_columns_validate_first' (1687718) panicked at 01_core/src/compiler/stdlib/structural/table_grid.rs:1707:14:
+called `Result::unwrap_err()` on an `Ok` value: Content(table)
+
+
+failures:
+    compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_arguments
+    compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_array
+    compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_constructors_remain_lazy
+    compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_decimal
+    compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_duration
+    compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_label
+    compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_predicate_retains_result_validation
+    compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_regex
+    compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_selector
+    compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_sorted_key
+    compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_spot
+    compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_stroke
+    compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_tiling
+    compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_version
+    compiler::stdlib::layout::grid::batch_f_tests::batch_f_grid_columns_error_precedes_rows_and_gutter
+    compiler::stdlib::layout::grid::batch_f_tests::batch_f_grid_rejects_invalid_array_member_at_array_value_span
+    compiler::stdlib::layout::grid::batch_f_tests::batch_f_grid_rejects_malformed_scalar_and_nonpositive_counts
+    compiler::stdlib::layout::place::batch_f_tests::batch_f_place_dx_rejection_precedes_dy_and_scope
+    compiler::stdlib::layout::place::batch_f_tests::batch_f_place_rejects_malformed_offsets_at_value_span
+    compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_em_radius_reaches_actual_layout_at_occurrence_font
+    compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_radius_error_precedes_paint_error
+    compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_rejects_invalid_radius_at_value_span
+    compiler::stdlib::shapes::line::batch_f_tests::batch_f_line_rejects_malformed_legacy_offsets_at_value_span
+    compiler::stdlib::structural::table_grid::v16_table_tests::batch_f_table_rejects_invalid_track_without_dropping_member
+    compiler::stdlib::structural::table_grid::v16_table_tests::batch_f_table_track_counts_are_positive_and_columns_validate_first
+
+test result: FAILED. 31 passed; 25 failed; 0 ignored; 0 measured; 7543 filtered out; finished in 0.10s
+
+error: test failed, to rerun pass `-p typst-core --lib`

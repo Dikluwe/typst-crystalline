@@ -1,0 +1,44 @@
+{
+  "utc": "2026-10-19T21:22:53.110405+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "working_tree": "uncommitted working tree",
+  "diff_head_stat": " 00_nucleo/prompts/core/compiler/eval/tests.md      |  36 ++-\n .../prompts/core/compiler/stdlib/collections.md    |  25 +-\n .../compiler/stdlib/collections/array_predicate.md |  62 ++++-\n .../core/compiler/stdlib/collections/validation.md |  55 +++-\n .../core/compiler/stdlib/counter/display.md        |  28 +-\n .../core/compiler/stdlib/foundations/selector.md   |  24 +-\n .../prompts/core/compiler/stdlib/html/attr_cast.md |  37 ++-\n 00_nucleo/prompts/core/compiler/stdlib/layout.md   |  44 ++-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  63 ++++-\n .../prompts/core/compiler/stdlib/layout/place.md   |  38 ++-\n .../prompts/core/compiler/stdlib/layout/stroke.md  |  38 ++-\n .../core/compiler/stdlib/loading/encoding.md       |  39 ++-\n .../core/compiler/stdlib/loading/yaml_encode.md    |  40 ++-\n .../prompts/core/compiler/stdlib/shapes/line.md    |  41 ++-\n .../compiler/stdlib/structural/bibliography.md     |  29 +-\n .../stdlib/structural/math_accent_tests.md         |  39 ++-\n .../compiler/stdlib/structural/math_cases_tests.md |  39 ++-\n .../core/compiler/stdlib/structural/outline.md     |  26 +-\n .../core/compiler/stdlib/structural/table_grid.md  |  36 ++-\n 01_core/src/compiler/eval/tests.rs                 |  20 +-\n 01_core/src/compiler/stdlib/collections.rs         |   4 +-\n .../compiler/stdlib/collections/array_predicate.rs |   4 +-\n .../src/compiler/stdlib/collections/validation.rs  | 253 +++++++++++++++++-\n 01_core/src/compiler/stdlib/counter/display.rs     | 163 +++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |  69 ++++-\n 01_core/src/compiler/stdlib/html/attr_cast.rs      | 156 ++++++++++-\n 01_core/src/compiler/stdlib/layout.rs              |  93 ++++++-\n 01_core/src/compiler/stdlib/layout/grid.rs         | 295 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/layout/place.rs        | 195 +++++++++++++-\n 01_core/src/compiler/stdlib/layout/stroke.rs       | 154 ++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 173 +++++++++++-\n 01_core/src/compiler/stdlib/loading/yaml_encode.rs | 169 +++++++++---\n 01_core/src/compiler/stdlib/shapes/line.rs         | 165 +++++++++++-\n .../src/compiler/stdlib/structural/bibliography.rs | 137 +++++++++-\n .../stdlib/structural/math_accent_tests.rs         | 144 +++++++++-\n .../compiler/stdlib/structural/math_cases_tests.rs | 143 +++++++++-\n 01_core/src/compiler/stdlib/structural/outline.rs  | 212 ++++++++++++++-\n .../src/compiler/stdlib/structural/table_grid.rs   |  76 +++++-\n 38 files changed, 3244 insertions(+), 120 deletions(-)\n",
+  "reviewer": "batch_f_geometry",
+  "status": "No actionable finding in bounded Version ordering repair; final GREEN/build/replay/full validation remain parent gates.",
+  "findings": [],
+  "verified": {
+    "L0_before_code": "Both current owners read before Version implementation; before.json records L0-before-test hashes/UTC. Parent runtime RED froze those owners before adding branch.",
+    "productive_delta": "After excluding lineage metadata, exact one Version/Version cmp arm added to pre-Version source; all earlier Decimal/numeric/string/error/operand-order/sorting/callback paths byte-identical.",
+    "test_delta": "After excluding lineage metadata, exactly one Version assertion added to existing sorted-key test; original Decimal assertion and all other test/admission code byte-identical.",
+    "domain_order": "Version::component returns zero outside explicit components. Existing Ord compares through maximum component count and returns first non-equal component; trailing zeros compare Equal. Arc<Version>::cmp delegates value Ord.",
+    "no_coercion": "Only homogeneous Version/Version admitted; no numeric/text conversion, representation sorting, public/entity/default/phase change.",
+    "source_provenance": "Version entity and owner plus general ordering implementation/owner unchanged from frozen pre-repair evidence.",
+    "semantic_red": "Actual compiled focused test fails at Version evaluation with cannot compare version and version after Decimal assertion; not a setup/compiler failure. Freeze reports no changed inputs."
+  },
+  "files": {
+    "01_core/src/compiler/stdlib/collections/array_predicate.rs": "bcef9d57f06e0e1a82766af17c62988e193428f1ba003d052814e530e0a10071",
+    "00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md": "486e68bfaaebf27df246a5e22ec89ccd2b015477fd812185c4262ec708b60448",
+    "01_core/src/compiler/stdlib/collections/validation.rs": "112d0e8c32aa0757f807501296f9b1423684b5326ef551ee752236393d62cdb9",
+    "00_nucleo/prompts/core/compiler/stdlib/collections/validation.md": "28ff479ebf51513f7c2eeb868586eac71faf4d63e1b834945ff3eee666f9be97",
+    "01_core/src/entities/version.rs": "f855f3810d8542ebefe45aac17f1eb9b77f63000ea960e675548438772b1f241",
+    "00_nucleo/prompts/core/entities/version.md": "bf9833f21b6da03de5342387ff8dd6cb042c6cc30cbd9b1fe321efc37045f2b8",
+    "01_core/src/compiler/eval/operators/ordering.rs": "5766aa837284591f36845c31865afe9f817f3bc67f73d40c232be02bf5cfeddc",
+    "00_nucleo/prompts/core/compiler/eval/operators/ordering.md": "db2effe298e2611e4fe76c762113f109d513aceda88a2c7c34751bebb1c894fc",
+    "lab/typst-original/crates/typst-library/src/foundations/ops.rs": "652cd66e2b2358d9f007f72fe216cff82fc8c75fd5f3e804ea86a90f2f364006"
+  },
+  "evidence": {
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/version-ordering-repair/before.json": "f1567f90c9103296343bde34265b94b0a8ff59f5a51f4f31fbcabd60283097a2",
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/version-ordering-repair/before-sources.json.gz": "ebe7d2540eba7777a57d48da562283688164c2e6ea9aa4a1f20c056f2fffd613",
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/version-ordering-repair/failed-replay.json": "933dd6222c27827b4833d63a11aebd1df57ccac68c75fa3cf39382fe21fcd82a",
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/version-ordering-repair/coordinate-correction.json": "34dbb687b6cc8c36caa1030ce0f17fd8f21c9b7629b5fe2af1bbb09fffc1d8e5",
+    "lab/results/v16-corrections-2026-10-19/batch-f/version-red-run/commands.json": "5cafa80e459b70cc40a4bacb602fb1b78f78eb1f8029f669abee435a78e91978",
+    "lab/results/v16-corrections-2026-10-19/batch-f/version-red-run/freeze.json": "af796de25eb317e4fa468ec2ff6deb460bc5e1e2eefbbd542cfaf974b420f5f3",
+    "lab/results/v16-corrections-2026-10-19/batch-f/version-red-run/version-sorted-red.log": "7b8ca4bbb0a0f187ebe57078633d7f60464f4ecad1110218ccbf113c28a90504",
+    "lab/results/v16-corrections-2026-10-19/batch-f/version-red-run/state.json.gz": "df8aa73ccea4ebb18aa09be2d155b887d36c83dd904f7fa0fa7e0db03e050335"
+  },
+  "limits": [
+    "Source review does not claim runtime GREEN or complete collection ordering parity.",
+    "Other omitted comparable families remain separate debt under the current owner.",
+    "No reviewer source/L0 edits or Cargo execution."
+  ]
+}

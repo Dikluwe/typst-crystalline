@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md
-//! @prompt-hash 9c7dc942
+//! @prompt-hash 0dffc18f
 //! @layer L1
 //! @updated 2026-10-08
 //!
@@ -148,7 +148,45 @@ pub fn native_stroke(
                 Some(DashLength::Length(length.abs.to_pt()))
             }
             Value::Str(value) if value.as_str() == "dot" => Some(DashLength::LineWidth),
-            _ => None,
+            Value::None
+            | Value::Bool(..)
+            | Value::Int(..)
+            | Value::Float(..)
+            | Value::Str(..)
+            | Value::Array(..)
+            | Value::Dict(..)
+            | Value::Module(..)
+            | Value::Datetime(..)
+            | Value::Func(..)
+            | Value::Content(..)
+            | Value::LocatedContent(..)
+            | Value::Auto
+            | Value::Length(..)
+            | Value::Relative(..)
+            | Value::Ratio(..)
+            | Value::Angle(..)
+            | Value::Color(..)
+            | Value::Stroke(..)
+            | Value::Fraction(..)
+            | Value::Align(..)
+            | Value::Location(..)
+            | Value::Gradient(..)
+            | Value::Regex(..)
+            | Value::Tiling(..)
+            | Value::Bytes(..)
+            | Value::Decimal(..)
+            | Value::Duration(..)
+            | Value::Version(..)
+            | Value::Selector(..)
+            | Value::Symbol(..)
+            | Value::Args(..)
+            | Value::State(..)
+            | Value::Counter(..)
+            | Value::Label(..)
+            | Value::Dir(..)
+            | Value::Path(..)
+            | Value::Type(..)
+            | Value::SpotColorant(..) => None,
         }
     }
     fn dash_array(values: &[Value]) -> Option<Vec<DashLength>> {
@@ -470,4 +508,116 @@ pub(crate) fn positional_stroke(
         }
     }
     Ok(stroke)
+}
+
+#[cfg(test)]
+mod batch_f_dash_tests {
+    use super::*;
+    use crate::contracts::world::World;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::source::Source;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    #[derive(Default)]
+    struct NoIoWorld {
+        library: Library,
+        book: FontBook,
+    }
+    impl World for NoIoWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(std::num::NonZeroU16::new(74).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+    fn call(dash: Value) -> SourceResult<Value> {
+        let world = NoIoWorld::default();
+        let mut args = Args::positional(vec![]);
+        args.span = Span::from_range(world.main(), 3..8);
+        args.named.insert("dash".into(), dash);
+        native_stroke(&mut EvalContext::new(), &args, &world, world.main())
+    }
+    #[test]
+    fn batch_f_dash_native_keeps_order_dot_and_dictionary_phase() {
+        use crate::entities::geometry::DashLength;
+        let array = vec![
+            Value::Length(Length::pt(2.0)),
+            Value::Str("dot".into()),
+            Value::Length(Length::pt(0.0)),
+        ];
+        let Value::Stroke(stroke) = call(Value::Array(array.clone())).unwrap() else {
+            panic!("stroke")
+        };
+        let dash = stroke.dash.as_ref().unwrap();
+        assert_eq!(
+            dash.array,
+            vec![DashLength::Length(2.0), DashLength::LineWidth, DashLength::Length(0.0)]
+        );
+        assert_eq!(dash.phase, 0.0);
+        let dict = [
+            ("array".into(), Value::Array(array)),
+            ("phase".into(), Value::Length(Length::pt(3.0))),
+        ]
+        .into_iter()
+        .collect();
+        let Value::Stroke(stroke) = call(Value::Dict(dict)).unwrap() else {
+            panic!("stroke")
+        };
+        assert_eq!(stroke.dash.as_ref().unwrap().phase, 3.0);
+    }
+    #[test]
+    fn batch_f_dash_native_preserves_guard_rejection_and_current_length_debt() {
+        for values in [
+            vec![],
+            vec![Value::Length(Length::pt(-1.0))],
+            vec![Value::Length(Length::pt(f64::NAN))],
+            vec![Value::Str("dash".into())],
+            vec![Value::Int(1)],
+            vec![Value::Length(Length::pt(1.0)), Value::Bool(false)],
+        ] {
+            let errors = call(Value::Array(values)).unwrap_err();
+            assert_eq!(errors.len(), 1);
+            assert_eq!(
+                errors[0].message,
+                "stroke(dash): espera preset, array ou dict (array:, phase:)"
+            );
+            assert_eq!(
+                errors[0].span,
+                Span::from_range(NoIoWorld::default().main(), 3..8)
+            );
+        }
+        for (length, expected) in
+            [(Length::em(2.0), 0.0), (Length::pt(f64::INFINITY), f64::INFINITY)]
+        {
+            let Value::Stroke(stroke) =
+                call(Value::Array(vec![Value::Length(length)])).unwrap()
+            else {
+                panic!("stroke")
+            };
+            assert_eq!(
+                stroke.dash.as_ref().unwrap().array,
+                vec![crate::entities::geometry::DashLength::Length(expected)]
+            );
+        }
+    }
 }

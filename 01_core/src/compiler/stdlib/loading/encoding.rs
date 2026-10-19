@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md
-//! @prompt-hash 013b5fa8
+//! @prompt-hash 86c0befd
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -109,7 +109,120 @@ pub(super) fn textual_content_fields(value: &Value) -> Result<Dict, String> {
                 }
                 return Ok(fields);
             }
-            _ => {}
+            Content::Source(..)
+            | Content::ShowRecipe(..)
+            | Content::Located(..)
+            | Content::Realized(..) => {
+                unreachable!("execution carriers were normalized above")
+            }
+            Content::Text(..)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::HtmlFrame(..)
+            | Content::Par { .. }
+            | Content::Heading(..)
+            | Content::Title(..)
+            | Content::Strong(..)
+            | Content::Emph(..)
+            | Content::Raw(..)
+            | Content::ListItem(..)
+            | Content::EnumItem(..)
+            | Content::Equation(..)
+            | Content::MathSequence(..)
+            | Content::MathIdent(..)
+            | Content::MathText(..)
+            | Content::MathFrac(..)
+            | Content::MathAttach(..)
+            | Content::MathPrimes(..)
+            | Content::MathRoot(..)
+            | Content::MathStretch(..)
+            | Content::MathDelimited(..)
+            | Content::MathLr(..)
+            | Content::MathMid(..)
+            | Content::MathOverbrace(..)
+            | Content::MathUnderbrace(..)
+            | Content::MathUnderbracket(..)
+            | Content::MathUnderparen(..)
+            | Content::MathUndershell(..)
+            | Content::MathOverbracket(..)
+            | Content::MathOverparen(..)
+            | Content::MathOvershell(..)
+            | Content::MathAlignPoint(..)
+            | Content::Linebreak(..)
+            | Content::MathMatrix(..)
+            | Content::MathCases(..)
+            | Content::MathAccent(..)
+            | Content::MathCancel(..)
+            | Content::MathUnderline(..)
+            | Content::MathOverline(..)
+            | Content::MathVec(..)
+            | Content::MathClassOverride(..)
+            | Content::MathLimitsOverride(..)
+            | Content::MathUnderover(..)
+            | Content::MathOp(..)
+            | Content::MathStyled(..)
+            | Content::Label(..)
+            | Content::Ref(..)
+            | Content::CounterDisplay(..)
+            | Content::CounterUpdate(..)
+            | Content::Outline(..)
+            | Content::OutlineEntry(..)
+            | Content::Figure(..)
+            | Content::FigureCaption(..)
+            | Content::Image(..)
+            | Content::Shape(..)
+            | Content::Curve(..)
+            | Content::Transform(..)
+            | Content::Grid(..)
+            | Content::GridHeader(..)
+            | Content::GridFooter(..)
+            | Content::GridCell(..)
+            | Content::SetPage(..)
+            | Content::PageRun(..)
+            | Content::Align(..)
+            | Content::Place(..)
+            | Content::Flush(..)
+            | Content::Divider(..)
+            | Content::Terms(..)
+            | Content::TermItem(..)
+            | Content::Quote(..)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(..)
+            | Content::PdfAttach(..)
+            | Content::PdfArtifact(..)
+            | Content::Underline(..)
+            | Content::Strike(..)
+            | Content::Overline(..)
+            | Content::SmallCaps { .. }
+            | Content::Pad(..)
+            | Content::Hide(..)
+            | Content::HSpace(..)
+            | Content::VSpace(..)
+            | Content::Pagebreak(..)
+            | Content::Colbreak(..)
+            | Content::Stack(..)
+            | Content::TableCell(..)
+            | Content::Bibliography(..)
+            | Content::Cite(..)
+            | Content::Footnote(..)
+            | Content::FootnoteEntry(..)
+            | Content::TableHeader(..)
+            | Content::TableFooter(..)
+            | Content::GridHLine(..)
+            | Content::GridVLine(..)
+            | Content::TableHLine(..)
+            | Content::TableVLine(..)
+            | Content::Table(..)
+            | Content::Repeat(..)
+            | Content::Columns(..)
+            | Content::State(..)
+            | Content::StateUpdate(..)
+            | Content::StateDisplay(..)
+            | Content::CounterDisplayCallback(..)
+            | Content::ContextBlock(..)
+            | Content::Dynamic(..) => {}
         }
         let projected = crate::compiler::eval::bindings::eval_content_method(
             content,
@@ -601,5 +714,61 @@ mod v16_e_equation_constructor_tests {
         ))
         .unwrap();
         assert_equation_fields(&fields);
+    }
+}
+
+#[cfg(test)]
+mod batch_f_fields_tests {
+    use super::*;
+    use crate::entities::content::Content;
+    #[test]
+    fn batch_f_fields_delegate_raw_caption_and_keep_order() {
+        let raw = textual_content_fields(&Value::Content(Content::raw(
+            "é",
+            Some("typ".into()),
+            false,
+        )))
+        .unwrap();
+        assert_eq!(
+            raw.keys().map(|k| k.as_str()).collect::<Vec<_>>(),
+            vec!["func", "text", "block", "lang"]
+        );
+        assert_eq!(raw.get("text"), Some(&Value::Str("é".into())));
+        let caption = textual_content_fields(&Value::Content(Content::figure_caption(
+            Content::text("C"),
+            None,
+            None,
+        )))
+        .unwrap();
+        assert_eq!(
+            caption.keys().map(|k| k.as_str()).collect::<Vec<_>>(),
+            vec!["func", "body"]
+        );
+        assert_eq!(caption.get("body"), Some(&Value::Content(Content::text("C"))));
+        assert_eq!(
+            textual_content_fields(&Value::Int(1)).unwrap_err(),
+            "expected content"
+        );
+    }
+    #[test]
+    fn batch_f_fields_snapshot_overrides_normalized_raw_without_fallback() {
+        let file = FileId::from_raw(std::num::NonZeroU16::new(72).unwrap());
+        let raw = Content::raw("original", Some("typ".into()), true)
+            .with_source_span(Span::from_range(file, 2..7));
+        let mut snapshot = new_dict();
+        snapshot.insert("lang".into(), Value::None);
+        snapshot.insert("text".into(), Value::Str("captured".into()));
+        let fields = textual_content_fields(&Value::LocatedContent(
+            crate::entities::value::IntrospectedContent::new(raw, Some(snapshot)),
+            crate::entities::location::Location::from_raw(72),
+        ))
+        .unwrap();
+        assert_eq!(
+            fields.keys().map(|k| k.as_str()).collect::<Vec<_>>(),
+            vec!["func", "lang", "text"]
+        );
+        assert_eq!(fields.get("text"), Some(&Value::Str("captured".into())));
+        assert_eq!(fields.get("lang"), Some(&Value::None));
+        assert!(!fields.contains_key("block"));
     }
 }

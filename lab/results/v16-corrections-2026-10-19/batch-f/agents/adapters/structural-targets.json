@@ -1,0 +1,52 @@
+[
+  {
+    "id": "V16-053",
+    "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+    "function": "type_as_callable",
+    "baseline_anchor": "Some(match t {",
+    "green_anchor": "Some(match t {",
+    "domain": "Type",
+    "enum_file": "01_core/src/entities/value.rs",
+    "proof": "Add disposable Type sentinel; require E0004 primary span at this exact match, absent here in baseline."
+  },
+  {
+    "id": "V16-054",
+    "file": "01_core/src/compiler/stdlib/counter/display.rs",
+    "function": "render",
+    "baseline_anchor": "let pattern_key = match &counter.key {",
+    "green_anchor": "CounterKey::Selector(selector) => match selector {",
+    "domain": "Selector nested in CounterKey",
+    "enum_file": "01_core/src/entities/selector.rs",
+    "proof": "Add disposable Selector sentinel; require E0004 at nested style decision, no such failure in baseline."
+  },
+  {
+    "id": "V16-056",
+    "file": "01_core/src/compiler/stdlib/foundations/selector.rs",
+    "function": "parse_selector_arg",
+    "baseline_anchor": "match items {",
+    "green_anchor": "match items {",
+    "domain": "slice cardinality",
+    "proof": "Exhaustive [] / singleton [other] / [_, _, ..]. Functional zero/one/two/many with exact count/errors; no enum sentinel evidence claimed."
+  },
+  {
+    "id": "V16-067",
+    "file": "01_core/src/compiler/stdlib/structural/bibliography.rs",
+    "function": "native_bibliography",
+    "baseline_anchor": "let locale = args.named.get(\"locale\").and_then(|v| match v {",
+    "green_anchor": "let locale = args.named.get(\"locale\").and_then(|v| match v {",
+    "domain": "Value",
+    "enum_file": "01_core/src/entities/value.rs",
+    "proof": "Disposable Value sentinel requires E0004 at locale projection; baseline wildcard absorbs it."
+  },
+  {
+    "id": "V16-070",
+    "file": "01_core/src/compiler/stdlib/structural/outline.rs",
+    "function": "native_outline_entry_indented",
+    "baseline_anchor": "match value {",
+    "context_anchor": "engine.styles.custom(\"outline.parent.indent\")",
+    "green_anchor": "match value {",
+    "domain": "Value",
+    "enum_file": "01_core/src/entities/value.rs",
+    "proof": "Disposable Value sentinel requires E0004 inside exact parent-indent decode; baseline wildcard absorbs it."
+  }
+]

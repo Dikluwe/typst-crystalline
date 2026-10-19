@@ -1,0 +1,35 @@
+{
+  "utc": "2026-10-19T20:37:05.891639+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "reason": "Candidate full-Length radius fixes em geometry but introduces measured language equality regression across circle/ellipse and deliberate numeric radius compatibility. Whole V16-065 correction deferred rather than dropping acceptance.",
+  "source_evidence": [
+    "01_core/src/compiler/eval/operators/equality.rs:150",
+    "01_core/src/entities/content/morphology.rs:185"
+  ],
+  "files": {
+    "01_core/src/compiler/stdlib/shapes/ellipse.rs": {
+      "candidate_sha256": "451a792cc9ca0f702cde496cb8aca540a14926fe6f212cb787bd9f9d5cf46743",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/circle-deferred/ellipse.rs",
+      "restored_head_sha256": "72803caa979acf261d9af8af1e7b991e04bb063a07d72cad785985c0fcb194a8"
+    },
+    "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md": {
+      "candidate_sha256": "272083ab0f9de5cd85603138f202e6a9d625f332aa413848d2d9309aec0dc30d",
+      "archive": "lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/circle-deferred/ellipse.md",
+      "restored_head_sha256": "9f4dcf8c5686c963e645db07f90ba56b4e62017c5e0e7af802aef5d212ad49d4"
+    }
+  },
+  "runtime_receipts": {
+    "lab/results/v16-corrections-2026-10-19/batch-f/candidate-run/new-tests-green.log": "454fa61208725edccee861d297391e454769088425b0189f74dee6374cd2dbb8",
+    "lab/results/v16-corrections-2026-10-19/batch-f/candidate-run/state.json.gz": "310a0fb5df741104758c66ce337da39b3668acd21364a5b2e08ed9bd48d0e260",
+    "lab/results/v16-corrections-2026-10-19/batch-f/candidate-run/freeze.json": "c6a4f346b53a1ede1eaff1d287fb452a12b222801d655505cdf58d7339ebab61",
+    "lab/results/v16-corrections-2026-10-19/batch-f/candidate-run/commands.json": "6b4612765ca7e601c391b869e65506db4c300b957c2d8e99fa32a17db1c5e6f0"
+  },
+  "removed_attempted_test_names": [
+    "batch_f_circle_rejects_invalid_radius_at_value_span",
+    "batch_f_circle_em_radius_reaches_actual_layout_at_occurrence_font",
+    "batch_f_circle_preserves_absolute_and_numeric_geometry",
+    "batch_f_circle_radius_error_precedes_paint_error",
+    "batch_f_circle_preserves_absolute_language_identity_boundaries",
+    "batch_f_circle_preserves_em_language_identity_boundary"
+  ]
+}

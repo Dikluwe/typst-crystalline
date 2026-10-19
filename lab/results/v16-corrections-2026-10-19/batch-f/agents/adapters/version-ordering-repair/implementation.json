@@ -1,0 +1,9 @@
+{
+  "utc": "2026-10-19T21:22:16.480410+00:00",
+  "author": "parent integration",
+  "change": "Add exactly the homogeneous Version comparison arm using existing Ord; source body frozen pending lineage reseal.",
+  "source": "01_core/src/compiler/stdlib/collections/array_predicate.rs",
+  "sha256_preseal": "bcef9d57f06e0e1a82766af17c62988e193428f1ba003d052814e530e0a10071",
+  "RED_log": "version-red-run/version-sorted-red.log",
+  "RED_log_sha256": "7b8ca4bbb0a0f187ebe57078633d7f60464f4ecad1110218ccbf113c28a90504"
+}

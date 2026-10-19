@@ -1,0 +1,20 @@
+[
+  {
+    "name": "structural-version-green",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_f_structural.py",
+      "version-green"
+    ],
+    "utc_end": "2026-10-19T21:26:09.517436+00:00",
+    "exit": 0,
+    "seconds": 84.66949293098878,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "2214776832",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

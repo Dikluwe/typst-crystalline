@@ -1,0 +1,28 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+error[E0308]: mismatched types
+   --> 01_core/src/compiler/stdlib/loading/yaml_encode.rs:310:30
+    |
+310 |                 Value::Bytes(crate::entities::world_types::Bytes::new(vec![65, 0, 66])),
+    |                 ------------ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `entities::bytes::Bytes`, found `world_types::Bytes`
+    |                 |
+    |                 arguments to this enum variant are incorrect
+    |
+    = note: `world_types::Bytes` and `entities::bytes::Bytes` have similar names, but are actually distinct types
+note: `world_types::Bytes` is defined in module `crate::entities::world_types` of the current crate
+   --> 01_core/src/entities/world_types.rs:19:1
+    |
+ 19 | pub struct Bytes(Vec<u8>);
+    | ^^^^^^^^^^^^^^^^
+note: `entities::bytes::Bytes` is defined in module `crate::entities::bytes` of the current crate
+   --> 01_core/src/entities/bytes.rs:15:1
+    |
+ 15 | pub struct Bytes(pub Vec<u8>);
+    | ^^^^^^^^^^^^^^^^
+note: tuple variant defined here
+   --> 01_core/src/entities/value.rs:166:5
+    |
+166 |     Bytes(Bytes),
+    |     ^^^^^
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `typst-core` (lib test) due to 1 previous error

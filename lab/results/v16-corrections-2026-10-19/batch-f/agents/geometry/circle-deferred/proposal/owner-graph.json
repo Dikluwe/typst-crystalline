@@ -1,0 +1,76 @@
+{
+  "primary_contract_owners": [
+    "00_nucleo/prompts/core/entities/elements/shape.md",
+    "00_nucleo/prompts/core/entities/content/construction/layout.md",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md",
+    "00_nucleo/prompts/core/compiler/eval/observation/elements.md",
+    "00_nucleo/prompts/core/compiler/layout/shape.md",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes.md"
+  ],
+  "mechanical_literal_migrations": [
+    {
+      "source": "01_core/src/compiler/eval/observation/elements.rs",
+      "owner": "00_nucleo/prompts/core/compiler/eval/observation/elements.md",
+      "change": "Initialize origin Geometry in existing generic literals; observer separately includes origin; Circle producer sets Circle."
+    },
+    {
+      "source": "01_core/src/compiler/layout/boxed.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/boxed.md",
+      "change": "Initialize origin Geometry in existing generic literals; observer separately includes origin; Circle producer sets Circle."
+    },
+    {
+      "source": "01_core/src/compiler/layout/helpers.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/helpers.md",
+      "change": "Initialize origin Geometry in existing generic literals; observer separately includes origin; Circle producer sets Circle."
+    },
+    {
+      "source": "01_core/src/compiler/layout/measurement.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/measurement.md",
+      "change": "Initialize origin Geometry in existing generic literals; observer separately includes origin; Circle producer sets Circle."
+    },
+    {
+      "source": "01_core/src/compiler/layout/shape.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/shape.md",
+      "change": "Initialize origin Geometry in existing generic literals; observer separately includes origin; Circle producer sets Circle."
+    },
+    {
+      "source": "01_core/src/compiler/layout/sub_frame.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/sub_frame.md",
+      "change": "Initialize origin Geometry in existing generic literals; observer separately includes origin; Circle producer sets Circle."
+    },
+    {
+      "source": "01_core/src/compiler/layout/tests.rs",
+      "owner": "00_nucleo/prompts/core/compiler/layout/tests.md",
+      "change": "Initialize origin Geometry in existing generic literals; observer separately includes origin; Circle producer sets Circle."
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/shapes/curve.rs",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/shapes/curve.md",
+      "change": "Initialize origin Geometry in existing generic literals; observer separately includes origin; Circle producer sets Circle."
+    },
+    {
+      "source": "01_core/src/compiler/stdlib/shapes/polygon.rs",
+      "owner": "00_nucleo/prompts/core/compiler/stdlib/shapes/polygon.md",
+      "change": "Initialize origin Geometry in existing generic literals; observer separately includes origin; Circle producer sets Circle."
+    },
+    {
+      "source": "01_core/src/entities/content/construction/layout.rs",
+      "owner": "00_nucleo/prompts/core/entities/content/construction/layout.md",
+      "change": "Initialize origin Geometry in existing generic literals; observer separately includes origin; Circle producer sets Circle."
+    },
+    {
+      "source": "01_core/src/entities/elements/shape.rs",
+      "owner": "00_nucleo/prompts/core/entities/elements/shape.md",
+      "change": "Initialize origin Geometry in existing generic literals; observer separately includes origin; Circle producer sets Circle."
+    }
+  ],
+  "review_only_preserved_owners": [
+    "00_nucleo/prompts/core/entities/content/equality.md",
+    "00_nucleo/prompts/core/entities/content/morphology.md",
+    "00_nucleo/prompts/core/entities/content/identity.md",
+    "00_nucleo/prompts/core/entities/content/rust_hash.md",
+    "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+    "00_nucleo/prompts/core/compiler/eval/repr/content.md"
+  ],
+  "preimplementation_requirement": "Audit each mechanical migration owner completely before L0/code changes, update its exact required fixture/data initialization clause first, reseal only approved owner set. Source inventory is exact for this frozen state, not a promise against future changes."
+}

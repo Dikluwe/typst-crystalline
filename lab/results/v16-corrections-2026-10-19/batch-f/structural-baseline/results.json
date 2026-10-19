@@ -1,0 +1,319 @@
+[
+  {
+    "name": "all-domains",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T20:21:33.621310+00:00",
+    "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-f-structural-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-053",
+        "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+        "domain": "Type",
+        "baseline": {
+          "after": "fn type_as_callable(",
+          "anchor": "match t {"
+        },
+        "green": {
+          "after": "fn type_as_callable(",
+          "anchor": "match t {"
+        },
+        "line": 90,
+        "byte_start": 2594,
+        "byte_end": 2603,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-054",
+        "file": "01_core/src/compiler/stdlib/counter/display.rs",
+        "domain": "CounterKey,Selector",
+        "baseline": {
+          "after": "let pattern_key =",
+          "anchor": "match &counter.key {"
+        },
+        "green": {
+          "after": "let pattern_key =",
+          "anchor": "match &counter.key {"
+        },
+        "line": 126,
+        "byte_start": 4297,
+        "byte_end": 4317,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-057",
+        "file": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "AttrKind::OnOffOrNoneOrEnum(values) =>",
+          "anchor": "match value {"
+        },
+        "green": {
+          "after": "AttrKind::OnOffOrNoneOrEnum(values) =>",
+          "anchor": "match value {"
+        },
+        "line": 105,
+        "byte_start": 4166,
+        "byte_end": 4179,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-058",
+        "file": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "AttrKind::PresenceOr(values) =>",
+          "anchor": "match value {"
+        },
+        "green": {
+          "after": "AttrKind::PresenceOr(values) =>",
+          "anchor": "match value {"
+        },
+        "line": 121,
+        "byte_start": 4951,
+        "byte_end": 4964,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-059",
+        "file": "01_core/src/compiler/stdlib/layout/grid.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "fn parse_track_sizing(",
+          "anchor": "match val {"
+        },
+        "green": {
+          "after": "fn parse_track_sizing(",
+          "anchor": "match val {"
+        },
+        "line": 12,
+        "byte_start": 293,
+        "byte_end": 304,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-060",
+        "file": "01_core/src/compiler/stdlib/layout/place.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "fn extract_pt(",
+          "anchor": "match val {"
+        },
+        "green": {
+          "after": "fn extract_pt(",
+          "anchor": "match val {"
+        },
+        "line": 34,
+        "byte_start": 1166,
+        "byte_end": 1177,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-061",
+        "file": "01_core/src/compiler/stdlib/layout/stroke.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "fn dash_item(",
+          "anchor": "match value {"
+        },
+        "green": {
+          "after": "fn dash_item(",
+          "anchor": "match value {"
+        },
+        "line": 146,
+        "byte_start": 5186,
+        "byte_end": 5199,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-062",
+        "file": "01_core/src/compiler/stdlib/layout.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "fn extract_alignment(",
+          "anchor": "match v {"
+        },
+        "green": {
+          "after": "fn extract_alignment(",
+          "anchor": "match v {"
+        },
+        "line": 121,
+        "byte_start": 4134,
+        "byte_end": 4143,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-063",
+        "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+        "domain": "Content",
+        "baseline": {
+          "after": "fn textual_content_fields(",
+          "anchor": "match content {"
+        },
+        "green": {
+          "after": "fn textual_content_fields(",
+          "anchor": "match content {"
+        },
+        "line": 28,
+        "byte_start": 1006,
+        "byte_end": 1021,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-064",
+        "file": "01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "fn write_yaml_value(",
+          "anchor": "match value {"
+        },
+        "green": {
+          "after": "fn write_yaml_value(",
+          "anchor": "match value {"
+        },
+        "line": 36,
+        "byte_start": 1057,
+        "byte_end": 1070,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-065",
+        "file": "01_core/src/compiler/stdlib/shapes/ellipse.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "fn native_circle(",
+          "anchor": "match val {"
+        },
+        "green": {
+          "after": "fn native_circle(",
+          "anchor": "match val {"
+        },
+        "line": 85,
+        "byte_start": 2468,
+        "byte_end": 2479,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-066",
+        "file": "01_core/src/compiler/stdlib/shapes/line.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "fn extract_pt(",
+          "anchor": "match val {"
+        },
+        "green": {
+          "after": "fn extract_pt(",
+          "anchor": "match val {"
+        },
+        "line": 31,
+        "byte_start": 947,
+        "byte_end": 958,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-067",
+        "file": "01_core/src/compiler/stdlib/structural/bibliography.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "let locale =",
+          "anchor": "match v {"
+        },
+        "green": {
+          "after": "let locale =",
+          "anchor": "match v {"
+        },
+        "line": 331,
+        "byte_start": 13061,
+        "byte_end": 13070,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-068",
+        "file": "01_core/src/compiler/stdlib/structural/math_accent_tests.rs",
+        "domain": "Content",
+        "baseline": {
+          "after": "fn find_accent(",
+          "anchor": "match content {"
+        },
+        "green": {
+          "after": "fn find_accent(",
+          "anchor": "match content {"
+        },
+        "line": 335,
+        "byte_start": 9981,
+        "byte_end": 9996,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-069",
+        "file": "01_core/src/compiler/stdlib/structural/math_cases_tests.rs",
+        "domain": "Content",
+        "baseline": {
+          "after": "fn find_cases(",
+          "anchor": "match content {"
+        },
+        "green": {
+          "after": "fn find_cases(",
+          "anchor": "match content {"
+        },
+        "line": 319,
+        "byte_start": 9362,
+        "byte_end": 9377,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-070",
+        "file": "01_core/src/compiler/stdlib/structural/outline.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "let Some(indent) =",
+          "anchor": "match value {"
+        },
+        "green": {
+          "after": "let Some(indent) =",
+          "anchor": "match value {"
+        },
+        "line": 429,
+        "byte_start": 14352,
+        "byte_end": 14365,
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/entities/content.rs",
+      "01_core/src/entities/counter.rs",
+      "01_core/src/entities/selector.rs",
+      "01_core/src/entities/value.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T20:22:04.834690+00:00",
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "2167906304",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    },
+    "exit": 101,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 283
+  }
+]

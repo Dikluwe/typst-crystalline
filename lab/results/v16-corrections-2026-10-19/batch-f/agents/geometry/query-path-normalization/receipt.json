@@ -1,0 +1,147 @@
+{
+  "utc": "2026-10-19T20:41:16.231379+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "reason": "Normalize only exact absolute and repository-relative spellings of each query source argument in old/fresh diagnostics. No diagnostic content, spans, hints, or accepted policies changed.",
+  "changes": [
+    {
+      "name": "figure-synth-00",
+      "before": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-00.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "after": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      }
+    },
+    {
+      "name": "figure-synth-01",
+      "before": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-01.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "after": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      }
+    },
+    {
+      "name": "figure-synth-02",
+      "before": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-02.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "after": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      }
+    },
+    {
+      "name": "figure-synth-03",
+      "before": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-03.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "after": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      }
+    },
+    {
+      "name": "figure-synth-04",
+      "before": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-04.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "after": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      }
+    },
+    {
+      "name": "figure-synth-05",
+      "before": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-05.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "after": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      }
+    },
+    {
+      "name": "figure-synth-06",
+      "before": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-06.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "after": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      }
+    },
+    {
+      "name": "figure-synth-07",
+      "before": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-07.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "after": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      }
+    },
+    {
+      "name": "figure-synth-08",
+      "before": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-08.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "after": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      }
+    },
+    {
+      "name": "figure-synth-09",
+      "before": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-09.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      },
+      "after": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 <probe-document>:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in <probe-document>` instead\n\n"
+      }
+    }
+  ],
+  "before": {
+    "replay.py": "dc52d81fc4667c1397af79b248334733895a7d8f8609e0a5a98b12dbbba4afd8",
+    "expected-policies.json": "5e55ff193f369527d71856f072fb7246d31f0c16aa61e1cb217e4d9a0b236001",
+    "replay-manifest.json": "90248bdd01431801d4d02d29de13e24cc496c0271882fd371c5dd0b7a62db930"
+  },
+  "after": {
+    "replay.py": "5c16b7627304260a5dabd47e2534732828ada25800209ae3df51bd96a0186d13",
+    "expected-policies.json": "48edcc627a29aeddc14eb7c47392ef95fd30857f01288c9259b2e881ab4cdbb0",
+    "replay-manifest.json": "2ca71b2a67d521256e925170eae3e87d5bff058541026b3658e4ed29d9458eff"
+  }
+}

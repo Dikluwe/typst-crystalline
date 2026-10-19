@@ -1,0 +1,28 @@
+[
+  {
+    "name": "new-tests-green",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "batch_f_",
+      "--",
+      "--test-threads=1"
+    ],
+    "expected_exit": 0,
+    "utc_end": "2026-10-19T20:36:28.466087+00:00",
+    "exit": 101,
+    "seconds": 87.842095496002,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3424669696",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

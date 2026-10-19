@@ -1,0 +1,23 @@
+{
+  "utc": "2026-10-19T20:52:02.545374+00:00",
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "-p",
+    "typst-core",
+    "--lib",
+    "p633_grid_columns_invalid_string_rejected",
+    "--",
+    "--test-threads=1"
+  ],
+  "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-f-legacy-grid-red",
+  "exit": 101,
+  "outcomes": [
+    "FAILED"
+  ],
+  "changed": [],
+  "log_sha256": "4f6ca66f1b733c6cbb7efac57495196cbe2b642396343b66740e35bc24a3b260",
+  "inputs_sha256": "a5b4da2e33f36a9ca4dc5c578ee18fd29b0c307bbffcdfeaebfe77d2ee13c4ea"
+}

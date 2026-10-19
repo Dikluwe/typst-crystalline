@@ -1,0 +1,88 @@
+{
+  "utc": "2026-10-19T20:41:40.156667+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "diff_head_stat": " .../prompts/core/compiler/stdlib/collections.md    |  25 +-\n .../compiler/stdlib/collections/array_predicate.md |  33 ++-\n .../core/compiler/stdlib/collections/validation.md |  41 ++-\n .../core/compiler/stdlib/counter/display.md        |  28 +-\n .../core/compiler/stdlib/foundations/selector.md   |  24 +-\n .../prompts/core/compiler/stdlib/html/attr_cast.md |  37 ++-\n 00_nucleo/prompts/core/compiler/stdlib/layout.md   |  44 ++-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  63 ++++-\n .../prompts/core/compiler/stdlib/layout/place.md   |  38 ++-\n .../prompts/core/compiler/stdlib/layout/stroke.md  |  38 ++-\n .../core/compiler/stdlib/loading/encoding.md       |  39 ++-\n .../core/compiler/stdlib/loading/yaml_encode.md    |  40 ++-\n .../prompts/core/compiler/stdlib/shapes/line.md    |  41 ++-\n .../compiler/stdlib/structural/bibliography.md     |  29 +-\n .../stdlib/structural/math_accent_tests.md         |  39 ++-\n .../compiler/stdlib/structural/math_cases_tests.md |  39 ++-\n .../core/compiler/stdlib/structural/outline.md     |  26 +-\n .../core/compiler/stdlib/structural/table_grid.md  |  36 ++-\n 01_core/src/compiler/stdlib/collections.rs         |   4 +-\n .../compiler/stdlib/collections/array_predicate.rs |   3 +-\n .../src/compiler/stdlib/collections/validation.rs  | 249 ++++++++++++++++-\n 01_core/src/compiler/stdlib/counter/display.rs     | 163 +++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |  69 ++++-\n 01_core/src/compiler/stdlib/html/attr_cast.rs      | 156 ++++++++++-\n 01_core/src/compiler/stdlib/layout.rs              |  93 ++++++-\n 01_core/src/compiler/stdlib/layout/grid.rs         | 295 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/layout/place.rs        | 195 +++++++++++++-\n 01_core/src/compiler/stdlib/layout/stroke.rs       | 154 ++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 173 +++++++++++-\n 01_core/src/compiler/stdlib/loading/yaml_encode.rs | 169 +++++++++---\n 01_core/src/compiler/stdlib/shapes/line.rs         | 165 +++++++++++-\n .../src/compiler/stdlib/structural/bibliography.rs | 137 +++++++++-\n .../stdlib/structural/math_accent_tests.rs         | 144 +++++++++-\n .../compiler/stdlib/structural/math_cases_tests.rs | 143 +++++++++-\n 01_core/src/compiler/stdlib/structural/outline.rs  | 212 ++++++++++++++-\n .../src/compiler/stdlib/structural/table_grid.rs   |  76 +++++-\n 36 files changed, 3145 insertions(+), 115 deletions(-)\n",
+  "reviewer": "batch_f_geometry",
+  "scope": "Independent full current owner and changed decision/caller review; source only, not a replacement for parent runtime/structural/lineage validation.",
+  "findings": [],
+  "observations": {
+    "attr_cast": "Nominal complements preserve existing conversion/delegation and rejection distinctions.",
+    "alignment": "Non-Align/non-Str remains no candidate; current native argument/body limitations are explicit.",
+    "stroke": "Negative Length and unknown Str guards still reject entire array; empty/em/nonfinite debt remains explicit. No lossy filter introduced.",
+    "encoding": "Immutable carrier normalization precedes unreachable carrier assertion; present snapshots bypass reconstruction; marked equation still uses strict fields and ordinary Styled stays structural.",
+    "yaml": "Flattened exhaustive writer preserves empty/nonempty container routes, scalar tokens, opaque repr, newline ownership and content projection. Does not claim all YAML parity.",
+    "finders": "Bounded fixture observers retain original traversed wrappers, first visible target and opaque non-target boundary. Missing target still fails callers; actual fixture tests retained."
+  },
+  "files": [
+    {
+      "path": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+      "sha256": "6bd99eefe9070873ed00b7e70abc640fb4f6fd952d4054a8d040e555128c72b1",
+      "baseline_sha256": "c8fa5f3325111706de4f9800c6481491c0b5983c1d8645e3bf3bb20b271f9daf"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/html/attr_cast.md",
+      "sha256": "f7995b4322221d75fa0bc98e67d6982c06adce897eda208bfb0a05d30163e365",
+      "baseline_sha256": "229d9e9efe54e796817ec2fb25f942598beee1683bd9fe85d69dc53f8bfd3d9e"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/layout.rs",
+      "sha256": "fd877772e46e671589940aa85889d81db290336be41acae1c2d28c68c572148e",
+      "baseline_sha256": "6056b757e6466b8c0bae6a9b5f27623769455596f8da5f6836b506dd8b0a5b99"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/layout.md",
+      "sha256": "9599c456b441a808e8f919dde8b77b429a2d2a1773033db3ea53f1baa64ed446",
+      "baseline_sha256": "b3e3d9e06e9921db079590ae80a48cf22a7d137d35c797f219359695ca240f64"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/layout/stroke.rs",
+      "sha256": "f44e54c9cc7add196a46b00941cd6ccc1b1ad5cebee9b7fb75b7f67093ddd1f0",
+      "baseline_sha256": "8058dd56102805d8fc066068c79879cbd634d0ccbe504ed5c185b68097ce73c9"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md",
+      "sha256": "66890e86f06b3ccd6ce37bebaa66e33903176ef712838ba38a44b88a90462844",
+      "baseline_sha256": "14a1e13df5ab55d98c6b65041c2da749882ea7dc3fdbe87857744fd750764b14"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/loading/encoding.rs",
+      "sha256": "7fbf8a39a5fc6f7d7ecbfb040a26391a5ac981125452686118a298754c152f0a",
+      "baseline_sha256": "4463c1c34d091528d502e9fea430feed1797728e1d9526f942bef96e61131be3"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md",
+      "sha256": "d322fd4145935f81e0444433630565a1667a428f6d0023d183d0da9de76dd760",
+      "baseline_sha256": "c4f2644cca860d57c0e584eb5c9beb1915ba051b543ae3f9eb29f79d469dfe83"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+      "sha256": "79146a48b8a560b4c7eee05ecd32823d1c7068adb2e0a0e8d5b80439abbe4d5a",
+      "baseline_sha256": "e315712190c18aca3b0a03e58ce9b2619d55577bbba4911bf4e0ff1dd7382b65"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/loading/yaml_encode.md",
+      "sha256": "0ee67cfa8edfea23210f24809aca501705428df3370b3fa0503248ce8d6add70",
+      "baseline_sha256": "154662ee329df40b78f14c4976921e288ebeeb88017d579c64d16e72a746a49c"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/structural/math_accent_tests.rs",
+      "sha256": "602de703a86ef36acb647d31872775d2fb9b1e3c12740259a46f7cd1ff891cf0",
+      "baseline_sha256": "3bcf8fc1c31fce76a1048cf4945bcf1d551090f6182a0700ae5043a0be3af8ea"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md",
+      "sha256": "72419f728950ba142544b56aea6eef50c62b85d2bbd28f3f2a9029d31f660898",
+      "baseline_sha256": "b84bd592c31fc30103abe7696a469a1e6396436799bb1e091b64d91376978010"
+    },
+    {
+      "path": "01_core/src/compiler/stdlib/structural/math_cases_tests.rs",
+      "sha256": "39c80b34b003a908dc1f817827b8b0d4df9ecdc8ab019b4f5b630d0adb80b8c0",
+      "baseline_sha256": "add6d202dc47196a03b30c231c805a6a1d1ef75565df9216b804682e4f417b82"
+    },
+    {
+      "path": "00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md",
+      "sha256": "176d7001f4e15f307259667dce7fe763a86076761bde6e247223e87c80ce5060",
+      "baseline_sha256": "e3564a1aa018323f80094f801bd5695a27d14475d40c76151f828c478ec025a3"
+    }
+  ]
+}

@@ -1,0 +1,2705 @@
+[
+  {
+    "name": "all-domains",
+    "phase": "green",
+    "utc_start": "2026-10-19T20:40:30.194354+00:00",
+    "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-f-structural-green",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-053",
+        "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+        "domain": "Type",
+        "baseline": {
+          "after": "fn type_as_callable(",
+          "anchor": "match t {"
+        },
+        "green": {
+          "after": "fn type_as_callable(",
+          "anchor": "match t {"
+        },
+        "line": 90,
+        "byte_start": 2594,
+        "byte_end": 2603,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `entities::value::Type::TektV16EvolutionProbe` not covered\n   --> 01_core/src/compiler/stdlib/collections/validation.rs:90:16\n    |\n 90 |     Some(match t {\n    |                ^ pattern `entities::value::Type::TektV16EvolutionProbe` not covered\n    |\nnote: `entities::value::Type` defined here\n   --> 01_core/src/entities/value.rs:240:10\n    |\n240 | pub enum Type {\n    |          ^^^^\n...\n281 |     TektV16EvolutionProbe,\n    |     --------------------- not covered\n    = note: the matched value is of type `entities::value::Type`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n134 ~         | Type::Path => return None,\n135 ~         entities::value::Type::TektV16EvolutionProbe => todo!(),\n    |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "`entities::value::Type` defined here",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 10746,
+                    "byte_start": 10742,
+                    "column_end": 14,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": true,
+                    "label": "",
+                    "line_end": 240,
+                    "line_start": 240,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 14,
+                        "highlight_start": 10,
+                        "text": "pub enum Type {"
+                      }
+                    ]
+                  },
+                  {
+                    "byte_end": 11382,
+                    "byte_start": 11361,
+                    "column_end": 26,
+                    "column_start": 5,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": false,
+                    "label": "not covered",
+                    "line_end": 281,
+                    "line_start": 281,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 5,
+                        "text": "    TektV16EvolutionProbe,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `entities::value::Type`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 4648,
+                    "byte_start": 4648,
+                    "column_end": 36,
+                    "column_start": 36,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/collections/validation.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 134,
+                    "line_start": 134,
+                    "suggested_replacement": ",\n        entities::value::Type::TektV16EvolutionProbe => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 36,
+                        "highlight_start": 36,
+                        "text": "        | Type::Path => return None,"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `entities::value::Type::TektV16EvolutionProbe` not covered",
+            "spans": [
+              {
+                "byte_end": 2601,
+                "byte_start": 2600,
+                "column_end": 17,
+                "column_start": 16,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/collections/validation.rs",
+                "is_primary": true,
+                "label": "pattern `entities::value::Type::TektV16EvolutionProbe` not covered",
+                "line_end": 90,
+                "line_start": 90,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 17,
+                    "highlight_start": 16,
+                    "text": "    Some(match t {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      },
+      {
+        "id": "V16-054",
+        "file": "01_core/src/compiler/stdlib/counter/display.rs",
+        "domain": "CounterKey,Selector",
+        "baseline": {
+          "after": "let pattern_key =",
+          "anchor": "match &counter.key {"
+        },
+        "green": {
+          "after": "let pattern_key =",
+          "anchor": "match &counter.key {"
+        },
+        "line": 126,
+        "byte_start": 4297,
+        "byte_end": 4317,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&entities::counter::CounterKey::TektV16EvolutionProbe` not covered\n   --> 01_core/src/compiler/stdlib/counter/display.rs:126:37\n    |\n126 |             let pattern_key = match &counter.key {\n    |                                     ^^^^^^^^^^^^ pattern `&entities::counter::CounterKey::TektV16EvolutionProbe` not covered\n    |\nnote: `entities::counter::CounterKey` defined here\n   --> 01_core/src/entities/counter.rs:22:10\n    |\n 22 | pub enum CounterKey {\n    |          ^^^^^^^^^^\n...\n 26 |     TektV16EvolutionProbe,\n    |     --------------------- not covered\n    = note: the matched value is of type `&entities::counter::CounterKey`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n144 ~                 CounterKey::Page => \"page.numbering.pattern\".to_string(),\n145 ~                 &entities::counter::CounterKey::TektV16EvolutionProbe => todo!(),\n    |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "`entities::counter::CounterKey` defined here",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 838,
+                    "byte_start": 828,
+                    "column_end": 20,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/counter.rs",
+                    "is_primary": true,
+                    "label": "",
+                    "line_end": 22,
+                    "line_start": 22,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 20,
+                        "highlight_start": 10,
+                        "text": "pub enum CounterKey {"
+                      }
+                    ]
+                  },
+                  {
+                    "byte_end": 920,
+                    "byte_start": 899,
+                    "column_end": 26,
+                    "column_start": 5,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/counter.rs",
+                    "is_primary": false,
+                    "label": "not covered",
+                    "line_end": 26,
+                    "line_start": 26,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 5,
+                        "text": "    TektV16EvolutionProbe,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&entities::counter::CounterKey`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 5226,
+                    "byte_start": 5226,
+                    "column_end": 73,
+                    "column_start": 73,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/counter/display.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 144,
+                    "line_start": 144,
+                    "suggested_replacement": ",\n                &entities::counter::CounterKey::TektV16EvolutionProbe => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 73,
+                        "highlight_start": 73,
+                        "text": "                CounterKey::Page => \"page.numbering.pattern\".to_string(),"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&entities::counter::CounterKey::TektV16EvolutionProbe` not covered",
+            "spans": [
+              {
+                "byte_end": 4315,
+                "byte_start": 4303,
+                "column_end": 49,
+                "column_start": 37,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/counter/display.rs",
+                "is_primary": true,
+                "label": "pattern `&entities::counter::CounterKey::TektV16EvolutionProbe` not covered",
+                "line_end": 126,
+                "line_start": 126,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 49,
+                    "highlight_start": 37,
+                    "text": "            let pattern_key = match &counter.key {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      },
+      {
+        "id": "V16-057",
+        "file": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "AttrKind::OnOffOrNoneOrEnum(values) =>",
+          "anchor": "match value {"
+        },
+        "green": {
+          "after": "AttrKind::OnOffOrNoneOrEnum(values) =>",
+          "anchor": "match value {"
+        },
+        "line": 105,
+        "byte_start": 4166,
+        "byte_end": 4179,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered\n   --> 01_core/src/compiler/stdlib/html/attr_cast.rs:105:54\n    |\n105 |         AttrKind::OnOffOrNoneOrEnum(values) => match value {\n    |                                                      ^^^^^ pattern `&entities::value::Value::TektV16EvolutionProbe` not covered\n    |\nnote: `entities::value::Value` defined here\n   --> 01_core/src/entities/value.rs:82:10\n    |\n 82 | pub enum Value {\n    |          ^^^^^\n...\n231 |     TektV16EvolutionProbe,\n    |     --------------------- not covered\n    = note: the matched value is of type `&entities::value::Value`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n144 ~             | Value::SpotColorant(..) => require_enum(value, span, values)?.into(),\n145 ~             &entities::value::Value::TektV16EvolutionProbe => todo!(),\n    |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "`entities::value::Value` defined here",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 2496,
+                    "byte_start": 2491,
+                    "column_end": 15,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": true,
+                    "label": "",
+                    "line_end": 82,
+                    "line_start": 82,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 15,
+                        "highlight_start": 10,
+                        "text": "pub enum Value {"
+                      }
+                    ]
+                  },
+                  {
+                    "byte_end": 10383,
+                    "byte_start": 10362,
+                    "column_end": 26,
+                    "column_start": 5,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": false,
+                    "label": "not covered",
+                    "line_end": 231,
+                    "line_start": 231,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 5,
+                        "text": "    TektV16EvolutionProbe,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&entities::value::Value`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 5521,
+                    "byte_start": 5521,
+                    "column_end": 83,
+                    "column_start": 83,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 144,
+                    "line_start": 144,
+                    "suggested_replacement": ",\n            &entities::value::Value::TektV16EvolutionProbe => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 83,
+                        "highlight_start": 83,
+                        "text": "            | Value::SpotColorant(..) => require_enum(value, span, values)?.into(),"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+            "spans": [
+              {
+                "byte_end": 4177,
+                "byte_start": 4172,
+                "column_end": 59,
+                "column_start": 54,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+                "is_primary": true,
+                "label": "pattern `&entities::value::Value::TektV16EvolutionProbe` not covered",
+                "line_end": 105,
+                "line_start": 105,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 59,
+                    "highlight_start": 54,
+                    "text": "        AttrKind::OnOffOrNoneOrEnum(values) => match value {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      },
+      {
+        "id": "V16-058",
+        "file": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "AttrKind::PresenceOr(values) =>",
+          "anchor": "match value {"
+        },
+        "green": {
+          "after": "AttrKind::PresenceOr(values) =>",
+          "anchor": "match value {"
+        },
+        "line": 157,
+        "byte_start": 6116,
+        "byte_end": 6129,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered\n   --> 01_core/src/compiler/stdlib/html/attr_cast.rs:157:47\n    |\n157 |         AttrKind::PresenceOr(values) => match value {\n    |                                               ^^^^^ pattern `&entities::value::Value::TektV16EvolutionProbe` not covered\n    |\nnote: `entities::value::Value` defined here\n   --> 01_core/src/entities/value.rs:82:10\n    |\n 82 | pub enum Value {\n    |          ^^^^^\n...\n231 |     TektV16EvolutionProbe,\n    |     --------------------- not covered\n    = note: the matched value is of type `&entities::value::Value`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n197 ~             | Value::SpotColorant(..) => require_enum(value, span, values)?.into(),\n198 ~             &entities::value::Value::TektV16EvolutionProbe => todo!(),\n    |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "`entities::value::Value` defined here",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 2496,
+                    "byte_start": 2491,
+                    "column_end": 15,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": true,
+                    "label": "",
+                    "line_end": 82,
+                    "line_start": 82,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 15,
+                        "highlight_start": 10,
+                        "text": "pub enum Value {"
+                      }
+                    ]
+                  },
+                  {
+                    "byte_end": 10383,
+                    "byte_start": 10362,
+                    "column_end": 26,
+                    "column_start": 5,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": false,
+                    "label": "not covered",
+                    "line_end": 231,
+                    "line_start": 231,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 5,
+                        "text": "    TektV16EvolutionProbe,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&entities::value::Value`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 7474,
+                    "byte_start": 7474,
+                    "column_end": 83,
+                    "column_start": 83,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 197,
+                    "line_start": 197,
+                    "suggested_replacement": ",\n            &entities::value::Value::TektV16EvolutionProbe => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 83,
+                        "highlight_start": 83,
+                        "text": "            | Value::SpotColorant(..) => require_enum(value, span, values)?.into(),"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+            "spans": [
+              {
+                "byte_end": 6127,
+                "byte_start": 6122,
+                "column_end": 52,
+                "column_start": 47,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+                "is_primary": true,
+                "label": "pattern `&entities::value::Value::TektV16EvolutionProbe` not covered",
+                "line_end": 157,
+                "line_start": 157,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 52,
+                    "highlight_start": 47,
+                    "text": "        AttrKind::PresenceOr(values) => match value {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      },
+      {
+        "id": "V16-059",
+        "file": "01_core/src/compiler/stdlib/layout/grid.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "fn parse_track_sizing(",
+          "anchor": "match val {"
+        },
+        "green": {
+          "after": "fn parse_track_sizing(",
+          "anchor": "match val {"
+        },
+        "line": 12,
+        "byte_start": 293,
+        "byte_end": 304,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered\n   --> 01_core/src/compiler/stdlib/layout/grid.rs:12:11\n    |\n 12 |     match val {\n    |           ^^^ pattern `&entities::value::Value::TektV16EvolutionProbe` not covered\n    |\nnote: `entities::value::Value` defined here\n   --> 01_core/src/entities/value.rs:82:10\n    |\n 82 | pub enum Value {\n    |          ^^^^^\n...\n231 |     TektV16EvolutionProbe,\n    |     --------------------- not covered\n    = note: the matched value is of type `&entities::value::Value`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n 52 ~         | Value::SpotColorant(_) => None,\n 53 ~         &entities::value::Value::TektV16EvolutionProbe => todo!(),\n    |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "`entities::value::Value` defined here",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 2496,
+                    "byte_start": 2491,
+                    "column_end": 15,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": true,
+                    "label": "",
+                    "line_end": 82,
+                    "line_start": 82,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 15,
+                        "highlight_start": 10,
+                        "text": "pub enum Value {"
+                      }
+                    ]
+                  },
+                  {
+                    "byte_end": 10383,
+                    "byte_start": 10362,
+                    "column_end": 26,
+                    "column_start": 5,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": false,
+                    "label": "not covered",
+                    "line_end": 231,
+                    "line_start": 231,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 5,
+                        "text": "    TektV16EvolutionProbe,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&entities::value::Value`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 1566,
+                    "byte_start": 1566,
+                    "column_end": 41,
+                    "column_start": 41,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/layout/grid.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 52,
+                    "line_start": 52,
+                    "suggested_replacement": ",\n        &entities::value::Value::TektV16EvolutionProbe => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 41,
+                        "highlight_start": 41,
+                        "text": "        | Value::SpotColorant(_) => None,"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+            "spans": [
+              {
+                "byte_end": 302,
+                "byte_start": 299,
+                "column_end": 14,
+                "column_start": 11,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/layout/grid.rs",
+                "is_primary": true,
+                "label": "pattern `&entities::value::Value::TektV16EvolutionProbe` not covered",
+                "line_end": 12,
+                "line_start": 12,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 14,
+                    "highlight_start": 11,
+                    "text": "    match val {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      },
+      {
+        "id": "V16-060",
+        "file": "01_core/src/compiler/stdlib/layout/place.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "fn extract_pt(",
+          "anchor": "match val {"
+        },
+        "green": {
+          "after": "fn extract_pt(",
+          "anchor": "match val {"
+        },
+        "line": 35,
+        "byte_start": 1275,
+        "byte_end": 1286,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered\n   --> 01_core/src/compiler/stdlib/layout/place.rs:35:15\n    |\n 35 |         match val {\n    |               ^^^ pattern `&entities::value::Value::TektV16EvolutionProbe` not covered\n    |\nnote: `entities::value::Value` defined here\n   --> 01_core/src/entities/value.rs:82:10\n    |\n 82 | pub enum Value {\n    |          ^^^^^\n...\n231 |     TektV16EvolutionProbe,\n    |     --------------------- not covered\n    = note: the matched value is of type `&entities::value::Value`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n 78 ~             )]),\n 79 ~             &entities::value::Value::TektV16EvolutionProbe => todo!(),\n    |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "`entities::value::Value` defined here",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 2496,
+                    "byte_start": 2491,
+                    "column_end": 15,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": true,
+                    "label": "",
+                    "line_end": 82,
+                    "line_start": 82,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 15,
+                        "highlight_start": 10,
+                        "text": "pub enum Value {"
+                      }
+                    ]
+                  },
+                  {
+                    "byte_end": 10383,
+                    "byte_start": 10362,
+                    "column_end": 26,
+                    "column_start": 5,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": false,
+                    "label": "not covered",
+                    "line_end": 231,
+                    "line_start": 231,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 5,
+                        "text": "    TektV16EvolutionProbe,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&entities::value::Value`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 2845,
+                    "byte_start": 2845,
+                    "column_end": 16,
+                    "column_start": 16,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/layout/place.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 78,
+                    "line_start": 78,
+                    "suggested_replacement": ",\n            &entities::value::Value::TektV16EvolutionProbe => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 16,
+                        "highlight_start": 16,
+                        "text": "            )]),"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+            "spans": [
+              {
+                "byte_end": 1284,
+                "byte_start": 1281,
+                "column_end": 18,
+                "column_start": 15,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/layout/place.rs",
+                "is_primary": true,
+                "label": "pattern `&entities::value::Value::TektV16EvolutionProbe` not covered",
+                "line_end": 35,
+                "line_start": 35,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 18,
+                    "highlight_start": 15,
+                    "text": "        match val {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      },
+      {
+        "id": "V16-061",
+        "file": "01_core/src/compiler/stdlib/layout/stroke.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "fn dash_item(",
+          "anchor": "match value {"
+        },
+        "green": {
+          "after": "fn dash_item(",
+          "anchor": "match value {"
+        },
+        "line": 146,
+        "byte_start": 5186,
+        "byte_end": 5199,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered\n   --> 01_core/src/compiler/stdlib/layout/stroke.rs:146:15\n    |\n146 |         match value {\n    |               ^^^^^ pattern `&entities::value::Value::TektV16EvolutionProbe` not covered\n    |\nnote: `entities::value::Value` defined here\n   --> 01_core/src/entities/value.rs:82:10\n    |\n 82 | pub enum Value {\n    |          ^^^^^\n...\n231 |     TektV16EvolutionProbe,\n    |     --------------------- not covered\n    = note: the matched value is of type `&entities::value::Value`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n189 ~             | Value::SpotColorant(..) => None,\n190 ~             &entities::value::Value::TektV16EvolutionProbe => todo!(),\n    |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "`entities::value::Value` defined here",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 2496,
+                    "byte_start": 2491,
+                    "column_end": 15,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": true,
+                    "label": "",
+                    "line_end": 82,
+                    "line_start": 82,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 15,
+                        "highlight_start": 10,
+                        "text": "pub enum Value {"
+                      }
+                    ]
+                  },
+                  {
+                    "byte_end": 10383,
+                    "byte_start": 10362,
+                    "column_end": 26,
+                    "column_start": 5,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": false,
+                    "label": "not covered",
+                    "line_end": 231,
+                    "line_start": 231,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 5,
+                        "text": "    TektV16EvolutionProbe,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&entities::value::Value`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 6674,
+                    "byte_start": 6674,
+                    "column_end": 46,
+                    "column_start": 46,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/layout/stroke.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 189,
+                    "line_start": 189,
+                    "suggested_replacement": ",\n            &entities::value::Value::TektV16EvolutionProbe => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 46,
+                        "highlight_start": 46,
+                        "text": "            | Value::SpotColorant(..) => None,"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+            "spans": [
+              {
+                "byte_end": 5197,
+                "byte_start": 5192,
+                "column_end": 20,
+                "column_start": 15,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/layout/stroke.rs",
+                "is_primary": true,
+                "label": "pattern `&entities::value::Value::TektV16EvolutionProbe` not covered",
+                "line_end": 146,
+                "line_start": 146,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 20,
+                    "highlight_start": 15,
+                    "text": "        match value {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      },
+      {
+        "id": "V16-062",
+        "file": "01_core/src/compiler/stdlib/layout.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "fn extract_alignment(",
+          "anchor": "match v {"
+        },
+        "green": {
+          "after": "fn extract_alignment(",
+          "anchor": "match v {"
+        },
+        "line": 121,
+        "byte_start": 4134,
+        "byte_end": 4143,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered\n   --> 01_core/src/compiler/stdlib/layout.rs:121:29\n    |\n121 |         .find_map(|v| match v {\n    |                             ^ pattern `&entities::value::Value::TektV16EvolutionProbe` not covered\n    |\nnote: `entities::value::Value` defined here\n   --> 01_core/src/entities/value.rs:82:10\n    |\n 82 | pub enum Value {\n    |          ^^^^^\n...\n231 |     TektV16EvolutionProbe,\n    |     --------------------- not covered\n    = note: the matched value is of type `&entities::value::Value`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n160 ~             | Value::SpotColorant(..) => None,\n161 ~             &entities::value::Value::TektV16EvolutionProbe => todo!(),\n    |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "`entities::value::Value` defined here",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 2496,
+                    "byte_start": 2491,
+                    "column_end": 15,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": true,
+                    "label": "",
+                    "line_end": 82,
+                    "line_start": 82,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 15,
+                        "highlight_start": 10,
+                        "text": "pub enum Value {"
+                      }
+                    ]
+                  },
+                  {
+                    "byte_end": 10383,
+                    "byte_start": 10362,
+                    "column_end": 26,
+                    "column_start": 5,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": false,
+                    "label": "not covered",
+                    "line_end": 231,
+                    "line_start": 231,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 5,
+                        "text": "    TektV16EvolutionProbe,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&entities::value::Value`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 5436,
+                    "byte_start": 5436,
+                    "column_end": 46,
+                    "column_start": 46,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/layout.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 160,
+                    "line_start": 160,
+                    "suggested_replacement": ",\n            &entities::value::Value::TektV16EvolutionProbe => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 46,
+                        "highlight_start": 46,
+                        "text": "            | Value::SpotColorant(..) => None,"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+            "spans": [
+              {
+                "byte_end": 4141,
+                "byte_start": 4140,
+                "column_end": 30,
+                "column_start": 29,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/layout.rs",
+                "is_primary": true,
+                "label": "pattern `&entities::value::Value::TektV16EvolutionProbe` not covered",
+                "line_end": 121,
+                "line_start": 121,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 30,
+                    "highlight_start": 29,
+                    "text": "        .find_map(|v| match v {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      },
+      {
+        "id": "V16-063",
+        "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+        "domain": "Content",
+        "baseline": {
+          "after": "// Campos de payload cuja presen\u00e7a \u00e9 estrutural.",
+          "anchor": "match content {"
+        },
+        "green": {
+          "after": "// Campos de payload cuja presen\u00e7a \u00e9 estrutural.",
+          "anchor": "match content {"
+        },
+        "line": 48,
+        "byte_start": 1874,
+        "byte_end": 1889,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 01_core/src/compiler/stdlib/loading/encoding.rs:48:15\n     |\n  48 |         match content {\n     |               ^^^^^^^ pattern `&entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `entities::content::Content` defined here\n    --> 01_core/src/entities/content.rs:233:10\n     |\n 233 | pub enum Content {\n     |          ^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 225 ~             | Content::Dynamic(..) => {},\n 226 +             &entities::content::Content::TektV16EvolutionProbe => todo!()\n     |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "`entities::content::Content` defined here",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 10400,
+                    "byte_start": 10393,
+                    "column_end": 17,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/content.rs",
+                    "is_primary": true,
+                    "label": "",
+                    "line_end": 233,
+                    "line_start": 233,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 17,
+                        "highlight_start": 10,
+                        "text": "pub enum Content {"
+                      }
+                    ]
+                  },
+                  {
+                    "byte_end": 65742,
+                    "byte_start": 65721,
+                    "column_end": 26,
+                    "column_start": 5,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/content.rs",
+                    "is_primary": false,
+                    "label": "not covered",
+                    "line_end": 1309,
+                    "line_start": 1309,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 5,
+                        "text": "    TektV16EvolutionProbe,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&entities::content::Content`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 8867,
+                    "byte_start": 8867,
+                    "column_end": 41,
+                    "column_start": 41,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/loading/encoding.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 225,
+                    "line_start": 225,
+                    "suggested_replacement": ",\n            &entities::content::Content::TektV16EvolutionProbe => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 41,
+                        "highlight_start": 41,
+                        "text": "            | Content::Dynamic(..) => {}"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+            "spans": [
+              {
+                "byte_end": 1887,
+                "byte_start": 1880,
+                "column_end": 22,
+                "column_start": 15,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/loading/encoding.rs",
+                "is_primary": true,
+                "label": "pattern `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                "line_end": 48,
+                "line_start": 48,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 22,
+                    "highlight_start": 15,
+                    "text": "        match content {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      },
+      {
+        "id": "V16-064",
+        "file": "01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "fn write_yaml_value(",
+          "anchor": "match value {"
+        },
+        "green": {
+          "after": "fn write_yaml_value(",
+          "anchor": "match value {"
+        },
+        "line": 36,
+        "byte_start": 1057,
+        "byte_end": 1070,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered\n   --> 01_core/src/compiler/stdlib/loading/yaml_encode.rs:36:11\n    |\n 36 |     match value {\n    |           ^^^^^ pattern `&entities::value::Value::TektV16EvolutionProbe` not covered\n    |\nnote: `entities::value::Value` defined here\n   --> 01_core/src/entities/value.rs:82:10\n    |\n 82 | pub enum Value {\n    |          ^^^^^\n...\n231 |     TektV16EvolutionProbe,\n    |     --------------------- not covered\n    = note: the matched value is of type `&entities::value::Value`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n115 ~         },\n116 +         &entities::value::Value::TektV16EvolutionProbe => todo!()\n    |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "`entities::value::Value` defined here",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 2496,
+                    "byte_start": 2491,
+                    "column_end": 15,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": true,
+                    "label": "",
+                    "line_end": 82,
+                    "line_start": 82,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 15,
+                        "highlight_start": 10,
+                        "text": "pub enum Value {"
+                      }
+                    ]
+                  },
+                  {
+                    "byte_end": 10383,
+                    "byte_start": 10362,
+                    "column_end": 26,
+                    "column_start": 5,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": false,
+                    "label": "not covered",
+                    "line_end": 231,
+                    "line_start": 231,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 5,
+                        "text": "    TektV16EvolutionProbe,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&entities::value::Value`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 3821,
+                    "byte_start": 3821,
+                    "column_end": 10,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 115,
+                    "line_start": 115,
+                    "suggested_replacement": ",\n        &entities::value::Value::TektV16EvolutionProbe => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 10,
+                        "highlight_start": 10,
+                        "text": "        }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+            "spans": [
+              {
+                "byte_end": 1068,
+                "byte_start": 1063,
+                "column_end": 16,
+                "column_start": 11,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+                "is_primary": true,
+                "label": "pattern `&entities::value::Value::TektV16EvolutionProbe` not covered",
+                "line_end": 36,
+                "line_start": 36,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 16,
+                    "highlight_start": 11,
+                    "text": "    match value {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      },
+      {
+        "id": "V16-066",
+        "file": "01_core/src/compiler/stdlib/shapes/line.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "fn extract_pt(",
+          "anchor": "match val {"
+        },
+        "green": {
+          "after": "fn extract_pt(",
+          "anchor": "match val {"
+        },
+        "line": 32,
+        "byte_start": 1056,
+        "byte_end": 1067,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered\n   --> 01_core/src/compiler/stdlib/shapes/line.rs:32:15\n    |\n 32 |         match val {\n    |               ^^^ pattern `&entities::value::Value::TektV16EvolutionProbe` not covered\n    |\nnote: `entities::value::Value` defined here\n   --> 01_core/src/entities/value.rs:82:10\n    |\n 82 | pub enum Value {\n    |          ^^^^^\n...\n231 |     TektV16EvolutionProbe,\n    |     --------------------- not covered\n    = note: the matched value is of type `&entities::value::Value`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n 75 ~             )]),\n 76 ~             &entities::value::Value::TektV16EvolutionProbe => todo!(),\n    |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "`entities::value::Value` defined here",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 2496,
+                    "byte_start": 2491,
+                    "column_end": 15,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": true,
+                    "label": "",
+                    "line_end": 82,
+                    "line_start": 82,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 15,
+                        "highlight_start": 10,
+                        "text": "pub enum Value {"
+                      }
+                    ]
+                  },
+                  {
+                    "byte_end": 10383,
+                    "byte_start": 10362,
+                    "column_end": 26,
+                    "column_start": 5,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": false,
+                    "label": "not covered",
+                    "line_end": 231,
+                    "line_start": 231,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 5,
+                        "text": "    TektV16EvolutionProbe,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&entities::value::Value`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 2617,
+                    "byte_start": 2617,
+                    "column_end": 16,
+                    "column_start": 16,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/shapes/line.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 75,
+                    "line_start": 75,
+                    "suggested_replacement": ",\n            &entities::value::Value::TektV16EvolutionProbe => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 16,
+                        "highlight_start": 16,
+                        "text": "            )]),"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+            "spans": [
+              {
+                "byte_end": 1065,
+                "byte_start": 1062,
+                "column_end": 18,
+                "column_start": 15,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/shapes/line.rs",
+                "is_primary": true,
+                "label": "pattern `&entities::value::Value::TektV16EvolutionProbe` not covered",
+                "line_end": 32,
+                "line_start": 32,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 18,
+                    "highlight_start": 15,
+                    "text": "        match val {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      },
+      {
+        "id": "V16-067",
+        "file": "01_core/src/compiler/stdlib/structural/bibliography.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "let locale =",
+          "anchor": "match v {"
+        },
+        "green": {
+          "after": "let locale =",
+          "anchor": "match v {"
+        },
+        "line": 331,
+        "byte_start": 13061,
+        "byte_end": 13070,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered\n   --> 01_core/src/compiler/stdlib/structural/bibliography.rs:331:62\n    |\n331 |     let locale = args.named.get(\"locale\").and_then(|v| match v {\n    |                                                              ^ pattern `&entities::value::Value::TektV16EvolutionProbe` not covered\n    |\nnote: `entities::value::Value` defined here\n   --> 01_core/src/entities/value.rs:82:10\n    |\n 82 | pub enum Value {\n    |          ^^^^^\n...\n231 |     TektV16EvolutionProbe,\n    |     --------------------- not covered\n    = note: the matched value is of type `&entities::value::Value`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n370 ~         | Value::SpotColorant(..) => None,\n371 ~         &entities::value::Value::TektV16EvolutionProbe => todo!(),\n    |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "`entities::value::Value` defined here",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 2496,
+                    "byte_start": 2491,
+                    "column_end": 15,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": true,
+                    "label": "",
+                    "line_end": 82,
+                    "line_start": 82,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 15,
+                        "highlight_start": 10,
+                        "text": "pub enum Value {"
+                      }
+                    ]
+                  },
+                  {
+                    "byte_end": 10383,
+                    "byte_start": 10362,
+                    "column_end": 26,
+                    "column_start": 5,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": false,
+                    "label": "not covered",
+                    "line_end": 231,
+                    "line_start": 231,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 5,
+                        "text": "    TektV16EvolutionProbe,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&entities::value::Value`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 14181,
+                    "byte_start": 14181,
+                    "column_end": 42,
+                    "column_start": 42,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/structural/bibliography.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 370,
+                    "line_start": 370,
+                    "suggested_replacement": ",\n        &entities::value::Value::TektV16EvolutionProbe => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 42,
+                        "highlight_start": 42,
+                        "text": "        | Value::SpotColorant(..) => None,"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+            "spans": [
+              {
+                "byte_end": 13068,
+                "byte_start": 13067,
+                "column_end": 63,
+                "column_start": 62,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/structural/bibliography.rs",
+                "is_primary": true,
+                "label": "pattern `&entities::value::Value::TektV16EvolutionProbe` not covered",
+                "line_end": 331,
+                "line_start": 331,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 63,
+                    "highlight_start": 62,
+                    "text": "    let locale = args.named.get(\"locale\").and_then(|v| match v {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      },
+      {
+        "id": "V16-068",
+        "file": "01_core/src/compiler/stdlib/structural/math_accent_tests.rs",
+        "domain": "Content",
+        "baseline": {
+          "after": "fn find_accent(",
+          "anchor": "match content {"
+        },
+        "green": {
+          "after": "fn find_accent(",
+          "anchor": "match content {"
+        },
+        "line": 335,
+        "byte_start": 9981,
+        "byte_end": 9996,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 01_core/src/compiler/stdlib/structural/math_accent_tests.rs:335:11\n     |\n 335 |     match content {\n     |           ^^^^^^^ pattern `&entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `entities::content::Content` defined here\n    --> 01_core/src/entities/content.rs:233:10\n     |\n 233 | pub enum Content {\n     |          ^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 456 ~         | Content::Dynamic(..) => None,\n 457 ~         &entities::content::Content::TektV16EvolutionProbe => todo!(),\n     |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "`entities::content::Content` defined here",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 10400,
+                    "byte_start": 10393,
+                    "column_end": 17,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/content.rs",
+                    "is_primary": true,
+                    "label": "",
+                    "line_end": 233,
+                    "line_start": 233,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 17,
+                        "highlight_start": 10,
+                        "text": "pub enum Content {"
+                      }
+                    ]
+                  },
+                  {
+                    "byte_end": 65742,
+                    "byte_start": 65721,
+                    "column_end": 26,
+                    "column_start": 5,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/content.rs",
+                    "is_primary": false,
+                    "label": "not covered",
+                    "line_end": 1309,
+                    "line_start": 1309,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 5,
+                        "text": "    TektV16EvolutionProbe,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&entities::content::Content`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 14071,
+                    "byte_start": 14071,
+                    "column_end": 39,
+                    "column_start": 39,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/structural/math_accent_tests.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 456,
+                    "line_start": 456,
+                    "suggested_replacement": ",\n        &entities::content::Content::TektV16EvolutionProbe => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 39,
+                        "highlight_start": 39,
+                        "text": "        | Content::Dynamic(..) => None,"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+            "spans": [
+              {
+                "byte_end": 9994,
+                "byte_start": 9987,
+                "column_end": 18,
+                "column_start": 11,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/structural/math_accent_tests.rs",
+                "is_primary": true,
+                "label": "pattern `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                "line_end": 335,
+                "line_start": 335,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 18,
+                    "highlight_start": 11,
+                    "text": "    match content {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      },
+      {
+        "id": "V16-069",
+        "file": "01_core/src/compiler/stdlib/structural/math_cases_tests.rs",
+        "domain": "Content",
+        "baseline": {
+          "after": "fn find_cases(",
+          "anchor": "match content {"
+        },
+        "green": {
+          "after": "fn find_cases(",
+          "anchor": "match content {"
+        },
+        "line": 319,
+        "byte_start": 9362,
+        "byte_end": 9377,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered\n    --> 01_core/src/compiler/stdlib/structural/math_cases_tests.rs:319:11\n     |\n 319 |     match content {\n     |           ^^^^^^^ pattern `&entities::content::Content::TektV16EvolutionProbe` not covered\n     |\nnote: `entities::content::Content` defined here\n    --> 01_core/src/entities/content.rs:233:10\n     |\n 233 | pub enum Content {\n     |          ^^^^^^^\n...\n1309 |     TektV16EvolutionProbe,\n     |     --------------------- not covered\n     = note: the matched value is of type `&entities::content::Content`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n     |\n 440 ~         | Content::Dynamic(..) => None,\n 441 ~         &entities::content::Content::TektV16EvolutionProbe => todo!(),\n     |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "`entities::content::Content` defined here",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 10400,
+                    "byte_start": 10393,
+                    "column_end": 17,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/content.rs",
+                    "is_primary": true,
+                    "label": "",
+                    "line_end": 233,
+                    "line_start": 233,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 17,
+                        "highlight_start": 10,
+                        "text": "pub enum Content {"
+                      }
+                    ]
+                  },
+                  {
+                    "byte_end": 65742,
+                    "byte_start": 65721,
+                    "column_end": 26,
+                    "column_start": 5,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/content.rs",
+                    "is_primary": false,
+                    "label": "not covered",
+                    "line_end": 1309,
+                    "line_start": 1309,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 5,
+                        "text": "    TektV16EvolutionProbe,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&entities::content::Content`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 13454,
+                    "byte_start": 13454,
+                    "column_end": 39,
+                    "column_start": 39,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/structural/math_cases_tests.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 440,
+                    "line_start": 440,
+                    "suggested_replacement": ",\n        &entities::content::Content::TektV16EvolutionProbe => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 39,
+                        "highlight_start": 39,
+                        "text": "        | Content::Dynamic(..) => None,"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+            "spans": [
+              {
+                "byte_end": 9375,
+                "byte_start": 9368,
+                "column_end": 18,
+                "column_start": 11,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/structural/math_cases_tests.rs",
+                "is_primary": true,
+                "label": "pattern `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                "line_end": 319,
+                "line_start": 319,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 18,
+                    "highlight_start": 11,
+                    "text": "    match content {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      },
+      {
+        "id": "V16-070",
+        "file": "01_core/src/compiler/stdlib/structural/outline.rs",
+        "domain": "Value",
+        "baseline": {
+          "after": "let Some(indent) =",
+          "anchor": "match value {"
+        },
+        "green": {
+          "after": "let Some(indent) =",
+          "anchor": "match value {"
+        },
+        "line": 429,
+        "byte_start": 14352,
+        "byte_end": 14365,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered\n   --> 01_core/src/compiler/stdlib/structural/outline.rs:429:15\n    |\n429 |         match value {\n    |               ^^^^^ pattern `&entities::value::Value::TektV16EvolutionProbe` not covered\n    |\nnote: `entities::value::Value` defined here\n   --> 01_core/src/entities/value.rs:82:10\n    |\n 82 | pub enum Value {\n    |          ^^^^^\n...\n231 |     TektV16EvolutionProbe,\n    |     --------------------- not covered\n    = note: the matched value is of type `&entities::value::Value`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n468 ~             | Value::SpotColorant(..) => None,\n469 ~             &entities::value::Value::TektV16EvolutionProbe => todo!(),\n    |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "`entities::value::Value` defined here",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 2496,
+                    "byte_start": 2491,
+                    "column_end": 15,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": true,
+                    "label": "",
+                    "line_end": 82,
+                    "line_start": 82,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 15,
+                        "highlight_start": 10,
+                        "text": "pub enum Value {"
+                      }
+                    ]
+                  },
+                  {
+                    "byte_end": 10383,
+                    "byte_start": 10362,
+                    "column_end": 26,
+                    "column_start": 5,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": false,
+                    "label": "not covered",
+                    "line_end": 231,
+                    "line_start": 231,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 5,
+                        "text": "    TektV16EvolutionProbe,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&entities::value::Value`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 15766,
+                    "byte_start": 15766,
+                    "column_end": 46,
+                    "column_start": 46,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/structural/outline.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 468,
+                    "line_start": 468,
+                    "suggested_replacement": ",\n            &entities::value::Value::TektV16EvolutionProbe => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 46,
+                        "highlight_start": 46,
+                        "text": "            | Value::SpotColorant(..) => None,"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+            "spans": [
+              {
+                "byte_end": 14363,
+                "byte_start": 14358,
+                "column_end": 20,
+                "column_start": 15,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/structural/outline.rs",
+                "is_primary": true,
+                "label": "pattern `&entities::value::Value::TektV16EvolutionProbe` not covered",
+                "line_end": 429,
+                "line_start": 429,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 20,
+                    "highlight_start": 15,
+                    "text": "        match value {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      },
+      {
+        "id": "V16-054-selector",
+        "file": "01_core/src/compiler/stdlib/counter/display.rs",
+        "domain": "Selector",
+        "green": {
+          "after": "CounterKey::Selector(selector) =>",
+          "anchor": "match selector {"
+        },
+        "line": 128,
+        "byte_start": 4442,
+        "byte_end": 4458,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&entities::selector::Selector::TektV16EvolutionProbe` not covered\n   --> 01_core/src/compiler/stdlib/counter/display.rs:128:57\n    |\n128 |                 CounterKey::Selector(selector) => match selector {\n    |                                                         ^^^^^^^^ pattern `&entities::selector::Selector::TektV16EvolutionProbe` not covered\n    |\nnote: `entities::selector::Selector` defined here\n   --> 01_core/src/entities/selector.rs:27:10\n    |\n 27 | pub enum Selector {\n    |          ^^^^^^^^\n...\n 69 |     TektV16EvolutionProbe,\n    |     --------------------- not covered\n    = note: the matched value is of type `&entities::selector::Selector`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n142 ~                     | Selector::After { .. } => \"counter.numbering.pattern\".to_string(),\n143 ~                     &entities::selector::Selector::TektV16EvolutionProbe => todo!(),\n    |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "`entities::selector::Selector` defined here",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 983,
+                    "byte_start": 975,
+                    "column_end": 18,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/selector.rs",
+                    "is_primary": true,
+                    "label": "",
+                    "line_end": 27,
+                    "line_start": 27,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 18,
+                        "highlight_start": 10,
+                        "text": "pub enum Selector {"
+                      }
+                    ]
+                  },
+                  {
+                    "byte_end": 3485,
+                    "byte_start": 3464,
+                    "column_end": 26,
+                    "column_start": 5,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/selector.rs",
+                    "is_primary": false,
+                    "label": "not covered",
+                    "line_end": 69,
+                    "line_start": 69,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 5,
+                        "text": "    TektV16EvolutionProbe,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&entities::selector::Selector`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 5133,
+                    "byte_start": 5133,
+                    "column_end": 88,
+                    "column_start": 88,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/counter/display.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 142,
+                    "line_start": 142,
+                    "suggested_replacement": ",\n                    &entities::selector::Selector::TektV16EvolutionProbe => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 88,
+                        "highlight_start": 88,
+                        "text": "                    | Selector::After { .. } => \"counter.numbering.pattern\".to_string(),"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&entities::selector::Selector::TektV16EvolutionProbe` not covered",
+            "spans": [
+              {
+                "byte_end": 4456,
+                "byte_start": 4448,
+                "column_end": 65,
+                "column_start": 57,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/counter/display.rs",
+                "is_primary": true,
+                "label": "pattern `&entities::selector::Selector::TektV16EvolutionProbe` not covered",
+                "line_end": 128,
+                "line_start": 128,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 65,
+                    "highlight_start": 57,
+                    "text": "                CounterKey::Selector(selector) => match selector {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      },
+      {
+        "id": "V16-059-extract-tracks-rejection",
+        "file": "01_core/src/compiler/stdlib/layout/grid.rs",
+        "domain": "Value",
+        "green": {
+          "after": "fn extract_tracks(",
+          "anchor": "match value {"
+        },
+        "line": 70,
+        "byte_start": 2218,
+        "byte_end": 2231,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered\n   --> 01_core/src/compiler/stdlib/layout/grid.rs:70:27\n    |\n 70 |                     match value {\n    |                           ^^^^^ pattern `&entities::value::Value::TektV16EvolutionProbe` not covered\n    |\nnote: `entities::value::Value` defined here\n   --> 01_core/src/entities/value.rs:82:10\n    |\n 82 | pub enum Value {\n    |          ^^^^^\n...\n231 |     TektV16EvolutionProbe,\n    |     --------------------- not covered\n    = note: the matched value is of type `&entities::value::Value`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n118 ~                         },\n119 +                         &entities::value::Value::TektV16EvolutionProbe => todo!()\n    |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "`entities::value::Value` defined here",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 2496,
+                    "byte_start": 2491,
+                    "column_end": 15,
+                    "column_start": 10,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": true,
+                    "label": "",
+                    "line_end": 82,
+                    "line_start": 82,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 15,
+                        "highlight_start": 10,
+                        "text": "pub enum Value {"
+                      }
+                    ]
+                  },
+                  {
+                    "byte_end": 10383,
+                    "byte_start": 10362,
+                    "column_end": 26,
+                    "column_start": 5,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/value.rs",
+                    "is_primary": false,
+                    "label": "not covered",
+                    "line_end": 231,
+                    "line_start": 231,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 5,
+                        "text": "    TektV16EvolutionProbe,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&entities::value::Value`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 4442,
+                    "byte_start": 4442,
+                    "column_end": 26,
+                    "column_start": 26,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/layout/grid.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 118,
+                    "line_start": 118,
+                    "suggested_replacement": ",\n                        &entities::value::Value::TektV16EvolutionProbe => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 26,
+                        "highlight_start": 26,
+                        "text": "                        }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&entities::value::Value::TektV16EvolutionProbe` not covered",
+            "spans": [
+              {
+                "byte_end": 2229,
+                "byte_start": 2224,
+                "column_end": 32,
+                "column_start": 27,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/layout/grid.rs",
+                "is_primary": true,
+                "label": "pattern `&entities::value::Value::TektV16EvolutionProbe` not covered",
+                "line_end": 70,
+                "line_start": 70,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 32,
+                    "highlight_start": 27,
+                    "text": "                    match value {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/entities/content.rs",
+      "01_core/src/entities/counter.rs",
+      "01_core/src/entities/selector.rs",
+      "01_core/src/entities/value.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T20:40:57.569556+00:00",
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3989278720",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    },
+    "exit": 101,
+    "selected_e0004": 17,
+    "other_errors": [],
+    "error_count": 300
+  },
+  {
+    "name": "arity-zero",
+    "phase": "green",
+    "utc_start": "2026-10-19T20:40:57.832371+00:00",
+    "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-f-structural-green",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-056-arity-zero",
+        "file": "01_core/src/compiler/stdlib/foundations/selector.rs",
+        "after": "fn parse_selector_arg(",
+        "anchor": "match items {",
+        "line": 135,
+        "byte_start": 5080,
+        "byte_end": 5093,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&[]` not covered\n   --> 01_core/src/compiler/stdlib/foundations/selector.rs:135:11\n    |\n135 |     match items {\n    |           ^^^^^ pattern `&[]` not covered\n    |\n    = note: the matched value is of type `&[entities::value::Value]`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n164 ~         [_, _, ..] => msg(format!(\"{}() requer 1 argumento (selector), recebeu {}\", func_name, items.len())),\n165 ~         &[] => todo!(),\n    |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&[entities::value::Value]`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 6866,
+                    "byte_start": 6866,
+                    "column_end": 109,
+                    "column_start": 109,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/foundations/selector.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 164,
+                    "line_start": 164,
+                    "suggested_replacement": ",\n        &[] => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 109,
+                        "highlight_start": 109,
+                        "text": "        [_, _, ..] => msg(format!(\"{}() requer 1 argumento (selector), recebeu {}\", func_name, items.len())),"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&[]` not covered",
+            "spans": [
+              {
+                "byte_end": 5091,
+                "byte_start": 5086,
+                "column_end": 16,
+                "column_start": 11,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/foundations/selector.rs",
+                "is_primary": true,
+                "label": "pattern `&[]` not covered",
+                "line_end": 135,
+                "line_start": 135,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 16,
+                    "highlight_start": 11,
+                    "text": "    match items {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/compiler/stdlib/foundations/selector.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T20:41:27.645716+00:00",
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3989278720",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    },
+    "exit": 101,
+    "selected_e0004": 1,
+    "other_errors": [],
+    "error_count": 1
+  },
+  {
+    "name": "arity-many",
+    "phase": "green",
+    "utc_start": "2026-10-19T20:41:27.827574+00:00",
+    "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-f-structural-green",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-056-arity-many",
+        "file": "01_core/src/compiler/stdlib/foundations/selector.rs",
+        "after": "fn parse_selector_arg(",
+        "anchor": "match items {",
+        "line": 135,
+        "byte_start": 5080,
+        "byte_end": 5093,
+        "diagnostics": [
+          {
+            "rendered": "error[E0004]: non-exhaustive patterns: `&[_, _, ..]` not covered\n   --> 01_core/src/compiler/stdlib/foundations/selector.rs:135:11\n    |\n135 |     match items {\n    |           ^^^^^ pattern `&[_, _, ..]` not covered\n    |\n    = note: the matched value is of type `&[entities::value::Value]`\nhelp: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown\n    |\n164 ~         [] => msg(format!(\"{}() requer 1 argumento (selector), recebeu {}\", func_name, items.len())),\n165 ~         &[_, _, ..] => todo!(),\n    |\n\n",
+            "$message_type": "diagnostic",
+            "children": [
+              {
+                "children": [],
+                "code": null,
+                "level": "note",
+                "message": "the matched value is of type `&[entities::value::Value]`",
+                "rendered": null,
+                "spans": []
+              },
+              {
+                "children": [],
+                "code": null,
+                "level": "help",
+                "message": "ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown",
+                "rendered": null,
+                "spans": [
+                  {
+                    "byte_end": 6858,
+                    "byte_start": 6858,
+                    "column_end": 101,
+                    "column_start": 101,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/foundations/selector.rs",
+                    "is_primary": true,
+                    "label": null,
+                    "line_end": 164,
+                    "line_start": 164,
+                    "suggested_replacement": ",\n        &[_, _, ..] => todo!()",
+                    "suggestion_applicability": "HasPlaceholders",
+                    "text": [
+                      {
+                        "highlight_end": 101,
+                        "highlight_start": 101,
+                        "text": "        [] => msg(format!(\"{}() requer 1 argumento (selector), recebeu {}\", func_name, items.len())),"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "level": "error",
+            "message": "non-exhaustive patterns: `&[_, _, ..]` not covered",
+            "spans": [
+              {
+                "byte_end": 5091,
+                "byte_start": 5086,
+                "column_end": 16,
+                "column_start": 11,
+                "expansion": null,
+                "file_name": "01_core/src/compiler/stdlib/foundations/selector.rs",
+                "is_primary": true,
+                "label": "pattern `&[_, _, ..]` not covered",
+                "line_end": 135,
+                "line_start": 135,
+                "suggested_replacement": null,
+                "suggestion_applicability": null,
+                "text": [
+                  {
+                    "highlight_end": 16,
+                    "highlight_start": 11,
+                    "text": "    match items {"
+                  }
+                ]
+              }
+            ],
+            "code": {
+              "code": "E0004",
+              "explanation": "This error indicates that the compiler cannot guarantee a matching pattern for\none or more possible inputs to a match expression. Guaranteed matches are\nrequired in order to assign values to match expressions, or alternatively,\ndetermine the flow of execution.\n\nErroneous code example:\n\n```compile_fail,E0004\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x { // error: non-exhaustive patterns: `HastaLaVistaBaby` not covered\n    Terminator::TalkToMyHand => {}\n}\n```\n\nIf you encounter this error you must alter your patterns so that every possible\nvalue of the input type is matched. For types with a small number of variants\n(like enums) you should probably cover all cases explicitly. Alternatively, the\nunderscore `_` wildcard pattern can be added after all other patterns to match\n\"anything else\". Example:\n\n```\nenum Terminator {\n    HastaLaVistaBaby,\n    TalkToMyHand,\n}\n\nlet x = Terminator::HastaLaVistaBaby;\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    Terminator::HastaLaVistaBaby => {}\n}\n\n// or:\n\nmatch x {\n    Terminator::TalkToMyHand => {}\n    _ => {}\n}\n```\n"
+            }
+          }
+        ]
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/compiler/stdlib/foundations/selector.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T20:41:57.907119+00:00",
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3989278720",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    },
+    "exit": 101,
+    "selected_e0004": 1,
+    "other_errors": [],
+    "error_count": 1
+  }
+]

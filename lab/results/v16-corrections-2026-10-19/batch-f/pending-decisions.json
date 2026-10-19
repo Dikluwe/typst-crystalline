@@ -1,0 +1,24 @@
+{
+  "utc": "2026-10-19T20:52:11.754540+00:00",
+  "V16-055": {
+    "status": "Design not ready for approval; productive owner unchanged",
+    "readiness": "fg1-proposal/readiness.md",
+    "counter_addendum": "fg1-proposal/counter-review-addendum.json",
+    "required_decisions": "Typed kind/presence, selection preview/final occurrence and shared counter history/callback lifecycle"
+  },
+  "V16-065": {
+    "status": "Concrete proposal independently reviewed; pending human approval; productive owner unchanged",
+    "review": "agents/geometry/circle-deferred/proposal/review.md",
+    "review_sha256": "5b7136bc18f419004113d8d83c9c54adb816e3b70389039aeeed35e1c6f772e8",
+    "package": "agents/geometry/circle-deferred/proposal/package-manifest.json",
+    "package_sha256": "b1f09615b75784cda995dec89426a488a6f5954d30687df73a16d4030e52add0",
+    "independent_review": "agents/adapters/circle-proposal-independent-review.json",
+    "gate": "ADR-0127 section2 items1 and4: new public ShapeOrigin type and required ShapeElem.origin field, mechanical literal migration, and explicitly scoped compatibility corrections",
+    "scope": "Preserve circle numeric/Length/Auto equivalence while distinguishing generic ellipse; retain full Length dimensions and reject malformed radius; automatic defaults and full Circle surfaces remain separate",
+    "supplemental_auto_measurement": {
+      "path": "circle-auto-preservation-probes.json",
+      "sha256": "a1c4e16a5590db4e65c77b81bf6597a6c63b78d31467643ee77d370772797ff6",
+      "meaning": "Confirms current Auto==zero equality is preserved local debt (oracle Auto!=0pt); omission differs from Auto. No full Auto parity claim."
+    }
+  }
+}

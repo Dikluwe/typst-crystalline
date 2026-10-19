@@ -1,5 +1,5 @@
 # L0 — compiler/stdlib/structural/outline — outline constructors and Entry surface
-Hash do Código: eaf9791f
+Hash do Código: f88e91b8
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/structural/outline.rs`
@@ -35,3 +35,27 @@ At end native_outline_entry_indented only, use ContextReadRequest::outline_entry
 Basic Outline default/title both forms/conflict/depth 2/0/wrong type/indent Bool/Length/target invalid/Lof/Lot defaults-errors remain; no upstream parity credit for aliases. Entry fields/repr/construction/body/nonoutlinable/cardinality/document order/source Location; prefix numbered/unnumbered/Page Roman I/missing Location; inner fill/nofill/strong Content/RTL; indented no parent/direct/query failure/Auto-fixed-callback/multilevel/key/RTL/None prefix/markers and show lexical snapshot, two outlines. Preserve known unresolved base approval, default differences/legacy fallback versus fail closed proposal and limited nonheading integration instead of inferring universal completion.
 
 Private arity RED too_many_arguments→GREEN no new suppressions, old expectations satisfied/replay bodies+values, existing Grid/Table/Outline/SVG tiling before/after and full workspace/build/all-target Clippy/Rustdoc/fmt/strict-reverse lineage/Tekt no new warnings, sequential, 12 GiB/swap 0/jobs 1. No carrier-mirroring tests/global parity/PDF/UA claim. Enum size RED/Clippy large_enum_variant, three selected spans→one code/two nominal satisfied expectations in their actual owners, not request blanket exemption; no Tag/Transformation public alteration. Preserve eight indented/context replay/callback pipeline controls/frozen hash+UTC/valid graph/restricted reseal.
+
+## Exhaustive private parent-indent decoding
+
+### Evidence before decision
+
+At baseline HEAD `91ea6ee911`, `compiler/stdlib/structural/outline.rs:427-446`
+reads private parent indent then parent key. The actual outline producer
+`compiler/eval/rules/outline.rs:106-142` encodes only Auto, Bool, Length and Func
+from the exhaustive OutlineIndent domain and restores lexical state afterward.
+These source observations describe the existing private schema, not proof that
+an arbitrary receiver or custom style creates genuine outline parenthood.
+
+### Contract and acceptance
+
+Only Auto, Bool, Length and Func decode to parent indent. Explicitly list all
+other current Value variants as invalid parent context, preserving the exact
+`must be called within the context of an outline` error, before independent Int
+parent-key validation. Never coerce None or another unsupported value to Auto,
+infer parent from receiver, execute Func early, or discard the parent key.
+Preserve argument/context checks, callback once(level minus one), prefix metrics,
+RTL/logical inset, hanging composition, observation/replay and lexical restoration.
+Test valid schema forms, absent/malformed indent/key, context-error order and
+callback result/error. An added Value must force a local exhaustiveness decision.
+This nominal internal correction follows ADR-0127 continuous flow.

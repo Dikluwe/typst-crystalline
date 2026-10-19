@@ -1,0 +1,42 @@
+[
+  {
+    "name": "new-tests-green",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "batch_f_",
+      "--",
+      "--test-threads=1"
+    ],
+    "expected_exit": 0
+  },
+  {
+    "name": "existing-adapter-green",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "p881_type_as_callable_mapeia_tipos_construtores",
+      "--",
+      "--test-threads=1"
+    ],
+    "expected_exit": 0
+  },
+  {
+    "name": "structural-green",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_f_structural.py",
+      "green"
+    ]
+  }
+]

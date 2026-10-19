@@ -1,5 +1,5 @@
 # L0 — Counter display
-Hash do Código: f18cc312
+Hash do Código: 7967c100
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/page-counter-snapshot.toml sha256:49304f0982abfe05ab825b90082a3448976340a8eacfeee2daa7c7a343013bde
@@ -106,3 +106,29 @@ the existing causal fallback without mixing partial input and another generation
 total. CounterAt/CounterFinal/CounterTotal replay uses that same resolution,
 including errors and empty state. Other keys remain unchanged. The older logical
 PageStore view cannot repair absent snapshots by inferring the final PDF.
+
+## Exhaustive numbering-style lookup
+
+### Evidence before decision
+
+At baseline HEAD `91ea6ee911`, `compiler/stdlib/counter/display.rs:124-133`
+uses string-specific, bare-Kind-specific and Page-specific style keys. Its final
+wildcard represents the eleven current non-Kind Selector forms, not an unknown
+CounterKey. `entities/selector.rs:28-79` defines those forms; `render:59-113`
+reads and observes the complete counter key before selecting a numbering style.
+This source measurement is structural evidence, not a claim of complete upstream
+counter parity.
+
+### Contract and acceptance
+
+Keep CounterKey exhaustive and decide inside Selector explicitly: Kind uses its
+lowercase kind numbering key; NativeElement, Element, Label, Location, And, Or,
+Regex, Where, Within, Before and After use `counter.numbering.pattern`. Preserve
+full selector identity for history, filtering and context replay; do not normalize
+these keys to a base Kind or change default discovery. String and Page keys retain
+their existing paths. Context/location/named-argument validation precedes reads;
+CounterAt/CounterTotal observations, explicit patterns and callbacks remain
+unchanged. Tests must distinguish kind versus generic style keys, preserve
+filtered identity and check context/errors/callback output. Require attributable
+future-Selector exhaustiveness failure at this nested decision. Internal nominal
+coverage follows ADR-0127 continuous flow with no public/default/phase change.

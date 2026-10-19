@@ -1,0 +1,184 @@
+{
+  "cases": [
+    {
+      "name": "html-autocapitalize-0",
+      "expression": "html.div(autocapitalize: true)[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "html-autocapitalize-1",
+      "expression": "html.div(autocapitalize: false)[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "html-autocapitalize-2",
+      "expression": "html.div(autocapitalize: none)[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "html-autocapitalize-3",
+      "expression": "html.div(autocapitalize: \"sentences\")[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "html-autocapitalize-4",
+      "expression": "html.div(autocapitalize: \"words\")[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "html-autocapitalize-5",
+      "expression": "html.div(autocapitalize: \"characters\")[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "html-autocapitalize-6",
+      "expression": "html.div(autocapitalize: \"invalid\")[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "html-autocapitalize-7",
+      "expression": "html.div(autocapitalize: 1)[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "html-autocapitalize-8",
+      "expression": "html.div(autocapitalize: [x])[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "html-hidden-0",
+      "expression": "html.div(hidden: true)[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "html-hidden-1",
+      "expression": "html.div(hidden: false)[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "html-hidden-2",
+      "expression": "html.div(hidden: \"until-found\")[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "html-hidden-3",
+      "expression": "html.div(hidden: \"invalid\")[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "html-hidden-4",
+      "expression": "html.div(hidden: none)[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "html-hidden-5",
+      "expression": "html.div(hidden: 1)[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "stroke-mixed",
+      "expression": "repr(stroke(dash: (2pt, \"dot\", 0pt)))",
+      "format": "json"
+    },
+    {
+      "name": "stroke-phase",
+      "expression": "repr(stroke(dash: (array: (2pt, \"dot\"), phase: 3pt)))",
+      "format": "json"
+    },
+    {
+      "name": "stroke-negative",
+      "expression": "repr(stroke(dash: (-1pt,)))",
+      "format": "json"
+    },
+    {
+      "name": "stroke-empty",
+      "expression": "repr(stroke(dash: ()))",
+      "format": "json"
+    },
+    {
+      "name": "stroke-wrong",
+      "expression": "repr(stroke(dash: (1,)))",
+      "format": "json"
+    },
+    {
+      "name": "stroke-nondot",
+      "expression": "repr(stroke(dash: (\"dash\",)))",
+      "format": "json"
+    },
+    {
+      "name": "stroke-em",
+      "expression": "repr(stroke(dash: (2em,)))",
+      "format": "json"
+    },
+    {
+      "name": "align-body",
+      "expression": "align[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "align-typed",
+      "expression": "align(center)[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "align-legacy",
+      "expression": "align(\"center\")[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "align-wrong-before",
+      "expression": "align(1, center)[x].fields()",
+      "format": "json"
+    },
+    {
+      "name": "yaml-empty",
+      "expression": "yaml.encode(((), (:)))",
+      "format": "json"
+    },
+    {
+      "name": "yaml-nested",
+      "expression": "yaml.encode((a: ((), (:), (1, 2)), b: (c: ()),))",
+      "format": "json"
+    },
+    {
+      "name": "yaml-scalar",
+      "expression": "yaml.encode((none, true, false, -2, -0.0, 1e20))",
+      "format": "json"
+    },
+    {
+      "name": "yaml-strings",
+      "expression": "yaml.encode((\"true\", \"\u00e9\", \"a\\nb\", \" leading\", \"a: b\"))",
+      "format": "json"
+    },
+    {
+      "name": "yaml-bytes",
+      "expression": "yaml.encode(bytes((65, 0, 66)))",
+      "format": "json"
+    },
+    {
+      "name": "yaml-raw",
+      "expression": "yaml.encode(raw(\"x\", block: false, lang: none))",
+      "format": "json"
+    },
+    {
+      "name": "yaml-caption",
+      "expression": "yaml.encode(figure.caption[x])",
+      "format": "json"
+    },
+    {
+      "name": "yaml-equation",
+      "expression": "yaml.encode(math.equation(numbering: none, alt: \"text\")[x])",
+      "format": "json"
+    },
+    {
+      "name": "math-accent",
+      "expression": "repr($hat(x)$)",
+      "format": "json"
+    },
+    {
+      "name": "math-cases",
+      "expression": "repr($cases(x,y)$)",
+      "format": "json"
+    }
+  ]
+}

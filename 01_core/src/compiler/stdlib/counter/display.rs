@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/counter/display.md
-//! @prompt-hash 664e311c
+//! @prompt-hash a36cf120
 //! @layer L1
 //! @updated 2026-10-05
 
@@ -125,11 +125,23 @@ pub(super) fn render(
             // Sem pattern na chain, mantém o join pré-P844.
             let pattern_key = match &counter.key {
                 CounterKey::Str(s) => format!("{}.numbering.pattern", s),
-                CounterKey::Selector(Selector::Kind(k)) => {
-                    format!("{:?}.numbering.pattern", k).to_lowercase()
-                }
+                CounterKey::Selector(selector) => match selector {
+                    Selector::Kind(kind) => {
+                        format!("{:?}.numbering.pattern", kind).to_lowercase()
+                    }
+                    Selector::NativeElement(..)
+                    | Selector::Element { .. }
+                    | Selector::Label(..)
+                    | Selector::Location(..)
+                    | Selector::And(..)
+                    | Selector::Or(..)
+                    | Selector::Regex(..)
+                    | Selector::Where { .. }
+                    | Selector::Within { .. }
+                    | Selector::Before { .. }
+                    | Selector::After { .. } => "counter.numbering.pattern".to_string(),
+                },
                 CounterKey::Page => "page.numbering.pattern".to_string(),
-                _ => "counter.numbering.pattern".to_string(),
             };
             let pattern = engine.styles.custom(&pattern_key).and_then(|v| match v {
                 Value::Str(s) => Some(s.to_string()),
@@ -207,5 +219,146 @@ mod tests {
             &mut Engine<'_>,
             Span,
         ) -> SourceResult<Value> = render;
+    }
+}
+
+#[cfg(test)]
+mod batch_f_tests {
+    use super::*;
+
+    #[derive(Default)]
+    struct TestWorld {
+        library: crate::entities::world_types::Library,
+        book: crate::entities::font_book::FontBook,
+    }
+    impl crate::contracts::world::World for TestWorld {
+        fn library(&self) -> &crate::entities::world_types::Library {
+            &self.library
+        }
+        fn book(&self) -> &crate::entities::font_book::FontBook {
+            &self.book
+        }
+        fn main(&self) -> crate::entities::file_id::FileId {
+            test_file()
+        }
+        fn source(
+            &self,
+            _: crate::entities::file_id::FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn file(
+            &self,
+            _: crate::entities::file_id::FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<crate::entities::world_types::Datetime> {
+            None
+        }
+    }
+    fn test_file() -> crate::entities::file_id::FileId {
+        crate::entities::file_id::FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+    }
+
+    fn with_engine<R>(
+        f: impl FnOnce(&mut crate::entities::engine::Engine<'_>) -> R,
+    ) -> R {
+        use comemo::Track;
+        let world = TestWorld::default();
+        let route = crate::entities::world_types::Route::root();
+        let mut styles = crate::entities::style_chain::StyleChain::default_chain();
+        let mut rules = std::sync::Arc::from([]);
+        let mut guards = Vec::new();
+        let mut sink_local = crate::entities::sink::Sink::new();
+        let mut sink = sink_local.track_mut();
+        let mut engine = crate::entities::engine::Engine {
+            world: &world,
+            font_metrics: &crate::compiler::layout::FixedMetrics,
+            route: route.track(),
+            styles: &mut styles,
+            show_rules: &mut rules,
+            active_guards: &mut guards,
+            current_file: test_file(),
+            sink: &mut sink,
+        };
+        f(&mut engine)
+    }
+
+    #[test]
+    fn batch_f_counter_numbering_keeps_kind_and_composite_keys_distinct() {
+        use crate::entities::element_kind::ElementKind;
+        use crate::entities::location::Location;
+        let kind = Selector::Kind(ElementKind::Heading);
+        let composite = Selector::Where {
+            base: Box::new(kind.clone()),
+            field: "level".into(),
+            value: Box::new(Value::Int(2)),
+        };
+        for (key, expected) in [
+            (CounterKey::Str("named".into()), "S2"),
+            (CounterKey::Selector(kind), "H2"),
+            (CounterKey::Selector(composite), "G2"),
+        ] {
+            with_engine(|engine| {
+                *engine.styles = engine
+                    .styles
+                    .push_custom("named.numbering.pattern", Value::Str("S1".into()))
+                    .push_custom("heading.numbering.pattern", Value::Str("H1".into()))
+                    .push_custom("counter.numbering.pattern", Value::Str("G1".into()));
+                let location = Location::from_raw(12);
+                let mut ctx = EvalContext::new();
+                ctx.in_context = true;
+                ctx.current_location = Some(location);
+                ctx.introspector.counters.apply_at(
+                    key.clone(),
+                    crate::entities::counter_update::CounterUpdate::Set(vec![2]),
+                    location,
+                );
+                let counter = Counter { key: key.clone() };
+                let result = render(
+                    &counter,
+                    &Args::positional(vec![]),
+                    &mut Scopes::new(None),
+                    &mut ctx,
+                    engine,
+                    Span::detached(),
+                )
+                .unwrap();
+                let Value::Content(content) = result else {
+                    panic!("expected content");
+                };
+                assert_eq!(content.plain_text(), expected);
+                assert_eq!(counter.key, key);
+            });
+        }
+    }
+    #[test]
+    fn batch_f_counter_context_error_precedes_named_validation() {
+        with_engine(|engine| {
+            let mut args = Args::positional(vec![]);
+            args.named.insert("bad".into(), Value::Bool(true));
+            let errors = render(
+                &Counter { key: CounterKey::Str("x".into()) },
+                &args,
+                &mut Scopes::new(None),
+                &mut EvalContext::new(),
+                engine,
+                Span::detached(),
+            )
+            .unwrap_err();
+            assert_eq!(
+                errors[0].message,
+                "counter.display() can only be used inside context"
+            );
+        });
     }
 }

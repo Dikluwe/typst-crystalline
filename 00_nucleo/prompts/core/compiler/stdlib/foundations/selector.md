@@ -1,5 +1,5 @@
 # L0 — stdlib/foundations/selector
-Hash do Código: ae2f7698
+Hash do Código: e38cf0e8
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:7e7373acce2b00247d18b9c5ea1b9d53833275997cd2c304e9d919d2cce10648
@@ -62,3 +62,25 @@ Later measured catalog refinement supersedes only the earlier no-other-native pr
 Preserve existing syntax/semantics/morphology/diagnostics/hints/spans/defaults/bindings/public identity and exact snapshot/observation boundaries. This consolidation changes no code/compatibility/public contract/product default/phase. The bare-selector approval covers carrier/construction/repr/equality/composition/locatability only. Cell show/body/fields/explicit-implicit realization/positions/padding/spans/header-footer/lexical scope require their separate measured owners and public/phase gates; subsequent independent approvals do not imply universal table parity. Preserve negative controls. Atomic materialization follows language-functional RED before safe static code,1:1/V26 before restricted manifest reseal/build/core suite/lint, and bare/where/true-alias equality/direct-composed query-counter/homonym/partial/closure revalidation, preserving Equation/query controls.
 
 For catalog refinement require functional RED→GREEN/bilateral controls, valid 1:1/pins before restricted reseal/build/workspace/strict Clippy/Rustdoc/fmt/strict-reverse lineage, sequential 12GiB/High8GiB/swap0/jobs1. debug 0/incremental0 is validation environment only; measured resources, not presumed product gain. Unrelated counter/realization/phase gaps retain separate gates.
+
+## Explicit query-selector arity partition
+
+### Evidence before decision
+
+At baseline HEAD `91ea6ee911`, `compiler/stdlib/foundations/selector.rs:130-172`
+handles all singleton values, including guarded Func/Str residuals, before the
+warned final fallback. Thus the fallback domain is slice cardinality zero or at
+least two, not a missing Value variant. Current-pin native selector observations
+are retained in `lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/baseline.json`;
+the legacy query/locate parser still has its own diagnostic and Regex boundary.
+
+### Contract and acceptance
+
+Express the final slice partition with empty and at-least-two patterns. Preserve
+all singleton conversions, the complete Selector clone, callback identity, spans,
+error text and actual argument-count interpolation. Tests cover zero, supported
+and unsupported singleton, two and many arguments and both query/locate names.
+The structural proof is the exhaustive slice partition plus these cases; adding
+a Value variant is not evidence about cardinality. Do not silently expand Regex
+or string-query semantics as part of this correction. This internal correction
+uses ADR-0127 continuous flow without new public contracts/defaults/phases.

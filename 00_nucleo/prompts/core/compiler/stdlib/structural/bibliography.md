@@ -1,5 +1,5 @@
 # L0 — stdlib/structural/bibliography
-Hash do Código: a658f30d
+Hash do Código: ab78a56c
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/structural/bibliography.rs`
@@ -17,3 +17,30 @@ bibliography preserves title/style/locale and registers the same entries. Omitte
 ## Acceptance
 
 Preserve syntax, semantics, morphology, diagnostics/hints/spans, bindings, defaults and identities. No productive code or compatibility change is authorized by this sanitation. Preserve pinned shared claims and exclusive ownership under ADR-0107, ADR-0108, ADR-0109, ADR-0127, ADR-0129 and ADR-0130.
+
+## Explicit optional locale extension
+
+### Evidence before decision
+
+At baseline HEAD `91ea6ee911`, `compiler/stdlib/structural/bibliography.rs:331-335`
+retains Str locale and projects None or every other Value to absent locale.
+The current pinned upstream BibliographyElem in
+`lab/typst-original/crates/typst-library/src/model/bibliography.rs:143-224`
+has no locale argument; text language/region supplies its locale at lines
+1098-1108. The bilateral `lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/baseline.json`
+confirms valid-source calls with supplied locale reject it as unexpected upstream,
+and missing-source errors precede locale rejection. Tekt's existing locale surface
+is therefore an extension, not a vanilla wrong-type cast to invent.
+
+### Contract and acceptance
+
+Keep this extension's current behavior explicitly: absent locale and every
+non-Str Value produce None; any Str is retained verbatim without validation or
+normalization. Enumerate the present Value variants exhaustively so future types
+require a new decision. Preserve source loading/parsing before locale projection
+and style resolution afterward, including failures and registration. Preserve
+pre-parsed entries, rooted paths, title, default ieee and explicit style none.
+Do not remove this extension or add validation in a V16 repair. Tests cover omitted,
+None, valid/invalid-looking strings, Bool/Int/Content and collection-valued locale,
+and source/style error precedence. A disposable new Value must produce E0004 at
+this decision. ADR-0127 continuous flow applies to nominal coverage only.

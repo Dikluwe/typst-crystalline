@@ -1,0 +1,568 @@
+{
+  "utc_start": "2026-10-19T20:20:17.284957+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "diff_head_stat": "",
+  "runner_sha256": "a87a7e126ec8d027212918f96160807310a611c4a933c89d42d82fc3a8bcffdb",
+  "binaries": {
+    "oracle": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+    },
+    "product": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+      "sha256": "44178e4fecc5c66cba3aa134f4d82290c6d53fb340dd5966b67eec45b737c914"
+    }
+  },
+  "cases": [
+    {
+      "name": "figure-synth-00",
+      "source": "#show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n#figure(table([A]))\n",
+      "source_sha256": "e2f531a3b3bb26d8cd42c2e6b8fda08e15d0de8a1c634f60b81848948d4e40a9",
+      "utc_start": "2026-10-19T20:20:17.511057+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-00.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"kind\":\"table\",\"kind-type\":\"function\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-00.typ` instead\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-00.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-00.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-00.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-synth-01",
+      "source": "#show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n#figure(raw(\"X\"))\n",
+      "source_sha256": "f70aaa3c830409999b6383e9f214a62e422c8aeb93b34c48172d723f7ab053ef",
+      "utc_start": "2026-10-19T20:20:17.533902+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-01.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"kind\":\"raw\",\"kind-type\":\"function\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-01.typ` instead\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-01.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-01.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-01.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-synth-02",
+      "source": "#show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n#figure([pre #table([A])])\n",
+      "source_sha256": "ccaba01ee32c7648948b906aad0a32d19847f6581cf50c67a34826620d4b309a",
+      "utc_start": "2026-10-19T20:20:17.555879+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-02.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"kind\":\"table\",\"kind-type\":\"function\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-02.typ` instead\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-02.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-02.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-02.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-synth-03",
+      "source": "#show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n#figure(strong(table([A])))\n",
+      "source_sha256": "b79089debac7b707fc117018c721686ee65e7f53d96f74eeecad32b853f184bf",
+      "utc_start": "2026-10-19T20:20:17.577146+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-03.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"kind\":\"table\",\"kind-type\":\"function\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-03.typ` instead\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-03.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-03.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-03.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-synth-04",
+      "source": "#show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n#figure(emph(raw(\"X\")))\n",
+      "source_sha256": "36cc56958cf7c00007b2d7772b20a7d3a95a777e238867a2008e5df65db19131",
+      "utc_start": "2026-10-19T20:20:17.597880+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-04.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"kind\":\"raw\",\"kind-type\":\"function\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-04.typ` instead\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-04.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-04.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-04.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-synth-05",
+      "source": "#show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n#figure(hide(table([A])))\n",
+      "source_sha256": "f29f0c909ff57950edb904bb79143c3b51aa908423536de66dccc2a92c539478",
+      "utc_start": "2026-10-19T20:20:17.621785+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-05.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"kind\":\"table\",\"kind-type\":\"function\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-05.typ` instead\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-05.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-05.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-05.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-synth-06",
+      "source": "#show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n#figure(box(table([A])))\n",
+      "source_sha256": "ecd980a774623aea2b1517c5d3804b856f2cb4caa7f775423d0e95d5941e4213",
+      "utc_start": "2026-10-19T20:20:17.643389+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-06.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"kind\":\"table\",\"kind-type\":\"function\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-06.typ` instead\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-06.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-06.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-06.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-synth-07",
+      "source": "#show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n#figure(block(table([A])))\n",
+      "source_sha256": "88e18ae1eb1d2e86066eeec11c0456a393d0936a92bece58461b8f0d4c33aeb6",
+      "utc_start": "2026-10-19T20:20:17.665811+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-07.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"kind\":\"table\",\"kind-type\":\"function\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-07.typ` instead\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-07.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-07.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-07.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-synth-08",
+      "source": "#show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n#figure(figure(table([A])))\n",
+      "source_sha256": "31ce5ffc2aef8fa5bc7318878605ef57b2740f72b3875456ef9fb026b61a8c39",
+      "utc_start": "2026-10-19T20:20:17.687305+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-08.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"kind\":\"table\",\"kind-type\":\"function\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-08.typ` instead\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-08.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-08.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-08.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-synth-09",
+      "source": "#show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n#figure([plain])\n",
+      "source_sha256": "7155789b21160f414e72da251a4a1ca48aba4424823c4d5f4e1ed622fb1b63e9",
+      "utc_start": "2026-10-19T20:20:17.708932+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-09.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"kind\":\"image\",\"kind-type\":\"function\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-09.typ` instead\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-09.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: figure does not have field \"kind\"\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-09.typ:1:46\n  \u2502\n1 \u2502 #show figure: it => [#metadata((kind: repr(it.kind), kind-type: repr(type(it.kind)))) <probe>]\n  \u2502                                               ^^^^\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/figure-synth-09.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-geometry-0-10pt",
+      "source": "#set text(size: 10pt)\n#context [#metadata(measure(circle(radius: 2pt))) <probe>]\n",
+      "source_sha256": "61537bd26cb6c352190ac6ff31348afa11a51de5f4f5c129cd0a5b7c56197bd4",
+      "utc_start": "2026-10-19T20:20:17.730767+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-0-10pt.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"width\":\"4pt\",\"height\":\"4pt\",\"baseline\":\"4pt\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-0-10pt.typ` instead\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-0-10pt.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"width\":\"4pt\",\"height\":\"4pt\",\"baseline\":\"4pt\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-0-10pt.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-geometry-0-20pt",
+      "source": "#set text(size: 20pt)\n#context [#metadata(measure(circle(radius: 2pt))) <probe>]\n",
+      "source_sha256": "56e229858713acc66fbd5e728c7ad88d7d65d50e426a0290181bf7fa972c3c4c",
+      "utc_start": "2026-10-19T20:20:18.325998+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-0-20pt.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"width\":\"4pt\",\"height\":\"4pt\",\"baseline\":\"4pt\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-0-20pt.typ` instead\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-0-20pt.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"width\":\"4pt\",\"height\":\"4pt\",\"baseline\":\"4pt\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-0-20pt.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-geometry-1-10pt",
+      "source": "#set text(size: 10pt)\n#context [#metadata(measure(circle(radius: 2em))) <probe>]\n",
+      "source_sha256": "4cc0dc63fa6c3185a0964b8d837e91e06abec2be3887fb1be3063aaadc6230f6",
+      "utc_start": "2026-10-19T20:20:18.917905+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-1-10pt.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"width\":\"40pt\",\"height\":\"40pt\",\"baseline\":\"40pt\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-1-10pt.typ` instead\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-1-10pt.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"width\":\"0pt\",\"height\":\"0pt\",\"baseline\":\"0pt\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-1-10pt.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-geometry-1-20pt",
+      "source": "#set text(size: 20pt)\n#context [#metadata(measure(circle(radius: 2em))) <probe>]\n",
+      "source_sha256": "1e1d8a5cba4ec81dea25d6069e19171129fb2538ec109e7837ed4ca7239c279b",
+      "utc_start": "2026-10-19T20:20:19.508365+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-1-20pt.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"width\":\"80pt\",\"height\":\"80pt\",\"baseline\":\"80pt\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-1-20pt.typ` instead\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-1-20pt.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"width\":\"0pt\",\"height\":\"0pt\",\"baseline\":\"0pt\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-1-20pt.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-geometry-2-10pt",
+      "source": "#set text(size: 10pt)\n#context [#metadata(measure(circle(radius: auto))) <probe>]\n",
+      "source_sha256": "161d574e6ba2af8a92984ec2a1791f5470393d78b64b9445c3ecf86a8a8a096e",
+      "utc_start": "2026-10-19T20:20:20.103840+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-2-10pt.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"width\":\"30pt\",\"height\":\"30pt\",\"baseline\":\"30pt\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-2-10pt.typ` instead\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-2-10pt.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"width\":\"0pt\",\"height\":\"0pt\",\"baseline\":\"0pt\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-2-10pt.typ` instead\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-geometry-2-20pt",
+      "source": "#set text(size: 20pt)\n#context [#metadata(measure(circle(radius: auto))) <probe>]\n",
+      "source_sha256": "f07541ab586f1b8d4309e7768599f6ac2513a6dea3ff996340ee69d2e249c155",
+      "utc_start": "2026-10-19T20:20:20.698958+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-2-20pt.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"width\":\"30pt\",\"height\":\"30pt\",\"baseline\":\"30pt\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-2-20pt.typ` instead\n\n"
+        },
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-2-20pt.typ",
+            "<probe>",
+            "--field",
+            "value"
+          ],
+          "returncode": 0,
+          "stdout": "[{\"width\":\"0pt\",\"height\":\"0pt\",\"baseline\":\"0pt\"}]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-query/circle-geometry-2-20pt.typ` instead\n\n"
+        }
+      }
+    }
+  ],
+  "utc_end": "2026-10-19T20:20:21.297863+00:00",
+  "diff_head_stat_after": " .../core/compiler/stdlib/collections/validation.md | 39 ++++++++++++++++++++++\n .../core/compiler/stdlib/counter/display.md        | 26 +++++++++++++++\n .../core/compiler/stdlib/foundations/selector.md   | 22 ++++++++++++\n .../compiler/stdlib/structural/bibliography.md     | 27 +++++++++++++++\n .../core/compiler/stdlib/structural/outline.md     | 24 +++++++++++++\n 5 files changed, 138 insertions(+)\n",
+  "binary_sha256_after": {
+    "oracle": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+    "product": "44178e4fecc5c66cba3aa134f4d82290c6d53fb340dd5966b67eec45b737c914"
+  }
+}

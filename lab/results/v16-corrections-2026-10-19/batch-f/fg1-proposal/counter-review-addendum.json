@@ -1,0 +1,13 @@
+{
+  "utc": "2026-10-19T20:44:43.949897+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "status": "not ready for approval; no active L0 or implementation authorized",
+  "bound": {
+    "lab/results/v16-corrections-2026-10-19/batch-f/fg1-proposal/readiness.md": "99023251e5e8c1c454ed696fa9b876c3db1e2659377daa9f03f88cc1422408a5",
+    "lab/results/v16-corrections-2026-10-19/batch-f/fg1-proposal/status.json": "063b10e0f234aed3183a361c8af12fd17ba7eef470390cd576d14efe368e6e0a",
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/fg1-counter-candidate.md": "51d950040107c6a7b0cbd3b52ca73fc52e05b15c1752388ad19564b83783190d",
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/fg1-counter-candidate.json": "c90696bae4be9b16c7dea2dfcfc79241851d9fbd3d6a20a04c027b5f0924706d"
+  },
+  "integration": "Read the independent counter candidate alongside readiness.md. It concretizes counted-occurrence index and per-kind demand, while identifying the unresolved shared generation, callback reuse and effect lifecycle. Existing preview/final synthesis, semantic field traversal and custom-name supplement blockers remain unchanged. The frozen design-draft is superseded wherever either review identifies incompleteness.",
+  "next_reviewable_boundary": "A future proposal must choose one exact history identity/lifecycle shared by explicit reads, contextual replay and final captions/references, then prove demand and effect preservation. Preview-before-filter followed by final resolution after show-set styles and explicit custom-name supplement transport remain necessary public/phase amendments. No generic typed-key substitution or one-pass synthesis may be approved as complete."
+}

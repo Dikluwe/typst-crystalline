@@ -1,0 +1,65 @@
+{
+  "utc": "2026-10-19T20:30:20.301277+00:00",
+  "targets": [
+    {
+      "id": "V16-053",
+      "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+      "function": "type_as_callable",
+      "baseline_anchor": "Some(match t {",
+      "green_anchor": "Some(match t {",
+      "domain": "Type",
+      "enum_file": "01_core/src/entities/value.rs",
+      "proof": "Add disposable Type sentinel; require E0004 primary span at this exact match, absent here in baseline.",
+      "green_anchor_line": 90,
+      "green_source_sha256": "450c3b0e30f32f45d9c6e344498ed9951d7a6ca065b65f10cf89de312fb8da91"
+    },
+    {
+      "id": "V16-054",
+      "file": "01_core/src/compiler/stdlib/counter/display.rs",
+      "function": "render",
+      "baseline_anchor": "let pattern_key = match &counter.key {",
+      "green_anchor": "CounterKey::Selector(selector) => match selector {",
+      "domain": "Selector nested in CounterKey",
+      "enum_file": "01_core/src/entities/selector.rs",
+      "proof": "Add disposable Selector sentinel; require E0004 at nested style decision, no such failure in baseline.",
+      "green_anchor_line": 128,
+      "green_source_sha256": "4348584b2fbe325c34e6400486757da4166a5f74a18fb7a5d3cdee647ce5a929"
+    },
+    {
+      "id": "V16-056",
+      "file": "01_core/src/compiler/stdlib/foundations/selector.rs",
+      "function": "parse_selector_arg",
+      "baseline_anchor": "match items {",
+      "green_anchor": "match items {",
+      "domain": "slice cardinality",
+      "proof": "Exhaustive [] / singleton [other] / [_, _, ..]. Functional zero/one/two/many with exact count/errors; no enum sentinel evidence claimed.",
+      "green_anchor_line": 135,
+      "green_source_sha256": "2873adb475672f2e7bb58286060097c0604967f9956040530a1cd71ea345ef43"
+    },
+    {
+      "id": "V16-067",
+      "file": "01_core/src/compiler/stdlib/structural/bibliography.rs",
+      "function": "native_bibliography",
+      "baseline_anchor": "let locale = args.named.get(\"locale\").and_then(|v| match v {",
+      "green_anchor": "let locale = args.named.get(\"locale\").and_then(|v| match v {",
+      "domain": "Value",
+      "enum_file": "01_core/src/entities/value.rs",
+      "proof": "Disposable Value sentinel requires E0004 at locale projection; baseline wildcard absorbs it.",
+      "green_anchor_line": 331,
+      "green_source_sha256": "17d7901e53f7a337b45b3a3a187e261fdf5169aade7d6379ff5c971fad67565f"
+    },
+    {
+      "id": "V16-070",
+      "file": "01_core/src/compiler/stdlib/structural/outline.rs",
+      "function": "native_outline_entry_indented",
+      "baseline_anchor": "match value {",
+      "context_anchor": "engine.styles.custom(\"outline.parent.indent\")",
+      "green_anchor": "match value {",
+      "domain": "Value",
+      "enum_file": "01_core/src/entities/value.rs",
+      "proof": "Disposable Value sentinel requires E0004 inside exact parent-indent decode; baseline wildcard absorbs it.",
+      "green_anchor_line": 429,
+      "green_source_sha256": "73244d422b3cbf984045ce7f54b5478847f69d53de414980fc15b2bc3e262613"
+    }
+  ]
+}

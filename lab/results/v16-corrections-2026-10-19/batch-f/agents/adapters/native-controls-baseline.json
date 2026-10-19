@@ -1,0 +1,309 @@
+{
+  "utc_start": "2026-10-19T20:28:29.487666+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "status": " M 00_nucleo/prompts/core/compiler/stdlib/collections.md\n M 00_nucleo/prompts/core/compiler/stdlib/collections/validation.md\n M 00_nucleo/prompts/core/compiler/stdlib/counter/display.md\n M 00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md\n M 00_nucleo/prompts/core/compiler/stdlib/html/attr_cast.md\n M 00_nucleo/prompts/core/compiler/stdlib/layout.md\n M 00_nucleo/prompts/core/compiler/stdlib/layout/grid.md\n M 00_nucleo/prompts/core/compiler/stdlib/layout/place.md\n M 00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md\n M 00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md\n M 00_nucleo/prompts/core/compiler/stdlib/loading/yaml_encode.md\n M 00_nucleo/prompts/core/compiler/stdlib/shapes/ellipse.md\n M 00_nucleo/prompts/core/compiler/stdlib/shapes/line.md\n M 00_nucleo/prompts/core/compiler/stdlib/structural/bibliography.md\n M 00_nucleo/prompts/core/compiler/stdlib/structural/math_accent_tests.md\n M 00_nucleo/prompts/core/compiler/stdlib/structural/math_cases_tests.md\n M 00_nucleo/prompts/core/compiler/stdlib/structural/outline.md\n M 00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md\n M 01_core/src/compiler/stdlib/collections.rs\n M 01_core/src/compiler/stdlib/collections/validation.rs\n M 01_core/src/compiler/stdlib/counter/display.rs\n M 01_core/src/compiler/stdlib/foundations/selector.rs\n M 01_core/src/compiler/stdlib/html/attr_cast.rs\n M 01_core/src/compiler/stdlib/layout.rs\n M 01_core/src/compiler/stdlib/layout/grid.rs\n M 01_core/src/compiler/stdlib/layout/place.rs\n M 01_core/src/compiler/stdlib/layout/stroke.rs\n M 01_core/src/compiler/stdlib/loading/encoding.rs\n M 01_core/src/compiler/stdlib/loading/yaml_encode.rs\n M 01_core/src/compiler/stdlib/shapes/ellipse.rs\n M 01_core/src/compiler/stdlib/shapes/line.rs\n M 01_core/src/compiler/stdlib/structural/bibliography.rs\n M 01_core/src/compiler/stdlib/structural/math_accent_tests.rs\n M 01_core/src/compiler/stdlib/structural/math_cases_tests.rs\n M 01_core/src/compiler/stdlib/structural/outline.rs\n M 01_core/src/compiler/stdlib/structural/table_grid.rs\n",
+  "diff_head_stat": " .../prompts/core/compiler/stdlib/collections.md    |  25 ++-\n .../core/compiler/stdlib/collections/validation.md |  41 ++++-\n .../core/compiler/stdlib/counter/display.md        |  28 ++-\n .../core/compiler/stdlib/foundations/selector.md   |  24 ++-\n .../prompts/core/compiler/stdlib/html/attr_cast.md |  37 +++-\n 00_nucleo/prompts/core/compiler/stdlib/layout.md   |  44 ++++-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  55 +++++-\n .../prompts/core/compiler/stdlib/layout/place.md   |  38 +++-\n .../prompts/core/compiler/stdlib/layout/stroke.md  |  38 +++-\n .../core/compiler/stdlib/loading/encoding.md       |  39 +++-\n .../core/compiler/stdlib/loading/yaml_encode.md    |  40 +++-\n .../prompts/core/compiler/stdlib/shapes/ellipse.md |  44 ++++-\n .../prompts/core/compiler/stdlib/shapes/line.md    |  41 ++++-\n .../compiler/stdlib/structural/bibliography.md     |  29 ++-\n .../stdlib/structural/math_accent_tests.md         |  39 +++-\n .../compiler/stdlib/structural/math_cases_tests.md |  39 +++-\n .../core/compiler/stdlib/structural/outline.md     |  26 ++-\n .../core/compiler/stdlib/structural/table_grid.md  |  36 +++-\n 01_core/src/compiler/stdlib/collections.rs         |   4 +-\n .../src/compiler/stdlib/collections/validation.rs  | 203 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/counter/display.rs     | 143 ++++++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |  67 ++++++-\n 01_core/src/compiler/stdlib/html/attr_cast.rs      |  79 +++++++-\n 01_core/src/compiler/stdlib/layout.rs              |  55 +++++-\n 01_core/src/compiler/stdlib/layout/grid.rs         | 152 ++++++++++++++-\n 01_core/src/compiler/stdlib/layout/place.rs        | 123 ++++++++++++-\n 01_core/src/compiler/stdlib/layout/stroke.rs       | 114 +++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    |  58 +++++-\n 01_core/src/compiler/stdlib/loading/yaml_encode.rs |  72 +++++++-\n 01_core/src/compiler/stdlib/shapes/ellipse.rs      | 100 +++++++++-\n 01_core/src/compiler/stdlib/shapes/line.rs         |  91 ++++++++-\n .../src/compiler/stdlib/structural/bibliography.rs |  99 +++++++++-\n .../stdlib/structural/math_accent_tests.rs         |  29 ++-\n .../compiler/stdlib/structural/math_cases_tests.rs |  28 ++-\n 01_core/src/compiler/stdlib/structural/outline.rs  | 176 +++++++++++++++++-\n .../src/compiler/stdlib/structural/table_grid.rs   |  64 ++++++-\n 36 files changed, 2281 insertions(+), 39 deletions(-)\n",
+  "build_receipt": {
+    "path": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/baseline-build-receipt.json",
+    "sha256": "1f610e073de9a97efc88eb7ea056f230677c5826589d057a289460d803b31870"
+  },
+  "runner_sha256": "5a8aaf32fa65ccb2686e6d634e02236b12635aaaa351fcdff83bcf62b7d0f1a9",
+  "binaries": {
+    "product": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+      "sha256": "44178e4fecc5c66cba3aa134f4d82290c6d53fb340dd5966b67eec45b737c914"
+    },
+    "oracle": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+    }
+  },
+  "cases": [
+    {
+      "name": "decimal-arity",
+      "expression": "decimal(\"2\", \"1\")",
+      "expression_sha256": "627edb2dcc4e7d51aaccf4509b1082f7db0e4ff951fcab75052d6c9335447e04",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "decimal(\"2\", \"1\")",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:28:29.800615+00:00",
+          "utc_end": "2026-10-19T20:28:29.813730+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: decimal(): requer 1 argumento, recebeu 2\n\n"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "decimal(\"2\", \"1\")",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:28:29.813746+00:00",
+          "utc_end": "2026-10-19T20:28:29.820282+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument\n  \u250c\u2500 <input-expression>:1:13\n  \u2502\n1 \u2502 decimal(\"2\", \"1\")\n  \u2502              ^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "array-invalid",
+      "expression": "array(1)",
+      "expression_sha256": "7928a8e6ad9ef1aa605a7202777c3e5e96ad0600106da05cb1e76acbc45612d1",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "array(1)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:28:29.820597+00:00",
+          "utc_end": "2026-10-19T20:28:29.833430+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: type array does not have a constructor\n  \u250c\u2500 <input-expression>:1:0\n  \u2502\n1 \u2502 array(1)\n  \u2502 ^^^^^\n\n"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "array(1)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:28:29.833447+00:00",
+          "utc_end": "2026-10-19T20:28:29.840265+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected array, bytes, or version, found integer\n  \u250c\u2500 <input-expression>:1:6\n  \u2502\n1 \u2502 array(1)\n  \u2502       ^\n\n"
+        }
+      }
+    },
+    {
+      "name": "decimal-invalid",
+      "expression": "decimal(\"bad\")",
+      "expression_sha256": "ba319e0bacdbdeea15bc735686b6ec0be5db2f8a9ff92b9f364bc67835bb559e",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "decimal(\"bad\")",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:28:29.840646+00:00",
+          "utc_end": "2026-10-19T20:28:29.854166+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: decimal(): string inv\u00e1lida: 'bad'\n\n"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "decimal(\"bad\")",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:28:29.854187+00:00",
+          "utc_end": "2026-10-19T20:28:29.860619+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: invalid decimal: bad\n  \u250c\u2500 <input-expression>:1:8\n  \u2502\n1 \u2502 decimal(\"bad\")\n  \u2502         ^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "selector-invalid",
+      "expression": "selector(1)",
+      "expression_sha256": "2225138988ad5f0d86f69fb8654056755434d680c88e883bd8b7be7b64121816",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "selector(1)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:28:29.938025+00:00",
+          "utc_end": "2026-10-19T20:28:29.951318+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: selector(): argumento inv\u00e1lido (int)\n\n"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "selector(1)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:28:29.951334+00:00",
+          "utc_end": "2026-10-19T20:28:29.958396+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected string, function, label, regex, location, or selector, found integer\n  \u250c\u2500 <input-expression>:1:9\n  \u2502\n1 \u2502 selector(1)\n  \u2502          ^\n\n"
+        }
+      }
+    },
+    {
+      "name": "spot-shortcut",
+      "expression": "color.spot(red) == color.spot(red)",
+      "expression_sha256": "c8da388a755db35c05ee0ae23b900d488b3db209c5936beda840c0b8c8b192e8",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "color.spot(red) == color.spot(red)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:28:29.958860+00:00",
+          "utc_end": "2026-10-19T20:28:29.972629+00:00",
+          "returncode": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "color.spot(red) == color.spot(red)",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:28:29.972647+00:00",
+          "utc_end": "2026-10-19T20:28:29.979747+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected \"all\", string, or none, found color\n  \u250c\u2500 <input-expression>:1:11\n  \u2502\n1 \u2502 color.spot(red) == color.spot(red)\n  \u2502            ^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "spot-lazy",
+      "expression": "().map(x => color.spot(x)) == ()",
+      "expression_sha256": "6f41ab12f9e202550e5586b7cb653190b2cec7490443d0af25e3f13c58005791",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "().map(x => color.spot(x)) == ()",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:28:29.980175+00:00",
+          "utc_end": "2026-10-19T20:28:29.993205+00:00",
+          "returncode": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "().map(x => color.spot(x)) == ()",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:28:29.993220+00:00",
+          "utc_end": "2026-10-19T20:28:29.999871+00:00",
+          "returncode": 0,
+          "stdout": "true\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "by-version",
+      "expression": "(2,1).sorted(by: (a,b) => version(a,b))",
+      "expression_sha256": "d978e1da9b0d6f0d2ac1a820c54da1acaaabd144a17fd771fdbfb1b7a0c6d56e",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(2,1).sorted(by: (a,b) => version(a,b))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:28:30.000307+00:00",
+          "utc_end": "2026-10-19T20:28:30.013810+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected boolean, found version\n  \u250c\u2500 <input-expression>:1:12\n  \u2502\n1 \u2502 (2,1).sorted(by: (a,b) => version(a,b))\n  \u2502             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(2,1).sorted(by: (a,b) => version(a,b))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:28:30.013826+00:00",
+          "utc_end": "2026-10-19T20:28:30.020873+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected boolean from `by` function, got version\n  \u250c\u2500 <input-expression>:1:0\n  \u2502\n1 \u2502 (2,1).sorted(by: (a,b) => version(a,b))\n  \u2502 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "by-arguments",
+      "expression": "(2,1).sorted(by: (a,b) => arguments(a,b))",
+      "expression_sha256": "1bfa5499508467b7f9dafe714903ed9cd8be3edfd12ab39c6686a711e13b3106",
+      "results": {
+        "product": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "eval",
+            "(2,1).sorted(by: (a,b) => arguments(a,b))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:28:30.021337+00:00",
+          "utc_end": "2026-10-19T20:28:30.034525+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected boolean, found arguments\n  \u250c\u2500 <input-expression>:1:12\n  \u2502\n1 \u2502 (2,1).sorted(by: (a,b) => arguments(a,b))\n  \u2502             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        },
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "(2,1).sorted(by: (a,b) => arguments(a,b))",
+            "--format",
+            "json"
+          ],
+          "utc_start": "2026-10-19T20:28:30.034551+00:00",
+          "utc_end": "2026-10-19T20:28:30.041017+00:00",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected boolean from `by` function, got arguments\n  \u250c\u2500 <input-expression>:1:0\n  \u2502\n1 \u2502 (2,1).sorted(by: (a,b) => arguments(a,b))\n  \u2502 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        }
+      }
+    }
+  ],
+  "utc_end": "2026-10-19T20:28:30.041586+00:00",
+  "binaries_after": {
+    "product": "44178e4fecc5c66cba3aa134f4d82290c6d53fb340dd5966b67eec45b737c914",
+    "oracle": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+  },
+  "diff_head_stat_after": " .../prompts/core/compiler/stdlib/collections.md    |  25 ++-\n .../core/compiler/stdlib/collections/validation.md |  41 ++++-\n .../core/compiler/stdlib/counter/display.md        |  28 ++-\n .../core/compiler/stdlib/foundations/selector.md   |  24 ++-\n .../prompts/core/compiler/stdlib/html/attr_cast.md |  37 +++-\n 00_nucleo/prompts/core/compiler/stdlib/layout.md   |  44 ++++-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  55 +++++-\n .../prompts/core/compiler/stdlib/layout/place.md   |  38 +++-\n .../prompts/core/compiler/stdlib/layout/stroke.md  |  38 +++-\n .../core/compiler/stdlib/loading/encoding.md       |  39 +++-\n .../core/compiler/stdlib/loading/yaml_encode.md    |  40 +++-\n .../prompts/core/compiler/stdlib/shapes/ellipse.md |  44 ++++-\n .../prompts/core/compiler/stdlib/shapes/line.md    |  41 ++++-\n .../compiler/stdlib/structural/bibliography.md     |  29 ++-\n .../stdlib/structural/math_accent_tests.md         |  39 +++-\n .../compiler/stdlib/structural/math_cases_tests.md |  39 +++-\n .../core/compiler/stdlib/structural/outline.md     |  26 ++-\n .../core/compiler/stdlib/structural/table_grid.md  |  36 +++-\n 01_core/src/compiler/stdlib/collections.rs         |   4 +-\n .../src/compiler/stdlib/collections/validation.rs  | 203 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/counter/display.rs     | 143 ++++++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |  67 ++++++-\n 01_core/src/compiler/stdlib/html/attr_cast.rs      |  79 +++++++-\n 01_core/src/compiler/stdlib/layout.rs              |  55 +++++-\n 01_core/src/compiler/stdlib/layout/grid.rs         | 152 ++++++++++++++-\n 01_core/src/compiler/stdlib/layout/place.rs        | 123 ++++++++++++-\n 01_core/src/compiler/stdlib/layout/stroke.rs       | 114 +++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    |  58 +++++-\n 01_core/src/compiler/stdlib/loading/yaml_encode.rs |  72 +++++++-\n 01_core/src/compiler/stdlib/shapes/ellipse.rs      | 100 +++++++++-\n 01_core/src/compiler/stdlib/shapes/line.rs         |  91 ++++++++-\n .../src/compiler/stdlib/structural/bibliography.rs |  99 +++++++++-\n .../stdlib/structural/math_accent_tests.rs         |  29 ++-\n .../compiler/stdlib/structural/math_cases_tests.rs |  28 ++-\n 01_core/src/compiler/stdlib/structural/outline.rs  | 176 +++++++++++++++++-\n .../src/compiler/stdlib/structural/table_grid.rs   |  64 ++++++-\n 36 files changed, 2281 insertions(+), 39 deletions(-)\n"
+}

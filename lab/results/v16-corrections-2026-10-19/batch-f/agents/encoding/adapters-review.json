@@ -1,0 +1,33 @@
+{
+  "utc": "2026-10-19T20:34:33.243272+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "diff_head_stat": " .../prompts/core/compiler/stdlib/collections.md    |  25 +-\n .../core/compiler/stdlib/collections/validation.md |  41 +++-\n .../core/compiler/stdlib/counter/display.md        |  28 ++-\n .../core/compiler/stdlib/foundations/selector.md   |  24 +-\n .../prompts/core/compiler/stdlib/html/attr_cast.md |  37 ++-\n 00_nucleo/prompts/core/compiler/stdlib/layout.md   |  44 +++-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  55 ++++-\n .../prompts/core/compiler/stdlib/layout/place.md   |  38 ++-\n .../prompts/core/compiler/stdlib/layout/stroke.md  |  38 ++-\n .../core/compiler/stdlib/loading/encoding.md       |  39 +++-\n .../core/compiler/stdlib/loading/yaml_encode.md    |  40 +++-\n .../prompts/core/compiler/stdlib/shapes/ellipse.md |  44 +++-\n .../prompts/core/compiler/stdlib/shapes/line.md    |  41 +++-\n .../compiler/stdlib/structural/bibliography.md     |  29 ++-\n .../stdlib/structural/math_accent_tests.md         |  39 +++-\n .../compiler/stdlib/structural/math_cases_tests.md |  39 +++-\n .../core/compiler/stdlib/structural/outline.md     |  26 ++-\n .../core/compiler/stdlib/structural/table_grid.md  |  36 ++-\n 01_core/src/compiler/stdlib/collections.rs         |   4 +-\n .../src/compiler/stdlib/collections/validation.rs  | 249 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/counter/display.rs     | 163 ++++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |  69 +++++-\n 01_core/src/compiler/stdlib/html/attr_cast.rs      | 156 ++++++++++++-\n 01_core/src/compiler/stdlib/layout.rs              |  93 +++++++-\n 01_core/src/compiler/stdlib/layout/grid.rs         | 259 +++++++++++++++++++--\n 01_core/src/compiler/stdlib/layout/place.rs        | 195 +++++++++++++++-\n 01_core/src/compiler/stdlib/layout/stroke.rs       | 154 +++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 173 +++++++++++++-\n 01_core/src/compiler/stdlib/loading/yaml_encode.rs | 169 +++++++++++---\n 01_core/src/compiler/stdlib/shapes/ellipse.rs      | 163 ++++++++++++-\n 01_core/src/compiler/stdlib/shapes/line.rs         | 165 ++++++++++++-\n .../src/compiler/stdlib/structural/bibliography.rs | 137 ++++++++++-\n .../stdlib/structural/math_accent_tests.rs         | 144 +++++++++++-\n .../compiler/stdlib/structural/math_cases_tests.rs | 143 +++++++++++-\n 01_core/src/compiler/stdlib/structural/outline.rs  | 212 ++++++++++++++++-\n .../src/compiler/stdlib/structural/table_grid.rs   |  76 +++++-\n 36 files changed, 3265 insertions(+), 122 deletions(-)\n",
+  "reviewed_files": {
+    "01_core/src/compiler/stdlib/collections.rs": "95e8c5ad75bd5c22e7754ea3094a70deac25dbb5e852fc6c5b961c041e56febd",
+    "00_nucleo/prompts/core/compiler/stdlib/collections.md": "4565d263d1dfb761b2f33bd9df2c8f3f9f8e8cf5b265913214e502f702c76065",
+    "01_core/src/compiler/stdlib/collections/validation.rs": "450c3b0e30f32f45d9c6e344498ed9951d7a6ca065b65f10cf89de312fb8da91",
+    "00_nucleo/prompts/core/compiler/stdlib/collections/validation.md": "b786efc58db15c3998aa1be030b7fba99a147efe0c745091a26b239b78870ade",
+    "01_core/src/compiler/stdlib/counter/display.rs": "4348584b2fbe325c34e6400486757da4166a5f74a18fb7a5d3cdee647ce5a929",
+    "00_nucleo/prompts/core/compiler/stdlib/counter/display.md": "1aed460147090ef96128959a2a78b861f3569cc8525669cd26964e121982bf02",
+    "01_core/src/compiler/stdlib/foundations/selector.rs": "2873adb475672f2e7bb58286060097c0604967f9956040530a1cd71ea345ef43",
+    "00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md": "e69b6453915cf07a9a19ef533982c52ab87c714dc810d8824c7ac26f632d53ad",
+    "01_core/src/compiler/stdlib/structural/bibliography.rs": "17d7901e53f7a337b45b3a3a187e261fdf5169aade7d6379ff5c971fad67565f",
+    "00_nucleo/prompts/core/compiler/stdlib/structural/bibliography.md": "68f887871461a581b74cdbf40ea2ca00de37a9c6b03a2b2db3887d9a47bb533c",
+    "01_core/src/compiler/stdlib/structural/outline.rs": "73244d422b3cbf984045ce7f54b5478847f69d53de414980fc15b2bc3e262613",
+    "00_nucleo/prompts/core/compiler/stdlib/structural/outline.md": "b3c9ee6e82b2e7c002d46fcf750d106f48b7e01dc248d1ab44828ed9eb45b74a"
+  },
+  "scope": "Independent source-diff and full six-owner review of adapters implementation; no local Cargo or source edits.",
+  "findings": [],
+  "checks": [
+    "Constructor mapping delegates eleven admitted Type forms to existing callbacks; Arguments clone preserves full causal carrier and direct invoke.rs returns the same Args shape. Path/Dictionary residual is explicit, not silently granted.",
+    "CounterKey preserves outer exhaustive decision and nested Selector complement; no key normalization or read order change.",
+    "Selector parser final [] or two-or-more preserves every singleton guarded/residual branch and count diagnostic.",
+    "Bibliography locale preserves documented Tekt extension; no fabricated vanilla cast validation.",
+    "Outline parent indent retains Auto/Bool/Length/Func, rejects explicit nominal complement through same parent-context error, and preserves later key validation/callback placement.",
+    "Historical Array test reversal is specifically measured and authorized by own L0; remaining old assertions stay."
+  ],
+  "limits": [
+    "Parent must confirm focused/full GREEN, structural E0004 and strict bilateral replay; source review is not execution proof.",
+    "New Arguments tests cover positional use; complete Args clone preservation is additionally source-reviewed, not a claim that each named/occurrence fixture ran."
+  ]
+}

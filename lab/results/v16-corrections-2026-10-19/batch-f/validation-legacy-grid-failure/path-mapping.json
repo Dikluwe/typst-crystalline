@@ -1,0 +1,5 @@
+{
+  "validation": "validation-legacy-grid-failure",
+  "validation-run": "validation-run-legacy-grid-failure",
+  "reason": "Archive failed full run before a fresh complete accepted run; relative historical command output paths refer to this archived attempt."
+}

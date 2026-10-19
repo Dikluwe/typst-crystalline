@@ -1,0 +1,16 @@
+{
+  "utc": "2026-10-19T21:40:03.908829+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "state": {
+    "path": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/validation/validation-state.json.gz",
+    "sha256": "601b76369c3d06d2ebe34d395c49a006817f700a0eab66dd9f32b0a8a195e58c"
+  },
+  "commands": {
+    "path": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/validation/validation-commands.json",
+    "sha256": "3252100892f0ec122e8a205ea5012b94e9bb134598fa0411b693b077d3323ee9"
+  },
+  "product": {
+    "path": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+    "sha256": "91898978c17a05660c1d7ecd50706bbc55d3019cd0bcb544f90d8c796381baac"
+  }
+}

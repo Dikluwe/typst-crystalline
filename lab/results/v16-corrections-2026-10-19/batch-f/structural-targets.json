@@ -1,0 +1,215 @@
+[
+  {
+    "id": "V16-053",
+    "file": "01_core/src/compiler/stdlib/collections/validation.rs",
+    "domain": "Type",
+    "baseline": {
+      "after": "fn type_as_callable(",
+      "anchor": "match t {"
+    },
+    "green": {
+      "after": "fn type_as_callable(",
+      "anchor": "match t {"
+    }
+  },
+  {
+    "id": "V16-054",
+    "file": "01_core/src/compiler/stdlib/counter/display.rs",
+    "domain": "CounterKey,Selector",
+    "baseline": {
+      "after": "let pattern_key =",
+      "anchor": "match &counter.key {"
+    },
+    "green": {
+      "after": "let pattern_key =",
+      "anchor": "match &counter.key {"
+    }
+  },
+  {
+    "id": "V16-057",
+    "file": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+    "domain": "Value",
+    "baseline": {
+      "after": "AttrKind::OnOffOrNoneOrEnum(values) =>",
+      "anchor": "match value {"
+    },
+    "green": {
+      "after": "AttrKind::OnOffOrNoneOrEnum(values) =>",
+      "anchor": "match value {"
+    }
+  },
+  {
+    "id": "V16-058",
+    "file": "01_core/src/compiler/stdlib/html/attr_cast.rs",
+    "domain": "Value",
+    "baseline": {
+      "after": "AttrKind::PresenceOr(values) =>",
+      "anchor": "match value {"
+    },
+    "green": {
+      "after": "AttrKind::PresenceOr(values) =>",
+      "anchor": "match value {"
+    }
+  },
+  {
+    "id": "V16-059",
+    "file": "01_core/src/compiler/stdlib/layout/grid.rs",
+    "domain": "Value",
+    "baseline": {
+      "after": "fn parse_track_sizing(",
+      "anchor": "match val {"
+    },
+    "green": {
+      "after": "fn parse_track_sizing(",
+      "anchor": "match val {"
+    }
+  },
+  {
+    "id": "V16-060",
+    "file": "01_core/src/compiler/stdlib/layout/place.rs",
+    "domain": "Value",
+    "baseline": {
+      "after": "fn extract_pt(",
+      "anchor": "match val {"
+    },
+    "green": {
+      "after": "fn extract_pt(",
+      "anchor": "match val {"
+    }
+  },
+  {
+    "id": "V16-061",
+    "file": "01_core/src/compiler/stdlib/layout/stroke.rs",
+    "domain": "Value",
+    "baseline": {
+      "after": "fn dash_item(",
+      "anchor": "match value {"
+    },
+    "green": {
+      "after": "fn dash_item(",
+      "anchor": "match value {"
+    }
+  },
+  {
+    "id": "V16-062",
+    "file": "01_core/src/compiler/stdlib/layout.rs",
+    "domain": "Value",
+    "baseline": {
+      "after": "fn extract_alignment(",
+      "anchor": "match v {"
+    },
+    "green": {
+      "after": "fn extract_alignment(",
+      "anchor": "match v {"
+    }
+  },
+  {
+    "id": "V16-063",
+    "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+    "domain": "Content",
+    "baseline": {
+      "after": "// Campos de payload cuja presen\u00e7a \u00e9 estrutural.",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "// Campos de payload cuja presen\u00e7a \u00e9 estrutural.",
+      "anchor": "match content {"
+    }
+  },
+  {
+    "id": "V16-064",
+    "file": "01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+    "domain": "Value",
+    "baseline": {
+      "after": "fn write_yaml_value(",
+      "anchor": "match value {"
+    },
+    "green": {
+      "after": "fn write_yaml_value(",
+      "anchor": "match value {"
+    }
+  },
+  {
+    "id": "V16-066",
+    "file": "01_core/src/compiler/stdlib/shapes/line.rs",
+    "domain": "Value",
+    "baseline": {
+      "after": "fn extract_pt(",
+      "anchor": "match val {"
+    },
+    "green": {
+      "after": "fn extract_pt(",
+      "anchor": "match val {"
+    }
+  },
+  {
+    "id": "V16-067",
+    "file": "01_core/src/compiler/stdlib/structural/bibliography.rs",
+    "domain": "Value",
+    "baseline": {
+      "after": "let locale =",
+      "anchor": "match v {"
+    },
+    "green": {
+      "after": "let locale =",
+      "anchor": "match v {"
+    }
+  },
+  {
+    "id": "V16-068",
+    "file": "01_core/src/compiler/stdlib/structural/math_accent_tests.rs",
+    "domain": "Content",
+    "baseline": {
+      "after": "fn find_accent(",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "fn find_accent(",
+      "anchor": "match content {"
+    }
+  },
+  {
+    "id": "V16-069",
+    "file": "01_core/src/compiler/stdlib/structural/math_cases_tests.rs",
+    "domain": "Content",
+    "baseline": {
+      "after": "fn find_cases(",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "fn find_cases(",
+      "anchor": "match content {"
+    }
+  },
+  {
+    "id": "V16-070",
+    "file": "01_core/src/compiler/stdlib/structural/outline.rs",
+    "domain": "Value",
+    "baseline": {
+      "after": "let Some(indent) =",
+      "anchor": "match value {"
+    },
+    "green": {
+      "after": "let Some(indent) =",
+      "anchor": "match value {"
+    }
+  },
+  {
+    "id": "V16-054-selector",
+    "file": "01_core/src/compiler/stdlib/counter/display.rs",
+    "domain": "Selector",
+    "green": {
+      "after": "CounterKey::Selector(selector) =>",
+      "anchor": "match selector {"
+    }
+  },
+  {
+    "id": "V16-059-extract-tracks-rejection",
+    "file": "01_core/src/compiler/stdlib/layout/grid.rs",
+    "domain": "Value",
+    "green": {
+      "after": "fn extract_tracks(",
+      "anchor": "match value {"
+    }
+  }
+]

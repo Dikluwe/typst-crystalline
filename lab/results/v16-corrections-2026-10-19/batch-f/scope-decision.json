@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-19T20:23:25.144506+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "pending": {
+    "V16-055": "Current Figure L0 and historical FG1 explicitly retain inference V16 until typed-kind/public carrier/phase proposal; nominal terminal classification is forbidden. No productive Figure edit or false closure."
+  },
+  "added_owners": {
+    "table_grid": "Only other caller of crate-private extract_tracks: coordinated fallible validation propagation, no externally exported API or entity signature change.",
+    "collections": "Existing adapter test rejects Array; change only measured obsolete Array rejection, retain old positive and Bool/Length negative expectations."
+  },
+  "contract_classification": "Internal crate-private helper and measured constructor/geometry/parity corrections under ADR-0127 continuous flow. FG1 public evolution requires separate concrete proposal and approval."
+}

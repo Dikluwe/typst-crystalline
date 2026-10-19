@@ -1,0 +1,2843 @@
+{
+  "utc_start": "2026-10-19T20:18:13.107753+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "diff_head_stat": "",
+  "status": "",
+  "runner_sha256": "7877260afe62033e29761b005d30c639a0489de1c513d668dd6bbb93fd5b8715",
+  "binaries": {
+    "oracle": {
+      "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+    }
+  },
+  "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+  "cases": [
+    {
+      "name": "grid-columns-000",
+      "expression": "{ let x = grid(columns: none, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.270413+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: none, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, fraction, integer, or array, found none\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 { let x = grid(columns: none, [X]); repr(x) }\n  \u2502                         ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-columns-001",
+      "expression": "{ let x = grid(columns: auto, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.277887+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: auto, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(columns: (auto,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-columns-002",
+      "expression": "{ let x = grid(columns: true, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.284386+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: true, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, fraction, integer, or array, found boolean\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 { let x = grid(columns: true, [X]); repr(x) }\n  \u2502                         ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-columns-003",
+      "expression": "{ let x = grid(columns: \"bad\", [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.290979+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: \"bad\", [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, fraction, integer, or array, found string\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 { let x = grid(columns: \"bad\", [X]); repr(x) }\n  \u2502                         ^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-columns-004",
+      "expression": "{ let x = grid(columns: \"auto\", [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.298459+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: \"auto\", [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, fraction, integer, or array, found string\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 { let x = grid(columns: \"auto\", [X]); repr(x) }\n  \u2502                         ^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-columns-005",
+      "expression": "{ let x = grid(columns: 0, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.305793+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: 0, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: number must be positive\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 { let x = grid(columns: 0, [X]); repr(x) }\n  \u2502                         ^\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-columns-006",
+      "expression": "{ let x = grid(columns: -1, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.312072+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: -1, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: number must be positive\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 { let x = grid(columns: -1, [X]); repr(x) }\n  \u2502                         ^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-columns-007",
+      "expression": "{ let x = grid(columns: 1, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.319011+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: 1, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(columns: (auto,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-columns-008",
+      "expression": "{ let x = grid(columns: 1.5, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.326841+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: 1.5, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, fraction, integer, or array, found float\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 { let x = grid(columns: 1.5, [X]); repr(x) }\n  \u2502                         ^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-columns-009",
+      "expression": "{ let x = grid(columns: 0pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.334572+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: 0pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(columns: (0% + 0pt,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-columns-010",
+      "expression": "{ let x = grid(columns: -1pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.340866+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: -1pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(\\n  columns: (0% + -1pt,),\\n  children: (cell(body: [X]),),\\n)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-columns-011",
+      "expression": "{ let x = grid(columns: 2pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.347051+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: 2pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(columns: (0% + 2pt,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-columns-012",
+      "expression": "{ let x = grid(columns: 2em, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.354297+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: 2em, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(columns: (0% + 2em,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-columns-013",
+      "expression": "{ let x = grid(columns: 20%, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.360615+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: 20%, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(\\n  columns: (20% + 0pt,),\\n  children: (cell(body: [X]),),\\n)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-columns-014",
+      "expression": "{ let x = grid(columns: 20% + 2pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.366636+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: 20% + 2pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(\\n  columns: (20% + 2pt,),\\n  children: (cell(body: [X]),),\\n)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-columns-015",
+      "expression": "{ let x = grid(columns: 1fr, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.373718+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: 1fr, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(columns: (1fr,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-columns-016",
+      "expression": "{ let x = grid(columns: (), [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.380648+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: (), [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(columns: (), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-columns-017",
+      "expression": "{ let x = grid(columns: (1pt, true, 2pt), [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.387176+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: (1pt, true, 2pt), [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, or fraction, found boolean\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 { let x = grid(columns: (1pt, true, 2pt), [X]); repr(x) }\n  \u2502                         ^^^^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-columns-018",
+      "expression": "{ let x = grid(columns: (auto, 1fr, 2pt), [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.393256+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(columns: (auto, 1fr, 2pt), [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(\\n  columns: (auto, 1fr, 0% + 2pt),\\n  children: (cell(body: [X]),),\\n)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-rows-019",
+      "expression": "{ let x = grid(rows: none, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.400756+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: none, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, fraction, integer, or array, found none\n  \u250c\u2500 <input-expression>:1:21\n  \u2502\n1 \u2502 { let x = grid(rows: none, [X]); repr(x) }\n  \u2502                      ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-rows-020",
+      "expression": "{ let x = grid(rows: auto, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.407319+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: auto, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(rows: (auto,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-rows-021",
+      "expression": "{ let x = grid(rows: true, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.413206+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: true, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, fraction, integer, or array, found boolean\n  \u250c\u2500 <input-expression>:1:21\n  \u2502\n1 \u2502 { let x = grid(rows: true, [X]); repr(x) }\n  \u2502                      ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-rows-022",
+      "expression": "{ let x = grid(rows: \"bad\", [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.420302+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: \"bad\", [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, fraction, integer, or array, found string\n  \u250c\u2500 <input-expression>:1:21\n  \u2502\n1 \u2502 { let x = grid(rows: \"bad\", [X]); repr(x) }\n  \u2502                      ^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-rows-023",
+      "expression": "{ let x = grid(rows: \"auto\", [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.427108+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: \"auto\", [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, fraction, integer, or array, found string\n  \u250c\u2500 <input-expression>:1:21\n  \u2502\n1 \u2502 { let x = grid(rows: \"auto\", [X]); repr(x) }\n  \u2502                      ^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-rows-024",
+      "expression": "{ let x = grid(rows: 0, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.433526+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: 0, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: number must be positive\n  \u250c\u2500 <input-expression>:1:21\n  \u2502\n1 \u2502 { let x = grid(rows: 0, [X]); repr(x) }\n  \u2502                      ^\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-rows-025",
+      "expression": "{ let x = grid(rows: -1, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.440033+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: -1, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: number must be positive\n  \u250c\u2500 <input-expression>:1:21\n  \u2502\n1 \u2502 { let x = grid(rows: -1, [X]); repr(x) }\n  \u2502                      ^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-rows-026",
+      "expression": "{ let x = grid(rows: 1, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.446411+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: 1, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(rows: (auto,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-rows-027",
+      "expression": "{ let x = grid(rows: 1.5, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.452449+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: 1.5, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, fraction, integer, or array, found float\n  \u250c\u2500 <input-expression>:1:21\n  \u2502\n1 \u2502 { let x = grid(rows: 1.5, [X]); repr(x) }\n  \u2502                      ^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-rows-028",
+      "expression": "{ let x = grid(rows: 0pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.458938+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: 0pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(rows: (0% + 0pt,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-rows-029",
+      "expression": "{ let x = grid(rows: -1pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.465088+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: -1pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(rows: (0% + -1pt,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-rows-030",
+      "expression": "{ let x = grid(rows: 2pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.471493+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: 2pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(rows: (0% + 2pt,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-rows-031",
+      "expression": "{ let x = grid(rows: 2em, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.478456+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: 2em, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(rows: (0% + 2em,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-rows-032",
+      "expression": "{ let x = grid(rows: 20%, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.484915+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: 20%, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(rows: (20% + 0pt,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-rows-033",
+      "expression": "{ let x = grid(rows: 20% + 2pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.491511+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: 20% + 2pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(rows: (20% + 2pt,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-rows-034",
+      "expression": "{ let x = grid(rows: 1fr, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.497813+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: 1fr, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(rows: (1fr,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-rows-035",
+      "expression": "{ let x = grid(rows: (), [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.505601+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: (), [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(rows: (), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "grid-rows-036",
+      "expression": "{ let x = grid(rows: (1pt, true, 2pt), [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.514380+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: (1pt, true, 2pt), [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, or fraction, found boolean\n  \u250c\u2500 <input-expression>:1:21\n  \u2502\n1 \u2502 { let x = grid(rows: (1pt, true, 2pt), [X]); repr(x) }\n  \u2502                      ^^^^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "grid-rows-037",
+      "expression": "{ let x = grid(rows: (auto, 1fr, 2pt), [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.520860+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = grid(rows: (auto, 1fr, 2pt), [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"grid(\\n  rows: (auto, 1fr, 0% + 2pt),\\n  children: (cell(body: [X]),),\\n)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "table-columns-038",
+      "expression": "{ let x = table(columns: none, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.527353+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: none, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, fraction, integer, or array, found none\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = table(columns: none, [X]); repr(x) }\n  \u2502                          ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "table-columns-039",
+      "expression": "{ let x = table(columns: auto, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.534647+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: auto, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"table(columns: (auto,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "table-columns-040",
+      "expression": "{ let x = table(columns: true, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.541795+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: true, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, fraction, integer, or array, found boolean\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = table(columns: true, [X]); repr(x) }\n  \u2502                          ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "table-columns-041",
+      "expression": "{ let x = table(columns: \"bad\", [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.547976+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: \"bad\", [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, fraction, integer, or array, found string\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = table(columns: \"bad\", [X]); repr(x) }\n  \u2502                          ^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "table-columns-042",
+      "expression": "{ let x = table(columns: \"auto\", [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.553973+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: \"auto\", [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, fraction, integer, or array, found string\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = table(columns: \"auto\", [X]); repr(x) }\n  \u2502                          ^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "table-columns-043",
+      "expression": "{ let x = table(columns: 0, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.559913+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: 0, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: number must be positive\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = table(columns: 0, [X]); repr(x) }\n  \u2502                          ^\n\n"
+        }
+      }
+    },
+    {
+      "name": "table-columns-044",
+      "expression": "{ let x = table(columns: -1, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.565799+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: -1, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: number must be positive\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = table(columns: -1, [X]); repr(x) }\n  \u2502                          ^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "table-columns-045",
+      "expression": "{ let x = table(columns: 1, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.573289+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: 1, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"table(columns: (auto,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "table-columns-046",
+      "expression": "{ let x = table(columns: 1.5, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.579792+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: 1.5, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, fraction, integer, or array, found float\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = table(columns: 1.5, [X]); repr(x) }\n  \u2502                          ^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "table-columns-047",
+      "expression": "{ let x = table(columns: 0pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.585992+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: 0pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"table(columns: (0% + 0pt,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "table-columns-048",
+      "expression": "{ let x = table(columns: -1pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.591850+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: -1pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"table(\\n  columns: (0% + -1pt,),\\n  children: (cell(body: [X]),),\\n)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "table-columns-049",
+      "expression": "{ let x = table(columns: 2pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.598015+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: 2pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"table(columns: (0% + 2pt,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "table-columns-050",
+      "expression": "{ let x = table(columns: 2em, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.604335+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: 2em, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"table(columns: (0% + 2em,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "table-columns-051",
+      "expression": "{ let x = table(columns: 20%, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.610837+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: 20%, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"table(\\n  columns: (20% + 0pt,),\\n  children: (cell(body: [X]),),\\n)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "table-columns-052",
+      "expression": "{ let x = table(columns: 20% + 2pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.616623+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: 20% + 2pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"table(\\n  columns: (20% + 2pt,),\\n  children: (cell(body: [X]),),\\n)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "table-columns-053",
+      "expression": "{ let x = table(columns: 1fr, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.622605+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: 1fr, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"table(columns: (1fr,), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "table-columns-054",
+      "expression": "{ let x = table(columns: (), [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.628574+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: (), [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"table(columns: (), children: (cell(body: [X]),))\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "table-columns-055",
+      "expression": "{ let x = table(columns: (1pt, true, 2pt), [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.634789+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: (1pt, true, 2pt), [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected auto, relative length, or fraction, found boolean\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = table(columns: (1pt, true, 2pt), [X]); repr(x) }\n  \u2502                          ^^^^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "table-columns-056",
+      "expression": "{ let x = table(columns: (auto, 1fr, 2pt), [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.641050+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = table(columns: (auto, 1fr, 2pt), [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"table(\\n  columns: (auto, 1fr, 0% + 2pt),\\n  children: (cell(body: [X]),),\\n)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "circle-radius-057",
+      "expression": "{ let x = circle(radius: none); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.647768+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: none); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected length or auto, found none\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = circle(radius: none); repr(x) }\n  \u2502                          ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-radius-058",
+      "expression": "{ let x = circle(radius: auto); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.653452+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: auto); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"circle(width: auto, height: auto)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "circle-radius-059",
+      "expression": "{ let x = circle(radius: true); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.659086+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: true); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected length or auto, found boolean\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = circle(radius: true); repr(x) }\n  \u2502                          ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-radius-060",
+      "expression": "{ let x = circle(radius: \"bad\"); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.665684+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: \"bad\"); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected length or auto, found string\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = circle(radius: \"bad\"); repr(x) }\n  \u2502                          ^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-radius-061",
+      "expression": "{ let x = circle(radius: \"auto\"); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.673749+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: \"auto\"); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected length or auto, found string\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = circle(radius: \"auto\"); repr(x) }\n  \u2502                          ^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-radius-062",
+      "expression": "{ let x = circle(radius: 0); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.680972+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: 0); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected length or auto, found integer\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = circle(radius: 0); repr(x) }\n  \u2502                          ^\n  \u2502\n  = hint: a length needs a unit - did you mean 0pt?\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-radius-063",
+      "expression": "{ let x = circle(radius: -1); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.687027+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: -1); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected length or auto, found integer\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = circle(radius: -1); repr(x) }\n  \u2502                          ^^\n  \u2502\n  = hint: a length needs a unit - did you mean -1pt?\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-radius-064",
+      "expression": "{ let x = circle(radius: 1); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.692892+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: 1); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected length or auto, found integer\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = circle(radius: 1); repr(x) }\n  \u2502                          ^\n  \u2502\n  = hint: a length needs a unit - did you mean 1pt?\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-radius-065",
+      "expression": "{ let x = circle(radius: 1.5); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.698859+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: 1.5); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected length or auto, found float\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = circle(radius: 1.5); repr(x) }\n  \u2502                          ^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-radius-066",
+      "expression": "{ let x = circle(radius: 0pt); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.705206+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: 0pt); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"circle(width: 0% + 0pt, height: 0% + 0pt)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "circle-radius-067",
+      "expression": "{ let x = circle(radius: -1pt); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.711341+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: -1pt); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"circle(width: 0% + -2pt, height: 0% + -2pt)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "circle-radius-068",
+      "expression": "{ let x = circle(radius: 2pt); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.718093+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: 2pt); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"circle(width: 0% + 4pt, height: 0% + 4pt)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "circle-radius-069",
+      "expression": "{ let x = circle(radius: 2em); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.724723+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: 2em); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"circle(width: 0% + 4em, height: 0% + 4em)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "circle-radius-070",
+      "expression": "{ let x = circle(radius: 20%); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.731173+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: 20%); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected length or auto, found ratio\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = circle(radius: 20%); repr(x) }\n  \u2502                          ^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-radius-071",
+      "expression": "{ let x = circle(radius: 20% + 2pt); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.738618+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: 20% + 2pt); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected length or auto, found relative length\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = circle(radius: 20% + 2pt); repr(x) }\n  \u2502                          ^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-radius-072",
+      "expression": "{ let x = circle(radius: 1fr); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.744634+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: 1fr); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected length or auto, found fraction\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = circle(radius: 1fr); repr(x) }\n  \u2502                          ^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-radius-073",
+      "expression": "{ let x = circle(radius: ()); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.750662+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: ()); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected length or auto, found array\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = circle(radius: ()); repr(x) }\n  \u2502                          ^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-radius-074",
+      "expression": "{ let x = circle(radius: (1pt, true, 2pt)); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.756654+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: (1pt, true, 2pt)); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected length or auto, found array\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = circle(radius: (1pt, true, 2pt)); repr(x) }\n  \u2502                          ^^^^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "circle-radius-075",
+      "expression": "{ let x = circle(radius: (auto, 1fr, 2pt)); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.763408+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = circle(radius: (auto, 1fr, 2pt)); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected length or auto, found array\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 { let x = circle(radius: (auto, 1fr, 2pt)); repr(x) }\n  \u2502                          ^^^^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dx-076",
+      "expression": "{ let x = place(dx: none, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.769648+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: none, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found none\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: none, [X]); repr(x) }\n  \u2502                     ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dx-077",
+      "expression": "{ let x = place(dx: auto, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.776031+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: auto, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found auto\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: auto, [X]); repr(x) }\n  \u2502                     ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dx-078",
+      "expression": "{ let x = place(dx: true, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.782102+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: true, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found boolean\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: true, [X]); repr(x) }\n  \u2502                     ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dx-079",
+      "expression": "{ let x = place(dx: \"bad\", [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.787766+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: \"bad\", [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found string\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: \"bad\", [X]); repr(x) }\n  \u2502                     ^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dx-080",
+      "expression": "{ let x = place(dx: \"auto\", [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.793777+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: \"auto\", [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found string\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: \"auto\", [X]); repr(x) }\n  \u2502                     ^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dx-081",
+      "expression": "{ let x = place(dx: 0, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.800296+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: 0, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found integer\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: 0, [X]); repr(x) }\n  \u2502                     ^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dx-082",
+      "expression": "{ let x = place(dx: -1, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.806487+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: -1, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found integer\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: -1, [X]); repr(x) }\n  \u2502                     ^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dx-083",
+      "expression": "{ let x = place(dx: 1, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.812272+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: 1, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found integer\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: 1, [X]); repr(x) }\n  \u2502                     ^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dx-084",
+      "expression": "{ let x = place(dx: 1.5, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.818436+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: 1.5, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found float\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: 1.5, [X]); repr(x) }\n  \u2502                     ^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dx-085",
+      "expression": "{ let x = place(dx: 0pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.824118+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: 0pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"place(dx: 0% + 0pt, body: [X])\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "place-dx-086",
+      "expression": "{ let x = place(dx: -1pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.830051+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: -1pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"place(dx: 0% + -1pt, body: [X])\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "place-dx-087",
+      "expression": "{ let x = place(dx: 2pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.836150+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: 2pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"place(dx: 0% + 2pt, body: [X])\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "place-dx-088",
+      "expression": "{ let x = place(dx: 2em, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.842519+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: 2em, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"place(dx: 0% + 2em, body: [X])\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "place-dx-089",
+      "expression": "{ let x = place(dx: 20%, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.848486+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: 20%, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"place(dx: 20% + 0pt, body: [X])\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "place-dx-090",
+      "expression": "{ let x = place(dx: 20% + 2pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.854506+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: 20% + 2pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"place(dx: 20% + 2pt, body: [X])\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "place-dx-091",
+      "expression": "{ let x = place(dx: 1fr, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.860320+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: 1fr, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found fraction\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: 1fr, [X]); repr(x) }\n  \u2502                     ^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dx-092",
+      "expression": "{ let x = place(dx: (), [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.866304+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: (), [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found array\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: (), [X]); repr(x) }\n  \u2502                     ^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dx-093",
+      "expression": "{ let x = place(dx: (1pt, true, 2pt), [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.872384+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: (1pt, true, 2pt), [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found array\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: (1pt, true, 2pt), [X]); repr(x) }\n  \u2502                     ^^^^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dx-094",
+      "expression": "{ let x = place(dx: (auto, 1fr, 2pt), [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.878219+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dx: (auto, 1fr, 2pt), [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found array\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dx: (auto, 1fr, 2pt), [X]); repr(x) }\n  \u2502                     ^^^^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dy-095",
+      "expression": "{ let x = place(dy: none, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.884008+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: none, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found none\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: none, [X]); repr(x) }\n  \u2502                     ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dy-096",
+      "expression": "{ let x = place(dy: auto, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.889817+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: auto, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found auto\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: auto, [X]); repr(x) }\n  \u2502                     ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dy-097",
+      "expression": "{ let x = place(dy: true, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.895677+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: true, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found boolean\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: true, [X]); repr(x) }\n  \u2502                     ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dy-098",
+      "expression": "{ let x = place(dy: \"bad\", [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.901766+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: \"bad\", [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found string\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: \"bad\", [X]); repr(x) }\n  \u2502                     ^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dy-099",
+      "expression": "{ let x = place(dy: \"auto\", [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.907746+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: \"auto\", [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found string\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: \"auto\", [X]); repr(x) }\n  \u2502                     ^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dy-100",
+      "expression": "{ let x = place(dy: 0, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.914527+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: 0, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found integer\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: 0, [X]); repr(x) }\n  \u2502                     ^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dy-101",
+      "expression": "{ let x = place(dy: -1, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.920786+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: -1, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found integer\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: -1, [X]); repr(x) }\n  \u2502                     ^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dy-102",
+      "expression": "{ let x = place(dy: 1, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.926447+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: 1, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found integer\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: 1, [X]); repr(x) }\n  \u2502                     ^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dy-103",
+      "expression": "{ let x = place(dy: 1.5, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.932276+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: 1.5, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found float\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: 1.5, [X]); repr(x) }\n  \u2502                     ^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dy-104",
+      "expression": "{ let x = place(dy: 0pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.938761+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: 0pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"place(dy: 0% + 0pt, body: [X])\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "place-dy-105",
+      "expression": "{ let x = place(dy: -1pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.944800+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: -1pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"place(dy: 0% + -1pt, body: [X])\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "place-dy-106",
+      "expression": "{ let x = place(dy: 2pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.950482+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: 2pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"place(dy: 0% + 2pt, body: [X])\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "place-dy-107",
+      "expression": "{ let x = place(dy: 2em, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.956450+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: 2em, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"place(dy: 0% + 2em, body: [X])\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "place-dy-108",
+      "expression": "{ let x = place(dy: 20%, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.962515+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: 20%, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"place(dy: 20% + 0pt, body: [X])\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "place-dy-109",
+      "expression": "{ let x = place(dy: 20% + 2pt, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.968658+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: 20% + 2pt, [X]); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"place(dy: 20% + 2pt, body: [X])\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "place-dy-110",
+      "expression": "{ let x = place(dy: 1fr, [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.975109+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: 1fr, [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found fraction\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: 1fr, [X]); repr(x) }\n  \u2502                     ^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dy-111",
+      "expression": "{ let x = place(dy: (), [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.981356+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: (), [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found array\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: (), [X]); repr(x) }\n  \u2502                     ^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dy-112",
+      "expression": "{ let x = place(dy: (1pt, true, 2pt), [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.987360+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: (1pt, true, 2pt), [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found array\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: (1pt, true, 2pt), [X]); repr(x) }\n  \u2502                     ^^^^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "place-dy-113",
+      "expression": "{ let x = place(dy: (auto, 1fr, 2pt), [X]); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.993268+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = place(dy: (auto, 1fr, 2pt), [X]); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found array\n  \u250c\u2500 <input-expression>:1:20\n  \u2502\n1 \u2502 { let x = place(dy: (auto, 1fr, 2pt), [X]); repr(x) }\n  \u2502                     ^^^^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-114",
+      "expression": "{ let x = line(dx: none); repr(x) }",
+      "utc_start": "2026-10-19T20:18:13.999775+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: none); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: none); repr(x) }\n  \u2502                ^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-115",
+      "expression": "{ let x = line(dx: auto); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.006119+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: auto); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: auto); repr(x) }\n  \u2502                ^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-116",
+      "expression": "{ let x = line(dx: true); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.012258+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: true); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: true); repr(x) }\n  \u2502                ^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-117",
+      "expression": "{ let x = line(dx: \"bad\"); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.018153+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: \"bad\"); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: \"bad\"); repr(x) }\n  \u2502                ^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-118",
+      "expression": "{ let x = line(dx: \"auto\"); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.023884+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: \"auto\"); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: \"auto\"); repr(x) }\n  \u2502                ^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-119",
+      "expression": "{ let x = line(dx: 0); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.029640+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: 0); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: 0); repr(x) }\n  \u2502                ^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-120",
+      "expression": "{ let x = line(dx: -1); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.035563+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: -1); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: -1); repr(x) }\n  \u2502                ^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-121",
+      "expression": "{ let x = line(dx: 1); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.043505+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: 1); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: 1); repr(x) }\n  \u2502                ^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-122",
+      "expression": "{ let x = line(dx: 1.5); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.051678+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: 1.5); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: 1.5); repr(x) }\n  \u2502                ^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-123",
+      "expression": "{ let x = line(dx: 0pt); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.058028+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: 0pt); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: 0pt); repr(x) }\n  \u2502                ^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-124",
+      "expression": "{ let x = line(dx: -1pt); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.064124+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: -1pt); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: -1pt); repr(x) }\n  \u2502                ^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-125",
+      "expression": "{ let x = line(dx: 2pt); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.070894+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: 2pt); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: 2pt); repr(x) }\n  \u2502                ^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-126",
+      "expression": "{ let x = line(dx: 2em); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.077082+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: 2em); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: 2em); repr(x) }\n  \u2502                ^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-127",
+      "expression": "{ let x = line(dx: 20%); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.083544+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: 20%); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: 20%); repr(x) }\n  \u2502                ^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-128",
+      "expression": "{ let x = line(dx: 20% + 2pt); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.089489+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: 20% + 2pt); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: 20% + 2pt); repr(x) }\n  \u2502                ^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-129",
+      "expression": "{ let x = line(dx: 1fr); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.095479+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: 1fr); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: 1fr); repr(x) }\n  \u2502                ^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-130",
+      "expression": "{ let x = line(dx: ()); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.101608+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: ()); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: ()); repr(x) }\n  \u2502                ^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-131",
+      "expression": "{ let x = line(dx: (1pt, true, 2pt)); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.107620+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: (1pt, true, 2pt)); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: (1pt, true, 2pt)); repr(x) }\n  \u2502                ^^^^^^^^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-dx-132",
+      "expression": "{ let x = line(dx: (auto, 1fr, 2pt)); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.113515+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(dx: (auto, 1fr, 2pt)); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: unexpected argument: dx\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 { let x = line(dx: (auto, 1fr, 2pt)); repr(x) }\n  \u2502                ^^^^^^^^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-length-133",
+      "expression": "{ let x = line(length: none); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.119467+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: none); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found none\n  \u250c\u2500 <input-expression>:1:23\n  \u2502\n1 \u2502 { let x = line(length: none); repr(x) }\n  \u2502                        ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-length-134",
+      "expression": "{ let x = line(length: auto); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.126065+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: auto); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found auto\n  \u250c\u2500 <input-expression>:1:23\n  \u2502\n1 \u2502 { let x = line(length: auto); repr(x) }\n  \u2502                        ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-length-135",
+      "expression": "{ let x = line(length: true); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.132591+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: true); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found boolean\n  \u250c\u2500 <input-expression>:1:23\n  \u2502\n1 \u2502 { let x = line(length: true); repr(x) }\n  \u2502                        ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-length-136",
+      "expression": "{ let x = line(length: \"bad\"); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.139211+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: \"bad\"); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found string\n  \u250c\u2500 <input-expression>:1:23\n  \u2502\n1 \u2502 { let x = line(length: \"bad\"); repr(x) }\n  \u2502                        ^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-length-137",
+      "expression": "{ let x = line(length: \"auto\"); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.145364+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: \"auto\"); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found string\n  \u250c\u2500 <input-expression>:1:23\n  \u2502\n1 \u2502 { let x = line(length: \"auto\"); repr(x) }\n  \u2502                        ^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-length-138",
+      "expression": "{ let x = line(length: 0); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.151233+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: 0); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found integer\n  \u250c\u2500 <input-expression>:1:23\n  \u2502\n1 \u2502 { let x = line(length: 0); repr(x) }\n  \u2502                        ^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-length-139",
+      "expression": "{ let x = line(length: -1); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.157137+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: -1); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found integer\n  \u250c\u2500 <input-expression>:1:23\n  \u2502\n1 \u2502 { let x = line(length: -1); repr(x) }\n  \u2502                        ^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-length-140",
+      "expression": "{ let x = line(length: 1); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.164195+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: 1); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found integer\n  \u250c\u2500 <input-expression>:1:23\n  \u2502\n1 \u2502 { let x = line(length: 1); repr(x) }\n  \u2502                        ^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-length-141",
+      "expression": "{ let x = line(length: 1.5); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.170437+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: 1.5); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found float\n  \u250c\u2500 <input-expression>:1:23\n  \u2502\n1 \u2502 { let x = line(length: 1.5); repr(x) }\n  \u2502                        ^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-length-142",
+      "expression": "{ let x = line(length: 0pt); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.176371+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: 0pt); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"line(length: 0% + 0pt)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "line-length-143",
+      "expression": "{ let x = line(length: -1pt); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.182163+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: -1pt); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"line(length: 0% + -1pt)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "line-length-144",
+      "expression": "{ let x = line(length: 2pt); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.187875+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: 2pt); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"line(length: 0% + 2pt)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "line-length-145",
+      "expression": "{ let x = line(length: 2em); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.193787+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: 2em); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"line(length: 0% + 2em)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "line-length-146",
+      "expression": "{ let x = line(length: 20%); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.199773+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: 20%); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"line(length: 20% + 0pt)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "line-length-147",
+      "expression": "{ let x = line(length: 20% + 2pt); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.206857+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: 20% + 2pt); repr(x) }"
+          ],
+          "returncode": 0,
+          "stdout": "\"line(length: 20% + 2pt)\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "line-length-148",
+      "expression": "{ let x = line(length: 1fr); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.212866+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: 1fr); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found fraction\n  \u250c\u2500 <input-expression>:1:23\n  \u2502\n1 \u2502 { let x = line(length: 1fr); repr(x) }\n  \u2502                        ^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-length-149",
+      "expression": "{ let x = line(length: ()); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.219602+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: ()); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found array\n  \u250c\u2500 <input-expression>:1:23\n  \u2502\n1 \u2502 { let x = line(length: ()); repr(x) }\n  \u2502                        ^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-length-150",
+      "expression": "{ let x = line(length: (1pt, true, 2pt)); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.225205+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: (1pt, true, 2pt)); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found array\n  \u250c\u2500 <input-expression>:1:23\n  \u2502\n1 \u2502 { let x = line(length: (1pt, true, 2pt)); repr(x) }\n  \u2502                        ^^^^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "line-length-151",
+      "expression": "{ let x = line(length: (auto, 1fr, 2pt)); repr(x) }",
+      "utc_start": "2026-10-19T20:18:14.231084+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "{ let x = line(length: (auto, 1fr, 2pt)); repr(x) }"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: expected relative length, found array\n  \u250c\u2500 <input-expression>:1:23\n  \u2502\n1 \u2502 { let x = line(length: (auto, 1fr, 2pt)); repr(x) }\n  \u2502                        ^^^^^^^^^^^^^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-kind-152",
+      "expression": "figure(table([A])).kind",
+      "utc_start": "2026-10-19T20:18:14.237647+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "figure(table([A])).kind"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: field \"kind\" in figure is not known at this point\n  \u250c\u2500 <input-expression>:1:19\n  \u2502\n1 \u2502 figure(table([A])).kind\n  \u2502                    ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-kind-153",
+      "expression": "figure(raw(\"X\")).kind",
+      "utc_start": "2026-10-19T20:18:14.243610+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "figure(raw(\"X\")).kind"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: field \"kind\" in figure is not known at this point\n  \u250c\u2500 <input-expression>:1:17\n  \u2502\n1 \u2502 figure(raw(\"X\")).kind\n  \u2502                  ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-kind-154",
+      "expression": "figure([pre #table([A])]).kind",
+      "utc_start": "2026-10-19T20:18:14.250247+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "figure([pre #table([A])]).kind"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: field \"kind\" in figure is not known at this point\n  \u250c\u2500 <input-expression>:1:26\n  \u2502\n1 \u2502 figure([pre #table([A])]).kind\n  \u2502                           ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-kind-155",
+      "expression": "figure(strong(table([A]))).kind",
+      "utc_start": "2026-10-19T20:18:14.256700+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "figure(strong(table([A]))).kind"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: field \"kind\" in figure is not known at this point\n  \u250c\u2500 <input-expression>:1:27\n  \u2502\n1 \u2502 figure(strong(table([A]))).kind\n  \u2502                            ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-kind-156",
+      "expression": "figure(emph(raw(\"X\"))).kind",
+      "utc_start": "2026-10-19T20:18:14.262716+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "figure(emph(raw(\"X\"))).kind"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: field \"kind\" in figure is not known at this point\n  \u250c\u2500 <input-expression>:1:23\n  \u2502\n1 \u2502 figure(emph(raw(\"X\"))).kind\n  \u2502                        ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-kind-157",
+      "expression": "figure(hide(table([A]))).kind",
+      "utc_start": "2026-10-19T20:18:14.269531+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "figure(hide(table([A]))).kind"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: field \"kind\" in figure is not known at this point\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 figure(hide(table([A]))).kind\n  \u2502                          ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-kind-158",
+      "expression": "figure(box(table([A]))).kind",
+      "utc_start": "2026-10-19T20:18:14.275619+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "figure(box(table([A]))).kind"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: field \"kind\" in figure is not known at this point\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 figure(box(table([A]))).kind\n  \u2502                         ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-kind-159",
+      "expression": "figure(block(table([A]))).kind",
+      "utc_start": "2026-10-19T20:18:14.281114+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "figure(block(table([A]))).kind"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: field \"kind\" in figure is not known at this point\n  \u250c\u2500 <input-expression>:1:26\n  \u2502\n1 \u2502 figure(block(table([A]))).kind\n  \u2502                           ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-kind-160",
+      "expression": "figure(figure(table([A]))).kind",
+      "utc_start": "2026-10-19T20:18:14.287004+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "figure(figure(table([A]))).kind"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: field \"kind\" in figure is not known at this point\n  \u250c\u2500 <input-expression>:1:27\n  \u2502\n1 \u2502 figure(figure(table([A]))).kind\n  \u2502                            ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-kind-161",
+      "expression": "figure([plain]).kind",
+      "utc_start": "2026-10-19T20:18:14.292825+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "figure([plain]).kind"
+          ],
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: field \"kind\" in figure is not known at this point\n  \u250c\u2500 <input-expression>:1:16\n  \u2502\n1 \u2502 figure([plain]).kind\n  \u2502                 ^^^^\n\n"
+        }
+      }
+    },
+    {
+      "name": "figure-explicit-162",
+      "expression": "figure([X], kind: table).kind",
+      "utc_start": "2026-10-19T20:18:14.298808+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "figure([X], kind: table).kind"
+          ],
+          "returncode": 0,
+          "stdout": "\"table\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "figure-explicit-163",
+      "expression": "figure([X], kind: raw).kind",
+      "utc_start": "2026-10-19T20:18:14.305091+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "figure([X], kind: raw).kind"
+          ],
+          "returncode": 0,
+          "stdout": "\"raw\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "figure-explicit-164",
+      "expression": "figure([X], kind: \"table\").kind",
+      "utc_start": "2026-10-19T20:18:14.311300+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "figure([X], kind: \"table\").kind"
+          ],
+          "returncode": 0,
+          "stdout": "\"table\"\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "name": "figure-explicit-165",
+      "expression": "figure([X], kind: auto).kind",
+      "utc_start": "2026-10-19T20:18:14.317110+00:00",
+      "results": {
+        "oracle": {
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "eval",
+            "figure([X], kind: auto).kind"
+          ],
+          "returncode": 0,
+          "stdout": "\"auto\"\n",
+          "stderr": ""
+        }
+      }
+    }
+  ],
+  "utc_end": "2026-10-19T20:18:14.322673+00:00",
+  "diff_head_stat_after": "",
+  "binary_sha256_after": {
+    "oracle": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "obligations": [
+    {
+      "id": "FG1",
+      "selected_v16": "055",
+      "status": "blocked by current explicit L0 and public typed-kind/presence/synthesis contract",
+      "evidence": "baseline-query/receipt.json figure-synth-00..09; native unsynthesized getter cases152..165",
+      "closure": "Review typed-kind public carrier, all owners and realization phase before approval; keep055visible"
+    },
+    {
+      "id": "RM1-track",
+      "status": "Ratio/Relative omission and Length.em truncation retained pending public TrackSizing carrier",
+      "closure": "Propagate relative dimensions to actual grid layout with approved entity and owners; do not replace accepted percentages with errors"
+    },
+    {
+      "id": "RM1-place-line",
+      "status": "Relative/Ratio zero and em absolute-part projections retained; place/line f64 fields cannot retain deferred dimensions",
+      "closure": "Public carrier/layout review and bounded measured geometry required"
+    },
+    {
+      "id": "circle-auto",
+      "status": "Auto radius returns zero, upstream30pt; Shape Auto/omitted fallback lacks circle automatic size semantics",
+      "closure": "Read shape default/layout owners and distinguish circle/ellipse automatic geometry; no hardcoded eval30pt"
+    },
+    {
+      "id": "legacy-extensions",
+      "status": "Float point values and track autoString deliberate compatibility; not upstream parity",
+      "closure": "Separate explicit user decision if ever removing"
+    },
+    {
+      "id": "circle-radius-identity",
+      "selected_v16": "065",
+      "status": "Entire owner correction deferred and restored to HEAD after actual candidate language equality regressions",
+      "evidence": "circle-deferred/deferral.json; baseline-equality/receipt.json; parent candidate-run/new-tests-green.log",
+      "closure": "Review circle constructor identity and dimension transport together; retain malformed radius, em and Auto debts; no marker/hack or dropped acceptance."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "utc": "2026-10-19T20:37:11.326770+00:00",
+  "status": "exploratory; not an accepted frozen validation",
+  "cause": "The orchestrator started candidate tests before the asynchronous restricted reseal command had completed. The freeze receipt reports changed inputs. This run cannot certify frozen source/L0 lineage.",
+  "use": "Retain raw runtime failures as refutations; all accepted changes require a new fully frozen run after resealing.",
+  "commands": "candidate-run/commands.json",
+  "freeze": "candidate-run/freeze.json",
+  "failures": [
+    "batch_f_higher_order_sorted_key",
+    "batch_f_circle_preserves_absolute_language_identity_boundaries",
+    "batch_f_circle_preserves_em_language_identity_boundary"
+  ]
+}

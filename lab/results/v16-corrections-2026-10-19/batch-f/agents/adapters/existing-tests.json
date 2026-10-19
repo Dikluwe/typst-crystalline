@@ -1,0 +1,10 @@
+[
+  {
+    "file": "01_core/src/compiler/stdlib/collections.rs",
+    "name": "p881_type_as_callable_mapeia_tipos_construtores",
+    "expected_baseline": "semantic RED",
+    "changed_assertion": "Type::Array.is_none() becomes is_some()",
+    "retained": "all nine existing positive constructor assertions; Bool and Length negative controls",
+    "reason": "Frozen current-pin Array(Bytes) higher-order success and existing native_array_bytes direct route; validation owner mapping correction"
+  }
+]

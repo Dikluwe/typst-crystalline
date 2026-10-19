@@ -1,0 +1,79 @@
+{
+  "cases": [
+    {
+      "name": "html-autocapitalize-0",
+      "expression": "json.encode(html.div(autocapitalize: true)[x])",
+      "format": "json"
+    },
+    {
+      "name": "html-autocapitalize-1",
+      "expression": "json.encode(html.div(autocapitalize: false)[x])",
+      "format": "json"
+    },
+    {
+      "name": "html-autocapitalize-2",
+      "expression": "json.encode(html.div(autocapitalize: none)[x])",
+      "format": "json"
+    },
+    {
+      "name": "html-autocapitalize-3",
+      "expression": "json.encode(html.div(autocapitalize: \"sentences\")[x])",
+      "format": "json"
+    },
+    {
+      "name": "html-autocapitalize-4",
+      "expression": "json.encode(html.div(autocapitalize: \"words\")[x])",
+      "format": "json"
+    },
+    {
+      "name": "html-autocapitalize-5",
+      "expression": "json.encode(html.div(autocapitalize: \"characters\")[x])",
+      "format": "json"
+    },
+    {
+      "name": "html-autocapitalize-6",
+      "expression": "json.encode(html.div(autocapitalize: \"invalid\")[x])",
+      "format": "json"
+    },
+    {
+      "name": "html-autocapitalize-7",
+      "expression": "json.encode(html.div(autocapitalize: 1)[x])",
+      "format": "json"
+    },
+    {
+      "name": "html-autocapitalize-8",
+      "expression": "json.encode(html.div(autocapitalize: [x])[x])",
+      "format": "json"
+    },
+    {
+      "name": "html-hidden-0",
+      "expression": "json.encode(html.div(hidden: true)[x])",
+      "format": "json"
+    },
+    {
+      "name": "html-hidden-1",
+      "expression": "json.encode(html.div(hidden: false)[x])",
+      "format": "json"
+    },
+    {
+      "name": "html-hidden-2",
+      "expression": "json.encode(html.div(hidden: \"until-found\")[x])",
+      "format": "json"
+    },
+    {
+      "name": "html-hidden-3",
+      "expression": "json.encode(html.div(hidden: \"invalid\")[x])",
+      "format": "json"
+    },
+    {
+      "name": "html-hidden-4",
+      "expression": "json.encode(html.div(hidden: none)[x])",
+      "format": "json"
+    },
+    {
+      "name": "html-hidden-5",
+      "expression": "json.encode(html.div(hidden: 1)[x])",
+      "format": "json"
+    }
+  ]
+}

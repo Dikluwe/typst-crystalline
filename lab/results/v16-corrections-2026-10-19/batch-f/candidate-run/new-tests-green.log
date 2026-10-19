@@ -1,0 +1,91 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 1m 27s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 58 tests
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_arguments ... ok
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_array ... ok
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_constructors_remain_lazy ... ok
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_decimal ... ok
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_duration ... ok
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_label ... ok
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_legacy_alias_and_unsupported_types ... ok
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_predicate_retains_result_validation ... ok
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_regex ... ok
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_selector ... ok
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_sorted_key ... FAILED
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_spot ... ok
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_stroke ... ok
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_tiling ... ok
+test compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_version ... ok
+test compiler::stdlib::counter::display::batch_f_tests::batch_f_counter_context_error_precedes_named_validation ... ok
+test compiler::stdlib::counter::display::batch_f_tests::batch_f_counter_numbering_keeps_kind_and_composite_keys_distinct ... ok
+test compiler::stdlib::foundations::selector::batch_f_tests::batch_f_selector_singleton_keeps_complete_filter_and_guard_residuals ... ok
+test compiler::stdlib::foundations::selector::batch_f_tests::batch_f_selector_slice_cardinality_and_singleton_errors ... ok
+test compiler::stdlib::html::attr_cast::batch_f_tests::batch_f_html_union_rejection_keeps_diagnostic_and_span ... ok
+test compiler::stdlib::html::attr_cast::batch_f_tests::batch_f_html_union_success_preserves_presence_and_tokens ... ok
+test compiler::stdlib::layout::batch_f_alignment_tests::batch_f_alignment_non_candidates_preserve_supplied_default ... ok
+test compiler::stdlib::layout::batch_f_alignment_tests::batch_f_alignment_search_preserves_first_candidate ... ok
+test compiler::stdlib::layout::grid::batch_f_tests::batch_f_grid_columns_error_precedes_rows_and_gutter ... ok
+test compiler::stdlib::layout::grid::batch_f_tests::batch_f_grid_preserves_valid_order_and_legacy_tracks ... ok
+test compiler::stdlib::layout::grid::batch_f_tests::batch_f_grid_rejects_invalid_array_member_at_array_value_span ... ok
+test compiler::stdlib::layout::grid::batch_f_tests::batch_f_grid_rejects_malformed_scalar_and_nonpositive_counts ... ok
+test compiler::stdlib::layout::place::batch_f_tests::batch_f_place_dx_rejection_precedes_dy_and_scope ... ok
+test compiler::stdlib::layout::place::batch_f_tests::batch_f_place_preserves_point_extensions_and_vertical_omission ... ok
+test compiler::stdlib::layout::place::batch_f_tests::batch_f_place_rejects_malformed_offsets_at_value_span ... ok
+test compiler::stdlib::layout::stroke::batch_f_dash_tests::batch_f_dash_native_keeps_order_dot_and_dictionary_phase ... ok
+test compiler::stdlib::layout::stroke::batch_f_dash_tests::batch_f_dash_native_preserves_guard_rejection_and_current_length_debt ... ok
+test compiler::stdlib::loading::encoding::batch_f_fields_tests::batch_f_fields_delegate_raw_caption_and_keep_order ... ok
+test compiler::stdlib::loading::encoding::batch_f_fields_tests::batch_f_fields_snapshot_overrides_normalized_raw_without_fallback ... ok
+test compiler::stdlib::loading::yaml_encode::batch_f_yaml_tests::batch_f_yaml_empty_and_nested_containers_keep_shape ... ok
+test compiler::stdlib::loading::yaml_encode::batch_f_yaml_tests::batch_f_yaml_scalar_tokens_and_opaque_repr_keep_newline ... ok
+test compiler::stdlib::loading::yaml_encode::batch_f_yaml_tests::batch_f_yaml_strings_and_snapshot_keep_their_own_routes ... ok
+test compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_em_radius_reaches_actual_layout_at_occurrence_font ... ok
+test compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_preserves_absolute_and_numeric_geometry ... ok
+test compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_preserves_absolute_language_identity_boundaries ... FAILED
+test compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_preserves_em_language_identity_boundary ... FAILED
+test compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_radius_error_precedes_paint_error ... ok
+test compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_rejects_invalid_radius_at_value_span ... ok
+test compiler::stdlib::shapes::line::batch_f_tests::batch_f_line_preserves_numeric_and_negative_offsets ... ok
+test compiler::stdlib::shapes::line::batch_f_tests::batch_f_line_preserves_stroke_and_conflict_precedence ... ok
+test compiler::stdlib::shapes::line::batch_f_tests::batch_f_line_rejects_malformed_legacy_offsets_at_value_span ... ok
+test compiler::stdlib::structural::bibliography::batch_f_tests::batch_f_bibliography_locale_extension_preserves_projection ... ok
+test compiler::stdlib::structural::bibliography::batch_f_tests::batch_f_bibliography_source_failure_precedes_locale_and_style ... ok
+test compiler::stdlib::structural::math_accent_tests::batch_f_accent_finder_keeps_order_and_opaque_descendant_boundary ... ok
+test compiler::stdlib::structural::math_accent_tests::batch_f_accent_finder_observes_actual_fixture_and_rejects_absence ... ok
+test compiler::stdlib::structural::math_cases_tests::batch_f_cases_finder_keeps_order_and_opaque_descendant_boundary ... ok
+test compiler::stdlib::structural::math_cases_tests::batch_f_cases_finder_observes_actual_fixture_and_rejects_absence ... ok
+test compiler::stdlib::structural::outline::batch_f_tests::batch_f_outline_invalid_parent_schema_preserves_context_error ... ok
+test compiler::stdlib::structural::outline::batch_f_tests::batch_f_outline_parent_callback_receives_level_minus_one ... ok
+test compiler::stdlib::structural::outline::batch_f_tests::batch_f_outline_valid_private_indent_forms_preserve_inner ... ok
+test compiler::stdlib::structural::table_grid::v16_table_tests::batch_f_table_preserves_valid_track_order_and_rows_presence ... ok
+test compiler::stdlib::structural::table_grid::v16_table_tests::batch_f_table_rejects_invalid_track_without_dropping_member ... ok
+test compiler::stdlib::structural::table_grid::v16_table_tests::batch_f_table_track_counts_are_positive_and_columns_validate_first ... ok
+
+failures:
+
+---- compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_sorted_key stdout ----
+
+thread 'compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_sorted_key' (1695929) panicked at 01_core/src/compiler/stdlib/collections/validation.rs:308:38:
+("10", "2").sorted(key: decimal) == ("2", "10"): [SourceDiagnostic { severity: Error, span: Span(291264177009561), message: "cannot compare decimal and decimal", hints: [], trace: [] }]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_preserves_absolute_language_identity_boundaries stdout ----
+
+thread 'compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_preserves_absolute_language_identity_boundaries' (1695958) panicked at 01_core/src/compiler/stdlib/shapes/ellipse.rs:356:9:
+the deliberate numeric radius extension changed
+
+---- compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_preserves_em_language_identity_boundary stdout ----
+
+thread 'compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_preserves_em_language_identity_boundary' (1695959) panicked at 01_core/src/compiler/stdlib/shapes/ellipse.rs:376:9:
+circle became equal to a different element constructor
+
+
+failures:
+    compiler::stdlib::collections::validation::batch_f_tests::batch_f_higher_order_sorted_key
+    compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_preserves_absolute_language_identity_boundaries
+    compiler::stdlib::shapes::ellipse::batch_f_tests::batch_f_circle_preserves_em_language_identity_boundary
+
+test result: FAILED. 55 passed; 3 failed; 0 ignored; 0 measured; 7543 filtered out; finished in 0.11s
+
+error: test failed, to rerun pass `-p typst-core --lib`

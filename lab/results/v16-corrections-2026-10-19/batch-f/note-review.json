@@ -1,0 +1,176 @@
+{
+  "utc": "2026-10-19T21:23:12.046789+00:00",
+  "lint_delta_sha256": "f90594c515338756b6cd352c1c7f08f0232c3907625e1be65999c8ea47dde61a",
+  "new_substantive_notes": [
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 18; guard: ausente; padr\u00e3o: `Type::None\n        | Type::Auto\n        | Type::Bool\n        | Type::Dictionary\n        | Type::Module\n        | Type::Function\n        | Type::Content\n        | Type::Length\n        | Type::Ratio\n        | Type::Relative\n        | Type::Angle\n        | Type::Color\n        | Type::Fraction\n        | Type::Alignment\n        | Type::Location\n        | Type::Gradient\n        | Type::Direction\n        | Type::Path`.",
+      "file": "./01_core/src/compiler/stdlib/collections/validation.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 11; guard: ausente; padr\u00e3o: `Selector::NativeElement(..)\n                    | Selector::Element { .. }\n                    | Selector::Label(..)\n                    | Selector::Location(..)\n                    | Selector::And(..)\n                    | Selector::Or(..)\n                    | Selector::Regex(..)\n                    | Selector::Where { .. }\n                    | Selector::Within { .. }\n                    | Selector::Before { .. }\n                    | Selector::After { .. }`.",
+      "file": "./01_core/src/compiler/stdlib/counter/display.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `[] | [_, _, ..]`.",
+      "file": "./01_core/src/compiler/stdlib/foundations/selector.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 37; guard: ausente; padr\u00e3o: `Value::Int(..)\n            | Value::Float(..)\n            | Value::Str(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Func(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Auto\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Symbol(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)`.",
+      "file": "./01_core/src/compiler/stdlib/html/attr_cast.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 38; guard: ausente; padr\u00e3o: `Value::None\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Str(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Func(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Auto\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Symbol(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)`.",
+      "file": "./01_core/src/compiler/stdlib/html/attr_cast.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 35; guard: ausente; padr\u00e3o: `Value::None\n        | Value::Bool(_)\n        | Value::Int(_)\n        | Value::Str(_)\n        | Value::Array(_)\n        | Value::Dict(_)\n        | Value::Module(_)\n        | Value::Datetime(_)\n        | Value::Func(_)\n        | Value::Content(_)\n        | Value::LocatedContent(_, _)\n        | Value::Relative(_)\n        | Value::Ratio(_)\n        | Value::Angle(_)\n        | Value::Color(_)\n        | Value::Stroke(_)\n        | Value::Align(_)\n        | Value::Location(_)\n        | Value::Gradient(_)\n        | Value::Regex(_)\n        | Value::Tiling(_)\n        | Value::Bytes(_)\n        | Value::Decimal(_)\n        | Value::Duration(_)\n        | Value::Version(_)\n        | Value::Selector(_)\n        | Value::Symbol(_)\n        | Value::Args(_)\n        | Value::State(_)\n        | Value::Counter(_)\n        | Value::Label(_)\n        | Value::Dir(_)\n        | Value::Path(_)\n        | Value::Type(_)\n        | Value::SpotColorant(_)`.",
+      "file": "./01_core/src/compiler/stdlib/layout/grid.rs",
+      "count": 1
+    },
+    {
+      "rule": "V20",
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Array(values))` fora de contexto-tabela",
+      "file": "./01_core/src/compiler/stdlib/layout/grid.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Value::Ratio(_) | Value::Relative(_)`.",
+      "file": "./01_core/src/compiler/stdlib/layout/grid.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 37; guard: ausente; padr\u00e3o: `Value::None\n                        | Value::Bool(_)\n                        | Value::Int(_)\n                        | Value::Float(_)\n                        | Value::Str(_)\n                        | Value::Array(_)\n                        | Value::Dict(_)\n                        | Value::Module(_)\n                        | Value::Datetime(_)\n                        | Value::Func(_)\n                        | Value::Content(_)\n                        | Value::LocatedContent(_, _)\n                        | Value::Auto\n                        | Value::Length(_)\n                        | Value::Angle(_)\n                        | Value::Color(_)\n                        | Value::Stroke(_)\n                        | Value::Fraction(_)\n                        | Value::Align(_)\n                        | Value::Location(_)\n                        | Value::Gradient(_)\n                        | Value::Regex(_)\n                        | Value::Tiling(_)\n                        | Value::Bytes(_)\n                        | Value::Decimal(_)\n                        | Value::Duration(_)\n                        | Value::Version(_)\n                        | Value::Selector(_)\n                        | Value::Symbol(_)\n                        | Value::Args(_)\n                        | Value::State(_)\n                        | Value::Counter(_)\n                        | Value::Label(_)\n                        | Value::Dir(_)\n                        | Value::Path(_)\n                        | Value::Type(_)\n                        | Value::SpotColorant(_)`.",
+      "file": "./01_core/src/compiler/stdlib/layout/grid.rs",
+      "count": 1
+    },
+    {
+      "rule": "V20",
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Int(count))` fora de contexto-tabela",
+      "file": "./01_core/src/compiler/stdlib/layout/grid.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 4; guard: ausente; padr\u00e3o: `Some(Value::Ratio(_) | Value::Relative(_)) | None`.",
+      "file": "./01_core/src/compiler/stdlib/layout/grid.rs",
+      "count": 1
+    },
+    {
+      "rule": "V20",
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Ratio(_) | Value::Relative(_)) | None` fora de contexto-tabela",
+      "file": "./01_core/src/compiler/stdlib/layout/grid.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Value::Ratio(_) | Value::Relative(_)`.",
+      "file": "./01_core/src/compiler/stdlib/layout/place.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 34; guard: ausente; padr\u00e3o: `Value::None\n            | Value::Bool(_)\n            | Value::Str(_)\n            | Value::Array(_)\n            | Value::Dict(_)\n            | Value::Module(_)\n            | Value::Datetime(_)\n            | Value::Func(_)\n            | Value::Content(_)\n            | Value::LocatedContent(_, _)\n            | Value::Auto\n            | Value::Angle(_)\n            | Value::Color(_)\n            | Value::Stroke(_)\n            | Value::Fraction(_)\n            | Value::Align(_)\n            | Value::Location(_)\n            | Value::Gradient(_)\n            | Value::Regex(_)\n            | Value::Tiling(_)\n            | Value::Bytes(_)\n            | Value::Decimal(_)\n            | Value::Duration(_)\n            | Value::Version(_)\n            | Value::Selector(_)\n            | Value::Symbol(_)\n            | Value::Args(_)\n            | Value::State(_)\n            | Value::Counter(_)\n            | Value::Label(_)\n            | Value::Dir(_)\n            | Value::Path(_)\n            | Value::Type(_)\n            | Value::SpotColorant(_)`.",
+      "file": "./01_core/src/compiler/stdlib/layout/place.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 39; guard: ausente; padr\u00e3o: `Value::None\n            | Value::Bool(..)\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Str(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Func(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Auto\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Symbol(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)`.",
+      "file": "./01_core/src/compiler/stdlib/layout/stroke.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 37; guard: ausente; padr\u00e3o: `Value::None\n            | Value::Bool(..)\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Func(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Auto\n            | Value::Length(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Symbol(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)`.",
+      "file": "./01_core/src/compiler/stdlib/layout.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 4; guard: ausente; padr\u00e3o: `Content::Source(..)\n            | Content::ShowRecipe(..)\n            | Content::Located(..)\n            | Content::Realized(..)`.",
+      "file": "./01_core/src/compiler/stdlib/loading/encoding.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 108; guard: ausente; padr\u00e3o: `Content::Text(..)\n            | Content::Space\n            | Content::SpaceFromNewline\n            | Content::Parbreak\n            | Content::HtmlFrame(..)\n            | Content::Par { .. }\n            | Content::Heading(..)\n            | Content::Title(..)\n            | Content::Strong(..)\n            | Content::Emph(..)\n            | Content::Raw(..)\n            | Content::ListItem(..)\n            | Content::EnumItem(..)\n            | Content::Equation(..)\n            | Content::MathSequence(..)\n            | Content::MathIdent(..)\n            | Content::MathText(..)\n            | Content::MathFrac(..)\n            | Content::MathAttach(..)\n            | Content::MathPrimes(..)\n            | Content::MathRoot(..)\n            | Content::MathStretch(..)\n            | Content::MathDelimited(..)\n            | Content::MathLr(..)\n            | Content::MathMid(..)\n            | Content::MathOverbrace(..)\n            | Content::MathUnderbrace(..)\n            | Content::MathUnderbracket(..)\n            | Content::MathUnderparen(..)\n            | Content::MathUndershell(..)\n            | Content::MathOverbracket(..)\n            | Content::MathOverparen(..)\n            | Content::MathOvershell(..)\n            | Content::MathAlignPoint(..)\n            | Content::Linebreak(..)\n            | Content::MathMatrix(..)\n            | Content::MathCases(..)\n            | Content::MathAccent(..)\n            | Content::MathCancel(..)\n            | Content::MathUnderline(..)\n            | Content::MathOverline(..)\n            | Content::MathVec(..)\n            | Content::MathClassOverride(..)\n            | Content::MathLimitsOverride(..)\n            | Content::MathUnderover(..)\n            | Content::MathOp(..)\n            | Content::MathStyled(..)\n            | Content::Label(..)\n            | Content::Ref(..)\n            | Content::CounterDisplay(..)\n            | Content::CounterUpdate(..)\n            | Content::Outline(..)\n            | Content::OutlineEntry(..)\n            | Content::Figure(..)\n            | Content::FigureCaption(..)\n            | Content::Image(..)\n            | Content::Shape(..)\n            | Content::Curve(..)\n            | Content::Transform(..)\n            | Content::Grid(..)\n            | Content::GridHeader(..)\n            | Content::GridFooter(..)\n            | Content::GridCell(..)\n            | Content::SetPage(..)\n            | Content::PageRun(..)\n            | Content::Align(..)\n            | Content::Place(..)\n            | Content::Flush(..)\n            | Content::Divider(..)\n            | Content::Terms(..)\n            | Content::TermItem(..)\n            | Content::Quote(..)\n            | Content::Document { .. }\n            | Content::Asset { .. }\n            | Content::SmartQuote(..)\n            | Content::PdfAttach(..)\n            | Content::PdfArtifact(..)\n            | Content::Underline(..)\n            | Content::Strike(..)\n            | Content::Overline(..)\n            | Content::SmallCaps { .. }\n            | Content::Pad(..)\n            | Content::Hide(..)\n            | Content::HSpace(..)\n            | Content::VSpace(..)\n            | Content::Pagebreak(..)\n            | Content::Colbreak(..)\n            | Content::Stack(..)\n            | Content::TableCell(..)\n            | Content::Bibliography(..)\n            | Content::Cite(..)\n            | Content::Footnote(..)\n            | Content::FootnoteEntry(..)\n            | Content::TableHeader(..)\n            | Content::TableFooter(..)\n            | Content::GridHLine(..)\n            | Content::GridVLine(..)\n            | Content::TableHLine(..)\n            | Content::TableVLine(..)\n            | Content::Table(..)\n            | Content::Repeat(..)\n            | Content::Columns(..)\n            | Content::State(..)\n            | Content::StateUpdate(..)\n            | Content::StateDisplay(..)\n            | Content::CounterDisplayCallback(..)\n            | Content::ContextBlock(..)\n            | Content::Dynamic(..)`.",
+      "file": "./01_core/src/compiler/stdlib/loading/encoding.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 29; guard: ausente; padr\u00e3o: `Value::Module(..)\n        | Value::Datetime(..)\n        | Value::Func(..)\n        | Value::Auto\n        | Value::Length(..)\n        | Value::Relative(..)\n        | Value::Ratio(..)\n        | Value::Angle(..)\n        | Value::Color(..)\n        | Value::Stroke(..)\n        | Value::Fraction(..)\n        | Value::Align(..)\n        | Value::Location(..)\n        | Value::Gradient(..)\n        | Value::Regex(..)\n        | Value::Tiling(..)\n        | Value::Bytes(..)\n        | Value::Decimal(..)\n        | Value::Duration(..)\n        | Value::Version(..)\n        | Value::Selector(..)\n        | Value::Args(..)\n        | Value::State(..)\n        | Value::Counter(..)\n        | Value::Label(..)\n        | Value::Dir(..)\n        | Value::Path(..)\n        | Value::Type(..)\n        | Value::SpotColorant(..)`.",
+      "file": "./01_core/src/compiler/stdlib/loading/yaml_encode.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 2; guard: ausente; padr\u00e3o: `Value::Ratio(_) | Value::Relative(_)`.",
+      "file": "./01_core/src/compiler/stdlib/shapes/line.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 34; guard: ausente; padr\u00e3o: `Value::None\n            | Value::Bool(_)\n            | Value::Str(_)\n            | Value::Array(_)\n            | Value::Dict(_)\n            | Value::Module(_)\n            | Value::Datetime(_)\n            | Value::Func(_)\n            | Value::Content(_)\n            | Value::LocatedContent(_, _)\n            | Value::Auto\n            | Value::Angle(_)\n            | Value::Color(_)\n            | Value::Stroke(_)\n            | Value::Fraction(_)\n            | Value::Align(_)\n            | Value::Location(_)\n            | Value::Gradient(_)\n            | Value::Regex(_)\n            | Value::Tiling(_)\n            | Value::Bytes(_)\n            | Value::Decimal(_)\n            | Value::Duration(_)\n            | Value::Version(_)\n            | Value::Selector(_)\n            | Value::Symbol(_)\n            | Value::Args(_)\n            | Value::State(_)\n            | Value::Counter(_)\n            | Value::Label(_)\n            | Value::Dir(_)\n            | Value::Path(_)\n            | Value::Type(_)\n            | Value::SpotColorant(_)`.",
+      "file": "./01_core/src/compiler/stdlib/shapes/line.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 37; guard: ausente; padr\u00e3o: `Value::Bool(..)\n        | Value::Int(..)\n        | Value::Float(..)\n        | Value::Array(..)\n        | Value::Dict(..)\n        | Value::Module(..)\n        | Value::Datetime(..)\n        | Value::Func(..)\n        | Value::Content(..)\n        | Value::LocatedContent(..)\n        | Value::Auto\n        | Value::Length(..)\n        | Value::Relative(..)\n        | Value::Ratio(..)\n        | Value::Angle(..)\n        | Value::Color(..)\n        | Value::Stroke(..)\n        | Value::Fraction(..)\n        | Value::Align(..)\n        | Value::Location(..)\n        | Value::Gradient(..)\n        | Value::Regex(..)\n        | Value::Tiling(..)\n        | Value::Bytes(..)\n        | Value::Decimal(..)\n        | Value::Duration(..)\n        | Value::Version(..)\n        | Value::Selector(..)\n        | Value::Symbol(..)\n        | Value::Args(..)\n        | Value::State(..)\n        | Value::Counter(..)\n        | Value::Label(..)\n        | Value::Dir(..)\n        | Value::Path(..)\n        | Value::Type(..)\n        | Value::SpotColorant(..)`.",
+      "file": "./01_core/src/compiler/stdlib/structural/bibliography.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 114; guard: ausente; padr\u00e3o: `Content::Source(..)\n        | Content::ShowRecipe(..)\n        | Content::Realized(..)\n        | Content::Located(..)\n        | Content::Empty\n        | Content::Text(..)\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::HtmlElem(..)\n        | Content::HtmlFrame(..)\n        | Content::Par { .. }\n        | Content::Heading(..)\n        | Content::Title(..)\n        | Content::Strong(..)\n        | Content::Emph(..)\n        | Content::Raw(..)\n        | Content::ListItem(..)\n        | Content::EnumItem(..)\n        | Content::Link(..)\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathFrac(..)\n        | Content::MathAttach(..)\n        | Content::MathPrimes(..)\n        | Content::MathRoot(..)\n        | Content::MathStretch(..)\n        | Content::MathLr(..)\n        | Content::MathMid(..)\n        | Content::MathOverbrace(..)\n        | Content::MathUnderbrace(..)\n        | Content::MathUnderbracket(..)\n        | Content::MathUnderparen(..)\n        | Content::MathUndershell(..)\n        | Content::MathOverbracket(..)\n        | Content::MathOverparen(..)\n        | Content::MathOvershell(..)\n        | Content::MathAlignPoint(..)\n        | Content::Linebreak(..)\n        | Content::MathMatrix(..)\n        | Content::MathCases(..)\n        | Content::MathCancel(..)\n        | Content::MathUnderline(..)\n        | Content::MathOverline(..)\n        | Content::MathVec(..)\n        | Content::MathClassOverride(..)\n        | Content::MathLimitsOverride(..)\n        | Content::MathUnderover(..)\n        | Content::MathOp(..)\n        | Content::MathStyled(..)\n        | Content::Label(..)\n        | Content::Ref(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Outline(..)\n        | Content::OutlineEntry(..)\n        | Content::Figure(..)\n        | Content::FigureCaption(..)\n        | Content::Image(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::Transform(..)\n        | Content::Grid(..)\n        | Content::GridHeader(..)\n        | Content::GridFooter(..)\n        | Content::GridCell(..)\n        | Content::SetPage(..)\n        | Content::PageRun(..)\n        | Content::Align(..)\n        | Content::Place(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Terms(..)\n        | Content::TermItem(..)\n        | Content::Quote(..)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::SmartQuote(..)\n        | Content::PdfAttach(..)\n        | Content::PdfArtifact(..)\n        | Content::Underline(..)\n        | Content::Strike(..)\n        | Content::Overline(..)\n        | Content::SmallCaps { .. }\n        | Content::Pad(..)\n        | Content::Hide(..)\n        | Content::HSpace(..)\n        | Content::VSpace(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::Stack(..)\n        | Content::Boxed(..)\n        | Content::Block(..)\n        | Content::TableCell(..)\n        | Content::Bibliography(..)\n        | Content::Cite(..)\n        | Content::Footnote(..)\n        | Content::FootnoteEntry(..)\n        | Content::TableHeader(..)\n        | Content::TableFooter(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)\n        | Content::Table(..)\n        | Content::Repeat(..)\n        | Content::Columns(..)\n        | Content::Metadata(..)\n        | Content::State(..)\n        | Content::StateUpdate(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::ContextBlock(..)\n        | Content::Dynamic(..)`.",
+      "file": "./01_core/src/compiler/stdlib/structural/math_accent_tests.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 114; guard: ausente; padr\u00e3o: `Content::Source(..)\n        | Content::ShowRecipe(..)\n        | Content::Realized(..)\n        | Content::Located(..)\n        | Content::Empty\n        | Content::Text(..)\n        | Content::Space\n        | Content::SpaceFromNewline\n        | Content::Parbreak\n        | Content::HtmlElem(..)\n        | Content::HtmlFrame(..)\n        | Content::Par { .. }\n        | Content::Heading(..)\n        | Content::Title(..)\n        | Content::Strong(..)\n        | Content::Emph(..)\n        | Content::Raw(..)\n        | Content::ListItem(..)\n        | Content::EnumItem(..)\n        | Content::Link(..)\n        | Content::MathIdent(..)\n        | Content::MathText(..)\n        | Content::MathFrac(..)\n        | Content::MathAttach(..)\n        | Content::MathPrimes(..)\n        | Content::MathRoot(..)\n        | Content::MathStretch(..)\n        | Content::MathLr(..)\n        | Content::MathMid(..)\n        | Content::MathOverbrace(..)\n        | Content::MathUnderbrace(..)\n        | Content::MathUnderbracket(..)\n        | Content::MathUnderparen(..)\n        | Content::MathUndershell(..)\n        | Content::MathOverbracket(..)\n        | Content::MathOverparen(..)\n        | Content::MathOvershell(..)\n        | Content::MathAlignPoint(..)\n        | Content::Linebreak(..)\n        | Content::MathMatrix(..)\n        | Content::MathAccent(..)\n        | Content::MathCancel(..)\n        | Content::MathUnderline(..)\n        | Content::MathOverline(..)\n        | Content::MathVec(..)\n        | Content::MathClassOverride(..)\n        | Content::MathLimitsOverride(..)\n        | Content::MathUnderover(..)\n        | Content::MathOp(..)\n        | Content::MathStyled(..)\n        | Content::Label(..)\n        | Content::Ref(..)\n        | Content::CounterDisplay(..)\n        | Content::CounterUpdate(..)\n        | Content::Outline(..)\n        | Content::OutlineEntry(..)\n        | Content::Figure(..)\n        | Content::FigureCaption(..)\n        | Content::Image(..)\n        | Content::Shape(..)\n        | Content::Curve(..)\n        | Content::Transform(..)\n        | Content::Grid(..)\n        | Content::GridHeader(..)\n        | Content::GridFooter(..)\n        | Content::GridCell(..)\n        | Content::SetPage(..)\n        | Content::PageRun(..)\n        | Content::Align(..)\n        | Content::Place(..)\n        | Content::Flush(..)\n        | Content::Divider(..)\n        | Content::Terms(..)\n        | Content::TermItem(..)\n        | Content::Quote(..)\n        | Content::Document { .. }\n        | Content::Asset { .. }\n        | Content::SmartQuote(..)\n        | Content::PdfAttach(..)\n        | Content::PdfArtifact(..)\n        | Content::Underline(..)\n        | Content::Strike(..)\n        | Content::Overline(..)\n        | Content::SmallCaps { .. }\n        | Content::Pad(..)\n        | Content::Hide(..)\n        | Content::HSpace(..)\n        | Content::VSpace(..)\n        | Content::Pagebreak(..)\n        | Content::Colbreak(..)\n        | Content::Stack(..)\n        | Content::Boxed(..)\n        | Content::Block(..)\n        | Content::TableCell(..)\n        | Content::Bibliography(..)\n        | Content::Cite(..)\n        | Content::Footnote(..)\n        | Content::FootnoteEntry(..)\n        | Content::TableHeader(..)\n        | Content::TableFooter(..)\n        | Content::GridHLine(..)\n        | Content::GridVLine(..)\n        | Content::TableHLine(..)\n        | Content::TableVLine(..)\n        | Content::Table(..)\n        | Content::Repeat(..)\n        | Content::Columns(..)\n        | Content::Metadata(..)\n        | Content::State(..)\n        | Content::StateUpdate(..)\n        | Content::StateDisplay(..)\n        | Content::CounterDisplayCallback(..)\n        | Content::ContextBlock(..)\n        | Content::Dynamic(..)`.",
+      "file": "./01_core/src/compiler/stdlib/structural/math_cases_tests.rs",
+      "count": 1
+    },
+    {
+      "rule": "V19",
+      "message": "Este bra\u00e7o agrupa alternativas. Executar o corpo n\u00e3o comprova exercitar cada alternativa; verificar os testes pertinentes. Alternativas escritas nos grupos: 35; guard: ausente; padr\u00e3o: `Value::None\n            | Value::Int(..)\n            | Value::Float(..)\n            | Value::Str(..)\n            | Value::Array(..)\n            | Value::Dict(..)\n            | Value::Module(..)\n            | Value::Datetime(..)\n            | Value::Content(..)\n            | Value::LocatedContent(..)\n            | Value::Relative(..)\n            | Value::Ratio(..)\n            | Value::Angle(..)\n            | Value::Color(..)\n            | Value::Stroke(..)\n            | Value::Fraction(..)\n            | Value::Align(..)\n            | Value::Location(..)\n            | Value::Gradient(..)\n            | Value::Regex(..)\n            | Value::Tiling(..)\n            | Value::Bytes(..)\n            | Value::Decimal(..)\n            | Value::Duration(..)\n            | Value::Version(..)\n            | Value::Selector(..)\n            | Value::Symbol(..)\n            | Value::Args(..)\n            | Value::State(..)\n            | Value::Counter(..)\n            | Value::Label(..)\n            | Value::Dir(..)\n            | Value::Path(..)\n            | Value::Type(..)\n            | Value::SpotColorant(..)`.",
+      "file": "./01_core/src/compiler/stdlib/structural/outline.rs",
+      "count": 1
+    }
+  ],
+  "removed_substantive_notes": [
+    {
+      "rule": "V20",
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `CounterKey::Selector(Selector::Kind(k))` fora de contexto-tabela",
+      "file": "./01_core/src/compiler/stdlib/counter/display.rs",
+      "count": 1
+    },
+    {
+      "rule": "V20",
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Array(arr))` fora de contexto-tabela",
+      "file": "./01_core/src/compiler/stdlib/layout/grid.rs",
+      "count": 1
+    },
+    {
+      "rule": "V20",
+      "message": "Profundidade de padr\u00e3o 3 > 2 em `Some(Value::Int(n))` fora de contexto-tabela",
+      "file": "./01_core/src/compiler/stdlib/layout/grid.rs",
+      "count": 1
+    }
+  ]
+}

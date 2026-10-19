@@ -1,0 +1,402 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.46
+   Compiling syn v2.0.98
+   Compiling synstructure v0.13.2
+   Compiling zerofrom-derive v0.1.7
+   Compiling zerofrom v0.1.8
+   Compiling yoke-derive v0.8.2
+   Compiling displaydoc v0.2.6
+   Compiling yoke v0.8.3
+   Compiling serde_derive v1.0.228
+   Compiling zerovec-derive v0.11.3
+   Compiling zerovec v0.11.6
+   Compiling serde v1.0.228
+   Compiling tinystr v0.8.3
+   Compiling icu_locale_core v2.2.0
+   Compiling potential_utf v0.1.5
+   Compiling zerotrie v0.2.4
+   Compiling icu_collections v2.2.0
+   Compiling icu_provider v2.2.0
+   Compiling zerocopy-derive v0.8.27
+   Compiling bytemuck_derive v1.11.0
+   Compiling bytemuck v1.25.0
+   Compiling zerocopy v0.8.27
+   Compiling icu_properties v2.2.0
+   Compiling icu_normalizer v2.2.0
+   Compiling unic-langid-impl v0.9.6
+   Compiling thiserror v2.0.16
+   Compiling unic-langid-macros-impl v0.9.6
+   Compiling idna_adapter v1.2.2
+   Compiling thiserror-impl v2.0.16
+   Compiling unic-langid-macros v0.9.6
+   Compiling idna v1.1.0
+   Compiling ring v0.17.14
+   Compiling icu_locale v2.2.0
+   Compiling half v2.7.1
+   Compiling strum_macros v0.27.2
+   Compiling enum-ordinalize-derive v4.3.2
+   Compiling ciborium-ll v0.2.2
+   Compiling enum-ordinalize v4.3.2
+   Compiling plist v1.10.0
+   Compiling strum v0.27.2
+   Compiling url v2.5.8
+   Compiling unic-langid v0.9.6
+   Compiling ppv-lite86 v0.2.21
+   Compiling font-types v0.11.3
+   Compiling quick-xml v0.38.4
+   Compiling toml_datetime v0.6.11
+   Compiling bincode v1.3.3
+   Compiling serde_spanned v0.6.9
+   Compiling syn v3.0.6
+   Compiling biblatex v0.12.0
+   Compiling serde_yaml v0.9.34+deprecated
+   Compiling chinese-number v0.7.8
+   Compiling toml_edit v0.22.27
+   Compiling syntect v5.3.0
+   Compiling clap_derive v4.6.4
+   Compiling citationberg v0.7.0
+   Compiling read-fonts v0.39.2
+   Compiling rand_chacha v0.3.1
+   Compiling icu_collator v2.2.0
+   Compiling ciborium v0.2.2
+   Compiling comemo-macros v0.4.0
+   Compiling comemo v0.4.0
+   Compiling hayagriva v0.10.1
+   Compiling rustls v0.23.42
+   Compiling lipsum v0.9.1
+   Compiling icu_segmenter v2.2.0
+   Compiling clap v4.6.6
+   Compiling two-face v0.4.5
+   Compiling toml v0.8.23
+   Compiling rust_decimal v1.42.1
+   Compiling rustls-webpki v0.103.13
+   Compiling codex v0.3.0 (https://github.com/typst/codex?rev=2e43ab90079cf9f9fa670d421c8c38233143b376#2e43ab90)
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+   Compiling tiny-skia-path v0.12.0
+   Compiling clap_complete v4.6.9
+   Compiling write-fonts v0.48.1
+   Compiling skrifa v0.42.1
+   Compiling image v0.24.9
+   Compiling rustybuzz v0.20.1
+   Compiling tiny-skia v0.12.0
+   Compiling subsetter v0.2.6
+   Compiling clap_complete_nushell v4.6.2
+   Compiling ureq v2.12.1
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+   Compiling typst-shell v0.1.0 (/repos/Antigravity/typst-crystalline/02_shell)
+   Compiling typst-wiring v0.1.0 (/repos/Antigravity/typst-crystalline/04_wiring)
+    Finished `test` profile [unoptimized] target(s) in 1m 50s
+     Running unittests src/main.rs (lab/target/product/debug/deps/typst-32352a00852a1b2b)
+
+running 10 tests
+test compile::tests::p1323_html_experimental_warning_matches_ratified_envelope ... ok
+test compile::tests::p1366_report_in_order_runs_status_before_diagnostics_once ... ok
+test eviction::tests::p204e_crystalline_evict_aceita_max_age_parametro ... ok
+test eviction::tests::p204e_crystalline_evict_existe ... ok
+test tests::main_is_only_a_closed_command_dispatcher ... ok
+test watch::tests::p1362_watch_status_for_outcome_selects_typed_status ... ok
+test watch::tests::p1363_watch_line_at_uses_the_supplied_literal_time ... ok
+test watch::tests::p1364_watch_block_at_uses_one_lf_for_compiling_and_two_for_terminal_statuses ... ok
+test watch::tests::p1365_prepare_watch_cycle_captures_before_formatting_once ... ok
+test watch::tests::p1367_write_watch_block_writes_then_flushes_and_propagates_failures ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cli.rs (lab/target/product/debug/deps/cli-e50a8e9fc9e30722)
+
+running 126 tests
+test cli_env_typst_font_paths_delimiter ... ok
+test cli_env_typst_root ... ok
+test cli_erro_de_eval ... ok
+test cli_erro_de_io_input_inexistente ... ok
+test cli_flag_root_vence_env ... ok
+test cli_font_path_explicito ... ok
+test cli_font_path_inexistente_nao_falha ... ok
+test cli_font_path_repetivel ... ok
+test cli_output_omitido_deriva_de_input ... ok
+test cli_output_via_flag_o ... ok
+test cli_plugin_mensagens_e_spans_verbatim_p819 ... ok
+test cli_plugin_transition_caminho_feliz_p819 ... ok
+test cli_root_explicito ... ok
+test cli_sem_argumentos ... ok
+test cli_sucesso_com_warning ... ok
+test cli_sucesso_sem_warnings ... ok
+test compile_stdin_formats_ignore_physical_dash ... ok
+test compile_stdin_root_resources_inputs_and_origins ... ok
+test compile_stdin_warning_invalid_utf8_and_root ... ok
+test diagnostic_paths_descendant_unicode_and_spaces_keep_source_position ... ok
+test diagnostic_paths_import_error_and_call_trace_share_relative_base ... ok
+test diagnostic_paths_sibling_sources_are_relative_for_compile_and_query ... ok
+test disciplina_errors_antes_de_warnings ... ok
+test disciplina_exit_zero_implica_pdf_nao_vazio ... ok
+test disciplina_pdf_magic_header ... ok
+test disciplina_pdf_trailer_eof ... ok
+test disciplina_stderr_vazio_em_compilacao_limpa ... ok
+test disciplina_stdout_vazio_em_erro ... ok
+test disciplina_stdout_vazio_em_sucesso ... ok
+test empty_markup_warning_caret_matches_with_and_without_expression_error ... ok
+test equation_native_selector_queries_existing_equations_and_aliases ... ok
+test expression_source_identity_document_and_expression_errors ... ok
+test expression_source_identity_relative_reads_imports_and_callback_trace ... ok
+test expression_source_identity_warning_and_stdin_are_documents ... ok
+test p1137_cert_global_e_env_aparecem_apenas_como_presenca_no_info ... ok
+test p1137_compile_e_alias_c_produzem_artefacto ... ok
+test p1137_completions_bash_usa_arvore_cli_real ... ok
+test p1137_completions_shell_invalido_e_exit_2 ... ok
+test p1137_fonts_lista_embutidas_sem_sistema ... ok
+test p1137_fonts_variants_expoe_campos ... ok
+test p1137_help_expoe_compile_e_oculta_query ... ok
+test p1137_info_humano_contem_categorias ... ok
+test p1137_info_json_expoe_schema_e_commit_integral ... ok
+test p1137_info_nao_expoe_segredos ... ok
+test p1137_info_pretty_sem_formato_e_exit_2 ... ok
+test p1137_init_destino_existente_nao_escreve ... ok
+test p1137_init_explicito_materializa_somente_template ... ok
+test p1137_init_falha_no_meio_sem_arvore_parcial ... ok
+test p1137_init_rejeita_manifesto_sem_template_e_path_escapando ... ok
+test p1137_init_sem_versao_escolhe_maior_local ... ok
+test p1137_watch_dependencias_recuperacao_e_filtro ... ok
+test p1137_watch_help_alias_e_stdout_rejeitado ... ok
+test p1163_eval_symbol_json_preserva_grapheme_integral ... ok
+test p1163_eval_symbol_raw_nomeia_tipo_publico ... ok
+test p1166_eval_html_feature_off_on ... ok
+test p1166_html_feature_gate_e_elem_vertical ... ok
+test p1168_html_typed_batch_repr_and_dom ... ok
+test p1169_1_html_ol_li_repr_casts_e_dom ... ok
+test p1170_1_html_a_repr_casts_e_dom_aninhado ... ok
+test p1171_1_html_br_void_e_whitespace_dom ... ok
+test p1172_1_html_agrupa_phrasing_no_topo ... ok
+test p1173_1_html_lote_global_only_2_e_whitespace_block ... ok
+test p1174_1_html_lote_global_only_3 ... ok
+test p1175_1_html_lote_global_only_4_e_espaco_protegido ... ok
+test p1176_1_html_lote_residual_normal ... ok
+test p1177_1_html_familia_ruby ... ok
+test p1178_1_html_familia_documento ... ok
+test p1285_query_stdin_transporta_yaml_ate_stdout ... ok
+test p1359_pdf_tagged_default_moderno_legado_e_precedencia ... ok
+test p1359_pdf_tagged_e_compact_sao_ortogonais ... ok
+test p1359_pdf_tagged_e_neutro_para_png ... ok
+test p1359_pdf_tagged_requires_equals_and_rejects_invalid_values ... ok
+test p1485_bundle_body_vazio_reinicia_so_page ... ok
+test p1485_bundle_contexto_posterior_atualiza_consulta_anterior ... ok
+test p1485_bundle_counter_global_entre_html_e_pdf ... ok
+test p1485_bundle_default_output_e_stdout ... ok
+test p1485_bundle_estado_global_e_contexto_aninhado ... ok
+test p1485_bundle_heading_numbering_continua_entre_pdfs ... ok
+test p1485_bundle_html_frame_exporta_svg_inline ... ok
+test p1485_bundle_html_frame_heading_rotulada_renderiza_svg ... ok
+test p1485_bundle_html_nao_herda_page_counter_do_pdf ... ok
+test p1485_bundle_html_respeita_update_page_proprio ... ok
+test p1485_bundle_introspeccao_atravessa_documentos ... ok
+test p1485_bundle_mistura_documentos_e_preserva_asset_byte_exato ... ok
+test p1485_bundle_page_at_label_cruzado_usa_documento_de_origem ... ok
+test p1485_bundle_page_counter_e_local_a_cada_pdf ... ok
+test p1485_bundle_page_func_erro_impede_publicacao_parcial ... ok
+test p1485_bundle_page_func_no_pdf_nao_contamina_html ... ok
+test p1485_bundle_page_func_segue_ordem_causal_entre_bodies ... ok
+test p1485_bundle_page_update_nao_vaza_ao_pdf_seguinte ... ok
+test p1485_bundle_pdf_unicode_e_fonte_embutida ... ok
+test p1485_bundle_referencia_rotulada_cruza_pdfs ... ok
+test p1485_bundle_rejeita_entradas_invalidas_sem_publicar_arvore ... ok
+test p1485_bundle_target_contextual_por_documento ... ok
+test p1485_watch_bundle_http_reload_e_preserva_snapshot_apos_erro ... ok
+test p1485_watch_flags_no_reload_no_serve_e_porta_ocupada ... ok
+test p1500_compile_e_alias_aceitam_font_path_vazio ... ok
+test p1500_font_path_sem_argumento_continua_erro ... ok
+test p1500_fonts_flag_vazia_vence_env_e_segmentos_reais_permanecem ... ok
+test p1500_fonts_font_path_vazio_nao_descobre_diretorio ... ok
+test p1500_watch_e_alias_aceitam_font_path_vazio ... ok
+test p1501_completions_nushell_estrutura_determinismo_e_sem_ficheiros ... ok
+test p616_text_dir_btt_rejeitado ... ok
+test p616_text_dir_rtl_continua_funcionar ... ok
+test p616_text_dir_ttb_rejeitado ... ok
+test p617_document_id_fixo_instance_id_aleatorio ... ok
+test p617_document_id_invalido_erro ... ok
+test p617_sem_document_id_document_id_aleatorio ... ok
+test p772b_span_cross_file_aponta_para_ficheiro_importado ... ok
+test p772d_io_import_path_inexistente_nao_detached ... ok
+test p866_format_flag_pdf_continua_funcionar ... ok
+test p866_output_pdf_continua_funcionar ... ok
+test p870_format_flag_png_vence_extensao_pdf ... ok
+test p870_format_flag_svg_vence_extensao_pdf ... ok
+test p870_output_png_gera_png_valido ... ok
+test p870_output_svg_gera_svg_valido ... ok
+test query_compiled_context_errors_preserve_origin_trace_and_deprecation ... ok
+test query_compiled_context_metadata_is_visible ... ok
+test query_compiled_document_error_precedes_selector_but_retrieval_has_no_warning ... ok
+test query_compiled_where_and_labels_preserve_language_fields ... ok
+test query_residuos_missing_file_preserva_argumento_e_status ... ok
+test stdin_output_explicit_forms_preserve_flag_precedence_and_file_default ... ok
+test stdin_output_required_before_compilation ... ok
+test warnings_cli_html_preserva_ordem_dos_avisos ... ok
+test warnings_cli_query_hint_e_falhas_de_recuperacao ... ok
+test warnings_cli_query_stdin_preserva_origem_e_ordem ... ok
+
+test result: ok. 126 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 58.98s
+
+     Running tests/crystalline_lint.rs (lab/target/product/debug/deps/crystalline_lint-0fbbc16bf7df7140)
+
+running 2 tests
+test type_level_allowed_ecow_ecostring ... ok
+test type_level_violation_ecow_ecomap ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/float_is_infinite.rs (lab/target/product/debug/deps/float_is_infinite-a9ce43251103c2a4)
+
+running 2 tests
+test p1289_float_is_infinite_preserves_public_signature_and_errors ... ok
+test p1289_float_is_infinite_reports_finite_infinite_and_nan ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/format_html.rs (lab/target/product/debug/deps/format_html-5a4ccc35e06a394e)
+
+running 4 tests
+test p1465_all_114_members_reuse_global_html_and_survive_with ... ok
+test p1465_document_and_cli_precedence_preserve_dom ... ok
+test p1465_gate_surface_and_manual_construction ... ok
+test p1465_set_rule_validation_order_and_container_boundary ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.21s
+
+     Running tests/format_pdf_namespace.rs (lab/target/product/debug/deps/format_pdf_namespace-52330973ba57b8df)
+
+running 4 tests
+test p1464_a11y_trio_is_all_or_nothing_with_exact_diagnostics ... ok
+test p1464_permanent_members_are_reused_and_survive_with ... ok
+test p1464_surface_defaults_aliases_and_manual_construction ... ok
+test p1464_svg_png_global_pdf_html_and_homonymous_closure_controls ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.13s
+
+     Running tests/format_pdf_pages.rs (lab/target/product/debug/deps/format_pdf_pages-252a8d8397a574ce)
+
+running 12 tests
+test p1468_cli_pages_flag_selects_pages_without_document_decision ... ok
+test p1468_cli_pages_overrides_document_pages ... ok
+test p1468_cli_pages_with_pdf_tagged_true_is_cli_only_error ... ok
+test p1468_document_pages_and_tagged_true_is_compile_error ... ok
+test p1468_document_pages_dict_range_selects_two_pages ... ok
+test p1468_document_pages_int_selects_single_page ... ok
+test p1468_document_pages_with_tagged_auto_warns_and_disables_tags ... ok
+test p1468_document_pages_with_tagged_false_is_silent_and_untagged ... ok
+test p1468_link_to_removed_page_omits_annotation ... ok
+test p1468_native_bookmarks_survive_for_included_page_heading ... ok
+test p1468_outline_child_is_reparented_when_parent_page_is_excluded ... ok
+test p1468_page_beyond_document_end_does_not_crash ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.38s
+
+     Running tests/format_pdf_standard.rs (lab/target/product/debug/deps/format_pdf_standard-ac6e0d76f8488f24)
+
+running 10 tests
+test p1469_cli_accessible_profile_with_pages_and_no_explicit_tagged_has_pages_hint ... ok
+test p1469_cli_accessible_profile_with_pdf_tagged_false_is_cli_only_error ... ok
+test p1469_cli_pdf_standard_conflicting_versions_is_rejected_before_compiling ... ok
+test p1469_cli_pdf_standard_flag_sets_header_without_document_decision ... ok
+test p1469_cli_pdf_standard_overrides_document_standard ... ok
+test p1469_document_accessible_profile_with_tagged_false_is_compile_error ... ok
+test p1469_document_standard_a1b_without_explicit_version_uses_1_4 ... ok
+test p1469_document_standard_archival_without_explicit_version_uses_range_maximum ... ok
+test p1469_document_standard_explicit_version_sets_header ... ok
+test p1469_no_standard_decision_anywhere_keeps_default_header_1_7 ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.26s
+
+     Running tests/format_pdf_tagged_pretty.rs (lab/target/product/debug/deps/format_pdf_tagged_pretty-efb9288e11e6100a)
+
+running 10 tests
+test p1467_absence_of_set_rule_resolves_auto_to_tagged ... ok
+test p1467_cli_no_pdf_tags_wins_over_document_tagged_true ... ok
+test p1467_cli_pdf_tagged_false_wins_over_document_tagged_true ... ok
+test p1467_cli_pdf_tagged_true_wins_over_document_tagged_false ... ok
+test p1467_cli_pretty_wins_over_document_pretty_false ... ok
+test p1467_document_pretty_true_without_cli_override ... ok
+test p1467_document_tagged_false_untags_pdf ... ok
+test p1467_document_tagged_true_tags_pdf ... ok
+test p1467_nested_format_pdf_rule_inside_block_fails_with_canonical_message ... ok
+test p1467_tagged_and_pretty_combine_independently ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.78s
+
+     Running tests/format_png.rs (lab/target/product/debug/deps/format_png-fd5e0d40087df301)
+
+running 7 tests
+test a4_default_usa_144_ppi_sem_alocacao_gigante ... ok
+test nested_rules_fail_with_exact_diagnostic_and_publish_no_artifact ... ok
+test one_point_ihdr_matrix_proves_defaults_cascade_precedence_and_limits ... ok
+test p1465_successor_html_is_feature_gated_from_format_namespace ... ok
+test png_document_and_caller_options_are_byte_neutral_to_svg ... ok
+test public_surface_namespace_and_manual_construction ... ok
+test set_validation_uses_normal_errors_without_legacy_warning_or_artifact ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.61s
+
+     Running tests/format_svg.rs (lab/target/product/debug/deps/format_svg-5da637ff9e4f9c19)
+
+running 7 tests
+test document_cascade_and_caller_override_select_svg_serialization ... ok
+test p1465_successor_html_is_feature_gated_from_format_namespace ... ok
+test pretty_and_compact_are_valid_xml_with_same_source_morphology ... ok
+test public_identity_default_and_manual_construction ... ok
+test root_is_accepted_and_two_distinct_containers_are_rejected ... ok
+test set_validation_uses_normal_errors_and_no_ignored_target_warning ... ok
+test svg_document_option_is_neutral_to_pdf_png_html_and_html_frame ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.79s
+
+     Running tests/language_and_export_contract.rs (lab/target/product/debug/deps/language_and_export_contract-1e6ca8e6c3ee8e7e)
+
+running 10 tests
+test p1293_a_static_bound_values_and_closed_errors ... ok
+test p1293_b_identity_morphology_convergence_and_errors ... ok
+test p1293_b_semantic_layout_vectors_none_and_no_fraction_rule ... ok
+test p1293_c_dom_order_void_escaping_and_nesting ... ok
+test p1293_c_export_facade_is_public_direct_and_keeps_html_semantics_owned_below ... ok
+test p1293_c_feature_and_target_are_independent_axes ... ok
+test p1293_c_serialization_modes_default_scope_and_non_html_neutrality ... ok
+test p1293_c_surface_all_specific_casts_and_closed_errors ... ok
+test p1293_d_preexisting_arity_and_serializer_transcript_is_preserved ... ok
+test p1293_d_ten_short_names_with_calls_and_flat_aliases_preserved ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.37s
+
+     Running tests/math_cancel_callback_runtime.rs (lab/target/product/debug/deps/math_cancel_callback_runtime-0f7c67bae31eecfc)
+
+running 5 tests
+test p1291_callback_aninhada_em_script_observa_size_efetivo_reduzido ... ok
+test p1291_callback_runtime_altera_angulo_final ... ok
+test p1291_callback_runtime_erro_preserva_span_da_chamada ... ok
+test p1291_callback_runtime_observa_style_efetivo ... ok
+test p1291_cross_sobrepoe_inverted_na_geometria_final ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.29s
+
+     Running tests/math_decoration_and_float_flush.rs (lab/target/product/debug/deps/math_decoration_and_float_flush-dc7ff988b287e365)
+
+running 11 tests
+test p1292_a_cancel_callback_cross_context_span_and_background ... ok
+test p1292_a_cancel_surface_repr_and_errors ... ok
+test p1292_b_italic_f_preserves_frame_and_shortens_only_rule ... ok
+test p1292_b_math_underline_math_constants_styles_and_italic_correction ... ok
+test p1292_b_math_underline_surface_identity_and_errors ... ok
+test p1292_b_plain_mixed_baselines_and_following_line_advance ... ok
+test p1292_b_underbar_fallback_constants_are_not_generic_line_defaults ... ok
+test p1292_c_vec_cardinality_defaults_repr_and_errors ... ok
+test p1292_c_vec_gap_finite_auto_absolute_and_mixed ... ok
+test p1292_d_flush_prefix_suffix_clearance_nested_and_noop ... ok
+test p1292_d_place_flush_namespace_repr_and_errors ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 22.28s
+
+     Running tests/smart_quotes_pdf_attachment_artifact.rs (lab/target/product/debug/deps/smart_quotes_pdf_attachment_artifact-6ed93cafc0e5079c)
+
+running 4 tests
+test p1286_artifact_suppresses_descendant_formula_structure_only_locally ... ok
+test p1286_attachment_preserves_virtual_path_and_metadata ... ok
+test p1286_smartquote_counts_unicode_graphemes ... ok
+test p1286_smartquote_explicit_auto_erases_inherited_quotes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.87s
+

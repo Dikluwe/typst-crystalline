@@ -1,5 +1,5 @@
 # L0 — stdlib/collections/validation — Shared validation and casts
-Hash do Código: 229b2653
+Hash do Código: b1d888f8
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/collections/validation.rs`
@@ -38,3 +38,56 @@ This ADR-0127 internal continuous-flow correction introduces no public signature
 product default or phase. Preserve language results and test expectations.
 Revalidate all targets, core suite, build, Clippy and lineage; do not substitute
 warning suppression for the correction.
+
+## Exhaustive higher-order constructor admission
+
+### Measured evidence
+
+At baseline HEAD `91ea6ee911`, `compiler/stdlib/collections/validation.rs:91-103`
+admits nine Type constructors while `compiler/eval/call_dispatch/invoke.rs:110-148`
+already admits additional native constructors. The frozen bilateral receipt
+`lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/baseline.json`
+records exact HEAD, UTC, working-tree diff and binary identities against pinned
+upstream `bd5ebec285505889e8ff1d4f68804ab147a699f3`. Decimal, Regex, Selector,
+Stroke, Tiling, Version, Label, Array(Bytes), Arguments and SpotColorant enter
+existing constructors when supplied as higher-order functions upstream; Duration
+also admits the constructor on an empty map and preserves its own argument errors
+when invoked. These are language-admission observations, not constructor-mechanics
+requirements. Native duration diagnostics and tiling representation already differ
+in direct calls; extending admission does not certify those independent contracts.
+
+### Contract and acceptance
+
+Preserve the existing nine constructor identities and add the existing native
+Decimal, Duration, Regex, Selector, Stroke, Tiling, Version, Label, Array(Bytes)
+and SpotColorant callbacks with their native names. Adapt Arguments privately to
+the same native ABI by returning the original cloned Args value, preserving all
+positional and named data and occurrence spans. Do not execute a constructor while
+converting Type to Func. Collection map/filter/key/by must receive the same native
+function and forward constructor results, effects and diagnostics unchanged.
+Array remains the existing Bytes-only conversion, not new general Array casting.
+
+Explicitly classify every remaining Type as unsupported by this adapter, not
+intrinsically non-callable. In particular Path has an observed higher-order
+filesystem-context error upstream, while Dictionary has constructor behavior not
+yet admitted by Tekt's main dispatcher; both remain separate measured obligations.
+No invented callback, filesystem access, public signature, phase, or new default
+is authorized. Use an exhaustive Type match without wildcard suppression. Require
+semantic RED→GREEN for newly admitted constructors and preservation controls for
+existing constructors, unsupported types, aliases, errors, empty input, sorted key
+and predicate result validation; a new Type must require a decision at this match.
+This is ADR-0127 continuous flow for measured mapping-table/parity corrections.
+
+
+### Sorted-key constructor integration regression
+
+The failed accepted replay archived in
+`lab/results/v16-corrections-2026-10-19/batch-f/agents/adapters/version-ordering-repair/before.json`
+pins the source/owner state and shows that Version admission reaches a missing
+comparison branch. Keep the existing Decimal sorted-key assertion and add
+`(10, 2).sorted(key: version) == (2, 10)` to that same test function. The frozen
+oracle expectation remains unchanged. Comparison belongs exclusively to
+`00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md`; this
+owner adds integration acceptance without duplicating sorting or conversion.
+Require focused semantic RED before the comparator correction and exact replay
+afterward. This does not change constructor identity, admission or diagnostics.

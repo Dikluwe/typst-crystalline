@@ -1,0 +1,7 @@
+{
+  "utc": "2026-10-19T20:53:06.694055+00:00",
+  "status": "Rejected GREEN attempt; shared Cargo artifact reused after isolated RED",
+  "evidence": "legacy-grid-run/legacy-grid-green.log",
+  "reason": "Cargo reported 0.15s with no compilation and executed the restored-parser test binary (7588 total versus current 7595). Source freeze was unchanged. The failure matches the isolated RED exactly. No productive behavior or test expectation is changed in response.",
+  "correction": "Clean all four product packages before the current-checkout focused GREEN; retain original attempt. Fresh complete validation also cleans all four packages after structural copies."
+}

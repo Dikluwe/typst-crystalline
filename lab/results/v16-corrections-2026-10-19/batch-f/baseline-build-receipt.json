@@ -1,0 +1,22 @@
+{
+  "utc": "2026-10-19T20:18:35.094314+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "status": "",
+  "diff_head_stat": "",
+  "build_receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/baseline-build-run/commands.json",
+  "build_receipt_sha256": "af27e055076b2bc30e66d5eff1c7c503660536d5c29813abaaf875b2234e1451",
+  "state": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-f/baseline-build-run/state.json.gz",
+  "state_sha256": "c8139fb51d64c41d1120cedd6965e3b34fb58fb9809c988b59c87e08e36e710f",
+  "product": {
+    "path": "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+    "sha256": "44178e4fecc5c66cba3aa134f4d82290c6d53fb340dd5966b67eec45b737c914"
+  },
+  "oracle": {
+    "path": "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+    "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+    "commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+    "tree": "cac836c07e4dec2a89219370428292393a3216b5",
+    "recipe": "lab/results/construction/diagnostics/vanilla-resync-2026-10-17/relatorio.md"
+  },
+  "baseline_workspace": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-f-base-2026-10-19"
+}

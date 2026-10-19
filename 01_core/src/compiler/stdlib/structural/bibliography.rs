@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/bibliography.md
-//! @prompt-hash 5e0ac712
+//! @prompt-hash a7b12005
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -331,7 +331,43 @@ pub fn native_bibliography(
     let locale = args.named.get("locale").and_then(|v| match v {
         Value::Str(s) => Some(s.clone()),
         Value::None => None,
-        _ => None, // neutro: N16[β] — Value não-Str retorna None no locale de bibliografia
+        Value::Bool(..)
+        | Value::Int(..)
+        | Value::Float(..)
+        | Value::Array(..)
+        | Value::Dict(..)
+        | Value::Module(..)
+        | Value::Datetime(..)
+        | Value::Func(..)
+        | Value::Content(..)
+        | Value::LocatedContent(..)
+        | Value::Auto
+        | Value::Length(..)
+        | Value::Relative(..)
+        | Value::Ratio(..)
+        | Value::Angle(..)
+        | Value::Color(..)
+        | Value::Stroke(..)
+        | Value::Fraction(..)
+        | Value::Align(..)
+        | Value::Location(..)
+        | Value::Gradient(..)
+        | Value::Regex(..)
+        | Value::Tiling(..)
+        | Value::Bytes(..)
+        | Value::Decimal(..)
+        | Value::Duration(..)
+        | Value::Version(..)
+        | Value::Selector(..)
+        | Value::Symbol(..)
+        | Value::Args(..)
+        | Value::State(..)
+        | Value::Counter(..)
+        | Value::Label(..)
+        | Value::Dir(..)
+        | Value::Path(..)
+        | Value::Type(..)
+        | Value::SpotColorant(..) => None,
     });
 
     // P420/P429 — resolve style (built-in ou custom .csl) em eval time e
@@ -503,3 +539,100 @@ fn extract_citation_style(
 //
 // Padrão "variant rico" N=4 cumulativo **inalterado** — A.2 → (a)
 // minimal.
+
+#[cfg(test)]
+mod batch_f_tests {
+    use super::*;
+
+    #[derive(Default)]
+    struct TestWorld {
+        library: crate::entities::world_types::Library,
+        book: crate::entities::font_book::FontBook,
+    }
+    impl crate::contracts::world::World for TestWorld {
+        fn library(&self) -> &crate::entities::world_types::Library {
+            &self.library
+        }
+        fn book(&self) -> &crate::entities::font_book::FontBook {
+            &self.book
+        }
+        fn main(&self) -> crate::entities::file_id::FileId {
+            test_file()
+        }
+        fn source(
+            &self,
+            _: crate::entities::file_id::FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn file(
+            &self,
+            _: crate::entities::file_id::FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<crate::entities::world_types::Datetime> {
+            None
+        }
+    }
+    fn test_file() -> crate::entities::file_id::FileId {
+        crate::entities::file_id::FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+    }
+
+    #[test]
+    fn batch_f_bibliography_locale_extension_preserves_projection() {
+        for (locale, expected) in [
+            (None, None),
+            (Some(Value::None), None),
+            (Some(Value::Str("en".into())), Some("en")),
+            (Some(Value::Str("bad_locale".into())), Some("bad_locale")),
+            (Some(Value::Bool(true)), None),
+            (Some(Value::Int(3)), None),
+            (Some(Value::Content(Content::text("x"))), None),
+            (Some(Value::Array(vec![])), None),
+        ] {
+            let mut args = Args::positional(vec![Value::Array(vec![])]);
+            args.named.insert("style".into(), Value::None);
+            args.named.insert("title".into(), Value::None);
+            if let Some(value) = &locale {
+                args.named.insert("locale".into(), value.clone());
+            }
+            let Value::Content(Content::Bibliography(elem)) = native_bibliography(
+                &mut EvalContext::new(),
+                &args,
+                &TestWorld::default(),
+                test_file(),
+            )
+            .unwrap() else {
+                panic!("expected bibliography");
+            };
+            assert_eq!(elem.locale.as_deref(), expected);
+            assert!(elem.title.is_none());
+            assert!(elem.style.is_none());
+            assert!(elem.entries.is_empty());
+        }
+    }
+    #[test]
+    fn batch_f_bibliography_source_failure_precedes_locale_and_style() {
+        let mut args = Args::positional(vec![Value::Int(7)]);
+        args.named.insert("style".into(), Value::Str("missing.csl".into()));
+        args.named.insert("locale".into(), Value::Bool(true));
+        let errors = native_bibliography(
+            &mut EvalContext::new(),
+            &args,
+            &TestWorld::default(),
+            test_file(),
+        )
+        .unwrap_err();
+        assert!(errors[0].message.contains("entries"), "{:?}", errors);
+        assert!(!errors[0].message.contains("style"));
+    }
+}

@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/workers/batch_f_close.py", line 755, in <module>
+    main()
+  File "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/workers/batch_f_close.py", line 179, in main
+    assert logs[name].strip(), name
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: fmt

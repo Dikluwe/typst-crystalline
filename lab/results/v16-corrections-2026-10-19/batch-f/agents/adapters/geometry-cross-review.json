@@ -1,0 +1,45 @@
+{
+  "utc": "2026-10-19T20:38:57.296260+00:00",
+  "head": "91ea6ee91105b97b1aedf172e34780dddde14c94",
+  "working_tree": "uncommitted working tree",
+  "diff_HEAD_stat": " .../prompts/core/compiler/stdlib/collections.md    |  25 +-\n .../compiler/stdlib/collections/array_predicate.md |  33 ++-\n .../core/compiler/stdlib/collections/validation.md |  41 ++-\n .../core/compiler/stdlib/counter/display.md        |  28 +-\n .../core/compiler/stdlib/foundations/selector.md   |  24 +-\n .../prompts/core/compiler/stdlib/html/attr_cast.md |  37 ++-\n 00_nucleo/prompts/core/compiler/stdlib/layout.md   |  44 ++-\n .../prompts/core/compiler/stdlib/layout/grid.md    |  63 ++++-\n .../prompts/core/compiler/stdlib/layout/place.md   |  38 ++-\n .../prompts/core/compiler/stdlib/layout/stroke.md  |  38 ++-\n .../core/compiler/stdlib/loading/encoding.md       |  39 ++-\n .../core/compiler/stdlib/loading/yaml_encode.md    |  40 ++-\n .../prompts/core/compiler/stdlib/shapes/line.md    |  41 ++-\n .../compiler/stdlib/structural/bibliography.md     |  29 +-\n .../stdlib/structural/math_accent_tests.md         |  39 ++-\n .../compiler/stdlib/structural/math_cases_tests.md |  39 ++-\n .../core/compiler/stdlib/structural/outline.md     |  26 +-\n .../core/compiler/stdlib/structural/table_grid.md  |  36 ++-\n 01_core/src/compiler/stdlib/collections.rs         |   4 +-\n .../compiler/stdlib/collections/array_predicate.rs |   3 +-\n .../src/compiler/stdlib/collections/validation.rs  | 249 ++++++++++++++++-\n 01_core/src/compiler/stdlib/counter/display.rs     | 163 +++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |  69 ++++-\n 01_core/src/compiler/stdlib/html/attr_cast.rs      | 156 ++++++++++-\n 01_core/src/compiler/stdlib/layout.rs              |  93 ++++++-\n 01_core/src/compiler/stdlib/layout/grid.rs         | 295 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/layout/place.rs        | 195 +++++++++++++-\n 01_core/src/compiler/stdlib/layout/stroke.rs       | 154 ++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 173 +++++++++++-\n 01_core/src/compiler/stdlib/loading/yaml_encode.rs | 169 +++++++++---\n 01_core/src/compiler/stdlib/shapes/line.rs         | 165 +++++++++++-\n .../src/compiler/stdlib/structural/bibliography.rs | 137 +++++++++-\n .../stdlib/structural/math_accent_tests.rs         | 144 +++++++++-\n .../compiler/stdlib/structural/math_cases_tests.rs | 143 +++++++++-\n 01_core/src/compiler/stdlib/structural/outline.rs  | 212 ++++++++++++++-\n .../src/compiler/stdlib/structural/table_grid.rs   |  76 +++++-\n 36 files changed, 3145 insertions(+), 115 deletions(-)\n",
+  "reviewed": {
+    "01_core/src/compiler/stdlib/layout/grid.rs": "8f5fbe094345d91f067616e4bb72341b5becdf7b62ef093568a2c8fc415d85f2",
+    "00_nucleo/prompts/core/compiler/stdlib/layout/grid.md": "1e8c1a15978ef96be17357b86671630860c5f91be88666b6e1cfc2b34d9e085f",
+    "01_core/src/compiler/stdlib/layout/place.rs": "54e49c3267541840b8f56f1ac3c78444c7a2c993755b200c4ecfd57f27dfdc25",
+    "00_nucleo/prompts/core/compiler/stdlib/layout/place.md": "cf3622c51b9663ec466463f5ba0dca95cc4e9f49246100da2aefe78fd1ec29ab",
+    "01_core/src/compiler/stdlib/layout/stroke.rs": "f44e54c9cc7add196a46b00941cd6ccc1b1ad5cebee9b7fb75b7f67093ddd1f0",
+    "00_nucleo/prompts/core/compiler/stdlib/layout/stroke.md": "66890e86f06b3ccd6ce37bebaa66e33903176ef712838ba38a44b88a90462844",
+    "01_core/src/compiler/stdlib/layout.rs": "fd877772e46e671589940aa85889d81db290336be41acae1c2d28c68c572148e",
+    "00_nucleo/prompts/core/compiler/stdlib/layout.md": "9599c456b441a808e8f919dde8b77b429a2d2a1773033db3ea53f1baa64ed446",
+    "01_core/src/compiler/stdlib/shapes/line.rs": "ddb0e9d6ffc05f30784fc7a3c39c2e0e7be33124807e5dea95e57cd33992f144",
+    "00_nucleo/prompts/core/compiler/stdlib/shapes/line.md": "47dfb30b23190f7325b823da7836f99229ddd625ff715b7fb6b87c274dee773d",
+    "01_core/src/compiler/stdlib/structural/table_grid.rs": "80a7cdd21377d5f7b620f7e5b691ef3f56621c6d333669f61d70e8f1668e41f1",
+    "00_nucleo/prompts/core/compiler/stdlib/structural/table_grid.md": "74a2afcd87d281a6d4d92d14f488f3d721aa365b25e78e0f776b4b3062efd427",
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/replay.py": "dc52d81fc4667c1397af79b248334733895a7d8f8609e0a5a98b12dbbba4afd8",
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/replay-manifest.json": "90248bdd01431801d4d02d29de13e24cc496c0271882fd371c5dd0b7a62db930",
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/expected-policies.json": "5e55ff193f369527d71856f072fb7246d31f0c16aa61e1cb217e4d9a0b236001",
+    "lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/circle-deferred/deferral.json": "a6c43acdcbb5fd3c7b6d2d9b3f0dbaf52eb141d72bf865c5f3256ee0ffaefff1"
+  },
+  "scope": "Six current L0s read completely; productive diffs, geometry tests and explicit replay policies inspected. No new product/Cargo runs by reviewer.",
+  "findings": [
+    {
+      "id": "G1",
+      "status": "fixed before final freeze",
+      "finding": "New grid extract_tracks inner Ratio/Relative versus other rejection match had a catchall. Geometry updated L0 first and names every Value alternative. Root green-only structural target must witness future Value E0004 at this match, separately from parse_track_sizing."
+    },
+    {
+      "id": "G2",
+      "status": "honestly deferred",
+      "finding": "Circle repair changed observable element identity. Parent candidate RED failed two identity tests. Entire065 source/owner restored; original candidate/test evidence retained. No green065 claim permitted."
+    }
+  ],
+  "current_code_assessment": "No further actionable issue found within the inspected bounded changes. Grid/Table propagate errors at columns then rows and retain occurrence value spans. Place/Line preserve numeric extensions, omitted defaults, preexisting dimensional debts, stroke/conflict ordering and public ABI. Alignment and dash changes are nominal partitions preserving existing semantics.",
+  "policy_assessment": "Geometry replay binds exact baseline receipts and per-case expected policy; malformed Grid/Table/Place cases require pinned complete oracle diagnostics. Legacy Line dx uses a declared same-literal length diagnostic transformation, not a parity claim for unsupported upstream dx. Figure, RM1 and deferred Circle retain exact baseline observations. Source-path replacement is limited to changing temporary query filenames; there is no numeric/whitespace normalization. Parent integration must bind product SHA to build receipt and preserve policy/runner hashes across execution.",
+  "remaining_gates": [
+    "Final central semantic tests and full suite",
+    "Strict replay against final product/build source state",
+    "Exact-primary-span structural green proof including new grid rejection; exclude deferred circle",
+    "Paths and strict/reverse lineage after parent-only reseal"
+  ]
+}

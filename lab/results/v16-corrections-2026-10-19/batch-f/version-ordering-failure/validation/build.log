@@ -1,0 +1,27 @@
+   Compiling bytemuck_derive v1.11.0
+   Compiling bytemuck v1.25.0
+   Compiling ring v0.17.14
+   Compiling font-types v0.11.3
+   Compiling syn v3.0.6
+   Compiling syntect v5.3.0
+   Compiling clap_derive v4.6.4
+   Compiling read-fonts v0.39.2
+   Compiling rustls v0.23.42
+   Compiling clap v4.6.6
+   Compiling two-face v0.4.5
+   Compiling rustls-webpki v0.103.13
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+   Compiling tiny-skia-path v0.12.0
+   Compiling clap_complete v4.6.9
+   Compiling write-fonts v0.48.1
+   Compiling skrifa v0.42.1
+   Compiling typst-shell v0.1.0 (/repos/Antigravity/typst-crystalline/02_shell)
+   Compiling rustybuzz v0.20.1
+   Compiling image v0.24.9
+   Compiling tiny-skia v0.12.0
+   Compiling subsetter v0.2.6
+   Compiling clap_complete_nushell v4.6.2
+   Compiling ureq v2.12.1
+   Compiling typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+   Compiling typst-wiring v0.1.0 (/repos/Antigravity/typst-crystalline/04_wiring)
+    Finished `dev` profile [unoptimized] target(s) in 1m 12s

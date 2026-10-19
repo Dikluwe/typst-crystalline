@@ -1,5 +1,5 @@
 # L0 — stdlib/layout/stroke — stroke
-Hash do Código: a76eec54
+Hash do Código: f69f20a4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/stroke-paint-inputs.toml sha256:b92ae8f26e4ebe8d5b7d0f1ee0e346e97210a9afb4c00ed1c9c184f690a263a8
@@ -24,3 +24,39 @@ Named paint uses same private Paint cast as positional dictionary paint: Color/G
 ## Acceptance and limits
 
 Preserve existing tests/oracles, relevant isolation RED→GREEN and restricted owner reseal/revalidation for ratified compact carrier. No semantics/default/phase expansion or performance claim. Internal ADR-0127 continuous-flow parity correction: L0 first, meaningful RED→GREEN, restricted reseal/build/suite/lineage, PDF/raster/error recollection retaining uncorrected differences. Paint meaning/available form is acceptance, never binary equality. No public API/entity/default/phase expansion.
+
+
+## Closed decision coverage
+
+### Measurement before decision
+
+At HEAD `91ea6ee91105b97b1aedf172e34780dddde14c94`, the source/owner hashes
+and exact inspection state are in
+`lab/results/v16-corrections-2026-10-19/batch-f/agents/encoding/read-only-audit.json`.
+The baseline binary build and UTC-stamped bilateral commands/output are retained
+in `lab/results/v16-corrections-2026-10-19/batch-f/agents/encoding/baseline-enabled-probes.json`;
+the separate HTML textual projection receipt is `baseline-html-projection.json`
+in that directory. The initial feature-disabled HTML run is setup evidence only.
+The oracle is pinned to commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`,
+tree `cac836c07e4dec2a89219370428292393a3216b5`, binary SHA-256
+`9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+These observations do not infer upstream intent or certify unrelated parity.
+
+`stroke.rs:145–152` accepts Length only when its absolute component is
+nonnegative, or the exact string dot; false guards and other Value variants
+reject the entire dash array. `:154–157,196–204` rejects empty/invalid arrays.
+Pinned upstream `visualize/stroke.rs:559–565,614–621` accepts Length and empty
+arrays. Current probes confirm negative/empty rejection, em loss and different
+wrong-type diagnostics; mixed length/dot and phase controls agree.
+
+### Decision and acceptance
+
+Close the named dash-item Value decision, explicitly including guard-false
+Length and Str. Preserve accepted ordering, LineWidth, dictionary phase, supplied
+span, error propagation and current abs/em/nonfinite conditions. A failed item
+must reject the call, never be dropped or defaulted. Tests exercise native_stroke
+with mixed values/phase and invalid negative/NaN/non-dot/types/empty, plus current
+infinity/em behavior. These latter preservation observations do not certify parity:
+negative/empty rejection, em loss and diagnostics remain unresolved obligations.
+Future Value variants must produce local E0004. No change to positional stroke,
+public signature, carrier, default or pipeline is authorized by this correction.

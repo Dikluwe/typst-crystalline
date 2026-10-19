@@ -1,5 +1,5 @@
 # L0 — compiler/eval/tests
-Hash do Código: 3c5a7671
+Hash do Código: ee31092b
 
 
 
@@ -502,3 +502,37 @@ Ratification plus eight passing bilateral color probes narrowly supersedes two h
 Before revising show_rule_regex_ultima_declarada_vence, regex-oracle.json at current bd5ebec285505889e8ff1d4f68804ab147a699f3 freezes full binarySHA/source/argv/UTC/state and exact HTML `<p>abc<em><strong>123</strong></em>def</p>`. Latest rule gives outerEmph, earlier still acts inside product; require both Strong/Emph/full text, not vanished Strong/Rust wrapper equality. texto_em_strong also traverses Emph.body and texto_em_emph Strong.body solely to observe that measured nested product. Preserve language nodes, no original-as-emission count.
 
 All textual acceptance families/R2-S/R3/single-eval controls require RED→GREEN, PDF/HTML validated separately, full build/workspace/doctests/strict Clippy-Rustdoc/fmt/V1-V5-V15-V26/reverse/SARIF no new errors-warnings, 12GiB/High8GiB/swap0/jobs1/sequential, frozen provenance, no suppression/commit/push/release or unmeasured RAM gain.
+
+## Invalid Grid track regression
+
+Before this correction, `compiler/eval/tests.rs:20923` named
+`p633_grid_columns_string_silent_auto` requires the silent acceptance of
+`#let x = grid(columns: "foo")[A]`. The frozen Batch F
+`lab/results/v16-corrections-2026-10-19/batch-f/agents/geometry/baseline-eval/receipt.json`
+case `grid-columns-003` records the same invalid-string class succeeding in
+baseline Tekt while the pinned oracle rejects it. The exact original fixture
+was remeasured in `agents/geometry/stale-grid-regression/measurement.json`
+under that Batch F directory: oracle commit
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`, verified executable SHA, source,
+UTC, HEAD and dirty diffstat are retained. It reports `expected auto, relative
+length, fraction, integer, or array, found string`, pointing at the quoted
+value. `before-source.json.gz` preserves this complete test/L0 pair before
+revision. These are language admission and diagnostic observations; the old
+test documents a defect rather than authorizing silent fallback. The existing
+Grid owner already specifies the measured malformed-track correction.
+
+Keep the exact original fixture and replace only that stale expectation with
+`p633_grid_columns_invalid_string_rejected`. Require exactly one Error, the
+complete diagnostic above, empty hints and trace, the original Source id and
+the quoted string's UTF-8 half-open byte range 23..28. Reuse MockWorld and the
+existing evaluator; no relaxed contains check, removed case, ignored failure,
+fabricated source or new productive behavior. Preserve every other test and
+helper. This strengthens the existing regression under the authorized internal
+Grid parity repair; it adds no public contract, default, compatibility or phase.
+
+The strengthened test must fail against the baseline Grid/Table extractor pair
+in an isolated copied workspace and pass against the corrected pair. A broken
+build is not RED. Retain both runtime receipts and exact source hashes; include
+this additional test owner in restricted resealing, full tests, path and
+direct/reverse lineage validation. Circle/Figure and dimensional debts remain
+outside this regression correction.

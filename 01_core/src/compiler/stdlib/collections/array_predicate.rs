@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/collections/array_predicate.md
-//! @prompt-hash f17db964
+//! @prompt-hash f3ca852e
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -376,6 +376,8 @@ pub(super) fn value_cmp(a: &Value, b: &Value) -> Result<Ordering, EcoString> {
         (Value::Float(a), Value::Float(b)) => {
             a.partial_cmp(b).ok_or_else(|| "cannot compare floats".into())
         }
+        (Value::Decimal(a), Value::Decimal(b)) => Ok(a.cmp(b)),
+        (Value::Version(a), Value::Version(b)) => Ok(a.cmp(b)),
         (Value::Str(a), Value::Str(b)) => Ok(a.cmp(b)),
         _ => Err(format!(
             "cannot compare {} and {}",
