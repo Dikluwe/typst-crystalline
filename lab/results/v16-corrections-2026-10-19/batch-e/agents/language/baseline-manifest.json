@@ -1,0 +1,50 @@
+{
+  "utc": "2026-10-19T19:02:50.823863+00:00",
+  "baseline_product_sha256": "0c60f5fdab3947b160bcb9c147bd933c8aa24279c9f38f2800e94d24dfe4a64d",
+  "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "receipts": [
+    {
+      "file": "receipt.json",
+      "sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+      "case_count": 77,
+      "utc_start": "2026-10-19T18:54:55.154814+00:00",
+      "utc_end": "2026-10-19T18:55:07.216214+00:00"
+    },
+    {
+      "file": "supplement-receipt.json",
+      "sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+      "case_count": 38,
+      "utc_start": "2026-10-19T18:55:58.804037+00:00",
+      "utc_end": "2026-10-19T18:56:02.227195+00:00"
+    },
+    {
+      "file": "query-receipt.json",
+      "sha256": "1cade162380b7bc275527fb5523fdb92adf1bdee893aece807333bf4af5935d5",
+      "case_count": 20,
+      "utc_start": "2026-10-19T18:56:51.754119+00:00",
+      "utc_end": "2026-10-19T18:57:03.758141+00:00"
+    },
+    {
+      "file": "final-controls-receipt.json",
+      "sha256": "fe9dd13358873e425a9f8590f5138252e8720958ffffaa82158e59a60b19b967",
+      "case_count": 4,
+      "utc_start": "2026-10-19T18:58:07.502232+00:00",
+      "utc_end": "2026-10-19T18:58:09.611723+00:00"
+    },
+    {
+      "file": "generated-entry-receipt.json",
+      "sha256": "8a383ee24af3c36945a6e79df803e84e5ac0a6467453d020e0e44e5d8832670c",
+      "case_count": 2,
+      "utc_start": "2026-10-19T18:59:34.845920+00:00",
+      "utc_end": "2026-10-19T18:59:36.865381+00:00"
+    },
+    {
+      "file": "artifact-marker-receipt.json",
+      "sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+      "case_count": 32,
+      "utc_start": "2026-10-19T19:01:13.789532+00:00",
+      "utc_end": "2026-10-19T19:01:16.423397+00:00"
+    }
+  ],
+  "case_count": 173
+}

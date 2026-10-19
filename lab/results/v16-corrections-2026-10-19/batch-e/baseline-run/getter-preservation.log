@@ -1,0 +1,10 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 1m 31s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 2 tests
+test entities::content::fields::content_view_regressions::content_views_non_equations_and_style_precedence_stay_separate ... ok
+test entities::content::fields::content_view_regressions::content_views_styled_equation_carriers_preserve_fields ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 7533 filtered out; finished in 0.00s
+

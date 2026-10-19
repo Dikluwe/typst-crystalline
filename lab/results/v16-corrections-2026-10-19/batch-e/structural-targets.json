@@ -1,0 +1,146 @@
+[
+  {
+    "id": "V16-001",
+    "group": "core-extension",
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "baseline": {
+      "after": "fn content_set_fields(",
+      "anchor": "match c {"
+    },
+    "green": {
+      "after": "fn content_set_fields(",
+      "anchor": "match c {"
+    }
+  },
+  {
+    "id": "V16-002",
+    "group": "core-extension",
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "baseline": {
+      "after": "fn equation_descendant(",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "fn equation_descendant(",
+      "anchor": "match content {"
+    }
+  },
+  {
+    "id": "V16-003",
+    "group": "core-extension",
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "baseline": {
+      "after": "fn content_elem_func(",
+      "anchor": "match c {"
+    },
+    "green": {
+      "after": "fn content_elem_func(",
+      "anchor": "match c {"
+    }
+  },
+  {
+    "id": "V16-004",
+    "group": "core-extension",
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "baseline": {
+      "after": "fn content_method_with_fields(",
+      "anchor": "match c {"
+    },
+    "green": {
+      "after": "fn content_method_with_fields(",
+      "anchor": "match c {"
+    }
+  },
+  {
+    "id": "content-field-closure",
+    "group": "core-extension",
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "baseline": {
+      "after": "fn content_field(",
+      "anchor": "match c {"
+    },
+    "green": {
+      "after": "fn content_field(",
+      "anchor": "match c {"
+    }
+  },
+  {
+    "id": "V16-083",
+    "group": "shell-omissions",
+    "file": "02_shell/src/cli.rs",
+    "remove_exact": "        Content::Source(r) => return content_to_semantic(&r.body),\n",
+    "baseline": {
+      "after": "fn content_to_semantic(",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "fn content_to_semantic(",
+      "anchor": "match content {"
+    }
+  },
+  {
+    "id": "V16-084",
+    "group": "shell-omissions",
+    "file": "02_shell/src/cli.rs",
+    "remove_exact": "        Content::Raw(_) => {\n            for name in [\"text\", \"block\", \"lang\"] {\n                if let Some(value) = content.get_field(name) {\n                    fields.push((name.into(), value_to_semantic(&value)));\n                }\n            }\n        }\n",
+    "baseline": {
+      "after": "let mut fields = vec![",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "let mut fields = vec![",
+      "anchor": "match content {"
+    }
+  },
+  {
+    "id": "V16-085",
+    "group": "shell-omissions",
+    "file": "02_shell/src/cli.rs",
+    "remove_exact": "        Content::Source(source) => content_semantic_func_name(&source.body),\n",
+    "baseline": {
+      "after": "fn content_semantic_func_name(",
+      "anchor": "match content {"
+    },
+    "green": {
+      "after": "fn content_semantic_func_name(",
+      "anchor": "match content {"
+    }
+  },
+  {
+    "id": "equation-getter-recognizer",
+    "group": "core-extension",
+    "file": "01_core/src/entities/content/fields.rs",
+    "green": {
+      "after": "fn styled_equation(",
+      "anchor": "match content {"
+    }
+  },
+  {
+    "id": "equation-identity-recognizer",
+    "group": "core-extension",
+    "file": "01_core/src/entities/content/identity.rs",
+    "green": {
+      "after": "fn is_equation_constructor_content(",
+      "anchor": "match content {"
+    }
+  },
+  {
+    "id": "equation-encoding-recognizer",
+    "group": "core-extension",
+    "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+    "green": {
+      "after": "fn is_equation_constructor_content(",
+      "anchor": "match content {"
+    }
+  },
+  {
+    "id": "equation-shell-recognizer",
+    "group": "shell-omissions",
+    "file": "02_shell/src/cli.rs",
+    "remove_exact": "        Content::Equation(_) => true,\n",
+    "green": {
+      "after": "fn is_equation_constructor_content(",
+      "anchor": "match content {"
+    }
+  }
+]

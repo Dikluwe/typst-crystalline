@@ -1,0 +1,30 @@
+{
+  "utc": "2026-10-19T19:38:22.241436+00:00",
+  "PATH": "/repos/Antigravity/typst-crystalline/lab/target/linter/debug:/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.codex/tmp/arg0-linux/codex-arg00xTW9G:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.bun/bin:/home/dikluwe/.kimi-code/bin:/home/dikluwe/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/dikluwe/.lmstudio/bin:/opt/zig:/home/dikluwe/go/bin:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/usr/lib/chatgpt/resources",
+  "observers": {
+    "rsvg-convert": {
+      "path": "/home/linuxbrew/.linuxbrew/bin/rsvg-convert",
+      "sha256": "34653f7c5e91a990c2c06db8e73a69248b021d8d45317d0377ebc0f079bc5cf7"
+    },
+    "pdftotext": {
+      "path": "/usr/bin/pdftotext",
+      "sha256": "88263e2333fa712d6eadfc69dd2daf826792a67abb14f4d2110673d5f195b154"
+    },
+    "pdftoppm": {
+      "path": "/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override/pdftoppm",
+      "sha256": "de772e88ab9977ccde25def9b403bf42675d75f5dd82b19fbd7d8123ad183159"
+    },
+    "pdfinfo": {
+      "path": "/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override/pdfinfo",
+      "sha256": "fee70ade670fb025343aca2b5c3a2aacacb8ed9edce1b716b233b5de924b6bf5"
+    },
+    "qpdf": {
+      "path": "/usr/bin/qpdf",
+      "sha256": "10fc302c4ca9860f24b8d2cb7f8a4cc454ba59d4a91e7a8e40f6b2c229486df7"
+    },
+    "convert": {
+      "path": "/usr/bin/convert",
+      "sha256": "f467153741d19c80d87430cf2603d365bb99bea2326ec75019521557e21201b4"
+    }
+  }
+}

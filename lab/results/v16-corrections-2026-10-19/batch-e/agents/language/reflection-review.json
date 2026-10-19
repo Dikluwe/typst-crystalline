@@ -1,0 +1,24 @@
+{
+  "utc": "2026-10-19T19:10:40.521627+00:00",
+  "baseline_patch": "lab/results/v16-corrections-2026-10-19/batch-e/preimplementation.patch.gz",
+  "baseline_patch_sha256": "d89817a1139ca526142c2d793095619fe24578232065362a23ca73bc5d5120e2",
+  "reviewed": [
+    {
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "preimplementation_sha256": "237e94c16a25bb727b8d4d58fd18b835ed0aca939fc00ab774779a2601d97a27",
+      "current_sha256": "eff380b0166533b6aa5e4b5963e16ef37ffd6a6935f6f4fb5fc16575373317c3",
+      "tests_unchanged": true
+    },
+    {
+      "file": "01_core/src/entities/content/fields.rs",
+      "preimplementation_sha256": "1fdac6265593fc93a6c8bd390a07fa481c9c3a4f68dc9cb5cbd4c65385f20498",
+      "current_sha256": "2ae8f09f421c7737c558cc6d5ea418e5407923096befb22dd30335c87357a925",
+      "tests_unchanged": true
+    }
+  ],
+  "findings": [],
+  "limitations": [
+    "Static independent review only; parent compile/tests/structural sentinels and fresh CLI replay pending.",
+    "Previously measured lexical and generic Styled/repr/catalogue residuals retained in open-obligations.json."
+  ]
+}

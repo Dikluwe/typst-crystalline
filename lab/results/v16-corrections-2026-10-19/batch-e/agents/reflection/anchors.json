@@ -1,0 +1,81 @@
+[
+  {
+    "id": "V16-001",
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "function": "content_set_fields",
+    "baseline_line": 235
+  },
+  {
+    "id": "V16-002",
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "function": "equation_descendant",
+    "baseline_line": 318
+  },
+  {
+    "id": "V16-003",
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "function": "content_elem_func",
+    "baseline_line": 461
+  },
+  {
+    "id": "V16-004",
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "function": "content_method_with_fields",
+    "baseline_line": 572
+  },
+  {
+    "id": "neighboring getter fallback",
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "function": "content_field",
+    "baseline_line": 36
+  },
+  {
+    "id": "ContentField filter",
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "baseline_line": 311,
+    "obligation": "Name Set/Unset/Undeclared; do not introduce classifier wildcard."
+  },
+  {
+    "id": "getter carrier precedent",
+    "file": "01_core/src/entities/content/fields.rs",
+    "baseline_line": 9
+  },
+  {
+    "id": "outer Styled provenance missing",
+    "file": "01_core/src/compiler/stdlib/structural/math/equation.rs",
+    "baseline_line": 164
+  },
+  {
+    "id": "Heading causal marker precedent",
+    "file": "01_core/src/entities/content/fields.rs",
+    "baseline_line": 135
+  },
+  {
+    "id": "shared getter recognizer",
+    "file": "01_core/src/entities/content/fields.rs",
+    "function": "styled_equation",
+    "baseline_line": 9,
+    "planned": "require own last direct marker Bool(true) on Styled; causal carriers only; existing closed nominal complement"
+  },
+  {
+    "id": "shared outer getter guard",
+    "file": "01_core/src/entities/content/fields.rs",
+    "function": "Content::get_field",
+    "baseline_line": 283,
+    "planned": "guard must classify whole Styled, not just child"
+  },
+  {
+    "id": "new private marker classifier (planned)",
+    "files": [
+      "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "01_core/src/entities/content/fields.rs"
+    ],
+    "planned": "open string search permitted for marker key; Value Bool(true) check is typed marker validation; Content recognition remains closed at actual recursion decisions"
+  },
+  {
+    "id": "OutlineEntry lexical fields",
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "function": "content_field",
+    "planned": "explicit level/element/fill arm; fill_set gates Set versus Unset"
+  }
+]

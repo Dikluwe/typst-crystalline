@@ -1,0 +1,97 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+error[E0382]: use of moved value: `red`
+    --> 01_core/src/compiler/eval/expression_dispatch.rs:1072:52
+     |
+1061 |         let red = Color::rgb(255, 0, 0);
+     |             --- move occurs because `red` has type `entities::color::Color`, which does not implement the `Copy` trait
+...
+1064 |             Styles::from_iter([Style::Fill(red)]),
+     |                                            --- value moved here
+...
+1072 |         assert_eq!(outer.styles.delta().fill, Some(red));
+     |                                                    ^^^ value used here after move
+     |
+help: consider cloning the value if the performance cost is acceptable
+     |
+1064 |             Styles::from_iter([Style::Fill(red.clone())]),
+     |                                               ++++++++
+
+error[E0382]: use of moved value: `blue`
+    --> 01_core/src/compiler/eval/expression_dispatch.rs:1097:67
+     |
+1095 |         let blue = Color::rgb(0, 0, 255);
+     |             ---- move occurs because `blue` has type `entities::color::Color`, which does not implement the `Copy` trait
+1096 |         for marker in [None, Some(Value::Bool(false)), Some(Value::None)] {
+     |         ----------------------------------------------------------------- inside of this loop
+1097 |             let mut inner_styles = Styles::from_iter([Style::Fill(blue)]);
+     |                                                                   ^^^^ value used here after move
+...
+1111 |             assert_eq!(merged.styles.delta().fill, Some(blue));
+     |                                                         ---- value moved here, in previous iteration of loop
+     |
+help: consider moving the expression out of the loop so it is only moved once
+     |
+1096 ~         let mut value = Some(blue);
+1097 ~         for marker in [None, Some(Value::Bool(false)), Some(Value::None)] {
+1098 |             let mut inner_styles = Styles::from_iter([Style::Fill(blue)]);
+ ...
+1111 |             assert!(matches!(merged.body, Content::Text(_)));
+1112 ~             assert_eq!(merged.styles.delta().fill, value);
+     |
+help: consider cloning the value if the performance cost is acceptable
+     |
+1111 |             assert_eq!(merged.styles.delta().fill, Some(blue.clone()));
+     |                                                             ++++++++
+
+error[E0382]: use of moved value: `red`
+    --> 01_core/src/compiler/eval/expression_dispatch.rs:1105:48
+     |
+1094 |         let red = Color::rgb(255, 0, 0);
+     |             --- move occurs because `red` has type `entities::color::Color`, which does not implement the `Copy` trait
+1095 |         let blue = Color::rgb(0, 0, 255);
+1096 |         for marker in [None, Some(Value::Bool(false)), Some(Value::None)] {
+     |         ----------------------------------------------------------------- inside of this loop
+...
+1105 |                 Styles::from_iter([Style::Fill(red)]),
+     |                                                ^^^ value moved here, in previous iteration of loop
+     |
+help: consider moving the expression out of the loop so it is only moved once
+     |
+1096 ~         let mut value = Style::Fill(red);
+1097 ~         for marker in [None, Some(Value::Bool(false)), Some(Value::None)] {
+1098 |             let mut inner_styles = Styles::from_iter([Style::Fill(blue)]);
+ ...
+1105 |                 Content::styled(Content::text("ordinary"), inner_styles),
+1106 ~                 Styles::from_iter([value]),
+     |
+help: consider cloning the value if the performance cost is acceptable
+     |
+1105 |                 Styles::from_iter([Style::Fill(red.clone())]),
+     |                                                   ++++++++
+
+error[E0382]: use of moved value: `blue`
+    --> 01_core/src/compiler/eval/expression_dispatch.rs:1111:57
+     |
+1095 |         let blue = Color::rgb(0, 0, 255);
+     |             ---- move occurs because `blue` has type `entities::color::Color`, which does not implement the `Copy` trait
+1096 |         for marker in [None, Some(Value::Bool(false)), Some(Value::None)] {
+     |         ----------------------------------------------------------------- inside of this loop
+1097 |             let mut inner_styles = Styles::from_iter([Style::Fill(blue)]);
+     |                                                                   ---- value moved here
+...
+1111 |             assert_eq!(merged.styles.delta().fill, Some(blue));
+     |                                                         ^^^^ value used here after move
+     |
+help: consider moving the expression out of the loop so it is only moved once
+     |
+1096 ~         let mut value = Style::Fill(blue);
+1097 ~         for marker in [None, Some(Value::Bool(false)), Some(Value::None)] {
+1098 ~             let mut inner_styles = Styles::from_iter([value]);
+     |
+help: consider cloning the value if the performance cost is acceptable
+     |
+1097 |             let mut inner_styles = Styles::from_iter([Style::Fill(blue.clone())]);
+     |                                                                       ++++++++
+
+For more information about this error, try `rustc --explain E0382`.
+error: could not compile `typst-core` (lib test) due to 4 previous errors

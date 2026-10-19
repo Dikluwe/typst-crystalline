@@ -1,0 +1,18 @@
+{
+  "utc": "2026-10-19T19:03:54.956742+00:00",
+  "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+  "diff_head_stat": " .../eval/bindings/field_access/content_methods.md  | 133 +++++++-\n .../compiler/stdlib/structural/math/equation.md    |  36 +-\n 00_nucleo/prompts/core/entities/content/fields.md  |  50 ++-\n .../prompts/core/entities/content/identity.md      |  33 +-\n 00_nucleo/prompts/shell/cli.md                     |  95 +++++-\n .../eval/bindings/field_access/content_methods.rs  | 371 +++++++++++++++++++-\n .../compiler/stdlib/structural/math/equation.rs    | 108 +++++-\n 01_core/src/entities/content/fields.rs             |  56 ++-\n 01_core/src/entities/content/identity.rs           |  68 +++-\n 02_shell/src/cli.rs                                | 374 ++++++++++++++++++++-\n 10 files changed, 1306 insertions(+), 18 deletions(-)\n",
+  "files": {
+    "01_core/src/compiler/eval/bindings/field_access/content_methods.rs": "237e94c16a25bb727b8d4d58fd18b835ed0aca939fc00ab774779a2601d97a27",
+    "02_shell/src/cli.rs": "640062137cce2155b57d7174d782c5044ecf6eda8119925b5f2e7cd07bc4c789",
+    "01_core/src/compiler/stdlib/structural/math/equation.rs": "7b056e76a96df90f7e7f233d09c5ba876f7ac3e26b3a3c9563f06ee7ae25bc79",
+    "01_core/src/entities/content/fields.rs": "1fdac6265593fc93a6c8bd390a07fa481c9c3a4f68dc9cb5cbd4c65385f20498",
+    "01_core/src/entities/content/identity.rs": "b23067e8ee0dba5368259809b110f30236c989c4c65419dc63fa18df367a9801",
+    "00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md": "f0ee0586c5bf9c9714e27d7e72bb4de4b12ad0a350fc94828f5ebe5f7883f011",
+    "00_nucleo/prompts/shell/cli.md": "4601355674c366c986c2c02ce611e229d9c5dd19a6d14383592a342ba2d726e0",
+    "00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md": "5634856562a621dd19c66da13d2887da5d7f31b764996b05556c15a41a875bde",
+    "00_nucleo/prompts/core/entities/content/fields.md": "d8215b8985c1c37a86c094125e105d838ea6f6a5e25b8004b6e6ae7b28c977cb",
+    "00_nucleo/prompts/core/entities/content/identity.md": "ac8f75fa007c6683983c027666699de3cce92a4c2ec076d38b2584b4a22bd4af",
+    "00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml": "33169238ba4754a3839a85d9273b93146e5e56b9236fef361d93aac89f589b0a"
+  }
+}

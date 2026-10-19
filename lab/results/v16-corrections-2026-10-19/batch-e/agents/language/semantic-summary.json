@@ -1,0 +1,1174 @@
+{
+  "utc": "2026-10-19T18:59:47.814939+00:00",
+  "criteria": "JSON and YAML parsed values; diagnostics retained separately, never PDF bytes or Rust representation equality. Aggregate results are bounded observations, not global parity.",
+  "receipts": [
+    {
+      "file": "receipt.json",
+      "sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+      "utc_start": "2026-10-19T18:54:55.154814+00:00",
+      "utc_end": "2026-10-19T18:55:07.216214+00:00",
+      "cases": [
+        {
+          "name": "empty",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "sequence",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "text",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "raw-omitted",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "raw-explicit",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "box-omitted",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "box-empty",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "box-body",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "block",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "h-omitted",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "h-explicit",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "mat-omitted",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "mat-explicit",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "cell-omitted",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "cell-explicit",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "caption",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "heading-omitted",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "heading-explicit",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "move",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "rotate",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "scale",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "skew",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "eq-omitted",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "eq-explicit",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "ordinary-styled",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "styled-equation",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "sequence-equation",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "lr",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "underbrace",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "stretch",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "outline-entry",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "smartquote",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "eq-native-equality",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "eq-call",
+          "returncodes": [
+            1,
+            0
+          ],
+          "both_error": false
+        },
+        {
+          "name": "eq-alias",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "eq-homonym",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "eq-styled-call",
+          "returncodes": [
+            1,
+            0
+          ],
+          "both_error": false
+        },
+        {
+          "name": "mat-call",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "cell-call",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "caption-call",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "heading-call",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "rotate-call",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "box-unset-error",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "box-body-error",
+          "returncodes": [
+            1,
+            0
+          ],
+          "both_error": false
+        },
+        {
+          "name": "eq-unknown-error",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "cell-invalid-stroke-auto",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "cell-invalid-colspan-auto",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "serialize-raw-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "serialize-raw-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "serialize-empty-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "serialize-empty-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "serialize-box-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "serialize-box-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "serialize-block-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "serialize-block-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "serialize-mat-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "serialize-mat-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "serialize-cell-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "serialize-cell-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "serialize-caption-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "serialize-caption-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "serialize-heading-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "serialize-heading-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "serialize-transform-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "serialize-transform-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "serialize-entry-json",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "serialize-entry-yaml",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "serialize-eq-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "serialize-eq-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "query-heading-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-heading-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-figure.caption-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "query-figure.caption-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "query-table.cell-json",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "query-table.cell-yaml",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "query-math.mat-json",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "query-math.mat-yaml",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        }
+      ]
+    },
+    {
+      "file": "supplement-receipt.json",
+      "sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+      "utc_start": "2026-10-19T18:55:58.804037+00:00",
+      "utc_end": "2026-10-19T18:56:02.227195+00:00",
+      "cases": [
+        {
+          "name": "sequence-corrected",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "figure-omitted",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "figure-caption",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "figure-none",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "metadata",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "artifact",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "entry-omitted",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "entry-none",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "styled-child",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "eq-literal",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "eq-source-alias",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "cell-call-corrected",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "caption-call-corrected",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "heading-call-corrected",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "entry-call",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "eq-style-identity",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "eq-omitted-unset",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "eq-block-unset",
+          "returncodes": [
+            0,
+            1
+          ],
+          "both_error": false
+        },
+        {
+          "name": "serialize-styled-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "serialize-styled-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "serialize-artifact-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "serialize-artifact-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "serialize-entry-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "serialize-entry-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "serialize-eq-simple-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "serialize-eq-simple-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "query-metadata-cell-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-metadata-cell-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-metadata-mat-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-metadata-mat-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-metadata-entry-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "query-metadata-entry-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "query-metadata-caption-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-metadata-caption-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-metadata-empty-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-metadata-empty-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-metadata-raw-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-metadata-raw-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        }
+      ]
+    },
+    {
+      "file": "query-receipt.json",
+      "sha256": "1cade162380b7bc275527fb5523fdb92adf1bdee893aece807333bf4af5935d5",
+      "utc_start": "2026-10-19T18:56:51.754119+00:00",
+      "utc_end": "2026-10-19T18:57:03.758141+00:00",
+      "cases": [
+        {
+          "name": "terminal-space-json",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "terminal-space-yaml",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "terminal-empty-sequence-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "terminal-empty-sequence-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "terminal-styled-ordinary-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "terminal-styled-ordinary-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-entry-level-json",
+          "returncodes": [
+            0,
+            1
+          ],
+          "both_error": false
+        },
+        {
+          "name": "query-caption-body-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "query-heading-missing-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-heading-one-missing-json",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "query-cardinality-before-field-json",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "query-one-none-json",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "query-carrier-body-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-entry-level-yaml",
+          "returncodes": [
+            0,
+            1
+          ],
+          "both_error": false
+        },
+        {
+          "name": "query-caption-body-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": false
+        },
+        {
+          "name": "query-heading-missing-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-heading-one-missing-yaml",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "query-cardinality-before-field-yaml",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "query-one-none-yaml",
+          "returncodes": [
+            1,
+            1
+          ],
+          "both_error": true
+        },
+        {
+          "name": "query-carrier-body-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        }
+      ]
+    },
+    {
+      "file": "final-controls-receipt.json",
+      "sha256": "fe9dd13358873e425a9f8590f5138252e8720958ffffaa82158e59a60b19b967",
+      "utc_start": "2026-10-19T18:58:07.502232+00:00",
+      "utc_end": "2026-10-19T18:58:09.611723+00:00",
+      "cases": [
+        {
+          "name": "terminal-space-corrected-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-located-entry-level-json",
+          "returncodes": [
+            0,
+            1
+          ],
+          "both_error": false
+        },
+        {
+          "name": "terminal-space-corrected-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-located-entry-level-yaml",
+          "returncodes": [
+            0,
+            1
+          ],
+          "both_error": false
+        }
+      ]
+    },
+    {
+      "file": "generated-entry-receipt.json",
+      "sha256": "8a383ee24af3c36945a6e79df803e84e5ac0a6467453d020e0e44e5d8832670c",
+      "utc_start": "2026-10-19T18:59:34.845920+00:00",
+      "utc_end": "2026-10-19T18:59:36.865381+00:00",
+      "cases": [
+        {
+          "name": "query-generated-entry-level-json",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        },
+        {
+          "name": "query-generated-entry-level-yaml",
+          "returncodes": [
+            0,
+            0
+          ],
+          "parsed_equal": true
+        }
+      ]
+    }
+  ]
+}

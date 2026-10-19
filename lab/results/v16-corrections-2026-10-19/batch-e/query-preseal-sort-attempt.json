@@ -1,0 +1,13 @@
+{
+  "utc": "2026-10-19T19:47:53.906532+00:00",
+  "path": "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+  "before_sha256": "805b1d2862ecf42d7e465bc9d1ab561c932fe95a9ffe95ea2dc3b4ed45232622",
+  "failure": "V26 requires unique byte-sorted Nucleus references; reseal stopped before changes.",
+  "references_before": [
+    "- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29",
+    "- 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843",
+    "- 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065",
+    "- 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:7e7373acce2b00247d18b9c5ea1b9d53833275997cd2c304e9d919d2cce10648",
+    "- 00_nucleo/prompts/_nuclei/transform-semantics.toml sha256:6345ad9c825988872fb53b94c574f61e85a7c21074597400c33bd13ae6a3f68d"
+  ]
+}

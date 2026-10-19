@@ -1,0 +1,6 @@
+{"raw_comparator_passed": false, "full_parity": false, "scoped_acceptance": true, "counts": {"cases": 173, "matches_oracle": 87, "reviewed_partial_repairs": 26, "failed_cases": 0}, "errors": []}
+Traceback (most recent call last):
+  File "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/workers/batch_e_close.py", line 343, in <module>
+    assert expected_argv[1]=='query' and expected_argv[4:6]==['--format','json']
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

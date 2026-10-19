@@ -1,0 +1,39 @@
+{
+  "provenance": {
+    "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+    "utc": "2026-10-19T18:57:00.527289+00:00",
+    "working_tree": "uncommitted working tree",
+    "diff_stat": " .../eval/bindings/field_access/content_methods.md  |  72 +++++++\n 00_nucleo/prompts/shell/cli.md                     |  65 ++++++\n .../eval/bindings/field_access/content_methods.rs  | 212 +++++++++++++++++++\n 02_shell/src/cli.rs                                | 224 +++++++++++++++++++++\n 4 files changed, 573 insertions(+)\n",
+    "source_sha256": "00b9dbbbed73baf6729a2ec002809e7db3de663003a7f0bfe2b2ed2fc5aa6939",
+    "l0_sha256": "393d9aba8f6dba6504ed46de1b5ccaea038fba741c46e15daaf1c67f57a82a01",
+    "phase": "L0 plus tests only; parent controls sealing and execution"
+  },
+  "method": "paired exact-positive-arm omission in disposable complete locked workspace; baseline compiles via wildcard, repair must emit local primary E0004",
+  "limitation": "No productive enum extension; this does not claim a successfully compiled cross-crate sentinel extension.",
+  "anchors": [
+    {
+      "id": "V16-083",
+      "function": "content_to_semantic initial carrier dispatch",
+      "match_anchor": "    match content {",
+      "baseline_line": 1156,
+      "remove_exact": "        Content::Source(r) => return content_to_semantic(&r.body),\n",
+      "positive_line": 1157
+    },
+    {
+      "id": "V16-084",
+      "function": "content_to_semantic legacy field projection",
+      "match_anchor": "    match content {",
+      "baseline_line": 1182,
+      "remove_exact": "        Content::Raw(_) => {\n            for name in [\"text\", \"block\", \"lang\"] {\n                if let Some(value) = content.get_field(name) {\n                    fields.push((name.into(), value_to_semantic(&value)));\n                }\n            }\n        }\n",
+      "positive_line": 1187
+    },
+    {
+      "id": "V16-085",
+      "function": "content_semantic_func_name",
+      "match_anchor": "    match content {",
+      "baseline_line": 1426,
+      "remove_exact": "        Content::Source(source) => content_semantic_func_name(&source.body),\n",
+      "positive_line": 1427
+    }
+  ]
+}

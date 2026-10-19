@@ -1,0 +1,90 @@
+{
+  "utc": "2026-10-19T20:13:55.174549+00:00",
+  "witnesses": [
+    {
+      "id": "V16-001",
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "line": 351,
+      "method": "core-extension",
+      "independent_primary_span_verified": true
+    },
+    {
+      "id": "V16-002",
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "line": 565,
+      "method": "core-extension",
+      "independent_primary_span_verified": true
+    },
+    {
+      "id": "V16-003",
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "line": 840,
+      "method": "core-extension",
+      "independent_primary_span_verified": true
+    },
+    {
+      "id": "V16-004",
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "line": 1062,
+      "method": "core-extension",
+      "independent_primary_span_verified": true
+    },
+    {
+      "id": "content-field-closure",
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "line": 53,
+      "method": "core-extension",
+      "independent_primary_span_verified": true
+    },
+    {
+      "id": "equation-getter-recognizer",
+      "file": "01_core/src/entities/content/fields.rs",
+      "line": 10,
+      "method": "core-extension",
+      "independent_primary_span_verified": true
+    },
+    {
+      "id": "equation-identity-recognizer",
+      "file": "01_core/src/entities/content/identity.rs",
+      "line": 13,
+      "method": "core-extension",
+      "independent_primary_span_verified": true
+    },
+    {
+      "id": "equation-encoding-recognizer",
+      "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+      "line": 138,
+      "method": "core-extension",
+      "independent_primary_span_verified": true
+    },
+    {
+      "id": "V16-083",
+      "file": "02_shell/src/cli.rs",
+      "line": 1293,
+      "method": "shell-omissions",
+      "independent_primary_span_verified": true
+    },
+    {
+      "id": "V16-084",
+      "file": "02_shell/src/cli.rs",
+      "line": 1429,
+      "method": "shell-omissions",
+      "independent_primary_span_verified": true
+    },
+    {
+      "id": "V16-085",
+      "file": "02_shell/src/cli.rs",
+      "line": 1775,
+      "method": "shell-omissions",
+      "independent_primary_span_verified": true
+    },
+    {
+      "id": "equation-shell-recognizer",
+      "file": "02_shell/src/cli.rs",
+      "line": 1156,
+      "method": "shell-omissions",
+      "independent_primary_span_verified": true
+    }
+  ],
+  "limits": "Core uses real Content enum extension. Shell uses positive-arm omission with real dependencies; it does not claim a successfully compiled cross-crate future enum. Additional helper witnesses are green-only; no baseline outcome is asserted for them."
+}

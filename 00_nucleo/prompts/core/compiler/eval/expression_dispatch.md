@@ -1,5 +1,5 @@
 # L0 — compiler/eval/expression_dispatch
-Hash do Código: f230549f
+Hash do Código: 4864ea2d
 
 
 
@@ -9,6 +9,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
 - 00_nucleo/prompts/_nuclei/math/bare-insertion.toml sha256:c54d66589196680f0db26d0b6328d20c5d28d474458f0661275e871139d07d9b
+- 00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml sha256:947456f05619642c93f67721453e4ad5577557679dbc422a20a48f397ae97ded
 - 00_nucleo/prompts/_nuclei/table/cell-realization.toml sha256:2b9e828f5e0d958f4328d98a35320ba2ea321997e541e6ab90520d2e8811e7bf
 
 ## Ownership and extraction evidence
@@ -198,7 +199,8 @@ Styled, but syntactic boundary still converts tail to content.
 Use private boundary stack closing inside-out, no recursion per set count. Do not
 collapse all declarations into final style or style prefix retroactively. Adjacent
 Styled without intervening content may compose deltas with inner precedence,
-preserving causal Source/private channels. Mark flow using existing eval.flow.scope.
+preserving causal Source/private channels, except for the constructor-origin
+boundary specified below. Mark flow using existing eval.flow.scope.
 Keep SetPage carriers in output sequence outside tail value join, retaining page
 properties.
 
@@ -221,6 +223,40 @@ value-display-completo scope; SetPage public morphology is codeblock-set-carrier
 scope, preserving physical properties; selectorless show/general lexical tail is
 codeblock-show-cauda scope. Styled fields (child etc.) belong to field-access
 owner. No universal certification or authorization of those owners here.
+
+### External style and Equation constructor origin
+
+Measurement precedes this correction. At HEAD
+`5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9`, uncommitted candidate recorded in
+`lab/results/v16-corrections-2026-10-19/batch-e/agents/language/candidate-replay/receipt.json`
+(2026-10-19 19:15:10–19:15:43 UTC, exact changed files and binaries in receipt),
+the three `artifact-marker-receipt.json::marker-*-show-set-text` cases evaluate
+`{set text(fill:red); math.equation(numbering:none)[x]}`. Candidate JSON encoding
+and JSON/YAML projection incorrectly identify the root as Equation; the pinned
+oracle retains outer Styled with Equation child. The old product already kept
+outer Styled. `expression_dispatch.rs:17–33` collapses inner and external styles,
+discarding the inner wrapper while retaining its constructor marker; the lexical
+set-tail call at `:309–325` exposes this cause. Independently, pinned upstream
+`typst-eval/src/code.rs:26–43` applies set styles around the evaluated displayed
+tail. This evidence concerns language identity, fields, and styling morphology;
+it does not require copying upstream representation or output bytes.
+
+Before the existing adjacent-Styled collapse, inspect only the latest direct
+`equation.constructor` entry in the inner delta. If its value is Bool true,
+retain the inner Styled unchanged beneath a separate outer Styled carrying the
+external styles. Do not infer provenance from an element name or option keys,
+remove the marker, merge it into the external delta, or execute the body/callbacks.
+A false, non-boolean, or absent latest marker retains the existing ordinary merge
+and inner precedence. Source recursion preserves its span. Context, heading
+provenance, effect scheduling, and all other tail contracts above remain intact.
+
+This is a continuous ADR-0127 internal metadata correction: no public contract,
+mode, default, compatibility break, or pipeline phase. A marked-Equation fixture
+under external red fill must retain Styled identity, no Equation body getter on
+the outer object, unchanged inner constructor identity/options, and the external
+fill. Controls preserve ordinary merging, later-marker invalidation, and Source
+origin. The three actual-language replays must retain outer Styled and the nested
+Equation; this does not certify unrelated serialization or rendering defaults.
 
 docs-before/results.json.gz retains PDF/MuPDF XML fonts-size-quads/text/diagnostics.
 style-scopes A/B/C/D/E/F all 11pt versus11/14/18/14/22/11pt; same-style-alias M30pt
@@ -428,12 +464,15 @@ All cases preserve the unconditional-return warning and invalid-return error.
 
 This correction does not establish complete static-field parity. The additional
 oracle probes also expose Figure and Equation supplements. Figure's constructor
-and entity do not retain the public supplement field, while Equation constructor
-and set rules share equation.supplement style transport without a constructor
-marker (`structural/math/equation.rs:172–182`, `eval/rules/set.rs:960–977`). These
-are concrete producer/field-provenance dependencies requiring their owning L0
-review; they are open defects, never accepted omissions or reasons to suppress
-warnings. Do not conflate this bounded diagnostic correction with closure of
+and entity do not retain the public supplement field. In the baseline measurement,
+Equation constructor and set rules shared equation.supplement style transport
+without a constructor marker (then `structural/math/equation.rs:172–182` and
+`eval/rules/set.rs:960–977`). The current Equation producer now marks explicit
+constructor options with equation.constructor=true; this removes the measured
+absence of a constructor discriminator, but does not itself implement or validate
+this warning's static-supplement scan. Figure retention and Equation diagnostic
+handling remain open owner obligations, never accepted omissions or reasons to
+suppress warnings. Do not conflate this bounded diagnostic correction with closure of
 those producer contracts or with an exhaustive audit of all public fields.
 
 The open language obligation is the oracle's extra update hint for explicitly

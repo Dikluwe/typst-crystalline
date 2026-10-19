@@ -1,5 +1,5 @@
 # L0 — Shell CLI parsing and semantic serialization
-Hash do Código: a0874afb
+Hash do Código: 73f66c5c
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
@@ -7,6 +7,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
 - 00_nucleo/prompts/_nuclei/math-attach-slot-presence.toml sha256:cf64af6ef56faaa1ba19fa32ec6c134dc3f4f16a4a74fde21eca40259cf3b6ba
+- 00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml sha256:947456f05619642c93f67721453e4ad5577557679dbc422a20a48f397ae97ded
 - 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml sha256:dced4bcb1e45b09423bb3b9739af4da3cd440d500d6a620e08e13219236d1735
 - 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:4b9f69ff41790a55a5b2d6a7b9982da858092e4bb2f0c503d6332a14a510e3ec
 - 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:93054c60b918734522155fc8d1140982c656478ffccbc1ce55b14911309e1a5c
@@ -154,7 +155,7 @@ LocatedContent with fields present uses its authoritative ordered snapshot recur
 
 Legacy Content projection preserves func and its public recursive fields. Label wrappers add the public label notation only to the projected object. Important cases:
 
-- Text: text; Sequence/MathSeq: children; Paragraph/SmallCaps: body; Styled: body.
+- Text: text; Sequence/MathSeq: children; Paragraph/SmallCaps: body; ordinary Styled: child and styles.
 - Heading: level and depth equal level, offset 0, numbering null, supplement obtained from the core heading-language owner with None, outlined, bookmarked as bool or auto, hanging-indent auto, and body. Do not duplicate the English supplement table or infer another locale without a style chain.
 - Figure: body, alt null, placement null, scope column, kind (default image), caption, supplement, numbering 1, gap 0.65em, outlined true and its kind-specific counter repr. Caption includes separator content `: `, body, kind, supplement, numbering and counter. Preserve the existing Figure/Table/Listing supplement selection.
 - Equation: block, numbering null, number-align end + horizon, supplement Equation, alt null and body.
@@ -166,7 +167,95 @@ Heading supplement policy belongs to its L1 owner, not an English successor lite
 
 Query projects the same public values. With --one, require exactly one element before looking up --field; otherwise `expected exactly one element, found {N}`. A missing field for that single result is `no such field found for element`. Without --one, a field request filters out elements lacking the field and emits the remaining values as an array; without field, emit an array of projected elements. Apply JSON/YAML serialization after cardinality/field selection.
 
-## Exit and output integration
+## Exhaustive content projection boundaries
+
+At clean HEAD `5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9`, inspected on
+2026-10-19, `02_shell/src/cli.rs:1152-1177` returns through Source, ShowRecipe,
+Located and Realized before processing Label. Its legacy field dispatch at
+`:1178-1418` preserves specialized fields and otherwise probes only `body`.
+The name projection at `:1421-1446` overrides selected public names and delegates
+the remainder to core. `01_core/src/entities/content/fields.rs:156-265,316-429`
+and the delegated getters show that a stored Rust body is not sufficient to
+expose a public body. Transform's getter at `elements/transform.rs:101-105`
+withholds even body for Matrix; Dynamic delegates the field inquiry. These are
+source observations, not new upstream parity measurements. The audit and
+preservation matrix live in
+`lab/results/v16-corrections-2026-10-19/batch-e/agents/serialization/`.
+
+Preserve these language projections with nominal exhaustive Content patterns:
+the initial dispatch returns through the same four carriers (Realized uses
+visual, never original), while every named ordinary variant continues to Label
+handling or field projection. Label appends its notation after its body's
+projected fields; no carrier metadata or recipe execution is introduced.
+
+In the legacy field decision, retain every specialized branch. The residual
+body-probe class is Boxed, Block, Transform, MathStretch, MathLr, MathUnderbrace,
+MathUnderbracket, MathUnderparen, MathUndershell, PdfArtifact and Dynamic. Keep
+the optional `get_field("body")` lookup and recursive value conversion, including
+Transform Matrix's absence and Dynamic's conditional presence. Explicitly name
+the remaining func-only variants and separately identify the already-handled
+Source/ShowRecipe/Located/Realized/Label cases. Do not infer fields from Rust
+members, enumerate all language fields, add panics, or claim completeness for
+legacy omissions. A newly exposed promised field requires its own measured
+correction; it is not silently ratified as absent by this classification.
+
+Canonical naming retains its current overrides, exhaustive ShapeKind decision,
+and core `elem_name()` delegation for explicitly named remaining variants.
+Transform's operation-sensitive names and Styled's constructor-heading identity
+remain core-owned. No shell-owned duplicate name catalogue is authorized.
+Pinned upstream `bd5ebec285505889e8ff1d4f68804ab147a699f3` declares required
+Styled child/styles at `lab/typst-original/crates/typst-library/src/foundations/content/mod.rs:759-768`;
+`:584-591,710-719` serialize known fields. The current-pin JSON/YAML controls
+`serialize-styled-json` and `serialize-styled-yaml` in the language agent's
+`supplement-receipt.json` confirm this morphology. This corrects only the earlier
+summary saying `Styled: body`; ordinary Styled remains child/styles.
+
+Some snapshots, including empty and deliberately different known fields, remain
+authoritative and bypass all legacy fields. Preserve Empty, Raw, matrix, cell,
+caption, entry and typed attachment-slot contracts above. Regressions must cover
+nested carriers, Label ordering, Realized visual/original distinction, residual
+body and func-only examples, conditional Transform body, canonical names,
+snapshot presence, JSON/YAML projection, query field filtering, cardinality
+before field lookup and exact missing-field diagnostics. Existing morphology
+tests remain required. Compiler-negative probes must independently identify each
+of these three decisions. In disposable complete workspace copies, remove the
+positive Source arm from the initial carrier decision and from the function-name
+decision, and remove the positive Raw arm from the legacy field decision. Each
+baseline wildcard must absorb its omission; each repaired nominal complement
+must produce a primary E0004 at that exact decision. Preserve the exact original
+and mutated sources and independently audit spans. This paired omission proves
+the local exhaustiveness brake without changing the productive enum or API;
+it is not a compiled new-variant experiment across the shell's core dependency.
+Functional preservation tests are expected to pass before and after this
+behavior-preserving correction.
+
+The explicit classification is mechanical; its acceptance preserves language
+morphology and diagnostics under ADR-0107/0108. A variant whose getter or public
+name contradicts its class refutes that classification. This is continuous
+ADR-0127 flow, with no public signature, mode/default, phase or compatibility
+change. Ownership remains 1:1; the constructor correction below adds its shared nucleus pin.
+
+## Equation constructor transport serialization
+
+The current-pin constructor and external-Styled observations in the language
+receipts above, and upstream Equation's declared fields at
+`lab/typst-original/crates/typst-library/src/math/equation.rs:62-131`, distinguish
+an option-bearing Equation from an external Styled. The current shell's Styled
+branch at baseline `cli.rs:1408-1411` otherwise serializes either as child/styles.
+
+For valid marked equation constructor transport only, use a private structural
+classifier following the pinned constructor-origin nucleus; never infer this
+class from elem_name. Project known getter fields in order
+`block,numbering,number-align,supplement,alt,body` with recursive value conversion.
+Do not synthesize omitted defaults or emit constructor metadata, child or styles.
+Keep the existing bare Equation legacy branch and its separately scoped default
+expansion unchanged; this correction does not certify that branch's full parity.
+External/unmarked Styled remains child/styles, even around marked transport.
+Some snapshots still bypass legacy projection. Add RED→GREEN controls for known
+constructor fields, optional absence, recursive body, JSON/YAML and query fields,
+plus opaque external Styled and invalid markers. No new public API or phase.
+
+## Command output integration
 
 Productive composition is referenced at `00_nucleo/prompts/wiring/compile.md`, `00_nucleo/prompts/wiring/eval.md`, `00_nucleo/prompts/wiring/query.md` and the command-specific shell/wiring owners; those are not additional consumers of this L0.
 

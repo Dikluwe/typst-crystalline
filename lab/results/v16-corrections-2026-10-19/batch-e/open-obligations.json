@@ -1,0 +1,251 @@
+{
+  "schema": "batch-e-open-obligations/1",
+  "utc": "2026-10-19T19:08:56.433550+00:00",
+  "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+  "diff_head_stat": " .../eval/bindings/field_access/content_methods.md  | 133 +++++++-\n .../core/compiler/stdlib/loading/encoding.md       |  65 +++-\n .../compiler/stdlib/structural/math/equation.md    |  36 +-\n 00_nucleo/prompts/core/entities/content/fields.md  |  50 ++-\n .../prompts/core/entities/content/identity.md      |  33 +-\n 00_nucleo/prompts/shell/cli.md                     |  95 +++++-\n .../eval/bindings/field_access/content_methods.rs  | 371 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 140 +++++++-\n .../compiler/stdlib/structural/math/equation.rs    | 108 +++++-\n 01_core/src/entities/content/fields.rs             |  56 ++-\n 01_core/src/entities/content/identity.rs           |  68 +++-\n 02_shell/src/cli.rs                                | 374 ++++++++++++++++++++-\n 12 files changed, 1509 insertions(+), 20 deletions(-)\n",
+  "scope": "Baseline measured residuals and unclosed limits; no candidate replays or global parity certification. Encoding ownership expanded after initial audit; no language audit gate is silently promoted.",
+  "obligations": [
+    {
+      "id": "E-RES-01",
+      "title": "Figure explicit none retains lexical caption presence",
+      "status": "open; baseline measured; no candidate closure",
+      "evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probes": [
+            "figure-omitted",
+            "figure-caption",
+            "figure-none"
+          ],
+          "measured_product_sha256": "0c60f5fdab3947b160bcb9c147bd933c8aa24279c9f38f2800e94d24dfe4a64d",
+          "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+        }
+      ],
+      "intended_language_behavior": "Omitted caption is absent; explicit caption:none is known and exposes none through fields/has/at.",
+      "intent_source": "Pinned model/figure.rs:195\u2013205 declares optional caption; foundations/content/mod.rs:538\u2013591 defines known-field access. Oracle explicitly distinguishes omission from none.",
+      "why_not_closed_by_current_scope": "Figure caption Option collapses omission and explicit none. Enumerating existing Some caption repairs only present-content cases; this batch has no new public presence carrier approval.",
+      "concrete_refuter": "Repeat figure-none after a presence-owner correction: fields includes caption:null, has(caption)=true, at(caption)=none, while figure-omitted remains absent."
+    },
+    {
+      "id": "E-RES-02",
+      "title": "Artifact kind omitted versus explicit other",
+      "status": "open; baseline measured; no candidate closure",
+      "evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probes": [
+            "artifact-kind-omitted",
+            "artifact-kind-other",
+            "artifact-kind-layout",
+            "artifact-kind-unset-error"
+          ],
+          "measured_product_sha256": "0c60f5fdab3947b160bcb9c147bd933c8aa24279c9f38f2800e94d24dfe4a64d",
+          "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+        }
+      ],
+      "intended_language_behavior": "Omitted kind is unknown at raw construction; explicit other/layout and other accepted kinds are Set and enumerated before body.",
+      "intent_source": "Pinned model/accessibility.rs ArtifactElem kind declaration and foundations/content/mod.rs known-field contract; local compiler/stdlib/pdf.rs:331 collapses omission to Other.",
+      "why_not_closed_by_current_scope": "Existing ArtifactKind payload cannot distinguish omitted from explicit other. Universal enumeration invents omitted presence; non-Other-only enumeration still leaves explicitOther unresolved.",
+      "concrete_refuter": "Bilateral omitted/other/layout probes distinguish has/fields/at including omitted unset error; exercise all twelve accepted kind names without manufacturing defaults."
+    },
+    {
+      "id": "E-RES-03",
+      "title": "Equation omitted block and unset diagnostic",
+      "status": "open; baseline measured; no candidate closure",
+      "evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probes": [
+            "eq-omitted",
+            "eq-explicit",
+            "eq-unknown-error"
+          ],
+          "measured_product_sha256": "0c60f5fdab3947b160bcb9c147bd933c8aa24279c9f38f2800e94d24dfe4a64d",
+          "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probes": [
+            "eq-omitted-unset",
+            "eq-block-unset"
+          ],
+          "measured_product_sha256": "0c60f5fdab3947b160bcb9c147bd933c8aa24279c9f38f2800e94d24dfe4a64d",
+          "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+        }
+      ],
+      "intended_language_behavior": "Raw constructor omission does not mark block Set; declared omitted equation options produce the unknown-at-this-point diagnostic rather than a nonexistent-field diagnosis.",
+      "intent_source": "Pinned math/equation.rs:59\u201364 gives block default; foundations/content/mod.rs:538\u2013573 separates has and at. Constructor field presence remains distinct from resolved default.",
+      "why_not_closed_by_current_scope": "Current EquationElem block is a bool without lexical presence transport. Correct native callback identity and marked style projection do not repair absent block provenance or all declared-field diagnostic classification.",
+      "concrete_refuter": "math.equation[x].has(\"block\") false when omitted and true for block:false; fields omit only the former; at(\"block\") and at(\"numbering\") without a default use the pinned unset diagnostic; bogus remains undeclared."
+    },
+    {
+      "id": "E-RES-04",
+      "title": "Ordinary Styled strict child/styles reflection",
+      "status": "open; baseline measured; no candidate closure",
+      "evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probes": [
+            "ordinary-styled",
+            "styled-equation"
+          ],
+          "measured_product_sha256": "0c60f5fdab3947b160bcb9c147bd933c8aa24279c9f38f2800e94d24dfe4a64d",
+          "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probes": [
+            "styled-child",
+            "serialize-styled-json",
+            "serialize-styled-yaml"
+          ],
+          "measured_product_sha256": "0c60f5fdab3947b160bcb9c147bd933c8aa24279c9f38f2800e94d24dfe4a64d",
+          "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+        }
+      ],
+      "intended_language_behavior": "Ordinary Styled preserves its own child/styles fields and remains opaque to Equation child fields; CLI serialization already exposes that schema.",
+      "intent_source": "Pinned foundations/content/mod.rs:759\u2013768 declares child/styles required; :584\u2013591 enumerates known fields.",
+      "why_not_closed_by_current_scope": "Marker correction protects outer opacity but does not itself add ordinary Styled strict getter/schema representation. CLI child/styles success does not certify fields()/has()/at().",
+      "concrete_refuter": "For text(fill:red)[x], fields exposes child/styles and matching has/at; body/text remain absent. For text(fill:red,equation(...)), do not expose Equation options as Styled fields."
+    },
+    {
+      "id": "E-RES-05",
+      "title": "Legacy serializer rich fields remain incomplete",
+      "status": "open; baseline measured; no candidate closure",
+      "evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probes": [
+            "serialize-box-json",
+            "serialize-box-yaml",
+            "serialize-block-json",
+            "serialize-block-yaml",
+            "serialize-transform-json",
+            "serialize-transform-yaml",
+            "serialize-heading-json",
+            "serialize-eq-json"
+          ],
+          "measured_product_sha256": "0c60f5fdab3947b160bcb9c147bd933c8aa24279c9f38f2800e94d24dfe4a64d",
+          "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probes": [
+            "serialize-artifact-json",
+            "serialize-artifact-yaml",
+            "serialize-entry-json"
+          ],
+          "measured_product_sha256": "0c60f5fdab3947b160bcb9c147bd933c8aa24279c9f38f2800e94d24dfe4a64d",
+          "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+        }
+      ],
+      "intended_language_behavior": "Public content serialization represents known source fields, preserving lexical absence rather than reconstructing arbitrary defaults; specialized owner promises remain binding.",
+      "intent_source": "Pinned foundations/content/mod.rs:710\u2013719 serializes func plus fields. Current shell L0 bounds legacy projection and explicitly excludes universal fields parity.",
+      "why_not_closed_by_current_scope": "Spelling out exhaustive residual decisions does not add missing width/transform/kind data or remove legacy Heading/Equation synthesized defaults. Box strict body is explicitly excluded until presence transport; this limitation must remain visible.",
+      "concrete_refuter": "Re-run named source JSON/YAML cases against pinned oracle after their owning contracts are audited; assert missing known properties and absent defaults individually; preserve Some(empty)/Some(known) snapshots and Box omitted-body distinction."
+    },
+    {
+      "id": "E-RES-06",
+      "title": "Horizontal spacing public function name",
+      "status": "open; baseline measured; no candidate closure",
+      "evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probes": [
+            "h-omitted",
+            "h-explicit"
+          ],
+          "measured_product_sha256": "0c60f5fdab3947b160bcb9c147bd933c8aa24279c9f38f2800e94d24dfe4a64d",
+          "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+        }
+      ],
+      "intended_language_behavior": "h constructor reflection uses public function identity/name h while preserving amount and explicit weak presence.",
+      "intent_source": "Pinned content func contract foundations/content/mod.rs:530\u2013535; source h constructor public declaration under layout/spacing.rs, corroborated by both source probes.",
+      "why_not_closed_by_current_scope": "Fields/has/at agree in these cases but product func repr is hspace. Equation native repair does not authorize a broad callable catalogue/name rewrite.",
+      "concrete_refuter": "h(1pt).func() repr and callable/native identity agree with h, aliases preserve native identity, homonymous closures do not; omitted/explicit weak remains unchanged."
+    },
+    {
+      "id": "E-RES-07",
+      "title": "Caption query selection precedes serializer",
+      "status": "open; baseline measured; no candidate closure",
+      "evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probes": [
+            "query-figure.caption-json",
+            "query-figure.caption-yaml"
+          ],
+          "measured_product_sha256": "0c60f5fdab3947b160bcb9c147bd933c8aa24279c9f38f2800e94d24dfe4a64d",
+          "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/query-receipt.json",
+          "sha256": "1cade162380b7bc275527fb5523fdb92adf1bdee893aece807333bf4af5935d5",
+          "probes": [
+            "query-caption-body-json",
+            "query-caption-body-yaml"
+          ],
+          "measured_product_sha256": "0c60f5fdab3947b160bcb9c147bd933c8aa24279c9f38f2800e94d24dfe4a64d",
+          "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+        }
+      ],
+      "intended_language_behavior": "A realized figure caption is discoverable by its locatable native selector and yields its body in query.",
+      "intent_source": "Pinned model/figure.rs:510\u2013519 marks FigureCaption Locatable. Oracle source document returns one caption while product query returns none.",
+      "why_not_closed_by_current_scope": "The shell cannot serialize an occurrence absent from selection/indexing. Caption raw-field repair and explicit fallback classification do not create the missing occurrence.",
+      "concrete_refuter": "Same figure document query figure.caption returns the caption; --field body returns Cap in JSON/YAML; preserve count, query order, effects, and occurrence identity."
+    },
+    {
+      "id": "E-RES-08",
+      "title": "Outer Styled representation remains distinct from equation repr",
+      "status": "open; baseline measured; no candidate closure",
+      "evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probes": [
+            "marker-repr-constructor",
+            "marker-repr-outer-text",
+            "marker-repr-nested-text",
+            "marker-repr-show-set-text"
+          ],
+          "measured_product_sha256": "0c60f5fdab3947b160bcb9c147bd933c8aa24279c9f38f2800e94d24dfe4a64d",
+          "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+        }
+      ],
+      "intended_language_behavior": "Ordinary external style wrappers remain visible in language repr rather than being erased into constructor repr.",
+      "intent_source": "Pinned StyledElem Repr declaration foundations/content/mod.rs:759\u2013768; local eval/repr/content.rs:554\u2013620 strips Styled after inspecting equation options.",
+      "why_not_closed_by_current_scope": "The identity/strict fields/textual encoding scope does not change public repr owner. Direct constructor repr success does not certify outer-style repr.",
+      "concrete_refuter": "repr(text(fill:red,math.equation(numbering:none)[x])) retains styled(child: equation(...), ..) as pinned; no private marker appears, and direct constructor repr remains equation."
+    },
+    {
+      "id": "E-RES-09",
+      "title": "Marker effect on general style equality is not certified",
+      "status": "unknown beyond bounded positive; not closed and not asserted a measured defect",
+      "evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probes": [
+            "marker-outer-style-equality"
+          ],
+          "measured_product_sha256": "0c60f5fdab3947b160bcb9c147bd933c8aa24279c9f38f2800e94d24dfe4a64d",
+          "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9"
+        }
+      ],
+      "intended_language_behavior": "An internal constructor-provenance marker must not alter language equality of observably equal content.",
+      "intent_source": "ADR-0107 distinguishes morphology from mechanics; local eval/observation/style.rs:59 compares custom payloads, while Styles Rust Debug is internal mechanics unless an observable path is demonstrated.",
+      "why_not_closed_by_current_scope": "Only same-source equality was measured and returned true in both. This neither proves a general equality defect nor certifies aliases/reconstruction/merged style behavior after insertion of a private marker.",
+      "concrete_refuter": "Add independent alias-versus-reconstruction and outer-style equal/unequal controls at source level and exact marker-only transport tests at the owner boundary; candidate results must establish language outcomes, not mere Rust PartialEq."
+    }
+  ]
+}

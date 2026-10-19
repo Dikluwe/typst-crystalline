@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-19T19:38:19.736814+00:00",
+  "cause": "Initial systemd service did not inherit login-shell PATH; validator stopped before its first gate because rsvg-convert was undiscoverable.",
+  "correction": "Pass current login-shell PATH explicitly to resource-limited systemd service. No validator, command expectation, source, L0, observer or contract change.",
+  "PATH": "/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.codex/tmp/arg0-linux/codex-arg00xTW9G:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/home/dikluwe/.local/bin:/home/dikluwe/bin:/home/dikluwe/.bun/bin:/home/dikluwe/.kimi-code/bin:/home/dikluwe/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/dikluwe/.lmstudio/bin:/opt/zig:/home/dikluwe/go/bin:/home/dikluwe/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/usr/lib/chatgpt/resources",
+  "rsvg_convert": {
+    "path": "/home/linuxbrew/.linuxbrew/bin/rsvg-convert",
+    "sha256": "34653f7c5e91a990c2c06db8e73a69248b021d8d45317d0377ebc0f079bc5cf7"
+  }
+}

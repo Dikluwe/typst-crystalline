@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md
-//! @prompt-hash b71d547c
+//! @prompt-hash 0a35490b
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -178,7 +178,10 @@ pub fn native_math_equation(
     Ok(Value::Content(if styles.delta().custom.is_empty() {
         equation
     } else {
-        Content::styled(Box::new(equation), styles)
+        Content::styled(
+            Box::new(equation),
+            styles.push_custom("equation.constructor", Value::Bool(true)),
+        )
     }))
 }
 
@@ -195,5 +198,111 @@ mod tests {
         let error = equation_alt(&Value::Content(Content::text("Eq")), Span::detached())
             .unwrap_err();
         assert_eq!(error[0].message, "expected string or none, found content");
+    }
+}
+
+#[cfg(test)]
+mod v16_e_equation_producer_tests {
+    use super::*;
+    use crate::contracts::world::World;
+    use crate::entities::{
+        font_book::FontBook,
+        func::Func,
+        source::Source,
+        world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+    };
+
+    #[derive(Default)]
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+    }
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+
+    fn invoke(args: &Args) -> Content {
+        let world = TestWorld::default();
+        let alias = native_math_equation;
+        let Value::Content(content) =
+            alias(&mut EvalContext::new(), args, &world, world.main()).unwrap()
+        else {
+            panic!("equation constructor must return content");
+        };
+        content
+    }
+
+    fn callback_must_not_run(
+        _: &mut EvalContext,
+        _: &Args,
+        _: &dyn World,
+        _: FileId,
+    ) -> SourceResult<Value> {
+        panic!("constructor/identity must not execute an option callback");
+    }
+
+    #[test]
+    fn v16_e_equation_actual_constructor_options_keep_identity() {
+        for (name, value) in [
+            ("numbering", Value::Str("(1)".into())),
+            ("numbering", Value::None),
+            ("supplement", Value::Auto),
+            ("alt", Value::Str("description".into())),
+            (
+                "supplement",
+                Value::Func(Func::native("test-callback", callback_must_not_run)),
+            ),
+        ] {
+            let mut args = Args::positional(vec![Value::Content(Content::text("x"))]);
+            args.named.insert(name.into(), value);
+            let content = invoke(&args);
+            assert_eq!(content.elem_name(), "equation", "option {name}");
+            let Content::Styled(styled) = content else {
+                panic!("existing option transport expected")
+            };
+            assert!(styled
+                .styles
+                .delta()
+                .custom
+                .iter()
+                .any(|(key, value)| key == "equation.constructor"
+                    && matches!(value, Value::Bool(true))));
+        }
+    }
+
+    #[test]
+    fn v16_e_equation_bare_and_block_only_do_not_gain_transport() {
+        for block in [None, Some(true), Some(false)] {
+            let mut args = Args::positional(vec![Value::Content(Content::text("x"))]);
+            if let Some(block) = block {
+                args.named.insert("block".into(), Value::Bool(block));
+            }
+            let content = invoke(&args);
+            assert_eq!(content.elem_name(), "equation");
+            assert!(matches!(content, Content::Equation(_)));
+        }
     }
 }

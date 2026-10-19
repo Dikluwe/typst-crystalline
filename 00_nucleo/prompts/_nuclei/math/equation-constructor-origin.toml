@@ -1,0 +1,29 @@
+tekt = 1
+kind = "nucleus"
+id = "equation-constructor-origin"
+title = "Equation constructor transport and external style opacity"
+
+[[claims]]
+id = "causal-transport"
+level = "must"
+statement = "An Equation constructor with explicit style-backed options marks its existing local Styles delta with equation.constructor=true. An option-free constructor remains bare. The marker describes transport provenance, is not a language field, and does not execute callbacks or resolve layout defaults."
+
+[[claims]]
+id = "bounded-recognition"
+level = "must"
+statement = "Reflection and identity recognize Equation directly, Source/ShowRecipe/Located through body, and Realized through visual. Styled transports Equation only when its own direct delta carries the constructor marker and its child resolves to Equation through these same rules. Ordinary Styled, including an external wrapper with equation option keys but without the marker, remains opaque. Semantic containers never become causal carriers."
+
+[[claims]]
+id = "known-fields"
+level = "must"
+statement = "A recognized constructor transport retains Equation identity and the real native constructor. Explicit local options override inner constructor options; absent options remain absent. Fields, has, at, and serialization preserve known presence, explicit none, authoritative snapshots, and existing location precedence. External Styled preserves its own child/styles schema."
+
+[[claims]]
+id = "no-schema-expansion"
+level = "must-not"
+statement = "The internal marker introduces no public Rust field, signature, facade, registry, product mode, or pipeline phase. Observers must not infer constructor provenance from names, geometry, option-key coincidence, or default values, and must not expose the marker as a language field."
+
+[[claims]]
+id = "external-style-boundary"
+level = "must"
+statement = "Applying an external lexical set-style to a constructor-marked Styled retains a separate outer Styled boundary. Style collapsing must not merge constructor-origin metadata into the external delta, remove the inner constructor, or reinterpret external text/style values as Equation fields. Existing source origin, style precedence, and effect scheduling remain intact."

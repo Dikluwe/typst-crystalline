@@ -1,0 +1,22 @@
+{
+  "utc": "2026-10-19T19:25:46.991458+00:00",
+  "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+  "diff_head_stat": " .../_nuclei/math/equation-constructor-origin.toml  |   29 +\n .../eval/bindings/field_access/content_methods.md  |  161 ++-\n .../core/compiler/eval/expression_dispatch.md      |   40 +-\n .../core/compiler/stdlib/loading/encoding.md       |   65 +-\n .../compiler/stdlib/structural/math/equation.md    |   36 +-\n 00_nucleo/prompts/core/entities/content/fields.md  |   50 +-\n .../prompts/core/entities/content/identity.md      |   33 +-\n 00_nucleo/prompts/shell/cli.md                     |   95 +-\n .../eval/bindings/field_access/content_methods.rs  | 1075 +++++++++++++++++++-\n 01_core/src/compiler/eval/expression_dispatch.rs   |   72 +-\n 01_core/src/compiler/stdlib/loading/encoding.rs    |  288 +++++-\n .../compiler/stdlib/structural/math/equation.rs    |  113 +-\n 01_core/src/entities/content/fields.rs             |   73 +-\n 01_core/src/entities/content/identity.rs           |  207 +++-\n 02_shell/src/cli.rs                                |  901 +++++++++++++++-\n 15 files changed, 3169 insertions(+), 69 deletions(-)\n",
+  "files": {
+    "01_core/src/compiler/eval/bindings/field_access/content_methods.rs": "2df7cb4c044569558a22896a760436fa2ddb917e4b7094beeb523b4502396a8b",
+    "02_shell/src/cli.rs": "b6a5e7f36c75949d0e75498a4d98ade92a264cc85831fa95f970d7417814d719",
+    "01_core/src/compiler/stdlib/structural/math/equation.rs": "99321690dcce52b5a2c96d1f263b559a586d02edac0e6a559c4f6f3bad011e43",
+    "01_core/src/entities/content/fields.rs": "f7972a9a52f1509b39ef6de06cd3537659ad7ea30b3199c99778fd9411f95f38",
+    "01_core/src/entities/content/identity.rs": "5bc6f48db28a247575f0678983d909c7f20de2819e9129ba29bf6ace42e42bb6",
+    "01_core/src/compiler/stdlib/loading/encoding.rs": "4463c1c34d091528d502e9fea430feed1797728e1d9526f942bef96e61131be3",
+    "01_core/src/compiler/eval/expression_dispatch.rs": "8ecb8e2a5b0d89e5e9b7895ae3727a56eb409228b1bd9f7686e5e3f13d64fcfe",
+    "00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md": "34d32b96ca3752abaf8ed88f83c77c92e34a4330e920171daa586534df39469e",
+    "00_nucleo/prompts/shell/cli.md": "278be884d63f1595fa1af68c1e52364c37b30bcb751cfdbc5269897d4692b36a",
+    "00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md": "7a8d9b13f78e16267f63af8f5b019586a92767847c24ca916fadfbf74eb8cd41",
+    "00_nucleo/prompts/core/entities/content/fields.md": "df73e2399abf9966c53cf518f16c22f7da184d2491f17c732b2c64804217d051",
+    "00_nucleo/prompts/core/entities/content/identity.md": "5f7a3f1038daf1455cb74b5f0f0bda911db9d66bb7c938b3d90c7836efdd34ee",
+    "00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md": "c4f2644cca860d57c0e584eb5c9beb1915ba051b543ae3f9eb29f79d469dfe83",
+    "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md": "29f14841bbeac27f0432cd5c61a513c50a487464e723620556b9b7065e781407",
+    "00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml": "e989ecff90a30ab66cb592d9ad5b8a16ae384a2bfd5cfcd5b6e3614b5e8ea3b6"
+  }
+}

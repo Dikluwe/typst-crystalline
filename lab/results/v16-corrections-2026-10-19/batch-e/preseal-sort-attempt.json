@@ -1,0 +1,5 @@
+{
+  "utc": "2026-10-19T19:03:36.975520+00:00",
+  "failure": "V26 nucleus references must be unique and byte-sorted",
+  "repair": "Sort existing full path pins in four owner headers; do not change pins or graph."
+}

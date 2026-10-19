@@ -1,0 +1,35 @@
+{
+  "utc": "2026-10-19T19:31:57.988125+00:00",
+  "phase": "first candidate before canonical native name and lexical style boundary corrections",
+  "tests": [
+    {
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "name": "v16_e_equation_native_aliases_keep_language_identity",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "followup-red-run/followup-red.log",
+      "log_sha256": "9c96d48ecf6b8fffd99a451d7f747699f83a3b8ff701475df269c00f5c45b6d4"
+    },
+    {
+      "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "name": "v16_e_external_set_style_keeps_equation_constructor_boundary",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "followup-red-run/followup-red.log",
+      "log_sha256": "9c96d48ecf6b8fffd99a451d7f747699f83a3b8ff701475df269c00f5c45b6d4"
+    },
+    {
+      "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "name": "v16_e_external_set_style_preserves_ordinary_merge_and_latest_marker",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "followup-red-run/followup-red.log",
+      "log_sha256": "9c96d48ecf6b8fffd99a451d7f747699f83a3b8ff701475df269c00f5c45b6d4"
+    }
+  ],
+  "counts": {
+    "semantic RED": 2,
+    "preservation": 1
+  },
+  "excluded_attempt": "followup-red-type-error contains E0382 setup errors, not semantic RED"
+}

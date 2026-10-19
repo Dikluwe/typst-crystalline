@@ -1,0 +1,201 @@
+[
+  {
+    "name": "lint-delta",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_e_compare_lint.py"
+    ],
+    "utc_end": "2026-10-19T19:51:54.274973+00:00",
+    "exit": 0,
+    "seconds": 5.927378709995537,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "254816256",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "core-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "v16_e_",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-19T19:53:14.975327+00:00",
+    "exit": 0,
+    "seconds": 80.69982507301029,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3439349760",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "existing-selector",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "equation_where_filters_match_identity_body_block_and_captured_fields",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-19T19:53:15.153646+00:00",
+    "exit": 0,
+    "seconds": 0.17775294999592006,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3439349760",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "getter-preservation",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "content_views_",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-19T19:53:15.316977+00:00",
+    "exit": 0,
+    "seconds": 0.16277544900367502,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3439349760",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "shell-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-shell",
+      "--lib",
+      "v16_e_",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-19T19:53:43.708206+00:00",
+    "exit": 0,
+    "seconds": 28.390641296995454,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3439349760",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--workspace"
+    ],
+    "utc_end": "2026-10-19T19:54:45.869632+00:00",
+    "exit": 0,
+    "seconds": 62.16077888700238,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3439349760",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "language-replay",
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/replay.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/candidate-query-replay",
+      "--validation-state",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/candidate-query-run/state.json.gz"
+    ],
+    "expected_exit": 1,
+    "utc_end": "2026-10-19T19:55:19.882515+00:00",
+    "exit": 1,
+    "seconds": 34.01217833899136,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3439349760",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "realized-query-replay",
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/realized-query-replay.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/candidate-realized-query-replay",
+      "--validation-state",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/candidate-query-run/state.json.gz"
+    ],
+    "utc_end": "2026-10-19T19:55:51.421785+00:00",
+    "exit": 0,
+    "seconds": 31.538528599994606,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3439349760",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "structural-green",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_e_structural.py",
+      "green",
+      "query-green"
+    ],
+    "utc_end": "2026-10-19T19:56:46.576992+00:00",
+    "exit": 0,
+    "seconds": 55.15456697400077,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3439349760",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "utc": "2026-10-19T19:47:05.411279+00:00",
+  "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+  "phase": "L0 first and tests only; production bodies unchanged; parent owns RED/seals",
+  "diff_head_stat": " .../_nuclei/math/equation-constructor-origin.toml  |   29 +\n .../eval/bindings/field_access/content_methods.md  |  161 ++-\n .../core/compiler/eval/expression_dispatch.md      |   55 +-\n .../core/compiler/eval/selector_matching.md        |   60 ++\n .../prompts/core/compiler/introspect/from_tags.md  |   14 +-\n .../compiler/introspect/from_tags/equations.md     |   66 ++\n .../core/compiler/stdlib/loading/encoding.md       |   65 +-\n .../compiler/stdlib/structural/math/equation.md    |   36 +-\n 00_nucleo/prompts/core/entities/content/fields.md  |   50 +-\n .../prompts/core/entities/content/identity.md      |   33 +-\n 00_nucleo/prompts/shell/cli.md                     |   95 +-\n .../eval/bindings/field_access/content_methods.rs  | 1079 +++++++++++++++++++-\n 01_core/src/compiler/eval/expression_dispatch.rs   |   83 +-\n 01_core/src/compiler/eval/selector_matching.rs     |   92 +-\n .../src/compiler/introspect/from_tags/equations.rs |  119 +++\n 01_core/src/compiler/stdlib/loading/encoding.rs    |  288 +++++-\n .../compiler/stdlib/structural/math/equation.rs    |  113 +-\n 01_core/src/entities/content/fields.rs             |   73 +-\n 01_core/src/entities/content/identity.rs           |  207 +++-\n 02_shell/src/cli.rs                                |  901 +++++++++++++++-\n 20 files changed, 3533 insertions(+), 86 deletions(-)\n",
+  "files": {
+    "01_core/src/compiler/introspect/from_tags/equations.rs": "17cd96445b561b0392e2c2b87f99100a1713ac6bf52239b96452104eab8c34a3",
+    "00_nucleo/prompts/core/compiler/introspect/from_tags/equations.md": "ef12d7d92f9680a1b05cfff3d245940897c0ccd855c28e45dfae93df75643494",
+    "00_nucleo/prompts/core/compiler/introspect/from_tags.md": "297caa54fd59f8c81df2ad52777312b6fa8582e5fe1f5af46a1333b951a42af7"
+  },
+  "tests": [
+    "v16_e_realized_equation_publishes_semantic_snapshot_per_occurrence",
+    "v16_e_realized_equation_retains_effective_defaults_without_label",
+    "v16_e_realized_equation_preserves_present_snapshots_and_missing_entries"
+  ],
+  "expected": "semantic RED: realized producer publishes unmarked Styled with absent snapshot; new tests require original Equation and authoritative Some, preserving preexisting Some verbatim",
+  "evidence": [
+    "../language/realized-query/receipt.json",
+    "../language/realized-query-controls/receipt.json",
+    "../language/realized-query-defaults/receipt.json"
+  ]
+}

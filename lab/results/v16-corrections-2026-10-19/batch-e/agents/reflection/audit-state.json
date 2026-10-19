@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-19T18:57:02.496252+00:00",
+  "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+  "initial_audit_state": "clean HEAD; initial git diff HEAD --stat empty at 2026-10-19T15:53:47-03:00",
+  "current_diff_head_stat": " .../eval/bindings/field_access/content_methods.md  |  72 +++++++\n 00_nucleo/prompts/shell/cli.md                     |  65 ++++++\n .../eval/bindings/field_access/content_methods.rs  | 212 +++++++++++++++++++\n 02_shell/src/cli.rs                                | 224 +++++++++++++++++++++\n 4 files changed, 573 insertions(+)\n",
+  "baseline_source_sha256": "dc4a85185df7b12ac1fd2cd05cf3b0462ad9fc1404fb930b0d63a60bf85f8c20",
+  "baseline_owner_sha256": "6f565ba0628fbe62090f0af74da1c88983ef39a5f24bffe21f48f5b10cb9583e",
+  "baseline_forward_seal": "a9e109c5",
+  "baseline_reverse_seal": "4b43fd2d",
+  "reverse_verified": true,
+  "current_source_sha256": "6b6ead1ad34f3a85dad37f1b1cbe64e0422872cb58d23dfaacb10647fc32cac0",
+  "current_owner_sha256": "f7ca882f6f84ba1028493457c0e8179f1ff607f4b72860ee265a53c8e22226f4",
+  "execution": "Source inspection only; no Cargo, oracle, linter, hash repair or productive implementation executed by this agent."
+}

@@ -1,0 +1,59 @@
+{
+  "provenance": {
+    "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+    "utc": "2026-10-19T18:57:00.527289+00:00",
+    "working_tree": "uncommitted working tree",
+    "diff_stat": " .../eval/bindings/field_access/content_methods.md  |  72 +++++++\n 00_nucleo/prompts/shell/cli.md                     |  65 ++++++\n .../eval/bindings/field_access/content_methods.rs  | 212 +++++++++++++++++++\n 02_shell/src/cli.rs                                | 224 +++++++++++++++++++++\n 4 files changed, 573 insertions(+)\n",
+    "source_sha256": "00b9dbbbed73baf6729a2ec002809e7db3de663003a7f0bfe2b2ed2fc5aa6939",
+    "l0_sha256": "393d9aba8f6dba6504ed46de1b5ccaea038fba741c46e15daaf1c67f57a82a01",
+    "phase": "L0 plus tests only; parent controls sealing and execution"
+  },
+  "new_tests": [
+    {
+      "name": "v16_e_carriers_preserve_visual_morphology_and_label_order",
+      "line": 3350,
+      "expected_baseline": "PASS: behavior-preservation control; not a fabricated functional RED"
+    },
+    {
+      "name": "v16_e_snapshots_are_authoritative_through_all_carriers",
+      "line": 3374,
+      "expected_baseline": "PASS: behavior-preservation control; not a fabricated functional RED"
+    },
+    {
+      "name": "v16_e_legacy_body_probe_retains_conditional_absence",
+      "line": 3406,
+      "expected_baseline": "PASS: behavior-preservation control; not a fabricated functional RED"
+    },
+    {
+      "name": "v16_e_specialized_fields_keep_order_and_recursive_values",
+      "line": 3430,
+      "expected_baseline": "PASS: behavior-preservation control; not a fabricated functional RED"
+    },
+    {
+      "name": "v16_e_attachment_presence_distinguishes_omitted_none_and_empty",
+      "line": 3450,
+      "expected_baseline": "PASS: behavior-preservation control; not a fabricated functional RED"
+    },
+    {
+      "name": "v16_e_query_filters_fields_and_checks_cardinality_first",
+      "line": 3473,
+      "expected_baseline": "PASS: behavior-preservation control; not a fabricated functional RED"
+    },
+    {
+      "name": "v16_e_canonical_names_keep_shape_and_math_overrides",
+      "line": 3492,
+      "expected_baseline": "PASS: behavior-preservation control; not a fabricated functional RED"
+    }
+  ],
+  "required_existing_filters": [
+    "content_serialization_regressions",
+    "v16_walk_entry_serialization_tests",
+    "caption_shape_tests",
+    "p1137_query",
+    "p1285_query",
+    "p1460_snapshot",
+    "p1285_eval"
+  ],
+  "execution": "not run by this agent",
+  "yaml_scope": "Unit assertions inspect known projected fields and ordering; language agent parses bilateral external YAML semantically. No universal YAML byte identity criterion."
+}

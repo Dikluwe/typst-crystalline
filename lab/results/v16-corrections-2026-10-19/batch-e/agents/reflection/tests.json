@@ -1,0 +1,117 @@
+{
+  "tests": [
+    {
+      "name": "v16_e_nested_equation_carriers_preserve_fields",
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "line": 881,
+      "status": "not executed; parent baseline pending",
+      "expected_baseline": "RED: nested fields key loss",
+      "fixture_contract": "legitimate synthetic Equation transport now carries direct equation.constructor Bool(true); unmarked is opaque"
+    },
+    {
+      "name": "v16_e_equation_has_at_precedence_and_explicit_none",
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "line": 907,
+      "status": "not executed; parent baseline pending",
+      "expected_baseline": "GREEN preservation control",
+      "fixture_contract": "legitimate synthetic Equation transport now carries direct equation.constructor Bool(true); unmarked is opaque"
+    },
+    {
+      "name": "v16_e_semantic_containers_remain_opaque_to_equation_fields",
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "line": 934,
+      "status": "not executed; parent baseline pending",
+      "expected_baseline": "GREEN preservation control",
+      "fixture_contract": "legitimate synthetic Equation transport now carries direct equation.constructor Bool(true); unmarked is opaque"
+    },
+    {
+      "name": "v16_e_external_styled_equation_does_not_expose_equation_schema",
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "line": 972,
+      "status": "not executed; parent baseline pending",
+      "expected_baseline": "RED: ordinary Styled exposes Equation schema",
+      "fixture_contract": "legitimate synthetic Equation transport now carries direct equation.constructor Bool(true); unmarked is opaque"
+    },
+    {
+      "name": "v16_e_snapshots_and_location_precedence_survive_carriers",
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "line": 992,
+      "status": "not executed; parent baseline pending",
+      "expected_baseline": "GREEN preservation control",
+      "fixture_contract": "legitimate synthetic Equation transport now carries direct equation.constructor Bool(true); unmarked is opaque"
+    },
+    {
+      "name": "v16_e_prescribed_native_identities_survive_carriers",
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "line": 1037,
+      "status": "not executed; parent baseline pending",
+      "expected_baseline": "GREEN preservation control",
+      "fixture_contract": "legitimate synthetic Equation transport now carries direct equation.constructor Bool(true); unmarked is opaque"
+    },
+    {
+      "name": "v16_e_equation_native_identity_requires_valid_constructor_origin",
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "line": 1057,
+      "status": "not executed; parent baseline pending",
+      "expected_baseline": "RED: Equation native callback unavailable",
+      "fixture_contract": "legitimate synthetic Equation transport now carries direct equation.constructor Bool(true); unmarked is opaque"
+    },
+    {
+      "name": "v16_e_figure_known_caption_and_metadata_value_are_enumerated",
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "line": 1086,
+      "status": "not executed; parent baseline pending",
+      "expected_baseline": "RED: known caption/value omitted",
+      "fixture_contract": "legitimate synthetic Equation transport now carries direct equation.constructor Bool(true); unmarked is opaque"
+    },
+    {
+      "name": "v16_e_outline_entry_fill_preserves_lexical_presence",
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "line": 1114,
+      "status": "not executed; parent baseline pending",
+      "expected_baseline": "RED: entry fields omitted; default fill incorrectly known",
+      "fixture_contract": "legitimate synthetic Equation transport now carries direct equation.constructor Bool(true); unmarked is opaque"
+    },
+    {
+      "name": "content_views_styled_equation_carriers_preserve_fields",
+      "file": "01_core/src/entities/content/fields.rs",
+      "line": 485,
+      "status": "not executed; parent baseline pending",
+      "expected_baseline": "GREEN preservation control",
+      "fixture_contract": "legitimate synthetic Equation transport now carries direct equation.constructor Bool(true); unmarked is opaque"
+    },
+    {
+      "name": "content_views_non_equations_and_style_precedence_stay_separate",
+      "file": "01_core/src/entities/content/fields.rs",
+      "line": 522,
+      "status": "not executed; parent baseline pending",
+      "expected_baseline": "GREEN preservation control",
+      "fixture_contract": "legitimate synthetic Equation transport now carries direct equation.constructor Bool(true); unmarked is opaque"
+    },
+    {
+      "name": "v16_e_getter_requires_own_constructor_origin",
+      "file": "01_core/src/entities/content/fields.rs",
+      "line": 560,
+      "status": "not executed; parent baseline pending",
+      "expected_baseline": "RED: getter crosses unmarked/invalid Styled",
+      "fixture_contract": "legitimate synthetic Equation transport now carries direct equation.constructor Bool(true); unmarked is opaque"
+    },
+    {
+      "name": "v16_e_equation_native_aliases_keep_language_identity",
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "line": 1697,
+      "status": "new required RED, not executed",
+      "expected_baseline": "RED: same callback with noncanonical metadata compares unequal through language operator",
+      "oracle_evidence": "../language/candidate-replay/receipt.json eq-native-equality and eq-alias",
+      "controls": "real module native and alias; bare/marked/four carriers; repr equation; unrelated Matrix and ordinary Styled unequal"
+    }
+  ],
+  "excluded_unfixable_without_presence": [
+    "PdfArtifact omitted kind vs explicit other; no promotion",
+    "Figure explicit caption:none vs omission; no promotion"
+  ],
+  "pending_regression_corpus": [
+    "existing Box/Raw/Cell/Matrix/Heading/typed-transform tests"
+  ],
+  "production_implementation": "none"
+}

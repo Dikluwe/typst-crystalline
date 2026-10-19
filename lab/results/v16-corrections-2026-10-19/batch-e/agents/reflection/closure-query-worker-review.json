@@ -1,0 +1,44 @@
+{
+  "utc": "2026-10-19T19:52:05.318724+00:00",
+  "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+  "state": "uncommitted working tree",
+  "diff_head_stat": " .../_nuclei/math/equation-constructor-origin.toml  |   29 +\n .../eval/bindings/field_access/content_methods.md  |  161 ++-\n .../core/compiler/eval/expression_dispatch.md      |   55 +-\n .../core/compiler/eval/selector_matching.md        |   62 +-\n .../prompts/core/compiler/introspect/from_tags.md  |   14 +-\n .../compiler/introspect/from_tags/equations.md     |   68 +-\n .../core/compiler/stdlib/loading/encoding.md       |   65 +-\n .../compiler/stdlib/structural/math/equation.md    |   36 +-\n 00_nucleo/prompts/core/entities/content/fields.md  |   50 +-\n .../prompts/core/entities/content/identity.md      |   33 +-\n 00_nucleo/prompts/shell/cli.md                     |   95 +-\n .../eval/bindings/field_access/content_methods.rs  | 1079 +++++++++++++++++++-\n 01_core/src/compiler/eval/expression_dispatch.rs   |   83 +-\n 01_core/src/compiler/eval/selector_matching.rs     |  113 +-\n 01_core/src/compiler/introspect/from_tags.rs       |    2 +-\n .../src/compiler/introspect/from_tags/equations.rs |  218 +++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    |  288 +++++-\n .../compiler/stdlib/structural/math/equation.rs    |  113 +-\n 01_core/src/entities/content/fields.rs             |   73 +-\n 01_core/src/entities/content/identity.rs           |  207 +++-\n 02_shell/src/cli.rs                                |  901 +++++++++++++++-\n 21 files changed, 3619 insertions(+), 126 deletions(-)\n",
+  "hashes": {
+    "lab/results/v16-corrections-2026-10-19/workers/batch_e_close.py": "51131b5d908daab447adfab6c54493145f1a2d22966f83fce6addea0ce155aac",
+    "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/realized-query-replay.py": "beb679e7cac99a1673b79f27bae9e852441d81cfb1b3f998ac62ff1bb0beac74",
+    "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/realized-query-manifest.json": "e9b9253e9f4664dc731bdb409ee97492fa1016db3bd11e8d66fcf4bcd8ae2563",
+    "lab/results/v16-corrections-2026-10-19/batch-e/query-test-classification.json": "8685d8fe9eb1e5c4a7f551a32233fba733cfc5445aaa3251eec08be1844f8807",
+    "lab/results/v16-corrections-2026-10-19/batch-e/new-tests.json": "6745617386593fff8c849c72668bca8b0bc286ea570582f249207d9e300eb452",
+    "lab/results/v16-corrections-2026-10-19/batch-e/scope.json": "8c76f60fb1af11c7b09e097e563e30b019e59b37d2f67fcc19f531d31a27bcc2"
+  },
+  "modified_scope": [
+    "lab/results/v16-corrections-2026-10-19/workers/batch_e_close.py"
+  ],
+  "status": "ready for final evidence; closure not executed",
+  "changes": [
+    "Require exact ten productive consumers and canonical owning prompts; retain exact original seven V16 IDs.",
+    "Read structural-query-green as final structural evidence; earlier structural-green remains historical.",
+    "Bind all34 new tests to exact raw outcomes from initial/followup/query classifications; derive18 semanticRED,15 rawpreservation plus1 correctedYAML fixture, and require every final test OK.",
+    "Verify the full-suite selector failure archive has exactly the original selector failure, completed6/12 gates and unchanged source freeze; require actual separate old-selector RED and finalPASS without adding it to new-test counts.",
+    "Independently reconstruct39 frozen realized-query IDs/source text/source hashes and original argv, require exact case order and allcases oracle equality, unchanged oracle, no marker leak, successful parsing/exit and full receipt/binary/source-state chain.",
+    "Independently reparse original173 raw observations and check raw classifications with booleans distinct from numbers; preserve numeric int/float equality and historical classifications.",
+    "Keep final12gate successful statuses, zero failed test summary, unchanged sources and prior exact structural/compiler checks."
+  ],
+  "checks": [
+    "Python AST passed.",
+    "Exact34 baseline test rows independently matched actual logs and available log hashes:18semanticRED,15preservation,1test expectation defect.",
+    "Exact4 query newsemantic failures match raw query RED log.",
+    "All39 baseline IDs unique and source hashes/JSON observations valid.",
+    "Comparator controls reject True versus1 and preserve1 versus1.0.",
+    "Historical candidate-replay original173 classifications had no bool/number discrepancy on independent review."
+  ],
+  "runner_review": [
+    "Runner source binds baseline receipt hashes and source/binary state, substitutes only the precise source path in diagnostics, and requires successful candidate output for querycases.",
+    "Initial runner lacked duplicate-ID/count validation and used Python equality that conflates bool and numeric. Language agent was asked to harden these before replay; closing audit independently enforces both.",
+    "No current mismatch was observed in existing raw candidate173 classifications. Final212 source observations remain to be audited from final accepted receipts."
+  ],
+  "limits": [
+    "Final validation/accepted language receipts do not yet exist; worker runtime acceptance is pending parent execution.",
+    "No Cargo, productive code, L0, tests or other worker was changed in this task."
+  ]
+}

@@ -1,0 +1,5 @@
+2026-10-19T19:01:20.659812+00:00 core-extension START
+2026-10-19T19:01:58.205764+00:00 core-extension END 101 selected 0 other 0
+2026-10-19T19:01:58.488445+00:00 shell-omissions START
+2026-10-19T19:02:29.209344+00:00 shell-omissions END 0 selected 0 other 0
+PASS baseline

@@ -1,0 +1,106 @@
+[
+  {
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "name": "v16_e_nested_equation_carriers_preserve_fields"
+  },
+  {
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "name": "v16_e_equation_has_at_precedence_and_explicit_none"
+  },
+  {
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "name": "v16_e_semantic_containers_remain_opaque_to_equation_fields"
+  },
+  {
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "name": "v16_e_external_styled_equation_does_not_expose_equation_schema"
+  },
+  {
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "name": "v16_e_snapshots_and_location_precedence_survive_carriers"
+  },
+  {
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "name": "v16_e_prescribed_native_identities_survive_carriers"
+  },
+  {
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "name": "v16_e_equation_native_identity_requires_valid_constructor_origin"
+  },
+  {
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "name": "v16_e_figure_known_caption_and_metadata_value_are_enumerated"
+  },
+  {
+    "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "name": "v16_e_outline_entry_fill_preserves_lexical_presence"
+  },
+  {
+    "file": "02_shell/src/cli.rs",
+    "name": "v16_e_carriers_preserve_visual_morphology_and_label_order"
+  },
+  {
+    "file": "02_shell/src/cli.rs",
+    "name": "v16_e_snapshots_are_authoritative_through_all_carriers"
+  },
+  {
+    "file": "02_shell/src/cli.rs",
+    "name": "v16_e_legacy_body_probe_retains_conditional_absence"
+  },
+  {
+    "file": "02_shell/src/cli.rs",
+    "name": "v16_e_specialized_fields_keep_order_and_recursive_values"
+  },
+  {
+    "file": "02_shell/src/cli.rs",
+    "name": "v16_e_attachment_presence_distinguishes_omitted_none_and_empty"
+  },
+  {
+    "file": "02_shell/src/cli.rs",
+    "name": "v16_e_query_filters_fields_and_checks_cardinality_first"
+  },
+  {
+    "file": "02_shell/src/cli.rs",
+    "name": "v16_e_canonical_names_keep_shape_and_math_overrides"
+  },
+  {
+    "file": "02_shell/src/cli.rs",
+    "name": "v16_e_marked_equation_serializes_known_fields_without_style_wrapper"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/structural/math/equation.rs",
+    "name": "v16_e_equation_actual_constructor_options_keep_identity"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/structural/math/equation.rs",
+    "name": "v16_e_equation_bare_and_block_only_do_not_gain_transport"
+  },
+  {
+    "file": "01_core/src/entities/content/fields.rs",
+    "name": "v16_e_getter_requires_own_constructor_origin"
+  },
+  {
+    "file": "01_core/src/entities/content/identity.rs",
+    "name": "v16_e_equation_marked_identity_follows_causal_visual_and_nested_transport"
+  },
+  {
+    "file": "01_core/src/entities/content/identity.rs",
+    "name": "v16_e_equation_identity_rejects_unmarked_and_invalid_transports"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+    "name": "v16_e_textual_marked_equation_uses_known_fields_instead_of_style_payload"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+    "name": "v16_e_textual_constructor_projects_each_causal_carrier_without_original"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+    "name": "v16_e_textual_external_styles_and_invalid_markers_remain_structural"
+  },
+  {
+    "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+    "name": "v16_e_textual_marked_equation_snapshots_remain_authoritative"
+  }
+]

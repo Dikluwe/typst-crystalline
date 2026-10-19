@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md
-//! @prompt-hash 9795dd45
+//! @prompt-hash 013b5fa8
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -62,10 +62,12 @@ pub(super) fn textual_content_fields(value: &Value) -> Result<Dict, String> {
                 return Ok(fields);
             }
             Content::Styled(styled) => {
-                let child = &styled.body;
-                fields.insert("child".into(), Value::Content(child.clone()));
-                fields.insert("styles".into(), Value::Str("styles(..)".into()));
-                return Ok(fields);
+                if !is_equation_constructor_content(content) {
+                    let child = &styled.body;
+                    fields.insert("child".into(), Value::Content(child.clone()));
+                    fields.insert("styles".into(), Value::Str("styles(..)".into()));
+                    return Ok(fields);
+                }
             }
             Content::Link(link) => {
                 fields.insert("dest".into(), Value::Str(link.url.clone()));
@@ -128,6 +130,144 @@ pub(super) fn textual_content_fields(value: &Value) -> Result<Dict, String> {
         fields.extend(projected);
     }
     Ok(fields)
+}
+
+/// Recognize only local constructor transport; external styles are a barrier.
+fn is_equation_constructor_content(content: &crate::entities::content::Content) -> bool {
+    use crate::entities::content::Content;
+    match content {
+        Content::Equation(_) => true,
+        Content::Source(source) => is_equation_constructor_content(&source.body),
+        Content::ShowRecipe(recipe) => is_equation_constructor_content(&recipe.body),
+        Content::Located(located) => is_equation_constructor_content(&located.body),
+        Content::Realized(realized) => is_equation_constructor_content(&realized.visual),
+        Content::Styled(styled) => {
+            let marker = styled
+                .styles
+                .delta()
+                .custom
+                .iter()
+                .rev()
+                .find(|(key, _)| key.as_str() == "equation.constructor")
+                .map(|(_, value)| value);
+            matches!(marker, Some(Value::Bool(true)))
+                && is_equation_constructor_content(&styled.body)
+        }
+        Content::Empty
+        | Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(..)
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::TableCell(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Table(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => false,
+    }
 }
 
 /// Casts seguem a ordem dos parâmetros do contrato: value, todos os pretty,
@@ -323,5 +463,143 @@ mod caption_shape_tests {
         .unwrap();
         assert_eq!(fields.len(), 1);
         assert_eq!(fields.get("func"), Some(&Value::Str("caption".into())));
+    }
+}
+
+#[cfg(test)]
+mod v16_e_equation_constructor_tests {
+    use super::*;
+    use crate::entities::content::{
+        Content, LocatedContent, RealizedContent, ShowRecipeContent,
+    };
+    use crate::entities::elements::equation::EquationElem;
+    use crate::entities::location::Location;
+    use crate::entities::style::Styles;
+    use crate::entities::value::IntrospectedContent;
+    use std::sync::Arc;
+
+    fn equation() -> Content {
+        Content::Equation(Arc::new(EquationElem::new(Content::text("x"), true)))
+    }
+
+    fn marked(body: Content) -> Content {
+        Content::styled(
+            body,
+            Styles::new()
+                .push_custom("equation.constructor", Value::Bool(true))
+                .push_custom("equation.numbering", Value::None)
+                .push_custom("equation.alt", Value::Str("alternative".into())),
+        )
+    }
+
+    fn carrier(body: Content, kind: usize) -> Content {
+        let file = crate::entities::file_id::FileId::from_raw(
+            std::num::NonZeroU16::new(1).unwrap(),
+        );
+        match kind {
+            0 => body.with_source_span(Span::from_range(file, 1..2)),
+            1 => Content::ShowRecipe(Arc::new(ShowRecipeContent {
+                body,
+                textual: false,
+                context_id_floor: 0,
+                rules: Arc::from([]),
+                styles: crate::entities::style_chain::StyleChain::default_chain(),
+                guards: vec![],
+                file,
+            })),
+            2 => Content::Located(Arc::new(LocatedContent {
+                location: Location::from_raw(41),
+                body,
+            })),
+            3 => Content::Realized(Arc::new(RealizedContent {
+                original: Content::text("not the visual equation"),
+                visual: body,
+            })),
+            _ => unreachable!("bounded test fixture"),
+        }
+    }
+
+    fn assert_equation_fields(fields: &Dict) {
+        assert_eq!(fields.get("func"), Some(&Value::Str("equation".into())));
+        assert_eq!(fields.get("block"), Some(&Value::Bool(true)));
+        assert_eq!(fields.get("numbering"), Some(&Value::None));
+        assert_eq!(fields.get("alt"), Some(&Value::Str("alternative".into())));
+        assert_eq!(fields.get("body"), Some(&Value::Content(Content::text("x"))));
+        assert!(!fields.contains_key("child"));
+        assert!(!fields.contains_key("styles"));
+        assert!(!fields.contains_key("equation.constructor"));
+        assert!(!fields.contains_key("supplement"));
+    }
+
+    #[test]
+    fn v16_e_textual_marked_equation_uses_known_fields_instead_of_style_payload() {
+        let fields = textual_content_fields(&Value::Content(marked(equation()))).unwrap();
+        assert_equation_fields(&fields);
+    }
+
+    #[test]
+    fn v16_e_textual_constructor_projects_each_causal_carrier_without_original() {
+        for kind in 0..4 {
+            for content in
+                [marked(carrier(equation(), kind)), carrier(marked(equation()), kind)]
+            {
+                let fields = textual_content_fields(&Value::Content(content)).unwrap();
+                assert_equation_fields(&fields);
+            }
+        }
+    }
+
+    #[test]
+    fn v16_e_textual_external_styles_and_invalid_markers_remain_structural() {
+        let inner = marked(equation());
+        let outer = Content::styled(
+            inner.clone(),
+            Styles::new().push_custom("equation.numbering", Value::Str("(1)".into())),
+        );
+        let fields = textual_content_fields(&Value::Content(outer)).unwrap();
+        assert_eq!(fields.get("func"), Some(&Value::Str("styled".into())));
+        assert_eq!(fields.get("child"), Some(&Value::Content(inner)));
+        assert_eq!(fields.get("styles"), Some(&Value::Str("styles(..)".into())));
+        assert!(!fields.contains_key("numbering"));
+        assert!(!fields.contains_key("body"));
+        for child in [
+            Content::text("plain"),
+            Content::sequence(vec![equation(), Content::text("tail")]),
+        ] {
+            let fields =
+                textual_content_fields(&Value::Content(marked(child.clone()))).unwrap();
+            assert_eq!(fields.get("func"), Some(&Value::Str("styled".into())));
+            assert_eq!(fields.get("child"), Some(&Value::Content(child)));
+            assert_eq!(fields.len(), 3);
+        }
+    }
+
+    #[test]
+    fn v16_e_textual_marked_equation_snapshots_remain_authoritative() {
+        let content = marked(equation());
+        let mut snapshot = new_dict();
+        snapshot.insert("numbering".into(), Value::Str("snapshot".into()));
+        for snapshot in [new_dict(), snapshot] {
+            let expected = snapshot.clone();
+            let fields = textual_content_fields(&Value::LocatedContent(
+                IntrospectedContent::new(content.clone(), Some(snapshot)),
+                Location::from_raw(42),
+            ))
+            .unwrap();
+            assert_eq!(fields.get("func"), Some(&Value::Str("equation".into())));
+            assert_eq!(fields.len(), expected.len() + 1);
+            for (key, value) in expected {
+                assert_eq!(fields.get(&key), Some(&value));
+            }
+            assert!(!fields.contains_key("child"));
+            assert!(!fields.contains_key("body"));
+            assert!(!fields.contains_key("alt"));
+        }
+        let fields = textual_content_fields(&Value::LocatedContent(
+            IntrospectedContent::new(content, None),
+            Location::from_raw(43),
+        ))
+        .unwrap();
+        assert_equation_fields(&fields);
     }
 }

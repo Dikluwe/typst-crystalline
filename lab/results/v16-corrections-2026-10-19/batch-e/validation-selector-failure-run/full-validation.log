@@ -1,0 +1,142 @@
+2026-10-19T19:38:22.586894+00:00 START python-ci-tests
+2026-10-19T19:38:22.950225+00:00 END python-ci-tests: 0
+2026-10-19T19:38:22.950246+00:00 START layout
+2026-10-19T19:38:24.914468+00:00 END layout: 0
+2026-10-19T19:38:24.914483+00:00 START strict-lineage
+2026-10-19T19:38:29.655115+00:00 END strict-lineage: 0
+2026-10-19T19:38:29.655152+00:00 START reverse-lineage
+2026-10-19T19:38:30.095127+00:00 END reverse-lineage: 0
+2026-10-19T19:38:30.095156+00:00 START build
+2026-10-19T19:39:03.748322+00:00 END build: 0
+2026-10-19T19:39:03.748342+00:00 START tests-domain-infra
+2026-10-19T19:43:15.478354+00:00 END tests-domain-infra: 101
+gnature_references_require_structured_resolved_path ... ok
+test wait_for_change_legado_permanece_funcional_sem_race_de_prontidao ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.64s
+
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_shell-131d04858e42b582)
+
+running 107 tests
+test cli::caption_shape_tests::caption_shape_cli_json_uses_public_name_and_known_payload ... ok
+test cli::content_serialization_regressions::content_serialization_empty_is_sequence_in_eval_and_query ... ok
+test cli::content_serialization_regressions::content_serialization_nested_empty_keeps_structural_child ... ok
+test cli::content_serialization_regressions::content_serialization_raw_keeps_available_text_and_language ... ok
+test cli::content_serialization_regressions::content_serialization_snapshot_empty_remains_authoritative ... ok
+test cli::content_serialization_regressions::raw_presence_cli_constructor_block_and_snapshot ... ok
+test cli::matrix_morphology_tests::matrix_morphology_json_keeps_rows_cells_and_empty_padding ... ok
+test cli::p1360_ab_tests::p1360_ab_parser_separates_positional_and_rejects_invalid_booleans ... ok
+test cli::p1360_ab_tests::p1360_ab_parser_tri_state_compile_watch_and_w ... ok
+test cli::p1500_font_path_tests::p1500_empty_slots_preserve_nonempty_order_and_duplicates ... ok
+test cli::p1501_completion_shell_tests::p1501_nushell_entra_no_dominio_sem_perder_shells_existentes ... ok
+test cli::smartquote_public_name_tests::smartquote_public_name_is_canonical ... ok
+test cli::tests::p1137_cert_flag_vence_env_e_env_e_fallback ... ok
+test cli::tests::p1137_eval_json_array_e_estrutural ... ok
+test cli::tests::p1137_eval_json_inteiro_tem_newline ... ok
+test cli::tests::p1137_eval_raw_inteiro_falha ... ok
+test cli::tests::p1137_eval_raw_string_nao_tem_newline ... ok
+test cli::tests::p1137_legacy_recebe_compile_implicito ... ok
+test cli::tests::p1137_query_field_e_one ... ok
+test cli::tests::p1137_query_heading_json_vanilla ... ok
+test cli::tests::p1137_subcomando_e_meta_nao_sao_reescritos ... ok
+test cli::tests::p1140_6_no_pdf_tags_pertence_a_compile_e_watch ... ok
+test cli::tests::p1163_eval_json_symbol_serializa_grapheme_integral ... ok
+test cli::tests::p1163_eval_raw_symbol_nomeia_tipo_publico ... ok
+test cli::tests::p1225_eval_json_stroke_e_nominal_e_raw_permanece_proibido ... ok
+test cli::tests::p1285_eval_content_sequence_e_strong_sao_estruturais ... ok
+test cli::tests::p1285_eval_e_query_aceitam_yaml_com_variantes_distintas ... ok
+test cli::tests::p1285_eval_version_e_fallbacks_preservam_repr_publica ... ok
+test cli::tests::p1285_query_field_e_one_seguem_ordem_e_fallbacks ... ok
+test cli::tests::p1285_query_metadata_figure_e_label_preservam_morfologia ... ok
+test cli::tests::p1293_c_html_serialization_compile_only_e_default_crystalline ... ok
+test cli::tests::p1359_pdf_tagged_exige_equals_e_bool_valido ... ok
+test cli::tests::p1359_pdf_tagged_tristate_parseia_e_chega_ao_compile_intent ... ok
+test cli::tests::p1401_eval_in_transporta_path_e_hifen ... ok
+test cli::tests::p1460_raw_heading_delega_owner_e_preserva_transcripts ... ok
+test cli::tests::p1460_snapshot_causal_continua_autoritativo ... ok
+test cli::tests::p1468_pages_absent_is_none_in_args_and_intent ... ok
+test cli::tests::p1468_pages_closed_range_parses_start_and_end ... ok
+test cli::tests::p1468_pages_compile_watch_and_alias_all_accept_the_flag ... ok
+test cli::tests::p1468_pages_multiple_tokens_with_space_are_trimmed ... ok
+test cli::tests::p1468_pages_open_at_end_parses_start_only ... ok
+test cli::tests::p1468_pages_open_at_start_parses_end_only ... ok
+test cli::tests::p1468_pages_seven_schema_negatives_use_cli_specific_messages ... ok
+test cli::tests::p1468_pages_single_token_parses_single_page_range ... ok
+test cli::tests::p1469_pdf_standard_absent_is_empty_in_args_and_intent ... ok
+test cli::tests::p1469_pdf_standard_all_seventeen_names_are_individually_valid_clap_values ... ok
+test cli::tests::p1469_pdf_standard_compile_watch_and_alias_all_accept_the_flag ... ok
+test cli::tests::p1469_pdf_standard_invalid_name_uses_clap_native_message_with_possible_values ... ok
+test cli::tests::p1469_pdf_standard_multiple_names_comma_separated_parses_in_order ... ok
+test cli::tests::p1469_pdf_standard_single_name_parses_to_one_element ... ok
+test cli::tests::p1484_bundle_cli_compile_watch_eval_e_combinacoes ... ok
+test cli::tests::p617_parse_uuid_canonico ... ok
+test cli::tests::p617_parse_uuid_invalido_devolve_none ... ok
+test cli::tests::p617_parse_uuid_maiusculas ... ok
+test cli::tests::p617_parse_uuid_sem_hifens ... ok
+test cli::tests::p694_parse_input_permite_igual_no_valor ... ok
+test cli::tests::p694_parse_input_rejeita_sem_igual_ou_chave_vazia ... ok
+test cli::tests::p694_parse_input_simples ... ok
+test cli::tests::p694_parse_input_valor_numerico_e_string ... ok
+test cli::tests::p694_parse_input_valor_vazio_e_valido ... ok
+test cli::tests::resolve_colored_always_e_true ... ok
+test cli::tests::resolve_colored_always_vence_no_color ... ok
+test cli::tests::resolve_colored_auto_com_no_color_e_false ... ok
+test cli::tests::resolve_colored_auto_com_tty_e_sem_no_color_e_true ... ok
+test cli::tests::resolve_colored_auto_sem_tty_e_false ... ok
+test cli::tests::resolve_colored_never_e_false ... ok
+test cli::tests::resolve_output_ambos_omitidos_usa_default_derivado ... ok
+test cli::tests::resolve_output_default_com_path_completo ... ok
+test cli::tests::resolve_output_default_sem_extensao_adiciona_pdf ... ok
+test cli::tests::resolve_output_flag_usa_sem_positional ... ok
+test cli::tests::resolve_output_flag_vence_positional ... ok
+test cli::tests::resolve_output_format_case_insensitive ... ok
+test cli::tests::resolve_output_format_detecta_html ... ok
+test cli::tests::resolve_output_format_detecta_png ... ok
+test cli::tests::resolve_output_format_detecta_svg ... ok
+test cli::tests::resolve_output_format_flag_vence_extensao ... ok
+test cli::tests::resolve_output_format_pdf_default ... ok
+test cli::tests::resolve_output_positional_usa_quando_sem_flag ... ok
+test cli::tests::resolve_root_flag_vence_parent ... ok
+test cli::tests::resolve_root_sem_flag_e_sem_parent_usa_dot ... ok
+test cli::tests::resolve_root_sem_flag_usa_parent_do_input ... ok
+test cli::v16_e_serialization_tests::v16_e_attachment_presence_distinguishes_omitted_none_and_empty ... ok
+test cli::v16_e_serialization_tests::v16_e_canonical_names_keep_shape_and_math_overrides ... ok
+test cli::v16_e_serialization_tests::v16_e_carriers_preserve_visual_morphology_and_label_order ... ok
+test cli::v16_e_serialization_tests::v16_e_legacy_body_probe_retains_conditional_absence ... ok
+test cli::v16_e_serialization_tests::v16_e_marked_equation_serializes_known_fields_without_style_wrapper ... ok
+test cli::v16_e_serialization_tests::v16_e_query_filters_fields_and_checks_cardinality_first ... ok
+test cli::v16_e_serialization_tests::v16_e_snapshots_are_authoritative_through_all_carriers ... ok
+test cli::v16_e_serialization_tests::v16_e_specialized_fields_keep_order_and_recursive_values ... ok
+test cli::v16_walk_entry_serialization_tests::v16_walk_cli_entry_fields_survive_legacy_wrappers ... ok
+test cli::v16_walk_entry_serialization_tests::v16_walk_cli_entry_present_snapshots_remain_authoritative ... ok
+test cli::v16_walk_entry_serialization_tests::v16_walk_cli_entry_query_field_none_snapshot_keeps_json_yaml_and_one ... ok
+test cli::warnings_cli_hint_tests::specific_hint_covers_cardinality_field_repr_and_shell_quotes ... ok
+test completions::tests::bash_comes_from_the_real_clap_tree ... ok
+test completions::tests::nushell_comes_from_the_real_clap_tree ... ok
+test diagnostic::tests::p1139_colored_preserves_semantics ... ok
+test diagnostic::tests::p1139_detached_does_not_invent_location ... ok
+test diagnostic::tests::p1139_hints_are_notes ... ok
+test diagnostic::tests::p1139_human_source_and_caret ... ok
+test diagnostic::tests::p1139_missing_source_is_omitted_without_panic ... ok
+test diagnostic::tests::p1139_tab_and_unicode_keep_public_column_and_caret ... ok
+test diagnostic::tests::p1139_trace_multiline_uses_ellipsis ... ok
+test diagnostic::tests::p1139_trace_resolves_second_source ... ok
+test fonts::tests::families_are_printed_once ... ok
+test fonts::tests::variants_include_public_fields ... ok
+test info::tests::human_truncates_commit ... ok
+test info::tests::json_keeps_full_commit ... ok
+
+test result: ok. 107 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/duration_presentation.rs (lab/target/product/debug/deps/duration_presentation-fc041eb3963e727e)
+
+running 3 tests
+test p1361_duration_exact_vector_is_deterministic_and_boundary_safe ... ok
+test p1362_watch_status_messages_are_exact_and_error_has_no_duration ... ok
+test p1363_watch_line_pads_timestamp_and_preserves_all_status_bodies ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: 1 target failed:
+    `-p typst-core --lib`
+

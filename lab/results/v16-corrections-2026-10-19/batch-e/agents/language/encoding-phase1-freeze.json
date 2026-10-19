@@ -1,0 +1,17 @@
+{
+  "utc": "2026-10-19T19:05:38.177146+00:00",
+  "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+  "diff_head_stat": " .../eval/bindings/field_access/content_methods.md  | 133 +++++++-\n .../core/compiler/stdlib/loading/encoding.md       |  63 ++++\n .../compiler/stdlib/structural/math/equation.md    |  36 +-\n 00_nucleo/prompts/core/entities/content/fields.md  |  50 ++-\n .../prompts/core/entities/content/identity.md      |  33 +-\n 00_nucleo/prompts/shell/cli.md                     |  95 +++++-\n .../eval/bindings/field_access/content_methods.rs  | 371 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 132 ++++++++\n .../compiler/stdlib/structural/math/equation.rs    | 108 +++++-\n 01_core/src/entities/content/fields.rs             |  56 ++-\n 01_core/src/entities/content/identity.rs           |  68 +++-\n 02_shell/src/cli.rs                                | 374 ++++++++++++++++++++-\n 12 files changed, 1501 insertions(+), 18 deletions(-)\n",
+  "stage": "phase1 L0 plus tests only; no productive implementation or Cargo execution",
+  "files": {
+    "00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md": "32c084df425b638f18a172ec08180257a4248dfc2f697c8de1ba6eaea95fabac",
+    "01_core/src/compiler/stdlib/loading/encoding.rs": "0349d3ac58c90b4664754c9e29f98777f59159679a45ae8400731ab425876fd2",
+    "00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml": "33169238ba4754a3839a85d9273b93146e5e56b9236fef361d93aac89f589b0a"
+  },
+  "tests": [
+    "v16_e_textual_marked_equation_uses_known_fields_instead_of_style_payload",
+    "v16_e_textual_constructor_projects_each_causal_carrier_without_original",
+    "v16_e_textual_external_styles_and_invalid_markers_remain_structural",
+    "v16_e_textual_marked_equation_snapshots_remain_authoritative"
+  ]
+}

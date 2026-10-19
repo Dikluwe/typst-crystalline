@@ -1,0 +1,211 @@
+[
+  {
+    "name": "core-extension",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T19:01:20.657836+00:00",
+    "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-e-structural-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-001",
+        "group": "core-extension",
+        "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+        "baseline": {
+          "after": "fn content_set_fields(",
+          "anchor": "match c {"
+        },
+        "green": {
+          "after": "fn content_set_fields(",
+          "anchor": "match c {"
+        },
+        "line": 240,
+        "byte_start": 10182,
+        "byte_end": 10191,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-002",
+        "group": "core-extension",
+        "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+        "baseline": {
+          "after": "fn equation_descendant(",
+          "anchor": "match content {"
+        },
+        "green": {
+          "after": "fn equation_descendant(",
+          "anchor": "match content {"
+        },
+        "line": 322,
+        "byte_start": 13683,
+        "byte_end": 13698,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-003",
+        "group": "core-extension",
+        "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+        "baseline": {
+          "after": "fn content_elem_func(",
+          "anchor": "match c {"
+        },
+        "green": {
+          "after": "fn content_elem_func(",
+          "anchor": "match c {"
+        },
+        "line": 468,
+        "byte_start": 19264,
+        "byte_end": 19273,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-004",
+        "group": "core-extension",
+        "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+        "baseline": {
+          "after": "fn content_method_with_fields(",
+          "anchor": "match c {"
+        },
+        "green": {
+          "after": "fn content_method_with_fields(",
+          "anchor": "match c {"
+        },
+        "line": 581,
+        "byte_start": 23869,
+        "byte_end": 23878,
+        "diagnostics": []
+      },
+      {
+        "id": "content-field-closure",
+        "group": "core-extension",
+        "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+        "baseline": {
+          "after": "fn content_field(",
+          "anchor": "match c {"
+        },
+        "green": {
+          "after": "fn content_field(",
+          "anchor": "match c {"
+        },
+        "line": 53,
+        "byte_start": 2361,
+        "byte_end": 2370,
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/entities/content.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T19:01:58.205353+00:00",
+    "exit": 101,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 195
+  },
+  {
+    "name": "shell-omissions",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T19:01:58.486545+00:00",
+    "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-e-structural-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-shell",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-083",
+        "group": "shell-omissions",
+        "file": "02_shell/src/cli.rs",
+        "remove_exact": "        Content::Source(r) => return content_to_semantic(&r.body),\n",
+        "baseline": {
+          "after": "fn content_to_semantic(",
+          "anchor": "match content {"
+        },
+        "green": {
+          "after": "fn content_to_semantic(",
+          "anchor": "match content {"
+        },
+        "line": 1156,
+        "byte_start": 41058,
+        "byte_end": 41073,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-084",
+        "group": "shell-omissions",
+        "file": "02_shell/src/cli.rs",
+        "remove_exact": "        Content::Raw(_) => {\n            for name in [\"text\", \"block\", \"lang\"] {\n                if let Some(value) = content.get_field(name) {\n                    fields.push((name.into(), value_to_semantic(&value)));\n                }\n            }\n        }\n",
+        "baseline": {
+          "after": "let mut fields = vec![",
+          "anchor": "match content {"
+        },
+        "green": {
+          "after": "let mut fields = vec![",
+          "anchor": "match content {"
+        },
+        "line": 1177,
+        "byte_start": 41788,
+        "byte_end": 41803,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-085",
+        "group": "shell-omissions",
+        "file": "02_shell/src/cli.rs",
+        "remove_exact": "        Content::Source(source) => content_semantic_func_name(&source.body),\n",
+        "baseline": {
+          "after": "fn content_semantic_func_name(",
+          "anchor": "match content {"
+        },
+        "green": {
+          "after": "fn content_semantic_func_name(",
+          "anchor": "match content {"
+        },
+        "line": 1418,
+        "byte_start": 51844,
+        "byte_end": 51859,
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "02_shell/src/cli.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T19:02:29.208942+00:00",
+    "exit": 0,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 0
+  }
+]

@@ -1,0 +1,21 @@
+[
+  {
+    "name": "structural-baseline",
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/workers/batch_e_structural.py",
+      "baseline"
+    ],
+    "cwd": "/repos/Antigravity/typst-crystalline",
+    "utc_end": "2026-10-19T19:02:29.220617+00:00",
+    "exit": 0,
+    "seconds": 70.65882034000242,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "2312470528",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

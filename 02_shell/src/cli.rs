@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash c74ad6bd
+//! @prompt-hash 5d3d710e
 //! @layer L2
 //! @updated 2026-10-17
 //!
@@ -1149,6 +1149,144 @@ fn semantic_field<'a>(
     fields.iter().find(|(name, _)| name == field).map(|(_, value)| value)
 }
 
+fn is_equation_constructor_content(
+    content: &typst_core::entities::content::Content,
+) -> bool {
+    use typst_core::entities::content::Content;
+    match content {
+        Content::Equation(_) => true,
+        Content::Source(e) => is_equation_constructor_content(&e.body),
+        Content::ShowRecipe(e) => is_equation_constructor_content(&e.body),
+        Content::Located(e) => is_equation_constructor_content(&e.body),
+        Content::Realized(e) => is_equation_constructor_content(&e.visual),
+        Content::Styled(styled) => {
+            let marker = styled
+                .styles
+                .delta()
+                .custom
+                .iter()
+                .rev()
+                .find(|(key, _)| key.as_str() == "equation.constructor");
+            matches!(marker, Some((_, Value::Bool(true))))
+                && is_equation_constructor_content(&styled.body)
+        }
+        Content::Empty
+        | Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(..)
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::TableCell(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Table(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => false,
+    }
+}
+
 fn content_to_semantic(
     content: &typst_core::entities::content::Content,
 ) -> SemanticValue {
@@ -1158,7 +1296,122 @@ fn content_to_semantic(
         Content::ShowRecipe(r) => return content_to_semantic(&r.body),
         Content::Located(r) => return content_to_semantic(&r.body),
         Content::Realized(r) => return content_to_semantic(&r.visual),
-        _ => {}
+        Content::Empty
+        | Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(..)
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Styled(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::TableCell(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Table(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => {}
     }
     if let Content::Label(label) = content {
         let mut value = content_to_semantic(&label.body);
@@ -1405,15 +1658,120 @@ fn content_to_semantic(
                     .unwrap_or(SemanticValue::Null),
             ));
         }
+        Content::Styled(_) if is_equation_constructor_content(content) => {
+            for name in
+                ["block", "numbering", "number-align", "supplement", "alt", "body"]
+            {
+                if let Some(value) = content.get_field(name) {
+                    fields.push((name.into(), value_to_semantic(&value)));
+                }
+            }
+        }
         Content::Styled(styled) => {
             fields.push(("child".into(), content_to_semantic(&styled.body)));
             fields.push(("styles".into(), SemanticValue::String("styles(..)".into())))
         }
-        _ => {
+        Content::MathStretch(..)
+        | Content::MathLr(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::Transform(..)
+        | Content::PdfArtifact(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::Dynamic(..) => {
             if let Some(body) = content.get_field("body") {
                 fields.push(("body".into(), value_to_semantic(&body)));
             }
         }
+        // These carriers and Label returned before field projection.
+        Content::Source(..)
+        | Content::ShowRecipe(..)
+        | Content::Realized(..)
+        | Content::Located(..)
+        | Content::Label(..) => {}
+        // Current legacy projection exposes no body getter for these variants.
+        Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::MathFrac(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathDelimited(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::Image(..)
+        | Content::Curve(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::PdfAttach(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Table(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..) => {}
     }
     SemanticValue::Object(fields)
 }
@@ -1442,7 +1800,115 @@ fn content_semantic_func_name(
         Content::MathAttach(_) => "attach",
         Content::MathText(_) => "text",
         Content::MathIdent(_) => "symbol",
-        _ => content.elem_name(),
+        Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(..)
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathSequence(..)
+        | Content::MathFrac(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::Image(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Styled(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::TableCell(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Table(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => content.elem_name(),
     }
 }
 
@@ -3287,5 +3753,432 @@ mod caption_shape_tests {
             actual,
             serde_json::json!({"func":"caption","position":"top","separator":{"func":"text","text":"S"},"body":{"func":"text","text":"C"}})
         );
+    }
+}
+
+#[cfg(test)]
+mod v16_e_serialization_tests {
+    use super::*;
+    use std::sync::Arc;
+    use typst_core::entities::{
+        content::{
+            Content, LocatedContent, RealizedContent, ShowRecipeContent, SourceContent,
+        },
+        corners::Corners,
+        elements::transform::{TransformElem, TransformOperation},
+        file_id::FileId,
+        geometry::ShapeKind,
+        layout_types::{Length, TransformMatrix},
+        locator::Locator,
+        sides::Sides,
+        span::Span,
+        style_chain::StyleChain,
+        value::IntrospectedContent,
+    };
+
+    fn carriers(body: Content) -> Content {
+        let file = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        Content::Source(Arc::new(SourceContent {
+            span: Span::from_range(file, 0..1),
+            body: Content::ShowRecipe(Arc::new(ShowRecipeContent {
+                body: Content::Located(Arc::new(LocatedContent {
+                    location: Locator::new().next(),
+                    body: Content::Realized(Arc::new(RealizedContent {
+                        original: Content::text("original must stay hidden"),
+                        visual: body,
+                    })),
+                })),
+                textual: false,
+                context_id_floor: 0,
+                rules: Arc::from([]),
+                styles: StyleChain::default_chain(),
+                guards: vec![],
+                file,
+            })),
+        }))
+    }
+
+    fn json(value: &Value) -> serde_json::Value {
+        serde_json::from_slice(&serialize_eval(value, EvalFormat::Json, false).unwrap())
+            .unwrap()
+    }
+
+    fn keys(value: &Value) -> Vec<String> {
+        let SemanticValue::Object(fields) = value_to_semantic(value) else {
+            panic!("expected a public content object");
+        };
+        fields.into_iter().map(|(name, _)| name).collect()
+    }
+
+    fn yaml(value: &Value) -> String {
+        String::from_utf8(serialize_eval(value, EvalFormat::Yaml, false).unwrap())
+            .unwrap()
+    }
+
+    fn decode_yaml(bytes: &[u8]) -> Value {
+        use typst_core::contracts::world::World;
+        use typst_core::entities::{
+            args::Args,
+            font_book::FontBook,
+            source::Source,
+            world_types::{Bytes, Datetime, FileResult, Font, Library},
+        };
+        #[derive(Default)]
+        struct MemoryWorld {
+            library: Library,
+            book: FontBook,
+        }
+        impl World for MemoryWorld {
+            fn library(&self) -> &Library {
+                &self.library
+            }
+            fn book(&self) -> &FontBook {
+                &self.book
+            }
+            fn main(&self) -> FileId {
+                FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+            }
+            fn source(&self, _: FileId) -> FileResult<Source> {
+                panic!("YAML byte decoding must not read source")
+            }
+            fn file(&self, _: FileId) -> FileResult<Bytes> {
+                panic!("YAML byte decoding must not read files")
+            }
+            fn font(&self, _: usize) -> Option<Font> {
+                panic!("YAML byte decoding must not request fonts")
+            }
+            fn today(
+                &self,
+                _: Option<typst_core::entities::duration::Duration>,
+            ) -> Option<Datetime> {
+                panic!("YAML byte decoding must not request time")
+            }
+        }
+        let world = MemoryWorld::default();
+        typst_core::compiler::stdlib::native_yaml(
+            &mut typst_core::compiler::eval::EvalContext::new(),
+            &Args::positional(vec![Value::Bytes(
+                typst_core::entities::bytes::Bytes::new(bytes.to_vec()),
+            )]),
+            &world,
+            world.main(),
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn v16_e_carriers_preserve_visual_morphology_and_label_order() {
+        for body in [
+            Content::Empty,
+            Content::text("visible"),
+            Content::raw("visible", Some("typ".into()), false),
+            Content::heading(2, Content::text("visible")),
+        ] {
+            let direct = Value::Content(Content::label_auto("kept", body.clone()));
+            let wrapped = Value::Content(carriers(Content::label_auto("kept", body)));
+            assert_eq!(json(&wrapped), json(&direct));
+            assert_eq!(keys(&wrapped).last().map(String::as_str), Some("label"));
+            let encoded = yaml(&wrapped);
+            let decoded = decode_yaml(encoded.as_bytes());
+            let Value::Dict(fields) = decoded else {
+                panic!("YAML content must be a mapping")
+            };
+            assert_eq!(fields.get("label"), Some(&Value::Str("<kept>".into())));
+            assert!(!encoded.contains("original must stay hidden"));
+            assert!(!encoded.contains("location:"));
+            assert!(!encoded.contains("span:"));
+        }
+        let value =
+            Value::Content(Content::label_auto("outside", carriers(Content::Empty)));
+        assert_eq!(
+            json(&value),
+            serde_json::json!({"func":"sequence","children":[],"label":"<outside>"})
+        );
+        assert_eq!(keys(&value), ["func", "children", "label"]);
+        assert!(yaml(&value).contains("children: []"));
+    }
+
+    #[test]
+    fn v16_e_snapshots_are_authoritative_through_all_carriers() {
+        let raw = || carriers(Content::raw("fallback", Some("typ".into()), false));
+        let located = |fields| {
+            Value::LocatedContent(
+                IntrospectedContent::new(raw(), fields),
+                Locator::new().next(),
+            )
+        };
+        let absent = located(None);
+        assert_eq!(json(&absent)["text"], "fallback");
+        let empty = located(Some(Default::default()));
+        assert_eq!(json(&empty), serde_json::json!({"func":"raw"}));
+        assert_eq!(keys(&empty), ["func"]);
+        assert!(!yaml(&empty).contains("text:"));
+        let known = located(Some(
+            [
+                ("text".into(), Value::Str("snapshot".into())),
+                ("payload".into(), Value::Content(Content::Empty)),
+            ]
+            .into_iter()
+            .collect(),
+        ));
+        assert_eq!(
+            json(&known),
+            serde_json::json!({"func":"raw","text":"snapshot","payload":{"func":"sequence","children":[]}})
+        );
+        assert_eq!(keys(&known), ["func", "text", "payload"]);
+        let encoded = yaml(&known);
+        assert!(encoded.contains("text: snapshot"));
+        assert!(encoded.contains("payload:\n  func: sequence\n  children: []"));
+        assert!(!encoded.contains("lang:"));
+        assert!(!encoded.contains("block:"));
+        for format in [QueryFormat::Json, QueryFormat::Yaml] {
+            assert_eq!(
+                serialize_query_with_format(
+                    std::slice::from_ref(&empty),
+                    Some("text"),
+                    true,
+                    false,
+                    format
+                )
+                .unwrap_err(),
+                "no such field found for element"
+            );
+            let result = serialize_query_with_format(
+                std::slice::from_ref(&known),
+                Some("text"),
+                true,
+                false,
+                format,
+            )
+            .unwrap();
+            let result = String::from_utf8(result).unwrap();
+            assert!(result.contains("snapshot"));
+            assert!(!result.contains("fallback"));
+        }
+    }
+
+    #[test]
+    fn v16_e_legacy_body_probe_retains_conditional_absence() {
+        let boxed = Content::boxed(
+            Content::strong(Content::text("body")),
+            Some(Length::pt(10.0)),
+            None,
+            Sides::uniform(Length::ZERO),
+            Length::ZERO,
+        );
+        let boxed = Value::Content(boxed);
+        assert_eq!(
+            json(&boxed),
+            serde_json::json!({"func":"box","body":{"func":"strong","body":{"func":"text","text":"body"}}})
+        );
+        assert_eq!(keys(&boxed), ["func", "body"]);
+        assert!(!yaml(&boxed).contains("width:"));
+        for (operation, name, has_body) in [
+            (TransformOperation::Move { dx: None, dy: None }, "move", true),
+            (TransformOperation::Matrix(TransformMatrix::identity()), "transform", false),
+        ] {
+            let value = Value::Content(Content::Transform(Arc::new(TransformElem {
+                operation,
+                body: Content::text("body"),
+            })));
+            let projected = json(&value);
+            assert_eq!(projected["func"], name);
+            assert_eq!(projected.get("body").is_some(), has_body);
+            assert_eq!(yaml(&value).contains("body:"), has_body);
+        }
+        for content in [Content::Space, Content::SpaceFromNewline, Content::Parbreak] {
+            let value = Value::Content(content);
+            assert_eq!(keys(&value), ["func"]);
+            assert!(!yaml(&value).contains("body:"));
+        }
+    }
+
+    #[test]
+    fn v16_e_specialized_fields_keep_order_and_recursive_values() {
+        let entry = Value::Content(Content::outline_entry(
+            2,
+            Content::heading(2, Content::text("H")),
+            None,
+        ));
+        assert_eq!(keys(&entry), ["func", "level", "element", "fill"]);
+        assert_eq!(json(&entry)["element"]["body"]["text"], "H");
+        assert!(json(&entry)["fill"].is_null());
+        let caption = Value::Content(Content::figure_caption(
+            Content::text("C"),
+            None,
+            Some(Content::text(": ")),
+        ));
+        assert_eq!(keys(&caption), ["func", "separator", "body"]);
+        assert_eq!(json(&caption)["func"], "caption");
+        assert!(!yaml(&caption).contains("counter:"));
+        let cell = Value::Content(Content::table_cell(
+            Content::Empty,
+            Some(2),
+            None,
+            Some(3),
+            None,
+        ));
+        assert_eq!(keys(&cell), ["func", "body", "x", "colspan"]);
+        assert_eq!(
+            json(&cell)["body"],
+            serde_json::json!({"func":"sequence","children":[]})
+        );
+        assert!(!yaml(&cell).contains("rowspan:"));
+        let matrix = Value::Content(Content::math_matrix(
+            vec![vec![Content::text("M")]],
+            ('(', ')'),
+        ));
+        assert_eq!(keys(&matrix), ["func", "delim", "rows"]);
+        assert_eq!(json(&matrix)["rows"][0][0]["text"], "M");
+        assert!(!yaml(&matrix).contains("row-gap:"));
+    }
+
+    #[test]
+    fn v16_e_attachment_presence_distinguishes_omitted_none_and_empty() {
+        for (primary, expected) in [
+            (
+                MathAttachSlot::Omitted,
+                serde_json::json!({"func":"text","text":"fallback"}),
+            ),
+            (MathAttachSlot::ExplicitNone, serde_json::Value::Null),
+            (
+                MathAttachSlot::Present(Content::Empty),
+                serde_json::json!({"func":"sequence","children":[]}),
+            ),
+        ] {
+            let value = Value::Content(Content::math_attach(
+                Content::MathIdent("x".into()),
+                primary,
+                MathAttachSlot::Omitted,
+                MathAttachSlot::Omitted,
+                MathAttachSlot::ExplicitNone,
+                MathAttachSlot::Present(Content::text("fallback")),
+                MathAttachSlot::Omitted,
+            ));
+            let projected = json(&value);
+            assert_eq!(projected["func"], "attach");
+            assert_eq!(projected["t"], expected);
+            assert!(projected.get("b").is_none());
+            assert!(projected.get("tl").is_none());
+            assert!(projected["bl"].is_null());
+            assert_eq!(keys(&value), ["func", "base", "t", "bl"]);
+            assert!(yaml(&value).contains("bl: null"));
+        }
+    }
+
+    #[test]
+    fn v16_e_query_filters_fields_and_checks_cardinality_first() {
+        let elements = [
+            Value::Content(Content::Space),
+            Value::Content(carriers(Content::raw("kept", None, false))),
+        ];
+        for format in [QueryFormat::Json, QueryFormat::Yaml] {
+            let bytes = serialize_query_with_format(
+                &elements,
+                Some("text"),
+                false,
+                false,
+                format,
+            )
+            .unwrap();
+            if matches!(format, QueryFormat::Json) {
+                assert_eq!(
+                    serde_json::from_slice::<serde_json::Value>(&bytes).unwrap(),
+                    serde_json::json!(["kept"])
+                );
+            } else {
+                assert!(String::from_utf8(bytes).unwrap().contains("- kept"));
+            }
+            assert_eq!(
+                serialize_query_with_format(
+                    &elements,
+                    Some("missing"),
+                    true,
+                    false,
+                    format
+                )
+                .unwrap_err(),
+                "expected exactly one element, found 2"
+            );
+            assert_eq!(
+                serialize_query_with_format(&[], Some("missing"), true, false, format)
+                    .unwrap_err(),
+                "expected exactly one element, found 0"
+            );
+            assert_eq!(
+                serialize_query_with_format(
+                    &elements[..1],
+                    Some("missing"),
+                    true,
+                    false,
+                    format
+                )
+                .unwrap_err(),
+                "no such field found for element"
+            );
+        }
+    }
+
+    #[test]
+    fn v16_e_canonical_names_keep_shape_and_math_overrides() {
+        for (kind, name) in [
+            (ShapeKind::Rect, "rect"),
+            (ShapeKind::RoundedRect { radii: Corners::uniform(Length::ZERO) }, "rect"),
+            (ShapeKind::Ellipse, "ellipse"),
+            (ShapeKind::Line { dx: 1.0, dy: 2.0 }, "line"),
+            (ShapeKind::Path(vec![]), "polygon"),
+        ] {
+            let value =
+                Value::Content(carriers(Content::shape(kind, None, None, None, None)));
+            assert_eq!(json(&value)["func"], name);
+            assert!(yaml(&value).contains(&format!("func: {name}\n")));
+        }
+        for (content, name) in [
+            (Content::MathText("x".into()), "text"),
+            (Content::MathIdent("x".into()), "symbol"),
+            (Content::Empty, "sequence"),
+            (Content::Space, "space"),
+        ] {
+            let value = Value::LocatedContent(
+                IntrospectedContent::new(carriers(content), Some(Default::default())),
+                Locator::new().next(),
+            );
+            assert_eq!(json(&value), serde_json::json!({"func":name}));
+            assert_eq!(keys(&value), ["func"]);
+        }
+    }
+
+    #[test]
+    fn v16_e_marked_equation_serializes_known_fields_without_style_wrapper() {
+        use typst_core::entities::style::Styles;
+        let content = Content::styled(
+            Content::equation(Content::text("x"), false),
+            Styles::new()
+                .push_custom("equation.numbering", Value::None)
+                .push_custom("equation.alt", Value::Str("description".into()))
+                .push_custom("equation.constructor", Value::Bool(true)),
+        );
+        let value = Value::Content(carriers(content.clone()));
+        assert_eq!(
+            json(&value),
+            serde_json::json!({"func":"equation","block":false,"numbering":null,"alt":"description","body":{"func":"text","text":"x"}})
+        );
+        assert_eq!(keys(&value), ["func", "block", "numbering", "alt", "body"]);
+        assert!(!yaml(&value).contains("styles:"));
+        assert!(!yaml(&value).contains("supplement:"));
+        for format in [QueryFormat::Json, QueryFormat::Yaml] {
+            assert!(serialize_query_with_format(
+                std::slice::from_ref(&value),
+                Some("alt"),
+                true,
+                false,
+                format
+            )
+            .is_ok());
+        }
+        let outer = Value::Content(Content::styled(content, Styles::new()));
+        assert_eq!(keys(&outer), ["func", "child", "styles"]);
+        assert_eq!(json(&outer)["func"], "styled");
+        assert_eq!(json(&outer)["child"]["func"], "equation");
     }
 }

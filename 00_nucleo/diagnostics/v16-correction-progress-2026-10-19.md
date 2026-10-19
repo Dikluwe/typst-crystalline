@@ -1,7 +1,7 @@
 # V16 correction progress
 
-Status: batches A, B, C and D validated and closed. The other
-44 V16 findings remain open in the [cause-correction plan](v16-cause-correction-plan-2026-10-19.md).
+Status: batches A, B, C, D and E validated and closed. The other
+37 V16 findings remain open in the [cause-correction plan](v16-cause-correction-plan-2026-10-19.md).
 This diagnostic is not a new L0 contract or a claim of complete Typst parity.
 
 ## Batch A: evidence before closure
@@ -219,9 +219,63 @@ Their required behavior and refuters are retained; unsupported approximations
 are not ratified as zero language extent. No suppression or weaker contract was
 used to close this batch.
 
+## Batch E: reflection, serialization and realized Equation snapshots
+
+The baseline is commit `5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9` on the same
+branch. The final pinned lint comparison completed at
+**2026-10-19T19:51:53.979959+00:00** on the uncommitted implementation:
+**44 → 37 V16 errors**, exactly IDs 001–004 and 083–085 removed.
+No new error or warning appears; outside the ten source/owner pairs,
+diagnostics are identical. V19 changes from 1,222 to 1,237 and V20 from 876
+to 877; no substantive note disappears. The retained encoding V16 moves by
+two lines without changing its content. Exact state and note dispositions are in
+[the lint receipt](../../lab/results/v16-corrections-2026-10-19/batch-e/lint-state.json.gz)
+and [note review](../../lab/results/v16-corrections-2026-10-19/batch-e/note-review.md).
+
+Three agents analyzed and repaired the bounded reflection and serialization
+causes, measured language behavior and reviewed the results. Owning L0s were
+updated first. Closed nominal decisions preserve authoritative snapshots,
+location precedence, label order and opacity. A private constructor-origin
+invariant distinguishes explicit Equation options from external styling;
+canonical native identity and the lexical style boundary are retained.
+No public API, default or pipeline phase changes.
+
+The first full suite exposed a real realized-Equation regression beyond the
+initial corpus. The correction retains semantic content and publishes the
+existing ordered captured-field snapshot at its owning producer. Existing
+snapshots remain authoritative, including empty snapshots. Selector productive
+logic stays unchanged; its existing test now invokes the real producer while
+retaining the original expectations. Failed attempts and superseded candidate
+receipts remain available rather than being presented as successful validation.
+
+All [34 new tests](../../lab/results/v16-corrections-2026-10-19/batch-e/new-test-execution.json)
+pass in the final fresh full run: 18 observed semantic RED failures and 16
+preservation controls. The existing selector regression and getter controls also
+pass. Twelve exact compiler-negative witnesses receive independent raw-span and
+archived-mutation review. Every new realized-query case matches the ratified
+oracle: 38 repaired and one preserved, across 39 frozen sources/cases.
+
+The original 173-case corpus has 87 complete oracle matches. Its raw comparator
+still exits 1; 26 changed observations are independently verified partial repairs
+with exact pre-existing residual differences. Scoped acceptance does not change
+those raw results or claim full parity. Presence distinctions, richer reflection,
+generated-caption selection and supplement diagnostics remain explicit
+[open obligations](../../lab/results/v16-corrections-2026-10-19/batch-e/open-obligations.json).
+
+All twelve integrated gates completed at **2026-10-19T20:10:53.280629+00:00**,
+with 2,132 unchanged frozen inputs. Paths, strict direct/reverse lineage,
+ownership/Nuclei, workspace builds/tests, doctests, all targets including lab
+benches, Clippy, formatting and Rustdoc pass. Both accepted replays completed by
+`2026-10-19T20:11:57.424281+00:00`. The
+[evidence report](../../lab/results/v16-corrections-2026-10-19/batch-e/README.md)
+and [closure ledger](../../lab/results/v16-corrections-2026-10-19/batch-e/closure-ledger.json)
+bind the selected findings to the exact validated sources, owners and seals.
+The full linter still exits 1 for the remaining 37 V16 errors; no suppression,
+severity reduction, linter/configuration change or weakened contract was used.
+
 ## Remaining obligations and organizational result
 
-Batches E–G remain open. The mathematical parser's old grouping comment differs
+Batches F and G remain open. The mathematical parser's old grouping comment differs
 from the observed tree for `a^b'_c^d`; batch A preserved the observed tree and
 recorded the intent question separately. It does not ratify that comment or close
 parity through Rust exhaustiveness. Three callback font formats still lack

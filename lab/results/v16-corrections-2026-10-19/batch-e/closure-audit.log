@@ -1,0 +1,37 @@
+{"raw_comparator_passed": false, "full_parity": false, "scoped_acceptance": true, "counts": {"cases": 173, "matches_oracle": 87, "reviewed_partial_repairs": 26, "failed_cases": 0}, "errors": []}
+{
+  "utc": "2026-10-19T20:13:56.043250+00:00",
+  "baseline_commit": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+  "branch": "codex/tekt-mature-layout",
+  "validated_input_count": 2132,
+  "full_linter_exit": 1,
+  "remaining_v16": 37,
+  "selected_v16_closed": 7,
+  "owner_pairs": 10,
+  "new_tests": 34,
+  "semantic_red": 18,
+  "preservation": 16,
+  "structural_witnesses": 12,
+  "language_cases": 173,
+  "language_classifications": {
+    "PRESERVED": 143,
+    "REPAIRED": 4,
+    "REGRESSION": 26
+  },
+  "realized_query_cases": 39,
+  "realized_query_classifications": {
+    "PRESERVED": 1,
+    "REPAIRED": 38,
+    "REGRESSION": 0
+  },
+  "closed_ids": [
+    "V16-001",
+    "V16-002",
+    "V16-003",
+    "V16-004",
+    "V16-083",
+    "V16-084",
+    "V16-085"
+  ],
+  "validation_completed": "2026-10-19T20:10:53.280629+00:00"
+}

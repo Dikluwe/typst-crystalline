@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-19T19:56:40.217743+00:00",
+  "previous_receipt_sha256": "638a324a6a568a63ca72e5aae020068b1a7f8ee869e06a4e89ab2de23bad3444",
+  "current_receipt_sha256": "f36257d4e95362cde69f66e18a1b8d232e07d921957cbd4d17af69e0be1e33b0",
+  "cases": 173,
+  "changed_candidate_observations": [],
+  "interpretation": "All original173 candidate parsed observations exactly match the previously independently reviewed candidate. This is preservation of the existing scoped assessment, not full parity; new39occurrence corpus is separate."
+}

@@ -1,0 +1,650 @@
+{
+  "review_utc": "2026-10-19T19:37:29.685112+00:00",
+  "review_method": "Independently reconstruct mutations and target spans from archived source; parse raw compiler JSON; do not use selected_e0004 as proof.",
+  "worker": {
+    "path": "lab/results/v16-corrections-2026-10-19/workers/batch_e_structural.py",
+    "sha256": "1b92fcc74f283add5cf2c3065effbcc9c479d8d6b17f370c496840251b720a24"
+  },
+  "targets_sha256": "4d43ed01c1e6b50932a406d05011e731196c463864df592496aab67d0f103499",
+  "phases": {
+    "baseline": {
+      "status": "complete",
+      "source_archive_hash_mismatches": [],
+      "groups": [
+        {
+          "name": "core-extension",
+          "mutation_verified_exact": true,
+          "mutated_paths": [
+            "01_core/src/entities/content.rs"
+          ],
+          "compiler_error_codes": {
+            "E0004": 195
+          },
+          "compiler_build_finished": [
+            false
+          ],
+          "recorded_exit": 101,
+          "log_sha256": "7bfdb05857ebaa05a114d967432a43fc307e0b32c783799836ec8f7f0f443498",
+          "mutation_archive_sha256": "706d03e290b20585331aeb15189125731a3f3e8b461b5f2e0df0f9fda25f4bdf",
+          "witnesses": [
+            {
+              "id": "V16-001",
+              "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "match_anchor": {
+                "line": 240,
+                "byte_start": 10182,
+                "byte_end": 10191
+              },
+              "e0004_primary_diagnostics": [],
+              "expected": "no selected E0004"
+            },
+            {
+              "id": "V16-002",
+              "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "match_anchor": {
+                "line": 322,
+                "byte_start": 13683,
+                "byte_end": 13698
+              },
+              "e0004_primary_diagnostics": [],
+              "expected": "no selected E0004"
+            },
+            {
+              "id": "V16-003",
+              "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "match_anchor": {
+                "line": 468,
+                "byte_start": 19264,
+                "byte_end": 19273
+              },
+              "e0004_primary_diagnostics": [],
+              "expected": "no selected E0004"
+            },
+            {
+              "id": "V16-004",
+              "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "match_anchor": {
+                "line": 581,
+                "byte_start": 23869,
+                "byte_end": 23878
+              },
+              "e0004_primary_diagnostics": [],
+              "expected": "no selected E0004"
+            },
+            {
+              "id": "content-field-closure",
+              "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "match_anchor": {
+                "line": 53,
+                "byte_start": 2361,
+                "byte_end": 2370
+              },
+              "e0004_primary_diagnostics": [],
+              "expected": "no selected E0004"
+            }
+          ]
+        },
+        {
+          "name": "shell-omissions",
+          "mutation_verified_exact": true,
+          "mutated_paths": [
+            "02_shell/src/cli.rs"
+          ],
+          "compiler_error_codes": {},
+          "compiler_build_finished": [
+            true
+          ],
+          "recorded_exit": 0,
+          "log_sha256": "70c824bfb047e42c01b40a1d026eca1dcf9c6d01e55ad284c587864bd3e2fe81",
+          "mutation_archive_sha256": "91b2d36b932dcd2c7c20b9e1d4d3a3e7e13ea3940109fd398873d58081c02f57",
+          "witnesses": [
+            {
+              "id": "V16-083",
+              "file": "02_shell/src/cli.rs",
+              "match_anchor": {
+                "line": 1156,
+                "byte_start": 41058,
+                "byte_end": 41073
+              },
+              "e0004_primary_diagnostics": [],
+              "expected": "no selected E0004"
+            },
+            {
+              "id": "V16-084",
+              "file": "02_shell/src/cli.rs",
+              "match_anchor": {
+                "line": 1177,
+                "byte_start": 41788,
+                "byte_end": 41803
+              },
+              "e0004_primary_diagnostics": [],
+              "expected": "no selected E0004"
+            },
+            {
+              "id": "V16-085",
+              "file": "02_shell/src/cli.rs",
+              "match_anchor": {
+                "line": 1418,
+                "byte_start": 51844,
+                "byte_end": 51859
+              },
+              "e0004_primary_diagnostics": [],
+              "expected": "no selected E0004"
+            }
+          ]
+        }
+      ],
+      "source_freeze": {
+        "utc": "2026-10-19T19:02:29.209951+00:00",
+        "changed": []
+      }
+    },
+    "green": {
+      "status": "complete",
+      "source_archive_hash_mismatches": [],
+      "groups": [
+        {
+          "name": "core-extension",
+          "mutation_verified_exact": true,
+          "mutated_paths": [
+            "01_core/src/entities/content.rs"
+          ],
+          "compiler_error_codes": {
+            "E0004": 202
+          },
+          "compiler_build_finished": [
+            false
+          ],
+          "recorded_exit": 101,
+          "log_sha256": "c2b32d8a76bd17e43e0f054352bc65f88d8a6d5d09556d1ad4781538fad4090e",
+          "mutation_archive_sha256": "97b67ed16f87c8bb8c88b41fd5a1563d64e968560d82a0f82054caa47d991ee2",
+          "witnesses": [
+            {
+              "id": "V16-001",
+              "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "match_anchor": {
+                "line": 351,
+                "byte_start": 13972,
+                "byte_end": 13981
+              },
+              "e0004_primary_diagnostics": [
+                {
+                  "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                  "primary_span": {
+                    "byte_end": 13979,
+                    "byte_start": 13978,
+                    "column_end": 46,
+                    "column_start": 45,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+                    "is_primary": true,
+                    "label": "pattern `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                    "line_end": 351,
+                    "line_start": 351,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 46,
+                        "highlight_start": 45,
+                        "text": "    let candidates: &[&'static str] = match c {"
+                      }
+                    ]
+                  },
+                  "primary_bytes_text": "c",
+                  "code": "E0004"
+                }
+              ],
+              "expected": "one local E0004"
+            },
+            {
+              "id": "V16-002",
+              "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "match_anchor": {
+                "line": 565,
+                "byte_start": 21491,
+                "byte_end": 21506
+              },
+              "e0004_primary_diagnostics": [
+                {
+                  "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                  "primary_span": {
+                    "byte_end": 21504,
+                    "byte_start": 21497,
+                    "column_end": 18,
+                    "column_start": 11,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+                    "is_primary": true,
+                    "label": "pattern `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                    "line_end": 565,
+                    "line_start": 565,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 18,
+                        "highlight_start": 11,
+                        "text": "    match content {"
+                      }
+                    ]
+                  },
+                  "primary_bytes_text": "content",
+                  "code": "E0004"
+                }
+              ],
+              "expected": "one local E0004"
+            },
+            {
+              "id": "V16-003",
+              "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "match_anchor": {
+                "line": 840,
+                "byte_start": 31347,
+                "byte_end": 31356
+              },
+              "e0004_primary_diagnostics": [
+                {
+                  "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                  "primary_span": {
+                    "byte_end": 31354,
+                    "byte_start": 31353,
+                    "column_end": 39,
+                    "column_start": 38,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+                    "is_primary": true,
+                    "label": "pattern `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                    "line_end": 840,
+                    "line_start": 840,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 39,
+                        "highlight_start": 38,
+                        "text": "    ) -> SourceResult<Value> = match c {"
+                      }
+                    ]
+                  },
+                  "primary_bytes_text": "c",
+                  "code": "E0004"
+                }
+              ],
+              "expected": "one local E0004"
+            },
+            {
+              "id": "V16-004",
+              "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "match_anchor": {
+                "line": 1062,
+                "byte_start": 39853,
+                "byte_end": 39862
+              },
+              "e0004_primary_diagnostics": [
+                {
+                  "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                  "primary_span": {
+                    "byte_end": 39860,
+                    "byte_start": 39859,
+                    "column_end": 12,
+                    "column_start": 11,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+                    "is_primary": true,
+                    "label": "pattern `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                    "line_end": 1062,
+                    "line_start": 1062,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 12,
+                        "highlight_start": 11,
+                        "text": "    match c {"
+                      }
+                    ]
+                  },
+                  "primary_bytes_text": "c",
+                  "code": "E0004"
+                }
+              ],
+              "expected": "one local E0004"
+            },
+            {
+              "id": "content-field-closure",
+              "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "match_anchor": {
+                "line": 53,
+                "byte_start": 2361,
+                "byte_end": 2370
+              },
+              "e0004_primary_diagnostics": [
+                {
+                  "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                  "primary_span": {
+                    "byte_end": 2368,
+                    "byte_start": 2367,
+                    "column_end": 12,
+                    "column_start": 11,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+                    "is_primary": true,
+                    "label": "pattern `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                    "line_end": 53,
+                    "line_start": 53,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 12,
+                        "highlight_start": 11,
+                        "text": "    match c {"
+                      }
+                    ]
+                  },
+                  "primary_bytes_text": "c",
+                  "code": "E0004"
+                }
+              ],
+              "expected": "one local E0004"
+            },
+            {
+              "id": "equation-getter-recognizer",
+              "file": "01_core/src/entities/content/fields.rs",
+              "match_anchor": {
+                "line": 10,
+                "byte_start": 235,
+                "byte_end": 250
+              },
+              "e0004_primary_diagnostics": [
+                {
+                  "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                  "primary_span": {
+                    "byte_end": 248,
+                    "byte_start": 241,
+                    "column_end": 18,
+                    "column_start": 11,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/content/fields.rs",
+                    "is_primary": true,
+                    "label": "pattern `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                    "line_end": 10,
+                    "line_start": 10,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 18,
+                        "highlight_start": 11,
+                        "text": "    match content {"
+                      }
+                    ]
+                  },
+                  "primary_bytes_text": "content",
+                  "code": "E0004"
+                }
+              ],
+              "expected": "one local E0004"
+            },
+            {
+              "id": "equation-identity-recognizer",
+              "file": "01_core/src/entities/content/identity.rs",
+              "match_anchor": {
+                "line": 13,
+                "byte_start": 292,
+                "byte_end": 307
+              },
+              "e0004_primary_diagnostics": [
+                {
+                  "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                  "primary_span": {
+                    "byte_end": 305,
+                    "byte_start": 298,
+                    "column_end": 18,
+                    "column_start": 11,
+                    "expansion": null,
+                    "file_name": "01_core/src/entities/content/identity.rs",
+                    "is_primary": true,
+                    "label": "pattern `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                    "line_end": 13,
+                    "line_start": 13,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 18,
+                        "highlight_start": 11,
+                        "text": "    match content {"
+                      }
+                    ]
+                  },
+                  "primary_bytes_text": "content",
+                  "code": "E0004"
+                }
+              ],
+              "expected": "one local E0004"
+            },
+            {
+              "id": "equation-encoding-recognizer",
+              "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+              "match_anchor": {
+                "line": 138,
+                "byte_start": 5505,
+                "byte_end": 5520
+              },
+              "e0004_primary_diagnostics": [
+                {
+                  "message": "non-exhaustive patterns: `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                  "primary_span": {
+                    "byte_end": 5518,
+                    "byte_start": 5511,
+                    "column_end": 18,
+                    "column_start": 11,
+                    "expansion": null,
+                    "file_name": "01_core/src/compiler/stdlib/loading/encoding.rs",
+                    "is_primary": true,
+                    "label": "pattern `&entities::content::Content::TektV16EvolutionProbe` not covered",
+                    "line_end": 138,
+                    "line_start": 138,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 18,
+                        "highlight_start": 11,
+                        "text": "    match content {"
+                      }
+                    ]
+                  },
+                  "primary_bytes_text": "content",
+                  "code": "E0004"
+                }
+              ],
+              "expected": "one local E0004"
+            }
+          ]
+        },
+        {
+          "name": "shell-omissions",
+          "mutation_verified_exact": true,
+          "mutated_paths": [
+            "02_shell/src/cli.rs"
+          ],
+          "compiler_error_codes": {
+            "E0004": 4
+          },
+          "compiler_build_finished": [
+            false
+          ],
+          "recorded_exit": 101,
+          "log_sha256": "d7aa8aa87be0142bece675b3b751891a7b8ead33b0b65b1bbeece9db74b1d627",
+          "mutation_archive_sha256": "a3562060362a27002e3c3b2eb4c11b1f95e70549029cdbb82c1f78dc15740338",
+          "witnesses": [
+            {
+              "id": "V16-083",
+              "file": "02_shell/src/cli.rs",
+              "match_anchor": {
+                "line": 1293,
+                "byte_start": 45664,
+                "byte_end": 45679
+              },
+              "e0004_primary_diagnostics": [
+                {
+                  "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::Source(_)` not covered",
+                  "primary_span": {
+                    "byte_end": 45677,
+                    "byte_start": 45670,
+                    "column_end": 18,
+                    "column_start": 11,
+                    "expansion": null,
+                    "file_name": "02_shell/src/cli.rs",
+                    "is_primary": true,
+                    "label": "pattern `&typst_core::entities::content::Content::Source(_)` not covered",
+                    "line_end": 1293,
+                    "line_start": 1293,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 18,
+                        "highlight_start": 11,
+                        "text": "    match content {"
+                      }
+                    ]
+                  },
+                  "primary_bytes_text": "content",
+                  "code": "E0004"
+                }
+              ],
+              "expected": "one local E0004"
+            },
+            {
+              "id": "V16-084",
+              "file": "02_shell/src/cli.rs",
+              "match_anchor": {
+                "line": 1429,
+                "byte_start": 50169,
+                "byte_end": 50184
+              },
+              "e0004_primary_diagnostics": [
+                {
+                  "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::Raw(_)` not covered",
+                  "primary_span": {
+                    "byte_end": 50182,
+                    "byte_start": 50175,
+                    "column_end": 18,
+                    "column_start": 11,
+                    "expansion": null,
+                    "file_name": "02_shell/src/cli.rs",
+                    "is_primary": true,
+                    "label": "pattern `&typst_core::entities::content::Content::Raw(_)` not covered",
+                    "line_end": 1429,
+                    "line_start": 1429,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 18,
+                        "highlight_start": 11,
+                        "text": "    match content {"
+                      }
+                    ]
+                  },
+                  "primary_bytes_text": "content",
+                  "code": "E0004"
+                }
+              ],
+              "expected": "one local E0004"
+            },
+            {
+              "id": "V16-085",
+              "file": "02_shell/src/cli.rs",
+              "match_anchor": {
+                "line": 1775,
+                "byte_start": 63876,
+                "byte_end": 63891
+              },
+              "e0004_primary_diagnostics": [
+                {
+                  "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::Source(_)` not covered",
+                  "primary_span": {
+                    "byte_end": 63889,
+                    "byte_start": 63882,
+                    "column_end": 18,
+                    "column_start": 11,
+                    "expansion": null,
+                    "file_name": "02_shell/src/cli.rs",
+                    "is_primary": true,
+                    "label": "pattern `&typst_core::entities::content::Content::Source(_)` not covered",
+                    "line_end": 1775,
+                    "line_start": 1775,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 18,
+                        "highlight_start": 11,
+                        "text": "    match content {"
+                      }
+                    ]
+                  },
+                  "primary_bytes_text": "content",
+                  "code": "E0004"
+                }
+              ],
+              "expected": "one local E0004"
+            },
+            {
+              "id": "equation-shell-recognizer",
+              "file": "02_shell/src/cli.rs",
+              "match_anchor": {
+                "line": 1156,
+                "byte_start": 41061,
+                "byte_end": 41076
+              },
+              "e0004_primary_diagnostics": [
+                {
+                  "message": "non-exhaustive patterns: `&typst_core::entities::content::Content::Equation(_)` not covered",
+                  "primary_span": {
+                    "byte_end": 41074,
+                    "byte_start": 41067,
+                    "column_end": 18,
+                    "column_start": 11,
+                    "expansion": null,
+                    "file_name": "02_shell/src/cli.rs",
+                    "is_primary": true,
+                    "label": "pattern `&typst_core::entities::content::Content::Equation(_)` not covered",
+                    "line_end": 1156,
+                    "line_start": 1156,
+                    "suggested_replacement": null,
+                    "suggestion_applicability": null,
+                    "text": [
+                      {
+                        "highlight_end": 18,
+                        "highlight_start": 11,
+                        "text": "    match content {"
+                      }
+                    ]
+                  },
+                  "primary_bytes_text": "content",
+                  "code": "E0004"
+                }
+              ],
+              "expected": "one local E0004"
+            }
+          ]
+        }
+      ],
+      "source_freeze": {
+        "utc": "2026-10-19T19:37:03.927248+00:00",
+        "changed": []
+      }
+    }
+  },
+  "limits": [
+    "Compiler witness proves enum-domain review coverage, not language correctness.",
+    "Shell witnesses remove positive arms in actual shell matches; they are not future-variant cross-crate compilation witnesses.",
+    "Core baseline is an intentionally failing extension build with unrelated E0004s; it is not a successful unmutated build."
+  ]
+}

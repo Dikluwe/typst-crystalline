@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/fields.md
-//! @prompt-hash 8aea5504
+//! @prompt-hash 7b17ac42
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -9,7 +9,20 @@ use super::*;
 fn styled_equation(content: &Content) -> Option<&EquationElem> {
     match content {
         Content::Equation(e) => Some(e),
-        Content::Styled(styled) => styled_equation(&styled.body),
+        Content::Styled(styled) => {
+            let marker = styled
+                .styles
+                .delta()
+                .custom
+                .iter()
+                .rev()
+                .find(|(key, _)| key.as_str() == "equation.constructor");
+            if matches!(marker, Some((_, crate::entities::value::Value::Bool(true)))) {
+                styled_equation(&styled.body)
+            } else {
+                None
+            }
+        }
         Content::Source(e) => styled_equation(&e.body),
         Content::ShowRecipe(e) => styled_equation(&e.body),
         Content::Located(e) => styled_equation(&e.body),
@@ -282,7 +295,7 @@ impl Content {
                     _ => base.get_field(f),
                 }
             }
-            (Content::Styled(styled), f) if styled_equation(&styled.body).is_some() => {
+            (Content::Styled(styled), f) if styled_equation(self).is_some() => {
                 let child = &styled.body;
                 let styles = &styled.styles;
                 let key = match f {
@@ -474,6 +487,7 @@ mod content_view_regressions {
     }
     fn styles() -> Styles {
         Styles::new()
+            .push_custom("equation.constructor", Value::Bool(true))
             .push_custom("equation.numbering", Value::Str("(1)".into()))
             .push_custom("equation.supplement", Value::Str("Eq".into()))
             .push_custom("equation.alt", Value::Str("alternative".into()))
@@ -500,7 +514,16 @@ mod content_view_regressions {
                     0 => Content::styled(wrap(kind, eq.clone()), styles()),
                     1 => wrap(kind, expected.clone()),
                     2 => Content::styled(
-                        wrap(kind, Content::styled(eq.clone(), Styles::new())),
+                        wrap(
+                            kind,
+                            Content::styled(
+                                eq.clone(),
+                                Styles::new().push_custom(
+                                    "equation.constructor",
+                                    Value::Bool(true),
+                                ),
+                            ),
+                        ),
                         styles(),
                     ),
                     _ => unreachable!(),
@@ -535,24 +558,60 @@ mod content_view_regressions {
             assert_eq!(visual_text.get_field("alt"), None);
             let inner = Content::styled(
                 wrap(kind, eq.clone()),
-                Styles::new().push_custom("equation.alt", Value::Str("inner".into())),
+                Styles::new()
+                    .push_custom("equation.constructor", Value::Bool(true))
+                    .push_custom("equation.alt", Value::Str("inner".into())),
             );
             let outer = Content::styled(
                 wrap(kind, inner.clone()),
-                Styles::new().push_custom("equation.alt", Value::Str("outer".into())),
+                Styles::new()
+                    .push_custom("equation.constructor", Value::Bool(true))
+                    .push_custom("equation.alt", Value::Str("outer".into())),
             );
             assert_eq!(
                 outer.get_field("alt"),
                 Some(Value::Str("outer".into())),
                 "{kind}/outer"
             );
-            let fallback = Content::styled(wrap(kind, inner), Styles::new());
+            let fallback = Content::styled(
+                wrap(kind, inner),
+                Styles::new().push_custom("equation.constructor", Value::Bool(true)),
+            );
             assert_eq!(
                 fallback.get_field("alt"),
                 Some(Value::Str("inner".into())),
                 "{kind}/inner"
             );
         }
+    }
+
+    #[test]
+    fn v16_e_getter_requires_own_constructor_origin() {
+        let equation = Content::equation(Content::text("x"), false);
+        let marked = Content::styled(equation.clone(), styles());
+        let mut invalid = vec![
+            Styles::new(),
+            Styles::new()
+                .push_custom("equation.alt", Value::Str("coincident name".into())),
+        ];
+        for marker in [Value::Bool(false), Value::Str("true".into()), Value::None] {
+            invalid.push(styles().push_custom("equation.constructor", marker));
+        }
+        for kind in 0..4 {
+            for delta in &invalid {
+                let external = Content::styled(wrap(kind, marked.clone()), delta.clone());
+                for field in ["block", "body", "numbering", "alt"] {
+                    assert_eq!(external.get_field(field), None, "{kind}/{field}");
+                }
+            }
+            for body in
+                [Content::text("x"), Content::Sequence(vec![equation.clone()].into())]
+            {
+                let invalid_body = Content::styled(wrap(kind, body), styles());
+                assert_eq!(invalid_body.get_field("alt"), None);
+            }
+        }
+        assert_eq!(marked.get_field("equation.constructor"), None);
     }
 }
 

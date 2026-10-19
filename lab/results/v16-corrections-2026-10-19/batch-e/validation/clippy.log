@@ -1,0 +1,73 @@
+    Checking zerofrom v0.1.8
+    Checking yoke v0.8.3
+    Checking serde v1.0.228
+    Checking zerovec v0.11.6
+    Checking tinystr v0.8.3
+    Checking icu_locale_core v2.2.0
+    Checking potential_utf v0.1.5
+    Checking zerotrie v0.2.4
+    Checking icu_collections v2.2.0
+    Checking icu_provider v2.2.0
+    Checking zerocopy v0.8.27
+    Checking icu_properties v2.2.0
+    Checking icu_normalizer v2.2.0
+    Checking idna_adapter v1.2.2
+    Checking half v2.7.1
+    Checking unic-langid-impl v0.9.6
+    Checking ciborium-ll v0.2.2
+    Checking bytemuck v1.25.0
+    Checking thiserror v2.0.16
+    Checking unic-langid-macros v0.9.6
+    Checking idna v1.1.0
+    Checking icu_locale v2.2.0
+    Checking enum-ordinalize v4.3.2
+    Checking plist v1.10.0
+    Checking strum v0.27.2
+    Checking url v2.5.8
+    Checking unic-langid v0.9.6
+    Checking ciborium v0.2.2
+    Checking ppv-lite86 v0.2.21
+    Checking quick-xml v0.38.4
+    Checking serde_spanned v0.6.9
+    Checking toml_datetime v0.6.11
+    Checking bincode v1.3.3
+    Checking chinese-number v0.7.8
+    Checking biblatex v0.12.0
+    Checking toml_edit v0.22.27
+    Checking syntect v5.3.0
+    Checking serde_yaml v0.9.34+deprecated
+    Checking citationberg v0.7.0
+    Checking rand_chacha v0.3.1
+    Checking icu_collator v2.2.0
+    Checking comemo v0.4.0
+    Checking hayagriva v0.10.1
+    Checking lipsum v0.9.1
+    Checking icu_segmenter v2.2.0
+    Checking rust_decimal v1.42.1
+    Checking codex v0.3.0 (https://github.com/typst/codex?rev=2e43ab90079cf9f9fa670d421c8c38233143b376#2e43ab90)
+    Checking two-face v0.4.5
+    Checking toml v0.8.23
+    Checking typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Checking font-types v0.11.3
+    Checking ring v0.17.14
+    Checking read-fonts v0.39.2
+    Checking rustls-webpki v0.103.13
+    Checking rustls v0.23.42
+    Checking tiny-skia-path v0.12.0
+    Checking write-fonts v0.48.1
+    Checking skrifa v0.42.1
+    Checking image v0.24.9
+    Checking rustybuzz v0.20.1
+    Checking tiny-skia v0.12.0
+    Checking subsetter v0.2.6
+    Checking ureq v2.12.1
+    Checking typst-infra v0.1.0 (/repos/Antigravity/typst-crystalline/03_infra)
+    Checking clap v4.6.6
+    Checking clap_complete v4.6.9
+   Compiling typst-shell v0.1.0 (/repos/Antigravity/typst-crystalline/02_shell)
+    Checking clap_complete_nushell v4.6.2
+    Checking tinytemplate v1.2.1
+    Checking criterion v0.5.1
+    Checking typst-benches v0.1.0 (/repos/Antigravity/typst-crystalline/lab/benches)
+    Checking typst-wiring v0.1.0 (/repos/Antigravity/typst-crystalline/04_wiring)
+    Finished `dev` profile [unoptimized] target(s) in 1m 48s

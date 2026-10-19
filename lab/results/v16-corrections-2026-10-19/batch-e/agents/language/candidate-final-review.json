@@ -1,0 +1,5476 @@
+{
+  "utc": "2026-10-19T19:36:21.521236+00:00",
+  "candidate_receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/candidate-replay-final/receipt.json",
+  "candidate_receipt_sha256": "638a324a6a568a63ca72e5aae020068b1a7f8ee869e06a4e89ab2de23bad3444",
+  "candidate_binary_sha256": "77c665d9cc76a7ae35a92d41621a7084abbb4544e11d8100956079348f859916",
+  "prior_independent_review": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/candidate-replay-review-bound.json",
+  "prior_review_sha256": "e774d25cb1b0cd069eaa7b16950e0b57a774e06791dc0ebf538e67106e90a6c0",
+  "review_routine_sha256": "c3381487e367378a6a60085b4d8ffadbab4fd8ce3d6df02cb763b3569c6433ad",
+  "cases": [
+    {
+      "id": "receipt.json::eq-explicit",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Only observed function repr changes styled\u2192equation, agreeing with oracle. All other compound output paths remain byte-for-value unchanged; remaining nested Equation defaults or omitted block presence were already present.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "43b6eb7553ca04d333763d462a0b10c52c9ff06d83189c0b19ec06b7f9e2d7ed",
+      "old_to_new_differences": [
+        {
+          "path": "/value/func",
+          "old": "styled",
+          "new": "equation"
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/checks/5/at/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/5/at/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/5/at/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/5/at/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/5/at/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/5/at/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/entities/content/identity.rs:149-155",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:854-862"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "eq-explicit",
+          "product_observation_sha256": "9b270821c04adecaf44348fd3b823ecb122e9727d38211f816070b49d3ebd0d7",
+          "oracle_observation_sha256": "00ee8e39679e25cc5bba0e974d51a24d2555d55a1f9b85e96409954682c55fc5"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "receipt.json::styled-equation",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "has/at of body/block/numbering now agrees with oracle opaque outer Styled; old leaked equation fields removed. fields remains empty instead of child/styles, the independently observed generic Styled strict schema debt.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "e650a1f88cb54ad666472db55a598164f740b5562a764112fefd1eb18331d877",
+      "old_to_new_differences": [
+        {
+          "path": "/value/checks/0/at",
+          "old": {
+            "func": "equation",
+            "block": false,
+            "numbering": null,
+            "number-align": "end + horizon",
+            "supplement": {
+              "func": "text",
+              "text": "Equation"
+            },
+            "alt": null,
+            "body": {
+              "func": "symbol",
+              "text": "x"
+            }
+          },
+          "new": "__ABSENT__"
+        },
+        {
+          "path": "/value/checks/0/has",
+          "old": true,
+          "new": false
+        },
+        {
+          "path": "/value/checks/1/at",
+          "old": false,
+          "new": "__ABSENT__"
+        },
+        {
+          "path": "/value/checks/1/has",
+          "old": true,
+          "new": false
+        },
+        {
+          "path": "/value/checks/2/at",
+          "old": "(1)",
+          "new": "__ABSENT__"
+        },
+        {
+          "path": "/value/checks/2/has",
+          "old": true,
+          "new": false
+        },
+        {
+          "path": "/value/fields/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/body/body/func",
+          "old": "symbol",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/numbering",
+          "old": "(1)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/fields/child/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/child/body/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/fields/child/body/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/child/body/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "symbol"
+        },
+        {
+          "path": "/value/fields/child/body/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/fields/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/fields/child/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/fields/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": "(1)"
+        },
+        {
+          "path": "/value/fields/styles",
+          "old": {
+            "$missing": true
+          },
+          "new": "styles(..)"
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:58-62",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:425-438"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "styled-child",
+          "product_observation_sha256": "5ae46f33a55a490ef7b77e29cdd24d36da5f04bd2d1dcb3c4892ef7838f529c9",
+          "oracle_observation_sha256": "ec4a230bade532f6a4976ea08abfb37481b88c1aa85d6e7a285d100a0592d2e5"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "ordinary-styled",
+          "product_observation_sha256": "a6909a62fa27a50442777a43ee0bfa451dba1bd26e995cf970799e36abb3e654",
+          "oracle_observation_sha256": "31e1f21497653df3ffd8026e59decd7661941d003fadffaa8a3e291567edc8e5"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "receipt.json::sequence-equation",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Constructor identity/known options replace its styled/child/styles transport in the same semantic position, retaining real outer wrappers. Remaining differences are omitted block false and, where input contains $x$, existing nested Equation legacy default fields. Exact differences are recorded below.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "05603d1a31593725646799ebcc737afe961e0499a26bbf67e3e4ca45ab210b06",
+      "old_to_new_differences": [
+        {
+          "path": "/value/checks/1/at/2/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/checks/1/at/2/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/body/alt",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/checks/1/at/2/body/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/checks/1/at/2/body/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/body/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "symbol"
+        },
+        {
+          "path": "/value/checks/1/at/2/body/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/checks/1/at/2/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/checks/1/at/2/body/number-align",
+          "old": {
+            "$missing": true
+          },
+          "new": "end + horizon"
+        },
+        {
+          "path": "/value/checks/1/at/2/body/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/checks/1/at/2/body/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/body/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/checks/1/at/2/body/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Equation"
+        },
+        {
+          "path": "/value/checks/1/at/2/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/1/at/2/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/body/func",
+          "old": "symbol",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/1/at/2/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/checks/1/at/2/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": "(1)"
+        },
+        {
+          "path": "/value/checks/1/at/2/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/fields/children/2/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/body/alt",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/fields/children/2/body/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/fields/children/2/body/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/body/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "symbol"
+        },
+        {
+          "path": "/value/fields/children/2/body/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/fields/children/2/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/fields/children/2/body/number-align",
+          "old": {
+            "$missing": true
+          },
+          "new": "end + horizon"
+        },
+        {
+          "path": "/value/fields/children/2/body/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/fields/children/2/body/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/body/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/fields/children/2/body/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Equation"
+        },
+        {
+          "path": "/value/fields/children/2/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/children/2/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/children/2/child/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/children/2/child/body/body/func",
+          "old": "symbol",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/children/2/child/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/children/2/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/fields/children/2/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": "(1)"
+        },
+        {
+          "path": "/value/fields/children/2/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/checks/1/at/2/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/1/at/2/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/children/2/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/stdlib/loading/encoding.rs:64-72",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:233-237",
+        "02_shell/src/cli.rs:1552-1575"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "eq-omitted",
+          "product_observation_sha256": "277613d0c809faf256ec5602d26260fe57152322a2b497221250cb818c9baa98",
+          "oracle_observation_sha256": "0da32e05380ec4b8ed0b091370d7d9848bc0c5a65f06da88a58333b0b14f807f"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "eq-block-unset",
+          "product_observation_sha256": "59c596fdf73b84624779ac8b6691365a33b1a37bc3c88f0c24a6d120b8bcb5ae",
+          "oracle_observation_sha256": "3ddee3a47c158d4b925ce78cf70c0d0ea325767fd65270f5c5a9d8eaaadf9bb8"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "sequence-equation",
+          "product_observation_sha256": "f90ca674f4fb3c20b5a4b47d6fa1d5aef55e2113d42388f1e5bcb04fc34bf0ea",
+          "oracle_observation_sha256": "2a00548059e4b62a7abc201699b1ef65b0ca0f663154ecd7dc91e41eed90adc5"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "receipt.json::eq-call",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Previously rejected returned callback now invokes the actual Equation constructor successfully. Remaining false block presence (styled-call) and nested bare Equation legacy defaults come from unchanged constructor/presence/legacy serializer behavior, not a new callback implementation.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "f87ceb043fa53048f3ac171b7bc0c29a9e5656d7dad969f976de0555e99e886b",
+      "old_to_new_differences": [
+        {
+          "path": "/returncode",
+          "old": 1,
+          "new": 0
+        },
+        {
+          "path": "/stderr",
+          "old": "error: calling this element function is not supported\n\n  while calling `equation` at <input-expression>:1:0\n    math.equation($x$).func()(block:true,$y$)\n\n",
+          "new": ""
+        },
+        {
+          "path": "/stdout",
+          "old": "",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/block",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/alt",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/body/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "symbol"
+        },
+        {
+          "path": "/value/body/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "y"
+        },
+        {
+          "path": "/value/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/body/number-align",
+          "old": {
+            "$missing": true
+          },
+          "new": "end + horizon"
+        },
+        {
+          "path": "/value/body/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/body/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/body/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Equation"
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:845",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:854-862",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:233-237",
+        "02_shell/src/cli.rs:1552-1575"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "eq-omitted",
+          "product_observation_sha256": "277613d0c809faf256ec5602d26260fe57152322a2b497221250cb818c9baa98",
+          "oracle_observation_sha256": "0da32e05380ec4b8ed0b091370d7d9848bc0c5a65f06da88a58333b0b14f807f"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "eq-block-unset",
+          "product_observation_sha256": "59c596fdf73b84624779ac8b6691365a33b1a37bc3c88f0c24a6d120b8bcb5ae",
+          "oracle_observation_sha256": "3ddee3a47c158d4b925ce78cf70c0d0ea325767fd65270f5c5a9d8eaaadf9bb8"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "receipt.json::eq-styled-call",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Previously rejected returned callback now invokes the actual Equation constructor successfully. Remaining false block presence (styled-call) and nested bare Equation legacy defaults come from unchanged constructor/presence/legacy serializer behavior, not a new callback implementation.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "fffb8d421d5432e51276166f0809f2a85573e46a356f8e57f51e35f273e115ea",
+      "old_to_new_differences": [
+        {
+          "path": "/returncode",
+          "old": 1,
+          "new": 0
+        },
+        {
+          "path": "/stderr",
+          "old": "error: calling this element function is not supported\n\n  while calling `styled` at <input-expression>:1:0\n    math.equation(numbering:\"(1)\",$x$).func()($y$)\n\n",
+          "new": ""
+        },
+        {
+          "path": "/stdout",
+          "old": "",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/alt",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/body/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "symbol"
+        },
+        {
+          "path": "/value/body/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "y"
+        },
+        {
+          "path": "/value/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/body/number-align",
+          "old": {
+            "$missing": true
+          },
+          "new": "end + horizon"
+        },
+        {
+          "path": "/value/body/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/body/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/body/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Equation"
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:845",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:854-862",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:233-237",
+        "02_shell/src/cli.rs:1552-1575"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "eq-omitted",
+          "product_observation_sha256": "277613d0c809faf256ec5602d26260fe57152322a2b497221250cb818c9baa98",
+          "oracle_observation_sha256": "0da32e05380ec4b8ed0b091370d7d9848bc0c5a65f06da88a58333b0b14f807f"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "eq-block-unset",
+          "product_observation_sha256": "59c596fdf73b84624779ac8b6691365a33b1a37bc3c88f0c24a6d120b8bcb5ae",
+          "oracle_observation_sha256": "3ddee3a47c158d4b925ce78cf70c0d0ea325767fd65270f5c5a9d8eaaadf9bb8"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "receipt.json::serialize-eq-json",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Constructor identity/known options replace its styled/child/styles transport in the same semantic position, retaining real outer wrappers. Remaining differences are omitted block false and, where input contains $x$, existing nested Equation legacy default fields. Exact differences are recorded below.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "3798ece553016de6b540d0e4913762ac3d65af4b932362d0d8bd25efc958f559",
+      "old_to_new_differences": [
+        {
+          "path": "/value/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/alt",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/body/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "symbol"
+        },
+        {
+          "path": "/value/body/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/body/number-align",
+          "old": {
+            "$missing": true
+          },
+          "new": "end + horizon"
+        },
+        {
+          "path": "/value/body/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/body/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/body/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Equation"
+        },
+        {
+          "path": "/value/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/body/func",
+          "old": "symbol",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/stdlib/loading/encoding.rs:64-72",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:233-237",
+        "02_shell/src/cli.rs:1552-1575"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "eq-omitted",
+          "product_observation_sha256": "277613d0c809faf256ec5602d26260fe57152322a2b497221250cb818c9baa98",
+          "oracle_observation_sha256": "0da32e05380ec4b8ed0b091370d7d9848bc0c5a65f06da88a58333b0b14f807f"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "eq-block-unset",
+          "product_observation_sha256": "59c596fdf73b84624779ac8b6691365a33b1a37bc3c88f0c24a6d120b8bcb5ae",
+          "oracle_observation_sha256": "3ddee3a47c158d4b925ce78cf70c0d0ea325767fd65270f5c5a9d8eaaadf9bb8"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "serialize-eq-json",
+          "product_observation_sha256": "54f714b2589ca0147bc3c1023d05522d78a2d7be7415d1d00527152cf47f118a",
+          "oracle_observation_sha256": "d087446d076fe1343dfc20488205641d7812f9633bb25c3f941c9ff976103ad0"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "receipt.json::serialize-eq-yaml",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Constructor identity/known options replace its styled/child/styles transport in the same semantic position, retaining real outer wrappers. Remaining differences are omitted block false and, where input contains $x$, existing nested Equation legacy default fields. Exact differences are recorded below.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "3798ece553016de6b540d0e4913762ac3d65af4b932362d0d8bd25efc958f559",
+      "old_to_new_differences": [
+        {
+          "path": "/value/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/alt",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/body/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "symbol"
+        },
+        {
+          "path": "/value/body/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/body/number-align",
+          "old": {
+            "$missing": true
+          },
+          "new": "end + horizon"
+        },
+        {
+          "path": "/value/body/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/body/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/body/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Equation"
+        },
+        {
+          "path": "/value/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/body/func",
+          "old": "symbol",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/stdlib/loading/encoding.rs:64-72",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:233-237",
+        "02_shell/src/cli.rs:1552-1575"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "eq-omitted",
+          "product_observation_sha256": "277613d0c809faf256ec5602d26260fe57152322a2b497221250cb818c9baa98",
+          "oracle_observation_sha256": "0da32e05380ec4b8ed0b091370d7d9848bc0c5a65f06da88a58333b0b14f807f"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "eq-block-unset",
+          "product_observation_sha256": "59c596fdf73b84624779ac8b6691365a33b1a37bc3c88f0c24a6d120b8bcb5ae",
+          "oracle_observation_sha256": "3ddee3a47c158d4b925ce78cf70c0d0ea325767fd65270f5c5a9d8eaaadf9bb8"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "serialize-eq-yaml",
+          "product_observation_sha256": "54f714b2589ca0147bc3c1023d05522d78a2d7be7415d1d00527152cf47f118a",
+          "oracle_observation_sha256": "d087446d076fe1343dfc20488205641d7812f9633bb25c3f941c9ff976103ad0"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "supplement-receipt.json::entry-omitted",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Required level/element and explicit fill are now enumerated; omitted fill is correctly absent via fill_set. Remaining differences are unchanged Heading legacy synthesized defaults recursively exposed in element.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "fe4e8b7cb549c8e214ae28f846060ed98d51a67c304a6411f237094be33725d0",
+      "old_to_new_differences": [
+        {
+          "path": "/value/checks/2/at",
+          "old": {
+            "func": "repeat"
+          },
+          "new": "__ABSENT__"
+        },
+        {
+          "path": "/value/checks/2/has",
+          "old": true,
+          "new": false
+        },
+        {
+          "path": "/value/fields/element/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/fields/element/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/fields/element/bookmarked",
+          "old": {
+            "$missing": true
+          },
+          "new": "auto"
+        },
+        {
+          "path": "/value/fields/element/depth",
+          "old": {
+            "$missing": true
+          },
+          "new": 1
+        },
+        {
+          "path": "/value/fields/element/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "heading"
+        },
+        {
+          "path": "/value/fields/element/hanging-indent",
+          "old": {
+            "$missing": true
+          },
+          "new": "auto"
+        },
+        {
+          "path": "/value/fields/element/level",
+          "old": {
+            "$missing": true
+          },
+          "new": 1
+        },
+        {
+          "path": "/value/fields/element/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/fields/element/offset",
+          "old": {
+            "$missing": true
+          },
+          "new": 0
+        },
+        {
+          "path": "/value/fields/element/outlined",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/element/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/fields/element/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Section"
+        },
+        {
+          "path": "/value/fields/level",
+          "old": {
+            "$missing": true
+          },
+          "new": 1
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/checks/1/at/bookmarked",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/depth",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/hanging-indent",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/level",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/offset",
+          "old": 0,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/outlined",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/1/at/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/supplement/text",
+          "old": "Section",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/bookmarked",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/depth",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/hanging-indent",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/level",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/offset",
+          "old": 0,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/outlined",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/element/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/supplement/text",
+          "old": "Section",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:223-232",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:358",
+        "02_shell/src/cli.rs:1464-1510"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "entry-omitted",
+          "product_observation_sha256": "348b7c22b3708d7370b01c5f5184ddacee841c7b66b8ec0285a22f59084ef560",
+          "oracle_observation_sha256": "dc9ad1164a3ea3420367636aa9b299b356a9c8cc1603e1dbcae0fcb18ac5d01e"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "entry-none",
+          "product_observation_sha256": "4ff684692b813b0c597393a767dfee3bff785968986502009842225aceb23af1",
+          "oracle_observation_sha256": "df1606da2902fe8e6588e08f40dddab0aeca53b17ed2a5e101d6cfdca9a08b3b"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "serialize-heading-json",
+          "product_observation_sha256": "02bd6973bc14960ddaf4a07959112a77f6634d8f55eb5f770d7ded2bf8a5ef74",
+          "oracle_observation_sha256": "612b7a74bea02bc1189169ec4880a613df77be2c76fb1f012872b64df5815211"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "supplement-receipt.json::entry-none",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Required level/element and explicit fill are now enumerated; omitted fill is correctly absent via fill_set. Remaining differences are unchanged Heading legacy synthesized defaults recursively exposed in element.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "f9818a93ac4e5e28175b44c91ce9a466d44fc8bd3fc7a2de9980a42e43cfaf58",
+      "old_to_new_differences": [
+        {
+          "path": "/value/fields/element/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/fields/element/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/fields/element/bookmarked",
+          "old": {
+            "$missing": true
+          },
+          "new": "auto"
+        },
+        {
+          "path": "/value/fields/element/depth",
+          "old": {
+            "$missing": true
+          },
+          "new": 1
+        },
+        {
+          "path": "/value/fields/element/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "heading"
+        },
+        {
+          "path": "/value/fields/element/hanging-indent",
+          "old": {
+            "$missing": true
+          },
+          "new": "auto"
+        },
+        {
+          "path": "/value/fields/element/level",
+          "old": {
+            "$missing": true
+          },
+          "new": 1
+        },
+        {
+          "path": "/value/fields/element/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/fields/element/offset",
+          "old": {
+            "$missing": true
+          },
+          "new": 0
+        },
+        {
+          "path": "/value/fields/element/outlined",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/element/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/fields/element/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Section"
+        },
+        {
+          "path": "/value/fields/fill",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/fields/level",
+          "old": {
+            "$missing": true
+          },
+          "new": 1
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/checks/1/at/bookmarked",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/depth",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/hanging-indent",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/level",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/offset",
+          "old": 0,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/outlined",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/1/at/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/supplement/text",
+          "old": "Section",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/bookmarked",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/depth",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/hanging-indent",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/level",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/offset",
+          "old": 0,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/outlined",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/element/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/supplement/text",
+          "old": "Section",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:223-232",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:358",
+        "02_shell/src/cli.rs:1464-1510"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "entry-omitted",
+          "product_observation_sha256": "348b7c22b3708d7370b01c5f5184ddacee841c7b66b8ec0285a22f59084ef560",
+          "oracle_observation_sha256": "dc9ad1164a3ea3420367636aa9b299b356a9c8cc1603e1dbcae0fcb18ac5d01e"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "entry-none",
+          "product_observation_sha256": "4ff684692b813b0c597393a767dfee3bff785968986502009842225aceb23af1",
+          "oracle_observation_sha256": "df1606da2902fe8e6588e08f40dddab0aeca53b17ed2a5e101d6cfdca9a08b3b"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "serialize-heading-json",
+          "product_observation_sha256": "02bd6973bc14960ddaf4a07959112a77f6634d8f55eb5f770d7ded2bf8a5ef74",
+          "oracle_observation_sha256": "612b7a74bea02bc1189169ec4880a613df77be2c76fb1f012872b64df5815211"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "supplement-receipt.json::eq-literal",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Only observed function repr changes styled\u2192equation, agreeing with oracle. All other compound output paths remain byte-for-value unchanged; remaining nested Equation defaults or omitted block presence were already present.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "5ccb934fa67d2e89d0110de689b1dd637ab15b341a171f91b1f826564e53a43e",
+      "old_to_new_differences": [
+        {
+          "path": "/value/func",
+          "old": "styled",
+          "new": "equation"
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/checks/0/at",
+          "old": false,
+          "new": "__ABSENT__"
+        },
+        {
+          "path": "/value/checks/0/has",
+          "old": true,
+          "new": false
+        },
+        {
+          "path": "/value/fields/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/entities/content/identity.rs:149-155",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:854-862"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "eq-literal",
+          "product_observation_sha256": "a4d4b73a6bdfd8a5b56eb773465aa4ee222bde07d0d7bfd1239256667a1f45d3",
+          "oracle_observation_sha256": "90a9f9ff93fb0f922ce280ceae728ff0387efc49effe87cb49814df1419435b2"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "supplement-receipt.json::eq-source-alias",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "has/at of body/block/numbering now agrees with oracle opaque outer Styled; old leaked equation fields removed. fields remains empty instead of child/styles, the independently observed generic Styled strict schema debt.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "fdb47da74db8b298bb07b13a56198331e79bc41124d235131c34cd361f9e2a61",
+      "old_to_new_differences": [
+        {
+          "path": "/value/checks/0/at",
+          "old": false,
+          "new": "__ABSENT__"
+        },
+        {
+          "path": "/value/checks/0/has",
+          "old": true,
+          "new": false
+        },
+        {
+          "path": "/value/checks/1/at",
+          "old": "(1)",
+          "new": "__ABSENT__"
+        },
+        {
+          "path": "/value/checks/1/has",
+          "old": true,
+          "new": false
+        },
+        {
+          "path": "/value/checks/2/at",
+          "old": {
+            "func": "text",
+            "text": "x"
+          },
+          "new": "__ABSENT__"
+        },
+        {
+          "path": "/value/checks/2/has",
+          "old": true,
+          "new": false
+        },
+        {
+          "path": "/value/fields/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/numbering",
+          "old": "(1)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/fields/child/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/fields/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/fields/child/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/fields/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": "(1)"
+        },
+        {
+          "path": "/value/fields/styles",
+          "old": {
+            "$missing": true
+          },
+          "new": "styles(..)"
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:58-62",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:425-438"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "styled-child",
+          "product_observation_sha256": "5ae46f33a55a490ef7b77e29cdd24d36da5f04bd2d1dcb3c4892ef7838f529c9",
+          "oracle_observation_sha256": "ec4a230bade532f6a4976ea08abfb37481b88c1aa85d6e7a285d100a0592d2e5"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "ordinary-styled",
+          "product_observation_sha256": "a6909a62fa27a50442777a43ee0bfa451dba1bd26e995cf970799e36abb3e654",
+          "oracle_observation_sha256": "31e1f21497653df3ffd8026e59decd7661941d003fadffaa8a3e291567edc8e5"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "supplement-receipt.json::entry-call",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Required level/element and explicit fill are now enumerated; omitted fill is correctly absent via fill_set. Remaining differences are unchanged Heading legacy synthesized defaults recursively exposed in element.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "9f98a676c4e955dfd46ffc1435ce16686b860c88aa15626e99e8be417d6d15ec",
+      "old_to_new_differences": [
+        {
+          "path": "/value/element/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/element/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "y"
+        },
+        {
+          "path": "/value/element/bookmarked",
+          "old": {
+            "$missing": true
+          },
+          "new": "auto"
+        },
+        {
+          "path": "/value/element/depth",
+          "old": {
+            "$missing": true
+          },
+          "new": 1
+        },
+        {
+          "path": "/value/element/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "heading"
+        },
+        {
+          "path": "/value/element/hanging-indent",
+          "old": {
+            "$missing": true
+          },
+          "new": "auto"
+        },
+        {
+          "path": "/value/element/level",
+          "old": {
+            "$missing": true
+          },
+          "new": 1
+        },
+        {
+          "path": "/value/element/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/element/offset",
+          "old": {
+            "$missing": true
+          },
+          "new": 0
+        },
+        {
+          "path": "/value/element/outlined",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/element/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/element/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Section"
+        },
+        {
+          "path": "/value/fill",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/level",
+          "old": {
+            "$missing": true
+          },
+          "new": 2
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/element/bookmarked",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/depth",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/hanging-indent",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/level",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/offset",
+          "old": 0,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/outlined",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/element/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/supplement/text",
+          "old": "Section",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:223-232",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:358",
+        "02_shell/src/cli.rs:1464-1510"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "entry-omitted",
+          "product_observation_sha256": "348b7c22b3708d7370b01c5f5184ddacee841c7b66b8ec0285a22f59084ef560",
+          "oracle_observation_sha256": "dc9ad1164a3ea3420367636aa9b299b356a9c8cc1603e1dbcae0fcb18ac5d01e"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "entry-none",
+          "product_observation_sha256": "4ff684692b813b0c597393a767dfee3bff785968986502009842225aceb23af1",
+          "oracle_observation_sha256": "df1606da2902fe8e6588e08f40dddab0aeca53b17ed2a5e101d6cfdca9a08b3b"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "serialize-heading-json",
+          "product_observation_sha256": "02bd6973bc14960ddaf4a07959112a77f6634d8f55eb5f770d7ded2bf8a5ef74",
+          "oracle_observation_sha256": "612b7a74bea02bc1189169ec4880a613df77be2c76fb1f012872b64df5815211"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "supplement-receipt.json::serialize-eq-simple-json",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Constructor identity/known options replace its styled/child/styles transport in the same semantic position, retaining real outer wrappers. Remaining differences are omitted block false and, where input contains $x$, existing nested Equation legacy default fields. Exact differences are recorded below.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "374545b8cbf82c50c87753eb4d20fb54c673db72e3d0316dc50babbb28e6cf6f",
+      "old_to_new_differences": [
+        {
+          "path": "/value/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/stdlib/loading/encoding.rs:64-72",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:233-237",
+        "02_shell/src/cli.rs:1552-1575"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "eq-omitted",
+          "product_observation_sha256": "277613d0c809faf256ec5602d26260fe57152322a2b497221250cb818c9baa98",
+          "oracle_observation_sha256": "0da32e05380ec4b8ed0b091370d7d9848bc0c5a65f06da88a58333b0b14f807f"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "eq-block-unset",
+          "product_observation_sha256": "59c596fdf73b84624779ac8b6691365a33b1a37bc3c88f0c24a6d120b8bcb5ae",
+          "oracle_observation_sha256": "3ddee3a47c158d4b925ce78cf70c0d0ea325767fd65270f5c5a9d8eaaadf9bb8"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "serialize-eq-simple-json",
+          "product_observation_sha256": "658828e37594ac1cc53c8eda8e3728814d27d74247cafd1a726b21d15b91d27e",
+          "oracle_observation_sha256": "be69330e1de6f04968aeb5c7b3df54c32714b3f20742da644be47b8a159286a4"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "supplement-receipt.json::serialize-eq-simple-yaml",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Constructor identity/known options replace its styled/child/styles transport in the same semantic position, retaining real outer wrappers. Remaining differences are omitted block false and, where input contains $x$, existing nested Equation legacy default fields. Exact differences are recorded below.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "374545b8cbf82c50c87753eb4d20fb54c673db72e3d0316dc50babbb28e6cf6f",
+      "old_to_new_differences": [
+        {
+          "path": "/value/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/stdlib/loading/encoding.rs:64-72",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:233-237",
+        "02_shell/src/cli.rs:1552-1575"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "eq-omitted",
+          "product_observation_sha256": "277613d0c809faf256ec5602d26260fe57152322a2b497221250cb818c9baa98",
+          "oracle_observation_sha256": "0da32e05380ec4b8ed0b091370d7d9848bc0c5a65f06da88a58333b0b14f807f"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "eq-block-unset",
+          "product_observation_sha256": "59c596fdf73b84624779ac8b6691365a33b1a37bc3c88f0c24a6d120b8bcb5ae",
+          "oracle_observation_sha256": "3ddee3a47c158d4b925ce78cf70c0d0ea325767fd65270f5c5a9d8eaaadf9bb8"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "serialize-eq-simple-yaml",
+          "product_observation_sha256": "658828e37594ac1cc53c8eda8e3728814d27d74247cafd1a726b21d15b91d27e",
+          "oracle_observation_sha256": "be69330e1de6f04968aeb5c7b3df54c32714b3f20742da644be47b8a159286a4"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-encode-constructor",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Constructor identity/known options replace its styled/child/styles transport in the same semantic position, retaining real outer wrappers. Remaining differences are omitted block false and, where input contains $x$, existing nested Equation legacy default fields. Exact differences are recorded below.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "61505e07fc9224debf18bad8c58e1a75e220a77c38676e63ce324367a00d94fd",
+      "old_to_new_differences": [
+        {
+          "path": "/decoded_encoded_json/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/decoded_encoded_json/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/decoded_encoded_json/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/decoded_encoded_json/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/decoded_encoded_json/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/decoded_encoded_json/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/decoded_encoded_json/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/decoded_encoded_json/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value",
+          "old": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"block\": false,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}",
+          "new": "{\n  \"func\": \"equation\",\n  \"block\": false,\n  \"numbering\": null,\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"x\"\n  }\n}"
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/decoded_encoded_json/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value",
+          "old": "{\n  \"func\": \"equation\",\n  \"block\": false,\n  \"numbering\": null,\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"x\"\n  }\n}",
+          "new": "{\n  \"func\": \"equation\",\n  \"numbering\": null,\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"x\"\n  }\n}"
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/stdlib/loading/encoding.rs:64-72",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:233-237",
+        "02_shell/src/cli.rs:1552-1575"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "eq-omitted",
+          "product_observation_sha256": "277613d0c809faf256ec5602d26260fe57152322a2b497221250cb818c9baa98",
+          "oracle_observation_sha256": "0da32e05380ec4b8ed0b091370d7d9848bc0c5a65f06da88a58333b0b14f807f"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "eq-block-unset",
+          "product_observation_sha256": "59c596fdf73b84624779ac8b6691365a33b1a37bc3c88f0c24a6d120b8bcb5ae",
+          "oracle_observation_sha256": "3ddee3a47c158d4b925ce78cf70c0d0ea325767fd65270f5c5a9d8eaaadf9bb8"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "receipt_sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probe": "marker-encode-constructor",
+          "product_observation_sha256": "8be2f6ebb3dc418c8f60543d111e3fb9af04e3cd173e7abd516177ba897a6a67",
+          "oracle_observation_sha256": "26ec5e3267f3e6b552562e16134fd0ff0153ab334d23a5146463fe8bde1dbfd5"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-constructor-json",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Constructor identity/known options replace its styled/child/styles transport in the same semantic position, retaining real outer wrappers. Remaining differences are omitted block false and, where input contains $x$, existing nested Equation legacy default fields. Exact differences are recorded below.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "374545b8cbf82c50c87753eb4d20fb54c673db72e3d0316dc50babbb28e6cf6f",
+      "old_to_new_differences": [
+        {
+          "path": "/value/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/stdlib/loading/encoding.rs:64-72",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:233-237",
+        "02_shell/src/cli.rs:1552-1575"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "eq-omitted",
+          "product_observation_sha256": "277613d0c809faf256ec5602d26260fe57152322a2b497221250cb818c9baa98",
+          "oracle_observation_sha256": "0da32e05380ec4b8ed0b091370d7d9848bc0c5a65f06da88a58333b0b14f807f"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "eq-block-unset",
+          "product_observation_sha256": "59c596fdf73b84624779ac8b6691365a33b1a37bc3c88f0c24a6d120b8bcb5ae",
+          "oracle_observation_sha256": "3ddee3a47c158d4b925ce78cf70c0d0ea325767fd65270f5c5a9d8eaaadf9bb8"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "receipt_sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probe": "marker-semantic-constructor-json",
+          "product_observation_sha256": "658828e37594ac1cc53c8eda8e3728814d27d74247cafd1a726b21d15b91d27e",
+          "oracle_observation_sha256": "be69330e1de6f04968aeb5c7b3df54c32714b3f20742da644be47b8a159286a4"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-constructor-yaml",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Constructor identity/known options replace its styled/child/styles transport in the same semantic position, retaining real outer wrappers. Remaining differences are omitted block false and, where input contains $x$, existing nested Equation legacy default fields. Exact differences are recorded below.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "374545b8cbf82c50c87753eb4d20fb54c673db72e3d0316dc50babbb28e6cf6f",
+      "old_to_new_differences": [
+        {
+          "path": "/value/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/stdlib/loading/encoding.rs:64-72",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:233-237",
+        "02_shell/src/cli.rs:1552-1575"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "eq-omitted",
+          "product_observation_sha256": "277613d0c809faf256ec5602d26260fe57152322a2b497221250cb818c9baa98",
+          "oracle_observation_sha256": "0da32e05380ec4b8ed0b091370d7d9848bc0c5a65f06da88a58333b0b14f807f"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "eq-block-unset",
+          "product_observation_sha256": "59c596fdf73b84624779ac8b6691365a33b1a37bc3c88f0c24a6d120b8bcb5ae",
+          "oracle_observation_sha256": "3ddee3a47c158d4b925ce78cf70c0d0ea325767fd65270f5c5a9d8eaaadf9bb8"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "receipt_sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probe": "marker-semantic-constructor-yaml",
+          "product_observation_sha256": "658828e37594ac1cc53c8eda8e3728814d27d74247cafd1a726b21d15b91d27e",
+          "oracle_observation_sha256": "be69330e1de6f04968aeb5c7b3df54c32714b3f20742da644be47b8a159286a4"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-encode-outer-text",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Constructor identity/known options replace its styled/child/styles transport in the same semantic position, retaining real outer wrappers. Remaining differences are omitted block false and, where input contains $x$, existing nested Equation legacy default fields. Exact differences are recorded below.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "6ce40d3d007f54192562ef92dc6d31349533cebb8e440855f5dba0ce9d002e3a",
+      "old_to_new_differences": [
+        {
+          "path": "/decoded_encoded_json/child/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/decoded_encoded_json/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/decoded_encoded_json/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/decoded_encoded_json/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/decoded_encoded_json/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value",
+          "old": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"styled\",\n    \"child\": {\n      \"func\": \"equation\",\n      \"block\": false,\n      \"body\": {\n        \"func\": \"text\",\n        \"text\": \"x\"\n      }\n    },\n    \"styles\": \"styles(..)\"\n  },\n  \"styles\": \"styles(..)\"\n}",
+          "new": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"block\": false,\n    \"numbering\": null,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}"
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/decoded_encoded_json/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value",
+          "old": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"block\": false,\n    \"numbering\": null,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}",
+          "new": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"numbering\": null,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}"
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/stdlib/loading/encoding.rs:64-72",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:233-237",
+        "02_shell/src/cli.rs:1552-1575"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "eq-omitted",
+          "product_observation_sha256": "277613d0c809faf256ec5602d26260fe57152322a2b497221250cb818c9baa98",
+          "oracle_observation_sha256": "0da32e05380ec4b8ed0b091370d7d9848bc0c5a65f06da88a58333b0b14f807f"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "eq-block-unset",
+          "product_observation_sha256": "59c596fdf73b84624779ac8b6691365a33b1a37bc3c88f0c24a6d120b8bcb5ae",
+          "oracle_observation_sha256": "3ddee3a47c158d4b925ce78cf70c0d0ea325767fd65270f5c5a9d8eaaadf9bb8"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "receipt_sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probe": "marker-encode-outer-text",
+          "product_observation_sha256": "fe13b4e8357ec73e3d4d75d35f582dbea57f0d0c28e166ec34763c3a15bb5404",
+          "oracle_observation_sha256": "703bd113b25c2c16fc8576d810b492ad0766ad42c22acab63d60092fc469e0ed"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-outer-text-json",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Constructor identity/known options replace its styled/child/styles transport in the same semantic position, retaining real outer wrappers. Remaining differences are omitted block false and, where input contains $x$, existing nested Equation legacy default fields. Exact differences are recorded below.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "68dd0434bb3d270cbfa48e10b5f16c7cc13ad9679f5e4969b80967cb138a0deb",
+      "old_to_new_differences": [
+        {
+          "path": "/value/child/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/stdlib/loading/encoding.rs:64-72",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:233-237",
+        "02_shell/src/cli.rs:1552-1575"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "eq-omitted",
+          "product_observation_sha256": "277613d0c809faf256ec5602d26260fe57152322a2b497221250cb818c9baa98",
+          "oracle_observation_sha256": "0da32e05380ec4b8ed0b091370d7d9848bc0c5a65f06da88a58333b0b14f807f"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "eq-block-unset",
+          "product_observation_sha256": "59c596fdf73b84624779ac8b6691365a33b1a37bc3c88f0c24a6d120b8bcb5ae",
+          "oracle_observation_sha256": "3ddee3a47c158d4b925ce78cf70c0d0ea325767fd65270f5c5a9d8eaaadf9bb8"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "receipt_sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probe": "marker-semantic-outer-text-json",
+          "product_observation_sha256": "e1ebc3b60022194e83f7774bf662f4bf1d0dc46a01c5aaa91b17e493a6abc16b",
+          "oracle_observation_sha256": "477fee9c62ebebd242febbdac4112e357957ee014a02acfb16e6933966f00754"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-outer-text-yaml",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Constructor identity/known options replace its styled/child/styles transport in the same semantic position, retaining real outer wrappers. Remaining differences are omitted block false and, where input contains $x$, existing nested Equation legacy default fields. Exact differences are recorded below.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "68dd0434bb3d270cbfa48e10b5f16c7cc13ad9679f5e4969b80967cb138a0deb",
+      "old_to_new_differences": [
+        {
+          "path": "/value/child/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/stdlib/loading/encoding.rs:64-72",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:233-237",
+        "02_shell/src/cli.rs:1552-1575"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "eq-omitted",
+          "product_observation_sha256": "277613d0c809faf256ec5602d26260fe57152322a2b497221250cb818c9baa98",
+          "oracle_observation_sha256": "0da32e05380ec4b8ed0b091370d7d9848bc0c5a65f06da88a58333b0b14f807f"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "eq-block-unset",
+          "product_observation_sha256": "59c596fdf73b84624779ac8b6691365a33b1a37bc3c88f0c24a6d120b8bcb5ae",
+          "oracle_observation_sha256": "3ddee3a47c158d4b925ce78cf70c0d0ea325767fd65270f5c5a9d8eaaadf9bb8"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "receipt_sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probe": "marker-semantic-outer-text-yaml",
+          "product_observation_sha256": "e1ebc3b60022194e83f7774bf662f4bf1d0dc46a01c5aaa91b17e493a6abc16b",
+          "oracle_observation_sha256": "477fee9c62ebebd242febbdac4112e357957ee014a02acfb16e6933966f00754"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-encode-nested-text",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Only the marked constructor wrapper is removed and explicit numbering recovered. Two genuine text wrappers remain; vanilla merges them into one. Old product had those same two text wrappers plus the constructor wrapper. Extra omitted block false remains existing presence debt.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "6874427c6570305e8491e7aa0e81172d9644f48e0d81a7762b4b1008a08258e2",
+      "old_to_new_differences": [
+        {
+          "path": "/decoded_encoded_json/child/child/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value",
+          "old": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"styled\",\n    \"child\": {\n      \"func\": \"styled\",\n      \"child\": {\n        \"func\": \"equation\",\n        \"block\": false,\n        \"body\": {\n          \"func\": \"text\",\n          \"text\": \"x\"\n        }\n      },\n      \"styles\": \"styles(..)\"\n    },\n    \"styles\": \"styles(..)\"\n  },\n  \"styles\": \"styles(..)\"\n}",
+          "new": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"styled\",\n    \"child\": {\n      \"func\": \"equation\",\n      \"block\": false,\n      \"numbering\": null,\n      \"body\": {\n        \"func\": \"text\",\n        \"text\": \"x\"\n      }\n    },\n    \"styles\": \"styles(..)\"\n  },\n  \"styles\": \"styles(..)\"\n}"
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/decoded_encoded_json/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/decoded_encoded_json/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/decoded_encoded_json/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/decoded_encoded_json/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value",
+          "old": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"styled\",\n    \"child\": {\n      \"func\": \"equation\",\n      \"block\": false,\n      \"numbering\": null,\n      \"body\": {\n        \"func\": \"text\",\n        \"text\": \"x\"\n      }\n    },\n    \"styles\": \"styles(..)\"\n  },\n  \"styles\": \"styles(..)\"\n}",
+          "new": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"numbering\": null,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}"
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/stdlib/text/constructor.rs:275",
+        "01_core/src/compiler/stdlib/loading/encoding.rs:64-72",
+        "02_shell/src/cli.rs:1661-1673",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:233-237"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "receipt_sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probe": "marker-encode-nested-text",
+          "product_observation_sha256": "6bd91db6fa982fe659c09ee87b738ad906fc8fd530d17027fccede0fab4357df",
+          "oracle_observation_sha256": "703bd113b25c2c16fc8576d810b492ad0766ad42c22acab63d60092fc469e0ed"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "receipt_sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probe": "marker-semantic-outer-text-json",
+          "product_observation_sha256": "e1ebc3b60022194e83f7774bf662f4bf1d0dc46a01c5aaa91b17e493a6abc16b",
+          "oracle_observation_sha256": "477fee9c62ebebd242febbdac4112e357957ee014a02acfb16e6933966f00754"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-nested-text-json",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Only the marked constructor wrapper is removed and explicit numbering recovered. Two genuine text wrappers remain; vanilla merges them into one. Old product had those same two text wrappers plus the constructor wrapper. Extra omitted block false remains existing presence debt.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "ed37f5c3c1cb2d8a62a109304a9906dfa4b80746e5e10f9e7cdc0f834a99d91d",
+      "old_to_new_differences": [
+        {
+          "path": "/value/child/child/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/child/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/child/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/child/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/child/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/stdlib/text/constructor.rs:275",
+        "01_core/src/compiler/stdlib/loading/encoding.rs:64-72",
+        "02_shell/src/cli.rs:1661-1673",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:233-237"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "receipt_sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probe": "marker-semantic-nested-text-json",
+          "product_observation_sha256": "36f4a3ee644e2e7ecb3994e896bb37f016d66eaa28f5e4236f1946544488c853",
+          "oracle_observation_sha256": "477fee9c62ebebd242febbdac4112e357957ee014a02acfb16e6933966f00754"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "receipt_sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probe": "marker-semantic-outer-text-json",
+          "product_observation_sha256": "e1ebc3b60022194e83f7774bf662f4bf1d0dc46a01c5aaa91b17e493a6abc16b",
+          "oracle_observation_sha256": "477fee9c62ebebd242febbdac4112e357957ee014a02acfb16e6933966f00754"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-nested-text-yaml",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Only the marked constructor wrapper is removed and explicit numbering recovered. Two genuine text wrappers remain; vanilla merges them into one. Old product had those same two text wrappers plus the constructor wrapper. Extra omitted block false remains existing presence debt.",
+      "recommendation": "Eligible for exact scoped review only; not full parity and no blanket acceptance.",
+      "candidate_observation_sha256": "ed37f5c3c1cb2d8a62a109304a9906dfa4b80746e5e10f9e7cdc0f834a99d91d",
+      "old_to_new_differences": [
+        {
+          "path": "/value/child/child/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/child/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/child/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/child/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/child/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/stdlib/text/constructor.rs:275",
+        "01_core/src/compiler/stdlib/loading/encoding.rs:64-72",
+        "02_shell/src/cli.rs:1661-1673",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:233-237"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "receipt_sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probe": "marker-semantic-nested-text-yaml",
+          "product_observation_sha256": "36f4a3ee644e2e7ecb3994e896bb37f016d66eaa28f5e4236f1946544488c853",
+          "oracle_observation_sha256": "477fee9c62ebebd242febbdac4112e357957ee014a02acfb16e6933966f00754"
+        },
+        {
+          "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "receipt_sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probe": "marker-semantic-outer-text-json",
+          "product_observation_sha256": "e1ebc3b60022194e83f7774bf662f4bf1d0dc46a01c5aaa91b17e493a6abc16b",
+          "oracle_observation_sha256": "477fee9c62ebebd242febbdac4112e357957ee014a02acfb16e6933966f00754"
+        }
+      ],
+      "fresh_review_basis": "Exact same language observation as independently reviewed first-candidate partial repair; fresh oracle and raw baseline checked by separate assessor."
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-encode-show-set-text",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Lexical set text now preserves its real outer Styled child/styles boundary, while marked inner Equation exposes identity and explicit numbering none. The only remaining decoded value difference is child.block=false for omitted block, independently established before this batch.",
+      "recommendation": "Scoped repair only; omitted Equation block presence remains open.",
+      "candidate_observation_sha256": "6ce40d3d007f54192562ef92dc6d31349533cebb8e440855f5dba0ce9d002e3a",
+      "old_to_new_differences": [
+        {
+          "path": "/decoded_encoded_json/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value",
+          "old": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"block\": false,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}",
+          "new": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"block\": false,\n    \"numbering\": null,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}"
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/decoded_encoded_json/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value",
+          "old": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"block\": false,\n    \"numbering\": null,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}",
+          "new": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"numbering\": null,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}"
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/eval/expression_dispatch.rs:style_code_tail",
+        "01_core/src/compiler/stdlib/loading/encoding.rs:textual_content_fields",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:content_field Equation block"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "receipt_sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probe": "marker-encode-show-set-text",
+          "product_observation_sha256": "8be2f6ebb3dc418c8f60543d111e3fb9af04e3cd173e7abd516177ba897a6a67",
+          "oracle_observation_sha256": "703bd113b25c2c16fc8576d810b492ad0766ad42c22acab63d60092fc469e0ed"
+        },
+        {
+          "receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "eq-block-unset",
+          "product_observation_sha256": "59c596fdf73b84624779ac8b6691365a33b1a37bc3c88f0c24a6d120b8bcb5ae",
+          "oracle_observation_sha256": "3ddee3a47c158d4b925ce78cf70c0d0ea325767fd65270f5c5a9d8eaaadf9bb8"
+        },
+        {
+          "receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "eq-omitted",
+          "product_observation_sha256": "277613d0c809faf256ec5602d26260fe57152322a2b497221250cb818c9baa98",
+          "oracle_observation_sha256": "0da32e05380ec4b8ed0b091370d7d9848bc0c5a65f06da88a58333b0b14f807f"
+        }
+      ],
+      "fresh_review_basis": "Previously introduced lexical-style loss is now positively required to match the oracle outer structure; residual is checked to be exactly the already measured omitted block value."
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-show-set-text-json",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Lexical set text now preserves its real outer Styled child/styles boundary, while marked inner Equation exposes identity and explicit numbering none. The only remaining decoded value difference is child.block=false for omitted block, independently established before this batch.",
+      "recommendation": "Scoped repair only; omitted Equation block presence remains open.",
+      "candidate_observation_sha256": "68dd0434bb3d270cbfa48e10b5f16c7cc13ad9679f5e4969b80967cb138a0deb",
+      "old_to_new_differences": [
+        {
+          "path": "/value/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/eval/expression_dispatch.rs:style_code_tail",
+        "01_core/src/compiler/stdlib/loading/encoding.rs:textual_content_fields",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:content_field Equation block"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "receipt_sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probe": "marker-semantic-show-set-text-json",
+          "product_observation_sha256": "658828e37594ac1cc53c8eda8e3728814d27d74247cafd1a726b21d15b91d27e",
+          "oracle_observation_sha256": "477fee9c62ebebd242febbdac4112e357957ee014a02acfb16e6933966f00754"
+        },
+        {
+          "receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "eq-block-unset",
+          "product_observation_sha256": "59c596fdf73b84624779ac8b6691365a33b1a37bc3c88f0c24a6d120b8bcb5ae",
+          "oracle_observation_sha256": "3ddee3a47c158d4b925ce78cf70c0d0ea325767fd65270f5c5a9d8eaaadf9bb8"
+        },
+        {
+          "receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "eq-omitted",
+          "product_observation_sha256": "277613d0c809faf256ec5602d26260fe57152322a2b497221250cb818c9baa98",
+          "oracle_observation_sha256": "0da32e05380ec4b8ed0b091370d7d9848bc0c5a65f06da88a58333b0b14f807f"
+        }
+      ],
+      "fresh_review_basis": "Previously introduced lexical-style loss is now positively required to match the oracle outer structure; residual is checked to be exactly the already measured omitted block value."
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-show-set-text-yaml",
+      "runner_classification": "REGRESSION",
+      "independent_assessment": "partial measured repair; existing debt remains",
+      "reason": "Lexical set text now preserves its real outer Styled child/styles boundary, while marked inner Equation exposes identity and explicit numbering none. The only remaining decoded value difference is child.block=false for omitted block, independently established before this batch.",
+      "recommendation": "Scoped repair only; omitted Equation block presence remains open.",
+      "candidate_observation_sha256": "68dd0434bb3d270cbfa48e10b5f16c7cc13ad9679f5e4969b80967cb138a0deb",
+      "old_to_new_differences": [
+        {
+          "path": "/value/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "candidate_to_oracle_differences": [
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "source_cause": [
+        "01_core/src/compiler/eval/expression_dispatch.rs:style_code_tail",
+        "01_core/src/compiler/stdlib/loading/encoding.rs:textual_content_fields",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:content_field Equation block"
+      ],
+      "independent_baseline_evidence": [
+        {
+          "receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/artifact-marker-receipt.json",
+          "receipt_sha256": "fdc6de8b3e21bd2a356661812301cb904f40df0bb212681ac8f628e99424d9f2",
+          "probe": "marker-semantic-show-set-text-yaml",
+          "product_observation_sha256": "658828e37594ac1cc53c8eda8e3728814d27d74247cafd1a726b21d15b91d27e",
+          "oracle_observation_sha256": "477fee9c62ebebd242febbdac4112e357957ee014a02acfb16e6933966f00754"
+        },
+        {
+          "receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/supplement-receipt.json",
+          "receipt_sha256": "847f335ecc116a07ae62a153aed9182be1543d13e22bf60f28be1685ffcd2b76",
+          "probe": "eq-block-unset",
+          "product_observation_sha256": "59c596fdf73b84624779ac8b6691365a33b1a37bc3c88f0c24a6d120b8bcb5ae",
+          "oracle_observation_sha256": "3ddee3a47c158d4b925ce78cf70c0d0ea325767fd65270f5c5a9d8eaaadf9bb8"
+        },
+        {
+          "receipt": "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json",
+          "receipt_sha256": "74d846edfc68b3700bd3ea4466dc278cefa52858a6c3d6150c24518a8d867cbb",
+          "probe": "eq-omitted",
+          "product_observation_sha256": "277613d0c809faf256ec5602d26260fe57152322a2b497221250cb818c9baa98",
+          "oracle_observation_sha256": "0da32e05380ec4b8ed0b091370d7d9848bc0c5a65f06da88a58333b0b14f807f"
+        }
+      ],
+      "fresh_review_basis": "Previously introduced lexical-style loss is now positively required to match the oracle outer structure; residual is checked to be exactly the already measured omitted block value."
+    }
+  ],
+  "unreviewed_changes": [],
+  "scope": "Fresh review preserves raw failure/global parity false. Prior partial repair observations must be identical; newly repaired lexical-style path is constrained to exact oracle outer structure plus established omitted-block debt. Unknown changes fail closed."
+}

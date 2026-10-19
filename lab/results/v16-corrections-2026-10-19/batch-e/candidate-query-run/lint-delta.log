@@ -1,0 +1,39 @@
+{
+  "utc": "2026-10-19T19:51:53.979959+00:00",
+  "closed_ids": [
+    "V16-001",
+    "V16-002",
+    "V16-003",
+    "V16-004",
+    "V16-083",
+    "V16-084",
+    "V16-085"
+  ],
+  "remaining_v16": 37,
+  "counts_before": {
+    "V16:error": 44,
+    "V19:note": 1222,
+    "V20:note": 876
+  },
+  "counts_after": {
+    "V16:error": 37,
+    "V19:note": 1237,
+    "V20:note": 877
+  },
+  "new_errors_or_warnings": 0,
+  "outside_scope_exact": true,
+  "preserved_finding_movements": [
+    {
+      "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+      "old_line": 110,
+      "new_line": 112,
+      "rule": "V16",
+      "message": {
+        "text": "wildcard `_ =>` ignora variantes silenciosamente com `{}` em enum de dom\u00ednio"
+      },
+      "level": "error",
+      "unchanged_source_line": "            _ => {}"
+    }
+  ]
+}
+Notes to review: 26 removed/moved, 42 added/moved

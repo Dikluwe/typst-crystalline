@@ -1,0 +1,38 @@
+   Compiling typst-shell v0.1.0 (/repos/Antigravity/typst-crystalline/02_shell)
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 25.84s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_shell-ceb74312f5e50162)
+
+running 8 tests
+test cli::v16_e_serialization_tests::v16_e_attachment_presence_distinguishes_omitted_none_and_empty ... ok
+test cli::v16_e_serialization_tests::v16_e_canonical_names_keep_shape_and_math_overrides ... ok
+test cli::v16_e_serialization_tests::v16_e_carriers_preserve_visual_morphology_and_label_order ... FAILED
+test cli::v16_e_serialization_tests::v16_e_legacy_body_probe_retains_conditional_absence ... ok
+test cli::v16_e_serialization_tests::v16_e_marked_equation_serializes_known_fields_without_style_wrapper ... FAILED
+test cli::v16_e_serialization_tests::v16_e_query_filters_fields_and_checks_cardinality_first ... ok
+test cli::v16_e_serialization_tests::v16_e_snapshots_are_authoritative_through_all_carriers ... ok
+test cli::v16_e_serialization_tests::v16_e_specialized_fields_keep_order_and_recursive_values ... ok
+
+failures:
+
+---- cli::v16_e_serialization_tests::v16_e_carriers_preserve_visual_morphology_and_label_order stdout ----
+
+thread 'cli::v16_e_serialization_tests::v16_e_carriers_preserve_visual_morphology_and_label_order' (1507574) panicked at 02_shell/src/cli.rs:3365:13:
+assertion failed: encoded.contains("label: <kept>")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- cli::v16_e_serialization_tests::v16_e_marked_equation_serializes_known_fields_without_style_wrapper stdout ----
+
+thread 'cli::v16_e_serialization_tests::v16_e_marked_equation_serializes_known_fields_without_style_wrapper' (1507576) panicked at 02_shell/src/cli.rs:3641:9:
+assertion `left == right` failed
+  left: Object {"func": String("styled"), "child": Object {"func": String("equation"), "block": Bool(false), "numbering": Null, "number-align": String("end + horizon"), "supplement": Object {"func": String("text"), "text": String("Equation")}, "alt": Null, "body": Object {"func": String("text"), "text": String("x")}}, "styles": String("styles(..)")}
+ right: Object {"func": String("equation"), "block": Bool(false), "numbering": Null, "alt": String("description"), "body": Object {"func": String("text"), "text": String("x")}}
+
+
+failures:
+    cli::v16_e_serialization_tests::v16_e_carriers_preserve_visual_morphology_and_label_order
+    cli::v16_e_serialization_tests::v16_e_marked_equation_serializes_known_fields_without_style_wrapper
+
+test result: FAILED. 6 passed; 2 failed; 0 ignored; 0 measured; 99 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p typst-shell --lib`

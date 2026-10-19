@@ -1,5 +1,8 @@
 # L0 — compiler/stdlib/structural/math/equation
-Hash do Código: 8b7fae81
+Hash do Código: 2e911906
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml sha256:947456f05619642c93f67721453e4ad5577557679dbc422a20a48f397ae97ded
 
 **Layer:** L1
 **Exclusive consumer:** `01_core/src/compiler/stdlib/structural/math/equation.rs`
@@ -17,6 +20,35 @@ Keep the existing style-chain transport: only present named options add entries,
 
 The parent `math.rs` retains static binding registration. The structural hub reexports the four helpers directly from this child with the same visibility and `compiler::stdlib` paths. No public signature, default, pipeline phase or compatibility change is authorized.
 
-## Acceptance
+## Constructor provenance and reflection
+
+At HEAD `5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9`, native construction at
+`01_core/src/compiler/stdlib/structural/math/equation.rs:175-195` transports
+explicit options in Styled without recording their constructor origin.
+`entities/content/identity.rs:13-31` consequently names that object styled.
+Current-pin evidence in
+`lab/results/v16-corrections-2026-10-19/batch-e/agents/language/` distinguishes
+the equation constructor from ordinary external Styled. Upstream
+`lab/typst-original/crates/typst-library/src/math/equation.rs:62-131` declares
+the options and required body on Equation; the wrapper is a local transport
+mechanism, not a new language element.
+
+Only when the already-existing explicit-option custom delta is nonempty, append
+the private `equation.constructor` Bool(true) marker before wrapping. Omitted
+options, including block-only calls, still produce the bare Equation. Preserve
+the original validated option Values, explicit none/auto and callbacks without
+executing them. Do not infer constructor origin from an equation.* property key
+on an unrelated Styled. The marker is internal metadata, never a public field;
+its consumers own their private bounded classifications. No new public helper,
+signature, carrier field, phase or default is authorized. This is an internal
+language-parity correction under continuous ADR-0127 with L0 before code.
+
+Co-located tests invoke the actual native and an alias: explicit options retain
+equation identity, omission/block-only stay bare, option callbacks never execute,
+and invalid arguments retain their diagnostics. Identity/reflection/serialization
+consumers must distinguish valid marked transport from external/unmarked Styled.
+Record real baseline RED and corrected GREEN, then the existing suites/lineage.
+
+## Regression acceptance
 
 P1140 regressions and a local test of supplement/alt cast distinction remain green. The full core suite, `cargo build` and `crystalline-lint .` remain green. Header ownership is 1:1. No speedup is claimed without measurement.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/expression_dispatch.md
-//! @prompt-hash ed183332
+//! @prompt-hash 9a61fb14
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -20,6 +20,17 @@ fn style_code_tail(content: Content, styles: crate::entities::style::Styles) -> 
             style_code_tail(source.body.clone(), styles).with_source_span(source.span)
         }
         Content::Styled(inner) => {
+            if inner
+                .styles
+                .delta()
+                .custom
+                .iter()
+                .rev()
+                .find(|(key, _)| key == "equation.constructor")
+                .is_some_and(|(_, value)| matches!(value, Value::Bool(true)))
+            {
+                return Content::styled(Content::Styled(inner), styles);
+            }
             let styles = StyleChain::empty()
                 .push_styles(&styles)
                 .push_styles(&inner.styles)
@@ -1040,6 +1051,76 @@ mod v16_c_effect_tests {
             library: Library::new(),
             book: FontBook::new(),
             source: Source::new(id, text.into()),
+        }
+    }
+
+    #[test]
+    fn v16_e_external_set_style_keeps_equation_constructor_boundary() {
+        use crate::entities::layout_types::Color;
+        use crate::entities::style::{Style, Styles};
+
+        let constructor = Content::styled(
+            Content::equation(Content::text("x"), false),
+            Styles::new()
+                .push_custom("equation.numbering", Value::None)
+                .push_custom("equation.constructor", Value::Bool(true)),
+        );
+        let span = Span::from_range(
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+            4..8,
+        );
+        let red = Color::rgb(255, 0, 0);
+        let result = style_code_tail(
+            constructor.with_source_span(span),
+            Styles::from_iter([Style::Fill(red.clone())]),
+        );
+        assert_eq!(result.elem_name(), "styled");
+        assert_eq!(result.source_span(), span);
+        assert_eq!(result.get_field("body"), None);
+        let Content::Styled(outer) = result.source_body() else {
+            panic!("external set must retain its Styled language object")
+        };
+        assert_eq!(outer.styles.delta().fill, Some(red));
+        assert!(!outer
+            .styles
+            .delta()
+            .custom
+            .iter()
+            .any(|(key, _)| key == "equation.constructor"));
+        assert_eq!(outer.body.elem_name(), "equation");
+        assert_eq!(outer.body.get_field("numbering"), Some(Value::None));
+        let Content::Styled(inner) = outer.body.source_body() else {
+            panic!("the constructor transport must remain inside the external style")
+        };
+        assert!(inner.styles.delta().custom.iter().any(|(key, value)| {
+            key == "equation.constructor" && matches!(value, Value::Bool(true))
+        }));
+    }
+
+    #[test]
+    fn v16_e_external_set_style_preserves_ordinary_merge_and_latest_marker() {
+        use crate::entities::layout_types::Color;
+        use crate::entities::style::{Style, Styles};
+
+        let red = Color::rgb(255, 0, 0);
+        let blue = Color::rgb(0, 0, 255);
+        for marker in [None, Some(Value::Bool(false)), Some(Value::None)] {
+            let mut inner_styles = Styles::from_iter([Style::Fill(blue.clone())]);
+            if let Some(marker) = marker {
+                inner_styles = inner_styles
+                    .push_custom("equation.constructor", Value::Bool(true))
+                    .push_custom("equation.constructor", marker);
+            }
+            let result = style_code_tail(
+                Content::styled(Content::text("ordinary"), inner_styles),
+                Styles::from_iter([Style::Fill(red.clone())]),
+            );
+            let Content::Styled(merged) = result else {
+                panic!("ordinary styles retain the existing merge")
+            };
+            assert!(matches!(merged.body, Content::Text(_)));
+            assert_eq!(merged.styles.delta().fill, Some(blue.clone()));
+            assert_eq!(merged.body.elem_name(), "text");
         }
     }
 

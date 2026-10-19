@@ -1,0 +1,47 @@
+{
+  "utc": "2026-10-19T19:27:56.913753+00:00",
+  "assessor_sha256": "344120e2867b1f8fd995411b162f3e9f610da14250cd42b1ac5ca434d9c60e99",
+  "checks": [
+    {
+      "mutation": "receipt_sha256",
+      "returncode": 1,
+      "case": "receipt.json::eq-explicit",
+      "expected_failure": "independent evidence receipt path/digest is not frozen",
+      "observed_errors": [
+        "independent evidence receipt path/digest is not frozen"
+      ],
+      "assessment_sha256": "f9601b8cc32a7dcc13edad5d7e827fd15b0375a71a09f780ca6fc2a441e08d4e"
+    },
+    {
+      "mutation": "receipt",
+      "returncode": 1,
+      "case": "receipt.json::eq-explicit",
+      "expected_failure": "independent evidence receipt path/digest is not frozen",
+      "observed_errors": [
+        "independent evidence receipt path/digest is not frozen"
+      ],
+      "assessment_sha256": "b9735b06681e216dd08f726c997c6469999d36d0ec6f7c9127e4a3536dbffe58"
+    },
+    {
+      "mutation": "probe",
+      "returncode": 1,
+      "case": "receipt.json::eq-explicit",
+      "expected_failure": "independent evidence probe does not exist",
+      "observed_errors": [
+        "independent evidence probe does not exist"
+      ],
+      "assessment_sha256": "5ebcb198b52f2c67dc6c937ccec7faf1aaa1ea3f476d747411ebbc99287977bc"
+    },
+    {
+      "mutation": "product_observation_sha256",
+      "returncode": 1,
+      "case": "receipt.json::eq-explicit",
+      "expected_failure": "independent evidence observation digests do not match named probe",
+      "observed_errors": [
+        "independent evidence observation digests do not match named probe"
+      ],
+      "assessment_sha256": "69d82cf1856008985970bb5daa5dcb7a14fba1a3b5304be4b3d5fc8322168577"
+    }
+  ],
+  "product_invocations": 0
+}

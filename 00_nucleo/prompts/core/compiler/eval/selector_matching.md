@@ -1,5 +1,5 @@
 # L0 — compiler/eval/selector_matching
-Hash do Código: d8d9568f
+Hash do Código: 13d5d87d
 
 
 
@@ -10,6 +10,7 @@ Hash do Código: d8d9568f
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
 - 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:7e7373acce2b00247d18b9c5ea1b9d53833275997cd2c304e9d919d2cce10648
 - 00_nucleo/prompts/_nuclei/transform-semantics.toml sha256:6345ad9c825988872fb53b94c574f61e85a7c21074597400c33bd13ae6a3f68d
 
@@ -403,3 +404,62 @@ Source/ShowRecipe/Located/Realized-visual heading test must fail before repair
 and pass through both direct native_element_matches and the NativeElement
 selector entry. Do not confuse this retained-value passthrough with a neutral
 fallback or move the closed identity decision into a helper.
+
+## Realized Equation occurrence filters
+
+### Current measurement before correction
+
+At HEAD `5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9`, the uncommitted
+candidate's full-suite log
+`lab/results/v16-corrections-2026-10-19/batch-e/validation/tests-domain-infra.log`
+reports the existing Equation where test failing at `selector_matching.rs:1309`.
+Current-pin receipts
+`batch-e/agents/language/realized-query/receipt.json` and
+`batch-e/agents/language/realized-query-controls/receipt.json`, under that results
+root, begin at 2026-10-19T19:44:06.713704+00:00 and
+2026-10-19T19:44:31.869074+00:00. They preserve exact sources, commands,
+working-tree inputs, binaries and outputs against oracle commit
+`bd5ebec285505889e8ff1d4f68804ab147a699f3`. Bare native and label queries select
+one occurrence, but block/body/numbering/alt projection and where filters lose
+that occurrence in the candidate. The oracle retains the captured values.
+
+The actual producer `introspect/from_tags/equations.rs:119–166` wraps the
+semantic Equation in unmarked Styled and stores fields=None. Native identity
+still accepts this transport at `selector_matching.rs:333–335`; legacy filter
+projection at `:500–520` reaches the now constructor-gated getter. The old test's
+empty Styled fixture models this historical realized view, not a valid explicit
+constructor delta. Pinned upstream `foundations/selector.rs:132–138` compares
+element identity and captured field values; math/equation.rs:175–200 synthesizes
+its supplement. This is language selection/morphology, not an obligation to
+retain a particular Styled representation.
+
+### Consumer responsibility and preservation
+
+The child owner `00_nucleo/prompts/core/compiler/introspect/from_tags/equations.md`
+owns producing the realized semantic Equation and its complete ordered snapshot;
+its parent owns composition, not duplicate snapshot construction. This selector
+owner consumes that occurrence through the existing authoritative Some path.
+The pinned snapshot nucleus applies: missing keys in Some do not fall back to
+content or a label index. Preserve native aliases, recursive language equality,
+body/block match and mismatch, fake-native rejection, and Some(empty) authority.
+Do not execute the constructor or option callbacks while matching.
+
+Keep the existing selector algorithms unchanged for this correction. Replace
+only the historical synthetic realized-wrapper fixture with an invocation of the
+existing public realized-equation producer, using existing tags and occurrence
+storage. Assert the same positive native/body/block behavior on its result before
+producer repair, so the real missing-field failure remains RED. Add captured
+numbering/alt/supplement/label positive and mismatch controls on independently
+produced occurrences. A deliberately empty snapshot remains a negative control.
+An ordinary external Styled with no snapshot must not borrow Equation body/block
+fields; this does not broaden or rewrite the separately ratified native identity
+predicate. No test may insert a constructor marker into a realized fixture to
+hide the producer dependency.
+
+This supersedes only the historical realized-wrapper representation assumption
+in the carrier evidence above, preserving its intended where outcomes and outer
+captured values. No public facade, entity field, signature, product mode, phase
+or compatibility change is introduced. L0 first, parent-controlled RED on actual
+producer fixtures, then producer-owner implementation and all existing selector,
+query, field, serialization and full-suite gates. The selector owner changes only
+tests unless further measured evidence independently authorizes algorithm work.

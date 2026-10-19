@@ -1,0 +1,25 @@
+{
+  "utc": "2026-10-19T19:46:10.803291+00:00",
+  "scope": "Dedicated realized Equation query regression corpus; original 173-case manifest unchanged. Every candidate observation must equal fresh unchanged pinned oracle, no exceptions.",
+  "receipts": [
+    {
+      "file": "realized-query/receipt.json",
+      "sha256": "695695496ee53730b4387c535babe6ad8bdef8764f8cb514a119c13bb7c91953",
+      "cases": 16,
+      "product_sha256": "77c665d9cc76a7ae35a92d41621a7084abbb4544e11d8100956079348f859916"
+    },
+    {
+      "file": "realized-query-controls/receipt.json",
+      "sha256": "4c2a6ab14f3ad04df3441f1d81d25024122a89e46c387bbf9a567bf3c60c5c88",
+      "cases": 12,
+      "product_sha256": "77c665d9cc76a7ae35a92d41621a7084abbb4544e11d8100956079348f859916"
+    },
+    {
+      "file": "realized-query-defaults/receipt.json",
+      "sha256": "79abdce33e5c0a250da8e9e1347040ada172bf40d8038986a791296fbff478c7",
+      "cases": 11,
+      "product_sha256": "77c665d9cc76a7ae35a92d41621a7084abbb4544e11d8100956079348f859916"
+    }
+  ],
+  "cases": 39
+}

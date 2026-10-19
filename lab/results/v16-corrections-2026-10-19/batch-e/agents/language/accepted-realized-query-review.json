@@ -1,0 +1,411 @@
+{
+  "utc": "2026-10-19T20:12:57.038786+00:00",
+  "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/accepted-realized-query-replay/receipt.json",
+  "receipt_sha256": "b71f85531f228682cc903f9af1e78bdfb67e9878b364e821964acc6107e9ddc4",
+  "candidate_receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/candidate-realized-query-replay/receipt.json",
+  "candidate_receipt_sha256": "74bf12bab8b5a1e7cfa170ba851e2d67789ecbd33823034601441d67ca66d40e",
+  "manifest": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/realized-query-manifest.json",
+  "manifest_sha256": "e9b9253e9f4664dc731bdb409ee97492fa1016db3bd11e8d66fcf4bcd8ae2563",
+  "candidate_binary_sha256": "3e54ac822445804779c826acdb3f9a7553928a8e8d628cdac4a89b25bf553554",
+  "case_count": 39,
+  "counts": {
+    "PRESERVED": 1,
+    "REPAIRED": 38,
+    "REGRESSION": 0
+  },
+  "comparison": "Recursive values distinguish Bool from numbers while retaining numeric int/float equality; arrays retain order. Source bytes and argv beyond replay source paths are exact.",
+  "checks": [
+    {
+      "id": "realized-query/receipt.json::explicit-field-block",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "1a34ddc34042f6e4a07d544b78c72fd6bcafb2e99f1ed871cddadda7207e6600",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query/receipt.json::explicit-field-body",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "822eca441d3e7421aefc64f74e623f3115a4056b2a0d4cbd7ec300c8f45b9e3e",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query/receipt.json::explicit-field-numbering",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "d0af536df878a9b7d58b288ab31f4805e5760d627818b7c4d5ad47a8a14a35e7",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query/receipt.json::explicit-field-alt",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "a93ed2087d92ff43a0a8baed86b12a5880b42870512267040ae6747da7ede173",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query/receipt.json::explicit-where-block",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "a5234b0eeb0358c132e4b4722d5703222764ed3d3d34af0967c860d43a48545a",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query/receipt.json::explicit-where-body",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "0d735a55b24825e2ad387b62f97baadb4cd0d78f2512d9050b45302321aa3e57",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query/receipt.json::explicit-where-numbering",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "75faf817432d07775518ea026be8d5657a8153a067b1ddc86a615e38fe828d08",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query/receipt.json::explicit-where-alt",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "f644517363a01ebd25c1a230f49b85ea996eccea6320465fa441c3c49f028528",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query/receipt.json::captured-field-block",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "1a34ddc34042f6e4a07d544b78c72fd6bcafb2e99f1ed871cddadda7207e6600",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query/receipt.json::captured-field-body",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "822eca441d3e7421aefc64f74e623f3115a4056b2a0d4cbd7ec300c8f45b9e3e",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query/receipt.json::captured-field-numbering",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "d0af536df878a9b7d58b288ab31f4805e5760d627818b7c4d5ad47a8a14a35e7",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query/receipt.json::captured-field-alt",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "a93ed2087d92ff43a0a8baed86b12a5880b42870512267040ae6747da7ede173",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query/receipt.json::captured-where-block",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "a5234b0eeb0358c132e4b4722d5703222764ed3d3d34af0967c860d43a48545a",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query/receipt.json::captured-where-body",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "0d735a55b24825e2ad387b62f97baadb4cd0d78f2512d9050b45302321aa3e57",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query/receipt.json::captured-where-numbering",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "75faf817432d07775518ea026be8d5657a8153a067b1ddc86a615e38fe828d08",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query/receipt.json::captured-where-alt",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "f644517363a01ebd25c1a230f49b85ea996eccea6320465fa441c3c49f028528",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-controls/receipt.json::explicit-all",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "4ab49724f68048bac78b08eaa5a09c22bacb7ac2320bc0177b2632134b933671",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-controls/receipt.json::explicit-label",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "8269cb64740beb4dc53b5c56088492fc1798baf40d2b289809f7c130b5296daa",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-controls/receipt.json::explicit-kind-field-block",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "bbc5d1b8aa2b4271f835752b545cd4f092b9927be31b87af949388714056a659",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-controls/receipt.json::explicit-kind-field-body",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "8bdea15780b7f90d2b0616498b292a5445d60e0ca165bf6b8b46b5bc479b1f79",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-controls/receipt.json::explicit-kind-field-numbering",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "c3c18a517d6b16e5d3f1976c7d0678be2727f4ad10b2b65c025fc482cd12cffb",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-controls/receipt.json::explicit-kind-field-alt",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "5f4b471a4856bc366558c7e7b165fac4735142be245315b76b7f69b7b7463b31",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-controls/receipt.json::captured-all",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "4ab49724f68048bac78b08eaa5a09c22bacb7ac2320bc0177b2632134b933671",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-controls/receipt.json::captured-label",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "8269cb64740beb4dc53b5c56088492fc1798baf40d2b289809f7c130b5296daa",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-controls/receipt.json::captured-kind-field-block",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "bbc5d1b8aa2b4271f835752b545cd4f092b9927be31b87af949388714056a659",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-controls/receipt.json::captured-kind-field-body",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "8bdea15780b7f90d2b0616498b292a5445d60e0ca165bf6b8b46b5bc479b1f79",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-controls/receipt.json::captured-kind-field-numbering",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "c3c18a517d6b16e5d3f1976c7d0678be2727f4ad10b2b65c025fc482cd12cffb",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-controls/receipt.json::captured-kind-field-alt",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "5f4b471a4856bc366558c7e7b165fac4735142be245315b76b7f69b7b7463b31",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-defaults/receipt.json::defaults-all",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "1145e9550c0eb79aa795ffecfa38c9c233a2a82a8d1d35c42a9d6e33191d9b9b",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-defaults/receipt.json::defaults-where-numbering-none",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "86d3ad92cb95ad3fd9819f05399f2527edef1c2c46a7cbc951c9acef4f5af6a7",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-defaults/receipt.json::defaults-where-alt-none",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "99aca8fc51754048513c64a6457e0590f709cc817f8c28ceccaafb9982986f0a",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-defaults/receipt.json::none-all",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "1145e9550c0eb79aa795ffecfa38c9c233a2a82a8d1d35c42a9d6e33191d9b9b",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-defaults/receipt.json::none-where-numbering-none",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "86d3ad92cb95ad3fd9819f05399f2527edef1c2c46a7cbc951c9acef4f5af6a7",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-defaults/receipt.json::none-where-alt-none",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "99aca8fc51754048513c64a6457e0590f709cc817f8c28ceccaafb9982986f0a",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-defaults/receipt.json::ordered-all",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "3900d2884a3e98a24367ece7ef0ac4b34524f774ec01c98a308bd0145e4bcafb",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-defaults/receipt.json::ordered-order-alt",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "3a0e56999cf1e4891ad1754a802b5e3ce803aede147dac20308dca682e827690",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-defaults/receipt.json::ordered-first",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "7ebd8c22b53db4be29a13162a94b4d2aca531db3b457e60e786792cd3297423a",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-defaults/receipt.json::ordered-second",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "5e65a36b61ccfb001c4e6f2adc76f421f60bb2ff795f9593c912a86d269302a3",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    },
+    {
+      "id": "realized-query-defaults/receipt.json::empty-all",
+      "typed_oracle_match": true,
+      "typed_frozen_oracle_match": true,
+      "candidate_observation_sha256": "3e809e0d6883dbd38b02588a8042710c82d5932297879b4528086e4d00a9d01c",
+      "candidate_hash_preserved": true,
+      "source_preserved": true,
+      "product_argv_preserved": true,
+      "oracle_argv_preserved": true
+    }
+  ],
+  "errors": [],
+  "passed": true
+}

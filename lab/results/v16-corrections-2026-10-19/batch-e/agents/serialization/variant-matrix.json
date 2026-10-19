@@ -1,0 +1,849 @@
+{
+  "utc": "2026-10-19T18:58:16.107523+00:00",
+  "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+  "source": "01_core/src/entities/content.rs:233-1309",
+  "field_catalog": "01_core/src/entities/content/fields.rs:156-429 plus named delegates in audit.md",
+  "phase": "read-only source classification before productive change",
+  "rows": [
+    {
+      "variant": "Source",
+      "pattern": "Content::Source(..)",
+      "carrier_decision": "recursive early return; visual for Realized, body otherwise",
+      "field_decision": "already handled before match",
+      "name_decision": "recursive carrier"
+    },
+    {
+      "variant": "ShowRecipe",
+      "pattern": "Content::ShowRecipe(..)",
+      "carrier_decision": "recursive early return; visual for Realized, body otherwise",
+      "field_decision": "already handled before match",
+      "name_decision": "recursive carrier"
+    },
+    {
+      "variant": "Realized",
+      "pattern": "Content::Realized(..)",
+      "carrier_decision": "recursive early return; visual for Realized, body otherwise",
+      "field_decision": "already handled before match",
+      "name_decision": "recursive carrier"
+    },
+    {
+      "variant": "Located",
+      "pattern": "Content::Located(..)",
+      "carrier_decision": "recursive early return; visual for Realized, body otherwise",
+      "field_decision": "already handled before match",
+      "name_decision": "recursive carrier"
+    },
+    {
+      "variant": "Empty",
+      "pattern": "Content::Empty",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "existing override (Shape exhaustive by kind)"
+    },
+    {
+      "variant": "Text",
+      "pattern": "Content::Text(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Space",
+      "pattern": "Content::Space",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "SpaceFromNewline",
+      "pattern": "Content::SpaceFromNewline",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Parbreak",
+      "pattern": "Content::Parbreak",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Sequence",
+      "pattern": "Content::Sequence(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "HtmlElem",
+      "pattern": "Content::HtmlElem(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "HtmlFrame",
+      "pattern": "Content::HtmlFrame(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Par",
+      "pattern": "Content::Par { .. }",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Heading",
+      "pattern": "Content::Heading(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Title",
+      "pattern": "Content::Title(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Strong",
+      "pattern": "Content::Strong(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Emph",
+      "pattern": "Content::Emph(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Raw",
+      "pattern": "Content::Raw(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "ListItem",
+      "pattern": "Content::ListItem(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "EnumItem",
+      "pattern": "Content::EnumItem(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Link",
+      "pattern": "Content::Link(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Equation",
+      "pattern": "Content::Equation(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathSequence",
+      "pattern": "Content::MathSequence(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathIdent",
+      "pattern": "Content::MathIdent(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "existing override (Shape exhaustive by kind)"
+    },
+    {
+      "variant": "MathText",
+      "pattern": "Content::MathText(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "existing override (Shape exhaustive by kind)"
+    },
+    {
+      "variant": "MathFrac",
+      "pattern": "Content::MathFrac(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathAttach",
+      "pattern": "Content::MathAttach(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "existing override (Shape exhaustive by kind)"
+    },
+    {
+      "variant": "MathPrimes",
+      "pattern": "Content::MathPrimes(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathRoot",
+      "pattern": "Content::MathRoot(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathStretch",
+      "pattern": "Content::MathStretch(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "optional public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathDelimited",
+      "pattern": "Content::MathDelimited(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathLr",
+      "pattern": "Content::MathLr(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "optional public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathMid",
+      "pattern": "Content::MathMid(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathOverbrace",
+      "pattern": "Content::MathOverbrace(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathUnderbrace",
+      "pattern": "Content::MathUnderbrace(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "optional public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathUnderbracket",
+      "pattern": "Content::MathUnderbracket(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "optional public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathUnderparen",
+      "pattern": "Content::MathUnderparen(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "optional public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathUndershell",
+      "pattern": "Content::MathUndershell(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "optional public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathOverbracket",
+      "pattern": "Content::MathOverbracket(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathOverparen",
+      "pattern": "Content::MathOverparen(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathOvershell",
+      "pattern": "Content::MathOvershell(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathAlignPoint",
+      "pattern": "Content::MathAlignPoint(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Linebreak",
+      "pattern": "Content::Linebreak(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathMatrix",
+      "pattern": "Content::MathMatrix(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathCases",
+      "pattern": "Content::MathCases(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathAccent",
+      "pattern": "Content::MathAccent(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathCancel",
+      "pattern": "Content::MathCancel(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathUnderline",
+      "pattern": "Content::MathUnderline(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathOverline",
+      "pattern": "Content::MathOverline(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathVec",
+      "pattern": "Content::MathVec(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathClassOverride",
+      "pattern": "Content::MathClassOverride(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathLimitsOverride",
+      "pattern": "Content::MathLimitsOverride(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathUnderover",
+      "pattern": "Content::MathUnderover(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathOp",
+      "pattern": "Content::MathOp(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "MathStyled",
+      "pattern": "Content::MathStyled(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Label",
+      "pattern": "Content::Label(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "already handled before match",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Ref",
+      "pattern": "Content::Ref(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "CounterDisplay",
+      "pattern": "Content::CounterDisplay(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "CounterUpdate",
+      "pattern": "Content::CounterUpdate(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Outline",
+      "pattern": "Content::Outline(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "OutlineEntry",
+      "pattern": "Content::OutlineEntry(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Figure",
+      "pattern": "Content::Figure(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "FigureCaption",
+      "pattern": "Content::FigureCaption(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "existing override (Shape exhaustive by kind)"
+    },
+    {
+      "variant": "Image",
+      "pattern": "Content::Image(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Shape",
+      "pattern": "Content::Shape(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "existing override (Shape exhaustive by kind)"
+    },
+    {
+      "variant": "Curve",
+      "pattern": "Content::Curve(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Transform",
+      "pattern": "Content::Transform(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "optional public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Grid",
+      "pattern": "Content::Grid(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "GridHeader",
+      "pattern": "Content::GridHeader(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "GridFooter",
+      "pattern": "Content::GridFooter(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "GridCell",
+      "pattern": "Content::GridCell(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "SetPage",
+      "pattern": "Content::SetPage(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "PageRun",
+      "pattern": "Content::PageRun(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Align",
+      "pattern": "Content::Align(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Place",
+      "pattern": "Content::Place(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Flush",
+      "pattern": "Content::Flush(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Styled",
+      "pattern": "Content::Styled(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Divider",
+      "pattern": "Content::Divider(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Terms",
+      "pattern": "Content::Terms(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "TermItem",
+      "pattern": "Content::TermItem(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Quote",
+      "pattern": "Content::Quote(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Document",
+      "pattern": "Content::Document { .. }",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Asset",
+      "pattern": "Content::Asset { .. }",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "SmartQuote",
+      "pattern": "Content::SmartQuote(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "existing override (Shape exhaustive by kind)"
+    },
+    {
+      "variant": "PdfAttach",
+      "pattern": "Content::PdfAttach(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "PdfArtifact",
+      "pattern": "Content::PdfArtifact(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "optional public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Underline",
+      "pattern": "Content::Underline(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Strike",
+      "pattern": "Content::Strike(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Overline",
+      "pattern": "Content::Overline(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "SmallCaps",
+      "pattern": "Content::SmallCaps { .. }",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Pad",
+      "pattern": "Content::Pad(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Hide",
+      "pattern": "Content::Hide(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "HSpace",
+      "pattern": "Content::HSpace(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "VSpace",
+      "pattern": "Content::VSpace(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Pagebreak",
+      "pattern": "Content::Pagebreak(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Colbreak",
+      "pattern": "Content::Colbreak(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Stack",
+      "pattern": "Content::Stack(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Boxed",
+      "pattern": "Content::Boxed(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "optional public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Block",
+      "pattern": "Content::Block(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "optional public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "TableCell",
+      "pattern": "Content::TableCell(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Bibliography",
+      "pattern": "Content::Bibliography(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Cite",
+      "pattern": "Content::Cite(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Footnote",
+      "pattern": "Content::Footnote(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "FootnoteEntry",
+      "pattern": "Content::FootnoteEntry(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "TableHeader",
+      "pattern": "Content::TableHeader(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "TableFooter",
+      "pattern": "Content::TableFooter(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "GridHLine",
+      "pattern": "Content::GridHLine(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "GridVLine",
+      "pattern": "Content::GridVLine(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "TableHLine",
+      "pattern": "Content::TableHLine(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "TableVLine",
+      "pattern": "Content::TableVLine(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Table",
+      "pattern": "Content::Table(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Repeat",
+      "pattern": "Content::Repeat(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Columns",
+      "pattern": "Content::Columns(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Metadata",
+      "pattern": "Content::Metadata(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "specialized existing projection",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "State",
+      "pattern": "Content::State(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "StateUpdate",
+      "pattern": "Content::StateUpdate(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "StateDisplay",
+      "pattern": "Content::StateDisplay(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "CounterDisplayCallback",
+      "pattern": "Content::CounterDisplayCallback(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "ContextBlock",
+      "pattern": "Content::ContextBlock(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "func only; no public body getter",
+      "name_decision": "core elem_name delegation"
+    },
+    {
+      "variant": "Dynamic",
+      "pattern": "Content::Dynamic(..)",
+      "carrier_decision": "continue to Label/public projection",
+      "field_decision": "optional public body getter",
+      "name_decision": "core elem_name delegation"
+    }
+  ]
+}

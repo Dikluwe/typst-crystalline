@@ -1,10 +1,11 @@
 # L0 — entities/content/fields
-Hash do Código: 5adf16c5
+Hash do Código: b22d5cf9
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
 - 00_nucleo/prompts/_nuclei/content/projection-exhaustiveness.toml sha256:c7269dd3cf9d8084731457973737db5df87a3d428b80ab5701593deaecdea87e
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml sha256:947456f05619642c93f67721453e4ad5577557679dbc422a20a48f397ae97ded
 - 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml sha256:dced4bcb1e45b09423bb3b9739af4da3cd440d500d6a620e08e13219236d1735
 - 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:93054c60b918734522155fc8d1140982c656478ffccbc1ce55b14911309e1a5c
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
@@ -35,6 +36,53 @@ closed static match and does not introduce a property registry.
 ShowRecipe/Located delegate field reads to body, Realized to visual, no new
 public element. Source follows ratified transparency below. Ordinary Styled
 remains opaque except specifically contracted Equation/marked Heading paths.
+
+## Causal Equation constructor projection
+
+### Evidence before decision
+
+At HEAD `5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9`,
+`lab/results/v16-corrections-2026-10-19/batch-e/agents/language/receipt.json`
+records current-pin source, binary, time and working-tree provenance for an
+ordinary `text(fill: red, math.equation(numbering: "(1)", $x$))` exposing
+Equation properties that the oracle keeps opaque. The private recognizer here
+at `fields.rs:9–16` currently crosses any Styled. The Equation native at
+`stdlib/structural/math/equation.rs:164–183` and text native at
+`stdlib/text/constructor.rs:275` both create Styled, so neither an Equation
+descendant nor an equation.* property name proves constructor provenance.
+The existing Heading marker at `fields.rs:135–153` demonstrates an internal
+causal marker without adding public fields. This evidence refutes only the
+unrestricted Styled boundary; carrier transparency and outer override precedence
+inside genuine constructor transport remain required.
+
+### Exclusive observation and limits
+
+Recognize the producer's private `equation.constructor` marker only when its
+direct delta's last value is Bool(true) and its body leads to Equation through
+the four causal carriers or other valid marked constructor wrappers. Source,
+ShowRecipe and Located delegate body; Realized delegates visual, never original.
+Unmarked Styled, including a wrapper containing equation.* values, is opaque.
+A false or wrongly typed marker, a marked non-Equation body, Sequence, Strong
+and other semantic containers do not confer Equation identity or fields.
+Do not execute recipes or add a public helper, API, field or signature.
+
+Both the recursive recognizer and the outer Styled getter admission must check
+this causal boundary. A marked child does not make an unmarked parent
+transparent. Preserve the four override keys, last-write/outer-first precedence,
+explicit none, fallback to inner marked transport, and ordinary unknown-field
+absence. The marker itself is private and never a reflected field. Keep the
+closed Content match and explicit non-Equation nominal complement; string field
+names remain open. This supersedes only the former unrestricted Styled recursion
+and synthetic fixtures that lacked causal provenance, not the tested carrier,
+precedence or non-Equation invariants.
+
+Update existing synthetic constructor fixtures with the explicit marker and add
+unmarked/false-marker/wrong-type/marked-non-Equation/outer-semantic-Styled REDs
+before code. Functional acceptance observes field values and absence, not helper
+output or Rust representation. Continuous internal ADR-0127 correction with L0
+first, precode RED, parent-controlled shared-nucleus and lineage resealing, then
+the existing build/workspace/strict Clippy/Rustdoc/fmt gates. Full ordinary Styled
+child/styles reflection is not introduced by this bounded correction.
 
 ## Ratified semantic SmartQuote getter
 

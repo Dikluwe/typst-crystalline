@@ -1,0 +1,5 @@
+2026-10-19T19:55:53.403466+00:00 core-extension START
+2026-10-19T19:56:21.954590+00:00 core-extension END 101 selected 8 other 0
+2026-10-19T19:56:22.148091+00:00 shell-omissions START
+2026-10-19T19:56:46.563405+00:00 shell-omissions END 101 selected 4 other 0
+PASS green

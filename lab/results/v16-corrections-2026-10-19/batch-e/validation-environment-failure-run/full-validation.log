@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/repos/Antigravity/typst-crystalline/lab/tools/ci/validate_layout_migration.py", line 114, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/repos/Antigravity/typst-crystalline/lab/tools/ci/validate_layout_migration.py", line 66, in main
+    assert executable, f'required visual observer missing from PATH: {name}'
+           ^^^^^^^^^^
+AssertionError: required visual observer missing from PATH: rsvg-convert

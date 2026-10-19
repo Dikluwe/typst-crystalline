@@ -1,0 +1,151 @@
+{
+  "review_utc": "2026-10-19T19:14:16.538644+00:00",
+  "review_method": "Independently reconstruct mutations and target spans from archived source; parse raw compiler JSON; do not use selected_e0004 as proof.",
+  "worker": {
+    "path": "lab/results/v16-corrections-2026-10-19/workers/batch_e_structural.py",
+    "sha256": "1b92fcc74f283add5cf2c3065effbcc9c479d8d6b17f370c496840251b720a24"
+  },
+  "targets_sha256": "4d43ed01c1e6b50932a406d05011e731196c463864df592496aab67d0f103499",
+  "phases": {
+    "baseline": {
+      "status": "complete",
+      "source_archive_hash_mismatches": [],
+      "groups": [
+        {
+          "name": "core-extension",
+          "mutation_verified_exact": true,
+          "mutated_paths": [
+            "01_core/src/entities/content.rs"
+          ],
+          "compiler_error_codes": {
+            "E0004": 195
+          },
+          "compiler_build_finished": [
+            false
+          ],
+          "recorded_exit": 101,
+          "log_sha256": "7bfdb05857ebaa05a114d967432a43fc307e0b32c783799836ec8f7f0f443498",
+          "mutation_archive_sha256": "706d03e290b20585331aeb15189125731a3f3e8b461b5f2e0df0f9fda25f4bdf",
+          "witnesses": [
+            {
+              "id": "V16-001",
+              "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "match_anchor": {
+                "line": 240,
+                "byte_start": 10182,
+                "byte_end": 10191
+              },
+              "e0004_primary_diagnostics": [],
+              "expected": "no selected E0004"
+            },
+            {
+              "id": "V16-002",
+              "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "match_anchor": {
+                "line": 322,
+                "byte_start": 13683,
+                "byte_end": 13698
+              },
+              "e0004_primary_diagnostics": [],
+              "expected": "no selected E0004"
+            },
+            {
+              "id": "V16-003",
+              "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "match_anchor": {
+                "line": 468,
+                "byte_start": 19264,
+                "byte_end": 19273
+              },
+              "e0004_primary_diagnostics": [],
+              "expected": "no selected E0004"
+            },
+            {
+              "id": "V16-004",
+              "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "match_anchor": {
+                "line": 581,
+                "byte_start": 23869,
+                "byte_end": 23878
+              },
+              "e0004_primary_diagnostics": [],
+              "expected": "no selected E0004"
+            },
+            {
+              "id": "content-field-closure",
+              "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+              "match_anchor": {
+                "line": 53,
+                "byte_start": 2361,
+                "byte_end": 2370
+              },
+              "e0004_primary_diagnostics": [],
+              "expected": "no selected E0004"
+            }
+          ]
+        },
+        {
+          "name": "shell-omissions",
+          "mutation_verified_exact": true,
+          "mutated_paths": [
+            "02_shell/src/cli.rs"
+          ],
+          "compiler_error_codes": {},
+          "compiler_build_finished": [
+            true
+          ],
+          "recorded_exit": 0,
+          "log_sha256": "70c824bfb047e42c01b40a1d026eca1dcf9c6d01e55ad284c587864bd3e2fe81",
+          "mutation_archive_sha256": "91b2d36b932dcd2c7c20b9e1d4d3a3e7e13ea3940109fd398873d58081c02f57",
+          "witnesses": [
+            {
+              "id": "V16-083",
+              "file": "02_shell/src/cli.rs",
+              "match_anchor": {
+                "line": 1156,
+                "byte_start": 41058,
+                "byte_end": 41073
+              },
+              "e0004_primary_diagnostics": [],
+              "expected": "no selected E0004"
+            },
+            {
+              "id": "V16-084",
+              "file": "02_shell/src/cli.rs",
+              "match_anchor": {
+                "line": 1177,
+                "byte_start": 41788,
+                "byte_end": 41803
+              },
+              "e0004_primary_diagnostics": [],
+              "expected": "no selected E0004"
+            },
+            {
+              "id": "V16-085",
+              "file": "02_shell/src/cli.rs",
+              "match_anchor": {
+                "line": 1418,
+                "byte_start": 51844,
+                "byte_end": 51859
+              },
+              "e0004_primary_diagnostics": [],
+              "expected": "no selected E0004"
+            }
+          ]
+        }
+      ],
+      "source_freeze": {
+        "utc": "2026-10-19T19:02:29.209951+00:00",
+        "changed": []
+      }
+    },
+    "green": {
+      "status": "pending archived results"
+    }
+  },
+  "limits": [
+    "Compiler witness proves enum-domain review coverage, not language correctness.",
+    "Shell witnesses remove positive arms in actual shell matches; they are not future-variant cross-crate compilation witnesses.",
+    "Core baseline is an intentionally failing extension build with unrelated E0004s; it is not a successful unmutated build."
+  ]
+}

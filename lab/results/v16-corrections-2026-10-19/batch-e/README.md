@@ -1,0 +1,82 @@
+# Batch E: reflection and semantic serialization
+
+Status: **validated and closed for the seven selected V16 findings**. The full linter reports 44 → 37 V16 errors. All twelve integrated validation gates pass, with unchanged productive inputs. This is scoped acceptance; language parity remains incomplete.
+
+The candidate replaces seven silent Content fallbacks with explicit nominal decisions: V16-001–004 in content method reflection and V16-083–085 in shell serialization. It preserves four causal-carrier returns, authoritative known/empty snapshots, location precedence, label ordering, specialized field behavior, and core-owned element names. Known-field corrections cover the measured native element schemas; they do not introduce universal field enumeration.
+
+Explicit Equation options already use an internal Styled transport. A private constructor-origin marker now distinguishes that transport from ordinary external styling. Producer, getter, identity, reflection, native encoding, and shell projection consume a shared pinned invariant; the lexical set-style owner preserves the external Styled boundary. Recognizers remain private and bounded. No public entity field, API, mode, or pipeline phase is added. The actual native Equation constructor and its canonical language name are retained.
+
+## State and scope
+
+Baseline HEAD: `5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9`. Candidate measurements use an uncommitted working tree, not that commit alone. Each run records its UTC, exact changed-file list, input hashes, command, and binary identity. See `baseline-state.json.gz`, `lint-state.json.gz`, and each run's `state.json.gz`/`commands.json`.
+
+The final scope is ten source/owner pairs plus the new constructor-origin nucleus and existing snapshot invariant; `scope.json` lists exact canonical paths and `scope-expansion.json` explains each causal dependency. All owners were updated before implementation. Parent-owned `reseal-receipts.json` records lineage work. Source and oracle provenance are recorded with the language receipts; the oracle target is commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`, tree `cac836c07e4dec2a89219370428292393a3216b5`, binary SHA-256 `9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9`.
+
+## Evidence and final results
+
+| Gate | Evidence | Result |
+|---|---|---|
+| L0/source ownership and shared invariants | `scope.json`, `scope-expansion.json`, `reseal-receipts.json` | Ten exclusive source/owner pairs, one new constructor-origin nucleus, existing snapshot nucleus unchanged. |
+| Semantic RED and preservation | `new-test-execution.json`, baseline/follow-up/query run receipts | All 34 new tests pass in the fresh full run: 18 previously observed semantic failures and 16 preservation controls. |
+| Complete validation | `validation/validation-commands.json`, `validation/validation-freeze.json` | All twelve gates pass; 2,132 inputs unchanged. |
+| Final language replay | `agents/language/accepted-assessment.json` | 173 cases reviewed; 87 match the oracle. All 26 changed partial repairs retain exact pre-existing residuals; raw failure and full-parity=false preserved. |
+| Realized Equation queries | `agents/language/accepted-realized-query-review.json` | All 39 match the oracle: 38 repaired, one preserved. |
+| Compiler-negative experiments | `structural-query-green/`, `structural-witness-review.json`, `agents/reflection/final-query-structural-independent-review.json` | Twelve exact local E0004 witnesses independently verified against archived mutations and final source hashes. |
+| Full lint delta and note review | `lint-delta.json`, `note-review.md` | Exactly seven selected errors removed; no new error/warning, no substantive note removal, outside-scope diagnostics unchanged. |
+| Final audit | `closure-ledger.json`, `closure-audit.log` | Sources, lineage, actual test output, structural spans, corpus membership, observations, resource bounds and frozen inputs verified. |
+
+The final lint comparison completed at 2026-10-19T19:51:53.979959+00:00; the lint state receipt records the exact scan interval and working tree. Full baseline-to-candidate counts are V16 error 44→37, V19 note 1,222→1,237, and V20 note 876→877. Fifteen V19 and one V20 additions are substantive coverage notes; existing note movements are separately accounted for. No note was substantively removed, no new error/warning appeared, and no suppression or linter/configuration change was used. The existing encoding wildcard V16 remains visible at line 112. Repository-wide zero violations are not claimed. `note-review.md` preserves the six- and seven-owner scans and independently reviews the final ten-owner scan with exact artifact hashes.
+
+Structural checks use a complete locked workspace. Extending Content in L1 yields pre-existing nonexhaustive sites and prevents shell dependency compilation; shell witnesses therefore use paired omission of exact Source/Raw positive arms. Baseline wildcards absorb these omissions, while repaired nominal decisions must report the precise local E0004 witnesses. Raw original/mutated sources and diagnostics must support the claim; compiler failure elsewhere is not a successful local witness. New private classifiers have separate local compiler witnesses. Grouped-arm execution alone does not establish all-variant runtime coverage.
+
+## Historical failures and corrections
+
+The first shell label test incorrectly compared YAML spelling; it was corrected to compare decoded label semantics, and the baseline rerun is retained under `label-baseline-run/`. The intermediate wrong Bytes type under `label-baseline-type-error/` is a setup error, not semantic RED. Likewise, the follow-up tests initially had moved-Color compilation errors (`followup-red-type-error/`); those attempts are excluded from semantic failure evidence.
+
+The initial candidate replay exposed an introduced regression: `{set text(fill:red); math.equation(numbering:none)[x]}` lost its external Styled identity when adjacent styles collapsed. Three native/shell JSON/YAML cases preserve that failure. It was not accepted as an exception: the seventh owner now retains a separate outer Styled when the latest direct constructor marker is true. Ordinary merging, inner precedence, and Source spans remain controls. The native Equation function name also required a measured correction to retain canonical alias identity. The candidate-final replay demonstrates both corrections; the accepted replay after fresh full validation preserves those corrections.
+
+`candidate-run/` and `candidate-initial-lint/` describe that earlier candidate, not final acceptance. Raw replay labels may call any changed output a regression; partial repairs and true regressions require case-by-case semantic classification, never blanket relabeling.
+
+## Remaining language obligations
+
+`open-obligations.json` records measured defects and concrete refuters. Figure explicit caption:none versus omission, Artifact omitted kind versus explicit other, and Equation omitted block versus explicit false require preserved presence distinctions and remain open. Bare Equation serialization retains existing default/presence debt. Richer ordinary Styled reflection, legacy Box/transform fields, generated Caption selection, and nested Heading expansion are not certified by these changes.
+
+The Equation producer marker does not itself implement the discarded-content warning for explicit static Equation supplements. Figure retention and Figure/Equation supplement-warning handling remain open, with callback and set-rule opacity preserved. No active L0 treats the old missing-marker diagnosis as current or claims that warning fixed.
+
+JSON/YAML acceptance compares decoded values, known presence, declaration order where observable, and errors/cardinality behavior. It does not require identical output bytes. Authoritative snapshots, including Some(empty), must win over fallback. Native encoding and shell projection may show partial progress while unrelated residual fields still differ; final reports must state that limit explicitly.
+
+## Final acceptance and provenance
+
+The fresh twelve-gate run completed at **2026-10-19T20:10:53.280629+00:00** after cleaning all four product packages. Paths, strict forward/reverse lineage and ownership/Nuclei, workspace build, domain/infra tests, wiring tests, doctests, all targets including lab benches, strict Clippy, formatting and Rustdoc passed. The 2,132 frozen inputs remained unchanged. All 34 new test functions are individually observed passing in the full log; the existing selector regression and getter controls also pass. RED counts refer to test functions, not independent execution of every assertion or loop row.
+
+Both final replay commands completed by **2026-10-19T20:11:57.424281+00:00**. The tested product SHA-256 is `3e54ac822445804779c826acdb3f9a7553928a8e8d628cdac4a89b25bf553554`. The baseline HEAD plus exact uncommitted changed-file lists and input hashes remain in each receipt; the later commit preserves that validated source state rather than retroactively changing measurement provenance.
+
+The original 173-case raw comparator still exits 1: 143 observations are preserved, four completely repaired, and 26 changed observations remain unequal to the oracle. The strict scoped assessor checks each of those 26 against independently reviewed repaired paths and exact residual defects already measured in the baseline; unknown differences fail. Only 87 of all 173 cases match the oracle, so complete parity is explicitly false. In contrast, all 39 new realized-query cases match the unchanged oracle, without exceptions. The closure audit reparses raw observations with typed equality, verifies exact corpus/source/argv membership and independently reruns the scoped assessor.
+
+All heavy jobs used one Cargo job, debug information/incremental compilation disabled, a 12 GiB cgroup maximum, 8 GiB high threshold and zero swap. Final resource counters show no OOM event. No productive input, linter, severity, scan configuration, suppression, ignored test, public contract, default or pipeline phase was weakened to close this batch.
+
+The audit initially assumed a single query flag order. Frozen probes legitimately contain both field/format orders; the checker now accepts only the measured bounded forms and still requires full per-case exact argv equality. The failed attempts, one indentation typo and independent correction review are retained in `closure-audit-*-failure.log`, `closure-worker-argv-correction.json` and `agents/reflection/closure-worker-argv-review.json`. This changed the diagnostic checker only, not product behavior, runners, receipts or expected outcomes.
+
+## Historical seven-owner candidate verification
+
+`candidate-final-run/` completed at 2026-10-19T19:37:03.937494+00:00 with unchanged frozen inputs. All 29 new tests pass, as do two existing getter controls and the workspace build. Exact compiler-negative witnesses pass at eight core decisions and four shell decisions. `agents/reflection/structural-green-independent-review.json` reconstructs the actual archived mutations and independently verifies each local E0004 primary span. Baseline absence is distinguished from the additional green-only helper witnesses.
+
+That seven-owner candidate replay contains 173 exact frozen source cases: raw classifications are 143 preserved, four repaired and 26 changed observations still differing from the oracle. The raw comparator exits 1 and remains unchanged. `agents/language/candidate-final-review.json` independently explains each of those 26 as a partial measured repair with exact pre-existing residuals; `candidate-final-assessment.json` binds those explanations to original baseline receipts, observation hashes and required outcomes. It reports scoped acceptance, zero failed cases and 87 observations matching the oracle; it explicitly reports full parity false. Native Equation and alias equality now return true, both returned constructors are callable, and all three lexical set-text codec cases retain the outer Styled boundary. Their remaining child.block presence debt is explicit.
+
+The first attempt to launch full validation stopped before any gate because the resource-limited service did not inherit the login-shell PATH and could not discover the installed `rsvg-convert`. `validation-environment-failure-run/` preserves that failure. `validation-environment-correction.json` records the PATH-only correction and observer digest. The same validator, gates and resource limits are used on the repeated full run. This environment failure is not a code test failure or semantic RED.
+
+## Full-suite occurrence regression and expanded coverage
+
+The first complete domain/infra run (`validation-selector-failure/`) found a real failure in the existing `equation_where_filters_match_identity_body_block_and_captured_fields` test: 7,532 core passes, one failure and five pre-existing ignored tests. That run is not accepted validation. Its six executed gates and unchanged 2,132-input freeze remain archived, along with the outer resource receipt. Earlier seven-owner candidate reviews were bounded to their tests and 173-case corpus; they did not cover realized Equation occurrence queries.
+
+The old occurrence producer stored an unmarked Styled tree and no field snapshot. Once ordinary Styled opacity was corrected, occurrence field queries and filters lost block/body/numbering/alt. Current-pin probes isolated this from selection: the occurrence exists under both native and label selection. A separate 39-case corpus (`agents/language/realized-query-manifest.json`) covers explicit constructor and set-rule capture, full fields and function identity, where filters, defaults, explicit none, labels/order and empty selection. The dedicated replay requires every candidate observation to equal its unchanged pinned oracle, with no exceptions.
+
+The correction belongs to the existing occurrence producer: retain semantic Equation content, publish its already-supported complete ordered immutable snapshot when absent, and preserve existing Some snapshots verbatim. This introduces no constructor marker on render or external styles. The child L0 and its parent delegation clause are updated together; the parent hub has only a lineage-header change. Selector logic stays unchanged. Its old fixture now invokes the real producer and retains all original native/alias, body/block, false-match and snapshot-authority assertions. Five new tests cover this producer path and external opacity; `query-preimplementation.json`/`.patch.gz` freeze them before the producer correction. The actual RED/GREEN results are recorded below.
+
+## Occurrence correction candidate results
+
+`query-red-run/` confirmed four new semantic failures and one new preservation pass, plus the existing selector's expected failure through the actual producer. `query-test-classification.json` identifies every result. The later candidate (`candidate-query-run/`) completed all nine planned commands at 2026-10-19T19:56:46.577692+00:00 with unchanged inputs: all 34 new tests, the original selector regression, two existing getter controls, workspace build, both replay corpora and twelve local structural witnesses. The original 173 candidate observation digests are exactly unchanged; their 26 partial repairs and full-parity=false result remain explicit in `agents/language/candidate-query-assessment.json`.
+
+All 39 occurrence observations now match the pinned oracle: 38 repaired and one empty-selection preservation case, zero regressions. `agents/language/candidate-realized-query-replay/receipt.json` freezes the source, product, oracle, run commands and build receipt. An independent typed comparison distinguishes Boolean from numeric values without requiring integer-versus-float JSON spelling. These source probes complement, rather than replace, internal Some(empty)/known-snapshot and old-clone controls. `structural-query-green/` repeats the twelve compiler witnesses using the ten-owner state; the prior `structural-green/` is historical.
+
+The final complete validation and both accepted replays meet the stated checks without changing productive inputs. Earlier full-suite failure and all candidate receipts remain recoverable. Independent final producer and structural reviews are recorded under `agents/reflection/final-query-*`; their source hashes agree with the accepted state recorded in the closure ledger.

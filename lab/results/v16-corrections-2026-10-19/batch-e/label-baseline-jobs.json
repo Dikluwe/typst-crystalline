@@ -1,0 +1,21 @@
+[
+  {
+    "name": "label-baseline",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-e-label-baseline",
+    "environment": {
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-shell",
+      "--lib",
+      "v16_e_carriers_preserve_visual_morphology_and_label_order",
+      "--",
+      "--test-threads=1"
+    ]
+  }
+]

@@ -106,11 +106,15 @@ public equation Content and its result uses display conversion. Callback errors
 propagate. Never use the reference's current language or a private translation
 table.
 
-After numbering and supplement passes, replace each equation's canonical
-entry with its public Styled view: raw numbering, default/effective
-number-align, realized supplement, effective alt, unchanged body/block.
-Use IntrospectedContent with absent fields to preserve that existing realized
-projection; do not erase the realization or alter Heading's present snapshots.
+After numbering and supplement passes, the equation child publishes its
+authoritative occurrence snapshot while preserving original semantic Content:
+block, raw numbering, effective number-align, realized supplement, effective alt,
+body, and causal label last when present. Its measured identity/field regression
+and precise publication contract belong to
+`00_nucleo/prompts/core/compiler/introspect/from_tags/equations.md`.
+An existing present snapshot remains verbatim, including empty/known fields;
+the normal walk's absent snapshot is the publication input. Do not introduce
+Styled constructor markers, refresh semantics, or alter Heading snapshots.
 Only explicit conversion to rendering discards a snapshot, not the original
 stored Value. Shared invariants belong to the pinned content-snapshot nucleus.
 

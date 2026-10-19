@@ -1,0 +1,51 @@
+{
+  "utc": "2026-10-19T19:11:29.654530+00:00",
+  "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+  "diff_head_stat": " .../eval/bindings/field_access/content_methods.md  | 133 ++-\n .../core/compiler/stdlib/loading/encoding.md       |  65 +-\n .../compiler/stdlib/structural/math/equation.md    |  36 +-\n 00_nucleo/prompts/core/entities/content/fields.md  |  50 +-\n .../prompts/core/entities/content/identity.md      |  33 +-\n 00_nucleo/prompts/shell/cli.md                     |  95 +-\n .../eval/bindings/field_access/content_methods.rs  | 997 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 288 +++++-\n .../compiler/stdlib/structural/math/equation.rs    | 113 ++-\n 01_core/src/entities/content/fields.rs             |  68 +-\n 01_core/src/entities/content/identity.rs           | 202 ++++-\n 02_shell/src/cli.rs                                | 864 +++++++++++++++++-\n 12 files changed, 2878 insertions(+), 66 deletions(-)\n",
+  "sha256": {
+    "02_shell/src/cli.rs": "8507a7770fe0b9588b826be1d9821ad519d82fa75026e9f34b40cf678f234b7a",
+    "01_core/src/entities/content/identity.rs": "c6c82a3c290e2131a0aed0cd2d3209111ceca1ed97e7c3b9357383eaf20debb1",
+    "01_core/src/compiler/stdlib/structural/math/equation.rs": "8a4566ceec175a8a98c0ea5d02734c8702b6ab69c45b290f8d1397e4ada6af9c"
+  },
+  "static_checks": [
+    {
+      "file": "02_shell/src/cli.rs",
+      "helper": "is_equation_constructor_content",
+      "complete_nominal_inventory": true,
+      "missing": [],
+      "extra": [],
+      "equation_arm_count": 1
+    },
+    {
+      "file": "01_core/src/entities/content/identity.rs",
+      "helper": "is_equation_constructor_content",
+      "complete_nominal_inventory": true,
+      "missing": [],
+      "extra": [],
+      "equation_arm_count": 1
+    }
+  ],
+  "anchors": [
+    {
+      "function": "is_equation_constructor_content",
+      "file": "02_shell/src/cli.rs",
+      "line": 1152
+    },
+    {
+      "function": "content_to_semantic",
+      "file": "02_shell/src/cli.rs",
+      "line": 1285
+    },
+    {
+      "function": "content_semantic_func_name",
+      "file": "02_shell/src/cli.rs",
+      "line": 1772
+    }
+  ],
+  "new_structural_positive_arm": "Content::Equation(_) => true,",
+  "tested_here": false,
+  "cross_review": {
+    "encoding": "No blocker: complete nominal classifier matches constructor-origin nucleus; snapshots bypass, ordinary Styled preserves child/styles, marked delegates known fields; sources read directly.",
+    "reflection_contract": "No blocker: reviewed both changed reflection/getter L0 obligations; last marker Booltrue, opaque outerStyled, source/body versus visual, known field presence, snapshots align. Source edits exclusively owned by reflection agent."
+  }
+}

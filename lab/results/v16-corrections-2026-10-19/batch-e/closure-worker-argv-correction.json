@@ -1,0 +1,9 @@
+{
+  "utc": "2026-10-19T20:13:17.811744+00:00",
+  "reason": "Frozen39 contains10 no-field queries,16 field-before-format and13 format-before-field queries. The checker now requires query plus exactly one of those bounded flag forms, then still compares the entire candidate argv to its exact frozen per-case baseline with only binary/source path substitutions. No runner, receipt, source, expected outcome or gate changed.",
+  "before_sha256": "51131b5d908daab447adfab6c54493145f1a2d22966f83fce6addea0ce155aac",
+  "after_sha256": "7dc3170c9fff81b61ffa71e50d8b229b620ddc9c5559d7186d27c2a56fdba1c4",
+  "setup_failure": "closure-audit-indentation-failure.log preserves a one-space indentation typo introduced during this checker edit; corrected before execution.",
+  "utc_final": "2026-10-19T20:13:54.515656+00:00",
+  "flag_order_failure": "closure-audit-flag-order-failure.log preserves the intermediate overly narrow order assertion."
+}

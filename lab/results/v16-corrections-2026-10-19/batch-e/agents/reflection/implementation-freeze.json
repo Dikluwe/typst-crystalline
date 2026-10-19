@@ -1,0 +1,91 @@
+{
+  "utc": "2026-10-19T19:10:40.366568+00:00",
+  "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+  "diff_head_stat": " .../eval/bindings/field_access/content_methods.md  | 133 ++-\n .../core/compiler/stdlib/loading/encoding.md       |  65 +-\n .../compiler/stdlib/structural/math/equation.md    |  36 +-\n 00_nucleo/prompts/core/entities/content/fields.md  |  50 +-\n .../prompts/core/entities/content/identity.md      |  33 +-\n 00_nucleo/prompts/shell/cli.md                     |  95 +-\n .../eval/bindings/field_access/content_methods.rs  | 997 ++++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    | 288 +++++-\n .../compiler/stdlib/structural/math/equation.rs    | 113 ++-\n 01_core/src/entities/content/fields.rs             |  68 +-\n 01_core/src/entities/content/identity.rs           | 202 ++++-\n 02_shell/src/cli.rs                                | 864 +++++++++++++++++-\n 12 files changed, 2878 insertions(+), 66 deletions(-)\n",
+  "source_sha256": {
+    "01_core/src/compiler/eval/bindings/field_access/content_methods.rs": "eff380b0166533b6aa5e4b5963e16ef37ffd6a6935f6f4fb5fc16575373317c3",
+    "01_core/src/entities/content/fields.rs": "2ae8f09f421c7737c558cc6d5ea418e5407923096befb22dd30335c87357a925"
+  },
+  "checks": [
+    {
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "function": "content_field",
+      "line": 36,
+      "nominal_variants_seen": 120,
+      "missing": [],
+      "note": "Source inventory only; compiler exhaustiveness is parent-controlled."
+    },
+    {
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "function": "content_set_fields",
+      "line": 342,
+      "nominal_variants_seen": 120,
+      "missing": [],
+      "note": "Source inventory only; compiler exhaustiveness is parent-controlled."
+    },
+    {
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "function": "equation_descendant",
+      "line": 525,
+      "nominal_variants_seen": 120,
+      "missing": [],
+      "note": "Source inventory only; compiler exhaustiveness is parent-controlled."
+    },
+    {
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "function": "content_elem_func",
+      "line": 792,
+      "nominal_variants_seen": 120,
+      "missing": [],
+      "note": "Source inventory only; compiler exhaustiveness is parent-controlled."
+    },
+    {
+      "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+      "function": "content_method_with_fields",
+      "line": 1010,
+      "nominal_variants_seen": 120,
+      "missing": [],
+      "note": "Source inventory only; compiler exhaustiveness is parent-controlled."
+    },
+    {
+      "file": "01_core/src/entities/content/fields.rs",
+      "function": "styled_equation",
+      "line": 9,
+      "nominal_variants_seen": 120,
+      "missing": []
+    }
+  ],
+  "known_fields_order": {
+    "Figure": [
+      "body",
+      "caption"
+    ],
+    "Metadata": [
+      "value"
+    ],
+    "OutlineEntry": [
+      "level",
+      "element",
+      "fill (only fill_set)"
+    ],
+    "Equation": [
+      "block",
+      "body"
+    ],
+    "marked Equation": [
+      "block",
+      "numbering",
+      "number-align",
+      "supplement",
+      "alt",
+      "body"
+    ]
+  },
+  "omissions_preserved": [
+    "Box body",
+    "PdfArtifact kind candidate",
+    "Figure explicit caption:none unresolved",
+    "ordinary Styled strict child/styles schema unresolved"
+  ],
+  "validation": "No Cargo, rustfmt or resealing; git diff --check passed. Parent owns functional/exhaustiveness gates."
+}

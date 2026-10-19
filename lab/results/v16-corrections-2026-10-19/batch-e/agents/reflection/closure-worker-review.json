@@ -1,0 +1,37 @@
+{
+  "utc": "2026-10-19T19:34:55.320067+00:00",
+  "state": "uncommitted working tree",
+  "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+  "diff_head_stat": " .../_nuclei/math/equation-constructor-origin.toml  |   29 +\n .../eval/bindings/field_access/content_methods.md  |  161 ++-\n .../core/compiler/eval/expression_dispatch.md      |   55 +-\n .../core/compiler/stdlib/loading/encoding.md       |   65 +-\n .../compiler/stdlib/structural/math/equation.md    |   36 +-\n 00_nucleo/prompts/core/entities/content/fields.md  |   50 +-\n .../prompts/core/entities/content/identity.md      |   33 +-\n 00_nucleo/prompts/shell/cli.md                     |   95 +-\n .../eval/bindings/field_access/content_methods.rs  | 1079 +++++++++++++++++++-\n 01_core/src/compiler/eval/expression_dispatch.rs   |   83 +-\n 01_core/src/compiler/stdlib/loading/encoding.rs    |  288 +++++-\n .../compiler/stdlib/structural/math/equation.rs    |  113 +-\n 01_core/src/entities/content/fields.rs             |   73 +-\n 01_core/src/entities/content/identity.rs           |  207 +++-\n 02_shell/src/cli.rs                                |  901 +++++++++++++++-\n 15 files changed, 3192 insertions(+), 76 deletions(-)\n",
+  "files": {
+    "lab/results/v16-corrections-2026-10-19/workers/batch_e_close.py": "c4f0ba978f657d2562481cea5c9cf5080170819c0a1cd6660cd9c6eba9871bed",
+    "lab/results/v16-corrections-2026-10-19/workers/batch_e_structural.py": "1b92fcc74f283add5cf2c3065effbcc9c479d8d6b17f370c496840251b720a24",
+    "lab/results/v16-corrections-2026-10-19/workers/run_jobs.py": "01f15ee2d5f732f702627ebb7539f12a05cdfd1d767809d1efd507c324020464",
+    "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/assess.py": "344120e2867b1f8fd995411b162f3e9f610da14250cd42b1ac5ca434d9c60e99",
+    "lab/results/v16-corrections-2026-10-19/batch-e/structural-targets.json": "4d43ed01c1e6b50932a406d05011e731196c463864df592496aab67d0f103499"
+  },
+  "modified_scope": [
+    "lab/results/v16-corrections-2026-10-19/workers/batch_e_close.py"
+  ],
+  "checks": {
+    "python_ast": "passed",
+    "validation_command_table": "independently compared to current validator AST; exact 12 commands matched",
+    "closing_worker_execution": "not run: final validation and accepted replay artifacts pending",
+    "cargo_or_heavy_binary": "not run"
+  },
+  "hardening": [
+    "Bind acceptance to raw receipt, candidate binary, review and assessor SHA; rerun current assessor on bound receipt/review; require exact assessment classification and correction evidence agreement.",
+    "Rely on hardened assessor for exact 173 unique corpus identities, source/format/field arguments and receipt ancestry, not counts or acceptance booleans.",
+    "Reconstruct exact Content sentinel insertion and every positive-arm omission from archived original sources; compare complete mutations before parsing raw compiler messages.",
+    "Bind all archived structural source hashes and frozen owners to final accepted validation source state; require exact 12 target IDs, local UTF-8 primary spans, E0004-only diagnostics, and failed compiler completion.",
+    "Verify exact validator commands, required environment, per-job overrides, outer execution plan, memory high/max/swap limits, OOM counters and unchanged inputs.",
+    "Bind followup RED plan, outcomes, archived log hashes and unchanged inputs; derive aggregate baseline test classifications from observed individual tests."
+  ],
+  "limits": [
+    "Core future-variant witnesses prove closed enum-domain review coverage; shell witnesses omit positive arms with real dependencies and do not claim a successful cross-crate future-variant build.",
+    "Additional helper targets are green-only; no selected baseline outcome is asserted for them.",
+    "Structural-green archive does not yet exist at review time; its raw primary spans remain pending independent review.",
+    "Final closure correctness is not certified by AST parsing. The parent must execute this worker after final evidence is available.",
+    "run_jobs.py and all scripts used by active jobs were left unchanged; its process exit alone does not prove unchanged inputs, so closure explicitly verifies freeze receipts."
+  ]
+}

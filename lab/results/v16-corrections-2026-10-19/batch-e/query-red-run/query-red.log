@@ -1,0 +1,134 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.46
+   Compiling syn v2.0.98
+   Compiling synstructure v0.13.2
+   Compiling zerofrom-derive v0.1.7
+   Compiling zerofrom v0.1.8
+   Compiling yoke-derive v0.8.2
+   Compiling displaydoc v0.2.6
+   Compiling serde_derive v1.0.228
+   Compiling yoke v0.8.3
+   Compiling serde v1.0.228
+   Compiling zerovec-derive v0.11.3
+   Compiling zerovec v0.11.6
+   Compiling tinystr v0.8.3
+   Compiling icu_locale_core v2.2.0
+   Compiling potential_utf v0.1.5
+   Compiling zerotrie v0.2.4
+   Compiling icu_collections v2.2.0
+   Compiling icu_provider v2.2.0
+   Compiling zerocopy-derive v0.8.27
+   Compiling zerocopy v0.8.27
+   Compiling icu_properties v2.2.0
+   Compiling icu_normalizer v2.2.0
+   Compiling unic-langid-impl v0.9.6
+   Compiling thiserror v2.0.16
+   Compiling unic-langid-macros-impl v0.9.6
+   Compiling half v2.7.1
+   Compiling thiserror-impl v2.0.16
+   Compiling strum_macros v0.27.2
+   Compiling ciborium-ll v0.2.2
+   Compiling unic-langid-macros v0.9.6
+   Compiling icu_locale v2.2.0
+   Compiling idna_adapter v1.2.2
+   Compiling enum-ordinalize-derive v4.3.2
+   Compiling plist v1.10.0
+   Compiling enum-ordinalize v4.3.2
+   Compiling idna v1.1.0
+   Compiling unic-langid v0.9.6
+   Compiling ciborium v0.2.2
+   Compiling strum v0.27.2
+   Compiling ppv-lite86 v0.2.21
+   Compiling quick-xml v0.38.4
+   Compiling serde_spanned v0.6.9
+   Compiling toml_datetime v0.6.11
+   Compiling bincode v1.3.3
+   Compiling toml_edit v0.22.27
+   Compiling biblatex v0.12.0
+   Compiling serde_yaml v0.9.34+deprecated
+   Compiling chinese-number v0.7.8
+   Compiling syntect v5.3.0
+   Compiling citationberg v0.7.0
+   Compiling rand_chacha v0.3.1
+   Compiling icu_collator v2.2.0
+   Compiling url v2.5.8
+   Compiling tinytemplate v1.2.1
+   Compiling comemo-macros v0.4.0
+   Compiling comemo v0.4.0
+   Compiling criterion v0.5.1
+   Compiling hayagriva v0.10.1
+   Compiling rust_decimal v1.42.1
+   Compiling lipsum v0.9.1
+   Compiling icu_segmenter v2.2.0
+   Compiling two-face v0.4.5
+   Compiling codex v0.3.0 (https://github.com/typst/codex?rev=2e43ab90079cf9f9fa670d421c8c38233143b376#2e43ab90)
+   Compiling toml v0.8.23
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 2m 06s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 26 tests
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_equation_has_at_precedence_and_explicit_none ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_equation_native_aliases_keep_language_identity ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_equation_native_identity_requires_valid_constructor_origin ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_external_styled_equation_does_not_expose_equation_schema ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_figure_known_caption_and_metadata_value_are_enumerated ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_nested_equation_carriers_preserve_fields ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_outline_entry_fill_preserves_lexical_presence ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_prescribed_native_identities_survive_carriers ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_semantic_containers_remain_opaque_to_equation_fields ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_snapshots_and_location_precedence_survive_carriers ... ok
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_e_external_set_style_keeps_equation_constructor_boundary ... ok
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_e_external_set_style_preserves_ordinary_merge_and_latest_marker ... ok
+test compiler::eval::selector_matching::equation_where_tests::v16_e_equation_where_does_not_borrow_ordinary_styled_fields ... ok
+test compiler::eval::selector_matching::equation_where_tests::v16_e_realized_equation_filters_keep_captured_fields_and_labels ... FAILED
+test compiler::introspect::from_tags::equations::v16_e_occurrence_tests::v16_e_realized_equation_preserves_present_snapshots_and_missing_entries ... FAILED
+test compiler::introspect::from_tags::equations::v16_e_occurrence_tests::v16_e_realized_equation_publishes_semantic_snapshot_per_occurrence ... FAILED
+test compiler::introspect::from_tags::equations::v16_e_occurrence_tests::v16_e_realized_equation_retains_effective_defaults_without_label ... FAILED
+test compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_constructor_projects_each_causal_carrier_without_original ... ok
+test compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_external_styles_and_invalid_markers_remain_structural ... ok
+test compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_marked_equation_snapshots_remain_authoritative ... ok
+test compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_marked_equation_uses_known_fields_instead_of_style_payload ... ok
+test compiler::stdlib::structural::math::equation::v16_e_equation_producer_tests::v16_e_equation_actual_constructor_options_keep_identity ... ok
+test compiler::stdlib::structural::math::equation::v16_e_equation_producer_tests::v16_e_equation_bare_and_block_only_do_not_gain_transport ... ok
+test entities::content::fields::content_view_regressions::v16_e_getter_requires_own_constructor_origin ... ok
+test entities::content::identity::v16_e_equation_identity_tests::v16_e_equation_identity_rejects_unmarked_and_invalid_transports ... ok
+test entities::content::identity::v16_e_equation_identity_tests::v16_e_equation_marked_identity_follows_causal_visual_and_nested_transport ... ok
+
+failures:
+
+---- compiler::eval::selector_matching::equation_where_tests::v16_e_realized_equation_filters_keep_captured_fields_and_labels stdout ----
+
+thread 'compiler::eval::selector_matching::equation_where_tests::v16_e_realized_equation_filters_keep_captured_fields_and_labels' (1592723) panicked at 01_core/src/compiler/eval/selector_matching.rs:1391:17:
+first/[("block", Bool(true))]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- compiler::introspect::from_tags::equations::v16_e_occurrence_tests::v16_e_realized_equation_preserves_present_snapshots_and_missing_entries stdout ----
+
+thread 'compiler::introspect::from_tags::equations::v16_e_occurrence_tests::v16_e_realized_equation_preserves_present_snapshots_and_missing_entries' (1592724) panicked at 01_core/src/compiler/introspect/from_tags/equations.rs:292:13:
+assertion `left == right` failed
+  left: None
+ right: Some({})
+
+---- compiler::introspect::from_tags::equations::v16_e_occurrence_tests::v16_e_realized_equation_publishes_semantic_snapshot_per_occurrence stdout ----
+
+thread 'compiler::introspect::from_tags::equations::v16_e_occurrence_tests::v16_e_realized_equation_publishes_semantic_snapshot_per_occurrence' (1592725) panicked at 01_core/src/compiler/introspect/from_tags/equations.rs:210:13:
+assertion `left == right` failed
+  left: "styled"
+ right: "equation"
+
+---- compiler::introspect::from_tags::equations::v16_e_occurrence_tests::v16_e_realized_equation_retains_effective_defaults_without_label stdout ----
+
+thread 'compiler::introspect::from_tags::equations::v16_e_occurrence_tests::v16_e_realized_equation_retains_effective_defaults_without_label' (1592726) panicked at 01_core/src/compiler/introspect/from_tags/equations.rs:250:37:
+realized defaults snapshot
+
+
+failures:
+    compiler::eval::selector_matching::equation_where_tests::v16_e_realized_equation_filters_keep_captured_fields_and_labels
+    compiler::introspect::from_tags::equations::v16_e_occurrence_tests::v16_e_realized_equation_preserves_present_snapshots_and_missing_entries
+    compiler::introspect::from_tags::equations::v16_e_occurrence_tests::v16_e_realized_equation_publishes_semantic_snapshot_per_occurrence
+    compiler::introspect::from_tags::equations::v16_e_occurrence_tests::v16_e_realized_equation_retains_effective_defaults_without_label
+
+test result: FAILED. 22 passed; 4 failed; 0 ignored; 0 measured; 7517 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p typst-core --lib`

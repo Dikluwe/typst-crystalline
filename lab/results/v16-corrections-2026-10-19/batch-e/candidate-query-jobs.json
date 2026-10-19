@@ -1,0 +1,111 @@
+[
+  {
+    "name": "lint-delta",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_e_compare_lint.py"
+    ]
+  },
+  {
+    "name": "core-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "v16_e_",
+      "--",
+      "--test-threads=1"
+    ]
+  },
+  {
+    "name": "existing-selector",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "equation_where_filters_match_identity_body_block_and_captured_fields",
+      "--",
+      "--test-threads=1"
+    ]
+  },
+  {
+    "name": "getter-preservation",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "content_views_",
+      "--",
+      "--test-threads=1"
+    ]
+  },
+  {
+    "name": "shell-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-shell",
+      "--lib",
+      "v16_e_",
+      "--",
+      "--test-threads=1"
+    ]
+  },
+  {
+    "name": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--workspace"
+    ]
+  },
+  {
+    "name": "language-replay",
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/replay.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/candidate-query-replay",
+      "--validation-state",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/candidate-query-run/state.json.gz"
+    ],
+    "expected_exit": 1
+  },
+  {
+    "name": "realized-query-replay",
+    "command": [
+      "python3",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/realized-query-replay.py",
+      "--output",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/agents/language/candidate-realized-query-replay",
+      "--validation-state",
+      "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-e/candidate-query-run/state.json.gz"
+    ]
+  },
+  {
+    "name": "structural-green",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_e_structural.py",
+      "green",
+      "query-green"
+    ]
+  }
+]

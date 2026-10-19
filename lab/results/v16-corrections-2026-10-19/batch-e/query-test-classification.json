@@ -1,0 +1,51 @@
+{
+  "utc": "2026-10-19T19:50:33.222163+00:00",
+  "phase": "Tests invoke original occurrence producer before snapshot repair",
+  "tests": [
+    {
+      "file": "01_core/src/compiler/eval/selector_matching.rs",
+      "name": "v16_e_realized_equation_filters_keep_captured_fields_and_labels",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "query-red-run/query-red.log",
+      "log_sha256": "75c9063cbf670ad6c93b48d6ecb0adaefd5c4533d4baf3d26774294a77cb0997"
+    },
+    {
+      "file": "01_core/src/compiler/eval/selector_matching.rs",
+      "name": "v16_e_equation_where_does_not_borrow_ordinary_styled_fields",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "log": "query-red-run/query-red.log",
+      "log_sha256": "75c9063cbf670ad6c93b48d6ecb0adaefd5c4533d4baf3d26774294a77cb0997"
+    },
+    {
+      "file": "01_core/src/compiler/introspect/from_tags/equations.rs",
+      "name": "v16_e_realized_equation_publishes_semantic_snapshot_per_occurrence",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "query-red-run/query-red.log",
+      "log_sha256": "75c9063cbf670ad6c93b48d6ecb0adaefd5c4533d4baf3d26774294a77cb0997"
+    },
+    {
+      "file": "01_core/src/compiler/introspect/from_tags/equations.rs",
+      "name": "v16_e_realized_equation_retains_effective_defaults_without_label",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "query-red-run/query-red.log",
+      "log_sha256": "75c9063cbf670ad6c93b48d6ecb0adaefd5c4533d4baf3d26774294a77cb0997"
+    },
+    {
+      "file": "01_core/src/compiler/introspect/from_tags/equations.rs",
+      "name": "v16_e_realized_equation_preserves_present_snapshots_and_missing_entries",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "log": "query-red-run/query-red.log",
+      "log_sha256": "75c9063cbf670ad6c93b48d6ecb0adaefd5c4533d4baf3d26774294a77cb0997"
+    }
+  ],
+  "counts": {
+    "semantic RED": 4,
+    "preservation": 1
+  },
+  "existing_selector": "query-red-run/existing-selector-red.log"
+}

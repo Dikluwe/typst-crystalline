@@ -1,0 +1,38 @@
+{
+  "ids": [
+    "V16-001",
+    "V16-002",
+    "V16-003",
+    "V16-004",
+    "V16-083",
+    "V16-084",
+    "V16-085"
+  ],
+  "sources": [
+    "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "02_shell/src/cli.rs",
+    "01_core/src/compiler/stdlib/structural/math/equation.rs",
+    "01_core/src/entities/content/fields.rs",
+    "01_core/src/entities/content/identity.rs",
+    "01_core/src/compiler/stdlib/loading/encoding.rs",
+    "01_core/src/compiler/eval/expression_dispatch.rs",
+    "01_core/src/compiler/eval/selector_matching.rs",
+    "01_core/src/compiler/introspect/from_tags.rs",
+    "01_core/src/compiler/introspect/from_tags/equations.rs"
+  ],
+  "owners": [
+    "00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md",
+    "00_nucleo/prompts/shell/cli.md",
+    "00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md",
+    "00_nucleo/prompts/core/entities/content/fields.md",
+    "00_nucleo/prompts/core/entities/content/identity.md",
+    "00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md",
+    "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md",
+    "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+    "00_nucleo/prompts/core/compiler/introspect/from_tags.md",
+    "00_nucleo/prompts/core/compiler/introspect/from_tags/equations.md"
+  ],
+  "shared_nuclei": [
+    "00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml"
+  ]
+}

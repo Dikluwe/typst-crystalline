@@ -1,0 +1,21 @@
+    Finished `test` profile [unoptimized] target(s) in 0.14s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 1 test
+test compiler::eval::selector_matching::equation_where_tests::equation_where_filters_match_identity_body_block_and_captured_fields ... FAILED
+
+failures:
+
+---- compiler::eval::selector_matching::equation_where_tests::equation_where_filters_match_identity_body_block_and_captured_fields stdout ----
+
+thread 'compiler::eval::selector_matching::equation_where_tests::equation_where_filters_match_identity_body_block_and_captured_fields' (1592749) panicked at 01_core/src/compiler/eval/selector_matching.rs:1337:13:
+assertion failed: element_selector_matches(&realized, &function, &fields)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    compiler::eval::selector_matching::equation_where_tests::equation_where_filters_match_identity_body_block_and_captured_fields
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7542 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p typst-core --lib`

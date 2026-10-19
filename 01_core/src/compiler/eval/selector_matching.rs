@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/selector_matching.md
-//! @prompt-hash bb4fa810
+//! @prompt-hash cbad6239
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -1287,6 +1287,37 @@ mod tests {
 #[cfg(test)]
 mod equation_where_tests {
     use super::*;
+
+    fn realized_equation(content: Content, occurrence: &str) -> IntrospectedContent {
+        use crate::entities::{
+            element_info::ElementInfo, introspector::TagIntrospector, label::Label,
+            location::Location, tag::Tag,
+        };
+        let location = Location::from_raw(1);
+        let payload =
+            crate::compiler::introspect::extract_payload::extract_payload(&content)
+                .expect("Equation payload");
+        let tags = [Tag::Start(
+            location,
+            Box::new(ElementInfo::with_label(payload, Label(occurrence.into()))),
+        )];
+        let mut introspector = TagIntrospector::default();
+        introspector
+            .elements
+            .insert(location, IntrospectedContent::new(content, None));
+        introspector
+            .equation_numberings
+            .insert(location, Value::Str(format!("({occurrence})").into()));
+        introspector.equation_alts.insert(location, Some(occurrence.into()));
+        introspector
+            .equation_supplement_contents
+            .insert(location, Content::text(occurrence));
+        crate::compiler::introspect::from_tags::realize_equation_elements(
+            &tags,
+            &mut introspector,
+        );
+        introspector.elements.remove(&location).expect("realized occurrence")
+    }
     #[test]
     fn equation_where_filters_match_identity_body_block_and_captured_fields() {
         let Value::Module(math) = crate::compiler::stdlib::make_math_module() else {
@@ -1302,15 +1333,8 @@ mod equation_where_tests {
             [("block".into(), Value::Bool(true)), ("body".into(), Value::Content(body))];
         for function in [eq.clone(), alias] {
             assert!(native_element_matches(&content, &function));
-            let styled = Content::styled(
-                Box::new(content.clone()),
-                crate::entities::style::Styles::default(),
-            );
-            assert!(element_selector_matches(
-                &IntrospectedContent::new(styled, None),
-                &function,
-                &fields
-            ));
+            let realized = realized_equation(content.clone(), "original");
+            assert!(element_selector_matches(&realized, &function, &fields));
             assert!(element_selector_matches(
                 &IntrospectedContent::new(content.clone(), None),
                 &function,
@@ -1337,6 +1361,75 @@ mod equation_where_tests {
         }
         let fake = Func::native("math.equation", crate::compiler::stdlib::native_heading);
         assert!(!native_element_matches(&content, &fake));
+    }
+
+    #[test]
+    fn v16_e_realized_equation_filters_keep_captured_fields_and_labels() {
+        use crate::entities::label::Label;
+        let Value::Module(math) = crate::compiler::stdlib::make_math_module() else {
+            panic!("math module")
+        };
+        let Some(Value::Func(equation)) = math.scope().get("equation") else {
+            panic!("missing equation")
+        };
+        let first =
+            realized_equation(Content::equation(Content::text("a"), true), "first");
+        let second =
+            realized_equation(Content::equation(Content::text("b"), false), "second");
+        for (entry, other, occurrence, block, body) in [
+            (&first, &second, "first", true, "a"),
+            (&second, &first, "second", false, "b"),
+        ] {
+            for fields in [
+                vec![("block".into(), Value::Bool(block))],
+                vec![("body".into(), Value::Content(Content::text(body)))],
+                vec![("numbering".into(), Value::Str(format!("({occurrence})").into()))],
+                vec![("alt".into(), Value::Str(occurrence.into()))],
+                vec![("supplement".into(), Value::Content(Content::text(occurrence)))],
+                vec![("label".into(), Value::Label(Label(occurrence.into())))],
+            ] {
+                assert!(
+                    element_selector_matches(entry, equation, &fields),
+                    "{occurrence}/{fields:?}"
+                );
+                assert!(
+                    !element_selector_matches(other, equation, &fields),
+                    "other occurrence/{fields:?}"
+                );
+                let empty = IntrospectedContent::new(
+                    entry.content().clone(),
+                    Some(Default::default()),
+                );
+                assert!(
+                    !element_selector_matches(&empty, equation, &fields),
+                    "empty snapshot/{fields:?}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn v16_e_equation_where_does_not_borrow_ordinary_styled_fields() {
+        let Value::Module(math) = crate::compiler::stdlib::make_math_module() else {
+            panic!("math module")
+        };
+        let Some(Value::Func(equation)) = math.scope().get("equation") else {
+            panic!("missing equation")
+        };
+        let body = Content::text("ordinary");
+        let external = Content::styled(
+            Content::equation(body.clone(), true),
+            crate::entities::style::Styles::new()
+                .push_custom("equation.alt", Value::Str("external".into())),
+        );
+        let entry = IntrospectedContent::new(external, None);
+        for fields in [
+            vec![("block".into(), Value::Bool(true))],
+            vec![("body".into(), Value::Content(body))],
+            vec![("alt".into(), Value::Str("external".into()))],
+        ] {
+            assert!(!element_selector_matches(&entry, equation, &fields));
+        }
     }
 }
 

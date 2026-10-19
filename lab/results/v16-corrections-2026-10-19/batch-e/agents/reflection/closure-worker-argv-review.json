@@ -1,0 +1,26 @@
+{
+  "utc": "2026-10-19T20:14:29.576185+00:00",
+  "result": "approved bounded checker correction; no remaining finding",
+  "worker_sha256": "7dc3170c9fff81b61ffa71e50d8b229b620ddc9c5559d7186d27c2a56fdba1c4",
+  "syntax_check": "passed",
+  "reviewed_actual_assertion_block": "assert expected_argv[1]=='query'\nflag_shapes=[['--format','json']]\nfor field in ['block','body','numbering','alt']:\n flag_shapes.extend([['--format','json','--field',field],['--field',field,'--format','json']])\nassert expected_argv[4:] in flag_shapes",
+  "frozen_argument_counts": {
+    "no_field": 10,
+    "field_before_format": 16,
+    "format_before_field": 13
+  },
+  "binary_argument_vectors_verified": 78,
+  "acceptance_preserved": [
+    "Actual flag-shape assertion passes every frozen argument vector for both binaries.",
+    "Only the nine bounded known flag shapes are admitted; field names are restricted to block/body/numbering/alt.",
+    "Full actual argv must still equal its exact per-case frozen argv after only binary/source-path substitution. No flag order normalization occurs in that equality.",
+    "Source hashes, case IDs, semantic observations, booleans distinct from numbers, pinned oracle and final validation/binary chain checks remain unchanged."
+  ],
+  "initial_checker_failures_preserved": [
+    "closure-audit-argv-assertion-failure.log",
+    "closure-audit-indentation-failure.log",
+    "closure-audit-flag-order-failure.log"
+  ],
+  "correction_receipt_sha256": "2867fd3d307b230a875e48edeba44fdba934ffb0a5817f752c61358d4bb66626",
+  "scope": "Independent read-only review; no worker/source/L0/test/receipt changes. Only this diagnostic written."
+}

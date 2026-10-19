@@ -1,0 +1,38 @@
+{
+  "utc": "2026-10-19T19:46:38.062919+00:00",
+  "state": "uncommitted working tree",
+  "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+  "diff_head_stat": " .../_nuclei/math/equation-constructor-origin.toml  |   29 +\n .../eval/bindings/field_access/content_methods.md  |  161 ++-\n .../core/compiler/eval/expression_dispatch.md      |   55 +-\n .../core/compiler/eval/selector_matching.md        |   60 ++\n .../prompts/core/compiler/introspect/from_tags.md  |   14 +-\n .../compiler/introspect/from_tags/equations.md     |   61 ++\n .../core/compiler/stdlib/loading/encoding.md       |   65 +-\n .../compiler/stdlib/structural/math/equation.md    |   36 +-\n 00_nucleo/prompts/core/entities/content/fields.md  |   50 +-\n .../prompts/core/entities/content/identity.md      |   33 +-\n 00_nucleo/prompts/shell/cli.md                     |   95 +-\n .../eval/bindings/field_access/content_methods.rs  | 1079 +++++++++++++++++++-\n 01_core/src/compiler/eval/expression_dispatch.rs   |   83 +-\n 01_core/src/compiler/eval/selector_matching.rs     |   92 +-\n .../src/compiler/introspect/from_tags/equations.rs |  107 ++\n 01_core/src/compiler/stdlib/loading/encoding.rs    |  288 +++++-\n .../compiler/stdlib/structural/math/equation.rs    |  113 +-\n 01_core/src/entities/content/fields.rs             |   73 +-\n 01_core/src/entities/content/identity.rs           |  207 +++-\n 02_shell/src/cli.rs                                |  901 +++++++++++++++-\n 20 files changed, 3516 insertions(+), 86 deletions(-)\n",
+  "productive_non_test_code_unchanged": true,
+  "tests": [
+    {
+      "name": "equation_where_filters_match_identity_body_block_and_captured_fields",
+      "line": 1321,
+      "expected_baseline": "semantic RED until producer repair"
+    },
+    {
+      "name": "v16_e_realized_equation_filters_keep_captured_fields_and_labels",
+      "line": 1370,
+      "expected_baseline": "semantic RED until producer repair"
+    },
+    {
+      "name": "v16_e_equation_where_does_not_borrow_ordinary_styled_fields",
+      "line": 1401,
+      "expected_baseline": "preservation PASS"
+    }
+  ],
+  "sha256": {
+    "01_core/src/compiler/eval/selector_matching.rs": "d78a86d99948ab3fc4105c2386a3b428ffd8a7d66d671fc11f1feae1bb41be05",
+    "00_nucleo/prompts/core/compiler/eval/selector_matching.md": "805b1d2862ecf42d7e465bc9d1ab561c932fe95a9ffe95ea2dc3b4ed45232622"
+  },
+  "validation": "git diff --check passed; parent owns fmt, seal and actual RED; no Cargo run",
+  "fixture": "Existing actual public realize_equation_elements via TagIntrospector + extract_payload + Tag::Start; no constructor marker, new facade or manual final snapshot",
+  "preserved_original_semantics": [
+    "native alias identity",
+    "body/block positive",
+    "false block negative",
+    "Some(empty) authority",
+    "fake callback negative",
+    "query-to-show conversion"
+  ]
+}

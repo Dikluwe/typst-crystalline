@@ -1,0 +1,9 @@
+   Compiling typst-shell v0.1.0 (/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-e-label-baseline/02_shell)
+    Finished `test` profile [unoptimized] target(s) in 3.36s
+     Running unittests src/lib.rs (/repos/Antigravity/typst-crystalline/lab/target/product/debug/deps/typst_shell-ceb74312f5e50162)
+
+running 1 test
+test cli::v16_e_serialization_tests::v16_e_carriers_preserve_visual_morphology_and_label_order ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 106 filtered out; finished in 0.01s
+

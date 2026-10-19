@@ -1,0 +1,34 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 1m 20s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 26 tests
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_equation_has_at_precedence_and_explicit_none ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_equation_native_aliases_keep_language_identity ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_equation_native_identity_requires_valid_constructor_origin ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_external_styled_equation_does_not_expose_equation_schema ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_figure_known_caption_and_metadata_value_are_enumerated ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_nested_equation_carriers_preserve_fields ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_outline_entry_fill_preserves_lexical_presence ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_prescribed_native_identities_survive_carriers ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_semantic_containers_remain_opaque_to_equation_fields ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_snapshots_and_location_precedence_survive_carriers ... ok
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_e_external_set_style_keeps_equation_constructor_boundary ... ok
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_e_external_set_style_preserves_ordinary_merge_and_latest_marker ... ok
+test compiler::eval::selector_matching::equation_where_tests::v16_e_equation_where_does_not_borrow_ordinary_styled_fields ... ok
+test compiler::eval::selector_matching::equation_where_tests::v16_e_realized_equation_filters_keep_captured_fields_and_labels ... ok
+test compiler::introspect::from_tags::equations::v16_e_occurrence_tests::v16_e_realized_equation_preserves_present_snapshots_and_missing_entries ... ok
+test compiler::introspect::from_tags::equations::v16_e_occurrence_tests::v16_e_realized_equation_publishes_semantic_snapshot_per_occurrence ... ok
+test compiler::introspect::from_tags::equations::v16_e_occurrence_tests::v16_e_realized_equation_retains_effective_defaults_without_label ... ok
+test compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_constructor_projects_each_causal_carrier_without_original ... ok
+test compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_external_styles_and_invalid_markers_remain_structural ... ok
+test compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_marked_equation_snapshots_remain_authoritative ... ok
+test compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_marked_equation_uses_known_fields_instead_of_style_payload ... ok
+test compiler::stdlib::structural::math::equation::v16_e_equation_producer_tests::v16_e_equation_actual_constructor_options_keep_identity ... ok
+test compiler::stdlib::structural::math::equation::v16_e_equation_producer_tests::v16_e_equation_bare_and_block_only_do_not_gain_transport ... ok
+test entities::content::fields::content_view_regressions::v16_e_getter_requires_own_constructor_origin ... ok
+test entities::content::identity::v16_e_equation_identity_tests::v16_e_equation_identity_rejects_unmarked_and_invalid_transports ... ok
+test entities::content::identity::v16_e_equation_identity_tests::v16_e_equation_marked_identity_follows_causal_visual_and_nested_transport ... ok
+
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 7517 filtered out; finished in 0.01s
+

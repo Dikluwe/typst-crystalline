@@ -1,0 +1,69 @@
+{
+  "utc": "2026-10-19T19:44:40.290125+00:00",
+  "state": "uncommitted working tree",
+  "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+  "diff_head_stat": " .../_nuclei/math/equation-constructor-origin.toml  |   29 +\n .../eval/bindings/field_access/content_methods.md  |  161 ++-\n .../core/compiler/eval/expression_dispatch.md      |   55 +-\n .../core/compiler/stdlib/loading/encoding.md       |   65 +-\n .../compiler/stdlib/structural/math/equation.md    |   36 +-\n 00_nucleo/prompts/core/entities/content/fields.md  |   50 +-\n .../prompts/core/entities/content/identity.md      |   33 +-\n 00_nucleo/prompts/shell/cli.md                     |   95 +-\n .../eval/bindings/field_access/content_methods.rs  | 1079 +++++++++++++++++++-\n 01_core/src/compiler/eval/expression_dispatch.rs   |   83 +-\n 01_core/src/compiler/stdlib/loading/encoding.rs    |  288 +++++-\n .../compiler/stdlib/structural/math/equation.rs    |  113 +-\n 01_core/src/entities/content/fields.rs             |   73 +-\n 01_core/src/entities/content/identity.rs           |  207 +++-\n 02_shell/src/cli.rs                                |  901 +++++++++++++++-\n 15 files changed, 3192 insertions(+), 76 deletions(-)\n",
+  "sources": {
+    "01_core/src/compiler/eval/selector_matching.rs": "3a3217197ba5300b4e17f03f8e11caa3e9269fd29b08e10ab9d7d6e58b4eee42",
+    "00_nucleo/prompts/core/compiler/eval/selector_matching.md": "31cd1684939356c0d43e7d2d3f9c966bc93fc6535c996fd652edfa34fcc25ce2",
+    "01_core/src/compiler/introspect/from_tags/equations.rs": "64af150a0e2847f78bd144ec035eb089c7ec9d16b77fb7a8760545b80b1ef1f1",
+    "00_nucleo/prompts/core/compiler/introspect/from_tags/equations.md": "d9ff1a6d49363e9984be5d847f0de8ccbdc2709434f768d368cd2782f1151bf1",
+    "01_core/src/compiler/introspect/queries.rs": "6e28412fb1e356511db4c60c97385a1ab41366f59bd12f970bbd528796d21111",
+    "01_core/src/entities/value.rs": "a16dc7f800d27006b5740e798a7555f09e7098bc13c82c4eb20edec8d9c7a2d3",
+    "00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml": "0de3570e5a025a82700552c5e29807242874deb9d4fe49be32ab13aab95e50b9"
+  },
+  "result": "supported regression; fixture-only correction insufficient",
+  "failed_test": "compiler::eval::selector_matching::equation_where_tests::equation_where_filters_match_identity_body_block_and_captured_fields",
+  "failure_source_anchor": "01_core/src/compiler/eval/selector_matching.rs:1309",
+  "failure_log": "lab/results/v16-corrections-2026-10-19/batch-e/validation/tests-domain-infra.log",
+  "cause_chain": [
+    {
+      "anchor": "01_core/src/compiler/eval/selector_matching.rs:1305",
+      "observation": "Existing test wraps a semantic Equation in empty Styled and no snapshot to model a historically supported query view."
+    },
+    {
+      "anchor": "01_core/src/compiler/introspect/from_tags/equations.rs:119",
+      "observation": "Actual realized producer captures numbering, number-align, supplement and alt in an unmarked Styled over the original entry content, stored with fields=None at lines163\u2013166."
+    },
+    {
+      "anchor": "01_core/src/compiler/eval/selector_matching.rs:333",
+      "observation": "Native Equation selector intentionally still traverses Styled; identity matches."
+    },
+    {
+      "anchor": "01_core/src/compiler/eval/selector_matching.rs:500",
+      "observation": "Native filter lookup delegates Equation Styled fields to get_field; new getter requires own constructor marker, so block/body/options disappear."
+    },
+    {
+      "anchor": "01_core/src/compiler/eval/selector_matching.rs:641",
+      "observation": "None snapshot uses legacy field projection and causes failed where filters. Some snapshot is authoritative."
+    }
+  ],
+  "options": [
+    {
+      "option": "Complete realized snapshot on existing semantic Equation",
+      "assessment": "Preferred smallest complete producer correction, pending current-pin measurements and L0 decision. No public entity/signature/mode/phase change is required. Store original semantic Content plus ordered Some fields, following existing snapshot contract rather than misusing constructor provenance. Include effective block/body and four captured options with original values; present causal label last; no func/location. Preserve existing snapshot semantics deliberately.",
+      "owners": [
+        "00_nucleo/prompts/core/compiler/introspect/from_tags/equations.md",
+        "00_nucleo/prompts/core/compiler/eval/selector_matching.md"
+      ],
+      "caution": "queries.rs:112 disables legacy label-index fallback for every Some snapshot. A six-field snapshot without the causal label introduces a new label filter regression. ElementInfo.label is available on each input Tag::Start; do not reconstruct from arbitrary selector or first occurrence. Existing selector fixture should exercise the actual producer boundary and retain match/miss/alias/snapshot assertions, not simply be labelled stale."
+    },
+    {
+      "option": "Distinct realized-origin marker",
+      "assessment": "Technically possible only with new explicit private provenance contract and coordinated recognizer/nucleus updates. It must not overload equation.constructor. Broader owner surface than snapshot approach; does not by itself establish complete known-field snapshot semantics."
+    },
+    {
+      "option": "Selector-local bounded legacy field projection",
+      "assessment": "Can restore historical where filter outcome without reopening ordinary reflection, but incomplete alone: realized entries still expose styled identity/serialization. Requires explicit selector L0 responsibility and current-pin evidence; not a complete repair of producer morphology."
+    }
+  ],
+  "measurement_gap": "Existing 173 source corpus has no realized Equation query cases; constructor and external-style observations do not certify this producer. Parent-controlled supplemental current-pin query/native-where/block/body/options/label/func and JSON/YAML probes needed before accepting repair.",
+  "recommended_controls": [
+    "Actual realize_equation_elements producer through native Equation and alias filter; block/body/options known values and negative mismatch.",
+    "Two occurrences with different captured values and causal labels; label filter preserved after snapshot introduction.",
+    "Some(empty) and Some(divergent) remain authoritative at consumer boundary; no per-field fallback.",
+    "Ordinary external Styled remains opaque to reflected Equation fields and constructor marker does not appear.",
+    "Query fields/func/native identity and JSON/YAML output on realized Equation; callbacks not reexecuted during observation."
+  ],
+  "edits": "none; read-only investigation"
+}

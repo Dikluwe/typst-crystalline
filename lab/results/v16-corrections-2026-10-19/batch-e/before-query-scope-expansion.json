@@ -1,0 +1,55 @@
+{
+  "utc": "2026-10-19T19:15:02.145731+00:00",
+  "baseline_commit": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+  "selected_ids": [
+    "V16-001",
+    "V16-002",
+    "V16-003",
+    "V16-004",
+    "V16-083",
+    "V16-084",
+    "V16-085"
+  ],
+  "original_owners": [
+    "core/compiler/eval/bindings/field_access/content_methods",
+    "shell/cli"
+  ],
+  "causal_dependencies": [
+    {
+      "owner": "core/compiler/stdlib/structural/math/equation",
+      "cause": "Only the native producer can distinguish its explicit option transport from ordinary external Styled; add a private entry to its existing nonempty custom delta."
+    },
+    {
+      "owner": "core/entities/content/fields",
+      "cause": "The existing semantic getter crosses unmarked Styled and must observe the same provenance boundary."
+    },
+    {
+      "owner": "core/entities/content/identity",
+      "cause": "Language func names and diagnostics must identify marked constructor transport while retaining ordinary Styled identity."
+    },
+    {
+      "owner": "core/compiler/stdlib/loading/encoding",
+      "cause": "Native JSON/YAML uses an independent Styled projection; changed identity must not produce equation named objects with child/styles fields."
+    },
+    {
+      "owner": "core/compiler/eval/expression_dispatch",
+      "cause": "The first candidate source replay proved style_code_tail merged the new constructor marker into an external lexical set-style, changing public Styled identity. Retain the wrapper boundary only for latest true constructor markers; preserve ordinary merging and source origin."
+    }
+  ],
+  "decision_class": "ADR-0127 continuous internal and measured parity correction",
+  "no_new_public_contract": "No public type, field, signature, visibility facade, default mode, compatibility break or eval-layout phase was added. Private recognition is local to each owner; a pinned shared Nucleus defines its invariant. Existing public native Equation function is reused.",
+  "evidence_before_decision": [
+    "agents/language/receipt.json",
+    "agents/language/supplement-receipt.json",
+    "agents/language/artifact-marker-receipt.json",
+    "agents/reflection/report.md",
+    "agents/serialization/audit.md",
+    "agents/language/candidate-replay-review.json"
+  ],
+  "excluded_public_presence_repairs": [
+    "Figure explicit caption:none versus omission",
+    "PdfArtifact omitted kind versus explicit other",
+    "Equation omitted block versus explicit false"
+  ],
+  "history_policy": "Original cause plan and prior batch receipts are preserved. This diagnostic records implementation scope, not a new L0 or authorization for pending API changes."
+}

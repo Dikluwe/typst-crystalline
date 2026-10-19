@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-19T19:17:32.535902+00:00",
+  "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+  "diff_head_stat": " .../eval/bindings/field_access/content_methods.md  |  161 ++-\n .../core/compiler/stdlib/loading/encoding.md       |   65 +-\n .../compiler/stdlib/structural/math/equation.md    |   36 +-\n 00_nucleo/prompts/core/entities/content/fields.md  |   50 +-\n .../prompts/core/entities/content/identity.md      |   33 +-\n 00_nucleo/prompts/shell/cli.md                     |   95 +-\n .../eval/bindings/field_access/content_methods.rs  | 1075 +++++++++++++++++++-\n 01_core/src/compiler/stdlib/loading/encoding.rs    |  288 +++++-\n .../compiler/stdlib/structural/math/equation.rs    |  113 +-\n 01_core/src/entities/content/fields.rs             |   73 +-\n 01_core/src/entities/content/identity.rs           |  207 +++-\n 02_shell/src/cli.rs                                |  901 +++++++++++++++-\n 12 files changed, 3031 insertions(+), 66 deletions(-)\n",
+  "phase": "L0 + new test only; native metadata implementation unchanged",
+  "sha256": {
+    "00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md": "07cd40f13bba71322a8d1a057d713266b333f30a25beeb1f2d5fcde490f6b6f5",
+    "01_core/src/compiler/eval/bindings/field_access/content_methods.rs": "da7a44ee1c8278e871723fc2d6231ac519e8e2ce0065160e5865f45ab3c6473d"
+  }
+}

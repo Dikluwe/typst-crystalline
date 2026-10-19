@@ -1,0 +1,243 @@
+[
+  {
+    "utc": "2026-10-19T19:03:54.866151+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+        "before": "75e134782ae1bce968d634356dc46ed6e144802868e31fe1b4d15d5f91008517",
+        "after": "237e94c16a25bb727b8d4d58fd18b835ed0aca939fc00ab774779a2601d97a27"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/structural/math/equation.rs",
+        "before": "0b1ffa5fc607a79b9e729db9b665450753030ae2c37f488cdf708a1907dc9d5e",
+        "after": "7b056e76a96df90f7e7f233d09c5ba876f7ac3e26b3a3c9563f06ee7ae25bc79"
+      },
+      {
+        "file": "01_core/src/entities/content/fields.rs",
+        "before": "6a69629c8117c93fc2d7750f30c204de95846507b6ba9bc44dbb758a183d72fb",
+        "after": "1fdac6265593fc93a6c8bd390a07fa481c9c3a4f68dc9cb5cbd4c65385f20498"
+      },
+      {
+        "file": "01_core/src/entities/content/identity.rs",
+        "before": "c4ed1ac5d25262f57d9db4393e4ef26f219be146ecd5dd12ef84ce79ef468d60",
+        "after": "b23067e8ee0dba5368259809b110f30236c989c4c65419dc63fa18df367a9801"
+      },
+      {
+        "file": "02_shell/src/cli.rs",
+        "before": "7f2643ce73d1204d6be7a0fd5e4afc9b13fabdcb29fe6415f3ab4da309c6f632",
+        "after": "640062137cce2155b57d7174d782c5044ecf6eda8119925b5f2e7cd07bc4c789"
+      },
+      {
+        "file": "00_nucleo/prompts/shell/cli.md",
+        "before": "5885bdc2ec6ef507868b6873a4e4330d75816657bc5c53b5e9d3f10a565543de",
+        "after": "4601355674c366c986c2c02ce611e229d9c5dd19a6d14383592a342ba2d726e0"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md",
+        "before": "6dcc34ba36c3d2dc3c927c9ca4d6b80fd9d344fdd55d11bbdeb392967d28b18c",
+        "after": "f0ee0586c5bf9c9714e27d7e72bb4de4b12ad0a350fc94828f5ebe5f7883f011"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md",
+        "before": "a3882d870b190b8497a833c3275845c49034a7f2d62dd0030d19cabe2b626018",
+        "after": "5634856562a621dd19c66da13d2887da5d7f31b764996b05556c15a41a875bde"
+      },
+      {
+        "file": "00_nucleo/prompts/core/entities/content/fields.md",
+        "before": "ca4ec0eeffd2308f646c03661ea45d2fff6fe18aff5a3921f57a95b5833ff891",
+        "after": "d8215b8985c1c37a86c094125e105d838ea6f6a5e25b8004b6e6ae7b28c977cb"
+      },
+      {
+        "file": "00_nucleo/prompts/core/entities/content/identity.md",
+        "before": "a1f8445c81a3a45a651e51417f2a8a87a60c9fa5963fd008544c371ddc6310ee",
+        "after": "ac8f75fa007c6683983c027666699de3cce92a4c2ec076d38b2584b4a22bd4af"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md hash-a=57c98ea9 hash-b=66570cfa\nApplied ./01_core/src/compiler/stdlib/structural/math/equation.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md hash-a=74c7c4ed hash-b=c96d0622\nApplied ./01_core/src/entities/content/fields.rs prompt=00_nucleo/prompts/core/entities/content/fields.md hash-a=0713c308 hash-b=86f87b69\nApplied ./01_core/src/entities/content/identity.rs prompt=00_nucleo/prompts/core/entities/content/identity.md hash-a=fbc6877e hash-b=91b9bdea\nApplied ./02_shell/src/cli.rs prompt=00_nucleo/prompts/shell/cli.md hash-a=63952ac2 hash-b=9495acfc\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T19:06:18.306223+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+        "before": "745b52ef5e76b89f973eb49cbeb743b822787c0b61f09549010a19bca75f10a3",
+        "after": "5b707308e584870b2ec839fbf7a31fdeb604faf7475ff625e932071b628ea330"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md",
+        "before": "9e04baba019ab31c0a5f0c28d4bb9a8324144265f247cd8d1c6a27edf529fac8",
+        "after": "d032f03516fdd567fc308bffe13333d1613fa75dbca311f9830f098d3dfa3f94"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md hash-a=57c98ea9 hash-b=66570cfa\nApplied ./01_core/src/compiler/stdlib/loading/encoding.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md hash-a=8bc34ec9 hash-b=e9c5b439\nApplied ./01_core/src/compiler/stdlib/structural/math/equation.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md hash-a=74c7c4ed hash-b=c96d0622\nApplied ./01_core/src/entities/content/fields.rs prompt=00_nucleo/prompts/core/entities/content/fields.md hash-a=0713c308 hash-b=86f87b69\nApplied ./01_core/src/entities/content/identity.rs prompt=00_nucleo/prompts/core/entities/content/identity.md hash-a=fbc6877e hash-b=91b9bdea\nApplied ./02_shell/src/cli.rs prompt=00_nucleo/prompts/shell/cli.md hash-a=63952ac2 hash-b=9495acfc\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T19:12:03.537299+00:00",
+    "changes": [
+      {
+        "file": "00_nucleo/prompts/shell/cli.md",
+        "before": "4601355674c366c986c2c02ce611e229d9c5dd19a6d14383592a342ba2d726e0",
+        "after": "4212f48eddc579a11a6eeedebdd1e61d8af7e6f161395b2ecba6229481fe1ce4"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md",
+        "before": "f0ee0586c5bf9c9714e27d7e72bb4de4b12ad0a350fc94828f5ebe5f7883f011",
+        "after": "8459e595e2e9b2c83d37bbb2e889c97a1548c48cb074a980b51d93c168f88e18"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md",
+        "before": "d032f03516fdd567fc308bffe13333d1613fa75dbca311f9830f098d3dfa3f94",
+        "after": "591fcf34a87e99939a206f09541787f76ed35f4d6eabd4552e7356d2e051e728"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md",
+        "before": "5634856562a621dd19c66da13d2887da5d7f31b764996b05556c15a41a875bde",
+        "after": "2adad07cb2d6ff41bc523be0d1ccc42d6f540cbfa17d2892c23ccf54c78ff1ef"
+      },
+      {
+        "file": "00_nucleo/prompts/core/entities/content/fields.md",
+        "before": "d8215b8985c1c37a86c094125e105d838ea6f6a5e25b8004b6e6ae7b28c977cb",
+        "after": "90269194f8eb0202746a5b487748d645ed4ead4581b3ab09686945b48977108e"
+      },
+      {
+        "file": "00_nucleo/prompts/core/entities/content/identity.md",
+        "before": "ac8f75fa007c6683983c027666699de3cce92a4c2ec076d38b2584b4a22bd4af",
+        "after": "eff3d1ea913dbd2d75bff17968c7e82477818517970e5f3dfddc0d7ffdc5c2e5"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md hash-a=57c98ea9 hash-b=5ebf8148\nApplied ./01_core/src/compiler/stdlib/loading/encoding.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md hash-a=8bc34ec9 hash-b=6b28b534\nApplied ./01_core/src/compiler/stdlib/structural/math/equation.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md hash-a=74c7c4ed hash-b=2e911906\nApplied ./01_core/src/entities/content/fields.rs prompt=00_nucleo/prompts/core/entities/content/fields.md hash-a=0713c308 hash-b=b22d5cf9\nApplied ./01_core/src/entities/content/identity.rs prompt=00_nucleo/prompts/core/entities/content/identity.md hash-a=fbc6877e hash-b=75ef7f38\nApplied ./02_shell/src/cli.rs prompt=00_nucleo/prompts/shell/cli.md hash-a=63952ac2 hash-b=73f66c5c\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T19:25:46.889785+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+        "before": "dcbada29ec740690e0538afacee70cda25e76c8905b0e6ac36aecc9cae6875be",
+        "after": "8ecb8e2a5b0d89e5e9b7895ae3727a56eb409228b1bd9f7686e5e3f13d64fcfe"
+      },
+      {
+        "file": "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+        "before": "da7a44ee1c8278e871723fc2d6231ac519e8e2ce0065160e5865f45ab3c6473d",
+        "after": "2df7cb4c044569558a22896a760436fa2ddb917e4b7094beeb523b4502396a8b"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/loading/encoding.rs",
+        "before": "7c6a65e0fab85c9fedd6da36513bca7efd585346c8355e9ffebf1bc6db371f75",
+        "after": "4463c1c34d091528d502e9fea430feed1797728e1d9526f942bef96e61131be3"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/structural/math/equation.rs",
+        "before": "8a4566ceec175a8a98c0ea5d02734c8702b6ab69c45b290f8d1397e4ada6af9c",
+        "after": "99321690dcce52b5a2c96d1f263b559a586d02edac0e6a559c4f6f3bad011e43"
+      },
+      {
+        "file": "01_core/src/entities/content/fields.rs",
+        "before": "386dc46501738f66123fcaa58f2440805f2e4f61649dc4455ca3cb642f817467",
+        "after": "f7972a9a52f1509b39ef6de06cd3537659ad7ea30b3199c99778fd9411f95f38"
+      },
+      {
+        "file": "01_core/src/entities/content/identity.rs",
+        "before": "07a4db3f0fce578ef1a0c478c9a897601c06afe498f92ef5354918eafade6e9a",
+        "after": "5bc6f48db28a247575f0678983d909c7f20de2819e9129ba29bf6ace42e42bb6"
+      },
+      {
+        "file": "02_shell/src/cli.rs",
+        "before": "b67b6db5f39c27b44167ca9cac5d25c2130434f11b755bafe1b780f8d3011fa2",
+        "after": "b6a5e7f36c75949d0e75498a4d98ade92a264cc85831fa95f970d7417814d719"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md",
+        "before": "1ce78336cd8282c883f361b93c88cf6d02ee04d6bf596265edf77d98a4dd136a",
+        "after": "29f14841bbeac27f0432cd5c61a513c50a487464e723620556b9b7065e781407"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md",
+        "before": "ac25d7061a818e5927ea5210ed0653730ea9303107225f26b056c7f98b11c888",
+        "after": "34d32b96ca3752abaf8ed88f83c77c92e34a4330e920171daa586534df39469e"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md hash-a=ea5bd47e hash-b=545b20da\nApplied ./01_core/src/compiler/eval/expression_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/expression_dispatch.md hash-a=50dce88a hash-b=57115099\nApplied ./01_core/src/compiler/stdlib/loading/encoding.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md hash-a=013b5fa8 hash-b=6b28b534\nApplied ./01_core/src/compiler/stdlib/structural/math/equation.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md hash-a=0a35490b hash-b=2e911906\nApplied ./01_core/src/entities/content/fields.rs prompt=00_nucleo/prompts/core/entities/content/fields.md hash-a=7b17ac42 hash-b=b22d5cf9\nApplied ./01_core/src/entities/content/identity.rs prompt=00_nucleo/prompts/core/entities/content/identity.md hash-a=9703cb42 hash-b=75ef7f38\nApplied ./02_shell/src/cli.rs prompt=00_nucleo/prompts/shell/cli.md hash-a=5d3d710e hash-b=73f66c5c\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T19:30:02.439090+00:00",
+    "changes": [
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md",
+        "before": "29f14841bbeac27f0432cd5c61a513c50a487464e723620556b9b7065e781407",
+        "after": "9c95f76aedf84edd091190aa1d488f06c2993d9dfe6150c5df042e499289ff88"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md hash-a=ea5bd47e hash-b=545b20da\nApplied ./01_core/src/compiler/eval/expression_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/expression_dispatch.md hash-a=50dce88a hash-b=ff6a8d3b\nApplied ./01_core/src/compiler/stdlib/loading/encoding.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md hash-a=013b5fa8 hash-b=6b28b534\nApplied ./01_core/src/compiler/stdlib/structural/math/equation.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md hash-a=0a35490b hash-b=2e911906\nApplied ./01_core/src/entities/content/fields.rs prompt=00_nucleo/prompts/core/entities/content/fields.md hash-a=7b17ac42 hash-b=b22d5cf9\nApplied ./01_core/src/entities/content/identity.rs prompt=00_nucleo/prompts/core/entities/content/identity.md hash-a=9703cb42 hash-b=75ef7f38\nApplied ./02_shell/src/cli.rs prompt=00_nucleo/prompts/shell/cli.md hash-a=5d3d710e hash-b=73f66c5c\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T19:32:46.068678+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+        "before": "26b3e32e89b75709dd2d0a799e8d88c0f0e7663c18568922d3cf928cddace927",
+        "after": "11a26c344f55d201ec285bd76edfa71cd0fcab0d1c667ef4bfbd5626004c4180"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md",
+        "before": "18dfc1c7c2391343b25ec26acfd2ea1bc29f370653c1d30b28a4399daffe3201",
+        "after": "411199ba511afa5dd78c2ff58210a64e9461cde5a1a8f82895deab87895d4430"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md",
+        "before": "34d32b96ca3752abaf8ed88f83c77c92e34a4330e920171daa586534df39469e",
+        "after": "ddb693acd709299c43843a18abe5ec4f21e65a094f3f5c25fe797a270cf8e77b"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md hash-a=ea5bd47e hash-b=eba9d458\nApplied ./01_core/src/compiler/eval/expression_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/expression_dispatch.md hash-a=9a61fb14 hash-b=4864ea2d\nApplied ./01_core/src/compiler/stdlib/loading/encoding.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md hash-a=013b5fa8 hash-b=6b28b534\nApplied ./01_core/src/compiler/stdlib/structural/math/equation.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md hash-a=0a35490b hash-b=2e911906\nApplied ./01_core/src/entities/content/fields.rs prompt=00_nucleo/prompts/core/entities/content/fields.md hash-a=7b17ac42 hash-b=b22d5cf9\nApplied ./01_core/src/entities/content/identity.rs prompt=00_nucleo/prompts/core/entities/content/identity.md hash-a=9703cb42 hash-b=75ef7f38\nApplied ./02_shell/src/cli.rs prompt=00_nucleo/prompts/shell/cli.md hash-a=5d3d710e hash-b=73f66c5c\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T19:48:08.822002+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/eval/selector_matching.rs",
+        "before": "fecb68ffbe79b7567354f64cce28d45c1927e9edaa2ea451ed305c9f7214e282",
+        "after": "f1892128a99e46b4f5f470b882c376665040242203f62c7cc017dda51348fb95"
+      },
+      {
+        "file": "01_core/src/compiler/introspect/from_tags.rs",
+        "before": "8aa272e0ddab02ffb3dbdf0fb470d5f74c3099001bcca99c37c96b00bb32182a",
+        "after": "4217f2f852ef1b273ce89e23346e0702ba81e5e29a8a2430b97fa1dc71639596"
+      },
+      {
+        "file": "01_core/src/compiler/introspect/from_tags/equations.rs",
+        "before": "bef9a56aba792568a6f8b2d65e679049ab225650fbe1a6bd6da76787045b2b01",
+        "after": "8d2b7c35871fffeae07e7111ca74a272270598b350072b56b9d45498768df46d"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+        "before": "27cab47b341d3987775262d1eb4477f3220970b1c729f1b18b93a8529785ec68",
+        "after": "f4a14a8ba036759f84e873faf550a7b5a3d610691306fed461194904723eed77"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/introspect/from_tags/equations.md",
+        "before": "ef12d7d92f9680a1b05cfff3d245940897c0ccd855c28e45dfae93df75643494",
+        "after": "d9d1f3caa91e56d801867e4128185b56bd69f8c7654e6ef78348de5639aa4025"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md hash-a=ea5bd47e hash-b=eba9d458\nApplied ./01_core/src/compiler/eval/expression_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/expression_dispatch.md hash-a=9a61fb14 hash-b=4864ea2d\nApplied ./01_core/src/compiler/eval/selector_matching.rs prompt=00_nucleo/prompts/core/compiler/eval/selector_matching.md hash-a=cbad6239 hash-b=13d5d87d\nApplied ./01_core/src/compiler/introspect/from_tags/equations.rs prompt=00_nucleo/prompts/core/compiler/introspect/from_tags/equations.md hash-a=57c83d8d hash-b=e5854ae6\nApplied ./01_core/src/compiler/introspect/from_tags.rs prompt=00_nucleo/prompts/core/compiler/introspect/from_tags.md hash-a=883cd4ec hash-b=948da922\nApplied ./01_core/src/compiler/stdlib/loading/encoding.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md hash-a=013b5fa8 hash-b=6b28b534\nApplied ./01_core/src/compiler/stdlib/structural/math/equation.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md hash-a=0a35490b hash-b=2e911906\nApplied ./01_core/src/entities/content/fields.rs prompt=00_nucleo/prompts/core/entities/content/fields.md hash-a=7b17ac42 hash-b=b22d5cf9\nApplied ./01_core/src/entities/content/identity.rs prompt=00_nucleo/prompts/core/entities/content/identity.md hash-a=9703cb42 hash-b=75ef7f38\nApplied ./02_shell/src/cli.rs prompt=00_nucleo/prompts/shell/cli.md hash-a=5d3d710e hash-b=73f66c5c\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T19:51:30.653413+00:00",
+    "changes": [
+      {
+        "file": "00_nucleo/prompts/core/compiler/introspect/from_tags/equations.md",
+        "before": "d9d1f3caa91e56d801867e4128185b56bd69f8c7654e6ef78348de5639aa4025",
+        "after": "3cd646f7d3913ac2f8b1403a362c1e430ff191ef8c0116c5b9ac94dbc5d69655"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md hash-a=ea5bd47e hash-b=eba9d458\nApplied ./01_core/src/compiler/eval/expression_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/expression_dispatch.md hash-a=9a61fb14 hash-b=4864ea2d\nApplied ./01_core/src/compiler/eval/selector_matching.rs prompt=00_nucleo/prompts/core/compiler/eval/selector_matching.md hash-a=cbad6239 hash-b=13d5d87d\nApplied ./01_core/src/compiler/introspect/from_tags/equations.rs prompt=00_nucleo/prompts/core/compiler/introspect/from_tags/equations.md hash-a=57c83d8d hash-b=94e4436e\nApplied ./01_core/src/compiler/introspect/from_tags.rs prompt=00_nucleo/prompts/core/compiler/introspect/from_tags.md hash-a=883cd4ec hash-b=948da922\nApplied ./01_core/src/compiler/stdlib/loading/encoding.rs prompt=00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md hash-a=013b5fa8 hash-b=6b28b534\nApplied ./01_core/src/compiler/stdlib/structural/math/equation.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md hash-a=0a35490b hash-b=2e911906\nApplied ./01_core/src/entities/content/fields.rs prompt=00_nucleo/prompts/core/entities/content/fields.md hash-a=7b17ac42 hash-b=b22d5cf9\nApplied ./01_core/src/entities/content/identity.rs prompt=00_nucleo/prompts/core/entities/content/identity.md hash-a=9703cb42 hash-b=75ef7f38\nApplied ./02_shell/src/cli.rs prompt=00_nucleo/prompts/shell/cli.md hash-a=5d3d710e hash-b=73f66c5c\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  }
+]

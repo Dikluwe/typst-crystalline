@@ -1,0 +1,3 @@
+  File "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/workers/batch_e_close.py", line 345
+    expected_argv[0]=query_replay['binaries'][label]['path'];expected_argv[2]=str(source_path)
+IndentationError: unexpected indent

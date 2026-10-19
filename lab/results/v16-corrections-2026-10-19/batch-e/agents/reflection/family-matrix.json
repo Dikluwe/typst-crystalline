@@ -1,0 +1,1383 @@
+{
+  "state": "baseline source inspection; unresolved fields are debt, never certified absent language schemas",
+  "provenance": "audit-state.json",
+  "rows": [
+    {
+      "variant": "Source",
+      "candidate_fields": "method pre-pass projects carrier",
+      "set": "Source/ShowRecipe/Located.body; Realized.visual",
+      "unset": "inherits projected receiver",
+      "undeclared": "inherits projected receiver; direct helpers only source_body-normalize Source",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "body/visual causal projection"
+    },
+    {
+      "variant": "ShowRecipe",
+      "candidate_fields": "method pre-pass projects carrier",
+      "set": "Source/ShowRecipe/Located.body; Realized.visual",
+      "unset": "inherits projected receiver",
+      "undeclared": "inherits projected receiver; direct helpers only source_body-normalize Source",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "body/visual causal projection"
+    },
+    {
+      "variant": "Realized",
+      "candidate_fields": "method pre-pass projects carrier",
+      "set": "Source/ShowRecipe/Located.body; Realized.visual",
+      "unset": "inherits projected receiver",
+      "undeclared": "inherits projected receiver; direct helpers only source_body-normalize Source",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "body/visual causal projection"
+    },
+    {
+      "variant": "Located",
+      "candidate_fields": "method pre-pass projects carrier",
+      "set": "Source/ShowRecipe/Located.body; Realized.visual",
+      "unset": "inherits projected receiver",
+      "undeclared": "inherits projected receiver; direct helpers only source_body-normalize Source",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "body/visual causal projection"
+    },
+    {
+      "variant": "Empty",
+      "candidate_fields": [
+        "children"
+      ],
+      "set": "children always; immediate children, Empty gives empty array",
+      "unset": [],
+      "undeclared": "all other names",
+      "native_identity": "native_sequence",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Text",
+      "candidate_fields": [
+        "text"
+      ],
+      "set": "text always",
+      "unset": [],
+      "undeclared": "all other names",
+      "native_identity": "native_text",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Space",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "SpaceFromNewline",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Parbreak",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Sequence",
+      "candidate_fields": [
+        "children"
+      ],
+      "set": "children always; immediate children, Empty gives empty array",
+      "unset": [],
+      "undeclared": "all other names",
+      "native_identity": "native_sequence",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "HtmlElem",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "HtmlFrame",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Par",
+      "candidate_fields": [
+        "body"
+      ],
+      "set": "body",
+      "unset": [],
+      "undeclared": "all others",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Heading",
+      "candidate_fields": [
+        "level",
+        "depth",
+        "outlined",
+        "bookmarked",
+        "body"
+      ],
+      "set": "body; level/depth/outlined mask bits; bookmarked Some",
+      "unset": [
+        "level when omitted",
+        "outlined when omitted",
+        "bookmarked when omitted"
+      ],
+      "undeclared": "depth when not marked; others",
+      "native_identity": "native_heading",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Title",
+      "candidate_fields": [
+        "body"
+      ],
+      "set": "body",
+      "unset": [],
+      "undeclared": "all others",
+      "native_identity": "native_title",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Strong",
+      "candidate_fields": [
+        "body"
+      ],
+      "set": "body",
+      "unset": [
+        "delta"
+      ],
+      "undeclared": "all others",
+      "native_identity": "native_strong",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Emph",
+      "candidate_fields": [
+        "body"
+      ],
+      "set": "body",
+      "unset": [],
+      "undeclared": "all others",
+      "native_identity": "native_emph",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Raw",
+      "candidate_fields": [
+        "text",
+        "block",
+        "lang"
+      ],
+      "set": "text always; explicit lexical block/lang only",
+      "unset": [
+        "block",
+        "lang"
+      ],
+      "undeclared": "all other names",
+      "native_identity": "native_raw",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "ListItem",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "EnumItem",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Link",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "native_link",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Equation",
+      "candidate_fields": [
+        "block",
+        "body"
+      ],
+      "set": "block and body always",
+      "unset": [],
+      "undeclared": "all others, including omitted constructor overrides",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "Equation"
+    },
+    {
+      "variant": "MathSequence",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathIdent",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathText",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathFrac",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathAttach",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathPrimes",
+      "candidate_fields": [
+        "count"
+      ],
+      "set": "count",
+      "unset": [],
+      "undeclared": "all others",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathRoot",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathStretch",
+      "candidate_fields": [
+        "body",
+        "size if explicit"
+      ],
+      "set": "body; size iff explicit",
+      "unset": [],
+      "undeclared": "omitted size and others via getter fallback",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathDelimited",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathLr",
+      "candidate_fields": [
+        "size if explicit",
+        "body"
+      ],
+      "set": "body; size iff explicit",
+      "unset": [],
+      "undeclared": "omitted size and others via getter fallback",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathMid",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathOverbrace",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathUnderbrace",
+      "candidate_fields": [
+        "body",
+        "annotation if explicit"
+      ],
+      "set": "body; explicit annotation including none",
+      "unset": [],
+      "undeclared": "omitted annotation and others via getter fallback",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathUnderbracket",
+      "candidate_fields": [
+        "body",
+        "annotation if explicit"
+      ],
+      "set": "body; explicit annotation including none",
+      "unset": [],
+      "undeclared": "omitted annotation and others via getter fallback",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathUnderparen",
+      "candidate_fields": [
+        "body",
+        "annotation if explicit"
+      ],
+      "set": "body; explicit annotation including none",
+      "unset": [],
+      "undeclared": "omitted annotation and others via getter fallback",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathUndershell",
+      "candidate_fields": [
+        "body",
+        "annotation if explicit"
+      ],
+      "set": "body; explicit annotation including none",
+      "unset": [],
+      "undeclared": "omitted annotation and others via getter fallback",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathOverbracket",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathOverparen",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathOvershell",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathAlignPoint",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Linebreak",
+      "candidate_fields": [
+        "justify"
+      ],
+      "set": "justify iff explicit",
+      "unset": [
+        "justify when omitted"
+      ],
+      "undeclared": "all others",
+      "native_identity": "native_linebreak",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathMatrix",
+      "candidate_fields": [
+        "delim",
+        "align",
+        "augment",
+        "row-gap",
+        "column-gap",
+        "rows"
+      ],
+      "set": "rows always; optional properties when explicit",
+      "unset": [
+        "delim",
+        "align",
+        "augment",
+        "row-gap",
+        "column-gap"
+      ],
+      "undeclared": "gap and all others",
+      "native_identity": "native_math_mat",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathCases",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathAccent",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathCancel",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathUnderline",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathOverline",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathVec",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathClassOverride",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathLimitsOverride",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathUnderover",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathOp",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "MathStyled",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Label",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Ref",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "CounterDisplay",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "CounterUpdate",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Outline",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "OutlineEntry",
+      "candidate_fields": [
+        "body (never Set)"
+      ],
+      "set": "has/at level, element, fill (getter ignores fill_set); fields currently empty",
+      "unset": [],
+      "undeclared": "all others; no blind promotion of getter fill",
+      "native_identity": "native_outline_entry",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Figure",
+      "candidate_fields": [
+        "body"
+      ],
+      "set": "body; has/at additionally expose present caption",
+      "unset": [],
+      "undeclared": "omitted caption and all others; fields currently drops known caption",
+      "native_identity": "native_figure",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "FigureCaption",
+      "candidate_fields": [
+        "position",
+        "separator",
+        "body"
+      ],
+      "set": "body always; position/separator only when getter returns Some",
+      "unset": [],
+      "undeclared": "getter None currently Undeclared; synthesized fields excluded",
+      "native_identity": "native_figure_caption",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Image",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Shape",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Curve",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Transform",
+      "candidate_fields": "operation-dependent",
+      "set": "typed Move/Rotate/Scale/Skew getter known fields; Matrix none",
+      "unset": "typed declared getter None",
+      "undeclared": "Matrix all; typed non-schema names",
+      "native_identity": "typed operation-specific natives; Matrix fallback",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Grid",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "GridHeader",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "GridFooter",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "GridCell",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "SetPage",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "PageRun",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Align",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Place",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Flush",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Styled",
+      "candidate_fields": "guard-dependent",
+      "set": "marked Heading raw presence; recognized Equation explicit overrides then child; ordinary Styled none",
+      "unset": "Heading supplement/numbering absent",
+      "undeclared": "ordinary Styled unknown fields; Equation omitted overrides currently Undeclared",
+      "native_identity": "native_heading only when constructor_heading marker matches",
+      "recognition": "Styled recursion currently; ordinary Styled provenance unresolved"
+    },
+    {
+      "variant": "Divider",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Terms",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "TermItem",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Quote",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Document",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Asset",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "SmartQuote",
+      "candidate_fields": [
+        "double",
+        "enabled",
+        "alternative",
+        "quotes"
+      ],
+      "set": "Some only, including false/auto",
+      "unset": [
+        "double",
+        "enabled",
+        "alternative",
+        "quotes"
+      ],
+      "undeclared": "all other names",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "PdfAttach",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "PdfArtifact",
+      "candidate_fields": [
+        "body"
+      ],
+      "set": "body; has/at additionally expose kind",
+      "unset": [],
+      "undeclared": "all others; fields currently drops known kind",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Underline",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Strike",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Overline",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "SmallCaps",
+      "candidate_fields": [
+        "body"
+      ],
+      "set": "body",
+      "unset": [],
+      "undeclared": "all others",
+      "native_identity": "native_smallcaps",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Pad",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Hide",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "HSpace",
+      "candidate_fields": [
+        "amount",
+        "weak"
+      ],
+      "set": "amount always; weak iff weak_explicit",
+      "unset": [
+        "weak when omitted"
+      ],
+      "undeclared": "all other names",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "VSpace",
+      "candidate_fields": [
+        "amount",
+        "weak"
+      ],
+      "set": "amount always; weak iff weak_explicit",
+      "unset": [
+        "weak when omitted"
+      ],
+      "undeclared": "all other names",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Pagebreak",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Colbreak",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Stack",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Boxed",
+      "candidate_fields": [
+        "width",
+        "height"
+      ],
+      "set": "present Option width/height, fractional width retained",
+      "unset": [
+        "width",
+        "height"
+      ],
+      "undeclared": "body deliberately excluded; all other names",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Block",
+      "candidate_fields": [
+        "width",
+        "height",
+        "body"
+      ],
+      "set": "body always; present width/height",
+      "unset": [
+        "width",
+        "height"
+      ],
+      "undeclared": "all other names",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "TableCell",
+      "candidate_fields": [
+        "body",
+        "x",
+        "y",
+        "colspan",
+        "rowspan",
+        "inset",
+        "align",
+        "fill",
+        "stroke",
+        "breakable"
+      ],
+      "set": "getter-owned lexical/prepared presence, explicit none/auto retained",
+      "unset": "declared getter None",
+      "undeclared": "all others",
+      "native_identity": "native_table_cell",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Bibliography",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Cite",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Footnote",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "FootnoteEntry",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "TableHeader",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "TableFooter",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "GridHLine",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "GridVLine",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "TableHLine",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "TableVLine",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Table",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "native_table",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Repeat",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Columns",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Metadata",
+      "candidate_fields": [
+        "body (never Set)"
+      ],
+      "set": "has/at value; fields currently empty",
+      "unset": [],
+      "undeclared": "all others",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "State",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "StateUpdate",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "StateDisplay",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "CounterDisplayCallback",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "ContextBlock",
+      "candidate_fields": [
+        "body (never Set under current getter)"
+      ],
+      "set": "none in current closed getter complement",
+      "unset": [],
+      "undeclared": "all field names currently; not a claim of full language schema parity",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    },
+    {
+      "variant": "Dynamic",
+      "candidate_fields": [
+        "body"
+      ],
+      "set": "dyn_get_field result; candidate list bounds fields to body",
+      "unset": [],
+      "undeclared": "dyn_get_field None; no static field-schema enumeration",
+      "native_identity": "current noncallable fallback; catalogue alone does not certify identity",
+      "recognition": "stop: semantic receiver, never Equation descendant search"
+    }
+  ]
+}

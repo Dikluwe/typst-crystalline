@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access/content_methods
-Hash do Código: 4b43fd2d
+Hash do Código: eba9d458
 
 
 
@@ -7,6 +7,7 @@ Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
 - 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml sha256:947456f05619642c93f67721453e4ad5577557679dbc422a20a48f397ae97ded
 - 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml sha256:dced4bcb1e45b09423bb3b9739af4da3cd440d500d6a620e08e13219236d1735
 - 00_nucleo/prompts/_nuclei/raw-field-presence.toml sha256:93054c60b918734522155fc8d1140982c656478ffccbc1ce55b14911309e1a5c
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
@@ -32,6 +33,164 @@ Presence projects internal carriers, keeping undeclared versus unset distinct;
 carrier is no native element. func/has/at/fields/location project body/visual.
 Prepared occurrence Location is observable by recipe: never force none when
 carrier supplies it. Preserve real native function/original fields.
+
+## Closed reflection boundaries and causal Equation fields
+
+### Evidence before decision
+
+At HEAD `5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9`, the read-only audit in
+`lab/results/v16-corrections-2026-10-19/batch-e/agents/reflection/` records the
+source/L0 hashes, UTC and working-tree state. `content_methods.rs:58–81` and
+`:283–288` recognize styled Equation fields through the private recognizer at
+`:318–327`, which only crosses Styled. The already ratified getter recognizer
+in `entities/content/fields.rs:9–16` crosses Source, ShowRecipe, Located and
+Realized as well. Thus the getter fallback can retain a nested Equation value
+while the candidate list drops its key from `fields()`. This is a source-derived
+prediction pending the local functional RED, not a completed test or a fresh
+bilateral oracle result. The getter owner's closed-projection clause explicitly
+requires this causal transparency and excludes other semantic containers.
+
+The candidate fallback at `content_methods.rs:307` also groups richer, unknown
+and fieldless families under body. Getter availability alone does not establish
+lexical presence: Box body is deliberately excluded; OutlineEntry.fill returns
+a value even without its explicit-presence flag. The native catalogue at
+`value_methods/element_where.rs:64–587` admits identities beyond the reflection
+map at `content_methods.rs:452–500`; admission is not a proof of constructor
+identity retained by every Content variant. Shape and Matrix transform cannot
+recover native identity from geometry. Preserve these incomplete scopes.
+
+Current-pin measurements in the adjacent `agents/language/receipt.json` refute
+unrestricted Styled-to-Equation transparency: an external
+`text(fill: red, math.equation(numbering: "(1)", $x$))` must not expose Equation
+body/block/numbering. `stdlib/structural/math/equation.rs:164–183` presently
+transports constructor options in an unmarked Styled, while text constructor
+`:275` creates an ordinary Styled. The producer has no Equation constructor
+marker; property names alone cannot establish causal origin. The existing
+Heading marker at `entities/content/fields.rs:135–153` is a bounded precedent,
+not authorization to infer Equation identity. Resolving provenance requires
+the producer and shared observation owners before materialization; retain this
+refuter and do not present a carrier-only fix as complete Styled parity.
+
+### Exclusive responsibility
+
+Make the four Content decisions in candidate-field selection, Equation
+recognition, element-function projection and method-receiver projection closed
+and nominal. Keep payload decisions inside the relevant nominal arm, including
+the rejected Styled Heading/Equation guards. Every future Content variant must
+require a decision at each boundary; do not move an open default into a helper,
+`if let`, or a boolean classifier. Existing `ContentField` filtering must name
+Set, Unset and Undeclared explicitly. The separate getter-delegation fallback
+in content_field must likewise retain a reviewed nominal complement if touched;
+it is not permission to turn unavailable fields into known defaults.
+
+Equation recognition must distinguish constructor transport from ordinary
+semantic Styled before recursion is broadened. Within proven constructor
+transport, the only transparent carriers are Source/ShowRecipe/Located.body
+and Realized.visual. Never inspect
+Realized.original, execute a recipe, flatten Sequence, or cross Strong, Emph,
+ordinary semantic containers or arbitrary descendants. This completes the
+existing carrier contract for strict fields/has/at; it does not change ordinary
+Styled opacity, including an ordinary Styled enclosing an Equation. The
+Sequence clause's opacity concerns Styled child-schema
+exposure, not an exception to Source's required language transparency.
+
+Accept a Styled constructor only if its last direct `equation.constructor`
+value is Bool(true) and its body reaches Equation through causal carriers or
+other valid marked constructor wrappers. Unmarked, false-marker, wrong-type and
+marked non-Equation wrappers remain opaque. Check the outer Styled itself for
+field candidates, field presence and native projection: a marked descendant
+cannot authorize an ordinary enclosing style. Bare Equation and proven marked
+constructor transport project the existing real native_math_equation; function
+projection through carriers observes body/visual. The identity owner supplies
+the matching public name. Use private local bounded classification, no new
+public helper or signature. Keep the causal marker out of reflected fields.
+
+The nucleus's external Styled child/styles schema remains an intended language
+contract whose strict fields/has/at implementation is incomplete here. This slice
+repairs Equation leakage without certifying legacy empty fields as parity;
+negative controls reject Equation keys and do not require an empty dictionary.
+A later ordinary Styled schema repair must remain possible without weakening
+these controls.
+
+### Canonical Equation native metadata
+
+The current-pin candidate replay at
+`lab/results/v16-corrections-2026-10-19/batch-e/agents/language/candidate-replay/receipt.json`
+records `eq-native-equality` and `eq-alias` at
+2026-10-19T19:15:13.247393+00:00 and 2026-10-19T19:15:13.382631+00:00:
+both remain false in the candidate and true in the oracle after callback
+callability was repaired. The receipt retains exact HEAD, tree diff, source and
+binary provenance. `stdlib/structural/math.rs:121–124` registers the existing
+native with canonical metadata name `math.equation`; this owner's final
+Func::native construction still supplies public element name equation.
+`eval/operators/equality.rs:23–60` performs language equality and
+`eval/repr/value.rs:58–69` already prints the terminal name component.
+Therefore callback-address agreement alone did not complete observable native
+identity. This is language equality evidence, not a change to global equality.
+
+For an Equation recognized by the existing bounded causal classifier, preserve
+the registered native's canonical metadata name math.equation when constructing
+the projected Func. Determine this from nominal Equation/valid marked transport,
+never from an observed name, arbitrary option keys or geometry. Other families
+retain their existing metadata; public repr remains equation through the existing
+formatter. No catalogue, global Func equality, public API or constructor change.
+Before code, add a failing language-operator test comparing projected bare,
+marked and carrier Equation functions with the real math module's native and
+its alias, retaining repr and unrelated-function/ordinary-Styled controls.
+Use continuous internal ADR-0127 flow with L0 first and parent-controlled RED,
+resealing and revalidation. The earlier callback-only tests remain controls.
+
+### Known fields retained by their entities
+
+The adjacent language `supplement-receipt.json` measures Figure's known caption,
+Metadata.value and OutlineEntry's lexical fill against the current pin.
+Figure getter at `entities/elements/figure.rs:76–88` retains present Caption;
+Metadata getter at `entities/content/fields.rs:316–317` retains arbitrary Value.
+OutlineEntry getter at `elements/outline_entry.rs:143–147` returns fill even
+when its existing fill_set is false; its producer at
+`stdlib/structural/outline.rs:64–96` records that distinction. These are
+language field-loss and presence measurements, not a general reflection schema.
+
+Enumerate Figure candidates body,caption; publish caption only when getter-known,
+including Empty Caption body. Absent caption stays absent. Explicit caption:none
+remains unrepresentable and is not certified or repaired by inferred presence.
+Enumerate Metadata.value, retaining its Value without a body. Enumerate
+OutlineEntry level,element,fill: level and element are known, fill is Set only
+when fill_set is true (including explicit none), otherwise Unset; other names
+are Undeclared. Keep snapshots authoritative and preserve the separate semantic
+getter's resolved fill policy. No public field or signature changes are needed.
+
+PdfArtifact.kind is intentionally not promoted in this correction. Although an
+explicit kind is lost from fields, `stdlib/pdf.rs:331–355` collapses omitted kind
+and explicit other in the same carrier. Keep that missing-presence debt visible;
+never infer lexical presence from resolved Other or silently add a public bit.
+
+Preserve candidate order and all Set/Unset/Undeclared distinctions, explicit
+none/false/auto, outer Equation override precedence and existing omissions.
+Preserve Box body exclusion, Matrix transform's empty schema, marked Heading,
+Raw, Cell, SmartQuote, Matrix and immediate Sequence children. Do not promote
+unmeasured rich schemas or infer callable identity from a name or geometry.
+Any additional native mapping requires independently measured current-pin
+language evidence and its owning constructor contract before specification.
+
+The method pre-pass projects only the four causal carriers. Explicit supplied
+Location wins over a Located carrier; a present fields snapshot is authoritative,
+including absent keys and an empty snapshot. Native receivers retain ordinary
+dispatch and argument validation. Function projection does not execute callbacks.
+
+### Acceptance and limits
+
+Continuous internal correction under ADR-0127: no public type, field, trait,
+signature, default mode, phase or compatibility change. L0 first, then a failing
+method-level nested-carrier Equation fields test and passing preservation controls
+before implementation. Check ordered keys and values through fields/has/at,
+explicit none, nested override precedence, ordinary Styled and Sequence opacity,
+Realized visual selection, authoritative snapshots and Location precedence.
+Preserve existing real-native identities through carriers and unrelated native
+function distinctions. Exhaustiveness probes verify domain protection only;
+they do not establish language parity. No suppression or reduced expectations.
+Parent-controlled ownership/nucleus preflight precedes restricted resealing;
+build, workspace, strict Clippy/Rustdoc, formatting and lineage gates remain.
 
 ## Ratified semantic SmartQuote fields
 

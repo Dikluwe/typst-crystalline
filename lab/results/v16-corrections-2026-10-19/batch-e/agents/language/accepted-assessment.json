@@ -1,0 +1,6365 @@
+{
+  "utc": "2026-10-19T20:12:39.413008+00:00",
+  "receipt": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/accepted-replay/receipt.json",
+  "receipt_sha256": "1e88866e69674c5967a2e31774581fe0667a00ace2282e4fb2cc41c0f13d3444",
+  "review": "lab/results/v16-corrections-2026-10-19/batch-e/agents/language/accepted-review.json",
+  "review_sha256": "6f4e426b597d1e7b5071221abc98a0951a53284db6843254edf4bc2b08442d15",
+  "assessor_sha256": "344120e2867b1f8fd995411b162f3e9f610da14250cd42b1ac5ca434d9c60e99",
+  "candidate_binary_sha256": "3e54ac822445804779c826acdb3f9a7553928a8e8d628cdac4a89b25bf553554",
+  "raw_comparator_passed": false,
+  "full_parity": false,
+  "scoped_acceptance": true,
+  "counts": {
+    "cases": 173,
+    "matches_oracle": 87,
+    "reviewed_partial_repairs": 26,
+    "failed_cases": 0
+  },
+  "required_corrections": [
+    {
+      "id": "receipt.json::eq-native-equality",
+      "requirement": "native/alias equation identity must be true",
+      "observed": {
+        "returncode": 0,
+        "value": true,
+        "stderr": ""
+      },
+      "passed": true
+    },
+    {
+      "id": "receipt.json::eq-alias",
+      "requirement": "native/alias equation identity must be true",
+      "observed": {
+        "returncode": 0,
+        "value": true,
+        "stderr": ""
+      },
+      "passed": true
+    },
+    {
+      "id": "receipt.json::eq-call",
+      "requirement": "returned equation constructor must be callable",
+      "observed_returncode": 0,
+      "passed": true
+    },
+    {
+      "id": "receipt.json::eq-styled-call",
+      "requirement": "returned equation constructor must be callable",
+      "observed_returncode": 0,
+      "passed": true
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-encode-show-set-text",
+      "requirement": "lexical set text retains exact root Styled child/styles schema around equation with explicit numbering none and original body",
+      "observed": {
+        "func": "styled",
+        "child": {
+          "func": "equation",
+          "block": false,
+          "numbering": null,
+          "body": {
+            "func": "text",
+            "text": "x"
+          }
+        },
+        "styles": "styles(..)"
+      },
+      "passed": true
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-show-set-text-json",
+      "requirement": "lexical set text retains exact root Styled child/styles schema around equation with explicit numbering none and original body",
+      "observed": {
+        "func": "styled",
+        "child": {
+          "func": "equation",
+          "block": false,
+          "numbering": null,
+          "body": {
+            "func": "text",
+            "text": "x"
+          }
+        },
+        "styles": "styles(..)"
+      },
+      "passed": true
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-show-set-text-yaml",
+      "requirement": "lexical set text retains exact root Styled child/styles schema around equation with explicit numbering none and original body",
+      "observed": {
+        "func": "styled",
+        "child": {
+          "func": "equation",
+          "block": false,
+          "numbering": null,
+          "body": {
+            "func": "text",
+            "text": "x"
+          }
+        },
+        "styles": "styles(..)"
+      },
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "cases": [
+    {
+      "id": "receipt.json::empty",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::sequence",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::text",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::raw-omitted",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::raw-explicit",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::box-omitted",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::box-empty",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::box-body",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::block",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::h-omitted",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::h-explicit",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::mat-omitted",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::mat-explicit",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::cell-omitted",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::cell-explicit",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::caption",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::heading-omitted",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::heading-explicit",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::move",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::rotate",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::scale",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::skew",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::eq-omitted",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::eq-explicit",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/func",
+          "old": "styled",
+          "new": "equation"
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/checks/5/at/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/5/at/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/5/at/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/5/at/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/5/at/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/5/at/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::ordinary-styled",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::styled-equation",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/checks/0/at",
+          "old": {
+            "func": "equation",
+            "block": false,
+            "numbering": null,
+            "number-align": "end + horizon",
+            "supplement": {
+              "func": "text",
+              "text": "Equation"
+            },
+            "alt": null,
+            "body": {
+              "func": "symbol",
+              "text": "x"
+            }
+          },
+          "new": "__ABSENT__"
+        },
+        {
+          "path": "/value/checks/0/has",
+          "old": true,
+          "new": false
+        },
+        {
+          "path": "/value/checks/1/at",
+          "old": false,
+          "new": "__ABSENT__"
+        },
+        {
+          "path": "/value/checks/1/has",
+          "old": true,
+          "new": false
+        },
+        {
+          "path": "/value/checks/2/at",
+          "old": "(1)",
+          "new": "__ABSENT__"
+        },
+        {
+          "path": "/value/checks/2/has",
+          "old": true,
+          "new": false
+        },
+        {
+          "path": "/value/fields/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/body/body/func",
+          "old": "symbol",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/numbering",
+          "old": "(1)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/fields/child/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/child/body/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/fields/child/body/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/child/body/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "symbol"
+        },
+        {
+          "path": "/value/fields/child/body/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/fields/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/fields/child/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/fields/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": "(1)"
+        },
+        {
+          "path": "/value/fields/styles",
+          "old": {
+            "$missing": true
+          },
+          "new": "styles(..)"
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::sequence-equation",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/checks/1/at/2/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/checks/1/at/2/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/body/alt",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/checks/1/at/2/body/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/checks/1/at/2/body/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/body/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "symbol"
+        },
+        {
+          "path": "/value/checks/1/at/2/body/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/checks/1/at/2/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/checks/1/at/2/body/number-align",
+          "old": {
+            "$missing": true
+          },
+          "new": "end + horizon"
+        },
+        {
+          "path": "/value/checks/1/at/2/body/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/checks/1/at/2/body/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/body/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/checks/1/at/2/body/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Equation"
+        },
+        {
+          "path": "/value/checks/1/at/2/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/1/at/2/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/body/func",
+          "old": "symbol",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/1/at/2/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/checks/1/at/2/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": "(1)"
+        },
+        {
+          "path": "/value/checks/1/at/2/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/fields/children/2/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/body/alt",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/fields/children/2/body/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/fields/children/2/body/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/body/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "symbol"
+        },
+        {
+          "path": "/value/fields/children/2/body/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/fields/children/2/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/fields/children/2/body/number-align",
+          "old": {
+            "$missing": true
+          },
+          "new": "end + horizon"
+        },
+        {
+          "path": "/value/fields/children/2/body/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/fields/children/2/body/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/body/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/fields/children/2/body/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Equation"
+        },
+        {
+          "path": "/value/fields/children/2/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/children/2/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/children/2/child/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/children/2/child/body/body/func",
+          "old": "symbol",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/children/2/child/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/children/2/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/fields/children/2/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": "(1)"
+        },
+        {
+          "path": "/value/fields/children/2/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/checks/1/at/2/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/1/at/2/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/2/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/children/2/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/children/2/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::lr",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::underbrace",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::stretch",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::outline-entry",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::smartquote",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::eq-native-equality",
+      "raw_classification": "REPAIRED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::eq-call",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/returncode",
+          "old": 1,
+          "new": 0
+        },
+        {
+          "path": "/stderr",
+          "old": "error: calling this element function is not supported\n\n  while calling `equation` at <input-expression>:1:0\n    math.equation($x$).func()(block:true,$y$)\n\n",
+          "new": ""
+        },
+        {
+          "path": "/stdout",
+          "old": "",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/block",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/alt",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/body/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "symbol"
+        },
+        {
+          "path": "/value/body/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "y"
+        },
+        {
+          "path": "/value/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/body/number-align",
+          "old": {
+            "$missing": true
+          },
+          "new": "end + horizon"
+        },
+        {
+          "path": "/value/body/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/body/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/body/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Equation"
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::eq-alias",
+      "raw_classification": "REPAIRED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::eq-homonym",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::eq-styled-call",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/returncode",
+          "old": 1,
+          "new": 0
+        },
+        {
+          "path": "/stderr",
+          "old": "error: calling this element function is not supported\n\n  while calling `styled` at <input-expression>:1:0\n    math.equation(numbering:\"(1)\",$x$).func()($y$)\n\n",
+          "new": ""
+        },
+        {
+          "path": "/stdout",
+          "old": "",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/alt",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/body/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "symbol"
+        },
+        {
+          "path": "/value/body/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "y"
+        },
+        {
+          "path": "/value/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/body/number-align",
+          "old": {
+            "$missing": true
+          },
+          "new": "end + horizon"
+        },
+        {
+          "path": "/value/body/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/body/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/body/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Equation"
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::mat-call",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::cell-call",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::caption-call",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::heading-call",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::rotate-call",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::box-unset-error",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::box-body-error",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::eq-unknown-error",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::cell-invalid-stroke-auto",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::cell-invalid-colspan-auto",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-raw-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-raw-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-empty-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-empty-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-box-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-box-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-block-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-block-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-mat-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-mat-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-cell-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-cell-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-caption-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-caption-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-heading-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-heading-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-transform-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-transform-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-entry-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-entry-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-eq-json",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/alt",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/body/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "symbol"
+        },
+        {
+          "path": "/value/body/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/body/number-align",
+          "old": {
+            "$missing": true
+          },
+          "new": "end + horizon"
+        },
+        {
+          "path": "/value/body/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/body/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/body/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Equation"
+        },
+        {
+          "path": "/value/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/body/func",
+          "old": "symbol",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::serialize-eq-yaml",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/alt",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/body/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "symbol"
+        },
+        {
+          "path": "/value/body/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/body/number-align",
+          "old": {
+            "$missing": true
+          },
+          "new": "end + horizon"
+        },
+        {
+          "path": "/value/body/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/body/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/body/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Equation"
+        },
+        {
+          "path": "/value/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/body/func",
+          "old": "symbol",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/body/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::query-heading-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::query-heading-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::query-figure.caption-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::query-figure.caption-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::query-table.cell-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::query-table.cell-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::query-math.mat-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "receipt.json::query-math.mat-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::sequence-corrected",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::figure-omitted",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::figure-caption",
+      "raw_classification": "REPAIRED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::figure-none",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::metadata",
+      "raw_classification": "REPAIRED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::artifact",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::entry-omitted",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/checks/2/at",
+          "old": {
+            "func": "repeat"
+          },
+          "new": "__ABSENT__"
+        },
+        {
+          "path": "/value/checks/2/has",
+          "old": true,
+          "new": false
+        },
+        {
+          "path": "/value/fields/element/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/fields/element/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/fields/element/bookmarked",
+          "old": {
+            "$missing": true
+          },
+          "new": "auto"
+        },
+        {
+          "path": "/value/fields/element/depth",
+          "old": {
+            "$missing": true
+          },
+          "new": 1
+        },
+        {
+          "path": "/value/fields/element/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "heading"
+        },
+        {
+          "path": "/value/fields/element/hanging-indent",
+          "old": {
+            "$missing": true
+          },
+          "new": "auto"
+        },
+        {
+          "path": "/value/fields/element/level",
+          "old": {
+            "$missing": true
+          },
+          "new": 1
+        },
+        {
+          "path": "/value/fields/element/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/fields/element/offset",
+          "old": {
+            "$missing": true
+          },
+          "new": 0
+        },
+        {
+          "path": "/value/fields/element/outlined",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/element/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/fields/element/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Section"
+        },
+        {
+          "path": "/value/fields/level",
+          "old": {
+            "$missing": true
+          },
+          "new": 1
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/checks/1/at/bookmarked",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/depth",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/hanging-indent",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/level",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/offset",
+          "old": 0,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/outlined",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/1/at/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/supplement/text",
+          "old": "Section",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/bookmarked",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/depth",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/hanging-indent",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/level",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/offset",
+          "old": 0,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/outlined",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/element/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/supplement/text",
+          "old": "Section",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::entry-none",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/fields/element/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/fields/element/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/fields/element/bookmarked",
+          "old": {
+            "$missing": true
+          },
+          "new": "auto"
+        },
+        {
+          "path": "/value/fields/element/depth",
+          "old": {
+            "$missing": true
+          },
+          "new": 1
+        },
+        {
+          "path": "/value/fields/element/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "heading"
+        },
+        {
+          "path": "/value/fields/element/hanging-indent",
+          "old": {
+            "$missing": true
+          },
+          "new": "auto"
+        },
+        {
+          "path": "/value/fields/element/level",
+          "old": {
+            "$missing": true
+          },
+          "new": 1
+        },
+        {
+          "path": "/value/fields/element/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/fields/element/offset",
+          "old": {
+            "$missing": true
+          },
+          "new": 0
+        },
+        {
+          "path": "/value/fields/element/outlined",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/element/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/fields/element/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Section"
+        },
+        {
+          "path": "/value/fields/fill",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/fields/level",
+          "old": {
+            "$missing": true
+          },
+          "new": 1
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/checks/1/at/bookmarked",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/depth",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/hanging-indent",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/level",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/offset",
+          "old": 0,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/outlined",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/checks/1/at/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/checks/1/at/supplement/text",
+          "old": "Section",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/bookmarked",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/depth",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/hanging-indent",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/level",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/offset",
+          "old": 0,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/outlined",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/element/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/element/supplement/text",
+          "old": "Section",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::styled-child",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::eq-literal",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/func",
+          "old": "styled",
+          "new": "equation"
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/checks/0/at",
+          "old": false,
+          "new": "__ABSENT__"
+        },
+        {
+          "path": "/value/checks/0/has",
+          "old": true,
+          "new": false
+        },
+        {
+          "path": "/value/fields/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::eq-source-alias",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/checks/0/at",
+          "old": false,
+          "new": "__ABSENT__"
+        },
+        {
+          "path": "/value/checks/0/has",
+          "old": true,
+          "new": false
+        },
+        {
+          "path": "/value/checks/1/at",
+          "old": "(1)",
+          "new": "__ABSENT__"
+        },
+        {
+          "path": "/value/checks/1/has",
+          "old": true,
+          "new": false
+        },
+        {
+          "path": "/value/checks/2/at",
+          "old": {
+            "func": "text",
+            "text": "x"
+          },
+          "new": "__ABSENT__"
+        },
+        {
+          "path": "/value/checks/2/has",
+          "old": true,
+          "new": false
+        },
+        {
+          "path": "/value/fields/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/fields/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/numbering",
+          "old": "(1)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/fields/child/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/fields/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/fields/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/fields/child/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "equation"
+        },
+        {
+          "path": "/value/fields/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": "(1)"
+        },
+        {
+          "path": "/value/fields/styles",
+          "old": {
+            "$missing": true
+          },
+          "new": "styles(..)"
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::cell-call-corrected",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::caption-call-corrected",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::heading-call-corrected",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::entry-call",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/element/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/element/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "y"
+        },
+        {
+          "path": "/value/element/bookmarked",
+          "old": {
+            "$missing": true
+          },
+          "new": "auto"
+        },
+        {
+          "path": "/value/element/depth",
+          "old": {
+            "$missing": true
+          },
+          "new": 1
+        },
+        {
+          "path": "/value/element/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "heading"
+        },
+        {
+          "path": "/value/element/hanging-indent",
+          "old": {
+            "$missing": true
+          },
+          "new": "auto"
+        },
+        {
+          "path": "/value/element/level",
+          "old": {
+            "$missing": true
+          },
+          "new": 1
+        },
+        {
+          "path": "/value/element/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/element/offset",
+          "old": {
+            "$missing": true
+          },
+          "new": 0
+        },
+        {
+          "path": "/value/element/outlined",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/element/supplement/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/supplement/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/element/supplement/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "Section"
+        },
+        {
+          "path": "/value/fill",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/level",
+          "old": {
+            "$missing": true
+          },
+          "new": 2
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/element/bookmarked",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/depth",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/hanging-indent",
+          "old": "auto",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/level",
+          "old": 1,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/offset",
+          "old": 0,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/outlined",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/element/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/element/supplement/text",
+          "old": "Section",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::eq-style-identity",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::eq-omitted-unset",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::eq-block-unset",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::serialize-styled-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::serialize-styled-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::serialize-artifact-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::serialize-artifact-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::serialize-entry-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::serialize-entry-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::serialize-eq-simple-json",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::serialize-eq-simple-yaml",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::query-metadata-cell-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::query-metadata-cell-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::query-metadata-mat-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::query-metadata-mat-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::query-metadata-entry-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::query-metadata-entry-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::query-metadata-caption-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::query-metadata-caption-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::query-metadata-empty-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::query-metadata-empty-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::query-metadata-raw-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "supplement-receipt.json::query-metadata-raw-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::terminal-space-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::terminal-space-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::terminal-empty-sequence-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::terminal-empty-sequence-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::terminal-styled-ordinary-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::terminal-styled-ordinary-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::query-entry-level-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::query-caption-body-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::query-heading-missing-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::query-heading-one-missing-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::query-cardinality-before-field-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::query-one-none-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::query-carrier-body-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::query-entry-level-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::query-caption-body-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::query-heading-missing-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::query-heading-one-missing-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::query-cardinality-before-field-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::query-one-none-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "query-receipt.json::query-carrier-body-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "final-controls-receipt.json::terminal-space-corrected-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "final-controls-receipt.json::query-located-entry-level-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "final-controls-receipt.json::terminal-space-corrected-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "final-controls-receipt.json::query-located-entry-level-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "generated-entry-receipt.json::query-generated-entry-level-json",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "generated-entry-receipt.json::query-generated-entry-level-yaml",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::artifact-kind-omitted",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::artifact-kind-header",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::artifact-kind-footer",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::artifact-kind-watermark",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::artifact-kind-page-number",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::artifact-kind-line-number",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::artifact-kind-redaction",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::artifact-kind-bates",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::artifact-kind-page",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::artifact-kind-pagination-other",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::artifact-kind-layout",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::artifact-kind-background",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::artifact-kind-other",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::artifact-kind-unset-error",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-repr-constructor",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-encode-constructor",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/decoded_encoded_json/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/decoded_encoded_json/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/decoded_encoded_json/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/decoded_encoded_json/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/decoded_encoded_json/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/decoded_encoded_json/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/decoded_encoded_json/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/decoded_encoded_json/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value",
+          "old": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"block\": false,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}",
+          "new": "{\n  \"func\": \"equation\",\n  \"block\": false,\n  \"numbering\": null,\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"x\"\n  }\n}"
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/decoded_encoded_json/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value",
+          "old": "{\n  \"func\": \"equation\",\n  \"block\": false,\n  \"numbering\": null,\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"x\"\n  }\n}",
+          "new": "{\n  \"func\": \"equation\",\n  \"numbering\": null,\n  \"body\": {\n    \"func\": \"text\",\n    \"text\": \"x\"\n  }\n}"
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-constructor-json",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-constructor-yaml",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-repr-outer-text",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-encode-outer-text",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/decoded_encoded_json/child/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/decoded_encoded_json/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/decoded_encoded_json/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/decoded_encoded_json/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/decoded_encoded_json/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value",
+          "old": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"styled\",\n    \"child\": {\n      \"func\": \"equation\",\n      \"block\": false,\n      \"body\": {\n        \"func\": \"text\",\n        \"text\": \"x\"\n      }\n    },\n    \"styles\": \"styles(..)\"\n  },\n  \"styles\": \"styles(..)\"\n}",
+          "new": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"block\": false,\n    \"numbering\": null,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}"
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/decoded_encoded_json/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value",
+          "old": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"block\": false,\n    \"numbering\": null,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}",
+          "new": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"numbering\": null,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}"
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-outer-text-json",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/child/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-outer-text-yaml",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/child/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-repr-nested-text",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-encode-nested-text",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/decoded_encoded_json/child/child/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value",
+          "old": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"styled\",\n    \"child\": {\n      \"func\": \"styled\",\n      \"child\": {\n        \"func\": \"equation\",\n        \"block\": false,\n        \"body\": {\n          \"func\": \"text\",\n          \"text\": \"x\"\n        }\n      },\n      \"styles\": \"styles(..)\"\n    },\n    \"styles\": \"styles(..)\"\n  },\n  \"styles\": \"styles(..)\"\n}",
+          "new": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"styled\",\n    \"child\": {\n      \"func\": \"equation\",\n      \"block\": false,\n      \"numbering\": null,\n      \"body\": {\n        \"func\": \"text\",\n        \"text\": \"x\"\n      }\n    },\n    \"styles\": \"styles(..)\"\n  },\n  \"styles\": \"styles(..)\"\n}"
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/decoded_encoded_json/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/decoded_encoded_json/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/decoded_encoded_json/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/decoded_encoded_json/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/decoded_encoded_json/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value",
+          "old": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"styled\",\n    \"child\": {\n      \"func\": \"equation\",\n      \"block\": false,\n      \"numbering\": null,\n      \"body\": {\n        \"func\": \"text\",\n        \"text\": \"x\"\n      }\n    },\n    \"styles\": \"styles(..)\"\n  },\n  \"styles\": \"styles(..)\"\n}",
+          "new": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"numbering\": null,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}"
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-nested-text-json",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/child/child/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/child/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/child/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/child/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/child/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-nested-text-yaml",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/child/child/block",
+          "old": {
+            "$missing": true
+          },
+          "new": false
+        },
+        {
+          "path": "/value/child/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/child/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/child/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/child/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/child/body/$missing",
+          "old": true,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/body/func",
+          "old": {
+            "$missing": true
+          },
+          "new": "text"
+        },
+        {
+          "path": "/value/child/body/text",
+          "old": {
+            "$missing": true
+          },
+          "new": "x"
+        },
+        {
+          "path": "/value/child/child/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/child/body/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/body/text",
+          "old": "x",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/func",
+          "old": "equation",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/child/numbering",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/func",
+          "old": "styled",
+          "new": "equation"
+        },
+        {
+          "path": "/value/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value/child/styles",
+          "old": "styles(..)",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-repr-show-set-text",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": false,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-encode-show-set-text",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/decoded_encoded_json/child/numbering",
+          "old": {
+            "$missing": true
+          },
+          "new": null
+        },
+        {
+          "path": "/value",
+          "old": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"block\": false,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}",
+          "new": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"block\": false,\n    \"numbering\": null,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}"
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/decoded_encoded_json/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value",
+          "old": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"block\": false,\n    \"numbering\": null,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}",
+          "new": "{\n  \"func\": \"styled\",\n  \"child\": {\n    \"func\": \"equation\",\n    \"numbering\": null,\n    \"body\": {\n      \"func\": \"text\",\n      \"text\": \"x\"\n    }\n  },\n  \"styles\": \"styles(..)\"\n}"
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-show-set-text-json",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-semantic-show-set-text-yaml",
+      "raw_classification": "REGRESSION",
+      "matches_oracle": false,
+      "scoped_partial_repair": true,
+      "required_repaired_paths": [
+        {
+          "path": "/value/child/alt",
+          "old": null,
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/number-align",
+          "old": "end + horizon",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/$missing",
+          "old": {
+            "$missing": true
+          },
+          "new": true
+        },
+        {
+          "path": "/value/child/supplement/func",
+          "old": "text",
+          "new": {
+            "$missing": true
+          }
+        },
+        {
+          "path": "/value/child/supplement/text",
+          "old": "Equation",
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "unchanged_reviewed_residual_paths": [
+        {
+          "path": "/value/child/block",
+          "old": false,
+          "new": {
+            "$missing": true
+          }
+        }
+      ],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-missing-field",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "artifact-marker-receipt.json::marker-outer-style-equality",
+      "raw_classification": "PRESERVED",
+      "matches_oracle": true,
+      "scoped_partial_repair": false,
+      "required_repaired_paths": [],
+      "unchanged_reviewed_residual_paths": [],
+      "passed": true,
+      "errors": []
+    }
+  ],
+  "scope_statement": "Scoped acceptance preserves independently measured open obligations. Raw receipt and comparator status are unchanged; no full-parity claim follows. Observation hashes bind exact reviewed language values/errors, not a requirement for serializer byte identity."
+}

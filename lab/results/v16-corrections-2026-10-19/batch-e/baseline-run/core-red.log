@@ -1,0 +1,119 @@
+    Finished `test` profile [unoptimized] target(s) in 0.16s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 18 tests
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_equation_has_at_precedence_and_explicit_none ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_equation_native_identity_requires_valid_constructor_origin ... FAILED
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_external_styled_equation_does_not_expose_equation_schema ... FAILED
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_figure_known_caption_and_metadata_value_are_enumerated ... FAILED
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_nested_equation_carriers_preserve_fields ... FAILED
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_outline_entry_fill_preserves_lexical_presence ... FAILED
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_prescribed_native_identities_survive_carriers ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_semantic_containers_remain_opaque_to_equation_fields ... ok
+test compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_snapshots_and_location_precedence_survive_carriers ... ok
+test compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_constructor_projects_each_causal_carrier_without_original ... FAILED
+test compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_external_styles_and_invalid_markers_remain_structural ... ok
+test compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_marked_equation_snapshots_remain_authoritative ... FAILED
+test compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_marked_equation_uses_known_fields_instead_of_style_payload ... FAILED
+test compiler::stdlib::structural::math::equation::v16_e_equation_producer_tests::v16_e_equation_actual_constructor_options_keep_identity ... FAILED
+test compiler::stdlib::structural::math::equation::v16_e_equation_producer_tests::v16_e_equation_bare_and_block_only_do_not_gain_transport ... ok
+test entities::content::fields::content_view_regressions::v16_e_getter_requires_own_constructor_origin ... FAILED
+test entities::content::identity::v16_e_equation_identity_tests::v16_e_equation_identity_rejects_unmarked_and_invalid_transports ... ok
+test entities::content::identity::v16_e_equation_identity_tests::v16_e_equation_marked_identity_follows_causal_visual_and_nested_transport ... FAILED
+
+failures:
+
+---- compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_equation_native_identity_requires_valid_constructor_origin stdout ----
+
+thread 'compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_equation_native_identity_requires_valid_constructor_origin' (1506889) panicked at 01_core/src/compiler/eval/bindings/field_access/content_methods.rs:1078:17:
+assertion failed: std::ptr::fn_addr_eq(actual.native_fn_addr().unwrap(),
+    crate::compiler::stdlib::native_math_equation as fn(_, _, _, _) -> _)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_external_styled_equation_does_not_expose_equation_schema stdout ----
+
+thread 'compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_external_styled_equation_does_not_expose_equation_schema' (1506890) panicked at 01_core/src/compiler/eval/bindings/field_access/content_methods.rs:991:13:
+assertion `left == right` failed: ordinary Styled leaked Equation field body
+  left: Bool(true)
+ right: Bool(false)
+
+---- compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_figure_known_caption_and_metadata_value_are_enumerated stdout ----
+
+thread 'compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_figure_known_caption_and_metadata_value_are_enumerated' (1506891) panicked at 01_core/src/compiler/eval/bindings/field_access/content_methods.rs:1111:13:
+assertion `left == right` failed
+  left: ["body"]
+ right: ["body", "caption"]
+
+---- compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_nested_equation_carriers_preserve_fields stdout ----
+
+thread 'compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_nested_equation_carriers_preserve_fields' (1506892) panicked at 01_core/src/compiler/eval/bindings/field_access/content_methods.rs:901:13:
+assertion `left == right` failed: carrier 0 dropped language field keys
+  left: ["body"]
+ right: ["block", "numbering", "number-align", "supplement", "alt", "body"]
+
+---- compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_outline_entry_fill_preserves_lexical_presence stdout ----
+
+thread 'compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_outline_entry_fill_preserves_lexical_presence' (1506893) panicked at 01_core/src/compiler/eval/bindings/field_access/content_methods.rs:1166:13:
+assertion `left == right` failed
+  left: []
+ right: ["level", "element"]
+
+---- compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_constructor_projects_each_causal_carrier_without_original stdout ----
+
+thread 'compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_constructor_projects_each_causal_carrier_without_original' (1506897) panicked at 01_core/src/compiler/stdlib/loading/encoding.rs:383:9:
+assertion `left == right` failed
+  left: Some(Str("styled"))
+ right: Some(Str("equation"))
+
+---- compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_marked_equation_snapshots_remain_authoritative stdout ----
+
+thread 'compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_marked_equation_snapshots_remain_authoritative' (1506899) panicked at 01_core/src/compiler/stdlib/loading/encoding.rs:449:13:
+assertion `left == right` failed
+  left: Some(Str("styled"))
+ right: Some(Str("equation"))
+
+---- compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_marked_equation_uses_known_fields_instead_of_style_payload stdout ----
+
+thread 'compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_marked_equation_uses_known_fields_instead_of_style_payload' (1506900) panicked at 01_core/src/compiler/stdlib/loading/encoding.rs:383:9:
+assertion `left == right` failed
+  left: Some(Str("styled"))
+ right: Some(Str("equation"))
+
+---- compiler::stdlib::structural::math::equation::v16_e_equation_producer_tests::v16_e_equation_actual_constructor_options_keep_identity stdout ----
+
+thread 'compiler::stdlib::structural::math::equation::v16_e_equation_producer_tests::v16_e_equation_actual_constructor_options_keep_identity' (1506901) panicked at 01_core/src/compiler/stdlib/structural/math/equation.rs:279:13:
+assertion `left == right` failed: option numbering
+  left: "styled"
+ right: "equation"
+
+---- entities::content::fields::content_view_regressions::v16_e_getter_requires_own_constructor_origin stdout ----
+
+thread 'entities::content::fields::content_view_regressions::v16_e_getter_requires_own_constructor_origin' (1506903) panicked at 01_core/src/entities/content/fields.rs:591:21:
+assertion `left == right` failed: 0/block
+  left: Some(Bool(false))
+ right: None
+
+---- entities::content::identity::v16_e_equation_identity_tests::v16_e_equation_marked_identity_follows_causal_visual_and_nested_transport stdout ----
+
+thread 'entities::content::identity::v16_e_equation_identity_tests::v16_e_equation_marked_identity_follows_causal_visual_and_nested_transport' (1506905) panicked at 01_core/src/entities/content/identity.rs:362:13:
+assertion `left == right` failed
+  left: "styled"
+ right: "equation"
+
+
+failures:
+    compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_equation_native_identity_requires_valid_constructor_origin
+    compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_external_styled_equation_does_not_expose_equation_schema
+    compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_figure_known_caption_and_metadata_value_are_enumerated
+    compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_nested_equation_carriers_preserve_fields
+    compiler::eval::bindings::field_access::content_methods::v16_e_reflection_tests::v16_e_outline_entry_fill_preserves_lexical_presence
+    compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_constructor_projects_each_causal_carrier_without_original
+    compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_marked_equation_snapshots_remain_authoritative
+    compiler::stdlib::loading::encoding::v16_e_equation_constructor_tests::v16_e_textual_marked_equation_uses_known_fields_instead_of_style_payload
+    compiler::stdlib::structural::math::equation::v16_e_equation_producer_tests::v16_e_equation_actual_constructor_options_keep_identity
+    entities::content::fields::content_view_regressions::v16_e_getter_requires_own_constructor_origin
+    entities::content::identity::v16_e_equation_identity_tests::v16_e_equation_marked_identity_follows_causal_visual_and_nested_transport
+
+test result: FAILED. 7 passed; 11 failed; 0 ignored; 0 measured; 7517 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p typst-core --lib`

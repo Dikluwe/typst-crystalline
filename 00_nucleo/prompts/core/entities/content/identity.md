@@ -1,8 +1,9 @@
 # L0 — entities/content/identity
-Hash do Código: db961f0d
+Hash do Código: 75ef7f38
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
+- 00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml sha256:947456f05619642c93f67721453e4ad5577557679dbc422a20a48f397ae97ded
 - 00_nucleo/prompts/_nuclei/math/matrix-morphology.toml sha256:dced4bcb1e45b09423bb3b9739af4da3cd440d500d6a620e08e13219236d1735
 - 00_nucleo/prompts/_nuclei/smartquote-semantics.toml sha256:d92a80d952b2cb79d90b96a75a0387cfde2da24f2fd41327de8ab0e647a97f8c
 - 00_nucleo/prompts/_nuclei/table/cell-presence.toml sha256:f7d3050154813e1ea46c26e235383ae337781a4b28d10ef3248f6eaec96ce221
@@ -76,6 +77,34 @@ Name Empty `sequence`, like Sequence, for func and field errors, superseding onl
 
 Use continuous ADR-0127 with no fields/types/traits/signatures/phase/product mode added. Require L0 first, RED→GREEN/regressions/workspace/build/strict Clippy+Rustdoc, valid ownership/nuclei/strict+reverse lineage and no increased V16. V15/V26 must pass before restricted resealing. Heavy validation is sequential under MemoryMax 12 GiB/High 8 GiB/swap 0/jobs 1; record peak without inferring gain.
 
-## Historical record
+## Equation constructor identity
+
+At HEAD `5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9`, this owner's
+`identity.rs:13-31` recognizes heading transport but names option-bearing
+equation construction styled. The producer at
+`compiler/stdlib/structural/math/equation.rs:175-195` already transports explicit
+options without changing the Equation body. Current-pin language receipts in
+`lab/results/v16-corrections-2026-10-19/batch-e/agents/language/` and upstream
+`lab/typst-original/crates/typst-library/src/math/equation.rs:62-131` distinguish
+that constructor from an unrelated Styled wrapper. This is public identity
+morphology; no Rust representation equality is required.
+
+Recognize equation identity through a private nominal classifier only for a
+valid `equation.constructor` Bool(true) marker whose body reaches Equation
+through Source, ShowRecipe, Located, Realized.visual or another valid marked
+constructor transport. An outer/unmarked Styled is opaque even if it carries
+equation.* option keys; false/non-bool marker and a marked non-Equation body
+are not constructors. Never execute recipes or callbacks. No public helper or
+entity field/signature is added; preserve Heading, aliases, bare Equation and
+all unrelated identities and structural Debug. The producer owns installing
+the marker only on already nonempty explicit-option transport.
+
+Tests must fail before the fix for valid marked identity and preserve ordinary
+Styled, invalid markers, non-Equation bodies, carriers and Realized.visual
+selection. Actual native constructor identity is also exercised by the producer
+owner. Continuous ADR-0127 applies; keep owner-specific lineage and shared
+nucleus pins consistent before compiling and validating.
+
+## Historical provenance
 
 `lab/history/prompt-consolidation-2026-10-18/records/00_nucleo/prompts/core/entities/content/identity.md` preserves the original evidence and chronology.

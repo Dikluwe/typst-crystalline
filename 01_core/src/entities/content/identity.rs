@@ -1,18 +1,157 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/entities/content/identity.md
-//! @prompt-hash e05e8c67
+//! @prompt-hash 9703cb42
 //! @layer L1
 //! @updated 2026-10-07
 
 use std::fmt;
 
 use super::Content;
+use crate::entities::value::Value;
+
+fn is_equation_constructor_content(content: &Content) -> bool {
+    match content {
+        Content::Equation(_) => true,
+        Content::Source(e) => is_equation_constructor_content(&e.body),
+        Content::ShowRecipe(e) => is_equation_constructor_content(&e.body),
+        Content::Located(e) => is_equation_constructor_content(&e.body),
+        Content::Realized(e) => is_equation_constructor_content(&e.visual),
+        Content::Styled(styled) => {
+            let marker = styled
+                .styles
+                .delta()
+                .custom
+                .iter()
+                .rev()
+                .find(|(key, _)| key.as_str() == "equation.constructor");
+            matches!(marker, Some((_, Value::Bool(true))))
+                && is_equation_constructor_content(&styled.body)
+        }
+        Content::Empty
+        | Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(..)
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathMatrix(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::TableCell(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Table(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => false,
+    }
+}
 
 impl Content {
     /// Return the stable element name used by diagnostics and field errors.
     pub fn elem_name(&self) -> &'static str {
         if self.constructor_heading().is_some() {
             return "heading";
+        }
+        if is_equation_constructor_content(self) {
+            return "equation";
         }
         match self {
             Self::Source(e) => e.body.elem_name(),
@@ -323,5 +462,71 @@ mod tests {
         assert_eq!(Content::Space.elem_name(), "space");
         assert_eq!(Content::SpaceFromNewline.elem_name(), "space");
         assert_eq!(format!("{:?}", Content::SpaceFromNewline), "space");
+    }
+}
+
+#[cfg(test)]
+mod v16_e_equation_identity_tests {
+    use super::Content;
+    use crate::entities::{
+        content::{RealizedContent, SourceContent},
+        span::Span,
+        style::Styles,
+        value::Value,
+    };
+    use std::sync::Arc;
+
+    fn marked(body: Content) -> Content {
+        Content::styled(
+            body,
+            Styles::new().push_custom("equation.constructor", Value::Bool(true)),
+        )
+    }
+
+    #[test]
+    fn v16_e_equation_marked_identity_follows_causal_visual_and_nested_transport() {
+        let equation = || Content::equation(Content::text("x"), false);
+        for body in [
+            equation(),
+            Content::Source(Arc::new(SourceContent {
+                body: equation(),
+                span: Span::detached(),
+            })),
+            Content::Realized(Arc::new(RealizedContent {
+                original: Content::text("not-equation"),
+                visual: equation(),
+            })),
+            marked(equation()),
+        ] {
+            assert_eq!(marked(body).elem_name(), "equation");
+        }
+    }
+
+    #[test]
+    fn v16_e_equation_identity_rejects_unmarked_and_invalid_transports() {
+        let equation = || Content::equation(Content::text("x"), false);
+        for content in [
+            Content::styled(
+                equation(),
+                Styles::new().push_custom("equation.numbering", Value::None),
+            ),
+            Content::styled(marked(equation()), Styles::new()),
+            Content::styled(
+                equation(),
+                Styles::new().push_custom("equation.constructor", Value::Bool(false)),
+            ),
+            Content::styled(
+                equation(),
+                Styles::new()
+                    .push_custom("equation.constructor", Value::Str("true".into())),
+            ),
+            marked(Content::text("not-equation")),
+            marked(Content::Realized(Arc::new(RealizedContent {
+                original: equation(),
+                visual: Content::text("visual"),
+            }))),
+        ] {
+            assert_eq!(content.elem_name(), "styled");
+        }
     }
 }

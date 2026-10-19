@@ -1,0 +1,106 @@
+{
+  "utc": "2026-10-19T19:39:51.815765+00:00",
+  "state": "uncommitted working tree",
+  "head": "5e1a01066b9eef0eb3c478e8b49e15e1da15b0b9",
+  "diff_head_stat": " .../_nuclei/math/equation-constructor-origin.toml  |   29 +\n .../eval/bindings/field_access/content_methods.md  |  161 ++-\n .../core/compiler/eval/expression_dispatch.md      |   55 +-\n .../core/compiler/stdlib/loading/encoding.md       |   65 +-\n .../compiler/stdlib/structural/math/equation.md    |   36 +-\n 00_nucleo/prompts/core/entities/content/fields.md  |   50 +-\n .../prompts/core/entities/content/identity.md      |   33 +-\n 00_nucleo/prompts/shell/cli.md                     |   95 +-\n .../eval/bindings/field_access/content_methods.rs  | 1079 +++++++++++++++++++-\n 01_core/src/compiler/eval/expression_dispatch.rs   |   83 +-\n 01_core/src/compiler/stdlib/loading/encoding.rs    |  288 +++++-\n .../compiler/stdlib/structural/math/equation.rs    |  113 +-\n 01_core/src/entities/content/fields.rs             |   73 +-\n 01_core/src/entities/content/identity.rs           |  207 +++-\n 02_shell/src/cli.rs                                |  901 +++++++++++++++-\n 15 files changed, 3192 insertions(+), 76 deletions(-)\n",
+  "scope": [
+    "01_core/src/compiler/eval/bindings/field_access/content_methods.rs",
+    "02_shell/src/cli.rs",
+    "01_core/src/compiler/stdlib/structural/math/equation.rs",
+    "01_core/src/entities/content/fields.rs",
+    "01_core/src/entities/content/identity.rs",
+    "01_core/src/compiler/stdlib/loading/encoding.rs",
+    "01_core/src/compiler/eval/expression_dispatch.rs",
+    "00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md",
+    "00_nucleo/prompts/shell/cli.md",
+    "00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md",
+    "00_nucleo/prompts/core/entities/content/fields.md",
+    "00_nucleo/prompts/core/entities/content/identity.md",
+    "00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md",
+    "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md",
+    "00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml"
+  ],
+  "hashes": {
+    "01_core/src/compiler/eval/bindings/field_access/content_methods.rs": "809234af6057c7733d76bac4c26f2fd1f5dcee88ad76206502b2ca0ba7a6ef5c",
+    "02_shell/src/cli.rs": "b6a5e7f36c75949d0e75498a4d98ade92a264cc85831fa95f970d7417814d719",
+    "01_core/src/compiler/stdlib/structural/math/equation.rs": "99321690dcce52b5a2c96d1f263b559a586d02edac0e6a559c4f6f3bad011e43",
+    "01_core/src/entities/content/fields.rs": "f7972a9a52f1509b39ef6de06cd3537659ad7ea30b3199c99778fd9411f95f38",
+    "01_core/src/entities/content/identity.rs": "5bc6f48db28a247575f0678983d909c7f20de2819e9129ba29bf6ace42e42bb6",
+    "01_core/src/compiler/stdlib/loading/encoding.rs": "4463c1c34d091528d502e9fea430feed1797728e1d9526f942bef96e61131be3",
+    "01_core/src/compiler/eval/expression_dispatch.rs": "11a26c344f55d201ec285bd76edfa71cd0fcab0d1c667ef4bfbd5626004c4180",
+    "00_nucleo/prompts/core/compiler/eval/bindings/field_access/content_methods.md": "ddb693acd709299c43843a18abe5ec4f21e65a094f3f5c25fe797a270cf8e77b",
+    "00_nucleo/prompts/shell/cli.md": "278be884d63f1595fa1af68c1e52364c37b30bcb751cfdbc5269897d4692b36a",
+    "00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md": "7a8d9b13f78e16267f63af8f5b019586a92767847c24ca916fadfbf74eb8cd41",
+    "00_nucleo/prompts/core/entities/content/fields.md": "df73e2399abf9966c53cf518f16c22f7da184d2491f17c732b2c64804217d051",
+    "00_nucleo/prompts/core/entities/content/identity.md": "5f7a3f1038daf1455cb74b5f0f0bda911db9d66bb7c938b3d90c7836efdd34ee",
+    "00_nucleo/prompts/core/compiler/stdlib/loading/encoding.md": "c4f2644cca860d57c0e584eb5c9beb1915ba051b543ae3f9eb29f79d469dfe83",
+    "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md": "411199ba511afa5dd78c2ff58210a64e9461cde5a1a8f82895deab87895d4430",
+    "00_nucleo/prompts/_nuclei/math/equation-constructor-origin.toml": "e989ecff90a30ab66cb592d9ad5b8a16ae384a2bfd5cfcd5b6e3614b5e8ea3b6"
+  },
+  "candidate_final_state_sha256": "bc63505e8fcf8f30d8439b7685fbfcd164d041ea901059ca0f836ac5b15a6ef7",
+  "reviewed_sources_match_candidate_final": true,
+  "result": "no supported new blocking correctness finding",
+  "findings": [],
+  "reviewed": [
+    {
+      "topic": "Producer metadata",
+      "anchors": [
+        "01_core/src/compiler/stdlib/structural/math/equation.rs:178"
+      ],
+      "conclusion": "Marker is appended only to already nonempty explicit-option custom delta; bare and block-only constructions remain unchanged. Values and callbacks are retained without invocation."
+    },
+    {
+      "topic": "Bounded recognition",
+      "anchors": [
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:561",
+        "01_core/src/entities/content/fields.rs:9",
+        "01_core/src/entities/content/identity.rs:12",
+        "01_core/src/compiler/stdlib/loading/encoding.rs:136",
+        "02_shell/src/cli.rs:1152"
+      ],
+      "conclusion": "All five classifiers use last direct marker Bool(true), recurse only through marked Styled and Source/ShowRecipe/Located body or Realized visual, and reject semantic containers. Nominal coverage sets agree across all 120 Content variants; that mechanical cross-check supports but does not replace source review."
+    },
+    {
+      "topic": "External style boundary",
+      "anchors": [
+        "01_core/src/compiler/eval/expression_dispatch.rs:17",
+        "02_shell/src/cli.rs:1661",
+        "01_core/src/compiler/stdlib/loading/encoding.rs:64"
+      ],
+      "conclusion": "External set styling wraps direct constructor-marked transport without collapsing its metadata outward. Absent/false/nonboolean latest marker follows existing ordinary merge with inner precedence. Source recursion preserves origin. Serializer ordinary Styled branch retains child/styles."
+    },
+    {
+      "topic": "Field presence and overrides",
+      "anchors": [
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:58",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:223",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:346",
+        "01_core/src/entities/content/fields.rs:298"
+      ],
+      "conclusion": "Outer recognition is checked before exposing Equation schema. Explicit options retain last-write and outer precedence, including none. Figure known caption and Metadata value are enumerated; OutlineEntry fill uses fill_set. Existing lost-presence cases are not promoted or asserted fixed."
+    },
+    {
+      "topic": "Native language identity",
+      "anchors": [
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:833",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:986",
+        "01_core/src/entities/content/identity.rs:147"
+      ],
+      "conclusion": "Only the bounded Equation predicate chooses canonical native metadata math.equation and native_math_equation. Other callbacks and metadata remain on their existing nominal paths; carrier projection uses body/visual. No name inference or callback execution was added."
+    },
+    {
+      "topic": "Snapshots and carrier precedence",
+      "anchors": [
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:1053",
+        "01_core/src/compiler/eval/bindings/field_access/content_methods.rs:1212",
+        "01_core/src/compiler/stdlib/loading/encoding.rs:42"
+      ],
+      "conclusion": "Present snapshots, including empty and divergent fields, remain authoritative. Carrier method recursion preserves supplied fields and existing explicit-location precedence."
+    }
+  ],
+  "limits": [
+    "Read-only source/L0/nucleus correctness review; no new Cargo, binary replay or validation executed.",
+    "Existing open-obligations remain open, including ordinary Styled strict child/styles, omitted Equation block provenance, Figure explicit-none and PdfArtifact kind provenance, legacy serialization defaults and general marker/style equality beyond bounded evidence.",
+    "This review is not a full-language parity claim and does not substitute for the parent-controlled final validation gates."
+  ]
+}
