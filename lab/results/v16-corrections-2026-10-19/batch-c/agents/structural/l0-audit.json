@@ -1,0 +1,114 @@
+{
+  "utc": "2026-10-19T12:40:04.508184+00:00",
+  "head": "370d78355bd646d1abead5bcacef215288cc8834",
+  "diff_stat": "",
+  "files": {
+    "00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md": "dc56ea12d0655b35ac4900f53f0bce83cf88afefa44669ec46185715dc4b6349",
+    "01_core/src/compiler/eval/bindings/field_access/fields.rs": "e914efff051b76e3990c3febc22d2a3fb8181ee5cd906fff1c00692a3bedbbbe",
+    "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md": "b8657cb39cf072e7de14960b222119397424502de0a48d243c154638e7744bdb",
+    "01_core/src/compiler/eval/bindings/value_methods/element_where.rs": "81dd63e092280279a4911ef56b42901595678087732d27d863678b86b8b63679",
+    "00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md": "a0a350f21a3ecd4ebc3e696175916d0409d411fd70c25dd27c7c0cdac4086db9",
+    "01_core/src/compiler/eval/call_dispatch/call_spans.rs": "afca4e703c3a918f28323ff32ee7a164f39fd43a443f7decbc9bacd9a967376e",
+    "00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md": "dcc328c0475fa194470e457a98bc93089606b9f80ff9975d2a1df81bf03dacec",
+    "01_core/src/compiler/eval/call_dispatch/content_methods.rs": "d25d8b0182976ed2b7bf0c3a0468b761ad5979ead41819bc770e70ff79663457",
+    "00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md": "a53c20346d4ea29b388603d0a8c01218b8c34391b5d54836c9e1b5e710a217bb",
+    "01_core/src/compiler/eval/call_dispatch/instance_methods.rs": "9510cd5ba95bc1ee5efe106165e46483cbd60dc7c399689181e74ee4d017c410",
+    "00_nucleo/prompts/core/compiler/eval/modules.md": "cd943cf7d08b20b33f1c54a83bb87b727abd345a7b36ee3c261aad4915907af4",
+    "01_core/src/compiler/eval/modules.rs": "e9ef4bca71248d91997034f86c1f8f2c35f3bcce6ac6161e609c074cd1accaac",
+    "00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md": "f2ad614488db02537400e7fedde0ab81924844c580416900ebb95af40d81a5a7",
+    "01_core/src/compiler/eval/operators/arithmetic.rs": "f58a3403e9c206accfbaff1a0bd39315afca33d0d2d5ce8369b8fb2de9d7906a",
+    "00_nucleo/prompts/core/compiler/eval/rules/intercept.md": "e8adcf62b24fc4041a23c926eb1c01d64f1c157aef4d222bdaa3aa9a76c659c7",
+    "01_core/src/compiler/eval/rules/intercept.rs": "e4415d0b98270fe94cc583eaededc9cad3589dcbbb15ff8f55af270b65b62767",
+    "00_nucleo/prompts/core/compiler/eval/rules/set/page.md": "fcc1f496e2ce797ccb6b0cfcc6ff93dd87eb7fc1d770a8e1fc55f8325bca02d3",
+    "01_core/src/compiler/eval/rules/set/page.rs": "7dfe287cd281066e1cd83bb88fe12ffe02a32485d800770954589b8a7af202df",
+    "00_nucleo/prompts/core/compiler/eval/rules/set/text.md": "c32f086c0fe2915a2297072de8d6ae5dbc6a0090c90766075e6c097b2e33d5ea",
+    "01_core/src/compiler/eval/rules/set/text.rs": "cfb08aac7d3b17313cdcdc9b2dacad2d46809d5c292ca0df36bc4ce27c2f79f5",
+    "00_nucleo/prompts/core/compiler/eval/rules/set.md": "9558e9afbff3e3fa534dddd33dde1c11492c52862f1cdb19934b33280d8523df",
+    "01_core/src/compiler/eval/rules/set.rs": "9a32d48a7234702400360d060ead2ddd2b2c38f42f17837ed8567010bb216b29"
+  },
+  "cases": [
+    {
+      "id": "V16-005",
+      "evidence": [
+        "01_core/src/compiler/eval/bindings/field_access/fields.rs:759\u2013769",
+        "01_core/src/compiler/eval/bindings/field_access/fields.rs:250\u2013286"
+      ],
+      "contract": "Keep the strict field dispatch separate from the broader presence classifier. The negative group says only that this receiver is outside the Matrix/Cell strict branch; it does not deny semantic getters. Test Matrix and Cell through Source, ShowRecipe, Located and Realized.visual, opposite hidden original/visual values, opaque Styled, authoritative snapshots and ordinary getters."
+    },
+    {
+      "id": "V16-006",
+      "evidence": [
+        "01_core/src/compiler/eval/bindings/value_methods/element_where.rs:609\u2013643"
+      ],
+      "contract": "Kind, Label, Location and Regex contain no native Func to inspect. Missing catalogue metadata remains accepted here, not newly classified as nonlocatable. Test all four leaves, both native forms, missing metadata, and rejection in both operands of Within/Before/After and in each And/Or child; preserve the supplied span and first failing child."
+    },
+    {
+      "id": "V16-008",
+      "evidence": [
+        "01_core/src/compiler/eval/call_dispatch/call_spans.rs:302\u2013327"
+      ],
+      "contract": "Use separate exhaustive Void and Normal arms, with positional shape and Content payload checks inside Normal. [] and [Content] continue to named selection; a non-Content singleton selects the first position and two-or-more selects the second before payload checks. Void nonempty selects first. Spread always wins. Test those cases, missing captures, unknown named full spans and ordinary named value spans."
+    },
+    {
+      "id": "V16-009",
+      "evidence": [
+        "01_core/src/compiler/eval/call_dispatch/content_methods.rs:10\u2013139"
+      ],
+      "contract": "The final Value projection is solely for OutlineEntry method routing. All other Value families defer with their cached receiver and without evaluating arguments. Content and LocatedContent still require the existing bounded receiver helper. Test direct dispatch with panic arguments on refused Values and on non-entry Content, then existing positive raw/Source/Located entry controls and earlier generic Content methods."
+    },
+    {
+      "id": "V16-010",
+      "evidence": [
+        "01_core/src/compiler/eval/call_dispatch/instance_methods.rs:10\u2013243"
+      ],
+      "contract": "Move all Value pattern guards into nominal arms. Within Value::Type, explicitly partition Counter from every other Type; Counter with a method other than at/display also defers. Preserve SpotColorant.tint and existing Angle/Dir/Align/Duration/Length predicates and all preexisting numeric/color/version name gates. State/Counter always delegate to their owning validator. Test refused methods with panic arguments, accepted representative methods, cache retention, non-Counter Type, and unknown State/Counter methods without silently skipping their validators."
+    },
+    {
+      "id": "V16-017",
+      "evidence": [
+        "01_core/src/compiler/eval/modules.rs:283\u2013366",
+        "01_core/src/compiler/eval/modules.rs:298\u2013325"
+      ],
+      "contract": "The synthetic trace path is never passed to World: all non-Str/non-Path values immediately fail in the following source dispatch before source lookup or Include trace creation. Keep the existing Portuguese diagnostic, actual expression span and error precedence. Test rejected None/Bool/Int/Content with a World whose include operations panic, plus string and rooted-path inclusion and traces using the existing in-memory World."
+    },
+    {
+      "id": "V16-018",
+      "evidence": [
+        "01_core/src/compiler/eval/operators/arithmetic.rs:28\u2013507"
+      ],
+      "contract": "Move zero checks inside the seven nominal numeric arms. Same-kind nonzero values continue normally, including Float NaN and infinities; Relative requires both components zero. Other families preserve later operator validation (Duration zero remains its own rule). Test every zero family with an incompatible dividend to prove precedence; test nonzero counterparts and Relative with either nonzero component, signed Float zero, IEEE controls and invalid nonnumeric types."
+    },
+    {
+      "id": "V16-020",
+      "evidence": [
+        "01_core/src/compiler/eval/rules/intercept.rs:16\u2013128",
+        "00_nucleo/prompts/core/compiler/eval/rules.md:78\u201382"
+      ],
+      "contract": "Only inherited outline.indent is classified here: None and unrelated Value families mean no applicable inherited value, distinct from Auto. Explicit constructor indent wins. Functions are transported without execution. Test missing/None/Auto/Bool/Length/Func and an unrelated value with actual Outline capture, explicit precedence and no callback execution."
+    },
+    {
+      "id": "V16-022",
+      "evidence": [
+        "01_core/src/compiler/eval/rules/set/page.rs:11\u2013553",
+        "01_core/src/compiler/eval/rules/set/page.rs:56\u201374",
+        "01_core/src/compiler/eval/rules/set/page.rs:404\u2013442"
+      ],
+      "contract": "Retain the closed Dict and Auto cases. Explicitly list all other Value variants as delegation to the existing relative-length cast; this is not a blanket acceptance. That cast admits Relative/Ratio/Length/Float/Int and rejects the rest at the same span. Existing numeric point interpretation is local legacy behavior, not new upstream certification. Test accepted uniform values, invalid/Auto distinction, dictionary side-over-axis-over-rest precedence, logical/physical conflict and invalid dictionary values."
+    },
+    {
+      "id": "V16-023",
+      "evidence": [
+        "01_core/src/compiler/eval/rules/set/text.rs:11\u2013466",
+        "01_core/src/compiler/eval/rules/set/text.rs:243\u2013344"
+      ],
+      "contract": "Close both the outer item Value and the inner optional dictionary name Value. None is a separate Option arm; only Str gives a literal family. Regex names, missing names and every non-Str name skip literal lookup. The earlier producers accept ordinary Str/Str arrays and parser-built dictionaries; the defensive complement must not turn into a new font schema. Test actual set text literal and dictionary literal warnings, regex dictionary absence of literal warnings, and prior rejection of invalid array/scalar inputs; preserve lowercase family diagnostics and spans."
+    },
+    {
+      "id": "V16-024",
+      "evidence": [
+        "01_core/src/compiler/eval/rules/set.rs:37\u201343"
+      ],
+      "contract": "Ident is a pure path; FieldAccess recursively classifies only its target. Every other Expr including Parenthesized and FuncCall is explicitly false and skips this optional probe, without a new general target-resolution policy. Keep false set condition before this classifier, all target resolution and all arguments. Test missing Ident/field diagnostic ordering, false condition with panic target/args, real native aliases and a parenthesized/call target control retaining the existing route."
+    }
+  ]
+}

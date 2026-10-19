@@ -1,5 +1,5 @@
 # L0 — compiler/eval/modules
-Hash do Código: bc09a198
+Hash do Código: 73cb3b6d
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
@@ -184,3 +184,51 @@ reverse/differential SARIF without new errors/warnings. Extraction may move
 uniform three-error-type V19 to new owner, keeping exhaustive match/justification.
 Heavy tasks sequential, 12 GiB/High 10 GiB/swap0/jobs1. No commit/push/merge/release/
 lint suppression.
+
+## Closed-domain decision and preservation
+
+### Evidence before decision
+
+At checkpoint `370d78355bd646d1abead5bcacef215288cc8834`,
+`01_core/src/compiler/eval/modules.rs:283–366`
+and the caller/producer evidence recorded in
+`lab/results/v16-corrections-2026-10-19/batch-c/agents/structural/l0-audit.json`
+show the current decision and its refusal path. That receipt records UTC,
+working-tree diffstat and exact source/owner SHA-256 before this amendment.
+The existing clauses above establish the behavior to preserve; an open Rust
+match is structural evidence, not proof of additional language admission.
+
+### Exclusive policy
+
+Only Str and Path are accepted by the following include dispatch. The listed complement
+receives <invalid path> temporarily, then errors with include: caminho deve ser path ou
+string, recebeu {} at path_span before trace_path is used. It never authorizes a file
+read or include under that synthetic path.
+
+The synthetic trace path is never passed to World: all non-Str/non-Path values
+immediately fail in the following source dispatch before source lookup or Include trace
+creation. Keep the existing Portuguese diagnostic, actual expression span and error
+precedence. Test rejected None/Bool/Int/Content with a World whose include operations
+panic, plus string and rooted-path inclusion and traces using the existing in-memory
+World.
+
+The explicit nominal complement is: `None`, `Bool`, `Int`, `Float`, `Array`, `Dict`, `Module`, `Datetime`, `Func`, `Content`, `LocatedContent`, `Auto`, `Length`, `Relative`, `Ratio`, `Angle`, `Color`, `Stroke`, `Fraction`, `Align`, `Location`, `Gradient`, `Regex`, `Tiling`, `Bytes`, `Decimal`, `Duration`, `Version`, `Selector`, `Symbol`, `Args`, `State`, `Counter`, `Label`, `Dir`, `Type`, `SpotColorant`.
+
+### Acceptance and refutation
+
+Preservation controls run before and after the repair. A real temporary enum
+variant in a disposable complete workspace must fail with E0004 at this exact
+decision after repair; failures at other decisions alone are insufficient.
+Exercise nested closed domains separately where present. The structural RED is
+the original V16/open evolution boundary, not a fabricated runtime defect.
+Any changed result, message, span, callback count, argument evaluation or refusal
+route refutes preservation. Retain informational V19 groups with their rationale;
+add no suppression, hidden catchall, linter/configuration weakening or new policy.
+
+Internal continuous ADR-0127: no public field/trait/signature, product default,
+phase or compatibility change. L0 precedes code; reseal only valid owner pairs
+after V15/V26. Require focused and full workspace tests, build/all-targets, fmt,
+strict Clippy/Rustdoc, path checks, direct/reverse lineage and differential SARIF
+without new errors or warnings outside the selected repairs. Heavy checks are
+serialized under one job, 12 GiB maximum, 8 GiB high and zero swap. Historical
+parity claims and unresolved scope exclusions above remain bounded.

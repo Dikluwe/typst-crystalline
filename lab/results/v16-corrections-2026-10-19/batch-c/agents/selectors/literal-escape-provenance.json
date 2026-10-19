@@ -1,0 +1,21 @@
+{
+  "utc": "2026-10-19T13:32:27.375353+00:00",
+  "head": "370d78355bd646d1abead5bcacef215288cc8834",
+  "diffstat": " .../compiler/eval/bindings/field_access/fields.md  |  49 +-\n .../eval/bindings/value_methods/element_where.md   |  50 +-\n .../eval/bindings/value_methods/selector.md        |  69 ++-\n .../prompts/core/compiler/eval/call_dispatch.md    |  17 +-\n .../core/compiler/eval/call_dispatch/call_spans.md |  49 +-\n .../compiler/eval/call_dispatch/content_methods.md |  50 +-\n .../eval/call_dispatch/instance_methods.md         |  52 +-\n .../compiler/eval/call_dispatch/value_methods.md   |  60 +-\n .../core/compiler/eval/expression_dispatch.md      | 137 ++++-\n .../prompts/core/compiler/eval/markup_stream.md    |  47 +-\n 00_nucleo/prompts/core/compiler/eval/modules.md    |  50 +-\n .../core/compiler/eval/operators/arithmetic.md     |  51 +-\n .../core/compiler/eval/operators/equality.md       |  82 ++-\n .../prompts/core/compiler/eval/rules/intercept.md  |  49 +-\n .../prompts/core/compiler/eval/rules/realize.md    |  66 ++-\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  50 +-\n .../prompts/core/compiler/eval/rules/set/page.md   |  51 +-\n .../prompts/core/compiler/eval/rules/set/text.md   |  52 +-\n .../core/compiler/eval/selector_matching.md        | 112 +++-\n .../core/compiler/stdlib/foundations/selector.md   |  22 +-\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  16 +-\n .../core/compiler/stdlib/structural/heading.md     |  47 +-\n .../compiler/eval/bindings/field_access/fields.rs  | 195 ++++++-\n .../eval/bindings/value_methods/element_where.rs   |  77 ++-\n .../eval/bindings/value_methods/selector.rs        | 329 ++++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |   6 +-\n .../src/compiler/eval/call_dispatch/call_spans.rs  |  81 ++-\n .../compiler/eval/call_dispatch/content_methods.rs | 229 +++++++-\n .../eval/call_dispatch/instance_methods.rs         | 489 +++++++++++++---\n .../compiler/eval/call_dispatch/value_methods.rs   | 118 +++-\n 01_core/src/compiler/eval/expression_dispatch.rs   | 414 +++++++++++++-\n 01_core/src/compiler/eval/markup_stream.rs         | 245 ++++++--\n 01_core/src/compiler/eval/modules.rs               | 121 +++-\n 01_core/src/compiler/eval/operators/arithmetic.rs  | 131 ++++-\n 01_core/src/compiler/eval/operators/equality.rs    | 167 +++++-\n 01_core/src/compiler/eval/rules/intercept.rs       | 178 +++++-\n 01_core/src/compiler/eval/rules/realize.rs         | 266 ++++++++-\n 01_core/src/compiler/eval/rules/set.rs             | 146 ++++-\n 01_core/src/compiler/eval/rules/set/page.rs        | 247 +++++++-\n 01_core/src/compiler/eval/rules/set/text.rs        | 182 +++++-\n 01_core/src/compiler/eval/selector_matching.rs     | 633 +++++++++++++++++++--\n .../src/compiler/stdlib/foundations/selector.rs    |   6 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   3 +-\n 01_core/src/compiler/stdlib/structural/heading.rs  |   6 +-\n 44 files changed, 5178 insertions(+), 319 deletions(-)\n",
+  "source_verification": {
+    "/home/dikluwe/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/regex-1.12.3/src/lib.rs": {
+      "sha256": "033460754d7a51fb9fa90ad096f76dbaaf10dc4c49f1195bb088fe23d35ded75",
+      "registry_package_checksum": "e10754a14b9137dd7b1e3e5b0493cc9171fdd105e0ab477f51b72e7f3ac0e276",
+      "lock_checksum_and_archive_source_verified": true
+    },
+    "/home/dikluwe/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/regex-syntax-0.8.10/src/lib.rs": {
+      "sha256": "c51d1e55a8b6c4608e21a278ed0ef9480f73ab5b814b6ca6127f4a049c4d5007",
+      "registry_package_checksum": "dc897dd8d9e8bd1ed8cdad82b5966c3e0ecae09fb1907d58efaa013543185d0a",
+      "lock_checksum_and_archive_source_verified": true
+    }
+  },
+  "lockfile_sha256": "34cff9a703194976a68d50f2584cca74b19838e1b342f5f662dfcebc6d1e52a0",
+  "target_source_sha256": "f3958d5b9ea965fe15fcdc981c9be2b7b3f0b117c845ae09c90a8ea7d807b207",
+  "target_l0_sha256": "401aca9443e17fa7d66eb710448885658d47e8ae080a7bb23b04b7beaa9acafb",
+  "classification": "architecture repair; behavior preserved; coordinator full lint provides V14 RED, functional controls must stay GREEN"
+}

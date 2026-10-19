@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/structural/heading.md
-//! @prompt-hash bbb2d78d
+//! @prompt-hash e1979838
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -204,7 +204,9 @@ pub fn native_heading(
                 ),
             )]);
         }
-        styles = styles.push_custom("heading.supplement", value.clone());
+        styles = styles
+            .push_custom("heading.supplement", value.clone())
+            .push_custom("heading.constructor.supplement", value.clone());
     }
     let content = if styles.is_empty() {
         content

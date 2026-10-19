@@ -1,0 +1,10 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 1m 19s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 2 tests
+test compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_preserves_literal_metacharacters_and_unicode ... ok
+test compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_preserves_literal_pattern_identity ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 7488 filtered out; finished in 0.01s
+

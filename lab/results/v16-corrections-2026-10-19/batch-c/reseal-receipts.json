@@ -1,0 +1,529 @@
+[
+  {
+    "utc": "2026-10-19T12:42:40.078623+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/eval/call_dispatch.rs",
+        "before": "6354357ac879545093552b89932d0fd9af0084d321801009fa8924ec17da8ac9",
+        "after": "3d16915b239067d88418e12f3bf779e04ffe2a4d45f877e523469fb707c31bee"
+      },
+      {
+        "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+        "before": "123ea40ee077a4ba5c650ac1f27ef0b1021de4f998aa53358afb73f76c824360",
+        "after": "c054749c8615acff496fc252062d485fe0a27758d07bdbbdd3a5dd12f63a2d10"
+      },
+      {
+        "file": "01_core/src/compiler/eval/markup_stream.rs",
+        "before": "ec9bee49a3d12c0d51ca8bbb56fe9d52e1af032348da2a79fbcef1db2daea871",
+        "after": "11ad5fb184e20a5d8aa2850a2f3b38909475a313fe6ce28674b350266929a1fd"
+      },
+      {
+        "file": "01_core/src/compiler/eval/modules.rs",
+        "before": "e9ef4bca71248d91997034f86c1f8f2c35f3bcce6ac6161e609c074cd1accaac",
+        "after": "5dd585a46eba87c927856a7a8e218f769eae666e42435a18d0ecce9a0d5ce3a0"
+      },
+      {
+        "file": "01_core/src/compiler/eval/selector_matching.rs",
+        "before": "b7c0f1d5c09834ea7ed13a7d7ec130aa84b45ab388c4c1f28dd88da05bc972ee",
+        "after": "c12347a6eac9ad0d1bb15c5859801ed47c19d72b9061606a97177537dd85bb55"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/mod.rs",
+        "before": "5dfffb6dca58cfd0623a88ad8bf9f444f8cdb90b00d33839736a67b00bea7ee4",
+        "after": "36f31b2d8c955ed0d0cc3fc9d7fc17ddde36239f968b9b2ff374f894f244fd0d"
+      },
+      {
+        "file": "01_core/src/compiler/eval/operators/arithmetic.rs",
+        "before": "f58a3403e9c206accfbaff1a0bd39315afca33d0d2d5ce8369b8fb2de9d7906a",
+        "after": "ac5694befd73513f01f382dd3a4c17f33802eab35dc528fa5392b3d8ba42bef2"
+      },
+      {
+        "file": "01_core/src/compiler/eval/operators/equality.rs",
+        "before": "c23ffbfb90b78f758eaeeef51cf590976fd14941c8af6d611f2ccedf62b5f0e1",
+        "after": "bfce210385c66b822c33aadeb5246d056814a98e6f61c0141baaf95feba5e71f"
+      },
+      {
+        "file": "01_core/src/compiler/eval/rules/intercept.rs",
+        "before": "e4415d0b98270fe94cc583eaededc9cad3589dcbbb15ff8f55af270b65b62767",
+        "after": "8ceb574dd1dd5802d277f47b9dbd0904301c2a9ca98e1a3a10d0344e605dcabd"
+      },
+      {
+        "file": "01_core/src/compiler/eval/rules/set.rs",
+        "before": "9a32d48a7234702400360d060ead2ddd2b2c38f42f17837ed8567010bb216b29",
+        "after": "54cc4dd28c64fd24f238f114eccebc7dee57905c7dc12ac0558fc5d9abe5086b"
+      },
+      {
+        "file": "01_core/src/compiler/eval/call_dispatch/call_spans.rs",
+        "before": "afca4e703c3a918f28323ff32ee7a164f39fd43a443f7decbc9bacd9a967376e",
+        "after": "1b6d79ef5a8b925e20e8fe6d433a74702ac63232841455ae6ecab26ef745df27"
+      },
+      {
+        "file": "01_core/src/compiler/eval/call_dispatch/content_methods.rs",
+        "before": "d25d8b0182976ed2b7bf0c3a0468b761ad5979ead41819bc770e70ff79663457",
+        "after": "b0474d63a34dc037482661d029d3789c531b032fc2a0e9b9cd092d7697d3512a"
+      },
+      {
+        "file": "01_core/src/compiler/eval/call_dispatch/instance_methods.rs",
+        "before": "9510cd5ba95bc1ee5efe106165e46483cbd60dc7c399689181e74ee4d017c410",
+        "after": "bf1db8f253e28d59d98c8ba2a9b02acf1b7be9b2080576817fcab79de226fa6b"
+      },
+      {
+        "file": "01_core/src/compiler/eval/call_dispatch/value_methods.rs",
+        "before": "4ced8d909d7592b19f0c0f713e5a8036d73c1156a741332685bb943d66bdbd8e",
+        "after": "f30d8a9d64e204648e6adb6978ac45b5082d2cc0d1819364fe58423a6c496f39"
+      },
+      {
+        "file": "01_core/src/compiler/eval/bindings/field_access/fields.rs",
+        "before": "e914efff051b76e3990c3febc22d2a3fb8181ee5cd906fff1c00692a3bedbbbe",
+        "after": "f54de22821d808f38cca98a58cf8bd83e423507868d03d7b28d6b59cd9c7f1f7"
+      },
+      {
+        "file": "01_core/src/compiler/eval/bindings/value_methods/element_where.rs",
+        "before": "81dd63e092280279a4911ef56b42901595678087732d27d863678b86b8b63679",
+        "after": "58c6dd5f20699aba1905f3cca5ecf59d19c116e92c64aeda4f9c8d854b69c1dc"
+      },
+      {
+        "file": "01_core/src/compiler/eval/bindings/value_methods/selector.rs",
+        "before": "01e4412986005f88f99582249546da37e5665655bb10ceef9a7d225e87e7917a",
+        "after": "d38d60d09ab93f90eddc9239d63c8531b45268c023078a2f9f99a9683274568e"
+      },
+      {
+        "file": "01_core/src/compiler/eval/rules/set/page.rs",
+        "before": "7dfe287cd281066e1cd83bb88fe12ffe02a32485d800770954589b8a7af202df",
+        "after": "63830749f8059b41deb1d68f323bef1fbf3647e09a17c3e469fa4da5d961b007"
+      },
+      {
+        "file": "01_core/src/compiler/eval/rules/set/text.rs",
+        "before": "cfb08aac7d3b17313cdcdc9b2dacad2d46809d5c292ca0df36bc4ce27c2f79f5",
+        "after": "85bfbea0af90a119b864446e7c723389aed29de1111932c1b61878286d13ed30"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/foundations/selector.rs",
+        "before": "73188ea15159dcd09155d834537c92cb5995d992d94016785cb119549da4c4e1",
+        "after": "a56835a6e0122ae9423a917c8c2938a440977921aa070ac121e0d4272f859ac7"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/fields.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md hash-a=449b856f hash-b=29bbc915\nApplied ./01_core/src/compiler/eval/bindings/value_methods/element_where.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md hash-a=a3ebdc6f hash-b=c0aef757\nApplied ./01_core/src/compiler/eval/bindings/value_methods/selector.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md hash-a=3df55606 hash-b=e05d44fd\nApplied ./01_core/src/compiler/eval/call_dispatch/call_spans.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md hash-a=77bc5b27 hash-b=3cfa1922\nApplied ./01_core/src/compiler/eval/call_dispatch/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md hash-a=16dad56c hash-b=edef1c66\nApplied ./01_core/src/compiler/eval/call_dispatch/instance_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md hash-a=0b22e30c hash-b=d4012cc7\nApplied ./01_core/src/compiler/eval/call_dispatch/value_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md hash-a=6ee4ad22 hash-b=c1ef8f77\nApplied ./01_core/src/compiler/eval/call_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch.md hash-a=47dad88a hash-b=8c0964d3\nApplied ./01_core/src/compiler/eval/expression_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/expression_dispatch.md hash-a=55806f8d hash-b=60a785c8\nApplied ./01_core/src/compiler/eval/markup_stream.rs prompt=00_nucleo/prompts/core/compiler/eval/markup_stream.md hash-a=c7a42271 hash-b=f2fbd2c6\nApplied ./01_core/src/compiler/eval/modules.rs prompt=00_nucleo/prompts/core/compiler/eval/modules.md hash-a=98394ce8 hash-b=bc09a198\nApplied ./01_core/src/compiler/eval/operators/arithmetic.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md hash-a=a25e4e70 hash-b=eb421650\nApplied ./01_core/src/compiler/eval/operators/equality.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/equality.md hash-a=2ac80194 hash-b=6126614c\nApplied ./01_core/src/compiler/eval/rules/intercept.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/intercept.md hash-a=1fe1da5e hash-b=194b7d91\nApplied ./01_core/src/compiler/eval/rules/realize.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/realize.md hash-a=fe511d05 hash-b=2685624e\nApplied ./01_core/src/compiler/eval/rules/set/page.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/page.md hash-a=e9af2257 hash-b=eaadc8e6\nApplied ./01_core/src/compiler/eval/rules/set/text.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/text.md hash-a=76668e1c hash-b=f87ab12f\nApplied ./01_core/src/compiler/eval/rules/set.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set.md hash-a=69484fcc hash-b=64f5c22a\nApplied ./01_core/src/compiler/eval/selector_matching.rs prompt=00_nucleo/prompts/core/compiler/eval/selector_matching.md hash-a=c4e15c67 hash-b=71395534\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=7035d31f hash-b=1d7a988a\nApplied ./01_core/src/compiler/stdlib/mod.rs prompt=00_nucleo/prompts/core/compiler/stdlib/mod.md hash-a=7ee5c4bb hash-b=41ba6b7d\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T12:47:03.091965+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/eval/operators/equality.rs",
+        "before": "fac079f1ddeaed877fe1bc10d30cb9de5b7108363060cd8cb84aa45e4c5fd1bd",
+        "after": "593c1252111c5fdb22ab33bbfbf42b09f969d12fb5b1139d1f1c131264c04307"
+      },
+      {
+        "file": "01_core/src/compiler/eval/rules/realize.rs",
+        "before": "0e9eaef509ed7373d275debc2e80823617620f3128499a8bd52ba6ecd62f17fd",
+        "after": "cd3a83a76f7099920fd078de2b869d93d3f32976bff506f35376f5b579280495"
+      },
+      {
+        "file": "01_core/src/compiler/eval/call_dispatch/value_methods.rs",
+        "before": "4788981114562d0a1a815905e8d1f5be2b4f5e0f382139906f69b8b64585c601",
+        "after": "acf4c67945210915a4738c3c6a0b08af75cfbb43c15e48477ec7a55281f7f82a"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md",
+        "before": "cdb94e26e781d63ae17713cd5eeea1d34782f8d019fd4d033153190e5e3b19c7",
+        "after": "a34ff8cd1e532adf75084f2b37dedd05bae41b6effa51a8e6ddb419a11015b1b"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/markup_stream.md",
+        "before": "d4e8300ad2eb0ccb3399a9eabd5edd95bc67e162cecafaa6dc0778557190a473",
+        "after": "46fa7cbf6a4f6552a491fcf21a08f9d840bf9cbc8a2ae379e206d4fc4db0de1e"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/modules.md",
+        "before": "c5c0f97a82ff126e2d9e76f7169cbd9bb3b02384ad155fad57d785e8bcf41154",
+        "after": "a22341605231c1a2b270538144be2264540d32fd478c1bcada8d76050ebd4399"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+        "before": "193b8c50837adc05255929d4badebb6a67a9d4aae917e25a395acabf757a3536",
+        "after": "c2d69d05272ee0d7b7e1e1fed69017b863ef4ce56deb87428ecb713ef123c3fa"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md",
+        "before": "426302f6dc39d44752daee7f4fd6db059a81fa044b98bfd77dd8bb8b8da57ea0",
+        "after": "e9591b00cdc2418d72e154f8a6e868fec2572abb31babe953200e019630f6c6e"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md",
+        "before": "285762eecbfad2bcaf4eb0e875f04696ec944518ec103fd4b88093e636081f32",
+        "after": "a38790c54511665b865dba68dcbac967d078aa11f55ea0b80fd08a2721402119"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md",
+        "before": "738d8ec561a2f3849d3a455196be40e6a4d01b273177bd3bdcfecb80e0afb4fd",
+        "after": "133262592aa46f8f5de59dbea72dabf4f37de05ac8f59ebe6d25a6420f863140"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md",
+        "before": "cc3f81cd4ce6a555f9383535129d73ba4dea90a37cb57ea91ed090498cb4e40a",
+        "after": "70a3684972cb3e3d28d9d642a6df8d93b38bf26cfac213fd8468f7ba737afc41"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md",
+        "before": "cb8ba181a6fa2faa82d048b5928b499efcaeff2f6b52c2166d39f13e574661f6",
+        "after": "c931a8de0addb76c4d78af3bc84ed47986b149d20f3e56f62d2c0aff32b062d4"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+        "before": "1ccf0e83f7423660a57d93fc40afbb99184005bd126381102c795f8f8e34b536",
+        "after": "26cb7ba88d8a326f9cc5d27e697844f5632886d5d7751fbe66c6e07384e2b1eb"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/rules/intercept.md",
+        "before": "6a0d29911c9c0386250142b78b595ffd4be840bd6c7e97a5c2f77b4573f04c83",
+        "after": "307e5d7e14188e34ad06fb73416ea67591a67b00332fd6921792c149959bdc92"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/rules/set.md",
+        "before": "af9fa234d8e4addde994de09b1dc3f2560a1604d57076e7cd83b76315eb49809",
+        "after": "290f2e2021a0674f678d072ae1d340119c1e991c4ddd3aea0b8d0dfb80a6b109"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md",
+        "before": "00c32fd38ede3ba58b0cd56b5e3dda88562cecd395bf40e08d27cb529e6a8725",
+        "after": "bd4040df084faecffed084cb373739ecb10f76049f96149b658f68e4bf80e275"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md",
+        "before": "ec16fea7e565564d029209e6114c6b03807640c74c8e38d72eb2673b31108475",
+        "after": "f5a79a22342737b9d02f2ef2862cf8260f265528c4948c5e7f83d8261564b825"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md",
+        "before": "ed52a7c699ef2143d3ee179bb01328142d296fba63645f89783cea7b658bae87",
+        "after": "f128e8aa883ee36592b2d36df5693f77066808d6e9db6d73fc8a4e8d91d2220f"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/rules/set/page.md",
+        "before": "b8d64721c7fbef2a90803a336180fdb1aad83a7ab234de90443809be41c7be49",
+        "after": "d9a7c50071237e528b08a9cb3467978ebb37fb0c3d088efff43d113ee12e08a3"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/rules/set/text.md",
+        "before": "e100e5aef08affa12d09539b1b698db8541ac4f4b7efc621d8b72776b186989b",
+        "after": "4f68e2c1ecd9e91d9d887175e71ddf43b5967bd92dad5334a75622e143e1fd21"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/fields.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md hash-a=449b856f hash-b=7d21d5f3\nApplied ./01_core/src/compiler/eval/bindings/value_methods/element_where.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md hash-a=a3ebdc6f hash-b=b84ecfa2\nApplied ./01_core/src/compiler/eval/bindings/value_methods/selector.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md hash-a=3df55606 hash-b=6a8ebf65\nApplied ./01_core/src/compiler/eval/call_dispatch/call_spans.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md hash-a=77bc5b27 hash-b=10bb5e70\nApplied ./01_core/src/compiler/eval/call_dispatch/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md hash-a=16dad56c hash-b=f02ca905\nApplied ./01_core/src/compiler/eval/call_dispatch/instance_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md hash-a=0b22e30c hash-b=18315e63\nApplied ./01_core/src/compiler/eval/call_dispatch/value_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md hash-a=44b230b4 hash-b=946cd118\nApplied ./01_core/src/compiler/eval/call_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch.md hash-a=47dad88a hash-b=8c0964d3\nApplied ./01_core/src/compiler/eval/expression_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/expression_dispatch.md hash-a=55806f8d hash-b=3fbdd5d1\nApplied ./01_core/src/compiler/eval/markup_stream.rs prompt=00_nucleo/prompts/core/compiler/eval/markup_stream.md hash-a=c7a42271 hash-b=4ab80599\nApplied ./01_core/src/compiler/eval/modules.rs prompt=00_nucleo/prompts/core/compiler/eval/modules.md hash-a=98394ce8 hash-b=10f507fc\nApplied ./01_core/src/compiler/eval/operators/arithmetic.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md hash-a=a25e4e70 hash-b=8fc5d1e0\nApplied ./01_core/src/compiler/eval/operators/equality.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/equality.md hash-a=448fcf0a hash-b=ff1b48fb\nApplied ./01_core/src/compiler/eval/rules/intercept.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/intercept.md hash-a=1fe1da5e hash-b=b092ae6c\nApplied ./01_core/src/compiler/eval/rules/realize.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/realize.md hash-a=7fddfe67 hash-b=2685624e\nApplied ./01_core/src/compiler/eval/rules/set/page.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/page.md hash-a=e9af2257 hash-b=c88e4ead\nApplied ./01_core/src/compiler/eval/rules/set/text.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/text.md hash-a=76668e1c hash-b=98afd857\nApplied ./01_core/src/compiler/eval/rules/set.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set.md hash-a=69484fcc hash-b=4f3beecb\nApplied ./01_core/src/compiler/eval/selector_matching.rs prompt=00_nucleo/prompts/core/compiler/eval/selector_matching.md hash-a=c4e15c67 hash-b=c3f4e769\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=7035d31f hash-b=1d7a988a\nApplied ./01_core/src/compiler/stdlib/mod.rs prompt=00_nucleo/prompts/core/compiler/stdlib/mod.md hash-a=7ee5c4bb hash-b=41ba6b7d\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T12:53:32.708597+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+        "before": "44e91e3d8bfe47cfc3dc120d3ba26d5afcaf77b60e59feb31eead7c42ef8b662",
+        "after": "a5f4e153cea09ad9398450938006b0142658d6c59e0dd901f5bab8d4d9cd8394"
+      },
+      {
+        "file": "01_core/src/compiler/eval/selector_matching.rs",
+        "before": "5bf87937c62583756a0756fddc840e5d8c2a9c1bbea4da9bea4a32c68deac13a",
+        "after": "a21a3c515e73b8747a0906c2b299368c26fb92c9d41332368f9a02e3074b99d4"
+      },
+      {
+        "file": "01_core/src/compiler/eval/operators/equality.rs",
+        "before": "3538a9b507a75837c79fa45fe1e8928616f71029d8c5019de9482b50e4bb98d8",
+        "after": "cd001976929709a3058f3dd10c61c39ee2204b0ef9afd615f05e962377635fbd"
+      },
+      {
+        "file": "01_core/src/compiler/eval/rules/realize.rs",
+        "before": "24f90d4fef95a3f5e7e3ab75b1dcb2a56255959c25342865aeb764216c36ea8d",
+        "after": "1a7ebf4ba4f60f823ac7719fe00d87aaf6ca51662a694b54c736c8e5b4bd7d17"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/markup_stream.md",
+        "before": "46fa7cbf6a4f6552a491fcf21a08f9d840bf9cbc8a2ae379e206d4fc4db0de1e",
+        "after": "d02b6c8b5f8e6b233d47ca4d35c208e6bedcfa6935f71f0abb09ca77d8495e79"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+        "before": "2ad203301e3b80a87670ab86868e3821039abe846c9807a65ccbe7e09d11229a",
+        "after": "97f216dd90ed343be8a6cb0f8ac8555fe9d48811db5f455a0ff39f69f00b5487"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+        "before": "541abf66e005893467b564acd704efe93af67753432374fcdcf25402fb6b1341",
+        "after": "7ee2bbe01d60ef60e3fe3dbf219c0cc52172de536f9e2182c4b738142ed3ac0a"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/rules/realize.md",
+        "before": "d8448c326345991f089b177a849b870a34309bf38d21bd305c6494d32ddd3802",
+        "after": "62cafa12049ae88f4fba6d30a5effe6cf2e44bd43c40e9a623f3a5602cffce8b"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md",
+        "before": "f128e8aa883ee36592b2d36df5693f77066808d6e9db6d73fc8a4e8d91d2220f",
+        "after": "2f263ad3b03f22ebe90a144d307fa46edf9f1359a94d2506744e4ce553e833c4"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/fields.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md hash-a=449b856f hash-b=7d21d5f3\nApplied ./01_core/src/compiler/eval/bindings/value_methods/element_where.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md hash-a=a3ebdc6f hash-b=b84ecfa2\nApplied ./01_core/src/compiler/eval/bindings/value_methods/selector.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md hash-a=3df55606 hash-b=a29df3bc\nApplied ./01_core/src/compiler/eval/call_dispatch/call_spans.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md hash-a=77bc5b27 hash-b=10bb5e70\nApplied ./01_core/src/compiler/eval/call_dispatch/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md hash-a=16dad56c hash-b=f02ca905\nApplied ./01_core/src/compiler/eval/call_dispatch/instance_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md hash-a=0b22e30c hash-b=18315e63\nApplied ./01_core/src/compiler/eval/call_dispatch/value_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md hash-a=44b230b4 hash-b=946cd118\nApplied ./01_core/src/compiler/eval/call_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch.md hash-a=47dad88a hash-b=8c0964d3\nApplied ./01_core/src/compiler/eval/expression_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/expression_dispatch.md hash-a=a0150757 hash-b=3fbdd5d1\nApplied ./01_core/src/compiler/eval/markup_stream.rs prompt=00_nucleo/prompts/core/compiler/eval/markup_stream.md hash-a=c7a42271 hash-b=5bd79ad6\nApplied ./01_core/src/compiler/eval/modules.rs prompt=00_nucleo/prompts/core/compiler/eval/modules.md hash-a=98394ce8 hash-b=10f507fc\nApplied ./01_core/src/compiler/eval/operators/arithmetic.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md hash-a=a25e4e70 hash-b=8fc5d1e0\nApplied ./01_core/src/compiler/eval/operators/equality.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/equality.md hash-a=f662c482 hash-b=73710c07\nApplied ./01_core/src/compiler/eval/rules/intercept.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/intercept.md hash-a=1fe1da5e hash-b=b092ae6c\nApplied ./01_core/src/compiler/eval/rules/realize.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/realize.md hash-a=507e87e6 hash-b=29348227\nApplied ./01_core/src/compiler/eval/rules/set/page.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/page.md hash-a=e9af2257 hash-b=c88e4ead\nApplied ./01_core/src/compiler/eval/rules/set/text.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/text.md hash-a=76668e1c hash-b=98afd857\nApplied ./01_core/src/compiler/eval/rules/set.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set.md hash-a=69484fcc hash-b=4f3beecb\nApplied ./01_core/src/compiler/eval/selector_matching.rs prompt=00_nucleo/prompts/core/compiler/eval/selector_matching.md hash-a=d2016807 hash-b=072bcce4\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=7035d31f hash-b=1d7a988a\nApplied ./01_core/src/compiler/stdlib/mod.rs prompt=00_nucleo/prompts/core/compiler/stdlib/mod.md hash-a=7ee5c4bb hash-b=41ba6b7d\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T12:59:07.568268+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/eval/selector_matching.rs",
+        "before": "de5bb10b8b219600d7fa26e397a0e79368620d536ea42f44c000ffddd975de9d",
+        "after": "fd1cbefb72880e00406e26ac75434b02162158c9999ee359452f86384619f1c6"
+      },
+      {
+        "file": "01_core/src/compiler/eval/operators/equality.rs",
+        "before": "fe58b20be128b8806375f73e42d96f3b9ddec9148cd0b1910d461f54dd31354a",
+        "after": "0f56c82b5eb0801e1743eb6b764d90106e709d1939d4e19dbfc3890a9c1b02e4"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md",
+        "before": "753a00643f1199f51ab95d9109560e41ac1e1ad49d73c7f5a86827e91676f5a1",
+        "after": "ec8be19970a76ec36c3445e79a80a9619a21bc09a5799063e0a887b9878c7e7e"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/markup_stream.md",
+        "before": "d02b6c8b5f8e6b233d47ca4d35c208e6bedcfa6935f71f0abb09ca77d8495e79",
+        "after": "0a939c8699ca2a5b632d181e0df6db66a6fdf1fd187a29679d0153494dadfaa9"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+        "before": "2cf21c9c5970674207d0b887f0fa073b8e21558cd42729020b844956a4413e29",
+        "after": "5156add54d10e7ff9b85d3bc4e14045ebe38cbaef1abe8c6f944dd3f390ffa88"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+        "before": "6493ac490b6c12c687d70099444d610502e162c164145f8ad95aaa94abdcdc3d",
+        "after": "02f0a93880e1d38acaf2ed098fc72b658c2d74b60bdbedfcc02e4fb78f78bb13"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/rules/realize.md",
+        "before": "62cafa12049ae88f4fba6d30a5effe6cf2e44bd43c40e9a623f3a5602cffce8b",
+        "after": "909d130c9816f3328e6dd4318d96f3f81041229b972063bc99b3a52a04e8e307"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/fields.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md hash-a=449b856f hash-b=7d21d5f3\nApplied ./01_core/src/compiler/eval/bindings/value_methods/element_where.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md hash-a=a3ebdc6f hash-b=b84ecfa2\nApplied ./01_core/src/compiler/eval/bindings/value_methods/selector.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md hash-a=3df55606 hash-b=a29df3bc\nApplied ./01_core/src/compiler/eval/call_dispatch/call_spans.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md hash-a=77bc5b27 hash-b=10bb5e70\nApplied ./01_core/src/compiler/eval/call_dispatch/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md hash-a=16dad56c hash-b=f02ca905\nApplied ./01_core/src/compiler/eval/call_dispatch/instance_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md hash-a=0b22e30c hash-b=18315e63\nApplied ./01_core/src/compiler/eval/call_dispatch/value_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md hash-a=44b230b4 hash-b=946cd118\nApplied ./01_core/src/compiler/eval/call_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch.md hash-a=47dad88a hash-b=8c0964d3\nApplied ./01_core/src/compiler/eval/expression_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/expression_dispatch.md hash-a=a0150757 hash-b=22a7c27d\nApplied ./01_core/src/compiler/eval/markup_stream.rs prompt=00_nucleo/prompts/core/compiler/eval/markup_stream.md hash-a=c7a42271 hash-b=6b3ef1e4\nApplied ./01_core/src/compiler/eval/modules.rs prompt=00_nucleo/prompts/core/compiler/eval/modules.md hash-a=98394ce8 hash-b=10f507fc\nApplied ./01_core/src/compiler/eval/operators/arithmetic.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md hash-a=a25e4e70 hash-b=8fc5d1e0\nApplied ./01_core/src/compiler/eval/operators/equality.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/equality.md hash-a=4b95652c hash-b=deecd731\nApplied ./01_core/src/compiler/eval/rules/intercept.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/intercept.md hash-a=1fe1da5e hash-b=b092ae6c\nApplied ./01_core/src/compiler/eval/rules/realize.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/realize.md hash-a=507e87e6 hash-b=584674d7\nApplied ./01_core/src/compiler/eval/rules/set/page.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/page.md hash-a=e9af2257 hash-b=c88e4ead\nApplied ./01_core/src/compiler/eval/rules/set/text.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/text.md hash-a=76668e1c hash-b=98afd857\nApplied ./01_core/src/compiler/eval/rules/set.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set.md hash-a=69484fcc hash-b=4f3beecb\nApplied ./01_core/src/compiler/eval/selector_matching.rs prompt=00_nucleo/prompts/core/compiler/eval/selector_matching.md hash-a=bb4fa810 hash-b=06e5fc2e\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=7035d31f hash-b=1d7a988a\nApplied ./01_core/src/compiler/stdlib/mod.rs prompt=00_nucleo/prompts/core/compiler/stdlib/mod.md hash-a=7ee5c4bb hash-b=41ba6b7d\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T13:11:21.366465+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/eval/rules/realize.rs",
+        "before": "09eb8c459f0d35827aed4916f63c486ae8872a9ceca9217cc90edad5d30d0aab",
+        "after": "725b1ae33f598f957459b8800116ff43f94ce8ebe49b78b99713f382e31c979f"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/call_dispatch.md",
+        "before": "8d032d0f455a4ad9bcc6ba12af3cd9be84a6f96adbf940fc10f1a91a8816e8c1",
+        "after": "bc55301cfd55835106f8e0628206c617e170e552f5a220dbc6480b9710a21203"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md",
+        "before": "ec8be19970a76ec36c3445e79a80a9619a21bc09a5799063e0a887b9878c7e7e",
+        "after": "3c5598548c7f0eaec3743a49b7bd1f15c0d350c6a2d53e0a24514081cebaa9d2"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/markup_stream.md",
+        "before": "0a939c8699ca2a5b632d181e0df6db66a6fdf1fd187a29679d0153494dadfaa9",
+        "after": "0494f09eb6cce5ec62746c24b1edc06815ecd83454d440ca3d03347c4249f9d5"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/modules.md",
+        "before": "a22341605231c1a2b270538144be2264540d32fd478c1bcada8d76050ebd4399",
+        "after": "2719dae9121ab3f32a5f5d989135f574aa6c8e064b3ba4db2e92019c209542aa"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+        "before": "5156add54d10e7ff9b85d3bc4e14045ebe38cbaef1abe8c6f944dd3f390ffa88",
+        "after": "31cd1684939356c0d43e7d2d3f9c966bc93fc6535c996fd652edfa34fcc25ce2"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/mod.md",
+        "before": "539d4eb412d0aee3f22bdfab343ffd19dcf9a4e552deaae76e8166b0abf830b1",
+        "after": "dd042958e17f4bef08287b41db465a85158375543f1035dc6a73f6b3897349df"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md",
+        "before": "e9591b00cdc2418d72e154f8a6e868fec2572abb31babe953200e019630f6c6e",
+        "after": "15d81e6097158664db70bf8474debfc123ad6a15b04d350faa0c30a52dad1950"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md",
+        "before": "a38790c54511665b865dba68dcbac967d078aa11f55ea0b80fd08a2721402119",
+        "after": "c036d3bbd67a1a6e854190b7efbbc1180ee23436a7d15ec52fe9ffbbb9691811"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md",
+        "before": "133262592aa46f8f5de59dbea72dabf4f37de05ac8f59ebe6d25a6420f863140",
+        "after": "2ad8cf21d8afb6d79407a4ffcc1ac8187e6243794e3f102e73218a63760e54b3"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md",
+        "before": "70a3684972cb3e3d28d9d642a6df8d93b38bf26cfac213fd8468f7ba737afc41",
+        "after": "a695c655df575ca021fb7a1c015b27c0a04cee0b3d4b3dfb85d7186d1930eff6"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md",
+        "before": "c931a8de0addb76c4d78af3bc84ed47986b149d20f3e56f62d2c0aff32b062d4",
+        "after": "62c65553626bd06aad7bece27dc12a122743f4707c46b884e5ab659dedc082e4"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+        "before": "02f0a93880e1d38acaf2ed098fc72b658c2d74b60bdbedfcc02e4fb78f78bb13",
+        "after": "e3850222a8d1fdb50b596af41ce45f58eade7e74e2e33aa9d84ae06af83f660c"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/rules/intercept.md",
+        "before": "307e5d7e14188e34ad06fb73416ea67591a67b00332fd6921792c149959bdc92",
+        "after": "51f29e1f3b00a19a813e55d7ef5d4ff9e991ff46f74d71d0fc6ecf437d38f3f0"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/rules/realize.md",
+        "before": "678ac3706cd8a6c2a9a242d5b899e061e94cae8434e03dfc79f1a3bbcc2f6ed7",
+        "after": "8cd8940517dac4ccf5c37a89b834d84fa896c596f29d956e4ad4f2ed447246ce"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/rules/set.md",
+        "before": "290f2e2021a0674f678d072ae1d340119c1e991c4ddd3aea0b8d0dfb80a6b109",
+        "after": "7eccfc9047dec9e55b09ca4f9b5ba6e2d97fe8efac180e4122b83eb880119f41"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md",
+        "before": "bd4040df084faecffed084cb373739ecb10f76049f96149b658f68e4bf80e275",
+        "after": "6ad8a0ecc9bc60754cdd045d95a466c3cec5aaf21fdb43cb7161450fe84876b1"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md",
+        "before": "f5a79a22342737b9d02f2ef2862cf8260f265528c4948c5e7f83d8261564b825",
+        "after": "48526d0913535f7e9d3917a2d9b773d9040776506e5c55d0888c12e41b29e23e"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md",
+        "before": "2f263ad3b03f22ebe90a144d307fa46edf9f1359a94d2506744e4ce553e833c4",
+        "after": "9e0314ba2022543724911494a839e771151cccc3c904a71428a3b8b26a9983dd"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/rules/set/page.md",
+        "before": "d9a7c50071237e528b08a9cb3467978ebb37fb0c3d088efff43d113ee12e08a3",
+        "after": "7fce845ade17f4c2a09489ca179451a1f30ee66e1ea8c048e3532cd6daba39c3"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/rules/set/text.md",
+        "before": "4f68e2c1ecd9e91d9d887175e71ddf43b5967bd92dad5334a75622e143e1fd21",
+        "after": "7f2d60e9d4e6bea0dba679f6d68cd6e03384fbcdad06a15afbb1662f498a1429"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md",
+        "before": "3a575e60b67f405a21d553c607c1384bcc758bd61ffc01fe034414d402aaf619",
+        "after": "1b5c45ef57078180826f83b6f8e8693d9516860368bfcd507d7662605e6dffe6"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/fields.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md hash-a=449b856f hash-b=3ff7f4bf\nApplied ./01_core/src/compiler/eval/bindings/value_methods/element_where.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md hash-a=a3ebdc6f hash-b=d52b049b\nApplied ./01_core/src/compiler/eval/bindings/value_methods/selector.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md hash-a=3df55606 hash-b=246f8d2e\nApplied ./01_core/src/compiler/eval/call_dispatch/call_spans.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md hash-a=77bc5b27 hash-b=e07b0bf6\nApplied ./01_core/src/compiler/eval/call_dispatch/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md hash-a=16dad56c hash-b=42a85646\nApplied ./01_core/src/compiler/eval/call_dispatch/instance_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md hash-a=0b22e30c hash-b=a906fa24\nApplied ./01_core/src/compiler/eval/call_dispatch/value_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md hash-a=44b230b4 hash-b=0ab3643f\nApplied ./01_core/src/compiler/eval/call_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch.md hash-a=47dad88a hash-b=fea57bf4\nApplied ./01_core/src/compiler/eval/expression_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/expression_dispatch.md hash-a=a0150757 hash-b=e1f8755d\nApplied ./01_core/src/compiler/eval/markup_stream.rs prompt=00_nucleo/prompts/core/compiler/eval/markup_stream.md hash-a=c7a42271 hash-b=225aaab7\nApplied ./01_core/src/compiler/eval/modules.rs prompt=00_nucleo/prompts/core/compiler/eval/modules.md hash-a=98394ce8 hash-b=73cb3b6d\nApplied ./01_core/src/compiler/eval/operators/arithmetic.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md hash-a=a25e4e70 hash-b=d6a9123b\nApplied ./01_core/src/compiler/eval/operators/equality.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/equality.md hash-a=4b95652c hash-b=8e83ff04\nApplied ./01_core/src/compiler/eval/rules/intercept.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/intercept.md hash-a=1fe1da5e hash-b=53fbba83\nApplied ./01_core/src/compiler/eval/rules/realize.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/realize.md hash-a=1e79ebad hash-b=fa601d90\nApplied ./01_core/src/compiler/eval/rules/set/page.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/page.md hash-a=e9af2257 hash-b=2bef3c09\nApplied ./01_core/src/compiler/eval/rules/set/text.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/text.md hash-a=76668e1c hash-b=fa1c9dc0\nApplied ./01_core/src/compiler/eval/rules/set.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set.md hash-a=69484fcc hash-b=31d1a2fe\nApplied ./01_core/src/compiler/eval/selector_matching.rs prompt=00_nucleo/prompts/core/compiler/eval/selector_matching.md hash-a=bb4fa810 hash-b=d8d9568f\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=7035d31f hash-b=ae2f7698\nApplied ./01_core/src/compiler/stdlib/mod.rs prompt=00_nucleo/prompts/core/compiler/stdlib/mod.md hash-a=7ee5c4bb hash-b=90d32d39\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T13:12:26.263652+00:00",
+    "changes": [
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md",
+        "before": "9e0314ba2022543724911494a839e771151cccc3c904a71428a3b8b26a9983dd",
+        "after": "401aca9443e17fa7d66eb710448885658d47e8ae080a7bb23b04b7beaa9acafb"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/fields.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md hash-a=449b856f hash-b=3ff7f4bf\nApplied ./01_core/src/compiler/eval/bindings/value_methods/element_where.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md hash-a=a3ebdc6f hash-b=d52b049b\nApplied ./01_core/src/compiler/eval/bindings/value_methods/selector.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md hash-a=3df55606 hash-b=d2a96821\nApplied ./01_core/src/compiler/eval/call_dispatch/call_spans.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md hash-a=77bc5b27 hash-b=e07b0bf6\nApplied ./01_core/src/compiler/eval/call_dispatch/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md hash-a=16dad56c hash-b=42a85646\nApplied ./01_core/src/compiler/eval/call_dispatch/instance_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md hash-a=0b22e30c hash-b=a906fa24\nApplied ./01_core/src/compiler/eval/call_dispatch/value_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md hash-a=44b230b4 hash-b=0ab3643f\nApplied ./01_core/src/compiler/eval/call_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch.md hash-a=47dad88a hash-b=fea57bf4\nApplied ./01_core/src/compiler/eval/expression_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/expression_dispatch.md hash-a=a0150757 hash-b=e1f8755d\nApplied ./01_core/src/compiler/eval/markup_stream.rs prompt=00_nucleo/prompts/core/compiler/eval/markup_stream.md hash-a=c7a42271 hash-b=225aaab7\nApplied ./01_core/src/compiler/eval/modules.rs prompt=00_nucleo/prompts/core/compiler/eval/modules.md hash-a=98394ce8 hash-b=73cb3b6d\nApplied ./01_core/src/compiler/eval/operators/arithmetic.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md hash-a=a25e4e70 hash-b=d6a9123b\nApplied ./01_core/src/compiler/eval/operators/equality.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/equality.md hash-a=4b95652c hash-b=8e83ff04\nApplied ./01_core/src/compiler/eval/rules/intercept.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/intercept.md hash-a=1fe1da5e hash-b=53fbba83\nApplied ./01_core/src/compiler/eval/rules/realize.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/realize.md hash-a=1e79ebad hash-b=fa601d90\nApplied ./01_core/src/compiler/eval/rules/set/page.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/page.md hash-a=e9af2257 hash-b=2bef3c09\nApplied ./01_core/src/compiler/eval/rules/set/text.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/text.md hash-a=76668e1c hash-b=fa1c9dc0\nApplied ./01_core/src/compiler/eval/rules/set.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set.md hash-a=69484fcc hash-b=31d1a2fe\nApplied ./01_core/src/compiler/eval/selector_matching.rs prompt=00_nucleo/prompts/core/compiler/eval/selector_matching.md hash-a=bb4fa810 hash-b=d8d9568f\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=7035d31f hash-b=ae2f7698\nApplied ./01_core/src/compiler/stdlib/mod.rs prompt=00_nucleo/prompts/core/compiler/stdlib/mod.md hash-a=7ee5c4bb hash-b=90d32d39\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T13:18:13.766194+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+        "before": "933a5d968b1d2163c539d15c5a658fb215105d695cd699db4ede1466bade8500",
+        "after": "8b8bb94075eeb3484f3418e428665415d41de5d12481e6710779906573011434"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md",
+        "before": "bd74ee07f5392c42d95a6f3f7a16d0dfcadc382b819baf6fc4a8e88acf5d3a9e",
+        "after": "85df8f23a161521b5da82b62637d206deea1db7d3014cf69d204cbf40e69c862"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/rules/realize.md",
+        "before": "8cd8940517dac4ccf5c37a89b834d84fa896c596f29d956e4ad4f2ed447246ce",
+        "after": "5df489e6040d6bba3fedcb4086338ede9eb9b3005f695ef39e9d3404a88ce45a"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/fields.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md hash-a=449b856f hash-b=3ff7f4bf\nApplied ./01_core/src/compiler/eval/bindings/value_methods/element_where.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md hash-a=a3ebdc6f hash-b=d52b049b\nApplied ./01_core/src/compiler/eval/bindings/value_methods/selector.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md hash-a=3df55606 hash-b=d2a96821\nApplied ./01_core/src/compiler/eval/call_dispatch/call_spans.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md hash-a=77bc5b27 hash-b=e07b0bf6\nApplied ./01_core/src/compiler/eval/call_dispatch/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md hash-a=16dad56c hash-b=42a85646\nApplied ./01_core/src/compiler/eval/call_dispatch/instance_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md hash-a=0b22e30c hash-b=a906fa24\nApplied ./01_core/src/compiler/eval/call_dispatch/value_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md hash-a=44b230b4 hash-b=0ab3643f\nApplied ./01_core/src/compiler/eval/call_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch.md hash-a=47dad88a hash-b=fea57bf4\nApplied ./01_core/src/compiler/eval/expression_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/expression_dispatch.md hash-a=c7b608f4 hash-b=4bb3fdbb\nApplied ./01_core/src/compiler/eval/markup_stream.rs prompt=00_nucleo/prompts/core/compiler/eval/markup_stream.md hash-a=c7a42271 hash-b=225aaab7\nApplied ./01_core/src/compiler/eval/modules.rs prompt=00_nucleo/prompts/core/compiler/eval/modules.md hash-a=98394ce8 hash-b=73cb3b6d\nApplied ./01_core/src/compiler/eval/operators/arithmetic.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md hash-a=a25e4e70 hash-b=d6a9123b\nApplied ./01_core/src/compiler/eval/operators/equality.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/equality.md hash-a=4b95652c hash-b=8e83ff04\nApplied ./01_core/src/compiler/eval/rules/intercept.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/intercept.md hash-a=1fe1da5e hash-b=53fbba83\nApplied ./01_core/src/compiler/eval/rules/realize.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/realize.md hash-a=1e79ebad hash-b=560ab8aa\nApplied ./01_core/src/compiler/eval/rules/set/page.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/page.md hash-a=e9af2257 hash-b=2bef3c09\nApplied ./01_core/src/compiler/eval/rules/set/text.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/text.md hash-a=76668e1c hash-b=fa1c9dc0\nApplied ./01_core/src/compiler/eval/rules/set.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set.md hash-a=69484fcc hash-b=31d1a2fe\nApplied ./01_core/src/compiler/eval/selector_matching.rs prompt=00_nucleo/prompts/core/compiler/eval/selector_matching.md hash-a=bb4fa810 hash-b=d8d9568f\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=7035d31f hash-b=ae2f7698\nApplied ./01_core/src/compiler/stdlib/mod.rs prompt=00_nucleo/prompts/core/compiler/stdlib/mod.md hash-a=7ee5c4bb hash-b=90d32d39\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T13:25:46.333362+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+        "before": "188f13d0300b64232f5acd9e1904447516f1b5d2939f38393e2988cb9765e2a0",
+        "after": "f12e24556a41d762421fb4b12c76a3888718ffd298f59441a7c5d22904be98a5"
+      },
+      {
+        "file": "01_core/src/compiler/stdlib/structural/heading.rs",
+        "before": "b1a70595f7628682ffea229c533c5cbfb5c37ed2b1e7b78887eb84d6ee7094ad",
+        "after": "c908abb7cb6514e311685e2729f4258a9e101181ead6b33104b92a994438414c"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md",
+        "before": "3220ac1c9d80bf31e6a6a9e9b0fe8fffc0aeac477f30cc1d812555b7272dc264",
+        "after": "f8f3264d363751f9329c685b549f7781630b39559b4e8129d2ae982955b11b19"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/fields.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md hash-a=449b856f hash-b=3ff7f4bf\nApplied ./01_core/src/compiler/eval/bindings/value_methods/element_where.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md hash-a=a3ebdc6f hash-b=d52b049b\nApplied ./01_core/src/compiler/eval/bindings/value_methods/selector.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md hash-a=3df55606 hash-b=d2a96821\nApplied ./01_core/src/compiler/eval/call_dispatch/call_spans.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md hash-a=77bc5b27 hash-b=e07b0bf6\nApplied ./01_core/src/compiler/eval/call_dispatch/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md hash-a=16dad56c hash-b=42a85646\nApplied ./01_core/src/compiler/eval/call_dispatch/instance_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md hash-a=0b22e30c hash-b=a906fa24\nApplied ./01_core/src/compiler/eval/call_dispatch/value_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md hash-a=44b230b4 hash-b=0ab3643f\nApplied ./01_core/src/compiler/eval/call_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch.md hash-a=47dad88a hash-b=fea57bf4\nApplied ./01_core/src/compiler/eval/expression_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/expression_dispatch.md hash-a=ed183332 hash-b=fbf3742f\nApplied ./01_core/src/compiler/eval/markup_stream.rs prompt=00_nucleo/prompts/core/compiler/eval/markup_stream.md hash-a=c7a42271 hash-b=225aaab7\nApplied ./01_core/src/compiler/eval/modules.rs prompt=00_nucleo/prompts/core/compiler/eval/modules.md hash-a=98394ce8 hash-b=73cb3b6d\nApplied ./01_core/src/compiler/eval/operators/arithmetic.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md hash-a=a25e4e70 hash-b=d6a9123b\nApplied ./01_core/src/compiler/eval/operators/equality.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/equality.md hash-a=4b95652c hash-b=8e83ff04\nApplied ./01_core/src/compiler/eval/rules/intercept.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/intercept.md hash-a=1fe1da5e hash-b=53fbba83\nApplied ./01_core/src/compiler/eval/rules/realize.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/realize.md hash-a=1e79ebad hash-b=560ab8aa\nApplied ./01_core/src/compiler/eval/rules/set/page.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/page.md hash-a=e9af2257 hash-b=2bef3c09\nApplied ./01_core/src/compiler/eval/rules/set/text.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/text.md hash-a=76668e1c hash-b=fa1c9dc0\nApplied ./01_core/src/compiler/eval/rules/set.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set.md hash-a=69484fcc hash-b=31d1a2fe\nApplied ./01_core/src/compiler/eval/selector_matching.rs prompt=00_nucleo/prompts/core/compiler/eval/selector_matching.md hash-a=bb4fa810 hash-b=d8d9568f\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=7035d31f hash-b=ae2f7698\nApplied ./01_core/src/compiler/stdlib/mod.rs prompt=00_nucleo/prompts/core/compiler/stdlib/mod.md hash-a=7ee5c4bb hash-b=90d32d39\nApplied ./01_core/src/compiler/stdlib/structural/heading.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/heading.md hash-a=e1979838 hash-b=83faa666\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T13:28:39.932658+00:00",
+    "changes": [
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md",
+        "before": "f8f3264d363751f9329c685b549f7781630b39559b4e8129d2ae982955b11b19",
+        "after": "48365df22102c0a1b5ac64bc2c70bdc22ed8eae3b55aa1de58818e0bc4636308"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/stdlib/structural/heading.md",
+        "before": "45da5334cd98dfab9957cf198178d479ed5efb23bd33464d42d74cf801062b40",
+        "after": "23798826acfe30d55244267425a68a480ee073b9e8881c78d7e0dd7379951ed3"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/fields.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md hash-a=449b856f hash-b=3ff7f4bf\nApplied ./01_core/src/compiler/eval/bindings/value_methods/element_where.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md hash-a=a3ebdc6f hash-b=d52b049b\nApplied ./01_core/src/compiler/eval/bindings/value_methods/selector.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md hash-a=3df55606 hash-b=d2a96821\nApplied ./01_core/src/compiler/eval/call_dispatch/call_spans.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md hash-a=77bc5b27 hash-b=e07b0bf6\nApplied ./01_core/src/compiler/eval/call_dispatch/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md hash-a=16dad56c hash-b=42a85646\nApplied ./01_core/src/compiler/eval/call_dispatch/instance_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md hash-a=0b22e30c hash-b=a906fa24\nApplied ./01_core/src/compiler/eval/call_dispatch/value_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md hash-a=44b230b4 hash-b=0ab3643f\nApplied ./01_core/src/compiler/eval/call_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch.md hash-a=47dad88a hash-b=fea57bf4\nApplied ./01_core/src/compiler/eval/expression_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/expression_dispatch.md hash-a=ed183332 hash-b=f230549f\nApplied ./01_core/src/compiler/eval/markup_stream.rs prompt=00_nucleo/prompts/core/compiler/eval/markup_stream.md hash-a=c7a42271 hash-b=225aaab7\nApplied ./01_core/src/compiler/eval/modules.rs prompt=00_nucleo/prompts/core/compiler/eval/modules.md hash-a=98394ce8 hash-b=73cb3b6d\nApplied ./01_core/src/compiler/eval/operators/arithmetic.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md hash-a=a25e4e70 hash-b=d6a9123b\nApplied ./01_core/src/compiler/eval/operators/equality.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/equality.md hash-a=4b95652c hash-b=8e83ff04\nApplied ./01_core/src/compiler/eval/rules/intercept.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/intercept.md hash-a=1fe1da5e hash-b=53fbba83\nApplied ./01_core/src/compiler/eval/rules/realize.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/realize.md hash-a=1e79ebad hash-b=560ab8aa\nApplied ./01_core/src/compiler/eval/rules/set/page.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/page.md hash-a=e9af2257 hash-b=2bef3c09\nApplied ./01_core/src/compiler/eval/rules/set/text.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/text.md hash-a=76668e1c hash-b=fa1c9dc0\nApplied ./01_core/src/compiler/eval/rules/set.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set.md hash-a=69484fcc hash-b=31d1a2fe\nApplied ./01_core/src/compiler/eval/selector_matching.rs prompt=00_nucleo/prompts/core/compiler/eval/selector_matching.md hash-a=bb4fa810 hash-b=d8d9568f\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=7035d31f hash-b=ae2f7698\nApplied ./01_core/src/compiler/stdlib/mod.rs prompt=00_nucleo/prompts/core/compiler/stdlib/mod.md hash-a=7ee5c4bb hash-b=90d32d39\nApplied ./01_core/src/compiler/stdlib/structural/heading.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/heading.md hash-a=e1979838 hash-b=5c5a9f70\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T13:35:15.667709+00:00",
+    "changes": [
+      {
+        "file": "01_core/src/compiler/eval/bindings/value_methods/selector.rs",
+        "before": "f5dfebe62df3d969346f1efb21ea4ccc21d38b34b8994a21d8fcdab02e957f62",
+        "after": "543f5fec276b17b3b72dfed63c88f76b31381e75f6fd22a4ba49b9b09a9f450b"
+      },
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md",
+        "before": "78abde367b0188de69f4380b6a0ddf266f3ab41dcc2631432637d2d1590f8b35",
+        "after": "70915bcbad73cdc8d4caa066c208f71f8ede96f4a520aedd45bdb8dd50db38b1"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/fields.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md hash-a=449b856f hash-b=3ff7f4bf\nApplied ./01_core/src/compiler/eval/bindings/value_methods/element_where.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md hash-a=a3ebdc6f hash-b=d52b049b\nApplied ./01_core/src/compiler/eval/bindings/value_methods/selector.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md hash-a=af81893d hash-b=8aa12c3b\nApplied ./01_core/src/compiler/eval/call_dispatch/call_spans.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md hash-a=77bc5b27 hash-b=e07b0bf6\nApplied ./01_core/src/compiler/eval/call_dispatch/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md hash-a=16dad56c hash-b=42a85646\nApplied ./01_core/src/compiler/eval/call_dispatch/instance_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md hash-a=0b22e30c hash-b=a906fa24\nApplied ./01_core/src/compiler/eval/call_dispatch/value_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md hash-a=44b230b4 hash-b=0ab3643f\nApplied ./01_core/src/compiler/eval/call_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch.md hash-a=47dad88a hash-b=fea57bf4\nApplied ./01_core/src/compiler/eval/expression_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/expression_dispatch.md hash-a=ed183332 hash-b=f230549f\nApplied ./01_core/src/compiler/eval/markup_stream.rs prompt=00_nucleo/prompts/core/compiler/eval/markup_stream.md hash-a=c7a42271 hash-b=225aaab7\nApplied ./01_core/src/compiler/eval/modules.rs prompt=00_nucleo/prompts/core/compiler/eval/modules.md hash-a=98394ce8 hash-b=73cb3b6d\nApplied ./01_core/src/compiler/eval/operators/arithmetic.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md hash-a=a25e4e70 hash-b=d6a9123b\nApplied ./01_core/src/compiler/eval/operators/equality.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/equality.md hash-a=4b95652c hash-b=8e83ff04\nApplied ./01_core/src/compiler/eval/rules/intercept.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/intercept.md hash-a=1fe1da5e hash-b=53fbba83\nApplied ./01_core/src/compiler/eval/rules/realize.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/realize.md hash-a=1e79ebad hash-b=560ab8aa\nApplied ./01_core/src/compiler/eval/rules/set/page.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/page.md hash-a=e9af2257 hash-b=2bef3c09\nApplied ./01_core/src/compiler/eval/rules/set/text.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/text.md hash-a=76668e1c hash-b=fa1c9dc0\nApplied ./01_core/src/compiler/eval/rules/set.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set.md hash-a=69484fcc hash-b=31d1a2fe\nApplied ./01_core/src/compiler/eval/selector_matching.rs prompt=00_nucleo/prompts/core/compiler/eval/selector_matching.md hash-a=bb4fa810 hash-b=d8d9568f\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=7035d31f hash-b=ae2f7698\nApplied ./01_core/src/compiler/stdlib/mod.rs prompt=00_nucleo/prompts/core/compiler/stdlib/mod.md hash-a=7ee5c4bb hash-b=90d32d39\nApplied ./01_core/src/compiler/stdlib/structural/heading.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/heading.md hash-a=e1979838 hash-b=5c5a9f70\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  },
+  {
+    "utc": "2026-10-19T13:38:42.124934+00:00",
+    "changes": [
+      {
+        "file": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md",
+        "before": "70915bcbad73cdc8d4caa066c208f71f8ede96f4a520aedd45bdb8dd50db38b1",
+        "after": "2b3b3f2dc50472d124d424987a033dfc65197196ac1e860e2b30712ff701933c"
+      }
+    ],
+    "linter_output": "Applied ./01_core/src/compiler/eval/bindings/field_access/fields.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md hash-a=449b856f hash-b=3ff7f4bf\nApplied ./01_core/src/compiler/eval/bindings/value_methods/element_where.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md hash-a=a3ebdc6f hash-b=d52b049b\nApplied ./01_core/src/compiler/eval/bindings/value_methods/selector.rs prompt=00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md hash-a=af81893d hash-b=841ea095\nApplied ./01_core/src/compiler/eval/call_dispatch/call_spans.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md hash-a=77bc5b27 hash-b=e07b0bf6\nApplied ./01_core/src/compiler/eval/call_dispatch/content_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md hash-a=16dad56c hash-b=42a85646\nApplied ./01_core/src/compiler/eval/call_dispatch/instance_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md hash-a=0b22e30c hash-b=a906fa24\nApplied ./01_core/src/compiler/eval/call_dispatch/value_methods.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md hash-a=44b230b4 hash-b=0ab3643f\nApplied ./01_core/src/compiler/eval/call_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/call_dispatch.md hash-a=47dad88a hash-b=fea57bf4\nApplied ./01_core/src/compiler/eval/expression_dispatch.rs prompt=00_nucleo/prompts/core/compiler/eval/expression_dispatch.md hash-a=ed183332 hash-b=f230549f\nApplied ./01_core/src/compiler/eval/markup_stream.rs prompt=00_nucleo/prompts/core/compiler/eval/markup_stream.md hash-a=c7a42271 hash-b=225aaab7\nApplied ./01_core/src/compiler/eval/modules.rs prompt=00_nucleo/prompts/core/compiler/eval/modules.md hash-a=98394ce8 hash-b=73cb3b6d\nApplied ./01_core/src/compiler/eval/operators/arithmetic.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md hash-a=a25e4e70 hash-b=d6a9123b\nApplied ./01_core/src/compiler/eval/operators/equality.rs prompt=00_nucleo/prompts/core/compiler/eval/operators/equality.md hash-a=4b95652c hash-b=8e83ff04\nApplied ./01_core/src/compiler/eval/rules/intercept.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/intercept.md hash-a=1fe1da5e hash-b=53fbba83\nApplied ./01_core/src/compiler/eval/rules/realize.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/realize.md hash-a=1e79ebad hash-b=560ab8aa\nApplied ./01_core/src/compiler/eval/rules/set/page.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/page.md hash-a=e9af2257 hash-b=2bef3c09\nApplied ./01_core/src/compiler/eval/rules/set/text.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set/text.md hash-a=76668e1c hash-b=fa1c9dc0\nApplied ./01_core/src/compiler/eval/rules/set.rs prompt=00_nucleo/prompts/core/compiler/eval/rules/set.md hash-a=69484fcc hash-b=31d1a2fe\nApplied ./01_core/src/compiler/eval/selector_matching.rs prompt=00_nucleo/prompts/core/compiler/eval/selector_matching.md hash-a=bb4fa810 hash-b=d8d9568f\nApplied ./01_core/src/compiler/stdlib/foundations/selector.rs prompt=00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md hash-a=7035d31f hash-b=ae2f7698\nApplied ./01_core/src/compiler/stdlib/mod.rs prompt=00_nucleo/prompts/core/compiler/stdlib/mod.md hash-a=7ee5c4bb hash-b=90d32d39\nApplied ./01_core/src/compiler/stdlib/structural/heading.rs prompt=00_nucleo/prompts/core/compiler/stdlib/structural/heading.md hash-a=e1979838 hash-b=5c5a9f70\n\nRe-running analysis... \u2705 0 drift warnings remaining\n",
+    "ownership_preflight_exit": 0
+  }
+]

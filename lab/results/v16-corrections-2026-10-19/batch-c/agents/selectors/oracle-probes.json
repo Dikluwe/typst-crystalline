@@ -1,0 +1,1001 @@
+{
+  "utc": "2026-10-19T12:38:36.487380+00:00",
+  "head": "370d78355bd646d1abead5bcacef215288cc8834",
+  "diff_stat": "",
+  "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "receipt_sha256": "62c6068aefecb7fc1ebaebd61cd5d7a1e0ac769c82384116651baa6e2db38399",
+  "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+  "oracle_tree": "cac836c07e4dec2a89219370428292393a3216b5",
+  "results": [
+    {
+      "utc": "2026-10-19T12:38:36.526101+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(table)"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.or(table, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.532100+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(selector(table))"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.or(table, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.538249+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).and(table)"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.and(table, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.544497+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).and(selector(table))"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.and(table, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.550473+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).within(table)"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.within(table)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.556289+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).within(selector(table))"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.within(table)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.562102+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).before(table)"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.before(table)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.568243+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).before(selector(table))"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.before(table)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.574222+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).after(table)"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.after(table)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.580439+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).after(selector(table))"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.after(table)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.586313+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(table.cell)"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.or(cell, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.592072+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(selector(table.cell))"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.or(cell, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.597731+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).and(table.cell)"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.and(cell, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.603799+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).and(selector(table.cell))"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.and(cell, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.609904+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).within(table.cell)"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cell is not locatable\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 selector(heading).within(table.cell)\n  \u2502                          ^^^^^^^^^^\n\n"
+    },
+    {
+      "utc": "2026-10-19T12:38:36.615749+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).within(selector(table.cell))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cell is not locatable\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 selector(heading).within(selector(table.cell))\n  \u2502                          ^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "utc": "2026-10-19T12:38:36.621398+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).before(table.cell)"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cell is not locatable\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 selector(heading).before(table.cell)\n  \u2502                          ^^^^^^^^^^\n\n"
+    },
+    {
+      "utc": "2026-10-19T12:38:36.628719+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).before(selector(table.cell))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cell is not locatable\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 selector(heading).before(selector(table.cell))\n  \u2502                          ^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "utc": "2026-10-19T12:38:36.635397+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).after(table.cell)"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cell is not locatable\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 selector(heading).after(table.cell)\n  \u2502                         ^^^^^^^^^^\n\n"
+    },
+    {
+      "utc": "2026-10-19T12:38:36.641586+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).after(selector(table.cell))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cell is not locatable\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 selector(heading).after(selector(table.cell))\n  \u2502                         ^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "utc": "2026-10-19T12:38:36.647336+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(heading)"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.or(heading, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.653043+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(selector(heading))"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.or(heading, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.658708+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).and(heading)"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.and(heading, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.664264+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).and(selector(heading))"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.and(heading, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.670920+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).within(heading)"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.within(heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.676913+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).within(selector(heading))"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.within(heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.682779+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).before(heading)"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.before(heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.688497+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).before(selector(heading))"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.before(heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.694080+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).after(heading)"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.after(heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.699925+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).after(selector(heading))"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.after(heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.706130+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(figure)"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.or(figure, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.712680+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(selector(figure))"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.or(figure, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.718529+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).and(figure)"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.and(figure, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.724875+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).and(selector(figure))"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.and(figure, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.730574+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).within(figure)"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.within(figure)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.736283+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).within(selector(figure))"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.within(figure)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.742163+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).before(figure)"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.before(figure)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.748004+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).before(selector(figure))"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.before(figure)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.753710+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).after(figure)"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.after(figure)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.759263+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).after(selector(figure))"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.after(figure)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.765057+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(page)"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.or(page, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.771083+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(selector(page))"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.or(page, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.777110+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).and(page)"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.and(page, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.783529+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).and(selector(page))"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.and(page, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.789548+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).within(page)"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: page is not locatable\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 selector(heading).within(page)\n  \u2502                          ^^^^\n\n"
+    },
+    {
+      "utc": "2026-10-19T12:38:36.795461+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).within(selector(page))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: page is not locatable\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 selector(heading).within(selector(page))\n  \u2502                          ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "utc": "2026-10-19T12:38:36.801969+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).before(page)"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: page is not locatable\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 selector(heading).before(page)\n  \u2502                          ^^^^\n\n"
+    },
+    {
+      "utc": "2026-10-19T12:38:36.808608+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).before(selector(page))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: page is not locatable\n  \u250c\u2500 <input-expression>:1:25\n  \u2502\n1 \u2502 selector(heading).before(selector(page))\n  \u2502                          ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "utc": "2026-10-19T12:38:36.815078+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).after(page)"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: page is not locatable\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 selector(heading).after(page)\n  \u2502                         ^^^^\n\n"
+    },
+    {
+      "utc": "2026-10-19T12:38:36.821513+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).after(selector(page))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: page is not locatable\n  \u250c\u2500 <input-expression>:1:24\n  \u2502\n1 \u2502 selector(heading).after(selector(page))\n  \u2502                         ^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "utc": "2026-10-19T12:38:36.827423+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(math.equation)"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.or(equation, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.833361+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(selector(math.equation))"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.or(equation, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.839804+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).and(math.equation)"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.and(equation, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.845936+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).and(selector(math.equation))"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.and(equation, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.852922+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).within(math.equation)"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.within(equation)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.859270+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).within(selector(math.equation))"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.within(equation)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.865369+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).before(math.equation)"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.before(equation)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.871622+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).before(selector(math.equation))"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.before(equation)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.877705+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).after(math.equation)"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.after(equation)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.884627+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).after(selector(math.equation))"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.after(equation)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.890952+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(par)"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.or(par, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.897037+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(selector(par))"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.or(par, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.903268+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).and(par)"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.and(par, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.909761+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).and(selector(par))"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.and(par, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.916591+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).within(par)"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.within(par)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.922607+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).within(selector(par))"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.within(par)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.928301+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).before(par)"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.before(par)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.934036+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).before(selector(par))"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.before(par)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.939909+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).after(par)"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.after(par)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.945615+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).after(selector(par))"
+      ],
+      "exit": 0,
+      "stdout": "\"heading.after(par)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.952214+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(\"x\")"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.or(regex(\\\"x\\\"), heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.958457+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(regex(\"x\"))"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.or(regex(\\\"x\\\"), heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.963899+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(<x>)"
+      ],
+      "exit": 0,
+      "stdout": "\"selector.or(<x>, heading)\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.970552+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(1)"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected string, function, label, regex, location, or selector, found integer\n  \u250c\u2500 <input-expression>:1:21\n  \u2502\n1 \u2502 selector(heading).or(1)\n  \u2502                      ^\n\n"
+    },
+    {
+      "utc": "2026-10-19T12:38:36.977618+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(x => x)"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: only element functions can be used as selectors\n  \u250c\u2500 <input-expression>:1:21\n  \u2502\n1 \u2502 selector(heading).or(x => x)\n  \u2502                      ^^^^^^\n\n"
+    },
+    {
+      "utc": "2026-10-19T12:38:36.983713+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(heading).or(table.with(columns: 1))"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: only element functions can be used as selectors\n  \u250c\u2500 <input-expression>:1:21\n  \u2502\n1 \u2502 selector(heading).or(table.with(columns: 1))\n  \u2502                      ^^^^^^^^^^^^^^^^^^^^^^\n\n"
+    },
+    {
+      "utc": "2026-10-19T12:38:36.989354+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(page) == selector(page)"
+      ],
+      "exit": 0,
+      "stdout": "true\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:36.994969+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "{let p = page; selector(p) == selector(page)}"
+      ],
+      "exit": 0,
+      "stdout": "true\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:37.000848+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(page) == page.where()"
+      ],
+      "exit": 0,
+      "stdout": "false\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:37.006886+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(\"equation\")"
+      ],
+      "exit": 0,
+      "stdout": "\"regex(\\\"equation\\\")\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:37.012997+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(\"par\")"
+      ],
+      "exit": 0,
+      "stdout": "\"regex(\\\"par\\\")\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:37.019983+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(\"table\")"
+      ],
+      "exit": 0,
+      "stdout": "\"regex(\\\"table\\\")\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:37.025791+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(\"state\")"
+      ],
+      "exit": 0,
+      "stdout": "\"regex(\\\"state\\\")\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:37.031844+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "selector(\"context_block\")"
+      ],
+      "exit": 0,
+      "stdout": "\"regex(\\\"context_block\\\")\"\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:37.037831+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "{show selector(math.equation): it => [MATCH]; $x$}"
+      ],
+      "exit": 0,
+      "stdout": "{\"func\":\"styled\",\"child\":{\"func\":\"equation\",\"block\":false,\"body\":{\"func\":\"symbol\",\"text\":\"x\"}},\"styles\":\"styles(..)\"}\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:37.043669+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "{show selector(table): it => [MATCH]; table([x])}"
+      ],
+      "exit": 0,
+      "stdout": "{\"func\":\"styled\",\"child\":{\"func\":\"table\",\"children\":[{\"func\":\"cell\",\"body\":{\"func\":\"text\",\"text\":\"x\"}}]},\"styles\":\"styles(..)\"}\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:37.049624+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "{show selector(par): it => [MATCH]; par[x]}"
+      ],
+      "exit": 0,
+      "stdout": "{\"func\":\"styled\",\"child\":{\"func\":\"par\",\"body\":{\"func\":\"text\",\"text\":\"x\"}},\"styles\":\"styles(..)\"}\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:37.055390+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "{show selector(page): it => [MATCH]; page[x]}"
+      ],
+      "exit": 0,
+      "stdout": "{\"func\":\"styled\",\"child\":{\"func\":\"sequence\",\"children\":[{\"func\":\"pagebreak\",\"weak\":true},{\"func\":\"flush\"},{\"func\":\"text\",\"text\":\"x\"},{\"func\":\"pagebreak\",\"weak\":true}]},\"styles\":\"styles(..)\"}\n",
+      "stderr": "warning: `show page` is not supported and has no effect\n  \u250c\u2500 <input-expression>:1:1\n  \u2502\n1 \u2502 {show selector(page): it => [MATCH]; page[x]}\n  \u2502  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  \u2502\n  = hint: customize pages with `set page(..)` instead\n\n"
+    },
+    {
+      "utc": "2026-10-19T12:38:37.061009+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "{show selector(math.frac): it => [MATCH]; $1/2$}"
+      ],
+      "exit": 0,
+      "stdout": "{\"func\":\"styled\",\"child\":{\"func\":\"equation\",\"block\":false,\"body\":{\"func\":\"frac\",\"num\":{\"func\":\"text\",\"text\":\"1\"},\"denom\":{\"func\":\"text\",\"text\":\"2\"}}},\"styles\":\"styles(..)\"}\n",
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-19T12:38:37.066847+00:00",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "eval",
+        "{show selector(math.sqrt): it => [MATCH]; $sqrt(x)$}"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: only element functions can be used as selectors\n  \u250c\u2500 <input-expression>:1:15\n  \u2502\n1 \u2502 {show selector(math.sqrt): it => [MATCH]; $sqrt(x)$}\n  \u2502                ^^^^^^^^^\n\n"
+    }
+  ]
+}

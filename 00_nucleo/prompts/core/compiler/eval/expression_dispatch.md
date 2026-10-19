@@ -1,9 +1,10 @@
 # L0 — compiler/eval/expression_dispatch
-Hash do Código: 60a785c8
+Hash do Código: f230549f
 
 
 
 Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/heading-constructor-supplement.toml sha256:af78eb902348b843414064edfa2fd67612f8eb8ffba669f804dcf1d1be8f1da4
 - 00_nucleo/prompts/_nuclei/content/sequence-realization.toml sha256:14ece1bcb7901da8d7e5048a82cd02ef9eafa258a328900a99636ff4ef74a843
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
 - 00_nucleo/prompts/_nuclei/eval/textual-recipe-frontier.toml sha256:983b118684c0ddab1fbb3c619744957c2e1f93af7708b82c97f665e47410fbf3
@@ -334,3 +335,137 @@ use that bool in guard. Preserve exact predicate matches(ContentBlock|CodeBlock)
 OR(defer_show_rules AND rules nonempty), never read state before expression eval.
 Pure-state predicate, no new I/O/API/phase/condition: same origin policy in explicit
 form.
+
+## Closed discarded-update diagnostic classification
+
+### Evidence before decision
+
+`lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/probes-refined.json`
+records UTC, HEAD, exact uncommitted diffstat, input and source hashes, commands,
+and the verified binary for pin `bd5ebec285505889e8ff1d4f68804ab147a699f3`.
+The direct, ContentBlock, Strong, and Text state-update probes emit the additional
+state/counter hint. An opaque context containing a panic is never executed by
+warning inspection and does not produce that hint. The failed state-display
+probe in the earlier receipt is invalid input, not semantic evidence.
+Pinned `typst-eval/src/code.rs:413–435` queries only the selectors defined at
+`typst-library/src/introspection/state.rs:210–212` and `counter.rs:233–235`:
+StateUpdate and CounterUpdate. `content/mod.rs:401–418` explicitly calls this a
+static, naive scan that does not execute contextual or show products.
+Current `expression_dispatch.rs:783–794` instead recognizes three non-update
+families and scans only Sequence/Styled, losing updates under lexical Source and
+ordinary static bodies. Existing `content/traversal.rs:11–35` supplies borrowed,
+nonexecuting static traversal and selects Realized.visual rather than original.
+These are warning/effect observables, not a requirement to copy upstream trees.
+
+### Exclusive correction and acceptance
+
+Use the existing borrowed static traversal for the discarded-content scan, with
+an exhaustive nominal Content predicate at this owner. Only StateUpdate and
+CounterUpdate count as updates. State, StateDisplay, CounterDisplay, and
+CounterDisplayCallback are not updates. All other current nominal families are
+explicitly non-update nodes; static descendant discovery belongs to the existing
+traversal owner. Source/ShowRecipe/Located transport is transparent, Realized
+inspects its visual product, and ContextBlock callbacks stay opaque. Known native
+Dynamic fields are addressed by the refinement below; unknown extensions stay opaque.
+Do not execute closures or recipes, revisit the original side of Realized, or
+change the existing unconditional-return trigger, warning text, first hint,
+return span, or coexistence with the invalid-return error.
+
+Require source-level failing tests for discarded updates under a ContentBlock
+and Strong before implementation, plus positive direct-update and negative
+context/display controls. Constructed carrier controls must distinguish
+Realized.original from visual without claiming that Rust wrappers are language
+observables. Preserve ordinary return flow and once-only effects. A new Content
+variant must produce E0004 at this owner's predicate until reviewed; use the
+original helper match as the baseline counterpart. This is continuous ADR-0127
+correction of an existing diagnostic, with no public API/default/phase change.
+
+The additional `warning-metadata.json` and `warning-metadata-values.json` receipts
+refine static field reachability: Metadata containing update Content or an Array
+of update Content emits the extra hint; a Dict containing the same value does not.
+The shared static-body traversal deliberately treats Metadata as a leaf, so this
+owner must inspect Metadata.value with a separate exhaustive Value decision:
+Content and LocatedContent inspect their content, Array recurses through values,
+and every other nominal Value (including Dict and Func) remains opaque. This is
+not permission to change the shared traversal or evaluate a callback. Add the
+three source-level Metadata controls before implementation. Dynamic extension
+payload semantics are not established by these upstream probes.
+
+
+### Measured static fields and deferred page properties
+
+The verified current-pin `warning-additional-fields.json` and
+`warning-additional-fields-controls.json` receipts under the same effects directory
+record exact inputs, commands, UTC, HEAD/diffstat, executable SHA and source/tree
+pin. A discarded Ref with update Content as supplement, native raw.line with
+update Content as body, and constructor Heading with update supplement all emit
+the additional hint. Ref with none, RawLine with an opaque panic ContextBlock,
+Heading with a callback supplement, and a set-heading supplement do not. Page
+header, footer, supplement, background and foreground containing updates do not
+emit the additional hint; its direct body containing an update does.
+
+`compiler/stdlib/ref.rs:54–68` retains supplement Content in RefElem;
+`entities/elements/raw.rs:81–113` constructs native RawLineElem in Dynamic;
+`compiler/stdlib/structural/heading.rs:190–215` retains constructor supplement in
+a Styled node with the heading.constructor marker. Existing
+`Content::constructor_heading` identifies a constructor without executing code,
+but merged `get_field` values do not establish per-field provenance; the
+constructor discriminator below requires a separate private snapshot. In contrast, `content/traversal.rs:54–76` traverses deferred page
+properties as well as body: this visual visitor is not a complete definition of
+the public static fields relevant to this warning.
+
+The local closed Content decision must therefore scan Ref.supplement, inspect
+only known native RawLineElem.body via its existing downcast API, and inspect
+the explicit constructor supplement snapshot through the existing marked
+constructor view, as pinned by the heading-constructor-supplement nucleus. Keep
+other Dynamic extensions opaque. For PageRun, scan only body and prune the
+shared visitor at this node; its deferred properties must not produce the extra
+hint. Do not modify the shared traversal, invoke dynamic extension callbacks,
+execute functions, or inspect arbitrary style Values. Add separate source RED
+controls for Ref, RawLine, constructor Heading and each deferred page property;
+retain positive page-body and negative empty/context/callback/set-rule controls.
+All cases preserve the unconditional-return warning and invalid-return error.
+
+This correction does not establish complete static-field parity. The additional
+oracle probes also expose Figure and Equation supplements. Figure's constructor
+and entity do not retain the public supplement field, while Equation constructor
+and set rules share equation.supplement style transport without a constructor
+marker (`structural/math/equation.rs:172–182`, `eval/rules/set.rs:960–977`). These
+are concrete producer/field-provenance dependencies requiring their owning L0
+review; they are open defects, never accepted omissions or reasons to suppress
+warnings. Do not conflate this bounded diagnostic correction with closure of
+those producer contracts or with an exhaustive audit of all public fields.
+
+The open language obligation is the oracle's extra update hint for explicitly
+supplied static Figure/Equation supplements, while opaque callbacks and set-rule
+properties remain uninspected. Follow-up owners are
+`00_nucleo/prompts/core/compiler/stdlib/figure_image.md`,
+`00_nucleo/prompts/core/entities/elements/figure.md`,
+`00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md`, and
+`00_nucleo/prompts/core/compiler/eval/rules/set.md`. A source-level reproduction
+that preserves supplement provenance at this helper and permits a bounded local
+scan without confusing a set rule refutes the dependency classification and
+requires this owner to be corrected first. Until then these cases are not
+certified; retain their input/expected diagnostics for that follow-up.
+
+
+### Constructor provenance discriminator
+
+`warning-heading-inherited.json` refutes the tempting use of public
+`get_field("supplement")` for this scan: an outer set-heading supplement update
+and an inner numbering-only constructor must not produce the extra hint.
+`style_code_tail` merges the two Styles and `StyleChain::collapse` deduplicates
+keys, so the general heading.constructor marker does not establish which field
+was explicitly supplied. `warning-heading-overrides.json` confirms explicit none
+is negative and explicit update overriding outer none is positive. Both receipts
+preserve current-pin executable identity, source, UTC and working-tree state.
+
+Consume only the private original-Value snapshot prescribed by the pinned
+heading-constructor-supplement nucleus and produced by
+`00_nucleo/prompts/core/compiler/stdlib/structural/heading.md`. Inspect it through
+the existing constructor view, never the merged public supplement style. Use the
+same exhaustive Value classifier as Metadata. Preserve ordinary Styles and the
+public fields/has/at/func behavior. Source tests cover numbering-only inheritance,
+explicit none, explicit update, callback opacity and the original positive case.
+The supplementary positive RED already captured before this producer change is
+still required to turn GREEN; the inheritance controls must remain negative.

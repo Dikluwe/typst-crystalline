@@ -1,5 +1,5 @@
 # L0 — compiler/eval/call_dispatch/instance_methods
-Hash do Código: d4012cc7
+Hash do Código: a906fa24
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
@@ -76,3 +76,53 @@ fmt/V1/V5/V15/V26/reverse/differential SARIF without new error. Uniform V19 stay
 informational with alternative matrix/behavior relation; no suppression/config
 change. Heavy commands sequential under 12 GiB/High 10 GiB/swap0/jobs1. No publication/
 commit/merge/release or global-objective closure claim.
+
+## Closed-domain decision and preservation
+
+### Evidence before decision
+
+At checkpoint `370d78355bd646d1abead5bcacef215288cc8834`,
+`01_core/src/compiler/eval/call_dispatch/instance_methods.rs:10–243`
+and the caller/producer evidence recorded in
+`lab/results/v16-corrections-2026-10-19/batch-c/agents/structural/l0-audit.json`
+show the current decision and its refusal path. That receipt records UTC,
+working-tree diffstat and exact source/owner SHA-256 before this amendment.
+The existing clauses above establish the behavior to preserve; an open Rust
+match is structural evidence, not proof of additional language admission.
+
+### Exclusive policy
+
+All listed complement Value variants defer. Within handled families: Type must be
+Counter and method at/display; SpotColorant must be tint; Color/Gradient/Int/Float have
+their own name predicates; Angle, Dir, Align, Duration, Length and Version require their
+enumerated names. Guard refusal also defers without args. State and Counter are
+deliberately delegated unconditionally to their own method validator.
+
+Move all Value pattern guards into nominal arms. Within Value::Type, explicitly
+partition Counter from every other Type; Counter with a method other than at/display
+also defers. Preserve SpotColorant.tint and existing Angle/Dir/Align/Duration/Length
+predicates and all preexisting numeric/color/version name gates. State/Counter always
+delegate to their owning validator. Test refused methods with panic arguments, accepted
+representative methods, cache retention, non-Counter Type, and unknown State/Counter
+methods without silently skipping their validators.
+
+The explicit nominal complement is: `None`, `Bool`, `Str`, `Array`, `Dict`, `Module`, `Datetime`, `Func`, `Content`, `LocatedContent`, `Auto`, `Relative`, `Ratio`, `Stroke`, `Fraction`, `Location`, `Regex`, `Tiling`, `Bytes`, `Decimal`, `Selector`, `Symbol`, `Args`, `Label`, `Path`.
+
+### Acceptance and refutation
+
+Preservation controls run before and after the repair. A real temporary enum
+variant in a disposable complete workspace must fail with E0004 at this exact
+decision after repair; failures at other decisions alone are insufficient.
+Exercise nested closed domains separately where present. The structural RED is
+the original V16/open evolution boundary, not a fabricated runtime defect.
+Any changed result, message, span, callback count, argument evaluation or refusal
+route refutes preservation. Retain informational V19 groups with their rationale;
+add no suppression, hidden catchall, linter/configuration weakening or new policy.
+
+Internal continuous ADR-0127: no public field/trait/signature, product default,
+phase or compatibility change. L0 precedes code; reseal only valid owner pairs
+after V15/V26. Require focused and full workspace tests, build/all-targets, fmt,
+strict Clippy/Rustdoc, path checks, direct/reverse lineage and differential SARIF
+without new errors or warnings outside the selected repairs. Heavy checks are
+serialized under one job, 12 GiB maximum, 8 GiB high and zero swap. Historical
+parity claims and unresolved scope exclusions above remain bounded.

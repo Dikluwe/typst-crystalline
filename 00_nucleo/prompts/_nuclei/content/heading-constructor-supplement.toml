@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "content-heading-constructor-supplement"
+title = "Explicit heading supplement provenance"
+
+[[claims]]
+id = "constructor-snapshot"
+level = "must"
+statement = "A validated explicitly supplied heading supplement is retained under the private Styles key heading.constructor.supplement with its original Value. Omission produces no snapshot. The existing heading.constructor marker and public heading.supplement transport retain their roles."
+
+[[claims]]
+id = "diagnostic-origin"
+level = "must"
+statement = "Static discarded-update inspection reads only that constructor snapshot through the marked constructor view. Inherited heading.supplement style values, including values merged onto a numbering-only constructor, are not evidence of an explicit supplement."
+
+[[claims]]
+id = "opaque-functions"
+level = "must-not"
+statement = "Snapshotting or diagnostic inspection must not execute functions, contextual callbacks or show rules, fabricate a public field, alter fields/has/at/func, change occurrence identity, or move work across compiler phases. None and auto remain distinguishable from omission without becoming updates."

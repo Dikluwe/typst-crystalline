@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/realize.md
-//! @prompt-hash fe511d05
+//! @prompt-hash 1e79ebad
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -227,11 +227,128 @@ pub(crate) fn realize_scoped_flow(content: &Content) -> Content {
 
 pub(crate) fn is_paragraph_node(content: &Content) -> bool {
     match content {
-        Content::Source(e) => is_paragraph_node(&e.body),
+        Content::Source(source) => is_paragraph_node(&source.body),
         Content::ShowRecipe(recipe) => is_paragraph_node(&recipe.body),
         Content::Par { .. } => true,
         Content::Styled(styled) => is_paragraph_node(&styled.body),
-        _ => false,
+        // This early predicate recognizes prepared nodes, not arbitrary projections.
+        // Carrier reentry and broader flow preparation remain separate obligations.
+        Content::Realized(_)
+        | Content::Located(_)
+        | Content::Empty
+        | Content::Text(_)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(_)
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_)
+        | Content::Heading(_)
+        | Content::Title(_)
+        | Content::Strong(_)
+        | Content::Emph(_)
+        | Content::Raw(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::Link(_)
+        | Content::Equation(_)
+        | Content::MathSequence(_)
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathPrimes(_)
+        | Content::MathRoot(_)
+        | Content::MathStretch(_)
+        | Content::MathDelimited(_)
+        | Content::MathLr(_)
+        | Content::MathMid(_)
+        | Content::MathOverbrace(_)
+        | Content::MathUnderbrace(_)
+        | Content::MathUnderbracket(_)
+        | Content::MathUnderparen(_)
+        | Content::MathUndershell(_)
+        | Content::MathOverbracket(_)
+        | Content::MathOverparen(_)
+        | Content::MathOvershell(_)
+        | Content::MathAlignPoint(_)
+        | Content::Linebreak(_)
+        | Content::MathMatrix(_)
+        | Content::MathCases(_)
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathOverline(_)
+        | Content::MathVec(_)
+        | Content::MathClassOverride(_)
+        | Content::MathLimitsOverride(_)
+        | Content::MathUnderover(_)
+        | Content::MathOp(_)
+        | Content::MathStyled(_)
+        | Content::Label(_)
+        | Content::Ref(_)
+        | Content::CounterDisplay(_)
+        | Content::CounterUpdate(_)
+        | Content::Outline(_)
+        | Content::OutlineEntry(_)
+        | Content::Figure(_)
+        | Content::FigureCaption(_)
+        | Content::Image(_)
+        | Content::Shape(_)
+        | Content::Curve(_)
+        | Content::Transform(_)
+        | Content::Grid(_)
+        | Content::GridHeader(_)
+        | Content::GridFooter(_)
+        | Content::GridCell(_)
+        | Content::SetPage(_)
+        | Content::PageRun(_)
+        | Content::Align(_)
+        | Content::Place(_)
+        | Content::Flush(_)
+        | Content::Divider(_)
+        | Content::Terms(_)
+        | Content::TermItem(_)
+        | Content::Quote(_)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(_)
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. }
+        | Content::Pad(_)
+        | Content::Hide(_)
+        | Content::HSpace(_)
+        | Content::VSpace(_)
+        | Content::Pagebreak(_)
+        | Content::Colbreak(_)
+        | Content::Stack(_)
+        | Content::Boxed(_)
+        | Content::Block(_)
+        | Content::TableCell(_)
+        | Content::Bibliography(_)
+        | Content::Cite(_)
+        | Content::Footnote(_)
+        | Content::FootnoteEntry(_)
+        | Content::TableHeader(_)
+        | Content::TableFooter(_)
+        | Content::GridHLine(_)
+        | Content::GridVLine(_)
+        | Content::TableHLine(_)
+        | Content::TableVLine(_)
+        | Content::Table(_)
+        | Content::Repeat(_)
+        | Content::Columns(_)
+        | Content::Metadata(_)
+        | Content::State(_)
+        | Content::StateUpdate(_)
+        | Content::StateDisplay(_)
+        | Content::CounterDisplayCallback(_)
+        | Content::ContextBlock(_)
+        | Content::Dynamic(_) => false,
     }
 }
 
@@ -347,5 +464,148 @@ pub(crate) fn realize_node(content: &Content) -> Content {
 
         // Matemática e folhas: preservar sem wrapping.
         other => other.clone(),
+    }
+}
+
+#[cfg(test)]
+mod v16_c_paragraph_tests {
+    use super::*;
+    use crate::contracts::world::World;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    use crate::entities::{file_id::FileId, font_book::FontBook, source::Source};
+    struct MemoryWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+    impl World for MemoryWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+    fn world(text: &str) -> MemoryWorld {
+        let id = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        MemoryWorld {
+            library: Library::new(),
+            book: FontBook::new(),
+            source: Source::new(id, text.into()),
+        }
+    }
+
+    #[test]
+    fn v16_c_paragraph_source_producers_preserve_matched_effects() {
+        let sources = [
+            "#show par:it=>{metadata(\"P\");it}\n#show heading:it=>par(it.body)\n= A",
+            "#show par:it=>{metadata(\"P\");it}\n#show heading:it=>par(it.body)\n#text(fill:red)[#heading[A]]",
+            "#show par:it=>{metadata(\"P\");it}\n#show heading:it=>it.body\n= A",
+        ];
+        for source in sources {
+            let world = world(source);
+            let (result, _) = crate::compiler::eval::tests::eval_for_test_keep_sink(
+                &world,
+                &world.source,
+            );
+            let module = result.expect("measured paragraph producer must evaluate");
+            let content = module.content().expect("producer emits content");
+            let mut effects = Vec::new();
+            content.visit_content_static(&mut |node| {
+                if let Content::Metadata(metadata) = node {
+                    effects.push(metadata.value.as_ref().clone());
+                }
+                true
+            });
+            assert_eq!(effects, vec![Value::Str("P".into())], "{source}");
+        }
+    }
+
+    #[test]
+    fn v16_c_paragraph_recognition_preserves_lexical_carriers() {
+        use crate::entities::content::ShowRecipeContent;
+        let file = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        let span = crate::entities::span::Span::from_range(file, 10..20);
+        let par = Content::par(Content::text("BODY"));
+        let sourced = par.clone().with_source_span(span);
+        let recipe = Arc::new(ShowRecipeContent {
+            body: sourced.clone(),
+            textual: false,
+            context_id_floor: 17,
+            rules: Arc::from([]),
+            styles: crate::entities::style_chain::StyleChain::default_chain(),
+            guards: vec![23],
+            file,
+        });
+        let wrapped = Content::styled(
+            Content::ShowRecipe(recipe.clone()),
+            crate::entities::style::Styles::default(),
+        );
+        for content in [&par, &sourced, &wrapped] {
+            assert!(is_paragraph_node(content));
+        }
+        let sourced_flow = realize_flow(&sourced);
+        assert_eq!(sourced_flow.len(), 1);
+        assert_eq!(sourced_flow[0].source_span(), span);
+        let flow = realize_flow(&Content::sequence(vec![
+            Content::text("PREFIX"),
+            wrapped,
+            Content::text("SUFFIX"),
+        ]));
+        assert_eq!(flow.len(), 3);
+        assert!(flow.iter().all(is_paragraph_node));
+        let Content::Styled(styled) = &flow[1] else {
+            panic!("lexical style boundary lost")
+        };
+        let Content::ShowRecipe(retained) = &styled.body else {
+            panic!("snapshot was executed or removed")
+        };
+        assert!(Arc::ptr_eq(&recipe, retained));
+        assert_eq!(retained.guards, vec![23]);
+        assert_eq!(retained.context_id_floor, 17);
+    }
+
+    #[test]
+    fn v16_c_paragraph_recognition_stays_at_the_prepared_node() {
+        use crate::entities::content::LocatedContent;
+        let paragraph = Content::par(Content::text("A"));
+        let sequence = Content::sequence(vec![paragraph.clone(), Content::text("B")]);
+        assert!(!is_paragraph_node(&sequence));
+        assert!(!is_paragraph_node(&Content::text("inline")));
+        let heading = Content::Located(Arc::new(LocatedContent {
+            location: crate::entities::locator::Locator::new().next(),
+            body: Content::heading(1, Content::text("H")),
+        }));
+        assert!(!is_paragraph_node(&heading));
+        let flow = realize_flow(&Content::sequence(vec![
+            Content::text("PREFIX"),
+            paragraph,
+            Content::text("SUFFIX"),
+        ]));
+        assert_eq!(flow.len(), 3);
+        assert_eq!(
+            flow.iter().map(Content::plain_text).collect::<Vec<_>>(),
+            vec!["PREFIX", "A", "SUFFIX"]
+        );
     }
 }

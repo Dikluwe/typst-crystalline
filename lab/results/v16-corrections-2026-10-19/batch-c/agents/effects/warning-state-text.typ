@@ -1,0 +1,1 @@
+#{ let s = state("k", 0); text(s.update(1)); return "x" }

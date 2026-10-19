@@ -1,0 +1,67 @@
+[
+  {
+    "name": "new-controls",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "v16_c_",
+      "--",
+      "--test-threads=1"
+    ]
+  },
+  {
+    "name": "heading-reflection-preservation",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "a1_heading_constructor_identity_presence_and_external_styled",
+      "--",
+      "--test-threads=1"
+    ]
+  },
+  {
+    "name": "build-candidate",
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--workspace"
+    ]
+  },
+  {
+    "name": "selectors-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/replay.py",
+      "lab/target/product/debug/typst"
+    ]
+  },
+  {
+    "name": "effects-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_c_effect_replay.py",
+      "lab/results/v16-corrections-2026-10-19/batch-c/candidate-green/state.json.gz",
+      "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/candidate-replay"
+    ]
+  },
+  {
+    "name": "structural-evolution",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_c_structural.py",
+      "green"
+    ]
+  }
+]

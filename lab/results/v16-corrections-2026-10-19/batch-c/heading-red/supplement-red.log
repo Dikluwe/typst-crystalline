@@ -1,0 +1,77 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 1m 20s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 50 tests
+test compiler::eval::bindings::field_access::fields::v16_c_structural_tests::v16_c_matrix_cell_carriers_preserve_presence_and_snapshot_barrier ... ok
+test compiler::eval::bindings::value_methods::element_where::v16_c_structural_tests::v16_c_locatability_visits_composite_operands_and_preserves_leaf_policy ... ok
+test compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_accepts_actual_native_operands_and_preserves_kind_policy ... ok
+test compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_native_composition_effects_and_contextual_rejection ... ok
+test compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_preserves_heading_alias_and_refuses_scalar_or_homonym ... ok
+test compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_preserves_receiver_and_argument_once_and_refusal_precedence ... ok
+test compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_text_label_location_admission_is_not_legacy_kind_coercion ... ok
+test compiler::eval::call_dispatch::call_spans::v16_c_structural_tests::v16_c_html_anchor_covers_guard_refusals_and_precedence ... ok
+test compiler::eval::call_dispatch::content_methods::v16_c_structural_tests::v16_c_dispatch_refusals_preserve_cache_and_skip_arguments ... ok
+test compiler::eval::call_dispatch::instance_methods::v16_c_structural_tests::v16_c_dispatch_refusals_preserve_cache_and_skip_arguments ... ok
+test compiler::eval::call_dispatch::value_methods::batch_c_contextual_selector_tests::v16_c_contextual_selector_preserves_argument_error_precedence ... ok
+test compiler::eval::call_dispatch::value_methods::batch_c_contextual_selector_tests::v16_c_contextual_selector_rejects_nonlocatable_boundaries_but_not_base ... ok
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_excludes_deferred_page_properties ... ok
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_excludes_displays_and_observes_only_visual ... ok
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_follows_content_block ... ok
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_follows_strong_body ... ok
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_inspects_constructor_heading_supplement ... FAILED
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_inspects_explicit_heading_override ... FAILED
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_inspects_metadata_content_and_arrays ... ok
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_inspects_native_raw_line_body ... ok
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_inspects_ref_supplement ... ok
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_preserves_direct_and_opaque_context ... ok
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_preserves_heading_supplement_provenance ... ok
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_preserves_metadata_dictionary_opacity ... ok
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_preserves_static_field_boundaries ... ok
+test compiler::eval::markup_stream::v16_c_display_tests::v16_c_display_preserves_scalars_raw_and_empty ... ok
+test compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_code_tail_route ... ok
+test compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_markup_route ... ok
+test compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_math_route ... ok
+test compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_preserves_rich_body ... ok
+test compiler::eval::modules::v16_c_structural_tests::v16_c_invalid_include_rejects_before_world_access ... ok
+test compiler::eval::operators::arithmetic::v16_c_structural_tests::v16_c_division_zero_precedence_and_nonzero_refusals ... ok
+test compiler::eval::operators::equality::batch_c_format_selector_tests::v16_c_selector_format_identity_retains_nominal_witness_and_aliases ... ok
+test compiler::eval::operators::equality::batch_c_selector_equality_tests::v16_c_selector_equality_engine_native_identity_recurses_without_names ... ok
+test compiler::eval::operators::equality::batch_c_selector_equality_tests::v16_c_selector_equality_preserves_bare_group_order_and_flags ... ok
+test compiler::eval::rules::intercept::v16_c_structural_tests::v16_c_outline_indent_inheritance_preserves_absence_and_explicit_precedence ... ok
+test compiler::eval::rules::realize::v16_c_paragraph_tests::v16_c_paragraph_recognition_preserves_lexical_carriers ... ok
+test compiler::eval::rules::realize::v16_c_paragraph_tests::v16_c_paragraph_recognition_stays_at_the_prepared_node ... ok
+test compiler::eval::rules::realize::v16_c_paragraph_tests::v16_c_paragraph_source_producers_preserve_matched_effects ... ok
+test compiler::eval::rules::set::page::v16_c_structural_tests::v16_c_page_bleed_casts_and_dictionary_precedence ... ok
+test compiler::eval::rules::set::page::v16_c_structural_tests::v16_c_page_bleed_sides_override_axes_and_rest ... ok
+test compiler::eval::rules::set::text::v16_c_structural_tests::v16_c_font_regex_is_not_a_literal_missing_family ... ok
+test compiler::eval::rules::set::text::v16_c_structural_tests::v16_c_font_warning_literal_families_and_invalid_inputs ... ok
+test compiler::eval::rules::set::v16_c_structural_tests::v16_c_set_pure_path_resolution_and_false_condition_order ... ok
+test compiler::eval::selector_matching::batch_c_math_lowering_controls::v16_c_matching_preserves_binom_lowering_without_inventing_frac_identity ... ok
+test compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_engine_identity_crosses_causal_carriers_without_original_fallback ... ok
+test compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_kind_bridge_admits_represented_elements_and_rejects_effect_kinds ... ok
+test compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_math_identity_is_typed_and_preserves_limits_distinction ... ok
+test compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_nested_causal_carriers_preserve_native_heading_identity ... ok
+test compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_preserves_fields_fallback_and_snapshot_authority ... ok
+
+failures:
+
+---- compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_inspects_constructor_heading_supplement stdout ----
+
+thread 'compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_inspects_constructor_heading_supplement' (1107456) panicked at 01_core/src/compiler/eval/expression_dispatch.rs:1107:9:
+SourceDiagnostic { severity: Warning, span: Span(300396804723543), message: "this return unconditionally discards the content before it", hints: ["try omitting the `return` to automatically join all values"], trace: [] }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_inspects_explicit_heading_override stdout ----
+
+thread 'compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_inspects_explicit_heading_override' (1107457) panicked at 01_core/src/compiler/eval/expression_dispatch.rs:1124:9:
+SourceDiagnostic { severity: Warning, span: Span(300004451355776), message: "this return unconditionally discards the content before it", hints: ["try omitting the `return` to automatically join all values"], trace: [] }
+
+
+failures:
+    compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_inspects_constructor_heading_supplement
+    compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_inspects_explicit_heading_override
+
+test result: FAILED. 48 passed; 2 failed; 0 ignored; 0 measured; 7438 filtered out; finished in 0.68s
+
+error: test failed, to rerun pass `-p typst-core --lib`

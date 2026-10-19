@@ -1,0 +1,1 @@
+#{ let s = state("k", 0); s.display(); return "x" }

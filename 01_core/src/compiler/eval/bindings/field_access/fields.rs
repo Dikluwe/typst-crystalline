@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md
-//! @prompt-hash 1bd39708
+//! @prompt-hash 449b856f
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -764,7 +764,120 @@ fn is_matrix_or_cell_content(content: &crate::entities::content::Content) -> boo
         Content::Source(e) => is_matrix_or_cell_content(&e.body),
         Content::ShowRecipe(e) => is_matrix_or_cell_content(&e.body),
         Content::Realized(e) => is_matrix_or_cell_content(&e.visual),
-        _ => false,
+        Content::Empty
+        | Content::Text(..)
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(..)
+        | Content::HtmlElem(..)
+        | Content::HtmlFrame(..)
+        | Content::Par { .. }
+        | Content::Heading(..)
+        | Content::Title(..)
+        | Content::Strong(..)
+        | Content::Emph(..)
+        | Content::Raw(..)
+        | Content::ListItem(..)
+        | Content::EnumItem(..)
+        | Content::Link(..)
+        | Content::Equation(..)
+        | Content::MathSequence(..)
+        | Content::MathIdent(..)
+        | Content::MathText(..)
+        | Content::MathFrac(..)
+        | Content::MathAttach(..)
+        | Content::MathPrimes(..)
+        | Content::MathRoot(..)
+        | Content::MathStretch(..)
+        | Content::MathDelimited(..)
+        | Content::MathLr(..)
+        | Content::MathMid(..)
+        | Content::MathOverbrace(..)
+        | Content::MathUnderbrace(..)
+        | Content::MathUnderbracket(..)
+        | Content::MathUnderparen(..)
+        | Content::MathUndershell(..)
+        | Content::MathOverbracket(..)
+        | Content::MathOverparen(..)
+        | Content::MathOvershell(..)
+        | Content::MathAlignPoint(..)
+        | Content::Linebreak(..)
+        | Content::MathCases(..)
+        | Content::MathAccent(..)
+        | Content::MathCancel(..)
+        | Content::MathUnderline(..)
+        | Content::MathOverline(..)
+        | Content::MathVec(..)
+        | Content::MathClassOverride(..)
+        | Content::MathLimitsOverride(..)
+        | Content::MathUnderover(..)
+        | Content::MathOp(..)
+        | Content::MathStyled(..)
+        | Content::Label(..)
+        | Content::Ref(..)
+        | Content::CounterDisplay(..)
+        | Content::CounterUpdate(..)
+        | Content::Outline(..)
+        | Content::OutlineEntry(..)
+        | Content::Figure(..)
+        | Content::FigureCaption(..)
+        | Content::Image(..)
+        | Content::Shape(..)
+        | Content::Curve(..)
+        | Content::Transform(..)
+        | Content::Grid(..)
+        | Content::GridHeader(..)
+        | Content::GridFooter(..)
+        | Content::GridCell(..)
+        | Content::SetPage(..)
+        | Content::PageRun(..)
+        | Content::Align(..)
+        | Content::Place(..)
+        | Content::Flush(..)
+        | Content::Styled(..)
+        | Content::Divider(..)
+        | Content::Terms(..)
+        | Content::TermItem(..)
+        | Content::Quote(..)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(..)
+        | Content::PdfAttach(..)
+        | Content::PdfArtifact(..)
+        | Content::Underline(..)
+        | Content::Strike(..)
+        | Content::Overline(..)
+        | Content::SmallCaps { .. }
+        | Content::Pad(..)
+        | Content::Hide(..)
+        | Content::HSpace(..)
+        | Content::VSpace(..)
+        | Content::Pagebreak(..)
+        | Content::Colbreak(..)
+        | Content::Stack(..)
+        | Content::Boxed(..)
+        | Content::Block(..)
+        | Content::Bibliography(..)
+        | Content::Cite(..)
+        | Content::Footnote(..)
+        | Content::FootnoteEntry(..)
+        | Content::TableHeader(..)
+        | Content::TableFooter(..)
+        | Content::GridHLine(..)
+        | Content::GridVLine(..)
+        | Content::TableHLine(..)
+        | Content::TableVLine(..)
+        | Content::Table(..)
+        | Content::Repeat(..)
+        | Content::Columns(..)
+        | Content::Metadata(..)
+        | Content::State(..)
+        | Content::StateUpdate(..)
+        | Content::StateDisplay(..)
+        | Content::CounterDisplayCallback(..)
+        | Content::ContextBlock(..)
+        | Content::Dynamic(..) => false,
     }
 }
 
@@ -957,5 +1070,83 @@ mod builtin_module_identity_tests {
                 assert!(errors[0].trace.is_empty());
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod v16_c_structural_tests {
+    use super::*;
+
+    use crate::entities::content::{
+        Content, LocatedContent, RealizedContent, ShowRecipeContent,
+    };
+    use std::sync::Arc;
+    #[test]
+    fn v16_c_matrix_cell_carriers_preserve_presence_and_snapshot_barrier() {
+        let span = Span::from_range(
+            crate::entities::file_id::FileId::from_raw(
+                std::num::NonZeroU16::new(1).unwrap(),
+            ),
+            2..7,
+        );
+        for (leaf, field) in [
+            (Content::math_matrix(vec![vec![Content::text("x")]], ('(', ')')), "align"),
+            (Content::table_cell(Content::text("x"), None, None, None, None), "x"),
+        ] {
+            let location = crate::entities::locator::Locator::new().next();
+            let carriers = [
+                leaf.clone(),
+                leaf.clone().with_source_span(span),
+                Content::Located(Arc::new(LocatedContent {
+                    location,
+                    body: leaf.clone(),
+                })),
+                Content::ShowRecipe(Arc::new(ShowRecipeContent {
+                    body: leaf.clone(),
+                    textual: false,
+                    context_id_floor: 0,
+                    rules: Arc::from([]),
+                    styles: crate::entities::style_chain::StyleChain::default_chain(),
+                    guards: vec![],
+                    file: span.id().unwrap(),
+                })),
+                Content::Realized(Arc::new(RealizedContent {
+                    original: Content::text("hidden"),
+                    visual: leaf.clone(),
+                })),
+            ];
+            for c in carriers {
+                assert!(is_matrix_or_cell_content(&c));
+                let errors =
+                    eval_value_field_access(Value::Content(c.clone()), field, span)
+                        .unwrap_err();
+                assert!(errors[0].message.contains("is not known at this point"));
+                assert_eq!(errors[0].span, span);
+                let errors =
+                    eval_value_field_access(Value::Content(c), "__missing", span)
+                        .unwrap_err();
+                assert!(errors[0].message.contains("does not have field"));
+            }
+            assert!(!is_matrix_or_cell_content(&Content::styled(
+                leaf.clone(),
+                crate::entities::style::Styles::new()
+            )));
+            assert!(!is_matrix_or_cell_content(&Content::Realized(Arc::new(
+                RealizedContent { original: leaf, visual: Content::text("visible") }
+            ))));
+            let snapshot = Value::LocatedContent(
+                crate::entities::value::IntrospectedContent::new(
+                    Content::text("real"),
+                    Some(Default::default()),
+                ),
+                location,
+            );
+            assert!(eval_value_field_access(snapshot, "text", span).is_err());
+        }
+        assert_eq!(
+            eval_value_field_access(Value::Content(Content::text("real")), "text", span)
+                .unwrap(),
+            Value::Str("real".into())
+        );
     }
 }

@@ -1,0 +1,20 @@
+[
+  {
+    "name": "structural-baseline",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_c_structural.py",
+      "baseline"
+    ],
+    "utc_end": "2026-10-19T12:51:24.489207+00:00",
+    "exit": 0,
+    "seconds": 113.57566109600157,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "2150952960",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

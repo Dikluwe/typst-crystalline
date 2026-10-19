@@ -1,0 +1,150 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+    Finished `test` profile [unoptimized] target(s) in 1m 20s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 35 tests
+test compiler::eval::bindings::field_access::fields::v16_c_structural_tests::v16_c_matrix_cell_carriers_preserve_presence_and_snapshot_barrier ... ok
+test compiler::eval::bindings::value_methods::element_where::v16_c_structural_tests::v16_c_locatability_visits_composite_operands_and_preserves_leaf_policy ... ok
+test compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_accepts_actual_native_operands_and_preserves_kind_policy ... FAILED
+test compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_native_composition_effects_and_contextual_rejection ... FAILED
+test compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_preserves_heading_alias_and_refuses_scalar_or_homonym ... ok
+test compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_preserves_receiver_and_argument_once_and_refusal_precedence ... FAILED
+test compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_text_label_location_admission_is_not_legacy_kind_coercion ... FAILED
+test compiler::eval::call_dispatch::call_spans::v16_c_structural_tests::v16_c_html_anchor_covers_guard_refusals_and_precedence ... ok
+test compiler::eval::call_dispatch::content_methods::v16_c_structural_tests::v16_c_dispatch_refusals_preserve_cache_and_skip_arguments ... ok
+test compiler::eval::call_dispatch::instance_methods::v16_c_structural_tests::v16_c_dispatch_refusals_preserve_cache_and_skip_arguments ... ok
+test compiler::eval::call_dispatch::value_methods::batch_c_contextual_selector_tests::v16_c_contextual_selector_preserves_argument_error_precedence ... ok
+test compiler::eval::call_dispatch::value_methods::batch_c_contextual_selector_tests::v16_c_contextual_selector_rejects_nonlocatable_boundaries_but_not_base ... FAILED
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_excludes_displays_and_observes_only_visual ... FAILED
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_follows_content_block ... FAILED
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_follows_strong_body ... FAILED
+test compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_preserves_direct_and_opaque_context ... ok
+test compiler::eval::markup_stream::v16_c_display_tests::v16_c_display_preserves_scalars_raw_and_empty ... ok
+test compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_code_tail_route ... FAILED
+test compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_markup_route ... FAILED
+test compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_math_route ... FAILED
+test compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_preserves_rich_body ... FAILED
+test compiler::eval::modules::v16_c_structural_tests::v16_c_invalid_include_rejects_before_world_access ... ok
+test compiler::eval::operators::arithmetic::v16_c_structural_tests::v16_c_division_zero_precedence_and_nonzero_refusals ... ok
+test compiler::eval::operators::equality::batch_c_selector_equality_tests::v16_c_selector_equality_engine_native_identity_recurses_without_names ... FAILED
+test compiler::eval::operators::equality::batch_c_selector_equality_tests::v16_c_selector_equality_preserves_bare_group_order_and_flags ... ok
+test compiler::eval::rules::intercept::v16_c_structural_tests::v16_c_outline_indent_inheritance_preserves_absence_and_explicit_precedence ... ok
+test compiler::eval::rules::set::page::v16_c_structural_tests::v16_c_page_bleed_casts_and_dictionary_precedence ... ok
+test compiler::eval::rules::set::page::v16_c_structural_tests::v16_c_page_bleed_sides_override_axes_and_rest ... ok
+test compiler::eval::rules::set::text::v16_c_structural_tests::v16_c_font_regex_is_not_a_literal_missing_family ... ok
+test compiler::eval::rules::set::text::v16_c_structural_tests::v16_c_font_warning_literal_families_and_invalid_inputs ... ok
+test compiler::eval::rules::set::v16_c_structural_tests::v16_c_set_pure_path_resolution_and_false_condition_order ... ok
+test compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_engine_identity_crosses_causal_carriers_without_original_fallback ... FAILED
+test compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_kind_bridge_admits_represented_elements_and_rejects_effect_kinds ... FAILED
+test compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_math_identity_is_typed_and_preserves_limits_distinction ... FAILED
+test compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_preserves_fields_fallback_and_snapshot_authority ... ok
+
+failures:
+
+---- compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_accepts_actual_native_operands_and_preserves_kind_policy stdout ----
+
+thread 'compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_accepts_actual_native_operands_and_preserves_kind_policy' (1064628) panicked at 01_core/src/compiler/eval/bindings/value_methods/selector.rs:172:13:
+assertion `left == right` failed
+  left: None
+ right: Some(Kind(Table))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_native_composition_effects_and_contextual_rejection stdout ----
+
+thread 'compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_native_composition_effects_and_contextual_rejection' (1064629) panicked at 01_core/src/compiler/eval/bindings/value_methods/selector.rs:289:132:
+called `Result::unwrap()` on an `Err` value: [SourceDiagnostic { severity: Error, span: Span(295361401342923), message: "variables from outside the function are read-only and cannot be modified", hints: [], trace: [Call(Some("operand"))] }]
+
+---- compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_preserves_receiver_and_argument_once_and_refusal_precedence stdout ----
+
+thread 'compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_preserves_receiver_and_argument_once_and_refusal_precedence' (1064647) panicked at 01_core/src/compiler/eval/bindings/value_methods/selector.rs:282:173:
+called `Result::unwrap()` on an `Err` value: [SourceDiagnostic { severity: Error, span: Span(291700434848965), message: "variables from outside the function are read-only and cannot be modified", hints: [], trace: [Call(Some("receiver"))] }]
+
+---- compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_text_label_location_admission_is_not_legacy_kind_coercion stdout ----
+
+thread 'compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_text_label_location_admission_is_not_legacy_kind_coercion' (1064648) panicked at 01_core/src/compiler/eval/bindings/value_methods/selector.rs:196:13:
+literal operand
+
+---- compiler::eval::call_dispatch::value_methods::batch_c_contextual_selector_tests::v16_c_contextual_selector_rejects_nonlocatable_boundaries_but_not_base stdout ----
+
+thread 'compiler::eval::call_dispatch::value_methods::batch_c_contextual_selector_tests::v16_c_contextual_selector_rejects_nonlocatable_boundaries_but_not_base' (1064687) panicked at 01_core/src/compiler/eval/call_dispatch/value_methods.rs:547:21:
+assertion failed: errors[0].message.contains("is not locatable")
+
+---- compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_excludes_displays_and_observes_only_visual stdout ----
+
+thread 'compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_excludes_displays_and_observes_only_visual' (1064688) panicked at 01_core/src/compiler/eval/expression_dispatch.rs:925:9:
+assertion failed: !content_has_state_or_counter(&display)
+
+---- compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_follows_content_block stdout ----
+
+thread 'compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_follows_content_block' (1064689) panicked at 01_core/src/compiler/eval/expression_dispatch.rs:895:9:
+SourceDiagnostic { severity: Warning, span: Span(300310088942976), message: "this return unconditionally discards the content before it", hints: ["try omitting the `return` to automatically join all values"], trace: [] }
+
+---- compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_follows_strong_body stdout ----
+
+thread 'compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_follows_strong_body' (1064690) panicked at 01_core/src/compiler/eval/expression_dispatch.rs:901:9:
+SourceDiagnostic { severity: Warning, span: Span(300310088942976), message: "this return unconditionally discards the content before it", hints: ["try omitting the `return` to automatically join all values"], trace: [] }
+
+---- compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_code_tail_route stdout ----
+
+thread 'compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_code_tail_route' (1064693) panicked at 01_core/src/compiler/eval/markup_stream.rs:691:29:
+source-level display route must evaluate: [SourceDiagnostic { severity: Error, span: Span(302281119820861), message: "unknown variable `located`", hints: [], trace: [] }]
+
+---- compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_markup_route stdout ----
+
+thread 'compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_markup_route' (1064694) panicked at 01_core/src/compiler/eval/markup_stream.rs:691:29:
+source-level display route must evaluate: [SourceDiagnostic { severity: Error, span: Span(311088489885422), message: "unknown variable `located`", hints: [], trace: [] }]
+
+---- compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_math_route stdout ----
+
+thread 'compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_math_route' (1064695) panicked at 01_core/src/compiler/eval/markup_stream.rs:691:29:
+source-level display route must evaluate: [SourceDiagnostic { severity: Error, span: Span(308639381632171), message: "unknown variable `located`", hints: [], trace: [] }]
+
+---- compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_preserves_rich_body stdout ----
+
+thread 'compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_preserves_rich_body' (1064696) panicked at 01_core/src/compiler/eval/markup_stream.rs:684:9:
+assertion `left == right` failed: rich content lost: text("heading(level: 1)[strong(body: [RICH])]")
+  left: (0, 0)
+ right: (1, 1)
+
+---- compiler::eval::operators::equality::batch_c_selector_equality_tests::v16_c_selector_equality_engine_native_identity_recurses_without_names stdout ----
+
+thread 'compiler::eval::operators::equality::batch_c_selector_equality_tests::v16_c_selector_equality_engine_native_identity_recurses_without_names' (1064699) panicked at 01_core/src/compiler/eval/operators/equality.rs:582:9:
+assertion failed: selectors_eq(&page, &alias)
+
+---- compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_engine_identity_crosses_causal_carriers_without_original_fallback stdout ----
+
+thread 'compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_engine_identity_crosses_causal_carriers_without_original_fallback' (1064718) panicked at 01_core/src/compiler/eval/selector_matching.rs:1292:17:
+assertion failed: native_element_matches(&carrier, &function)
+
+---- compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_kind_bridge_admits_represented_elements_and_rejects_effect_kinds stdout ----
+
+thread 'compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_kind_bridge_admits_represented_elements_and_rejects_effect_kinds' (1064719) panicked at 01_core/src/compiler/eval/selector_matching.rs:1186:13:
+Equation
+
+---- compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_math_identity_is_typed_and_preserves_limits_distinction stdout ----
+
+thread 'compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_math_identity_is_typed_and_preserves_limits_distinction' (1064720) panicked at 01_core/src/compiler/eval/selector_matching.rs:1253:17:
+assertion failed: native_element_matches(&carrier, &alias)
+
+
+failures:
+    compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_accepts_actual_native_operands_and_preserves_kind_policy
+    compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_native_composition_effects_and_contextual_rejection
+    compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_preserves_receiver_and_argument_once_and_refusal_precedence
+    compiler::eval::bindings::value_methods::selector::batch_c_selector_tests::v16_c_selector_text_label_location_admission_is_not_legacy_kind_coercion
+    compiler::eval::call_dispatch::value_methods::batch_c_contextual_selector_tests::v16_c_contextual_selector_rejects_nonlocatable_boundaries_but_not_base
+    compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_excludes_displays_and_observes_only_visual
+    compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_follows_content_block
+    compiler::eval::expression_dispatch::v16_c_effect_tests::v16_c_update_hint_follows_strong_body
+    compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_code_tail_route
+    compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_markup_route
+    compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_math_route
+    compiler::eval::markup_stream::v16_c_display_tests::v16_c_located_display_preserves_rich_body
+    compiler::eval::operators::equality::batch_c_selector_equality_tests::v16_c_selector_equality_engine_native_identity_recurses_without_names
+    compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_engine_identity_crosses_causal_carriers_without_original_fallback
+    compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_kind_bridge_admits_represented_elements_and_rejects_effect_kinds
+    compiler::eval::selector_matching::batch_c_selector_matching_tests::v16_c_matching_math_identity_is_typed_and_preserves_limits_distinction
+
+test result: FAILED. 19 passed; 16 failed; 0 ignored; 0 measured; 7438 filtered out; finished in 0.57s
+
+error: test failed, to rerun pass `-p typst-core --lib`

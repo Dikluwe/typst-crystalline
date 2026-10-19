@@ -1,0 +1,6 @@
+error: type state has no method `display`
+  ┌─ lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-display.typ:1:26
+  │
+1 │ #{ let s = state("k", 0); s.display(); return "x" }
+  │                           ^^^^^^^^^
+

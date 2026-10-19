@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/modules.md
-//! @prompt-hash 339b51b2
+//! @prompt-hash 98394ce8
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -293,7 +293,43 @@ pub(super) fn eval_module_include(
     let trace_path = match &path_val {
         Value::Str(path) => path.clone(),
         Value::Path(path) => path.vpath().get_with_slash().into(),
-        _ => "<invalid path>".into(),
+        Value::None
+        | Value::Bool(..)
+        | Value::Int(..)
+        | Value::Float(..)
+        | Value::Array(..)
+        | Value::Dict(..)
+        | Value::Module(..)
+        | Value::Datetime(..)
+        | Value::Func(..)
+        | Value::Content(..)
+        | Value::LocatedContent(..)
+        | Value::Auto
+        | Value::Length(..)
+        | Value::Relative(..)
+        | Value::Ratio(..)
+        | Value::Angle(..)
+        | Value::Color(..)
+        | Value::Stroke(..)
+        | Value::Fraction(..)
+        | Value::Align(..)
+        | Value::Location(..)
+        | Value::Gradient(..)
+        | Value::Regex(..)
+        | Value::Tiling(..)
+        | Value::Bytes(..)
+        | Value::Decimal(..)
+        | Value::Duration(..)
+        | Value::Version(..)
+        | Value::Selector(..)
+        | Value::Symbol(..)
+        | Value::Args(..)
+        | Value::State(..)
+        | Value::Counter(..)
+        | Value::Label(..)
+        | Value::Dir(..)
+        | Value::Type(..)
+        | Value::SpotColorant(..) => "<invalid path>".into(),
     };
     let source = match path_val {
         Value::Str(s) => engine
@@ -719,5 +755,86 @@ mod import_syntax_tests {
         let (result, warnings) = run(&world, Features::empty(), EvalTarget::Paged);
         assert!(warnings.is_empty());
         assert_eq!(result.unwrap().scope().get("result"), Some(&Value::Int(43)));
+    }
+}
+
+#[cfg(test)]
+mod v16_c_structural_tests {
+
+    use crate::contracts::world::World;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    use crate::entities::{file_id::FileId, font_book::FontBook, source::Source};
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+    impl TestWorld {
+        fn new(text: &str) -> Self {
+            Self {
+                library: Library::new(),
+                book: FontBook::new(),
+                source: Source::new(
+                    FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+                    text.into(),
+                ),
+            }
+        }
+    }
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+        fn include_source(&self, _: FileId, _: &str) -> Result<Source, String> {
+            panic!("refused include accessed World")
+        }
+        fn include_path(
+            &self,
+            _: &crate::entities::path::RootedPath,
+        ) -> Result<Source, String> {
+            panic!("refused include accessed World")
+        }
+    }
+
+    #[test]
+    fn v16_c_invalid_include_rejects_before_world_access() {
+        for (value, kind) in
+            [("none", "none"), ("true", "bool"), ("42", "int"), ("[x]", "content")]
+        {
+            let text = format!("#include {value}");
+            let world = TestWorld::new(&text);
+            let errors =
+                crate::compiler::eval::tests::eval_for_test(&world, &world.source)
+                    .unwrap_err();
+            assert_eq!(
+                errors[0].message,
+                format!("include: caminho deve ser path ou string, recebeu {kind}")
+            );
+            assert_eq!(world.source.span_byte_range(errors[0].span), Some(9..text.len()));
+            assert!(errors[0].trace.is_empty());
+        }
     }
 }

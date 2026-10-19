@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/mod.md
-//! @prompt-hash ce5e6392
+//! @prompt-hash 7ee5c4bb
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -84,6 +84,7 @@ pub use crate::compiler::stdlib::figure_image::{
 };
 pub(crate) use crate::compiler::stdlib::format::make_format_module;
 pub(crate) use crate::compiler::stdlib::foundations::float::dispatch_float_method_spanned;
+pub(crate) use crate::compiler::stdlib::foundations::selector::element_kind_of_native_func;
 pub use crate::compiler::stdlib::foundations::{
     datetime_type_field, int_type_field, native_bytes, native_cmyk, native_datetime,
     native_float, native_here, native_hsl, native_hsv, native_int, native_linear_rgb,

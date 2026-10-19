@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/value_methods/element_where
-Hash do Código: c0aef757
+Hash do Código: d52b049b
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/caption-projection.toml sha256:b57c37587932a65caedce0b0df5691463ad336b90126a978ea88a7c369432738
@@ -348,3 +348,51 @@ V1/V5/V15/V26/reverse/differential SARIF without new error-warning. Prescribed
 nominal V19 allowed visibly without suppression, alternatives tested. Heavy tasks
 sequential, MemoryMax 12 GiB/High 8 GiB/swap0/jobs1; debug0/incremental0 in validation
 environment only. Reseal after valid V15/V26/exact provenance.
+
+## Closed-domain decision and preservation
+
+### Evidence before decision
+
+At checkpoint `370d78355bd646d1abead5bcacef215288cc8834`,
+`01_core/src/compiler/eval/bindings/value_methods/element_where.rs:609–643`
+and the caller/producer evidence recorded in
+`lab/results/v16-corrections-2026-10-19/batch-c/agents/structural/l0-audit.json`
+show the current decision and its refusal path. That receipt records UTC,
+working-tree diffstat and exact source/owner SHA-256 before this amendment.
+The existing clauses above establish the behavior to preserve; an open Rust
+match is structural evidence, not proof of additional language admission.
+
+### Exclusive policy
+
+Exactly Kind, Label, Location and Regex do not carry a new native Func requiring
+native_element_fields locatability validation. Composite selectors recurse into all
+relevant leaves. NativeElement/Element metadata false produces {name} is not locatable;
+absence of metadata follows the current owner policy. Construction remains distinct from
+query-time locatability.
+
+Kind, Label, Location and Regex contain no native Func to inspect. Missing catalogue
+metadata remains accepted here, not newly classified as nonlocatable. Test all four
+leaves, both native forms, missing metadata, and rejection in both operands of
+Within/Before/After and in each And/Or child; preserve the supplied span and first
+failing child.
+
+The explicit nominal complement is: `Kind`, `Label`, `Location`, `Regex`.
+
+### Acceptance and refutation
+
+Preservation controls run before and after the repair. A real temporary enum
+variant in a disposable complete workspace must fail with E0004 at this exact
+decision after repair; failures at other decisions alone are insufficient.
+Exercise nested closed domains separately where present. The structural RED is
+the original V16/open evolution boundary, not a fabricated runtime defect.
+Any changed result, message, span, callback count, argument evaluation or refusal
+route refutes preservation. Retain informational V19 groups with their rationale;
+add no suppression, hidden catchall, linter/configuration weakening or new policy.
+
+Internal continuous ADR-0127: no public field/trait/signature, product default,
+phase or compatibility change. L0 precedes code; reseal only valid owner pairs
+after V15/V26. Require focused and full workspace tests, build/all-targets, fmt,
+strict Clippy/Rustdoc, path checks, direct/reverse lineage and differential SARIF
+without new errors or warnings outside the selected repairs. Heavy checks are
+serialized under one job, 12 GiB maximum, 8 GiB high and zero swap. Historical
+parity claims and unresolved scope exclusions above remain bounded.

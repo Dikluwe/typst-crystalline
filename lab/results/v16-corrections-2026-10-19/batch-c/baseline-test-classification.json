@@ -1,0 +1,477 @@
+{
+  "counts": {
+    "preservation": 29,
+    "semantic RED": 23
+  },
+  "controls": [
+    {
+      "file": "01_core/src/compiler/eval/bindings/field_access/fields.rs",
+      "name": "v16_c_matrix_cell_carriers_preserve_presence_and_snapshot_barrier",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/bindings/value_methods/element_where.rs",
+      "name": "v16_c_locatability_visits_composite_operands_and_preserves_leaf_policy",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/bindings/value_methods/selector.rs",
+      "name": "v16_c_selector_preserves_literal_metacharacters_and_unicode",
+      "first_valid_baseline_log": "literal-baseline/literal-preservation.log",
+      "log_sha256": "64210691562c1db3a4592abf65d36c708c1ec071e4006814116a15e8a88e0f8e",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/bindings/value_methods/selector.rs",
+      "name": "v16_c_selector_preserves_literal_pattern_identity",
+      "first_valid_baseline_log": "literal-baseline/literal-preservation.log",
+      "log_sha256": "64210691562c1db3a4592abf65d36c708c1ec071e4006814116a15e8a88e0f8e",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/bindings/value_methods/selector.rs",
+      "name": "v16_c_selector_preserves_heading_alias_and_refuses_scalar_or_homonym",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/bindings/value_methods/selector.rs",
+      "name": "v16_c_selector_accepts_actual_native_operands_and_preserves_kind_policy",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/bindings/value_methods/selector.rs",
+      "name": "v16_c_selector_text_label_location_admission_is_not_legacy_kind_coercion",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/bindings/value_methods/selector.rs",
+      "name": "v16_c_selector_preserves_receiver_and_argument_once_and_refusal_precedence",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/bindings/value_methods/selector.rs",
+      "name": "v16_c_selector_native_composition_effects_and_contextual_rejection",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/call_dispatch/call_spans.rs",
+      "name": "v16_c_html_anchor_covers_guard_refusals_and_precedence",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/call_dispatch/content_methods.rs",
+      "name": "v16_c_dispatch_refusals_preserve_cache_and_skip_arguments",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/call_dispatch/instance_methods.rs",
+      "name": "v16_c_dispatch_refusals_preserve_cache_and_skip_arguments",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/call_dispatch/value_methods.rs",
+      "name": "v16_c_contextual_selector_preserves_argument_error_precedence",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/call_dispatch/value_methods.rs",
+      "name": "v16_c_contextual_selector_rejects_nonlocatable_boundaries_but_not_base",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "name": "v16_c_update_hint_follows_content_block",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "name": "v16_c_update_hint_follows_strong_body",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "name": "v16_c_update_hint_preserves_direct_and_opaque_context",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "name": "v16_c_update_hint_inspects_metadata_content_and_arrays",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "name": "v16_c_update_hint_preserves_metadata_dictionary_opacity",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "name": "v16_c_update_hint_inspects_ref_supplement",
+      "first_valid_baseline_log": "supplement-red/supplement-red.log",
+      "log_sha256": "a4aba5e03b8b90f3dceb3925e1babc594cf2f8685437a5b28a4afa819cd05f66",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "name": "v16_c_update_hint_inspects_native_raw_line_body",
+      "first_valid_baseline_log": "supplement-red/supplement-red.log",
+      "log_sha256": "a4aba5e03b8b90f3dceb3925e1babc594cf2f8685437a5b28a4afa819cd05f66",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "name": "v16_c_update_hint_inspects_constructor_heading_supplement",
+      "first_valid_baseline_log": "supplement-red/supplement-red.log",
+      "log_sha256": "a4aba5e03b8b90f3dceb3925e1babc594cf2f8685437a5b28a4afa819cd05f66",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "name": "v16_c_update_hint_preserves_heading_supplement_provenance",
+      "first_valid_baseline_log": "heading-red/supplement-red.log",
+      "log_sha256": "c77ab0a9f1fac0ac2ddd2b42e979755fba70097adb090deeb0f35ca8a330df4c",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "name": "v16_c_update_hint_inspects_explicit_heading_override",
+      "first_valid_baseline_log": "heading-red/supplement-red.log",
+      "log_sha256": "c77ab0a9f1fac0ac2ddd2b42e979755fba70097adb090deeb0f35ca8a330df4c",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "name": "v16_c_update_hint_excludes_deferred_page_properties",
+      "first_valid_baseline_log": "supplement-red/supplement-red.log",
+      "log_sha256": "a4aba5e03b8b90f3dceb3925e1babc594cf2f8685437a5b28a4afa819cd05f66",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "name": "v16_c_update_hint_preserves_static_field_boundaries",
+      "first_valid_baseline_log": "supplement-red/supplement-red.log",
+      "log_sha256": "a4aba5e03b8b90f3dceb3925e1babc594cf2f8685437a5b28a4afa819cd05f66",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "name": "v16_c_update_hint_excludes_displays_and_observes_only_visual",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/markup_stream.rs",
+      "name": "v16_c_located_display_preserves_rich_body",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/markup_stream.rs",
+      "name": "v16_c_located_display_markup_route",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/markup_stream.rs",
+      "name": "v16_c_located_display_code_tail_route",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/markup_stream.rs",
+      "name": "v16_c_located_display_math_route",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/markup_stream.rs",
+      "name": "v16_c_display_preserves_scalars_raw_and_empty",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/modules.rs",
+      "name": "v16_c_invalid_include_rejects_before_world_access",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/operators/arithmetic.rs",
+      "name": "v16_c_division_zero_precedence_and_nonzero_refusals",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/operators/equality.rs",
+      "name": "v16_c_selector_equality_preserves_bare_group_order_and_flags",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/operators/equality.rs",
+      "name": "v16_c_selector_equality_engine_native_identity_recurses_without_names",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/operators/equality.rs",
+      "name": "v16_c_selector_format_identity_retains_nominal_witness_and_aliases",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/rules/intercept.rs",
+      "name": "v16_c_outline_indent_inheritance_preserves_absence_and_explicit_precedence",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/rules/realize.rs",
+      "name": "v16_c_paragraph_source_producers_preserve_matched_effects",
+      "first_valid_baseline_log": "candidate-controls-2/candidate-controls.log",
+      "log_sha256": "61801b6dd39737eeb2af8dfadb61dc9551a05813a5636e7c2df3e80702c2b631",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/rules/realize.rs",
+      "name": "v16_c_paragraph_recognition_preserves_lexical_carriers",
+      "first_valid_baseline_log": "candidate-controls-2/candidate-controls.log",
+      "log_sha256": "61801b6dd39737eeb2af8dfadb61dc9551a05813a5636e7c2df3e80702c2b631",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/rules/realize.rs",
+      "name": "v16_c_paragraph_recognition_stays_at_the_prepared_node",
+      "first_valid_baseline_log": "candidate-controls-2/candidate-controls.log",
+      "log_sha256": "61801b6dd39737eeb2af8dfadb61dc9551a05813a5636e7c2df3e80702c2b631",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/rules/set.rs",
+      "name": "v16_c_set_pure_path_resolution_and_false_condition_order",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/rules/set/page.rs",
+      "name": "v16_c_page_bleed_casts_and_dictionary_precedence",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/rules/set/page.rs",
+      "name": "v16_c_page_bleed_sides_override_axes_and_rest",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/rules/set/text.rs",
+      "name": "v16_c_font_warning_literal_families_and_invalid_inputs",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/rules/set/text.rs",
+      "name": "v16_c_font_regex_is_not_a_literal_missing_family",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/selector_matching.rs",
+      "name": "v16_c_matching_nested_causal_carriers_preserve_native_heading_identity",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/selector_matching.rs",
+      "name": "v16_c_matching_preserves_fields_fallback_and_snapshot_authority",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/selector_matching.rs",
+      "name": "v16_c_matching_kind_bridge_admits_represented_elements_and_rejects_effect_kinds",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/selector_matching.rs",
+      "name": "v16_c_matching_math_identity_is_typed_and_preserves_limits_distinction",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/selector_matching.rs",
+      "name": "v16_c_matching_engine_identity_crosses_causal_carriers_without_original_fallback",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "FAILED",
+      "classification": "semantic RED",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    },
+    {
+      "file": "01_core/src/compiler/eval/selector_matching.rs",
+      "name": "v16_c_matching_preserves_binom_lowering_without_inventing_frac_identity",
+      "first_valid_baseline_log": "baseline-final/new-controls.log",
+      "log_sha256": "913b3732ff28bf70f11608cee9adea8427e1ae83e461d5c4982a52bd7f58a92f",
+      "baseline_outcome": "ok",
+      "classification": "preservation",
+      "scope": "This first delivered control precedes the corresponding repair; candidate-controls-2 is used only for the three paragraph-preservation controls before nominalization."
+    }
+  ],
+  "excluded": "The temporary paragraph diagnostic panic is not a delivered test or semantic RED."
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md
-//! @prompt-hash 17be5f7a
+//! @prompt-hash a3ebdc6f
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -637,7 +637,10 @@ pub(crate) fn validate_element_locatability(
             validate_element_locatability(base, span)?;
             validate_element_locatability(start, span)?;
         }
-        _ => {}
+        Selector::Kind(_)
+        | Selector::Label(_)
+        | Selector::Location(_)
+        | Selector::Regex(_) => {}
     }
     Ok(())
 }
@@ -1366,5 +1369,75 @@ mod sequence_constructor_tests {
             validate_element_locatability(&Selector::NativeElement(f), Span::detached())
                 .unwrap_err();
         assert_eq!(errors[0].message, "sequence is not locatable");
+    }
+}
+
+#[cfg(test)]
+mod v16_c_structural_tests {
+    use super::*;
+
+    #[test]
+    fn v16_c_locatability_visits_composite_operands_and_preserves_leaf_policy() {
+        use crate::entities::{
+            element_kind::ElementKind, func::Func, label::Label, locator::Locator,
+            regex::Regex,
+        };
+        let span = Span::from_range(
+            crate::entities::file_id::FileId::from_raw(
+                std::num::NonZeroU16::new(1).unwrap(),
+            ),
+            4..8,
+        );
+        let good = Selector::Kind(ElementKind::Heading);
+        for leaf in [
+            good.clone(),
+            Selector::Label(Label("x".into())),
+            Selector::Location(Locator::new().next()),
+            Selector::Regex(Regex::new("x").unwrap()),
+            Selector::NativeElement(Func::native("uncatalogued", |_, _, _, _| {
+                panic!("classifier executed callback")
+            })),
+        ] {
+            validate_element_locatability(&leaf, span).unwrap();
+        }
+        let function = Func::native("alias", crate::compiler::stdlib::native_math_mat);
+        for bad in [
+            Selector::NativeElement(function.clone()),
+            Selector::Element { function, fields: Default::default() },
+        ] {
+            let mut cases = vec![
+                bad.clone(),
+                Selector::Where {
+                    base: Box::new(bad.clone()),
+                    field: "x".into(),
+                    value: Box::new(Value::None),
+                },
+            ];
+            for (a, b) in [(good.clone(), bad.clone()), (bad.clone(), good.clone())] {
+                cases.extend([
+                    Selector::And(vec![a.clone(), b.clone()].into()),
+                    Selector::Or(vec![a.clone(), b.clone()].into()),
+                    Selector::Within {
+                        base: Box::new(a.clone()),
+                        ancestor: Box::new(b.clone()),
+                    },
+                    Selector::Before {
+                        base: Box::new(a.clone()),
+                        end: Box::new(b.clone()),
+                        inclusive: false,
+                    },
+                    Selector::After {
+                        base: Box::new(a),
+                        start: Box::new(b),
+                        inclusive: true,
+                    },
+                ]);
+            }
+            for selector in cases {
+                let e = validate_element_locatability(&selector, span).unwrap_err();
+                assert_eq!(e[0].message, "mat is not locatable");
+                assert_eq!(e[0].span, span);
+            }
+        }
     }
 }

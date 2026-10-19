@@ -1,0 +1,107 @@
+{
+  "tests": [
+    {
+      "name": "compiler::eval::bindings::field_access::fields::v16_c_structural_tests::v16_c_matrix_cell_carriers_preserve_presence_and_snapshot_barrier",
+      "source": "01_core/src/compiler/eval/bindings/field_access/fields.rs",
+      "expected_before": "pass",
+      "expected_after": "pass"
+    },
+    {
+      "name": "compiler::eval::bindings::value_methods::element_where::v16_c_structural_tests::v16_c_locatability_visits_composite_operands_and_preserves_leaf_policy",
+      "source": "01_core/src/compiler/eval/bindings/value_methods/element_where.rs",
+      "expected_before": "pass",
+      "expected_after": "pass"
+    },
+    {
+      "name": "compiler::eval::call_dispatch::call_spans::v16_c_structural_tests::v16_c_html_anchor_covers_guard_refusals_and_precedence",
+      "source": "01_core/src/compiler/eval/call_dispatch/call_spans.rs",
+      "expected_before": "pass",
+      "expected_after": "pass"
+    },
+    {
+      "name": "compiler::eval::call_dispatch::content_methods::v16_c_structural_tests::v16_c_dispatch_refusals_preserve_cache_and_skip_arguments",
+      "source": "01_core/src/compiler/eval/call_dispatch/content_methods.rs",
+      "expected_before": "pass",
+      "expected_after": "pass"
+    },
+    {
+      "name": "compiler::eval::call_dispatch::instance_methods::v16_c_structural_tests::v16_c_dispatch_refusals_preserve_cache_and_skip_arguments",
+      "source": "01_core/src/compiler/eval/call_dispatch/instance_methods.rs",
+      "expected_before": "pass",
+      "expected_after": "pass"
+    },
+    {
+      "name": "compiler::eval::modules::v16_c_structural_tests::v16_c_invalid_include_rejects_before_world_access",
+      "source": "01_core/src/compiler/eval/modules.rs",
+      "expected_before": "pass",
+      "expected_after": "pass"
+    },
+    {
+      "name": "compiler::eval::operators::arithmetic::v16_c_structural_tests::v16_c_division_zero_precedence_and_nonzero_refusals",
+      "source": "01_core/src/compiler/eval/operators/arithmetic.rs",
+      "expected_before": "pass",
+      "expected_after": "pass"
+    },
+    {
+      "name": "compiler::eval::rules::intercept::v16_c_structural_tests::v16_c_outline_indent_inheritance_preserves_absence_and_explicit_precedence",
+      "source": "01_core/src/compiler/eval/rules/intercept.rs",
+      "expected_before": "pass",
+      "expected_after": "pass"
+    },
+    {
+      "name": "compiler::eval::rules::set::page::v16_c_structural_tests::v16_c_page_bleed_casts_and_dictionary_precedence",
+      "source": "01_core/src/compiler/eval/rules/set/page.rs",
+      "expected_before": "pass",
+      "expected_after": "pass"
+    },
+    {
+      "name": "compiler::eval::rules::set::page::v16_c_structural_tests::v16_c_page_bleed_sides_override_axes_and_rest",
+      "source": "01_core/src/compiler/eval/rules/set/page.rs",
+      "expected_before": "pass",
+      "expected_after": "pass"
+    },
+    {
+      "name": "compiler::eval::rules::set::text::v16_c_structural_tests::v16_c_font_warning_literal_families_and_invalid_inputs",
+      "source": "01_core/src/compiler/eval/rules/set/text.rs",
+      "expected_before": "pass",
+      "expected_after": "pass"
+    },
+    {
+      "name": "compiler::eval::rules::set::text::v16_c_structural_tests::v16_c_font_regex_is_not_a_literal_missing_family",
+      "source": "01_core/src/compiler/eval/rules/set/text.rs",
+      "expected_before": "pass",
+      "expected_after": "pass"
+    },
+    {
+      "name": "compiler::eval::rules::set::v16_c_structural_tests::v16_c_set_pure_path_resolution_and_false_condition_order",
+      "source": "01_core/src/compiler/eval/rules/set.rs",
+      "expected_before": "pass",
+      "expected_after": "pass"
+    }
+  ],
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "-p",
+    "typst-core",
+    "--lib",
+    "v16_c_",
+    "--",
+    "--test-threads=1"
+  ],
+  "existing_controls": {
+    "005": "Earlier smartquote presence and matrix/cell getter/presence suites; new tests add four carriers and snapshot barrier.",
+    "006": "native_math_catalogue tests all metadata identities/aliases/With and native_format_catalogue tests current formats; new tests exercise composites both operands.",
+    "008": "call_spans::tests existing real float/math anchor cases unchanged; new HTML matrix covers positive/refusal/spread/missing anchors.",
+    "009": "v16_walk_receiver_tests existing raw entry, Source/Located positive pointer semantics and opaque Strong/Realized; new all39 Value refusal test.",
+    "010": "call_once unknown methods/effect tests plus eval method suites; new all39 Value refusal/State Counter validator test.",
+    "017": "import_syntax_include_string_path_and_nested_preserve_error_origin and import_syntax_runtime_errors_keep_import_trace_and_valid_exports; new invalid values assert World never accessed.",
+    "018": "Existing p1043 Relative component controls and full arithmetic suite; new all seven zero kinds with incompatible dividend and nonzero counterparts.",
+    "020": "Existing outline constructor/set/layout tests; new direct capture checks all four inherited kinds and absent/unrelated values, explicit precedence and unexecuted function.",
+    "022": "eval/tests p633 page canvas / logical sides/Auto controls; new uniform casts/errors/spans and physical side-axis-rest precedence.",
+    "023": "eval_set_text_font_dict_regex_key_passo_407 and eval_set_text_font_dict_named_family_regex_passo_414; new literal-family warnings and regex-no-warning/invalid-input checks.",
+    "024": "set_condition_false_skips_targets_arguments_and_warnings, once-before-active, type error precedence, registered element and feature-gate tests; new missing target-before-args and alias controls."
+  }
+}

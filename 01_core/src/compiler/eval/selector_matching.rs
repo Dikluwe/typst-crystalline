@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/selector_matching.md
-//! @prompt-hash 0bc7d49d
+//! @prompt-hash bb4fa810
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -28,17 +28,48 @@ pub(crate) fn query_selector_to_show_selector(
     sel: QuerySelector,
     span: Span,
 ) -> SourceResult<Selector> {
-    fn kind_to_node(kind: ElementKind) -> Option<NodeKind> {
+    fn kind_to_show(kind: ElementKind) -> Option<Selector> {
         match kind {
-            ElementKind::Heading => Some(NodeKind::Heading),
-            ElementKind::Figure => Some(NodeKind::Figure),
-            ElementKind::Link => Some(NodeKind::Link),
-            ElementKind::Raw => Some(NodeKind::Raw),
-            ElementKind::Quote => Some(NodeKind::Quote),
-            ElementKind::Footnote => Some(NodeKind::Footnote),
-            ElementKind::List => Some(NodeKind::List),
-            ElementKind::Enum => Some(NodeKind::Enum),
-            _ => None,
+            ElementKind::Heading => Some(Selector::NodeKind(NodeKind::Heading)),
+            ElementKind::Figure => Some(Selector::NodeKind(NodeKind::Figure)),
+            ElementKind::Link => Some(Selector::NodeKind(NodeKind::Link)),
+            ElementKind::Raw => Some(Selector::NodeKind(NodeKind::Raw)),
+            ElementKind::Quote => Some(Selector::NodeKind(NodeKind::Quote)),
+            ElementKind::Footnote => Some(Selector::NodeKind(NodeKind::Footnote)),
+            ElementKind::List => Some(Selector::NodeKind(NodeKind::List)),
+            ElementKind::Enum => Some(Selector::NodeKind(NodeKind::Enum)),
+            ElementKind::Equation => Some(Selector::NodeKind(NodeKind::Equation)),
+            ElementKind::Par => Some(Selector::NodeKind(NodeKind::Par)),
+            ElementKind::Table => Some(Selector::NativeElement(Func::native(
+                "table",
+                crate::compiler::stdlib::native_table,
+            ))),
+            ElementKind::Metadata => Some(Selector::NativeElement(Func::native(
+                "metadata",
+                crate::compiler::stdlib::native_metadata,
+            ))),
+            ElementKind::Outline => Some(Selector::NativeElement(Func::native(
+                "outline",
+                crate::compiler::stdlib::native_outline,
+            ))),
+            ElementKind::OutlineEntry => Some(Selector::NativeElement(Func::native(
+                "outline_entry",
+                crate::compiler::stdlib::native_outline_entry,
+            ))),
+            ElementKind::Citation => Some(Selector::NativeElement(Func::native(
+                "cite",
+                crate::compiler::stdlib::native_cite,
+            ))),
+            ElementKind::Bibliography => Some(Selector::NativeElement(Func::native(
+                "bibliography",
+                crate::compiler::stdlib::native_bibliography,
+            ))),
+            ElementKind::State
+            | ElementKind::StateUpdate
+            | ElementKind::CounterUpdate
+            | ElementKind::StateDisplay
+            | ElementKind::CounterDisplay
+            | ElementKind::ContextBlock => None,
         }
     }
 
@@ -59,8 +90,8 @@ pub(crate) fn query_selector_to_show_selector(
             }
             Ok(selector)
         }
-        QuerySelector::Kind(kind) => match kind_to_node(kind) {
-            Some(node) => Ok(Selector::NodeKind(node)),
+        QuerySelector::Kind(kind) => match kind_to_show(kind) {
+            Some(selector) => Ok(selector),
             None => Err(vec![SourceDiagnostic::error(
                 span,
                 format!(
@@ -262,18 +293,19 @@ pub(crate) fn is_par_rule(selector: &Selector) -> bool {
 pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool {
     use crate::compiler::eval::bindings::native_sequence;
     use crate::compiler::stdlib::*;
-    if let crate::entities::func::FuncRepr::NativeWithEngine(native) = function.0.as_ref()
-    {
-        return matches!(content, Content::PageRun(_))
-            && std::ptr::fn_addr_eq(
-                native.call,
-                native_page as fn(_, _, _, _, _, _) -> _,
-            );
-    }
-    let Some(addr) = function.native_fn_addr() else { return false };
+    let content = match content {
+        Content::Source(e) => return native_element_matches(&e.body, function),
+        Content::ShowRecipe(e) => return native_element_matches(&e.body, function),
+        Content::Located(e) => return native_element_matches(&e.body, function),
+        Content::Realized(e) => return native_element_matches(&e.visual, function),
+        other => other,
+    };
+    let addr = function.native_fn_addr();
     macro_rules! native {
         ($function:ident) => {
-            std::ptr::fn_addr_eq(addr, $function as fn(_, _, _, _) -> _)
+            addr.is_some_and(|addr| {
+                std::ptr::fn_addr_eq(addr, $function as fn(_, _, _, _) -> _)
+            })
         };
     }
     macro_rules! node_kinds {
@@ -298,8 +330,8 @@ pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool
         Content::ShowRecipe(e) => native_element_matches(&e.body, function),
         Content::Located(e) => native_element_matches(&e.body, function),
         Content::Realized(e) => native_element_matches(&e.visual, function),
-        Content::Styled(e) if native!(native_math_equation) => {
-            native_element_matches(&e.body, function)
+        Content::Styled(e) => {
+            native!(native_math_equation) && native_element_matches(&e.body, function)
         }
         Content::Empty | Content::Sequence(_) => native!(native_sequence),
         Content::Equation(_) => native!(native_math_equation),
@@ -359,25 +391,249 @@ pub(crate) fn native_element_matches(content: &Content, function: &Func) -> bool
                 native!(native_skew)
             }
         },
-        _ => false,
+        Content::MathFrac(e) => e.line && native!(native_math_frac),
+        Content::MathAttach(_) => native!(native_math_attach),
+        Content::MathPrimes(_) => native!(native_math_primes),
+        Content::MathRoot(_) => native!(native_math_root),
+        Content::MathStretch(_) => native!(native_math_stretch),
+        Content::MathLr(_) => native!(native_math_lr),
+        Content::MathMid(_) => native!(native_math_mid),
+        Content::MathOverbrace(_) => native!(native_math_overbrace),
+        Content::MathUnderbrace(_) => native!(native_math_underbrace),
+        Content::MathUnderbracket(_) => native!(native_math_underbracket),
+        Content::MathUnderparen(_) => native!(native_math_underparen),
+        Content::MathUndershell(_) => native!(native_math_undershell),
+        Content::MathOverbracket(_) => native!(native_math_overbracket),
+        Content::MathOverparen(_) => native!(native_math_overparen),
+        Content::MathOvershell(_) => native!(native_math_overshell),
+        Content::MathMatrix(_) => native!(native_math_mat),
+        Content::MathCases(_) => native!(native_math_cases),
+        Content::MathAccent(_) => native!(native_accent),
+        Content::MathCancel(_) => native!(native_cancel),
+        Content::MathUnderline(_) => native!(native_math_underline),
+        Content::MathOverline(_) => native!(native_math_overline),
+        Content::MathVec(_) => native!(native_math_vec),
+        Content::MathClassOverride(_) => native!(native_math_class_for_metadata),
+        Content::MathLimitsOverride(e) => {
+            if e.limits {
+                native!(native_math_limits)
+            } else {
+                native!(native_math_scripts)
+            }
+        }
+        Content::PageRun(_) => match function.repr() {
+            crate::entities::func::FuncRepr::NativeWithEngine(native) => {
+                std::ptr::fn_addr_eq(
+                    native.call,
+                    native_page as fn(_, _, _, _, _, _) -> _,
+                )
+            }
+            crate::entities::func::FuncRepr::Closure(_)
+            | crate::entities::func::FuncRepr::Native(_)
+            | crate::entities::func::FuncRepr::Format(_, _)
+            | crate::entities::func::FuncRepr::Element(_)
+            | crate::entities::func::FuncRepr::Plugin(_)
+            | crate::entities::func::FuncRepr::With(_) => false,
+        },
+        Content::MathOp(_) => match function.repr() {
+            crate::entities::func::FuncRepr::NativeWithEngine(native) => {
+                std::ptr::fn_addr_eq(native.call, native_op as fn(_, _, _, _, _, _) -> _)
+            }
+            crate::entities::func::FuncRepr::Closure(_)
+            | crate::entities::func::FuncRepr::Native(_)
+            | crate::entities::func::FuncRepr::Format(_, _)
+            | crate::entities::func::FuncRepr::Element(_)
+            | crate::entities::func::FuncRepr::Plugin(_)
+            | crate::entities::func::FuncRepr::With(_) => false,
+        },
+        Content::Space
+        | Content::SpaceFromNewline
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_)
+        | Content::Par { .. }
+        | Content::Heading(_)
+        | Content::Title(_)
+        | Content::Strong(_)
+        | Content::Emph(_)
+        | Content::Raw(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::Link(_)
+        | Content::MathSequence(_)
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::MathDelimited(_)
+        | Content::MathAlignPoint(_)
+        | Content::MathUnderover(_)
+        | Content::MathStyled(_)
+        | Content::Label(_)
+        | Content::CounterDisplay(_)
+        | Content::CounterUpdate(_)
+        | Content::Figure(_)
+        | Content::FigureCaption(_)
+        | Content::Curve(_)
+        | Content::SetPage(_)
+        | Content::Flush(_)
+        | Content::Divider(_)
+        | Content::TermItem(_)
+        | Content::Quote(_)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. }
+        | Content::Footnote(_)
+        | Content::FootnoteEntry(_)
+        | Content::State(_)
+        | Content::StateUpdate(_)
+        | Content::StateDisplay(_)
+        | Content::CounterDisplayCallback(_)
+        | Content::ContextBlock(_)
+        | Content::Dynamic(_) => false,
     }
 }
 
 /// Linguistic fields for native filters; the legacy Where projector stays unchanged.
 fn native_element_field(content: &Content, field: &str) -> Option<Value> {
-    match (content, field) {
-        (Content::Text(text), "text") => Some(Value::Str(text.clone())),
-        (Content::Raw(raw), "text") => Some(Value::Str(raw.text.clone())),
-        (Content::Raw(raw), "lang") => {
-            Some(raw.lang.clone().map(Value::Str).unwrap_or(Value::None))
+    match content {
+        Content::Text(text) => match field {
+            "text" => Some(Value::Str(text.clone())),
+            _ => content.get_field(field),
+        },
+        Content::Raw(raw) => match field {
+            "text" => Some(Value::Str(raw.text.clone())),
+            "lang" => Some(raw.lang.clone().map(Value::Str).unwrap_or(Value::None)),
+            "block" => Some(Value::Bool(raw.block)),
+            _ => content.get_field(field),
+        },
+        Content::Styled(styled) => {
+            if field == "body" && is_styled_origin(content, true, true, true, true, true)
+            {
+                Some(Value::Content(styled.body.clone()))
+            } else {
+                content.get_field(field)
+            }
         }
-        (Content::Raw(raw), "block") => Some(Value::Bool(raw.block)),
-        (Content::Styled(styled), "body")
-            if is_styled_origin(content, true, true, true, true, true) =>
-        {
-            Some(Value::Content(styled.body.clone()))
-        }
-        _ => content.get_field(field),
+        Content::Source(_)
+        | Content::ShowRecipe(_)
+        | Content::Realized(_)
+        | Content::Located(_)
+        | Content::Empty
+        | Content::Space
+        | Content::SpaceFromNewline
+        | Content::Parbreak
+        | Content::Sequence(_)
+        | Content::HtmlElem(_)
+        | Content::HtmlFrame(_)
+        | Content::Par { .. }
+        | Content::Heading(_)
+        | Content::Title(_)
+        | Content::Strong(_)
+        | Content::Emph(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::Link(_)
+        | Content::Equation(_)
+        | Content::MathSequence(_)
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathPrimes(_)
+        | Content::MathRoot(_)
+        | Content::MathStretch(_)
+        | Content::MathDelimited(_)
+        | Content::MathLr(_)
+        | Content::MathMid(_)
+        | Content::MathOverbrace(_)
+        | Content::MathUnderbrace(_)
+        | Content::MathUnderbracket(_)
+        | Content::MathUnderparen(_)
+        | Content::MathUndershell(_)
+        | Content::MathOverbracket(_)
+        | Content::MathOverparen(_)
+        | Content::MathOvershell(_)
+        | Content::MathAlignPoint(_)
+        | Content::Linebreak(_)
+        | Content::MathMatrix(_)
+        | Content::MathCases(_)
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
+        | Content::MathUnderline(_)
+        | Content::MathOverline(_)
+        | Content::MathVec(_)
+        | Content::MathClassOverride(_)
+        | Content::MathLimitsOverride(_)
+        | Content::MathUnderover(_)
+        | Content::MathOp(_)
+        | Content::MathStyled(_)
+        | Content::Label(_)
+        | Content::Ref(_)
+        | Content::CounterDisplay(_)
+        | Content::CounterUpdate(_)
+        | Content::Outline(_)
+        | Content::OutlineEntry(_)
+        | Content::Figure(_)
+        | Content::FigureCaption(_)
+        | Content::Image(_)
+        | Content::Shape(_)
+        | Content::Curve(_)
+        | Content::Transform(_)
+        | Content::Grid(_)
+        | Content::GridHeader(_)
+        | Content::GridFooter(_)
+        | Content::GridCell(_)
+        | Content::SetPage(_)
+        | Content::PageRun(_)
+        | Content::Align(_)
+        | Content::Place(_)
+        | Content::Flush(_)
+        | Content::Divider(_)
+        | Content::Terms(_)
+        | Content::TermItem(_)
+        | Content::Quote(_)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(_)
+        | Content::PdfAttach(_)
+        | Content::PdfArtifact(_)
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. }
+        | Content::Pad(_)
+        | Content::Hide(_)
+        | Content::HSpace(_)
+        | Content::VSpace(_)
+        | Content::Pagebreak(_)
+        | Content::Colbreak(_)
+        | Content::Stack(_)
+        | Content::Boxed(_)
+        | Content::Block(_)
+        | Content::TableCell(_)
+        | Content::Bibliography(_)
+        | Content::Cite(_)
+        | Content::Footnote(_)
+        | Content::FootnoteEntry(_)
+        | Content::TableHeader(_)
+        | Content::TableFooter(_)
+        | Content::GridHLine(_)
+        | Content::GridVLine(_)
+        | Content::TableHLine(_)
+        | Content::TableVLine(_)
+        | Content::Table(_)
+        | Content::Repeat(_)
+        | Content::Columns(_)
+        | Content::Metadata(_)
+        | Content::State(_)
+        | Content::StateUpdate(_)
+        | Content::StateDisplay(_)
+        | Content::CounterDisplayCallback(_)
+        | Content::ContextBlock(_)
+        | Content::Dynamic(_) => content.get_field(field),
     }
 }
 
@@ -1110,5 +1366,306 @@ mod sequence_constructor_tests {
         assert!(!native_element_matches(&Content::text(""), &f));
         let fake = Func::native("sequence", |_, _, _, _| Ok(Value::None));
         assert!(!native_element_matches(&Content::Empty, &fake));
+    }
+}
+
+#[cfg(test)]
+mod batch_c_selector_matching_tests {
+    use super::*;
+    use crate::compiler::stdlib::*;
+    use crate::entities::content::{
+        LocatedContent, RealizedContent, ShowRecipeContent, SourceContent,
+    };
+    use crate::entities::location::Location;
+    use std::sync::Arc;
+
+    fn carriers(body: Content) -> Vec<Content> {
+        vec![
+            body.clone(),
+            Content::Source(Arc::new(SourceContent {
+                body: body.clone(),
+                span: Span::detached(),
+            })),
+            Content::Located(Arc::new(LocatedContent {
+                body: body.clone(),
+                location: Location::from_raw(5),
+            })),
+            Content::Realized(Arc::new(RealizedContent {
+                original: Content::text("different"),
+                visual: body.clone(),
+            })),
+            Content::ShowRecipe(Arc::new(ShowRecipeContent {
+                body,
+                textual: false,
+                context_id_floor: 0,
+                rules: vec![].into(),
+                styles: crate::entities::style_chain::StyleChain::empty(),
+                guards: vec![],
+                file: crate::entities::file_id::FileId::from_raw(
+                    std::num::NonZeroU16::new(1).unwrap(),
+                ),
+            })),
+        ]
+    }
+
+    #[test]
+    fn v16_c_matching_nested_causal_carriers_preserve_native_heading_identity() {
+        let heading = Content::heading(1, Content::text("H"));
+        let mut nested = heading;
+        for index in [3, 2, 4, 1] {
+            nested = carriers(nested).swap_remove(index);
+        }
+        let function = Func::native("alias", native_heading);
+        assert!(native_element_matches(&nested, &function));
+        assert!(selector_matches(&nested, &Selector::NativeElement(function)));
+    }
+
+    #[test]
+    fn v16_c_matching_preserves_fields_fallback_and_snapshot_authority() {
+        let text = Content::text("text");
+        assert_eq!(native_element_field(&text, "text"), Some(Value::Str("text".into())));
+        assert_eq!(native_element_field(&text, "missing"), text.get_field("missing"));
+        let styled = Content::styled(text.clone(), crate::entities::style::Styles::new());
+        assert_eq!(native_element_field(&styled, "body"), styled.get_field("body"));
+        let strong = Content::strong(text.clone());
+        assert_eq!(native_element_field(&strong, "body"), strong.get_field("body"));
+        let function = Func::native("text", native_text);
+        let fields = vec![("text".into(), Value::Str("text".into()))];
+        let entry = IntrospectedContent::new(text.clone(), None);
+        assert!(element_selector_matches(&entry, &function, &fields));
+        let captured = IntrospectedContent::new(text, Some(Default::default()));
+        assert!(!element_selector_matches(&captured, &function, &fields));
+    }
+
+    #[test]
+    fn v16_c_matching_kind_bridge_admits_represented_elements_and_rejects_effect_kinds() {
+        for kind in [
+            ElementKind::Heading,
+            ElementKind::Figure,
+            ElementKind::Equation,
+            ElementKind::Par,
+            ElementKind::Table,
+            ElementKind::Metadata,
+            ElementKind::Outline,
+            ElementKind::OutlineEntry,
+            ElementKind::Citation,
+            ElementKind::Bibliography,
+        ] {
+            assert!(
+                query_selector_to_show_selector(
+                    QuerySelector::Kind(kind),
+                    Span::detached()
+                )
+                .is_ok(),
+                "{kind:?}"
+            );
+        }
+        for kind in [
+            ElementKind::State,
+            ElementKind::StateUpdate,
+            ElementKind::CounterUpdate,
+            ElementKind::StateDisplay,
+            ElementKind::CounterDisplay,
+            ElementKind::ContextBlock,
+        ] {
+            let errors = query_selector_to_show_selector(
+                QuerySelector::Kind(kind),
+                Span::detached(),
+            )
+            .unwrap_err();
+            assert!(errors[0].message.contains(kind.as_str()));
+            assert_eq!(errors[0].span, Span::detached());
+        }
+    }
+
+    #[test]
+    fn v16_c_matching_math_identity_is_typed_and_preserves_limits_distinction() {
+        let body = Content::text("x");
+        let cases = [
+            (Content::math_mid(body.clone()), Func::native("unrelated", native_math_mid)),
+            (
+                Content::math_matrix(vec![vec![body.clone()]], ('(', ')')),
+                Func::native("unrelated", native_math_mat),
+            ),
+            (
+                Content::math_cases(vec![vec![body.clone()]], ('{', '}'), false, None),
+                Func::native("unrelated", native_math_cases),
+            ),
+            (
+                Content::math_vec(vec![body.clone()]),
+                Func::native("unrelated", native_math_vec),
+            ),
+            (
+                Content::math_class_override(
+                    crate::entities::math_class::MathClass::Relation,
+                    body.clone(),
+                ),
+                Func::native("unrelated", native_math_class_for_metadata),
+            ),
+            (
+                Content::math_attach_scripts(
+                    body.clone(),
+                    crate::entities::elements::math_attach::MathAttachSlot::Omitted,
+                    crate::entities::elements::math_attach::MathAttachSlot::Omitted,
+                    crate::entities::elements::math_attach::MathAttachSlot::Omitted,
+                    crate::entities::elements::math_attach::MathAttachSlot::Omitted,
+                ),
+                Func::native("unrelated", native_math_attach),
+            ),
+            (
+                Content::math_stretch(
+                    body.clone(),
+                    crate::entities::rel::Rel::from_percent(100.0),
+                    false,
+                ),
+                Func::native("unrelated", native_math_stretch),
+            ),
+            (
+                Content::math_lr(
+                    body.clone(),
+                    crate::entities::rel::Rel::from_percent(100.0),
+                    false,
+                ),
+                Func::native("unrelated", native_math_lr),
+            ),
+            (
+                Content::math_overbrace(body.clone(), None, false),
+                Func::native("unrelated", native_math_overbrace),
+            ),
+            (
+                Content::math_underbrace(body.clone(), None, false),
+                Func::native("unrelated", native_math_underbrace),
+            ),
+            (
+                Content::math_underbracket(body.clone(), None, false),
+                Func::native("unrelated", native_math_underbracket),
+            ),
+            (
+                Content::math_underparen(body.clone(), None, false),
+                Func::native("unrelated", native_math_underparen),
+            ),
+            (
+                Content::math_undershell(body.clone(), None, false),
+                Func::native("unrelated", native_math_undershell),
+            ),
+            (
+                Content::math_overbracket(body.clone(), None, false),
+                Func::native("unrelated", native_math_overbracket),
+            ),
+            (
+                Content::math_overparen(body.clone(), None, false),
+                Func::native("unrelated", native_math_overparen),
+            ),
+            (
+                Content::math_overshell(body.clone(), None, false),
+                Func::native("unrelated", native_math_overshell),
+            ),
+            (
+                Content::math_frac(body.clone(), body.clone()),
+                Func::native("unrelated", native_math_frac),
+            ),
+            (
+                Content::math_root(None, body.clone(), false),
+                Func::native("unrelated", native_math_root),
+            ),
+            (Content::math_primes(2), Func::native("unrelated", native_math_primes)),
+            (
+                Content::math_underline(body.clone()),
+                Func::native("unrelated", native_math_underline),
+            ),
+            (
+                Content::math_overline(body.clone()),
+                Func::native("unrelated", native_math_overline),
+            ),
+            (
+                Content::math_cancel(body.clone()),
+                Func::native("unrelated", native_cancel),
+            ),
+            (
+                Content::math_accent(body.clone(), '~'),
+                Func::native("unrelated", native_accent),
+            ),
+            (
+                Content::math_limits_override(body.clone(), true, false, false),
+                Func::native("unrelated", native_math_limits),
+            ),
+            (
+                Content::math_limits_override(body.clone(), false, false, false),
+                Func::native("unrelated", native_math_scripts),
+            ),
+        ];
+        let mut missing = Vec::new();
+        for (index, (content, alias)) in cases.into_iter().enumerate() {
+            for (carrier_index, carrier) in
+                carriers(content.clone()).into_iter().enumerate()
+            {
+                if !native_element_matches(&carrier, &alias) {
+                    missing.push((index, carrier_index));
+                }
+            }
+            assert!(!native_element_matches(
+                &content,
+                &Func::native("unrelated", native_heading)
+            ));
+            assert!(!native_element_matches(
+                &Content::styled(content, crate::entities::style::Styles::new()),
+                &alias
+            ));
+        }
+        assert!(
+            missing.is_empty(),
+            "unrecognized math identity/carrier cases: {missing:?}"
+        );
+        assert!(!native_element_matches(
+            &Content::math_limits_override(body.clone(), true, false, false),
+            &Func::native("limits", native_math_scripts)
+        ));
+        assert!(!native_element_matches(
+            &Content::math_limits_override(body, false, false, false),
+            &Func::native("scripts", native_math_limits)
+        ));
+    }
+
+    #[test]
+    fn v16_c_matching_engine_identity_crosses_causal_carriers_without_original_fallback()
+    {
+        let page = Content::page_run(None, None, None, None, None, Content::text("x"));
+        let op = Content::math_op(Content::text("custom"), false);
+        for (content, function, wrong) in [
+            (
+                page,
+                Func::native_with_engine("alias", native_page),
+                Func::native_with_engine("page", native_op),
+            ),
+            (
+                op,
+                Func::native_with_engine("alias", native_op),
+                Func::native_with_engine("op", native_page),
+            ),
+        ] {
+            for carrier in carriers(content.clone()) {
+                assert!(native_element_matches(&carrier, &function));
+                assert!(!native_element_matches(&carrier, &wrong));
+            }
+            let visual = Content::Realized(Arc::new(RealizedContent {
+                original: content,
+                visual: Content::text("no match"),
+            }));
+            assert!(!native_element_matches(&visual, &function));
+        }
+    }
+}
+
+#[cfg(test)]
+mod batch_c_math_lowering_controls {
+    use super::*;
+    #[test]
+    fn v16_c_matching_preserves_binom_lowering_without_inventing_frac_identity() {
+        let mechanical =
+            Content::math_frac_unlined(Content::text("3"), Content::text("2"));
+        assert!(!native_element_matches(
+            &mechanical,
+            &Func::native("frac", crate::compiler::stdlib::native_math_frac)
+        ));
     }
 }

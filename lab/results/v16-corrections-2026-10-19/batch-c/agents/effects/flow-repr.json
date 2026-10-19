@@ -1,0 +1,36 @@
+{
+  "source": "#show par: it => {metadata(repr(it)); it}\n#par[A]\n#par[B]",
+  "head": "370d78355bd646d1abead5bcacef215288cc8834",
+  "diffstat": " .../compiler/eval/bindings/field_access/fields.md  |  47 ++++\n .../eval/bindings/value_methods/element_where.md   |  48 +++++\n .../eval/bindings/value_methods/selector.md        |  67 ++++++\n .../prompts/core/compiler/eval/call_dispatch.md    |  15 ++\n .../core/compiler/eval/call_dispatch/call_spans.md |  47 ++++\n .../compiler/eval/call_dispatch/content_methods.md |  48 +++++\n .../eval/call_dispatch/instance_methods.md         |  50 +++++\n .../compiler/eval/call_dispatch/value_methods.md   |  58 +++++\n .../core/compiler/eval/expression_dispatch.md      |  43 ++++\n .../prompts/core/compiler/eval/markup_stream.md    |  45 ++++\n 00_nucleo/prompts/core/compiler/eval/modules.md    |  48 +++++\n .../core/compiler/eval/operators/arithmetic.md     |  49 +++++\n .../core/compiler/eval/operators/equality.md       |  60 ++++++\n .../prompts/core/compiler/eval/rules/intercept.md  |  47 ++++\n .../prompts/core/compiler/eval/rules/realize.md    |  48 +++++\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  48 +++++\n .../prompts/core/compiler/eval/rules/set/page.md   |  49 +++++\n .../prompts/core/compiler/eval/rules/set/text.md   |  50 +++++\n .../core/compiler/eval/selector_matching.md        |  82 +++++++\n .../core/compiler/stdlib/foundations/selector.md   |  20 ++\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  14 ++\n .../compiler/eval/bindings/field_access/fields.rs  |  80 ++++++-\n .../eval/bindings/value_methods/element_where.rs   |  72 ++++++-\n .../eval/bindings/value_methods/selector.rs        | 173 ++++++++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |   2 +-\n .../src/compiler/eval/call_dispatch/call_spans.rs  |  59 +++++-\n .../compiler/eval/call_dispatch/content_methods.rs | 191 ++++++++++++++++-\n .../eval/call_dispatch/instance_methods.rs         | 236 ++++++++++++++++++++-\n .../compiler/eval/call_dispatch/value_methods.rs   |  81 ++++++-\n 01_core/src/compiler/eval/expression_dispatch.rs   | 112 +++++++++-\n 01_core/src/compiler/eval/markup_stream.rs         | 125 ++++++++++-\n 01_core/src/compiler/eval/modules.rs               |  83 +++++++-\n 01_core/src/compiler/eval/operators/arithmetic.rs  |  50 ++++-\n 01_core/src/compiler/eval/operators/equality.rs    |  56 ++++-\n 01_core/src/compiler/eval/rules/intercept.rs       | 142 ++++++++++++-\n 01_core/src/compiler/eval/rules/set.rs             |  88 +++++++-\n 01_core/src/compiler/eval/rules/set/page.rs        | 207 +++++++++++++++++-\n 01_core/src/compiler/eval/rules/set/text.rs        | 100 ++++++++-\n 01_core/src/compiler/eval/selector_matching.rs     | 190 ++++++++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |   2 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   2 +-\n 41 files changed, 3014 insertions(+), 20 deletions(-)\n",
+  "utc": "2026-10-19T12:46:49.183124+00:00",
+  "results": [
+    {
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "query",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/flow-count-repr.typ",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "binary_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+      "exit": 0,
+      "stdout": "[\"par(\\n  leading: 0.65em,\\n  spacing: 1.2em,\\n  justify: false,\\n  justification-limits: (\\n    spacing: (min: 66.67% + 0pt, max: 150% + 0pt),\\n    tracking: (min: 0pt, max: 0pt),\\n  ),\\n  linebreaks: auto,\\n  first-line-indent: (amount: 0pt, all: false),\\n  hanging-indent: 0pt,\\n  body: [A],\\n)\",\"par(\\n  leading: 0.65em,\\n  spacing: 1.2em,\\n  justify: false,\\n  justification-limits: (\\n    spacing: (min: 66.67% + 0pt, max: 150% + 0pt),\\n    tracking: (min: 0pt, max: 0pt),\\n  ),\\n  linebreaks: auto,\\n  first-line-indent: (amount: 0pt, all: false),\\n  hanging-indent: 0pt,\\n  body: [B],\\n)\"]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)' --in lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/flow-count-repr.typ` instead\n\n"
+    },
+    {
+      "argv": [
+        "lab/target/product/debug/typst",
+        "query",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/flow-count-repr.typ",
+        "metadata",
+        "--field",
+        "value"
+      ],
+      "binary_sha256": "39b8b85cc81284866367675252d8a7638e8145b772257f434dffcda11dd0eb28",
+      "exit": 0,
+      "stdout": "[\"par(body: [ ])\",\"par(body: [A])\",\"par(body: [ ])\",\"par(body: [B])\"]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)' --in lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/flow-count-repr.typ` instead\n\n"
+    }
+  ]
+}

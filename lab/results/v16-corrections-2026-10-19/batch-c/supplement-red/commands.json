@@ -1,0 +1,28 @@
+[
+  {
+    "name": "supplement-red",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "v16_c_",
+      "--",
+      "--test-threads=1"
+    ],
+    "expected_exit": 101,
+    "utc_end": "2026-10-19T13:21:28.464337+00:00",
+    "exit": 101,
+    "seconds": 84.84844919999887,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3392151552",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

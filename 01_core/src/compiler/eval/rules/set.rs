@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/set.md
-//! @prompt-hash 1c2ba6c8
+//! @prompt-hash 69484fcc
 //! @layer L1
 //! @updated 2026-10-08
 //!
@@ -38,7 +38,63 @@ pub(crate) fn eval_set_rule(
         match expr {
             Expr::Ident(_) => true,
             Expr::FieldAccess(f) => pure_path(f.target()),
-            _ => false,
+            Expr::Text(_)
+            | Expr::Space(_)
+            | Expr::Linebreak(_)
+            | Expr::Parbreak(_)
+            | Expr::Escape(_)
+            | Expr::Shorthand(_)
+            | Expr::SmartQuote(_)
+            | Expr::Strong(_)
+            | Expr::Emph(_)
+            | Expr::Raw(_)
+            | Expr::Link(_)
+            | Expr::Label(_)
+            | Expr::Ref(_)
+            | Expr::Heading(_)
+            | Expr::ListItem(_)
+            | Expr::EnumItem(_)
+            | Expr::TermItem(_)
+            | Expr::Equation(_)
+            | Expr::Math(_)
+            | Expr::MathText(_)
+            | Expr::MathIdent(_)
+            | Expr::MathShorthand(_)
+            | Expr::MathAlignPoint(_)
+            | Expr::MathDelimited(_)
+            | Expr::MathAttach(_)
+            | Expr::MathPrimes(_)
+            | Expr::MathFrac(_)
+            | Expr::MathRoot(_)
+            | Expr::None(_)
+            | Expr::Auto(_)
+            | Expr::Bool(_)
+            | Expr::Int(_)
+            | Expr::Float(_)
+            | Expr::Numeric(_)
+            | Expr::Str(_)
+            | Expr::CodeBlock(_)
+            | Expr::ContentBlock(_)
+            | Expr::Parenthesized(_)
+            | Expr::Array(_)
+            | Expr::Dict(_)
+            | Expr::Unary(_)
+            | Expr::Binary(_)
+            | Expr::FuncCall(_)
+            | Expr::Closure(_)
+            | Expr::LetBinding(_)
+            | Expr::DestructAssignment(_)
+            | Expr::SetRule(_)
+            | Expr::ShowRule(_)
+            | Expr::Contextual(_)
+            | Expr::Conditional(_)
+            | Expr::WhileLoop(_)
+            | Expr::ForLoop(_)
+            | Expr::ModuleImport(_)
+            | Expr::ModuleInclude(_)
+            | Expr::LoopBreak(_)
+            | Expr::LoopContinue(_)
+            | Expr::FuncReturn(_) => false,
         }
     }
     let target_function = if pure_path(set.target()) {
@@ -1274,4 +1330,90 @@ pub(crate) fn eval_set_rule(
     }
 
     eval_set_text(set, scopes, ctx, engine)
+}
+
+#[cfg(test)]
+mod v16_c_structural_tests {
+
+    use crate::contracts::world::World;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    use crate::entities::{file_id::FileId, font_book::FontBook, source::Source};
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+    impl TestWorld {
+        fn new(text: &str) -> Self {
+            Self {
+                library: Library::new(),
+                book: FontBook::new(),
+                source: Source::new(
+                    FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+                    text.into(),
+                ),
+            }
+        }
+    }
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+        fn include_source(&self, _: FileId, _: &str) -> Result<Source, String> {
+            panic!("refused include accessed World")
+        }
+        fn include_path(
+            &self,
+            _: &crate::entities::path::RootedPath,
+        ) -> Result<Source, String> {
+            panic!("refused include accessed World")
+        }
+    }
+
+    #[test]
+    fn v16_c_set_pure_path_resolution_and_false_condition_order() {
+        for text in [
+            "#set missing(panic(\"argument executed\")) if false",
+            "#set missing.field(panic(\"argument executed\")) if false",
+        ] {
+            let world = TestWorld::new(text);
+            crate::compiler::eval::tests::eval_for_test(&world, &world.source).unwrap();
+        }
+        for text in [
+            "#set missing(panic(\"argument executed\"))",
+            "#set std.__missing(panic(\"argument executed\"))",
+        ] {
+            let world = TestWorld::new(text);
+            let errors =
+                crate::compiler::eval::tests::eval_for_test(&world, &world.source)
+                    .unwrap_err();
+            assert!(!errors[0].message.contains("argument executed"));
+            assert!(errors[0].message.contains("missing"));
+        }
+        let world = TestWorld::new("#let p=page\n#set p(width:120pt)\nOK");
+        crate::compiler::eval::tests::eval_for_test(&world, &world.source).unwrap();
+    }
 }

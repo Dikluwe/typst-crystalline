@@ -1,0 +1,53 @@
+[
+  {
+    "name": "native-domain",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T13:01:42.763810+00:00",
+    "head": "370d78355bd646d1abead5bcacef215288cc8834",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-c-structural-baseline-native",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-019-native-identity",
+        "file": "01_core/src/compiler/eval/operators/equality.rs",
+        "baseline": {
+          "after": "fn selectors_eq(",
+          "anchor": "match (a.native_fn_addr(), b.native_fn_addr()) {"
+        },
+        "green": {
+          "after": "fn selectors_eq(",
+          "anchor": "match (a.repr(), b.repr()) {"
+        },
+        "line": 206,
+        "byte_start": 10558,
+        "byte_end": 10606,
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/entities/func.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T13:02:09.364116+00:00",
+    "exit": 101,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 10
+  }
+]

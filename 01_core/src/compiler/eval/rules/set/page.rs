@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/set/page.md
-//! @prompt-hash f3da030b
+//! @prompt-hash e9af2257
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -436,7 +436,45 @@ pub(super) fn eval_set_page(
                                 span,
                             )]);
                         }
-                        _ => PageBleedSpec::uniform(extract_rel_length(&val, span)?),
+                        Value::None
+                        | Value::Bool(..)
+                        | Value::Int(..)
+                        | Value::Float(..)
+                        | Value::Str(..)
+                        | Value::Array(..)
+                        | Value::Module(..)
+                        | Value::Datetime(..)
+                        | Value::Func(..)
+                        | Value::Content(..)
+                        | Value::LocatedContent(..)
+                        | Value::Length(..)
+                        | Value::Relative(..)
+                        | Value::Ratio(..)
+                        | Value::Angle(..)
+                        | Value::Color(..)
+                        | Value::Stroke(..)
+                        | Value::Fraction(..)
+                        | Value::Align(..)
+                        | Value::Location(..)
+                        | Value::Gradient(..)
+                        | Value::Regex(..)
+                        | Value::Tiling(..)
+                        | Value::Bytes(..)
+                        | Value::Decimal(..)
+                        | Value::Duration(..)
+                        | Value::Version(..)
+                        | Value::Selector(..)
+                        | Value::Symbol(..)
+                        | Value::Args(..)
+                        | Value::State(..)
+                        | Value::Counter(..)
+                        | Value::Label(..)
+                        | Value::Dir(..)
+                        | Value::Path(..)
+                        | Value::Type(..)
+                        | Value::SpotColorant(..) => {
+                            PageBleedSpec::uniform(extract_rel_length(&val, span)?)
+                        }
                     });
                 }
                 "fill" => {
@@ -550,4 +588,209 @@ pub(super) fn eval_set_page(
             foreground,
         },
     ))))
+}
+
+#[cfg(test)]
+mod v16_c_structural_tests {
+    use super::*;
+
+    use crate::contracts::world::World;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    use crate::entities::{file_id::FileId, font_book::FontBook, source::Source};
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+    impl TestWorld {
+        fn new(text: &str) -> Self {
+            Self {
+                library: Library::new(),
+                book: FontBook::new(),
+                source: Source::new(
+                    FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+                    text.into(),
+                ),
+            }
+        }
+    }
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+        fn include_source(&self, _: FileId, _: &str) -> Result<Source, String> {
+            panic!("refused include accessed World")
+        }
+        fn include_path(
+            &self,
+            _: &crate::entities::path::RootedPath,
+        ) -> Result<Source, String> {
+            panic!("refused include accessed World")
+        }
+    }
+
+    fn with_engine(run: impl FnOnce(&mut Scopes<'_>, &mut EvalContext, &mut Engine<'_>)) {
+        use comemo::Track;
+        let world = TestWorld::new("");
+        let library =
+            Library::with_global(crate::compiler::stdlib::make_stdlib_with_features(
+                &crate::contracts::world::SysInputs::default(),
+                crate::entities::compiler_features::Features::empty(),
+            ));
+        let mut scopes = Scopes::new(Some(&library));
+        let mut ctx = EvalContext::new();
+        let mut styles = crate::entities::style_chain::StyleChain::default_chain();
+        let mut rules = std::sync::Arc::from([]);
+        let mut guards = Vec::new();
+        let route = crate::entities::world_types::Route::root().with_id(world.main());
+        let metrics = crate::compiler::layout::FixedMetrics;
+        let mut sink = crate::entities::sink::Sink::new();
+        let mut tracked_sink = sink.track_mut();
+        let mut engine = Engine {
+            world: &world,
+            font_metrics: &metrics,
+            route: route.track(),
+            styles: &mut styles,
+            show_rules: &mut rules,
+            active_guards: &mut guards,
+            current_file: world.main(),
+            sink: &mut tracked_sink,
+        };
+        run(&mut scopes, &mut ctx, &mut engine);
+    }
+
+    #[test]
+    fn v16_c_page_bleed_casts_and_dictionary_precedence() {
+        use crate::entities::ast::AstNode;
+        for (value, expected) in [
+            ("2pt", Some((2.0, 0.0))),
+            ("2", Some((2.0, 0.0))),
+            ("2.0", Some((2.0, 0.0))),
+            ("10%", Some((0.0, 0.1))),
+            ("2pt+10%", Some((2.0, 0.1))),
+            ("auto", None),
+            ("none", None),
+            ("true", None),
+        ] {
+            let text = format!("set page(bleed:{value})");
+            let source = Source::new_with_parser(
+                TestWorld::new("").main(),
+                text.clone(),
+                crate::compiler::parse::parse_code,
+            );
+            let set = source
+                .root()
+                .children()
+                .find_map(|n| {
+                    if let Some(Expr::SetRule(s)) = Expr::from_untyped(n) {
+                        Some(s)
+                    } else {
+                        None
+                    }
+                })
+                .unwrap();
+            with_engine(|scopes, ctx, engine| {
+                let result = eval_set_page(set, scopes, ctx, engine);
+                if let Some((abs, rel)) = expected {
+                    let Value::Content(Content::SetPage(delta)) = result.unwrap() else {
+                        panic!("page delta")
+                    };
+                    let bleed = delta.bleed.as_ref().unwrap();
+                    for side in [bleed.left, bleed.right, bleed.top, bleed.bottom] {
+                        let side = side.unwrap();
+                        assert_eq!(
+                            side.abs,
+                            crate::entities::layout_types::Length::pt(abs)
+                        );
+                        assert_eq!(side.rel, rel);
+                    }
+                } else {
+                    let error = result.unwrap_err();
+                    assert!(error[0].message.contains(if value == "auto" {
+                        "relative length or dictionary"
+                    } else {
+                        "relative length"
+                    }));
+                    assert_eq!(
+                        source.span_byte_range(error[0].span),
+                        Some(15..text.len() - 1)
+                    );
+                }
+            });
+        }
+        for (value, message) in [
+            ("(inside:1pt,left:2pt)", "mutually exclusive"),
+            ("(invalid:1pt)", "unknown bleed key"),
+            ("(left:true)", "relative length"),
+        ] {
+            let world = TestWorld::new(&format!("#set page(bleed:{value})"));
+            let error =
+                crate::compiler::eval::tests::eval_for_test(&world, &world.source)
+                    .unwrap_err();
+            assert!(error[0].message.contains(message));
+        }
+    }
+    #[test]
+    fn v16_c_page_bleed_sides_override_axes_and_rest() {
+        use crate::entities::ast::AstNode;
+        let source = Source::new_with_parser(
+            TestWorld::new("").main(),
+            "set page(bleed: (left: 1pt, x: 2pt, top: 3pt, y: 4pt, rest: 5pt))".into(),
+            crate::compiler::parse::parse_code,
+        );
+        let set = source
+            .root()
+            .children()
+            .find_map(|n| {
+                if let Some(Expr::SetRule(s)) = Expr::from_untyped(n) {
+                    Some(s)
+                } else {
+                    None
+                }
+            })
+            .unwrap();
+        with_engine(|scopes, ctx, engine| {
+            let Value::Content(Content::SetPage(delta)) =
+                eval_set_page(set, scopes, ctx, engine).unwrap()
+            else {
+                panic!("page delta")
+            };
+            let bleed = delta.bleed.as_ref().unwrap();
+            for (side, points) in [
+                (bleed.left, 1.0),
+                (bleed.right, 2.0),
+                (bleed.top, 3.0),
+                (bleed.bottom, 4.0),
+            ] {
+                assert_eq!(
+                    side.unwrap().abs,
+                    crate::entities::layout_types::Length::pt(points)
+                );
+            }
+            assert_eq!(bleed.two_sided, Some(false));
+        });
+    }
 }

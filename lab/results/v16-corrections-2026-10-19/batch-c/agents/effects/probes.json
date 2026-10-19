@@ -1,0 +1,224 @@
+{
+  "utc": "2026-10-19T12:39:19.299816+00:00",
+  "head": "370d78355bd646d1abead5bcacef215288cc8834",
+  "diffstat": "",
+  "status": "",
+  "oracle": {
+    "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+    "commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+    "tree": "cac836c07e4dec2a89219370428292393a3216b5",
+    "receipt": "lab/results/construction/diagnostics/vanilla-resync-2026-10-17/oracle-build.json.gz"
+  },
+  "probes": [
+    {
+      "name": "warning-state-direct",
+      "source": "#{ let s = state(\"k\", 0); s.update(1); return \"x\" }",
+      "sha256": "16d9472a08e5ea9cc21acaaa46d081e10c514d9f43c94c508e1b002f8c9178b9",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-direct.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-direct.pdf"
+      ],
+      "utc": "2026-10-19T12:39:19.395164+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-direct.typ:1:39\n  \u2502\n1 \u2502 #{ let s = state(\"k\", 0); s.update(1); return \"x\" }\n  \u2502                                        ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-direct.typ:1:39\n  \u2502\n1 \u2502 #{ let s = state(\"k\", 0); s.update(1); return \"x\" }\n  \u2502                                        ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n"
+    },
+    {
+      "name": "warning-state-block",
+      "source": "#{ let s = state(\"k\", 0); [#s.update(1)]; return \"x\" }",
+      "sha256": "777a247a7294aa4d86088bcb149f216475bc6d832365d42a74a87888c18bb8e5",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-block.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-block.pdf"
+      ],
+      "utc": "2026-10-19T12:39:19.401480+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-block.typ:1:42\n  \u2502\n1 \u2502 #{ let s = state(\"k\", 0); [#s.update(1)]; return \"x\" }\n  \u2502                                           ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-block.typ:1:42\n  \u2502\n1 \u2502 #{ let s = state(\"k\", 0); [#s.update(1)]; return \"x\" }\n  \u2502                                           ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n"
+    },
+    {
+      "name": "warning-state-strong",
+      "source": "#{ let s = state(\"k\", 0); strong(s.update(1)); return \"x\" }",
+      "sha256": "48c03ca215677fd93eb406c2cd556d4b2c538586647292aa5d3c585e5a08f8da",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-strong.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-strong.pdf"
+      ],
+      "utc": "2026-10-19T12:39:19.407924+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-strong.typ:1:47\n  \u2502\n1 \u2502 #{ let s = state(\"k\", 0); strong(s.update(1)); return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-strong.typ:1:47\n  \u2502\n1 \u2502 #{ let s = state(\"k\", 0); strong(s.update(1)); return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n"
+    },
+    {
+      "name": "warning-state-text",
+      "source": "#{ let s = state(\"k\", 0); text(s.update(1)); return \"x\" }",
+      "sha256": "7d93857327a0eed0028d3555a13afc3f981295a56603ddd80fe5500ea51547d6",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-text.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-text.pdf"
+      ],
+      "utc": "2026-10-19T12:39:19.413845+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-text.typ:1:45\n  \u2502\n1 \u2502 #{ let s = state(\"k\", 0); text(s.update(1)); return \"x\" }\n  \u2502                                              ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-text.typ:1:45\n  \u2502\n1 \u2502 #{ let s = state(\"k\", 0); text(s.update(1)); return \"x\" }\n  \u2502                                              ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n"
+    },
+    {
+      "name": "warning-state-display",
+      "source": "#{ let s = state(\"k\", 0); s.display(); return \"x\" }",
+      "sha256": "9adccf0ae2419a7fbc81fcf7c387c1fa99dcefd4a377bcd21db19c900babc360",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-display.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-display.pdf"
+      ],
+      "utc": "2026-10-19T12:39:19.420005+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: type state has no method `display`\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-display.typ:1:26\n  \u2502\n1 \u2502 #{ let s = state(\"k\", 0); s.display(); return \"x\" }\n  \u2502                           ^^^^^^^^^\n\n"
+    },
+    {
+      "name": "warning-counter-display",
+      "source": "#{ counter(\"k\").display(); return \"x\" }",
+      "sha256": "7bb6faf70b9d1a29cbddccd50657f2972d872d9915c670fcd053ff390a13297c",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-counter-display.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-counter-display.pdf"
+      ],
+      "utc": "2026-10-19T12:39:19.425642+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: can only be used when context is known\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-counter-display.typ:1:3\n  \u2502\n1 \u2502 #{ counter(\"k\").display(); return \"x\" }\n  \u2502    ^^^^^^^^^^^^^^^^^^^^^^\n  \u2502\n  = hint: try wrapping this in a `context` expression\n  = hint: the `context` expression should wrap everything that depends on this function\n\n"
+    },
+    {
+      "name": "warning-context-hidden",
+      "source": "#{ context { panic(\"EXECUTED\"); state(\"k\",0).update(1) }; return \"x\" }",
+      "sha256": "aa8e55efcd5fbe8a123eb083a26b3a66d7c98cff1e57f7a1e19663cb1b663f41",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-context-hidden.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-context-hidden.pdf"
+      ],
+      "utc": "2026-10-19T12:39:19.431552+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-context-hidden.typ:1:58\n  \u2502\n1 \u2502 #{ context { panic(\"EXECUTED\"); state(\"k\",0).update(1) }; return \"x\" }\n  \u2502                                                           ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-context-hidden.typ:1:58\n  \u2502\n1 \u2502 #{ context { panic(\"EXECUTED\"); state(\"k\",0).update(1) }; return \"x\" }\n  \u2502                                                           ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n"
+    },
+    {
+      "name": "display-markup",
+      "source": "#import \"module.typ\" as m\n#metadata(repr([#true #auto #none #(1.0) #decimal(\"1.50\") #sym.alpha #sys.version #state(\"k\",0) #counter(\"k\") #m #((x)=>x) #(1,2)])) <probe>",
+      "sha256": "429609d7c792b5a695705d100d7d1dc67c2f00c772572136e80b34f6c60cf6a2",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "query",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/display-markup.typ",
+        "<probe>",
+        "--field",
+        "value"
+      ],
+      "utc": "2026-10-19T12:39:19.438379+00:00",
+      "exit": 0,
+      "stdout": "[\"sequence(\\n  raw(text: \\\"true\\\", block: false, lang: \\\"typc\\\"),\\n  [ ],\\n  raw(text: \\\"auto\\\", block: false, lang: \\\"typc\\\"),\\n  [ ],\\n  [],\\n  [ ],\\n  [1],\\n  [ ],\\n  [1.50],\\n  [ ],\\n  [\u03b1],\\n  [ ],\\n  [0.15.1],\\n  [ ],\\n  raw(\\n    text: \\\"state(\\\\\\\"k\\\\\\\", 0)\\\",\\n    block: false,\\n    lang: \\\"typc\\\",\\n  ),\\n  [ ],\\n  raw(text: \\\"counter(\\\\\\\"k\\\\\\\")\\\", block: false, lang: \\\"typc\\\"),\\n  [ ],\\n  strong(body: [MODULE]),\\n  [ ],\\n  raw(text: \\\"(..) => ..\\\", block: false, lang: \\\"typc\\\"),\\n  [ ],\\n  raw(text: \\\"(1, 2)\\\", block: false, lang: \\\"typc\\\"),\\n)\"]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/display-markup.typ` instead\n\n"
+    },
+    {
+      "name": "display-tail",
+      "source": "#import \"module.typ\" as m\n#metadata((true, auto, none, 1.0, decimal(\"1.50\"), sym.alpha, sys.version, state(\"k\",0), counter(\"k\"), m, ((x)=>x), (1,2)).map(v=>repr({set text(size: 12pt);v}))) <probe>",
+      "sha256": "53b8c68f69bb020226f1ebf110d76b90898b4e115dd4e308700281355c3c26e9",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "query",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/display-tail.typ",
+        "<probe>",
+        "--field",
+        "value"
+      ],
+      "utc": "2026-10-19T12:39:19.444948+00:00",
+      "exit": 0,
+      "stdout": "[[\"styled(child: raw(text: \\\"true\\\", block: false, lang: \\\"typc\\\"), ..)\",\"styled(child: raw(text: \\\"auto\\\", block: false, lang: \\\"typc\\\"), ..)\",\"styled(child: [], ..)\",\"styled(child: [1], ..)\",\"styled(child: [1.50], ..)\",\"styled(child: [\u03b1], ..)\",\"styled(child: [0.15.1], ..)\",\"styled(child: raw(\\n  text: \\\"state(\\\\\\\"k\\\\\\\", 0)\\\",\\n  block: false,\\n  lang: \\\"typc\\\",\\n), ..)\",\"styled(child: raw(text: \\\"counter(\\\\\\\"k\\\\\\\")\\\", block: false, lang: \\\"typc\\\"), ..)\",\"styled(child: strong(body: [MODULE]), ..)\",\"styled(child: raw(text: \\\"(..) => ..\\\", block: false, lang: \\\"typc\\\"), ..)\",\"styled(child: raw(text: \\\"(1, 2)\\\", block: false, lang: \\\"typc\\\"), ..)\"]]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/display-tail.typ` instead\n\n"
+    },
+    {
+      "name": "display-math",
+      "source": "#import \"module.typ\" as m\n#metadata(repr($ #true #auto #none #(1.0) #decimal(\"1.50\") #sym.alpha #sys.version #state(\"k\",0) #counter(\"k\") #m #((x)=>x) #(1,2) $)) <probe>",
+      "sha256": "98b5b1c8b0003c079e91518c7f7281e5432871667591c2b2324b8d2ae535d994",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "query",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/display-math.typ",
+        "<probe>",
+        "--field",
+        "value"
+      ],
+      "utc": "2026-10-19T12:39:19.451182+00:00",
+      "exit": 0,
+      "stdout": "[\"equation(\\n  block: true,\\n  body: sequence(\\n    raw(text: \\\"true\\\", block: false, lang: \\\"typc\\\"),\\n    [ ],\\n    raw(text: \\\"auto\\\", block: false, lang: \\\"typc\\\"),\\n    [ ],\\n    [],\\n    [ ],\\n    [1],\\n    [ ],\\n    [1.50],\\n    [ ],\\n    [\u03b1],\\n    [ ],\\n    [0.15.1],\\n    [ ],\\n    raw(\\n      text: \\\"state(\\\\\\\"k\\\\\\\", 0)\\\",\\n      block: false,\\n      lang: \\\"typc\\\",\\n    ),\\n    [ ],\\n    raw(text: \\\"counter(\\\\\\\"k\\\\\\\")\\\", block: false, lang: \\\"typc\\\"),\\n    [ ],\\n    strong(body: [MODULE]),\\n    [ ],\\n    raw(text: \\\"(..) => ..\\\", block: false, lang: \\\"typc\\\"),\\n    [ ],\\n    raw(text: \\\"(1, 2)\\\", block: false, lang: \\\"typc\\\"),\\n  ),\\n)\"]\n",
+      "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/display-math.typ` instead\n\n"
+    },
+    {
+      "name": "display-located",
+      "source": "#heading[*RICH*] <rich>\n#context {let c=query(<rich>).first();metadata((repr([#c]),repr({set text(size:12pt);c}),repr($ #c $))) <probe>}",
+      "sha256": "352edde21d6745259930dc9797952edbcc6c00dc01db82af7c077aa21c9c818b",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "query",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/display-located.typ",
+        "<probe>",
+        "--field",
+        "value"
+      ],
+      "utc": "2026-10-19T12:39:19.456961+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: expected semicolon or line break\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/display-located.typ:2:103\n  \u2502\n2 \u2502 #context {let c=query(<rich>).first();metadata((repr([#c]),repr({set text(size:12pt);c}),repr($ #c $))) <probe>}\n  \u2502                                                                                                        ^\n  \u2502\n  = hint: labels can only be applied in markup mode\n  = hint: try wrapping your code in a markup block (`[ ]`)\n\nwarning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(<probe>).map(it => it.value)' --in /repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/display-located.typ` instead\n\n"
+    },
+    {
+      "name": "flow-located-par",
+      "source": "#show par: it => [PAR(#it.body)]\n#par[A] <rich>\n#context {let c=query(<rich>).first(); c}",
+      "sha256": "d304038cba657dfaf2fbdb5d1f1e528ad54dac599b2acf05de34fa8f5984c7a1",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/flow-located-par.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/flow-located-par.pdf"
+      ],
+      "utc": "2026-10-19T12:39:19.477702+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: maximum grouping depth exceeded\n\n"
+    },
+    {
+      "name": "flow-show-par",
+      "source": "#show strong: it => par(it.body)\n#show par: it => [PAR(#it.body)]\n*ONE*\n\nTWO",
+      "sha256": "47e7e0c4759e5a121ac74663328ae41fd8757ae1adb50dd341949d341af3794b",
+      "argv": [
+        "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+        "compile",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/flow-show-par.typ",
+        "/repos/Antigravity/typst-crystalline/lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/flow-show-par.pdf"
+      ],
+      "utc": "2026-10-19T12:39:19.498850+00:00",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: maximum grouping depth exceeded\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/flow-show-par.typ:3:5\n  \u2502  \n3 \u2502   *ONE*\n  \u2502 \u256d\u2500\u2500\u2500\u2500\u2500^\n4 \u2502 \u2502 \n5 \u2502 \u2502 TWO\n  \u2502 \u2570^\n\n"
+    }
+  ],
+  "source_hashes": {
+    "01_core/src/compiler/eval/expression_dispatch.rs": "123ea40ee077a4ba5c650ac1f27ef0b1021de4f998aa53358afb73f76c824360",
+    "01_core/src/compiler/eval/markup_stream.rs": "ec9bee49a3d12c0d51ca8bbb56fe9d52e1af032348da2a79fbcef1db2daea871",
+    "01_core/src/compiler/eval/rules/realize.rs": "0e9eaef509ed7373d275debc2e80823617620f3128499a8bd52ba6ecd62f17fd",
+    "lab/typst-original/crates/typst-library/src/foundations/value.rs": "c25a2bdb0a96c707414f1138f34bcc21c63ac06c507a32c81f029f6a374da885",
+    "lab/typst-original/crates/typst-eval/src/code.rs": "ac0ab2c808060127d05d9431dcf010dd46dfa95b9e31b989e3ab33a6fd84e7c0"
+  }
+}

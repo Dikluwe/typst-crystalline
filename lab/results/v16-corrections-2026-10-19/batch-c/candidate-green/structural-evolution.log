@@ -1,0 +1,15 @@
+2026-10-19T13:31:10.472704+00:00 all-domains START
+2026-10-19T13:31:36.565639+00:00 all-domains END 101 selected 25 other 0
+2026-10-19T13:31:36.843614+00:00 new-old START
+2026-10-19T13:32:04.808595+00:00 new-old END 101 selected 1 other 0
+2026-10-19T13:32:04.980542+00:00 old-new START
+2026-10-19T13:32:32.248667+00:00 old-new END 101 selected 1 other 0
+2026-10-19T13:32:32.523766+00:00 new-new START
+2026-10-19T13:32:59.747163+00:00 new-new END 101 selected 1 other 0
+2026-10-19T13:32:59.924175+00:00 native-new-old START
+2026-10-19T13:33:26.367780+00:00 native-new-old END 101 selected 1 other 0
+2026-10-19T13:33:26.542796+00:00 native-old-new START
+2026-10-19T13:33:54.516695+00:00 native-old-new END 101 selected 1 other 0
+2026-10-19T13:33:54.708359+00:00 native-new-new START
+2026-10-19T13:34:21.509926+00:00 native-new-new END 101 selected 1 other 0
+PASS green selected decisions and isolated selector pair classes

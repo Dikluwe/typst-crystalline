@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/intercept — Content interception
-Hash do Código: 194b7d91
+Hash do Código: 53fbba83
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/core.toml sha256:9a193bdaa08a4eb5b41e9d4124388d0de24bd66776fedf04ef9273c1390462ec
@@ -49,3 +49,50 @@ no parallel selector catalogue.
 The ratified package adds five public fields, two public carriers, and one new public facade, and changes the logical phase before Cell show. The receipt above establishes ratification for this scope. Continue to require RED→GREEN, suites/build/lint/restricted preservation, and D08A/B2, D05/D06/D07/query collections. Acceptance is language, effect, and actual geometry behavior; byte equality or whitespace normalization cannot close render acceptance.
 
 This first package D08B3-A is incomplete in the Cell domain: D08B3-B is to complete isolated Cell defaults (`raw-cell-no-placement`/`outside-fields`) and the separate decision on fresh generation by `show-cell-reconstruct`. Generic Table defaults/fields (`table-root-equality`), rich styles/functions/paint/strokes/insets, rich rows/gutters, multi-page spans, and PDF/UA conformance remain outside certification. Do not change additional legacy D08B2 casts, syntax, flags, or global non-locatable policy in this package.
+
+## Closed-domain decision and preservation
+
+### Evidence before decision
+
+At checkpoint `370d78355bd646d1abead5bcacef215288cc8834`,
+`01_core/src/compiler/eval/rules/intercept.rs:16–128`
+and the caller/producer evidence recorded in
+`lab/results/v16-corrections-2026-10-19/batch-c/agents/structural/l0-audit.json`
+show the current decision and its refusal path. That receipt records UTC,
+working-tree diffstat and exact source/owner SHA-256 before this amendment.
+The existing clauses above establish the behavior to preserve; an open Rust
+match is structural evidence, not proof of additional language admission.
+
+### Exclusive policy
+
+Auto/Bool/Length/Func materialize OutlineIndent only when Outline has no explicit
+constructor indent. All listed complement Values produce None and do not override it; a
+missing custom key is a separate Option None. Current L0 allows these four forms only.
+None is not implicitly auto and Func is transported, never invoked in extraction.
+
+Only inherited outline.indent is classified here: None and unrelated Value families mean
+no applicable inherited value, distinct from Auto. Explicit constructor indent wins.
+Functions are transported without execution. Test missing/None/Auto/Bool/Length/Func and
+an unrelated value with actual Outline capture, explicit precedence and no callback
+execution.
+
+The explicit nominal complement is: `None`, `Int`, `Float`, `Str`, `Array`, `Dict`, `Module`, `Datetime`, `Content`, `LocatedContent`, `Relative`, `Ratio`, `Angle`, `Color`, `Stroke`, `Fraction`, `Align`, `Location`, `Gradient`, `Regex`, `Tiling`, `Bytes`, `Decimal`, `Duration`, `Version`, `Selector`, `Symbol`, `Args`, `State`, `Counter`, `Label`, `Dir`, `Path`, `Type`, `SpotColorant`.
+
+### Acceptance and refutation
+
+Preservation controls run before and after the repair. A real temporary enum
+variant in a disposable complete workspace must fail with E0004 at this exact
+decision after repair; failures at other decisions alone are insufficient.
+Exercise nested closed domains separately where present. The structural RED is
+the original V16/open evolution boundary, not a fabricated runtime defect.
+Any changed result, message, span, callback count, argument evaluation or refusal
+route refutes preservation. Retain informational V19 groups with their rationale;
+add no suppression, hidden catchall, linter/configuration weakening or new policy.
+
+Internal continuous ADR-0127: no public field/trait/signature, product default,
+phase or compatibility change. L0 precedes code; reseal only valid owner pairs
+after V15/V26. Require focused and full workspace tests, build/all-targets, fmt,
+strict Clippy/Rustdoc, path checks, direct/reverse lineage and differential SARIF
+without new errors or warnings outside the selected repairs. Heavy checks are
+serialized under one job, 12 GiB maximum, 8 GiB high and zero swap. Historical
+parity claims and unresolved scope exclusions above remain bounded.

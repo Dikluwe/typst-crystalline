@@ -1,0 +1,15 @@
+error: cannot return outside of function
+  ┌─ lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-direct.typ:1:39
+  │
+1 │ #{ let s = state("k", 0); s.update(1); return "x" }
+  │                                        ^^^^^^^^^^
+
+warning: this return unconditionally discards the content before it
+  ┌─ lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-direct.typ:1:39
+  │
+1 │ #{ let s = state("k", 0); s.update(1); return "x" }
+  │                                        ^^^^^^^^^^
+  │
+  = hint: try omitting the `return` to automatically join all values
+  = hint: state/counter updates are content that must end up in the document to have an effect
+

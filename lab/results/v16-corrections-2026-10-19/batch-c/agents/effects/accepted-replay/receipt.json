@@ -1,0 +1,1293 @@
+{
+  "started_utc": "2026-10-19T13:59:07.248882+00:00",
+  "initial_state": {
+    "head": "370d78355bd646d1abead5bcacef215288cc8834\n",
+    "diffstat": " .../compiler/eval/bindings/field_access/fields.md  |  49 +-\n .../eval/bindings/value_methods/element_where.md   |  50 +-\n .../eval/bindings/value_methods/selector.md        | 100 +++-\n .../prompts/core/compiler/eval/call_dispatch.md    |  17 +-\n .../core/compiler/eval/call_dispatch/call_spans.md |  49 +-\n .../compiler/eval/call_dispatch/content_methods.md |  50 +-\n .../eval/call_dispatch/instance_methods.md         |  52 +-\n .../compiler/eval/call_dispatch/value_methods.md   |  60 +-\n .../core/compiler/eval/expression_dispatch.md      | 137 ++++-\n .../prompts/core/compiler/eval/markup_stream.md    |  47 +-\n 00_nucleo/prompts/core/compiler/eval/modules.md    |  50 +-\n .../core/compiler/eval/operators/arithmetic.md     |  51 +-\n .../core/compiler/eval/operators/equality.md       |  82 ++-\n .../prompts/core/compiler/eval/rules/intercept.md  |  49 +-\n .../prompts/core/compiler/eval/rules/realize.md    |  66 ++-\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  50 +-\n .../prompts/core/compiler/eval/rules/set/page.md   |  51 +-\n .../prompts/core/compiler/eval/rules/set/text.md   |  52 +-\n .../core/compiler/eval/selector_matching.md        | 112 +++-\n .../core/compiler/stdlib/foundations/selector.md   |  22 +-\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  16 +-\n .../core/compiler/stdlib/structural/heading.md     |  47 +-\n .../compiler/eval/bindings/field_access/fields.rs  | 195 ++++++-\n .../eval/bindings/value_methods/element_where.rs   |  77 ++-\n .../eval/bindings/value_methods/selector.rs        | 421 +++++++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |   6 +-\n .../src/compiler/eval/call_dispatch/call_spans.rs  |  81 ++-\n .../compiler/eval/call_dispatch/content_methods.rs | 229 +++++++-\n .../eval/call_dispatch/instance_methods.rs         | 489 +++++++++++++---\n .../compiler/eval/call_dispatch/value_methods.rs   | 118 +++-\n 01_core/src/compiler/eval/expression_dispatch.rs   | 414 +++++++++++++-\n 01_core/src/compiler/eval/markup_stream.rs         | 245 ++++++--\n 01_core/src/compiler/eval/modules.rs               | 121 +++-\n 01_core/src/compiler/eval/operators/arithmetic.rs  | 131 ++++-\n 01_core/src/compiler/eval/operators/equality.rs    | 167 +++++-\n 01_core/src/compiler/eval/rules/intercept.rs       | 178 +++++-\n 01_core/src/compiler/eval/rules/realize.rs         | 266 ++++++++-\n 01_core/src/compiler/eval/rules/set.rs             | 146 ++++-\n 01_core/src/compiler/eval/rules/set/page.rs        | 247 +++++++-\n 01_core/src/compiler/eval/rules/set/text.rs        | 182 +++++-\n 01_core/src/compiler/eval/selector_matching.rs     | 633 +++++++++++++++++++--\n .../src/compiler/stdlib/foundations/selector.rs    |   6 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   3 +-\n 01_core/src/compiler/stdlib/structural/heading.rs  |   6 +-\n 44 files changed, 5300 insertions(+), 320 deletions(-)\n",
+    "status": " M 00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md\n M 00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md\n M 00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md\n M 00_nucleo/prompts/core/compiler/eval/call_dispatch.md\n M 00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md\n M 00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md\n M 00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md\n M 00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md\n M 00_nucleo/prompts/core/compiler/eval/expression_dispatch.md\n M 00_nucleo/prompts/core/compiler/eval/markup_stream.md\n M 00_nucleo/prompts/core/compiler/eval/modules.md\n M 00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md\n M 00_nucleo/prompts/core/compiler/eval/operators/equality.md\n M 00_nucleo/prompts/core/compiler/eval/rules/intercept.md\n M 00_nucleo/prompts/core/compiler/eval/rules/realize.md\n M 00_nucleo/prompts/core/compiler/eval/rules/set.md\n M 00_nucleo/prompts/core/compiler/eval/rules/set/page.md\n M 00_nucleo/prompts/core/compiler/eval/rules/set/text.md\n M 00_nucleo/prompts/core/compiler/eval/selector_matching.md\n M 00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md\n M 00_nucleo/prompts/core/compiler/stdlib/mod.md\n M 00_nucleo/prompts/core/compiler/stdlib/structural/heading.md\n M 01_core/src/compiler/eval/bindings/field_access/fields.rs\n M 01_core/src/compiler/eval/bindings/value_methods/element_where.rs\n M 01_core/src/compiler/eval/bindings/value_methods/selector.rs\n M 01_core/src/compiler/eval/call_dispatch.rs\n M 01_core/src/compiler/eval/call_dispatch/call_spans.rs\n M 01_core/src/compiler/eval/call_dispatch/content_methods.rs\n M 01_core/src/compiler/eval/call_dispatch/instance_methods.rs\n M 01_core/src/compiler/eval/call_dispatch/value_methods.rs\n M 01_core/src/compiler/eval/expression_dispatch.rs\n M 01_core/src/compiler/eval/markup_stream.rs\n M 01_core/src/compiler/eval/modules.rs\n M 01_core/src/compiler/eval/operators/arithmetic.rs\n M 01_core/src/compiler/eval/operators/equality.rs\n M 01_core/src/compiler/eval/rules/intercept.rs\n M 01_core/src/compiler/eval/rules/realize.rs\n M 01_core/src/compiler/eval/rules/set.rs\n M 01_core/src/compiler/eval/rules/set/page.rs\n M 01_core/src/compiler/eval/rules/set/text.rs\n M 01_core/src/compiler/eval/selector_matching.rs\n M 01_core/src/compiler/stdlib/foundations/selector.rs\n M 01_core/src/compiler/stdlib/mod.rs\n M 01_core/src/compiler/stdlib/structural/heading.rs\n?? 00_nucleo/prompts/_nuclei/content/heading-constructor-supplement.toml\n"
+  },
+  "source_sha256": {
+    "01_core/src/compiler/eval/expression_dispatch.rs": "2ddbe402c44de64ce335ee65d36bbe1f9cfcb83c2ea317dd1f297c92f6bb34de",
+    "01_core/src/compiler/eval/markup_stream.rs": "d49c40723731440333a81105c975e3c56e9c4839f07538be4680eec92b27477f",
+    "01_core/src/compiler/eval/rules/realize.rs": "bebd3eb0af7891d649268db00b974a5ae404df7404da6972e60f11081741449d",
+    "01_core/src/compiler/stdlib/structural/heading.rs": "c5db34288d3067943640bc318e8580b1cea5c47df8e3c15a31228ca8833a3533"
+  },
+  "binaries": {
+    "product": {
+      "path": "lab/target/product/debug/typst",
+      "sha256": "7c4369a2c6b7e5c9fd7da6ab007aa9707867ba7d811ee6a61fa81c0b819198e5",
+      "build_receipt": "lab/results/v16-corrections-2026-10-19/batch-c/validation/validation-state.json.gz",
+      "build_receipt_sha256": "3395594ecae5b3de5b6d88811a046d30e7be61918d252c3065e61842b0ee5ea9"
+    },
+    "oracle": {
+      "path": "lab/typst-original/target/release/typst",
+      "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+      "commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+      "tree": "cac836c07e4dec2a89219370428292393a3216b5",
+      "build_receipt": "lab/results/construction/diagnostics/vanilla-resync-2026-10-17/oracle-build.json.gz"
+    }
+  },
+  "results": [
+    {
+      "name": "direct",
+      "scope": "local-acceptance",
+      "source": "#{ state(\"k\",0).update(1); return \"x\" }",
+      "source_sha256": "35c4daf6a914edf2afa001be6f2210929248d565d6d77d1c37f3c13cbd1b58ac",
+      "expected_update_hint": true,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.584757+00:00",
+          "finished_utc": "2026-10-19T13:59:07.592304+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/direct.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/direct-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/direct.typ:1:27\n  \u2502\n1 \u2502 #{ state(\"k\",0).update(1); return \"x\" }\n  \u2502                            ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/direct.typ:1:27\n  \u2502\n1 \u2502 #{ state(\"k\",0).update(1); return \"x\" }\n  \u2502                            ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.592428+00:00",
+          "finished_utc": "2026-10-19T13:59:07.607017+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/direct.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/direct-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/direct.typ:1:27\n  \u2502\n1 \u2502 #{ state(\"k\",0).update(1); return \"x\" }\n  \u2502                            ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/direct.typ:1:27\n  \u2502\n1 \u2502 #{ state(\"k\",0).update(1); return \"x\" }\n  \u2502                            ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "content-block",
+      "scope": "local-acceptance",
+      "source": "#{ [#state(\"k\",0).update(1)]; return \"x\" }",
+      "source_sha256": "5025c1e34f8e67c2ffaa0a441a95013ced5f82b2bfb436250428f02cb687fa71",
+      "expected_update_hint": true,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.607381+00:00",
+          "finished_utc": "2026-10-19T13:59:07.614789+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/content-block.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/content-block-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/content-block.typ:1:30\n  \u2502\n1 \u2502 #{ [#state(\"k\",0).update(1)]; return \"x\" }\n  \u2502                               ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/content-block.typ:1:30\n  \u2502\n1 \u2502 #{ [#state(\"k\",0).update(1)]; return \"x\" }\n  \u2502                               ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.614916+00:00",
+          "finished_utc": "2026-10-19T13:59:07.629859+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/content-block.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/content-block-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/content-block.typ:1:30\n  \u2502\n1 \u2502 #{ [#state(\"k\",0).update(1)]; return \"x\" }\n  \u2502                               ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/content-block.typ:1:30\n  \u2502\n1 \u2502 #{ [#state(\"k\",0).update(1)]; return \"x\" }\n  \u2502                               ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "strong",
+      "scope": "local-acceptance",
+      "source": "#{ strong(state(\"k\",0).update(1)); return \"x\" }",
+      "source_sha256": "a3ad90afd624ba76fb8ee44d4ad7fa9e30a99f7bab4266770adf5c1093c2011f",
+      "expected_update_hint": true,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.630434+00:00",
+          "finished_utc": "2026-10-19T13:59:07.637580+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/strong.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/strong-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/strong.typ:1:35\n  \u2502\n1 \u2502 #{ strong(state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                    ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/strong.typ:1:35\n  \u2502\n1 \u2502 #{ strong(state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                    ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.637737+00:00",
+          "finished_utc": "2026-10-19T13:59:07.651800+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/strong.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/strong-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/strong.typ:1:35\n  \u2502\n1 \u2502 #{ strong(state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                    ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/strong.typ:1:35\n  \u2502\n1 \u2502 #{ strong(state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                    ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "metadata-content",
+      "scope": "local-acceptance",
+      "source": "#{ metadata(state(\"k\",0).update(1)); return \"x\" }",
+      "source_sha256": "914b950199edb29426997baa96aceb433eeaf189cca984fadc9e3804c20742a2",
+      "expected_update_hint": true,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.652205+00:00",
+          "finished_utc": "2026-10-19T13:59:07.659740+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-content.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-content-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-content.typ:1:37\n  \u2502\n1 \u2502 #{ metadata(state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                      ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-content.typ:1:37\n  \u2502\n1 \u2502 #{ metadata(state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                      ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.659881+00:00",
+          "finished_utc": "2026-10-19T13:59:07.675251+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-content.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-content-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-content.typ:1:37\n  \u2502\n1 \u2502 #{ metadata(state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                      ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-content.typ:1:37\n  \u2502\n1 \u2502 #{ metadata(state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                      ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "metadata-array",
+      "scope": "local-acceptance",
+      "source": "#{ metadata((state(\"k\",0).update(1),)); return \"x\" }",
+      "source_sha256": "05acd4c3f5c4dd631589fbc5b910480188a0927dcd752db505cb517712871cb2",
+      "expected_update_hint": true,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.675712+00:00",
+          "finished_utc": "2026-10-19T13:59:07.682737+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-array.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-array-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-array.typ:1:40\n  \u2502\n1 \u2502 #{ metadata((state(\"k\",0).update(1),)); return \"x\" }\n  \u2502                                         ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-array.typ:1:40\n  \u2502\n1 \u2502 #{ metadata((state(\"k\",0).update(1),)); return \"x\" }\n  \u2502                                         ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.682904+00:00",
+          "finished_utc": "2026-10-19T13:59:07.698168+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-array.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-array-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-array.typ:1:40\n  \u2502\n1 \u2502 #{ metadata((state(\"k\",0).update(1),)); return \"x\" }\n  \u2502                                         ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-array.typ:1:40\n  \u2502\n1 \u2502 #{ metadata((state(\"k\",0).update(1),)); return \"x\" }\n  \u2502                                         ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "metadata-dict",
+      "scope": "local-acceptance",
+      "source": "#{ metadata((value:state(\"k\",0).update(1))); return \"x\" }",
+      "source_sha256": "179b1c08d426b7ecb76012623ef3936009d047d555ec65880ca52b55c4d2f477",
+      "expected_update_hint": false,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.698606+00:00",
+          "finished_utc": "2026-10-19T13:59:07.705380+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-dict.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-dict-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-dict.typ:1:45\n  \u2502\n1 \u2502 #{ metadata((value:state(\"k\",0).update(1))); return \"x\" }\n  \u2502                                              ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-dict.typ:1:45\n  \u2502\n1 \u2502 #{ metadata((value:state(\"k\",0).update(1))); return \"x\" }\n  \u2502                                              ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.705544+00:00",
+          "finished_utc": "2026-10-19T13:59:07.719709+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-dict.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-dict-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-dict.typ:1:45\n  \u2502\n1 \u2502 #{ metadata((value:state(\"k\",0).update(1))); return \"x\" }\n  \u2502                                              ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/metadata-dict.typ:1:45\n  \u2502\n1 \u2502 #{ metadata((value:state(\"k\",0).update(1))); return \"x\" }\n  \u2502                                              ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "ref",
+      "scope": "local-acceptance",
+      "source": "#{ ref(<x>,supplement:state(\"k\",0).update(1)); return \"x\" }",
+      "source_sha256": "b44407645a94d0c8fe10282069bdb43d8434c76a868119312a8f760fba90ec04",
+      "expected_update_hint": true,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.720171+00:00",
+          "finished_utc": "2026-10-19T13:59:07.727139+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/ref.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/ref-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/ref.typ:1:47\n  \u2502\n1 \u2502 #{ ref(<x>,supplement:state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/ref.typ:1:47\n  \u2502\n1 \u2502 #{ ref(<x>,supplement:state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.727312+00:00",
+          "finished_utc": "2026-10-19T13:59:07.741965+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/ref.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/ref-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/ref.typ:1:47\n  \u2502\n1 \u2502 #{ ref(<x>,supplement:state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/ref.typ:1:47\n  \u2502\n1 \u2502 #{ ref(<x>,supplement:state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "ref-none",
+      "scope": "local-acceptance",
+      "source": "#{ ref(<x>,supplement:none); return \"x\" }",
+      "source_sha256": "072c51a822f8f4d076270e8cfcde98e05514a3256854c1cd88983d37ff334e4c",
+      "expected_update_hint": false,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.742361+00:00",
+          "finished_utc": "2026-10-19T13:59:07.749002+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/ref-none.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/ref-none-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/ref-none.typ:1:29\n  \u2502\n1 \u2502 #{ ref(<x>,supplement:none); return \"x\" }\n  \u2502                              ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/ref-none.typ:1:29\n  \u2502\n1 \u2502 #{ ref(<x>,supplement:none); return \"x\" }\n  \u2502                              ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.749149+00:00",
+          "finished_utc": "2026-10-19T13:59:07.763814+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/ref-none.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/ref-none-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/ref-none.typ:1:29\n  \u2502\n1 \u2502 #{ ref(<x>,supplement:none); return \"x\" }\n  \u2502                              ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/ref-none.typ:1:29\n  \u2502\n1 \u2502 #{ ref(<x>,supplement:none); return \"x\" }\n  \u2502                              ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "raw-line",
+      "scope": "local-acceptance",
+      "source": "#{ raw.line(1,1,\"x\",state(\"k\",0).update(1)); return \"x\" }",
+      "source_sha256": "79ee061d63d5eb5d1d1198a870d8522d5b2cc79a644c1a5e06a0ec68c26a605c",
+      "expected_update_hint": true,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.764234+00:00",
+          "finished_utc": "2026-10-19T13:59:07.771839+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/raw-line.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/raw-line-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/raw-line.typ:1:45\n  \u2502\n1 \u2502 #{ raw.line(1,1,\"x\",state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                              ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/raw-line.typ:1:45\n  \u2502\n1 \u2502 #{ raw.line(1,1,\"x\",state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                              ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.772010+00:00",
+          "finished_utc": "2026-10-19T13:59:07.787279+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/raw-line.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/raw-line-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/raw-line.typ:1:45\n  \u2502\n1 \u2502 #{ raw.line(1,1,\"x\",state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                              ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/raw-line.typ:1:45\n  \u2502\n1 \u2502 #{ raw.line(1,1,\"x\",state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                              ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "raw-line-context",
+      "scope": "local-acceptance",
+      "source": "#{ raw.line(1,1,\"x\",context {panic(\"EXECUTED\");state(\"k\",0).update(1)}); return \"x\" }",
+      "source_sha256": "5dd5e470f7b0f5e1a9c80a433b808cae2433f54aab4638bb384818279b3c9293",
+      "expected_update_hint": false,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.787873+00:00",
+          "finished_utc": "2026-10-19T13:59:07.795758+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/raw-line-context.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/raw-line-context-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/raw-line-context.typ:1:73\n  \u2502\n1 \u2502 #{ raw.line(1,1,\"x\",context {panic(\"EXECUTED\");state(\"k\",0).update(1)}); return \"x\" }\n  \u2502                                                                          ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/raw-line-context.typ:1:73\n  \u2502\n1 \u2502 #{ raw.line(1,1,\"x\",context {panic(\"EXECUTED\");state(\"k\",0).update(1)}); return \"x\" }\n  \u2502                                                                          ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.795886+00:00",
+          "finished_utc": "2026-10-19T13:59:07.810945+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/raw-line-context.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/raw-line-context-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/raw-line-context.typ:1:73\n  \u2502\n1 \u2502 #{ raw.line(1,1,\"x\",context {panic(\"EXECUTED\");state(\"k\",0).update(1)}); return \"x\" }\n  \u2502                                                                          ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/raw-line-context.typ:1:73\n  \u2502\n1 \u2502 #{ raw.line(1,1,\"x\",context {panic(\"EXECUTED\");state(\"k\",0).update(1)}); return \"x\" }\n  \u2502                                                                          ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "heading-constructor",
+      "scope": "local-acceptance",
+      "source": "#{ heading(supplement:state(\"k\",0).update(1))[A]; return \"x\" }",
+      "source_sha256": "4f234641a7208a05c7303407c8f3cac335fef1c8f04d452a9b025c3ea20acb87",
+      "expected_update_hint": true,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.811286+00:00",
+          "finished_utc": "2026-10-19T13:59:07.818745+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-constructor.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-constructor-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-constructor.typ:1:50\n  \u2502\n1 \u2502 #{ heading(supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                   ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-constructor.typ:1:50\n  \u2502\n1 \u2502 #{ heading(supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                   ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.818897+00:00",
+          "finished_utc": "2026-10-19T13:59:07.834172+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-constructor.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-constructor-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-constructor.typ:1:50\n  \u2502\n1 \u2502 #{ heading(supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                   ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-constructor.typ:1:50\n  \u2502\n1 \u2502 #{ heading(supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                   ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "heading-set",
+      "scope": "local-acceptance",
+      "source": "#{ set heading(supplement:state(\"k\",0).update(1)); heading[A]; return \"x\" }",
+      "source_sha256": "f4b8cec9a396684e6e983cec0375abece3aa4b83cf2b6456508c0c4044165166",
+      "expected_update_hint": false,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.834634+00:00",
+          "finished_utc": "2026-10-19T13:59:07.842693+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-set.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-set-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-set.typ:1:63\n  \u2502\n1 \u2502 #{ set heading(supplement:state(\"k\",0).update(1)); heading[A]; return \"x\" }\n  \u2502                                                                ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-set.typ:1:63\n  \u2502\n1 \u2502 #{ set heading(supplement:state(\"k\",0).update(1)); heading[A]; return \"x\" }\n  \u2502                                                                ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.842851+00:00",
+          "finished_utc": "2026-10-19T13:59:07.858610+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-set.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-set-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-set.typ:1:63\n  \u2502\n1 \u2502 #{ set heading(supplement:state(\"k\",0).update(1)); heading[A]; return \"x\" }\n  \u2502                                                                ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-set.typ:1:63\n  \u2502\n1 \u2502 #{ set heading(supplement:state(\"k\",0).update(1)); heading[A]; return \"x\" }\n  \u2502                                                                ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "heading-numbering-inherited",
+      "scope": "local-acceptance",
+      "source": "#{ set heading(supplement:state(\"k\",0).update(1)); heading(numbering:\"1\")[A]; return \"x\" }",
+      "source_sha256": "b080d903a71ca7b25f9c7f67a4cc06af055d2a88a303e79cb25dc1a6adecbad2",
+      "expected_update_hint": false,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.859018+00:00",
+          "finished_utc": "2026-10-19T13:59:07.866738+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-numbering-inherited.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-numbering-inherited-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-numbering-inherited.typ:1:78\n  \u2502\n1 \u2502 #{ set heading(supplement:state(\"k\",0).update(1)); heading(numbering:\"1\")[A]; return \"x\" }\n  \u2502                                                                               ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-numbering-inherited.typ:1:78\n  \u2502\n1 \u2502 #{ set heading(supplement:state(\"k\",0).update(1)); heading(numbering:\"1\")[A]; return \"x\" }\n  \u2502                                                                               ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.866868+00:00",
+          "finished_utc": "2026-10-19T13:59:07.882918+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-numbering-inherited.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-numbering-inherited-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-numbering-inherited.typ:1:78\n  \u2502\n1 \u2502 #{ set heading(supplement:state(\"k\",0).update(1)); heading(numbering:\"1\")[A]; return \"x\" }\n  \u2502                                                                               ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-numbering-inherited.typ:1:78\n  \u2502\n1 \u2502 #{ set heading(supplement:state(\"k\",0).update(1)); heading(numbering:\"1\")[A]; return \"x\" }\n  \u2502                                                                               ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "heading-explicit-none",
+      "scope": "local-acceptance",
+      "source": "#{ set heading(supplement:state(\"k\",0).update(1)); heading(numbering:\"1\",supplement:none)[A]; return \"x\" }",
+      "source_sha256": "72986a48bef48f1c7c0e5d86f97fbd9f89ead4f134084da99cdce6a498d96fe3",
+      "expected_update_hint": false,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.883296+00:00",
+          "finished_utc": "2026-10-19T13:59:07.891578+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-explicit-none.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-explicit-none-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-explicit-none.typ:1:94\n  \u2502\n1 \u2502 #{ set heading(supplement:state(\"k\",0).update(1)); heading(numbering:\"1\",supplement:none)[A]; return \"x\" }\n  \u2502                                                                                               ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-explicit-none.typ:1:94\n  \u2502\n1 \u2502 #{ set heading(supplement:state(\"k\",0).update(1)); heading(numbering:\"1\",supplement:none)[A]; return \"x\" }\n  \u2502                                                                                               ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.891736+00:00",
+          "finished_utc": "2026-10-19T13:59:07.906900+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-explicit-none.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-explicit-none-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-explicit-none.typ:1:94\n  \u2502\n1 \u2502 #{ set heading(supplement:state(\"k\",0).update(1)); heading(numbering:\"1\",supplement:none)[A]; return \"x\" }\n  \u2502                                                                                               ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-explicit-none.typ:1:94\n  \u2502\n1 \u2502 #{ set heading(supplement:state(\"k\",0).update(1)); heading(numbering:\"1\",supplement:none)[A]; return \"x\" }\n  \u2502                                                                                               ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "heading-explicit-update",
+      "scope": "local-acceptance",
+      "source": "#{ set heading(supplement:none); heading(numbering:\"1\",supplement:state(\"k\",0).update(1))[A]; return \"x\" }",
+      "source_sha256": "d29aabe68a0237cc43f7cb93cf498c358203061994882244792e55706160fa75",
+      "expected_update_hint": true,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.907380+00:00",
+          "finished_utc": "2026-10-19T13:59:07.915835+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-explicit-update.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-explicit-update-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-explicit-update.typ:1:94\n  \u2502\n1 \u2502 #{ set heading(supplement:none); heading(numbering:\"1\",supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                                                               ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-explicit-update.typ:1:94\n  \u2502\n1 \u2502 #{ set heading(supplement:none); heading(numbering:\"1\",supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                                                               ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.916008+00:00",
+          "finished_utc": "2026-10-19T13:59:07.931327+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-explicit-update.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-explicit-update-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-explicit-update.typ:1:94\n  \u2502\n1 \u2502 #{ set heading(supplement:none); heading(numbering:\"1\",supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                                                               ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-explicit-update.typ:1:94\n  \u2502\n1 \u2502 #{ set heading(supplement:none); heading(numbering:\"1\",supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                                                               ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "heading-callback",
+      "scope": "local-acceptance",
+      "source": "#{ heading(supplement:it=>{panic(\"EXECUTED\");state(\"k\",0).update(1)})[A]; return \"x\" }",
+      "source_sha256": "758d842d991481d47f9b59d92bc2b29297cc5b700328ec8048d578597175eca2",
+      "expected_update_hint": false,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.931790+00:00",
+          "finished_utc": "2026-10-19T13:59:07.939544+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-callback.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-callback-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-callback.typ:1:74\n  \u2502\n1 \u2502 #{ heading(supplement:it=>{panic(\"EXECUTED\");state(\"k\",0).update(1)})[A]; return \"x\" }\n  \u2502                                                                           ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-callback.typ:1:74\n  \u2502\n1 \u2502 #{ heading(supplement:it=>{panic(\"EXECUTED\");state(\"k\",0).update(1)})[A]; return \"x\" }\n  \u2502                                                                           ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.939738+00:00",
+          "finished_utc": "2026-10-19T13:59:07.956220+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-callback.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-callback-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-callback.typ:1:74\n  \u2502\n1 \u2502 #{ heading(supplement:it=>{panic(\"EXECUTED\");state(\"k\",0).update(1)})[A]; return \"x\" }\n  \u2502                                                                           ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/heading-callback.typ:1:74\n  \u2502\n1 \u2502 #{ heading(supplement:it=>{panic(\"EXECUTED\");state(\"k\",0).update(1)})[A]; return \"x\" }\n  \u2502                                                                           ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "page-body",
+      "scope": "local-acceptance",
+      "source": "#{ page(state(\"k\",0).update(1)); return \"x\" }",
+      "source_sha256": "b2d1d61a6cb7f0f297953061b1009bd5348095b149fe871c35df8bd3013e207e",
+      "expected_update_hint": true,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.956698+00:00",
+          "finished_utc": "2026-10-19T13:59:07.964856+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-body.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-body-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-body.typ:1:33\n  \u2502\n1 \u2502 #{ page(state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                  ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-body.typ:1:33\n  \u2502\n1 \u2502 #{ page(state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                  ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.964985+00:00",
+          "finished_utc": "2026-10-19T13:59:07.980922+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-body.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-body-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-body.typ:1:33\n  \u2502\n1 \u2502 #{ page(state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                  ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-body.typ:1:33\n  \u2502\n1 \u2502 #{ page(state(\"k\",0).update(1)); return \"x\" }\n  \u2502                                  ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "context",
+      "scope": "local-acceptance",
+      "source": "#{ context {panic(\"EXECUTED\");state(\"k\",0).update(1)}; return \"x\" }",
+      "source_sha256": "9d850eddbfe6cc08a767c76cb0a42d71dc1ea3e4a9146620d86cdd6448973074",
+      "expected_update_hint": false,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:07.981448+00:00",
+          "finished_utc": "2026-10-19T13:59:07.988840+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/context.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/context-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/context.typ:1:55\n  \u2502\n1 \u2502 #{ context {panic(\"EXECUTED\");state(\"k\",0).update(1)}; return \"x\" }\n  \u2502                                                        ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/context.typ:1:55\n  \u2502\n1 \u2502 #{ context {panic(\"EXECUTED\");state(\"k\",0).update(1)}; return \"x\" }\n  \u2502                                                        ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:07.989004+00:00",
+          "finished_utc": "2026-10-19T13:59:08.003958+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/context.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/context-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/context.typ:1:55\n  \u2502\n1 \u2502 #{ context {panic(\"EXECUTED\");state(\"k\",0).update(1)}; return \"x\" }\n  \u2502                                                        ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/context.typ:1:55\n  \u2502\n1 \u2502 #{ context {panic(\"EXECUTED\");state(\"k\",0).update(1)}; return \"x\" }\n  \u2502                                                        ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "page-header",
+      "scope": "local-acceptance",
+      "source": "#{ page(header:state(\"k\",0).update(1))[A]; return \"x\" }",
+      "source_sha256": "08200dfc677ba5f23c8c2195be9feeb1e13181ca3f184d0a6301f20a53d9cd9d",
+      "expected_update_hint": false,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:08.004308+00:00",
+          "finished_utc": "2026-10-19T13:59:08.012152+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-header.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-header-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-header.typ:1:43\n  \u2502\n1 \u2502 #{ page(header:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                            ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-header.typ:1:43\n  \u2502\n1 \u2502 #{ page(header:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                            ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:08.012287+00:00",
+          "finished_utc": "2026-10-19T13:59:08.028232+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-header.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-header-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-header.typ:1:43\n  \u2502\n1 \u2502 #{ page(header:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                            ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-header.typ:1:43\n  \u2502\n1 \u2502 #{ page(header:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                            ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "page-footer",
+      "scope": "local-acceptance",
+      "source": "#{ page(footer:state(\"k\",0).update(1))[A]; return \"x\" }",
+      "source_sha256": "83fa56035b30f87d43813a1d58898f522f570f6c34edc33d8002e90a9e17af99",
+      "expected_update_hint": false,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:08.028619+00:00",
+          "finished_utc": "2026-10-19T13:59:08.036166+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-footer.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-footer-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-footer.typ:1:43\n  \u2502\n1 \u2502 #{ page(footer:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                            ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-footer.typ:1:43\n  \u2502\n1 \u2502 #{ page(footer:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                            ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:08.036294+00:00",
+          "finished_utc": "2026-10-19T13:59:08.052279+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-footer.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-footer-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-footer.typ:1:43\n  \u2502\n1 \u2502 #{ page(footer:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                            ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-footer.typ:1:43\n  \u2502\n1 \u2502 #{ page(footer:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                            ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "page-supplement",
+      "scope": "local-acceptance",
+      "source": "#{ page(supplement:state(\"k\",0).update(1))[A]; return \"x\" }",
+      "source_sha256": "e846a4462ccf0c6db7936ece4f7db0830cd0b83ee8a6f1ad5111765bf0f13fd0",
+      "expected_update_hint": false,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:08.052672+00:00",
+          "finished_utc": "2026-10-19T13:59:08.060082+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-supplement.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-supplement-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-supplement.typ:1:47\n  \u2502\n1 \u2502 #{ page(supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-supplement.typ:1:47\n  \u2502\n1 \u2502 #{ page(supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:08.060350+00:00",
+          "finished_utc": "2026-10-19T13:59:08.076059+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-supplement.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-supplement-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-supplement.typ:1:47\n  \u2502\n1 \u2502 #{ page(supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-supplement.typ:1:47\n  \u2502\n1 \u2502 #{ page(supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "page-background",
+      "scope": "local-acceptance",
+      "source": "#{ page(background:state(\"k\",0).update(1))[A]; return \"x\" }",
+      "source_sha256": "dfcd3aaa893415f22245ea9927e35185fe16ccb216a4b30937cd0ba06d45f0f0",
+      "expected_update_hint": false,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:08.076447+00:00",
+          "finished_utc": "2026-10-19T13:59:08.083827+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-background.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-background-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-background.typ:1:47\n  \u2502\n1 \u2502 #{ page(background:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-background.typ:1:47\n  \u2502\n1 \u2502 #{ page(background:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:08.084118+00:00",
+          "finished_utc": "2026-10-19T13:59:08.101025+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-background.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-background-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-background.typ:1:47\n  \u2502\n1 \u2502 #{ page(background:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-background.typ:1:47\n  \u2502\n1 \u2502 #{ page(background:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "page-foreground",
+      "scope": "local-acceptance",
+      "source": "#{ page(foreground:state(\"k\",0).update(1))[A]; return \"x\" }",
+      "source_sha256": "0cc6f5d89af41b9e8b4e068378959ee0621fbf9a30fda4fa088bb31ef3805ae0",
+      "expected_update_hint": false,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:08.101402+00:00",
+          "finished_utc": "2026-10-19T13:59:08.109035+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-foreground.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-foreground-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-foreground.typ:1:47\n  \u2502\n1 \u2502 #{ page(foreground:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-foreground.typ:1:47\n  \u2502\n1 \u2502 #{ page(foreground:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:08.109180+00:00",
+          "finished_utc": "2026-10-19T13:59:08.124959+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-foreground.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-foreground-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-foreground.typ:1:47\n  \u2502\n1 \u2502 #{ page(foreground:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/page-foreground.typ:1:47\n  \u2502\n1 \u2502 #{ page(foreground:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "figure-supplement",
+      "scope": "open-producer-dependency",
+      "source": "#{ figure(supplement:state(\"k\",0).update(1))[A]; return \"x\" }",
+      "source_sha256": "cdb751191199a648058d7a459fb9e688715ee01abeaef82ed12385fc6d724d06",
+      "expected_update_hint": true,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:08.125318+00:00",
+          "finished_utc": "2026-10-19T13:59:08.132957+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/figure-supplement.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/figure-supplement-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/figure-supplement.typ:1:49\n  \u2502\n1 \u2502 #{ figure(supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                  ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/figure-supplement.typ:1:49\n  \u2502\n1 \u2502 #{ figure(supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                  ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:08.133160+00:00",
+          "finished_utc": "2026-10-19T13:59:08.148190+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/figure-supplement.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/figure-supplement-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/figure-supplement.typ:1:49\n  \u2502\n1 \u2502 #{ figure(supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                  ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/figure-supplement.typ:1:49\n  \u2502\n1 \u2502 #{ figure(supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                  ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "equation-supplement",
+      "scope": "open-producer-dependency",
+      "source": "#{ math.equation(supplement:state(\"k\",0).update(1))[A]; return \"x\" }",
+      "source_sha256": "ee941aa94179baddb4b2d8f0afd7d1da224749ba5893c4a0b2d716718b1444a4",
+      "expected_update_hint": true,
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:08.148626+00:00",
+          "finished_utc": "2026-10-19T13:59:08.156013+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/equation-supplement.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/equation-supplement-oracle.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/equation-supplement.typ:1:56\n  \u2502\n1 \u2502 #{ math.equation(supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                         ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/equation-supplement.typ:1:56\n  \u2502\n1 \u2502 #{ math.equation(supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                         ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": true,
+            "panic_error": false
+          }
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:08.156147+00:00",
+          "finished_utc": "2026-10-19T13:59:08.171067+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "compile",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/equation-supplement.typ",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/equation-supplement-product.pdf"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/equation-supplement.typ:1:56\n  \u2502\n1 \u2502 #{ math.equation(supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                         ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/equation-supplement.typ:1:56\n  \u2502\n1 \u2502 #{ math.equation(supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                         ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n",
+          "observables": {
+            "invalid_return": true,
+            "discarded_warning": true,
+            "update_hint": false,
+            "panic_error": false
+          }
+        }
+      }
+    },
+    {
+      "name": "display-located",
+      "scope": "real-query-producer",
+      "source": "#heading[*RICH*] <rich>\n#context {let c=query(<rich>).first();metadata((repr([#c]),repr({set text(size:12pt);c}),repr($ #c $)))}",
+      "source_sha256": "69c112a37481f2c298c7ec20e95b7076fbd50287637b78e64b888d4f23df9cd3",
+      "runs": {
+        "oracle": {
+          "started_utc": "2026-10-19T13:59:08.171471+00:00",
+          "finished_utc": "2026-10-19T13:59:08.307740+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+            "query",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/display-located.typ",
+            "metadata",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[\"heading(\\n  level: 1,\\n  depth: 1,\\n  offset: 0,\\n  numbering: none,\\n  supplement: [Section],\\n  outlined: true,\\n  bookmarked: auto,\\n  hanging-indent: auto,\\n  body: strong(body: [RICH]),\\n)\",\"styled(child: heading(\\n  level: 1,\\n  depth: 1,\\n  offset: 0,\\n  numbering: none,\\n  supplement: [Section],\\n  outlined: true,\\n  bookmarked: auto,\\n  hanging-indent: auto,\\n  body: strong(body: [RICH]),\\n), ..)\",\"equation(\\n  block: true,\\n  body: heading(\\n    level: 1,\\n    depth: 1,\\n    offset: 0,\\n    numbering: none,\\n    supplement: [Section],\\n    outlined: true,\\n    bookmarked: auto,\\n    hanging-indent: auto,\\n    body: strong(body: [RICH]),\\n  ),\\n)\"]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)' --in lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/display-located.typ` instead\n\n",
+          "rich_body_routes": [
+            {
+              "route": "markup",
+              "has_heading": true,
+              "has_strong": true,
+              "has_text": true
+            },
+            {
+              "route": "code-tail",
+              "has_heading": true,
+              "has_strong": true,
+              "has_text": true
+            },
+            {
+              "route": "math",
+              "has_heading": true,
+              "has_strong": true,
+              "has_text": true
+            }
+          ]
+        },
+        "product": {
+          "started_utc": "2026-10-19T13:59:08.307898+00:00",
+          "finished_utc": "2026-10-19T13:59:08.920660+00:00",
+          "argv": [
+            "/repos/Antigravity/typst-crystalline/lab/target/product/debug/typst",
+            "query",
+            "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/display-located.typ",
+            "metadata",
+            "--field",
+            "value"
+          ],
+          "exit": 0,
+          "stdout": "[[\"heading(level: 1)[strong(body: [RICH])]\",\"heading(level: 1)[strong(body: [RICH])]\",\"equation(block: true, body: heading(level: 1)[strong(body: [RICH])])\"]]\n",
+          "stderr": "warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(metadata).map(it => it.value)' --in lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay/display-located.typ` instead\n\n",
+          "rich_body_routes": [
+            {
+              "route": "markup",
+              "has_heading": true,
+              "has_strong": true,
+              "has_text": true
+            },
+            {
+              "route": "code-tail",
+              "has_heading": true,
+              "has_strong": true,
+              "has_text": true
+            },
+            {
+              "route": "math",
+              "has_heading": true,
+              "has_strong": true,
+              "has_text": true
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "finished_utc": "2026-10-19T13:59:08.920706+00:00",
+  "final_state": {
+    "head": "370d78355bd646d1abead5bcacef215288cc8834\n",
+    "diffstat": " .../compiler/eval/bindings/field_access/fields.md  |  49 +-\n .../eval/bindings/value_methods/element_where.md   |  50 +-\n .../eval/bindings/value_methods/selector.md        | 100 +++-\n .../prompts/core/compiler/eval/call_dispatch.md    |  17 +-\n .../core/compiler/eval/call_dispatch/call_spans.md |  49 +-\n .../compiler/eval/call_dispatch/content_methods.md |  50 +-\n .../eval/call_dispatch/instance_methods.md         |  52 +-\n .../compiler/eval/call_dispatch/value_methods.md   |  60 +-\n .../core/compiler/eval/expression_dispatch.md      | 137 ++++-\n .../prompts/core/compiler/eval/markup_stream.md    |  47 +-\n 00_nucleo/prompts/core/compiler/eval/modules.md    |  50 +-\n .../core/compiler/eval/operators/arithmetic.md     |  51 +-\n .../core/compiler/eval/operators/equality.md       |  82 ++-\n .../prompts/core/compiler/eval/rules/intercept.md  |  49 +-\n .../prompts/core/compiler/eval/rules/realize.md    |  66 ++-\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  50 +-\n .../prompts/core/compiler/eval/rules/set/page.md   |  51 +-\n .../prompts/core/compiler/eval/rules/set/text.md   |  52 +-\n .../core/compiler/eval/selector_matching.md        | 112 +++-\n .../core/compiler/stdlib/foundations/selector.md   |  22 +-\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  16 +-\n .../core/compiler/stdlib/structural/heading.md     |  47 +-\n .../compiler/eval/bindings/field_access/fields.rs  | 195 ++++++-\n .../eval/bindings/value_methods/element_where.rs   |  77 ++-\n .../eval/bindings/value_methods/selector.rs        | 421 +++++++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |   6 +-\n .../src/compiler/eval/call_dispatch/call_spans.rs  |  81 ++-\n .../compiler/eval/call_dispatch/content_methods.rs | 229 +++++++-\n .../eval/call_dispatch/instance_methods.rs         | 489 +++++++++++++---\n .../compiler/eval/call_dispatch/value_methods.rs   | 118 +++-\n 01_core/src/compiler/eval/expression_dispatch.rs   | 414 +++++++++++++-\n 01_core/src/compiler/eval/markup_stream.rs         | 245 ++++++--\n 01_core/src/compiler/eval/modules.rs               | 121 +++-\n 01_core/src/compiler/eval/operators/arithmetic.rs  | 131 ++++-\n 01_core/src/compiler/eval/operators/equality.rs    | 167 +++++-\n 01_core/src/compiler/eval/rules/intercept.rs       | 178 +++++-\n 01_core/src/compiler/eval/rules/realize.rs         | 266 ++++++++-\n 01_core/src/compiler/eval/rules/set.rs             | 146 ++++-\n 01_core/src/compiler/eval/rules/set/page.rs        | 247 +++++++-\n 01_core/src/compiler/eval/rules/set/text.rs        | 182 +++++-\n 01_core/src/compiler/eval/selector_matching.rs     | 633 +++++++++++++++++++--\n .../src/compiler/stdlib/foundations/selector.rs    |   6 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   3 +-\n 01_core/src/compiler/stdlib/structural/heading.rs  |   6 +-\n 44 files changed, 5300 insertions(+), 320 deletions(-)\n",
+    "status": " M 00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md\n M 00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md\n M 00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md\n M 00_nucleo/prompts/core/compiler/eval/call_dispatch.md\n M 00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md\n M 00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md\n M 00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md\n M 00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md\n M 00_nucleo/prompts/core/compiler/eval/expression_dispatch.md\n M 00_nucleo/prompts/core/compiler/eval/markup_stream.md\n M 00_nucleo/prompts/core/compiler/eval/modules.md\n M 00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md\n M 00_nucleo/prompts/core/compiler/eval/operators/equality.md\n M 00_nucleo/prompts/core/compiler/eval/rules/intercept.md\n M 00_nucleo/prompts/core/compiler/eval/rules/realize.md\n M 00_nucleo/prompts/core/compiler/eval/rules/set.md\n M 00_nucleo/prompts/core/compiler/eval/rules/set/page.md\n M 00_nucleo/prompts/core/compiler/eval/rules/set/text.md\n M 00_nucleo/prompts/core/compiler/eval/selector_matching.md\n M 00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md\n M 00_nucleo/prompts/core/compiler/stdlib/mod.md\n M 00_nucleo/prompts/core/compiler/stdlib/structural/heading.md\n M 01_core/src/compiler/eval/bindings/field_access/fields.rs\n M 01_core/src/compiler/eval/bindings/value_methods/element_where.rs\n M 01_core/src/compiler/eval/bindings/value_methods/selector.rs\n M 01_core/src/compiler/eval/call_dispatch.rs\n M 01_core/src/compiler/eval/call_dispatch/call_spans.rs\n M 01_core/src/compiler/eval/call_dispatch/content_methods.rs\n M 01_core/src/compiler/eval/call_dispatch/instance_methods.rs\n M 01_core/src/compiler/eval/call_dispatch/value_methods.rs\n M 01_core/src/compiler/eval/expression_dispatch.rs\n M 01_core/src/compiler/eval/markup_stream.rs\n M 01_core/src/compiler/eval/modules.rs\n M 01_core/src/compiler/eval/operators/arithmetic.rs\n M 01_core/src/compiler/eval/operators/equality.rs\n M 01_core/src/compiler/eval/rules/intercept.rs\n M 01_core/src/compiler/eval/rules/realize.rs\n M 01_core/src/compiler/eval/rules/set.rs\n M 01_core/src/compiler/eval/rules/set/page.rs\n M 01_core/src/compiler/eval/rules/set/text.rs\n M 01_core/src/compiler/eval/selector_matching.rs\n M 01_core/src/compiler/stdlib/foundations/selector.rs\n M 01_core/src/compiler/stdlib/mod.rs\n M 01_core/src/compiler/stdlib/structural/heading.rs\n?? 00_nucleo/prompts/_nuclei/content/heading-constructor-supplement.toml\n"
+  },
+  "source_unchanged": true,
+  "product_binary_unchanged": true,
+  "oracle_binary_unchanged": true
+}

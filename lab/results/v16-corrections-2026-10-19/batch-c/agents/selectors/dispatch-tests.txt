@@ -1,0 +1,35 @@
+
+#[cfg(test)]
+mod batch_c_contextual_selector_tests {
+    use super::*;
+    use crate::entities::selector::Selector;
+    use crate::entities::element_kind::ElementKind;
+    use crate::compiler::stdlib::{native_table_cell,native_page};
+
+    #[test]
+    fn batch_c_contextual_selector_preserves_argument_error_precedence() {
+        let mut args=Args::positional(vec![Value::Selector(Selector::NativeElement(Func::native("cell",native_table_cell)))]);
+        args.named.insert("inclusive".into(),Value::Int(1));
+        let error=selector_before_after(Selector::Kind(ElementKind::Heading),"before",args).unwrap_err();
+        assert!(error[0].message.contains("expected boolean"));
+        let ok=selector_before_after(Selector::Kind(ElementKind::Heading),"after",Args::positional(vec![Value::Func(Func::native("alias",crate::compiler::stdlib::native_heading))])).unwrap();
+        assert!(matches!(ok,Selector::After{inclusive:true,..}));
+    }
+
+    #[test]
+    fn batch_c_contextual_selector_rejects_nonlocatable_boundaries_but_not_base() {
+        for method in ["before","after"] {
+            for function in [Func::native("cell",native_table_cell),Func::native_with_engine("page",native_page)] {
+                for value in [Value::Func(function.clone()),Value::Selector(Selector::NativeElement(function.clone()))] {
+                    let errors=selector_before_after(Selector::Kind(ElementKind::Heading),method,Args::positional(vec![value])).unwrap_err();
+                    assert!(errors[0].message.contains("is not locatable"));
+                }
+            }
+            for value in [Value::Str("x".into()),Value::Selector(Selector::Or(vec![Selector::Kind(ElementKind::Heading),Selector::Regex(crate::entities::regex::Regex::new("x").unwrap())].into()))] {
+                let errors=selector_before_after(Selector::Kind(ElementKind::Heading),method,Args::positional(vec![value])).unwrap_err();
+                assert_eq!(errors[0].message,"text is not locatable");
+            }
+            assert!(selector_before_after(Selector::NativeElement(Func::native("cell",native_table_cell)),method,Args::positional(vec![Value::Selector(Selector::Kind(ElementKind::Heading))])).is_ok());
+        }
+    }
+}

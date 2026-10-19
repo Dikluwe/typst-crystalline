@@ -1,0 +1,14 @@
+error: cannot return outside of function
+  ┌─ lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-context-hidden.typ:1:58
+  │
+1 │ #{ context { panic("EXECUTED"); state("k",0).update(1) }; return "x" }
+  │                                                           ^^^^^^^^^^
+
+warning: this return unconditionally discards the content before it
+  ┌─ lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-context-hidden.typ:1:58
+  │
+1 │ #{ context { panic("EXECUTED"); state("k",0).update(1) }; return "x" }
+  │                                                           ^^^^^^^^^^
+  │
+  = hint: try omitting the `return` to automatically join all values
+

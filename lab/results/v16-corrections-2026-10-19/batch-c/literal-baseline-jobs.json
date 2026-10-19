@@ -1,0 +1,17 @@
+[
+  {
+    "name": "literal-preservation",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "v16_c_selector_preserves_literal",
+      "--",
+      "--test-threads=1"
+    ]
+  }
+]

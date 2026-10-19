@@ -1,5 +1,5 @@
 # L0 — compiler/eval/bindings/field_access/fields
-Hash do Código: 29bbc915
+Hash do Código: 3ff7f4bf
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/builtin-module-identity.toml sha256:e79fb4e7f291d69f9108a4b17738b205861d818c6e9eeea873c337dc64bad2f8
@@ -378,3 +378,50 @@ retain their boundaries. Require workspace/doctests/build/Clippy/Rustdoc, fmt,
 V1/V5/V15/V26/reverse lineage and no V16 increase; use
 12GiB/High 8 GiB/swap0/jobs1 with heavy commands sequential. RAM gain requires
 measurement, not intention.
+
+## Closed-domain decision and preservation
+
+### Evidence before decision
+
+At checkpoint `370d78355bd646d1abead5bcacef215288cc8834`,
+`01_core/src/compiler/eval/bindings/field_access/fields.rs:759–769`
+and the caller/producer evidence recorded in
+`lab/results/v16-corrections-2026-10-19/batch-c/agents/structural/l0-audit.json`
+show the current decision and its refusal path. That receipt records UTC,
+working-tree diffstat and exact source/owner SHA-256 before this amendment.
+The existing clauses above establish the behavior to preserve; an open Rust
+match is structural evidence, not proof of additional language admission.
+
+### Exclusive policy
+
+The complement is not Matrix/Cell through the four causal carriers and returns false.
+Styled is intentionally not generically peeled here; separate is_presence_content
+classification and earlier authoritative snapshots still apply. False does not mean no
+fields or allow a failed snapshot lookup to fall back.
+
+Keep the strict field dispatch separate from the broader presence classifier. The
+negative group says only that this receiver is outside the Matrix/Cell strict branch; it
+does not deny semantic getters. Test Matrix and Cell through Source, ShowRecipe, Located
+and Realized.visual, opposite hidden original/visual values, opaque Styled,
+authoritative snapshots and ordinary getters.
+
+The explicit nominal complement is: `Empty`, `Text`, `Space`, `SpaceFromNewline`, `Parbreak`, `Sequence`, `HtmlElem`, `HtmlFrame`, `Par`, `Heading`, `Title`, `Strong`, `Emph`, `Raw`, `ListItem`, `EnumItem`, `Link`, `Equation`, `MathSequence`, `MathIdent`, `MathText`, `MathFrac`, `MathAttach`, `MathPrimes`, `MathRoot`, `MathStretch`, `MathDelimited`, `MathLr`, `MathMid`, `MathOverbrace`, `MathUnderbrace`, `MathUnderbracket`, `MathUnderparen`, `MathUndershell`, `MathOverbracket`, `MathOverparen`, `MathOvershell`, `MathAlignPoint`, `Linebreak`, `MathCases`, `MathAccent`, `MathCancel`, `MathUnderline`, `MathOverline`, `MathVec`, `MathClassOverride`, `MathLimitsOverride`, `MathUnderover`, `MathOp`, `MathStyled`, `Label`, `Ref`, `CounterDisplay`, `CounterUpdate`, `Outline`, `OutlineEntry`, `Figure`, `FigureCaption`, `Image`, `Shape`, `Curve`, `Transform`, `Grid`, `GridHeader`, `GridFooter`, `GridCell`, `SetPage`, `PageRun`, `Align`, `Place`, `Flush`, `Styled`, `Divider`, `Terms`, `TermItem`, `Quote`, `Document`, `Asset`, `SmartQuote`, `PdfAttach`, `PdfArtifact`, `Underline`, `Strike`, `Overline`, `SmallCaps`, `Pad`, `Hide`, `HSpace`, `VSpace`, `Pagebreak`, `Colbreak`, `Stack`, `Boxed`, `Block`, `Bibliography`, `Cite`, `Footnote`, `FootnoteEntry`, `TableHeader`, `TableFooter`, `GridHLine`, `GridVLine`, `TableHLine`, `TableVLine`, `Table`, `Repeat`, `Columns`, `Metadata`, `State`, `StateUpdate`, `StateDisplay`, `CounterDisplayCallback`, `ContextBlock`, `Dynamic`.
+
+### Acceptance and refutation
+
+Preservation controls run before and after the repair. A real temporary enum
+variant in a disposable complete workspace must fail with E0004 at this exact
+decision after repair; failures at other decisions alone are insufficient.
+Exercise nested closed domains separately where present. The structural RED is
+the original V16/open evolution boundary, not a fabricated runtime defect.
+Any changed result, message, span, callback count, argument evaluation or refusal
+route refutes preservation. Retain informational V19 groups with their rationale;
+add no suppression, hidden catchall, linter/configuration weakening or new policy.
+
+Internal continuous ADR-0127: no public field/trait/signature, product default,
+phase or compatibility change. L0 precedes code; reseal only valid owner pairs
+after V15/V26. Require focused and full workspace tests, build/all-targets, fmt,
+strict Clippy/Rustdoc, path checks, direct/reverse lineage and differential SARIF
+without new errors or warnings outside the selected repairs. Heavy checks are
+serialized under one job, 12 GiB maximum, 8 GiB high and zero swap. Historical
+parity claims and unresolved scope exclusions above remain bounded.

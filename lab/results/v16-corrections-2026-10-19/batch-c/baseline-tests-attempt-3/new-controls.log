@@ -1,0 +1,145 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+error[E0603]: module `pdf` is private
+   --> 01_core/src/compiler/eval/operators/equality.rs:607:44
+    |
+607 |         let pdf = crate::compiler::stdlib::pdf::make_pdf_module(
+    |                                            ^^^ private module
+    |
+note: the module `pdf` is defined here
+   --> 01_core/src/compiler/stdlib/mod.rs:57:1
+    |
+ 57 | mod pdf;
+    | ^^^^^^^^
+help: consider importing this function through its public re-export instead
+    |
+607 -         let pdf = crate::compiler::stdlib::pdf::make_pdf_module(
+607 +         let pdf = crate::compiler::stdlib::make_pdf_module(
+    |
+
+error[E0603]: module `html` is private
+   --> 01_core/src/compiler/eval/operators/equality.rs:610:45
+    |
+610 |         let html = crate::compiler::stdlib::html::make_html_module();
+    |                                             ^^^^ private module
+    |
+note: the module `html` is defined here
+   --> 01_core/src/compiler/stdlib/mod.rs:28:1
+    |
+ 28 | mod html;
+    | ^^^^^^^^^
+help: consider importing this function through its public re-export instead
+    |
+610 -         let html = crate::compiler::stdlib::html::make_html_module();
+610 +         let html = crate::compiler::stdlib::make_html_module();
+    |
+
+error[E0603]: enum import `MathAttachSlot` is private
+    --> 01_core/src/compiler/eval/selector_matching.rs:1240:47
+     |
+1240 |                     crate::entities::content::MathAttachSlot::Omitted,
+     |                                               ^^^^^^^^^^^^^^ private enum import
+     |
+note: the enum import `MathAttachSlot` is defined here...
+    --> 01_core/src/entities/content.rs:58:21
+     |
+  58 |     MathAttachElem, MathAttachSlot, MathPrimesElem,
+     |                     ^^^^^^^^^^^^^^
+note: ...and refers to the enum `MathAttachSlot` which is defined here
+    --> 01_core/src/entities/elements/math_attach.rs:64:1
+     |
+  64 | pub enum MathAttachSlot {
+     | ^^^^^^^^^^^^^^^^^^^^^^^ you could import this directly
+help: consider importing this unit variant instead
+     |
+1240 -                     crate::entities::content::MathAttachSlot::Omitted,
+1240 +                     crate::entities::elements::math_attach::MathAttachSlot::Omitted,
+     |
+help: import `MathAttachSlot` directly
+     |
+1240 -                     crate::entities::content::MathAttachSlot::Omitted,
+1240 +                     entities::elements::math_attach::MathAttachSlot,
+     |
+
+error[E0603]: enum import `MathAttachSlot` is private
+    --> 01_core/src/compiler/eval/selector_matching.rs:1241:47
+     |
+1241 |                     crate::entities::content::MathAttachSlot::Omitted,
+     |                                               ^^^^^^^^^^^^^^ private enum import
+     |
+note: the enum import `MathAttachSlot` is defined here...
+    --> 01_core/src/entities/content.rs:58:21
+     |
+  58 |     MathAttachElem, MathAttachSlot, MathPrimesElem,
+     |                     ^^^^^^^^^^^^^^
+note: ...and refers to the enum `MathAttachSlot` which is defined here
+    --> 01_core/src/entities/elements/math_attach.rs:64:1
+     |
+  64 | pub enum MathAttachSlot {
+     | ^^^^^^^^^^^^^^^^^^^^^^^ you could import this directly
+help: consider importing this unit variant instead
+     |
+1241 -                     crate::entities::content::MathAttachSlot::Omitted,
+1241 +                     crate::entities::elements::math_attach::MathAttachSlot::Omitted,
+     |
+help: import `MathAttachSlot` directly
+     |
+1241 -                     crate::entities::content::MathAttachSlot::Omitted,
+1241 +                     entities::elements::math_attach::MathAttachSlot,
+     |
+
+error[E0603]: enum import `MathAttachSlot` is private
+    --> 01_core/src/compiler/eval/selector_matching.rs:1242:47
+     |
+1242 |                     crate::entities::content::MathAttachSlot::Omitted,
+     |                                               ^^^^^^^^^^^^^^ private enum import
+     |
+note: the enum import `MathAttachSlot` is defined here...
+    --> 01_core/src/entities/content.rs:58:21
+     |
+  58 |     MathAttachElem, MathAttachSlot, MathPrimesElem,
+     |                     ^^^^^^^^^^^^^^
+note: ...and refers to the enum `MathAttachSlot` which is defined here
+    --> 01_core/src/entities/elements/math_attach.rs:64:1
+     |
+  64 | pub enum MathAttachSlot {
+     | ^^^^^^^^^^^^^^^^^^^^^^^ you could import this directly
+help: consider importing this unit variant instead
+     |
+1242 -                     crate::entities::content::MathAttachSlot::Omitted,
+1242 +                     crate::entities::elements::math_attach::MathAttachSlot::Omitted,
+     |
+help: import `MathAttachSlot` directly
+     |
+1242 -                     crate::entities::content::MathAttachSlot::Omitted,
+1242 +                     entities::elements::math_attach::MathAttachSlot,
+     |
+
+error[E0603]: enum import `MathAttachSlot` is private
+    --> 01_core/src/compiler/eval/selector_matching.rs:1243:47
+     |
+1243 |                     crate::entities::content::MathAttachSlot::Omitted,
+     |                                               ^^^^^^^^^^^^^^ private enum import
+     |
+note: the enum import `MathAttachSlot` is defined here...
+    --> 01_core/src/entities/content.rs:58:21
+     |
+  58 |     MathAttachElem, MathAttachSlot, MathPrimesElem,
+     |                     ^^^^^^^^^^^^^^
+note: ...and refers to the enum `MathAttachSlot` which is defined here
+    --> 01_core/src/entities/elements/math_attach.rs:64:1
+     |
+  64 | pub enum MathAttachSlot {
+     | ^^^^^^^^^^^^^^^^^^^^^^^ you could import this directly
+help: consider importing this unit variant instead
+     |
+1243 -                     crate::entities::content::MathAttachSlot::Omitted,
+1243 +                     crate::entities::elements::math_attach::MathAttachSlot::Omitted,
+     |
+help: import `MathAttachSlot` directly
+     |
+1243 -                     crate::entities::content::MathAttachSlot::Omitted,
+1243 +                     entities::elements::math_attach::MathAttachSlot,
+     |
+
+For more information about this error, try `rustc --explain E0603`.
+error: could not compile `typst-core` (lib test) due to 6 previous errors

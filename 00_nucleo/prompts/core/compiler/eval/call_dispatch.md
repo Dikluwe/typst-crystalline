@@ -1,5 +1,5 @@
 # L0 — compiler/eval/call_dispatch
-Hash do Código: 8c0964d3
+Hash do Código: fea57bf4
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -14,6 +14,21 @@ owners under `00_nucleo/prompts/core/compiler/eval/call_dispatch/` own spans,
 arguments, application, type fields, value methods, traces/plugins, call resolution
 and Location methods. Clauses below remain their normative boundary criteria.
 **Governance:** ADR-0107, ADR-0108, ADR-0127, ADR-0129, ADR-0130.
+
+## Internal contextual selector validation linkage
+
+At checkpoint `370d78355bd646d1abead5bcacef215288cc8834`, this hub reexports
+`selector_before_after` from its value_methods child. Current-pin probes and
+source receipts in `lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/`
+show that contextual selector boundaries require locatability, separately from
+logical selector construction. Add an eval-visible direct reexport of the
+child-owned `validate_contextual_selector` so both adapter routes share the same
+validation. Keep the algorithm in the child and all public signatures unchanged.
+The child must reject textual Regex boundaries recursively without changing the
+different contract of the generic native-element locatability validator. L0
+sealing precedes linkage; consumer diagnostic and once-only-effect tests provide
+RED→GREEN, followed by workspace/path/lineage validation. No new phase or product
+mode is introduced by this internal ADR-0127 continuous-flow correction.
 
 ## Source evidence
 

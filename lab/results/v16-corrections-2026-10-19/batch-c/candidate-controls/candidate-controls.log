@@ -1,0 +1,45 @@
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+error[E0023]: this pattern has 1 field, but the corresponding tuple variant has 2 fields
+   --> 01_core/src/compiler/eval/bindings/value_methods/selector.rs:53:33
+    |
+ 53 |         | Value::LocatedContent(_)
+    |                                 ^ expected 2 fields, found 1
+    |
+   ::: 01_core/src/entities/value.rs:115:20
+    |
+115 |     LocatedContent(IntrospectedContent, crate::entities::location::Location),
+    |                    -------------------  ----------------------------------- tuple variant has 2 fields
+    |
+help: use `_` to explicitly ignore each field
+    |
+ 53 |         | Value::LocatedContent(_, _)
+    |                                  +++
+help: use `..` to ignore all fields
+    |
+ 53 -         | Value::LocatedContent(_)
+ 53 +         | Value::LocatedContent(..)
+    |
+
+error[E0023]: this pattern has 1 field, but the corresponding tuple variant has 2 fields
+   --> 01_core/src/compiler/eval/bindings/value_methods/selector.rs:108:33
+    |
+108 |         | Value::LocatedContent(_)
+    |                                 ^ expected 2 fields, found 1
+    |
+   ::: 01_core/src/entities/value.rs:115:20
+    |
+115 |     LocatedContent(IntrospectedContent, crate::entities::location::Location),
+    |                    -------------------  ----------------------------------- tuple variant has 2 fields
+    |
+help: use `_` to explicitly ignore each field
+    |
+108 |         | Value::LocatedContent(_, _)
+    |                                  +++
+help: use `..` to ignore all fields
+    |
+108 -         | Value::LocatedContent(_)
+108 +         | Value::LocatedContent(..)
+    |
+
+For more information about this error, try `rustc --explain E0023`.
+error: could not compile `typst-core` (lib test) due to 2 previous errors

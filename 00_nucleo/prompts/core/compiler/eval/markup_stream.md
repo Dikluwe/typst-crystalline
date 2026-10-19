@@ -1,5 +1,5 @@
 # L0 — compiler/eval/markup_stream
-Hash do Código: f2fbd2c6
+Hash do Código: 225aaab7
 
 
 
@@ -525,3 +525,48 @@ insertion-frame lexical delta via capture_local_output after Sequence transport.
 Root frame provides locally declared rules; bindings emit nothing. Inner packet
 inherits current environment without freezing obsolete global. Preserve concat/
 slots/origins/local-global distinction.
+
+## Closed display partition and introspected content transport
+
+### Evidence before decision
+
+`lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/probes-refined.json`
+retains UTC, HEAD, exact uncommitted diffstat, source/input hashes, commands and
+verified oracle identity at pin `bd5ebec285505889e8ff1d4f68804ab147a699f3`.
+The display-located probe queries an actual labelled Heading with a Strong body:
+markup insertion retains Heading/Strong, CodeBlock set-tail wraps that Heading
+in Styled, and math insertion keeps Heading under Equation. The three display
+catalogue probes separately show generic Raw presentation and Module body
+presentation; they do not certify the current Tekt fallback.
+Pinned `typst-library/src/foundations/value.rs:192–209` preserves Content and uses
+Module.content. `stdlib/foundations/query.rs:73` produces Value::LocatedContent;
+`markup_stream.rs:513–565` currently sends it to repr text, destroying morphology
+at markup, CodeBlock-tail and math helper calls. The existing snapshot's
+`value.rs:70–72` exposes its owned content without executing callbacks.
+
+### Exclusive correction, retained debt, and acceptance
+
+Own one exhaustive Value presentation partition. Value::Content returns its body;
+Value::LocatedContent returns the introspected body's content, preserving rich
+morphology instead of formatting its representation. Display reinsertion does not
+transfer query identity or mutate authoritative snapshot fields. Keep Str/Text,
+Bool/Auto inline typc Raw, Symbol's existing mapping, State's existing mapping,
+Counter/None omission, Version Display, Float Display and Decimal Display paths.
+Int and the remaining explicitly named residual families retain the existing
+nonempty repr-to-Text fallback only as compatibility pending the separate rich
+value-display work. That residual is a measured debt, not a supported language
+partition or parity claim: generic Raw, Module, State/Counter and Symbol
+morphology remain unclosed. Do not expand their Raw/HTML/render contracts here.
+Remove the nested catchall by assigning each nominal Value its visible branch at
+the owner decision; keep the residual group visible to V19.
+
+Require a failing rich introspected-content test before implementation, checking
+Heading/Strong morphology and body preservation independently of repr text.
+Exercise actual markup, CodeBlock tail and math caller routes with a real
+LocatedContent input; preserve scalar Float/Decimal formatting, Bool/Auto Raw,
+None versus explicit Empty and label association at its existing markup boundary.
+No callback execution or second constructor/recipe evaluation is authorized.
+A new Value variant must fail exhaustiveness at this owner decision. This is
+continuous ADR-0127 internal transport/parity correction, with no new public
+contract, flag, default mode or phase. Full tests/paths/lineage remain mandatory;
+closing the wildcard obligation does not close the named presentation debts.

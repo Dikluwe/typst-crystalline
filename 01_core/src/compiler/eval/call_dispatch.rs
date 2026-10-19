@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/call_dispatch.md
-//! @prompt-hash 72728981
+//! @prompt-hash 47dad88a
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -86,8 +86,10 @@ pub(super) use self::arguments::{eval_args, transport_native_call_span};
 pub(super) use self::call::eval_func_call;
 pub(super) use self::location::eval_location_method;
 pub(crate) use self::type_fields::p1284_type_field;
-pub(in crate::compiler::eval) use self::value_methods::selector_before_after;
 pub(crate) use self::value_methods::take_p1339_self;
+pub(in crate::compiler::eval) use self::value_methods::{
+    selector_before_after, validate_contextual_selector,
+};
 use self::{apply::*, call_spans::*, trace_plugin::*, value_methods::*};
 
 #[cfg(test)]

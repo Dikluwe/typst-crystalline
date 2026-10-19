@@ -1,0 +1,27 @@
+[
+  {
+    "name": "candidate-controls",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "v16_c_",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-19T13:14:11.214551+00:00",
+    "exit": 0,
+    "seconds": 84.27946584900201,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3460112384",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

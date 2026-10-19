@@ -1,0 +1,43 @@
+{
+  "maps": {
+    "MathFrac": "native_math_frac",
+    "MathAttach": "native_math_attach",
+    "MathPrimes": "native_math_primes",
+    "MathRoot": "native_math_root",
+    "MathStretch": "native_math_stretch",
+    "MathLr": "native_math_lr",
+    "MathMid": "native_math_mid",
+    "MathOverbrace": "native_math_overbrace",
+    "MathUnderbrace": "native_math_underbrace",
+    "MathUnderbracket": "native_math_underbracket",
+    "MathUnderparen": "native_math_underparen",
+    "MathUndershell": "native_math_undershell",
+    "MathOverbracket": "native_math_overbracket",
+    "MathOverparen": "native_math_overparen",
+    "MathOvershell": "native_math_overshell",
+    "MathMatrix": "native_math_mat",
+    "MathCases": "native_math_cases",
+    "MathAccent": "native_accent",
+    "MathCancel": "native_cancel",
+    "MathUnderline": "native_math_underline",
+    "MathOverline": "native_math_overline",
+    "MathVec": "native_math_vec",
+    "MathClassOverride": "native_math_class_for_metadata"
+  },
+  "guards": {
+    "MathFrac": "only line=true; line=false binom mechanical lowering must not match frac",
+    "MathLimitsOverride": "limits=>native_math_limits else native_math_scripts",
+    "Styled": "equation only; explicit guard refusal false"
+  },
+  "engine_maps": {
+    "PageRun": "native_page",
+    "MathOp": "native_op"
+  },
+  "remaining_identity_debt": [
+    "Shape constructor erasure",
+    "MathDelimited lowered binom identity",
+    "MathUnderover representation without catalogue identity",
+    "raw.line dynamic Element name-only catalogue admission",
+    "nonmath native coverage outside existing table remains uncertified"
+  ]
+}

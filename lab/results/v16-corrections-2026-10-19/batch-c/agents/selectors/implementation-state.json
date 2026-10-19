@@ -1,0 +1,52 @@
+{
+  "utc": "2026-10-19T13:08:28.950367+00:00",
+  "head": "370d78355bd646d1abead5bcacef215288cc8834",
+  "diff_stat": " .../compiler/eval/bindings/field_access/fields.md  |  49 +-\n .../eval/bindings/value_methods/element_where.md   |  50 +-\n .../eval/bindings/value_methods/selector.md        |  69 ++-\n .../prompts/core/compiler/eval/call_dispatch.md    |  15 +\n .../core/compiler/eval/call_dispatch/call_spans.md |  49 +-\n .../compiler/eval/call_dispatch/content_methods.md |  50 +-\n .../eval/call_dispatch/instance_methods.md         |  52 +-\n .../compiler/eval/call_dispatch/value_methods.md   |  60 +-\n .../core/compiler/eval/expression_dispatch.md      |  56 +-\n .../prompts/core/compiler/eval/markup_stream.md    |  47 +-\n 00_nucleo/prompts/core/compiler/eval/modules.md    |  50 +-\n .../core/compiler/eval/operators/arithmetic.md     |  51 +-\n .../core/compiler/eval/operators/equality.md       |  82 ++-\n .../prompts/core/compiler/eval/rules/intercept.md  |  49 +-\n .../prompts/core/compiler/eval/rules/realize.md    |  66 ++-\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  50 +-\n .../prompts/core/compiler/eval/rules/set/page.md   |  51 +-\n .../prompts/core/compiler/eval/rules/set/text.md   |  52 +-\n .../core/compiler/eval/selector_matching.md        | 112 +++-\n .../core/compiler/stdlib/foundations/selector.md   |  20 +\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  14 +\n .../compiler/eval/bindings/field_access/fields.rs  | 195 ++++++-\n .../eval/bindings/value_methods/element_where.rs   |  77 ++-\n .../eval/bindings/value_methods/selector.rs        | 329 ++++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |   6 +-\n .../src/compiler/eval/call_dispatch/call_spans.rs  |  81 ++-\n .../compiler/eval/call_dispatch/content_methods.rs | 229 +++++++-\n .../eval/call_dispatch/instance_methods.rs         | 489 +++++++++++++---\n .../compiler/eval/call_dispatch/value_methods.rs   | 118 +++-\n 01_core/src/compiler/eval/expression_dispatch.rs   | 336 ++++++++++-\n 01_core/src/compiler/eval/markup_stream.rs         | 245 ++++++--\n 01_core/src/compiler/eval/modules.rs               | 121 +++-\n 01_core/src/compiler/eval/operators/arithmetic.rs  | 131 ++++-\n 01_core/src/compiler/eval/operators/equality.rs    | 167 +++++-\n 01_core/src/compiler/eval/rules/intercept.rs       | 178 +++++-\n 01_core/src/compiler/eval/rules/realize.rs         | 145 ++++-\n 01_core/src/compiler/eval/rules/set.rs             | 146 ++++-\n 01_core/src/compiler/eval/rules/set/page.rs        | 247 +++++++-\n 01_core/src/compiler/eval/rules/set/text.rs        | 182 +++++-\n 01_core/src/compiler/eval/selector_matching.rs     | 633 +++++++++++++++++++--\n .../src/compiler/stdlib/foundations/selector.rs    |   6 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   3 +-\n 42 files changed, 4847 insertions(+), 311 deletions(-)\n",
+  "files": {
+    "01_core/src/compiler/eval/bindings/value_methods/selector.rs": {
+      "sha256": "ed03f28a1bcd9f01060ab54b44ef56b886c20f1861679ec20c01434e47bb0d79",
+      "tests": [
+        "v16_c_selector_preserves_heading_alias_and_refuses_scalar_or_homonym",
+        "v16_c_selector_accepts_actual_native_operands_and_preserves_kind_policy",
+        "v16_c_selector_text_label_location_admission_is_not_legacy_kind_coercion",
+        "v16_c_selector_preserves_receiver_and_argument_once_and_refusal_precedence",
+        "v16_c_selector_native_composition_effects_and_contextual_rejection"
+      ]
+    },
+    "01_core/src/compiler/eval/operators/equality.rs": {
+      "sha256": "7d144440b68b575917dcad808e64a81f346d0e6e5dadf4017df5f3bf58f5fa67",
+      "tests": [
+        "v16_c_selector_equality_preserves_bare_group_order_and_flags",
+        "v16_c_selector_equality_engine_native_identity_recurses_without_names",
+        "v16_c_selector_format_identity_retains_nominal_witness_and_aliases"
+      ]
+    },
+    "01_core/src/compiler/eval/selector_matching.rs": {
+      "sha256": "3a3217197ba5300b4e17f03f8e11caa3e9269fd29b08e10ab9d7d6e58b4eee42",
+      "tests": [
+        "v16_c_matching_nested_causal_carriers_preserve_native_heading_identity",
+        "v16_c_matching_preserves_fields_fallback_and_snapshot_authority",
+        "v16_c_matching_kind_bridge_admits_represented_elements_and_rejects_effect_kinds",
+        "v16_c_matching_math_identity_is_typed_and_preserves_limits_distinction",
+        "v16_c_matching_engine_identity_crosses_causal_carriers_without_original_fallback",
+        "v16_c_matching_preserves_binom_lowering_without_inventing_frac_identity"
+      ]
+    },
+    "01_core/src/compiler/eval/call_dispatch/value_methods.rs": {
+      "sha256": "4fb684380b033ad39fc0aff6356c5e3de66c8c0bf8eda51c8bcba49eb8520544",
+      "tests": [
+        "v16_c_contextual_selector_preserves_argument_error_precedence",
+        "v16_c_contextual_selector_rejects_nonlocatable_boundaries_but_not_base"
+      ]
+    }
+  },
+  "structural_anchors": {
+    "V16-007": "value_to_query_selector: match value",
+    "V16-019": "selectors_eq: match (a, b)",
+    "FuncRepr-pair": "selectors_eq: match (a.repr(), b.repr())",
+    "V16-026": "kind_to_show: match kind",
+    "V16-027": "native_element_matches: second match content (after node_kinds!)",
+    "V16-028": "native_element_field: match content"
+  },
+  "status": "Implemented after root-confirmed baseline RED; candidate execution pending coordinator"
+}

@@ -1,0 +1,9 @@
+{
+  "utc": "2026-10-19T13:25:30.973616+00:00",
+  "nucleus": "00_nucleo/prompts/_nuclei/content/heading-constructor-supplement.toml",
+  "raw_sha256": "2278cb638413e41451347f3a2e5c80f3ec3eba258cb89643f22a409336e7633f",
+  "effective_sha256": "af78eb902348b843414064edfa2fd67612f8eb8ffba669f804dcf1d1be8f1da4",
+  "algorithm": "SHA256(bytes + NUL + TEKT-NUCLEUS-DEPS-V1 + NUL), no dependencies",
+  "source": "tekt-linter 12797073972e375d9ab078cf6750c8b30b71e2b9:03_infra/nucleus.rs:175-199",
+  "reason": "V26 correctly rejected raw-byte SHA as effective pin; repaired pins before resealing."
+}

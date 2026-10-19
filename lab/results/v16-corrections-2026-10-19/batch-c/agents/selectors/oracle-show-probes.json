@@ -1,0 +1,192 @@
+{
+  "utc": "2026-10-19T12:41:26.410569+00:00",
+  "head": "370d78355bd646d1abead5bcacef215288cc8834",
+  "diff_stat": " .../compiler/eval/bindings/field_access/fields.md  | 47 +++++++++++++\n .../eval/bindings/value_methods/element_where.md   | 48 ++++++++++++++\n .../eval/bindings/value_methods/selector.md        | 67 +++++++++++++++++++\n .../core/compiler/eval/call_dispatch/call_spans.md | 47 +++++++++++++\n .../compiler/eval/call_dispatch/content_methods.md | 48 ++++++++++++++\n .../eval/call_dispatch/instance_methods.md         | 50 ++++++++++++++\n .../compiler/eval/call_dispatch/value_methods.md   | 54 +++++++++++++++\n 00_nucleo/prompts/core/compiler/eval/modules.md    | 48 ++++++++++++++\n .../core/compiler/eval/operators/arithmetic.md     | 49 ++++++++++++++\n .../core/compiler/eval/operators/equality.md       | 57 ++++++++++++++++\n .../prompts/core/compiler/eval/rules/intercept.md  | 47 +++++++++++++\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  | 48 ++++++++++++++\n .../prompts/core/compiler/eval/rules/set/page.md   | 49 ++++++++++++++\n .../prompts/core/compiler/eval/rules/set/text.md   | 50 ++++++++++++++\n .../core/compiler/eval/selector_matching.md        | 77 ++++++++++++++++++++++\n 15 files changed, 786 insertions(+)\n",
+  "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "receipt_sha256": "62c6068aefecb7fc1ebaebd61cd5d7a1e0ac769c82384116651baa6e2db38399",
+  "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+  "oracle_tree": "cac836c07e4dec2a89219370428292393a3216b5",
+  "results": [
+    {
+      "utc": "2026-10-19T12:41:25.414744+00:00",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/table.typ",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/table.pdf"
+      ],
+      "source": "#show selector(table): it => [MATCH]\n#table([x])",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "text_argv": [
+        "pdftotext",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/table.pdf",
+        "-"
+      ],
+      "text_exit": 0,
+      "text": "MATCH\n\n\f",
+      "pdf_sha256": "f19327781e782e56e2f75585af66a25da599104455bba036ea1fbe8b744797ad"
+    },
+    {
+      "utc": "2026-10-19T12:41:25.551357+00:00",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/equation.typ",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/equation.pdf"
+      ],
+      "source": "#show selector(math.equation): it => [MATCH]\n$x$",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "text_argv": [
+        "pdftotext",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/equation.pdf",
+        "-"
+      ],
+      "text_exit": 0,
+      "text": "MATCH\n\n\f",
+      "pdf_sha256": "56e9d770b8c59964c84739d6d0c06ff525c11189060daa7df547fd448c182668"
+    },
+    {
+      "utc": "2026-10-19T12:41:25.570118+00:00",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/par.typ",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/par.pdf"
+      ],
+      "source": "#show selector(par): it => [MATCH]\n#par[x]",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: maximum grouping depth exceeded\n\n"
+    },
+    {
+      "utc": "2026-10-19T12:41:25.700032+00:00",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/page.typ",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/page.pdf"
+      ],
+      "source": "#show selector(page): it => [MATCH]\n#page[x]",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "warning: `show page` is not supported and has no effect\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/page.typ:1:1\n  \u2502\n1 \u2502 #show selector(page): it => [MATCH]\n  \u2502  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  \u2502\n  = hint: customize pages with `set page(..)` instead\n\n",
+      "text_argv": [
+        "pdftotext",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/page.pdf",
+        "-"
+      ],
+      "text_exit": 0,
+      "text": "x\n\n\f",
+      "pdf_sha256": "974d77b9eba0b9d670042eb48086a337a9813f72e7957033ca9b35bfd637b45f"
+    },
+    {
+      "utc": "2026-10-19T12:41:25.835854+00:00",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/frac.typ",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/frac.pdf"
+      ],
+      "source": "#show selector(math.frac): it => [MATCH]\n$1/2$",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "text_argv": [
+        "pdftotext",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/frac.pdf",
+        "-"
+      ],
+      "text_exit": 0,
+      "text": "MATCH\n\n\f",
+      "pdf_sha256": "56e9d770b8c59964c84739d6d0c06ff525c11189060daa7df547fd448c182668"
+    },
+    {
+      "utc": "2026-10-19T12:41:25.979666+00:00",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/root.typ",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/root.pdf"
+      ],
+      "source": "#show selector(math.root): it => [MATCH]\n$root(3,x)$",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "text_argv": [
+        "pdftotext",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/root.pdf",
+        "-"
+      ],
+      "text_exit": 0,
+      "text": "MATCH\n\n\f",
+      "pdf_sha256": "56e9d770b8c59964c84739d6d0c06ff525c11189060daa7df547fd448c182668"
+    },
+    {
+      "utc": "2026-10-19T12:41:26.118237+00:00",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/op.typ",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/op.pdf"
+      ],
+      "source": "#show selector(math.op): it => [MATCH]\n$op(\"custom\")$",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "text_argv": [
+        "pdftotext",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/op.pdf",
+        "-"
+      ],
+      "text_exit": 0,
+      "text": "MATCH\n\n\f",
+      "pdf_sha256": "46d104a27bf08f6920084dae946324fd82728d97889c6d949d5a6e089435c54b"
+    },
+    {
+      "utc": "2026-10-19T12:41:26.257606+00:00",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/limits.typ",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/limits.pdf"
+      ],
+      "source": "#show selector(math.limits): it => [MATCH]\n$limits(x)$",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "text_argv": [
+        "pdftotext",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/limits.pdf",
+        "-"
+      ],
+      "text_exit": 0,
+      "text": "MATCH\n\n\f",
+      "pdf_sha256": "46d104a27bf08f6920084dae946324fd82728d97889c6d949d5a6e089435c54b"
+    },
+    {
+      "utc": "2026-10-19T12:41:26.399184+00:00",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/scripts.typ",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/scripts.pdf"
+      ],
+      "source": "#show selector(math.scripts): it => [MATCH]\n$scripts(x)$",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "text_argv": [
+        "pdftotext",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/scripts.pdf",
+        "-"
+      ],
+      "text_exit": 0,
+      "text": "MATCH\n\n\f",
+      "pdf_sha256": "46d104a27bf08f6920084dae946324fd82728d97889c6d949d5a6e089435c54b"
+    }
+  ]
+}

@@ -1,0 +1,370 @@
+[
+  {
+    "name": "all-domains",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T12:49:32.838087+00:00",
+    "head": "370d78355bd646d1abead5bcacef215288cc8834",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-c-structural-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-005",
+        "file": "01_core/src/compiler/eval/bindings/field_access/fields.rs",
+        "after": "fn is_matrix_or_cell_content(",
+        "anchor": "match content {",
+        "line": 761,
+        "byte_start": 29632,
+        "byte_end": 29647,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-006",
+        "file": "01_core/src/compiler/eval/bindings/value_methods/element_where.rs",
+        "after": "fn validate_element_locatability(",
+        "anchor": "match selector {",
+        "line": 613,
+        "byte_start": 18906,
+        "byte_end": 18922,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-007",
+        "file": "01_core/src/compiler/eval/bindings/value_methods/selector.rs",
+        "after": "fn value_to_query_selector(",
+        "anchor": "match value {",
+        "line": 23,
+        "byte_start": 883,
+        "byte_end": 896,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-008",
+        "file": "01_core/src/compiler/eval/call_dispatch/call_spans.rs",
+        "after": "impl P1293HtmlCallSpans",
+        "anchor": "match self.kind {",
+        "line": 307,
+        "byte_start": 10233,
+        "byte_end": 10250,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-009",
+        "file": "01_core/src/compiler/eval/call_dispatch/content_methods.rs",
+        "after": "fn try_content_methods",
+        "anchor": "match target {",
+        "line": 82,
+        "byte_start": 3176,
+        "byte_end": 3190,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-010",
+        "file": "01_core/src/compiler/eval/call_dispatch/instance_methods.rs",
+        "after": "fn try_instance_method",
+        "anchor": "match target {",
+        "line": 22,
+        "byte_start": 775,
+        "byte_end": 789,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-011",
+        "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+        "after": "fn content_has_state_or_counter(",
+        "anchor": "match c {",
+        "line": 785,
+        "byte_start": 37517,
+        "byte_end": 37526,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-012",
+        "file": "01_core/src/compiler/eval/markup_stream.rs",
+        "after": "fn value_to_display_content(",
+        "anchor": "match &other {",
+        "line": 553,
+        "byte_start": 22685,
+        "byte_end": 22699,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-017",
+        "file": "01_core/src/compiler/eval/modules.rs",
+        "after": "fn eval_module_include(",
+        "anchor": "match &path_val {",
+        "line": 293,
+        "byte_start": 12293,
+        "byte_end": 12310,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-018",
+        "file": "01_core/src/compiler/eval/operators/arithmetic.rs",
+        "after": "fn apply_binary(",
+        "anchor": "match &rhs {",
+        "line": 30,
+        "byte_start": 1212,
+        "byte_end": 1224,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-019",
+        "file": "01_core/src/compiler/eval/operators/equality.rs",
+        "after": "fn selectors_eq(",
+        "anchor": "match (a, b) {",
+        "line": 204,
+        "byte_start": 10461,
+        "byte_end": 10475,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-020",
+        "file": "01_core/src/compiler/eval/rules/intercept.rs",
+        "after": "fn intercept_content(",
+        "anchor": "match value {",
+        "line": 81,
+        "byte_start": 3309,
+        "byte_end": 3322,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-021",
+        "file": "01_core/src/compiler/eval/rules/realize.rs",
+        "after": "fn is_paragraph_node(",
+        "anchor": "match content {",
+        "line": 229,
+        "byte_start": 8381,
+        "byte_end": 8396,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-022",
+        "file": "01_core/src/compiler/eval/rules/set/page.rs",
+        "after": "\"bleed\" => {",
+        "anchor": "match &val {",
+        "line": 371,
+        "byte_start": 16764,
+        "byte_end": 16776,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-023",
+        "file": "01_core/src/compiler/eval/rules/set/text.rs",
+        "after": "let missing_families:",
+        "anchor": "match item {",
+        "line": 327,
+        "byte_start": 16324,
+        "byte_end": 16336,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-024",
+        "file": "01_core/src/compiler/eval/rules/set.rs",
+        "after": "fn pure_path(",
+        "anchor": "match expr {",
+        "line": 38,
+        "byte_start": 1117,
+        "byte_end": 1129,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-026",
+        "file": "01_core/src/compiler/eval/selector_matching.rs",
+        "after": "fn kind_to_node(",
+        "anchor": "match kind {",
+        "line": 32,
+        "byte_start": 1340,
+        "byte_end": 1352,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-027",
+        "file": "01_core/src/compiler/eval/selector_matching.rs",
+        "after": "fn native_element_matches(",
+        "anchor": "match content {",
+        "line": 296,
+        "byte_start": 12802,
+        "byte_end": 12817,
+        "diagnostics": []
+      },
+      {
+        "id": "V16-028",
+        "file": "01_core/src/compiler/eval/selector_matching.rs",
+        "after": "fn native_element_field(",
+        "anchor": "match (content, field) {",
+        "line": 368,
+        "byte_start": 16664,
+        "byte_end": 16688,
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/compiler/eval/call_dispatch/call_spans.rs",
+      "01_core/src/entities/ast/expr.rs",
+      "01_core/src/entities/content.rs",
+      "01_core/src/entities/element_kind.rs",
+      "01_core/src/entities/selector.rs",
+      "01_core/src/entities/value.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T12:50:01.025193+00:00",
+    "exit": 101,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 238
+  },
+  {
+    "name": "new-old",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T12:50:01.293376+00:00",
+    "head": "370d78355bd646d1abead5bcacef215288cc8834",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-c-structural-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-019",
+        "file": "01_core/src/compiler/eval/operators/equality.rs",
+        "after": "fn selectors_eq(",
+        "anchor": "match (a, b) {",
+        "line": 204,
+        "byte_start": 10461,
+        "byte_end": 10475,
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/compiler/eval/operators/equality.rs",
+      "01_core/src/entities/selector.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T12:50:28.202034+00:00",
+    "exit": 101,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 6
+  },
+  {
+    "name": "old-new",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T12:50:28.478295+00:00",
+    "head": "370d78355bd646d1abead5bcacef215288cc8834",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-c-structural-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-019",
+        "file": "01_core/src/compiler/eval/operators/equality.rs",
+        "after": "fn selectors_eq(",
+        "anchor": "match (a, b) {",
+        "line": 204,
+        "byte_start": 10461,
+        "byte_end": 10475,
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/compiler/eval/operators/equality.rs",
+      "01_core/src/entities/selector.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T12:50:55.328321+00:00",
+    "exit": 101,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 6
+  },
+  {
+    "name": "new-new",
+    "phase": "baseline",
+    "utc_start": "2026-10-19T12:50:55.507242+00:00",
+    "head": "370d78355bd646d1abead5bcacef215288cc8834",
+    "cwd": "/repos/Antigravity/typst-crystalline/lab/scratch/v16-batch-c-structural-baseline",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "--no-run",
+      "--message-format=json"
+    ],
+    "targets": [
+      {
+        "id": "V16-019",
+        "file": "01_core/src/compiler/eval/operators/equality.rs",
+        "after": "fn selectors_eq(",
+        "anchor": "match (a, b) {",
+        "line": 204,
+        "byte_start": 10461,
+        "byte_end": 10475,
+        "diagnostics": []
+      }
+    ],
+    "mutated_paths": [
+      "01_core/src/compiler/eval/operators/equality.rs",
+      "01_core/src/entities/selector.rs"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/repos/Antigravity/typst-crystalline/lab/target/product"
+    },
+    "utc_end": "2026-10-19T12:51:24.474689+00:00",
+    "exit": 101,
+    "selected_e0004": 0,
+    "other_errors": [],
+    "error_count": 6
+  }
+]

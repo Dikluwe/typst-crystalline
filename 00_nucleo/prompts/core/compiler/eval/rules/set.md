@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/set — Set rule evaluation
-Hash do Código: 64f5c22a
+Hash do Código: 31d1a2fe
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/layout/paragraph-hanging-indent.toml sha256:12bf17ff10c443c56512c508693160e37e80f6ee925c506912718231b39ced12
@@ -486,3 +486,51 @@ controls. Grouped-arm execution proves no all-alternative coverage; closed inlin
 flow classifications require class/variant controls. Valid V15/V26 before reseal,
 tests/build/strict Clippy-Rustdoc/fmt/reverse/differential Tekt at pin1279707,
 12GiB/High 8 GiB/swap0/jobs1. No publication.
+
+## Closed-domain decision and preservation
+
+### Evidence before decision
+
+At checkpoint `370d78355bd646d1abead5bcacef215288cc8834`,
+`01_core/src/compiler/eval/rules/set.rs:37–43`
+and the caller/producer evidence recorded in
+`lab/results/v16-corrections-2026-10-19/batch-c/agents/structural/l0-audit.json`
+show the current decision and its refusal path. That receipt records UTC,
+working-tree diffstat and exact source/owner SHA-256 before this amendment.
+The existing clauses above establish the behavior to preserve; an open Rust
+match is structural evidence, not proof of additional language admission.
+
+### Exclusive policy
+
+Ident is true; FieldAccess recursively requires its target to be a pure_path. Every
+listed complement Expr, including Parenthesized and calls, returns false and skips this
+optional target probe. Earlier false set condition must short-circuit before this
+classification, target/args evaluation or warnings.
+
+Ident is a pure path; FieldAccess recursively classifies only its target. Every other
+Expr including Parenthesized and FuncCall is explicitly false and skips this optional
+probe, without a new general target-resolution policy. Keep false set condition before
+this classifier, all target resolution and all arguments. Test missing Ident/field
+diagnostic ordering, false condition with panic target/args, real native aliases and a
+parenthesized/call target control retaining the existing route.
+
+The explicit nominal complement is: `Text`, `Space`, `Linebreak`, `Parbreak`, `Escape`, `Shorthand`, `SmartQuote`, `Strong`, `Emph`, `Raw`, `Link`, `Label`, `Ref`, `Heading`, `ListItem`, `EnumItem`, `TermItem`, `Equation`, `Math`, `MathText`, `MathIdent`, `MathShorthand`, `MathAlignPoint`, `MathDelimited`, `MathAttach`, `MathPrimes`, `MathFrac`, `MathRoot`, `None`, `Auto`, `Bool`, `Int`, `Float`, `Numeric`, `Str`, `CodeBlock`, `ContentBlock`, `Parenthesized`, `Array`, `Dict`, `Unary`, `Binary`, `FuncCall`, `Closure`, `LetBinding`, `DestructAssignment`, `SetRule`, `ShowRule`, `Contextual`, `Conditional`, `WhileLoop`, `ForLoop`, `ModuleImport`, `ModuleInclude`, `LoopBreak`, `LoopContinue`, `FuncReturn`.
+
+### Acceptance and refutation
+
+Preservation controls run before and after the repair. A real temporary enum
+variant in a disposable complete workspace must fail with E0004 at this exact
+decision after repair; failures at other decisions alone are insufficient.
+Exercise nested closed domains separately where present. The structural RED is
+the original V16/open evolution boundary, not a fabricated runtime defect.
+Any changed result, message, span, callback count, argument evaluation or refusal
+route refutes preservation. Retain informational V19 groups with their rationale;
+add no suppression, hidden catchall, linter/configuration weakening or new policy.
+
+Internal continuous ADR-0127: no public field/trait/signature, product default,
+phase or compatibility change. L0 precedes code; reseal only valid owner pairs
+after V15/V26. Require focused and full workspace tests, build/all-targets, fmt,
+strict Clippy/Rustdoc, path checks, direct/reverse lineage and differential SARIF
+without new errors or warnings outside the selected repairs. Heavy checks are
+serialized under one job, 12 GiB maximum, 8 GiB high and zero swap. Historical
+parity claims and unresolved scope exclusions above remain bounded.

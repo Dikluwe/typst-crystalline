@@ -1,0 +1,27 @@
+[
+  {
+    "name": "literal-preservation",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "v16_c_selector_preserves_literal",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-19T13:37:04.487086+00:00",
+    "exit": 0,
+    "seconds": 79.89309337899613,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3375632384",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

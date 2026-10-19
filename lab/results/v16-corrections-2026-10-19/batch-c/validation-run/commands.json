@@ -1,0 +1,88 @@
+[
+  {
+    "name": "clean-product-packages",
+    "command": [
+      "cargo",
+      "clean",
+      "--offline",
+      "--locked",
+      "--target-dir",
+      "lab/target/product",
+      "-p",
+      "typst-core",
+      "-p",
+      "typst-infra",
+      "-p",
+      "typst-shell",
+      "-p",
+      "typst-wiring"
+    ],
+    "utc_end": "2026-10-19T13:44:57.236695+00:00",
+    "exit": 0,
+    "seconds": 0.7284323130006669,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "47620096",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "full-validation",
+    "command": [
+      "python3",
+      "lab/tools/ci/validate_layout_migration.py",
+      "--output",
+      "lab/results/v16-corrections-2026-10-19/batch-c/validation"
+    ],
+    "utc_end": "2026-10-19T13:58:58.324811+00:00",
+    "exit": 0,
+    "seconds": 841.0876343630007,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "5311098880",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "accepted-selectors-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/replay.py",
+      "lab/target/product/debug/typst",
+      "accepted-replay.json"
+    ],
+    "utc_end": "2026-10-19T13:59:06.849774+00:00",
+    "exit": 0,
+    "seconds": 8.524409759003902,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "5311098880",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "accepted-effects-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_c_effect_replay.py",
+      "lab/results/v16-corrections-2026-10-19/batch-c/validation/validation-state.json.gz",
+      "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay"
+    ],
+    "utc_end": "2026-10-19T13:59:09.258573+00:00",
+    "exit": 0,
+    "seconds": 2.4082055350008886,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "5311098880",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/markup_stream.md
-//! @prompt-hash c87dfcc5
+//! @prompt-hash c7a42271
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -498,63 +498,65 @@ fn append_markup_sequence(
     }
 }
 
-/// **P545** (extraído em **P780**) — conversão genérica `Value` → `Content`
-/// para exibição (interpolação `#{expr}` em markup, e resolução de
-/// identificador de variável em modo math — `compiler/eval/math.rs`). `None`
-/// = nada a mostrar (`Value::None`, `Value::Counter`, texto vazio) —
-/// distinto de `Some(Content::Empty)`, que só ocorre se o próprio
-/// `Value::Content` embrulhado já for `Content::Empty` (preserva-se, não
-/// se filtra).
-///
-/// Paridade conceptual com `Value::display()` do vanilla
-/// (`typst-eval/src/math.rs::ExprExt::eval_display` chama `.display()`
-/// genericamente) — cristalino não tem esse método unificado; esta função
-/// é o equivalente inlined.
+/// Display a value at markup, lexical code-tail and math insertion boundaries.
+/// Markup handles its own None/Label semantics before this shared adapter.
+/// Residual repr presentation is explicit pending rich-value display completion.
 pub(crate) fn value_to_display_content(value: Value) -> Option<Content> {
     match value {
-        Value::Content(c) => Some(c),
-        Value::Str(s) => Some(Content::Text(s)),
+        Value::Content(content) => Some(content),
+        Value::LocatedContent(content, _) => Some(content.into_content()),
+        Value::Str(text) => Some(Content::Text(text)),
         Value::Auto => Some(Content::raw("auto", Some("typc".into()), false)),
-        Value::Bool(b) => Some(Content::raw(
-            if b { "true" } else { "false" },
+        Value::Bool(value) => Some(Content::raw(
+            if value { "true" } else { "false" },
             Some("typc".into()),
             false,
         )),
-        // P471 — símbolo Unicode → char como Content::Text.
-        Value::Symbol(s) => Some(Content::Text(s.value)),
-        // P506 — state(key, init) → Content::State locatável.
-        Value::State(s) => {
-            Some(Content::state(s.key.to_string(), s.init.as_ref().clone()))
+        Value::Symbol(symbol) => Some(Content::Text(symbol.value)),
+        Value::State(state) => {
+            Some(Content::state(state.key.to_string(), state.init.as_ref().clone()))
         }
-        // P506 — counter(selector) → nada visível directamente (só via
-        // .update()/.step()/.display()).
-        Value::Counter(_) => None,
-        Value::None => None,
-        // P796 — Version usa o `Display` (`to_string()`), não o `repr()`:
-        // `#sys.version` → "0.15.0", não "version(0, 15, 0)" (paridade
-        // vanilla `Value::display`, `entities/version.md` §8b).
-        Value::Version(v) => {
-            let text = v.to_string();
+        Value::Counter(_) | Value::None => None,
+        Value::Version(version) => {
+            let text = version.to_string();
             if text.is_empty() {
                 None
             } else {
                 Some(Content::Text(text.into()))
             }
         }
-        // Valores primitivos convertem-se para texto. Int, Float, Bool,
-        // Array, Dict, Length, Datetime, etc. usam repr_value.
-        other => {
-            // **P739C** — display de Float: paridade vanilla (Display de
-            // f64 — inteiros exactos sem `.0`: `#(1.0)` → "1", `#(4/2)` →
-            // "2", medido). `repr` mantém "1.0" (repr_value inalterado).
-            // **P817-D** — display de Decimal: paridade vanilla
-            // (`#decimal("1.50")` → "1.50", não `decimal("1.50")` — o repr
-            // constructor-form é só para `repr()`, medido nos dois binários).
-            let text = match &other {
-                Value::Float(f) => format!("{f}"),
-                Value::Decimal(d) => d.to_string(),
-                _ => crate::compiler::eval::repr::repr_value(&other),
-            };
+        // Numeric display differs from constructor-form repr.
+        Value::Float(value) => Some(Content::Text(format!("{value}").into())),
+        Value::Decimal(value) => Some(Content::Text(value.to_string().into())),
+        // Preserve this bounded legacy path; it does not certify rich display parity.
+        other @ (Value::Int(..)
+        | Value::Array(..)
+        | Value::Dict(..)
+        | Value::Module(..)
+        | Value::Datetime(..)
+        | Value::Func(..)
+        | Value::Length(..)
+        | Value::Relative(..)
+        | Value::Ratio(..)
+        | Value::Angle(..)
+        | Value::Color(..)
+        | Value::Stroke(..)
+        | Value::Fraction(..)
+        | Value::Align(..)
+        | Value::Location(..)
+        | Value::Gradient(..)
+        | Value::Regex(..)
+        | Value::Tiling(..)
+        | Value::Bytes(..)
+        | Value::Duration(..)
+        | Value::Selector(..)
+        | Value::Args(..)
+        | Value::Label(..)
+        | Value::Dir(..)
+        | Value::Path(..)
+        | Value::Type(..)
+        | Value::SpotColorant(..)) => {
+            let text = crate::compiler::eval::repr::repr_value(&other);
             if text.is_empty() {
                 None
             } else {
@@ -606,5 +608,158 @@ mod sequence_r3_markup_tests {
         assert_eq!(flow[0].plain_text(), "A");
         assert_eq!(flow[1].plain_text(), "B");
         assert!(matches!(inner.source_body(), Content::Sequence(_)));
+    }
+}
+
+#[cfg(test)]
+mod v16_c_display_tests {
+    use super::*;
+
+    use crate::contracts::world::World;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    use crate::entities::{file_id::FileId, font_book::FontBook, source::Source};
+    struct MemoryWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+    impl World for MemoryWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+    fn world(text: &str) -> MemoryWorld {
+        let id = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        MemoryWorld {
+            library: Library::new(),
+            book: FontBook::new(),
+            source: Source::new(id, text.into()),
+        }
+    }
+
+    fn rich() -> Content {
+        Content::heading(1, Content::strong(Content::text("RICH")))
+    }
+    fn located() -> Value {
+        Value::LocatedContent(
+            crate::entities::value::IntrospectedContent::new(rich(), None),
+            crate::entities::locator::Locator::new().next(),
+        )
+    }
+    fn assert_rich(content: &Content) {
+        let mut headings = 0;
+        let mut strong = 0;
+        content.visit_content_static(&mut |node| {
+            if let Content::Heading(h) = node {
+                headings += 1;
+                assert_eq!(h.body.plain_text(), "RICH");
+            }
+            if let Content::Strong(s) = node {
+                strong += 1;
+                assert_eq!(s.body.plain_text(), "RICH");
+            }
+            true
+        });
+        assert_eq!((headings, strong), (1, 1), "rich content lost: {content:?}");
+    }
+    fn inserted(source: &str) -> Content {
+        use comemo::Track;
+        let world = world(source);
+        let library = Library::with_global(super::super::make_stdlib(
+            &crate::contracts::world::SysInputs::default(),
+        ));
+        let mut library = library;
+        library.global.define(
+            "text",
+            Value::Func(crate::entities::func::Func::native(
+                "text",
+                crate::compiler::stdlib::native_text,
+            )),
+        );
+        let mut scopes = Scopes::new(Some(&library));
+        scopes.define("located", located());
+        let metrics = crate::compiler::layout::FixedMetrics;
+        let route = Route::root().with_id(world.main());
+        let mut styles = StyleChain::default_chain();
+        let mut rules = Arc::from([]);
+        let mut guards = Vec::new();
+        let mut sink = Sink::new();
+        let mut tracked = sink.track_mut();
+        let mut engine = Engine {
+            world: &world,
+            font_metrics: &metrics,
+            route: route.track(),
+            styles: &mut styles,
+            show_rules: &mut rules,
+            active_guards: &mut guards,
+            current_file: world.main(),
+            sink: &mut tracked,
+        };
+        let mut ctx = EvalContext::new();
+        eval_markup(world.source.root(), &mut scopes, &mut ctx, &mut engine)
+            .expect("source-level display route must evaluate");
+        let Some(Value::Content(content)) = scopes.get("result") else {
+            panic!("expected result content")
+        };
+        content.clone()
+    }
+    #[test]
+    fn v16_c_located_display_preserves_rich_body() {
+        assert_rich(
+            &value_to_display_content(located()).expect("content is displayable"),
+        );
+    }
+    #[test]
+    fn v16_c_located_display_markup_route() {
+        assert_rich(&inserted("#let result = [#located]"));
+    }
+    #[test]
+    fn v16_c_located_display_code_tail_route() {
+        assert_rich(&inserted("#let result = {set text(size:12pt);located}"));
+    }
+    #[test]
+    fn v16_c_located_display_math_route() {
+        assert_rich(&inserted("#let result = $ #located $"));
+    }
+    #[test]
+    fn v16_c_display_preserves_scalars_raw_and_empty() {
+        assert_eq!(
+            value_to_display_content(Value::Float(1.0)).unwrap().plain_text(),
+            "1"
+        );
+        assert!(matches!(value_to_display_content(Value::Auto), Some(Content::Raw(_))));
+        assert!(matches!(
+            value_to_display_content(Value::Bool(false)),
+            Some(Content::Raw(_))
+        ));
+        assert!(value_to_display_content(Value::None).is_none());
+        assert!(matches!(
+            value_to_display_content(Value::Content(Content::Empty)),
+            Some(Content::Empty)
+        ));
+        assert_rich(&value_to_display_content(Value::Content(rich())).unwrap());
     }
 }

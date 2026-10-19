@@ -1,0 +1,28 @@
+{
+  "sources": [
+    "01_core/src/compiler/eval/bindings/field_access/fields.rs",
+    "01_core/src/compiler/eval/bindings/value_methods/element_where.rs",
+    "01_core/src/compiler/eval/call_dispatch/call_spans.rs",
+    "01_core/src/compiler/eval/call_dispatch/content_methods.rs",
+    "01_core/src/compiler/eval/call_dispatch/instance_methods.rs",
+    "01_core/src/compiler/eval/modules.rs",
+    "01_core/src/compiler/eval/operators/arithmetic.rs",
+    "01_core/src/compiler/eval/rules/intercept.rs",
+    "01_core/src/compiler/eval/rules/set.rs",
+    "01_core/src/compiler/eval/rules/set/page.rs",
+    "01_core/src/compiler/eval/rules/set/text.rs"
+  ],
+  "owners": [
+    "00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md",
+    "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md",
+    "00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md",
+    "00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md",
+    "00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md",
+    "00_nucleo/prompts/core/compiler/eval/modules.md",
+    "00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md",
+    "00_nucleo/prompts/core/compiler/eval/rules/intercept.md",
+    "00_nucleo/prompts/core/compiler/eval/rules/set.md",
+    "00_nucleo/prompts/core/compiler/eval/rules/set/page.md",
+    "00_nucleo/prompts/core/compiler/eval/rules/set/text.md"
+  ]
+}

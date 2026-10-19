@@ -1,0 +1,36 @@
+
+#[cfg(test)]
+mod batch_c_selector_equality_tests {
+    use super::*;
+    use crate::entities::func::Func;
+    use crate::compiler::stdlib::{native_page, native_op, native_heading};
+
+    #[test]
+    fn batch_c_selector_equality_preserves_bare_group_order_and_flags() {
+        let native = Selector::NativeElement(Func::native("alias", native_heading));
+        let empty = Selector::Element { function: Func::native("heading", native_heading), fields: Default::default() };
+        assert!(!selectors_eq(&native, &empty));
+        assert!(!selectors_eq(&empty, &native));
+        let before = |inclusive| Selector::Before { base: Box::new(native.clone()), end: Box::new(empty.clone()), inclusive };
+        assert!(selectors_eq(&before(true),&before(true)));
+        assert!(!selectors_eq(&before(true),&before(false)));
+        let left=Selector::Or(vec![native.clone(),empty.clone()].into());
+        let right=Selector::Or(vec![empty,native].into());
+        assert!(!selectors_eq(&left,&right));
+    }
+
+    #[test]
+    fn batch_c_selector_equality_engine_native_identity_recurses_without_names() {
+        let page=Selector::NativeElement(Func::native_with_engine("page",native_page));
+        let alias=Selector::NativeElement(Func::native_with_engine("different",native_page));
+        let homonym=Selector::NativeElement(Func::native_with_engine("page",native_op));
+        let cross_abi=Selector::NativeElement(Func::native("page",native_heading));
+        assert!(selectors_eq(&page,&alias));
+        assert!(!selectors_eq(&page,&homonym));
+        assert!(!selectors_eq(&page,&cross_abi));
+        assert!(!selectors_eq(&cross_abi,&page));
+        assert!(values_eq(&Value::Array(vec![Value::Selector(page.clone())]),&Value::Array(vec![Value::Selector(alias.clone())])));
+        assert!(counter_keys_eq(&CounterKey::Selector(page.clone()),&CounterKey::Selector(alias.clone())));
+        assert!(selectors_eq(&Selector::And(vec![page].into()),&Selector::And(vec![alias].into())));
+    }
+}

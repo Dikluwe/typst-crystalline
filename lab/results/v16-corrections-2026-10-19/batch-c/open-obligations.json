@@ -1,0 +1,42 @@
+[
+  {
+    "obligation": "Discarded explicit Figure supplement updates must produce the additional hint without executing callbacks.",
+    "status": "Observed language mismatch, producer erases supplement before the repaired scan.",
+    "owners": [
+      "00_nucleo/prompts/core/compiler/stdlib/figure_image.md",
+      "00_nucleo/prompts/core/entities/elements/figure.md"
+    ],
+    "evidence": "agents/effects/candidate-replay/receipt.json: figure-supplement",
+    "acceptance": "Preserve explicit supplement provenance; valid-source oracle/product warning agreement, callback and set-rule negatives; L0 first."
+  },
+  {
+    "obligation": "Discarded explicit Equation supplement updates must produce the additional hint while inherited set values remain opaque.",
+    "status": "Observed language mismatch; constructor and set rules share undifferentiated style transport.",
+    "owners": [
+      "00_nucleo/prompts/core/compiler/stdlib/structural/math/equation.md",
+      "00_nucleo/prompts/core/compiler/eval/rules/set.md"
+    ],
+    "evidence": "agents/effects/candidate-replay/receipt.json: equation-supplement",
+    "acceptance": "Distinguish explicit constructor provenance before a bounded static scan; preserve existing reflection, callbacks and phase contracts."
+  },
+  {
+    "obligation": "Paragraph boundaries and effects must follow the language, including transformed content and completed carrier reentry.",
+    "status": "Space-only extra effects, eager raw-Heading/text preparation and query-Par errors remain open. No source witness currently attributes them to the selected prepared-Par predicate.",
+    "owners": [
+      "00_nucleo/prompts/core/compiler/eval/rules/realize.md"
+    ],
+    "evidence": "agents/effects/flow-probes.json and agents/structural/paragraph-stage-audit.md",
+    "acceptance": "A source-level completed visual Par at the selected predicate with lost boundary/effect, corrected by narrow projection, refutes the current local policy and requires L0-first correction."
+  },
+  {
+    "obligation": "Broader rich-value display and native selector identity retain existing language obligations.",
+    "status": "Generic repr display, Shape/binom erased constructor identity, raw.line name-based admission and ambiguous native representations are not certified by this batch.",
+    "owners": [
+      "00_nucleo/prompts/core/compiler/eval/markup_stream.md",
+      "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+      "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md"
+    ],
+    "evidence": "Owning L0 scopes and agents/selectors/review.md",
+    "acceptance": "Measure semantics/syntax/morphology against the pinned oracle; do not infer identity from names or geometry, or close parity through enum exhaustiveness."
+  }
+]

@@ -1,0 +1,53 @@
+{
+  "utc": "2026-10-19T12:48:28.261903+00:00",
+  "head": "370d78355bd646d1abead5bcacef215288cc8834",
+  "diff_stat": " .../compiler/eval/bindings/field_access/fields.md  |  49 ++++-\n .../eval/bindings/value_methods/element_where.md   |  50 ++++-\n .../eval/bindings/value_methods/selector.md        |  69 +++++-\n .../prompts/core/compiler/eval/call_dispatch.md    |  15 ++\n .../core/compiler/eval/call_dispatch/call_spans.md |  49 ++++-\n .../compiler/eval/call_dispatch/content_methods.md |  50 ++++-\n .../eval/call_dispatch/instance_methods.md         |  52 ++++-\n .../compiler/eval/call_dispatch/value_methods.md   |  60 +++++-\n .../core/compiler/eval/expression_dispatch.md      |  45 +++-\n .../prompts/core/compiler/eval/markup_stream.md    |  47 +++-\n 00_nucleo/prompts/core/compiler/eval/modules.md    |  50 ++++-\n .../core/compiler/eval/operators/arithmetic.md     |  51 ++++-\n .../core/compiler/eval/operators/equality.md       |  62 +++++-\n .../prompts/core/compiler/eval/rules/intercept.md  |  49 ++++-\n .../prompts/core/compiler/eval/rules/realize.md    |  48 +++++\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  50 ++++-\n .../prompts/core/compiler/eval/rules/set/page.md   |  51 ++++-\n .../prompts/core/compiler/eval/rules/set/text.md   |  52 ++++-\n .../core/compiler/eval/selector_matching.md        |  84 +++++++-\n .../core/compiler/stdlib/foundations/selector.md   |  20 ++\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  14 ++\n .../compiler/eval/bindings/field_access/fields.rs  |  80 ++++++-\n .../eval/bindings/value_methods/element_where.rs   |  72 ++++++-\n .../eval/bindings/value_methods/selector.rs        | 173 ++++++++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |   2 +-\n .../src/compiler/eval/call_dispatch/call_spans.rs  |  59 +++++-\n .../compiler/eval/call_dispatch/content_methods.rs | 191 ++++++++++++++++-\n .../eval/call_dispatch/instance_methods.rs         | 236 ++++++++++++++++++++-\n .../compiler/eval/call_dispatch/value_methods.rs   |  81 ++++++-\n 01_core/src/compiler/eval/expression_dispatch.rs   | 112 +++++++++-\n 01_core/src/compiler/eval/markup_stream.rs         | 125 ++++++++++-\n 01_core/src/compiler/eval/modules.rs               |  83 +++++++-\n 01_core/src/compiler/eval/operators/arithmetic.rs  |  50 ++++-\n 01_core/src/compiler/eval/operators/equality.rs    |  56 ++++-\n 01_core/src/compiler/eval/rules/intercept.rs       | 142 ++++++++++++-\n 01_core/src/compiler/eval/rules/realize.rs         |   2 +-\n 01_core/src/compiler/eval/rules/set.rs             |  88 +++++++-\n 01_core/src/compiler/eval/rules/set/page.rs        | 207 +++++++++++++++++-\n 01_core/src/compiler/eval/rules/set/text.rs        | 100 ++++++++-\n 01_core/src/compiler/eval/selector_matching.rs     | 190 ++++++++++++++++-\n .../src/compiler/stdlib/foundations/selector.rs    |   2 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   2 +-\n 42 files changed, 3032 insertions(+), 38 deletions(-)\n",
+  "oracle_sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+  "receipt_sha256": "62c6068aefecb7fc1ebaebd61cd5d7a1e0ac769c82384116651baa6e2db38399",
+  "oracle_commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+  "oracle_tree": "cac836c07e4dec2a89219370428292393a3216b5",
+  "results": [
+    {
+      "utc": "2026-10-19T12:48:28.104175+00:00",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/binom-frac-negative.typ",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/binom-frac-negative.pdf"
+      ],
+      "source": "#show selector(math.frac): it => [MATCH]\n$binom(3,2)$",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "text_argv": [
+        "pdftotext",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/binom-frac-negative.pdf",
+        "-"
+      ],
+      "text_exit": 0,
+      "text": "( 32 )\n\n\f",
+      "pdf_sha256": "acf10e0c82e14d26af7158f23e891a709f635aa918a9973c15510c5818ba11ca"
+    },
+    {
+      "utc": "2026-10-19T12:48:28.250060+00:00",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/par-preservation.typ",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/par-preservation.pdf"
+      ],
+      "source": "#show selector(par): set text(fill: red)\n#par[x]",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "text_argv": [
+        "pdftotext",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/par-preservation.pdf",
+        "-"
+      ],
+      "text_exit": 0,
+      "text": "x\n\n\f",
+      "pdf_sha256": "8eb5e02fe760b77a80a12dcb05ee85f1b5885ff6fddb145ba2df98dfef2919b9"
+    }
+  ]
+}

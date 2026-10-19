@@ -1,0 +1,77 @@
+
+#[cfg(test)]
+mod batch_c_selector_tests {
+    use super::*;
+    use crate::entities::func::Func;
+    use crate::compiler::stdlib::*;
+
+    #[test]
+    fn batch_c_selector_preserves_heading_alias_and_refuses_scalar_or_homonym() {
+        let alias = Func::native("unrelated", native_heading);
+        assert_eq!(value_to_query_selector(&Value::Func(alias)), Some(Selector::Kind(ElementKind::Heading)));
+        for value in [Value::Int(1), Value::None, Value::Bool(false), Value::Content(crate::entities::content::Content::Empty), Value::Func(Func::native("heading", |_,_,_,_| Ok(Value::None)))] {
+            assert!(value_to_query_selector(&value).is_none());
+        }
+        let base = Selector::Or(vec![Selector::Kind(ElementKind::Heading)].into());
+        assert_eq!(value_to_query_selector(&Value::Selector(base.clone())), Some(base));
+    }
+
+    #[test]
+    fn batch_c_selector_accepts_actual_native_operands_and_preserves_kind_policy() {
+        for (function, kind) in [(native_table as fn(_,_,_,_)->_, ElementKind::Table), (native_footnote, ElementKind::Footnote), (native_metadata, ElementKind::Metadata), (native_outline_entry, ElementKind::OutlineEntry), (native_math_equation, ElementKind::Equation)] {
+            assert_eq!(value_to_query_selector(&Value::Func(Func::native("alias", function))), Some(Selector::Kind(kind)));
+        }
+        for function in [Func::native("alias", native_table_cell), Func::native("alias", native_par), Func::native_with_engine("alias", native_page)] {
+            let Some(Selector::NativeElement(actual)) = value_to_query_selector(&Value::Func(function.clone())) else { panic!("native element operand") };
+            assert_eq!(actual, function);
+        }
+    }
+
+    #[test]
+    fn batch_c_selector_text_label_location_admission_is_not_legacy_kind_coercion() {
+        let Some(Selector::Regex(regex)) = value_to_query_selector(&Value::Str("a.b".into())) else { panic!("literal operand") };
+        assert!(regex.is_match("a.b"));
+        assert!(!regex.is_match("axb"));
+        assert!(matches!(value_to_query_selector(&Value::Str("table".into())), Some(Selector::Regex(_))));
+        let label = crate::entities::label::Label("x".into());
+        assert_eq!(value_to_query_selector(&Value::Label(label.clone())), Some(Selector::Label(label)));
+        let location = crate::entities::location::Location::from_raw(9);
+        assert_eq!(value_to_query_selector(&Value::Location(location)), Some(Selector::Location(location)));
+        assert!(matches!(value_to_query_selector(&Value::Regex(crate::entities::regex::Regex::new("x+").unwrap())), Some(Selector::Regex(_))));
+        for value in [Value::Str("".into()), Value::Regex(crate::entities::regex::Regex::new("").unwrap()), Value::Regex(crate::entities::regex::Regex::new("a*").unwrap())] { assert!(value_to_query_selector(&value).is_none()); }
+    }
+
+    struct MemoryWorld { library: crate::entities::world_types::Library, book: crate::entities::font_book::FontBook, source: crate::entities::source::Source }
+    impl crate::contracts::world::World for MemoryWorld {
+        fn library(&self) -> &crate::entities::world_types::Library { &self.library }
+        fn book(&self) -> &crate::entities::font_book::FontBook { &self.book }
+        fn main(&self) -> crate::entities::file_id::FileId { self.source.id() }
+        fn source(&self, _: crate::entities::file_id::FileId) -> crate::entities::world_types::FileResult<crate::entities::source::Source> { Ok(self.source.clone()) }
+        fn file(&self, _: crate::entities::file_id::FileId) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes> { Err(crate::entities::world_types::FileError::NotFound) }
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> { None }
+        fn today(&self, _: Option<crate::entities::duration::Duration>) -> Option<crate::entities::world_types::Datetime> { None }
+    }
+    fn evaluate(text: &str) -> SourceResult<crate::entities::module::Module> {
+        let id=crate::entities::file_id::FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        let world=MemoryWorld{library: crate::entities::world_types::Library::new(),book: crate::entities::font_book::FontBook::new(),source: crate::entities::source::Source::new(id,text.into())};
+        crate::compiler::eval::tests::eval_for_test(&world,&world.source)
+    }
+
+    #[test]
+    fn batch_c_selector_preserves_receiver_and_argument_once_and_refusal_precedence() {
+        evaluate("#let n = 0\n#let receiver() = { n += 1; selector(heading) }\n#let operand() = { n += 10; heading }\n#let s = receiver().or(operand())\n#assert(n == 11)").unwrap();
+        let errors=evaluate("#let s = 1.or(panic(\"argument ran\"))").unwrap_err();
+        assert!(!errors.iter().any(|error| error.message.contains("argument ran")));
+    }
+
+    #[test]
+    fn batch_c_selector_native_composition_effects_and_contextual_rejection() {
+        evaluate("#let n = 0\n#let operand() = { n += 1; table.cell }\n#let s = selector(heading).or(operand())\n#assert(n == 1)").unwrap();
+        for expression in ["selector(heading).before(table.cell)", "selector(heading).after(selector(page))", "selector(heading).within(table.cell)", "selector(heading).within(selector(heading).or(table.cell))"] {
+            let errors=evaluate(&format!("#let s = {expression}")).unwrap_err();
+            assert!(errors.iter().any(|error| error.message.contains("is not locatable")), "{expression}: {errors:?}");
+        }
+        let errors=evaluate("#let s = \"text\".or(panic(\"argument ran\"))").unwrap_err();
+        assert!(!errors.iter().any(|error| error.message.contains("argument ran")));
+    }
+}

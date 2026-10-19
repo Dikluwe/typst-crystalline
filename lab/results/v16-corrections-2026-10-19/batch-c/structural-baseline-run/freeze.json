@@ -1,0 +1,17 @@
+{
+  "utc": "2026-10-19T12:51:24.678319+00:00",
+  "changed": [
+    "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+    "01_core/src/compiler/eval/bindings/value_methods/selector.rs",
+    "01_core/src/compiler/eval/markup_stream.rs",
+    "01_core/src/compiler/eval/rules/realize.rs",
+    "01_core/src/compiler/eval/selector_matching.rs"
+  ],
+  "memory_after": {
+    "memory.max": "12884901888",
+    "memory.high": "8589934592",
+    "memory.swap.max": "0",
+    "memory.peak": "2150952960",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+  }
+}

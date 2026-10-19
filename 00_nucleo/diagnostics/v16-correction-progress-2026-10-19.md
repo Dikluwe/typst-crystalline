@@ -1,7 +1,7 @@
 # V16 correction progress
 
-Status: batches A and B validated and closed. The other
-83 V16 findings remain open in the [cause-correction plan](v16-cause-correction-plan-2026-10-19.md).
+Status: batches A, B and C validated and closed. The other
+64 V16 findings remain open in the [cause-correction plan](v16-cause-correction-plan-2026-10-19.md).
 This diagnostic is not a new L0 contract or a claim of complete Typst parity.
 
 ## Batch A: evidence before closure
@@ -103,9 +103,64 @@ source/L0 hashes, measurements and review limits are in the
 [closure ledger](../../lab/results/v16-corrections-2026-10-19/batch-b/closure-ledger.json).
 The full linter still exits 1 for the remaining 83 errors in batches C–G.
 
+## Batch C: selectors, rich display and discarded updates
+
+The baseline is commit `370d78355bd646d1abead5bcacef215288cc8834` on the same
+branch. The final pinned scan ended at `2026-10-19T13:39:03.479605+00:00` on the
+uncommitted implementation: **83 → 64 V16 errors**, exactly the nineteen selected
+findings removed, with no new error or warning. Its complete changed-file stat,
+UTC and input hashes are in the
+[lint receipt](../../lab/results/v16-corrections-2026-10-19/batch-c/lint-state.json.gz).
+Diagnostics outside the twenty-two source/L0 pairs are identical. One retained
+V16 inside that scope moves by two lines after helper-signature formatting;
+its message and severity remain unchanged. V19 notes change from 1,166 to 1,195;
+V20 remains 878 with one content addition and one removal. All notes remain
+enabled and receive a [substantive review](../../lab/results/v16-corrections-2026-10-19/batch-c/note-review.md).
+
+Three agents updated owning L0s first, implemented disjoint repairs and reviewed
+one another. Closed nominal decisions preserve existing validation order,
+delegation, errors, snapshots and nonexecution of rejected arguments. Semantic
+repairs cover selector operands and contextual boundaries, typed native and
+Format identity, rich LocatedContent insertion, and static detection of discarded
+updates. A new shared Nucleus connects the Heading constructor's private explicit
+supplement snapshot to its diagnostic consumer; the existing Format Nucleus is
+newly pinned without changing its contents. Public signatures, defaults and
+pipeline phases remain unchanged.
+
+An initial candidate introduced a forbidden direct regex dependency. The full
+scan caught V14; the repair uses a pure local escaping helper specified by its
+owner, verified against locked dependency sources. No dependency allowlist,
+linter rule, severity, scan scope, suppression or ignored test was changed.
+
+The [52 new tests](../../lab/results/v16-corrections-2026-10-19/batch-c/new-tests.json)
+include 23 semantic RED controls and 29 preservation controls, with their actual
+baseline runs retained. All 52 and the existing Heading reflection control pass
+in the final fresh full domain run. Bilateral checks against the ratified oracle
+pass 60 selector cases and 23 warning cases, plus rich content from an actual
+query producer in three insertion routes. Real enum-extension experiments and
+independent span audits confirm 25 selected/helper decision witnesses and six
+isolated Selector/FuncRepr tuple classes. Unrelated compiler errors do not count
+as proof, and exhaustiveness does not establish complete language parity.
+
+All twelve integrated gates completed at **2026-10-19T13:58:58.141405+00:00**, with no change in
+2,131 frozen inputs. Cleaning the four product packages before the final run
+ensured the actual checkout rebuilt and tested its sources. Paths, strict direct
+and reverse lineage, ownership/Nuclei, builds, domain/infra/wiring tests, doctests,
+all targets including lab benches, Clippy, formatting and Rustdoc passed.
+Receipts and hashes are in the
+[batch C evidence](../../lab/results/v16-corrections-2026-10-19/batch-c/README.md) and
+[closure ledger](../../lab/results/v16-corrections-2026-10-19/batch-c/closure-ledger.json).
+
+The full linter still exits 1 for the other 64 V16 errors. Figure/Equation
+supplement provenance, paragraph staging and completed-carrier reentry, generic
+rich-value display and ambiguous native identities remain explicit
+[open obligations](../../lab/results/v16-corrections-2026-10-19/batch-c/open-obligations.json).
+Their required behavior and acceptance criteria are preserved; this batch does
+not certify those cases or weaken their contracts.
+
 ## Remaining obligations and organizational result
 
-Batches C–G remain open. The mathematical parser's old grouping comment differs
+Batches D–G remain open. The mathematical parser's old grouping comment differs
 from the observed tree for `a^b'_c^d`; batch A preserved the observed tree and
 recorded the intent question separately. It does not ratify that comment or close
 parity through Rust exhaustiveness. Three callback font formats still lack

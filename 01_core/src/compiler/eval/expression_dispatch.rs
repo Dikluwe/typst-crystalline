@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/expression_dispatch.md
-//! @prompt-hash aa0b0f73
+//! @prompt-hash ed183332
 //! @layer L1
 //! @updated 2026-10-07
 
@@ -329,16 +329,9 @@ fn eval_expr_inner(
                             vec![SourceDiagnostic::error(tail.span, message)]
                         })?;
                 }
-                // **P740A** — paridade vanilla `warn_for_discarded_content`
-                // (`typst-eval/src/code.rs:413-430`): `return` incondicional
-                // (flag `conditional == false`) com conteúdo acumulado antes
-                // dele emite warning + hint; um segundo hint é adicionado
-                // quando o conteúdo descartado contém updates de
-                // state/counter (seletor `State|Counter` no vanilla, aqui
-                // travessia directa das variants equivalentes). A emissão
-                // acontece aqui — antes do chamador tratar o flow —, pelo
-                // que o warning coexiste com o erro "cannot return outside
-                // of function" (medido no vanilla).
+                // Emit before the caller handles the return, so this diagnostic
+                // can coexist with an invalid-return error. The second hint is
+                // a nonexecuting scan for actual state/counter update content.
                 if let Some(FlowEvent::Return(span, Some(_), false)) = &ctx.flow {
                     if let Value::Content(c) = &output {
                         let hint2 = if content_has_state_or_counter(c) {
@@ -774,24 +767,202 @@ fn eval_expr_inner(
     }
 }
 
-/// **P740A** — deteta updates de state/counter no conteúdo descartado
-/// por um `return` (paridade do seletor `State::select_any() |
-/// Counter::select_any()` do vanilla em `warn_for_discarded_content`).
-/// Travessia directa: as variants da família (state, state update,
-/// counter update e os dois displays de counter) disparam; desce em
-/// `Sequence` e `Styled` (as formas que o `join` produz em markup).
-fn content_has_state_or_counter(c: &crate::entities::content::Content) -> bool {
-    use crate::entities::content::Content;
-    match c {
-        Content::State(_)
-        | Content::StateUpdate(_)
-        | Content::CounterUpdate(_)
-        | Content::CounterDisplay(_)
-        | Content::CounterDisplayCallback(_) => true,
-        Content::Sequence(items) => items.iter().any(content_has_state_or_counter),
-        Content::Styled(styled) => content_has_state_or_counter(&styled.body),
-        _ => false,
+/// Inspect discarded static content for update nodes without evaluating callbacks.
+fn content_has_state_or_counter(content: &crate::entities::content::Content) -> bool {
+    fn value_has_update(value: &Value) -> bool {
+        match value {
+            Value::Content(content) => content_has_state_or_counter(content),
+            Value::LocatedContent(content, _) => {
+                content_has_state_or_counter(content.content())
+            }
+            Value::Array(values) => values.iter().any(value_has_update),
+            Value::Float(..)
+            | Value::Decimal(..)
+            | Value::None
+            | Value::Bool(..)
+            | Value::Int(..)
+            | Value::Str(..)
+            | Value::Dict(..)
+            | Value::Module(..)
+            | Value::Datetime(..)
+            | Value::Func(..)
+            | Value::Auto
+            | Value::Length(..)
+            | Value::Relative(..)
+            | Value::Ratio(..)
+            | Value::Angle(..)
+            | Value::Color(..)
+            | Value::Stroke(..)
+            | Value::Fraction(..)
+            | Value::Align(..)
+            | Value::Location(..)
+            | Value::Gradient(..)
+            | Value::Regex(..)
+            | Value::Tiling(..)
+            | Value::Bytes(..)
+            | Value::Duration(..)
+            | Value::Version(..)
+            | Value::Selector(..)
+            | Value::Symbol(..)
+            | Value::Args(..)
+            | Value::State(..)
+            | Value::Counter(..)
+            | Value::Label(..)
+            | Value::Dir(..)
+            | Value::Path(..)
+            | Value::Type(..)
+            | Value::SpotColorant(..) => false,
+        }
     }
+    let mut found = false;
+    content.visit_content_static(&mut |node| {
+        if found {
+            return false;
+        }
+        found = match node {
+            Content::StateUpdate(_) | Content::CounterUpdate(_) => true,
+            Content::Metadata(metadata) => value_has_update(&metadata.value),
+            Content::Ref(reference) => reference
+                .supplement
+                .as_ref()
+                .is_some_and(content_has_state_or_counter),
+            Content::Dynamic(element) => element
+                .as_any()
+                .downcast_ref::<crate::entities::elements::raw::RawLineElem>()
+                .is_some_and(|line| content_has_state_or_counter(&line.body)),
+            Content::Styled(_) => {
+                node.constructor_heading().is_some_and(|(_, styles)| {
+                    styles
+                        .delta()
+                        .custom
+                        .iter()
+                        .rev()
+                        .find(|(key, _)| key.as_str() == "heading.constructor.supplement")
+                        .is_some_and(|(_, value)| value_has_update(value))
+                })
+            }
+            Content::PageRun(page) => {
+                // Page properties are deferred; the static public child is its body.
+                found = content_has_state_or_counter(&page.body);
+                return false;
+            }
+            Content::Source(_)
+            | Content::ShowRecipe(_)
+            | Content::Par { .. }
+            | Content::Realized(_)
+            | Content::Located(_)
+            | Content::Empty
+            | Content::Text(_)
+            | Content::Space
+            | Content::SpaceFromNewline
+            | Content::Parbreak
+            | Content::Sequence(_)
+            | Content::HtmlElem(_)
+            | Content::HtmlFrame(_)
+            | Content::Heading(_)
+            | Content::Title(_)
+            | Content::Strong(_)
+            | Content::Emph(_)
+            | Content::Raw(_)
+            | Content::ListItem(_)
+            | Content::EnumItem(_)
+            | Content::Link(_)
+            | Content::Equation(_)
+            | Content::MathSequence(_)
+            | Content::MathIdent(_)
+            | Content::MathText(_)
+            | Content::MathFrac(_)
+            | Content::MathAttach(_)
+            | Content::MathPrimes(_)
+            | Content::MathRoot(_)
+            | Content::MathStretch(_)
+            | Content::MathDelimited(_)
+            | Content::MathLr(_)
+            | Content::MathMid(_)
+            | Content::MathOverbrace(_)
+            | Content::MathUnderbrace(_)
+            | Content::MathUnderbracket(_)
+            | Content::MathUnderparen(_)
+            | Content::MathUndershell(_)
+            | Content::MathOverbracket(_)
+            | Content::MathOverparen(_)
+            | Content::MathOvershell(_)
+            | Content::MathAlignPoint(_)
+            | Content::Linebreak(_)
+            | Content::MathMatrix(_)
+            | Content::MathCases(_)
+            | Content::MathAccent(_)
+            | Content::MathCancel(_)
+            | Content::MathUnderline(_)
+            | Content::MathOverline(_)
+            | Content::MathVec(_)
+            | Content::MathClassOverride(_)
+            | Content::MathLimitsOverride(_)
+            | Content::MathUnderover(_)
+            | Content::MathOp(_)
+            | Content::MathStyled(_)
+            | Content::Label(_)
+            | Content::CounterDisplay(_)
+            | Content::Outline(_)
+            | Content::OutlineEntry(_)
+            | Content::Figure(_)
+            | Content::FigureCaption(_)
+            | Content::Image(_)
+            | Content::Shape(_)
+            | Content::Curve(_)
+            | Content::Transform(_)
+            | Content::Grid(_)
+            | Content::GridHeader(_)
+            | Content::GridFooter(_)
+            | Content::GridCell(_)
+            | Content::SetPage(_)
+            | Content::Align(_)
+            | Content::Place(_)
+            | Content::Flush(_)
+            | Content::Divider(_)
+            | Content::Terms(_)
+            | Content::TermItem(_)
+            | Content::Quote(_)
+            | Content::Document { .. }
+            | Content::Asset { .. }
+            | Content::SmartQuote(_)
+            | Content::PdfAttach(_)
+            | Content::PdfArtifact(_)
+            | Content::Underline(_)
+            | Content::Strike(_)
+            | Content::Overline(_)
+            | Content::SmallCaps { .. }
+            | Content::Pad(_)
+            | Content::Hide(_)
+            | Content::HSpace(_)
+            | Content::VSpace(_)
+            | Content::Pagebreak(_)
+            | Content::Colbreak(_)
+            | Content::Stack(_)
+            | Content::Boxed(_)
+            | Content::Block(_)
+            | Content::TableCell(_)
+            | Content::Bibliography(_)
+            | Content::Cite(_)
+            | Content::Footnote(_)
+            | Content::FootnoteEntry(_)
+            | Content::TableHeader(_)
+            | Content::TableFooter(_)
+            | Content::GridHLine(_)
+            | Content::GridVLine(_)
+            | Content::TableHLine(_)
+            | Content::TableVLine(_)
+            | Content::Table(_)
+            | Content::Repeat(_)
+            | Content::Columns(_)
+            | Content::State(_)
+            | Content::StateDisplay(_)
+            | Content::CounterDisplayCallback(_)
+            | Content::ContextBlock(_) => false,
+        };
+        !found
+    });
+    found
 }
 
 /// **P718** — lookahead para o hint de `Expr::Array` (mirror do
@@ -821,4 +992,191 @@ fn remaining_are_dict_spreads(
 mod smoke {
     #[test]
     fn modulo_compila_e_carrega() {}
+}
+
+#[cfg(test)]
+mod v16_c_effect_tests {
+    use super::*;
+
+    use crate::contracts::world::World;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    use crate::entities::{file_id::FileId, font_book::FontBook, source::Source};
+    struct MemoryWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+    impl World for MemoryWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+    }
+    fn world(text: &str) -> MemoryWorld {
+        let id = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        MemoryWorld {
+            library: Library::new(),
+            book: FontBook::new(),
+            source: Source::new(id, text.into()),
+        }
+    }
+
+    fn warning(text: &str) -> SourceDiagnostic {
+        let world = world(text);
+        let (result, sink) =
+            super::super::tests::eval_for_test_keep_sink(&world, &world.source);
+        let errors = result.expect_err("return outside a function must remain invalid");
+        assert!(errors.iter().any(|e| e.message.contains("cannot return outside")));
+        sink.into_diagnostics()
+            .into_iter()
+            .find(|d| {
+                d.message == "this return unconditionally discards the content before it"
+            })
+            .expect("discarded-content warning must coexist with the return error")
+    }
+    fn has_update_hint(warning: &SourceDiagnostic) -> bool {
+        warning.hints.iter().any(|h| h == "state/counter updates are content that must end up in the document to have an effect")
+    }
+    #[test]
+    fn v16_c_update_hint_follows_content_block() {
+        let warning =
+            warning("#{ let s = state(\"k\", 0); [#s.update(1)]; return \"x\" }");
+        assert!(has_update_hint(&warning), "{warning:?}");
+    }
+    #[test]
+    fn v16_c_update_hint_follows_strong_body() {
+        let warning =
+            warning("#{ let s = state(\"k\", 0); strong(s.update(1)); return \"x\" }");
+        assert!(has_update_hint(&warning), "{warning:?}");
+    }
+    #[test]
+    fn v16_c_update_hint_preserves_direct_and_opaque_context() {
+        assert!(has_update_hint(&warning(
+            "#{ state(\"k\", 0).update(1); return \"x\" }"
+        )));
+        let hidden = warning("#{ context { panic(\"EXECUTED\"); state(\"k\",0).update(1) }; return \"x\" }");
+        assert!(!has_update_hint(&hidden));
+        assert_eq!(hidden.hints.len(), 1);
+        assert_eq!(
+            hidden.hints[0],
+            "try omitting the `return` to automatically join all values"
+        );
+    }
+    #[test]
+    fn v16_c_update_hint_inspects_metadata_content_and_arrays() {
+        for field in ["state(\"k\",0).update(1)", "(state(\"k\",0).update(1),)"] {
+            let source = format!("#{{ metadata({field}); return \"x\" }}");
+            let diagnostic = warning(&source);
+            assert!(has_update_hint(&diagnostic), "{source}: {diagnostic:?}");
+        }
+    }
+    #[test]
+    fn v16_c_update_hint_preserves_metadata_dictionary_opacity() {
+        let diagnostic =
+            warning("#{ metadata((value:state(\"k\",0).update(1))); return \"x\" }");
+        assert!(!has_update_hint(&diagnostic));
+    }
+    #[test]
+    fn v16_c_update_hint_inspects_ref_supplement() {
+        let diagnostic =
+            warning(r#"#{ ref(<x>, supplement:state("k",0).update(1)); return "x" }"#);
+        assert!(has_update_hint(&diagnostic), "{diagnostic:?}");
+    }
+    #[test]
+    fn v16_c_update_hint_inspects_native_raw_line_body() {
+        let diagnostic =
+            warning(r#"#{ raw.line(1,1,"x",state("k",0).update(1)); return "x" }"#);
+        assert!(has_update_hint(&diagnostic), "{diagnostic:?}");
+    }
+    #[test]
+    fn v16_c_update_hint_inspects_constructor_heading_supplement() {
+        let diagnostic =
+            warning(r#"#{ heading(supplement:state("k",0).update(1))[A]; return "x" }"#);
+        assert!(has_update_hint(&diagnostic), "{diagnostic:?}");
+    }
+    #[test]
+    fn v16_c_update_hint_preserves_heading_supplement_provenance() {
+        for source in [
+            r#"#{ set heading(supplement:state("k",0).update(1)); heading(numbering:"1")[A]; return "x" }"#,
+            r#"#{ set heading(supplement:state("k",0).update(1)); heading(numbering:"1",supplement:none)[A]; return "x" }"#,
+        ] {
+            let diagnostic = warning(source);
+            assert!(!has_update_hint(&diagnostic), "{source}: {diagnostic:?}");
+        }
+    }
+    #[test]
+    fn v16_c_update_hint_inspects_explicit_heading_override() {
+        let diagnostic = warning(
+            r#"#{ set heading(supplement:none); heading(numbering:"1",supplement:state("k",0).update(1))[A]; return "x" }"#,
+        );
+        assert!(has_update_hint(&diagnostic), "{diagnostic:?}");
+    }
+    #[test]
+    fn v16_c_update_hint_excludes_deferred_page_properties() {
+        for field in ["header", "footer", "supplement", "background", "foreground"] {
+            let source =
+                format!(r#"#{{ page({field}:state("k",0).update(1))[A]; return "x" }}"#);
+            let diagnostic = warning(&source);
+            assert!(!has_update_hint(&diagnostic), "{field}: {diagnostic:?}");
+        }
+    }
+    #[test]
+    fn v16_c_update_hint_preserves_static_field_boundaries() {
+        for source in [
+            r#"#{ ref(<x>,supplement:none); return "x" }"#,
+            r#"#{ raw.line(1,1,"x",context {panic("EXECUTED");state("k",0).update(1)}); return "x" }"#,
+            r#"#{ heading(supplement:it=>{panic("EXECUTED");state("k",0).update(1)})[A]; return "x" }"#,
+            r#"#{ set heading(supplement:state("k",0).update(1)); heading[A]; return "x" }"#,
+        ] {
+            let diagnostic = warning(source);
+            assert!(!has_update_hint(&diagnostic), "{source}: {diagnostic:?}");
+        }
+        let diagnostic = warning(r#"#{ page(state("k",0).update(1)); return "x" }"#);
+        assert!(has_update_hint(&diagnostic), "{diagnostic:?}");
+    }
+    #[test]
+    fn v16_c_update_hint_excludes_displays_and_observes_only_visual() {
+        use crate::entities::content::RealizedContent;
+        use crate::entities::state_update::StateUpdate;
+        let update =
+            Content::state_update("k", StateUpdate::Set(Box::new(Value::Int(1))));
+        let display = Content::counter_display(
+            crate::entities::counter::CounterKey::Str("k".into()),
+        );
+        assert!(!content_has_state_or_counter(&display));
+        assert!(!content_has_state_or_counter(&Content::state_display("k", None)));
+        assert!(!content_has_state_or_counter(&Content::counter_display_callback(
+            crate::entities::counter::CounterKey::Str("k".into()),
+            None
+        )));
+        assert!(!content_has_state_or_counter(&Content::state("k", Value::Int(0))));
+        assert!(!content_has_state_or_counter(&Content::Realized(Arc::new(
+            RealizedContent { original: update.clone(), visual: display.clone() }
+        ))));
+        assert!(content_has_state_or_counter(&Content::Realized(Arc::new(
+            RealizedContent { original: display, visual: update }
+        ))));
+    }
 }

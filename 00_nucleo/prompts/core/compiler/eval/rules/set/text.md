@@ -1,5 +1,5 @@
 # L0 — compiler/eval/rules/set/text — Set text and lexical transport
-Hash do Código: f87ab12f
+Hash do Código: fa1c9dc0
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/paragraph-break-policy.toml sha256:41e38095ab33ab1710ba11f43d6a5ca50def5a703f77a0001a066b72964c4165
@@ -83,3 +83,53 @@ Measurements/shape-RTL refinement in
 `lab/results/construction/diagnostics/bibliography-hanging-2026-10-18`
 precede new shared selection pin. This owner receives only pin; executable code/
 API/phase/other responsibilities remain unchanged in that refinement.
+
+## Closed-domain decision and preservation
+
+### Evidence before decision
+
+At checkpoint `370d78355bd646d1abead5bcacef215288cc8834`,
+`01_core/src/compiler/eval/rules/set/text.rs:11–466`
+and the caller/producer evidence recorded in
+`lab/results/v16-corrections-2026-10-19/batch-c/agents/structural/l0-audit.json`
+show the current decision and its refusal path. That receipt records UTC,
+working-tree diffstat and exact source/owner SHA-256 before this amendment.
+The existing clauses above establish the behavior to preserve; an open Rust
+match is structural evidence, not proof of additional language admission.
+
+### Exclusive policy
+
+Str yields a family; Dict yields one only when its name member is Str. Dict with Regex
+or absent/non-string name yields no literal lookup. All listed complement Value entries
+yield None at this stage; most are disallowed by the earlier ordinary Str/array
+validator or font dictionary parser. That reachability must be documented from producers
+rather than assumed from the filter itself.
+
+Close both the outer item Value and the inner optional dictionary name Value. None is a
+separate Option arm; only Str gives a literal family. Regex names, missing names and
+every non-Str name skip literal lookup. The earlier producers accept ordinary Str/Str
+arrays and parser-built dictionaries; the defensive complement must not turn into a new
+font schema. Test actual set text literal and dictionary literal warnings, regex
+dictionary absence of literal warnings, and prior rejection of invalid array/scalar
+inputs; preserve lowercase family diagnostics and spans.
+
+The explicit nominal complement is: `None`, `Bool`, `Int`, `Float`, `Array`, `Module`, `Datetime`, `Func`, `Content`, `LocatedContent`, `Auto`, `Length`, `Relative`, `Ratio`, `Angle`, `Color`, `Stroke`, `Fraction`, `Align`, `Location`, `Gradient`, `Regex`, `Tiling`, `Bytes`, `Decimal`, `Duration`, `Version`, `Selector`, `Symbol`, `Args`, `State`, `Counter`, `Label`, `Dir`, `Path`, `Type`, `SpotColorant`.
+
+### Acceptance and refutation
+
+Preservation controls run before and after the repair. A real temporary enum
+variant in a disposable complete workspace must fail with E0004 at this exact
+decision after repair; failures at other decisions alone are insufficient.
+Exercise nested closed domains separately where present. The structural RED is
+the original V16/open evolution boundary, not a fabricated runtime defect.
+Any changed result, message, span, callback count, argument evaluation or refusal
+route refutes preservation. Retain informational V19 groups with their rationale;
+add no suppression, hidden catchall, linter/configuration weakening or new policy.
+
+Internal continuous ADR-0127: no public field/trait/signature, product default,
+phase or compatibility change. L0 precedes code; reseal only valid owner pairs
+after V15/V26. Require focused and full workspace tests, build/all-targets, fmt,
+strict Clippy/Rustdoc, path checks, direct/reverse lineage and differential SARIF
+without new errors or warnings outside the selected repairs. Heavy checks are
+serialized under one job, 12 GiB maximum, 8 GiB high and zero swap. Historical
+parity claims and unresolved scope exclusions above remain bounded.

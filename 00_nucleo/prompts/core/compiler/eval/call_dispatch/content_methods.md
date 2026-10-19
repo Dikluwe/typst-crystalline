@@ -1,5 +1,5 @@
 # L0 — compiler/eval/call_dispatch/content_methods
-Hash do Código: edef1c66
+Hash do Código: 42a85646
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/content/source-origin.toml sha256:059eb35863a413593c98fb7195a521e3d019dadf461433e9c42422218be89065
@@ -104,3 +104,51 @@ fmt/V1/V5/V15/V26/reverse/differential SARIF without new error. Uniform V19 stay
 informational with alternative matrix/behavior relation; no suppression/config
 change. Heavy commands sequential under 12 GiB/High 10 GiB/swap0/jobs1. No publication/
 commit/merge/release or global-objective closure claim.
+
+## Closed-domain decision and preservation
+
+### Evidence before decision
+
+At checkpoint `370d78355bd646d1abead5bcacef215288cc8834`,
+`01_core/src/compiler/eval/call_dispatch/content_methods.rs:10–139`
+and the caller/producer evidence recorded in
+`lab/results/v16-corrections-2026-10-19/batch-c/agents/structural/l0-audit.json`
+show the current decision and its refusal path. That receipt records UTC,
+working-tree diffstat and exact source/owner SHA-256 before this amendment.
+The existing clauses above establish the behavior to preserve; an open Rust
+match is structural evidence, not proof of additional language admission.
+
+### Exclusive policy
+
+The listed Value complement is not a Content/LocatedContent OutlineEntry receiver and
+returns None without evaluating args for this route. Content/LocatedContent still
+require outline_entry_receiver, which crosses Source/Located only; other Content is not
+an OutlineEntry and falls through. Earlier Location and generic content-method routes
+remain separate.
+
+The final Value projection is solely for OutlineEntry method routing. All other Value
+families defer with their cached receiver and without evaluating arguments. Content and
+LocatedContent still require the existing bounded receiver helper. Test direct dispatch
+with panic arguments on refused Values and on non-entry Content, then existing positive
+raw/Source/Located entry controls and earlier generic Content methods.
+
+The explicit nominal complement is: `None`, `Bool`, `Int`, `Float`, `Str`, `Array`, `Dict`, `Module`, `Datetime`, `Func`, `Auto`, `Length`, `Relative`, `Ratio`, `Angle`, `Color`, `Stroke`, `Fraction`, `Align`, `Location`, `Gradient`, `Regex`, `Tiling`, `Bytes`, `Decimal`, `Duration`, `Version`, `Selector`, `Symbol`, `Args`, `State`, `Counter`, `Label`, `Dir`, `Path`, `Type`, `SpotColorant`.
+
+### Acceptance and refutation
+
+Preservation controls run before and after the repair. A real temporary enum
+variant in a disposable complete workspace must fail with E0004 at this exact
+decision after repair; failures at other decisions alone are insufficient.
+Exercise nested closed domains separately where present. The structural RED is
+the original V16/open evolution boundary, not a fabricated runtime defect.
+Any changed result, message, span, callback count, argument evaluation or refusal
+route refutes preservation. Retain informational V19 groups with their rationale;
+add no suppression, hidden catchall, linter/configuration weakening or new policy.
+
+Internal continuous ADR-0127: no public field/trait/signature, product default,
+phase or compatibility change. L0 precedes code; reseal only valid owner pairs
+after V15/V26. Require focused and full workspace tests, build/all-targets, fmt,
+strict Clippy/Rustdoc, path checks, direct/reverse lineage and differential SARIF
+without new errors or warnings outside the selected repairs. Heavy checks are
+serialized under one job, 12 GiB maximum, 8 GiB high and zero swap. Historical
+parity claims and unresolved scope exclusions above remain bounded.

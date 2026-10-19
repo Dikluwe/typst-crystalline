@@ -1,0 +1,20 @@
+{
+  "utc": "2026-10-19T12:48:48.126946+00:00",
+  "validated_receipt": "lab/results/v16-corrections-2026-10-19/batch-b/validation/validation-state.json.gz",
+  "validated_receipt_sha256": "a9aa69416ec7de3ea5b4ea83f8d73d82957bc4803c347cace7bace5d80adc3d0",
+  "validated_freeze": {
+    "utc": "2026-10-19T12:16:50.879472+00:00",
+    "changed_inputs": [],
+    "input_count": 2130,
+    "completed_jobs": 12,
+    "expected_jobs": 12
+  },
+  "checkpoint": "370d78355",
+  "compared_inputs": 2130,
+  "mismatches": [],
+  "binary": "lab/target/product/debug/typst",
+  "binary_sha256": "39b8b85cc81284866367675252d8a7638e8145b772257f434dffcda11dd0eb28",
+  "build_log_sha256": "3a43ddd866acf99521b5f2774b3ea1e6f406b582d63a05875455ed7934f46222",
+  "alltargets_log_sha256": "4446ede925a8315eb86fb0e856a18a1f70e7add12a568454d5564e8e63d71b2c",
+  "scope": "Receipt comparison ties productive checkpoint inputs to batch B fresh build; executable hash was captured before current batch compiler changes. Version text is not used as sole identity."
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/stdlib/foundations/selector.md
-//! @prompt-hash 09802fb4
+//! @prompt-hash 7035d31f
 //! @layer L1
 //! @updated 2026-10-06
 
@@ -104,7 +104,9 @@ fn is_table_cell(f: &crate::entities::func::Func) -> bool {
     })
 }
 
-fn element_kind_of_native_func(f: &crate::entities::func::Func) -> Option<ElementKind> {
+pub(crate) fn element_kind_of_native_func(
+    f: &crate::entities::func::Func,
+) -> Option<ElementKind> {
     let addr = f.native_fn_addr()?;
     if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) {
         Some(ElementKind::Heading)

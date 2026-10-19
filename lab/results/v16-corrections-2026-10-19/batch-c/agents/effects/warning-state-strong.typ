@@ -1,0 +1,1 @@
+#{ let s = state("k", 0); strong(s.update(1)); return "x" }

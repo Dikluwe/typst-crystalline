@@ -1,0 +1,8 @@
+    Finished `test` profile [unoptimized] target(s) in 0.14s
+     Running unittests src/lib.rs (lab/target/product/debug/deps/typst_core-43a58fb6a88ab978)
+
+running 1 test
+test compiler::eval::tests::regressions::a1_heading_constructor_identity_presence_and_external_styled ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7487 filtered out; finished in 0.03s
+

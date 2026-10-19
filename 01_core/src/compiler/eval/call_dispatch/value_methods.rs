@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/call_dispatch/value_methods.md
-//! @prompt-hash a2e1311b
+//! @prompt-hash 44b230b4
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -389,6 +389,7 @@ pub(super) fn dispatch_p1284_value_method(
                                 ),
                             )]
                         })?;
+                    validate_contextual_selector(&ancestor, args.span)?;
                     Ok(Value::Selector(crate::entities::selector::Selector::Within {
                         base: Box::new(base),
                         ancestor: Box::new(ancestor),
@@ -449,6 +450,41 @@ pub(super) fn dispatch_p1284_value_method(
     }
 }
 
+pub(in crate::compiler::eval) fn validate_contextual_selector(
+    selector: &crate::entities::selector::Selector,
+    span: Span,
+) -> SourceResult<()> {
+    use crate::entities::selector::Selector;
+    match selector {
+        Selector::Regex(_) => {
+            Err(vec![SourceDiagnostic::error(span, "text is not locatable")])
+        }
+        Selector::NativeElement(_) | Selector::Element { .. } => {
+            bindings::validate_element_locatability(selector, span)
+        }
+        Selector::And(children) | Selector::Or(children) => {
+            for child in children {
+                validate_contextual_selector(child, span)?;
+            }
+            Ok(())
+        }
+        Selector::Where { base, .. } => validate_contextual_selector(base, span),
+        Selector::Within { base, ancestor } => {
+            validate_contextual_selector(base, span)?;
+            validate_contextual_selector(ancestor, span)
+        }
+        Selector::Before { base, end, .. } => {
+            validate_contextual_selector(base, span)?;
+            validate_contextual_selector(end, span)
+        }
+        Selector::After { base, start, .. } => {
+            validate_contextual_selector(base, span)?;
+            validate_contextual_selector(start, span)
+        }
+        Selector::Kind(_) | Selector::Label(_) | Selector::Location(_) => Ok(()),
+    }
+}
+
 pub(in crate::compiler::eval) fn selector_before_after(
     base: crate::entities::selector::Selector,
     method: &str,
@@ -482,6 +518,7 @@ pub(in crate::compiler::eval) fn selector_before_after(
             format!("expected selector, found {}", boundary.type_name()),
         )]
     })?;
+    validate_contextual_selector(&boundary, args.span)?;
     let selector = if method == "before" {
         crate::entities::selector::Selector::Before {
             base: Box::new(base),
@@ -496,4 +533,83 @@ pub(in crate::compiler::eval) fn selector_before_after(
         }
     };
     Ok(selector)
+}
+
+#[cfg(test)]
+mod batch_c_contextual_selector_tests {
+    use super::*;
+    use crate::compiler::stdlib::{native_page, native_table_cell};
+    use crate::entities::element_kind::ElementKind;
+    use crate::entities::selector::Selector;
+
+    #[test]
+    fn v16_c_contextual_selector_preserves_argument_error_precedence() {
+        let mut args = Args::positional(vec![Value::Selector(Selector::NativeElement(
+            Func::native("cell", native_table_cell),
+        ))]);
+        args.named.insert("inclusive".into(), Value::Int(1));
+        let error =
+            selector_before_after(Selector::Kind(ElementKind::Heading), "before", args)
+                .unwrap_err();
+        assert!(error[0].message.contains("expected boolean"));
+        let ok = selector_before_after(
+            Selector::Kind(ElementKind::Heading),
+            "after",
+            Args::positional(vec![Value::Func(Func::native(
+                "alias",
+                crate::compiler::stdlib::native_heading,
+            ))]),
+        )
+        .unwrap();
+        assert!(matches!(ok, Selector::After { inclusive: true, .. }));
+    }
+
+    #[test]
+    fn v16_c_contextual_selector_rejects_nonlocatable_boundaries_but_not_base() {
+        for method in ["before", "after"] {
+            for function in [
+                Func::native("cell", native_table_cell),
+                Func::native_with_engine("page", native_page),
+            ] {
+                for value in [
+                    Value::Func(function.clone()),
+                    Value::Selector(Selector::NativeElement(function.clone())),
+                ] {
+                    let errors = selector_before_after(
+                        Selector::Kind(ElementKind::Heading),
+                        method,
+                        Args::positional(vec![value]),
+                    )
+                    .unwrap_err();
+                    assert!(errors[0].message.contains("is not locatable"));
+                }
+            }
+            for value in [
+                Value::Str("x".into()),
+                Value::Selector(Selector::Or(
+                    vec![
+                        Selector::Kind(ElementKind::Heading),
+                        Selector::Regex(crate::entities::regex::Regex::new("x").unwrap()),
+                    ]
+                    .into(),
+                )),
+            ] {
+                let errors = selector_before_after(
+                    Selector::Kind(ElementKind::Heading),
+                    method,
+                    Args::positional(vec![value]),
+                )
+                .unwrap_err();
+                assert_eq!(errors[0].message, "text is not locatable");
+            }
+            assert!(selector_before_after(
+                Selector::NativeElement(Func::native("cell", native_table_cell)),
+                method,
+                Args::positional(vec![Value::Selector(Selector::Kind(
+                    ElementKind::Heading
+                ))])
+            )
+            .is_ok());
+        }
+    }
 }

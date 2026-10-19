@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md
-//! @prompt-hash 2e13f432
+//! @prompt-hash 16dad56c
 //! @layer L1
 //! @updated 2026-10-16
 
@@ -82,7 +82,43 @@ pub(super) fn try_content_methods(
             let content = match target {
                 Value::Content(content) => Some(content),
                 Value::LocatedContent(content, _) => Some(content.content()),
-                _ => None,
+                Value::None
+                | Value::Bool(..)
+                | Value::Int(..)
+                | Value::Float(..)
+                | Value::Str(..)
+                | Value::Array(..)
+                | Value::Dict(..)
+                | Value::Module(..)
+                | Value::Datetime(..)
+                | Value::Func(..)
+                | Value::Auto
+                | Value::Length(..)
+                | Value::Relative(..)
+                | Value::Ratio(..)
+                | Value::Angle(..)
+                | Value::Color(..)
+                | Value::Stroke(..)
+                | Value::Fraction(..)
+                | Value::Align(..)
+                | Value::Location(..)
+                | Value::Gradient(..)
+                | Value::Regex(..)
+                | Value::Tiling(..)
+                | Value::Bytes(..)
+                | Value::Decimal(..)
+                | Value::Duration(..)
+                | Value::Version(..)
+                | Value::Selector(..)
+                | Value::Symbol(..)
+                | Value::Args(..)
+                | Value::State(..)
+                | Value::Counter(..)
+                | Value::Label(..)
+                | Value::Dir(..)
+                | Value::Path(..)
+                | Value::Type(..)
+                | Value::SpotColorant(..) => None,
             };
             if let Some(content @ crate::entities::content::Content::OutlineEntry(_)) =
                 content.and_then(outline_entry_receiver)
@@ -319,5 +355,194 @@ mod v16_walk_receiver_tests {
         ] {
             assert!(outline_entry_receiver(&content).is_none());
         }
+    }
+}
+
+#[cfg(test)]
+mod v16_c_structural_tests {
+    use super::*;
+
+    use crate::contracts::world::World;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    use crate::entities::{file_id::FileId, font_book::FontBook, source::Source};
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+    impl TestWorld {
+        fn new(text: &str) -> Self {
+            Self {
+                library: Library::new(),
+                book: FontBook::new(),
+                source: Source::new(
+                    FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+                    text.into(),
+                ),
+            }
+        }
+    }
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+        fn include_source(&self, _: FileId, _: &str) -> Result<Source, String> {
+            panic!("refused include accessed World")
+        }
+        fn include_path(
+            &self,
+            _: &crate::entities::path::RootedPath,
+        ) -> Result<Source, String> {
+            panic!("refused include accessed World")
+        }
+    }
+
+    fn with_engine(run: impl FnOnce(&mut Scopes<'_>, &mut EvalContext, &mut Engine<'_>)) {
+        use comemo::Track;
+        let world = TestWorld::new("");
+        let library =
+            Library::with_global(crate::compiler::stdlib::make_stdlib_with_features(
+                &crate::contracts::world::SysInputs::default(),
+                crate::entities::compiler_features::Features::empty(),
+            ));
+        let mut scopes = Scopes::new(Some(&library));
+        let mut ctx = EvalContext::new();
+        let mut styles = crate::entities::style_chain::StyleChain::default_chain();
+        let mut rules = std::sync::Arc::from([]);
+        let mut guards = Vec::new();
+        let route = crate::entities::world_types::Route::root().with_id(world.main());
+        let metrics = crate::compiler::layout::FixedMetrics;
+        let mut sink = crate::entities::sink::Sink::new();
+        let mut tracked_sink = sink.track_mut();
+        let mut engine = Engine {
+            world: &world,
+            font_metrics: &metrics,
+            route: route.track(),
+            styles: &mut styles,
+            show_rules: &mut rules,
+            active_guards: &mut guards,
+            current_file: world.main(),
+            sink: &mut tracked_sink,
+        };
+        run(&mut scopes, &mut ctx, &mut engine);
+    }
+
+    #[test]
+    fn v16_c_dispatch_refusals_preserve_cache_and_skip_arguments() {
+        use crate::entities::ast::AstNode;
+        let source = Source::new_with_parser(
+            TestWorld::new("").main(),
+            "receiver.body(panic(\"argument executed\"))".into(),
+            crate::compiler::parse::parse_code,
+        );
+        let call = source
+            .root()
+            .children()
+            .find_map(|n| {
+                if let Some(Expr::FuncCall(c)) = Expr::from_untyped(n) {
+                    Some(c)
+                } else {
+                    None
+                }
+            })
+            .unwrap();
+        let values = all_values();
+        with_engine(|scopes, ctx, engine| {
+            for value in values {
+                let before = value.clone();
+                let mut cached = Some(value);
+                let result =
+                    try_content_methods(call, scopes, ctx, engine, &mut cached).unwrap();
+                assert!(result.is_none());
+                assert_eq!(cached, Some(before));
+            }
+        });
+    }
+    fn all_values() -> Vec<Value> {
+        let world = TestWorld::new("");
+        let mut values = vec![];
+        for expression in [
+            "none",
+            "true",
+            "42",
+            "1.5",
+            "\"A\"",
+            "(1,)",
+            "(a:1)",
+            "std",
+            "datetime(year:2020,month:1,day:1)",
+            "(x)=>x",
+            "[x]",
+            "auto",
+            "1pt",
+            "1em + 10%",
+            "10%",
+            "1deg",
+            "red",
+            "stroke()",
+            "1fr",
+            "left",
+            "gradient.linear(red,blue)",
+            "regex(\"x\")",
+            "tiling(size:(1pt,1pt),[x])",
+            "bytes((1,2))",
+            "decimal(\"1\")",
+            "duration(seconds:1)",
+            "version(1,2)",
+            "heading.where()",
+            "sym.alpha",
+            "arguments(1,a:2)",
+            "state(\"x\",0)",
+            "counter(\"x\")",
+            "<x>",
+            "ltr",
+            "int",
+            "color.spot(\"x\",red)",
+        ] {
+            let (value, _) = crate::compiler::eval::eval_expression(&world, expression);
+            values
+                .push(value.unwrap_or_else(|errors| panic!("{expression}: {errors:?}")));
+        }
+        values.push(Value::Path(crate::entities::path::RootedPath::new(
+            crate::entities::path::VirtualRoot::Project,
+            crate::entities::path::VirtualPath::new("/a").unwrap(),
+        )));
+        let location = crate::entities::locator::Locator::new().next();
+        values.push(Value::Location(location));
+        values.push(Value::LocatedContent(
+            crate::entities::value::IntrospectedContent::new(
+                crate::entities::content::Content::Empty,
+                None,
+            ),
+            location,
+        ));
+        let kinds: std::collections::HashSet<_> =
+            values.iter().map(std::mem::discriminant).collect();
+        assert_eq!(values.len(), 39);
+        assert_eq!(kinds.len(), 39, "each current Value variant must be exercised");
+        values
     }
 }

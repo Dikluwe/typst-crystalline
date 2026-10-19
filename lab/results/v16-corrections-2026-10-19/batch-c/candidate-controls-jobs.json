@@ -1,0 +1,17 @@
+[
+  {
+    "name": "candidate-controls",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "v16_c_",
+      "--",
+      "--test-threads=1"
+    ]
+  }
+]

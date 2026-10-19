@@ -1,0 +1,117 @@
+   Compiling syntect v5.3.0
+   Compiling criterion v0.5.1
+   Compiling two-face v0.4.5
+   Compiling typst-core v0.1.0 (/repos/Antigravity/typst-crystalline/01_core)
+warning: unused import: `super::*`
+   --> 01_core/src/compiler/eval/rules/set/text.rs:470:9
+    |
+470 |     use super::*;
+    |         ^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `super::*`
+    --> 01_core/src/compiler/eval/rules/set.rs:1281:9
+     |
+1281 |     use super::*;
+     |         ^^^^^^^^
+
+error[E0308]: mismatched types
+   --> 01_core/src/compiler/eval/bindings/value_methods/selector.rs:173:76
+    |
+173 |                 value_to_query_selector(&Value::Func(Func::native("alias", function))),
+    |                                                      ------------          ^^^^^^^^ one type is more general than the other
+    |                                                      |
+    |                                                      arguments to this function are incorrect
+    |
+    = note: expected fn pointer `for<'a, 'b, 'c> fn(&'a mut compiler::eval::EvalContext, &'b args::Args, &'c (dyn world::World + 'c), file_id::FileId) -> Result<_, _>`
+               found fn pointer `fn(&mut compiler::eval::EvalContext, &args::Args, &dyn world::World, file_id::FileId) -> Result<_, _>`
+note: associated function defined here
+   --> 01_core/src/entities/func.rs:163:12
+    |
+163 |       pub fn native(
+    |              ^^^^^^
+164 |           name: &'static str,
+165 | /         call: fn(
+166 | |             &mut crate::compiler::eval::EvalContext,
+167 | |             &Args,
+168 | |             &dyn crate::contracts::world::World,
+169 | |             FileId,
+170 | |         ) -> SourceResult<Value>,
+    | |________________________________-
+
+error[E0599]: no function or associated item named `default` found for struct `style_chain::StyleChain` in the current scope
+    --> 01_core/src/compiler/eval/selector_matching.rs:1146:67
+     |
+1146 |                 styles: crate::entities::style_chain::StyleChain::default(),
+     |                                                                   ^^^^^^^ function or associated item not found in `style_chain::StyleChain`
+     |
+    ::: 01_core/src/entities/style_chain.rs:291:1
+     |
+ 291 | pub struct StyleChain(Option<Arc<StyleNode>>);
+     | --------------------- function or associated item `default` not found for this struct
+     |
+note: if you're trying to build a new `style_chain::StyleChain` consider using one of the following associated functions:
+      style_chain::StyleChain::empty
+      style_chain::StyleChain::default_chain
+    --> 01_core/src/entities/style_chain.rs:295:5
+     |
+ 295 |     pub const fn empty() -> Self {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+ 304 |     pub fn default_chain() -> Self {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     = help: items from traits can only be used if the trait is implemented and in scope
+     = note: the following traits define an item `default`, perhaps you need to implement one of them:
+             candidate #1: `Default`
+             candidate #2: `tinyvec::array::Array`
+help: there is an associated function `default_chain` with a similar name
+     |
+1146 |                 styles: crate::entities::style_chain::StyleChain::default_chain(),
+     |                                                                          ++++++
+
+error[E0308]: mismatched types
+    --> 01_core/src/compiler/eval/selector_matching.rs:1237:51
+     |
+1237 |             let alias = Func::native("unrelated", callback);
+     |                         ------------              ^^^^^^^^ one type is more general than the other
+     |                         |
+     |                         arguments to this function are incorrect
+     |
+     = note: expected fn pointer `for<'a, 'b, 'c> fn(&'a mut compiler::eval::EvalContext, &'b args::Args, &'c (dyn world::World + 'c), file_id::FileId) -> Result<_, _>`
+                found fn pointer `fn(&mut compiler::eval::EvalContext, &args::Args, &dyn world::World, file_id::FileId) -> Result<_, _>`
+note: associated function defined here
+    --> 01_core/src/entities/func.rs:163:12
+     |
+ 163 |       pub fn native(
+     |              ^^^^^^
+ 164 |           name: &'static str,
+ 165 | /         call: fn(
+ 166 | |             &mut crate::compiler::eval::EvalContext,
+ 167 | |             &Args,
+ 168 | |             &dyn crate::contracts::world::World,
+ 169 | |             FileId,
+ 170 | |         ) -> SourceResult<Value>,
+     | |________________________________-
+
+error[E0599]: no variant or associated item named `Named` found for enum `entities::counter::CounterKey` in the current scope
+   --> 01_core/src/compiler/eval/expression_dispatch.rs:923:51
+    |
+923 |             crate::entities::counter::CounterKey::Named("k".into()),
+    |                                                   ^^^^^ variant or associated item not found in `entities::counter::CounterKey`
+    |
+   ::: 01_core/src/entities/counter.rs:22:1
+    |
+ 22 | pub enum CounterKey {
+    | ------------------- variant or associated item `Named` not found for this enum
+
+warning: unused import: `super`
+   --> 01_core/src/compiler/eval/modules.rs:727:9
+    |
+727 |     use super::*;
+    |         ^^^^^
+
+Some errors have detailed explanations: E0308, E0599.
+For more information about an error, try `rustc --explain E0308`.
+warning: `typst-core` (lib test) generated 3 warnings
+error: could not compile `typst-core` (lib test) due to 4 previous errors; 3 warnings emitted

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md
-//! @prompt-hash c4bc0fde
+//! @prompt-hash a25e4e70
 //! @layer L1
 //! @updated 2026-10-08
 //!
@@ -28,26 +28,73 @@ use super::error_formatting::{binary_mismatch, unary_mismatch};
 pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, String> {
     if matches!(op, BinOp::Div) {
         match &rhs {
-            Value::Int(0) => return Err("cannot divide by zero".into()),
-            Value::Float(f) if *f == 0.0 => return Err("cannot divide by zero".into()),
-            Value::Decimal(d) if d.0.is_zero() => {
-                return Err("cannot divide by zero".into());
+            Value::Int(n) => {
+                if *n == 0 {
+                    return Err("cannot divide by zero".into());
+                }
             }
-            // P713 — paridade com `is_zero()` do vanilla (`foundations/ops.rs:344-359`),
-            // que cobre `Length` no mesmo gate genérico usado por todas as divisões.
-            Value::Length(l) if l.is_zero() => return Err("cannot divide by zero".into()),
-            // P818 — `is_zero()` do vanilla cobre também `Relative`, `Ratio`
-            // e `Angle` (medido: `#(50% / 0%)` → "cannot divide by zero").
-            Value::Relative(r)
-                if matches!((r.abs.is_zero(), r.rel == 0.0), (true, true)) =>
-            {
-                return Err("cannot divide by zero".into());
+            Value::Float(f) => {
+                if *f == 0.0 {
+                    return Err("cannot divide by zero".into());
+                }
             }
-            Value::Ratio(r) if r.0 == 0.0 => return Err("cannot divide by zero".into()),
-            Value::Angle(a) if a.to_rad() == 0.0 => {
-                return Err("cannot divide by zero".into());
+            Value::Decimal(d) => {
+                if d.0.is_zero() {
+                    return Err("cannot divide by zero".into());
+                }
             }
-            _ => {}
+            Value::Length(l) => {
+                if l.is_zero() {
+                    return Err("cannot divide by zero".into());
+                }
+            }
+            Value::Relative(r) => {
+                if matches!((r.abs.is_zero(), r.rel == 0.0), (true, true)) {
+                    return Err("cannot divide by zero".into());
+                }
+            }
+            Value::Ratio(r) => {
+                if r.0 == 0.0 {
+                    return Err("cannot divide by zero".into());
+                }
+            }
+            Value::Angle(a) => {
+                if a.to_rad() == 0.0 {
+                    return Err("cannot divide by zero".into());
+                }
+            }
+            Value::None
+            | Value::Bool(..)
+            | Value::Str(..)
+            | Value::Array(..)
+            | Value::Dict(..)
+            | Value::Module(..)
+            | Value::Datetime(..)
+            | Value::Func(..)
+            | Value::Content(..)
+            | Value::LocatedContent(..)
+            | Value::Auto
+            | Value::Color(..)
+            | Value::Stroke(..)
+            | Value::Fraction(..)
+            | Value::Align(..)
+            | Value::Location(..)
+            | Value::Gradient(..)
+            | Value::Regex(..)
+            | Value::Tiling(..)
+            | Value::Bytes(..)
+            | Value::Duration(..)
+            | Value::Version(..)
+            | Value::Selector(..)
+            | Value::Symbol(..)
+            | Value::Args(..)
+            | Value::State(..)
+            | Value::Counter(..)
+            | Value::Label(..)
+            | Value::Dir(..)
+            | Value::Path(..)
+            | Value::Type(..)
+            | Value::SpotColorant(..) => {}
         }
     }
 
@@ -867,5 +914,53 @@ mod tests {
         let res = apply_binary(BinOp::Div, Value::Int(10), rel_abs_non_zero);
         assert!(res.is_err());
         assert_ne!(res.unwrap_err(), "cannot divide by zero");
+    }
+}
+
+#[cfg(test)]
+mod v16_c_structural_tests {
+    use super::*;
+
+    #[test]
+    fn v16_c_division_zero_precedence_and_nonzero_refusals() {
+        use crate::entities::layout_types::{Angle, Length, Ratio};
+        use crate::entities::rel::Rel;
+        for rhs in [
+            Value::Int(0),
+            Value::Float(0.0),
+            Value::Float(-0.0),
+            Value::Decimal(Decimal::from_i64(0)),
+            Value::Length(Length::ZERO),
+            Value::Relative(Rel { abs: Length::ZERO, rel: 0.0 }),
+            Value::Ratio(Ratio(0.0)),
+            Value::Angle(Angle::rad(0.0)),
+        ] {
+            assert_eq!(
+                apply_binary(BinOp::Div, Value::Bool(true), rhs).unwrap_err(),
+                "cannot divide by zero"
+            );
+        }
+        for rhs in [
+            Value::Int(2),
+            Value::Float(2.0),
+            Value::Float(f64::NAN),
+            Value::Float(f64::INFINITY),
+            Value::Decimal(Decimal::from_i64(2)),
+            Value::Length(Length::pt(2.0)),
+            Value::Relative(Rel { abs: Length::pt(1.0), rel: 0.0 }),
+            Value::Relative(Rel { abs: Length::ZERO, rel: 0.5 }),
+            Value::Ratio(Ratio(0.5)),
+            Value::Angle(Angle::rad(2.0)),
+            Value::None,
+            Value::Str("x".into()),
+            Value::Duration(Duration::from_nanos(0)),
+        ] {
+            let error = apply_binary(BinOp::Div, Value::Bool(true), rhs).unwrap_err();
+            assert_ne!(error, "cannot divide by zero");
+        }
+        assert_eq!(
+            apply_binary(BinOp::Div, Value::Int(6), Value::Int(2)).unwrap(),
+            Value::Float(3.0)
+        );
     }
 }

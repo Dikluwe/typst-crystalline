@@ -1,0 +1,41 @@
+{
+  "utc": "2026-10-19T13:23:22.011452+00:00",
+  "head": "370d78355bd646d1abead5bcacef215288cc8834",
+  "diffstat": " .../compiler/eval/bindings/field_access/fields.md  |  49 +-\n .../eval/bindings/value_methods/element_where.md   |  50 +-\n .../eval/bindings/value_methods/selector.md        |  69 ++-\n .../prompts/core/compiler/eval/call_dispatch.md    |  17 +-\n .../core/compiler/eval/call_dispatch/call_spans.md |  49 +-\n .../compiler/eval/call_dispatch/content_methods.md |  50 +-\n .../eval/call_dispatch/instance_methods.md         |  52 +-\n .../compiler/eval/call_dispatch/value_methods.md   |  60 +-\n .../core/compiler/eval/expression_dispatch.md      | 112 +++-\n .../prompts/core/compiler/eval/markup_stream.md    |  47 +-\n 00_nucleo/prompts/core/compiler/eval/modules.md    |  50 +-\n .../core/compiler/eval/operators/arithmetic.md     |  51 +-\n .../core/compiler/eval/operators/equality.md       |  82 ++-\n .../prompts/core/compiler/eval/rules/intercept.md  |  49 +-\n .../prompts/core/compiler/eval/rules/realize.md    |  66 ++-\n 00_nucleo/prompts/core/compiler/eval/rules/set.md  |  50 +-\n .../prompts/core/compiler/eval/rules/set/page.md   |  51 +-\n .../prompts/core/compiler/eval/rules/set/text.md   |  52 +-\n .../core/compiler/eval/selector_matching.md        | 112 +++-\n .../core/compiler/stdlib/foundations/selector.md   |  22 +-\n 00_nucleo/prompts/core/compiler/stdlib/mod.md      |  16 +-\n .../compiler/eval/bindings/field_access/fields.rs  | 195 ++++++-\n .../eval/bindings/value_methods/element_where.rs   |  77 ++-\n .../eval/bindings/value_methods/selector.rs        | 329 ++++++++++-\n 01_core/src/compiler/eval/call_dispatch.rs         |   6 +-\n .../src/compiler/eval/call_dispatch/call_spans.rs  |  81 ++-\n .../compiler/eval/call_dispatch/content_methods.rs | 229 +++++++-\n .../eval/call_dispatch/instance_methods.rs         | 489 +++++++++++++---\n .../compiler/eval/call_dispatch/value_methods.rs   | 118 +++-\n 01_core/src/compiler/eval/expression_dispatch.rs   | 387 ++++++++++++-\n 01_core/src/compiler/eval/markup_stream.rs         | 245 ++++++--\n 01_core/src/compiler/eval/modules.rs               | 121 +++-\n 01_core/src/compiler/eval/operators/arithmetic.rs  | 131 ++++-\n 01_core/src/compiler/eval/operators/equality.rs    | 167 +++++-\n 01_core/src/compiler/eval/rules/intercept.rs       | 178 +++++-\n 01_core/src/compiler/eval/rules/realize.rs         | 266 ++++++++-\n 01_core/src/compiler/eval/rules/set.rs             | 146 ++++-\n 01_core/src/compiler/eval/rules/set/page.rs        | 247 +++++++-\n 01_core/src/compiler/eval/rules/set/text.rs        | 182 +++++-\n 01_core/src/compiler/eval/selector_matching.rs     | 633 +++++++++++++++++++--\n .../src/compiler/stdlib/foundations/selector.rs    |   6 +-\n 01_core/src/compiler/stdlib/mod.rs                 |   3 +-\n 42 files changed, 5076 insertions(+), 316 deletions(-)\n",
+  "oracle": {
+    "sha256": "9b2373155e9c05bbb0daf5755bf4be88a11e64bd6b4f8b376648fa27303373b9",
+    "commit": "bd5ebec285505889e8ff1d4f68804ab147a699f3",
+    "tree": "cac836c07e4dec2a89219370428292393a3216b5",
+    "receipt": "lab/results/construction/diagnostics/vanilla-resync-2026-10-17/oracle-build.json.gz"
+  },
+  "results": [
+    {
+      "utc": "2026-10-19T13:23:22.076773+00:00",
+      "source": "#{ set heading(supplement:state(\"k\",0).update(1)); heading(numbering:\"1\",supplement:none)[A]; return \"x\" }",
+      "sha256": "72986a48bef48f1c7c0e5d86f97fbd9f89ead4f134084da99cdce6a498d96fe3",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/heading-explicit-none.typ",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/heading-explicit-none.pdf"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/heading-explicit-none.typ:1:94\n  \u2502\n1 \u2502 #{ set heading(supplement:state(\"k\",0).update(1)); heading(numbering:\"1\",supplement:none)[A]; return \"x\" }\n  \u2502                                                                                               ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/heading-explicit-none.typ:1:94\n  \u2502\n1 \u2502 #{ set heading(supplement:state(\"k\",0).update(1)); heading(numbering:\"1\",supplement:none)[A]; return \"x\" }\n  \u2502                                                                                               ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n\n"
+    },
+    {
+      "utc": "2026-10-19T13:23:22.083351+00:00",
+      "source": "#{ set heading(supplement:none); heading(numbering:\"1\",supplement:state(\"k\",0).update(1))[A]; return \"x\" }",
+      "sha256": "d29aabe68a0237cc43f7cb93cf498c358203061994882244792e55706160fa75",
+      "argv": [
+        "lab/typst-original/target/release/typst",
+        "compile",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/heading-explicit-update.typ",
+        "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/heading-explicit-update.pdf"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: cannot return outside of function\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/heading-explicit-update.typ:1:94\n  \u2502\n1 \u2502 #{ set heading(supplement:none); heading(numbering:\"1\",supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                                                               ^^^^^^^^^^\n\nwarning: this return unconditionally discards the content before it\n  \u250c\u2500 lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/heading-explicit-update.typ:1:94\n  \u2502\n1 \u2502 #{ set heading(supplement:none); heading(numbering:\"1\",supplement:state(\"k\",0).update(1))[A]; return \"x\" }\n  \u2502                                                                                               ^^^^^^^^^^\n  \u2502\n  = hint: try omitting the `return` to automatically join all values\n  = hint: state/counter updates are content that must end up in the document to have an effect\n\n"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/operators/equality.md
-//! @prompt-hash 9c71afd8
+//! @prompt-hash 4b95652c
 //! @layer L1
 //! @updated 2026-10-06
 //!
@@ -203,9 +203,35 @@ pub(crate) fn selectors_eq(a: &Selector, b: &Selector) -> bool {
     }
     match (a, b) {
         (Selector::NativeElement(a), Selector::NativeElement(b)) => {
-            match (a.native_fn_addr(), b.native_fn_addr()) {
-                (Some(a), Some(b)) => std::ptr::fn_addr_eq(a, b),
-                _ => false,
+            match (a.repr(), b.repr()) {
+                (
+                    crate::entities::func::FuncRepr::Native(a),
+                    crate::entities::func::FuncRepr::Native(b),
+                ) => std::ptr::fn_addr_eq(a.call, b.call),
+                (
+                    crate::entities::func::FuncRepr::Format(ak, a),
+                    crate::entities::func::FuncRepr::Format(bk, b),
+                ) => ak == bk && std::ptr::fn_addr_eq(a.call, b.call),
+                (
+                    crate::entities::func::FuncRepr::NativeWithEngine(a),
+                    crate::entities::func::FuncRepr::NativeWithEngine(b),
+                ) => std::ptr::fn_addr_eq(a.call, b.call),
+                (
+                    crate::entities::func::FuncRepr::Closure(_)
+                    | crate::entities::func::FuncRepr::Native(_)
+                    | crate::entities::func::FuncRepr::Format(_, _)
+                    | crate::entities::func::FuncRepr::NativeWithEngine(_)
+                    | crate::entities::func::FuncRepr::Element(_)
+                    | crate::entities::func::FuncRepr::Plugin(_)
+                    | crate::entities::func::FuncRepr::With(_),
+                    crate::entities::func::FuncRepr::Closure(_)
+                    | crate::entities::func::FuncRepr::Native(_)
+                    | crate::entities::func::FuncRepr::Format(_, _)
+                    | crate::entities::func::FuncRepr::NativeWithEngine(_)
+                    | crate::entities::func::FuncRepr::Element(_)
+                    | crate::entities::func::FuncRepr::Plugin(_)
+                    | crate::entities::func::FuncRepr::With(_),
+                ) => false,
             }
         }
         (
@@ -238,7 +264,32 @@ pub(crate) fn selectors_eq(a: &Selector, b: &Selector) -> bool {
             Selector::After { base: a, start: as_, inclusive: ai },
             Selector::After { base: b, start: bs, inclusive: bi },
         ) => ai == bi && selectors_eq(a, b) && selectors_eq(as_, bs),
-        _ => false,
+        (
+            Selector::Kind(_)
+            | Selector::NativeElement(_)
+            | Selector::Element { .. }
+            | Selector::Label(_)
+            | Selector::Location(_)
+            | Selector::And(_)
+            | Selector::Or(_)
+            | Selector::Regex(_)
+            | Selector::Where { .. }
+            | Selector::Within { .. }
+            | Selector::Before { .. }
+            | Selector::After { .. },
+            Selector::Kind(_)
+            | Selector::NativeElement(_)
+            | Selector::Element { .. }
+            | Selector::Label(_)
+            | Selector::Location(_)
+            | Selector::And(_)
+            | Selector::Or(_)
+            | Selector::Regex(_)
+            | Selector::Where { .. }
+            | Selector::Within { .. }
+            | Selector::Before { .. }
+            | Selector::After { .. },
+        ) => false,
     }
 }
 
@@ -541,5 +592,111 @@ mod styled_language_tests {
         }
         assert_eq!(a.source_span(), origin);
         assert!(!values_eq(&Value::Float(f64::NAN), &Value::Float(f64::NAN)));
+    }
+}
+
+#[cfg(test)]
+mod batch_c_selector_equality_tests {
+    use super::*;
+    use crate::compiler::stdlib::{native_heading, native_op, native_page};
+    use crate::entities::func::Func;
+
+    #[test]
+    fn v16_c_selector_equality_preserves_bare_group_order_and_flags() {
+        let native = Selector::NativeElement(Func::native("alias", native_heading));
+        let empty = Selector::Element {
+            function: Func::native("heading", native_heading),
+            fields: Default::default(),
+        };
+        assert!(!selectors_eq(&native, &empty));
+        assert!(!selectors_eq(&empty, &native));
+        let before = |inclusive| Selector::Before {
+            base: Box::new(native.clone()),
+            end: Box::new(empty.clone()),
+            inclusive,
+        };
+        assert!(selectors_eq(&before(true), &before(true)));
+        assert!(!selectors_eq(&before(true), &before(false)));
+        let left = Selector::Or(vec![native.clone(), empty.clone()].into());
+        let right = Selector::Or(vec![empty, native].into());
+        assert!(!selectors_eq(&left, &right));
+    }
+
+    #[test]
+    fn v16_c_selector_equality_engine_native_identity_recurses_without_names() {
+        let page = Selector::NativeElement(Func::native_with_engine("page", native_page));
+        let alias =
+            Selector::NativeElement(Func::native_with_engine("different", native_page));
+        let homonym =
+            Selector::NativeElement(Func::native_with_engine("page", native_op));
+        let cross_abi = Selector::NativeElement(Func::native("page", native_heading));
+        assert!(selectors_eq(&page, &alias));
+        assert!(!selectors_eq(&page, &homonym));
+        assert!(!selectors_eq(&page, &cross_abi));
+        assert!(!selectors_eq(&cross_abi, &page));
+        assert!(values_eq(
+            &Value::Array(vec![Value::Selector(page.clone())]),
+            &Value::Array(vec![Value::Selector(alias.clone())])
+        ));
+        assert!(counter_keys_eq(
+            &CounterKey::Selector(page.clone()),
+            &CounterKey::Selector(alias.clone())
+        ));
+        assert!(selectors_eq(
+            &Selector::And(vec![page].into()),
+            &Selector::And(vec![alias].into())
+        ));
+    }
+}
+
+#[cfg(test)]
+mod batch_c_format_selector_tests {
+    use super::*;
+    use crate::entities::func::Func;
+    #[test]
+    fn v16_c_selector_format_identity_retains_nominal_witness_and_aliases() {
+        let pdf = crate::compiler::stdlib::make_pdf_module(
+            crate::entities::compiler_features::Features::empty(),
+        );
+        let html = crate::compiler::stdlib::make_html_module();
+        let asset =
+            Value::Func(Func::native("asset", crate::compiler::stdlib::native_asset));
+        let module = crate::compiler::stdlib::make_format_module(&pdf, &html, &asset);
+        let formats = ["svg", "png", "pdf", "html", "bundle"].map(|name| {
+            let Some(Value::Func(function)) = module.scope().get(name) else {
+                panic!("format factory")
+            };
+            function.clone()
+        });
+        let mut wrong = Vec::new();
+        for (left_index, left) in formats.iter().enumerate() {
+            for (right_index, right) in formats.iter().enumerate() {
+                let actual = selectors_eq(
+                    &Selector::NativeElement(left.clone()),
+                    &Selector::NativeElement(right.clone()),
+                );
+                if actual != (left_index == right_index) {
+                    wrong.push((left_index, right_index));
+                }
+            }
+            let ordinary = Func::native(
+                ["svg", "png", "pdf", "html", "bundle"][left_index],
+                left.native_fn_addr().unwrap(),
+            );
+            assert_eq!(*left, ordinary, "public equality retains existing compatibility");
+            if selectors_eq(
+                &Selector::NativeElement(left.clone()),
+                &Selector::NativeElement(ordinary.clone()),
+            ) {
+                wrong.push((left_index, 5));
+            }
+            if selectors_eq(
+                &Selector::NativeElement(ordinary),
+                &Selector::NativeElement(left.clone()),
+            ) {
+                wrong.push((5, left_index));
+            }
+        }
+        assert!(wrong.is_empty(), "incorrect format/native identity pairs: {wrong:?}");
     }
 }

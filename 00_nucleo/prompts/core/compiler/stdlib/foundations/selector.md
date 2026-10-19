@@ -1,11 +1,31 @@
 # L0 — stdlib/foundations/selector
-Hash do Código: 1d7a988a
+Hash do Código: ae2f7698
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:7e7373acce2b00247d18b9c5ea1b9d53833275997cd2c304e9d919d2cce10648
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/foundations/selector.rs`
+
+## Shared internal native-kind projection
+
+At checkpoint `370d78355bd646d1abead5bcacef215288cc8834`, this consumer's
+`element_kind_of_native_func` owns the seven legacy callback-to-Kind conversions;
+the evaluator adapter independently recognizes only heading and figure. The
+current-pin probes and source receipts in
+`lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/` distinguish valid
+native composition from this accidental narrower admission. This is language
+admission evidence, not authority to replace the Tekt string-Kind extension.
+
+Expose this existing pure helper only within the crate, through a direct internal
+stdlib reexport, so the adapter uses the same identity map as native_selector.
+Keep every mapping, signature, callback comparison and constructor behavior.
+No constructor execution, new public API, duplicate map or additional native
+admission belongs to this helper. The consuming adapter owns its remaining
+catalogue and operand validation. Its semantic tests must fail before the repair
+and pass afterward; retain this owner's alias/homonym/Equation/Cell controls and
+full workspace, path and lineage validation. This internal linkage follows
+ADR-0127 continuous flow after L0 sealing.
 
 ## Evidence before specification
 

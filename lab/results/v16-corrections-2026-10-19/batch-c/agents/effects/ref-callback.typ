@@ -1,0 +1,1 @@
+#{ ref(<x>, supplement: it => {panic("EXECUTED");state("k",0).update(1)}); return "x" }

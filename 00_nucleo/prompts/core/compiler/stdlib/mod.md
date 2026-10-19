@@ -1,5 +1,5 @@
 # L0 — core/compiler/stdlib/mod
-Hash do Código: 41ba6b7d
+Hash do Código: 90d32d39
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/eval/call-once.toml sha256:3c1f911b856e019f09d75d07fd14052912e8f0fb6118fceaaac9a7f4a92bfd97
@@ -9,6 +9,20 @@ Núcleos Tekt:
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/mod.rs`
+
+## Internal selector conversion linkage
+
+At checkpoint `370d78355bd646d1abead5bcacef215288cc8834`,
+`01_core/src/compiler/stdlib/foundations/selector.rs` contains the native-kind
+identity map used by construction, while the evaluator adapter has an incomplete
+independent map. The measured admission cases and source receipts in
+`lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/` support sharing
+that existing pure operation. Add only a direct crate-visible reexport of
+`foundations::selector::element_kind_of_native_func`. Keep foundations private,
+all external visibility and public signatures unchanged, and put no mapping or
+constructor logic in this hub. This internal continuous-flow linkage requires
+L0 sealing first, consumer semantic RED→GREEN and existing workspace/path/lineage
+gates. It does not resolve the separate native_flush visibility discrepancy.
 
 ## Evidence before specification
 

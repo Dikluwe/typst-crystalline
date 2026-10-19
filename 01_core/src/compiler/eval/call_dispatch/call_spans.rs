@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md
-//! @prompt-hash aafbdc25
+//! @prompt-hash 77bc5b27
 //! @layer L1
 //! @updated 2026-09-30
 
@@ -304,21 +304,23 @@ impl P1293HtmlCallSpans {
             return args.span;
         }
         match self.kind {
-            P1293HtmlNative::Void if !args.items.is_empty() => {
-                return self.positional.first().copied().unwrap_or(args.span);
+            P1293HtmlNative::Void => {
+                if !args.items.is_empty() {
+                    return self.positional.first().copied().unwrap_or(args.span);
+                }
             }
-            P1293HtmlNative::Normal if args.items.len() > 1 => {
-                return self.positional.get(1).copied().unwrap_or(args.span);
-            }
-            P1293HtmlNative::Normal
+            P1293HtmlNative::Normal => {
+                if args.items.len() > 1 {
+                    return self.positional.get(1).copied().unwrap_or(args.span);
+                }
                 if args
                     .items
                     .first()
-                    .is_some_and(|value| !matches!(value, Value::Content(_))) =>
-            {
-                return self.positional.first().copied().unwrap_or(args.span);
+                    .is_some_and(|value| !matches!(value, Value::Content(_)))
+                {
+                    return self.positional.first().copied().unwrap_or(args.span);
+                }
             }
-            _ => {}
         }
         if let Some(name) = message.strip_prefix("unexpected argument: ") {
             return self.named.get(name).map(|span| span.full).unwrap_or(args.span);
@@ -458,5 +460,62 @@ mod tests {
         };
         assert_eq!(spans.anchor(&Args::positional(vec![]), false), span(1));
         assert_eq!(spans.anchor(&Args::positional(vec![Value::Int(3)]), false), span(2));
+    }
+}
+
+#[cfg(test)]
+mod v16_c_structural_tests {
+    use super::*;
+
+    #[test]
+    fn v16_c_html_anchor_covers_guard_refusals_and_precedence() {
+        let span = |n| {
+            Span::from_range(
+                crate::entities::file_id::FileId::from_raw(
+                    std::num::NonZeroU16::new(1).unwrap(),
+                ),
+                n..n + 1,
+            )
+        };
+        for (kind, items, expected) in [
+            (P1293HtmlNative::Void, vec![], 5),
+            (
+                P1293HtmlNative::Void,
+                vec![Value::Content(crate::entities::content::Content::Empty)],
+                1,
+            ),
+            (P1293HtmlNative::Normal, vec![], 5),
+            (
+                P1293HtmlNative::Normal,
+                vec![Value::Content(crate::entities::content::Content::Empty)],
+                5,
+            ),
+            (P1293HtmlNative::Normal, vec![Value::Int(3)], 1),
+            (P1293HtmlNative::Normal, vec![Value::Int(3), Value::Int(4)], 2),
+        ] {
+            let args = Args::from_parts(items, IndexMap::default(), span(9));
+            let mut capture = P1293HtmlCallSpans {
+                kind,
+                positional: vec![span(1), span(2)],
+                named: IndexMap::default(),
+                has_spread: false,
+            };
+            capture.named.insert(
+                "unknown".into(),
+                P1293NamedSpan { full: span(4), value: span(5) },
+            );
+            assert_eq!(capture.anchor(&args, "bad type"), span(expected));
+            assert_eq!(
+                capture.anchor(&args, "unexpected argument: unknown"),
+                span(if expected == 5 { 4 } else { expected })
+            );
+            capture.positional.clear();
+            assert_eq!(
+                capture.anchor(&args, "bad type"),
+                span(if expected == 5 { 5 } else { 9 })
+            );
+            capture.has_spread = true;
+            assert_eq!(capture.anchor(&args, "unexpected argument: unknown"), span(9));
+        }
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/intercept.md
-//! @prompt-hash 4c77bad5
+//! @prompt-hash 1fe1da5e
 //! @layer L1
 //! @updated 2026-10-07
 //!
@@ -83,7 +83,41 @@ pub(crate) fn intercept_content(
                     Value::Bool(value) => Some(OutlineIndent::Bool(*value)),
                     Value::Length(value) => Some(OutlineIndent::Length(*value)),
                     Value::Func(value) => Some(OutlineIndent::Function(value.clone())),
-                    _ => None,
+                    Value::None
+                    | Value::Int(..)
+                    | Value::Float(..)
+                    | Value::Str(..)
+                    | Value::Array(..)
+                    | Value::Dict(..)
+                    | Value::Module(..)
+                    | Value::Datetime(..)
+                    | Value::Content(..)
+                    | Value::LocatedContent(..)
+                    | Value::Relative(..)
+                    | Value::Ratio(..)
+                    | Value::Angle(..)
+                    | Value::Color(..)
+                    | Value::Stroke(..)
+                    | Value::Fraction(..)
+                    | Value::Align(..)
+                    | Value::Location(..)
+                    | Value::Gradient(..)
+                    | Value::Regex(..)
+                    | Value::Tiling(..)
+                    | Value::Bytes(..)
+                    | Value::Decimal(..)
+                    | Value::Duration(..)
+                    | Value::Version(..)
+                    | Value::Selector(..)
+                    | Value::Symbol(..)
+                    | Value::Args(..)
+                    | Value::State(..)
+                    | Value::Counter(..)
+                    | Value::Label(..)
+                    | Value::Dir(..)
+                    | Value::Path(..)
+                    | Value::Type(..)
+                    | Value::SpotColorant(..) => None,
                 }
             });
             inherited.map_or_else(
@@ -270,4 +304,144 @@ pub(crate) fn intercept_labelled(
         }
     }
     Ok(labelled)
+}
+
+#[cfg(test)]
+mod v16_c_structural_tests {
+    use super::*;
+
+    use crate::contracts::world::World;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    use crate::entities::{file_id::FileId, font_book::FontBook, source::Source};
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+    impl TestWorld {
+        fn new(text: &str) -> Self {
+            Self {
+                library: Library::new(),
+                book: FontBook::new(),
+                source: Source::new(
+                    FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+                    text.into(),
+                ),
+            }
+        }
+    }
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+        fn include_source(&self, _: FileId, _: &str) -> Result<Source, String> {
+            panic!("refused include accessed World")
+        }
+        fn include_path(
+            &self,
+            _: &crate::entities::path::RootedPath,
+        ) -> Result<Source, String> {
+            panic!("refused include accessed World")
+        }
+    }
+
+    fn with_engine(run: impl FnOnce(&mut Scopes<'_>, &mut EvalContext, &mut Engine<'_>)) {
+        use comemo::Track;
+        let world = TestWorld::new("");
+        let library =
+            Library::with_global(crate::compiler::stdlib::make_stdlib_with_features(
+                &crate::contracts::world::SysInputs::default(),
+                crate::entities::compiler_features::Features::empty(),
+            ));
+        let mut scopes = Scopes::new(Some(&library));
+        let mut ctx = EvalContext::new();
+        let mut styles = crate::entities::style_chain::StyleChain::default_chain();
+        let mut rules = std::sync::Arc::from([]);
+        let mut guards = Vec::new();
+        let route = crate::entities::world_types::Route::root().with_id(world.main());
+        let metrics = crate::compiler::layout::FixedMetrics;
+        let mut sink = crate::entities::sink::Sink::new();
+        let mut tracked_sink = sink.track_mut();
+        let mut engine = Engine {
+            world: &world,
+            font_metrics: &metrics,
+            route: route.track(),
+            styles: &mut styles,
+            show_rules: &mut rules,
+            active_guards: &mut guards,
+            current_file: world.main(),
+            sink: &mut tracked_sink,
+        };
+        run(&mut scopes, &mut ctx, &mut engine);
+    }
+
+    #[test]
+    fn v16_c_outline_indent_inheritance_preserves_absence_and_explicit_precedence() {
+        use crate::entities::elements::outline::{OutlineElem, OutlineIndent};
+        let function = crate::entities::func::Func::native("indent", |_, _, _, _| {
+            panic!("indent callback executed during capture")
+        });
+        for (inherited, expected) in [
+            (None, OutlineIndent::Bool(false)),
+            (Some(Value::None), OutlineIndent::Bool(false)),
+            (Some(Value::Int(7)), OutlineIndent::Bool(false)),
+            (Some(Value::Auto), OutlineIndent::Auto),
+            (Some(Value::Bool(true)), OutlineIndent::Bool(true)),
+            (
+                Some(Value::Length(crate::entities::layout_types::Length::pt(3.0))),
+                OutlineIndent::Length(crate::entities::layout_types::Length::pt(3.0)),
+            ),
+            (Some(Value::Func(function.clone())), OutlineIndent::Function(function)),
+        ] {
+            with_engine(|_, ctx, engine| {
+                if let Some(value) = inherited {
+                    *engine.styles = engine.styles.push_custom("outline.indent", value);
+                }
+                for explicit in [false, true] {
+                    let elem = OutlineElem::new(None, 3, OutlineIndent::Bool(false))
+                        .with_indent_presence(explicit);
+                    let output = intercept_content(
+                        Content::Outline(std::sync::Arc::new(elem)),
+                        ctx,
+                        engine,
+                    )
+                    .unwrap();
+                    let Content::Outline(outline) = output else {
+                        panic!("outline lost")
+                    };
+                    assert_eq!(
+                        outline.indent,
+                        if explicit {
+                            OutlineIndent::Bool(false)
+                        } else {
+                            expected.clone()
+                        }
+                    );
+                }
+            });
+        }
+    }
 }

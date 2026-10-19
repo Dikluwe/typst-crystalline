@@ -1,0 +1,48 @@
+[
+  {
+    "name": "clean-product-packages",
+    "command": [
+      "cargo",
+      "clean",
+      "--offline",
+      "--locked",
+      "--target-dir",
+      "lab/target/product",
+      "-p",
+      "typst-core",
+      "-p",
+      "typst-infra",
+      "-p",
+      "typst-shell",
+      "-p",
+      "typst-wiring"
+    ]
+  },
+  {
+    "name": "full-validation",
+    "command": [
+      "python3",
+      "lab/tools/ci/validate_layout_migration.py",
+      "--output",
+      "lab/results/v16-corrections-2026-10-19/batch-c/validation"
+    ]
+  },
+  {
+    "name": "accepted-selectors-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/replay.py",
+      "lab/target/product/debug/typst",
+      "accepted-replay.json"
+    ]
+  },
+  {
+    "name": "accepted-effects-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_c_effect_replay.py",
+      "lab/results/v16-corrections-2026-10-19/batch-c/validation/validation-state.json.gz",
+      "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/accepted-replay"
+    ]
+  }
+]

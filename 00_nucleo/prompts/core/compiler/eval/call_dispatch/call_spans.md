@@ -1,5 +1,5 @@
 # L0 — compiler/eval/call_dispatch/call_spans
-Hash do Código: 3cfa1922
+Hash do Código: e07b0bf6
 
 ## Ownership and evidence
 
@@ -78,3 +78,50 @@ Do not rename modules to evade the rule, add expectations/suppressions, weaken
 the linter or change expected results to hide divergence. Claim no unmeasured
 performance or AI-reading benefit. No release. The companion decoder's algorithm
 is not authorized as a second consumer of this prompt.
+
+## Closed-domain decision and preservation
+
+### Evidence before decision
+
+At checkpoint `370d78355bd646d1abead5bcacef215288cc8834`,
+`01_core/src/compiler/eval/call_dispatch/call_spans.rs:302–327`
+and the caller/producer evidence recorded in
+`lab/results/v16-corrections-2026-10-19/batch-c/agents/structural/l0-audit.json`
+show the current decision and its refusal path. That receipt records UTC,
+working-tree diffstat and exact source/owner SHA-256 before this amendment.
+The existing clauses above establish the behavior to preserve; an open Rust
+match is structural evidence, not proof of additional language admission.
+
+### Exclusive policy
+
+After the early has_spread return: Void with no positionals, Normal with no positionals,
+and Normal with one Content positional continue to named selection. Void nonempty,
+Normal length>1, and Normal first non-Content return their positional anchors. A missing
+captured anchor falls back to args.span within those early branches.
+
+Use separate exhaustive Void and Normal arms, with positional shape and Content payload
+checks inside Normal. [] and [Content] continue to named selection; a non-Content
+singleton selects the first position and two-or-more selects the second before payload
+checks. Void nonempty selects first. Spread always wins. Test those cases, missing
+captures, unknown named full spans and ordinary named value spans.
+
+Both current HTML native variants must be named without a wildcard; guard refusal stays inside its variant.
+
+### Acceptance and refutation
+
+Preservation controls run before and after the repair. A real temporary enum
+variant in a disposable complete workspace must fail with E0004 at this exact
+decision after repair; failures at other decisions alone are insufficient.
+Exercise nested closed domains separately where present. The structural RED is
+the original V16/open evolution boundary, not a fabricated runtime defect.
+Any changed result, message, span, callback count, argument evaluation or refusal
+route refutes preservation. Retain informational V19 groups with their rationale;
+add no suppression, hidden catchall, linter/configuration weakening or new policy.
+
+Internal continuous ADR-0127: no public field/trait/signature, product default,
+phase or compatibility change. L0 precedes code; reseal only valid owner pairs
+after V15/V26. Require focused and full workspace tests, build/all-targets, fmt,
+strict Clippy/Rustdoc, path checks, direct/reverse lineage and differential SARIF
+without new errors or warnings outside the selected repairs. Heavy checks are
+serialized under one job, 12 GiB maximum, 8 GiB high and zero swap. Historical
+parity claims and unresolved scope exclusions above remain bounded.

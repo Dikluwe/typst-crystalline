@@ -1,0 +1,70 @@
+
+#[cfg(test)]
+mod batch_c_selector_matching_tests {
+    use super::*;
+    use crate::compiler::stdlib::*;
+    use crate::entities::content::{LocatedContent,RealizedContent,SourceContent,ShowRecipeContent};
+    use crate::entities::location::Location;
+    use std::sync::Arc;
+
+    fn carriers(body: Content) -> Vec<Content> {
+        vec![body.clone(),Content::Source(Arc::new(SourceContent{body:body.clone(),span:Span::detached()})),Content::Located(Arc::new(LocatedContent{body:body.clone(),location:Location::from_raw(5)})),Content::Realized(Arc::new(RealizedContent{original:Content::text("different"),visual:body.clone()})),Content::ShowRecipe(Arc::new(ShowRecipeContent{body,textual:false,context_id_floor:0,rules:vec![].into(),styles:crate::entities::style_chain::StyleChain::default(),guards:vec![],file:crate::entities::file_id::FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())}))]
+    }
+
+    #[test]
+    fn batch_c_matching_preserves_fields_fallback_and_snapshot_authority() {
+        let text=Content::text("text");
+        assert_eq!(native_element_field(&text,"text"),Some(Value::Str("text".into())));
+        assert_eq!(native_element_field(&text,"missing"),text.get_field("missing"));
+        let styled=Content::styled(text.clone(),crate::entities::style::Styles::new());
+        assert_eq!(native_element_field(&styled,"body"),styled.get_field("body"));
+        let strong=Content::strong(text.clone());
+        assert_eq!(native_element_field(&strong,"body"),strong.get_field("body"));
+        let function=Func::native("text",native_text);
+        let fields=vec![("text".into(),Value::Str("text".into()))];
+        let entry=IntrospectedContent::new(text.clone(),None);
+        assert!(element_selector_matches(&entry,&function,&fields));
+        let captured=IntrospectedContent::new(text,Some(Default::default()));
+        assert!(!element_selector_matches(&captured,&function,&fields));
+    }
+
+    #[test]
+    fn batch_c_matching_kind_bridge_admits_represented_elements_and_rejects_effect_kinds() {
+        for kind in [ElementKind::Heading,ElementKind::Figure,ElementKind::Equation,ElementKind::Par,ElementKind::Table,ElementKind::Metadata,ElementKind::Outline,ElementKind::OutlineEntry,ElementKind::Citation,ElementKind::Bibliography] {
+            assert!(query_selector_to_show_selector(QuerySelector::Kind(kind),Span::detached()).is_ok(),"{kind:?}");
+        }
+        for kind in [ElementKind::State,ElementKind::StateUpdate,ElementKind::CounterUpdate,ElementKind::StateDisplay,ElementKind::CounterDisplay,ElementKind::ContextBlock] {
+            let errors=query_selector_to_show_selector(QuerySelector::Kind(kind),Span::detached()).unwrap_err();
+            assert!(errors[0].message.contains(kind.as_str()));
+            assert_eq!(errors[0].span,Span::detached());
+        }
+    }
+
+    #[test]
+    fn batch_c_matching_math_identity_is_typed_and_preserves_limits_distinction() {
+        let body=Content::text("x");
+        let cases=[(Content::math_frac(body.clone(),body.clone()),native_math_frac as fn(_,_,_,_)->_),(Content::math_root(None,body.clone(),false),native_math_root),(Content::math_primes(2),native_math_primes),(Content::math_underline(body.clone()),native_math_underline),(Content::math_overline(body.clone()),native_math_overline),(Content::math_cancel(body.clone()),native_cancel),(Content::math_accent(body.clone(),'~'),native_accent),(Content::math_limits_override(body.clone(),true,false,false),native_math_limits),(Content::math_limits_override(body.clone(),false,false,false),native_math_scripts)];
+        for (content,callback) in cases {
+            let alias=Func::native("unrelated",callback);
+            for carrier in carriers(content.clone()) { assert!(native_element_matches(&carrier,&alias)); }
+            assert!(!native_element_matches(&content,&Func::native("unrelated",native_heading)));
+            assert!(!native_element_matches(&Content::styled(content,crate::entities::style::Styles::new()),&alias));
+        }
+        assert!(!native_element_matches(&Content::math_limits_override(body.clone(),true,false,false),&Func::native("limits",native_math_scripts)));
+        assert!(!native_element_matches(&Content::math_limits_override(body,false,false,false),&Func::native("scripts",native_math_limits)));
+    }
+
+    #[test]
+    fn batch_c_matching_engine_identity_crosses_causal_carriers_without_original_fallback() {
+        let page=Content::page_run(None,None,None,None,None,Content::text("x"));
+        let op=Content::math_op(Content::text("custom"),false);
+        for (content,function,wrong) in [(page,Func::native_with_engine("alias",native_page),Func::native_with_engine("page",native_op)),(op,Func::native_with_engine("alias",native_op),Func::native_with_engine("op",native_page))] {
+            for carrier in carriers(content.clone()) {
+                assert!(native_element_matches(&carrier,&function));
+                assert!(!native_element_matches(&carrier,&wrong));
+            }
+            let visual=Content::Realized(Arc::new(RealizedContent{original:content,visual:Content::text("no match")}));
+            assert!(!native_element_matches(&visual,&function));
+        }
+    }
+}

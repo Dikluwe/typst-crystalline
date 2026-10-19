@@ -1,0 +1,6 @@
+error: cannot join state with content
+  ┌─ lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-state-value.typ:1:17
+  │
+1 │ #{ state("k",0); [X]; return "x" }
+  │                  ^^^
+

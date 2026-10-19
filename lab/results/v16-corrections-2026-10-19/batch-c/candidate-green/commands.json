@@ -1,0 +1,127 @@
+[
+  {
+    "name": "new-controls",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "v16_c_",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-19T13:30:25.203974+00:00",
+    "exit": 0,
+    "seconds": 82.58273404400097,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3424649216",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "heading-reflection-preservation",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "typst-core",
+      "--lib",
+      "a1_heading_constructor_identity_presence_and_external_styled",
+      "--",
+      "--test-threads=1"
+    ],
+    "utc_end": "2026-10-19T13:30:25.404431+00:00",
+    "exit": 0,
+    "seconds": 0.19997185599640943,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3424649216",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "build-candidate",
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--workspace"
+    ],
+    "utc_end": "2026-10-19T13:30:57.964030+00:00",
+    "exit": 0,
+    "seconds": 32.55906917500397,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3424649216",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "selectors-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/replay.py",
+      "lab/target/product/debug/typst"
+    ],
+    "utc_end": "2026-10-19T13:31:06.376350+00:00",
+    "exit": 0,
+    "seconds": 8.411671945003036,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3424649216",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "effects-replay",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_c_effect_replay.py",
+      "lab/results/v16-corrections-2026-10-19/batch-c/candidate-green/state.json.gz",
+      "lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/candidate-replay"
+    ],
+    "utc_end": "2026-10-19T13:31:08.564179+00:00",
+    "exit": 0,
+    "seconds": 2.187191315999371,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3424649216",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  },
+  {
+    "name": "structural-evolution",
+    "command": [
+      "python3",
+      "lab/results/v16-corrections-2026-10-19/workers/batch_c_structural.py",
+      "green"
+    ],
+    "utc_end": "2026-10-19T13:34:21.521509+00:00",
+    "exit": 0,
+    "seconds": 192.9566421540003,
+    "memory": {
+      "memory.max": "12884901888",
+      "memory.high": "8589934592",
+      "memory.swap.max": "0",
+      "memory.peak": "3424649216",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    }
+  }
+]

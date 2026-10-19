@@ -1,5 +1,8 @@
 # L0 — stdlib/structural/heading
-Hash do Código: 83faa666
+Hash do Código: 5c5a9f70
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/content/heading-constructor-supplement.toml sha256:af78eb902348b843414064edfa2fd67612f8eb8ffba669f804dcf1d1be8f1da4
 
 Layer: L1
 Exclusive consumer: `01_core/src/compiler/stdlib/structural/heading.rs`
@@ -35,3 +38,45 @@ Callback application remains approved Engine preparation before relevant queries
 ## Acceptance and limits
 
 H1–H8 ratified review and bilateral functional RED before code, GREEN/current oracle controls without claiming all fields. Preserve all forms/bits/diagnostics/spans/defaults/show integration above and raw constructor identity/query/HTML callback error. Valid 1:1/pins before restricted reseal; workspace/doctests/build/strict Clippy/Rustdoc/fmt/strict-reverse V1/V5/V15/V26/V16 no increase, sequential 12GiB/High8GiB/swap0/jobs1. Only Heading façade is authorized; no extra public-field/phase/API changes. RAM gain needs measurement.
+
+
+## Explicit supplement snapshot for static diagnostics
+
+### Evidence before decision
+
+The current-pin receipts
+`lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-additional-fields.json`,
+`lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-heading-inherited.json`,
+and `lab/results/v16-corrections-2026-10-19/batch-c/agents/effects/warning-heading-overrides.json`
+record exact source, commands, executable SHA/pin/tree, UTC and uncommitted state.
+A discarded constructor supplement containing update Content adds the update hint;
+a set-rule supplement inherited by a numbering-only constructor does not.
+Explicit none overriding an outer update remains negative; explicit update
+overriding outer none remains positive. These are observable diagnostics.
+
+`heading.rs:190–215` currently stores validated supplement in heading.supplement
+and marks all styled constructors, including numbering-only constructors.
+`eval/expression_dispatch.rs:17–33` and `entities/style_chain.rs:377–430` merge
+Styles and deduplicate keys. The marker plus merged public supplement therefore
+cannot establish explicit supplement provenance for static warning inspection.
+
+### Bounded internal correction and acceptance
+
+Implement the pinned heading-constructor-supplement invariant: after validating
+an explicit supplement argument, additionally retain its original Value under
+private heading.constructor.supplement in the same constructor Styles. Preserve
+heading.supplement and marker behavior. Omission stores no snapshot; explicit
+none/auto are retained as themselves. Clone immutable Content/Value transport
+without executing callbacks or re-evaluating the argument. Do not add entity
+fields, methods, signatures, flags, public reflective keys or new phases.
+
+The consumer is exclusively specified by
+`00_nucleo/prompts/core/compiler/eval/expression_dispatch.md`; the nucleus owns
+the shared provenance invariant, not productive code. Require the actual-source
+constructor-update RED, inheritance/explicit-none negative controls, explicit
+update override positive, opaque callback control, and existing
+`a1_heading_constructor_identity_presence_and_external_styled` regression.
+No new public contract/default/phase or compatibility change is intended, so this
+internal diagnostic parity correction follows ADR-0127 continuous flow after
+L0 graph validation and resealing. Figure/Equation producer obligations remain
+separate; this snapshot does not certify their diagnostics or general reflection.

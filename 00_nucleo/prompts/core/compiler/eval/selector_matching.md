@@ -1,5 +1,5 @@
 # L0 — compiler/eval/selector_matching
-Hash do Código: 71395534
+Hash do Código: d8d9568f
 
 
 
@@ -293,3 +293,113 @@ expectations for mechanical cap. Valid1:1/pinned graph before reseal. Separate
 build/workspace/doctests/strict Clippy-Rustdoc/fmt/direct-reverse lineage/SARIF
 without new error-warning.12GiB/High 8 GiB/swap0/jobs1/heavy sequential. No
 publication/release.
+
+## Closed selector decisions and measured admission
+
+### Evidence before decision
+
+`lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/oracle-probes.json`
+records the verified oracle commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`,
+tree, binary SHA-256, recipe receipt, UTC, HEAD and exact working-tree diffstat.
+`source-evidence.json` beside it freezes the consulted source. Upstream
+`lab/typst-original/crates/typst-library/src/foundations/selector.rs:108-124`
+defines literal/regex validation, :178-194 accepts Selector for logical operands,
+:204-241 and :285-297 use LocatableSelector for contextual boundaries, :354-364
+casts element functions by identity and :421-450 separately validates locatability.
+These are language admission/equality/selection obligations, not required storage
+or function-pointer mechanics. Successful eval of a show expression records
+construction only, not realization. `oracle-show-probes.json` records actual
+compilation: Table/Equation and Frac/Root/Op/Limits/Scripts render MATCH. The naive
+Par replacement recursively groups and is an invalid positive acceptance fixture;
+Page compiles unchanged, so no page show-language correction is inferred. Internal
+page causal matching is a carrier-preservation obligation, not public page show
+certification.
+
+The local adapter at `01_core/src/compiler/eval/bindings/value_methods/selector.rs:20-40`
+only admits heading/figure; the constructor at
+`01_core/src/compiler/stdlib/foundations/selector.rs:34-91` admits other element
+identities and preserves a separate Tekt String-to-Kind extension. Current-pin
+probes refute treating the adapter's refusal as intentional language behavior.
+Native page equality is true against an alias and false against page.where().
+The catalogue admits engine-native page/op; the old equality address accessor
+excludes this ABI. The native matcher exits on engine ABI before causal descent.
+Inference: existing representations suffice for these corrections; a case
+requiring new public identity or phase would refute that bounded inference.
+
+### Owned conversion, matching and fields
+
+Close ElementKind conversion explicitly. Retain the existing eight NodeKind
+routes, add Equation and Par where NodeKind already represents them, and bridge
+represented native-only kinds through existing ShowSelector::NativeElement and
+actual callback identity: Table, Metadata, Outline, OutlineEntry, Citation and
+Bibliography. Do not add an entity variant. State/StateUpdate/CounterUpdate/
+StateDisplay/CounterDisplay/ContextBlock have no native show-element bridge;
+explicitly reject with the existing kind diagnostic/span. Legacy string Kind
+construction remains a Tekt extension, not vanilla literal-text evidence.
+
+Close native_element_matches on Content at the decision. Source/ShowRecipe/
+Located descend body and Realized descends visual before either native ABI is
+classified, retaining the same Function. PageRun and MathOp use their actual
+engine callbacks. Ordinary Styled remains opaque except the already ratified
+Equation identity; rejected Styled guards explicitly return false. Preserve
+NodeKind style-origin/list semantics. Add identity mappings only for distinct,
+already represented catalogue element variants, including typed math primitives;
+compare actual callbacks without executing them. MathLimitsOverride retains its
+payload distinction between limits/scripts; no inferred constructor identity from
+render geometry. Shape's erased original constructor remains an explicit unresolved
+identity debt, never certified universal native selection. MathStyled/MathUnderover
+and other representation-only forms gain no invented identity. Existing admitted
+native identities lacking unique retained information must remain documented debt
+with a concrete refuter, not silently categorized as intentional rejection.
+
+Field projection is a closed Content decision with field-name subdecisions:
+Text.text and Raw.text/lang/block expose lexical values; Styled.body only for the
+ratified semantic-origin guard; rejected guards, other fields and all nominal
+complements call content.get_field unchanged. Preserve authoritative Some snapshot
+(including absent keys), legacy None projection and outer field receiver.
+
+Tests first: kind routes/negative kinds and spans, actual typed math native match
+and mismatched native, aliases/homonyms, both engine callbacks through each causal
+carrier, ordinary Styled opacity and equation transparency, field fallback and
+snapshot authority. Real compile probes must substantiate public show outcomes;
+unit identity controls alone do not certify realization. Existing Shape and
+ambiguous math identity debt stays separately visible without weakening gates.
+
+### Structural and integration gates
+
+L0 first and restricted reseal precede Rust changes. Preservation controls pass
+before/after; semantic corrections require real failing tests before code. A real
+copied-workspace enum extension must produce attributable E0004 at every selected
+closed match after repair, including both pair axes; use no stubs. Keep V19 groups
+visible and review their semantic domains. No suppression, scan/severity/exclusion
+change or equivalent open fallback hidden in another syntax. Validate full tests,
+paths, direct/reverse lineage, V15/V26, build, all-target Clippy, fmt, Rustdoc and
+exact SARIF delta. Preserve all earlier contracts and separately reported debts.
+
+### Fraction-lowering refuter
+
+`01_core/src/compiler/stdlib/structural/math/binom.rs:17-35` lowers binom to
+MathDelimited containing a MathFrac with line=false, whereas the frac constructor
+at `01_core/src/compiler/stdlib/structural/math/frac.rs:100` retains line=true.
+`oracle-show-controls.json` beside the selector evidence records that a frac show
+rule does not replace binom. Thus MathFrac's identity arm must inspect line:
+true can match native_math_frac, false cannot. This is an existing causal
+construction distinction, not guessing identity from geometry. It does not
+recover binom's erased top-level identity. Preserve an independent negative
+unlined control and collect every typed-math/carrier matrix failure before the
+aggregate assertion, so a first failing row cannot hide the remaining baseline.
+
+### Carrier dispatch order within the native matcher
+
+The existing NodeKind fast path in native_element_matches precedes its Content
+carrier arms; selector_matches peels only one carrier before NodeKind dispatch.
+Consequently nested carriers around a native heading can miss while the same
+single native heading matches. The native matcher must recurse through its four
+causal carriers before its ABI/NodeKind fast paths. A first transport projection
+may retain every other Content unchanged; the subsequent identity match remains
+nominally exhaustive, including explicit carrier policies. This does not alter
+the legacy direct Selector::NodeKind matcher or admit ordinary Styled. A nested
+Source/ShowRecipe/Located/Realized-visual heading test must fail before repair
+and pass through both direct native_element_matches and the NativeElement
+selector entry. Do not confuse this retained-value passthrough with a neutral
+fallback or move the closed identity decision into a helper.

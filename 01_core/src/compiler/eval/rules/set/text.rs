@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/core/compiler/eval/rules/set/text.md
-//! @prompt-hash 0ef60f01
+//! @prompt-hash 76668e1c
 //! @layer L1
 //! @updated 2026-09-30
 //!
@@ -327,10 +327,86 @@ pub(super) fn eval_set_text(
                             .filter_map(|item| match item {
                                 Value::Str(s) => Some(s.as_str()),
                                 Value::Dict(d) => match d.get("name") {
-                                    Some(Value::Str(s)) => Some(s.as_str()),
-                                    _ => None,
+                                    Some(name) => match name {
+                                        Value::Str(s) => Some(s.as_str()),
+                                        Value::None
+                                        | Value::Bool(..)
+                                        | Value::Int(..)
+                                        | Value::Float(..)
+                                        | Value::Array(..)
+                                        | Value::Dict(..)
+                                        | Value::Module(..)
+                                        | Value::Datetime(..)
+                                        | Value::Func(..)
+                                        | Value::Content(..)
+                                        | Value::LocatedContent(..)
+                                        | Value::Auto
+                                        | Value::Length(..)
+                                        | Value::Relative(..)
+                                        | Value::Ratio(..)
+                                        | Value::Angle(..)
+                                        | Value::Color(..)
+                                        | Value::Stroke(..)
+                                        | Value::Fraction(..)
+                                        | Value::Align(..)
+                                        | Value::Location(..)
+                                        | Value::Gradient(..)
+                                        | Value::Regex(..)
+                                        | Value::Tiling(..)
+                                        | Value::Bytes(..)
+                                        | Value::Decimal(..)
+                                        | Value::Duration(..)
+                                        | Value::Version(..)
+                                        | Value::Selector(..)
+                                        | Value::Symbol(..)
+                                        | Value::Args(..)
+                                        | Value::State(..)
+                                        | Value::Counter(..)
+                                        | Value::Label(..)
+                                        | Value::Dir(..)
+                                        | Value::Path(..)
+                                        | Value::Type(..)
+                                        | Value::SpotColorant(..) => None,
+                                    },
+                                    None => None,
                                 },
-                                _ => None, // neutro: N16[β] — valores não-nominais filtrados em extracção de famílias tipográficas
+                                Value::None
+                                | Value::Bool(..)
+                                | Value::Int(..)
+                                | Value::Float(..)
+                                | Value::Array(..)
+                                | Value::Module(..)
+                                | Value::Datetime(..)
+                                | Value::Func(..)
+                                | Value::Content(..)
+                                | Value::LocatedContent(..)
+                                | Value::Auto
+                                | Value::Length(..)
+                                | Value::Relative(..)
+                                | Value::Ratio(..)
+                                | Value::Angle(..)
+                                | Value::Color(..)
+                                | Value::Stroke(..)
+                                | Value::Fraction(..)
+                                | Value::Align(..)
+                                | Value::Location(..)
+                                | Value::Gradient(..)
+                                | Value::Regex(..)
+                                | Value::Tiling(..)
+                                | Value::Bytes(..)
+                                | Value::Decimal(..)
+                                | Value::Duration(..)
+                                | Value::Version(..)
+                                | Value::Selector(..)
+                                | Value::Symbol(..)
+                                | Value::Args(..)
+                                | Value::State(..)
+                                | Value::Counter(..)
+                                | Value::Label(..)
+                                | Value::Dir(..)
+                                | Value::Path(..)
+                                | Value::Type(..)
+                                | Value::SpotColorant(..) => None,
                             })
                             .filter(|name| book.select_family(name).next().is_none())
                             .map(|name| name.to_lowercase())
@@ -463,4 +539,102 @@ pub(super) fn eval_set_text(
     }
 
     Ok(Value::None)
+}
+
+#[cfg(test)]
+mod v16_c_structural_tests {
+
+    use crate::contracts::world::World;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    use crate::entities::{file_id::FileId, font_book::FontBook, source::Source};
+    struct TestWorld {
+        library: Library,
+        book: FontBook,
+        source: Source,
+    }
+    impl TestWorld {
+        fn new(text: &str) -> Self {
+            Self {
+                library: Library::new(),
+                book: FontBook::new(),
+                source: Source::new(
+                    FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
+                    text.into(),
+                ),
+            }
+        }
+    }
+    impl World for TestWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Ok(self.source.clone())
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
+            None
+        }
+        fn include_source(&self, _: FileId, _: &str) -> Result<Source, String> {
+            panic!("refused include accessed World")
+        }
+        fn include_path(
+            &self,
+            _: &crate::entities::path::RootedPath,
+        ) -> Result<Source, String> {
+            panic!("refused include accessed World")
+        }
+    }
+
+    #[test]
+    fn v16_c_font_warning_literal_families_and_invalid_inputs() {
+        for text in [
+            "#set text(font: \"MISSING FAMILY\")",
+            "#set text(font: (\"MISSING FAMILY\",))",
+            "#set text(font: (family: \"MISSING FAMILY\"))",
+        ] {
+            let world = TestWorld::new(text);
+            let (result, sink) = crate::compiler::eval::tests::eval_for_test_keep_sink(
+                &world,
+                &world.source,
+            );
+            result.unwrap();
+            let warnings = sink.into_diagnostics();
+            assert_eq!(warnings.len(), 1, "{text}: {warnings:?}");
+            assert_eq!(warnings[0].message, "unknown font family: missing family");
+        }
+        for text in ["#set text(font: true)", "#set text(font: (true,))"] {
+            let world = TestWorld::new(text);
+            let (result, sink) = crate::compiler::eval::tests::eval_for_test_keep_sink(
+                &world,
+                &world.source,
+            );
+            assert!(result.is_err());
+            assert!(sink.into_diagnostics().is_empty());
+        }
+    }
+    #[test]
+    fn v16_c_font_regex_is_not_a_literal_missing_family() {
+        let world = TestWorld::new("#set text(font: (family: regex(\"MISSING.*\")))");
+        let (result, sink) =
+            crate::compiler::eval::tests::eval_for_test_keep_sink(&world, &world.source);
+        result.unwrap();
+        assert!(sink.into_diagnostics().is_empty());
+    }
 }

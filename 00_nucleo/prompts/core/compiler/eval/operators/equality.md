@@ -1,8 +1,9 @@
 # L0 — compiler/eval/operators/equality
-Hash do Código: 6126614c
+Hash do Código: 8e83ff04
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/introspection/content-snapshot.toml sha256:d9b2ab50748dec1246d8a55c0b702fa2ee5e23dd737bedf3689e6c9f0297ac29
+- 00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml sha256:a933254df6e90a505910759d443fe8b06f2646e2d4a9949bc179326fc9c5c329
 - 00_nucleo/prompts/_nuclei/selectors/native-bare-identity.toml sha256:7e7373acce2b00247d18b9c5ea1b9d53833275997cd2c304e9d919d2cce10648
 
 **Layer:** L1
@@ -187,3 +188,82 @@ suite/build/Clippy -D warnings/-D unfulfilled_lint_expectations/Rustdoc -D warni
 four indexes/fmt/diff/strict-reverse lineage/differential SARIF under 12 GiB/
 MemoryHigh 10 GiB/zero swap/jobs1. No commit/push/merge/release; not all Content
 certified resolved.
+
+## Closed selector decisions and measured admission
+
+### Evidence before decision
+
+`lab/results/v16-corrections-2026-10-19/batch-c/agents/selectors/oracle-probes.json`
+records the verified oracle commit `bd5ebec285505889e8ff1d4f68804ab147a699f3`,
+tree, binary SHA-256, recipe receipt, UTC, HEAD and exact working-tree diffstat.
+`source-evidence.json` beside it freezes the consulted source. Upstream
+`lab/typst-original/crates/typst-library/src/foundations/selector.rs:108-124`
+defines literal/regex validation, :178-194 accepts Selector for logical operands,
+:204-241 and :285-297 use LocatableSelector for contextual boundaries, :354-364
+casts element functions by identity and :421-450 separately validates locatability.
+These are language admission/equality/selection obligations, not required storage
+or function-pointer mechanics. Successful eval of a show expression records
+construction only, not realization; actual selection requires a compile probe.
+
+The local adapter at `01_core/src/compiler/eval/bindings/value_methods/selector.rs:20-40`
+only admits heading/figure; the constructor at
+`01_core/src/compiler/stdlib/foundations/selector.rs:34-91` admits other element
+identities and preserves a separate Tekt String-to-Kind extension. Current-pin
+probes refute treating the adapter's refusal as intentional language behavior.
+Native page equality is true against an alias and false against page.where().
+The catalogue admits engine-native page/op; the old equality address accessor
+excludes this ABI. The native matcher exits on engine ABI before causal descent.
+Inference: existing representations suffice for these corrections; a case
+requiring new public identity or phase would refute that bounded inference.
+
+### Format-witness evidence before identity refinement
+
+`01_core/src/compiler/stdlib/format.rs:95-153` attaches five distinct private
+FormatElementKind witnesses to a shared native_format callback in the existing
+factory. Func::native_fn_addr erases this distinction; Func PartialEq intentionally
+retains name compatibility. `oracle-format-probes.json` in the selector evidence
+records current-pin bundle+html feature probes: pdf/svg, svg/png and html/bundle
+selectors differ; cloned pdf alias equals pdf; bare pdf differs from pdf.where().
+These are language identity observations, corroborated by the pinned
+format-native-identity nucleus's explicit typed-witness obligation, not a demand
+to change public Rust equality. Preserve the factory, namespace, dispatch and
+feature gates. Tests obtain all five actual factory functions, compare their full
+pair matrix, cloned aliases and both Format/ordinary-Native directions using the
+same callback and name. Change no public Func/Value Eq/Hash. The selected identity
+relation closes both FuncRepr axes as well as both QuerySelector axes; new
+representations cannot silently inherit pointer-only identity.
+
+### Owned closed relation and acceptance
+
+Keep the early legacy relation when neither selector contains an element leaf.
+Close both nominal QuerySelector axes at the actual pair decision. Same-constructor
+families retain ordered recursive comparisons and inclusive flags; different
+constructors are unequal. Legacy same-leaf pairs are unreachable after the early
+return, but explicitly handled with their existing relation. No wildcard may
+absorb a future selector variant on either axis.
+
+Bare native identities compare the actual typed callback within each existing ABI:
+Native uses its plain callback; Format retains both its nominal kind and plain
+callback; NativeWithEngine uses its own engine callback. Format and ordinary
+Native differ even if their callback and public Func equality coincide.
+Different ABIs differ; no erased address cast, function name, Arc shortcut, or
+change to Func/Value PartialEq/Hash. Unsupported non-native representations remain
+unequal here. The catalogue currently admits an Element named raw.line before
+its typed-native checks; this is an existing dynamic identity debt, not evidence
+that name-only admission proves native identity. Keep this limitation visible;
+this correction certifies the two native ABIs only. Preserve bare versus
+present-empty filter groups, recursive Int/Float equality and NaN nonreflexivity.
+Tests cover engine-native page aliases/homonyms/cross-ABI controls and propagation
+through compositions, arrays and CounterKey, plus ordered filter/inclusive flags.
+Both tuple axes require independent future-variant structural witnesses.
+
+### Structural and integration gates
+
+L0 first and restricted reseal precede Rust changes. Preservation controls pass
+before/after; semantic corrections require real failing tests before code. A real
+copied-workspace enum extension must produce attributable E0004 at every selected
+closed match after repair, including both pair axes; use no stubs. Keep V19 groups
+visible and review their semantic domains. No suppression, scan/severity/exclusion
+change or equivalent open fallback hidden in another syntax. Validate full tests,
+paths, direct/reverse lineage, V15/V26, build, all-target Clippy, fmt, Rustdoc and
+exact SARIF delta. Preserve all earlier contracts and separately reported debts.

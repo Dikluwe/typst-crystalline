@@ -1,0 +1,2773 @@
+[
+  {
+    "id": "V16-005",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "is_matrix_or_cell_content",
+    "classification": "structural domain obligation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-005",
+      "file": "01_core/src/compiler/eval/bindings/field_access/fields.rs",
+      "line": 767,
+      "column": 9,
+      "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `false` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md",
+      "source_sha256": "e914efff051b76e3990c3febc22d2a3fb8181ee5cd906fff1c00692a3bedbbbe",
+      "l0_sha256": "dc56ea12d0655b35ac4900f53f0bce83cf88afefa44669ec46185715dc4b6349",
+      "effective_prompt_seal": "1bd39708",
+      "partition": "eval-realize",
+      "function": "is_matrix_or_cell_content",
+      "function_source_range": "01_core/src/compiler/eval/bindings/field_access/fields.rs:759\u2013769",
+      "scrutinee": "content",
+      "enum_domain": "Content",
+      "handled_variants": [
+        "MathMatrix",
+        "TableCell",
+        "Source",
+        "Located",
+        "ShowRecipe",
+        "Realized"
+      ],
+      "current_nominal_complement": [
+        "Empty",
+        "Text",
+        "Space",
+        "SpaceFromNewline",
+        "Parbreak",
+        "Sequence",
+        "HtmlElem",
+        "HtmlFrame",
+        "Par",
+        "Heading",
+        "Title",
+        "Strong",
+        "Emph",
+        "Raw",
+        "ListItem",
+        "EnumItem",
+        "Link",
+        "Equation",
+        "MathSequence",
+        "MathIdent",
+        "MathText",
+        "MathFrac",
+        "MathAttach",
+        "MathPrimes",
+        "MathRoot",
+        "MathStretch",
+        "MathDelimited",
+        "MathLr",
+        "MathMid",
+        "MathOverbrace",
+        "MathUnderbrace",
+        "MathUnderbracket",
+        "MathUnderparen",
+        "MathUndershell",
+        "MathOverbracket",
+        "MathOverparen",
+        "MathOvershell",
+        "MathAlignPoint",
+        "Linebreak",
+        "MathCases",
+        "MathAccent",
+        "MathCancel",
+        "MathUnderline",
+        "MathOverline",
+        "MathVec",
+        "MathClassOverride",
+        "MathLimitsOverride",
+        "MathUnderover",
+        "MathOp",
+        "MathStyled",
+        "Label",
+        "Ref",
+        "CounterDisplay",
+        "CounterUpdate",
+        "Outline",
+        "OutlineEntry",
+        "Figure",
+        "FigureCaption",
+        "Image",
+        "Shape",
+        "Curve",
+        "Transform",
+        "Grid",
+        "GridHeader",
+        "GridFooter",
+        "GridCell",
+        "SetPage",
+        "PageRun",
+        "Align",
+        "Place",
+        "Flush",
+        "Styled",
+        "Divider",
+        "Terms",
+        "TermItem",
+        "Quote",
+        "Document",
+        "Asset",
+        "SmartQuote",
+        "PdfAttach",
+        "PdfArtifact",
+        "Underline",
+        "Strike",
+        "Overline",
+        "SmallCaps",
+        "Pad",
+        "Hide",
+        "HSpace",
+        "VSpace",
+        "Pagebreak",
+        "Colbreak",
+        "Stack",
+        "Boxed",
+        "Block",
+        "Bibliography",
+        "Cite",
+        "Footnote",
+        "FootnoteEntry",
+        "TableHeader",
+        "TableFooter",
+        "GridHLine",
+        "GridVLine",
+        "TableHLine",
+        "TableVLine",
+        "Table",
+        "Repeat",
+        "Columns",
+        "Metadata",
+        "State",
+        "StateUpdate",
+        "StateDisplay",
+        "CounterDisplayCallback",
+        "ContextBlock",
+        "Dynamic"
+      ],
+      "guard_refusals_and_preconditions": [],
+      "classification": "structural domain obligation",
+      "concrete_root_cause": "The boolean is a strict-presence-family classifier, not a general field support test. Its wildcard hides whether a future carrier should forward strict access or a future element should remain on its ordinary getter path.",
+      "current_complement_policy": "The complement is not Matrix/Cell through the four causal carriers and returns false. Styled is intentionally not generically peeled here; separate is_presence_content classification and earlier authoritative snapshots still apply. False does not mean no fields or allow a failed snapshot lookup to fall back.",
+      "evidence": [
+        "01_core/src/compiler/eval/bindings/field_access/fields.rs:759\u2013769",
+        "01_core/src/compiler/eval/bindings/field_access/fields.rs:250\u2013286"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md:24\u201339",
+        "00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md:41\u201355",
+        "00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md:169\u2013181"
+      ],
+      "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Document strict Matrix/Cell membership and the four carrier forwarding routes; explicitly classify all other families as not this strict family, preserving the separate presence and snapshot stages.",
+      "planned_tests_and_refuters": [
+        "Matrix/Cell missing declared fields remain Unset, unknown fields remain Undeclared through each carrier.",
+        "Some snapshot without key cannot fall back to get_field; ordinary nodes retain getter behavior and Box body remains excluded."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [],
+      "dependencies": [
+        "V16-004",
+        "Matrix/Cell presence owners"
+      ],
+      "adr_0127": {
+        "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+        "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/bindings/field_access/fields.rs:759\u2013769",
+      "01_core/src/compiler/eval/bindings/field_access/fields.rs:250\u2013286"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md:24\u201339",
+      "00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md:41\u201355",
+      "00_nucleo/prompts/core/compiler/eval/bindings/field_access/fields.md:169\u2013181"
+    ],
+    "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Document strict Matrix/Cell membership and the four carrier forwarding routes; explicitly classify all other families as not this strict family, preserving the separate presence and snapshot stages.",
+    "proposed_tests": [
+      "Matrix/Cell missing declared fields remain Unset, unknown fields remain Undeclared through each carrier.",
+      "Some snapshot without key cannot fall back to get_field; ordinary nodes retain getter behavior and Box body remains excluded."
+    ],
+    "gate": {
+      "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+      "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility.",
+      "probes_needed": [],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "V16-004",
+      "Matrix/Cell presence owners"
+    ]
+  },
+  {
+    "id": "V16-006",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "validate_element_locatability",
+    "classification": "structural domain obligation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-006",
+      "file": "01_core/src/compiler/eval/bindings/value_methods/element_where.rs",
+      "line": 640,
+      "column": 9,
+      "message": "wildcard `_ =>` ignora variantes silenciosamente com `{}` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md",
+      "source_sha256": "81dd63e092280279a4911ef56b42901595678087732d27d863678b86b8b63679",
+      "l0_sha256": "b8657cb39cf072e7de14960b222119397424502de0a48d243c154638e7744bdb",
+      "effective_prompt_seal": "17be5f7a",
+      "partition": "eval-realize",
+      "function": "validate_element_locatability",
+      "function_source_range": "01_core/src/compiler/eval/bindings/value_methods/element_where.rs:609\u2013643",
+      "scrutinee": "selector",
+      "enum_domain": "QuerySelector",
+      "handled_variants": [
+        "NativeElement",
+        "Element",
+        "And",
+        "Or",
+        "Where",
+        "Within",
+        "Before",
+        "After"
+      ],
+      "current_nominal_complement": [
+        "Kind",
+        "Label",
+        "Location",
+        "Regex"
+      ],
+      "guard_refusals_and_preconditions": [],
+      "classification": "structural domain obligation",
+      "concrete_root_cause": "Recursive native metadata validation leaves the four pre-existing non-native leaves implicit. Their lack of a new native-locatability check is valid; it is not approval to skip future selector variants.",
+      "current_complement_policy": "Exactly Kind, Label, Location and Regex do not carry a new native Func requiring native_element_fields locatability validation. Composite selectors recurse into all relevant leaves. NativeElement/Element metadata false produces {name} is not locatable; absence of metadata follows the current owner policy. Construction remains distinct from query-time locatability.",
+      "evidence": [
+        "01_core/src/compiler/eval/bindings/value_methods/element_where.rs:609\u2013643"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md:66\u201380",
+        "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md:129\u2013171",
+        "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md:188\u2013242"
+      ],
+      "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Express these four legacy leaves as the reviewed no-new-native-check domain and keep exhaustive recursion for each composite. Do not force Kind through native metadata or turn nonlocatable table.cell into a construction error.",
+      "planned_tests_and_refuters": [
+        "Bare table.cell and empty-group where() construct, then query/counter reject at the causal span.",
+        "Native nonlocatable leaves nested in And/Or/Where/Within/Before/After are rejected, while legacy Kind/Label/Location/Regex retain existing behavior."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [],
+      "dependencies": [
+        "V16-007",
+        "Catalogue metadata owner; D08A is bounded."
+      ],
+      "adr_0127": {
+        "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+        "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/bindings/value_methods/element_where.rs:609\u2013643"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md:66\u201380",
+      "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md:129\u2013171",
+      "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/element_where.md:188\u2013242"
+    ],
+    "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Express these four legacy leaves as the reviewed no-new-native-check domain and keep exhaustive recursion for each composite. Do not force Kind through native metadata or turn nonlocatable table.cell into a construction error.",
+    "proposed_tests": [
+      "Bare table.cell and empty-group where() construct, then query/counter reject at the causal span.",
+      "Native nonlocatable leaves nested in And/Or/Where/Within/Before/After are rejected, while legacy Kind/Label/Location/Regex retain existing behavior."
+    ],
+    "gate": {
+      "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+      "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility.",
+      "probes_needed": [],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "V16-007",
+      "Catalogue metadata owner; D08A is bounded."
+    ]
+  },
+  {
+    "id": "V16-007",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "value_to_query_selector",
+    "classification": "mixed semantic admission investigation and structural obligation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-007",
+      "file": "01_core/src/compiler/eval/bindings/value_methods/selector.rs",
+      "line": 38,
+      "column": 9,
+      "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `None` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md",
+      "source_sha256": "01e4412986005f88f99582249546da37e5665655bb10ceef9a7d225e87e7917a",
+      "l0_sha256": "5c3ab2b3913afd35ce0b951ec5145dd576ee2679b3737e16bf4ecf8169879958",
+      "effective_prompt_seal": "d51143a6",
+      "partition": "eval-realize",
+      "function": "value_to_query_selector",
+      "function_source_range": "01_core/src/compiler/eval/bindings/value_methods/selector.rs:20\u201340",
+      "scrutinee": "value",
+      "enum_domain": "Value",
+      "handled_variants": [
+        "Selector",
+        "Func"
+      ],
+      "current_nominal_complement": [
+        "None",
+        "Bool",
+        "Int",
+        "Float",
+        "Str",
+        "Array",
+        "Dict",
+        "Module",
+        "Datetime",
+        "Content",
+        "LocatedContent",
+        "Auto",
+        "Length",
+        "Relative",
+        "Ratio",
+        "Angle",
+        "Color",
+        "Stroke",
+        "Fraction",
+        "Align",
+        "Location",
+        "Gradient",
+        "Regex",
+        "Tiling",
+        "Bytes",
+        "Decimal",
+        "Duration",
+        "Version",
+        "Symbol",
+        "Args",
+        "State",
+        "Counter",
+        "Label",
+        "Dir",
+        "Path",
+        "Type",
+        "SpotColorant"
+      ],
+      "guard_refusals_and_preconditions": [],
+      "classification": "mixed semantic admission investigation and structural obligation",
+      "concrete_root_cause": "The adapter accepts Selector or only heading/figure native Func, while native_selector already admits additional native element identities, Regex and string forms. This is a concrete conversion-policy split; nominally closing Value alone would leave the inner native admission debt invisible.",
+      "current_complement_policy": "Every non-Selector/non-Func Value returns None. A Func returns Some only for actual native_heading/native_figure addresses; all other native, engine-native, closure, partial, plugin and dynamic functions currently fail this adapter. None means adapter refusal, not a valid empty selector. Which constructor forms must be admitted by combinators needs language evidence.",
+      "evidence": [
+        "01_core/src/compiler/eval/bindings/value_methods/selector.rs:20\u201340",
+        "01_core/src/compiler/stdlib/foundations/selector.rs:25\u2013112",
+        "01_core/src/compiler/eval/call_dispatch/value_methods.rs:357",
+        "01_core/src/compiler/eval/call_dispatch/value_methods.rs:479"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md:15\u201323",
+        "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md:25\u201368"
+      ],
+      "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Specify combinator admission separately from constructor coercion, compare current pinned language behavior and catalogue contracts, then centralize only a proven shared conversion policy under one existing owner. Keep typed identity and locatability validation separate; do not accept strings/Regex/Label merely because another constructor can.",
+      "planned_tests_and_refuters": [
+        "Compare selector(table), a table alias, table.cell, heading and figure as direct versus already-converted operands of or/and/within/before/after.",
+        "Non-element Func and invalid scalar operands retain correct errors/spans and argument-once order.",
+        "Accepting a nonlocatable native as a selector must not silently make query/counter accept it."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [
+        "Probe direct native versus selector(native) composition and legacy String/Regex admissions on current pin; determine which differences are language defects versus intentional adapter scope."
+      ],
+      "dependencies": [
+        "V16-006",
+        "native_selector owner",
+        "eval/call-once"
+      ],
+      "adr_0127": {
+        "classification": "Split work: internal exhaustiveness/transport correction within an already ratified contract can use continuous flow; any new language admission/default, public entity/API, phase, or compatibility change must first be classified under ADR-0127.",
+        "approval_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/bindings/value_methods/selector.rs:20\u201340",
+      "01_core/src/compiler/stdlib/foundations/selector.rs:25\u2013112",
+      "01_core/src/compiler/eval/call_dispatch/value_methods.rs:357",
+      "01_core/src/compiler/eval/call_dispatch/value_methods.rs:479"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md:15\u201323",
+      "00_nucleo/prompts/core/compiler/eval/bindings/value_methods/selector.md:25\u201368"
+    ],
+    "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Specify combinator admission separately from constructor coercion, compare current pinned language behavior and catalogue contracts, then centralize only a proven shared conversion policy under one existing owner. Keep typed identity and locatability validation separate; do not accept strings/Regex/Label merely because another constructor can.",
+    "proposed_tests": [
+      "Compare selector(table), a table alias, table.cell, heading and figure as direct versus already-converted operands of or/and/within/before/after.",
+      "Non-element Func and invalid scalar operands retain correct errors/spans and argument-once order.",
+      "Accepting a nonlocatable native as a selector must not silently make query/counter accept it."
+    ],
+    "gate": {
+      "classification": "Split work: internal exhaustiveness/transport correction within an already ratified contract can use continuous flow; any new language admission/default, public entity/API, phase, or compatibility change must first be classified under ADR-0127.",
+      "approval_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions.",
+      "probes_needed": [
+        "Probe direct native versus selector(native) composition and legacy String/Regex admissions on current pin; determine which differences are language defects versus intentional adapter scope."
+      ],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "V16-006",
+      "native_selector owner",
+      "eval/call-once"
+    ]
+  },
+  {
+    "id": "V16-008",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "P1293HtmlCallSpans::anchor",
+    "classification": "structural domain obligation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-008",
+      "file": "01_core/src/compiler/eval/call_dispatch/call_spans.rs",
+      "line": 321,
+      "column": 13,
+      "message": "wildcard `_ =>` ignora variantes silenciosamente com `{}` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md",
+      "source_sha256": "afca4e703c3a918f28323ff32ee7a164f39fd43a443f7decbc9bacd9a967376e",
+      "l0_sha256": "a0a350f21a3ecd4ebc3e696175916d0409d411fd70c25dd27c7c0cdac4086db9",
+      "effective_prompt_seal": "aafbdc25",
+      "partition": "eval-realize",
+      "function": "P1293HtmlCallSpans::anchor",
+      "function_source_range": "01_core/src/compiler/eval/call_dispatch/call_spans.rs:302\u2013327",
+      "scrutinee": "self.kind",
+      "enum_domain": "P1293HtmlNative",
+      "handled_variants": [
+        "Void",
+        "Normal"
+      ],
+      "current_nominal_complement": [],
+      "guard_refusals_and_preconditions": [
+        "Both enum variants are nominally handled; the entire wildcard complement is guard refusal plus the prior has_spread exclusion."
+      ],
+      "classification": "structural domain obligation",
+      "concrete_root_cause": "The wildcard is reached by rejected payload/cardinality guards of the only two nominal variants, not by another HTML native kind. It preserves progression to named-argument anchoring; blindly deleting it changes error priority.",
+      "current_complement_policy": "After the early has_spread return: Void with no positionals, Normal with no positionals, and Normal with one Content positional continue to named selection. Void nonempty, Normal length>1, and Normal first non-Content return their positional anchors. A missing captured anchor falls back to args.span within those early branches.",
+      "evidence": [
+        "01_core/src/compiler/eval/call_dispatch/call_spans.rs:302\u2013327"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md:8\u201315",
+        "00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md:39\u201350",
+        "00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md:52\u201375"
+      ],
+      "proposed_repair": "Use exhaustive Normal/Void arms, placing the existing ordered length/type checks inside each. Both continuing paths must reach the unchanged named/full-versus-value anchor logic. Do not conflate this V16 repair with earlier cardinality/V18 decisions that expressly left HTML behavior unchanged.",
+      "planned_tests_and_refuters": [
+        "Exercise spread first, Void empty/nonempty, Normal 0/1 Content/1 non-Content/2 arguments, missing captures and unknown named argument.",
+        "Compare exact causal full-name/value/positional spans and first-error priority rather than only success/failure."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [],
+      "dependencies": [
+        "HTML argument validation and span owner"
+      ],
+      "adr_0127": {
+        "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+        "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/call_dispatch/call_spans.rs:302\u2013327"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md:8\u201315",
+      "00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md:39\u201350",
+      "00_nucleo/prompts/core/compiler/eval/call_dispatch/call_spans.md:52\u201375"
+    ],
+    "correction": "Use exhaustive Normal/Void arms, placing the existing ordered length/type checks inside each. Both continuing paths must reach the unchanged named/full-versus-value anchor logic. Do not conflate this V16 repair with earlier cardinality/V18 decisions that expressly left HTML behavior unchanged.",
+    "proposed_tests": [
+      "Exercise spread first, Void empty/nonempty, Normal 0/1 Content/1 non-Content/2 arguments, missing captures and unknown named argument.",
+      "Compare exact causal full-name/value/positional spans and first-error priority rather than only success/failure."
+    ],
+    "gate": {
+      "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+      "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility.",
+      "probes_needed": [],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "HTML argument validation and span owner"
+    ]
+  },
+  {
+    "id": "V16-009",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "try_content_methods",
+    "classification": "structural domain obligation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-009",
+      "file": "01_core/src/compiler/eval/call_dispatch/content_methods.rs",
+      "line": 85,
+      "column": 17,
+      "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `None` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md",
+      "source_sha256": "d25d8b0182976ed2b7bf0c3a0468b761ad5979ead41819bc770e70ff79663457",
+      "l0_sha256": "dcc328c0475fa194470e457a98bc93089606b9f80ff9975d2a1df81bf03dacec",
+      "effective_prompt_seal": "2e13f432",
+      "partition": "eval-realize",
+      "function": "try_content_methods",
+      "function_source_range": "01_core/src/compiler/eval/call_dispatch/content_methods.rs:10\u2013139",
+      "scrutinee": "target",
+      "enum_domain": "Value",
+      "handled_variants": [
+        "Content",
+        "LocatedContent"
+      ],
+      "current_nominal_complement": [
+        "None",
+        "Bool",
+        "Int",
+        "Float",
+        "Str",
+        "Array",
+        "Dict",
+        "Module",
+        "Datetime",
+        "Func",
+        "Auto",
+        "Length",
+        "Relative",
+        "Ratio",
+        "Angle",
+        "Color",
+        "Stroke",
+        "Fraction",
+        "Align",
+        "Location",
+        "Gradient",
+        "Regex",
+        "Tiling",
+        "Bytes",
+        "Decimal",
+        "Duration",
+        "Version",
+        "Selector",
+        "Symbol",
+        "Args",
+        "State",
+        "Counter",
+        "Label",
+        "Dir",
+        "Path",
+        "Type",
+        "SpotColorant"
+      ],
+      "guard_refusals_and_preconditions": [],
+      "classification": "structural domain obligation",
+      "concrete_root_cause": "The wildcard in OutlineEntry receiver selection yields None to permit later dispatch. It is a legitimate receiver partition but implicitly admits every future Value as a non-content receiver.",
+      "current_complement_policy": "The listed Value complement is not a Content/LocatedContent OutlineEntry receiver and returns None without evaluating args for this route. Content/LocatedContent still require outline_entry_receiver, which crosses Source/Located only; other Content is not an OutlineEntry and falls through. Earlier Location and generic content-method routes remain separate.",
+      "evidence": [
+        "01_core/src/compiler/eval/call_dispatch/content_methods.rs:10\u2013139"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md:12\u201322",
+        "00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md:24\u201358",
+        "00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md:85\u2013104"
+      ],
+      "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Close Value receiver eligibility and keep the owner-prescribed Source/Located OutlineEntry helper boundary. A negative classification must defer, not emit an error or evaluate arguments; preserve the once-resolved target.",
+      "planned_tests_and_refuters": [
+        "OutlineEntry method through direct/Source/Located versus unrelated content and scalar receivers.",
+        "Unrecognized method and negative receiver defer without running argument effects; successful and mutating fallback paths evaluate receiver/args once.",
+        "Do not transparently unwrap Styled/ShowRecipe/Realized for this helper absent new evidence."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [],
+      "dependencies": [
+        "V16-010",
+        "eval/call-once"
+      ],
+      "adr_0127": {
+        "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+        "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/call_dispatch/content_methods.rs:10\u2013139"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md:12\u201322",
+      "00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md:24\u201358",
+      "00_nucleo/prompts/core/compiler/eval/call_dispatch/content_methods.md:85\u2013104"
+    ],
+    "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Close Value receiver eligibility and keep the owner-prescribed Source/Located OutlineEntry helper boundary. A negative classification must defer, not emit an error or evaluate arguments; preserve the once-resolved target.",
+    "proposed_tests": [
+      "OutlineEntry method through direct/Source/Located versus unrelated content and scalar receivers.",
+      "Unrecognized method and negative receiver defer without running argument effects; successful and mutating fallback paths evaluate receiver/args once.",
+      "Do not transparently unwrap Styled/ShowRecipe/Realized for this helper absent new evidence."
+    ],
+    "gate": {
+      "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+      "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility.",
+      "probes_needed": [],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "V16-010",
+      "eval/call-once"
+    ]
+  },
+  {
+    "id": "V16-010",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "try_instance_method",
+    "classification": "structural domain obligation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-010",
+      "file": "01_core/src/compiler/eval/call_dispatch/instance_methods.rs",
+      "line": 238,
+      "column": 13,
+      "message": "wildcard `_ =>` ignora variantes silenciosamente com `{}` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md",
+      "source_sha256": "9510cd5ba95bc1ee5efe106165e46483cbd60dc7c399689181e74ee4d017c410",
+      "l0_sha256": "a53c20346d4ea29b388603d0a8c01218b8c34391b5d54836c9e1b5e710a217bb",
+      "effective_prompt_seal": "d6ee0c8a",
+      "partition": "eval-realize",
+      "function": "try_instance_method",
+      "function_source_range": "01_core/src/compiler/eval/call_dispatch/instance_methods.rs:10\u2013243",
+      "scrutinee": "target with method-name/type guards",
+      "enum_domain": "Value",
+      "handled_variants": [
+        "State",
+        "Counter",
+        "Type",
+        "SpotColorant",
+        "Color",
+        "Gradient",
+        "Int",
+        "Float",
+        "Angle",
+        "Dir",
+        "Align",
+        "Duration",
+        "Length",
+        "Version"
+      ],
+      "current_nominal_complement": [
+        "None",
+        "Bool",
+        "Str",
+        "Array",
+        "Dict",
+        "Module",
+        "Datetime",
+        "Func",
+        "Content",
+        "LocatedContent",
+        "Auto",
+        "Relative",
+        "Ratio",
+        "Stroke",
+        "Fraction",
+        "Location",
+        "Regex",
+        "Tiling",
+        "Bytes",
+        "Decimal",
+        "Selector",
+        "Symbol",
+        "Args",
+        "Label",
+        "Path"
+      ],
+      "guard_refusals_and_preconditions": [
+        "The current wildcard includes all payload/name/type guard failures above; nominal set subtraction alone is incomplete."
+      ],
+      "classification": "structural domain obligation",
+      "concrete_root_cause": "A layered instance-method dispatcher uses a single silent None for both wholly different Value families and recognized families whose method/type guard failed. Exhaustiveness must preserve that dispatch contract, not turn every negative into unsupported-method errors.",
+      "current_complement_policy": "All listed complement Value variants defer. Within handled families: Type must be Counter and method at/display; SpotColorant must be tint; Color/Gradient/Int/Float have their own name predicates; Angle, Dir, Align, Duration, Length and Version require their enumerated names. Guard refusal also defers without args. State and Counter are deliberately delegated unconditionally to their own method validator.",
+      "evidence": [
+        "01_core/src/compiler/eval/call_dispatch/instance_methods.rs:10\u2013243"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md:19\u201330",
+        "00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md:32\u201376"
+      ],
+      "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Make Value nominal selection exhaustive and keep per-family method/type checks inside that selection. Preserve unconditional State/Counter delegation, caller cache reuse and the exact distinction between no route and a selected route returning an error. Do not broaden method admission or duplicate collection handlers.",
+      "planned_tests_and_refuters": [
+        "For each method family compare a valid method, unknown method, and same name on an unrelated receiver; deferred paths do not evaluate argument panics.",
+        "State/Counter invalid names keep their handler-owned errors. Type::Counter at/display preserves query-time validation.",
+        "Receiver and args effect counts remain one through successful and fallback/mutating routes."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [],
+      "dependencies": [
+        "Value/Type owners",
+        "State/Counter and per-family method owners",
+        "eval/call-once"
+      ],
+      "adr_0127": {
+        "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+        "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/call_dispatch/instance_methods.rs:10\u2013243"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md:19\u201330",
+      "00_nucleo/prompts/core/compiler/eval/call_dispatch/instance_methods.md:32\u201376"
+    ],
+    "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Make Value nominal selection exhaustive and keep per-family method/type checks inside that selection. Preserve unconditional State/Counter delegation, caller cache reuse and the exact distinction between no route and a selected route returning an error. Do not broaden method admission or duplicate collection handlers.",
+    "proposed_tests": [
+      "For each method family compare a valid method, unknown method, and same name on an unrelated receiver; deferred paths do not evaluate argument panics.",
+      "State/Counter invalid names keep their handler-owned errors. Type::Counter at/display preserves query-time validation.",
+      "Receiver and args effect counts remain one through successful and fallback/mutating routes."
+    ],
+    "gate": {
+      "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+      "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility.",
+      "probes_needed": [],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "Value/Type owners",
+      "State/Counter and per-family method owners",
+      "eval/call-once"
+    ]
+  },
+  {
+    "id": "V16-011",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "content_has_state_or_counter",
+    "classification": "mixed warning-transparency investigation and structural obligation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-011",
+      "file": "01_core/src/compiler/eval/expression_dispatch.rs",
+      "line": 793,
+      "column": 9,
+      "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `false` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md",
+      "source_sha256": "123ea40ee077a4ba5c650ac1f27ef0b1021de4f998aa53358afb73f76c824360",
+      "l0_sha256": "4a71d1b0c544c435ce93aa70e46b68e1538f2b41082f3697373ed3e0ec5bcac5",
+      "effective_prompt_seal": "aa0b0f73",
+      "partition": "eval-realize",
+      "function": "content_has_state_or_counter",
+      "function_source_range": "01_core/src/compiler/eval/expression_dispatch.rs:783\u2013795",
+      "scrutinee": "content",
+      "enum_domain": "Content",
+      "handled_variants": [
+        "State",
+        "StateUpdate",
+        "CounterUpdate",
+        "CounterDisplay",
+        "CounterDisplayCallback",
+        "Sequence",
+        "Styled"
+      ],
+      "current_nominal_complement": [
+        "Source",
+        "ShowRecipe",
+        "Realized",
+        "Located",
+        "Empty",
+        "Text",
+        "Space",
+        "SpaceFromNewline",
+        "Parbreak",
+        "HtmlElem",
+        "HtmlFrame",
+        "Par",
+        "Heading",
+        "Title",
+        "Strong",
+        "Emph",
+        "Raw",
+        "ListItem",
+        "EnumItem",
+        "Link",
+        "Equation",
+        "MathSequence",
+        "MathIdent",
+        "MathText",
+        "MathFrac",
+        "MathAttach",
+        "MathPrimes",
+        "MathRoot",
+        "MathStretch",
+        "MathDelimited",
+        "MathLr",
+        "MathMid",
+        "MathOverbrace",
+        "MathUnderbrace",
+        "MathUnderbracket",
+        "MathUnderparen",
+        "MathUndershell",
+        "MathOverbracket",
+        "MathOverparen",
+        "MathOvershell",
+        "MathAlignPoint",
+        "Linebreak",
+        "MathMatrix",
+        "MathCases",
+        "MathAccent",
+        "MathCancel",
+        "MathUnderline",
+        "MathOverline",
+        "MathVec",
+        "MathClassOverride",
+        "MathLimitsOverride",
+        "MathUnderover",
+        "MathOp",
+        "MathStyled",
+        "Label",
+        "Ref",
+        "Outline",
+        "OutlineEntry",
+        "Figure",
+        "FigureCaption",
+        "Image",
+        "Shape",
+        "Curve",
+        "Transform",
+        "Grid",
+        "GridHeader",
+        "GridFooter",
+        "GridCell",
+        "SetPage",
+        "PageRun",
+        "Align",
+        "Place",
+        "Flush",
+        "Divider",
+        "Terms",
+        "TermItem",
+        "Quote",
+        "Document",
+        "Asset",
+        "SmartQuote",
+        "PdfAttach",
+        "PdfArtifact",
+        "Underline",
+        "Strike",
+        "Overline",
+        "SmallCaps",
+        "Pad",
+        "Hide",
+        "HSpace",
+        "VSpace",
+        "Pagebreak",
+        "Colbreak",
+        "Stack",
+        "Boxed",
+        "Block",
+        "TableCell",
+        "Bibliography",
+        "Cite",
+        "Footnote",
+        "FootnoteEntry",
+        "TableHeader",
+        "TableFooter",
+        "GridHLine",
+        "GridVLine",
+        "TableHLine",
+        "TableVLine",
+        "Table",
+        "Repeat",
+        "Columns",
+        "Metadata",
+        "StateDisplay",
+        "ContextBlock",
+        "Dynamic"
+      ],
+      "guard_refusals_and_preconditions": [],
+      "classification": "mixed warning-transparency investigation and structural obligation",
+      "concrete_root_cause": "This warning predicate recognizes selected effect-bearing nodes through Sequence/Styled only. The implicit negative domain includes causal wrappers and StateDisplay; treating false as a proof of no effects would be unsound. Missing carrier transparency may omit the discarded-content hint, but the source alone cannot decide every container policy.",
+      "current_complement_policy": "True means one of five recognized nodes, directly or through Sequence/Styled. Every complement currently returns false; it means not recognized by this warning scanner, not no update exists. StateDisplay may be a read/display rather than an update; do not classify by its name. No callbacks execute during this scan.",
+      "evidence": [
+        "01_core/src/compiler/eval/expression_dispatch.rs:783\u2013795",
+        "01_core/src/compiler/eval/expression_dispatch.rs:344"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md:18",
+        "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md:187\u2013217",
+        "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md:278\u2013321"
+      ],
+      "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Document the hint-specific effect domain, measure raw versus causally wrapped discarded update content, then correct only proven carrier omissions under current warning requirements. Keep arbitrary semantic-container descent and Realized.original versus visual decisions explicit pending; do not reuse the bare-math absence proof as an effect proof.",
+      "planned_tests_and_refuters": [
+        "Return after StateUpdate/CounterUpdate/CounterDisplay through Sequence/Styled and each causal wrapper; compare main discarded-content warning, extra hint, span and zero callback execution.",
+        "Ordinary text and StateDisplay/read-only examples are negative controls; decide their warning policy from current-pin evidence."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [
+        "Current-pin unconditional-return diagnostics for direct and wrapped effect content, including Realized visual/original divergence; historical warning behavior alone does not establish intent."
+      ],
+      "dependencies": [
+        "Content carrier semantics",
+        "Causal discard-warning contract"
+      ],
+      "adr_0127": {
+        "classification": "Split work: internal exhaustiveness/transport correction within an already ratified contract can use continuous flow; any new language admission/default, public entity/API, phase, or compatibility change must first be classified under ADR-0127.",
+        "approval_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/expression_dispatch.rs:783\u2013795",
+      "01_core/src/compiler/eval/expression_dispatch.rs:344"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md:18",
+      "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md:187\u2013217",
+      "00_nucleo/prompts/core/compiler/eval/expression_dispatch.md:278\u2013321"
+    ],
+    "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Document the hint-specific effect domain, measure raw versus causally wrapped discarded update content, then correct only proven carrier omissions under current warning requirements. Keep arbitrary semantic-container descent and Realized.original versus visual decisions explicit pending; do not reuse the bare-math absence proof as an effect proof.",
+    "proposed_tests": [
+      "Return after StateUpdate/CounterUpdate/CounterDisplay through Sequence/Styled and each causal wrapper; compare main discarded-content warning, extra hint, span and zero callback execution.",
+      "Ordinary text and StateDisplay/read-only examples are negative controls; decide their warning policy from current-pin evidence."
+    ],
+    "gate": {
+      "classification": "Split work: internal exhaustiveness/transport correction within an already ratified contract can use continuous flow; any new language admission/default, public entity/API, phase, or compatibility change must first be classified under ADR-0127.",
+      "approval_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions.",
+      "probes_needed": [
+        "Current-pin unconditional-return diagnostics for direct and wrapped effect content, including Realized visual/original divergence; historical warning behavior alone does not establish intent."
+      ],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "Content carrier semantics",
+      "Causal discard-warning contract"
+    ]
+  },
+  {
+    "id": "V16-012",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "value_to_display_content",
+    "classification": "mixed presentation debt and structural obligation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-012",
+      "file": "01_core/src/compiler/eval/markup_stream.rs",
+      "line": 556,
+      "column": 17,
+      "message": "wildcard `_ =>` delega decis\u00e3o para `crate::compiler::eval::repr::repr_value(&other)`",
+      "owner": "00_nucleo/prompts/core/compiler/eval/markup_stream.md",
+      "source_sha256": "ec9bee49a3d12c0d51ca8bbb56fe9d52e1af032348da2a79fbcef1db2daea871",
+      "l0_sha256": "d0fdd50c0ea62eb1768ef7aad08248f201b6793e751b30ac58901f6cce4c715d",
+      "effective_prompt_seal": "c87dfcc5",
+      "partition": "eval-realize",
+      "function": "value_to_display_content",
+      "function_source_range": "01_core/src/compiler/eval/markup_stream.rs:513\u2013565",
+      "scrutinee": "other from outer Value match, then inner match other",
+      "enum_domain": "Value",
+      "handled_variants": [
+        "Float",
+        "Decimal"
+      ],
+      "current_nominal_complement": [
+        "None",
+        "Bool",
+        "Int",
+        "Str",
+        "Array",
+        "Dict",
+        "Module",
+        "Datetime",
+        "Func",
+        "Content",
+        "LocatedContent",
+        "Auto",
+        "Length",
+        "Relative",
+        "Ratio",
+        "Angle",
+        "Color",
+        "Stroke",
+        "Fraction",
+        "Align",
+        "Location",
+        "Gradient",
+        "Regex",
+        "Tiling",
+        "Bytes",
+        "Duration",
+        "Version",
+        "Selector",
+        "Symbol",
+        "Args",
+        "State",
+        "Counter",
+        "Label",
+        "Dir",
+        "Path",
+        "Type",
+        "SpotColorant"
+      ],
+      "guard_refusals_and_preconditions": [
+        "Outer Value branches constrain the actual inner wildcard reachability; do not assert nine consumed families reach repr_value."
+      ],
+      "classification": "mixed presentation debt and structural obligation",
+      "concrete_root_cause": "The inner wildcard delegates to repr_value, but the outer match has already consumed nine Value families. This is a presentation-policy boundary with acknowledged incomplete rich value display, not proof that every other Value should render as repr text.",
+      "current_complement_policy": "Inner nominal complement is recorded literally; outer precedence removes Content, Str, Auto, Bool, Symbol, State, Counter, None and Version, so only the residual complement reaches repr_value. Float uses format_f64, Decimal Display, all other residual types generic repr and nonempty text. LocatedContent is in that residual and loses rich structure; Label is handled separately in markup association but other call paths still matter. Markup None later has its own explicit Empty/consumed-slot contract, distinct from generic helper None.",
+      "evidence": [
+        "01_core/src/compiler/eval/markup_stream.rs:513\u2013565",
+        "01_core/src/compiler/eval/markup_stream.rs:147\u2013190",
+        "01_core/src/compiler/eval/expression_dispatch.rs:178",
+        "01_core/src/compiler/eval/expression_dispatch.rs:301"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/markup_stream.md:109\u2013133",
+        "00_nucleo/prompts/core/compiler/eval/markup_stream.md:162\u2013218",
+        "00_nucleo/prompts/core/compiler/eval/markup_stream.md:263\u2013275",
+        "00_nucleo/prompts/core/compiler/eval/markup_stream.md:417\u2013470"
+      ],
+      "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Expose the full Value presentation partition at one closed owner decision, preserving prescribed Bool/Auto/None/label behavior and numeric formatting. Separate already-ratified scalar presentation from pending rich display. Probe LocatedContent, Func, Module and other candidate families before semantic expansion; never mark repr fallback as complete language parity.",
+      "planned_tests_and_refuters": [
+        "Compare real markup and CodeBlock tail display of Bool/Auto/None, scalar numbers, Symbol, Version, State and Counter.",
+        "LocatedContent versus raw Content must be evaluated for preservation of semantic morphology rather than only extracted text.",
+        "Label remains association, not literal repr; explicit None versus consumed set/show slots keeps Empty and Sequence.show observables."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [
+        "Current-pin display of rich Value families at actual markup, CodeBlock tail and math insertion call sites; source behavior does not establish desired display policy."
+      ],
+      "dependencies": [
+        "Value presentation owner; expression/math helper callers",
+        "Source/LocatedContent snapshot contract"
+      ],
+      "adr_0127": {
+        "classification": "Split work: internal exhaustiveness/transport correction within an already ratified contract can use continuous flow; any new language admission/default, public entity/API, phase, or compatibility change must first be classified under ADR-0127.",
+        "approval_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/markup_stream.rs:513\u2013565",
+      "01_core/src/compiler/eval/markup_stream.rs:147\u2013190",
+      "01_core/src/compiler/eval/expression_dispatch.rs:178",
+      "01_core/src/compiler/eval/expression_dispatch.rs:301"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/markup_stream.md:109\u2013133",
+      "00_nucleo/prompts/core/compiler/eval/markup_stream.md:162\u2013218",
+      "00_nucleo/prompts/core/compiler/eval/markup_stream.md:263\u2013275",
+      "00_nucleo/prompts/core/compiler/eval/markup_stream.md:417\u2013470"
+    ],
+    "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Expose the full Value presentation partition at one closed owner decision, preserving prescribed Bool/Auto/None/label behavior and numeric formatting. Separate already-ratified scalar presentation from pending rich display. Probe LocatedContent, Func, Module and other candidate families before semantic expansion; never mark repr fallback as complete language parity.",
+    "proposed_tests": [
+      "Compare real markup and CodeBlock tail display of Bool/Auto/None, scalar numbers, Symbol, Version, State and Counter.",
+      "LocatedContent versus raw Content must be evaluated for preservation of semantic morphology rather than only extracted text.",
+      "Label remains association, not literal repr; explicit None versus consumed set/show slots keeps Empty and Sequence.show observables."
+    ],
+    "gate": {
+      "classification": "Split work: internal exhaustiveness/transport correction within an already ratified contract can use continuous flow; any new language admission/default, public entity/API, phase, or compatibility change must first be classified under ADR-0127.",
+      "approval_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions.",
+      "probes_needed": [
+        "Current-pin display of rich Value families at actual markup, CodeBlock tail and math insertion call sites; source behavior does not establish desired display policy."
+      ],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "Value presentation owner; expression/math helper callers",
+      "Source/LocatedContent snapshot contract"
+    ]
+  },
+  {
+    "id": "V16-017",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "eval_module_include",
+    "classification": "structural domain obligation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-017",
+      "file": "01_core/src/compiler/eval/modules.rs",
+      "line": 296,
+      "column": 9,
+      "message": "wildcard `_ =>` delega decis\u00e3o para `\"<invalid path>\".into()`",
+      "owner": "00_nucleo/prompts/core/compiler/eval/modules.md",
+      "source_sha256": "e9ef4bca71248d91997034f86c1f8f2c35f3bcce6ac6161e609c074cd1accaac",
+      "l0_sha256": "cd943cf7d08b20b33f1c54a83bb87b727abd345a7b36ee3c261aad4915907af4",
+      "effective_prompt_seal": "339b51b2",
+      "partition": "eval-realize",
+      "function": "eval_module_include",
+      "function_source_range": "01_core/src/compiler/eval/modules.rs:283\u2013366",
+      "scrutinee": "&path_val when deriving trace_path",
+      "enum_domain": "Value",
+      "handled_variants": [
+        "Str",
+        "Path"
+      ],
+      "current_nominal_complement": [
+        "None",
+        "Bool",
+        "Int",
+        "Float",
+        "Array",
+        "Dict",
+        "Module",
+        "Datetime",
+        "Func",
+        "Content",
+        "LocatedContent",
+        "Auto",
+        "Length",
+        "Relative",
+        "Ratio",
+        "Angle",
+        "Color",
+        "Stroke",
+        "Fraction",
+        "Align",
+        "Location",
+        "Gradient",
+        "Regex",
+        "Tiling",
+        "Bytes",
+        "Decimal",
+        "Duration",
+        "Version",
+        "Selector",
+        "Symbol",
+        "Args",
+        "State",
+        "Counter",
+        "Label",
+        "Dir",
+        "Type",
+        "SpotColorant"
+      ],
+      "guard_refusals_and_preconditions": [],
+      "classification": "structural domain obligation",
+      "concrete_root_cause": "The trace label is formed before the later closed acceptance decision and assigns <invalid path> to every other Value. Those values immediately return a type error before any trace or World include call, so the placeholder is dead provenance rather than a valid fallback path.",
+      "current_complement_policy": "Only Str and Path are accepted by the following include dispatch. The listed complement receives <invalid path> temporarily, then errors with include: caminho deve ser path ou string, recebeu {} at path_span before trace_path is used. It never authorizes a file read or include under that synthetic path.",
+      "evidence": [
+        "01_core/src/compiler/eval/modules.rs:283\u2013366",
+        "01_core/src/compiler/eval/modules.rs:298\u2013325"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/modules.md:18\u201341"
+      ],
+      "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Derive trace identity from the validated Str/Path branch (or an explicitly closed accepted-path result) so invalid inputs have only the existing diagnostic outcome. Preserve once-only path evaluation, validation/cycle ordering, path display and World boundary. Do not invent a new include API for this local repair.",
+      "planned_tests_and_refuters": [
+        "Invalid Value path returns the exact Portuguese diagnostic at the operand span, without include_source/include_path or a synthetic trace.",
+        "Valid Str/Path nested includes preserve trace text, cycle errors and once-only path effects."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [],
+      "dependencies": [
+        "World include contract; module trace owner"
+      ],
+      "adr_0127": {
+        "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+        "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/modules.rs:283\u2013366",
+      "01_core/src/compiler/eval/modules.rs:298\u2013325"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/modules.md:18\u201341"
+    ],
+    "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Derive trace identity from the validated Str/Path branch (or an explicitly closed accepted-path result) so invalid inputs have only the existing diagnostic outcome. Preserve once-only path evaluation, validation/cycle ordering, path display and World boundary. Do not invent a new include API for this local repair.",
+    "proposed_tests": [
+      "Invalid Value path returns the exact Portuguese diagnostic at the operand span, without include_source/include_path or a synthetic trace.",
+      "Valid Str/Path nested includes preserve trace text, cycle errors and once-only path effects."
+    ],
+    "gate": {
+      "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+      "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility.",
+      "probes_needed": [],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "World include contract; module trace owner"
+    ]
+  },
+  {
+    "id": "V16-018",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "apply_binary",
+    "classification": "structural domain obligation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-018",
+      "file": "01_core/src/compiler/eval/operators/arithmetic.rs",
+      "line": 50,
+      "column": 13,
+      "message": "wildcard `_ =>` ignora variantes silenciosamente com `{}` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md",
+      "source_sha256": "f58a3403e9c206accfbaff1a0bd39315afca33d0d2d5ce8369b8fb2de9d7906a",
+      "l0_sha256": "f2ad614488db02537400e7fedde0ab81924844c580416900ebb95af40d81a5a7",
+      "effective_prompt_seal": "c4bc0fde",
+      "partition": "eval-realize",
+      "function": "apply_binary",
+      "function_source_range": "01_core/src/compiler/eval/operators/arithmetic.rs:28\u2013507",
+      "scrutinee": "&rhs under BinaryOp::Div preflight",
+      "enum_domain": "Value",
+      "handled_variants": [
+        "Int",
+        "Float",
+        "Decimal",
+        "Length",
+        "Relative",
+        "Ratio",
+        "Angle"
+      ],
+      "current_nominal_complement": [
+        "None",
+        "Bool",
+        "Str",
+        "Array",
+        "Dict",
+        "Module",
+        "Datetime",
+        "Func",
+        "Content",
+        "LocatedContent",
+        "Auto",
+        "Color",
+        "Stroke",
+        "Fraction",
+        "Align",
+        "Location",
+        "Gradient",
+        "Regex",
+        "Tiling",
+        "Bytes",
+        "Duration",
+        "Version",
+        "Selector",
+        "Symbol",
+        "Args",
+        "State",
+        "Counter",
+        "Label",
+        "Dir",
+        "Path",
+        "Type",
+        "SpotColorant"
+      ],
+      "guard_refusals_and_preconditions": [
+        "All seven handled variants have rejected payload guards in the complement; Int nonzero is included even though the positive pattern is Int(0)."
+      ],
+      "classification": "structural domain obligation",
+      "concrete_root_cause": "The zero-divisor preflight uses a no-op wildcard for every nonzero admitted numeric family and every other Value. This is a valid staged rejection classifier; blanket zero rules for all types would change error precedence and Duration semantics.",
+      "current_complement_policy": "Int(0), Float ==0 (including negative zero), Decimal.is_zero, Length.is_zero, Relative with BOTH abs and rel zero, Ratio zero and Angle zero return cannot divide by zero before binary dispatch. All guard-refused payloads of those same variants plus all listed complement variants continue. Duration zero remains governed by later operation-specific checks, while invalid operand kinds later get type/operator errors.",
+      "evidence": [
+        "01_core/src/compiler/eval/operators/arithmetic.rs:28\u2013507"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md:26\u201340"
+      ],
+      "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Close the rhs family decision while retaining these seven distinct zero predicates and continuation for nonzero/other types. Keep Duration checks where their current semantics require them and preserve zero-before-invalid-lhs precedence; a generic is_zero abstraction is not itself a semantic repair.",
+      "planned_tests_and_refuters": [
+        "Compare invalid lhs divided by zero versus nonzero, Float negative zero, Decimal zero, affine Relative with only one component zero, and Duration own zero cases.",
+        "The exact cannot divide by zero diagnostic and causal span must remain; nonzero invalid operands still reach the ordinary operator mismatch."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [],
+      "dependencies": [
+        "Length/Relative/Decimal zero semantics and ordinary division dispatch"
+      ],
+      "adr_0127": {
+        "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+        "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/operators/arithmetic.rs:28\u2013507"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/operators/arithmetic.md:26\u201340"
+    ],
+    "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Close the rhs family decision while retaining these seven distinct zero predicates and continuation for nonzero/other types. Keep Duration checks where their current semantics require them and preserve zero-before-invalid-lhs precedence; a generic is_zero abstraction is not itself a semantic repair.",
+    "proposed_tests": [
+      "Compare invalid lhs divided by zero versus nonzero, Float negative zero, Decimal zero, affine Relative with only one component zero, and Duration own zero cases.",
+      "The exact cannot divide by zero diagnostic and causal span must remain; nonzero invalid operands still reach the ordinary operator mismatch."
+    ],
+    "gate": {
+      "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+      "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility.",
+      "probes_needed": [],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "Length/Relative/Decimal zero semantics and ordinary division dispatch"
+    ]
+  },
+  {
+    "id": "V16-019",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "selectors_eq",
+    "classification": "closed pair relation with native-ABI coverage investigation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-019",
+      "file": "01_core/src/compiler/eval/operators/equality.rs",
+      "line": 241,
+      "column": 9,
+      "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `false` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/eval/operators/equality.md",
+      "source_sha256": "c23ffbfb90b78f758eaeeef51cf590976fd14941c8af6d611f2ccedf62b5f0e1",
+      "l0_sha256": "0ac8fc87a8df035c9d2d405fc7279a679daab74cc00078027493b004bcc9d431",
+      "effective_prompt_seal": "9c71afd8",
+      "partition": "eval-realize",
+      "function": "selectors_eq",
+      "function_source_range": "01_core/src/compiler/eval/operators/equality.rs:200\u2013243",
+      "scrutinee": "(a, b), after !selector_contains_element(a) && !selector_contains_element(b) early return",
+      "enum_domain": "QuerySelector \u00d7 QuerySelector",
+      "handled_variants": [
+        "NativeElement",
+        "Element",
+        "And",
+        "Or",
+        "Where",
+        "Within",
+        "Before",
+        "After"
+      ],
+      "current_nominal_complement": "All ordered QuerySelector pairs other than the eight same-variant families listed in handled_variants; see precondition and complement_policy.",
+      "guard_refusals_and_preconditions": [
+        "The four legacy same-leaf pairs are unreachable under the active-path precondition.",
+        "NativeElement function identity uses a second optional-address match whose false outcome must not be silently promoted to intended ABI semantics."
+      ],
+      "classification": "closed pair relation with native-ABI coverage investigation",
+      "concrete_root_cause": "A pair wildcard collapses mixed selector constructors to false, with additional same-leaf cases rendered unreachable by the earlier derived-equality path. The pair domain must remain closed on BOTH axes, and native identity ABI coverage is a separate semantic uncertainty.",
+      "current_complement_policy": "All distinct-constructor ordered pairs return false on this active path, including NativeElement versus empty-group Element. Same Kind/Label/Location/Regex pairs never reach this match because neither contains an element leaf. The eight listed same-constructor families compare typed identity, ordered field/value recursion or ordered child recursion. NativeElement currently returns false when either Func lacks native_fn_addr; that method excludes NativeWithEngine/Closure/Element/Plugin/With and accepts Native/Format. Do not assume these excluded representations are valid native leaves without tracing admission.",
+      "evidence": [
+        "01_core/src/compiler/eval/operators/equality.rs:200\u2013243",
+        "01_core/src/entities/func.rs:33\u201355",
+        "01_core/src/entities/func.rs:338\u2013364"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/operators/equality.md:34\u201374",
+        "00_nucleo/prompts/core/compiler/eval/operators/equality.md:96\u2013105"
+      ],
+      "proposed_repair": "Use a two-axis exhaustive structural decision: dispatch the first selector nominally and give each second-domain comparison a reviewed unequal or recursive policy. Avoid an unreviewed 144-arm list. Preserve the precondition, bare-versus-present-empty distinction, ordered filters and language values_eq. Audit admitted engine-native leaves separately; compare their own typed ABI if and only if measured current contract requires it, never names or erased pointers.",
+      "planned_tests_and_refuters": [
+        "Alias and homonymous native identities; bare table.cell versus empty where group; Int/Float-coerced ordered filters and NaN nonreflexivity; nested before/after inclusive flags.",
+        "Add a variant on either pair axis to force review; no wildcard can silently absorb it.",
+        "Probe any admitted native_page selector equality: if an engine-native leaf is valid, false against its own alias refutes complete identity coverage; otherwise retain its rejection boundary."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [
+        "Current-pin equality for any engine-native selector admitted by catalogue/constructor, especially page; do not change Func/Value PartialEq or Hash."
+      ],
+      "dependencies": [
+        "V16-006",
+        "Native selector admission; Func ABI owner"
+      ],
+      "adr_0127": {
+        "classification": "Split work: internal exhaustiveness/transport correction within an already ratified contract can use continuous flow; any new language admission/default, public entity/API, phase, or compatibility change must first be classified under ADR-0127.",
+        "approval_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/operators/equality.rs:200\u2013243",
+      "01_core/src/entities/func.rs:33\u201355",
+      "01_core/src/entities/func.rs:338\u2013364"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/operators/equality.md:34\u201374",
+      "00_nucleo/prompts/core/compiler/eval/operators/equality.md:96\u2013105"
+    ],
+    "correction": "Use a two-axis exhaustive structural decision: dispatch the first selector nominally and give each second-domain comparison a reviewed unequal or recursive policy. Avoid an unreviewed 144-arm list. Preserve the precondition, bare-versus-present-empty distinction, ordered filters and language values_eq. Audit admitted engine-native leaves separately; compare their own typed ABI if and only if measured current contract requires it, never names or erased pointers.",
+    "proposed_tests": [
+      "Alias and homonymous native identities; bare table.cell versus empty where group; Int/Float-coerced ordered filters and NaN nonreflexivity; nested before/after inclusive flags.",
+      "Add a variant on either pair axis to force review; no wildcard can silently absorb it.",
+      "Probe any admitted native_page selector equality: if an engine-native leaf is valid, false against its own alias refutes complete identity coverage; otherwise retain its rejection boundary."
+    ],
+    "gate": {
+      "classification": "Split work: internal exhaustiveness/transport correction within an already ratified contract can use continuous flow; any new language admission/default, public entity/API, phase, or compatibility change must first be classified under ADR-0127.",
+      "approval_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions.",
+      "probes_needed": [
+        "Current-pin equality for any engine-native selector admitted by catalogue/constructor, especially page; do not change Func/Value PartialEq or Hash."
+      ],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "V16-006",
+      "Native selector admission; Func ABI owner"
+    ]
+  },
+  {
+    "id": "V16-020",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "intercept_content",
+    "classification": "structural domain obligation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-020",
+      "file": "01_core/src/compiler/eval/rules/intercept.rs",
+      "line": 86,
+      "column": 21,
+      "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `None` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/eval/rules/intercept.md",
+      "source_sha256": "e4415d0b98270fe94cc583eaededc9cad3589dcbbb15ff8f55af270b65b62767",
+      "l0_sha256": "e8adcf62b24fc4041a23c926eb1c01d64f1c157aef4d222bdaa3aa9a76c659c7",
+      "effective_prompt_seal": "4c77bad5",
+      "partition": "eval-realize",
+      "function": "intercept_content",
+      "function_source_range": "01_core/src/compiler/eval/rules/intercept.rs:16\u2013128",
+      "scrutinee": "styles.custom(\"outline.indent\") Value in and_then",
+      "enum_domain": "Value",
+      "handled_variants": [
+        "Auto",
+        "Bool",
+        "Length",
+        "Func"
+      ],
+      "current_nominal_complement": [
+        "None",
+        "Int",
+        "Float",
+        "Str",
+        "Array",
+        "Dict",
+        "Module",
+        "Datetime",
+        "Content",
+        "LocatedContent",
+        "Relative",
+        "Ratio",
+        "Angle",
+        "Color",
+        "Stroke",
+        "Fraction",
+        "Align",
+        "Location",
+        "Gradient",
+        "Regex",
+        "Tiling",
+        "Bytes",
+        "Decimal",
+        "Duration",
+        "Version",
+        "Selector",
+        "Symbol",
+        "Args",
+        "State",
+        "Counter",
+        "Label",
+        "Dir",
+        "Path",
+        "Type",
+        "SpotColorant"
+      ],
+      "guard_refusals_and_preconditions": [],
+      "classification": "structural domain obligation",
+      "concrete_root_cause": "A partial value extractor silently treats all other custom style values as no inherited indent. This is valid for the four admitted indent forms but obscures whether a malformed internal transport was rejected upstream or lost here.",
+      "current_complement_policy": "Auto/Bool/Length/Func materialize OutlineIndent only when Outline has no explicit constructor indent. All listed complement Values produce None and do not override it; a missing custom key is a separate Option None. Current L0 allows these four forms only. None is not implicitly auto and Func is transported, never invoked in extraction.",
+      "evidence": [
+        "01_core/src/compiler/eval/rules/intercept.rs:16\u2013128",
+        "00_nucleo/prompts/core/compiler/eval/rules.md:78\u201382"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/rules/intercept.md:42\u201357"
+      ],
+      "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Make the accepted indent forms versus invalid/non-applicable custom values explicit. Trace the set-outline producer before deciding whether an invalid value is unreachable or needs an existing validation error; do not silently redefine invalid values as defaults or add new admitted types. Preserve explicit-constructor precedence.",
+      "planned_tests_and_refuters": [
+        "Inherited length/function/auto/bool, explicit constructor override, missing property and nested lexical restoration.",
+        "Invalid language inputs must be rejected at the owning setter; a manually malformed internal custom value must not be misreported as supported indent. No extra callback invocation."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [],
+      "dependencies": [
+        "rules/set/outline owner; OutlineIndent transport"
+      ],
+      "adr_0127": {
+        "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+        "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/rules/intercept.rs:16\u2013128",
+      "00_nucleo/prompts/core/compiler/eval/rules.md:78\u201382"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/rules/intercept.md:42\u201357"
+    ],
+    "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Make the accepted indent forms versus invalid/non-applicable custom values explicit. Trace the set-outline producer before deciding whether an invalid value is unreachable or needs an existing validation error; do not silently redefine invalid values as defaults or add new admitted types. Preserve explicit-constructor precedence.",
+    "proposed_tests": [
+      "Inherited length/function/auto/bool, explicit constructor override, missing property and nested lexical restoration.",
+      "Invalid language inputs must be rejected at the owning setter; a manually malformed internal custom value must not be misreported as supported indent. No extra callback invocation."
+    ],
+    "gate": {
+      "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+      "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility.",
+      "probes_needed": [],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "rules/set/outline owner; OutlineIndent transport"
+    ]
+  },
+  {
+    "id": "V16-021",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "is_paragraph_node",
+    "classification": "stage-specific classifier with carrier-scope uncertainty",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-021",
+      "file": "01_core/src/compiler/eval/rules/realize.rs",
+      "line": 234,
+      "column": 9,
+      "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `false` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/eval/rules/realize.md",
+      "source_sha256": "0e9eaef509ed7373d275debc2e80823617620f3128499a8bd52ba6ecd62f17fd",
+      "l0_sha256": "d28b60883604e3e152d39c68b990d97bc728f54be08d710b1209ff73029177b0",
+      "effective_prompt_seal": "fe511d05",
+      "partition": "eval-realize",
+      "function": "is_paragraph_node",
+      "function_source_range": "01_core/src/compiler/eval/rules/realize.rs:228\u2013236",
+      "scrutinee": "content",
+      "enum_domain": "Content",
+      "handled_variants": [
+        "Source",
+        "ShowRecipe",
+        "Par",
+        "Styled"
+      ],
+      "current_nominal_complement": [
+        "Realized",
+        "Located",
+        "Empty",
+        "Text",
+        "Space",
+        "SpaceFromNewline",
+        "Parbreak",
+        "Sequence",
+        "HtmlElem",
+        "HtmlFrame",
+        "Heading",
+        "Title",
+        "Strong",
+        "Emph",
+        "Raw",
+        "ListItem",
+        "EnumItem",
+        "Link",
+        "Equation",
+        "MathSequence",
+        "MathIdent",
+        "MathText",
+        "MathFrac",
+        "MathAttach",
+        "MathPrimes",
+        "MathRoot",
+        "MathStretch",
+        "MathDelimited",
+        "MathLr",
+        "MathMid",
+        "MathOverbrace",
+        "MathUnderbrace",
+        "MathUnderbracket",
+        "MathUnderparen",
+        "MathUndershell",
+        "MathOverbracket",
+        "MathOverparen",
+        "MathOvershell",
+        "MathAlignPoint",
+        "Linebreak",
+        "MathMatrix",
+        "MathCases",
+        "MathAccent",
+        "MathCancel",
+        "MathUnderline",
+        "MathOverline",
+        "MathVec",
+        "MathClassOverride",
+        "MathLimitsOverride",
+        "MathUnderover",
+        "MathOp",
+        "MathStyled",
+        "Label",
+        "Ref",
+        "CounterDisplay",
+        "CounterUpdate",
+        "Outline",
+        "OutlineEntry",
+        "Figure",
+        "FigureCaption",
+        "Image",
+        "Shape",
+        "Curve",
+        "Transform",
+        "Grid",
+        "GridHeader",
+        "GridFooter",
+        "GridCell",
+        "SetPage",
+        "PageRun",
+        "Align",
+        "Place",
+        "Flush",
+        "Divider",
+        "Terms",
+        "TermItem",
+        "Quote",
+        "Document",
+        "Asset",
+        "SmartQuote",
+        "PdfAttach",
+        "PdfArtifact",
+        "Underline",
+        "Strike",
+        "Overline",
+        "SmallCaps",
+        "Pad",
+        "Hide",
+        "HSpace",
+        "VSpace",
+        "Pagebreak",
+        "Colbreak",
+        "Stack",
+        "Boxed",
+        "Block",
+        "TableCell",
+        "Bibliography",
+        "Cite",
+        "Footnote",
+        "FootnoteEntry",
+        "TableHeader",
+        "TableFooter",
+        "GridHLine",
+        "GridVLine",
+        "TableHLine",
+        "TableVLine",
+        "Table",
+        "Repeat",
+        "Columns",
+        "Metadata",
+        "State",
+        "StateUpdate",
+        "StateDisplay",
+        "CounterDisplayCallback",
+        "ContextBlock",
+        "Dynamic"
+      ],
+      "guard_refusals_and_preconditions": [],
+      "classification": "stage-specific classifier with carrier-scope uncertainty",
+      "concrete_root_cause": "The paragraph classifier makes nonparagraph and unrecognized carrier families the same implicit false. Current flow-boundary rules deliberately stop some carrier projections, so arbitrary wrapper transparency is not a safe V16 repair.",
+      "current_complement_policy": "Par is true through Source/ShowRecipe/Styled body only. Every listed complement, including Located and Realized, currently returns false. That is the current paragraph-classification result, not proof their visual/body cannot be Par. The adjacent flow_boundary_body contract crosses Source/ShowRecipe only for whole-style recognition, so its exclusions cannot be generalized into all-purpose carrier peeling.",
+      "evidence": [
+        "01_core/src/compiler/eval/rules/realize.rs:228\u2013236"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/rules/realize.md:23\u201330",
+        "00_nucleo/prompts/core/compiler/eval/rules/realize.md:61\u201379",
+        "00_nucleo/prompts/core/compiler/eval/rules/realize.md:91\u2013105"
+      ],
+      "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Record the stage-specific Par recognition policy and make its nominal complement explicit. Add measured carrier tests for Located/Realized before deciding whether their false result is a gap or an occurrence boundary. Preserve whole-flow versus inline style precedence and packet-root decisions; no automatic paragraph insertion through every container.",
+      "planned_tests_and_refuters": [
+        "Source/ShowRecipe/Styled(Par) remain paragraph without creating a second Par or inverting outer show-set.",
+        "Compare Located/Realized Par at the actual flow stage, inline styled text, Sequence-root show and Math boundaries; no eager rule execution.",
+        "Retain zero whole-flow hyphenation versus inline hyphenation refuter."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [
+        "Current-pin language flow/style outcomes for occurrence carriers whose current false classification is not explicitly resolved; unit representation tests alone do not prove intended flow semantics."
+      ],
+      "dependencies": [
+        "Causal realization order and flow style owners",
+        "V16-051"
+      ],
+      "adr_0127": {
+        "classification": "Split work: internal exhaustiveness/transport correction within an already ratified contract can use continuous flow; any new language admission/default, public entity/API, phase, or compatibility change must first be classified under ADR-0127.",
+        "approval_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/rules/realize.rs:228\u2013236"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/rules/realize.md:23\u201330",
+      "00_nucleo/prompts/core/compiler/eval/rules/realize.md:61\u201379",
+      "00_nucleo/prompts/core/compiler/eval/rules/realize.md:91\u2013105"
+    ],
+    "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Record the stage-specific Par recognition policy and make its nominal complement explicit. Add measured carrier tests for Located/Realized before deciding whether their false result is a gap or an occurrence boundary. Preserve whole-flow versus inline style precedence and packet-root decisions; no automatic paragraph insertion through every container.",
+    "proposed_tests": [
+      "Source/ShowRecipe/Styled(Par) remain paragraph without creating a second Par or inverting outer show-set.",
+      "Compare Located/Realized Par at the actual flow stage, inline styled text, Sequence-root show and Math boundaries; no eager rule execution.",
+      "Retain zero whole-flow hyphenation versus inline hyphenation refuter."
+    ],
+    "gate": {
+      "classification": "Split work: internal exhaustiveness/transport correction within an already ratified contract can use continuous flow; any new language admission/default, public entity/API, phase, or compatibility change must first be classified under ADR-0127.",
+      "approval_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions.",
+      "probes_needed": [
+        "Current-pin language flow/style outcomes for occurrence carriers whose current false classification is not explicitly resolved; unit representation tests alone do not prove intended flow semantics."
+      ],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "Causal realization order and flow style owners",
+      "V16-051"
+    ]
+  },
+  {
+    "id": "V16-022",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "eval_set_page (bleed property)",
+    "classification": "structural domain obligation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-022",
+      "file": "01_core/src/compiler/eval/rules/set/page.rs",
+      "line": 439,
+      "column": 25,
+      "message": "wildcard `_ =>` delega decis\u00e3o para `PageBleedSpec::uniform(extract_rel_length(&val, span)?)`",
+      "owner": "00_nucleo/prompts/core/compiler/eval/rules/set/page.md",
+      "source_sha256": "7dfe287cd281066e1cd83bb88fe12ffe02a32485d800770954589b8a7af202df",
+      "l0_sha256": "fcc1f496e2ce797ccb6b0cfcc6ff93dd87eb7fc1d770a8e1fc55f8325bca02d3",
+      "effective_prompt_seal": "f3da030b",
+      "partition": "eval-realize",
+      "function": "eval_set_page (bleed property)",
+      "function_source_range": "01_core/src/compiler/eval/rules/set/page.rs:11\u2013553",
+      "scrutinee": "val after bleed Dict and Auto cases",
+      "enum_domain": "Value",
+      "handled_variants": [
+        "Dict",
+        "Auto"
+      ],
+      "current_nominal_complement": [
+        "None",
+        "Bool",
+        "Int",
+        "Float",
+        "Str",
+        "Array",
+        "Module",
+        "Datetime",
+        "Func",
+        "Content",
+        "LocatedContent",
+        "Length",
+        "Relative",
+        "Ratio",
+        "Angle",
+        "Color",
+        "Stroke",
+        "Fraction",
+        "Align",
+        "Location",
+        "Gradient",
+        "Regex",
+        "Tiling",
+        "Bytes",
+        "Decimal",
+        "Duration",
+        "Version",
+        "Selector",
+        "Symbol",
+        "Args",
+        "State",
+        "Counter",
+        "Label",
+        "Dir",
+        "Path",
+        "Type",
+        "SpotColorant"
+      ],
+      "guard_refusals_and_preconditions": [],
+      "classification": "structural domain obligation",
+      "concrete_root_cause": "The wildcard is not a zero/default value: it delegates to extract_rel_length. Its complement combines five accepted scalar forms and rejected types, so nominal enumeration without the downstream cast would misdescribe both acceptance and errors.",
+      "current_complement_policy": "Dict validates side keys/values and logical/physical precedence; Auto errors expected relative length or dictionary. In the wildcard, Relative/Ratio/Length/Float/Int become uniform bleed via extract_rel_length; all other listed complement Values error expected relative length at the existing span. Float/Int point interpretation is retained local legacy behavior, not fresh vanilla certification.",
+      "evidence": [
+        "01_core/src/compiler/eval/rules/set/page.rs:11\u2013553",
+        "01_core/src/compiler/eval/rules/set/page.rs:56\u201374",
+        "01_core/src/compiler/eval/rules/set/page.rs:404\u2013442"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/rules/set/page.md:10\u201331"
+      ],
+      "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Expose scalar-cast success and rejection domains explicitly, retaining the existing dictionary key validation/order and Auto-specific message. The accepted five scalar forms can share the uniform-side action for their documented conversion; rejected types must remain a typed error, not a neutral bleed.",
+      "planned_tests_and_refuters": [
+        "Relative/Ratio/Length/Float/Int bleed, side dictionaries with logical/physical precedence, invalid keys, Auto versus None/Bool/Content errors and exact spans.",
+        "Preserve affine em until its current resolving owner, argument-once evaluation and first validation failure; do not treat omitted/auto/zero as interchangeable."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [],
+      "dependencies": [
+        "Page side schema/cast owner; no public bleed change"
+      ],
+      "adr_0127": {
+        "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+        "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/rules/set/page.rs:11\u2013553",
+      "01_core/src/compiler/eval/rules/set/page.rs:56\u201374",
+      "01_core/src/compiler/eval/rules/set/page.rs:404\u2013442"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/rules/set/page.md:10\u201331"
+    ],
+    "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Expose scalar-cast success and rejection domains explicitly, retaining the existing dictionary key validation/order and Auto-specific message. The accepted five scalar forms can share the uniform-side action for their documented conversion; rejected types must remain a typed error, not a neutral bleed.",
+    "proposed_tests": [
+      "Relative/Ratio/Length/Float/Int bleed, side dictionaries with logical/physical precedence, invalid keys, Auto versus None/Bool/Content errors and exact spans.",
+      "Preserve affine em until its current resolving owner, argument-once evaluation and first validation failure; do not treat omitted/auto/zero as interchangeable."
+    ],
+    "gate": {
+      "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+      "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility.",
+      "probes_needed": [],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "Page side schema/cast owner; no public bleed change"
+    ]
+  },
+  {
+    "id": "V16-023",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "eval_set_text (font warning extraction)",
+    "classification": "structural domain obligation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-023",
+      "file": "01_core/src/compiler/eval/rules/set/text.rs",
+      "line": 333,
+      "column": 33,
+      "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `None` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/eval/rules/set/text.md",
+      "source_sha256": "cfb08aac7d3b17313cdcdc9b2dacad2d46809d5c292ca0df36bc4ce27c2f79f5",
+      "l0_sha256": "c32f086c0fe2915a2297072de8d6ae5dbc6a0090c90766075e6c097b2e33d5ea",
+      "effective_prompt_seal": "0ef60f01",
+      "partition": "eval-realize",
+      "function": "eval_set_text (font warning extraction)",
+      "function_source_range": "01_core/src/compiler/eval/rules/set/text.rs:11\u2013466",
+      "scrutinee": "arr Value entries after font validation/canonicalization",
+      "enum_domain": "Value",
+      "handled_variants": [
+        "Str",
+        "Dict"
+      ],
+      "current_nominal_complement": [
+        "None",
+        "Bool",
+        "Int",
+        "Float",
+        "Array",
+        "Module",
+        "Datetime",
+        "Func",
+        "Content",
+        "LocatedContent",
+        "Auto",
+        "Length",
+        "Relative",
+        "Ratio",
+        "Angle",
+        "Color",
+        "Stroke",
+        "Fraction",
+        "Align",
+        "Location",
+        "Gradient",
+        "Regex",
+        "Tiling",
+        "Bytes",
+        "Decimal",
+        "Duration",
+        "Version",
+        "Selector",
+        "Symbol",
+        "Args",
+        "State",
+        "Counter",
+        "Label",
+        "Dir",
+        "Path",
+        "Type",
+        "SpotColorant"
+      ],
+      "guard_refusals_and_preconditions": [],
+      "classification": "structural domain obligation",
+      "concrete_root_cause": "The final wildcard belongs to warning-name extraction, not font admission. Upstream parsing already validates most entries; a canonical font dictionary may legitimately carry Regex rather than a literal name and must not become an unknown literal-family warning.",
+      "current_complement_policy": "Str yields a family; Dict yields one only when its name member is Str. Dict with Regex or absent/non-string name yields no literal lookup. All listed complement Value entries yield None at this stage; most are disallowed by the earlier ordinary Str/array validator or font dictionary parser. That reachability must be documented from producers rather than assumed from the filter itself.",
+      "evidence": [
+        "01_core/src/compiler/eval/rules/set/text.rs:11\u2013466",
+        "01_core/src/compiler/eval/rules/set/text.rs:243\u2013344"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/rules/set/text.md:13\u201328",
+        "00_nucleo/prompts/core/compiler/eval/rules/set/text.md:56\u201378"
+      ],
+      "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Close literal-warning eligibility separately from the existing font validator, documenting canonical Dict name forms. Preserve Regex as symbolic/nonliteral and do not silently admit invalid entries just because the warning pass skips them. If the producer can emit another valid form, add its explicit warning policy only after owner evidence.",
+      "planned_tests_and_refuters": [
+        "Unknown literal family produces the existing warning at the original font span, with aliases/case policy preserved.",
+        "Regex dictionary entry does not generate a literal-family warning; malformed font entries still fail validation before style mutation.",
+        "Receiver/font expressions execute once and unrelated argument AST is not reevaluated."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [],
+      "dependencies": [
+        "Font dictionary parser; FontBook warning lookup; eval/call-once"
+      ],
+      "adr_0127": {
+        "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+        "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/rules/set/text.rs:11\u2013466",
+      "01_core/src/compiler/eval/rules/set/text.rs:243\u2013344"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/rules/set/text.md:13\u201328",
+      "00_nucleo/prompts/core/compiler/eval/rules/set/text.md:56\u201378"
+    ],
+    "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Close literal-warning eligibility separately from the existing font validator, documenting canonical Dict name forms. Preserve Regex as symbolic/nonliteral and do not silently admit invalid entries just because the warning pass skips them. If the producer can emit another valid form, add its explicit warning policy only after owner evidence.",
+    "proposed_tests": [
+      "Unknown literal family produces the existing warning at the original font span, with aliases/case policy preserved.",
+      "Regex dictionary entry does not generate a literal-family warning; malformed font entries still fail validation before style mutation.",
+      "Receiver/font expressions execute once and unrelated argument AST is not reevaluated."
+    ],
+    "gate": {
+      "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+      "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility.",
+      "probes_needed": [],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "Font dictionary parser; FontBook warning lookup; eval/call-once"
+    ]
+  },
+  {
+    "id": "V16-024",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "eval_set_rule::pure_path",
+    "classification": "structural domain obligation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-024",
+      "file": "01_core/src/compiler/eval/rules/set.rs",
+      "line": 41,
+      "column": 13,
+      "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `false` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/eval/rules/set.md",
+      "source_sha256": "9a32d48a7234702400360d060ead2ddd2b2c38f42f17837ed8567010bb216b29",
+      "l0_sha256": "9558e9afbff3e3fa534dddd33dde1c11492c52862f1cdb19934b33280d8523df",
+      "effective_prompt_seal": "1c2ba6c8",
+      "partition": "eval-realize",
+      "function": "eval_set_rule::pure_path",
+      "function_source_range": "01_core/src/compiler/eval/rules/set.rs:37\u201343",
+      "scrutinee": "target Expr",
+      "enum_domain": "Expr",
+      "handled_variants": [
+        "Ident",
+        "FieldAccess"
+      ],
+      "current_nominal_complement": [
+        "Text",
+        "Space",
+        "Linebreak",
+        "Parbreak",
+        "Escape",
+        "Shorthand",
+        "SmartQuote",
+        "Strong",
+        "Emph",
+        "Raw",
+        "Link",
+        "Label",
+        "Ref",
+        "Heading",
+        "ListItem",
+        "EnumItem",
+        "TermItem",
+        "Equation",
+        "Math",
+        "MathText",
+        "MathIdent",
+        "MathShorthand",
+        "MathAlignPoint",
+        "MathDelimited",
+        "MathAttach",
+        "MathPrimes",
+        "MathFrac",
+        "MathRoot",
+        "None",
+        "Auto",
+        "Bool",
+        "Int",
+        "Float",
+        "Numeric",
+        "Str",
+        "CodeBlock",
+        "ContentBlock",
+        "Parenthesized",
+        "Array",
+        "Dict",
+        "Unary",
+        "Binary",
+        "FuncCall",
+        "Closure",
+        "LetBinding",
+        "DestructAssignment",
+        "SetRule",
+        "ShowRule",
+        "Contextual",
+        "Conditional",
+        "WhileLoop",
+        "ForLoop",
+        "ModuleImport",
+        "ModuleInclude",
+        "LoopBreak",
+        "LoopContinue",
+        "FuncReturn"
+      ],
+      "guard_refusals_and_preconditions": [],
+      "classification": "structural domain obligation",
+      "concrete_root_cause": "A syntactic eligibility test intentionally restricts eager target resolution to identifier/field chains. False does not reject the set rule: it preserves later legacy routing and avoids evaluating arbitrary expressions during a feature/type probe.",
+      "current_complement_policy": "Ident is true; FieldAccess recursively requires its target to be a pure_path. Every listed complement Expr, including Parenthesized and calls, returns false and skips this optional target probe. Earlier false set condition must short-circuit before this classification, target/args evaluation or warnings.",
+      "evidence": [
+        "01_core/src/compiler/eval/rules/set.rs:37\u201343"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/rules/set.md:267\u2013285",
+        "00_nucleo/prompts/core/compiler/eval/rules/set.md:300\u2013324"
+      ],
+      "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Make the restricted syntax grammar a closed Expr classification, with FieldAccess recursion explicit. Preserve non-pure-path routing and pure-path resolution errors; do not broaden to apparently harmless Parenthesized/CodeBlock or execute calls in a classifier without fresh language evidence.",
+      "planned_tests_and_refuters": [
+        "False condition suppresses missing target errors, feature lookup, args/effects and warnings.",
+        "True pure identifier/field chain propagates missing-variable/field errors; non-pure effectful target preserves existing evaluation count and legacy route.",
+        "Parenthesized alias/control is measured separately before any admission expansion."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [],
+      "dependencies": [
+        "Feature-gate causal continuation and typed set target owners"
+      ],
+      "adr_0127": {
+        "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+        "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/rules/set.rs:37\u201343"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/rules/set.md:267\u2013285",
+      "00_nucleo/prompts/core/compiler/eval/rules/set.md:300\u2013324"
+    ],
+    "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Make the restricted syntax grammar a closed Expr classification, with FieldAccess recursion explicit. Preserve non-pure-path routing and pure-path resolution errors; do not broaden to apparently harmless Parenthesized/CodeBlock or execute calls in a classifier without fresh language evidence.",
+    "proposed_tests": [
+      "False condition suppresses missing target errors, feature lookup, args/effects and warnings.",
+      "True pure identifier/field chain propagates missing-variable/field errors; non-pure effectful target preserves existing evaluation count and legacy route.",
+      "Parenthesized alias/control is measured separately before any admission expansion."
+    ],
+    "gate": {
+      "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+      "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility.",
+      "probes_needed": [],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "Feature-gate causal continuation and typed set target owners"
+    ]
+  },
+  {
+    "id": "V16-026",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "query_selector_to_show::kind_to_node",
+    "classification": "closed legacy admission with semantic scope investigation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-026",
+      "file": "01_core/src/compiler/eval/selector_matching.rs",
+      "line": 41,
+      "column": 13,
+      "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `None` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+      "source_sha256": "b7c0f1d5c09834ea7ed13a7d7ec130aa84b45ab388c4c1f28dd88da05bc972ee",
+      "l0_sha256": "c4ad701548fc61686a36228ec13555801ab4d82e1ccd25cdbbede87a8ccef74e",
+      "effective_prompt_seal": "0bc7d49d",
+      "partition": "eval-realize",
+      "function": "query_selector_to_show::kind_to_node",
+      "function_source_range": "01_core/src/compiler/eval/selector_matching.rs:31\u201343",
+      "scrutinee": "kind",
+      "enum_domain": "ElementKind",
+      "handled_variants": [
+        "Heading",
+        "Figure",
+        "Link",
+        "Raw",
+        "Quote",
+        "Footnote",
+        "List",
+        "Enum"
+      ],
+      "current_nominal_complement": [
+        "Citation",
+        "Metadata",
+        "State",
+        "StateUpdate",
+        "Outline",
+        "OutlineEntry",
+        "Bibliography",
+        "Equation",
+        "CounterUpdate",
+        "Table",
+        "Par",
+        "StateDisplay",
+        "CounterDisplay",
+        "ContextBlock"
+      ],
+      "guard_refusals_and_preconditions": [],
+      "classification": "closed legacy admission with semantic scope investigation",
+      "concrete_root_cause": "The legacy Kind-to-show bridge supports eight kinds and rejects all others, including Equation/Par for which NodeKind exists. A different native-selector path supports more identities. The mismatch is a language admission question, not grounds to make all 22 kinds showable.",
+      "current_complement_policy": "Exactly the 14 listed complement kinds return None and trigger selector de kind '{}' n\u00e3o \u00e9 suportado em show rule in the caller. NativeElement is converted directly outside this bridge. Existing L0 explicitly scoped the earlier native-base exhaustiveness repair away from kind_to_node/query conversion; it did not approve expanded legacy Kind admission.",
+      "evidence": [
+        "01_core/src/compiler/eval/selector_matching.rs:31\u201343",
+        "01_core/src/entities/show.rs:25",
+        "01_core/src/compiler/eval/selector_matching.rs:19\u201365"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/selector_matching.md:41\u201377",
+        "00_nucleo/prompts/core/compiler/eval/selector_matching.md:192\u2013222"
+      ],
+      "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Close the legacy bridge with explicit supported and rejected kind families plus their current diagnostic. Independently compare measured query-Kind versus direct native show syntax for candidate Equation/Par/Table/etc; if additional admission is a real gap, update the bridge owner contract and classify the compatibility/default implications before adding mappings.",
+      "planned_tests_and_refuters": [
+        "Eight admitted Kind selectors preserve show matches and direct native equivalence where already prescribed.",
+        "Each unsupported semantic family retains the exact quoted Portuguese diagnostic until an evidence-backed decision changes it.",
+        "Alias and conversion cases must not use public spelling as native identity."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [
+        "Current-pin language equivalence of legacy Kind-produced selector and direct native selector for Equation/Par/Table and rejected state/context families."
+      ],
+      "dependencies": [
+        "V16-007",
+        "V16-027",
+        "Legacy query-to-show conversion owner"
+      ],
+      "adr_0127": {
+        "classification": "Split work: internal exhaustiveness/transport correction within an already ratified contract can use continuous flow; any new language admission/default, public entity/API, phase, or compatibility change must first be classified under ADR-0127.",
+        "approval_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/selector_matching.rs:31\u201343",
+      "01_core/src/entities/show.rs:25",
+      "01_core/src/compiler/eval/selector_matching.rs:19\u201365"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/selector_matching.md:41\u201377",
+      "00_nucleo/prompts/core/compiler/eval/selector_matching.md:192\u2013222"
+    ],
+    "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. Close the legacy bridge with explicit supported and rejected kind families plus their current diagnostic. Independently compare measured query-Kind versus direct native show syntax for candidate Equation/Par/Table/etc; if additional admission is a real gap, update the bridge owner contract and classify the compatibility/default implications before adding mappings.",
+    "proposed_tests": [
+      "Eight admitted Kind selectors preserve show matches and direct native equivalence where already prescribed.",
+      "Each unsupported semantic family retains the exact quoted Portuguese diagnostic until an evidence-backed decision changes it.",
+      "Alias and conversion cases must not use public spelling as native identity."
+    ],
+    "gate": {
+      "classification": "Split work: internal exhaustiveness/transport correction within an already ratified contract can use continuous flow; any new language admission/default, public entity/API, phase, or compatibility change must first be classified under ADR-0127.",
+      "approval_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions.",
+      "probes_needed": [
+        "Current-pin language equivalence of legacy Kind-produced selector and direct native selector for Equation/Par/Table and rejected state/context families."
+      ],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "V16-007",
+      "V16-027",
+      "Legacy query-to-show conversion owner"
+    ]
+  },
+  {
+    "id": "V16-027",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "native_element_matches",
+    "classification": "mixed native selection coverage debt and structural obligation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-027",
+      "file": "01_core/src/compiler/eval/selector_matching.rs",
+      "line": 362,
+      "column": 9,
+      "message": "wildcard `_ =>` descarta informa\u00e7\u00e3o com default neutro `false` em enum de dom\u00ednio",
+      "owner": "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+      "source_sha256": "b7c0f1d5c09834ea7ed13a7d7ec130aa84b45ab388c4c1f28dd88da05bc972ee",
+      "l0_sha256": "c4ad701548fc61686a36228ec13555801ab4d82e1ccd25cdbbede87a8ccef74e",
+      "effective_prompt_seal": "0bc7d49d",
+      "partition": "eval-realize",
+      "function": "native_element_matches",
+      "function_source_range": "01_core/src/compiler/eval/selector_matching.rs:262\u2013364",
+      "scrutinee": "content after function ABI and node_kinds fast paths",
+      "enum_domain": "Content",
+      "handled_variants": [
+        "Source",
+        "ShowRecipe",
+        "Located",
+        "Realized",
+        "Styled",
+        "Empty",
+        "Sequence",
+        "Equation",
+        "Text",
+        "Table",
+        "Grid",
+        "Metadata",
+        "Terms",
+        "Outline",
+        "OutlineEntry",
+        "Cite",
+        "Bibliography",
+        "Ref",
+        "Image",
+        "Align",
+        "Block",
+        "Boxed",
+        "Columns",
+        "Pad",
+        "Place",
+        "Hide",
+        "Repeat",
+        "Stack",
+        "HSpace",
+        "VSpace",
+        "Pagebreak",
+        "Colbreak",
+        "Linebreak",
+        "Parbreak",
+        "SmartQuote",
+        "TableHeader",
+        "TableFooter",
+        "TableHLine",
+        "TableVLine",
+        "TableCell",
+        "GridHeader",
+        "GridFooter",
+        "GridHLine",
+        "GridVLine",
+        "GridCell",
+        "Shape",
+        "Transform"
+      ],
+      "current_nominal_complement": [
+        "Space",
+        "SpaceFromNewline",
+        "HtmlElem",
+        "HtmlFrame",
+        "Par",
+        "Heading",
+        "Title",
+        "Strong",
+        "Emph",
+        "Raw",
+        "ListItem",
+        "EnumItem",
+        "Link",
+        "MathSequence",
+        "MathIdent",
+        "MathText",
+        "MathFrac",
+        "MathAttach",
+        "MathPrimes",
+        "MathRoot",
+        "MathStretch",
+        "MathDelimited",
+        "MathLr",
+        "MathMid",
+        "MathOverbrace",
+        "MathUnderbrace",
+        "MathUnderbracket",
+        "MathUnderparen",
+        "MathUndershell",
+        "MathOverbracket",
+        "MathOverparen",
+        "MathOvershell",
+        "MathAlignPoint",
+        "MathMatrix",
+        "MathCases",
+        "MathAccent",
+        "MathCancel",
+        "MathUnderline",
+        "MathOverline",
+        "MathVec",
+        "MathClassOverride",
+        "MathLimitsOverride",
+        "MathUnderover",
+        "MathOp",
+        "MathStyled",
+        "Label",
+        "CounterDisplay",
+        "CounterUpdate",
+        "Figure",
+        "FigureCaption",
+        "Curve",
+        "SetPage",
+        "PageRun",
+        "Flush",
+        "Divider",
+        "TermItem",
+        "Quote",
+        "Document",
+        "Asset",
+        "PdfAttach",
+        "PdfArtifact",
+        "Underline",
+        "Strike",
+        "Overline",
+        "SmallCaps",
+        "Footnote",
+        "FootnoteEntry",
+        "State",
+        "StateUpdate",
+        "StateDisplay",
+        "CounterDisplayCallback",
+        "ContextBlock",
+        "Dynamic"
+      ],
+      "guard_refusals_and_preconditions": [
+        "Styled with a non-Equation callback falls into final false.",
+        "Function/ABI early returns and nineteen NodeKind delegations constrain reachability of every Content arm."
+      ],
+      "classification": "mixed native selection coverage debt and structural obligation",
+      "concrete_root_cause": "The final false hides heterogeneous negative domains: identities already handled by an earlier function-specific NodeKind route, opaque Styled guard failures, erased legacy representations, internal nodes, and existing native identities without a Content mapping. Catalogue coverage is explicitly not certification of every selection/show/query surface.",
+      "current_complement_policy": "NativeWithEngine returns early: native_page matches only PageRun, with no carrier descent inside that branch. Other non-address Func representations return false. Nineteen recognized typed callbacks delegate NodeKind before this Content match. Remaining handled nodes compare actual callbacks; Source/ShowRecipe/Located body and Realized visual recurse; Styled recurses only for native_math_equation. Shape is explicitly false due to erased constructor identity; Transform::Matrix false, four typed operations match their native callbacks. Every listed final complement is false on the remaining path; many Math* and newer native element representations need individual coverage decisions, not inferred rejection intent.",
+      "evidence": [
+        "01_core/src/compiler/eval/selector_matching.rs:262\u2013364",
+        "01_core/src/compiler/eval/bindings/value_methods/element_where.rs:112",
+        "01_core/src/compiler/eval/bindings/value_methods/element_where.rs:173",
+        "01_core/src/entities/func.rs:338\u2013364"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/selector_matching.md:41\u201377",
+        "00_nucleo/prompts/core/compiler/eval/selector_matching.md:79\u2013106",
+        "00_nucleo/prompts/core/compiler/eval/selector_matching.md:129\u2013149",
+        "00_nucleo/prompts/core/compiler/eval/selector_matching.md:154\u2013165",
+        "00_nucleo/prompts/core/compiler/eval/selector_matching.md:179\u2013190",
+        "00_nucleo/prompts/core/compiler/eval/selector_matching.md:243\u2013259"
+      ],
+      "proposed_repair": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. First produce an identity/representation matrix for all current Content and admitted Func ABI families, recording early-return routes. Close the decision while preserving proved negatives (nonmatching callback, genuinely internal node, erased Shape/Matrix identity) and carrier/Equation/Cell/Sequence/typed-transform contracts. For candidate Math*/Document/asset/HTML/page gaps write language refuters and update only the proven owner-prescribed mapping; do not match names, infer erased identity, or equate catalogue membership with full selector support.",
+      "planned_tests_and_refuters": [
+        "Bare native and aliases versus homonymous unrelated callbacks; native table/grid cell/header identities remain distinct.",
+        "Carrier transparency tests distinguish body/visual from hidden Realized.original, including an engine-native page snapshot route.",
+        "MathFrac/Root/Matrix and other admitted native identities are tested through actual show/query/where phases; unsupported morphology or phase makes a case Unknown rather than success.",
+        "Shape and legacy matrix retain explicit identity ambiguity; no geometric reconstruction."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [
+        "Current-pin language matching for native identities whose catalogue contract excludes realized selection certification, including engine-native page through causal carriers and mathematical native identities."
+      ],
+      "dependencies": [
+        "V16-003",
+        "V16-006",
+        "V16-019",
+        "V16-026",
+        "Native catalogue/element and realization owners"
+      ],
+      "adr_0127": {
+        "classification": "Split work: internal exhaustiveness/transport correction within an already ratified contract can use continuous flow; any new language admission/default, public entity/API, phase, or compatibility change must first be classified under ADR-0127.",
+        "approval_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/selector_matching.rs:262\u2013364",
+      "01_core/src/compiler/eval/bindings/value_methods/element_where.rs:112",
+      "01_core/src/compiler/eval/bindings/value_methods/element_where.rs:173",
+      "01_core/src/entities/func.rs:338\u2013364"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/selector_matching.md:41\u201377",
+      "00_nucleo/prompts/core/compiler/eval/selector_matching.md:79\u2013106",
+      "00_nucleo/prompts/core/compiler/eval/selector_matching.md:129\u2013149",
+      "00_nucleo/prompts/core/compiler/eval/selector_matching.md:154\u2013165",
+      "00_nucleo/prompts/core/compiler/eval/selector_matching.md:179\u2013190",
+      "00_nucleo/prompts/core/compiler/eval/selector_matching.md:243\u2013259"
+    ],
+    "correction": "Give each current nominal variant an explicit semantic disposition in this owner, retaining a closed match at the actual decision. Group only variants with the rationale stated here; move payload guards inside their nominal arm so a rejected guard has a reviewed result. First produce an identity/representation matrix for all current Content and admitted Func ABI families, recording early-return routes. Close the decision while preserving proved negatives (nonmatching callback, genuinely internal node, erased Shape/Matrix identity) and carrier/Equation/Cell/Sequence/typed-transform contracts. For candidate Math*/Document/asset/HTML/page gaps write language refuters and update only the proven owner-prescribed mapping; do not match names, infer erased identity, or equate catalogue membership with full selector support.",
+    "proposed_tests": [
+      "Bare native and aliases versus homonymous unrelated callbacks; native table/grid cell/header identities remain distinct.",
+      "Carrier transparency tests distinguish body/visual from hidden Realized.original, including an engine-native page snapshot route.",
+      "MathFrac/Root/Matrix and other admitted native identities are tested through actual show/query/where phases; unsupported morphology or phase makes a case Unknown rather than success.",
+      "Shape and legacy matrix retain explicit identity ambiguity; no geometric reconstruction."
+    ],
+    "gate": {
+      "classification": "Split work: internal exhaustiveness/transport correction within an already ratified contract can use continuous flow; any new language admission/default, public entity/API, phase, or compatibility change must first be classified under ADR-0127.",
+      "approval_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "The current fallback is evidence of implementation only. Obtain current-pin language/source evidence before a semantic decision; stop for human confirmation if the measured repair falls in a gated class. Existing bounded receipts do not approve all catalogue/representation extensions.",
+      "probes_needed": [
+        "Current-pin language matching for native identities whose catalogue contract excludes realized selection certification, including engine-native page through causal carriers and mathematical native identities."
+      ],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "V16-003",
+      "V16-006",
+      "V16-019",
+      "V16-026",
+      "Native catalogue/element and realization owners"
+    ]
+  },
+  {
+    "id": "V16-028",
+    "batch": "C",
+    "status": "open; plan only",
+    "function": "native_element_field",
+    "classification": "structural domain obligation",
+    "report": "eval-realize-analysis.md",
+    "analysis": {
+      "id": "V16-028",
+      "file": "01_core/src/compiler/eval/selector_matching.rs",
+      "line": 380,
+      "column": 9,
+      "message": "wildcard `_ =>` delega decis\u00e3o para `content.get_field(field)`",
+      "owner": "00_nucleo/prompts/core/compiler/eval/selector_matching.md",
+      "source_sha256": "b7c0f1d5c09834ea7ed13a7d7ec130aa84b45ab388c4c1f28dd88da05bc972ee",
+      "l0_sha256": "c4ad701548fc61686a36228ec13555801ab4d82e1ccd25cdbbede87a8ccef74e",
+      "effective_prompt_seal": "0bc7d49d",
+      "partition": "eval-realize",
+      "function": "native_element_field",
+      "function_source_range": "01_core/src/compiler/eval/selector_matching.rs:367\u2013382",
+      "scrutinee": "(content, field: &str)",
+      "enum_domain": "Content",
+      "handled_variants": [
+        "Text",
+        "Raw",
+        "Styled"
+      ],
+      "current_nominal_complement": [
+        "Source",
+        "ShowRecipe",
+        "Realized",
+        "Located",
+        "Empty",
+        "Space",
+        "SpaceFromNewline",
+        "Parbreak",
+        "Sequence",
+        "HtmlElem",
+        "HtmlFrame",
+        "Par",
+        "Heading",
+        "Title",
+        "Strong",
+        "Emph",
+        "ListItem",
+        "EnumItem",
+        "Link",
+        "Equation",
+        "MathSequence",
+        "MathIdent",
+        "MathText",
+        "MathFrac",
+        "MathAttach",
+        "MathPrimes",
+        "MathRoot",
+        "MathStretch",
+        "MathDelimited",
+        "MathLr",
+        "MathMid",
+        "MathOverbrace",
+        "MathUnderbrace",
+        "MathUnderbracket",
+        "MathUnderparen",
+        "MathUndershell",
+        "MathOverbracket",
+        "MathOverparen",
+        "MathOvershell",
+        "MathAlignPoint",
+        "Linebreak",
+        "MathMatrix",
+        "MathCases",
+        "MathAccent",
+        "MathCancel",
+        "MathUnderline",
+        "MathOverline",
+        "MathVec",
+        "MathClassOverride",
+        "MathLimitsOverride",
+        "MathUnderover",
+        "MathOp",
+        "MathStyled",
+        "Label",
+        "Ref",
+        "CounterDisplay",
+        "CounterUpdate",
+        "Outline",
+        "OutlineEntry",
+        "Figure",
+        "FigureCaption",
+        "Image",
+        "Shape",
+        "Curve",
+        "Transform",
+        "Grid",
+        "GridHeader",
+        "GridFooter",
+        "GridCell",
+        "SetPage",
+        "PageRun",
+        "Align",
+        "Place",
+        "Flush",
+        "Divider",
+        "Terms",
+        "TermItem",
+        "Quote",
+        "Document",
+        "Asset",
+        "SmartQuote",
+        "PdfAttach",
+        "PdfArtifact",
+        "Underline",
+        "Strike",
+        "Overline",
+        "SmallCaps",
+        "Pad",
+        "Hide",
+        "HSpace",
+        "VSpace",
+        "Pagebreak",
+        "Colbreak",
+        "Stack",
+        "Boxed",
+        "Block",
+        "TableCell",
+        "Bibliography",
+        "Cite",
+        "Footnote",
+        "FootnoteEntry",
+        "TableHeader",
+        "TableFooter",
+        "GridHLine",
+        "GridVLine",
+        "TableHLine",
+        "TableVLine",
+        "Table",
+        "Repeat",
+        "Columns",
+        "Metadata",
+        "State",
+        "StateUpdate",
+        "StateDisplay",
+        "CounterDisplayCallback",
+        "ContextBlock",
+        "Dynamic"
+      ],
+      "guard_refusals_and_preconditions": [
+        "Current nominal complement list excludes Text/Raw/Styled, but same-variant unmatched field strings and the Styled guard refusal also delegate."
+      ],
+      "classification": "structural domain obligation",
+      "concrete_root_cause": "The wildcard delegates to the existing semantic getter; it does not discard a field. The match mixes a closed Content axis with an OPEN string axis, so pretending all field names form a finite enum is wrong.",
+      "current_complement_policy": "Text.text and Raw.text/lang/block use direct lexical getters; Styled.body is special only when is_styled_origin admits it. The complement includes all other Content variants, all other field strings on Text/Raw, and Styled guard refusal; each delegates content.get_field(field). An authoritative Some fields snapshot in element_selector_matches is checked before this helper and never falls back when a key is absent.",
+      "evidence": [
+        "01_core/src/compiler/eval/selector_matching.rs:367\u2013382",
+        "01_core/src/compiler/eval/selector_matching.rs:385\u2013405"
+      ],
+      "owning_l0_clauses": [
+        "00_nucleo/prompts/core/compiler/eval/selector_matching.md:41\u201377",
+        "00_nucleo/prompts/core/compiler/eval/selector_matching.md:79\u2013106"
+      ],
+      "proposed_repair": "Close the Content axis with per-family field checks inside Text/Raw/Styled arms and a reviewed semantic-getter delegation for every other family. Keep field strings open, preserve Option/presence semantics and the Some snapshot barrier; no blanket new field schema or eager callback evaluation.",
+      "planned_tests_and_refuters": [
+        "Text/Raw lexical field filters and unknown names, Styled body guard accepted/refused, fields supplied versus absent snapshot.",
+        "A missing key in Some snapshot stays missing even when get_field could return a default; None snapshot may use existing getter."
+      ],
+      "exhaustiveness_refuter": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+      "oracle_probes_needed": [],
+      "dependencies": [
+        "V16-001",
+        "Content getter/presence owners"
+      ],
+      "adr_0127": {
+        "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+        "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+      },
+      "repair_constraints": [
+        "Do not suppress V16, weaken the nucleus, hide the same open fallback in if let/matches!/a helper, or assign unmeasured semantics to a complement. Keep any justified uniform complement explicit and visible to V19.",
+        "Open field names may retain a local string fallback; the closed enum decision must not be hidden inside it."
+      ],
+      "analysis_status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "source_evidence": [
+      "01_core/src/compiler/eval/selector_matching.rs:367\u2013382",
+      "01_core/src/compiler/eval/selector_matching.rs:385\u2013405"
+    ],
+    "l0_evidence": [
+      "00_nucleo/prompts/core/compiler/eval/selector_matching.md:41\u201377",
+      "00_nucleo/prompts/core/compiler/eval/selector_matching.md:79\u2013106"
+    ],
+    "correction": "Close the Content axis with per-family field checks inside Text/Raw/Styled arms and a reviewed semantic-getter delegation for every other family. Keep field strings open, preserve Option/presence semantics and the Some snapshot barrier; no blanket new field schema or eager callback evaluation.",
+    "proposed_tests": [
+      "Text/Raw lexical field filters and unknown names, Styled body guard accepted/refused, fields supplied versus absent snapshot.",
+      "A missing key in Some snapshot stays missing even when get_field could return a default; None snapshot may use existing getter."
+    ],
+    "gate": {
+      "classification": "Internal closed-domain classification preserving the current language decisions; continuous flow after updating the owning L0 and valid graph/resealing.",
+      "approval_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility."
+    },
+    "uncertainty": {
+      "gate_uncertainty": "No separate approval for that bounded structural repair. Reclassify and stop if resolving a listed uncertainty changes a public contract, default product behavior, pipeline phase, or compatibility.",
+      "probes_needed": [],
+      "status": "Plan only; no code/spec/config changes and no tests or oracle probes executed."
+    },
+    "structural_proof": "After an L0-first repair, a temporary compile-negative addition of a variant to the stated closed enum must fail at this decision until its semantic policy is reviewed. For a pair, cover each axis; for guarded variants, exercise the rejected guard as well as the accepted one. This is a proposed future check, not executed here.",
+    "dependencies": [
+      "V16-001",
+      "Content getter/presence owners"
+    ]
+  }
+]

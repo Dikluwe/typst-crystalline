@@ -1,0 +1,10 @@
+# Cross-review of batch C draft contracts and controls
+
+Read-only review after structural baseline attempt 2, before productive implementation.
+The coordinator owns the source freeze and command receipts; this review is not a test run.
+
+- The display controls drive the actual markup, CodeBlock-tail and math entry routes with an existing LocatedContent value. Independent Heading/Strong counts and body text distinguish rich transport from repr output. Oracle query probes support real-language reachability; injected carriers alone do not certify query completion.
+- The warning controls exercise actual unconditional-return diagnostics, preserving the ordinary hint and invalid-return error. Opaque context with panic stays unexecuted. The newer Metadata content/array/dict evidence requires separate tests and a closed Value scan, as the shared static Content traversal treats Metadata as a leaf.
+- The paragraph evidence explicitly retracts the initial duplicate-effect hypothesis: extra paragraphs contain spaces. That fixture cannot justify blindly unwrapping Located/Realized; actual flow with distinct original/visual inputs is still required.
+- Selector operands and receiver admission must remain separate: broader operand conversion cannot make a String or arbitrary Value a method receiver or run its arguments. Draft L0 and negative panic-argument tests address this.
+- Actionable identity issue: draft equality L0 treats Native and Format through the plain callback. `01_core/src/entities/func.rs:352` intentionally erases FormatElementKind in native_fn_addr, and existing formats share a callback. The `typed-witness` and `observation-witness` claims in `00_nucleo/prompts/_nuclei/selectors/format-native-identity.toml` require the nominal witness. Before closing the native identity relation, measure distinct-format selectors and aliases, then preserve that witness or document the retained debt without certifying pointer-only identity. This was sent to the coordinator before implementation.
